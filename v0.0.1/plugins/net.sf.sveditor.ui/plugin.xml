@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="net.sf.sveditor.ui.editor.SVEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            icon="icons/vlog_16_16.gif"
+            id="net.sf.sveditor.ui.editor"
+            name="SystemVerilog Editor">
+         <contentTypeBinding
+               contentTypeId="net.sf.sveditor.core.systemverilog">
+         </contentTypeBinding>
+         <contentTypeBinding
+               contentTypeId="net.sf.sveditor.core.verilog">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="net.sf.sveditor.ui.editor.SVDocumentSetupParticipant"
+            extensions="sv, svh, v, vl, vlog, vh">
+      </participant>
+   </extension>
+   <extension
+         id="net.sf.sveditor.ui.SVNavigatorContent"
+         name="SystemVerilog Navigator Content"
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            activeByDefault="true"
+            contentProvider="net.sf.sveditor.ui.explorer.SVFileNavigatorContentProvider"
+            icon="icons/vlog_16_16.gif"
+            id="net.sf.sveditor.ui.svFileNavigatorContent"
+            labelProvider="net.sf.sveditor.ui.svcp.SVTreeLabelProvider"
+            name="SystemVerilog File"
+            priority="normal"
+            providesSaveables="false">
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+                  <or>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="svh">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="sv">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="v">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="vlog">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="vl">
+                     </test>
+                  </or>
+               </and>
+               <instanceof
+                     value="net.sf.sveditor.core.db.SVDBItem">
+               </instanceof>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <instanceof
+                  value="net.sf.sveditor.core.db.SVDBItem">
+            </instanceof>
+         </possibleChildren>
+         <commonSorter
+               class="net.sf.sveditor.ui.explorer.SVFileSorter">
+         </commonSorter>
+      </navigatorContent>
+   </extension>
+   <extension
+         id="net.sf.sveditor.ui.SVNavigatorContentBinding"
+         name="SystemVerilog Navigator Content Binding"
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension
+                  isRoot="false"
+                  pattern="net.sf.sveditor.ui.svFileNavigatorContent">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+
+</plugin>
