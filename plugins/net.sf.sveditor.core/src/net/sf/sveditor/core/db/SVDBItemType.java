@@ -9,5 +9,7 @@ public enum SVDBItemType {
 	Function,
 	VarDecl,
 	TaskFuncParam,
-	Macro
+	Macro,
+	Include,
+	PackageDecl
 }

@@ -81,5 +81,10 @@ public interface ISVScannerObserver {
 	void preproc_define(String key, List<String> params, String value);
 	
 	void preproc_include(String path);
+	
+	
+	void enter_package(String name);
+	
+	void leave_package();
 			
 }

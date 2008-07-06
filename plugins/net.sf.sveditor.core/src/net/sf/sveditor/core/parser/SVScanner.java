@@ -20,6 +20,7 @@ import net.sf.sveditor.core.StringInputStream;
  * - Add covergroup as second-level scope
  * * Handle qualifiers (virtual) on classes
  * - Templates for class members
+ * - Handle structures
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
@@ -218,8 +219,10 @@ public class SVScanner implements ISVScanner {
 			System.out.println("def value: \"" + val + "\"");
 
 			if (val != null) {
-				fInputStack.peek().pushUnaccContent(val);
+				fInputStack.peek().pushUnaccContent(val + "\n");
 			}
+			
+			fNewStatement = true;
 		}
 	}
 	
@@ -551,7 +554,15 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private void process_package(String id) throws EOFException {
-		System.out.println("TODO: package => " + id);
+		if (id.equals("package")) {
+			int ch = skipWhite(next_ch());
+			String pkg = readQualifiedIdentifier(ch);
+			fObserver.enter_package(pkg);
+		} else {
+			if (fObserver != null) {
+				fObserver.leave_package();
+			}
+		}
 	}
 	
 	private void handle_leave_scope() {
@@ -890,7 +901,25 @@ public class SVScanner implements ISVScanner {
 		
 		return ret.toString();
 	}
-	
+
+	private String readImportSpec(int ci) throws EOFException {
+		if (!Character.isJavaIdentifierStart(ci)) {
+			unget_ch(ci);
+			return null;
+		}
+		StringBuffer ret = new StringBuffer();
+		
+		ret.append((char)ci);
+		
+		while ((ci = get_ch()) != -1 && 
+				(Character.isJavaIdentifierPart(ci) || ci == ':' || ci == '*')) {
+			ret.append((char)ci);
+		}
+		unget_ch(ci);
+		
+		return ret.toString();
+	}
+
 	private boolean isBuiltInType(String id) {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||

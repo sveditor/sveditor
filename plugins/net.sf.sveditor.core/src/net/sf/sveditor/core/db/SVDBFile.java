@@ -8,23 +8,16 @@ public class SVDBFile extends SVDBScopeItem {
 	private long				fLastParseTimeStamp;
 	private File				fFile;
 	private List<SVDBMacroDef>	fMacroDefs;
-	private List<String>		fInclude;
 	
 	public SVDBFile(File file) {
 		super(file.getName(), SVDBItemType.File);
 		fFile               = file;
 		fLastParseTimeStamp = fFile.lastModified();
 		fMacroDefs          = new ArrayList<SVDBMacroDef>();
-		fInclude            = new ArrayList<String>();
 	}
 	
 	public List<SVDBMacroDef> getMacroDefs() {
 		return fMacroDefs;
-	}
-	
-	public
-	List<String> getIncludes() {
-		return fInclude;
 	}
 	
 	public boolean isUpToDate() {
@@ -35,6 +28,16 @@ public class SVDBFile extends SVDBScopeItem {
 		return fFile;
 	}
 	
+	@Override
+	public void addItem(SVDBItem item) {
+		super.addItem(item);
+		
+		if (item.getType() == SVDBItemType.Include) {
+		} else if (item.getType() == SVDBItemType.Macro) {
+			fMacroDefs.add((SVDBMacroDef)item);
+		}
+	}
+
 	public SVDBItem duplicate() {
 		SVDBFile ret = new SVDBFile(fFile);
 		

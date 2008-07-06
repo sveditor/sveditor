@@ -46,6 +46,21 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	}
 	
 	@Override
+	public void enter_package(String name) {
+		SVDBPackageDecl pkg_decl = new SVDBPackageDecl(name);
+		
+		setLocation(pkg_decl);
+
+		fScopeStack.peek().addItem(pkg_decl);
+		fScopeStack.push(pkg_decl);
+	}
+
+	@Override
+	public void leave_package() {
+		fScopeStack.pop();
+	}
+
+	@Override
 	public void import_statment(String imp) throws HaltScanException {
 		// TODO Auto-generated method stub
 		
@@ -163,14 +178,19 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	@Override
 	public void preproc_define(String key, List<String> params, String value) {
 		System.out.println("key=" + key + " value=" + value);
-		fFile.getMacroDefs().add(new SVDBMacroDef(key, params, value));
+		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
+		
+		setLocation(def);
+		
+		fFile.addItem(def);
 	}
 
 	@Override
 	public void preproc_include(String path) {
-		fFile.getIncludes().add(path);
+		SVDBInclude inc = new SVDBInclude(path);
 		
-		// TODO: search path to see if we can locate 
+		setLocation(inc);
+		fScopeStack.peek().addItem(inc);
 	}
 
 	@Override
