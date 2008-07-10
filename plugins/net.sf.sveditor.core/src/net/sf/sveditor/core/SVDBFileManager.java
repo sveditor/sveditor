@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
@@ -26,14 +27,15 @@ import org.eclipse.core.runtime.CoreException;
 public class SVDBFileManager 
 	implements IResourceChangeListener, IResourceDeltaVisitor {
 	private List<ISVDBChangeListener>				fListeners;
-	private Map<File, WeakReference<SVDBFile>>		fFileCache;
+	private WeakHashMap<File, SVDBFile>				fFileCache;
+	private WeakHashMap<File, SVDBFile>				fLiveSourceCache;
 	private Map<File, SVDBFile>						fBackupCache;
 	private IWorkspace								fWS;
 	
 	
 	public SVDBFileManager() {
 		fListeners   = new ArrayList<ISVDBChangeListener>();
-		fFileCache   = new HashMap<File, WeakReference<SVDBFile>>();
+		fFileCache   = new WeakHashMap<File, SVDBFile>();
 		fBackupCache = new HashMap<File, SVDBFile>();
 		fWS = ResourcesPlugin.getWorkspace(); 
 		
@@ -52,26 +54,44 @@ public class SVDBFileManager
 		fWS.removeResourceChangeListener(this);
 	}
 	
-	public void setLiveSource(File file, InputStream in) {
+	public void setLiveSource(File file, SVDBFile in) {
 		List<SVDBItem> adds = new ArrayList<SVDBItem>();
 		List<SVDBItem> rem  = new ArrayList<SVDBItem>();
 		List<SVDBItem> chg  = new ArrayList<SVDBItem>();
 		
-		if (fFileCache.containsKey(file) && fBackupCache.containsKey(file)) {
-			// just update the file and call the update
-		} else {
-			// Move
+		if (!fFileCache.containsKey(file) || !fBackupCache.containsKey(file)) {
+			if (!fFileCache.containsKey(file)) {
+				SVDBFile f = parseFile(file);
+				fFileCache.put(file, f);
+			}
+			
+			SVDBFile fs_file = (SVDBFile)fFileCache.get(file).duplicate();
+			fBackupCache.put(file, fs_file);
+		}
+		
+		SVDBFile pub_file = fFileCache.get(file);
+		SVDBFileMerger.merge(pub_file, in, adds, rem, chg);
+		
+		for (ISVDBChangeListener l : fListeners) {
+			l.SVDBFileChanged(pub_file, adds, rem, chg);
 		}
 	}
 	
-	public void removeLiveSource(File file, InputStream in) {
+	public void removeLiveSource(File file) {
 		List<SVDBItem> adds = new ArrayList<SVDBItem>();
 		List<SVDBItem> rem  = new ArrayList<SVDBItem>();
 		List<SVDBItem> chg  = new ArrayList<SVDBItem>();
-		
-		if (fFileCache.containsKey(file)) {
-			if (fBackupCache.containsKey(file)) {
-				
+
+		if (fBackupCache.containsKey(file)) {
+			SVDBFile bak_file = fBackupCache.get(file);
+			SVDBFile pub_file = fFileCache.get(file);
+			
+			SVDBFileMerger.merge(pub_file, bak_file, adds, rem, chg);
+
+			fBackupCache.remove(file);
+			
+			for (ISVDBChangeListener l : fListeners) {
+				l.SVDBFileChanged(pub_file, adds, rem, chg);
 			}
 		}
 	}
@@ -100,13 +120,7 @@ public class SVDBFileManager
 		}
 		
 		if (fFileCache.containsKey(file)) {
-			svdb_file = fFileCache.get(file).get();
-			
-			if (svdb_file == null) {
-				// quit, since the weak reference has expired
-				fFileCache.remove(file);
-				return true;
-			}
+			svdb_file = fFileCache.get(file);
 		}
 		
 		SVDBFile new_file = parseFile(file);
@@ -126,15 +140,12 @@ public class SVDBFileManager
 		SVDBFile ret = null;
 		
 		if (fFileCache.containsKey(f)) {
-			ret = fFileCache.get(f).get();
-			if (ret == null) {
-				fFileCache.remove(f);
-			}
+			ret = fFileCache.get(f);
 		}
 		
 		if (ret == null) {
 			ret = parseFile(f);
-			fFileCache.put(f, new WeakReference<SVDBFile>(ret));
+			fFileCache.put(f, ret);
 		}
 		
 		return ret;

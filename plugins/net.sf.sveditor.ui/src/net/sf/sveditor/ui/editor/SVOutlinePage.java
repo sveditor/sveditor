@@ -2,6 +2,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
@@ -20,6 +21,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -31,6 +33,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	private SVDBFile					fInput;
 	private SVEditor					fEditor;
 	private boolean						fIgnoreSelection = false;
+	private File						fFile;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -38,6 +41,8 @@ public class SVOutlinePage extends ContentOutlinePage
 				fEditor.getEditorInput());
 		fDoc.addDocumentListener(this);
 		fContentProvider = new SVTreeContentProvider();
+		
+		fFile = ((FileEditorInput)editor.getEditorInput()).getFile().getLocation().toFile();
 	}
 	
 	@Override
@@ -81,12 +86,17 @@ public class SVOutlinePage extends ContentOutlinePage
 			getTreeViewer().setInput(fInput);
 		}
 		
+		SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(fFile, fInput); 
+		
 		getTreeViewer().refresh();
 	}
 
 	public void dispose() {
 		fDoc.removeDocumentListener(this);
 		getTreeViewer().removeSelectionChangedListener(fSelectionListener);
+		
+		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
+				 
 	}
 
 	@Override

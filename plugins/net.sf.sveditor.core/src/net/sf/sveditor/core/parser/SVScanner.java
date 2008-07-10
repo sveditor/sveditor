@@ -21,6 +21,7 @@ import net.sf.sveditor.core.StringInputStream;
  * * Handle qualifiers (virtual) on classes
  * - Templates for class members
  * - Handle structures
+ * - Handle enum types
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
@@ -86,6 +87,8 @@ public class SVScanner implements ISVScanner {
 						id.equals("class")) {
 					// enter module scope
 					process_interface_module_class(id);
+				} else if (id.equals("struct")) {
+					process_struct_decl();
 				} else if (id.equals("package") || id.equals("endpackage")) {
 					process_package(id);
 				} else if (id.equals("import")) {
@@ -138,6 +141,8 @@ public class SVScanner implements ISVScanner {
 			if (fPreProcEn.size() > 0) {
 				fPreProcEn.pop();
 			}
+		} else if (type.equals("timescale")) {
+			// ignore
 		} else if (type.equals("define")) {
 			List<String> params = new ArrayList<String>();
 			
@@ -529,6 +534,8 @@ public class SVScanner implements ISVScanner {
 				fObserver.enter_interface_decl(module_type_name, ports);
 			} else if (type.equals("class")) {
 				fObserver.enter_class_decl(module_type_name, params);
+			} else if (type.equals("struct")) {
+				fObserver.enter_struct_decl(module_type_name, params);
 			}
 		}
 
@@ -551,6 +558,36 @@ public class SVScanner implements ISVScanner {
 		handle_leave_scope();
 		
 		debug("<-- process_module()");
+	}
+	
+	private void process_struct_decl() throws EOFException {
+		int ch = skipWhite(get_ch());
+		
+		while (Character.isJavaIdentifierStart(ch)) {
+			String qual = readIdentifier(ch);
+			
+			ch = skipWhite(get_ch());
+		}
+		
+		if (ch != '{') {
+			return;
+		}
+		
+		startCapture();
+		ch = skipPastMatch("{}");
+		String content = endCapture();
+		
+		// TODO: 
+		
+		ch = skipWhite(ch);
+		
+		String typename = readIdentifier(ch);
+		
+		if (fObserver != null) {
+			fObserver.enter_struct_decl(typename, null);
+		}
+		
+		System.out.println("typename=" + typename);
 	}
 	
 	private void process_package(String id) throws EOFException {
@@ -580,6 +617,8 @@ public class SVScanner implements ISVScanner {
 					fObserver.leave_interface_decl();
 				} else if (type.equals("class")) {
 					fObserver.leave_class_decl();
+				} else if (type.equals("struct")) {
+					fObserver.leave_struct_decl();
 				} else if (type.equals("task") || type.equals("function")) {
 					fObserver.leave_task_decl();
 				}
@@ -667,6 +706,7 @@ public class SVScanner implements ISVScanner {
 		fFieldQualifers.put("rand", ISVScannerObserver.FieldAttr_Rand);
 		fFieldQualifers.put("randc", ISVScannerObserver.FieldAttr_Randc);
 		fFieldQualifers.put("extern", ISVScannerObserver.FieldAttr_Extern);
+		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("virtual", ISVScannerObserver.ParamAttr_Virtual);
@@ -799,6 +839,7 @@ public class SVScanner implements ISVScanner {
 	private boolean isFirstLevelScope(String id) {
 		return (id.equals("class") || 
 				id.equals("interface") ||
+				id.equals("struct") ||
 				id.equals("module"));
 	}
 	

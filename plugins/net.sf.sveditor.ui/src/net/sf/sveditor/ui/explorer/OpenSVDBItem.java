@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -30,6 +32,7 @@ import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.navigator.CommonActionProvider;
+import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
@@ -55,12 +58,25 @@ public class OpenSVDBItem extends CommonActionProvider {
 	@Override
 	public void fillContextMenu(IMenuManager menu) {
 		menu.add(fOpenItem);
-		
+
 		fOpenItem.selectionChanged(
 				(IStructuredSelection)getContext().getSelection());
 				
 		super.fillContextMenu(menu);
 	}
+	
+	@Override
+	public void fillActionBars(IActionBars actionBars) {
+		// TODO Auto-generated method stub
+		super.fillActionBars(actionBars);
+		actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, 
+				fOpenItem);
+		
+		fOpenItem.selectionChanged(
+				(IStructuredSelection)getContext().getSelection());
+	}
+
+
 
 	private class OpenItemAction extends SelectionListenerAction {
 		
@@ -73,13 +89,11 @@ public class OpenSVDBItem extends CommonActionProvider {
 		public void run() {
 			// TODO Auto-generated method stub
 			super.run();
-			System.out.println("run");
 			
 			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {
-				IEditorPart ed = openEditor(it);
+				IEditorPart ed_f = openEditor(it);
 
-				// Now, navigate to requested location
-				((SVEditor)ed).setSelection(it.getLocation().getLine());
+				((SVEditor)ed_f).setSelection(it.getLocation().getLine(), true);
 			}
 		}
 		
@@ -95,7 +109,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 			
 			if (p != null) {
 				File file = ((SVDBFile)p).getFilePath();
-				System.out.println("file=" + file.getAbsolutePath());
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				IFile f_l[] = root.findFilesForLocation(
 						new Path(file.getAbsolutePath()));

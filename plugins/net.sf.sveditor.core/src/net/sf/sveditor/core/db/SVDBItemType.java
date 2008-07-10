@@ -5,6 +5,7 @@ public enum SVDBItemType {
 	Module,
 	Class,
 	Interface,
+	Struct,
 	Task,
 	Function,
 	VarDecl,

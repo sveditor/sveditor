@@ -115,6 +115,23 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	}
 
 	@Override
+	public void enter_struct_decl(String name, List<SVClassIfcModParam> params) 
+		throws HaltScanException {
+		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Struct);
+		
+		fScopeStack.peek().addItem(decl);
+		fScopeStack.push(decl);
+		
+		setLocation(decl);
+	}
+
+	@Override
+	public void leave_struct_decl() throws HaltScanException {
+		fScopeStack.pop();
+	}
+
+	@Override
 	public void enter_task_decl(String name, int attr, List<SVTaskFuncParam> params)
 			throws HaltScanException {
 		SVDBTaskFuncScope task = new SVDBTaskFuncScope(name, SVDBItemType.Task);

@@ -48,6 +48,7 @@ public class SVEditor extends TextEditor {
 					this);
 		}
 		
+		fOutline = new SVOutlinePage(this);
 		
 		/**
 		 * Add semantic highlighting
@@ -56,23 +57,23 @@ public class SVEditor extends TextEditor {
 	}
 	
 	public void setSelection(int lineno) {
-		/*
-		ISourceViewer viewer = getSourceViewer();
-		viewer.setSelectedRange(offset, length);
-		viewer.revealRange(offset, length);
-		 */
-//		ITextViewerExtension5 ext = (ITextViewerExtension5)getSourceViewer();
-//		ext.exposeModelRange()
-		
+		setSelection(lineno, false);
+	}
+	
+	public void setSelection(int lineno, boolean set_cursor) {
 		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 		try {
 			int offset = doc.getLineOffset(lineno);
 			setHighlightRange(offset, 1, false);
+			if (set_cursor) {
+				getSourceViewer().getTextWidget().setCaretOffset(offset);
+			}
 			getSourceViewer().revealRange(offset, 1);
 		} catch (BadLocationException e) {
+			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {

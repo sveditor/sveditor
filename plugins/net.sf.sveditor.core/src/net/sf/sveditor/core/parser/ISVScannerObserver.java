@@ -12,6 +12,7 @@ public interface ISVScannerObserver {
 	int FieldAttr_Virtual			= (1 << 5);
 	int FieldAttr_Automatic         = (1 << 6);
 	int FieldAttr_Extern            = (1 << 7);
+	int FieldAttr_Const             = (1 << 8);
 	
 	int ParamAttr_Virtual           = (1 << 0);
 	int ParamAttr_Ref               = (1 << 1);
@@ -50,6 +51,11 @@ public interface ISVScannerObserver {
 			List<SVClassIfcModParam>	params) throws HaltScanException;
 			
 	
+	void enter_struct_decl(
+			String						name,
+			List<SVClassIfcModParam>	params) throws HaltScanException;
+	
+	void leave_struct_decl();
 	/**
 	 * Handles all 
 	 * @param type

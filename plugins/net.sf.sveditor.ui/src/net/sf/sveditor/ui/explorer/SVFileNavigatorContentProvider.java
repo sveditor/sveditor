@@ -86,6 +86,8 @@ public class SVFileNavigatorContentProvider
 	}
 	
 	public void run() {
-		fViewer.refresh();
+		if (!fViewer.getControl().isDisposed()) {
+			fViewer.refresh();
+		}
 	}
 }

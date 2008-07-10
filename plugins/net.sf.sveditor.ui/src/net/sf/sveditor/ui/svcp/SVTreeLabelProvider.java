@@ -31,6 +31,7 @@ public class SVTreeLabelProvider extends LabelProvider {
 		fImgDescMap.put(SVDBItemType.Macro, obj_icons + "define_obj.gif");
 		fImgDescMap.put(SVDBItemType.Include, obj_icons + "include_obj.gif");
 		fImgDescMap.put(SVDBItemType.PackageDecl, obj_icons + "package.gif");
+		fImgDescMap.put(SVDBItemType.Struct, obj_icons + "struct_obj.gif");
 	}
 
 	@Override
