@@ -2,8 +2,14 @@ package net.sf.sveditor.ui.editor;
 
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -18,6 +24,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
 public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	private SVEditor				fEditor;
+	private ContentAssistant		fContentAssist;
 	
 	public SVSourceViewerConfiguration(SVEditor editor) {
 		fEditor = editor;
@@ -30,6 +37,40 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return super.getAutoEditStrategies(sourceViewer, contentType);
 	}
 	
+	
+	
+	
+	@Override
+	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+		
+		if (fContentAssist == null) {
+			fContentAssist = new ContentAssistant();
+			fContentAssist.addCompletionListener(new ICompletionListener() {
+
+				@Override
+				public void assistSessionEnded(ContentAssistEvent event) {
+					System.out.println("assistSessionEnded()");
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void assistSessionStarted(ContentAssistEvent event) {
+					System.out.println("assistSessionStarted()");
+				}
+
+				@Override
+				public void selectionChanged(ICompletionProposal proposal,
+						boolean smartToggle) {
+					System.out.println("assistSessionChanged()");
+				}
+			});
+		}
+		
+		return fContentAssist;
+	}
+	
+
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer viewer) {
 		return new String[] {

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,11 +23,25 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
+/**
+ * Manager for SVDBFile objects. Caches a collection of active 
+ * files. This object is effectively a singleton in practice.
+ * <br>
+ * <br>
+ * The SVDBFileManager provides notification to listeners when an active
+ * file changes, and listens to Eclipse resource events.
+ * <br>
+ * <br>
+ * 
+ * TODO: need to use an Eclipse job to decouple parsing from event notification.
+ * 
+ * @author ballance
+ *
+ */
 public class SVDBFileManager 
 	implements IResourceChangeListener, IResourceDeltaVisitor {
 	private List<ISVDBChangeListener>				fListeners;
 	private WeakHashMap<File, SVDBFile>				fFileCache;
-	private WeakHashMap<File, SVDBFile>				fLiveSourceCache;
 	private Map<File, SVDBFile>						fBackupCache;
 	private IWorkspace								fWS;
 	

@@ -22,6 +22,8 @@ import net.sf.sveditor.core.StringInputStream;
  * - Templates for class members
  * - Handle structures
  * - Handle enum types
+ * - Handle export/import, "DPI-C", context as function/task qualifiers
+ * - type is always <type> <qualifier>, so no need to handle complex ordering
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
@@ -964,7 +966,8 @@ public class SVScanner implements ISVScanner {
 	private boolean isBuiltInType(String id) {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||
-				id.equals("bit") || id.equals("void"));
+				id.equals("bit") || id.equals("void") ||
+				id.equals("longint"));
 	}
 	
 	private String readTypeName(int ch, boolean task_func) throws EOFException {

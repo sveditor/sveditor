@@ -14,6 +14,7 @@ public class SVCorePlugin extends Plugin {
 	// The shared instance
 	private static SVCorePlugin plugin;
 	private SVDBFileManager			fSVDBMgr;
+	private SVTodoScanner			fTodoScanner;
 	
 	/**
 	 * The constructor
@@ -28,6 +29,8 @@ public class SVCorePlugin extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		
+		fTodoScanner = new SVTodoScanner();
 	}
 
 	/*
@@ -39,6 +42,9 @@ public class SVCorePlugin extends Plugin {
 		if (fSVDBMgr != null) {
 			fSVDBMgr.dispose();
 			fSVDBMgr = null;
+		}
+		if (fTodoScanner != null) {
+			fTodoScanner.dispose();
 		}
 		super.stop(context);
 	}
