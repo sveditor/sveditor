@@ -36,6 +36,7 @@ public class SVTreeLabelProvider extends LabelProvider {
 
 	@Override
 	public Image getImage(Object element) {
+		final String obj_icons = "icons/edecl16/";
 
 		if (element instanceof SVDBFieldItem) {
 			SVDBFieldItem field_item = (SVDBFieldItem)element;
@@ -49,6 +50,8 @@ public class SVTreeLabelProvider extends LabelProvider {
 				} else {
 					return getImage("icons/edecl16/field_public_obj.gif");
 				}
+			} else if (type == SVDBItemType.ModIfcInst) {
+				return getImage(obj_icons + "mod_ifc_inst.gif");
 			} else if (type == SVDBItemType.Task) {
 				if ((field_item.getAttr() & SVDBFieldItem.FieldAttr_Local) != 0) {
 					return getImage("icons/edecl16/private_co.gif");

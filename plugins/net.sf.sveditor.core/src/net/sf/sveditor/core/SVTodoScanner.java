@@ -23,7 +23,7 @@ public class SVTodoScanner implements IResourceChangeListener,
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
-		System.out.println("resourceChanged: " + event.getDelta());
+//		System.out.println("resourceChanged: " + event.getDelta());
 		if (event.getDelta() != null) {
 			try {
 				event.getDelta().accept(this);

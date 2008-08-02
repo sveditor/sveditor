@@ -14,7 +14,7 @@ import net.sf.sveditor.core.StringInputStream;
  * @author ballance
  *
  * * Handle types with form <name>::<name>
- * - Module instances
+ * * Module/Interface instances
  * * Handle non-single-word types: unsigned int/int unsigned
  * * Display bit sizes on variables: bit [4:0]
  * - Add covergroup as second-level scope
@@ -24,6 +24,7 @@ import net.sf.sveditor.core.StringInputStream;
  * - Handle enum types
  * - Handle export/import, "DPI-C", context as function/task qualifiers
  * - type is always <type> <qualifier>, so no need to handle complex ordering
+ * - handle property as second-level scope
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
@@ -812,17 +813,19 @@ public class SVScanner implements ISVScanner {
 				
 				ch = skipWhite(get_ch());
 				
+				vars.add(inst_name_or_var);
+				
 				if (ch == '(') {
+					id = ISVScannerObserver.ModIfcInstPref + id;
+					
 					// it's a module
-					debug("module instantation");
+					debug("module instantation - " + inst_name_or_var);
 					ch = skipPastMatch("()");
 					
 					if (ch == ';') {
 						unget_ch(ch);
 					}
 					break;
-				} else {
-					vars.add(inst_name_or_var);
 				}
 
 				ch = skipWhite(ch);

@@ -39,7 +39,7 @@ public class AddSystemVerilogNatureAction extends CommonActionProvider {
 	@Override
 	public void fillContextMenu(IMenuManager menu) {
 		
-		System.out.println("AddSystemVerilogNature.fillContextMenu()");
+//		System.out.println("AddSystemVerilogNature.fillContextMenu()");
 		menu.insertAfter(ICommonMenuConstants.GROUP_ADDITIONS, fAddSVNature);
 		fAddSVNature.selectionChanged(
 				(IStructuredSelection)getContext().getSelection());

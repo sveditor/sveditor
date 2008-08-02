@@ -173,11 +173,20 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	@Override
 	public void variable_decl(String type, int attr, List<String> variables)
 			throws HaltScanException {
-		for (String var : variables) {
-			SVDBVarDeclItem item = new SVDBVarDeclItem(type, var);
+		
+		if (type.startsWith(ISVScannerObserver.ModIfcInstPref)) {
+			SVDBModIfcInstItem item = new SVDBModIfcInstItem(
+					type.substring(ISVScannerObserver.ModIfcInstPref.length()),
+					variables.get(0));
 			setLocation(item);
-			item.setAttr(attr);
 			fScopeStack.peek().addItem(item);
+		} else {
+			for (String var : variables) {
+				SVDBVarDeclItem item = new SVDBVarDeclItem(type, var);
+				setLocation(item);
+				item.setAttr(attr);
+				fScopeStack.peek().addItem(item);
+			}
 		}
 	}
 

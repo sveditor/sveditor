@@ -20,6 +20,8 @@ public interface ISVScannerObserver {
 	int ParamAttr_Output			= (1 << 3);
 	int ParamAttr_Inout				= (1 << 4);
 	
+	String ModIfcInstPref           = "@@module_ifc@@";
+	
 	void error(String msg);
 	
 	void init(ISVScanner scanner);

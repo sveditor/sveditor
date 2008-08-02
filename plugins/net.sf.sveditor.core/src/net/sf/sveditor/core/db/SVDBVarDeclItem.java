@@ -1,12 +1,18 @@
 package net.sf.sveditor.core.db;
 
 public class SVDBVarDeclItem extends SVDBFieldItem {
-	private String				fTypeName;
+	protected String						fTypeName;
 	
 	public SVDBVarDeclItem(String type, String name) {
 		super(name, SVDBItemType.VarDecl);
 		fTypeName = type;
 	}
+	
+	public SVDBVarDeclItem(String type, String name, SVDBItemType itype) {
+		super(name, itype);
+		fTypeName = type;
+	}
+
 	
 	public String getTypeName() {
 		return fTypeName;
