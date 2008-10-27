@@ -22,15 +22,17 @@ public class SVPartitionScanner extends RuleBasedPartitionScanner {
 		IToken mlc = new Token(SVDocumentPartitions.SV_MULTILINE_COMMENT);
 		IToken slc = new Token(SVDocumentPartitions.SV_SINGLELINE_COMMENT);
 		IToken str = new Token(SVDocumentPartitions.SV_STRING);
+		IToken svc = new Token(SVDocumentPartitions.SV_CODE);
+		
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		
-		rules.add(new EndOfLineRule("//", slc));
-		rules.add(new SingleLineRule("\"", "\"", str, '\\'));
+		rules.add(new MultiLineRule("/*", "*/", mlc, (char)0, true));
+		rules.add(new EndOfLineRule("//", Token.UNDEFINED));
+		rules.add(new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'));
 		
 		// handle empty comments
-		rules.add(new EmptyCommentPredicateRule(mlc));
+		// rules.add(new EmptyCommentPredicateRule(mlc));
 
-		rules.add(new MultiLineRule("/*", "*/", mlc));
 
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
 		setPredicateRules(rulesArr);

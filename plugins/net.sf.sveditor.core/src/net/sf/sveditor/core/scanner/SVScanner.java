@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.parser;
+package net.sf.sveditor.core.scanner;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -17,14 +17,19 @@ import net.sf.sveditor.core.StringInputStream;
  * * Module/Interface instances
  * * Handle non-single-word types: unsigned int/int unsigned
  * * Display bit sizes on variables: bit [4:0]
- * - Add covergroup as second-level scope
+ * * Add covergroup as second-level scope
+ *     * Add rudimentary handling of coverpoint
  * * Handle qualifiers (virtual) on classes
  * - Templates for class members
  * - Handle structures
  * - Handle enum types
  * - Handle export/import, "DPI-C", context as function/task qualifiers
  * - type is always <type> <qualifier>, so no need to handle complex ordering
+ *    (eg unsigned int)
  * - handle property as second-level scope
+ * - recognize 'import'
+ * - handle class declaration within module
+ * - Handle sequence as empty construct
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
@@ -105,7 +110,7 @@ public class SVScanner implements ISVScanner {
 	private void handle_preproc_directive(String type) throws EOFException {
 		int ch = -1;
 		
-		System.out.println("preproc directive=" + type);
+//		System.out.println("preproc directive=" + type);
 		
 		if (type.equals("ifdef") || type.equals("ifndef")) {
 			StringBuffer sb = new StringBuffer();
@@ -162,7 +167,7 @@ public class SVScanner implements ISVScanner {
 			
 			String def_line = def_line_i.toString();
 			
-			System.out.println("def_line=" + def_line);
+//			System.out.println("def_line=" + def_line);
 			
 			SVScannerInput in = new SVScannerInput("foo",
 					new StringInputStream(def_line));
@@ -188,7 +193,7 @@ public class SVScanner implements ISVScanner {
 			} catch (EOFException e) { }
 			
 			if (fObserver != null) {
-				System.out.println("def_id=" + def_id + " define=" + define);
+//				System.out.println("def_id=" + def_id + " define=" + define);
 				fObserver.preproc_define(def_id, params, define);
 			}
 		} else if (type.equals("include")) {
@@ -198,12 +203,9 @@ public class SVScanner implements ISVScanner {
 				ch = get_ch();
 			}
 
-			System.out.println("post-include ch=" + (char)ch);
-			
 			if (ch == '"') {
 				String inc = readString(ch);
 				
-				System.out.println("inc=" + inc);
 				if (fObserver != null) {
 					fObserver.preproc_include(inc);
 				}
@@ -224,7 +226,7 @@ public class SVScanner implements ISVScanner {
 				val = fDefineProvider.getDefineVal(type, params);
 			}
 			
-			System.out.println("def value: \"" + val + "\"");
+//			System.out.println("def value: \"" + val + "\"");
 
 			if (val != null) {
 				fInputStack.peek().pushUnaccContent(val + "\n");
@@ -291,6 +293,110 @@ public class SVScanner implements ISVScanner {
 		}
 	}
 	
+	private void process_covergroup(String id) throws EOFException {
+		int ch = get_ch();
+		
+		fScopeStack.push("covergroup");
+		
+		
+		ch = skipWhite(ch);
+		
+		String cg_name = readIdentifier(ch);
+
+		if (fObserver != null) {
+			fObserver.enter_covergroup(cg_name);
+		}
+
+		ch = skipWhite(get_ch());
+		
+		while (ch == '(') {
+			ch = skipPastMatch("()");
+		}
+		
+		if (ch == '@') {
+			ch = skipWhite(get_ch());
+			if (ch == '@') {
+				ch = skipWhite(get_ch());
+			}
+			
+			if (ch == '(') {
+				ch = skipPastMatch("()");
+			}
+		}
+		
+		// Skip statements
+		while ((id = scan_statement()) != null) {
+			if (id.equals("endgroup")) {
+				break;
+			} else {
+				// This is likely a coverpoint/bin 
+				ch = skipWhite(get_ch());
+				
+				if (ch == ':') {
+					// yep...
+					ch = skipWhite(next_ch());
+					String name = id;
+					
+					System.out.println("ch=" + (char)ch);
+					String type = readIdentifier(ch);
+					
+					System.out.println("name=" + name + " type=" + type);
+					
+					if (fObserver != null) {
+						fObserver.covergroup_item(name, type);
+					}
+					
+					ch = skipWhite(get_ch());
+
+					if (ch == '{') {
+						skipPastMatch("{}");
+					}
+				}
+			}
+		}
+		
+		handle_leave_scope();
+	}
+	
+	private void process_sequence(String id) throws EOFException {
+		
+		int ch = skipWhite(get_ch());
+		
+		String name = readIdentifier(ch);
+		fScopeStack.push("sequence");
+		
+		if (fObserver != null) {
+			fObserver.enter_sequence(name);
+		}
+		
+		while ((id = scan_statement()) != null) {
+			if (id.equals("endsequence")) {
+				break;
+			}
+		}
+		
+		handle_leave_scope();
+	}
+	
+	private void process_property(String id) throws EOFException {
+		int ch = skipWhite(get_ch());
+		
+		String name = readIdentifier(ch);
+		fScopeStack.push("property");
+		
+		if (fObserver != null) {
+			fObserver.enter_property(name);
+		}
+		
+		while ((id = scan_statement()) != null) {
+			if (id.equals("endproperty")) {
+				break;
+			}
+		}
+		
+		handle_leave_scope();
+	}
+	
 	private class Pair <T1, T2> {
 		T1			fField1;
 		T2			fField2;
@@ -337,7 +443,7 @@ public class SVScanner implements ISVScanner {
 		ch = get_ch();
 
 		tf_name   = mod_ret.fField1;
-		modifiers = mod_ret.fField2;
+		modifiers |= mod_ret.fField2;
 
 		
 		if (id.equals("function")) {
@@ -439,7 +545,9 @@ public class SVScanner implements ISVScanner {
 				break;
 			} else if (isSecondLevelScope(id)) {
 				if (fObserver != null) {
-					fObserver.error("missing \"" + exp_end + "\"");
+					fObserver.error("missing \"" + exp_end + "\" @ " +
+							getLocation().getFileName() + ":" +
+							getLocation().getLineNo());
 				}
 				
 				// 
@@ -448,7 +556,9 @@ public class SVScanner implements ISVScanner {
 				break;
 			} else if (isFirstLevelScope(id)) {
 				if (fObserver != null) {
-					fObserver.error("missing \"" + exp_end + "\"");
+					fObserver.error("missing \"" + exp_end + "\" @ " +
+							getLocation().getFileName() + ":" +
+							getLocation().getLineNo());
 				}
 				
 				// We're in a first-level scope.
@@ -464,17 +574,6 @@ public class SVScanner implements ISVScanner {
 		debug("    endbehave: " + id);
 		
 		handle_leave_scope();
-		
-		return ret;
-	}
-	
-	private boolean process_property(int modifiers, String id) throws EOFException {
-		boolean ret = true;
-		
-		String stmt = null;
-		do {
-			stmt = scan_statement();
-		} while (stmt != null && stmt.equals("endproperty"));
 		
 		return ret;
 	}
@@ -589,8 +688,6 @@ public class SVScanner implements ISVScanner {
 		if (fObserver != null) {
 			fObserver.enter_struct_decl(typename, null);
 		}
-		
-		System.out.println("typename=" + typename);
 	}
 	
 	private void process_package(String id) throws EOFException {
@@ -611,9 +708,17 @@ public class SVScanner implements ISVScanner {
 	
 	private void handle_leave_scope(int levels) {
 		for (int i=0; i<levels; i++) {
-			String type = fScopeStack.pop();
+			String type = null;
 			
-			if (fObserver != null) {
+			if (fScopeStack.size() > 0) {
+				type = fScopeStack.pop();
+			} else {
+				System.out.println("[ERROR] attempting to leave scope @ " + 
+						getLocation().getFileName() + ":" +
+						getLocation().getLineNo());
+			}
+			
+			if (type != null && fObserver != null) {
 				if (type.equals("module")) {
 					fObserver.leave_module_decl();
 				} else if (type.equals("interface")) {
@@ -624,6 +729,12 @@ public class SVScanner implements ISVScanner {
 					fObserver.leave_struct_decl();
 				} else if (type.equals("task") || type.equals("function")) {
 					fObserver.leave_task_decl();
+				} else if (type.equals("covergroup")) {
+					fObserver.leave_covergroup();
+				} else if (type.equals("sequence")) {
+					fObserver.leave_sequence();
+				} else if (type.equals("property")) {
+					fObserver.leave_property();
 				}
 			}
 		}
@@ -712,6 +823,7 @@ public class SVScanner implements ISVScanner {
 		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
+		fTaskFuncParamQualifiers.put("pure", 0); // TODO
 		fTaskFuncParamQualifiers.put("virtual", ISVScannerObserver.ParamAttr_Virtual);
 		fTaskFuncParamQualifiers.put("input", ISVScannerObserver.ParamAttr_Input);
 		fTaskFuncParamQualifiers.put("output", ISVScannerObserver.ParamAttr_Output);
@@ -749,13 +861,20 @@ public class SVScanner implements ISVScanner {
 			unget_ch(ch);
 			ret = process_task_function(modifiers, id);
 		} else if (id.equals("property")) {
-			ret = process_property(modifiers, id);
+			unget_ch(ch);
+			process_property(id);
 		} else if (id.equals("always") || id.equals("initial")) {
 			unget_ch(ch);
 			process_initial_always(id);
 		} else if (id.equals("constraint")) {
 			unget_ch(ch);
 			process_constraint(id);
+		} else if (id.equals("covergroup")) {
+			unget_ch(ch);
+			process_covergroup(id);
+		} else if (id.equals("sequence")) {
+			unget_ch(ch);
+			process_sequence(id);
 		} else if (id.startsWith("end")) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.
@@ -771,6 +890,9 @@ public class SVScanner implements ISVScanner {
 			unget_str(id + " ");
 			fNewStatement = true;
 			ret = false; 
+		} else if (ch == ':') {
+			// Labeled statement -- often a cover
+			System.out.println("labeled statement: " + id);
 		} else {
 			// likely a variable or module declaration
 			List<String> vars = new ArrayList<String>();
@@ -873,8 +995,8 @@ public class SVScanner implements ISVScanner {
 					
 				default:
 					if (fNewStatement) {
-						String id = null;
 						fStmtLocation = getLocation();
+						String id = null;
 						if (Character.isJavaIdentifierStart(ch)) {
 							id = readIdentifier(ch);
 							

@@ -13,5 +13,9 @@ public enum SVDBItemType {
 	TaskFuncParam,
 	Macro,
 	Include,
-	PackageDecl
+	PackageDecl,
+	Covergroup,
+	Coverpoint,
+	Sequence,
+	Property
 }

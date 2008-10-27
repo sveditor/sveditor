@@ -3,12 +3,21 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SVDBTaskFuncScope extends SVDBFieldItem {
+public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
+	private int								fAttr;
 	
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
 		fParams = new ArrayList<SVDBTaskFuncParam>();
+	}
+	
+	public void setAttr(int attr) {
+		fAttr = attr;
+	}
+	
+	public int getAttr() {
+		return fAttr;
 	}
 	
 	public void addParam(SVDBTaskFuncParam p) {

@@ -5,7 +5,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="net.sf.sveditor.ui.editor.SVEditor"
-            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            contributorClass="net.sf.sveditor.ui.editor.SVActionContributor"
             default="true"
             icon="icons/vlog_16_16.gif"
             id="net.sf.sveditor.ui.editor"
@@ -172,6 +172,20 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="net.sf.sveditor.ui.svOpenActions"
+            label="SV Open Actions"
+            visible="false">
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.declaration"
+               id="net.sf.sveditor.ui.svOpenEditorAction"
+               label="Open Editor"
+               retarget="true">
+         </action>
+      </actionSet>
    </extension>
 
 </plugin>

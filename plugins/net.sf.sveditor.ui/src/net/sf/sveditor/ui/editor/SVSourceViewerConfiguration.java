@@ -4,12 +4,16 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -30,21 +34,29 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		fEditor = editor;
 	}
 	
-	@Override
-	public IAutoEditStrategy[] getAutoEditStrategies(
-			ISourceViewer sourceViewer, String contentType) {
-		// TODO
-		return super.getAutoEditStrategies(sourceViewer, contentType);
-	}
-	
-	
-	
 	
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		
+		System.out.println("getContentAssistant()");
 		if (fContentAssist == null) {
 			fContentAssist = new ContentAssistant();
+			SVCompletionProcessor p = new SVCompletionProcessor();
+			p.init(fEditor);
+
+			fContentAssist.setContentAssistProcessor(p, IDocument.DEFAULT_CONTENT_TYPE);
+			fContentAssist.setInformationControlCreator(
+					getInformationControlCreator(sourceViewer));
+			fContentAssist.enableAutoActivation(true);
+			fContentAssist.enableAutoInsert(true);
+			fContentAssist.enablePrefixCompletion(true);
+			fContentAssist.setAutoActivationDelay(100);
+			
+			
+			/*
+			for (String t : getConfiguredContentTypes(sourceViewer)) {
+				System.out.println("setContentAP: " + t);
+				fContentAssist.setContentAssistProcessor(p, t);
+			}
 			fContentAssist.addCompletionListener(new ICompletionListener() {
 
 				@Override
@@ -65,6 +77,8 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 					System.out.println("assistSessionChanged()");
 				}
 			});
+			fContentAssist.enableAutoActivation(true);
+			 */
 		}
 		
 		return fContentAssist;
@@ -91,7 +105,7 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 				getConfiguredDocumentPartitioning(viewer));
 		
 		DefaultDamagerRepairer dr = 
-			new DefaultDamagerRepairer(SVScanners.getPresentationScanner());
+			new DefaultDamagerRepairer(fEditor.getCodeScanner());
 		
 		r.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
 		r.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);

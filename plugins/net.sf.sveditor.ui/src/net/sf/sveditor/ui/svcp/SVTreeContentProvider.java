@@ -12,7 +12,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	private SVDBScopeItem				fRoot;
 	
-	@Override
+	
 	public Object[] getChildren(Object elem) {
 		if (elem instanceof SVDBScopeItem &&
 				!(elem instanceof SVDBTaskFuncScope)) {
@@ -22,7 +22,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	@Override
+	
 	public Object getParent(Object element) {
 		if (element instanceof SVDBItem) {
 			return ((SVDBItem)element).getParent();
@@ -31,13 +31,13 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	@Override
+	
 	public boolean hasChildren(Object element) {
 		return ((element instanceof SVDBScopeItem) && 
 				((SVDBScopeItem)element).getItems().size() > 0);
 	}
 
-	@Override
+	
 	public Object[] getElements(Object element) {
 		if (element instanceof SVDBScopeItem) {
 			return ((SVDBScopeItem)element).getItems().toArray();
@@ -46,13 +46,13 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	@Override
+	
 	public void dispose() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		fRoot = null;
 		

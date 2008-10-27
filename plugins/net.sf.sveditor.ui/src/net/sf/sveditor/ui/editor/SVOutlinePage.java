@@ -1,14 +1,19 @@
 package net.sf.sveditor.ui.editor;
 
 import java.io.File;
+import java.net.URI;
 
+import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -21,6 +26,10 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
@@ -42,10 +51,16 @@ public class SVOutlinePage extends ContentOutlinePage
 		fDoc.addDocumentListener(this);
 		fContentProvider = new SVTreeContentProvider();
 		
-		fFile = ((FileEditorInput)editor.getEditorInput()).getFile().getLocation().toFile();
+		IEditorInput ed_in = fEditor.getEditorInput();
+		if (ed_in instanceof IURIEditorInput) {
+			URI uri = ((IURIEditorInput)ed_in).getURI();
+			fFile = new File(uri.getPath()); 
+		} else if (ed_in instanceof IFileEditorInput) {
+			fFile = ((IFileEditorInput)ed_in).getFile().getLocation().toFile();
+		}
 	}
 	
-	@Override
+	
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 		
@@ -63,11 +78,15 @@ public class SVOutlinePage extends ContentOutlinePage
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 	}
+	
+	public SVDBFile getSVDBFile() {
+		return fInput;
+	}
 
-	@Override
+	
 	public void documentAboutToBeChanged(DocumentEvent event) {}
 
-	@Override
+	
 	public void documentChanged(DocumentEvent event) {
 		if (getTreeViewer() != null) {
 			getTreeViewer().getControl().getDisplay().timerExec(1000, this);
@@ -75,16 +94,32 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 	
 	public void run() {
+		IEditorInput ed_in = fEditor.getEditorInput();
+		String path = ed_in.getName();
+		
+		ISVDBFileProvider file_p = null;
+		if (ed_in instanceof IFileEditorInput) {
+			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
+			SVDBProjectData pdata = null;
+			path = ((IFileEditorInput)ed_in).getFile().getLocation().toOSString();
+			pdata = mgr.getProjectData(((IFileEditorInput)ed_in).getFile().getProject());
+			file_p = new SVDBProjectDataFileProvider(pdata);
+		} else if (ed_in instanceof IURIEditorInput) {
+			// TODO: could do search for adjacent files
+		}
+		
 		StringInputStream sin = new StringInputStream(fDoc.get());
-		
-		SVDBFile new_in = SVDBFileFactory.createFile(sin, "foo");
-		
+
+		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
+
 		if (fInput != null) {
 			SVDBFileMerger.merge(fInput, new_in, null, null, null);
 		} else {
 			fInput = new_in;
 			getTreeViewer().setInput(fInput);
 		}
+		
+		fInput.setFilePath(fEditor.getFilePath());
 		
 		SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(fFile, fInput); 
 		
@@ -93,13 +128,15 @@ public class SVOutlinePage extends ContentOutlinePage
 
 	public void dispose() {
 		fDoc.removeDocumentListener(this);
-		getTreeViewer().removeSelectionChangedListener(fSelectionListener);
+		if (getTreeViewer() != null) {
+			getTreeViewer().removeSelectionChangedListener(fSelectionListener);
+		}
 		
 		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
 				 
 	}
 
-	@Override
+	
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {
 		if (IShowInTarget.class.equals(adapter)) {
@@ -108,7 +145,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		return null;
 	}
 
-	@Override
+	
 	public boolean show(ShowInContext context) {
 		// TODO Auto-generated method stub
 		return true;
@@ -117,7 +154,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	private ISelectionChangedListener fSelectionListener = 
 		new ISelectionChangedListener() {
 
-			@Override
+			
 			public void selectionChanged(SelectionChangedEvent event) {
 				if (fIgnoreSelection) {
 					return;

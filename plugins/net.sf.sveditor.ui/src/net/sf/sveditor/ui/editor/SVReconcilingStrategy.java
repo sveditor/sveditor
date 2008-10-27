@@ -18,27 +18,27 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 		fEditor = editor;
 	}
 
-	@Override
+	
 	public void reconcile(IRegion partition) {
 		reconcileSource();
 	}
 
-	@Override
+	
 	public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
 		reconcileSource();
 	}
 
-	@Override
+	
 	public void setDocument(IDocument document) {
 		fDocument = document;
 	}
 
-	@Override
+	
 	public void initialReconcile() {
 		reconcileSource();
 	}
 
-	@Override
+	
 	public void setProgressMonitor(IProgressMonitor monitor) {}
 
 	private Object getLockObject() {

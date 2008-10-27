@@ -28,7 +28,7 @@ public class SVFileNavigatorContentProvider
 		fFileManager.addSVDBChangeListener(this);
 	}
 	
-	@Override
+	
 	public void SVDBFileChanged(
 			SVDBFile 			file, 
 			List<SVDBItem> 		adds,
@@ -37,7 +37,7 @@ public class SVFileNavigatorContentProvider
 		Display.getDefault().asyncExec(this);
 	}
 
-	@Override
+	
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFile) {
 			File f = ((IFile)parentElement).getLocation().toFile();
@@ -54,7 +54,7 @@ public class SVFileNavigatorContentProvider
 		return new Object[0];
 	}
 
-	@Override
+	
 	public Object getParent(Object element) {
 		if (element instanceof IResource) {
 			return ((IResource)element).getParent();
@@ -65,22 +65,22 @@ public class SVFileNavigatorContentProvider
 		}
 	}
 
-	@Override
+	
 	public boolean hasChildren(Object element) {
 		return (getChildren(element).length > 0);
 	}
 
-	@Override
+	
 	public Object[] getElements(Object inputElement) {
 		return new Object[0];
 	}
 
-	@Override
+	
 	public void dispose() {
 		fFileManager.removeSVDBChangeListener(this);
 	}
 
-	@Override
+	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		fViewer = viewer;
 	}

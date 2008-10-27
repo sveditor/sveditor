@@ -1,5 +1,9 @@
 package net.sf.sveditor.ui;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -13,6 +17,7 @@ public class Activator extends AbstractUIPlugin {
 
 	// The shared instance
 	private static Activator plugin;
+	private ResourceBundle			fResources;
 	
 	/**
 	 * The constructor
@@ -36,6 +41,18 @@ public class Activator extends AbstractUIPlugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+	}
+	
+	public ResourceBundle getResources() {
+		if (fResources == null) {
+			try {
+				fResources = ResourceBundle.getBundle(
+						PLUGIN_ID + ".SVUIResources");
+			} catch (MissingResourceException e) {
+				e.printStackTrace();
+			}
+		}
+		return fResources;
 	}
 
 	/**

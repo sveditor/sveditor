@@ -1,8 +1,6 @@
 package net.sf.sveditor.core.db;
 
-public class SVDBFieldItem extends SVDBScopeItem {
-	public static int				FieldAttr_Local     = (1 << 0);
-	public static int				FieldAttr_Protected = (1 << 1);
+public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 	
 	protected int					fFieldAttr;
 	

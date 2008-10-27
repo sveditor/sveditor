@@ -3,6 +3,7 @@ package net.sf.sveditor.ui.svcp;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -32,20 +33,26 @@ public class SVTreeLabelProvider extends LabelProvider {
 		fImgDescMap.put(SVDBItemType.Include, obj_icons + "include_obj.gif");
 		fImgDescMap.put(SVDBItemType.PackageDecl, obj_icons + "package.gif");
 		fImgDescMap.put(SVDBItemType.Struct, obj_icons + "struct_obj.gif");
+		fImgDescMap.put(SVDBItemType.Covergroup, 
+				obj_icons + "covergroup_16_16.gif");
+		fImgDescMap.put(SVDBItemType.Coverpoint,
+				obj_icons + "coverpoint_16_16.gif");
+		fImgDescMap.put(SVDBItemType.Sequence, obj_icons+"sequence_16_16.gif");
+		fImgDescMap.put(SVDBItemType.Property, obj_icons+"property_16_16.gif");
 	}
 
 	@Override
 	public Image getImage(Object element) {
 		final String obj_icons = "icons/edecl16/";
 
-		if (element instanceof SVDBFieldItem) {
-			SVDBFieldItem field_item = (SVDBFieldItem)element;
-			SVDBItemType type = field_item.getType();
+		if (element instanceof IFieldItemAttr) {
+			int            attr = ((IFieldItemAttr)element).getAttr();
+			SVDBItemType   type = ((SVDBItem)element).getType();
 			
 			if (type == SVDBItemType.VarDecl) {
-				if ((field_item.getAttr() & SVDBFieldItem.FieldAttr_Local) != 0) {
+				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
 					return getImage("icons/edecl16/field_private_obj.gif");
-				} else if ((field_item.getAttr() & SVDBFieldItem.FieldAttr_Protected) != 0) {
+				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
 					return getImage("icons/edecl16/field_protected_obj.gif");
 				} else {
 					return getImage("icons/edecl16/field_public_obj.gif");
@@ -53,9 +60,9 @@ public class SVTreeLabelProvider extends LabelProvider {
 			} else if (type == SVDBItemType.ModIfcInst) {
 				return getImage(obj_icons + "mod_ifc_inst.gif");
 			} else if (type == SVDBItemType.Task) {
-				if ((field_item.getAttr() & SVDBFieldItem.FieldAttr_Local) != 0) {
+				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
 					return getImage("icons/edecl16/private_co.gif");
-				} else if ((field_item.getAttr() & SVDBFieldItem.FieldAttr_Protected) != 0) {
+				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
 					return getImage("icons/edecl16/protected_co.gif");
 				} else {
 					return getImage("icons/edecl16/public_co.gif");

@@ -12,7 +12,7 @@ public class SVDocumentSetupParticipant implements IDocumentSetupParticipant {
 		if (doc instanceof IDocumentExtension3) {
 			IDocumentExtension3 docExt = (IDocumentExtension3)doc;
 			IDocumentPartitioner part = new FastPartitioner(
-					SVScanners.getPartitionScanner(), 
+					new SVPartitionScanner(),
 					SVDocumentPartitions.SV_PARTITION_TYPES);
 			docExt.setDocumentPartitioner(SVDocumentPartitions.SV_PARTITIONING, part);
 			part.connect(doc);

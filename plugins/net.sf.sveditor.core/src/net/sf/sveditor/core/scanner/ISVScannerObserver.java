@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.parser;
+package net.sf.sveditor.core.scanner;
 
 import java.util.List;
 
@@ -94,5 +94,18 @@ public interface ISVScannerObserver {
 	void enter_package(String name);
 	
 	void leave_package();
-			
+	
+	void enter_covergroup(String name);
+
+	void leave_covergroup();
+	
+	void covergroup_item(String name, String type);
+	
+	void enter_sequence(String name);
+	
+	void leave_sequence();
+	
+	void enter_property(String name);
+	
+	void leave_property();
 }

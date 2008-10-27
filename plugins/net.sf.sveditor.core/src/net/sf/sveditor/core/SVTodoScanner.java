@@ -21,7 +21,7 @@ public class SVTodoScanner implements IResourceChangeListener,
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
 
-	@Override
+	
 	public void resourceChanged(IResourceChangeEvent event) {
 //		System.out.println("resourceChanged: " + event.getDelta());
 		if (event.getDelta() != null) {
@@ -31,7 +31,7 @@ public class SVTodoScanner implements IResourceChangeListener,
 		}
 	}
 
-	@Override
+	
 	public boolean visit(IResourceDelta delta) throws CoreException {
 		if (delta.getResource() instanceof IFile) {
 			IFile file = (IFile)delta.getResource();

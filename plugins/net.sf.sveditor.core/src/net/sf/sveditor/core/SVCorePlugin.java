@@ -1,5 +1,7 @@
 package net.sf.sveditor.core;
 
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -15,6 +17,7 @@ public class SVCorePlugin extends Plugin {
 	private static SVCorePlugin plugin;
 	private SVDBFileManager			fSVDBMgr;
 	private SVTodoScanner			fTodoScanner;
+	private SVDBProjectManager		fProjManager;
 	
 	/**
 	 * The constructor
@@ -43,9 +46,15 @@ public class SVCorePlugin extends Plugin {
 			fSVDBMgr.dispose();
 			fSVDBMgr = null;
 		}
+		
 		if (fTodoScanner != null) {
 			fTodoScanner.dispose();
 		}
+		
+		if (fProjManager != null) {
+			fProjManager.dispose();
+		}
+		
 		super.stop(context);
 	}
 
@@ -58,6 +67,12 @@ public class SVCorePlugin extends Plugin {
 		return plugin;
 	}
 	
+	public SVDBProjectManager getProjMgr() {
+		if (fProjManager == null) {
+			fProjManager = new SVDBProjectManager();
+		}
+		return fProjManager;
+	}
 	public SVDBFileManager getSVDBMgr() {
 		if (fSVDBMgr == null) {
 			fSVDBMgr = new SVDBFileManager();

@@ -5,11 +5,20 @@ import java.util.List;
 
 public class SVDBScopeItem extends SVDBItem {
 	protected List<SVDBItem>			fItems;
+	protected SVDBLocation				fEndLocation;
 	
 	public SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);
 		
 		fItems = new ArrayList<SVDBItem>();
+	}
+	
+	public void setEndLocation(SVDBLocation loc) {
+		fEndLocation = loc;
+	}
+	
+	public SVDBLocation getEndLocation() {
+		return fEndLocation;
 	}
 	
 	public void addItem(SVDBItem item) {

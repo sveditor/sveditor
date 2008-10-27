@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.parser;
+package net.sf.sveditor.core.scanner;
 
 import java.util.List;
 

@@ -13,4 +13,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.db,
- net.sf.sveditor.core.parser
+ net.sf.sveditor.core.db.project,
+ net.sf.sveditor.core.db.utils,
+ net.sf.sveditor.core.scanner
