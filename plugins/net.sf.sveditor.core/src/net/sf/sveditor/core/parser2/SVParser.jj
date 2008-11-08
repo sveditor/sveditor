@@ -1,4 +1,15 @@
 
+options {
+  LOOKAHEAD      = 5;
+  STATIC = false ;
+  /*
+  DEBUG_PARSER = true;
+  DEBUG_LOOKAHEAD = true;
+  DEBUG_TOKEN_MANAGER = true;
+   */
+  USER_CHAR_STREAM = true;
+}
+
 PARSER_BEGIN(SVParser)
 
 package net.sf.sveditor.core.parser2;
@@ -6,6 +17,7 @@ package net.sf.sveditor.core.parser2;
 public class SVParser {
 
 }
+
 
 PARSER_END(SVParser)
 
@@ -22,35 +34,7 @@ SKIP :
 | "\f"
 }
 
-/**
- * Rules for comments
- */
-MORE :
-{
-  "//" : IN_SINGLE_LINE_COMMENT
-|
-  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
-|
-  "/*" : IN_MULTI_LINE_COMMENT
-}
-
-<IN_SINGLE_LINE_COMMENT>
-SPECIAL_TOKEN :
-{
-  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
-}
-
-<IN_FORMAL_COMMENT>
-SPECIAL_TOKEN :
-{
-  <FORMAL_COMMENT: "*/" > : DEFAULT
-}
-
-<IN_SINGLE_LINE_COMMENT,IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
-MORE :
-{
-  < ~[] >
-}
+/* Comments removed for now */
 
 /* Reserved words */
 TOKEN :
@@ -278,9 +262,14 @@ TOKEN :
 | < WOR:					"wor">
 | < XNOR:					"xnor">
 | < XOR:					"xor">
-| < C_IDENT:                (["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*)>
-| < S_IDENT:                (["a"-"z","A"-"Z","_"] (["a"-"z","A"-"Z","0"-"9","_","$"])*)>
+| < PATHPULSE:              "PATHPULSE$">
+| < RANDOMIZE:              "randomize">
+| < SEMICOLON:              ";">
 | < TF_IDENT:               ("$" ["a"-"z","A"-"Z","0"-"9","_","$"](["a"-"z","A"-"Z","0"-"9","_","$"])*)>
+| < S_IDENT:                (["a"-"z","A"-"Z","_"] (["a"-"z","A"-"Z","0"-"9","_","$"])*)>
+| < C_IDENT:                (["a"-"z", "A"-"Z", "_"] (["a"-"z", "A"-"Z", "0"-"9", "_"])*)>
+| < ATTR_START:             "(*">
+| < ATTR_END:               "*)">
 | <ESCAPE:                  "\\">
 | < NZ_DEC_DIGIT:           (["1"-"9"])>
 | < DEC_DIGIT:              (["0"-"9"])>
@@ -295,34 +284,47 @@ void description() :
 {
 }
 {
-	(module_declaration() 		|
+	(
+	 module_declaration() 		|
 /*	 udp_declaration()    		| TODO: */
 	 interface_declaration() 	| 
 	 program_declaration()		|
 	 package_declaration()		|
 	 (attribute_instance())* package_item()   |
 	 (attribute_instance())* bind_directive() |
-	 config_declaration()
-	 )
+	 config_declaration()                    
+	 )* 
+	 <EOF>
 }
+
+
 
 void module_nonansi_header() :
 {
+	Token module_id = null;
 }
 {
-  (
-	(attribute_instance())* module_keyword() [lifetime()] module_identifier() 
-		[ parameter_port_list() ] list_of_ports() ";"
-  )
+	(attribute_instance())* module_keyword() [lifetime()] 
+		module_id = module_identifier() 
+		[ parameter_port_list() ] list_of_ports() <SEMICOLON>
+	{
+		System.out.println("non-ansi id: " + module_id.image);
+	}
 }
 
 void module_ansi_header() :
 {
+	Token module_id = null;
 }
 {
-  (attribute_instance())* module_keyword() [lifetime()] module_identifier() 
+  (attribute_instance())* module_keyword() [lifetime()] 
+  	module_id = module_identifier()  
   	[ parameter_port_list() ]
-	[ list_of_port_declarations() ] ";"
+	[ list_of_port_declarations() ] <SEMICOLON>
+	
+  {
+  	System.out.println("module_id=" + module_id.image);
+  }
 }
 
 void module_keyword() :
@@ -336,15 +338,14 @@ void module_declaration() :
 {
 }
 {
-	(module_nonansi_header() [ timeunits_declaration() ] ( module_item() )*
+	module_nonansi_header() [ timeunits_declaration() ] ( module_item() )*
 	 <ENDMODULE> [ ":" module_identifier() ]
 	| module_ansi_header() [ timeunits_declaration() ] (non_port_module_item())*
 	<ENDMODULE> [ ":" module_identifier() ]
-	| ( attribute_instance() )* module_keyword() [ lifetime() ] module_identifier() "(" ".*" ")" ";"
+	| ( attribute_instance() )* module_keyword() [ lifetime() ] module_identifier() "(" ".*" ")" <SEMICOLON>
 	[ timeunits_declaration() ] (module_item())* <ENDMODULE> [ ":" module_identifier() ]
 	| <EXTERN> module_nonansi_header()
 	| <EXTERN> module_ansi_header()
-	)
 }
 
 void interface_nonansi_header() :
@@ -352,7 +353,7 @@ void interface_nonansi_header() :
 }
 {
     (attribute_instance())* <INTERFACE> [lifetime()] interface_identifier()
-		[parameter_port_list()] list_of_ports() ";"
+		[parameter_port_list()] list_of_ports() <SEMICOLON>
 }
 
 		
@@ -361,7 +362,7 @@ void interface_ansi_header() :
 }
 {
 	(attribute_instance())* <INTERFACE> [lifetime()] interface_identifier()
-	[parameter_port_list()] [list_of_port_declarations()] ";"
+	[parameter_port_list()] [list_of_port_declarations()] <SEMICOLON>
 }
 
 void interface_declaration() :
@@ -373,7 +374,7 @@ void interface_declaration() :
 		<ENDINTERFACE> [ ":" interface_identifier() ]
 	| interface_ansi_header() [timeunits_declaration()] (non_port_interface_item())*
 		<ENDINTERFACE> [ ":" interface_identifier() ]
-	| (attribute_instance())* <INTERFACE> interface_identifier() "(" ".*" ")" ";"
+	| (attribute_instance())* <INTERFACE> interface_identifier() "(" ".*" ")" <SEMICOLON>
 		[ timeunits_declaration() ] (interface_item())*
 		<ENDINTERFACE> [ ":" interface_identifier() ]
 	| <EXTERN> interface_nonansi_header()
@@ -386,7 +387,7 @@ void program_nonansi_header() :
 }
 {
     (attribute_instance())* <PROGRAM> [ lifetime() ] program_identifier()
-		[parameter_port_list()] list_of_ports() ";"
+		[parameter_port_list()] list_of_ports() <SEMICOLON>
 }
 
 void program_ansi_header() :
@@ -394,7 +395,7 @@ void program_ansi_header() :
 }
 {
 	(attribute_instance())* <PROGRAM> [lifetime()] program_identifier()
-	[parameter_port_list()] [ list_of_port_declarations() ] ";"
+	[parameter_port_list()] [ list_of_port_declarations() ] <SEMICOLON>
 }
 
 void program_declaration() :
@@ -406,7 +407,7 @@ void program_declaration() :
 		<ENDPROGRAM> [ ":" program_identifier() ]
 	| program_ansi_header() [ timeunits_declaration() ] (non_port_program_item())*
 		<ENDPROGRAM> [ ":" program_identifier() ]
-	| (attribute_instance())* <PROGRAM> program_identifier() "(" ".*" ")" ";"
+	| (attribute_instance())* <PROGRAM> program_identifier() "(" ".*" ")" <SEMICOLON>
 		[ timeunits_declaration() ] (program_item())*
 		<ENDPROGRAM> [ ":" program_identifier() ]
 	| <EXTERN> program_nonansi_header()
@@ -419,7 +420,7 @@ void class_declaration() :
 }
 {
 	[ <VIRTUAL> ] <CLASS> [ lifetime() ] class_identifier() [ parameter_port_list() ]
-	[ <EXTENDS> class_type() [ "(" list_of_arguments() ")" ] ] ";"
+	[ <EXTENDS> class_type() [ "(" list_of_arguments() ")" ] ] <SEMICOLON>
 	(class_item())*
 	<ENDCLASS> [ ":" class_identifier() ]
 }
@@ -428,7 +429,7 @@ void package_declaration() :
 {
 }
 {
-	(attribute_instance())* <PACKAGE> package_identifier() ";"
+	(attribute_instance())* <PACKAGE> package_identifier() <SEMICOLON>
 		[timeunits_declaration()] ((attribute_instance())* package_item())*
 	<ENDPACKAGE> [ ":" package_identifier() ]
 }
@@ -438,12 +439,12 @@ void timeunits_declaration() :
 }
 {
   (
-	<TIMEUNIT> time_literal() ";"
-	| <TIMEPRECISION> time_literal() ";"
-	| <TIMEUNIT> time_literal() ";"
-		<TIMEPRECISION> time_literal() ";"
-	| <TIMEPRECISION> time_literal() ";"
-		<TIMEUNIT> time_literal() ";"
+	<TIMEUNIT> time_literal() <SEMICOLON>
+	| <TIMEPRECISION> time_literal() <SEMICOLON>
+	| <TIMEUNIT> time_literal() <SEMICOLON>
+		<TIMEPRECISION> time_literal() <SEMICOLON>
+	| <TIMEPRECISION> time_literal() <SEMICOLON>
+		<TIMEUNIT> time_literal() <SEMICOLON>
   )
 }
 
@@ -504,20 +505,16 @@ void port() :
 {
 }
 {
-  (
 	[ port_expression() ]
 	| "." port_identifier() "(" [ port_expression() ] ")"
-  )
 }
 
 void port_expression() :
 {
 }
 {
-  (
 	port_reference()
-	| (port_reference() ( "," port_reference())* )*
-  )
+	| "{" port_reference() ( "," port_reference())* "}"
 }
 
 void port_reference() :
@@ -562,11 +559,15 @@ void ansi_port_declaration() :
 {
 }
 {
-  (
-	[ net_port_header() | interface_port_header() ] port_identifier() (unpacked_dimension())*
+	// FIXME: net_port_header() can expand as ""
+	// [ net_port_header() | interface_port_header() ] port_identifier() (unpacked_dimension())*
+	[ interface_port_header() ] port_identifier() (unpacked_dimension())*
 	| [ variable_port_header() ] port_identifier() (variable_dimension())* [ "=" constant_expression() ]
-	| [ net_port_header() | variable_port_header() ] "." port_identifier() "(" [ expression() ] ")"
-  )
+	
+	// FIXME: net_port_header() can expand as ""
+	// CHG: expression can expand to "", so remove []
+	// | [ net_port_header() | variable_port_header() ] "." port_identifier() "(" [ expression() ] ")"
+	| [ variable_port_header() ] "." port_identifier() "(" expression() ")"
 }
 
 /****************************************************************************
@@ -597,7 +598,7 @@ void module_item() :
 }
 {
   (
-	port_declaration() ";"
+	port_declaration() <SEMICOLON>
 	| non_port_module_item()
   )
 }
@@ -623,7 +624,7 @@ void module_or_generate_item_declaration() :
 	package_or_generate_item_declaration() 
 	| genvar_declaration()
 	| clocking_declaration()
-	| <T_DEFAULT> <CLOCKING> clocking_identifier() ";"
+	| <T_DEFAULT> <CLOCKING> clocking_identifier() <SEMICOLON>
   )
 }
 
@@ -647,7 +648,7 @@ void parameter_override() :
 {
 }
 {
-	<DEFPARAM> list_of_defparam_assignments() ";"
+	<DEFPARAM> list_of_defparam_assignments() <SEMICOLON>
 }
 
 void bind_directive() :
@@ -655,8 +656,8 @@ void bind_directive() :
 }
 {
   (
-	<BIND> bind_target_scope() [":" bind_target_instance_list()] bind_instantiation() ";"
-	| <BIND> bind_target_instance() bind_instantiation() ";"
+	<BIND> bind_target_scope() [":" bind_target_instance_list()] bind_instantiation() <SEMICOLON>
+	| <BIND> bind_target_instance() bind_instantiation() <SEMICOLON>
   )
 }
 
@@ -700,7 +701,7 @@ void config_declaration() :
 {
 }
 {
-	<CONFIG> config_identifier() ";"
+	<CONFIG> config_identifier() <SEMICOLON>
 	design_statement()
 	(config_rule_statement())*
 	<ENDCONFIG> [ ":" config_identifier() ]
@@ -710,7 +711,7 @@ void design_statement() :
 {
 }
 {
-	<DESIGN> ( [ library_identifier() "." ] cell_identifier() )* ";"
+	<DESIGN> ( [ library_identifier() "." ] cell_identifier() )* <SEMICOLON>
 }
 
 void config_rule_statement() :
@@ -718,11 +719,11 @@ void config_rule_statement() :
 }
 {
   (
-	default_clause() liblist_clause() ";"
-	| inst_clause() liblist_clause() ";"
-	| inst_clause() use_clause() ";"
-	| cell_clause() liblist_clause() ";"
-	| cell_clause() use_clause() ";"
+	default_clause() liblist_clause() <SEMICOLON>
+	| inst_clause() liblist_clause() <SEMICOLON>
+	| inst_clause() use_clause() <SEMICOLON>
+	| cell_clause() liblist_clause() <SEMICOLON>
+	| cell_clause() use_clause() <SEMICOLON>
   )
 }
 
@@ -788,8 +789,8 @@ void extern_tf_declaration() :
 }
 {
   (
-	<EXTERN> method_prototype() ";"
-	| <EXTERN> <FORKJOIN> task_prototype() ";"
+	<EXTERN> method_prototype() <SEMICOLON>
+	| <EXTERN> <FORKJOIN> task_prototype() <SEMICOLON>
   )
 }
 
@@ -798,7 +799,7 @@ void interface_item() :
 }
 {
   (
-	port_declaration() ";"
+	port_declaration() <SEMICOLON>
 	| non_port_interface_item()
   )
 }
@@ -824,7 +825,7 @@ void program_item() :
 }
 {
   (
-	port_declaration() ";"
+	port_declaration() <SEMICOLON>
 	| non_port_program_item()
   )
 }
@@ -869,7 +870,7 @@ void class_item() :
 	| (attribute_instance())* class_declaration()
 	| (attribute_instance())* timeunits_declaration()
 	| (attribute_instance())* covergroup_declaration()
-	| ";"
+	| <SEMICOLON>
   )
 }
 
@@ -879,7 +880,7 @@ void class_property() :
 {
   (
 	(property_qualifier())* data_declaration()
-	| <CONST> (class_item_qualifier())* data_type() const_identifier() [ "=" constant_expression() ] ";"
+	| <CONST> (class_item_qualifier())* data_type() const_identifier() [ "=" constant_expression() ] <SEMICOLON>
   )
 }
 
@@ -890,7 +891,7 @@ void class_method() :
   (
 	(method_qualifier())* task_declaration()
 	| (method_qualifier())* function_declaration()
-	| <EXTERN> (method_qualifier())* method_prototype() ";"
+	| <EXTERN> (method_qualifier())* method_prototype() <SEMICOLON>
 	| (method_qualifier())* class_constructor_declaration()
 	| <EXTERN> (method_qualifier())* class_constructor_prototype()
   )
@@ -900,7 +901,8 @@ void class_constructor_prototype() :
 {
 }
 {
-	<FUNCTION> <NEW> "(" [ tf_port_list() ] ")" ";"
+    // CHG: tf_port_list() can expand to "", so remove []
+	<FUNCTION> <NEW> "(" tf_port_list() ")" <SEMICOLON>
 }
 
 void class_constraint() :
@@ -968,9 +970,10 @@ void class_constructor_declaration() :
 {
 }
 {
-	<FUNCTION> [ class_scope() ] <NEW> [ "(" [ tf_port_list() ] ")" ] ";"
+	// CHG: tf_port_list can expand to "", so remove []
+	<FUNCTION> [ class_scope() ] <NEW> [ "(" tf_port_list() ")" ] <SEMICOLON>
 	(block_item_declaration())*
-	[ <SUPER> "." <NEW> [ "(" list_of_arguments() ")" ] ";" ]
+	[ <SUPER> "." <NEW> [ "(" list_of_arguments() ")" ] <SEMICOLON> ]
 	(function_statement_or_null())*
 	<ENDFUNCTION> [ ":" <NEW> ]
 }
@@ -997,7 +1000,7 @@ void constraint_block_item() :
 {
 }
 {
-	<SOLVE> identifier_list() <BEFORE> identifier_list() ";"
+	<SOLVE> identifier_list() <BEFORE> identifier_list() <SEMICOLON>
 	| constraint_expression()
 }
 
@@ -1005,8 +1008,8 @@ void constraint_expression() :
 {
 }
 {
-	expression_or_dist() ";"
-	| expression() "–>" constraint_set()
+	expression_or_dist() <SEMICOLON>
+	| expression() ("–>") constraint_set()
 	| <IF> "(" expression() ")" constraint_set() [ <ELSE> constraint_set() ]
 	| <FOREACH> "(" array_identifier() [ loop_variables() ] ")" constraint_set()
 }
@@ -1045,7 +1048,7 @@ void constraint_prototype() :
 {
 }
 {
-	[ <STATIC> ] <CONSTRAINT> constraint_identifier() ";"
+	[ <STATIC> ] <CONSTRAINT> constraint_identifier() <SEMICOLON>
 }
 
 void extern_constraint_declaration() :
@@ -1089,12 +1092,12 @@ void package_or_generate_item_declaration() :
 	| extern_constraint_declaration()
 	| class_declaration()
 	| class_constructor_declaration()
-	| parameter_declaration() ";"
+	| parameter_declaration() <SEMICOLON>
 	| local_parameter_declaration()
 	| covergroup_declaration()
 	| overload_declaration()
 	| concurrent_assertion_item_declaration()
-	| ";"
+	| <SEMICOLON>
   )
 }
 
@@ -1102,7 +1105,7 @@ void anonymous_program() :
 {
 }
 {
-	<PROGRAM>  ";" (anonymous_program_item())* <ENDPROGRAM>
+	<PROGRAM>  <SEMICOLON> (anonymous_program_item())* <ENDPROGRAM>
 }
 
 void anonymous_program_item() :
@@ -1115,7 +1118,7 @@ void anonymous_program_item() :
 	| class_declaration()
 	| covergroup_declaration()
 	| class_constructor_declaration()
-	| ";"
+	| <SEMICOLON>
   )
 }
 
@@ -1135,8 +1138,8 @@ void local_parameter_declaration() :
 }
 {
   (
-	<LOCALPARAM> data_type_or_implicit() list_of_param_assignments() ";"
-	| <LOCALPARAM> <TYPE> list_of_type_assignments() ";"
+	<LOCALPARAM> data_type_or_implicit() list_of_param_assignments() <SEMICOLON>
+	| <LOCALPARAM> <TYPE> list_of_type_assignments() <SEMICOLON>
   )
 }
 
@@ -1154,7 +1157,7 @@ void specparam_declaration() :
 {
 }
 {
-	<SPECPARAM> [ packed_dimension() ] list_of_specparam_assignments() ";"
+	<SPECPARAM> [ packed_dimension() ] list_of_specparam_assignments() <SEMICOLON>
 }
 
 /********************************************************************
@@ -1214,7 +1217,7 @@ void data_declaration() :
 }
 {
   (
-	[ <CONST> ] [ <VAR> ] [ lifetime() ] data_type_or_implicit() list_of_variable_decl_assignments() ";"
+	[ <CONST> ] [ <VAR> ] [ lifetime() ] data_type_or_implicit() list_of_variable_decl_assignments() <SEMICOLON>
 	| type_declaration()
 	| package_import_declaration()
 	| virtual_interface_declaration()
@@ -1225,7 +1228,7 @@ void package_import_declaration() :
 {
 }
 {
-	<IMPORT> package_import_item() ("," package_import_item())* ";"
+	<IMPORT> package_import_item() ("," package_import_item())* <SEMICOLON>
 }
 
 void package_import_item() :
@@ -1242,7 +1245,7 @@ void genvar_declaration() :
 {
 }
 {
-	<GENVAR> list_of_genvar_identifiers() ";"
+	<GENVAR> list_of_genvar_identifiers() <SEMICOLON>
 }
 
 void net_declaration() :
@@ -1250,7 +1253,7 @@ void net_declaration() :
 }
 {
 	net_type() [ drive_strength() | charge_strength() ] [ <VECTORED> | <SCALARED> ]
-	data_type_or_implicit() [ delay3() ] list_of_net_decl_assignments() ";"
+	data_type_or_implicit() [ delay3() ] list_of_net_decl_assignments() <SEMICOLON>
 }
 
 void type_declaration() :
@@ -1258,9 +1261,9 @@ void type_declaration() :
 }
 {
   (
-	<TYPEDEF> data_type() type_identifier() (variable_dimension())* ";"
-	| <TYPEDEF> interface_instance_identifier() "." type_identifier() type_identifier() ";"
-	| <TYPEDEF> [ <ENUM> | <STRUCT> | <UNION> | <CLASS> ] type_identifier() ";"
+	<TYPEDEF> data_type() type_identifier() (variable_dimension())* <SEMICOLON>
+	| <TYPEDEF> interface_instance_identifier() "." type_identifier() type_identifier() <SEMICOLON>
+	| <TYPEDEF> [ <ENUM> | <STRUCT> | <UNION> | <CLASS> ] type_identifier() <SEMICOLON>
   )
 }
 
@@ -1285,7 +1288,11 @@ void casting_type() :
 {
 }
 {
+	/* FIXME: eliminate constant_primary() as a casting type to
+	 * eliminate left recursion
 	simple_type() | constant_primary() | signing()
+	 */
+	simple_type() | signing()
 }
 
 void data_type() :
@@ -1335,7 +1342,7 @@ void enum_name_declaration() :
 {
 }
 {
-	enum_identifier() [ [ integral_number() [ ":" integral_number() ] ] ] [ "=" constant_expression() ]
+	enum_identifier() [ "[" integral_number() [ ":" integral_number() ] "]" ] [ "=" constant_expression() ]
 }
 
 void class_scope() :
@@ -1428,7 +1435,7 @@ void struct_union_member() :
 {
 }
 { 
-	(attribute_instance())* [random_qualifier()] data_type_or_void() list_of_variable_decl_assignments() ";"
+	(attribute_instance())* [random_qualifier()] data_type_or_void() list_of_variable_decl_assignments() <SEMICOLON>
 }
 
 void data_type_or_void() :
@@ -1678,8 +1685,8 @@ void pulse_control_specparam() :
 {
 }
 {
-	"PATHPULSE$" "=" "(" reject_limit_value() [ "," error_limit_value() ] ")"
-	| "PATHPULSE$" specify_input_terminal_descriptor() "$" specify_output_terminal_descriptor()
+	<PATHPULSE> "=" "(" reject_limit_value() [ "," error_limit_value() ] ")"
+	| <PATHPULSE> specify_input_terminal_descriptor() "$" specify_output_terminal_descriptor()
 		"=" "(" reject_limit_value() [ "," error_limit_value() ] ")"
 }
 
@@ -1718,7 +1725,10 @@ void class_new() :
 {
 }
 {
-	<NEW> [ "(" list_of_arguments() ")" | expression() ]
+	//  CHG: expression() can expand to "", so move ]
+	// FIXME: I think this leaves a hole
+	// <NEW> [ "(" list_of_arguments() ")" | expression() ]
+	<NEW> [ "(" list_of_arguments() ")" ] expression()
 }
 
 void dynamic_array_new() :
@@ -1810,12 +1820,14 @@ void function_body_declaration() :
 }
 {
 	function_data_type_or_implicit()
-	[ interface_identifier() "." | class_scope() ] function_identifier() ";"
+	[ interface_identifier() "." | class_scope() ] function_identifier() <SEMICOLON>
 	( tf_item_declaration() )*
 	( function_statement_or_null() )*
 	<ENDFUNCTION> [ ":" function_identifier() ]
 	| function_data_type_or_implicit()
-	[ interface_identifier() "." | class_scope() ] function_identifier() "(" [ tf_port_list() ] ")" ";"
+	
+	// CHG: tf_port_list() can expand to "", so remove []
+	[ interface_identifier() "." | class_scope() ] function_identifier() "(" tf_port_list() ")" <SEMICOLON>
 	( block_item_declaration() )*
 	( function_statement_or_null() )*
 	<ENDFUNCTION> [ ":" function_identifier() ]
@@ -1825,17 +1837,18 @@ void function_prototype() :
 {
 }
 {
-	<FUNCTION> function_data_type() function_identifier() "(" [ tf_port_list() ] ")"
+	// CHG: tf_port_list() can expand to "", so remove []
+	<FUNCTION> function_data_type() function_identifier() "(" tf_port_list() ")"
 }
 
 void dpi_import_export() :
 {
 }
 {
-	<IMPORT> dpi_spec_string() [ dpi_function_import_property() ] [ c_identifier() "=" ] dpi_function_proto() ";"
-	| <IMPORT> dpi_spec_string() [ dpi_task_import_property() ] [ c_identifier() "=" ] dpi_task_proto() ";"
-	| <EXPORT> dpi_spec_string() [ c_identifier() "=" ] <FUNCTION> function_identifier() ";"
-	| <EXPORT> dpi_spec_string() [ c_identifier() "=" ] <TASK> task_identifier() ";"
+	<IMPORT> dpi_spec_string() [ dpi_function_import_property() ] [ c_identifier() "=" ] dpi_function_proto() <SEMICOLON>
+	| <IMPORT> dpi_spec_string() [ dpi_task_import_property() ] [ c_identifier() "=" ] dpi_task_proto() <SEMICOLON>
+	| <EXPORT> dpi_spec_string() [ c_identifier() "=" ] <FUNCTION> function_identifier() <SEMICOLON>
+	| <EXPORT> dpi_spec_string() [ c_identifier() "=" ] <TASK> task_identifier() <SEMICOLON>
 }
 
 void dpi_spec_string() :
@@ -1887,11 +1900,12 @@ void task_body_declaration() :
 {
 }
 {
-	[ interface_identifier() "." | class_scope() ] task_identifier() ";"
+	[ interface_identifier() "." | class_scope() ] task_identifier() <SEMICOLON>
 	( tf_item_declaration() )*
 	( statement_or_null() )*
 	<ENDTASK> [ ":" task_identifier() ]
-	| [ interface_identifier() "." | class_scope() ] task_identifier() "(" [ tf_port_list() ] ")" ";"
+	// CHG: tf_port_list() can expand to "", so remove []
+	| [ interface_identifier() "." | class_scope() ] task_identifier() "(" tf_port_list() ")" <SEMICOLON>
 	( block_item_declaration() )*
 	( statement_or_null() )*
 	<ENDTASK> [ ":" task_identifier() ]
@@ -1932,14 +1946,15 @@ void tf_port_declaration() :
 {
 }
 {
-	( attribute_instance() )* tf_port_direction() [ <VAR> ] data_type_or_implicit() list_of_tf_variable_identifiers() ";"
+	( attribute_instance() )* tf_port_direction() [ <VAR> ] data_type_or_implicit() list_of_tf_variable_identifiers() <SEMICOLON>
 }
 
 void task_prototype() :
 {
 }
 {
-	<TASK> task_identifier() "(" [ tf_port_list() ] ")"
+	// CHG: tf_port_list() can expand to "", so remove []
+	<TASK> task_identifier() "(" tf_port_list() ")"
 }
 
 /********************************************************************
@@ -1952,7 +1967,7 @@ void block_item_declaration() :
   (
 	(attribute_instance())* data_declaration()
 	| (attribute_instance())* local_parameter_declaration()
-	| (attribute_instance())* parameter_declaration() ";"
+	| (attribute_instance())* parameter_declaration() <SEMICOLON>
 	| (attribute_instance())* overload_declaration()
   )
 }
@@ -1961,7 +1976,7 @@ void overload_declaration() :
 {
 }
 {
-	<BIND> overload_operator() <FUNCTION> data_type() function_identifier() "(" overload_proto_formals() ")" ";"
+	<BIND> overload_operator() <FUNCTION> data_type() function_identifier() "(" overload_proto_formals() ")" <SEMICOLON>
 }
 
 void overload_operator() :
@@ -1986,14 +2001,14 @@ void virtual_interface_declaration() :
 {
 }
 {
-	<VIRTUAL> [ <INTERFACE> ] interface_identifier() list_of_virtual_interface_decl() ";"
+	<VIRTUAL> [ <INTERFACE> ] interface_identifier() list_of_virtual_interface_decl() <SEMICOLON>
 }
 
 void modport_declaration() :
 {
 }
 {
-	<MODPORT> modport_item() ( "," modport_item() )* ";"
+	<MODPORT> modport_item() ( "," modport_item() )* <SEMICOLON>
 }
 
 void modport_item() :
@@ -2034,7 +2049,8 @@ void modport_simple_port() :
 {
   (
 	port_identifier()
-	| "." port_identifier() "(" [ expression() ] ")"
+	// CHG: expression() can expand to "", so remove[]
+	| "." port_identifier() "(" expression() ")"
   )
 }
 
@@ -2093,7 +2109,7 @@ void assume_property_statement() :
 {
 }
 {
-	<ASSUME> <PROPERTY> "(" property_spec() ")" ";"
+	<ASSUME> <PROPERTY> "(" property_spec() ")" <SEMICOLON>
 }
 
 void cover_property_statement() :
@@ -2114,7 +2130,8 @@ void property_instance() :
 {
 }
 {
-	ps_property_identifier() [ "(" [ list_of_arguments() ] ")" ]
+	// CHG: list_of_arguments() can expand to "", so remove []
+	ps_property_identifier() [ "(" list_of_arguments() ")" ]
 }
 
 void concurrent_assertion_item_declaration() :
@@ -2129,9 +2146,10 @@ void property_declaration() :
 {
 }
 {
-	<PROPERTY> property_identifier() [ "(" [ tf_port_list() ] ")" ] ";"
+	// CHG: tf_port_list() can expand to "", so remove []
+	<PROPERTY> property_identifier() [ "(" tf_port_list() ")" ] <SEMICOLON>
 	(assertion_variable_declaration())*
-	property_spec() ";"
+	property_spec() <SEMICOLON>
 	<ENDPROPERTY> [ ":" property_identifier() ]
 }
 
@@ -2146,6 +2164,7 @@ void property_expr() :
 {
 }
 {
+    /* CHG: eliminate left recursion
 	sequence_expr()
 	| "(" property_expr() ")"
 	| <NOT> property_expr()
@@ -2156,15 +2175,39 @@ void property_expr() :
 	| <IF> "(" expression_or_dist() ")" property_expr() [ <ELSE> property_expr() ]
 	| property_instance()
 	| clocking_event() property_expr()
+	 */
+  (
+	sequence_expr()
+	| "(" property_expr() ")"
+	| <NOT> property_expr()
+	| sequence_expr() "|->" property_expr()
+	| sequence_expr() "|=>" property_expr()
+	| <IF> "(" expression_or_dist() ")" property_expr() [ <ELSE> property_expr() ]
+	| property_instance()
+	| clocking_event() property_expr()
+  ) [property_expr_2()]
+	
+}
+
+void property_expr_2() :
+{
+}
+{
+  (
+	<OR> property_expr()  |
+	<AND> property_expr()
+  ) property_expr()
+
 }
 
 void sequence_declaration() :
 {
 }
 {
-	<SEQUENCE> sequence_identifier() [ "(" [ tf_port_list() ] ")" ] ";"
+	// CHG: tf_port_list() can expand to "", so remove []
+	<SEQUENCE> sequence_identifier() [ "(" tf_port_list() ")" ] <SEMICOLON>
 	(assertion_variable_declaration())*
-	sequence_expr() ";"
+	sequence_expr() <SEMICOLON>
 	<ENDSEQUENCE> [ ":" sequence_identifier() ]
 }
 
@@ -2172,6 +2215,7 @@ void sequence_expr() :
 {
 }
 {
+	/* CHG: eliminate left recursion
 	cycle_delay_range() sequence_expr() ( cycle_delay_range() sequence_expr())*
 	| sequence_expr() cycle_delay_range() sequence_expr() (cycle_delay_range() sequence_expr())*
 	| expression_or_dist() [ boolean_abbrev() ]
@@ -2185,6 +2229,30 @@ void sequence_expr() :
 	| expression_or_dist() <THROUGHOUT> sequence_expr()
 	| sequence_expr() <WITHIN> sequence_expr()
 	| clocking_event() sequence_expr()
+	 */
+  (
+	cycle_delay_range() sequence_expr() ( cycle_delay_range() sequence_expr())*
+	| expression_or_dist() [ boolean_abbrev() ]
+	| "(" expression_or_dist() ("," sequence_match_item())* ")" [ boolean_abbrev() ]
+	| sequence_instance() [ sequence_abbrev() ]
+	| "(" sequence_expr() ("," sequence_match_item())* ")" [ sequence_abbrev() ]
+	| <FIRST_MATCH> "(" sequence_expr() ("," sequence_match_item())* ")"
+	| expression_or_dist() <THROUGHOUT> sequence_expr()
+	| clocking_event() sequence_expr()
+  ) [ sequence_expr_2() ]
+}
+
+void sequence_expr_2() :
+{
+}
+{
+  (
+	cycle_delay_range() sequence_expr() (cycle_delay_range() sequence_expr())*
+	| <AND> sequence_expr()
+	| <INTERSECT> sequence_expr()
+	| <OR> sequence_expr()
+	| <WITHIN> sequence_expr()
+  ) sequence_expr()
 }
 
 void cycle_delay_range() :
@@ -2217,7 +2285,8 @@ void sequence_instance() :
 {
 }
 {
-	ps_sequence_identifier() [ "(" [ list_of_arguments() ] ")" ]
+	// CHG: list_of_arguments() can expand to "", so remove []
+	ps_sequence_identifier() [ "(" list_of_arguments() ")" ]
 }
 
 void formal_list_item() :
@@ -2299,14 +2368,14 @@ void expression_or_dist() :
 {
 }
 {
-	expression() [ <DIST> " dist_list() " ]
+	expression() [ <DIST> "{" dist_list() "}" ]
 }
 
 void assertion_variable_declaration() :
 {
 }
 {
-	var_data_type() list_of_variable_identifiers() ";"
+	var_data_type() list_of_variable_identifiers() <SEMICOLON>
 }
 
  
@@ -2317,7 +2386,8 @@ void covergroup_declaration() :
 {
 }
 {
-	<COVERGROUP> covergroup_identifier() [ "(" [ tf_port_list() ] ")" ] [ coverage_event() ] ";"
+	// CHG: tf_port_list() can expand to "", so remove []
+	<COVERGROUP> covergroup_identifier() [ "(" tf_port_list() ")" ] [ coverage_event() ] <SEMICOLON>
 	( coverage_spec_or_option() )*
 	<ENDGROUP> [ ":" covergroup_identifier() ]
 }
@@ -2327,7 +2397,7 @@ void coverage_spec_or_option() :
 }
 {
 	( attribute_instance() )* coverage_spec()
-	| ( attribute_instance() )* coverage_option() ";"
+	| ( attribute_instance() )* coverage_option() <SEMICOLON>
 }
 
 void coverage_option() :
@@ -2358,10 +2428,33 @@ void block_event_expression() :
 {
 }
 {
+	// CHG: eliminate left recursion
+	// A -> Aa | b
+	//
+	// A  -> bA'
+	// A' -> aA' | eta
+	//
+	// b  -> (<BEGIN> ... | <END> ...)
+	// a  -> (<OR> block_event_expression())
+	//
+	// 
+	/*
 	block_event_expression() <OR> block_event_expression()
 	| <BEGIN> hierarchical_btf_identifier()
 	| <END> hierarchical_btf_identifier()
+	 */
+	(<BEGIN> hierarchical_btf_identifier()
+		| <END> hierarchical_btf_identifier()
+	) [block_event_expression_2()]
 }
+
+void block_event_expression_2() :
+{
+}
+{
+	<OR> block_event_expression() block_event_expression_2()
+}
+
 
 void hierarchical_btf_identifier() :
 {
@@ -2383,8 +2476,8 @@ void bins_or_empty() :
 {
 }
 {
-	( (attribute_instance() )* ( bins_or_options() ";" )* )*
-	| ";"
+	"{" (attribute_instance() )* ( bins_or_options() <SEMICOLON> )*  "}"
+	| <SEMICOLON>
 }
 
 void bins_or_options() :
@@ -2392,9 +2485,11 @@ void bins_or_options() :
 }
 {
 	coverage_option()
-	| [ <WILDCARD> ] bins_keyword() bin_identifier() [ "[" [ expression() ] "]" ] "=" ( open_range_list() )* [ <IFF> "(" expression()	")" ]
+	// CHG: expression can expand to "", so remove []
+	| [ <WILDCARD> ] bins_keyword() bin_identifier() [ "[" expression() "]" ] "=" "{" open_range_list() "}" [ <IFF> "(" expression() ")" ]
 	| [ <WILDCARD> ] bins_keyword() bin_identifier() [ "[" "]" ] "=" trans_list() [ <IFF> "(" expression() ")" ]
-	| bins_keyword() bin_identifier() [ "[" [ expression() ] "]" ] "=" <T_DEFAULT> [ <IFF> "(" expression() ")" ]
+	// CHG: expression can expand to "", so remove []
+	| bins_keyword() bin_identifier() [ "[" expression() "]" ] "=" <T_DEFAULT> [ <IFF> "(" expression() ")" ]
 	| bins_keyword() bin_identifier() "=" <T_DEFAULT> <SEQUENCE> [ <IFF> "(" expression() ")" ]
 }
 
@@ -2478,8 +2573,8 @@ void select_bins_or_empty() :
 {
 }
 {
-	"{" ( bins_selection_or_option() ";" )* "}"
-	| ";"
+	"{" ( bins_selection_or_option() <SEMICOLON> )* "}"
+	| <SEMICOLON>
 }
 
 void bins_selection_or_option() :
@@ -2501,12 +2596,30 @@ void select_expression() :
 {
 }
 {
+    /* CHG: remove left recursion
 	select_condition()
 	| "!" select_condition()
 	| select_expression() "&&" select_expression()
 	| select_expression() "||" select_expression()
 	| "(" select_expression() ")"
+	 */
+  (
+	select_condition()
+	| "!" select_condition()
+	| "(" select_expression() ")"
+  ) [select_expression_2()]
 }
+
+void select_expression_2() :
+{
+}
+{
+  (
+	  "&&" select_expression()
+	| "||" select_expression()
+  ) select_expression()
+}
+
 
 void select_condition() :
 {
@@ -2520,7 +2633,8 @@ void bins_expression() :
 }
 {
 	variable_identifier()
-	| cover_point_identifier() [ "." bins_identifier() ]
+	// ISSUE: spec says bins_identifier()
+	| cover_point_identifier() [ "." bin_identifier() ]
 }
 
 void open_range_list() :
@@ -2549,15 +2663,15 @@ void gate_instantiation() :
 {
 }
 {
-	cmos_switchtype() [delay3()] cmos_switch_instance() ( "," cmos_switch_instance() )* ";"
-	| enable_gatetype() [drive_strength()] [delay3()] enable_gate_instance() ( "," enable_gate_instance() )* ";"
-	| mos_switchtype() [delay3()] mos_switch_instance() ( "," mos_switch_instance() )* ";"
-	| n_input_gatetype() [drive_strength()] [delay2()] n_input_gate_instance() ( "," n_input_gate_instance() )* ";"
-	| n_output_gatetype() [drive_strength()] [delay2()] n_output_gate_instance() ( "," n_output_gate_instance() )* ";"
-	| pass_en_switchtype() [delay2()] pass_enable_switch_instance() ( "," pass_enable_switch_instance() )* ";"
-	| pass_switchtype() pass_switch_instance() ( "," pass_switch_instance() )* ";"
-	| <PULLDOWN> [pulldown_strength()] pull_gate_instance() ( "," pull_gate_instance() )* ";"
-	| <PULLUP> [pullup_strength()] pull_gate_instance() ( "," pull_gate_instance() )* ";"
+	cmos_switchtype() [delay3()] cmos_switch_instance() ( "," cmos_switch_instance() )* <SEMICOLON>
+	| enable_gatetype() [drive_strength()] [delay3()] enable_gate_instance() ( "," enable_gate_instance() )* <SEMICOLON>
+	| mos_switchtype() [delay3()] mos_switch_instance() ( "," mos_switch_instance() )* <SEMICOLON>
+	| n_input_gatetype() [drive_strength()] [delay2()] n_input_gate_instance() ( "," n_input_gate_instance() )* <SEMICOLON>
+	| n_output_gatetype() [drive_strength()] [delay2()] n_output_gate_instance() ( "," n_output_gate_instance() )* <SEMICOLON>
+	| pass_en_switchtype() [delay2()] pass_enable_switch_instance() ( "," pass_enable_switch_instance() )* <SEMICOLON>
+	| pass_switchtype() pass_switch_instance() ( "," pass_switch_instance() )* <SEMICOLON>
+	| <PULLDOWN> [pulldown_strength()] pull_gate_instance() ( "," pull_gate_instance() )* <SEMICOLON>
+	| <PULLUP> [pullup_strength()] pull_gate_instance() ( "," pull_gate_instance() )* <SEMICOLON>
 }
 
 void cmos_switch_instance() :
@@ -2751,14 +2865,15 @@ void module_instantiation() :
 }
 {
 	module_identifier() [ parameter_value_assignment() ] hierarchical_instance()
-		( "," hierarchical_instance() )* ";"
+		( "," hierarchical_instance() )* <SEMICOLON>
 }
 
 void parameter_value_assignment() :
 {
 }
 {
- 	"#" "(" [ list_of_parameter_assignments() ] ")"
+	// CHG: list_of_parameter_assignments can expand to "", so remove []
+ 	"#" "(" list_of_parameter_assignments() ")"
 }
  
 void list_of_parameter_assignments() :
@@ -2780,14 +2895,16 @@ void named_parameter_assignment() :
 {
 }
 {
-	"." parameter_identifier() "(" [ param_expression() ] ")"
+	// CHG: param_expression() can expand to "", so remove []
+	"." parameter_identifier() "(" param_expression() ")"
 }
 
 void hierarchical_instance() :
 {
 }
 {
-	name_of_instance() "(" [ list_of_port_connections() ] ")"
+	// CHG: list_of_port_connections() can expand to "", so remove []
+	name_of_instance() "(" list_of_port_connections() ")"
 }
 
 void name_of_instance() :
@@ -2809,14 +2926,16 @@ void ordered_port_connection() :
 {
 }
 {
-	( attribute_instance() )* [ expression() ]
+	// CHG: expression() can expand to "", so remove []
+	( attribute_instance() )* expression()
 }
 
 void named_port_connection() :
 {
 }
 {
-	( attribute_instance() )* "." port_identifier() [ "(" [ expression() ] ")" ]
+	// CHG: expression() can expand to [], so remove []
+	( attribute_instance() )* "." port_identifier() [ "(" expression() ")" ]
 	| ( attribute_instance() )* ".*"
 }
 
@@ -2828,7 +2947,7 @@ void interface_instantiation() :
 {
 }
 {
-	interface_identifier() [ parameter_value_assignment() ] hierarchical_instance() ( "," hierarchical_instance())* ";"
+	interface_identifier() [ parameter_value_assignment() ] hierarchical_instance() ( "," hierarchical_instance())* <SEMICOLON>
 }
 
 /********************************************************************
@@ -2865,7 +2984,7 @@ void loop_generate_construct() :
 {
 }
 {
-	<FOR> "(" genvar_initialization() ";" genvar_expression() ";" genvar_iteration() ")"
+	<FOR> "(" genvar_initialization() <SEMICOLON> genvar_expression() <SEMICOLON> genvar_iteration() ")"
 	generate_block()
 }
 
@@ -2929,7 +3048,7 @@ void generate_block_or_null() :
 {
 }
 {
-	generate_block() | ";"
+	generate_block() | <SEMICOLON>
 }
 
 /****************************************************************************
@@ -2944,14 +3063,14 @@ void udp_nonansi_declaration() :
 {
 }
 {
-	( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" udp_port_list() ")" ";"
+	( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" udp_port_list() ")" <SEMICOLON>
 }
 
 void udp_ansi_declaration() :
 {
 }
 {
-	( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" udp_declaration_port_list() ")" ";"
+	( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" udp_declaration_port_list() ")" <SEMICOLON>
 }
 
 void udp_declaration() :
@@ -2966,7 +3085,7 @@ void udp_declaration() :
 	<ENDPRIMITIVE> [ ":" udp_identifier() ]
 	| <EXTERN> udp_nonansi_declaration()
 	| <EXTERN> udp_ansi_declaration()
-	| ( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" ".*" ")" ";" ( udp_port_declaration() )*
+	| ( attribute_instance() )* <PRIMITIVE> udp_identifier() "(" ".*" ")" <SEMICOLON> ( udp_port_declaration() )*
 	udp_body()
 	<ENDPRIMITIVE> [ ":" udp_identifier() ]
 }
@@ -2992,9 +3111,9 @@ void udp_port_declaration() :
 {
 }
 {
-	udp_output_declaration() ";"
-	| udp_input_declaration() ";"
-	| udp_reg_declaration() ";"
+	udp_output_declaration() <SEMICOLON>
+	| udp_input_declaration() <SEMICOLON>
+	| udp_reg_declaration() <SEMICOLON>
 }
 
 void udp_output_declaration() :
@@ -3041,7 +3160,7 @@ void combinational_entry() :
 {
 }
 {
-	level_input_list() ":" output_symbol() ";"
+	level_input_list() ":" output_symbol() <SEMICOLON>
 }
 
 void sequential_body() :
@@ -3055,7 +3174,7 @@ void udp_initial_statement() :
 {
 }
 {
-	<INITIAL> output_port_identifier() "=" init_val() ";"
+	<INITIAL> output_port_identifier() "=" init_val() <SEMICOLON>
 }
 
 void init_val() :
@@ -3069,7 +3188,7 @@ void sequential_entry() :
 {
 }
 {
-	seq_input_list() ":" current_state() ":" next_state() ";"
+	seq_input_list() ":" current_state() ":" next_state() <SEMICOLON>
 }
 
 void seq_input_list() :
@@ -3144,7 +3263,7 @@ void udp_instantiation() :
 {
 }
 {
-	udp_identifier() [ drive_strength() ] [ delay2() ] udp_instance() ( "," udp_instance() )* ";"
+	udp_identifier() [ drive_strength() ] [ delay2() ] udp_instance() ( "," udp_instance() )* <SEMICOLON>
 }
 
 void udp_instance() :
@@ -3165,8 +3284,8 @@ void continuous_assign() :
 {
 }
 {
-	<ASSIGN> [ drive_strength() ] [ delay3() ] list_of_net_assignments() ";"
-	| <ASSIGN> [ delay_control() ] list_of_variable_assignments() ";"
+	<ASSIGN> [ drive_strength() ] [ delay3() ] list_of_net_assignments() <SEMICOLON>
+	| <ASSIGN> [ delay_control() ] list_of_variable_assignments() <SEMICOLON>
 }
 
 void list_of_net_assignments() :
@@ -3187,7 +3306,7 @@ void net_alias() :
 {
 }
 {
-	<ALIAS> net_lvalue() "=" net_lvalue() ("=" net_lvalue())* ";"
+	<ALIAS> net_lvalue() "=" net_lvalue() ("=" net_lvalue())* <SEMICOLON>
 }
 
 void net_assignment() :
@@ -3322,7 +3441,7 @@ void statement_or_null() :
 }
 {
 	statement()
-	| (attribute_instance())* ";"
+	| (attribute_instance())* <SEMICOLON>
 }
 
 void statement() :
@@ -3336,12 +3455,12 @@ void statement_item() :
 {
 }
 {
-	blocking_assignment() ";"
-	| nonblocking_assignment() ";"
-	| procedural_continuous_assignment() ";"
+	blocking_assignment() <SEMICOLON>
+	| nonblocking_assignment() <SEMICOLON>
+	| procedural_continuous_assignment() <SEMICOLON>
 	| case_statement()
 	| conditional_statement()
-	| inc_or_dec_expression() ";"
+	| inc_or_dec_expression() <SEMICOLON>
 	| subroutine_call_statement()
 	| disable_statement()
 	| event_trigger()
@@ -3352,7 +3471,7 @@ void statement_item() :
 	| seq_block()
 	| wait_statement()
 	| procedural_assertion_statement()
-	| clocking_drive() ";"
+	| clocking_drive() <SEMICOLON>
 	| randsequence_statement()
 	| randcase_statement()
 	| expect_property_statement()
@@ -3370,7 +3489,7 @@ void function_statement_or_null() :
 }
 {
 	function_statement()
-	| (attribute_instance())* ";"
+	| (attribute_instance())* <SEMICOLON>
 }
 
 void variable_identifier_list() :
@@ -3423,10 +3542,20 @@ void event_expression() :
 {
 }
 {
+  (
 	[ edge_identifier() ] expression() [ <IFF> expression() ]
 	| sequence_instance() [ <IFF> expression() ]
-	| event_expression() <OR> event_expression()
-	| event_expression() "," event_expression()
+  ) [event_expression_2()]
+}
+
+void event_expression_2() :
+{
+}
+{
+  (
+	  <OR> event_expression()
+	| "," event_expression()
+  ) event_expression()
 }
 
 void procedural_timing_control() :
@@ -3442,9 +3571,10 @@ void jump_statement() :
 {
 }
 {
-	<RETURN> [ expression() ] ";"
-	| <BREAK> ";"
-	| <CONTINUE> ";"
+	// CHG: expression can expand to "", so remove []
+	<RETURN> expression() <SEMICOLON>
+	| <BREAK> <SEMICOLON>
+	| <CONTINUE> <SEMICOLON>
 }
 
 void wait_statement() :
@@ -3452,7 +3582,7 @@ void wait_statement() :
 }
 {
 	<WAIT> "(" expression() ")" statement_or_null()
-	| <WAIT> <FORK> ";"
+	| <WAIT> <FORK> <SEMICOLON>
 	| <WAIT_ORDER> "(" hierarchical_identifier() ( "," hierarchical_identifier())* ")" action_block()
 }
 
@@ -3460,17 +3590,17 @@ void event_trigger() :
 {
 }
 {
-	"->" hierarchical_event_identifier() ";"
-	| "->>" [ delay_or_event_control() ] hierarchical_event_identifier() ";"
+	"->" hierarchical_event_identifier() <SEMICOLON>
+	| "->>" [ delay_or_event_control() ] hierarchical_event_identifier() <SEMICOLON>
 }
 
 void disable_statement() :
 {
 }
 {
-	<DISABLE> hierarchical_task_identifier() ";"
-	| <DISABLE> hierarchical_block_identifier() ";"
-	| <DISABLE> <FORK> ";"
+	<DISABLE> hierarchical_task_identifier() <SEMICOLON>
+	| <DISABLE> hierarchical_block_identifier() <SEMICOLON>
+	| <DISABLE> <FORK> <SEMICOLON>
 }
 
 /********************************************************************
@@ -3589,7 +3719,8 @@ void pattern() :
 	"." variable_identifier()
 	| ".*"
 	| constant_expression()
-	| <TAGGED> member_identifier() [ pattern() ]
+	// CHG: pattern can expand to "", so remove []
+	| <TAGGED> member_identifier() pattern()
 	| "’{" pattern() ("," pattern())* "}"
 	| "’{" member_identifier() ":" pattern() ( "," member_identifier() ":" pattern())* "}"
 }
@@ -3601,7 +3732,7 @@ void assignment_pattern() :
 	"'{" expression() ( "," expression())* "}"
 	| "'{" structure_pattern_key() ":" expression() ( "," structure_pattern_key() ":" expression())* "}"
 	| "'{" array_pattern_key() ":" expression() ( "," array_pattern_key() ":" expression())* "}"
-	| "'{" constant_expression() ( expression() ( "," expression() )* )* "}"
+	| "'{" constant_expression() "{" expression() ( "," expression() )* "}" "}"
 }
 
 	
@@ -3671,9 +3802,9 @@ void loop_statement() :
 	<FOREVER> statement_or_null()
 	| <REPEAT> "(" expression() ")" statement_or_null()
 	| <WHILE> "(" expression() ")" statement_or_null()
-	| <FOR> "(" for_initialization() ";" expression() ";" for_step() ")"
+	| <FOR> "(" for_initialization() <SEMICOLON> expression() <SEMICOLON> for_step() ")"
 		statement_or_null()
-	| <DO> statement_or_null() <WHILE> "(" expression() ")" ";"
+	| <DO> statement_or_null() <WHILE> "(" expression() ")" <SEMICOLON>
 	| <FOREACH> "(" array_identifier() "[" loop_variables() "]" ")" statement()
 }
 
@@ -3724,8 +3855,8 @@ void subroutine_call_statement() :
 {
 }
 {
-	subroutine_call() ";"
-	| <VOID> "'" "(" function_subroutine_call() ")" ";"
+	subroutine_call() <SEMICOLON>
+	| <VOID> "'" "(" function_subroutine_call() ")" <SEMICOLON>
 }
 
 /********************************************************************
@@ -3755,7 +3886,7 @@ void clocking_declaration() :
 {
 }
 {
-	[ <T_DEFAULT> ] <CLOCKING> [ clocking_identifier() ] clocking_event() ";"
+	[ <T_DEFAULT> ] <CLOCKING> [ clocking_identifier() ] clocking_event() <SEMICOLON>
 	( clocking_item() )*
 	<ENDCLOCKING> [ ":" clocking_identifier() ]
 }
@@ -3772,8 +3903,8 @@ void clocking_item() :
 {
 }
 {
-	<T_DEFAULT> default_skew() ";"
-	| clocking_direction() list_of_clocking_decl_assign() ";"
+	<T_DEFAULT> default_skew() <SEMICOLON>
+	| clocking_direction() list_of_clocking_decl_assign() <SEMICOLON>
 	| ( attribute_instance() )* concurrent_assertion_item_declaration()
 }
 
@@ -3866,7 +3997,7 @@ void production() :
 {
 }
 {
-	[ function_data_type() ] production_identifier() [ "(" tf_port_list() ")" ] ":" rs_rule() ( "|" rs_rule() )* ";"
+	[ function_data_type() ] production_identifier() [ "(" tf_port_list() ")" ] ":" rs_rule() ( "|" rs_rule() )* <SEMICOLON>
 }
 
 void rs_rule() :
@@ -3943,14 +4074,431 @@ void rs_case_item() :
 {
 }
 {
-	expression() ( "," expression() )* ":" production_item() ";"
-	| <T_DEFAULT> [ ":" ] production_item() ";"
+	expression() ( "," expression() )* ":" production_item() <SEMICOLON>
+	| <T_DEFAULT> [ ":" ] production_item() <SEMICOLON>
 }
 
 /****************************************************************************
  * A.7 Specify section
  ****************************************************************************/
 
+/********************************************************************
+ * A.7.1 Specify block declaration
+ ********************************************************************/
+
+void specify_block() :
+{
+}
+{
+	<SPECIFY> ( specify_item() )* <ENDSPECIFY>
+}
+
+void specify_item() :
+{
+}
+{
+	specparam_declaration()
+	| pulsestyle_declaration()
+	| showcancelled_declaration()
+	| path_declaration()
+	
+	// FIXME:
+	/*
+	| system_timing_check()
+	 */
+}
+
+void pulsestyle_declaration() :
+{
+}
+{
+	<PULSESTYLE_ONEVENT> list_of_path_outputs() <SEMICOLON>
+	| <PULSESTYLE_ONDETECT> list_of_path_outputs() <SEMICOLON>
+}
+
+void showcancelled_declaration() :
+{
+}
+{
+	<SHOWCANCELLED> list_of_path_outputs() <SEMICOLON>
+	| <NOSHOWCANCELLED> list_of_path_outputs() <SEMICOLON>
+}
+
+/********************************************************************
+ * A.7.2 Specify path declarations
+ ********************************************************************/
+
+void path_declaration() :
+{
+}
+{
+	simple_path_declaration() <SEMICOLON>
+	| edge_sensitive_path_declaration() <SEMICOLON>
+	| state_dependent_path_declaration() <SEMICOLON>
+}
+
+void simple_path_declaration() :
+{
+}
+{
+	parallel_path_description() "=" path_delay_value()
+	| full_path_description() "=" path_delay_value()
+}
+
+void parallel_path_description() :
+{
+}
+{
+	"(" specify_input_terminal_descriptor() [ polarity_operator() ] "=>" specify_output_terminal_descriptor() ")"
+}
+
+void full_path_description() :
+{
+}
+{
+	"(" list_of_path_inputs() [ polarity_operator() ] "*>" list_of_path_outputs() ")"
+}
+
+void list_of_path_inputs() :
+{
+}
+{
+	specify_input_terminal_descriptor() ( "," specify_input_terminal_descriptor() )*
+}
+
+void list_of_path_outputs() :
+{
+}
+{
+	specify_output_terminal_descriptor() ( "," specify_output_terminal_descriptor() )*
+}
+
+/********************************************************************
+ * A.7.3 Specify block terminals
+ ********************************************************************/
+
+void specify_input_terminal_descriptor() :
+{
+}
+{
+	input_identifier() [ "[" constant_range_expression() "]" ]
+}
+
+void specify_output_terminal_descriptor() :
+{
+}
+{
+	output_identifier() [ "[" constant_range_expression() "]" ]
+}
+
+void input_identifier() :
+{
+}
+{
+	input_port_identifier() | inout_port_identifier() | interface_identifier() "." port_identifier()
+}
+
+void output_identifier() :
+{
+}
+{
+	output_port_identifier() | inout_port_identifier() | interface_identifier() "." port_identifier()
+}
+
+/********************************************************************
+ * A.7.4 Specify path delays
+ ********************************************************************/
+
+void path_delay_value() :
+{
+}
+{
+	list_of_path_delay_expressions()
+	| "(" list_of_path_delay_expressions() ")"
+}
+
+void list_of_path_delay_expressions() :
+{
+}
+{
+	t_path_delay_expression()
+	| trise_path_delay_expression() "," tfall_path_delay_expression()
+	| trise_path_delay_expression() "," tfall_path_delay_expression() "," tz_path_delay_expression()
+	| t01_path_delay_expression() "," t10_path_delay_expression() "," t0z_path_delay_expression() ","
+		tz1_path_delay_expression() "," t1z_path_delay_expression() "," tz0_path_delay_expression()
+	| t01_path_delay_expression() "," t10_path_delay_expression() "," t0z_path_delay_expression() ","
+		tz1_path_delay_expression() "," t1z_path_delay_expression() "," tz0_path_delay_expression() ","
+		t0x_path_delay_expression() "," tx1_path_delay_expression() "," t1x_path_delay_expression() ","
+		tx0_path_delay_expression() "," txz_path_delay_expression() "," tzx_path_delay_expression()
+}
+
+void t_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void trise_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tfall_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tz_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t01_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t10_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t0z_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tz1_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t1z_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tz0_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t0x_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tx1_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void t1x_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tx0_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void txz_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void tzx_path_delay_expression() :
+{
+}
+{
+	path_delay_expression()
+}
+
+void path_delay_expression() :
+{
+}
+{
+	constant_mintypmax_expression()
+}
+
+void edge_sensitive_path_declaration() :
+{
+}
+{
+	parallel_edge_sensitive_path_description() "=" path_delay_value()
+	| full_edge_sensitive_path_description() "=" path_delay_value()
+}
+
+void parallel_edge_sensitive_path_description() :
+{
+}
+{
+	"(" [ edge_identifier() ] specify_input_terminal_descriptor() "=>"
+		"(" specify_output_terminal_descriptor() [ polarity_operator() ] ":" data_source_expression() ")" ")"
+}
+
+void full_edge_sensitive_path_description() :
+{
+}
+{
+	"(" [ edge_identifier() ] list_of_path_inputs() "*>"
+		"(" list_of_path_outputs() [ polarity_operator() ] ":" data_source_expression() ")" ")"
+}
+
+void data_source_expression() :
+{
+}
+{
+	expression()
+}
+
+void edge_identifier() :
+{
+}
+{
+	<POSEDGE> | <NEGEDGE>
+}
+
+void state_dependent_path_declaration() :
+{
+}
+{
+	<IF> "(" module_path_expression() ")" simple_path_declaration()
+	| <IF> "(" module_path_expression() ")" edge_sensitive_path_declaration()
+	| <IFNONE> simple_path_declaration()
+}
+
+void polarity_operator() :
+{
+}
+{
+	"+" | "-"
+}
+
+/*
+A.7.5 System timing checks
+A.7.5.1 System timing check commands
+system_timing_check ::=
+$setup_timing_check
+| $hold_timing_check
+| $setuphold_timing_check
+| $recovery_timing_check
+| $removal_timing_check
+| $recrem_timing_check
+| $skew_timing_check
+| $timeskew_timing_check
+| $fullskew_timing_check
+| $period_timing_check
+| $width_timing_check
+| $nochange_timing_check
+$setup_timing_check ::=
+$setup ( data_event , reference_event , timing_check_limit [ , [ notifier ] ] ) ;
+$hold_timing_check ::=
+$hold ( reference_event , data_event , timing_check_limit [ , [ notifier ] ] ) ;
+$setuphold_timing_check ::=
+$setuphold ( reference_event , data_event , timing_check_limit , timing_check_limit
+[ , [ notifier ] [ , [ stamptime_condition ] [ , [ checktime_condition ]
+[ , [ delayed_reference ] [ , [ delayed_data ] ] ] ] ] ] ) ;
+$recovery_timing_check ::=
+$recovery ( reference_event , data_event , timing_check_limit [ , [ notifier ] ] ) ;
+$removal_timing_check ::=
+$removal ( reference_event , data_event , timing_check_limit [ , [ notifier ] ] ) ;
+$recrem_timing_check ::=
+$recrem ( reference_event , data_event , timing_check_limit , timing_check_limit
+[ , [ notifier ] [ , [ stamptime_condition ] [ , [ checktime_condition ]
+[ , [ delayed_reference ] [ , [ delayed_data ] ] ] ] ] ] ) ;
+$skew_timing_check ::=
+$skew ( reference_event , data_event , timing_check_limit [ , [ notifier ] ] ) ;
+$timeskew_timing_check ::=
+$timeskew ( reference_event , data_event , timing_check_limit
+[ , [ notifier ] [ , [ event_based_flag ] [ , [ remain_active_flag ] ] ] ] ) ;
+$fullskew_timing_check ::=
+$fullskew ( reference_event , data_event , timing_check_limit , timing_check_limit
+[ , [ notifier ] [ , [ event_based_flag ] [ , [ remain_active_flag ] ] ] ] ) ;
+$period_timing_check ::=
+$period ( controlled_reference_event , timing_check_limit [ , [ notifier ] ] ) ;
+$width_timing_check ::=
+$width ( controlled_reference_event , timing_check_limit , threshold [ , [ notifier ] ] ) ;
+$nochange_timing_check ::=
+$nochange ( reference_event , data_event , start_edge_offset ,
+end_edge_offset [ , [ notifier ] ] ) ;
+A.7.5.2 System timing check command arguments
+checktime_condition ::= mintypmax_expression
+controlled_reference_event ::= controlled_timing_check_event
+data_event ::= timing_check_event
+delayed_data ::=
+terminal_identifier
+| terminal_identifier [ constant_mintypmax_expression ]
+delayed_reference ::=
+terminal_identifier
+| terminal_identifier [ constant_mintypmax_expression ]
+end_edge_offset ::= mintypmax_expression
+event_based_flag ::= constant_expression
+notifier ::= variable_identifier
+reference_event ::= timing_check_event
+remain_active_flag ::= constant_mintypmax_expression
+stamptime_condition ::= mintypmax_expression
+start_edge_offset ::= mintypmax_expression
+threshold ::=constant_expression
+timing_check_limit ::= expression
+A.7.5.3 System timing check event definitions
+timing_check_event ::=
+[timing_check_event_control] specify_terminal_descriptor [ &&& timing_check_condition ]
+controlled_timing_check_event ::=
+timing_check_event_control specify_terminal_descriptor [ &&& timing_check_condition ]
+timing_check_event_control ::=
+posedge
+| negedge
+| edge_control_specifier
+specify_terminal_descriptor ::=
+specify_input_terminal_descriptor
+| specify_output_terminal_descriptor
+edge_control_specifier ::= edge [ edge_descriptor { , edge_descriptor } ]
+edge_descriptor1 ::= 01 | 10 | z_or_x zero_or_one | zero_or_one z_or_x
+zero_or_one ::= 0 | 1
+z_or_x ::= x | X | z | Z
+timing_check_condition ::=
+scalar_timing_check_condition
+| ( scalar_timing_check_condition )
+scalar_timing_check_condition ::=
+expression
+| ~ expression
+| expression == scalar_constant
+| expression === scalar_constant
+| expression != scalar_constant
+| expression !== scalar_constant
+scalar_constant ::= 1’b0 | 1’b1 | 1’B0 | 1’B1 | ’b0 | ’b1 | ’B0 | ’B1 | 1 | 0
+*/
 
 /****************************************************************************
  * A.8 Expressions
@@ -4006,7 +4554,8 @@ void streaming_concatenation() :
 {
 }
 {
-	"{" stream_operator() [ slice_size() ] stream_concatenation() "}"
+	// CHG: slice_size() can expand to "", so remove []
+	"{" stream_operator() slice_size() stream_concatenation() "}"
 }
 
 void stream_operator() :
@@ -4101,8 +4650,10 @@ void list_of_arguments() :
 {
 }
 {
-	[ expression() ] ("," [ expression() ])* ( "," "." identifier() "(" [ expression() ] ")" )*
-	| "." identifier() "(" [ expression() ] ")" ( "," "." identifier() "(" [ expression() ] ")")*
+	// CHG: expression() can expand to "", so remove []
+	expression() ("," expression() )* ( "," "." identifier() "(" expression() ")" )*
+	// CHG: expression() can expand to "", so remove []
+	| "." identifier() "(" expression() ")" ( "," "." identifier() "(" expression() ")")*
 }
 
 void method_call() :
@@ -4141,7 +4692,7 @@ void randomize_call() :
 {
 }
 {
-	"randomize" (attribute_instance())*
+	<RANDOMIZE> (attribute_instance())*
 	[ "(" [ variable_identifier_list() | <NULL> ] ")" ]
 	[ <WITH> constraint_block() ]
 }
@@ -4175,18 +4726,38 @@ void conditional_expression() :
 {
 }
 {
+	/* FIXME: introduce parens to eliminate left recursion 
 	cond_predicate() "?" (attribute_instance())* expression() ":" expression()
+	 */
+	"(" cond_predicate() ")" "?" (attribute_instance())* expression() ":" expression()
 }
 
 void constant_expression() :
 {
 }
 {
+	/* CHG: Remove left recursion
 	constant_primary()
 	| unary_operator() (attribute_instance())* constant_primary()
 	| constant_expression() binary_operator() (attribute_instance())* constant_expression()
 	| constant_expression() "?" (attribute_instance())* constant_expression() ":" constant_expression()
+	 */
+	(
+		constant_primary()
+		| unary_operator() (attribute_instance())* constant_primary()
+	) [constant_expression_2()]
 }
+
+void constant_expression_2() :
+{
+}
+{
+	(
+		  binary_operator() (attribute_instance())* constant_expression()
+		| "?" (attribute_instance())* constant_expression() ":" constant_expression()
+	) constant_expression()
+}
+
 
 void constant_mintypmax_expression() :
 {
@@ -4246,6 +4817,7 @@ void expression() :
 {
 }
 {
+	/* CHG: eliminate left recursion
 	primary()
 	| unary_operator() (attribute_instance())* primary()
 	| inc_or_dec_expression()
@@ -4254,13 +4826,36 @@ void expression() :
 	| conditional_expression()
 	| inside_expression()
 	| tagged_union_expression()
+	 */
+  (
+	primary()
+	| unary_operator() (attribute_instance())* primary()
+	| inc_or_dec_expression()
+	| "(" operator_assignment() ")"
+	| conditional_expression()
+	// CHG: bring inside_expression() literal up
+	// | inside_expression()
+	
+	| tagged_union_expression()
+  ) [expression_2()]
+}
+
+void expression_2() :
+{
+}
+{
+  (
+	binary_operator() (attribute_instance())* expression() 
+	<INSIDE> "{" open_range_list() "}"
+  ) expression_2()
 }
 
 void tagged_union_expression() :
 {
 }
 {
-	<TAGGED> member_identifier() [ expression() ]
+	// CHG: expression() can expand to "", so remove []
+	<TAGGED> member_identifier() expression()
 }
 
 void inside_expression() :
@@ -4286,6 +4881,8 @@ void mintypmax_expression() :
 	| expression() ":" expression() ":" expression()
 }
 
+/* CHG: refactor into module_path_expression() to help
+ *      eliminate left recursion
 void module_path_conditional_expression() :
 {
 }
@@ -4293,16 +4890,34 @@ void module_path_conditional_expression() :
 	module_path_expression() "?" (attribute_instance())*
 	module_path_expression() ":" module_path_expression()
 }
+ */
 
 void module_path_expression() :
 {
 }
 {
+  /* CHG: remove left recursion
 	module_path_primary()
 	| unary_module_path_operator() (attribute_instance())* module_path_primary()
-	| module_path_expression() binary_module_path_operator() (attribute_instance())*
-	module_path_expression()
+	| module_path_expression() binary_module_path_operator() (attribute_instance())* module_path_expression()
 	| module_path_conditional_expression()
+   */
+
+  (
+	module_path_primary()
+	| unary_module_path_operator() (attribute_instance())* module_path_primary()
+  ) [module_path_expression_2()]
+}
+
+void module_path_expression_2() :
+{
+}
+{
+  (
+	"?" (attribute_instance())*
+	  module_path_expression() ":" module_path_expression()  
+	binary_module_path_operator() (attribute_instance())* module_path_expression()
+  ) module_path_expression()
 }
 
 void module_path_mintypmax_expression() :
@@ -4344,7 +4959,8 @@ void constant_primary() :
 {
 	primary_literal()
 	| ps_parameter_identifier() constant_select()
-	| specparam_identifier() [ constant_range_expression() ]
+	// CHG: constant_range_expression() can expand to "", so remove []
+	| specparam_identifier() constant_range_expression()
 	| genvar_identifier()
 	| [ package_scope() | class_scope() ] enum_identifier()
 	| constant_concatenation()
@@ -4377,7 +4993,8 @@ void primary() :
 	| empty_queue()
 	| concatenation()
 	| multiple_concatenation()
-	| function_subroutine_call()
+	// FIXME: workaround to eliminate left recursion -- just for now
+	| "(" function_subroutine_call() ")"
 	| "(" mintypmax_expression() ")"
 	| cast()
 	| assignment_pattern_expression()
@@ -4739,7 +5356,7 @@ void unbased_unsized_literal() :
 
 Token string_literal() :
 {
-	Token tok;
+	Token tok = null; // FIXME:
 }
 {
 	// TODO: 
@@ -4763,7 +5380,7 @@ void attribute_instance() :
 {
 }
 {
-	"(*" attr_spec() ( "," attr_spec())*  "*)"
+	<ATTR_START> attr_spec() ( "," attr_spec())*  <ATTR_END>
 }
 
 void attr_spec() :
@@ -4814,7 +5431,7 @@ Token c_identifier() :
 	Token tok;
 }
 {
-	( token = <C_IDENT>)
+	( tok = <C_IDENT>)
 	
 	{return tok;}
 }
@@ -4848,6 +5465,7 @@ Token class_variable_identifier() :
 
 Token clocking_identifier() :
 {
+	Token tok;
 }
 {
 	(tok = identifier())
@@ -4934,6 +5552,46 @@ Token escaped_identifier() :
 	(<ESCAPE> {tok = skipToSpace();})
 	{return tok;}
 }
+
+JAVACODE
+Token skipToSpace()
+{
+    Token current = token;
+    Token token ;
+    int lastColumn=-1;
+    StringBuffer image = new StringBuffer();
+
+    for(;;) 
+    { 
+    	    token = getToken(1);
+            
+            if (token.kind == EOF)
+                    unexpectedEof(current);
+            //if there was a break
+            if (token.beginColumn != lastColumn+1 && lastColumn!=-1)
+            {
+                    break ;
+            }
+            lastColumn=token.endColumn;
+
+            image.append(token.image);
+            getNextToken();
+    }
+    token.image = image.toString();
+    return token ;
+}
+
+JAVACODE
+void unexpectedEof(Token token)
+{
+	throw new RuntimeException("unexpected EOF");
+	/*
+	ParseException ex = new ParseException("unexpected EOF");
+	ex.currentToken = token;
+	throw ex;
+	 */
+}
+
 
 Token formal_identifier() :
 {
@@ -5059,7 +5717,9 @@ Token identifier() :
 }
 {
 	(tok = simple_identifier() | tok = escaped_identifier())
-	{return tok;}
+	{
+		return tok;
+	}
 }
 
 Token index_variable_identifier() :
@@ -5328,7 +5988,7 @@ Token simple_identifier() :
 	Token tok;
 }
 {
-	(tok = <S_IDENT>)
+	(tok = <S_IDENT> | tok = <C_IDENT>)
 	{return tok;}
 }
 
