@@ -1,0 +1,6 @@
+
+
+20081101 - 
+    - Add dedicated C-style comment detector for multi-line comments. Fixes
+      cases where the Eclipse built-in multi-line pattern detector failed.
+

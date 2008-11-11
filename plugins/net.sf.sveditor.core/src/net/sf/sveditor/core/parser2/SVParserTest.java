@@ -13,7 +13,7 @@ public class SVParserTest {
 		for (String file : args) {
 			try {
 				FileInputStream in = new FileInputStream(file);
-				PreprocCharStream s = new PreprocCharStream(in);
+				PreprocCharStream s = new PreprocCharStream(in, file);
 				p = new SVParser(s);
 				
 				p.description();

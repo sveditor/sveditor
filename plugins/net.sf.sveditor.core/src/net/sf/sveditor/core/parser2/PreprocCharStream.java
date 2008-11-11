@@ -14,6 +14,7 @@ import net.sf.sveditor.core.scanner.EOFException;
 
 public class PreprocCharStream implements CharStream {
 	private Stack<InputStream>			fInputStack;
+	private Stack<FileInfo>				fFileInfoStack;
 	private int                         fLineno;
 	private int							fLinepos;
 	private int							fBeginLineno;
@@ -24,9 +25,11 @@ public class PreprocCharStream implements CharStream {
 	private Stack<Boolean>				fEnStack;
 	private Map<String, Macro>			fMacroMap;
 	
-	public PreprocCharStream(InputStream in) {
+	public PreprocCharStream(InputStream in, String path) {
 		fInputStack = new Stack<InputStream>();
 		fInputStack.push(in);
+		fFileInfoStack = new Stack<FileInfo>();
+		fFileInfoStack.push(new FileInfo(path));
 		
 		fEnStack = new Stack<Boolean>();
 		fEnStack.push(true);
@@ -49,13 +52,19 @@ public class PreprocCharStream implements CharStream {
 		
 		char ret = get_ch();
 		fImage.append(ret);
-		
-		if (fInputStack.size() == 1) {
-			fBeginLineno  = fLineno;
-			fBeginLinepos = fLinepos;
-		}
+
+		fBeginLineno = getLineno();
+		fBeginLinepos = getLinepos();
 		
 		return ret;
+	}
+	
+	int getLineno() {
+		return fFileInfoStack.peek().fLineno;
+	}
+	
+	int getLinepos() {
+		return fFileInfoStack.peek().fLinepos;
 	}
 
 	public void Done() {
@@ -67,9 +76,7 @@ public class PreprocCharStream implements CharStream {
 	}
 
 	public char[] GetSuffix(int len) {
-		System.out.println("TODO: GetSuffix");
-		// TODO Auto-generated method stub
-		return null;
+		return fImage.substring(fImage.length() - len, fImage.length()).toCharArray();
 	}
 
 	public void backup(int amount) {
@@ -103,7 +110,7 @@ public class PreprocCharStream implements CharStream {
 	}
 
 	public int getLine() {
-		return fLineno;
+		return getLineno();
 	}
 
 	public char readChar() throws IOException {
@@ -155,16 +162,21 @@ public class PreprocCharStream implements CharStream {
 					break;
 				}
 			} else if (ch == '`') {
-				StringBuffer sb = new StringBuffer();
 				// TODO: pre-processor
+				
+				int lineno = fFileInfoStack.peek().fLineno;
+				String file = fFileInfoStack.peek().fName;
 				
 //				int ch2 = get_ch_ll();
 				
-				while ((ch = get_ch_ll()) != -1 && Character.isJavaIdentifierPart(ch)) {
-					sb.append((char)ch);
-				}
+				// First check for one- or two-character pre-proc directives
+				ch = get_ch_ll();
+				ch = skipWhite(ch);
 				
-				if (sb.toString().equals("include")) {
+				String dir = readIdentifier(ch);
+				
+				if (dir.equals("include")) {
+					StringBuffer sb = new StringBuffer();
 					// now, look for file to include
 					
 					while ((ch = get_ch_ll()) != -1 && ch != '"');
@@ -179,17 +191,20 @@ public class PreprocCharStream implements CharStream {
 					
 					if (inc_in != null) {
 						fInputStack.push(inc_in);
+						fFileInfoStack.push(new FileInfo(sb.toString()));
 					} else {
 						System.out.println("[ERROR] cannot open included file \"" +
 								sb.toString() + "\"");
 					}
-					ch = get_ch();
-				} else if (sb.toString().equals("define")) {
+				} else if (dir.equals("define")) {
 					int end_of_macro_idx = 0;
 					
+					ch = get_ch_ll();
 					ch = skipWhite(ch);
 					
 					String remainder_line = readLine(ch);
+					
+					System.out.println("remainder_line=" + remainder_line);
 
 					// complete parsing
 					// skip forward to end-of-definition to determine 
@@ -230,24 +245,28 @@ public class PreprocCharStream implements CharStream {
 					}
 					
 					fMacroMap.put(remainder_line, m);
-				} else if (sb.toString().startsWith("if")) {
+				} else if (dir.startsWith("if")) {
 					// read the next token
+					ch = get_ch_ll();
 					ch = skipWhite(ch);
 					String cond = readIdentifier(ch);
 					
+					System.out.println("cond=" + cond);
 					
-					if (sb.toString().equals("ifdef")) {
+					
+					if (dir.equals("ifdef")) {
 						fEnStack.push(fMacroMap.containsKey(cond));
-					} else if (sb.toString().equals("ifndef")) {
+					} else if (dir.equals("ifndef")) {
 						fEnStack.push(!fMacroMap.containsKey(cond));
 					}
-				} else if (sb.toString().equals("endif")) {
+				} else if (dir.equals("endif")) {
 					fEnStack.pop();
-				} else if (sb.toString().equals("else")) {
+				} else if (dir.equals("else")) {
 					boolean val = fEnStack.pop();
 					fEnStack.push(!val);
 				} else {
-					System.out.println("unrecognized macro: \"" + sb.toString() + "\"");
+					System.out.println("unrecognized macro: \"" + dir + "\" @ " +
+							file + ":" + lineno);
 					// probably
 				}
 
@@ -286,13 +305,14 @@ public class PreprocCharStream implements CharStream {
 			fUngetBuf.setLength(fUngetBuf.length()-1);
 		} else {
 			while (ret == -1 && fInputStack.size() > 0) {
-				InputStream in = fInputStack.peek();
+				InputStream in   = fInputStack.peek();
 				try {
 					ret = in.read();
 				} catch (IOException e) {
 				}
 				if (ret == -1 && fInputStack.size() > 0) {
 					fInputStack.pop();
+					fFileInfoStack.pop();
 				}
 			}
 			
@@ -302,6 +322,16 @@ public class PreprocCharStream implements CharStream {
 		}
 
 		// Only change input position if in top-level
+		if (fFileInfoStack.size() > 0) {
+			FileInfo    info = fFileInfoStack.peek();
+			
+			if (ret == '\n') {
+				info.fLineno++;
+				info.fLinepos = 0;
+			}
+			info.fLinepos++;
+		}
+		
 		if (fInputStack.size() == 1) {
 			if (ret == '\n') {
 				fLineno++;
@@ -317,7 +347,7 @@ public class PreprocCharStream implements CharStream {
 
 		// Skip whitespace. Consider the line-continuation character as WS
 		while (Character.isWhitespace(ch) || ch == '\\') {
-			int tmp = get_ch();
+			int tmp = get_ch_ll();
 			
 			if (ch == '\\' && (tmp != '\r' && tmp != '\n')) {
 				unget_ch(tmp);
@@ -341,7 +371,7 @@ public class PreprocCharStream implements CharStream {
 			buf = new StringBuffer();
 			buf.append((char)ci);
 		
-			while ((ci = get_ch()) != -1 && Character.isJavaIdentifierPart(ci)) {
+			while ((ci = get_ch_ll()) != -1 && Character.isJavaIdentifierPart(ci)) {
 				buf.append((char)ci);
 			}
 			unget_ch(ci);
@@ -375,7 +405,7 @@ public class PreprocCharStream implements CharStream {
 					last_ch = ci;
 				}
 
-				ci = get_ch();
+				ci = get_ch_ll();
 			}
 		} catch (IOException e) {
 			if (ret.length() == 0) {
