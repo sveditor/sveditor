@@ -1,7 +1,6 @@
 package net.sf.sveditor.core.parser;
 
 import java.io.FileInputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 

@@ -257,7 +257,7 @@ public class SVScannerInput {
 			}
 			unget_ch(ci);
 		} catch (EOFException e) {
-			if (buf.length() == 0) {
+			if (buf == null || buf.length() == 0) {
 				throw e;
 			}
 		}

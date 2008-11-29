@@ -1,23 +1,13 @@
 package net.sf.sveditor.core.db;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOError;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBProjectDataFileProvider;
-import net.sf.sveditor.core.db.project.SVDBIncludePath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.scanner.HaltScanException;
@@ -28,6 +18,9 @@ import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVScanner;
 import net.sf.sveditor.core.scanner.SVTaskFuncParam;
 import net.sf.sveditor.core.scanner.ScanLocation;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 
 public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	private SVScanner						fScanner;
