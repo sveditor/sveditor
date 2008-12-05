@@ -17,9 +17,14 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IURIEditorInput;
@@ -38,6 +43,8 @@ public class SVEditor extends TextEditor {
 	private SVOutlinePage				fOutline;
 	private SVHighlightingManager		fHighlightManager;
 	private SVCodeScanner					fCodeScanner;
+	private MatchingCharacterPainter		fMatchingCharacterPainter;
+	private SVCharacterPairMatcher			fCharacterMatcher;
 
 	public SVEditor() {
 		super();
@@ -46,6 +53,7 @@ public class SVEditor extends TextEditor {
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
 		fCodeScanner = new SVCodeScanner();
+		fCharacterMatcher = new SVCharacterPairMatcher();
 	}
 	
 	public SVCodeScanner getCodeScanner() {
@@ -119,6 +127,10 @@ public class SVEditor extends TextEditor {
 			fOutline.dispose();
 			fOutline = null;
 		}
+		if (fCharacterMatcher != null) {
+			fCharacterMatcher.dispose();
+			fCharacterMatcher = null;
+		}
 	}
 
 	public void createPartControl(Composite parent) {
@@ -135,6 +147,20 @@ public class SVEditor extends TextEditor {
 		}
 		
 		fOutline = new SVOutlinePage(this);
+		
+		// Setup matching character highligher
+		if (fMatchingCharacterPainter == null) {
+			if (getSourceViewer() instanceof ISourceViewerExtension2) {
+				fMatchingCharacterPainter = new MatchingCharacterPainter(
+						getSourceViewer(), fCharacterMatcher);
+				Display display = Display.getCurrent();
+				// TODO: reference preference store
+				fMatchingCharacterPainter.setColor(display.getSystemColor(SWT.COLOR_GRAY));
+				((ITextViewerExtension2)getSourceViewer()).addPainter(
+						fMatchingCharacterPainter);
+			}
+		}
+		
 		
 		/**
 		 * Add semantic highlighting
