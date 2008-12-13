@@ -554,7 +554,7 @@ void port_declaration() : {} {
 
 void port() : {} {
 	[ port_expression() ]
-	| "." port_identifier() <LPAREN> [ port_expression() ] <RPAREN>
+	| "." identifier() <LPAREN> [ port_expression() ] <RPAREN>
 }
 
 void port_expression() : {} {
@@ -563,7 +563,7 @@ void port_expression() : {} {
 }
 
 void port_reference() : {} {
-	port_identifier() constant_select()
+	identifier() constant_select()
 }
 
 void port_direction() : {} {
@@ -579,20 +579,20 @@ void variable_port_header() : {} {
 }
 
 void interface_port_header() : {} {
-	identifier() [ "." modport_identifier() ]
-	| <INTERFACE> [ "." modport_identifier() ]
+	identifier() [ "." identifier() ]
+	| <INTERFACE> [ "." identifier() ]
 }
 
 void ansi_port_declaration() : {} {
 	// FIXME: net_port_header() can expand as ""
-	// [ net_port_header() | interface_port_header() ] port_identifier() (unpacked_dimension())*
-	[ interface_port_header() ] port_identifier() (unpacked_dimension())*
-	| [ variable_port_header() ] port_identifier() (variable_dimension())* [ <EQ_1> constant_expression() ]
+	// [ net_port_header() | interface_port_header() ] identifier() (unpacked_dimension())*
+	[ interface_port_header() ] identifier() (unpacked_dimension())*
+	| [ variable_port_header() ] identifier() (variable_dimension())* [ <EQ_1> constant_expression() ]
 	
 	// FIXME: net_port_header() can expand as ""
 	// CHG: expression can expand to "", so remove []
-	// | [ net_port_header() | variable_port_header() ] "." port_identifier() <LPAREN> [ expression() ] <RPAREN>
-	| [ variable_port_header() ] "." port_identifier() <LPAREN> expression() <RPAREN>
+	// | [ net_port_header() | variable_port_header() ] "." identifier() <LPAREN> [ expression() ] <RPAREN>
+	| [ variable_port_header() ] "." identifier() <LPAREN> expression() <RPAREN>
 }
 
 /****************************************************************************
@@ -632,13 +632,13 @@ void module_or_generate_item_declaration() : {} {
 	package_or_generate_item_declaration() 
 	| genvar_declaration()
 	// | clocking_declaration()
-	// | <T_DEFAULT> <CLOCKING> clocking_identifier() <SEMICOLON>
+	// | <T_DEFAULT> <CLOCKING> identifier() <SEMICOLON>
 	| [ <T_DEFAULT> ] <CLOCKING> 
 		(
-			LOOKAHEAD(2) [ clocking_identifier() ] clocking_event() <SEMICOLON>
+			LOOKAHEAD(2) [ identifier() ] clocking_event() <SEMICOLON>
 			( clocking_item() )*
-			<ENDCLOCKING> [ ":" clocking_identifier() ]
-			| clocking_identifier() <SEMICOLON>
+			<ENDCLOCKING> [ ":" identifier() ]
+			| identifier() <SEMICOLON>
 		)
 }
 
@@ -695,17 +695,17 @@ void config_declaration() :
 {
 }
 {
-	<CONFIG> config_identifier() <SEMICOLON>
+	<CONFIG> identifier() <SEMICOLON>
 	design_statement()
 	(config_rule_statement())*
-	<ENDCONFIG> [ ":" config_identifier() ]
+	<ENDCONFIG> [ ":" identifier() ]
 }
 
 void design_statement() :
 {
 }
 {
-	<DESIGN> ( [ LOOKAHEAD(2) identifier() "." ] cell_identifier() )* <SEMICOLON>
+	<DESIGN> ( [ LOOKAHEAD(2) identifier() "." ] identifier() )* <SEMICOLON>
 }
 
 void config_rule_statement() : {} {
@@ -720,11 +720,11 @@ void inst_clause() : {} {
 }
 
 void inst_name() : {} {
-	identifier() ( "." instance_identifier() )*
+	identifier() ( "." identifier() )*
 }
 
 void cell_clause() : {} {
-	<CELL> [ LOOKAHEAD(2) identifier() "." ] cell_identifier()
+	<CELL> [ LOOKAHEAD(2) identifier() "." ] identifier()
 }
 
 void liblist_clause() : {} {
@@ -732,7 +732,7 @@ void liblist_clause() : {} {
 }
 
 void use_clause() : {} {
-	<USE> [ LOOKAHEAD(2) identifier() "." ] cell_identifier() [ ":" <CONFIG> ]
+	<USE> [ LOOKAHEAD(2) identifier() "." ] identifier() [ ":" <CONFIG> ]
 }
 	
 /****************************************************************************
@@ -826,7 +826,7 @@ void class_item() :
 
 void class_property() : {} {
 	// CHG: reorder
-	<CONST> (class_item_qualifier())* data_type() const_identifier() [ <EQ_1> constant_expression() ] <SEMICOLON>
+	<CONST> (class_item_qualifier())* data_type() identifier() [ <EQ_1> constant_expression() ] <SEMICOLON>
 	| (property_qualifier())* data_declaration()
 }
 
@@ -895,11 +895,11 @@ void class_constructor_declaration() : {} {
  
 /** FIXME:
 void constraint_declaration() : {} {
-	[ <STATIC> ] <CONSTRAINT> constraint_identifier() constraint_block()
+	[ <STATIC> ] <CONSTRAINT> identifier() constraint_block()
 }
 
 void constraint_prototype() : {} {
-	[ <STATIC> ] <CONSTRAINT> constraint_identifier() <SEMICOLON>
+	[ <STATIC> ] <CONSTRAINT> identifier() <SEMICOLON>
 }
 
 void constraint_block() : {} {
@@ -915,7 +915,7 @@ void constraint_expression() : {} {
 	expression_or_dist() <SEMICOLON>
 	| expression() ("->") constraint_set()
 	| <IF> <LPAREN> expression() <RPAREN> constraint_set() [ <ELSE> constraint_set() ]
-	| <FOREACH> <LPAREN> array_identifier() [ loop_variables() ] <RPAREN> constraint_set()
+	| <FOREACH> <LPAREN> identifier() [ loop_variables() ] <RPAREN> constraint_set()
 }
 
 void constraint_set() : {} {
@@ -938,7 +938,7 @@ void dist_weight() : {} {
 
 
 void extern_constraint_declaration() : {} {
-	[ <STATIC> ] <CONSTRAINT> class_scope() constraint_identifier() constraint_block()
+	[ <STATIC> ] <CONSTRAINT> class_scope() identifier() constraint_block()
 }
  */
 
@@ -1068,7 +1068,7 @@ void output_declaration() : {} {
 }
 
 void interface_port_declaration() : {} {
-	identifier() [ "." modport_identifier() ] list_of_interface_identifiers() 
+	identifier() [ "." identifier() ] list_of_interface_identifiers() 
 }
 
 void ref_declaration() : {} {
@@ -1110,7 +1110,7 @@ void type_declaration() : {} {
 	( [ <ENUM> | <STRUCT> | <UNION> | <CLASS> ] 
 	  | /* interface_instance_id */ identifier() "." identifier() 
 	) identifier()
-	| data_type() identifier() (variable_dimension())* 
+	| data_type() identifier() (variable_dimension())*
   )
   <SEMICOLON>
 }
@@ -1129,10 +1129,7 @@ void lifetime() : {} {
  * A.2.2.1 Net and variable types  
  ********************************************************************/
  
-void casting_type() :
-{
-}
-{
+void casting_type() : {} {
 	/* FIXME: eliminate constant_primary() as a casting type to
 	 * eliminate left recursion
 	simple_type() | constant_primary() | signing()
@@ -1152,36 +1149,25 @@ void data_type() : { } {
 	| [ class_scope() | package_scope() ] identifier() (packed_dimension())*
 	| class_type()
 	| <EVENT>
-	| ps_covergroup_identifier()
+	| ps_identifier()
 	| type_reference()
 }
 
-void data_type_or_implicit() :
-{
-}
-{
+void data_type_or_implicit() : {} {
   (
 	data_type()
 	| [signing()] (packed_dimension())*
   )
 }
 
-void enum_base_type() :
-{
-}
-{
-  (
+void enum_base_type() : {} {
 	integer_atom_type() [signing()]
 	| integer_vector_type() [signing()] [packed_dimension()]
 	| identifier() [packed_dimension()]
-  )
 }
 
-void enum_name_declaration() :
-{
-}
-{
-	enum_identifier() [ "[" integral_number() [ ":" integral_number() ] "]" ] [ <EQ_1> constant_expression() ]
+void enum_name_declaration() : {} {
+	identifier() [ "[" integral_number() [ ":" integral_number() ] "]" ] [ <EQ_1> constant_expression() ]
 }
 
 void class_scope() : {} {
@@ -1189,7 +1175,7 @@ void class_scope() : {} {
 }
 
 void class_type() : {} {
-	ps_class_identifier() [ parameter_value_assignment() ]
+	ps_identifier() [ parameter_value_assignment() ]
 		( "::" identifier() [ parameter_value_assignment() ])*
 }
 
@@ -1241,7 +1227,7 @@ void simple_type() : {} {
 	) identifier()
 	
 	/*
-	// ps_type_identifier()
+	// ps_identifier()
 	[ package_scope() ] identifier()
 	
 	// package_scope()
@@ -1304,10 +1290,7 @@ void delay3() : {} {
 	)
 }
 
-void delay2() :
-{
-}
-{
+void delay2() : {} {
 	<HASH> 
 	(
 		delay_value() 
@@ -1316,116 +1299,84 @@ void delay2() :
 }
 
 void delay_value() : {} {
-	unsigned_number()
-	| real_number()
+	// unsigned_number() && time_literal()
+	unsigned_number() [ "." unsigned_number() ] 
+		[
+			time_unit()
+			| <EXP> [ sign() ] unsigned_number()
+		]
 	| ps_identifier()
-	| time_literal()
+	
+	/*
+	// TAKEN: unsigned_number()
+	// TAKEN: | time_literal()
+	// TAKEN: | real_number()
+	| ps_identifier()
+	 */
 }
 
 /********************************************************************
  * A.2.3 Declaration lists  
  ********************************************************************/
 
-void list_of_defparam_assignments() :
-{
-}
-{
+void list_of_defparam_assignments() : {} {
 	defparam_assignment() ( <COMMA> defparam_assignment())*
 }
 
-void list_of_genvar_identifiers() :
-{
-}
-{
-	/* genvar_ */ identifier() ( <COMMA> /* genvar_ */ identifier())*
+void list_of_genvar_identifiers() : {} {
+	identifier() ( <COMMA> identifier())*
 }
 
-void list_of_interface_identifiers() :
-{
-}
-{
+void list_of_interface_identifiers() : {} {
 	identifier() ( unpacked_dimension())*
 	( <COMMA> identifier() ( unpacked_dimension())* )*
 }
 
-void list_of_net_decl_assignments() :
-{
-}
-{
+void list_of_net_decl_assignments() : {} {
 	net_decl_assignment() ( <COMMA> net_decl_assignment())*
 }
 
-void list_of_param_assignments() :
-{
-}
-{
-	param_assignment() ( <COMMA> param_assignment() )*
+void list_of_param_assignments() : {} {
+	param_assignment() ( LOOKAHEAD(1) <COMMA> param_assignment() )*
 }
 
-void list_of_port_identifiers() :
-{
-}
-{
-	port_identifier() ( unpacked_dimension())*
-	( <COMMA> port_identifier() ( unpacked_dimension())* )*
+void list_of_port_identifiers() : {} {
+	identifier() ( unpacked_dimension())*
+	( <COMMA> identifier() ( unpacked_dimension())* )*
 }
 
-void list_of_udp_port_identifiers() :
-{
-}
-{
-	port_identifier() ( <COMMA> port_identifier())*
+void list_of_udp_port_identifiers() : {} {
+	identifier()  (LOOKAHEAD(1) <COMMA> identifier())*
 }
 
-void list_of_specparam_assignments() :
-{
-}
-{
+void list_of_specparam_assignments() : {} {
 	specparam_assignment() ( <COMMA> specparam_assignment())*
 }
 
-void list_of_tf_variable_identifiers() :
-{
-}
-{
-	port_identifier() ( variable_dimension())* [ <EQ_1> expression() ]
-	( <COMMA> port_identifier() ( variable_dimension())* [ <EQ_1> expression() ] )*
+void list_of_tf_variable_identifiers() : {} {
+	identifier() ( variable_dimension())* [ <EQ_1> expression() ]
+	( <COMMA> identifier() ( variable_dimension())* [ <EQ_1> expression() ] )*
 }
 
-void list_of_type_assignments() :
-{
-}
-{
-	type_assignment() ( <COMMA> type_assignment())*
+void list_of_type_assignments() : {} {
+	type_assignment() ( LOOKAHEAD(1) <COMMA> type_assignment())*
 }
 
-void list_of_variable_decl_assignments() :
-{
-}
-{
+void list_of_variable_decl_assignments() : {} {
 	variable_decl_assignment() ( <COMMA> variable_decl_assignment())*
 }
 
-void list_of_variable_identifiers() :
-{
-}
-{
+void list_of_variable_identifiers() : {} {
 	identifier() ( variable_dimension() )*
 	( <COMMA> identifier() ( variable_dimension() )* )*
 }
 
-void list_of_variable_port_identifiers() :
-{
-}
-{
-	port_identifier() ( variable_dimension())* [ <EQ_1> constant_expression() ]
-	(<COMMA> port_identifier() (variable_dimension())* [<EQ_1> constant_expression()])*
+void list_of_variable_port_identifiers() : {} {
+	identifier() ( variable_dimension())* [ <EQ_1> constant_expression() ]
+	(<COMMA> identifier() (variable_dimension())* [<EQ_1> constant_expression()])*
 }
 
-void list_of_virtual_interface_decl() :
-{
-}
-{
+void list_of_virtual_interface_decl() : {} {
 	identifier() [ <EQ_1> /* interface_instance */ identifier() ]
 	( <COMMA> identifier() [<EQ_1> /* interface_instance */ identifier()])*
 }
@@ -1434,76 +1385,66 @@ void list_of_virtual_interface_decl() :
  * A.2.4 Declaration assignments  
  ********************************************************************/
 
-void defparam_assignment() :
-{
-}
-{
+void defparam_assignment() : {} {
 	hierarchical_parameter_identifier() <EQ_1> constant_mintypmax_expression()
 }
 
-void net_decl_assignment() :
-{
-}
-{
-	net_identifier() (unpacked_dimension())* [ <EQ_1> expression() ]
+void net_decl_assignment() : {} {
+	identifier() (unpacked_dimension())* [ <EQ_1> expression() ]
 }
 
-void param_assignment() :
-{
-}
-{
+void param_assignment() : {} {
 	identifier() (unpacked_dimension())* <EQ_1> constant_param_expression()
 }
 
-void specparam_assignment() :
-{
-}
-{
+void specparam_assignment() : {} {
 	identifier() <EQ_1> constant_mintypmax_expression()
 	| pulse_control_specparam()
 }
 
-void type_assignment() :
-{
-}
-{
+void type_assignment() : {} {
 	identifier() <EQ_1> data_type()
 }
 
-void pulse_control_specparam() :
-{
-}
-{
+void pulse_control_specparam() : {} {
+	<PATHPULSE> 
+		(
+			<EQ_1> <LPAREN> reject_limit_value() [ <COMMA> error_limit_value() ] <RPAREN>
+			| specify_input_terminal_descriptor() "$" specify_output_terminal_descriptor()
+				<EQ_1> <LPAREN> reject_limit_value() [ <COMMA> error_limit_value() ] <RPAREN>
+		)
+/*
 	<PATHPULSE> <EQ_1> <LPAREN> reject_limit_value() [ <COMMA> error_limit_value() ] <RPAREN>
 	| <PATHPULSE> specify_input_terminal_descriptor() "$" specify_output_terminal_descriptor()
 		<EQ_1> <LPAREN> reject_limit_value() [ <COMMA> error_limit_value() ] <RPAREN>
+ */
 }
 
-void error_limit_value() :
-{
-}
-{
+void error_limit_value() : {} {
 	limit_value()
 }
 
-void reject_limit_value() :
-{
-}
-{
+void reject_limit_value() : {} {
 	limit_value()
 }
 
-void limit_value() :
-{
-}
-{
+void limit_value() : {} {
 	constant_mintypmax_expression()
 }
 
 void variable_decl_assignment() : {} {
+	/*
 	identifier() ( variable_dimension() )* [ <EQ_1> expression() ]
 	| identifier() "[" "]" [ <EQ_1> dynamic_array_new() ]
 	| identifier() [ <EQ_1> class_new() ]
+	| [ identifier() ] <EQ_1> <NEW> [ <LPAREN> list_of_arguments() <RPAREN> ]
+	 */
+	identifier()
+		( 
+			( variable_dimension() )* [ <EQ_1> expression() ]
+			| "[" "]" [ <EQ_1> dynamic_array_new() ]
+			| [ <EQ_1> <NEW> [<LPAREN> list_of_arguments() <RPAREN>] ]
+		)
 	| [ identifier() ] <EQ_1> <NEW> [ <LPAREN> list_of_arguments() <RPAREN> ]
 }
 
@@ -1528,8 +1469,7 @@ void unpacked_dimension() : {} {
 }
 
 void packed_dimension() : {} {
-	"[" constant_range() "]"
-	| unsized_dimension()
+	"[" [constant_range()] "]"
 }
 
 void associative_dimension() : {} {
@@ -1537,10 +1477,21 @@ void associative_dimension() : {} {
 }
 
 void variable_dimension() : {} {
+
+	"["
+		// unsized_dimension() implicit
+		[
+			constant_expression() [":" constant_expression()] // unpacked_dimension()
+			(data_type() | "*")               // associative_dimension()
+			"$" [ ":" constant_expression() ] // queue_dimension()
+		]
+	"]"
+/*
 	unsized_dimension()
 	| unpacked_dimension()
 	| associative_dimension()
 	| queue_dimension()
+ */
 }
 
 void queue_dimension() : {} {
@@ -1570,28 +1521,35 @@ void function_declaration() : {} {
 
 void function_body_declaration() : {} {
 	function_data_type_or_implicit()
-	[ identifier() "." | class_scope() ] function_identifier() <SEMICOLON>
+	[ identifier() "." | class_scope() ] identifier() <SEMICOLON>
 	( tf_item_declaration() )*
 	( function_statement_or_null() )*
-	<ENDFUNCTION> [ ":" function_identifier() ]
+	<ENDFUNCTION> [ ":" identifier() ]
 	| function_data_type_or_implicit()
 		// CHG: tf_port_list() can expand to "", so remove []
-	[ identifier() "." | class_scope() ] function_identifier() <LPAREN> tf_port_list() <RPAREN> <SEMICOLON>
+	[ identifier() "." | class_scope() ] identifier() <LPAREN> tf_port_list() <RPAREN> <SEMICOLON>
 	( block_item_declaration() )*
 	( function_statement_or_null() )*
-	<ENDFUNCTION> [ ":" function_identifier() ]
+	<ENDFUNCTION> [ ":" identifier() ]
 }
 
 void function_prototype() : {} {
 	// CHG: tf_port_list() can expand to "", so remove []
-	<FUNCTION> function_data_type() function_identifier() <LPAREN> tf_port_list() <RPAREN>
+	<FUNCTION> function_data_type() identifier() <LPAREN> tf_port_list() <RPAREN>
 }
 
 void dpi_import_export() : {} {
-	<IMPORT> dpi_spec_string() [ dpi_function_import_property() ] [ c_identifier() <EQ_1> ] dpi_function_proto() <SEMICOLON>
-	| <IMPORT> dpi_spec_string() [ dpi_task_import_property() ] [ c_identifier() <EQ_1> ] dpi_task_proto() <SEMICOLON>
-	| <EXPORT> dpi_spec_string() [ c_identifier() <EQ_1> ] <FUNCTION> function_identifier() <SEMICOLON>
-	| <EXPORT> dpi_spec_string() [ c_identifier() <EQ_1> ] <TASK> identifier() <SEMICOLON>
+	<IMPORT> dpi_spec_string() 
+		(
+			[ dpi_function_import_property() ] [ c_identifier() <EQ_1> ] dpi_function_proto() <SEMICOLON>
+			| [ dpi_task_import_property() ] [ c_identifier() <EQ_1> ] dpi_task_proto() <SEMICOLON>
+		)
+	| <EXPORT> dpi_spec_string() [ c_identifier() <EQ_1> ] 
+		(
+			<FUNCTION> identifier()
+			| <TASK> identifier()
+		)
+	<SEMICOLON>
 }
 
 void dpi_spec_string() : {} {
@@ -1643,7 +1601,7 @@ void tf_port_list() : {} {
 void tf_port_item() : {} {
 	( attribute_instance() )*
 		[ tf_port_direction() ] [ <VAR> ] data_type_or_implicit()
-		[ port_identifier() ( variable_dimension() )* [ <EQ_1> expression() ] ]
+		[ identifier() ( variable_dimension() )* [ <EQ_1> expression() ] ]
 }
 
 void tf_port_direction() : {} {
@@ -1673,7 +1631,7 @@ void block_item_declaration() : {} {
 }
 
 void overload_declaration() : {} {
-	<BIND> overload_operator() <FUNCTION> data_type() function_identifier() <LPAREN> overload_proto_formals() <RPAREN> <SEMICOLON>
+	<BIND> overload_operator() <FUNCTION> data_type() identifier() <LPAREN> overload_proto_formals() <RPAREN> <SEMICOLON>
 }
 
 void overload_operator() : {} {
@@ -1694,7 +1652,7 @@ void modport_declaration() : {} {
 }
 
 void modport_item() : {} {
-	modport_identifier() <LPAREN> modport_ports_declaration() (<COMMA> modport_ports_declaration())* <RPAREN>
+	identifier() <LPAREN> modport_ports_declaration() (<COMMA> modport_ports_declaration())* <RPAREN>
 }
 
 void modport_ports_declaration() : {} {
@@ -1707,42 +1665,29 @@ void modport_ports_declaration() : {} {
 }
 
 void modport_clocking_declaration() : {} {
-	<CLOCKING> clocking_identifier()
+	<CLOCKING> identifier()
 }
 
 void modport_simple_ports_declaration() : {} {
-	port_direction() modport_simple_port() ( <COMMA> modport_simple_port())*
+	port_direction() modport_simple_port() ( LOOKAHEAD(1) <COMMA> modport_simple_port())*
 }
 
 void modport_simple_port() : {} {
-  (
-	port_identifier()
+	identifier()
 	// CHG: expression() can expand to "", so remove[]
-	| "." port_identifier() <LPAREN> expression() <RPAREN>
-  )
+	| "." identifier() <LPAREN> expression() <RPAREN>
 }
 
-void modport_tf_ports_declaration() :
-{
-}
-{
-	import_export() modport_tf_port() ( <COMMA> modport_tf_port())*
+void modport_tf_ports_declaration() : {} {
+	import_export() modport_tf_port() ( LOOKAHEAD(1) <COMMA> modport_tf_port())*
 }
 
-void modport_tf_port() :
-{
-}
-{
-  (
+void modport_tf_port() : {} {
 	method_prototype()
 	| identifier()
-  )
 }
 
-void import_export() :
-{
-}
-{
+void import_export() : {} {
 	<IMPORT> | <EXPORT>
 }
 
@@ -1750,88 +1695,55 @@ void import_export() :
  * A.2.10 Assertion declarations
  ********************************************************************/
 
-void concurrent_assertion_item() :
-{
-}
-{
-	[ block_identifier() ":" ] concurrent_assertion_statement()
+void concurrent_assertion_item() : {} {
+	[ identifier() ":" ] concurrent_assertion_statement()
 }
 
-void concurrent_assertion_statement() :
-{
-}
-{
+void concurrent_assertion_statement() : {} {
 	assert_property_statement()
 	| assume_property_statement()
 	| cover_property_statement()
 }
 
-void assert_property_statement() :
-{
-}
-{
+void assert_property_statement() : {} {
 	<ASSERT> <PROPERTY> <LPAREN> property_spec() <RPAREN> action_block()
 }
 
-void assume_property_statement() :
-{
-}
-{
+void assume_property_statement() : {} {
 	<ASSUME> <PROPERTY> <LPAREN> property_spec() <RPAREN> <SEMICOLON>
 }
 
-void cover_property_statement() :
-{
-}
-{
+void cover_property_statement() : {} {
 	<COVER> <PROPERTY> <LPAREN> property_spec() <RPAREN> statement_or_null()
 }
 
-void expect_property_statement() :
-{
-}
-{
+void expect_property_statement() : {} {
 	<EXPECT> <LPAREN> property_spec() <RPAREN> action_block()
 }
 
-void property_instance() :
-{
-}
-{
+void property_instance() : {} {
 	// CHG: list_of_arguments() can expand to "", so remove []
-	ps_property_identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
+	ps_identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
 }
 
-void concurrent_assertion_item_declaration() :
-{
-}
-{
+void concurrent_assertion_item_declaration() : {} {
 	property_declaration()
 	| sequence_declaration()
 }
 
-void property_declaration() :
-{
-}
-{
+void property_declaration() : {} {
 	// CHG: tf_port_list() can expand to "", so remove []
-	<PROPERTY> property_identifier() [ <LPAREN> tf_port_list() <RPAREN> ] <SEMICOLON>
+	<PROPERTY> identifier() [ <LPAREN> tf_port_list() <RPAREN> ] <SEMICOLON>
 	(assertion_variable_declaration())*
 	property_spec() <SEMICOLON>
-	<ENDPROPERTY> [ ":" property_identifier() ]
+	<ENDPROPERTY> [ ":" identifier() ]
 }
 
-void property_spec() :
-{
-}
-{
+void property_spec() : {} {
 	[clocking_event() ] [ <DISABLE> <IFF> <LPAREN> expression_or_dist() <RPAREN> ] property_expr()
 }
 
-void property_expr() :
-{
-}
-{
+void property_expr() : {} {
     /* CHG: eliminate left recursion
 	sequence_expr()
 	| <LPAREN> property_expr() <RPAREN>
@@ -1845,11 +1757,9 @@ void property_expr() :
 	| clocking_event() property_expr()
 	 */
   (
-	sequence_expr()
+	sequence_expr() [("|->" | "|=>") property_expr()]
 	| <LPAREN> property_expr() <RPAREN>
 	| <NOT> property_expr()
-	| sequence_expr() "|->" property_expr()
-	| sequence_expr() "|=>" property_expr()
 	| <IF> <LPAREN> expression_or_dist() <RPAREN> property_expr() [ <ELSE> property_expr() ]
 	| property_instance()
 	| clocking_event() property_expr()
@@ -1859,10 +1769,7 @@ void property_expr() :
   		) property_expr()]
 }
 
-void property_expr_2() :
-{
-}
-{
+void property_expr_2() : {} {
   (
 	<OR> property_expr()  |
 	<AND> property_expr()
@@ -1870,10 +1777,7 @@ void property_expr_2() :
 
 }
 
-void sequence_declaration() :
-{
-}
-{
+void sequence_declaration() : {} {
 	// CHG: tf_port_list() can expand to "", so remove []
 	<SEQUENCE> identifier() [ <LPAREN> tf_port_list() <RPAREN> ] <SEMICOLON>
 	(assertion_variable_declaration())*
@@ -1881,10 +1785,7 @@ void sequence_declaration() :
 	<ENDSEQUENCE> [ ":" identifier() ]
 }
 
-void sequence_expr() :
-{
-}
-{
+void sequence_expr() : {} {
 	/* CHG: eliminate left recursion
 	cycle_delay_range() sequence_expr() ( cycle_delay_range() sequence_expr())*
 	| sequence_expr() cycle_delay_range() sequence_expr() (cycle_delay_range() sequence_expr())*
@@ -1903,19 +1804,19 @@ void sequence_expr() :
   (
 	cycle_delay_range() sequence_expr() ( cycle_delay_range() sequence_expr())*
 	| expression_or_dist() [ boolean_abbrev() ]
-	| <LPAREN> expression_or_dist() (<COMMA> sequence_match_item())* <RPAREN> [ boolean_abbrev() ]
+	| <LPAREN>
+		( 
+			expression_or_dist() (<COMMA> sequence_match_item())* <RPAREN> [ boolean_abbrev() ]
+			| sequence_expr() (<COMMA> sequence_match_item())* <RPAREN> [ sequence_abbrev() ]
+		)
 	| sequence_instance() [ sequence_abbrev() ]
-	| <LPAREN> sequence_expr() (<COMMA> sequence_match_item())* <RPAREN> [ sequence_abbrev() ]
 	| <FIRST_MATCH> <LPAREN> sequence_expr() (<COMMA> sequence_match_item())* <RPAREN>
 	| expression_or_dist() <THROUGHOUT> sequence_expr()
 	| clocking_event() sequence_expr()
   ) [ sequence_expr_2() ]
 }
 
-void sequence_expr_2() :
-{
-}
-{
+void sequence_expr_2() : {} {
   (
 	cycle_delay_range() sequence_expr() (cycle_delay_range() sequence_expr())*
 	| <AND> sequence_expr()
@@ -1925,123 +1826,83 @@ void sequence_expr_2() :
   ) sequence_expr()
 }
 
-void cycle_delay_range() :
-{
-}
-{
-	"##" integral_number()
-	| "##" identifier()
-	| "##" <LPAREN> constant_expression() <RPAREN>
-	| "##" [ cycle_delay_const_range_expression() ]
-}
-
-void sequence_method_call() :
-{
-}
-{
-	sequence_instance() "." method_identifier()
+void cycle_delay_range() : {} {
+	"##" 
+		(
+			integral_number()
+			| identifier()
+			| <LPAREN> constant_expression() <RPAREN>
+			| [ cycle_delay_const_range_expression() ]
+		)
 }
 
-void sequence_match_item() :
-{
+void sequence_method_call() : {} {
+	sequence_instance() "." identifier()
 }
-{
+
+void sequence_match_item() : {} {
 	operator_assignment()
 	| inc_or_dec_expression()
 	| subroutine_call()
 }
 
-void sequence_instance() :
-{
-}
-{
+void sequence_instance() : {} {
 	// CHG: list_of_arguments() can expand to "", so remove []
-	ps_sequence_identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
+	ps_identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
 }
 
-void formal_list_item() :
-{
-}
-{
-	formal_identifier() [ <EQ_1> actual_arg_expr() ]
+void formal_list_item() : {} {
+	identifier() [ <EQ_1> actual_arg_expr() ]
 }
 
-void list_of_formals() :
-{
-}
-{
+void list_of_formals() : {} {
 	formal_list_item() ( <COMMA> formal_list_item() )*
 }
 
-void actual_arg_expr() :
-{
-}
-{
+void actual_arg_expr() : {} {
 	event_expression()
 	| "$"
 }
 
-void boolean_abbrev() :
-{
-}
-{
+void boolean_abbrev() : {} {
 	consecutive_repetition()
 	| non_consecutive_repetition()
 	| goto_repetition()
 }
 
-void sequence_abbrev() :
-{
-}
-{
+void sequence_abbrev() : {} {
 	consecutive_repetition()
 }
 
-void consecutive_repetition() :
-{
-}
-{
+void consecutive_repetition() : {} {
 	"[*" const_or_range_expression() "]"
 }
 
-void non_consecutive_repetition() :
-{
-}
-{
+void non_consecutive_repetition() : {} {
 	"[=" const_or_range_expression() "]"
 }
 
-void goto_repetition() :
-{
-}
-{
+void goto_repetition() : {} {
 	"[->" const_or_range_expression() "]"
 }
 
-void const_or_range_expression() :
-{
-}
-{
+void const_or_range_expression() : {} {
+	/*
 	constant_expression()
 	| cycle_delay_const_range_expression()
+	 */
+	constant_expression() [":" (constant_expression() | "$")]
 }
 
-void cycle_delay_const_range_expression() :
-{
-}
-{
-	constant_expression() ":" constant_expression()
-	| constant_expression() ":" "$"
+void cycle_delay_const_range_expression() : {} {
+	constant_expression() ":" (constant_expression() | "$")
 }
 
 void expression_or_dist() : {} {
 	expression() // FIXME: [ <DIST> "{" dist_list() "}" ]
 }
 
-void assertion_variable_declaration() :
-{
-}
-{
+void assertion_variable_declaration() : {} {
 	var_data_type() list_of_variable_identifiers() <SEMICOLON>
 }
 
@@ -2049,52 +1910,37 @@ void assertion_variable_declaration() :
 /********************************************************************
  * A.2.11 Covergroup declarations  
  ********************************************************************/
-void covergroup_declaration() :
-{
-}
-{
+void covergroup_declaration() : {} {
 	// CHG: tf_port_list() can expand to "", so remove []
-	<COVERGROUP> covergroup_identifier() [ <LPAREN> tf_port_list() <RPAREN> ] [ coverage_event() ] <SEMICOLON>
+	<COVERGROUP> identifier() [ <LPAREN> tf_port_list() <RPAREN> ] [ coverage_event() ] <SEMICOLON>
 	( coverage_spec_or_option() )*
-	<ENDGROUP> [ ":" covergroup_identifier() ]
+	<ENDGROUP> [ ":" identifier() ]
 }
 
-void coverage_spec_or_option() :
-{
-}
-{
-	( attribute_instance() )* coverage_spec()
-	| ( attribute_instance() )* coverage_option() <SEMICOLON>
-}
-
-void coverage_option() :
-{
-}
-{
-	<OPTION> "." member_identifier() <EQ_1> expression()
-	| <TYPE_OPTION> "." member_identifier() <EQ_1> expression()
+void coverage_spec_or_option() : {} {
+	( attribute_instance() )* 
+		(
+			coverage_spec()
+			| coverage_option() <SEMICOLON>
+		)
 }
 
-void coverage_spec() :
-{
+void coverage_option() : {} {
+	<OPTION> "." identifier() <EQ_1> expression()
+	| <TYPE_OPTION> "." identifier() <EQ_1> expression()
 }
-{
+
+void coverage_spec() : {} {
 	cover_point()
 	| cover_cross()
 }
 
-void coverage_event() :
-{
-}
-{
+void coverage_event() : {} {
 	clocking_event()
 	| "@@" <LPAREN> block_event_expression() <RPAREN>
 }
 
-void block_event_expression() :
-{
-}
-{
+void block_event_expression() : {} {
 	// CHG: eliminate left recursion
 	// A -> Aa | b
 	//
@@ -2115,93 +1961,68 @@ void block_event_expression() :
 	) [block_event_expression_2()]
 }
 
-void block_event_expression_2() :
-{
-}
-{
+void block_event_expression_2() : {} {
 	<OR> block_event_expression() block_event_expression_2()
 }
 
 
-void hierarchical_btf_identifier() :
-{
-}
-{
+void hierarchical_btf_identifier() : {} {
 	hierarchical_tf_identifier()
-	| hierarchical_block_identifier()
-	| hierarchical_identifier() [ class_scope() ] method_identifier()
+	| hierarchical_identifier() [ [ class_scope() ] identifier()]
 }
 
-void cover_point() :
-{
-}
-{
-	[ /* cover_point_ */ identifier() ":" ] <COVERPOINT> expression() [ <IFF> <LPAREN> expression() <RPAREN> ] bins_or_empty()
+void cover_point() : {} {
+	[ identifier() ":" ] <COVERPOINT> expression() [ <IFF> <LPAREN> expression() <RPAREN> ] bins_or_empty()
 }
 
-void bins_or_empty() :
-{
-}
-{
+void bins_or_empty() : {} {
 	"{" (attribute_instance() )* ( bins_or_options() <SEMICOLON> )*  "}"
 	| <SEMICOLON>
 }
 
-void bins_or_options() :
-{
-}
-{
+void bins_or_options() : {} {
 	coverage_option()
 	// CHG: expression can expand to "", so remove []
-	| [ <WILDCARD> ] bins_keyword() /*bin_*/ identifier() [ "[" expression() "]" ] <EQ_1> "{" open_range_list() "}" [ <IFF> <LPAREN> expression() <RPAREN> ]
-	| [ <WILDCARD> ] bins_keyword() /*bin_*/ identifier() [ "[" "]" ] <EQ_1> trans_list() [ <IFF> <LPAREN> expression() <RPAREN> ]
+	| [ <WILDCARD> ] bins_keyword() identifier() [ "[" [expression()] "]" ] <EQ_1> 
+		(
+			"{" open_range_list() "}"
+			| trans_list() 
+		) [ <IFF> <LPAREN> expression() <RPAREN> ]
 	// CHG: expression can expand to "", so remove []
-	| bins_keyword() /*bin_*/ identifier() [ "[" expression() "]" ] <EQ_1> <T_DEFAULT> [ <IFF> <LPAREN> expression() <RPAREN> ]
-	| bins_keyword() /*bin_*/ identifier() <EQ_1> <T_DEFAULT> <SEQUENCE> [ <IFF> <LPAREN> expression() <RPAREN> ]
+	| bins_keyword() identifier() 
+		(
+			[ "[" expression() "]" ] <EQ_1> <T_DEFAULT>
+			| <EQ_1> <T_DEFAULT> <SEQUENCE> 
+		) [ <IFF> <LPAREN> expression() <RPAREN> ]
 }
 
-void bins_keyword () :
-{
-}
-{
+void bins_keyword () : {} {
 	<BINS> | <ILLEGAL_BINS> | <IGNORE_BINS>
 }
 
-void range_list() :
-{
-}
-{
+void range_list() : {} {
 	value_range() ( <COMMA> value_range() )*
 }
 
-void trans_list() :
-{
-}
-{
+void trans_list() : {} {
 	<LPAREN> trans_set() <RPAREN> ( <COMMA> <LPAREN> trans_set() <RPAREN> )*
 }
 
-void trans_set() :
-{
-}
-{
+void trans_set() : {} {
 	trans_range_list() ( "=>" trans_range_list() )*
 }
 
-void trans_range_list() :
-{
-}
-{
-	trans_item()
-	| trans_item() [ "[" "*" repeat_range() "]" ]
-	| trans_item() [ "[" "�>" repeat_range() "]" ]
-	| trans_item() [ "[" <EQ_1> repeat_range() "]" ]
+void trans_range_list() : {} {
+	trans_item() [ "[" 
+		(
+			"*" repeat_range()
+			| "->" repeat_range()
+			| <EQ_1> repeat_range()
+		)
+	"]"]
 }
 
-void trans_item() :
-{
-}
-{
+void trans_item() : {} {
 	range_list()
 }
 
@@ -2214,10 +2035,7 @@ void cover_cross() : {} {
 	select_bins_or_empty()
 }
 
-void list_of_coverpoints() :
-{
-}
-{
+void list_of_coverpoints() : {} {
 	cross_item() <COMMA> cross_item() ( <COMMA> cross_item() )*
 }
 
@@ -2225,33 +2043,24 @@ void cross_item() : {} {
 	identifier()
 }
 
-void select_bins_or_empty() :
-{
-}
-{
+void select_bins_or_empty() : {} {
 	"{" ( bins_selection_or_option() <SEMICOLON> )* "}"
 	| <SEMICOLON>
 }
 
-void bins_selection_or_option() :
-{
-}
-{
-	( attribute_instance() )* coverage_option()
-	| ( attribute_instance() )* bins_selection()
-}
-
-void bins_selection() :
-{
-}
-{
-	bins_keyword() /*bin_*/ identifier() <EQ_1> select_expression() [ <IFF> <LPAREN> expression() <RPAREN> ]
+void bins_selection_or_option() : {} {
+	( attribute_instance() )* 
+		(
+			coverage_option()
+			| bins_selection()
+		)
 }
 
-void select_expression() :
-{
+void bins_selection() : {} {
+	bins_keyword() identifier() <EQ_1> select_expression() [ <IFF> <LPAREN> expression() <RPAREN> ]
 }
-{
+
+void select_expression() : {} {
     /* CHG: remove left recursion
 	select_condition()
 	| "!" select_condition()
@@ -2266,10 +2075,7 @@ void select_expression() :
   ) [select_expression_2()]
 }
 
-void select_expression_2() :
-{
-}
-{
+void select_expression_2() : {} {
   (
 	  "&&" select_expression()
 	| "||" select_expression()
@@ -2277,10 +2083,7 @@ void select_expression_2() :
 }
 
 
-void select_condition() :
-{
-}
-{
+void select_condition() : {} {
 	<BINSOF> <LPAREN> bins_expression() <RPAREN> [ <INTERSECT> "{" open_range_list() "}" ]
 }
 
@@ -2304,10 +2107,7 @@ void open_value_range() : {} {
  * A.3.1 Primitive instantiation and instances
  ********************************************************************/
 
-void gate_instantiation() :
-{
-}
-{
+void gate_instantiation() : {} {
 	cmos_switchtype() [delay3()] cmos_switch_instance() ( <COMMA> cmos_switch_instance() )* <SEMICOLON>
 	| enable_gatetype() [drive_strength()] [delay3()] enable_gate_instance() ( <COMMA> enable_gate_instance() )* <SEMICOLON>
 	| mos_switchtype() [delay3()] mos_switch_instance() ( <COMMA> mos_switch_instance() )* <SEMICOLON>
@@ -2319,59 +2119,35 @@ void gate_instantiation() :
 	| <PULLUP> [pullup_strength()] pull_gate_instance() ( <COMMA> pull_gate_instance() )* <SEMICOLON>
 }
 
-void cmos_switch_instance() :
-{
-}
-{
+void cmos_switch_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <COMMA> input_terminal() <COMMA> ncontrol_terminal() <COMMA> pcontrol_terminal() <RPAREN>
 }
 
-void enable_gate_instance() :
-{
-}
-{
+void enable_gate_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <COMMA> input_terminal() <COMMA> enable_terminal() <RPAREN>
 }
 
-void mos_switch_instance() :
-{
-}
-{
+void mos_switch_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <COMMA> input_terminal() <COMMA> enable_terminal() <RPAREN>
 }
 
-void n_input_gate_instance() :
-{
-}
-{
+void n_input_gate_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <COMMA> input_terminal() ( <COMMA> input_terminal() )* <RPAREN>
 }
 
-void n_output_gate_instance() :
-{
-}
-{
-	[ name_of_instance() ] <LPAREN> output_terminal() ( <COMMA> output_terminal() )* <COMMA> input_terminal() <RPAREN>
+void n_output_gate_instance() : {} {
+	[ name_of_instance() ] <LPAREN> output_terminal() ( LOOKAHEAD(1) <COMMA> output_terminal() )* <COMMA> input_terminal() <RPAREN>
 }
 
-void pass_switch_instance() :
-{
-}
-{
+void pass_switch_instance() : {} {
 	[ name_of_instance() ] <LPAREN> inout_terminal() <COMMA> inout_terminal() <RPAREN>
 }
 
-void pass_enable_switch_instance() :
-{
-}
-{
+void pass_enable_switch_instance() : {} {
 	[ name_of_instance() ] <LPAREN> inout_terminal() <COMMA> inout_terminal() <COMMA> enable_terminal() <RPAREN>
 }
 
-void pull_gate_instance() :
-{
-}
-{
+void pull_gate_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <RPAREN>
 }
 
@@ -2379,22 +2155,18 @@ void pull_gate_instance() :
 /********************************************************************
  * A.3.2 Primitive strengths
  ********************************************************************/
-void pulldown_strength() :
-{
-}
-{
-	<LPAREN> strength0() <COMMA> strength1() <RPAREN>
-	| <LPAREN> strength1() <COMMA> strength0() <RPAREN>
-	| <LPAREN> strength0() <RPAREN>
+void pulldown_strength() : {} {
+	<LPAREN> 
+		(strength0() [<COMMA> strength1()] <RPAREN>
+		| strength1() <COMMA> strength0() <RPAREN>
+		)
 }
 
-void pullup_strength() :
-{
-}
-{
-	<LPAREN> strength0() <COMMA> strength1() <RPAREN>
-	| <LPAREN> strength1() <COMMA> strength0() <RPAREN>
-	| <LPAREN> strength1() <RPAREN>
+void pullup_strength() : {} {
+	<LPAREN> 
+		(strength0() <COMMA> strength1() <RPAREN>
+		| strength1() [<COMMA> strength0()] <RPAREN>
+		)
 }
 
 
@@ -2402,97 +2174,58 @@ void pullup_strength() :
  * A.3.3 Primitive terminals
  ********************************************************************/
 
-void enable_terminal() :
-{
-}
-{
+void enable_terminal() : {} {
 	expression()
 }
 
-void inout_terminal() :
-{
-}
-{
+void inout_terminal() : {} {
 	net_lvalue()
 }
 
-void input_terminal() :
-{
-}
-{
+void input_terminal() : {} {
 	expression()
 }
 
-void ncontrol_terminal() :
-{
-}
-{
+void ncontrol_terminal() : {} {
 	expression()
 }
 
-void output_terminal() :
-{
-}
-{
+void output_terminal() : {} {
 	net_lvalue()
 }
 
-void pcontrol_terminal() :
-{
-}
-{
+void pcontrol_terminal() : {} {
 	expression()
 }
 
 /********************************************************************
  * A.3.4 Primitive gate and switch types
  ********************************************************************/
-void cmos_switchtype() :
-{
-}
-{
+void cmos_switchtype() : {} {
 	<CMOS> | <RCMOS>
 }
 
-void enable_gatetype() :
-{
-}
-{
+void enable_gatetype() : {} {
 	<BUFIF0> | <BUFIF1> | <NOTIF0> | <NOTIF1>
 }
 
-void mos_switchtype() :
-{
-}
-{
+void mos_switchtype() : {} {
 	<NMOS> | <PMOS> | <RNMOS> | <RPMOS>
 }
 
-void n_input_gatetype() :
-{
-}
-{
+void n_input_gatetype() : {} {
 	<AND> | <NAND> | <OR> | <NOR> | <XOR> | <XNOR>
 }
 
-void n_output_gatetype() :
-{
-}
-{
+void n_output_gatetype() : {} {
 	<BUF> | <NOT>
 }
 
-void pass_en_switchtype() :
-{
-}
-{
+void pass_en_switchtype() : {} {
 	<TRANIF0> | <TRANIF1> | <RTRANIF1> | <RTRANIF0>
 }
 
-void pass_switchtype() :
-{
-}
-{
+void pass_switchtype() : {} {
 	<TRAN> | <RTRAN>
 }
 
@@ -2510,67 +2243,46 @@ void parameter_value_assignment() : {} {
  	<HASH> <LPAREN> list_of_parameter_assignments() <RPAREN>
 }
  
-void list_of_parameter_assignments() :
-{
-}
-{
+void list_of_parameter_assignments() : {} {
 	ordered_parameter_assignment() ( <COMMA> ordered_parameter_assignment() )*
 	| named_parameter_assignment() ( <COMMA> named_parameter_assignment() )*
 }
 
-void ordered_parameter_assignment() :
-{
-}
-{
+void ordered_parameter_assignment() : {} {
 	param_expression()
 }
 
-void named_parameter_assignment() :
-{
-}
-{
+void named_parameter_assignment() : {} {
 	// CHG: param_expression() can expand to "", so remove []
 	"." identifier() <LPAREN> param_expression() <RPAREN>
 }
 
-void hierarchical_instance() :
-{
-}
-{
+void hierarchical_instance() : {} {
 	// CHG: list_of_port_connections() can expand to "", so remove []
 	name_of_instance() <LPAREN> list_of_port_connections() <RPAREN>
 }
 
-void name_of_instance() :
-{
-}
-{
-	instance_identifier() ( unpacked_dimension() )*
+void name_of_instance() : {} {
+	identifier() ( unpacked_dimension() )*
 }
 
-void list_of_port_connections() :
-{
-}
-{
+void list_of_port_connections() : {} {
 	ordered_port_connection() ( <COMMA> ordered_port_connection() )*
 	| named_port_connection() ( <COMMA> named_port_connection() )*
 }
 
-void ordered_port_connection() :
-{
-}
-{
+void ordered_port_connection() : {} {
 	// CHG: expression() can expand to "", so remove []
 	( attribute_instance() )* expression()
 }
 
-void named_port_connection() :
-{
-}
-{
+void named_port_connection() : {} {
 	// CHG: expression() can expand to [], so remove []
-	( attribute_instance() )* "." port_identifier() [ <LPAREN> expression() <RPAREN> ]
-	| ( attribute_instance() )* ".*"
+	( attribute_instance() )* 
+		(
+			"." identifier() [ <LPAREN> expression() <RPAREN> ]
+			| ".*"
+		)
 }
 
 /********************************************************************
@@ -2603,48 +2315,34 @@ void loop_generate_construct() : {} {
 	generate_block()
 }
 
-void genvar_initialization() :
-{
-}
-{
+void genvar_initialization() : {} {
 	[ <GENVAR> ] identifier() <EQ_1> constant_expression()
 }
 
-void genvar_iteration() :
-{
-}
-{
-	identifier() assignment_operator() genvar_expression()
+void genvar_iteration() : {} {
+	identifier() 
+		(
+			assignment_operator() genvar_expression()
+			| inc_or_dec_operator()
+		)
 	| inc_or_dec_operator() identifier()
-	| identifier() inc_or_dec_operator()
 }
 
-void conditional_generate_construct() :
-{
-}
-{
+void conditional_generate_construct() : {} {
 	if_generate_construct()
 	| case_generate_construct()
 }
 
-void if_generate_construct() :
-{
-}
-{
-	<IF> <LPAREN> constant_expression() <RPAREN> generate_block_or_null() [ <ELSE> generate_block_or_null() ]
+void if_generate_construct() : {} {
+	<IF> <LPAREN> constant_expression() <RPAREN> generate_block_or_null() 
+		[ <ELSE> generate_block_or_null() ]
 }
 
-void case_generate_construct() :
-{
-}
-{
+void case_generate_construct() : {} {
 	<CASE> <LPAREN> constant_expression() <RPAREN> case_generate_item() ( case_generate_item() )* <ENDCASE>
 }
 
-void case_generate_item() :
-{
-}
-{
+void case_generate_item() : {} {
 	constant_expression() ( <COMMA> constant_expression())* ":" generate_block_or_null()
 	| <T_DEFAULT> [ ":" ] generate_block_or_null()
 }
@@ -2668,32 +2366,22 @@ void generate_block_or_null() : {} {
  * A.5.1 UDP declaration
  ********************************************************************/
 
-void udp_nonansi_declaration() :
-{
-}
-{
+void udp_nonansi_declaration() : {} {
 	( attribute_instance() )* <PRIMITIVE> identifier() <LPAREN> udp_port_list() <RPAREN> <SEMICOLON>
 }
 
-void udp_ansi_declaration() :
-{
-}
-{
+void udp_ansi_declaration() : {} {
 	( attribute_instance() )* <PRIMITIVE> identifier() <LPAREN> udp_declaration_port_list() <RPAREN> <SEMICOLON>
 }
 
-void udp_declaration() :
-{
-}
-{
+void udp_declaration() : {} {
 	udp_nonansi_declaration() udp_port_declaration() ( udp_port_declaration() )*
 	udp_body()
 	<ENDPRIMITIVE> [ ":" identifier() ]
 	| udp_ansi_declaration()
 	udp_body()
 	<ENDPRIMITIVE> [ ":" identifier() ]
-	| <EXTERN> udp_nonansi_declaration()
-	| <EXTERN> udp_ansi_declaration()
+	| <EXTERN> (udp_nonansi_declaration() | udp_ansi_declaration()) 
 	| ( attribute_instance() )* <PRIMITIVE> identifier() <LPAREN> ".*" <RPAREN> <SEMICOLON> ( udp_port_declaration() )*
 	udp_body()
 	<ENDPRIMITIVE> [ ":" identifier() ]
@@ -2702,48 +2390,45 @@ void udp_declaration() :
 /********************************************************************
  * A.5.2 UDP ports
  ********************************************************************/
-void udp_port_list() :
-{
-}
-{
+void udp_port_list() : {} {
 	identifier() <COMMA> identifier() ( <COMMA> identifier() )*
 }
 
-void udp_declaration_port_list() :
-{
-}
-{
+void udp_declaration_port_list() : {} {
 	udp_output_declaration() <COMMA> udp_input_declaration() ( <COMMA> udp_input_declaration() )*
 }
 
-void udp_port_declaration() :
-{
-}
-{
+void udp_port_declaration() : {} {
+/*
 	udp_output_declaration() <SEMICOLON>
 	| udp_input_declaration() <SEMICOLON>
 	| udp_reg_declaration() <SEMICOLON>
+ */
+	( attribute_instance() )* 
+	(
+		<OUTPUT> 
+		(
+			identifier()
+			| <REG> identifier() [ <EQ_1> constant_expression() ]
+		)
+		| <INPUT> list_of_udp_port_identifiers()
+		| <REG> identifier()
+	)
 }
 
-void udp_output_declaration() :
-{
-}
-{
-	( attribute_instance() )* <OUTPUT> port_identifier()
-	| ( attribute_instance() )* <OUTPUT> <REG> port_identifier() [ <EQ_1> constant_expression() ]
+void udp_output_declaration() : {} {
+	( attribute_instance() )* <OUTPUT> 
+		(
+			identifier()
+			| <REG> identifier() [ <EQ_1> constant_expression() ]
+		)
 }
 
-void udp_input_declaration() :
-{
-}
-{
+void udp_input_declaration() : {} {
 	( attribute_instance() )* <INPUT> list_of_udp_port_identifiers()
 }
 
-void udp_reg_declaration() :
-{
-}
-{
+void udp_reg_declaration() : {} {
 	( attribute_instance() )* <REG> identifier()
 }
 
@@ -2751,115 +2436,67 @@ void udp_reg_declaration() :
  * A.5.3 UDP body
  ********************************************************************/
 
-void udp_body() :
-{
-}
-{
+void udp_body() : {} {
 	combinational_body() | sequential_body()
 }
 
-void combinational_body() :
-{
-}
-{
+void combinational_body() : {} {
 	<TABLE> combinational_entry() ( combinational_entry() )* <ENDTABLE>
 }
 
-void combinational_entry() :
-{
-}
-{
+void combinational_entry() : {} {
 	level_input_list() ":" output_symbol() <SEMICOLON>
 }
 
-void sequential_body() :
-{
-}
-{
+void sequential_body() : {} {
 	[ udp_initial_statement() ] <TABLE> sequential_entry() ( sequential_entry() )* <ENDTABLE>
 }
 
-void udp_initial_statement() :
-{
-}
-{
+void udp_initial_statement() : {} {
 	<INITIAL> identifier() <EQ_1> init_val() <SEMICOLON>
 }
 
-void init_val() :
-{
-}
-{
+void init_val() : {} {
 	"1�b0" | "1�b1" | "1�bx" | "1�bX" | "1�B0" | "1�B1" | "1�Bx" | "1�BX" | "1" | "0"
 }
 
-void sequential_entry() :
-{
-}
-{
+void sequential_entry() : {} {
 	seq_input_list() ":" current_state() ":" next_state() <SEMICOLON>
 }
 
-void seq_input_list() :
-{
-}
-{
+void seq_input_list() : {} {
 	level_input_list() | edge_input_list()
 }
 
-void level_input_list() :
-{
-}
-{
+void level_input_list() : {} {
 	level_symbol() ( level_symbol() )*
 }
 
-void edge_input_list() :
-{
-}
-{
+void edge_input_list() : {} {
 	( level_symbol() )* edge_indicator() ( level_symbol() )*
 }
 
-void edge_indicator() :
-{
-}
-{
+void edge_indicator() : {} {
 	<LPAREN> level_symbol() level_symbol() <RPAREN> | edge_symbol()
 }
 
-void current_state() :
-{
-}
-{
+void current_state() : {} {
 	level_symbol()
 }
 
-void next_state() :
-{
-}
-{
+void next_state() : {} {
 	output_symbol() | "-"
 }
 
-void output_symbol() :
-{
-}
-{
+void output_symbol() : {} {
 	"0" | "1" | "x" | "X"
 }
 
-void level_symbol() :
-{
-}
-{
+void level_symbol() : {} {
 	<BIN4S_DIGIT>
 }
 	
-void edge_symbol() :
-{
-}
-{
+void edge_symbol() : {} {
 	"r" | "R" | "f" | "F" | "p" | "P" | "n" | "N" | "*"
 }
 
@@ -2868,17 +2505,11 @@ void edge_symbol() :
  * A.5.4 UDP instantiation
  ********************************************************************/
 
-void udp_instantiation() :
-{
-}
-{
+void udp_instantiation() : {} {
 	identifier() [ drive_strength() ] [ delay2() ] udp_instance() ( <COMMA> udp_instance() )* <SEMICOLON>
 }
 
-void udp_instance() :
-{
-}
-{
+void udp_instance() : {} {
 	[ name_of_instance() ] <LPAREN> output_terminal() <COMMA> input_terminal() ( <COMMA> input_terminal() )* <RPAREN>
 }
 
@@ -2889,39 +2520,28 @@ void udp_instance() :
 /********************************************************************
  * A.6.1 Continuous assignment and net alias statements
  ********************************************************************/
-void continuous_assign() :
-{
-}
-{
-	<ASSIGN> [ drive_strength() ] [ delay3() ] list_of_net_assignments() <SEMICOLON>
-	| <ASSIGN> [ delay_control() ] list_of_variable_assignments() <SEMICOLON>
+void continuous_assign() : {} {
+	<ASSIGN> 
+		(
+			[ drive_strength() ] [ delay3() ] list_of_net_assignments()
+			| [ delay_control() ] list_of_variable_assignments()
+		) 
+	<SEMICOLON>
 }
 
-void list_of_net_assignments() :
-{
-}
-{
+void list_of_net_assignments() : {} {
 	net_assignment() ( <COMMA> net_assignment())*
 }
 
-void list_of_variable_assignments() :
-{
-}
-{
+void list_of_variable_assignments() : {} {
 	variable_assignment() ( <COMMA> variable_assignment())*
 }
 
-void net_alias() :
-{
-}
-{
+void net_alias() : {} {
 	<ALIAS> net_lvalue() <EQ_1> net_lvalue() (<EQ_1> net_lvalue())* <SEMICOLON>
 }
 
-void net_assignment() :
-{
-}
-{
+void net_assignment() : {} {
 	net_lvalue() <EQ_1> expression()
 }
 
@@ -2929,36 +2549,23 @@ void net_assignment() :
  * A.6.2 Procedural blocks and assignments
  ********************************************************************/
 
-void initial_construct() :
-{
-}
-{
+void initial_construct() : {} {
 	<INITIAL> statement_or_null()
 }
 
-void always_construct() :
-{
-}
-{
+void always_construct() : {} {
 	always_keyword() statement()
 }
 
-void always_keyword() :
-{
-}
-{
+void always_keyword() : {} {
 	<ALWAYS> | <ALWAYS_COMB> | <ALWAYS_LATCH> | <ALWAYS_FF>
 }
 
-void final_construct() :
-{
-}
-{
+void final_construct() : {} {
 	<FINAL> function_statement()
 }
 
-void blocking_assignment() : {}
-{
+void blocking_assignment() : {} {
 	variable_lvalue() <EQ_1> delay_or_event_control() expression()
 	| hierarchical_dynamic_array_variable_identifier() <EQ_1> dynamic_array_new()
 	| [ implicit_class_handle() "." | class_scope() | package_scope() ] hierarchical_variable_identifier()
@@ -2966,100 +2573,64 @@ void blocking_assignment() : {}
 	| operator_assignment()
 }
 
-void operator_assignment() :
-{
-}
-{
+void operator_assignment() : {} {
 	variable_lvalue() assignment_operator() expression()
 }
 
-void assignment_operator() :
-{
-}
-{
+void assignment_operator() : {} {
 	<EQ_1> | "+=" | "-=" | "*=" | "/=" | "%=" | "&=" | "|=" | "^=" | <LSE> | ">>=" | <LLSE> | ">>>="
 }
 
-void nonblocking_assignment() :
-{
-}
-{
+void nonblocking_assignment() : {} {
 	variable_lvalue() <LE> [ delay_or_event_control() ] expression()
 }
 
-void procedural_continuous_assignment() :
-{
-}
-{
+void procedural_continuous_assignment() : {} {
 	<ASSIGN> variable_assignment()
 	| <DEASSIGN> variable_lvalue()
-	| <FORCE> variable_assignment()
-	| <FORCE> net_assignment()
-	| <RELEASE> variable_lvalue()
-	| <RELEASE> net_lvalue()
+	| <FORCE> (variable_assignment() | net_assignment())
+	| <RELEASE> (variable_lvalue() | net_lvalue()) 
 }
 
-void variable_assignment() :
-{
-}
-{
+void variable_assignment() : {} {
 	variable_lvalue() <EQ_1> expression()
 }
 
 /********************************************************************
  * A.6.3 Parallel and sequential blocks
  ********************************************************************/
-void action_block() :
-{
-}
-{
+void action_block() : {} {
 	statement_or_null()
 	| [ statement() ] <ELSE> statement_or_null()
 }
 
-void seq_block() :
-{
-}
-{
-	<BEGIN> [ ":" block_identifier() ] (block_item_declaration())* (statement_or_null())*
-	<END> [ ":" block_identifier() ]
+void seq_block() : {} {
+	<BEGIN> [ ":" identifier() ] (block_item_declaration())* (statement_or_null())*
+	<END> [ ":" identifier() ]
 }
 
-void par_block() :
-{
-}
-{
-	<FORK> [ ":" block_identifier() ] (block_item_declaration())* (statement_or_null())*
-	join_keyword() [ ":" block_identifier() ]
+void par_block() : {} {
+	<FORK> [ ":" identifier() ] (block_item_declaration())* (statement_or_null())*
+	join_keyword() [ ":" identifier() ]
 }
 
-void join_keyword() :
-{
-}
-{
+void join_keyword() : {} {
 	<JOIN> | <JOIN_ANY> | <JOIN_NONE>
 }
 
 /********************************************************************
  * A.6.4 Statements
  ********************************************************************/
-void statement_or_null() :
-{
-}
-{
+void statement_or_null() : {} {
 	statement()
 	| (attribute_instance())* <SEMICOLON>
 }
 
-void statement() : {}
-{
-	[ block_identifier() ":" ] (attribute_instance())* statement_item()
+void statement() : {} {
+	[ identifier() ":" ] (attribute_instance())* statement_item()
 }
 
-void statement_item() :
-{
-}
-{
+void statement_item() : {} {
 	blocking_assignment() <SEMICOLON>
 	| nonblocking_assignment() <SEMICOLON>
 	| procedural_continuous_assignment() <SEMICOLON>
@@ -3082,25 +2653,16 @@ void statement_item() :
 	| expect_property_statement()
 }
 
-void function_statement() :
-{
-}
-{
+void function_statement() : {} {
 	statement()
 }
 
-void function_statement_or_null() :
-{
-}
-{
+void function_statement_or_null() : {} {
 	function_statement()
 	| (attribute_instance())* <SEMICOLON>
 }
 
-void variable_identifier_list() :
-{
-}
-{
+void variable_identifier_list() : {} {
 	identifier() ( <COMMA> identifier())*
 }
 
@@ -3108,151 +2670,113 @@ void variable_identifier_list() :
  * A.6.5 Timing control statements
  ********************************************************************/
 
-void procedural_timing_control_statement() :
-{
-}
-{
+void procedural_timing_control_statement() : {} {
 	procedural_timing_control() statement_or_null()
 }
 
-void delay_or_event_control() :
-{
-}
-{
+void delay_or_event_control() : {} {
 	delay_control()
 	| event_control()
 	| <REPEAT> <LPAREN> expression() <RPAREN> event_control()
 }
 
-void delay_control() :
-{
-}
-{
-	<HASH> delay_value()
-	| <HASH> <LPAREN> mintypmax_expression() <RPAREN>
+void delay_control() : {} {
+	<HASH> 
+		(
+			delay_value()
+			| <LPAREN> mintypmax_expression() <RPAREN>
+		)
 }
 
-void event_control() :
-{
-}
-{
-	"@" hierarchical_event_identifier()
-	| "@" <LPAREN> event_expression() <RPAREN>
+void event_control() : {} {
+	"@" 
+		(
+			hierarchical_event_identifier()
+			| <LPAREN> (event_expression() | "*") <RPAREN>
+			| sequence_instance()
+		)
 	| "@*"
-	| "@" <LPAREN> "*" <RPAREN>
-	| "@" sequence_instance()
 }
 
-void event_expression() :
-{
-}
-{
+void event_expression() : {} {
   (
 	[ edge_identifier() ] expression() [ <IFF> expression() ]
 	| sequence_instance() [ <IFF> expression() ]
   ) [event_expression_2()]
 }
 
-void event_expression_2() :
-{
-}
-{
+void event_expression_2() : {} {
   (
 	  <OR> event_expression()
 	| <COMMA> event_expression()
   ) event_expression()
 }
 
-void procedural_timing_control() :
-{
-}
-{
+void procedural_timing_control() : {} {
 	delay_control()
 	| event_control()
 	| cycle_delay()
 }
 
-void jump_statement() :
-{
-}
-{
+void jump_statement() : {} {
 	// CHG: expression can expand to "", so remove []
 	<RETURN> expression() <SEMICOLON>
 	| <BREAK> <SEMICOLON>
 	| <CONTINUE> <SEMICOLON>
 }
 
-void wait_statement() :
-{
-}
-{
-	<WAIT> <LPAREN> expression() <RPAREN> statement_or_null()
-	| <WAIT> <FORK> <SEMICOLON>
+void wait_statement() : {} {
+	<WAIT> 
+		(
+			<LPAREN> expression() <RPAREN> statement_or_null()
+			| <FORK> <SEMICOLON>
+		)
 	| <WAIT_ORDER> <LPAREN> hierarchical_identifier() ( <COMMA> hierarchical_identifier())* <RPAREN> action_block()
 }
 
-void event_trigger() :
-{
-}
-{
+void event_trigger() : {} {
 	"->" hierarchical_event_identifier() <SEMICOLON>
 	| "->>" [ delay_or_event_control() ] hierarchical_event_identifier() <SEMICOLON>
 }
 
-void disable_statement() :
-{
-}
-{
-	<DISABLE> hierarchical_task_identifier() <SEMICOLON>
-	| <DISABLE> hierarchical_block_identifier() <SEMICOLON>
-	| <DISABLE> <FORK> <SEMICOLON>
+void disable_statement() : {} {
+	<DISABLE> 
+		(
+			hierarchical_task_identifier()
+			| hierarchical_identifier()
+			| <FORK>
+		)
+		<SEMICOLON>
 }
 
 /********************************************************************
  * A.6.6 Conditional statements
  ********************************************************************/
-void conditional_statement() :
-{
-}
-{
-	<IF> <LPAREN> cond_predicate() <RPAREN> statement_or_null() [ <ELSE> statement_or_null() ]
+void conditional_statement() : {} {
+	<IF> <LPAREN> cond_predicate() <RPAREN> statement_or_null() [ LOOKAHEAD(1) <ELSE> statement_or_null() ]
 	| unique_priority_if_statement()
 }
 
-void unique_priority_if_statement() :
-{
-}
-{
+void unique_priority_if_statement() : {} {
 	[ unique_priority() ] <IF> <LPAREN> cond_predicate() <RPAREN> statement_or_null()
 	( <ELSE> <IF> <LPAREN> cond_predicate() <RPAREN> statement_or_null())*
 	[ <ELSE> statement_or_null() ]
 }
 
-void unique_priority() :
-{
-}
-{
+void unique_priority() : {} {
 	<UNIQUE> | <PRIORITY>
 }
 
-void cond_predicate() :
-{
-}
-{
+void cond_predicate() : {} {
 	expression_or_cond_pattern() ( "&&&" expression_or_cond_pattern() )*
 }
 
-void expression_or_cond_pattern() :
-{
-}
-{
-	expression() | cond_pattern()
+void expression_or_cond_pattern() : {} {
+	//expression() | cond_pattern()
+	expression() [<MATCHES> pattern()]
 }
 
-void cond_pattern() :
-{
-}
-{
+void cond_pattern() : {} {
 	expression() <MATCHES> pattern()
 }
 
@@ -3260,206 +2784,146 @@ void cond_pattern() :
  * A.6.7 case statements
  ********************************************************************/
 
-void case_statement() :
-{
-}
-{
+void case_statement() : {} {
+	/* NOTE: using case_keyword() leaves a hole
 	[ unique_priority() ] case_keyword() <LPAREN> expression() <RPAREN> case_item() ( case_item())* <ENDCASE>
 	| [ unique_priority() ] case_keyword() <LPAREN> expression() <RPAREN> <MATCHES> case_pattern_item() ( case_pattern_item())* <ENDCASE>
 	| [ unique_priority() ] <CASE> <LPAREN> expression() <RPAREN> <INSIDE> case_inside_item() ( case_inside_item())* <ENDCASE>
+     */
+	[ unique_priority() ] case_keyword() <LPAREN> expression() <RPAREN> 
+				(case_item() ( case_item())* 
+				| <MATCHES> case_pattern_item() ( case_pattern_item())* 
+				| <INSIDE> case_inside_item() ( case_inside_item())* 
+				)
+				<ENDCASE>
 }
 
-void case_keyword() :
-{
-}
-{
+void case_keyword() : {} {
 	<CASE> | <CASEZ> | <CASEX>
 }
 
-void case_item() :
-{
-}
-{
+void case_item() : {} {
 	expression() ( <COMMA> expression())* ":" statement_or_null()
 	| <T_DEFAULT> [ ":" ] statement_or_null()
 }
 
-void case_pattern_item() :
-{
-}
-{
+void case_pattern_item() : {} {
 	pattern() [ "&&&" expression() ] ":" statement_or_null()
 	| <T_DEFAULT> [ ":" ] statement_or_null()
 }
 
-void case_inside_item() :
-{
-}
-{
+void case_inside_item() : {} {
 	open_range_list() ":" statement_or_null()
 	| <T_DEFAULT> [ ":" ] statement_or_null()
 }
 
-void randcase_statement() :
-{
-}
-{
+void randcase_statement() : {} {
 	<RANDCASE> randcase_item() ( randcase_item())* <ENDCASE>
 }
 
-void randcase_item() :
-{
-}
-{
+void randcase_item() : {} {
 	expression() ":" statement_or_null()
 }
 
 /********************************************************************
  * A.6.7.1 Patterns
  ********************************************************************/ 
-void pattern() :
-{
-}
-{
+void pattern() :{} {
 	"." identifier()
 	| ".*"
 	| constant_expression()
 	// CHG: pattern can expand to "", so remove []
-	| <TAGGED> member_identifier() pattern()
+	| <TAGGED> identifier() pattern()
 	| "�{" pattern() (<COMMA> pattern())* "}"
-	| "�{" member_identifier() ":" pattern() ( <COMMA> member_identifier() ":" pattern())* "}"
+	| "�{" identifier() ":" pattern() ( <COMMA> identifier() ":" pattern())* "}"
 }
 
-void assignment_pattern() :
-{
-}
-{
-	"'{" expression() ( <COMMA> expression())* "}"
-	| "'{" structure_pattern_key() ":" expression() ( <COMMA> structure_pattern_key() ":" expression())* "}"
-	| "'{" array_pattern_key() ":" expression() ( <COMMA> array_pattern_key() ":" expression())* "}"
-	| "'{" constant_expression() "{" expression() ( <COMMA> expression() )* "}" "}"
+void assignment_pattern() : {} {
+	"'{" 
+		(
+			expression() ( <COMMA> expression())* 
+			| structure_pattern_key() ":" expression() ( <COMMA> structure_pattern_key() ":" expression())* 
+			| array_pattern_key() ":" expression() ( <COMMA> array_pattern_key() ":" expression())* 
+			| constant_expression() "{" expression() ( <COMMA> expression() )* "}" 
+		)
+	"}"
 }
 
 	
-void structure_pattern_key() :
-{
-}
-{
-	member_identifier() | assignment_pattern_key()
+void structure_pattern_key() : {} {
+	identifier() | assignment_pattern_key()
 }
 	
-void array_pattern_key() :
-{
-}
-{
+void array_pattern_key() : {} {
 	constant_expression() | assignment_pattern_key()
 }
 	
-void assignment_pattern_key() :
-{
-}
-{
+void assignment_pattern_key() : {} {
 	simple_type() | <T_DEFAULT>
 }
 	
-void assignment_pattern_expression() :
-{
-}
-{
+void assignment_pattern_expression() : {} {
 	[ assignment_pattern_expression_type() ] assignment_pattern()
 }
 
-void assignment_pattern_expression_type() :
-{
-}
-{
-	ps_type_identifier() | ps_parameter_identifier() | integer_atom_type()
+void assignment_pattern_expression_type() : {} {
+	ps_identifier() | ps_parameter_identifier() | integer_atom_type()
 }
 	
-void constant_assignment_pattern_expression() :
-{
-}
-{
+void constant_assignment_pattern_expression() : {} {
 	assignment_pattern_expression()
 }
 
-void assignment_pattern_net_lvalue() :
-{
-}
-{
+void assignment_pattern_net_lvalue() : {} {
 	"'{" net_lvalue() ( <COMMA> net_lvalue())* "}"
 }
 
-void assignment_pattern_variable_lvalue() :
-{
-}
-{
+void assignment_pattern_variable_lvalue() : {} {
 	"'{" variable_lvalue() ( <COMMA> variable_lvalue())* "}"
 }
 
 /********************************************************************
  * A.6.8 Looping statements  
  ********************************************************************/
-void loop_statement() :
-{
-}
-{
+void loop_statement() : {} {
 	<FOREVER> statement_or_null()
 	| <REPEAT> <LPAREN> expression() <RPAREN> statement_or_null()
 	| <WHILE> <LPAREN> expression() <RPAREN> statement_or_null()
 	| <FOR> <LPAREN> for_initialization() <SEMICOLON> expression() <SEMICOLON> for_step() <RPAREN>
 		statement_or_null()
 	| <DO> statement_or_null() <WHILE> <LPAREN> expression() <RPAREN> <SEMICOLON>
-	| <FOREACH> <LPAREN> array_identifier() "[" loop_variables() "]" <RPAREN> statement()
+	| <FOREACH> <LPAREN> identifier() "[" loop_variables() "]" <RPAREN> statement()
 }
 
-void for_initialization() :
-{
-}
-{
+void for_initialization() : {} {
 	list_of_variable_assignments()
 	| for_variable_declaration() ( <COMMA> for_variable_declaration())*
 }
 
-void for_variable_declaration() :
-{
-}
-{
+void for_variable_declaration() : {} {
 	data_type() identifier() <EQ_1> expression()
-		( <COMMA> identifier() <EQ_1> expression())*
+		( LOOKAHEAD(1) <COMMA> identifier() <EQ_1> expression())*
 }
 
-void for_step() :
-{
-}
-{
+void for_step() : {} {
 	for_step_assignment() ( <COMMA> for_step_assignment() )*
 }
 
-void for_step_assignment() :
-{
-}
-{
+void for_step_assignment() : {} {
 	operator_assignment()
 	| inc_or_dec_expression()
 	| subroutine_call()
 }
 
-void loop_variables() :
-{
-}
-{
-	"[" index_variable_identifier() "]" ( <COMMA> "[" index_variable_identifier() "]")*
+void loop_variables() : {} {
+	"[" identifier() "]" ( <COMMA> "[" identifier() "]")*
 }
 
 /********************************************************************
  * A.6.9 Subroutine call statements  
  ********************************************************************/
 
-void subroutine_call_statement() :
-{
-}
-{
+void subroutine_call_statement() : {} {
 	subroutine_call() <SEMICOLON>
 	| <VOID> "'" <LPAREN> subroutine_call() <RPAREN> <SEMICOLON>
 }
@@ -3468,18 +2932,12 @@ void subroutine_call_statement() :
  * A.6.10 Assertion statements  
  ********************************************************************/
 
-void procedural_assertion_statement() :
-{
-}
-{
-	concurrent_assertion_statement()
+void procedural_assertion_statement() : {} {
+	LOOKAHEAD(2) concurrent_assertion_statement()
 	| immediate_assert_statement()
 }
 
-void immediate_assert_statement() :
-{
-}
-{
+void immediate_assert_statement() : {} {
 	<ASSERT> <LPAREN> expression() <RPAREN> action_block()
 }
 
@@ -3487,77 +2945,47 @@ void immediate_assert_statement() :
  * A.6.11 Clocking block  
  ********************************************************************/
 
-void clocking_declaration() :
-{
-}
-{
-	[ <T_DEFAULT> ] <CLOCKING> [ clocking_identifier() ] clocking_event() <SEMICOLON>
+void clocking_declaration() : {} {
+	[ <T_DEFAULT> ] <CLOCKING> [ identifier() ] clocking_event() <SEMICOLON>
 	( clocking_item() )*
-	<ENDCLOCKING> [ ":" clocking_identifier() ]
+	<ENDCLOCKING> [ ":" identifier() ]
 }
 
-void clocking_event() :
-{
-}
-{
-	"@" identifier()
-	| "@" <LPAREN> event_expression() <RPAREN>
+void clocking_event() : {} {
+	"@"	( identifier() | <LPAREN> event_expression() <RPAREN> ) 
 }
 
-void clocking_item() :
-{
-}
-{
+void clocking_item() : {} {
 	<T_DEFAULT> default_skew() <SEMICOLON>
 	| clocking_direction() list_of_clocking_decl_assign() <SEMICOLON>
 	| ( attribute_instance() )* concurrent_assertion_item_declaration()
 }
 
-void default_skew() :
-{
-}
-{
-	<INPUT> clocking_skew()
+void default_skew() : {} {
+	<INPUT> clocking_skew() [<OUTPUT> clocking_skew()]
 	| <OUTPUT> clocking_skew()
-	| <INPUT> clocking_skew() <OUTPUT> clocking_skew()
 }
 
-void clocking_direction() :
-{
-}
-{
-	<INPUT> [ clocking_skew() ]
-	| <OUTPUT> [ clocking_skew() ]
-	| <INPUT> [ clocking_skew() ] <OUTPUT> [ clocking_skew() ]
+void clocking_direction() : {} {
+	<OUTPUT> [ clocking_skew() ]
+	| <INPUT> [ clocking_skew() ] [<OUTPUT> [ clocking_skew() ]]
 	| <INOUT>
 }
 
-void list_of_clocking_decl_assign() :
-{
-}
-{
+void list_of_clocking_decl_assign() : {} {
 	clocking_decl_assign() ( <COMMA> clocking_decl_assign() )*
 }
 
-void clocking_decl_assign() :
-{
-}
-{
+void clocking_decl_assign() : {} {
 	identifier() [ <EQ_1> expression() ]
 }
 
-void clocking_skew() :
-{
-}
-{
+void clocking_skew() : {} {
 	edge_identifier() [ delay_control() ]
 	| delay_control()
 }
 
-void clocking_drive() :
-{
-}
-{
+void clocking_drive() : {} {
 	clockvar_expression() <LE> [ cycle_delay() ] expression()
 	| cycle_delay() clockvar_expression() <LE> expression()
 }
@@ -3571,51 +2999,29 @@ void cycle_delay() : {} {
 		) 
 }
 
-void clockvar() :
-{
-}
-{
-	hierarchical_identifier()
-}
-
-void clockvar_expression() :
-{
-}
-{
-	clockvar() select()
+void clockvar_expression() : {} {	
+	hierarchical_identifier() select()
 }
 
 /****************************************************************************
  * A.6.12 Randsequence
  ****************************************************************************/
 
-void randsequence_statement() :
-{
-}
-{
-	<RANDSEQUENCE> <LPAREN> [ production_identifier() ] <RPAREN>
+void randsequence_statement() : {} {
+	<RANDSEQUENCE> <LPAREN> [ identifier() ] <RPAREN>
 	production() ( production() )*
 	<ENDSEQUENCE>
 }
 
-void production() :
-{
-}
-{
-	[ function_data_type() ] production_identifier() [ <LPAREN> tf_port_list() <RPAREN> ] ":" rs_rule() ( "|" rs_rule() )* <SEMICOLON>
+void production() : {} {
+	[ LOOKAHEAD(1) function_data_type() ] identifier() [ <LPAREN> tf_port_list() <RPAREN> ] ":" rs_rule() ( "|" rs_rule() )* <SEMICOLON>
 }
 
-void rs_rule() :
-{
-}
-{
+void rs_rule() : {} {
 	rs_production_list() [ ":=" weight_specification() [ rs_code_block() ] ]
 }
 
-void rs_production_list() :
-{
-}
-{
+void rs_production_list() : {} {
 	rs_prod() ( rs_prod() )*
 	| <RAND> <JOIN> [ <LPAREN> expression() <RPAREN> ] production_item() production_item() ( production_item() )*
 }
@@ -3626,17 +3032,11 @@ void weight_specification() : {} {
 	| <LPAREN> expression() <RPAREN>
 }
 
-void rs_code_block() :
-{
-}
-{
-	"{" ( data_declaration() )* ( statement_or_null() )* "}"
+void rs_code_block() : {} {
+	"{" ( LOOKAHEAD(1) data_declaration() )* ( statement_or_null() )* "}"
 }
 
-void rs_prod() :
-{
-}
-{
+void rs_prod() : {} {
 	production_item()
 	| rs_code_block()
 	| rs_if_else()
@@ -3644,38 +3044,23 @@ void rs_prod() :
 	| rs_case()
 }
 
-void production_item() :
-{
-}
-{
-	production_identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
+void production_item() : {} {
+	identifier() [ <LPAREN> list_of_arguments() <RPAREN> ]
 }
 
-void rs_if_else() :
-{
-}
-{
+void rs_if_else() : {} {
 	<IF> <LPAREN> expression() <RPAREN> production_item() [ <ELSE> production_item() ]
 }
 
-void rs_repeat() :
-{
-}
-{
+void rs_repeat() : {} {
 	<REPEAT> <LPAREN> expression() <RPAREN> production_item()
 }
 
-void rs_case() :
-{
-}
-{
+void rs_case() : {} {
 	<CASE> <LPAREN> expression() <RPAREN> rs_case_item() ( rs_case_item() )* <ENDCASE>
 }
 
-void rs_case_item() :
-{
-}
-{
+void rs_case_item() : {} {
 	expression() ( <COMMA> expression() )* ":" production_item() <SEMICOLON>
 	| <T_DEFAULT> [ ":" ] production_item() <SEMICOLON>
 }
@@ -3688,17 +3073,11 @@ void rs_case_item() :
  * A.7.1 Specify block declaration
  ********************************************************************/
 
-void specify_block() :
-{
-}
-{
+void specify_block() : {} {
 	<SPECIFY> ( specify_item() )* <ENDSPECIFY>
 }
 
-void specify_item() :
-{
-}
-{
+void specify_item() : {} {
 	specparam_declaration()
 	| pulsestyle_declaration()
 	| showcancelled_declaration()
@@ -3710,18 +3089,12 @@ void specify_item() :
 	 */
 }
 
-void pulsestyle_declaration() :
-{
-}
-{
+void pulsestyle_declaration() : {} {
 	<PULSESTYLE_ONEVENT> list_of_path_outputs() <SEMICOLON>
 	| <PULSESTYLE_ONDETECT> list_of_path_outputs() <SEMICOLON>
 }
 
-void showcancelled_declaration() :
-{
-}
-{
+void showcancelled_declaration() : {} {
 	<SHOWCANCELLED> list_of_path_outputs() <SEMICOLON>
 	| <NOSHOWCANCELLED> list_of_path_outputs() <SEMICOLON>
 }
@@ -3730,18 +3103,14 @@ void showcancelled_declaration() :
  * A.7.2 Specify path declarations
  ********************************************************************/
 
-void path_declaration() :
-{
-}
-{
+void path_declaration() : {} {
 	simple_path_declaration() <SEMICOLON>
 	| edge_sensitive_path_declaration() <SEMICOLON>
 	| state_dependent_path_declaration() <SEMICOLON>
 }
 
 void simple_path_declaration() : {} {
-	parallel_path_description() <EQ_1> path_delay_value()
-	| full_path_description() <EQ_1> path_delay_value()
+	(parallel_path_description() | full_path_description()) <EQ_1> path_delay_value()
 }
 
 void parallel_path_description() : {} {
@@ -3752,17 +3121,11 @@ void full_path_description() : {} {
 	<LPAREN> list_of_path_inputs() [ polarity_operator() ] "*>" list_of_path_outputs() <RPAREN>
 }
 
-void list_of_path_inputs() :
-{
-}
-{
+void list_of_path_inputs() : {} {
 	specify_input_terminal_descriptor() ( <COMMA> specify_input_terminal_descriptor() )*
 }
 
-void list_of_path_outputs() :
-{
-}
-{
+void list_of_path_outputs() : {} {
 	specify_output_terminal_descriptor() ( <COMMA> specify_output_terminal_descriptor() )*
 }
 
@@ -3779,11 +3142,11 @@ void specify_output_terminal_descriptor() : {} {
 }
 
 void input_identifier() : {} {
-	identifier() ["." port_identifier()]
+	identifier() ["." identifier()]
 }
 
 void output_identifier() : {} {
-	identifier() ["." port_identifier()]
+	identifier() ["." identifier()]
 }
 
 /********************************************************************
@@ -3792,7 +3155,7 @@ void output_identifier() : {} {
 
 void path_delay_value() :{} {
 	list_of_path_delay_expressions()
-	| <LPAREN> list_of_path_delay_expressions() <RPAREN>
+	// CHG: eliminate, since parens are possible | <LPAREN> list_of_path_delay_expressions() <RPAREN>
 }
 
 void list_of_path_delay_expressions() : {} {
@@ -3863,24 +3226,15 @@ void tx0_path_delay_expression() : {} {
 	path_delay_expression()
 }
 
-void txz_path_delay_expression() :
-{
-}
-{
+void txz_path_delay_expression() : {} {
 	path_delay_expression()
 }
 
-void tzx_path_delay_expression() :
-{
-}
-{
+void tzx_path_delay_expression() : {} {
 	path_delay_expression()
 }
 
-void path_delay_expression() :
-{
-}
-{
+void path_delay_expression() : {} {
 	constant_mintypmax_expression()
 }
 
@@ -4034,98 +3388,56 @@ scalar_constant ::= 1�b0 | 1�b1 | 1�B0 | 1�B1 | �b0 | �b1 | �B0 | 
  * A.8.1 Concatenations  
  ********************************************************************/
 
-void concatenation() :
-{
-}
-{
+void concatenation() : {} {
 	"{" expression() ( <COMMA> expression() )* "}"
 }
 
-void constant_concatenation() :
-{
-}
-{
+void constant_concatenation() : {} {
 	"{" constant_expression() ( <COMMA> constant_expression() )* "}"
 }
 
-void constant_multiple_concatenation() :
-{
-}
-{
+void constant_multiple_concatenation() : {} {
 	"{" constant_expression() constant_concatenation() "}"
 }
 
-void module_path_concatenation() :
-{
-}
-{
+void module_path_concatenation() : {} {
 	"{" module_path_expression() ( <COMMA> module_path_expression() )* "}"
 }
 
-void module_path_multiple_concatenation() :
-{
-}
-{
+void module_path_multiple_concatenation() : {} {
 	"{" constant_expression() module_path_concatenation() "}"
 }
 
-void multiple_concatenation() :
-{
-}
-{
+void multiple_concatenation() : {} {
 	"{" expression() concatenation() "}"
 }
 
-void streaming_concatenation() :
-{
-}
-{
+void streaming_concatenation() : {} {
 	// CHG: slice_size() can expand to "", so remove []
 	"{" stream_operator() slice_size() stream_concatenation() "}"
 }
 
-void stream_operator() :
-{
-}
-{
+void stream_operator() : {} {
 	<RS> | <LS>
 }
 
-void slice_size() :
-{
-}
-{
+void slice_size() : {} {
 	simple_type() | constant_expression()
 }
 
-void stream_concatenation() :
-{
-}
-{
+void stream_concatenation() : {} {
 	"{" stream_expression() ( <COMMA> stream_expression() )* "}"
 }
 
-void stream_expression() :
-{
-}
-{
+void stream_expression() : {} {
 	expression() [ <WITH> "[" array_range_expression() "]" ]
 }
 
-void array_range_expression() :
-{
-}
-{
-	expression()
-	| expression() ":" expression()
-	| expression() "+:" expression()
-	| expression() "-:" expression()
+void array_range_expression() : {} {
+	expression() [ (":" | "+:" | "-:") expression() ]
 }
 
-void empty_queue() :
-{
-}
-{
+void empty_queue() : {} {
 	"{" "}"
 }
 
@@ -4133,10 +3445,7 @@ void empty_queue() :
  * A.8.2 Subroutine calls  
  ********************************************************************/
 
-void constant_function_call() :
-{
-}
-{
+void constant_function_call() : {} {
 	subroutine_call()
 }
 
@@ -4156,7 +3465,6 @@ void subroutine_call() : {} {
 	//   (method_call_root)
 	| (expression_sc() | implicit_class_handle()) "." method_call_body()
 		ps_or_hierarchical_tf_identifier() (attribute_instance())* [ <LPAREN> list_of_arguments() <RPAREN> ]
-	
 	| randomize_call()
 }
 
@@ -4198,10 +3506,7 @@ void expression_sc() : {} {
   ]
 }
 
-void expression_sc_2() :
-{
-}
-{
+void expression_sc_2() : {} {
   (
 	binary_operator() (attribute_instance())* expression_sc() |  
 	<INSIDE> "{" open_range_list() "}"
@@ -4215,39 +3520,34 @@ void list_of_arguments() : {} {
 	| "." identifier() <LPAREN> expression() <RPAREN> ( <COMMA> "." identifier() <LPAREN> expression() <RPAREN>)*
 }
 
-void method_call_body() :
-{
-}
-{
-	method_identifier() (attribute_instance())* [ <LPAREN> list_of_arguments() <RPAREN> ]
+void method_call_body() : {} {
+	/*
+	identifier() (attribute_instance())* [ <LPAREN> list_of_arguments() <RPAREN> ]
 	| built_in_method_call()
+	 */
+	(identifier() | <UNIQUE> | <AND> | <OR> | <XOR>) (attribute_instance())* [ <LPAREN> list_of_arguments() <RPAREN> ]
+	| randomize_call()
 }
 
-void built_in_method_call() :
-{
-}
-{
+void built_in_method_call() : {} {
 	array_manipulation_call()
 	| randomize_call()
 }
 
-void array_manipulation_call() :
-{
-}
-{
+void array_manipulation_call() : {} {
 	array_method_name() (attribute_instance())*
 	[ <LPAREN> list_of_arguments() <RPAREN> ]
 	[ <WITH> <LPAREN> expression() <RPAREN> ]
 }
 
 void randomize_call() : {} {
-	<RANDOMIZE> (attribute_instance())*
-	[ <LPAREN> [ variable_identifier_list() | <NULL> ] <RPAREN> ]
+	<RANDOMIZE> (LOOKAHEAD(1) attribute_instance())*
+	[ LOOKAHEAD(1) <LPAREN> [ <NULL> | variable_identifier_list() ] <RPAREN> ]
 // FIXME:	[ <WITH> constraint_block() ]
 }
 
 void array_method_name() : {} {
-	method_identifier() | <UNIQUE> | <AND> | <OR> | <XOR>
+	identifier() | <UNIQUE> | <AND> | <OR> | <XOR>
 }
 
 /********************************************************************
@@ -4258,20 +3558,14 @@ void inc_or_dec_expression() : {} {
 	| variable_lvalue() (attribute_instance())* inc_or_dec_operator()
 }
 
-void conditional_expression() :
-{
-}
-{
+void conditional_expression() : {} {
 	/* FIXME: introduce parens to eliminate left recursion 
 	cond_predicate() <QMARK> (attribute_instance())* expression() ":" expression()
 	 */
 	<LPAREN> cond_predicate() <RPAREN> <QMARK> (attribute_instance())* expression() ":" expression()
 }
 
-void constant_expression() :
-{
-}
-{
+void constant_expression() : {} {
 	/* CHG: Remove left recursion
 	constant_primary()
 	| unary_operator() (attribute_instance())* constant_primary()
@@ -4284,10 +3578,7 @@ void constant_expression() :
 	) [constant_expression_2()]
 }
 
-void constant_expression_2() :
-{
-}
-{
+void constant_expression_2() : {} {
 	(
 		  binary_operator() (attribute_instance())* constant_expression()
 		| <QMARK> (attribute_instance())* constant_expression() ":" constant_expression()
@@ -4303,10 +3594,7 @@ void constant_param_expression() : {} {
 	constant_mintypmax_expression() | data_type() | "$"
 }
 
-void param_expression() :
-{
-}
-{
+void param_expression() : {} {
 	mintypmax_expression() | data_type()
 }
 
@@ -4364,35 +3652,23 @@ void expression() : {} {
   ]
 }
 
-void expression_2() :
-{
-}
-{
+void expression_2() : {} {
   (
 	binary_operator() (attribute_instance())* expression() |  
 	<INSIDE> "{" open_range_list() "}"
   ) expression()
 }
 
-void tagged_union_expression() :
-{
-}
-{
+void tagged_union_expression() : {} {
 	// CHG: expression() can expand to "", so remove []
-	<TAGGED> member_identifier() expression()
+	<TAGGED> identifier() expression()
 }
 
-void inside_expression() :
-{
-}
-{
+void inside_expression() : {} {
 	expression() <INSIDE> "{" open_range_list() "}"
 }
 
-void value_range() :
-{
-}
-{
+void value_range() : {} {
 	expression()
 	| "[" expression() ":" expression() "]"
 }
@@ -4403,19 +3679,13 @@ void mintypmax_expression() : {} {
 
 /* CHG: refactor into module_path_expression() to help
  *      eliminate left recursion
-void module_path_conditional_expression() :
-{
-}
-{
+void module_path_conditional_expression() : {} {
 	module_path_expression() <QMARK> (attribute_instance())*
 	module_path_expression() ":" module_path_expression()
 }
  */
 
-void module_path_expression() :
-{
-}
-{
+void module_path_expression() : {} {
   /* CHG: remove left recursion
 	module_path_primary()
 	| unary_module_path_operator() (attribute_instance())* module_path_primary()
@@ -4429,10 +3699,7 @@ void module_path_expression() :
   ) [module_path_expression_2()]
 }
 
-void module_path_expression_2() :
-{
-}
-{
+void module_path_expression_2() : {} {
   (
 	<QMARK> (attribute_instance())*
 	  module_path_expression() ":" module_path_expression()  
@@ -4444,8 +3711,7 @@ void module_path_mintypmax_expression() :
 {
 }
 {
-	module_path_expression()
-	| module_path_expression() ":" module_path_expression() ":" module_path_expression()
+	module_path_expression() [":" module_path_expression() ":" module_path_expression()]
 }
 
 void part_select_range() : {} {
@@ -4469,7 +3735,7 @@ void constant_primary() : {} {
 	// CHG: constant_range_expression() can expand to "", so remove []
 	| identifier() constant_range_expression()
 	| /* genvar_ */ identifier()
-	| [ package_scope() | class_scope() ] enum_identifier()
+	| [ package_scope() | class_scope() ] identifier()
 	| constant_concatenation()
 	| constant_multiple_concatenation()
 	| constant_function_call()
@@ -4480,6 +3746,15 @@ void constant_primary() : {} {
 }
 
 void module_path_primary() : {} {
+	/*
+	number()
+	| identifier()
+	| "{" module_path_expression() ( <COMMA> module_path_expression() )* "}"
+	| "{" constant_expression() module_path_concatenation() "}"
+	| subroutine_call()
+	| <LPAREN> module_path_mintypmax_expression() <RPAREN>
+	 */
+	 
 	number()
 	| identifier()
 	| module_path_concatenation()
@@ -4528,7 +3803,7 @@ void bit_select() : {} {
 }
 
 void select() : {} {
-	[ ( "." member_identifier() bit_select())* "." member_identifier() ] bit_select() [ "[" part_select_range() "]" ]
+	[ ( "." identifier() bit_select())* "." identifier() ] bit_select() [ "[" part_select_range() "]" ]
 }
 
 void constant_bit_select() : {} {
@@ -4539,7 +3814,7 @@ void constant_select() :
 {
 }
 {
-	[ ( "." member_identifier() constant_bit_select())* "." member_identifier() ] constant_bit_select()
+	[ ( "." identifier() constant_bit_select())* "." identifier() ] constant_bit_select()
 	[ "[" constant_part_select_range() "]" ]
 }
 
@@ -4690,9 +3965,8 @@ void non_zero_unsigned_number() : {} {
 }
 
 void real_number() : {} {
-	// CHG: removed fixed_point_number(), since below is equiv 
-	LOOKAHEAD(3) fixed_point_number()
-	| unsigned_number() [ "." unsigned_number() ] <EXP> [ sign() ] unsigned_number()
+	fixed_point_number()
+	| LOOKAHEAD(3) unsigned_number() [ "." unsigned_number() ] <EXP> [ sign() ] unsigned_number()
 }
 
 void fixed_point_number() : {} {
@@ -4802,13 +4076,6 @@ void attr_spec() : {} {
 /****************************************************************************
  * A.9.3 Identifiers
  ****************************************************************************/
-void array_identifier() : {} {
-	identifier()
-}
-
-void block_identifier() : {} {
-	identifier()
-}
 
 Token c_identifier() :
 {
@@ -4817,69 +4084,6 @@ Token c_identifier() :
 {
 	( tok = <C_IDENT>)
 	
-	{return tok;}
-}
-
-Token cell_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token clocking_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token config_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token const_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token constraint_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token covergroup_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token enum_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
 	{return tok;}
 }
 
@@ -4931,33 +4135,6 @@ void unexpectedEof(Token token)
 	 */
 }
 
-
-Token formal_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token function_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token hierarchical_block_identifier() :
-{
-	Token tok;
-}
-{
-	(tok  = hierarchical_identifier())
-	{return tok;}
-}
 
 Token hierarchical_dynamic_array_variable_identifier() :
 {
@@ -5043,118 +4220,27 @@ Token identifier() :
 	}
 }
 
-Token index_variable_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token instance_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token member_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token method_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token modport_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token net_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
 void package_scope() : { } {
 	(identifier() | <UNIT>) "::"
 }
 
 void package_or_class_scope() : {} {
+/*
+	ps_identifier() [ parameter_value_assignment() ]
+		( "::" identifier() [ parameter_value_assignment() ])*
+ */
 	(identifier() | <UNIT>) "::"
 }
 
-Token port_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token production_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-Token property_identifier() :
-{
-	Token tok;
-}
-{
-	(tok = identifier())
-	{return tok;}
-}
-
-void ps_class_identifier() :
-{
-}
-{
-	[ LOOKAHEAD(2) package_scope() ] identifier()
-}
-
-void ps_covergroup_identifier() :
-{
-}
-{
-	[ LOOKAHEAD(2) package_scope() ] covergroup_identifier()
-}
-
 void ps_identifier() : {} {
-	[ package_scope() ] identifier()
+	[ LOOKAHEAD(2) package_scope() ] identifier()
 }
 
 void ps_or_hierarchical_net_identifier() :
 {
 }
 {
-	[ LOOKAHEAD(2) package_scope() ] net_identifier() | hierarchical_net_identifier()
+	[ LOOKAHEAD(2) package_scope() ] identifier() | hierarchical_net_identifier()
 }
 
 void ps_or_hierarchical_tf_identifier() :
@@ -5172,27 +4258,6 @@ void ps_parameter_identifier() : {} {
 	([LOOKAHEAD(2) package_scope()]
 	 | ( identifier() [ "[" constant_expression() "]" ] "." )*
 	) identifier()
-}
-
-void ps_property_identifier() :
-{
-}
-{
-	[ LOOKAHEAD(2) package_scope() ] property_identifier()
-}
-
-void ps_sequence_identifier() :
-{
-}
-{
-	[ LOOKAHEAD(2) package_scope() ] identifier()
-}
-
-void ps_type_identifier() :
-{
-}
-{
-	[ LOOKAHEAD(2) package_scope() ] identifier()
 }
 
 Token simple_identifier() :

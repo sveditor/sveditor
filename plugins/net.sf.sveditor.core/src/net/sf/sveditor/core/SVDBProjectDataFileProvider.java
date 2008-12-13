@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
-import net.sf.sveditor.core.db.project.SVDBIncludePath;
+import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
@@ -25,11 +25,11 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 	
 	public SVDBFile getFile(String path) {
 		SVDBFile ret = null;
-		SVDBFileManager mgr = fProjectData.getFileCache();
+		SVDBWorkspaceFileManager mgr = fProjectData.getFileCache();
 		
 		System.out.println("getFile(\"" + path + "\")");
 		
-		for (SVDBIncludePath p : fProjectData.getProjectFileWrapper().getIncludePaths()) {
+		for (SVDBPath p : fProjectData.getProjectFileWrapper().getIncludePaths()) {
 			System.out.println("path: " + p.getPath());
 			if (p.isWSRelPath()) {
 				System.out.println("[TODO] WSRelPath()");

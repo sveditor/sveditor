@@ -1,4 +1,26 @@
 
+-- 0.0.4 Release --
+
+20081202 -- Add brace-matching highlighting to editor
+20081213 -- Remove conflict between JDT 'Open Declaration' shortcut and
+            SVEditor's shortcut
+
+
+-- TODO --
+* Add a build paths and include paths property page
+- Support indexing of elements on the build path
+- Basic support for content assist
+- Extended support for 'open declaration'
+- Enhance scanner
+    - Improve support for macros
+        - general
+        - macros with parameters
+    - Extend language coverage
+- Add inheritance hierarchy viewer
+
+
+
+-- 0.0.3 Release --
 
 20081101 - 
     - Add dedicated C-style comment detector for multi-line comments. Fixes

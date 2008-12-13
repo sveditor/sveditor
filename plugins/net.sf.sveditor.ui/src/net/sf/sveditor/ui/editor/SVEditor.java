@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.Activator;
 
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -32,6 +33,7 @@ import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.texteditor.AddTaskAction;
+import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
@@ -39,9 +41,10 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor {
-	private ListenerList				fReconcileListeners;
-	private SVOutlinePage				fOutline;
-	private SVHighlightingManager		fHighlightManager;
+
+	private ListenerList					fReconcileListeners;
+	private SVOutlinePage					fOutline;
+	private SVHighlightingManager			fHighlightManager;
 	private SVCodeScanner					fCodeScanner;
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
@@ -63,13 +66,27 @@ public class SVEditor extends TextEditor {
 	protected void initializeEditor() {
 		super.initializeEditor();
 	}
-	
+
+	@Override
+	protected void initializeKeyBindingScopes() {
+		setKeyBindingScopes(new String[] {Activator.PLUGIN_ID + ".svEditorContext"});
+	}
+
 	@Override
 	protected void createActions() {
 		// TODO Auto-generated method stub
 		super.createActions();
 
 		ResourceBundle bundle = Activator.getDefault().getResources();
+		
+		/*
+		Action action = new ContentAssistAction(bundle, "ContentAssistProposal.", this);
+		String id = ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS;
+		action.setActionDefinitionId(id);
+		setAction("ContentAssistProposal", action);
+		markAsStateDependentAction("ContentAssistProposal", true);
+		 */
+		
 		IAction a = new TextOperationAction(bundle,
 				"ContentAssistProposal.", this,
 				ISourceViewer.CONTENTASSIST_PROPOSALS);
@@ -90,6 +107,7 @@ public class SVEditor extends TextEditor {
 				"ContentFormatProposal.", this, ISourceViewer.FORMAT);
 		setAction("ContentFormatProposal", a);
 
+		
 		// Add the task action to the Edit pulldown menu (bookmark action is
 		// 'free')
 		ResourceAction ra = new AddTaskAction(bundle, "AddTask.",
@@ -107,8 +125,8 @@ public class SVEditor extends TextEditor {
 		
 		OpenDeclarationAction od_action = new OpenDeclarationAction(
 				bundle, "OpenDeclaration.", this);
-		od_action.setActionDefinitionId("net.sf.sveditor.ui.editor.open.declaration");
-		setAction("net.sf.sveditor.ui.svOpenEditorAction", od_action);
+		od_action.setActionDefinitionId(Activator.PLUGIN_ID + ".editor.open.declaration");
+		setAction(Activator.PLUGIN_ID + ".svOpenEditorAction", od_action);
 	}
 
 	protected void editorContextMenuAboutToShow(IMenuManager menu) {
@@ -116,7 +134,7 @@ public class SVEditor extends TextEditor {
 		super.editorContextMenuAboutToShow(menu);
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
-				"net.sf.sveditor.ui.svOpenEditorAction");
+				Activator.PLUGIN_ID + ".svOpenEditorAction");
 	}
 
 	@Override
@@ -154,6 +172,7 @@ public class SVEditor extends TextEditor {
 				fMatchingCharacterPainter = new MatchingCharacterPainter(
 						getSourceViewer(), fCharacterMatcher);
 				Display display = Display.getCurrent();
+				
 				// TODO: reference preference store
 				fMatchingCharacterPainter.setColor(display.getSystemColor(SWT.COLOR_GRAY));
 				((ITextViewerExtension2)getSourceViewer()).addPainter(
@@ -167,6 +186,10 @@ public class SVEditor extends TextEditor {
 		 */
 		
 	}
+	
+	
+	
+	
 	
 	public SVDBFile getSVDBFile() {
 		return fOutline.getSVDBFile();

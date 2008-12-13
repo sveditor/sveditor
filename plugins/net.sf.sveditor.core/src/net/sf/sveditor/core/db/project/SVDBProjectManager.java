@@ -2,11 +2,15 @@ package net.sf.sveditor.core.db.project;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.SVDBFilesystemIndex;
+import net.sf.sveditor.core.SVDBWorkspaceIndex;
 import net.sf.sveditor.core.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IFile;
@@ -23,10 +27,35 @@ import org.eclipse.core.runtime.IPath;
 
 public class SVDBProjectManager implements IResourceChangeListener {
 	private WeakHashMap<IPath, SVDBProjectData>		fProjectMap;
+	private WeakHashMap<File, ISVDBIndex>			fBuildPathEntries;
 	
 	public SVDBProjectManager() {
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+	}
+	
+	public ISVDBIndex findBuildPathIndex(IFile root) {
+		File file = root.getLocation().toFile();
+		
+		if (fBuildPathEntries.containsKey(file)) {
+			return fBuildPathEntries.get(file);
+		} else {
+			ISVDBIndex ret = new SVDBWorkspaceIndex(root.getLocation()); 
+			fBuildPathEntries.put(ret.getBaseLocation(), ret);
+			
+			return ret;
+		}
+	}
+	
+	public ISVDBIndex findBuildPathIndex(File root) {
+
+			if (fBuildPathEntries.containsKey(root)) {
+				return fBuildPathEntries.get(root);
+			} else {
+				ISVDBIndex ret = new SVDBFilesystemIndex(root); 
+				fBuildPathEntries.put(root, ret);
+				return ret;
+			}
 	}
 	
 	public SVDBProjectData getProjectData(IProject proj) {
@@ -49,7 +78,8 @@ public class SVDBProjectManager implements IResourceChangeListener {
 				try {
 					f_wrapper = new SVProjectFileWrapper(in);
 				} catch (Exception e) {
-					e.printStackTrace();
+					// File format is bad
+					f_wrapper = null;
 				}
 			}
 			
@@ -153,6 +183,15 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			} catch (CoreException e) {
 			}
 		}
+		
+		/*
+		for (IProject p : changed_projects) {
+			SVDBProjectData pd = fProjectMap.get(p.getFullPath());
+			
+			// re-scan project data file
+			pd.refreshProjectFile();
+		}
+		 */
 		
 		// TODO: Now, iterate through the projects and re-scan the files
 	}

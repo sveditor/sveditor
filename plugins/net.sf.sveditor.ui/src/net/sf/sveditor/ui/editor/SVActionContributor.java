@@ -25,7 +25,6 @@ public class SVActionContributor extends TextEditorActionContributor {
 
 	public SVActionContributor() {
 		super();
-		System.out.println("SVActionContributor");
 		ResourceBundle bundle = Activator.getDefault().getResources();
 		
 		fContentAssistProposal = new RetargetTextEditorAction(

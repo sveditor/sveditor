@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.ISVDBChangeListener;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBFileManager;
+import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -21,7 +21,7 @@ public class SVFileNavigatorContentProvider
 	implements ITreeContentProvider, Runnable,ISVDBChangeListener {
 	
 	private Viewer									fViewer;
-	SVDBFileManager									fFileManager;
+	SVDBWorkspaceFileManager									fFileManager;
 	
 	public SVFileNavigatorContentProvider() {
 		fFileManager = SVCorePlugin.getDefault().getSVDBMgr();

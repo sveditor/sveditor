@@ -123,7 +123,9 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(fFile, fInput); 
 		
-		getTreeViewer().refresh();
+		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
+			getTreeViewer().refresh();
+		}
 	}
 
 	public void dispose() {

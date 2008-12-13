@@ -168,7 +168,7 @@
          point="org.eclipse.ui.bindings">
       <key
             commandId="net.sf.sveditor.ui.editor.open.declaration"
-            contextId="org.eclipse.ui.contexts.window"
+            contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
@@ -186,6 +186,14 @@
                retarget="true">
          </action>
       </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="net.sf.sveditor.ui.svEditorContext"
+            name="SVEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
    </extension>
 
 </plugin>

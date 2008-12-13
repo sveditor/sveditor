@@ -170,7 +170,6 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	public void enter_task_decl(String name, int attr, List<SVTaskFuncParam> params)
 			throws HaltScanException {
 		SVDBTaskFuncScope task = new SVDBTaskFuncScope(name, SVDBItemType.Task);
-		System.out.println("setting attr: " + attr);
 		task.setAttr(attr);
 		
 		for (SVTaskFuncParam p : params) {

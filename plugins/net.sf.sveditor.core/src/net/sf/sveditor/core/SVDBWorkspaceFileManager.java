@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.Path;
  * files. This object is effectively a singleton in practice.
  * <br>
  * <br>
- * The SVDBFileManager provides notification to listeners when an active
+ * The SVDBWorkspaceFileManager provides notification to listeners when an active
  * file changes, and listens to Eclipse resource events.
  * <br>
  * <br>
@@ -46,7 +46,7 @@ import org.eclipse.core.runtime.Path;
  * @author ballance
  *
  */
-public class SVDBFileManager 
+public class SVDBWorkspaceFileManager 
 	implements IResourceChangeListener, IResourceDeltaVisitor {
 	
 	private List<ISVDBChangeListener>				fListeners;
@@ -55,7 +55,7 @@ public class SVDBFileManager
 	private IWorkspace								fWS;
 	
 	
-	public SVDBFileManager() {
+	public SVDBWorkspaceFileManager() {
 		fListeners   = new ArrayList<ISVDBChangeListener>();
 		fFileCache   = new WeakHashMap<File, SVDBFile>();
 		fBackupCache = new HashMap<File, SVDBFile>();

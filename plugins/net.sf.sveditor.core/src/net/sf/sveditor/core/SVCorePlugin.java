@@ -15,7 +15,7 @@ public class SVCorePlugin extends Plugin {
 
 	// The shared instance
 	private static SVCorePlugin plugin;
-	private SVDBFileManager			fSVDBMgr;
+	private SVDBWorkspaceFileManager			fSVDBMgr;
 	private SVTodoScanner			fTodoScanner;
 	private SVDBProjectManager		fProjManager;
 	
@@ -73,9 +73,9 @@ public class SVCorePlugin extends Plugin {
 		}
 		return fProjManager;
 	}
-	public SVDBFileManager getSVDBMgr() {
+	public SVDBWorkspaceFileManager getSVDBMgr() {
 		if (fSVDBMgr == null) {
-			fSVDBMgr = new SVDBFileManager();
+			fSVDBMgr = new SVDBWorkspaceFileManager();
 		}
 		return fSVDBMgr;
 	}

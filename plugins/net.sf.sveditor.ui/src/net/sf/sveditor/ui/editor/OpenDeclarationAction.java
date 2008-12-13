@@ -42,7 +42,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 	@Override
 	public void update() {
-		System.out.println("OpenDefinitionAction.update()");
 		// TODO Auto-generated method stub
 		super.update();
 	}
