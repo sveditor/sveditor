@@ -1,12 +1,8 @@
 package net.sf.sveditor.core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
@@ -27,10 +23,7 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 		SVDBFile ret = null;
 		SVDBWorkspaceFileManager mgr = fProjectData.getFileCache();
 		
-		System.out.println("getFile(\"" + path + "\")");
-		
 		for (SVDBPath p : fProjectData.getProjectFileWrapper().getIncludePaths()) {
-			System.out.println("path: " + p.getPath());
 			if (p.isWSRelPath()) {
 				System.out.println("[TODO] WSRelPath()");
 			} else {
@@ -45,8 +38,6 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 				break;
 			}
 		}
-		
 		return ret;
 	}
-
 }

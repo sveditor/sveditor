@@ -37,7 +37,17 @@ public class SVDBFile extends SVDBScopeItem {
 	}
 	
 	public void addFileRef(SVDBFile file) {
-		fFileRefs.add(file);
+		boolean found = false;
+		
+		for (SVDBFile f : fFileRefs) {
+			if (f.getFilePath().equals(file.getFilePath())) {
+				found = true;
+			}
+		}
+		
+		if (!found) {
+			fFileRefs.add(file);
+		}
 	}
 	
 	private SVDBMacroDef getMacroDef(String key, List<SVDBFile> files) {

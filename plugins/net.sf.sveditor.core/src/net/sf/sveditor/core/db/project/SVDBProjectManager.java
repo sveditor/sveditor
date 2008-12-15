@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVDBFilesystemIndex;
 import net.sf.sveditor.core.SVDBWorkspaceIndex;
@@ -40,19 +41,25 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		if (fBuildPathEntries.containsKey(file)) {
 			return fBuildPathEntries.get(file);
 		} else {
-			ISVDBIndex ret = new SVDBWorkspaceIndex(root.getLocation()); 
+			ISVDBFileProvider file_provider = null;
+			
+			if (fProjectMap.containsKey(root.getProject())) {
+				fProjectMap.get(root.getProject()).getFileProvider();
+				
+			}
+			ISVDBIndex ret = new SVDBWorkspaceIndex(root.getFullPath(), file_provider); 
 			fBuildPathEntries.put(ret.getBaseLocation(), ret);
 			
 			return ret;
 		}
 	}
 	
-	public ISVDBIndex findBuildPathIndex(File root) {
+	public ISVDBIndex findBuildPathIndex(File root, ISVDBFileProvider provider) {
 
 			if (fBuildPathEntries.containsKey(root)) {
 				return fBuildPathEntries.get(root);
 			} else {
-				ISVDBIndex ret = new SVDBFilesystemIndex(root); 
+				ISVDBIndex ret = new SVDBFilesystemIndex(root, provider); 
 				fBuildPathEntries.put(root, ret);
 				return ret;
 			}

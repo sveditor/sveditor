@@ -5,17 +5,25 @@
 20081213 -- Remove conflict between JDT 'Open Declaration' shortcut and
             SVEditor's shortcut
 
+          - Added a SVEditor build paths and include paths project-properties page
+
 
 -- TODO --
 * Add a build paths and include paths property page
-- Support indexing of elements on the build path
+* Add support for including macros using `include and the file provider
+* Fix bug in handling of extern tasks/functions
+* Support indexing of elements on the build path
+- Notification on build-path change. Ensure setting a new build path results in re-scanning
 - Basic support for content assist
-- Extended support for 'open declaration'
+* Extended support for 'open declaration'
+    - Navigation to class declarations defined on build path
 - Enhance scanner
     - Improve support for macros
         - general
         - macros with parameters
+        * Change structure of pre-processor and scanner for better pre-processor support
     - Extend language coverage
+    * Must ensure that all pre-processing is done before the scanner
 - Add inheritance hierarchy viewer
 
 

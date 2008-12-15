@@ -4,10 +4,19 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.ISVDBFileProvider;
+import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.SVDBFilesystemIndex;
+import net.sf.sveditor.core.SVDBIndexList;
+import net.sf.sveditor.core.SVDBProjectDataFileProvider;
+import net.sf.sveditor.core.SVDBWorkspaceFileManager;
+import net.sf.sveditor.core.SVDBWorkspaceIndex;
+import net.sf.sveditor.core.SVProjectFileWrapper;
+
+import org.eclipse.core.internal.resources.WorkspaceRoot;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -16,18 +25,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import net.sf.sveditor.core.ISVDBIndex;
-import net.sf.sveditor.core.SVDBFilesystemIndex;
-import net.sf.sveditor.core.SVDBIndexList;
-import net.sf.sveditor.core.SVDBWorkspaceFileManager;
-import net.sf.sveditor.core.SVDBWorkspaceIndex;
-import net.sf.sveditor.core.SVProjectFileWrapper;
-
 public class SVDBProjectData {
 	private IPath								fSVProjFilePath;
 	private SVProjectFileWrapper				fFileWrapper;
 	private SVDBWorkspaceFileManager			fFileCache;
 	private SVDBIndexList						fIndexList;
+	private SVDBProjectDataFileProvider			fFileProvider;
 	
 	public SVDBProjectData(
 			SVProjectFileWrapper 	wrapper,
@@ -37,18 +40,27 @@ public class SVDBProjectData {
 		fFileCache   = new SVDBWorkspaceFileManager();
 		fIndexList   = new SVDBIndexList(projfile_path.toFile());
 		
+		fFileProvider = new SVDBProjectDataFileProvider(this);
+		
+		// Add a build-path entry for this project
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(projfile_path);
+		
+		fIndexList.addIndex(new SVDBWorkspaceIndex(
+				file.getParent().getFullPath(), fFileProvider));
+		
 		for (SVDBPath path : getBuildPaths()) {
 			ISVDBIndex idx = null;
 			
 			if (path.isWSRelPath()) {
-				idx = new SVDBWorkspaceIndex(new Path(path.getPath()));
+				idx = new SVDBWorkspaceIndex(
+						new Path(path.getPath()), fFileProvider);
 			} else {
 				File f = new File(path.getPath());
 				
 				if (!f.isDirectory()) {
-					System.out.println("path \"" + f + "\" doesn't exist");
+					System.out.println("[WARNING] build path \"" + f + "\" doesn't exist");
 				} else {
-					idx = new SVDBFilesystemIndex(f);
+					idx = new SVDBFilesystemIndex(f, fFileProvider);
 				}
 			}
 			
@@ -56,6 +68,10 @@ public class SVDBProjectData {
 				fIndexList.addIndex(idx);
 			}
 		}
+	}
+	
+	public ISVDBFileProvider getFileProvider() {
+		return fFileProvider;
 	}
 	
 	public SVDBWorkspaceFileManager getFileCache() {

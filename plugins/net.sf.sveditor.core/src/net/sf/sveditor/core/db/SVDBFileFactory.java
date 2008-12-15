@@ -242,7 +242,7 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 
 	private void setLocation(SVDBItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setLocation(new SVDBLocation(null, loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
 	}
 	
 	private void setEndLocation(SVDBScopeItem item) {
@@ -268,17 +268,12 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		fScopeStack.peek().addItem(inc);
 		
 		// See if we can locate the file...
-		System.out.println("preproc_include(\"" + path + "\"");
-		
 		SVDBFile file = null;
 		if (fFileProvider != null) {
 			file = fFileProvider.getFile(path);
 		}
 		
 		if (file != null) {
-			System.out.println(fFile.getFilePath().getAbsolutePath() + 
-					": addFileRef: " + 
-					file.getFilePath().getAbsolutePath());
 			fFile.addFileRef(file);
 		}
 	}
@@ -290,13 +285,28 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		SVDBMacroDef def = fFile.getMacroDef(key);
 		
 		if (def != null) {
+			/*
+			System.out.println("preproc define \"" + 
+					def.getName() + "\" from file \"" + 
+					def.getLocation().getFile().getName() + "\"");
+             */
 			return def.getDef();
 		} else {
 			return null;
 		}
 	}
-
 	
+	public boolean hasParameters(String key) {
+		SVDBMacroDef def;
+		
+		if ((def = fFile.getMacroDef(key)) != null) {
+			return (def.getParameters().size() > 0);
+		}
+		
+		return false;
+	}
+
+
 	public void enter_covergroup(String name) {
 		SVDBCoverGroup cg = new SVDBCoverGroup(name);
 		setLocation(cg);

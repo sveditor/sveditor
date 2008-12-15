@@ -2,7 +2,10 @@ package net.sf.sveditor.core;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -17,16 +20,15 @@ import org.eclipse.core.runtime.IPath;
 public class SVDBWorkspaceIndex extends SVDBIndexBase 
 		implements IResourceChangeListener, IResourceDeltaVisitor {
 
-	public SVDBWorkspaceIndex(IPath root) {
-		super(root.toFile());
+	public SVDBWorkspaceIndex(IPath root, ISVDBFileProvider provider) {
+		super(root.toFile(), provider);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 
 		IWorkspaceRoot ws = ResourcesPlugin.getWorkspace().getRoot();
 		
 		try {
-			ws.getFolder(root).refreshLocal(IResource.DEPTH_INFINITE, null);
 			
-			ws.getFolder(root).accept(new IResourceVisitor() {
+			ws.findMember(root).accept(new IResourceVisitor() {
 
 				public boolean visit(IResource resource) throws CoreException {
 					if (resource instanceof IFile) {

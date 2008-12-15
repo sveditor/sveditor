@@ -111,7 +111,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		StringInputStream sin = new StringInputStream(fDoc.get());
 
 		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
-
+		
 		if (fInput != null) {
 			SVDBFileMerger.merge(fInput, new_in, null, null, null);
 		} else {

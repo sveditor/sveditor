@@ -34,7 +34,6 @@ import net.sf.sveditor.core.StringInputStream;
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
 	private Stack<SVScannerInput>	fInputStack = new Stack<SVScannerInput>();
-	private Stack<Boolean>			fPreProcEn  = new Stack<Boolean>();
 	
 	private boolean					fNewStatement;
 	private ScanLocation			fStmtLocation;
@@ -51,6 +50,10 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	public ScanLocation getStmtLocation() {
+		if (fStmtLocation == null) {
+			// TODO: should fix, really
+			return getLocation();
+		}
 		return fStmtLocation;
 	}
 	
@@ -66,10 +69,8 @@ public class SVScanner implements ISVScanner {
 	
 		fNewStatement = true;
 		fInputStack.clear();
-		fInputStack.push(new SVScannerInput(filename, in));
-		
-		fPreProcEn.clear();
-		fPreProcEn.push(true);
+		fInputStack.push(new SVScannerInput(
+				filename, in, fObserver, fDefineProvider));
 		
 		if (fObserver != null) {
 			fObserver.enter_file(filename);
@@ -107,134 +108,6 @@ public class SVScanner implements ISVScanner {
 		}
 	}
 	
-	private void handle_preproc_directive(String type) throws EOFException {
-		int ch = -1;
-		
-//		System.out.println("preproc directive=" + type);
-		
-		if (type.equals("ifdef") || type.equals("ifndef")) {
-			StringBuffer sb = new StringBuffer();
-			int last_ch = -1;
-			
-			// TODO: use map
-			ch = skipWhite(next_ch());
-			
-			while (true) {
-				ch = next_ch();
-				if (ch == '\n' && last_ch != '\\') {
-					break;
-				}
-				if (ch != '\r') {
-					last_ch = ch;
-					sb.append((char)ch);
-				}
-				
-				if (ch == '\n' && last_ch == '\\') {
-					sb.setLength(sb.length()-2);
-				}
-			}
-			fNewStatement = true;
-			
-			if (type.equals("ifdef")) {
-				fPreProcEn.push(false);
-			} else {
-				fPreProcEn.push(true);
-			}
-		} else if (type.equals("else")) {
-			if (fPreProcEn.size() > 0) {
-				boolean en = fPreProcEn.pop();
-				fPreProcEn.push(!en);
-			}
-		} else if (type.equals("endif")) {
-			if (fPreProcEn.size() > 0) {
-				fPreProcEn.pop();
-			}
-		} else if (type.equals("timescale")) {
-			// ignore
-		} else if (type.equals("define")) {
-			List<String> params = new ArrayList<String>();
-			
-			ch = skipWhite(get_ch());
-			StringBuffer def_line_i = new StringBuffer();
-			def_line_i.append(readLine(ch));
-			
-			for (int i=0; i<def_line_i.length(); i++) {
-				if (def_line_i.charAt(i) == '\n' && i+1 < def_line_i.length()) {
-					def_line_i.insert(i, '\\');
-					i++;
-				}
-			}
-			
-			String def_line = def_line_i.toString();
-			
-//			System.out.println("def_line=" + def_line);
-			
-			SVScannerInput in = new SVScannerInput("foo",
-					new StringInputStream(def_line));
-			
-			String def_id = null;
-			String define = "";
-			
-			try {
-				int ch2 = in.skipWhite(in.get_ch());
-				
-				def_id = in.readIdentifier(ch2);
-				
-				ch2 = in.skipWhite(in.get_ch());
-
-				if (ch2 == '(') {
-					// macro parameters
-					ch2 = in.skipPastMatch("()");
-					ch2 = in.skipWhite(ch2);
-				}
-				
-				define = in.readLine(ch2);
-
-			} catch (EOFException e) { }
-			
-			if (fObserver != null) {
-//				System.out.println("def_id=" + def_id + " define=" + define);
-				fObserver.preproc_define(def_id, params, define);
-			}
-		} else if (type.equals("include")) {
-			ch = get_ch();
-			
-			while (Character.isWhitespace(ch)) {
-				ch = get_ch();
-			}
-
-			if (ch == '"') {
-				String inc = readString(ch);
-				
-				if (fObserver != null) {
-					fObserver.preproc_include(inc);
-				}
-			}
-		} else {
-			List<String> params = new ArrayList<String>();
-			// macro expansion
-			ch = skipWhite(next_ch());
-			
-			// TODO: get params
-			if (ch == '(') {
-				ch = skipPastMatch("()");
-			}
-			
-			String val = "";
-			
-			if (fDefineProvider != null) {
-				val = fDefineProvider.getDefineVal(type, params);
-			}
-			
-//			System.out.println("def value: \"" + val + "\"");
-
-			if (val != null) {
-				fInputStack.peek().pushUnaccContent(val + "\n");
-			}
-			
-			fNewStatement = true;
-		}
-	}
 	
 	private void process_initial_always(String id) throws EOFException {
 		int ch = skipWhite(get_ch());
@@ -252,10 +125,6 @@ public class SVScanner implements ISVScanner {
 		ch = skipWhite(ch);
 		
 		id = readIdentifier(ch);
-		
-		if (id == null) {
-			System.out.println("ch=" + (char)ch);
-		}
 		
 		if (id != null && id.equals("begin")) {
 			int begin_cnt = 1;
@@ -537,41 +406,46 @@ public class SVScanner implements ISVScanner {
 		}
 		
 		debug("" + id + " " + tf_name);
-		
-		String exp_end = "end" + id;
-		while ((id = scan_statement()) != null) {
-			//
-			if (id.equals(exp_end)) {
-				break;
-			} else if (isSecondLevelScope(id)) {
-				if (fObserver != null) {
-					fObserver.error("missing \"" + exp_end + "\" @ " +
-							getLocation().getFileName() + ":" +
-							getLocation().getLineNo());
+
+		// External tasks/functions don't have a body
+		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) == 0) {
+			String exp_end = "end" + id;
+			while ((id = scan_statement()) != null) {
+				//
+				if (id.equals(exp_end)) {
+					break;
+				} else if (isSecondLevelScope(id)) {
+					if (fObserver != null) {
+						fObserver.error("missing \"" + exp_end + "\" @ " +
+								getLocation().getFileName() + ":" +
+								getLocation().getLineNo());
+					}
+
+					// 
+					fNewStatement = true;
+					unget_str(id + " ");
+					break;
+				} else if (isFirstLevelScope(id)) {
+					if (fObserver != null) {
+						fObserver.error("missing \"" + exp_end + "\" @ " +
+								getLocation().getFileName() + ":" +
+								getLocation().getLineNo());
+					}
+
+					// We're in a first-level scope.
+					// we pick it up on next pass
+					handle_leave_scope();
+					ret = false;
+					fNewStatement = true;
+					unget_str(id + " ");
+					break;
 				}
-				
-				// 
-				fNewStatement = true;
-				unget_str(id + " ");
-				break;
-			} else if (isFirstLevelScope(id)) {
-				if (fObserver != null) {
-					fObserver.error("missing \"" + exp_end + "\" @ " +
-							getLocation().getFileName() + ":" +
-							getLocation().getLineNo());
-				}
-				
-				// We're in a first-level scope.
-				// we pick it up on next pass
-				handle_leave_scope();
-				ret = false;
-				fNewStatement = true;
-				unget_str(id + " ");
-				break;
+				debug("    behave section: " + id);
 			}
-			debug("    behave section: " + id);
+			debug("    endbehave: " + id);
+		} else {
+			debug("    extern task/function declaration");
 		}
-		debug("    endbehave: " + id);
 		
 		handle_leave_scope();
 		
@@ -742,7 +616,8 @@ public class SVScanner implements ISVScanner {
 	
 	private List<SVClassIfcModParam> parse_parameter_str(String p_str) {
 		List<SVClassIfcModParam> ret = new ArrayList<SVClassIfcModParam>();
-		SVScannerInput in = new SVScannerInput("p", new StringInputStream(p_str));
+		SVScannerInput in = new SVScannerInput(
+				"p", new StringInputStream(p_str), fObserver, fDefineProvider);
 		int    ch = 0;
 		String id;
 		
@@ -856,7 +731,7 @@ public class SVScanner implements ISVScanner {
 		modifiers = qual_ret.fField2;
 		
 		debug("body item is: " + id);
-
+		
 		if (id.equals("task") || id.equals("function")) {
 			unget_ch(ch);
 			ret = process_task_function(modifiers, id);
@@ -1004,12 +879,13 @@ public class SVScanner implements ISVScanner {
 								fNewStatement = false;
 							}
 							
-							if (fPreProcEn.peek()) {
-								return id;
-							}
+							return id;
 						} else if (ch == '`') {
+							System.out.println("[ERROR] pre-processor directive encountered");
+							/*
 							ch = skipWhite(next_ch());
 							handle_preproc_directive(readIdentifier(ch));
+							 */
 							
 							fNewStatement = true;
 						}

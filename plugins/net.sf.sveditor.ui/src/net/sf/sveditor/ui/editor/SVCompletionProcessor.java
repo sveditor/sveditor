@@ -52,18 +52,12 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			ITextViewer viewer, int offset) {
 		System.out.println("computeCompletionProposals");
 		
-		SVDBProjectManager pm = SVCorePlugin.getDefault().getProjMgr();
-		File file = fEditor.getFilePath();
+		SVDBProjectData pd = fEditor.getProjectData();
+		List<SVDBModIfcClassDecl>	classes = new ArrayList<SVDBModIfcClassDecl>();
 		
-		IFile files[] = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI());
-		List<SVDBModIfcClassDecl> classes = new ArrayList<SVDBModIfcClassDecl>();
-		
-		if (files != null && files.length > 0) {
-			SVDBProjectData pd = pm.getProjectData(files[0].getProject());
-		
+		if (pd != null) {
 			// Just for kicks, look for all class definitions
 			for (SVDBFile f : pd.getFileIndex().getFileList()) {
-
 				for (SVDBItem it : f.getItems()) {
 					if (it.getType() == SVDBItemType.Class) {
 						classes.add((SVDBModIfcClassDecl)it);

@@ -21,6 +21,10 @@ public class SVDBMacroDef extends SVDBItem {
 	public String getDef() {
 		return fDef;
 	}
+	
+	public List<String> getParameters() {
+		return fParams;
+	}
 
 	@Override
 	public SVDBItem duplicate() {

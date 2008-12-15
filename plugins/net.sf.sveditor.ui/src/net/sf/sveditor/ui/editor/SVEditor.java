@@ -1,19 +1,18 @@
 package net.sf.sveditor.ui.editor;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -27,13 +26,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.texteditor.AddTaskAction;
-import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
@@ -48,6 +48,7 @@ public class SVEditor extends TextEditor {
 	private SVCodeScanner					fCodeScanner;
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
+	private SVDBProjectData					fProjectData;
 
 	public SVEditor() {
 		super();
@@ -63,6 +64,16 @@ public class SVEditor extends TextEditor {
 		return fCodeScanner;
 	}
 	
+	@Override
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
+		// TODO Auto-generated method stub
+		super.init(site, input);
+		
+		System.out.println("init: editorInput is: " + 
+				input.getClass().getName());
+	}
+
 	protected void initializeEditor() {
 		super.initializeEditor();
 	}
@@ -128,6 +139,28 @@ public class SVEditor extends TextEditor {
 		od_action.setActionDefinitionId(Activator.PLUGIN_ID + ".editor.open.declaration");
 		setAction(Activator.PLUGIN_ID + ".svOpenEditorAction", od_action);
 	}
+	
+	public SVDBProjectData getProjectData() {
+		if (fProjectData == null) {
+			File file = getFilePath();
+			
+			IFile files[] = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI());
+			
+			if (files != null && files.length > 0) {
+				SVDBProjectManager pm = SVCorePlugin.getDefault().getProjMgr();
+				fProjectData = pm.getProjectData(files[0].getProject());
+			} else {
+				// Create an empty project data
+				System.out.println("[FIXME] create an empty SVProjectData item");
+			}
+		}
+		
+		return fProjectData;
+	}
+	
+	public void setProjectData(SVDBProjectData pd) {
+		fProjectData = pd;
+	}
 
 	protected void editorContextMenuAboutToShow(IMenuManager menu) {
 		// TODO Auto-generated method stub
@@ -136,7 +169,7 @@ public class SVEditor extends TextEditor {
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				Activator.PLUGIN_ID + ".svOpenEditorAction");
 	}
-
+	
 	@Override
 	public void dispose() {
 		super.dispose();

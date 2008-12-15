@@ -12,8 +12,8 @@ public class SVDBFilesystemIndex extends SVDBIndexBase {
 	private Job						fRefreshJob;
 	private int						fIndex;
 	
-	public SVDBFilesystemIndex(File root) {
-		super(root);
+	public SVDBFilesystemIndex(File root, ISVDBFileProvider provider) {
+		super(root, provider);
 		
 		// Recurse through the files
 		fRefreshJob = new Job("refreshJob") {

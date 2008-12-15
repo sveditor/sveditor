@@ -1,13 +1,20 @@
-package net.sf.sveditor.ui.editor;
+package net.sf.sveditor.ui.editor.actions;
 
 import java.io.File;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.provider.FileStore;
+import org.eclipse.core.internal.filebuffers.FileStoreTextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -19,11 +26,13 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
@@ -65,12 +74,24 @@ public class OpenDeclarationAction extends TextEditorAction {
 	public void run() {
 		super.run();
 		String text = getTextSel().getText().trim();
-		
-		SVDBFile file = fEditor.getSVDBFile();
+		SVDBProjectData pd = fEditor.getProjectData();
 		
 		// Now, iterate through the items in the file and find something
 		// with the same name
+		SVDBFile file = fEditor.getSVDBFile();
 		SVDBItem it = findNamedItem(text, file);
+		
+		if (it == null && pd != null) {
+			System.out.println("text=" + text);
+			for (SVDBFile f : pd.getFileIndex().getFileList()) {
+				for (SVDBItem it_t : f.getItems()) {
+					if (it_t.getName() != null && it_t.getName().equals(text)) {
+						it = it_t;
+						break;
+					}
+				}
+			}
+		}
 
 		System.out.println("it=" + it);
 		if (it != null) {
@@ -114,11 +135,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 			p = p.getParent();
 		}
 		
-		System.out.println("p=" + p);
-		
-		if (p != null) {
-			File file = ((SVDBFile)p).getFilePath();
-			System.out.println("file=" + file);
+		File file = ((SVDBFile)p).getFilePath();
+		if (p != null) { 
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IFile f_l[] = root.findFilesForLocation(
 					new Path(file.getAbsolutePath()));
@@ -126,7 +144,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 			if (f_l != null && f_l.length > 0) {
 				f = f_l[0];
 
-//				getActionSite().getViewSite().getShell();
 				IWorkbench wb = PlatformUI.getWorkbench();
 				IWorkbenchWindow w = wb.getActiveWorkbenchWindow();
 
@@ -164,13 +181,20 @@ public class OpenDeclarationAction extends TextEditorAction {
 		if (ret == null) {
 			IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			IEditorRegistry rgy = PlatformUI.getWorkbench().getEditorRegistry();
-			
-			System.out.println("f=" + f);
-			IEditorDescriptor desc = rgy.getDefaultEditor(f.getName());
+
+			IEditorDescriptor desc = rgy.getDefaultEditor(file.getName());
+			IEditorInput ed_in = null;
 			
 			try {
-				ret = w.getActivePage().openEditor(new FileEditorInput(f), 
-					desc.getId());
+				if (f != null) {
+					ed_in = new FileEditorInput(f);
+				} else {
+					IFileStore fs = EFS.getLocalFileSystem().getStore(file.toURI());
+					ed_in = new FileStoreEditorInput(fs);
+					
+					// TODO: need to connect up index to filesystem
+				}
+				ret = w.getActivePage().openEditor(ed_in, desc.getId());
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
