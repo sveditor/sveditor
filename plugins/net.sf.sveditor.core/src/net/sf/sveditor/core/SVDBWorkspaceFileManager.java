@@ -17,9 +17,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 
-import org.eclipse.core.internal.resources.WorkspaceRoot;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -208,6 +206,7 @@ public class SVDBWorkspaceFileManager
 			in = new FileInputStream(f);
 			file = SVDBFileFactory.createFile(
 					in, f.getAbsolutePath(), file_provider);
+			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

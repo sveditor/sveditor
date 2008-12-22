@@ -50,7 +50,10 @@ public interface ISVScannerObserver {
 	
 	void enter_class_decl(
 			String						name,
-			List<SVClassIfcModParam>	params) throws HaltScanException;
+			List<SVClassIfcModParam>	params,
+			String						super_name,
+			List<SVClassIfcModParam>	super_params
+			) throws HaltScanException;
 			
 	
 	void enter_struct_decl(
@@ -64,7 +67,7 @@ public interface ISVScannerObserver {
 	 * @param variables
 	 * @throws HaltScanException
 	 */
-	void variable_decl(String type, int attr, List<String> variables) 
+	void variable_decl(SVTypeInfo type, int attr, List<String> variables) 
 		throws HaltScanException;
 	
 	void leave_module_decl() throws HaltScanException;

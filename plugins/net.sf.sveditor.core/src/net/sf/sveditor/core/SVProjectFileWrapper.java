@@ -225,6 +225,41 @@ public class SVProjectFileWrapper {
 		fBuildPaths.addAll(fw.fBuildPaths);
 		fIncludePaths.addAll(fw.fIncludePaths);
 	}
+	
+	public boolean equals(Object other) {
+		if (other instanceof SVProjectFileWrapper) {
+			SVProjectFileWrapper p = (SVProjectFileWrapper)other;
+			if (p.fIncludePaths.size() != fIncludePaths.size()) {
+				return false;
+			}
+			for (int i=0; i<fIncludePaths.size(); i++) {
+				if (!p.fIncludePaths.get(i).getPath().equals(
+						fIncludePaths.get(i).getPath())) {
+					return false;
+				}
+				if (p.fIncludePaths.get(i).isWSRelPath() !=
+					fIncludePaths.get(i).isWSRelPath()) {
+					return false;
+				}
+			}
+			
+			if (p.fBuildPaths.size() != fBuildPaths.size()) {
+				return false;
+			}
+			for (int i=0; i<fBuildPaths.size(); i++) {
+				if (!p.fBuildPaths.get(i).getPath().equals(
+						fBuildPaths.get(i).getPath())) {
+					return false;
+				}
+				if (p.fBuildPaths.get(i).isWSRelPath() !=
+					fBuildPaths.get(i).isWSRelPath()) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 
 	private ErrorHandler fErrorHandler = new ErrorHandler() {
 

@@ -1,7 +1,10 @@
 package net.sf.sveditor.core.db;
 
+import java.util.List;
+
 public class SVDBVarDeclItem extends SVDBFieldItem {
 	protected String						fTypeName;
+	protected List<SVDBModIfcClassParam>	fParameters;
 	
 	public SVDBVarDeclItem(String type, String name) {
 		super(name, SVDBItemType.VarDecl);
@@ -11,6 +14,14 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public SVDBVarDeclItem(String type, String name, SVDBItemType itype) {
 		super(name, itype);
 		fTypeName = type;
+	}
+	
+	public List<SVDBModIfcClassParam> getParameters() {
+		return fParameters;
+	}
+	
+	public void setParameters(List<SVDBModIfcClassParam> parameters) {
+		fParameters = parameters;
 	}
 
 	

@@ -30,6 +30,15 @@ public class SVDBIndexList implements ISVDBIndex {
 		// TODO: signal change event?
 		fIndexList.add(idx);
 	}
+	
+	public void removeIndex(ISVDBIndex idx) {
+		// TODO: signal change event?
+		fIndexList.remove(idx);
+	}
+	
+	public List<ISVDBIndex> getIndexList() {
+		return fIndexList;
+	}
 
 	public List<SVDBFile> getFileList() {
 		List<SVDBFile> ret = new ArrayList<SVDBFile>();

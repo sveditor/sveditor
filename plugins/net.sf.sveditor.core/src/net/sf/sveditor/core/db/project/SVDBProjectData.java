@@ -16,76 +16,52 @@ import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.SVDBWorkspaceIndex;
 import net.sf.sveditor.core.SVProjectFileWrapper;
 
-import org.eclipse.core.internal.resources.WorkspaceRoot;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 public class SVDBProjectData {
-	private IPath								fSVProjFilePath;
-	private SVProjectFileWrapper				fFileWrapper;
-	private SVDBWorkspaceFileManager			fFileCache;
-	private SVDBIndexList						fIndexList;
-	private SVDBProjectDataFileProvider			fFileProvider;
-	
-	public SVDBProjectData(
-			SVProjectFileWrapper 	wrapper,
-			IPath					projfile_path) {
+	private IPath fSVProjFilePath;
+	private SVProjectFileWrapper fFileWrapper;
+	private SVDBWorkspaceFileManager fFileCache;
+	private SVDBIndexList fIndexList;
+	private SVDBProjectDataFileProvider fFileProvider;
+
+	public SVDBProjectData(SVProjectFileWrapper wrapper, IPath projfile_path) {
 		fSVProjFilePath = projfile_path;
-		fFileWrapper = wrapper;
-		fFileCache   = new SVDBWorkspaceFileManager();
-		fIndexList   = new SVDBIndexList(projfile_path.toFile());
-		
+		fFileCache = new SVDBWorkspaceFileManager();
+		fIndexList = new SVDBIndexList(projfile_path.toFile());
+
 		fFileProvider = new SVDBProjectDataFileProvider(this);
-		
-		// Add a build-path entry for this project
-		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(projfile_path);
-		
-		fIndexList.addIndex(new SVDBWorkspaceIndex(
-				file.getParent().getFullPath(), fFileProvider));
-		
-		for (SVDBPath path : getBuildPaths()) {
-			ISVDBIndex idx = null;
-			
-			if (path.isWSRelPath()) {
-				idx = new SVDBWorkspaceIndex(
-						new Path(path.getPath()), fFileProvider);
-			} else {
-				File f = new File(path.getPath());
-				
-				if (!f.isDirectory()) {
-					System.out.println("[WARNING] build path \"" + f + "\" doesn't exist");
-				} else {
-					idx = new SVDBFilesystemIndex(f, fFileProvider);
-				}
-			}
-			
-			if (idx != null) {
-				fIndexList.addIndex(idx);
-			}
-		}
+
+		fFileWrapper = null;
+		setProjectFileWrapper(wrapper, false);
 	}
-	
+
 	public ISVDBFileProvider getFileProvider() {
 		return fFileProvider;
 	}
-	
+
 	public SVDBWorkspaceFileManager getFileCache() {
 		return fFileCache;
 	}
-	
+
 	public ISVDBIndex getFileIndex() {
 		return fIndexList;
 	}
-	
+
 	public List<SVDBPath> getBuildPaths() {
 		List<SVDBPath> ret = new ArrayList<SVDBPath>();
-		
-		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(fSVProjFilePath);
+
+		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(
+				fSVProjFilePath);
 		if (svp != null) {
 			try {
 				if (svp.getProject() != null) {
@@ -93,9 +69,8 @@ public class SVDBProjectData {
 					for (IProject p : svp.getProject().getReferencedProjects()) {
 						// TODO: should probably just reference the SVProject
 						// data for the referenced project if it exists
-						SVDBPath path = new SVDBPath(
-								p.getLocation().toFile().getAbsolutePath(), 
-								false);
+						SVDBPath path = new SVDBPath(p.getLocation().toFile()
+								.getAbsolutePath(), false);
 						ret.add(path);
 					}
 				}
@@ -103,16 +78,17 @@ public class SVDBProjectData {
 				e.printStackTrace();
 			}
 		}
-		
+
 		ret.addAll(fFileWrapper.getBuildPaths());
-		
+
 		return ret;
 	}
-	
+
 	public List<SVDBPath> getIncludePaths() {
 		List<SVDBPath> ret = new ArrayList<SVDBPath>();
-		
-		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(fSVProjFilePath);
+
+		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(
+				fSVProjFilePath);
 		if (svp != null) {
 			try {
 				if (svp.getProject() != null) {
@@ -120,9 +96,8 @@ public class SVDBProjectData {
 					for (IProject p : svp.getProject().getReferencedProjects()) {
 						// TODO: should probably just reference the SVProject
 						// data for the referenced project if it exists
-						SVDBPath path = new SVDBPath(
-								p.getLocation().toFile().getAbsolutePath(), 
-								false);
+						SVDBPath path = new SVDBPath(p.getLocation().toFile()
+								.getAbsolutePath(), false);
 						ret.add(path);
 					}
 				}
@@ -130,46 +105,153 @@ public class SVDBProjectData {
 				e.printStackTrace();
 			}
 		}
-		
+
 		ret.addAll(fFileWrapper.getIncludePaths());
-		
+
 		return ret;
 	}
-	
+
 	public void refreshProjectFile() {
 		try {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(fSVProjFilePath);
+			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
+					fSVProjFilePath);
 			InputStream in = file.getContents();
-			
+
 			fFileWrapper = new SVProjectFileWrapper(in);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public SVProjectFileWrapper getProjectFileWrapper() {
-		 return fFileWrapper;
+		return fFileWrapper;
 	}
 	
-	public void setProjectFileWrapper(SVProjectFileWrapper w) {
+	public synchronized void setProjectFileWrapper(SVProjectFileWrapper w) {
+		setProjectFileWrapper(w, true);
+	}
+
+	public synchronized void setProjectFileWrapper(SVProjectFileWrapper w, boolean set_contents) {
+		boolean refresh = false;
+		
+		if (fFileWrapper == null || !fFileWrapper.equals(w)) {
+			// Need to refresh
+			refresh = true;
+		}
+		
 		fFileWrapper = w;
 		
-		try {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-					fSVProjFilePath);
+		if (set_contents) {
+			try {
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
+						fSVProjFilePath);
+
+				file.refreshLocal(IResource.DEPTH_ONE, null);
+
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				fFileWrapper.toStream(out);
+
+				file.setContents(new ByteArrayInputStream(out.toByteArray()), 
+						true, true, null);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if (refresh) {
+			IWorkspaceRoot ws_r = ResourcesPlugin.getWorkspace().getRoot(); 
+			IFile file = ws_r.getFile(fSVProjFilePath);
+			IPath proj_path = file.getParent().getFullPath();
 			
-			file.refreshLocal(IResource.DEPTH_ONE, null);
+			List<SVDBPath> paths = new ArrayList<SVDBPath>();
 			
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			fFileWrapper.toStream(out);
+			// Add an entry for this project
+			paths.add(new SVDBPath(proj_path.toOSString(), true));
 			
-			file.setContents(new ByteArrayInputStream(out.toByteArray()), 
-					true, true, null);
-		} catch (Exception e) {
-			e.printStackTrace();
+			// Add entries for everything currently on the build path
+			for (SVDBPath path : getBuildPaths()) {
+				paths.add(path);
+			}
+			
+			// First, remove all indexes not currently on the build path
+			for (int i=0; i<fIndexList.getIndexList().size(); i++) {
+				boolean found = false;
+				ISVDBIndex index = fIndexList.getIndexList().get(i);
+				
+				// If this path is 
+				
+				for (SVDBPath path : paths) {
+					if (path.isWSRelPath()) {
+						IContainer c = ws_r.getContainerForLocation(new Path(path.getPath()));
+						// IFile f_t = ws_r.getFile(new Path(path.getPath()));
+						
+						if (c.getLocation().toFile().equals(index.getBaseLocation())) {
+							found = true;
+							break;
+						}
+					} else {
+						if (index.getBaseLocation().equals(new File(path.getPath()))) {
+							found = true;
+							break;
+						}
+					}
+				}
+				
+				if (!found) {
+					System.out.println("remove index \"" + index.getBaseLocation() + "\"");
+					fIndexList.removeIndex(index);
+					index.dispose();
+				}
+			}
+			
+			// Next, add any indexes that aren't currently on the list
+			for (int i=0; i<paths.size(); i++) {
+				boolean found = false;
+				SVDBPath path = paths.get(i);
+				File loc;
+				
+				if (path.isWSRelPath()) {
+					IProject p = ws_r.getProject(path.getPath());
+					
+					if (p == null) {
+						System.out.println("[ERROR] cannot locate file for path \"" + path.getPath() + "\"");
+						loc = null;
+					} else {
+						loc = p.getLocation().toFile();
+					}
+				} else {
+					loc = new File(path.getPath());
+				}
+				
+				for (ISVDBIndex index : fIndexList.getIndexList()) {
+					if (index.getBaseLocation().equals(loc)) {
+						found = true;
+					}
+				}
+				
+				if (!found) {
+					ISVDBIndex index = null;
+					System.out.println("add index \"" + loc + "\"");
+					
+					if (path.isWSRelPath()) {
+						index = new SVDBWorkspaceIndex(
+								new Path(path.getPath()), fFileProvider);
+					} else {
+						if (!loc.isDirectory()) {
+							System.out.println("[WARNING] build path \"" + loc + "\" doesn't exist");
+						} else {
+							index = new SVDBFilesystemIndex(loc, fFileProvider);
+						}
+					}
+					
+					if (index != null) {
+						fIndexList.addIndex(index);
+					}
+				}
+			}
 		}
 	}
-	
+
 	public void refreshProjectData() {
 		System.out.println("[TODO] refreshProjectData()");
 	}

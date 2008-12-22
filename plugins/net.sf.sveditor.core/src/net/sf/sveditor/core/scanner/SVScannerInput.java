@@ -11,6 +11,9 @@ import net.sf.sveditor.core.StringInputStream;
 public class SVScannerInput {
 	private String				fName;
 	private InputStream			fInput;
+	private byte				fInputBuffer[] = new byte[65536];
+	private int					fInputBufferIdx = 0;
+	private int					fInputBufferMax = 0;
 	
 	private StringBuffer		fUngetStr;
 	private int					fPos;
@@ -18,6 +21,8 @@ public class SVScannerInput {
 	private int					fLinepos;
 	private int					fLastch;
 	private int					fUngetCh = -1;
+	
+	private StringBuffer		fPPBuffer = new StringBuffer();
 	
 	private StringBuffer		fCaptureBuffer = new StringBuffer();
 	private boolean				fCaptureEnabled = false;
@@ -135,20 +140,20 @@ public class SVScannerInput {
 					// escaped "
 				} else {
 				 */
-				StringBuffer sb = new StringBuffer();
+				fPPBuffer.setLength(0);
 
-				sb.append((char)ch2);
+				fPPBuffer.append((char)ch2);
 				// read an identifier
 				while ((ch2 = get_ch_ll()) != -1 && 
 						Character.isJavaIdentifierPart(ch2)) {
-					sb.append((char)ch2);
+					fPPBuffer.append((char)ch2);
 				}
 
 				if (ch2 != -1) {
 					fUngetCh = ch2;
 				}
 
-				handle_preproc_directive(sb.toString());
+				handle_preproc_directive(fPPBuffer.toString());
 				cont = true;
 			}
 		} while (cont);
@@ -165,10 +170,23 @@ public class SVScannerInput {
 			return ch;
 		}
 		
-		try {
-			ch = fInput.read();
-		} catch (IOException e) {}
-
+		if (fInputBufferIdx >= fInputBufferMax) {
+			// Try reading another
+			fInputBufferIdx = 0;
+			try {
+				fInputBufferMax = fInput.read(fInputBuffer, 0, fInputBuffer.length);
+//				System.out.println(fName + ": read " + fInputBufferMax + " chars");
+			} catch (IOException e) {
+				fInputBufferMax = -1;
+			}
+		}
+		
+		if (fInputBufferIdx >= fInputBufferMax) {
+			ch = -1;
+		} else {
+			ch = fInputBuffer[fInputBufferIdx++];
+		}
+		
 		if (ch != -1) {
 			if (fLastch == '\n') {
 				fLineno++;
@@ -330,7 +348,8 @@ public class SVScannerInput {
 			buf = new StringBuffer();
 			buf.append((char)ci);
 		
-			while ((ci = get_ch()) != -1 && Character.isJavaIdentifierPart(ci)) {
+			while ((ci = get_ch()) != -1 && 
+					(Character.isJavaIdentifierPart(ci) || ci == ':')) {
 				buf.append((char)ci);
 			}
 			unget_ch(ci);

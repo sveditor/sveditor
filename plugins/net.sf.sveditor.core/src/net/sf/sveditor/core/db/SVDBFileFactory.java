@@ -2,6 +2,8 @@ package net.sf.sveditor.core.db;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -17,6 +19,7 @@ import net.sf.sveditor.core.scanner.ISVScannerObserver;
 import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVScanner;
 import net.sf.sveditor.core.scanner.SVTaskFuncParam;
+import net.sf.sveditor.core.scanner.SVTypeInfo;
 import net.sf.sveditor.core.scanner.ScanLocation;
 
 import org.eclipse.core.resources.IFile;
@@ -127,13 +130,25 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	}
 
 	
-	public void enter_class_decl(String name, List<SVClassIfcModParam> params) 
+	public void enter_class_decl(
+			String 						name, 
+			List<SVClassIfcModParam> 	params,
+			String						super_name,
+			List<SVClassIfcModParam>	super_params) 
 		throws HaltScanException {
 		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
 				name, SVDBItemType.Class);
 		
 		for (SVClassIfcModParam p : params) {
 			decl.getParameters().add(new SVDBModIfcClassParam(p.getName()));
+		}
+		
+		decl.setSuperClass(super_name);
+		
+		if (super_params != null) {
+			for (SVClassIfcModParam p : super_params) {
+				decl.getSuperParameters().add(new SVDBModIfcClassParam(p.getName()));
+			}
 		}
 		
 		fScopeStack.peek().addItem(decl);
@@ -208,21 +223,39 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 
 
 	
-	public void variable_decl(String type, int attr, List<String> variables)
+	public void variable_decl(SVTypeInfo type, int attr, List<String> variables)
 			throws HaltScanException {
 		
-		if (type.startsWith(ISVScannerObserver.ModIfcInstPref)) {
+		if (type.fTypeName.startsWith(ISVScannerObserver.ModIfcInstPref)) {
 			SVDBModIfcInstItem item = new SVDBModIfcInstItem(
-					type.substring(ISVScannerObserver.ModIfcInstPref.length()),
+					type.fTypeName.substring(ISVScannerObserver.ModIfcInstPref.length()),
 					variables.get(0));
 			setLocation(item);
 			fScopeStack.peek().addItem(item);
 		} else {
+			List<SVDBModIfcClassParam> parameters = null;
+			
+			if (type.fParameters != null) {
+				parameters = new ArrayList<SVDBModIfcClassParam>();
+				for (SVClassIfcModParam p : type.fParameters) {
+					parameters.add(new SVDBModIfcClassParam(p.getName()));
+				}
+			}
+			
 			for (String var : variables) {
-				SVDBVarDeclItem item = new SVDBVarDeclItem(type, var);
-				setLocation(item);
-				item.setAttr(attr);
-				fScopeStack.peek().addItem(item);
+				if (var != null) {
+					SVDBVarDeclItem item = new SVDBVarDeclItem(type.fTypeName, var);
+					setLocation(item);
+					item.setParameters(parameters);
+				
+					if (item.getName() == null || item.getName().equals("")) {
+						System.out.println("    " + item.getLocation().getFile().getName() + ":" + item.getLocation().getLine());
+					}
+					item.setAttr(attr);
+					fScopeStack.peek().addItem(item);
+				} else {
+					// TODO: variable name is null
+				}
 			}
 		}
 	}
@@ -256,6 +289,10 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
 		
 		setLocation(def);
+		
+		if (def.getName() == null || def.getName().equals("")) {
+			System.out.println("    " + def.getLocation().getFile().getName() + ":" + def.getLocation().getLine());
+		}
 		
 		fFile.addItem(def);
 	}

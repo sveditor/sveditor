@@ -2,8 +2,9 @@ package net.sf.sveditor.ui;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.WeakHashMap;
 
-import org.eclipse.core.internal.resources.ResourceException;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -16,13 +17,15 @@ public class Activator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
 
 	// The shared instance
-	private static Activator plugin;
+	private static Activator 			plugin;
 	private ResourceBundle			fResources;
+	private WeakHashMap<String, Image>		fImageMap;
 	
 	/**
 	 * The constructor
 	 */
 	public Activator() {
+		fImageMap = new WeakHashMap<String, Image>();
 	}
 
 	/*
@@ -54,7 +57,22 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return fResources;
 	}
-
+	
+	
+	public static Image getImage(String resource) {
+		Activator p = getDefault();
+		Image ret = null;
+		
+		if (!p.fImageMap.containsKey(resource)) {
+			// Try to load it
+			ret = Activator.imageDescriptorFromPlugin(
+					Activator.PLUGIN_ID, resource).createImage();
+			p.fImageMap.put(resource, ret);
+		}
+		
+		return p.fImageMap.get(resource);
+	}
+	
 	/**
 	 * Returns the shared instance
 	 *

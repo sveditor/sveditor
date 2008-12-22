@@ -7,7 +7,11 @@ public class SVDBItem {
 	private SVDBLocation			fLocation;
 	
 	public SVDBItem(String name, SVDBItemType type) {
-		fName = name;
+		if (name == null) {
+			fName = "";
+		} else {
+			fName = name;
+		}
 		fType = type;
 		fLocation = null;
 	}

@@ -2,10 +2,8 @@ package net.sf.sveditor.core;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -31,8 +29,18 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 			ws.findMember(root).accept(new IResourceVisitor() {
 
 				public boolean visit(IResource resource) throws CoreException {
+					if (resource instanceof IFolder &&
+							fIgnoreDirs.contains(((IFolder)resource).getName())) {
+						return false;
+					}
 					if (resource instanceof IFile) {
-						push(((IFile)resource).getLocation().toFile());
+						String n = ((IFile)resource).getName();
+						
+						if (n.lastIndexOf('.') >= 0 && 
+								fSVExtensions.contains(
+										n.substring(n.lastIndexOf('.')+1))) {
+							push(((IFile)resource).getLocation().toFile());
+						}
 					}
 					return true;
 				}

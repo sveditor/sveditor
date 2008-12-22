@@ -34,6 +34,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 	private  Job								fScanJob;
 	
 	protected static final List<String>			fSVExtensions;
+	protected static final List<String>			fIgnoreDirs;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -44,6 +45,10 @@ public class SVDBIndexBase implements ISVDBIndex {
 		fSVExtensions.add(".V");
 		fSVExtensions.add(".vl");
 		fSVExtensions.add(".vlog");
+		
+		fIgnoreDirs = new ArrayList<String>();
+		fIgnoreDirs.add(".svn");
+		fIgnoreDirs.add("CVS");
 	}
 	
 
@@ -113,6 +118,8 @@ public class SVDBIndexBase implements ISVDBIndex {
 					
 					svdb_f = SVDBFileFactory.createFile(
 							in, file.getAbsolutePath(), fFileProvider);
+					
+					in.close();
 					
 					if (fLastModifiedMap.containsKey(file)) {
 						fLastModifiedMap.remove(file);

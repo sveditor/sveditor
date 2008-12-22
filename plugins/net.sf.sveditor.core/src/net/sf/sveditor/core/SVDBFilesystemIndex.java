@@ -43,7 +43,7 @@ public class SVDBFilesystemIndex extends SVDBIndexBase {
 						push(f);
 					}
 				}
-			} else if (f.isDirectory()) {
+			} else if (f.isDirectory() && !fIgnoreDirs.contains(f.getName())) {
 				recurse(f);
 			}
 		}

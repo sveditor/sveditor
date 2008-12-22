@@ -42,7 +42,6 @@ public class SVScanner implements ISVScanner {
 	private IDefineProvider			fDefineProvider;
 	
 	public SVScanner() {
-		
 	}
 	
 	public void setDefineProvider(IDefineProvider p) {
@@ -153,7 +152,7 @@ public class SVScanner implements ISVScanner {
 		
 		ch = skipWhite(ch);
 		
-		String cname = readIdentifier(ch);
+		/* String cname = */ readIdentifier(ch);
 		
 		ch = skipWhite(ch);
 		
@@ -320,12 +319,12 @@ public class SVScanner implements ISVScanner {
 			unget_ch(ch);
 			unget_str(tf_name + " ");
 			ch = skipWhite(next_ch());
-			String typename = readTypeName(ch, false);
+			SVTypeInfo typename = readTypeName(ch, false);
 			ch = skipWhite(next_ch());
 			
 			if (ch == '(' || ch == ';') {
 				// no return type
-				tf_name = typename;
+				tf_name = typename.fTypeName;
 			} else {
 				tf_name = readIdentifier(ch);
 				ch = skipWhite(get_ch());
@@ -335,8 +334,8 @@ public class SVScanner implements ISVScanner {
 		debug("post-task \"" + tf_name + "\" ch=" + (char)ch);
 		
 		if (ch == '(') {
-			
-			String t, n;
+			SVTypeInfo t;
+			String n;
 			int cnt = 0;
 			
 			while (ch == '(') {
@@ -370,11 +369,11 @@ public class SVScanner implements ISVScanner {
 				while (ch == '[') {
 					startCapture(ch);
 					ch = skipPastMatch("[]", ",;");
-					t += endCapture();
+					t.fTypeName += endCapture();
 					ch = skipWhite(ch);
 				}
 				
-				SVTaskFuncParam p = new SVTaskFuncParam(t, n);
+				SVTaskFuncParam p = new SVTaskFuncParam(t.fTypeName, n);
 				params.add(p);
 				
 				ch = skipWhite(ch);
@@ -416,6 +415,7 @@ public class SVScanner implements ISVScanner {
 					break;
 				} else if (isSecondLevelScope(id)) {
 					if (fObserver != null) {
+						System.out.println("second-level scope: " + id);
 						fObserver.error("missing \"" + exp_end + "\" @ " +
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
@@ -427,6 +427,7 @@ public class SVScanner implements ISVScanner {
 					break;
 				} else if (isFirstLevelScope(id)) {
 					if (fObserver != null) {
+						System.out.println("first-level scope: " + id);
 						fObserver.error("missing \"" + exp_end + "\" @ " +
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
@@ -454,7 +455,9 @@ public class SVScanner implements ISVScanner {
 	
 	private void process_interface_module_class(String type) throws EOFException {
 		String id;
-		List<SVClassIfcModParam>	params = null; 
+		List<SVClassIfcModParam>	params = null;
+		String super_name = null;
+		List<SVClassIfcModParam>	super_params = null;
 		String module_type_name = null;
 		String ports = null;
 		int ch = skipWhite(next_ch());
@@ -493,13 +496,40 @@ public class SVScanner implements ISVScanner {
 		if (params == null) {
 			params = new ArrayList<SVClassIfcModParam>();
 		}
-
-		// Module port-list
+		
+		// Class extension
 		ch = skipWhite(ch);
-		if (ch == '(') {
-			startCapture(ch);
-			ch = skipPastMatch("()");
-			ports = endCapture();
+		if (type.equals("class")) {
+			if (ch != ';') {
+				// likely an 'extends' statement
+				String ext = readIdentifier(ch);
+				ch = get_ch();
+				if (ext.equals("extends")) {
+					ch = skipWhite(ch);
+					super_name = readIdentifier(ch);
+					
+					ch = skipWhite(get_ch());
+					
+					if (ch == '#') {
+						// parameters
+						ch = skipWhite(next_ch());
+						if (ch == '(') {
+							startCapture();
+							ch = skipPastMatch("()");
+							String p_str = endCapture();
+							
+							super_params = parse_parameter_str(p_str);
+						}
+					}
+				}
+			}
+		} else {
+			// Module port-list
+			if (ch == '(') {
+				startCapture(ch);
+				ch = skipPastMatch("()");
+				ports = endCapture();
+			}
 		}
 		ch = skipWhite(ch);
 		
@@ -509,7 +539,7 @@ public class SVScanner implements ISVScanner {
 			} else if (type.equals("interface")) {
 				fObserver.enter_interface_decl(module_type_name, ports);
 			} else if (type.equals("class")) {
-				fObserver.enter_class_decl(module_type_name, params);
+				fObserver.enter_class_decl(module_type_name, params, super_name, super_params);
 			} else if (type.equals("struct")) {
 				fObserver.enter_struct_decl(module_type_name, params);
 			}
@@ -540,7 +570,7 @@ public class SVScanner implements ISVScanner {
 		int ch = skipWhite(get_ch());
 		
 		while (Character.isJavaIdentifierStart(ch)) {
-			String qual = readIdentifier(ch);
+			/* String qual = */ readIdentifier(ch);
 			
 			ch = skipWhite(get_ch());
 		}
@@ -551,7 +581,7 @@ public class SVScanner implements ISVScanner {
 		
 		startCapture();
 		ch = skipPastMatch("{}");
-		String content = endCapture();
+		/* String content = */ endCapture();
 		
 		// TODO: 
 		
@@ -717,6 +747,7 @@ public class SVScanner implements ISVScanner {
 	private boolean process_module_class_interface_body_item(String id) throws EOFException {
 		int     ch, modifiers = 0;
 		boolean ret = true;
+		SVTypeInfo type = null;
 		
 		debug("--> process_module_class_interface_body_item: \"" + id + "\"");
 		
@@ -768,6 +799,7 @@ public class SVScanner implements ISVScanner {
 		} else if (ch == ':') {
 			// Labeled statement -- often a cover
 			System.out.println("labeled statement: " + id);
+			System.out.println("    " + getLocation().getFileName() + ":" + getLocation().getLineNo());
 		} else {
 			// likely a variable or module declaration
 			List<String> vars = new ArrayList<String>();
@@ -778,13 +810,13 @@ public class SVScanner implements ISVScanner {
 			unget_str(id + " ");
 			ch = skipWhite(next_ch());
 			
-			id = readTypeName(ch, false);
+			type = readTypeName(ch, false);
 			ch = skipWhite(get_ch());
-			
+
 			// First, skip qualifiers
 			if (ch == '#') {
 				ch = skipWhite(next_ch());
-			
+				
 				if (ch == '(') {
 					ch = skipPastMatch("()");
 					ch = skipWhite(ch);
@@ -813,7 +845,7 @@ public class SVScanner implements ISVScanner {
 				vars.add(inst_name_or_var);
 				
 				if (ch == '(') {
-					id = ISVScannerObserver.ModIfcInstPref + id;
+					type.fTypeName = ISVScannerObserver.ModIfcInstPref + type.fTypeName;
 					
 					// it's a module
 					debug("module instantation - " + inst_name_or_var);
@@ -829,7 +861,14 @@ public class SVScanner implements ISVScanner {
 			} while (ch == ',');
 			
 			if (fObserver != null) {
-				fObserver.variable_decl(id, modifiers, vars);
+				if (type.fParameters != null) {
+					System.out.println("Class " + type.fTypeName + " has " + type.fParameters.size() + " parameters");
+					for (SVClassIfcModParam p : type.fParameters) {
+						System.out.println("    " + p.getName());
+					}
+					System.out.println("attr=" + modifiers);
+				}
+				fObserver.variable_decl(type, modifiers, vars);
 			}
 		}
 		
@@ -912,6 +951,7 @@ public class SVScanner implements ISVScanner {
 		}
 	}
 
+	/* Currently unused
 	private String readLine(int ci) throws EOFException {
 		if (fInputStack.size() > 0) {
 			return fInputStack.peek().readLine(ci);
@@ -927,6 +967,7 @@ public class SVScanner implements ISVScanner {
 			return "";
 		}
 	}
+	 */
 
 	private String readQualifiedIdentifier(int ci) throws EOFException {
 		if (!Character.isJavaIdentifierStart(ci)) {
@@ -946,6 +987,7 @@ public class SVScanner implements ISVScanner {
 		return ret.toString();
 	}
 
+	/** Currently unused
 	private String readImportSpec(int ci) throws EOFException {
 		if (!Character.isJavaIdentifierStart(ci)) {
 			unget_ch(ci);
@@ -963,7 +1005,8 @@ public class SVScanner implements ISVScanner {
 		
 		return ret.toString();
 	}
-
+	*/
+	
 	private boolean isBuiltInType(String id) {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||
@@ -971,9 +1014,10 @@ public class SVScanner implements ISVScanner {
 				id.equals("longint"));
 	}
 	
-	private String readTypeName(int ch, boolean task_func) throws EOFException {
+	private SVTypeInfo readTypeName(int ch, boolean task_func) throws EOFException {
 		StringBuffer ret = new StringBuffer();
 		String id = null;
+		SVTypeInfo type = new SVTypeInfo();
 		int    is_builtin = 0;
 		int    is_qual    = 0;
 		int    idx        = 0;
@@ -1035,9 +1079,7 @@ public class SVScanner implements ISVScanner {
 							ch = skipPastMatch("()");
 							String templ = endCapture();
 							
-							List<SVClassIfcModParam> p = parse_parameter_str(templ);
-							
-							// TODO: add template info
+							type.fParameters = parse_parameter_str(templ);
 						}
 					}
 					unget_ch(ch);
@@ -1071,7 +1113,8 @@ public class SVScanner implements ISVScanner {
 		debug("--> readTypeName(task_func=" + task_func + ") -> " + 
 				ret.toString().trim());
 		if (ret.length() != 0) {
-			return ret.toString().trim();
+			type.fTypeName = ret.toString();
+			return type;
 		} else {
 			return null;
 		}
