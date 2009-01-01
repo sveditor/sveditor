@@ -12,7 +12,7 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 public class SVReconcilingStrategy implements IReconcilingStrategy,
 		IReconcilingStrategyExtension {
 	private IDocument				fDocument;
-	private SVEditor		fEditor;
+	private SVEditor				fEditor;
 	
 	public SVReconcilingStrategy(SVEditor editor) {
 		fEditor = editor;

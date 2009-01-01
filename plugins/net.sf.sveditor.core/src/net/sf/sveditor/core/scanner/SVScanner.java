@@ -611,6 +611,7 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private void handle_leave_scope(int levels) {
+		fStmtLocation = getLocation();
 		for (int i=0; i<levels; i++) {
 			String type = null;
 			
@@ -861,13 +862,6 @@ public class SVScanner implements ISVScanner {
 			} while (ch == ',');
 			
 			if (fObserver != null) {
-				if (type.fParameters != null) {
-					System.out.println("Class " + type.fTypeName + " has " + type.fParameters.size() + " parameters");
-					for (SVClassIfcModParam p : type.fParameters) {
-						System.out.println("    " + p.getName());
-					}
-					System.out.println("attr=" + modifiers);
-				}
 				fObserver.variable_decl(type, modifiers, vars);
 			}
 		}

@@ -7,11 +7,9 @@ import org.eclipse.jface.text.rules.Token;
 
 public class CCommentRule implements IPredicateRule {
 	private IToken			fToken;
-	private boolean         fInComment;
 	
 	public CCommentRule(IToken tok) {
 		fToken = tok;
-		fInComment = false;
 	}
 
 	public IToken evaluate(ICharacterScanner scanner, boolean resume) {

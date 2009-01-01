@@ -1,6 +1,5 @@
 package net.sf.sveditor.ui.editor;
 
-import org.eclipse.jface.text.IDocument;
 
 public interface SVDocumentPartitions {
 	String SV_MULTILINE_COMMENT  = "__sv_multiline_comment";

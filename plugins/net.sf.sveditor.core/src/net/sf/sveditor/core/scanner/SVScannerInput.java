@@ -42,6 +42,7 @@ public class SVScannerInput {
 		fInput = in;
 		fObserver       = observer;
 		fDefineProvider = define_provider;
+		fLineno         = 1;
 		
 		fPreProcEn.clear();
 		fPreProcEn.push(true);
@@ -171,11 +172,11 @@ public class SVScannerInput {
 		}
 		
 		if (fInputBufferIdx >= fInputBufferMax) {
-			// Try reading another
+			// Try reading another//				System.out.println(fName + ": read " + fInputBufferMax + " chars");
+
 			fInputBufferIdx = 0;
 			try {
 				fInputBufferMax = fInput.read(fInputBuffer, 0, fInputBuffer.length);
-//				System.out.println(fName + ": read " + fInputBufferMax + " chars");
 			} catch (IOException e) {
 				fInputBufferMax = -1;
 			}
@@ -205,10 +206,6 @@ public class SVScannerInput {
 			fUnaccContent.append((char)ch);
 		} else {
 			fUngetStr.append((char)ch);
-			
-			if (ch == '\n') {
-				fLineno--;
-			}
 		}
 	}
 	
@@ -220,9 +217,6 @@ public class SVScannerInput {
 		} else {
 			for (int i=str.length()-1; i>=0; i--) {
 				fUngetStr.append(str.charAt(i));
-				if (str.charAt(i) == '\n') {
-					fLineno--;
-				}
 			}
 		}
 	}
@@ -542,6 +536,7 @@ public class SVScannerInput {
 					in.startCapture(-1);
 					ch2 = in.skipPastMatch("()");
 					String param_s = in.endCapture();
+					param_s = param_s.substring(0, param_s.length()-2);
 					ch2 = in.skipWhite(ch2);
 					
 					if (param_s != null && param_s.length() > 0) {

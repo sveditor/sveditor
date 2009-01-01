@@ -50,4 +50,5 @@ public class SVScannerTests extends TestCase {
 			assertEquals(exp[idx++], ((SVDBVarDeclItem)it).getName());
 		}
 	}
+	
 }

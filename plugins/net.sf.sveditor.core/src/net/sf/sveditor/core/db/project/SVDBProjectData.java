@@ -18,7 +18,6 @@ import net.sf.sveditor.core.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -185,7 +184,8 @@ public class SVDBProjectData {
 						IContainer c = ws_r.getContainerForLocation(new Path(path.getPath()));
 						// IFile f_t = ws_r.getFile(new Path(path.getPath()));
 						
-						if (c.getLocation().toFile().equals(index.getBaseLocation())) {
+						if (c != null && c.getLocation().toFile().equals(
+								index.getBaseLocation())) {
 							found = true;
 							break;
 						}

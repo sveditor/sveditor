@@ -1,6 +1,9 @@
-package net.sf.sveditor.core;
+package net.sf.sveditor.core.tests;
 
 import java.io.File;
+
+import net.sf.sveditor.core.SVDBDirFileProvider;
+import net.sf.sveditor.core.SVDBFilesystemIndex;
 
 public class SVDBIndexProfiler {
 	

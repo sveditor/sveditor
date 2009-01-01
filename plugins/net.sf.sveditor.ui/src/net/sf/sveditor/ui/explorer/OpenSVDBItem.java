@@ -9,14 +9,11 @@ import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -29,31 +26,19 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.SelectionListenerAction;
-import org.eclipse.ui.internal.UIPlugin;
-import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionConstants;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
-import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
 public class OpenSVDBItem extends CommonActionProvider {
 	private OpenItemAction			fOpenItem;
 
-	public OpenSVDBItem() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	
-	
 	@Override
 	public void init(ICommonActionExtensionSite site) {
-		// TODO Auto-generated method stub
 		super.init(site);
 		fOpenItem = new OpenItemAction();
 	}
-
-
 
 	@Override
 	public void fillContextMenu(IMenuManager menu) {
@@ -67,7 +52,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 	
 	@Override
 	public void fillActionBars(IActionBars actionBars) {
-		// TODO Auto-generated method stub
 		super.fillActionBars(actionBars);
 		actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, 
 				fOpenItem);
@@ -87,7 +71,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 		@Override
 		@SuppressWarnings("unchecked")
 		public void run() {
-			// TODO Auto-generated method stub
 			super.run();
 			
 			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {

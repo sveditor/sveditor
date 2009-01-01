@@ -9,9 +9,6 @@ import org.eclipse.jface.viewers.Viewer;
 
 public class SVTreeContentProvider implements ITreeContentProvider {
 	
-	private SVDBScopeItem				fRoot;
-	
-	
 	public Object[] getChildren(Object elem) {
 		if (elem instanceof SVDBScopeItem &&
 				!(elem instanceof SVDBTaskFuncScope)) {
@@ -53,10 +50,5 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 
 	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		fRoot = null;
-		
-		if (newInput instanceof SVDBScopeItem) {
-			fRoot = (SVDBScopeItem)newInput;
-		}
 	}
 }

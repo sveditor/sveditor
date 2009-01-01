@@ -2,7 +2,7 @@
 <feature
       id="net.sf.sveditor"
       label="SVEditor"
-      version="0.0.3">
+      version="0.0.4">
 
    <description url="http://sveditor.sourceforge.net">
       SVEditor is a SystemVerilog editor for Eclipse
@@ -105,14 +105,14 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="net.sf.sveditor.core"
          download-size="0"
          install-size="0"
-         version="0.0.3"
+         version="0.0.4"
          unpack="false"/>
 
    <plugin
          id="net.sf.sveditor.ui"
          download-size="0"
          install-size="0"
-         version="0.0.3"
+         version="0.0.4"
          unpack="false"/>
 
 </feature>

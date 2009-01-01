@@ -12,7 +12,6 @@ import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -26,10 +25,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDEActionFactory;
@@ -42,7 +39,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor {
 
-	private ListenerList					fReconcileListeners;
+	// private ListenerList					fReconcileListeners;
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
 	private SVCodeScanner					fCodeScanner;
@@ -53,7 +50,7 @@ public class SVEditor extends TextEditor {
 	public SVEditor() {
 		super();
 		
-		fReconcileListeners = new ListenerList();
+//		fReconcileListeners = new ListenerList();
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
 		fCodeScanner = new SVCodeScanner();
@@ -64,16 +61,6 @@ public class SVEditor extends TextEditor {
 		return fCodeScanner;
 	}
 	
-	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
-		// TODO Auto-generated method stub
-		super.init(site, input);
-		
-		System.out.println("init: editorInput is: " + 
-				input.getClass().getName());
-	}
-
 	protected void initializeEditor() {
 		super.initializeEditor();
 	}

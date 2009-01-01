@@ -3,7 +3,7 @@
    <description url="http://sveditor.sourceforge.net">
       SystemVerilog Editor
    </description>
-   <feature url="features/net.sf.sveditor_0.0.3.jar" id="net.sf.sveditor" version="0.0.3">
+   <feature url="features/net.sf.sveditor_0.0.4.jar" id="net.sf.sveditor" version="0.0.4">
       <category name="SVEditor Feature"/>
    </feature>
    <category-def name="SVEditor Feature" label="SVEditor Feature">

@@ -1,20 +1,24 @@
 package net.sf.sveditor.ui.editor.actions;
 
 import java.io.File;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.utils.SVDBFileSearcher;
+import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.filesystem.provider.FileStore;
-import org.eclipse.core.internal.filebuffers.FileStoreTextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,7 +30,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorRegistry;
-import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -34,7 +37,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
@@ -79,30 +81,117 @@ public class OpenDeclarationAction extends TextEditorAction {
 		// Now, iterate through the items in the file and find something
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
-		SVDBItem it = findNamedItem(text, file);
+		SVDBFileSearcher searcher = new SVDBFileSearcher(file);
 		
-		if (it == null && pd != null) {
-			System.out.println("text=" + text);
-			for (SVDBFile f : pd.getFileIndex().getFileList()) {
-				for (SVDBItem it_t : f.getItems()) {
-					if (it_t.getName() != null && it_t.getName().equals(text)) {
-						it = it_t;
-						break;
-					}
-				}
+		SVDBScopeItem       active_scope = searcher.findActiveScope(getTextSel().getStartLine());
+		SVDBItem			it = null;
+		
+		// Search up the scope for a matching name
+		if (active_scope != null) {
+			it = findNamedItem(text, active_scope);
+			
+			SVDBModIfcClassDecl enclosing_class = null;
+			it = searchEnclosingScope(text, active_scope);
+		
+			if (it == null && pd != null && 
+					(enclosing_class = findEnclosingClass(active_scope)) != null &&
+					enclosing_class.getSuperClass() != null && 
+					!enclosing_class.getSuperClass().equals("")) {
+				// TODO: Now, search up the class hierarchy for a match
+				it = searchClassHierarchy(text, enclosing_class, pd.getFileIndex());
 			}
 		}
-
-		System.out.println("it=" + it);
+		
+		if (it == null && pd != null) {
+			// Search through the indexed files for a matching macro
+			// or class declaration
+			SVDBIndexSearcher index_search = new SVDBIndexSearcher();
+			index_search.addFile(fEditor.getSVDBFile());
+			index_search.addIndex(pd.getFileIndex());
+			
+			List<SVDBItem> result = index_search.findByName(text, 
+					SVDBItemType.Class, SVDBItemType.Macro);
+			
+			if (result.size() > 0) {
+				it = result.get(0);
+			}
+		}
+		
 		if (it != null) {
 			IEditorPart ed_f = openEditor(it);
 
 			((SVEditor)ed_f).setSelection(it.getLocation().getLine(), true);
 		}
-		
-		System.out.println("OpenDefinitionAction.run() - " + text);
 	}
 	
+	/**
+	 * Search the enclosing scope for tasks, functions, and fields
+	 * that match the name
+	 * @param scope
+	 * @return
+	 */
+	private SVDBItem searchEnclosingScope(
+			String				text,
+			SVDBScopeItem 		scope) {
+		SVDBItem it = null;
+		List<SVDBItem> it_l;
+
+		while (scope != null) {
+			it_l = SVDBSearchUtils.findItemsByName(scope, text,
+				SVDBItemType.Function, SVDBItemType.Task,
+				SVDBItemType.TaskFuncParam, SVDBItemType.Macro);
+			
+			if (it_l.size() > 0) {
+				it = it_l.get(0);
+				break;
+			}
+			scope = scope.getParent();
+		}
+		
+		return it;
+	}
+	
+	private SVDBModIfcClassDecl findEnclosingClass(SVDBScopeItem scope) {
+		
+		while (scope != null && scope.getType() != SVDBItemType.Class) {
+			scope = scope.getParent();
+		}
+		
+		if (scope.getType() == SVDBItemType.Class) {
+			return (SVDBModIfcClassDecl)scope;
+		} else {
+			return null;
+		}
+	}
+	
+	private SVDBItem searchClassHierarchy(
+			String					name,
+			SVDBModIfcClassDecl		enclosing_class,
+			ISVDBIndex				index) {
+		SVDBItem it = null;
+		SVDBIndexSearcher searcher = new SVDBIndexSearcher(index);
+		
+		while (true) {
+			if (enclosing_class.getSuperClass() == null ||
+					(enclosing_class = searcher.findNamedClass(
+							enclosing_class.getSuperClass())) == null) {
+				break;
+			}
+			
+			List<SVDBItem> r = SVDBSearchUtils.findItemsByName(
+					enclosing_class, name, 
+					SVDBItemType.Task, SVDBItemType.Function,
+					SVDBItemType.VarDecl);
+			
+			if (r.size() > 0) {
+				it = r.get(0);
+				break;
+			}
+		}
+		
+		return it;
+	}
+			
 	private SVDBItem findNamedItem(String name, SVDBScopeItem scope) {
 		
 		if (scope.getName().equals(name)) {

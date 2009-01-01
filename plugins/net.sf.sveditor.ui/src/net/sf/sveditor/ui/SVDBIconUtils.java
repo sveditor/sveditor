@@ -36,7 +36,6 @@ public class SVDBIconUtils implements ISVIcons {
 			
 			if (type == SVDBItemType.VarDecl) {
 				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-					System.out.println("field \"" + it.getName() + "\" is private");
 					return Activator.getImage(FIELD_PRIV_OBJ);
 				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
 					return Activator.getImage(FIELD_PROT_OBJ);

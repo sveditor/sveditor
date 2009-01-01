@@ -4,7 +4,7 @@ package net.sf.sveditor.core.db.project;
 public class SVDBPath {
 	
 	private boolean					fIsWSRelPath;
-	private String						fPath;
+	private String					fPath;
 	
 	public SVDBPath(String path, boolean is_wsrel_path) {
 		fIsWSRelPath = is_wsrel_path;
@@ -34,5 +34,4 @@ public class SVDBPath {
 		}
 		return false;
 	}
-
 }

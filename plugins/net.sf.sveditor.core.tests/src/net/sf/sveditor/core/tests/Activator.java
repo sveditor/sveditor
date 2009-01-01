@@ -1,6 +1,11 @@
 package net.sf.sveditor.core.tests;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
 import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -12,7 +17,8 @@ public class Activator extends Plugin {
 	public static final String PLUGIN_ID = "net.sf.sveditor.core.tests";
 
 	// The shared instance
-	private static Activator plugin;
+	private static Activator    plugin;
+	private BundleContext		fBundleContext;
 	
 	/**
 	 * The constructor
@@ -26,6 +32,7 @@ public class Activator extends Plugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		fBundleContext = context;
 		plugin = this;
 	}
 
@@ -36,6 +43,22 @@ public class Activator extends Plugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+	}
+	
+	public static InputStream openFile(String path) {
+		Activator p = getDefault();
+		URL url = p.getBundle().getEntry(path);
+		InputStream in = null;
+		
+		if (url != null) {
+			try {
+				in = url.openStream();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return in;
 	}
 
 	/**

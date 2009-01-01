@@ -1,11 +1,8 @@
 package net.sf.sveditor.core.db.utils;
 
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
 public class SVDBFileSearcher {
 	private SVDBFile			fFile;
@@ -15,6 +12,8 @@ public class SVDBFileSearcher {
 	}
 	
 	public SVDBScopeItem findActiveScope(int lineno) {
+		return findActiveScope(fFile, lineno);
+		/*
 		SVDBScopeItem item = null;
 		
 		for (int i=0; i<fFile.getItems().size(); i++) {
@@ -38,6 +37,29 @@ public class SVDBFileSearcher {
 		}
 		
 		return item;
+		 */
+	}
+	
+	private SVDBScopeItem findActiveScope(SVDBScopeItem p, int lineno) {
+		for (SVDBItem it : p.getItems()) {
+			if (it instanceof SVDBScopeItem) {
+				SVDBScopeItem s_it = (SVDBScopeItem)it;
+				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
+					if (lineno >= s_it.getLocation().getLine() && 
+							lineno <= s_it.getEndLocation().getLine()) {
+						SVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
+						
+						if (s_it_p != null) {
+							return s_it_p;
+						} else {
+							return s_it;
+						}
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	private SVDBScopeItem refineSearch(SVDBScopeItem p, int lineno) {

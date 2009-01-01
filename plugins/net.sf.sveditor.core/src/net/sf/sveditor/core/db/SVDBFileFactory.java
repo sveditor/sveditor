@@ -2,9 +2,10 @@ package net.sf.sveditor.core.db;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
@@ -322,15 +323,92 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		SVDBMacroDef def = fFile.getMacroDef(key);
 		
 		if (def != null) {
-			/*
-			System.out.println("preproc define \"" + 
-					def.getName() + "\" from file \"" + 
-					def.getLocation().getFile().getName() + "\"");
-             */
-			return def.getDef();
+			if (def.getParameters().size() > 0) {
+				return expandMacroDef(def, params);
+			} else {
+				return def.getDef();
+			}
 		} else {
 			return null;
 		}
+	}
+	
+	private String expandMacroDef(
+			SVDBMacroDef			def,
+			List<String>			params) {
+		Map<String, String> pmap = new HashMap<String, String>();
+		StringBuffer m = new StringBuffer();
+		StringBuffer t = new StringBuffer();
+		int i = 0;
+		
+		if (def.getParameters().size() != params.size()) {
+			/** TODO: investigate
+			System.out.println("[WARN] macro definition \"" + 
+					def.getName() + "\" has " + 
+					def.getParameters().size() + " parameters. " +
+					"Macro invocation has " + params.size() + " parameters");
+			 */
+		}
+		
+		for (i=0; i<params.size() && i<def.getParameters().size(); i++) {
+			pmap.put(def.getParameters().get(i), params.get(i));
+		}
+		
+		// Scan through the macro definition
+		i = 0;
+		String def_s = def.getDef(); 
+		while (i < def_s.length()) {
+			int     ch=-1;
+			boolean is_preproc;
+			
+			// skip whitespace
+			while (i < def_s.length()) {
+				ch = def_s.charAt(i);
+				
+				if (ch == '`' || Character.isJavaIdentifierPart(ch)) {
+					break;
+				} else {
+					m.append((char)ch);
+				}
+				i++;
+			}
+			
+			if (ch == '`') {
+				// skip
+				i++;
+				is_preproc = true;
+			}
+			
+			// Read an identifier
+			t.setLength(0);
+			while (i < def_s.length()) {
+				ch = def_s.charAt(i);
+				
+				if (!Character.isJavaIdentifierPart(ch)) {
+					break;
+				} else {
+					t.append((char)ch);
+				}
+				i++;
+			}
+			
+			if (pmap.containsKey(t.toString())) {
+				m.append(pmap.get(t.toString()));
+			} else {
+				m.append(t.toString());
+			}
+		}
+
+		/*
+		System.out.print("expand \"" + def.getName() + "(");
+		for (String p : def.getParameters()) {
+			System.out.print(p + ", ");
+		}
+		System.out.println(") to: ");
+		System.out.println(m.toString());
+		 */
+		
+		return m.toString();
 	}
 	
 	public boolean hasParameters(String key) {
