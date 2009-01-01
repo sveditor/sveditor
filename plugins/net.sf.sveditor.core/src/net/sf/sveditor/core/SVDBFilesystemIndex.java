@@ -83,7 +83,7 @@ public class SVDBFilesystemIndex extends SVDBIndexBase {
 			}
 		}
 		
-		fRefreshJob.schedule(1000);
+		fRefreshJob.schedule(5000);
 		return Status.OK_STATUS;
 	}
 	

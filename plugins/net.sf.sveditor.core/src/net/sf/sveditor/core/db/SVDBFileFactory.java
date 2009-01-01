@@ -183,7 +183,10 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	}
 
 	
-	public void enter_task_decl(String name, int attr, List<SVTaskFuncParam> params)
+	public void enter_task_decl(
+			String 						name,
+			int 						attr,
+			List<SVTaskFuncParam> 		params)
 			throws HaltScanException {
 		SVDBTaskFuncScope task = new SVDBTaskFuncScope(name, SVDBItemType.Task);
 		task.setAttr(attr);
@@ -199,9 +202,36 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		
 		setLocation(task);
 	}
+	
+	public void enter_func_decl(
+			String 						name,
+			int 						attr,
+			String						ret_type,
+			List<SVTaskFuncParam> 		params)
+			throws HaltScanException {
+		SVDBTaskFuncScope func = new SVDBTaskFuncScope(name, SVDBItemType.Function);
+		func.setAttr(attr);
+		func.setReturnType(ret_type);
+		
+		for (SVTaskFuncParam p : params) {
+			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(
+					p.getTypeName(), p.getName());
+			func.addParam(svp);
+		}
+		
+		fScopeStack.peek().addItem(func);
+		fScopeStack.push(func);
+		
+		setLocation(func);
+	}
 
 	
 	public void leave_task_decl() {
+		setEndLocation(fScopeStack.peek());
+		fScopeStack.pop();
+	}
+
+	public void leave_func_decl() {
 		setEndLocation(fScopeStack.peek());
 		fScopeStack.pop();
 	}

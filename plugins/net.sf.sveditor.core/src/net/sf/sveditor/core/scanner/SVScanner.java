@@ -297,6 +297,7 @@ public class SVScanner implements ISVScanner {
 	private boolean process_task_function(int modifiers, String id) throws EOFException {
 		// Scan for end-of-section
 		String 						tf_name;
+		String						ret_type = null;
 		List<SVTaskFuncParam>		params = new ArrayList<SVTaskFuncParam>();
 		boolean ret = true;
 		int ch = skipWhite(get_ch());
@@ -320,6 +321,7 @@ public class SVScanner implements ISVScanner {
 			unget_str(tf_name + " ");
 			ch = skipWhite(next_ch());
 			SVTypeInfo typename = readTypeName(ch, false);
+			ret_type = typename.fTypeName;
 			ch = skipWhite(next_ch());
 			
 			if (ch == '(' || ch == ';') {
@@ -401,17 +403,31 @@ public class SVScanner implements ISVScanner {
 		}
 		
 		if (fObserver != null) {
-			fObserver.enter_task_decl(tf_name, modifiers, params);
+			if (ret_type != null) {
+				fObserver.enter_func_decl(tf_name, modifiers, ret_type, params);
+			} else {
+				fObserver.enter_task_decl(tf_name, modifiers, params);
+			}
 		}
 		
 		debug("" + id + " " + tf_name);
 
 		// External tasks/functions don't have a body
 		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) == 0) {
-			String exp_end = "end" + id;
+			String  exp_end = "end" + id;
+			boolean var_enabled = true;
+			
 			while ((id = scan_statement()) != null) {
-				//
-				if (id.equals(exp_end)) {
+				// First, look for local variables
+				if (var_enabled && !id.equals(exp_end)) {
+					if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
+						unget_str(id + " ");
+						
+						scanVariableDeclaration(0);
+					} else {
+						var_enabled = false;
+					}
+				} else if (id.equals(exp_end)) {
 					break;
 				} else if (isSecondLevelScope(id)) {
 					if (fObserver != null) {
@@ -632,8 +648,10 @@ public class SVScanner implements ISVScanner {
 					fObserver.leave_class_decl();
 				} else if (type.equals("struct")) {
 					fObserver.leave_struct_decl();
-				} else if (type.equals("task") || type.equals("function")) {
+				} else if (type.equals("task")) {
 					fObserver.leave_task_decl();
+				} else if (type.equals("function")) {
+					fObserver.leave_func_decl();
 				} else if (type.equals("covergroup")) {
 					fObserver.leave_covergroup();
 				} else if (type.equals("sequence")) {
@@ -748,7 +766,6 @@ public class SVScanner implements ISVScanner {
 	private boolean process_module_class_interface_body_item(String id) throws EOFException {
 		int     ch, modifiers = 0;
 		boolean ret = true;
-		SVTypeInfo type = null;
 		
 		debug("--> process_module_class_interface_body_item: \"" + id + "\"");
 		
@@ -803,73 +820,89 @@ public class SVScanner implements ISVScanner {
 			System.out.println("    " + getLocation().getFileName() + ":" + getLocation().getLineNo());
 		} else {
 			// likely a variable or module declaration
-			List<String> vars = new ArrayList<String>();
 			
 			debug("Likely VarDecl: " + id);
 			
 			unget_ch(ch);
 			unget_str(id + " ");
-			ch = skipWhite(next_ch());
 			
-			type = readTypeName(ch, false);
-			ch = skipWhite(get_ch());
-
-			// First, skip qualifiers
-			if (ch == '#') {
-				ch = skipWhite(next_ch());
-				
-				if (ch == '(') {
-					ch = skipPastMatch("()");
-					ch = skipWhite(ch);
-				}
-			}
-			
-			if (ch == '[') {
-				ch = skipPastMatch("[]");
-				ch = skipWhite(ch);
-			}
-			
-			// Handle parameterization
-			do {
-				
-				if (ch == ',') {
-					ch = next_ch();
-				}
-				
-				ch = skipWhite(ch);
-			
-				String inst_name_or_var = readIdentifier(ch);
-				debug("inst name or var: " + inst_name_or_var);
-				
-				ch = skipWhite(get_ch());
-				
-				vars.add(inst_name_or_var);
-				
-				if (ch == '(') {
-					type.fTypeName = ISVScannerObserver.ModIfcInstPref + type.fTypeName;
-					
-					// it's a module
-					debug("module instantation - " + inst_name_or_var);
-					ch = skipPastMatch("()");
-					
-					if (ch == ';') {
-						unget_ch(ch);
-					}
-					break;
-				}
-
-				ch = skipWhite(ch);
-			} while (ch == ',');
-			
-			if (fObserver != null) {
-				fObserver.variable_decl(type, modifiers, vars);
-			}
+			scanVariableDeclaration(modifiers);
 		}
 		
 		debug("<-- process_module_class_interface_body_item");
 		
 		return ret;
 	}
+	
+	/**
+	 * scanVariableDeclaration()
+	 * 
+	 * Scans through a list of variable declarations
+	 * 
+	 * Expects first string(s) read to be the type name
+	 */
+	private void scanVariableDeclaration(int modifiers) throws EOFException {
+		List<String> 	vars = new ArrayList<String>();
+		SVTypeInfo		type;
+		int 			ch;
+		
+		ch = skipWhite(next_ch());
+		
+		type = readTypeName(ch, false);
+		ch = skipWhite(get_ch());
+
+		// First, skip qualifiers
+		if (ch == '#') {
+			ch = skipWhite(next_ch());
+			
+			if (ch == '(') {
+				ch = skipPastMatch("()");
+				ch = skipWhite(ch);
+			}
+		}
+		
+		if (ch == '[') {
+			ch = skipPastMatch("[]");
+			ch = skipWhite(ch);
+		}
+		
+		// Handle parameterization
+		do {
+			
+			if (ch == ',') {
+				ch = next_ch();
+			}
+			
+			ch = skipWhite(ch);
+		
+			String inst_name_or_var = readIdentifier(ch);
+			debug("inst name or var: " + inst_name_or_var);
+			
+			ch = skipWhite(get_ch());
+			
+			vars.add(inst_name_or_var);
+			
+			if (ch == '(') {
+				type.fTypeName = ISVScannerObserver.ModIfcInstPref + type.fTypeName;
+				
+				// it's a module
+				debug("module instantation - " + inst_name_or_var);
+				ch = skipPastMatch("()");
+				
+				if (ch == ';') {
+					unget_ch(ch);
+				}
+				break;
+			}
+
+			ch = skipWhite(ch);
+		} while (ch == ',');
+		
+		if (fObserver != null) {
+			fObserver.variable_decl(type, modifiers, vars);
+		}
+	}
+			
 	
 	private boolean isFirstLevelScope(String id) {
 		return (id.equals("class") || 

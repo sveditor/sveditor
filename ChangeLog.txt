@@ -1,4 +1,9 @@
 
+-- 0.0.5 Release --
+    - Add parameters to the display string for task/function content assist
+
+------------------------------------------------------------------------------
+
 -- 0.0.4 Release --
 
 20081202 -- Add brace-matching highlighting to editor
@@ -7,6 +12,8 @@
 
           - Added a SVEditor build paths and include paths project-properties page
 
+
+-- TODO --
 * Add a build paths and include paths property page
 * Add support for including macros using `include and the file provider
 * Fix bug in handling of extern tasks/functions
@@ -36,6 +43,8 @@
 * Enhance 'open declaration' to use the index to traverse the class 
   hierarchy and find tasks, functions, fields
 
+------------------------------------------------------------------------------
+
 -- 0.0.3 Release --
 
 20081101 - 
@@ -49,11 +58,30 @@
 - Content Assist
     - Prompt for macro parameters
     - Prompt for class template parameters
+    - Parse chained expressions (foo().a.b)
+        - Live scan of file doesn't seem to be up-to-date when used for content assist
+          
     - Use template parameters of super classes to provide better proposals
     - Support task/function variables
+    - 
+- SVDB Data Flow Changes
+    - SVEditor must be responsible for updating the 'live' copy of the SVDBFile
+        - On document change, the data is scanned and merged to the SVDBFile the SVEditor caches
+        - Users of this SVDBFile must register listeners on the SVEditor
+        - Not clear that we actually must ensure that the Explorer view is the same as the Outline view
+
+- SVDB Changes
+    - Want to represent parameterized class instances as unique types. We can always back-reference
+      the template class (could be helpful).
 - Scanner Improvements
+    * Add support for scanning variable declarations within task/function scopes
+    - Need a better strategy for detecting that we've left a scope during editing
+        - The problem comes up when we miss info defined later in the file because of current user edits
+        - Perhaps we can leverage the last-known-good data-structure and lines-modified information to determine
+          what portions of the file leave un-touched (with the exception, perhaps, of updating line info)
     - Extend language coverage
     - Better exclusions for behavioral code inside behavioral scopes
+- Need to create data files for the base SystemVerilog library, so we can prompt the users for built-in methods
 - Add auto-indent rules centered around begin/end and brackets
 - Add inheritance hierarchy viewer
 - Notification on build-path change. Ensure setting a new build path results in re-scanning
@@ -61,4 +89,11 @@
   context when we switch to an editor for a file on the build path
 - Investigate mismatch between macro def and invocation parameter counts
 - Support folding of begin/end regions
+
+-----------------------------------------------------------------------------------------------
+
+Queensbury
+Schnuffel
+Peter Fox
+Sido
 

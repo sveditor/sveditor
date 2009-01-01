@@ -1,24 +1,12 @@
 package net.sf.sveditor.core.scanner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SVKeywords {
 	
-	public enum foo {
-		KW_alias("alias*");
-		
-		private String			fValue;
-		
-		foo(String v) {
-			fValue = v;
-		}
-		
-		public String valueOf() {
-			return fValue;
-		}
-	};
-
 	private static final String 		fKeywords[] = {
 		"alias*",
 		"always",
@@ -242,6 +230,24 @@ public class SVKeywords {
 		"xnor",
 		"xor"		
 	};
+	
+	private static final String 					fTypeStrings[] = {
+		"bit",
+		"chandle",
+		"event",
+		"int",
+		"integer",
+		"real",
+		"reg",
+		"shortint",
+		"shortreal",
+		"signed",
+		"string",
+		"time",
+		"unsigned"
+	};
+	
+	private static final List<String>				fTypeNames;
 	private static final Map<String, Boolean>		fKeywordMap;
 	
 	static {
@@ -254,6 +260,11 @@ public class SVKeywords {
 			}
 			fKeywordMap.put(str, is_sv);
 		}
+		
+		fTypeNames = new ArrayList<String>();
+		for (String n : fTypeStrings) {
+			fTypeNames.add(n);
+		}
 	};
 
 	public static boolean isSVKeyword(String kw) {
@@ -264,6 +275,10 @@ public class SVKeywords {
 	public static boolean isVKeyword(String kw) {
 		Boolean is_sv = fKeywordMap.get(kw);
 		return (is_sv != null && !is_sv.booleanValue());
+	}
+	
+	public static boolean isBuiltInType(String type) {
+		return fTypeNames.contains(type);
 	}
 	
 	public static String[] getKeywords() {

@@ -3,9 +3,12 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.org.apache.bcel.internal.generic.FRETURN;
+
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
 	private int								fAttr;
+	private String							fRetType;
 	
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
@@ -29,6 +32,13 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		return fParams;
 	}
 	
+	public String getReturnType() {
+		return fRetType;
+	}
+	
+	public void setReturnType(String ret) {
+		fRetType = ret;
+	}
 	public SVDBItem duplicate() {
 		SVDBTaskFuncScope ret = new SVDBTaskFuncScope(getName(), getType());
 		

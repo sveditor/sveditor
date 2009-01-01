@@ -1,7 +1,6 @@
 package net.sf.sveditor.ui.editor;
 
 import java.io.File;
-import java.net.URI;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -18,9 +17,7 @@ import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -34,7 +31,8 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 
 public class SVOutlinePage extends ContentOutlinePage 
-	implements IDocumentListener, IShowInTarget, IAdaptable, Runnable {
+	implements IShowInTarget, IAdaptable, 
+			Runnable, ILiveSVDBChangeListener {
 	private IDocument					fDoc;
 	private SVTreeContentProvider		fContentProvider;
 	private SVDBFile					fInput;
@@ -44,25 +42,13 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
-		fDoc = fEditor.getDocumentProvider().getDocument(
-				fEditor.getEditorInput());
-		fDoc.addDocumentListener(this);
 		fContentProvider = new SVTreeContentProvider();
-		
-		IEditorInput ed_in = fEditor.getEditorInput();
-		if (ed_in instanceof IURIEditorInput) {
-			URI uri = ((IURIEditorInput)ed_in).getURI();
-			fFile = new File(uri.getPath()); 
-		} else if (ed_in instanceof IFileEditorInput) {
-			fFile = ((IFileEditorInput)ed_in).getFile().getLocation().toFile();
-		}
 	}
-	
 	
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 		
-		fInput = new SVDBFile(new File(""));
+		fInput = fEditor.getSVDBFile();
 		
 		fContentProvider = new SVTreeContentProvider();
 		
@@ -77,20 +63,14 @@ public class SVOutlinePage extends ContentOutlinePage
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 	}
 	
-	public SVDBFile getSVDBFile() {
-		return fInput;
-	}
-
-	
-	public void documentAboutToBeChanged(DocumentEvent event) {}
-
-	
-	public void documentChanged(DocumentEvent event) {
+	@Override
+	public void liveSVDBChanged() {
 		if (getTreeViewer() != null) {
 			getTreeViewer().getControl().getDisplay().timerExec(1000, this);
 		}
 	}
-	
+
+
 	public void run() {
 		IEditorInput ed_in = fEditor.getEditorInput();
 		String path = ed_in.getName();
@@ -108,6 +88,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		StringInputStream sin = new StringInputStream(fDoc.get());
 
+		// TODO: Need the editor to handle this automatically
 		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
 		
 		if (fInput != null) {
@@ -127,16 +108,11 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 
 	public void dispose() {
-		fDoc.removeDocumentListener(this);
 		if (getTreeViewer() != null) {
 			getTreeViewer().removeSelectionChangedListener(fSelectionListener);
 		}
-		
-		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
-				 
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {
 		if (IShowInTarget.class.equals(adapter)) {

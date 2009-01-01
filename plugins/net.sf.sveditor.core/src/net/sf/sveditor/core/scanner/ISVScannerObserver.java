@@ -85,9 +85,17 @@ public interface ISVScannerObserver {
 			int						attr,
 			List<SVTaskFuncParam>	params) 
 				throws HaltScanException;
-	
+
+	void enter_func_decl(
+			String					name,
+			int						attr,
+			String					ret_type,
+			List<SVTaskFuncParam>	params) 
+				throws HaltScanException;
+
 	void leave_task_decl();
-	
+
+	void leave_func_decl();
 	
 	void preproc_define(String key, List<String> params, String value);
 	

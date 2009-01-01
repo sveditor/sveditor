@@ -1,10 +1,15 @@
 package net.sf.sveditor.ui.editor;
 
 import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.Activator;
@@ -15,7 +20,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
@@ -25,8 +32,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDEActionFactory;
@@ -37,7 +46,7 @@ import org.eclipse.ui.texteditor.ResourceAction;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-public class SVEditor extends TextEditor {
+public class SVEditor extends TextEditor implements IDocumentListener {
 
 	// private ListenerList					fReconcileListeners;
 	private SVOutlinePage					fOutline;
@@ -46,9 +55,16 @@ public class SVEditor extends TextEditor {
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBProjectData					fProjectData;
+	private List<ILiveSVDBChangeListener>	fSVDBChangeListeners;
+	private SVDBFile						fSVDBFile;
+	private File							fFile;
+	private int								fFirstModLine;
+	private int								fNumModLines;
 
 	public SVEditor() {
 		super();
+		
+		fSVDBChangeListeners = new ArrayList<ILiveSVDBChangeListener>();
 		
 //		fReconcileListeners = new ListenerList();
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
@@ -57,8 +73,38 @@ public class SVEditor extends TextEditor {
 		fCharacterMatcher = new SVCharacterPairMatcher();
 	}
 	
+	@Override
+	public void init(IEditorSite site, IEditorInput input)
+			throws PartInitException {
+		// TODO Auto-generated method stub
+		super.init(site, input);
+		
+		if (input instanceof IURIEditorInput) {
+			URI uri = ((IURIEditorInput)input).getURI();
+			fFile = new File(uri.getPath()); 
+		} else if (input instanceof IFileEditorInput) {
+			fFile = ((IFileEditorInput)input).getFile().getLocation().toFile();
+		}
+		
+		fSVDBFile = new SVDBFile(fFile);
+		
+		getDocumentProvider().getDocument(input).addDocumentListener(this);
+	}
+
+
+
 	public SVCodeScanner getCodeScanner() {
 		return fCodeScanner;
+	}
+
+	public void addLiveSVDBChangeListener(ILiveSVDBChangeListener l) {
+		if (!fSVDBChangeListeners.contains(l)) {
+			fSVDBChangeListeners.add(l);
+		}
+	}
+	
+	public void removeLiveSVDBChangeListener(ILiveSVDBChangeListener l) {
+		fSVDBChangeListeners.remove(l);
 	}
 	
 	protected void initializeEditor() {
@@ -161,6 +207,8 @@ public class SVEditor extends TextEditor {
 	public void dispose() {
 		super.dispose();
 		
+//		getDocumentProvider().getDocument(getEditorInput()).removeDocumentListener(this);
+		
 		if (fOutline != null) {
 			fOutline.dispose();
 			fOutline = null;
@@ -169,6 +217,8 @@ public class SVEditor extends TextEditor {
 			fCharacterMatcher.dispose();
 			fCharacterMatcher = null;
 		}
+		
+		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
 	}
 
 	public void createPartControl(Composite parent) {
@@ -206,15 +256,11 @@ public class SVEditor extends TextEditor {
 		 */
 		
 	}
-	
-	
-	
-	
-	
+
 	public SVDBFile getSVDBFile() {
-		return fOutline.getSVDBFile();
+		return fSVDBFile;
 	}
-	
+
 	public File getFilePath() {
 		IEditorInput ed_in = getEditorInput();
 		File ret = null;
@@ -256,5 +302,53 @@ public class SVEditor extends TextEditor {
 			return fOutline;
 		}
 		return super.getAdapter(adapter);
+	}
+
+	@Override
+	public void documentAboutToBeChanged(DocumentEvent event) {
+		System.out.println("--> documentChanged");
+		IDocument doc = event.fDocument;
+		int change_new_offset = event.fText.length() - event.fLength;
+		int old_end_offset = event.fOffset + event.fLength;
+		int new_end_offset = event.fOffset + event.fText.length();
+		
+		int start_line = -1;
+		int old_end_line = -1;
+		int new_end_line = -1;
+		
+		try {
+			start_line = doc.getLineOfOffset(event.fOffset);  
+		} catch (Exception e) { }
+		
+		try {
+			old_end_line = doc.getLineOfOffset(old_end_offset);
+		} catch (Exception e) { }
+		
+		try {
+			new_end_line = doc.getLineOfOffset(new_end_offset);
+		} catch (Exception e) { }
+		
+		System.out.println("start_line=" + start_line);
+		System.out.println("old_end_line=" + old_end_line);
+		System.out.println("new_end_line=" + new_end_line);
+		
+		System.out.println("change start offset=" + event.fOffset + " length=" + event.fLength);
+		System.out.println("change=" + event.fText);
+		try {
+			int end_line = doc.getLineOfOffset(event.fOffset+event.fLength);
+			System.out.println("starts @ " + start_line + " ends @ " + end_line);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("<-- documentChanged");
+	}
+
+	@Override
+	public void documentChanged(DocumentEvent event) {
+		String doc_s = getDocumentProvider().getDocument(getEditorInput()).toString();
+		StringInputStream in = new StringInputStream(doc_s);
+		SVDBFile file = SVDBFileFactory.createFile(in, fFile.getName());
+		
+		
 	}
 }
