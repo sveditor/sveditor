@@ -1,0 +1,64 @@
+
+-- 0.0.4 Release --
+
+20081202 -- Add brace-matching highlighting to editor
+20081213 -- Remove conflict between JDT 'Open Declaration' shortcut and
+            SVEditor's shortcut
+
+          - Added a SVEditor build paths and include paths project-properties page
+
+* Add a build paths and include paths property page
+* Add support for including macros using `include and the file provider
+* Fix bug in handling of extern tasks/functions
+* Support indexing of elements on the build path
+* Extended support for 'open declaration'
+    * Navigation to class declarations defined on build path
+* Add exclusions to Index class: .svn CVS, etc
+* Enhance scanner
+    - Improve support for macros
+        * macros with parameters
+        * Change structure of pre-processor and scanner for better pre-processor support
+    * Scanner now parses 'extends' portion of class declaration
+    * Scanner now parses parameters to class-type fields. Type parameters 
+      are also displayed in the outline
+* Basic support for content assist
+    * Support content assist for `include directives
+    * Support content assist for macro invocations
+    * Prompt for classes on the build path
+    * Prompt for tasks, functions and fields in the current scope (doesn't handle task parameters)
+    * Prompt for tasks, functions, and members in the inheritance hierachy
+    * Support icons on content-assist (helpful in seeing type and attributes of a suggestion)
+* Ensure proper merging of current/new project settings
+* Field-attribute icons on outline now update properly when the attributes
+  change (ie protected -> local)
+* Fix problems with line-number accuracy and macro substitution
+    * Better, but still off-by-one occasionally
+* Enhance 'open declaration' to use the index to traverse the class 
+  hierarchy and find tasks, functions, fields
+
+-- 0.0.3 Release --
+
+20081101 - 
+    - Add dedicated C-style comment detector for multi-line comments. Fixes
+      cases where the Eclipse built-in multi-line pattern detector failed.
+
+------------------------------------------------------------------------------
+
+-- Future --
+
+- Content Assist
+    - Prompt for macro parameters
+    - Prompt for class template parameters
+    - Use template parameters of super classes to provide better proposals
+    - Support task/function variables
+- Scanner Improvements
+    - Extend language coverage
+    - Better exclusions for behavioral code inside behavioral scopes
+- Add auto-indent rules centered around begin/end and brackets
+- Add inheritance hierarchy viewer
+- Notification on build-path change. Ensure setting a new build path results in re-scanning
+- Need a better strategy for cross-editor navigation. We loose our build-path 
+  context when we switch to an editor for a file on the build path
+- Investigate mismatch between macro def and invocation parameter counts
+- Support folding of begin/end regions
+

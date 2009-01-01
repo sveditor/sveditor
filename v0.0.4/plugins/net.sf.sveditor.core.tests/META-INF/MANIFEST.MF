@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: net.sf.sveditor.core.tests;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: net.sf.sveditor.core.tests.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.sf.sveditor.core
+Eclipse-LazyStart: true

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="v, vl, vlog, sv, svh, vh"
+            id="systemverilog"
+            name="SystemVerilog"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
+      </content-type>
+   </extension>
+   <extension
+         id="SVNature"
+         name="SystemVerilog Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="net.sf.sveditor.core.SVProjectNature">
+         </run>
+      </runtime>
+   </extension>
+
+</plugin>
