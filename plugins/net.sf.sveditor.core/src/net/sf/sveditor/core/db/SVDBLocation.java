@@ -10,7 +10,15 @@ public class SVDBLocation {
 		fLine = line;
 		fPos  = pos;
 	}
-	
+
+	public SVDBLocation(SVDBLocation other) {
+		if (other != null) {
+			fFile = other.fFile;
+			fLine = other.fLine;
+			fPos  = other.fPos;
+		}
+	}
+
 	public SVDBFile getFile() {
 		return fFile;
 	}
@@ -21,5 +29,33 @@ public class SVDBLocation {
 	
 	public int getPos() {
 		return fPos;
+	}
+	
+	public void init(SVDBLocation other) {
+		fFile = other.fFile;
+		fLine = other.fLine;
+		fPos  = other.fPos;
+	}
+	
+	public boolean equals(Object other) {
+		if (other instanceof SVDBLocation) {
+			boolean ret = true;
+			SVDBLocation o = (SVDBLocation)other;
+			
+			if (other == null) {
+				return false;
+			}
+			
+			if (o.fFile == null || fFile == null) {
+				ret &= o.fFile == fFile;
+			} else {
+				ret &= o.fFile.equals(fFile);
+			}
+			
+			ret &= (o.fLine == fLine &&	o.fPos == fPos);
+			
+			return ret;
+		}
+		return false;
 	}
 }

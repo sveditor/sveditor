@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**

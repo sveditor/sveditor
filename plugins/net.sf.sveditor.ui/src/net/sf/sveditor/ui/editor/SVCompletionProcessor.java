@@ -10,10 +10,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.utils.SVDBFileSearcher;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -27,8 +26,6 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Image;
-
-import com.sun.org.apache.xml.internal.utils.Trie;
 
 public class SVCompletionProcessor implements IContentAssistProcessor {
 
@@ -66,8 +63,8 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			lineno = doc.getLineOfOffset(start);
 			System.out.println("lineno=" + lineno);
 
-			SVDBFileSearcher s = new SVDBFileSearcher(fEditor.getSVDBFile());
-			SVDBScopeItem src_scope = s.findActiveScope(lineno);
+			SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
+					fEditor.getSVDBFile(), lineno);
 
 			System.out.println("src_scope=" + src_scope);
 
@@ -193,8 +190,8 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			e.printStackTrace();
 		}
 
-		SVDBFileSearcher s = new SVDBFileSearcher(fEditor.getSVDBFile());
-		SVDBScopeItem src_scope = s.findActiveScope(lineno);
+		SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
+				fEditor.getSVDBFile(), lineno);
 
 		// Figure out which scope we're in and collect info from there...
 
@@ -380,7 +377,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		MutableIdx idx = new MutableIdx();
 		idx.val = 0;
 
-		return processPreTriggerPortion(searcher, context, preTrigger, idx);
+		return processPreTriggerPortion(null, searcher, context, preTrigger, idx);
 	}
 
 	/**
@@ -395,6 +392,14 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	 * parameterized class
 	 * 
 	 * 
+	 * The procedure here is pretty simple:
+	 * - Read an identifier
+	 *   - Determine whether it is a function, variable, or cast
+	 *       - If a cast, lookup the type
+	 *       - else if first lookup, lookup starting from current scope 
+	 *           and look through hierarchy
+	 *       - else lookup id in last-located type  
+	 * 
 	 * @param searcher
 	 * @param context
 	 * @param preTrigger
@@ -403,19 +408,25 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	 * 
 	 */
 	private ProcessPreTriggerInfo processPreTriggerPortion(
-			SVDBIndexSearcher searcher, SVDBScopeItem context,
-			String preTrigger, MutableIdx idx) {
+			String				preceeding_activator,
+			SVDBIndexSearcher 	searcher, 
+			SVDBScopeItem 		context,
+			String 				preTrigger, 
+			MutableIdx 			idx) {
 		String id = null;
 		ProcessPreTriggerInfo ret = new ProcessPreTriggerInfo();
 
+		// Need to make some changes to track the preceeding character, not the
+		// next. For example, if the preceeding character was '.', then we should
+		// look for id() within typeof(ret.item)
 		while (idx.val < preTrigger.length() && ret != null) {
 			int ch = preTrigger.charAt(idx.val);
 
 			if (ch == '(') {
 				// recursively expand
 				idx.val++;
-				ret = processPreTriggerPortion(searcher, context, preTrigger,
-						idx);
+				ret = processPreTriggerPortion(preceeding_activator,
+						searcher, context, preTrigger, idx);
 				
 				// Give up because the lower-level parser did...
 				if (ret == null) {
@@ -429,19 +440,27 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				 * System.out.println("[ERROR] unterminated ()"); }
 				 */
 				// idx.val++;
+			} else if (ch == '.') {
+				// use the preceeding
+				preceeding_activator = ".";
+			} else if (ch == ':' && 
+					idx.val+1 < preTrigger.length() && 
+					preTrigger.charAt(idx.val+1) == ':') {
+				idx.val++;
+				preceeding_activator = "::";
 			} else if (Character.isJavaIdentifierPart(ch)) {
 				// Read an identifier
 				StringBuffer tmp = new StringBuffer();
 
 				tmp.append((char) ch);
 				while (++idx.val < preTrigger.length()
-						&& Character.isJavaIdentifierPart((ch = preTrigger
-								.charAt(idx.val)))) {
+						&& Character.isJavaIdentifierPart(
+								(ch = preTrigger.charAt(idx.val)))) {
 					tmp.append((char) ch);
 				}
 				id = tmp.toString();
-
-				System.out.println("ch after id=" + (char) ch);
+				
+				System.out.println("id=" + id + " ch after id=" + (char)ch);
 
 				if (ch == '(' || ch == '\'') {
 					if (ch == '(') {
@@ -487,6 +506,8 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 							}
 						}
 					} else {
+						// ' indicates this is a type name
+						// TODO: We don't yet have the infrastructure to deal with types
 						List<SVDBItem> result = searcher.findByName(id,
 								SVDBItemType.Class, SVDBItemType.Struct);
 
@@ -511,9 +532,10 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					}
 
 					// Skip '()'
+					// In both the case of a function/task call or a cast, 
+					// we can ignore what's in the parens
 					int matchLevel = 1;
 
-					System.out.println("--> skip ()");
 					while (++idx.val < preTrigger.length() && matchLevel > 0) {
 						ch = preTrigger.charAt(idx.val);
 						if (ch == '(') {
@@ -522,23 +544,31 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 							matchLevel--;
 						}
 					}
-					System.out.println("<-- skip ()");
 					idx.val++;
-				} else if (ch == '.'
-						|| (ch == ':' && idx.val + 1 < preTrigger.length() && preTrigger
-								.charAt(idx.val + 1) == ':')
-						|| idx.val >= preTrigger.length()) {
-					// Lookup the
-					System.out.println("Look for type \"" + id + "\"");
-					if (ch == '.') {
-						idx.val++;
-					} else if (idx.val < preTrigger.length()) {
-						idx.val += 2;
-					}
 				} else {
-					System.out.println("unexpected: ch=" + (char) ch);
+					// 
+					if (ret.item == null) {
+						// First element, so we need to lookup the item
+						SVDBScopeItem tmp_context = context;
+						
+						while (tmp_context != null && ret.item == null) {
+							for (SVDBItem it : tmp_context.getItems()) {
+								if (it.getName().equals(id)) {
+									ret.item = it;
+									break;
+								}
+							}
+							tmp_context = tmp_context.getParent();
+						}
+					} else {
+						// Lookup what follows based on the trigger
+						// Search up hierarchy
+						// searcher.findByNameInClassHierarchy(id, ret.item);
+					}
 				}
 			} else {
+				// TODO: This is actually an error (?)
+				
 				// The identifier just read is not a function call
 				// Adjust the index based on the type of completion character
 				if (ch == ':'					
@@ -715,11 +745,11 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 						// replacementOffset
 						// replacementLength
 						// cursorPosition
-						proposals.add(new CompletionProposal(replacement,
-								start, replacement_length,
-								replacement.length(), Activator
-										.getImage(ISVIcons.INCLUDE_OBJ),
-								display, null, null));
+						addProposal(new CompletionProposal(replacement,
+										start, replacement_length,
+										replacement.length(), 
+										Activator.getImage(ISVIcons.INCLUDE_OBJ),
+										display, null, null), proposals);
 					}
 				}
 			} else {

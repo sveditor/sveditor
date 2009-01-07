@@ -29,7 +29,8 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 
 	
 	public boolean hasChildren(Object element) {
-		return ((element instanceof SVDBScopeItem) && 
+		return (element instanceof SVDBScopeItem && 
+				!(element instanceof SVDBTaskFuncScope) &&
 				((SVDBScopeItem)element).getItems().size() > 0);
 	}
 

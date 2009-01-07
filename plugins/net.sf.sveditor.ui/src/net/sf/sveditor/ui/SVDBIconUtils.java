@@ -3,11 +3,11 @@ package net.sf.sveditor.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.swt.graphics.Image;
-
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+
+import org.eclipse.swt.graphics.Image;
 
 public class SVDBIconUtils implements ISVIcons {
 	
@@ -44,7 +44,8 @@ public class SVDBIconUtils implements ISVIcons {
 				}
 			} else if (type == SVDBItemType.ModIfcInst) {
 				return Activator.getImage(MOD_IFC_INST_OBJ);
-			} else if (type == SVDBItemType.Task) {
+			} else if (type == SVDBItemType.Task || 
+					type == SVDBItemType.Function) {
 				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
 					return Activator.getImage(TASK_PRIV_OBJ);
 				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {

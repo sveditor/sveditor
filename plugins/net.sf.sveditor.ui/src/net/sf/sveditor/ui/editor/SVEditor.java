@@ -2,21 +2,25 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -55,7 +59,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBProjectData					fProjectData;
-	private List<ILiveSVDBChangeListener>	fSVDBChangeListeners;
 	private SVDBFile						fSVDBFile;
 	private File							fFile;
 	private int								fFirstModLine;
@@ -63,8 +66,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 
 	public SVEditor() {
 		super();
-		
-		fSVDBChangeListeners = new ArrayList<ILiveSVDBChangeListener>();
 		
 //		fReconcileListeners = new ListenerList();
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
@@ -89,24 +90,71 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		fSVDBFile = new SVDBFile(fFile);
 		
 		getDocumentProvider().getDocument(input).addDocumentListener(this);
+		
+		// Perform an initial parse of the file
+		updateSVDBFile();
 	}
 
+	@Override
+	public void doSave(IProgressMonitor progressMonitor) {
+		super.doSave(progressMonitor);
+		
+		// TODO: When the user saves the file, clear any cached information
+		// on validity.
+		
+	}
+
+	@Override
+	public void doSaveAs() {
+		super.doSaveAs();
+		
+		// TODO: Probably need to make some updates when the name changes
+	}
+
+	private void updateSVDBFile() {
+		IEditorInput ed_in = getEditorInput();
+		IDocument doc = getDocumentProvider().getDocument(ed_in);
+		String path = ed_in.getName();
+		
+		ISVDBFileProvider file_p = null;
+		if (ed_in instanceof IURIEditorInput) {
+			SVDBProjectData pdata  = null;
+			IURIEditorInput uri_in = (IURIEditorInput)ed_in;
+			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer c[] = root.findContainersForLocationURI(uri_in.getURI());
+			
+			if (c != null && c.length > 0) {
+				pdata = mgr.getProjectData(c[0].getProject());
+				file_p = new SVDBProjectDataFileProvider(pdata);
+			}
+		}
+		
+		StringInputStream sin = new StringInputStream(doc.get());
+
+		// TODO: Need the editor to handle this automatically
+		long start = System.currentTimeMillis();
+		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
+		long end = System.currentTimeMillis();
+		
+		System.out.println("Total scan time: " + (end-start));
+		
+		start = System.currentTimeMillis();
+		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
+		end = System.currentTimeMillis();
+		System.out.println("Total merge time: " + (end-start));
+		
+		fSVDBFile.setFilePath(getFilePath());
+		
+		SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(fFile, fSVDBFile);
+	}
 
 
 	public SVCodeScanner getCodeScanner() {
 		return fCodeScanner;
 	}
 
-	public void addLiveSVDBChangeListener(ILiveSVDBChangeListener l) {
-		if (!fSVDBChangeListeners.contains(l)) {
-			fSVDBChangeListeners.add(l);
-		}
-	}
-	
-	public void removeLiveSVDBChangeListener(ILiveSVDBChangeListener l) {
-		fSVDBChangeListeners.remove(l);
-	}
-	
 	protected void initializeEditor() {
 		super.initializeEditor();
 	}
@@ -234,7 +282,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 					this);
 		}
 		
-		fOutline = new SVOutlinePage(this);
+//		fOutline = new SVOutlinePage(this);
 		
 		// Setup matching character highligher
 		if (fMatchingCharacterPainter == null) {
@@ -280,6 +328,11 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	
 	public void setSelection(int lineno, boolean set_cursor) {
 		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+		
+		// Lineno is used as an offset
+		if (lineno > 0) {
+			lineno--;
+		}
 		try {
 			int offset = doc.getLineOffset(lineno);
 			setHighlightRange(offset, 1, false);
@@ -306,6 +359,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
+		/*
 		System.out.println("--> documentChanged");
 		IDocument doc = event.fDocument;
 		int change_new_offset = event.fText.length() - event.fLength;
@@ -317,7 +371,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		int new_end_line = -1;
 		
 		try {
-			start_line = doc.getLineOfOffset(event.fOffset);  
+			start_line = doc.getLineOfOffset(event.fOffset);
 		} catch (Exception e) { }
 		
 		try {
@@ -341,14 +395,16 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			e.printStackTrace();
 		}
 		System.out.println("<-- documentChanged");
+		 */
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
+		/*
 		String doc_s = getDocumentProvider().getDocument(getEditorInput()).toString();
 		StringInputStream in = new StringInputStream(doc_s);
 		SVDBFile file = SVDBFileFactory.createFile(in, fFile.getName());
-		
-		
+		 */
+		updateSVDBFile();
 	}
 }

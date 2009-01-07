@@ -1,6 +1,18 @@
 
 -- 0.0.5 Release --
-    - Add parameters to the display string for task/function content assist
+20090102 -- Fix outline label provider to 
+20090103 -- Eliminate duplicate proposals for include files
+         -- Fixed indexing of files in workspace paths. Previously, only files
+            in non-workspace build paths were added to the index. 
+20090105 -- Correct skipping of constraint body. Constraint body is now ignored
+         -- Pre-processor seems to not always ignore comment content
+20090106 -- Correct problem with pre-processor that resulted in scanner incorrectly
+            processing lines that end with a single-line comment.
+         -- Correct problem with parsing identifiers directly followed by ':'. 
+            For example, endfunction: myfunction
+20090107 -- Update line numbers of SVDB items parsed from the live editor. Affected source
+            is in SVDBFileMerger, SVDBItem, and SVDBScopeItem.
+            
 
 ------------------------------------------------------------------------------
 
@@ -12,8 +24,6 @@
 
           - Added a SVEditor build paths and include paths project-properties page
 
-
--- TODO --
 * Add a build paths and include paths property page
 * Add support for including macros using `include and the file provider
 * Fix bug in handling of extern tasks/functions
@@ -63,12 +73,19 @@
           
     - Use template parameters of super classes to provide better proposals
     - Support task/function variables
-    - 
+    - Add parameters to the display string for task/function content assist
 - SVDB Data Flow Changes
     - SVEditor must be responsible for updating the 'live' copy of the SVDBFile
         - On document change, the data is scanned and merged to the SVDBFile the SVEditor caches
         - Users of this SVDBFile must register listeners on the SVEditor
         - Not clear that we actually must ensure that the Explorer view is the same as the Outline view
+        - Use modification information as hints to preserve helpful SVDB information
+            - 
+- Hover info-pops
+    - Use same basic parsing strategy as content-assist, but use to drive info-pops that display
+      information about the element under the cursor
+
+- Begin work on users guide
 
 - SVDB Changes
     - Want to represent parameterized class instances as unique types. We can always back-reference
@@ -80,7 +97,17 @@
         - Perhaps we can leverage the last-known-good data-structure and lines-modified information to determine
           what portions of the file leave un-touched (with the exception, perhaps, of updating line info)
     - Extend language coverage
+        - Add support for structures
+            - Structures are only supported as typedefs?
+        - Add support for unions
+        - Add support for typedefs
+            - Need to ignore forward declarations (typedef class <>; typedef struct <>;)
+        - Add exclusion for constraints
     - Better exclusions for behavioral code inside behavioral scopes
+- Open Declaration Improvements
+    - Add Open Declaration support for included files
+    - Scan context, rather than just using highlighted term
+    - Recognize 'super' and search hierarchy
 - Need to create data files for the base SystemVerilog library, so we can prompt the users for built-in methods
 - Add auto-indent rules centered around begin/end and brackets
 - Add inheritance hierarchy viewer
@@ -89,11 +116,9 @@
   context when we switch to an editor for a file on the build path
 - Investigate mismatch between macro def and invocation parameter counts
 - Support folding of begin/end regions
+- Add Design Hierarchy view, showing modules and their instantiation relationships
+- Some sort of library-specific macro filtering could be helpful. (eg don't expand `ovm_component_utils)
+
 
 -----------------------------------------------------------------------------------------------
-
-Queensbury
-Schnuffel
-Peter Fox
-Sido
 

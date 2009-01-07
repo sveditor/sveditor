@@ -41,8 +41,14 @@ public class SVDBFileMerger {
 				}
 				temp.add(it_2);
 			} else {
-				temp.add(scope1.getItems().get(
-						scope1.getItems().indexOf(it_2)));
+				SVDBItem it_1 =scope1.getItems().get(
+						scope1.getItems().indexOf(it_2));
+				it_1.setLocation(it_2.getLocation());
+				if (it_1 instanceof SVDBScopeItem) {
+					((SVDBScopeItem)it_1).setEndLocation(
+							((SVDBScopeItem)it_2).getEndLocation());
+				}
+				temp.add(it_1);
 			}
 		}
 		

@@ -11,7 +11,6 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.utils.SVDBFileSearcher;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
@@ -81,17 +80,20 @@ public class OpenDeclarationAction extends TextEditorAction {
 		// Now, iterate through the items in the file and find something
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
-		SVDBFileSearcher searcher = new SVDBFileSearcher(file);
 		
-		SVDBScopeItem       active_scope = searcher.findActiveScope(getTextSel().getStartLine());
+		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
+				file, getTextSel().getStartLine());
 		SVDBItem			it = null;
-		
+
 		// Search up the scope for a matching name
 		if (active_scope != null) {
 			it = findNamedItem(text, active_scope);
-			
+
 			SVDBModIfcClassDecl enclosing_class = null;
-			it = searchEnclosingScope(text, active_scope);
+			
+			if (it == null) {
+				it = searchEnclosingScope(text, active_scope);
+			}
 		
 			if (it == null && pd != null && 
 					(enclosing_class = findEnclosingClass(active_scope)) != null &&
@@ -109,8 +111,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 			index_search.addFile(fEditor.getSVDBFile());
 			index_search.addIndex(pd.getFileIndex());
 			
-			List<SVDBItem> result = index_search.findByName(text, 
-					SVDBItemType.Class, SVDBItemType.Macro);
+			System.out.println("searching index for " + text);
+			List<SVDBItem> result = index_search.findByName(text);
 			
 			if (result.size() > 0) {
 				it = result.get(0);
@@ -137,9 +139,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		List<SVDBItem> it_l;
 
 		while (scope != null) {
-			it_l = SVDBSearchUtils.findItemsByName(scope, text,
-				SVDBItemType.Function, SVDBItemType.Task,
-				SVDBItemType.TaskFuncParam, SVDBItemType.Macro);
+			it_l = SVDBSearchUtils.findItemsByName(scope, text);
 			
 			if (it_l.size() > 0) {
 				it = it_l.get(0);
@@ -153,11 +153,13 @@ public class OpenDeclarationAction extends TextEditorAction {
 	
 	private SVDBModIfcClassDecl findEnclosingClass(SVDBScopeItem scope) {
 		
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+		while (scope != null && 
+				(scope.getType() != SVDBItemType.Class &&
+					scope.getType() != SVDBItemType.Module)) {
 			scope = scope.getParent();
 		}
 		
-		if (scope.getType() == SVDBItemType.Class) {
+		if (scope != null /* && scope.getType() == SVDBItemType.Class */) {
 			return (SVDBModIfcClassDecl)scope;
 		} else {
 			return null;
@@ -179,9 +181,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 			}
 			
 			List<SVDBItem> r = SVDBSearchUtils.findItemsByName(
-					enclosing_class, name, 
-					SVDBItemType.Task, SVDBItemType.Function,
-					SVDBItemType.VarDecl);
+					enclosing_class, name);
 			
 			if (r.size() > 0) {
 				it = r.get(0);
@@ -198,12 +198,37 @@ public class OpenDeclarationAction extends TextEditorAction {
 			return scope;
 		}
 		
+		while (scope != null) {
+			for (SVDBItem it : scope.getItems()) {
+				if (it.getName().equals(name)) {
+					return it;
+				}
+				if (it instanceof SVDBScopeItem) {
+					SVDBItem ret = findNamedSubItem(name, (SVDBScopeItem)it);
+					
+					if (ret != null) {
+						return ret;
+					}
+				}
+			}
+			
+			scope = scope.getParent();
+		}
+		
+		return null;
+	}
+	
+	private SVDBItem findNamedSubItem(String name, SVDBScopeItem scope) {
+		if (scope.getName().equals(name)) {
+			return scope;
+		}
+		
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getName().equals(name)) {
 				return it;
 			}
 			if (it instanceof SVDBScopeItem) {
-				SVDBItem ret = findNamedItem(name, (SVDBScopeItem)it);
+				SVDBItem ret = findNamedSubItem(name, (SVDBScopeItem)it);
 				
 				if (ret != null) {
 					return ret;

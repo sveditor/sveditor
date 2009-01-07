@@ -26,6 +26,7 @@ public class SVScannerInput {
 	
 	private StringBuffer		fCaptureBuffer = new StringBuffer();
 	private boolean				fCaptureEnabled = false;
+	private StringBuffer		fCommentBuffer = new StringBuffer();
 	private StringBuffer		fUnaccContent = new StringBuffer();
 	private ISVScannerObserver	fObserver;
 	private IDefineProvider		fDefineProvider;
@@ -96,31 +97,36 @@ public class SVScannerInput {
 				
 				if (ch2 == '/') {
 					// skip to EOL
-					// save beginning of comment
-					// fCaptureBuffer.setLength(0);
-					// fCaptureBuffer.append("//");
+					fCommentBuffer.setLength(0);
+					fCommentBuffer.append("//");
 					while ((ch = get_ch_ll()) != -1  && ch != '\n') {
-						// fCaptureBuffer.append((char)ch);
+						fCommentBuffer.append((char)ch);
 					}
-					
-					// TODO: pass comment to observer
 
-					ch = ' ';
+					if (fObserver != null) {
+						fObserver.comment(fCommentBuffer.toString());
+					}
+
+					ch = '\n';
 				} else if (ch2 == '*') {
 					int end_comment[] = {-1, -1};
 					
-					fCaptureBuffer.setLength(0);
-					fCaptureBuffer.append("/*");
+					fCommentBuffer.setLength(0);
+					fCommentBuffer.append("/*");
 					while ((ch = get_ch()) != -1) {
 						end_comment[0] = end_comment[1];
 						end_comment[1] = ch;
 						
-						
-						fCaptureBuffer.append((char)ch);
+
+						fCommentBuffer.append((char)ch);
 						
 						if (end_comment[0] == '*' && end_comment[1] == '/') {
 							break;
 						}
+					}
+					
+					if (fObserver != null) {
+						fObserver.comment(fCommentBuffer.toString());
 					}
 					
 					ch = ' ';
@@ -347,6 +353,13 @@ public class SVScannerInput {
 				buf.append((char)ci);
 			}
 			unget_ch(ci);
+			
+			// Even though ':' can appear as part of the identifier, it
+			// must not appear at the end of an identifier
+			while (buf.length() > 0 && buf.charAt(buf.length()-1) == ':') {
+				unget_ch(':');
+				buf.setLength(buf.length()-1);
+			}
 		} catch (EOFException e) {
 			if (buf == null || buf.length() == 0) {
 				throw e;

@@ -3,8 +3,6 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.org.apache.bcel.internal.generic.FRETURN;
-
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
 	private int								fAttr;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -112,12 +113,30 @@ public class SVDBIndexSearcher {
 		return ret;
 	}
 	
-	public SVDBItem findClassTypeOfItem(SVDBItem it) {
+	/**
+	 * 
+	 * @param it
+	 * @return
+	 */
+	public SVDBClassHierarchy findClassTypeOfItem(SVDBItem it) {
+		/*
+		SVDBClassHierarchy  ret = null;
+		SVDBModIfcClassDecl c = null;
+		
 		if (it.getType() == SVDBItemType.VarDecl) {
 			SVDBVarDeclItem d = (SVDBVarDeclItem)it;
 			
 			if (d.getTypeName() != null) {
-				return findNamedClass(d.getTypeName());
+				if ((c = findNamedClass(d.getTypeName())) != null) {
+					ret = new SVDBClassHierarchy(c);
+					
+					// Now, iterate through the 
+					
+					if (ret.getParameters().size() > 0) {
+						// TODO: must customize this class
+					}
+					return findNamedClass(d.getTypeName());
+				}
 			}
 		} else if (it.getType() == SVDBItemType.Function) {
 			// Find the return type of the function
@@ -128,6 +147,7 @@ public class SVDBIndexSearcher {
 				return findNamedClass(f.getReturnType());
 			}
 		}
+		 */
 		
 		return null;
 	}

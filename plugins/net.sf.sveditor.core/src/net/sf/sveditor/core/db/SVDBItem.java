@@ -48,9 +48,10 @@ public class SVDBItem {
 	}
 	
 	public void init(SVDBItem other) {
-		fName   = other.fName;
-		fParent = other.fParent;
-		fType   = other.fType;
+		fName     = other.fName;
+		fParent   = other.fParent;
+		fType     = other.fType;
+		fLocation = new SVDBLocation(other.fLocation);
 	}
 	
 	public boolean equals(Object obj) {
@@ -70,6 +71,7 @@ public class SVDBItem {
 			} else {
 				ret &= other.fType.equals(fType);
 			}
+			
 			return ret;
 		} else {
 			return super.equals(obj);

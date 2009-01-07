@@ -154,7 +154,7 @@ public class SVScanner implements ISVScanner {
 		
 		/* String cname = */ readIdentifier(ch);
 		
-		ch = skipWhite(ch);
+		ch = skipWhite(get_ch());
 		
 		if (ch == '{') {
 			ch = skipPastMatch("{}");
@@ -205,10 +205,10 @@ public class SVScanner implements ISVScanner {
 					ch = skipWhite(next_ch());
 					String name = id;
 					
-					System.out.println("ch=" + (char)ch);
+//					System.out.println("ch=" + (char)ch);
 					String type = readIdentifier(ch);
 					
-					System.out.println("name=" + name + " type=" + type);
+//					System.out.println("name=" + name + " type=" + type);
 					
 					if (fObserver != null) {
 						fObserver.covergroup_item(name, type);
@@ -423,15 +423,15 @@ public class SVScanner implements ISVScanner {
 					if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
 						unget_str(id + " ");
 						
-						scanVariableDeclaration(0);
+						var_enabled = scanVariableDeclaration(0);
 					} else {
 						var_enabled = false;
 					}
 				} else if (id.equals(exp_end)) {
 					break;
 				} else if (isSecondLevelScope(id)) {
+//					System.out.println("id \"" + id + "\" is a second-level scope");
 					if (fObserver != null) {
-						System.out.println("second-level scope: " + id);
 						fObserver.error("missing \"" + exp_end + "\" @ " +
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
@@ -442,8 +442,8 @@ public class SVScanner implements ISVScanner {
 					unget_str(id + " ");
 					break;
 				} else if (isFirstLevelScope(id)) {
+//					System.out.println("id \"" + id + "\" is a first-level scope");
 					if (fObserver != null) {
-						System.out.println("first-level scope: " + id);
 						fObserver.error("missing \"" + exp_end + "\" @ " +
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
@@ -841,17 +841,26 @@ public class SVScanner implements ISVScanner {
 	 * 
 	 * Expects first string(s) read to be the type name
 	 */
-	private void scanVariableDeclaration(int modifiers) throws EOFException {
+	private boolean scanVariableDeclaration(int modifiers) throws EOFException {
 		List<String> 	vars = new ArrayList<String>();
 		SVTypeInfo		type;
 		int 			ch;
+		boolean         is_variable = true;
 		
 		ch = skipWhite(next_ch());
 		
 		type = readTypeName(ch, false);
 		ch = skipWhite(get_ch());
 
+		// bail out if there's an error
+		if (type == null || 
+				type.fTypeName.equals("begin") || 
+				type.fTypeName.equals("end")) {
+			return false;
+		}
+
 		// First, skip qualifiers
+		/*
 		if (ch == '#') {
 			ch = skipWhite(next_ch());
 			
@@ -865,6 +874,7 @@ public class SVScanner implements ISVScanner {
 			ch = skipPastMatch("[]");
 			ch = skipWhite(ch);
 		}
+		 */
 		
 		// Handle parameterization
 		do {
@@ -876,9 +886,16 @@ public class SVScanner implements ISVScanner {
 			ch = skipWhite(ch);
 		
 			String inst_name_or_var = readIdentifier(ch);
+			
+			if (inst_name_or_var == null) {
+				is_variable = false;
+				break;
+			}
+			
 			debug("inst name or var: " + inst_name_or_var);
 			
 			ch = skipWhite(get_ch());
+			
 			
 			vars.add(inst_name_or_var);
 			
@@ -898,9 +915,15 @@ public class SVScanner implements ISVScanner {
 			ch = skipWhite(ch);
 		} while (ch == ',');
 		
-		if (fObserver != null) {
+		if (ch != -1) {
+			unget_ch(ch);
+		}
+		
+		if (fObserver != null && vars.size() > 0) {
 			fObserver.variable_decl(type, modifiers, vars);
 		}
+		
+		return is_variable;
 	}
 			
 	
@@ -955,7 +978,6 @@ public class SVScanner implements ISVScanner {
 							
 							fNewStatement = true;
 						}
-						
 					}
 					break;
 			}
@@ -1069,7 +1091,6 @@ public class SVScanner implements ISVScanner {
 			}
 			
 			if (!Character.isJavaIdentifierStart(ch)) {
-				unget_ch(ch);
 				break;
 			}
 			

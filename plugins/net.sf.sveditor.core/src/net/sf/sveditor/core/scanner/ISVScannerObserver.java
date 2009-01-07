@@ -101,6 +101,8 @@ public interface ISVScannerObserver {
 	
 	void preproc_include(String path);
 	
+	void comment(String comment);
+	
 	
 	void enter_package(String name);
 	

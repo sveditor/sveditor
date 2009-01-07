@@ -47,6 +47,8 @@ public class SVDBScopeItem extends SVDBItem {
 		for (SVDBItem it : si.getItems()) {
 			fItems.add(it.duplicate());
 		}
+		fEndLocation = new SVDBLocation(
+				((SVDBScopeItem)other).fEndLocation);
 	}
 	
 }

@@ -38,7 +38,7 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 						
 						if (n.lastIndexOf('.') >= 0 && 
 								fSVExtensions.contains(
-										n.substring(n.lastIndexOf('.')+1))) {
+										n.substring(n.lastIndexOf('.')))) {
 							push(((IFile)resource).getLocation().toFile());
 						}
 					}

@@ -345,7 +345,10 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 			fFile.addFileRef(file);
 		}
 	}
-
+	
+	public void comment(String comment) {
+		
+	}
 	
 	public String getDefineVal(String key, List<String> params) {
 //		System.out.println("getDefineVal: " + key);
@@ -476,7 +479,7 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		if (type.equals("coverpoint")) {
 			it = new SVDBItem(name, SVDBItemType.Coverpoint);
 		} else {
-			System.out.println("unknown covergroup item: " + type);
+//			System.out.println("unknown covergroup item: " + type);
 		}
 			
 		if (it != null) {

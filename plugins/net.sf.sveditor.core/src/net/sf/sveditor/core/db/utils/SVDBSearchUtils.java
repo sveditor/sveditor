@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -50,10 +51,42 @@ public class SVDBSearchUtils {
 			
 			if (type_match && it.getName() != null && it.getName().equals(name)) {
 				ret.add(it);
+			} else if (it instanceof SVDBScopeItem) {
+				ret.addAll(findItemsByName((SVDBScopeItem)it, name, types));
 			}
 		}
 		
 		return ret;
+	}
+
+	/**
+	 * Searches through a scope (usually an SVDBFile) to find the scope
+	 * corresponding to 'lineno'. 
+	 * 
+	 * @param scope
+	 * @param lineno
+	 * @return
+	 */
+	public static SVDBScopeItem findActiveScope(SVDBScopeItem scope, int lineno) {
+		for (SVDBItem it : scope.getItems()) {
+			if (it instanceof SVDBScopeItem) {
+				SVDBScopeItem s_it = (SVDBScopeItem)it;
+				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
+					if (lineno >= s_it.getLocation().getLine() && 
+							lineno <= s_it.getEndLocation().getLine()) {
+						SVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
+						
+						if (s_it_p != null) {
+							return s_it_p;
+						} else {
+							return s_it;
+						}
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 
 
