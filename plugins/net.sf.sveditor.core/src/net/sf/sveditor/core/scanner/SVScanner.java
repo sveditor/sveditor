@@ -56,6 +56,10 @@ public class SVScanner implements ISVScanner {
 		return fStmtLocation;
 	}
 	
+	public void setStmtLocation(ScanLocation loc) {
+		fStmtLocation = loc;
+	}
+	
 	public void setObserver(ISVScannerObserver observer) {
 		fObserver = observer;
 	}
@@ -69,7 +73,7 @@ public class SVScanner implements ISVScanner {
 		fNewStatement = true;
 		fInputStack.clear();
 		fInputStack.push(new SVScannerInput(
-				filename, in, fObserver, fDefineProvider));
+				filename, in, this, fObserver, fDefineProvider));
 		
 		if (fObserver != null) {
 			fObserver.enter_file(filename);
@@ -516,7 +520,7 @@ public class SVScanner implements ISVScanner {
 		// Class extension
 		ch = skipWhite(ch);
 		if (type.equals("class")) {
-			if (ch != ';') {
+			if (Character.isJavaIdentifierPart(ch)) {
 				// likely an 'extends' statement
 				String ext = readIdentifier(ch);
 				ch = get_ch();
@@ -538,6 +542,8 @@ public class SVScanner implements ISVScanner {
 						}
 					}
 				}
+			} else if (ch != ';') {
+				System.out.println("Mystery post-class character: \"" + (char)ch + "\"");
 			}
 		} else {
 			// Module port-list
@@ -665,8 +671,9 @@ public class SVScanner implements ISVScanner {
 	
 	private List<SVClassIfcModParam> parse_parameter_str(String p_str) {
 		List<SVClassIfcModParam> ret = new ArrayList<SVClassIfcModParam>();
-		SVScannerInput in = new SVScannerInput(
-				"p", new StringInputStream(p_str), fObserver, fDefineProvider);
+		SVScannerInput in = new SVScannerInput("param_processor", 
+				new StringInputStream(p_str), 
+				null, fObserver, fDefineProvider);
 		int    ch = 0;
 		String id;
 		

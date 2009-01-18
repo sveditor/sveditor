@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IPath;
 
 public class SVDBWorkspaceIndex extends SVDBIndexBase 
 		implements IResourceChangeListener, IResourceDeltaVisitor {
+	private int fScanLevel;
 
 	public SVDBWorkspaceIndex(IPath root, ISVDBFileProvider provider) {
 		super(root.toFile(), provider);
@@ -24,6 +25,7 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 
 		IWorkspaceRoot ws = ResourcesPlugin.getWorkspace().getRoot();
 		
+		fScanLevel = 0;
 		try {
 			
 			ws.findMember(root).accept(new IResourceVisitor() {
@@ -49,6 +51,8 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+		
+		startScan();
 	}
 	
 	public void dispose() {
@@ -56,7 +60,8 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
 	
-	public boolean visit(IResourceDelta delta) throws CoreException {
+	public synchronized boolean visit(IResourceDelta delta) throws CoreException {
+		
 		if (delta.getResource() instanceof IFile) {
 			File file = ((IFile)delta.getResource()).getLocation().toFile();
 			

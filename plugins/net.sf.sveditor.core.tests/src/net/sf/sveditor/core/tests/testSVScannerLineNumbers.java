@@ -14,9 +14,9 @@ public class testSVScannerLineNumbers implements IApplication {
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		// InputStream in = Activator.openFile("data/ovm_tlm/ovm_ports.svh");
-		InputStream in = Activator.openFile("data/ovm_scoreboard.svh");
+		InputStream in = Activator.openFile("data/tlm_imps.svh");
 		
-		SVDBFile f =  SVDBFileFactory.createFile(in, "ovm_ports.svh");
+		SVDBFile f =  SVDBFileFactory.createFile(in, "tlm_imps.svh");
 		
 		for (SVDBItem it : f.getItems()) {
 			System.out.println("item \"" + it.getName() + "\" @ line " + it.getLocation().getLine());

@@ -3,6 +3,7 @@ package net.sf.sveditor.core;
 import java.io.File;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
@@ -39,5 +40,12 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 			}
 		}
 		return ret;
+	}
+	
+	public SVDBFileTree getFileTree(String path) {
+		SVDBFileTree ret = null;
+		SVDBWorkspaceFileManager mgr = fProjectData.getFileCache();
+		
+		for (SVDB)
 	}
 }

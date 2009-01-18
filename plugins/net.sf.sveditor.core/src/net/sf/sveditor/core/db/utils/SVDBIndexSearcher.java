@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.utils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import net.sf.sveditor.core.ISVDBIndex;
@@ -11,7 +12,6 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
 public class SVDBIndexSearcher {
 	private List<SVDBFile>			fFiles = new ArrayList<SVDBFile>();
@@ -104,15 +104,81 @@ public class SVDBIndexSearcher {
 				break;
 			}
 
-			if (context.getType() == SVDBItemType.Task ||
-					context.getType() == SVDBItemType.Function) {
-				
-			}
+			context = context.getParent();
 		}
 		
 		return ret;
 	}
-	
+
+	/**
+	 * Traverses scopes beginning with 'context' searching
+	 * for items named 'name'
+	 * 
+	 * @param name
+	 * @param context
+	 * @return
+	 */
+	public List<SVDBItem> findByNameInScopes(
+			String				name,
+			SVDBScopeItem		context,
+			boolean				stop_on_first_match,
+			SVDBItemType	... types) {
+		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+
+
+		// Search up the scope
+		while (context != null) {
+			
+			// First, search the local variables
+			for (SVDBItem it : context.getItems()) {
+				if (it.getName().equals(name)) {
+					boolean match = (types.length == 0);
+
+					for (SVDBItemType t : types) {
+						if (it.getType() == t) {
+							match = true;
+							break;
+						}
+					}
+					
+					if (match) {
+						ret.add(it);
+						
+						if (stop_on_first_match) {
+							break;
+						}
+					}
+				}
+			}
+			
+			if (ret.size() > 0 && stop_on_first_match) {
+				break;
+			}
+			
+			// Next, search the parameters, if we're in a function/task scope
+			if (context.getType() == SVDBItemType.Function || 
+					context.getType() == SVDBItemType.Task) {
+				for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
+					if (it.getName().equals(name)) {
+						ret.add(it);
+						
+						if (stop_on_first_match) {
+							break;
+						}
+					}
+				}
+			}
+
+			if (ret.size() > 0 && stop_on_first_match) {
+				break;
+			}
+
+			context = context.getParent();
+		}
+		
+		return ret;
+	}
+
 	/**
 	 * 
 	 * @param it
@@ -168,6 +234,7 @@ public class SVDBIndexSearcher {
 	public List<SVDBItem> findByPrefixInTypeHierarchy(
 			String						prefix,
 			SVDBScopeItem				ref_type,
+			Comparator<String>			comparator,
 			SVDBItemType		... 	types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
@@ -182,7 +249,7 @@ public class SVDBIndexSearcher {
 					}
 				}
 				
-				if (type_match && it.getName().startsWith(prefix)) {
+				if (type_match && it.getName().toLowerCase().startsWith(prefix)) {
 					ret.add(it);
 				}
 			}

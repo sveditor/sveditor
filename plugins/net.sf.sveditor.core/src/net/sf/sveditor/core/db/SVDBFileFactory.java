@@ -32,10 +32,14 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	private Stack<SVDBScopeItem>			fScopeStack;
 	private ISVDBFileProvider				fFileProvider;
 	
-	private SVDBFileFactory() {
+	private SVDBFileFactory(IDefineProvider def_provider) {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
-		fScanner.setDefineProvider(this);
+		if (def_provider != null) {
+			fScanner.setDefineProvider(def_provider);
+		} else {
+			fScanner.setDefineProvider(this);
+		}
 		fScopeStack = new Stack<SVDBScopeItem>();
 	}
 	
@@ -299,7 +303,17 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 			InputStream in, 
 			String name, 
 			ISVDBFileProvider file_provider) {
-		SVDBFileFactory f = new SVDBFileFactory();
+		SVDBFileFactory f = new SVDBFileFactory(null);
+		
+		return f.parse(in, name, file_provider);
+	}
+
+	public static SVDBFile createFile(
+			InputStream in, 
+			String name, 
+			ISVDBFileProvider file_provider,
+			IDefineProvider   def_provider) {
+		SVDBFileFactory f = new SVDBFileFactory(def_provider);
 		
 		return f.parse(in, name, file_provider);
 	}

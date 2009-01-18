@@ -31,11 +31,13 @@ public class SVScannerInput {
 	private ISVScannerObserver	fObserver;
 	private IDefineProvider		fDefineProvider;
 	private Stack<Boolean>		fPreProcEn  = new Stack<Boolean>();
+	private ISVScanner			fScanner;
 	
 	
 	public SVScannerInput(
 			String 				name, 
 			InputStream 		in,
+			ISVScanner			scanner,
 			ISVScannerObserver	observer,
 			IDefineProvider		define_provider) {
 		fUngetStr = new StringBuffer();
@@ -44,6 +46,7 @@ public class SVScannerInput {
 		fObserver       = observer;
 		fDefineProvider = define_provider;
 		fLineno         = 1;
+		fScanner        = scanner;
 		
 		fPreProcEn.clear();
 		fPreProcEn.push(true);
@@ -113,7 +116,7 @@ public class SVScannerInput {
 					
 					fCommentBuffer.setLength(0);
 					fCommentBuffer.append("/*");
-					while ((ch = get_ch()) != -1) {
+					while ((ch = get_ch_ll()) != -1) {
 						end_comment[0] = end_comment[1];
 						end_comment[1] = ch;
 						
@@ -467,8 +470,6 @@ public class SVScannerInput {
 	private void handle_preproc_directive(String type) throws EOFException {
 		int ch = -1;
 		
-//		System.out.println("preproc directive=" + type);
-		
 		if (type.equals("ifdef") || type.equals("ifndef")) {
 			StringBuffer sb = new StringBuffer();
 			int last_ch = -1;
@@ -492,6 +493,7 @@ public class SVScannerInput {
 			}
 //FIXME:			fNewStatement = true;
 			
+			// TODO: need to actually evaluate the expression?
 			if (type.equals("ifdef")) {
 				fPreProcEn.push(false);
 			} else {
@@ -513,7 +515,12 @@ public class SVScannerInput {
 			// TODO: read to line-end 
 		} else if (type.equals("define")) {
 			List<String> params = new ArrayList<String>();
-			
+
+			// Push the line number up to the scanner
+			if (fScanner != null) {
+				fScanner.setStmtLocation(getLocation());
+			}
+
 			ch = skipWhite(get_ch());
 			StringBuffer def_line_i = new StringBuffer();
 			def_line_i.append(readLine(ch));
@@ -527,10 +534,10 @@ public class SVScannerInput {
 			
 			String def_line = def_line_i.toString();
 			
-//			System.out.println("def_line=" + def_line);
 			
-			SVScannerInput in = new SVScannerInput("foo",
-					new StringInputStream(def_line), fObserver, fDefineProvider);
+			SVScannerInput in = new SVScannerInput("define_processor",
+					new StringInputStream(def_line), null,
+					fObserver, fDefineProvider);
 			
 			String def_id = null;
 			String define = "";
@@ -602,7 +609,7 @@ public class SVScannerInput {
 					
 					SVScannerInput in = new SVScannerInput(
 							"p", new StringInputStream(body), 
-							null, fDefineProvider);
+							null, null, fDefineProvider);
 					unget_ch(ch);
 						
 					do {

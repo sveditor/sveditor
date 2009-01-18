@@ -9,6 +9,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
@@ -25,7 +26,6 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
-import org.eclipse.swt.graphics.Image;
 
 public class SVCompletionProcessor implements IContentAssistProcessor {
 
@@ -61,18 +61,15 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			int lineno = 0;
 
 			lineno = doc.getLineOfOffset(start);
-			System.out.println("lineno=" + lineno);
 
 			SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 					fEditor.getSVDBFile(), lineno);
-
-			System.out.println("src_scope=" + src_scope);
 
 			int c = -1, last_c = -1, idx = offset - 1;
 
 			// Scan backwards to an activation character or the beginning of
 			// line
-			while (idx >= viewer.getTopIndexStartOffset()) {
+			while (idx >= 0) {
 				c = doc.getChar(idx);
 
 				if (c == '.' || c == '`' || (c == ':' && last_c == ':')
@@ -197,8 +194,6 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 
 		// Begin working outwards
 		while (src_scope != null) {
-			System.out.println("type=" + src_scope.getType() + " name="
-					+ src_scope.getName());
 
 			// TODO: Search this scope and enclosing scopes for functions,
 			// tasks, and variables
@@ -220,12 +215,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			if (it.getType() == SVDBItemType.VarDecl
 					|| it.getType() == SVDBItemType.Task
 					|| it.getType() == SVDBItemType.Function) {
-				if (it.getName() != null
-						&& (pre.equals("") || it.getName().startsWith(pre))) {
-					Image img = SVDBIconUtils.getIcon(it);
-					proposals.add(new CompletionProposal(it.getName(), start,
-							pre.length(), it.getName().length(), img, null,
-							null, null));
+				if (it.getName() != null && (pre.equals("") 
+						|| it.getName().toLowerCase().startsWith(pre))) {
+					addProposal(it, start, pre.length(), proposals);
 				}
 			} else if (it.getType() == SVDBItemType.Module
 					|| it.getType() == SVDBItemType.Class) {
@@ -238,14 +230,10 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			for (SVDBFile f : pd.getFileIndex().getFileList()) {
 				for (SVDBItem it : f.getItems()) {
 					if (it.getType() == SVDBItemType.Class) {
-						if (it.getName() != null
-								&& (pre.equals("") || it.getName().startsWith(
+						if (it.getName() != null && (pre.equals("") 
+								|| it.getName().toLowerCase().startsWith(
 										pre))) {
-							Image img = SVDBIconUtils.getIcon(it);
-							ICompletionProposal p = new CompletionProposal(it
-									.getName(), start, pre.length(), it
-									.getName().length(), img, null, null, null);
-							addProposal(p, proposals);
+							addProposal(it, start, pre.length(), proposals);
 						}
 					} else if (it.getType() == SVDBItemType.PackageDecl) {
 					}
@@ -254,6 +242,19 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		}
 	}
 
+	/**
+	 * Find proposals that result from a triggered content-assist request
+	 * 
+	 * Typical strings will be something like: a.b<request>
+	 * 
+	 * @param viewer
+	 * @param src_scope
+	 * @param pre_trigger_idx
+	 * @param trigger
+	 * @param pre
+	 * @param start
+	 * @param proposals
+	 */
 	private void findTriggeredProposals(
 			ITextViewer			viewer,
 			SVDBScopeItem		src_scope,
@@ -269,367 +270,26 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		searcher.addFile(fEditor.getSVDBFile());
 		searcher.addIndex(pd.getFileIndex());
 		
-		String preTrigger = extractPreTriggerPortion(
-				viewer, pre_trigger_idx);
+		String preTrigger = SVExpressionUtils.extractPreTriggerPortion(
+				viewer.getDocument(), pre_trigger_idx, false);
 		
-		ProcessPreTriggerInfo info = processPreTriggerPortion(
-				searcher, src_scope, preTrigger);
+		List<SVDBItem> info = SVExpressionUtils.processPreTriggerPortion(
+				searcher, src_scope, preTrigger, true);
 		
 		List<SVDBItem> result = new ArrayList<SVDBItem>();
 		
-		if (info.item != null && info.item instanceof SVDBScopeItem) {
+		if (info != null && info.size() > 0) {
+			// Get the last item
+			SVDBItem res = info.get(info.size()-1);
+			
+			System.out.println("use " + res.getName());
 			result.addAll(searcher.findByPrefixInTypeHierarchy(
-					pre, (SVDBScopeItem)info.item)); 
+					pre, (SVDBScopeItem)res, null)); 
 		}
 		
 		for (SVDBItem it : result) {
-			Image img = SVDBIconUtils.getIcon(it);
-			proposals.add(new CompletionProposal(it.getName(), start,
-					pre.length(), it.getName().length(), img, null,
-					null, null));
+			addProposal(it, start, pre.length(), proposals);
 		}
-	}
-
-	private String extractPreTriggerPortion(ITextViewer viewer,
-			int pre_trigger_idx) {
-		IDocument doc = viewer.getDocument();
-		StringBuffer tmp = new StringBuffer();
-		int last_nws_ch = -1;
-		String end_match[] = { "nde", // end
-				"nigeb", // begin
-				";" };
-		int idx = pre_trigger_idx;
-
-		try {
-			while (idx >= 0) {
-				int ch = -1;
-				// Skip whitespace
-				while (idx >= 0
-						&& Character.isWhitespace((ch = doc.getChar(idx)))) {
-					idx--;
-				}
-
-				if (idx < 0) {
-					break;
-				}
-
-				if (ch == '(') {
-					break;
-				} else if (ch == ')') {
-					if (last_nws_ch != '.' && last_nws_ch != ':'
-							&& last_nws_ch != -1) {
-						break;
-					}
-
-					int matchLevel = 1;
-
-					tmp.append((char) ch);
-
-					// Otherwise, skip matching braces
-					while (matchLevel > 0 && --idx >= 0) {
-						// next char
-						ch = doc.getChar(idx);
-						if (ch == ')') {
-							matchLevel++;
-						} else if (ch == '(') {
-							matchLevel--;
-						}
-						tmp.append((char) ch);
-					}
-				} else {
-					tmp.append((char) ch);
-				}
-
-				last_nws_ch = ch;
-				idx--;
-
-				boolean found_end = false;
-				for (int i = 0; i < end_match.length; i++) {
-					if (tmp.toString().endsWith(end_match[i])) {
-						tmp.setLength(tmp.length() - end_match[i].length());
-						found_end = true;
-						break;
-					}
-				}
-
-				if (found_end) {
-					break;
-				}
-			}
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
-
-		return tmp.reverse().toString();
-	}
-
-	private class MutableIdx {
-		int val;
-	}
-
-	private class ProcessPreTriggerInfo {
-		int 		qualifiers = 0;
-		SVDBItem 	item;
-	}
-
-	private ProcessPreTriggerInfo processPreTriggerPortion(
-			SVDBIndexSearcher searcher, SVDBScopeItem context, String preTrigger) {
-		MutableIdx idx = new MutableIdx();
-		idx.val = 0;
-
-		return processPreTriggerPortion(null, searcher, context, preTrigger, idx);
-	}
-
-	/**
-	 *
-	 * TODO: It would probably help if we maintained some type of 
-	 * data structure as a type reference. Problems arise when we
-	 * reference a type whose elements depend on context. 
-	 * 
-	 * For example, if we have a parameterized class and one of
-	 * the functions return type is parameterized. In this case, 
-	 * it would be nice to have a unique object to represent the 
-	 * parameterized class
-	 * 
-	 * 
-	 * The procedure here is pretty simple:
-	 * - Read an identifier
-	 *   - Determine whether it is a function, variable, or cast
-	 *       - If a cast, lookup the type
-	 *       - else if first lookup, lookup starting from current scope 
-	 *           and look through hierarchy
-	 *       - else lookup id in last-located type  
-	 * 
-	 * @param searcher
-	 * @param context
-	 * @param preTrigger
-	 * @param idx
-	 * @return
-	 * 
-	 */
-	private ProcessPreTriggerInfo processPreTriggerPortion(
-			String				preceeding_activator,
-			SVDBIndexSearcher 	searcher, 
-			SVDBScopeItem 		context,
-			String 				preTrigger, 
-			MutableIdx 			idx) {
-		String id = null;
-		ProcessPreTriggerInfo ret = new ProcessPreTriggerInfo();
-
-		// Need to make some changes to track the preceeding character, not the
-		// next. For example, if the preceeding character was '.', then we should
-		// look for id() within typeof(ret.item)
-		while (idx.val < preTrigger.length() && ret != null) {
-			int ch = preTrigger.charAt(idx.val);
-
-			if (ch == '(') {
-				// recursively expand
-				idx.val++;
-				ret = processPreTriggerPortion(preceeding_activator,
-						searcher, context, preTrigger, idx);
-				
-				// Give up because the lower-level parser did...
-				if (ret == null) {
-					break;
-				}
-
-				// Assert that on return, idx references ')'
-				/*
-				 * if (idx.val < preTrigger.length() ||
-				 * preTrigger.charAt(idx.val) != ')') {
-				 * System.out.println("[ERROR] unterminated ()"); }
-				 */
-				// idx.val++;
-			} else if (ch == '.') {
-				// use the preceeding
-				preceeding_activator = ".";
-			} else if (ch == ':' && 
-					idx.val+1 < preTrigger.length() && 
-					preTrigger.charAt(idx.val+1) == ':') {
-				idx.val++;
-				preceeding_activator = "::";
-			} else if (Character.isJavaIdentifierPart(ch)) {
-				// Read an identifier
-				StringBuffer tmp = new StringBuffer();
-
-				tmp.append((char) ch);
-				while (++idx.val < preTrigger.length()
-						&& Character.isJavaIdentifierPart(
-								(ch = preTrigger.charAt(idx.val)))) {
-					tmp.append((char) ch);
-				}
-				id = tmp.toString();
-				
-				System.out.println("id=" + id + " ch after id=" + (char)ch);
-
-				if (ch == '(' || ch == '\'') {
-					if (ch == '(') {
-						// lookup id as a function
-						System.out.println("Look for function \"" + id + "\"");
-
-						// TODO: must use scoped lookup by whatever preceeded
-						List<SVDBItem> matches = null;
-
-						// If we have a previous lookup match earlier in the completion
-						// string, then we should use that information to lookup this 
-						// portion
-						SVDBItem search_ctxt = (ret.item != null)?ret.item:context;
-
-						// Browse up the search context to reach the class scope
-						// TODO: Also want to support package-scope items (?)
-						while (search_ctxt != null && search_ctxt.getType() != SVDBItemType.Class) {
-							search_ctxt = search_ctxt.getParent();
-						}
-						
-						if (search_ctxt != null) {
-							matches = searcher.findByNameInClassHierarchy(
-									id, (SVDBScopeItem)search_ctxt, 
-									SVDBItemType.Function);
-						}
-
-						if (matches != null && matches.size() > 0) {
-							SVDBTaskFuncScope func = (SVDBTaskFuncScope)matches.get(0);
-							SVDBModIfcClassDecl cl = searcher.findNamedClass(func.getReturnType());
-
-							if (matches.size() > 1) {
-								System.out.println("[WARN] Taking first "
-										+ "item in search for \"" + id + "\"");
-							}
-
-							System.out.println("return type \"" + id + "\" is: " + cl);
-							ret.item = cl;
-							
-							// No point in continuing, since we've lost the trail
-							if (cl == null) {
-								ret = null;
-								break;
-							}
-						}
-					} else {
-						// ' indicates this is a type name
-						// TODO: We don't yet have the infrastructure to deal with types
-						List<SVDBItem> result = searcher.findByName(id,
-								SVDBItemType.Class, SVDBItemType.Struct);
-
-						if (result.size() > 0) {
-							SVDBTaskFuncScope func = (SVDBTaskFuncScope)result.get(0);
-							ret.item = result.get(0);
-
-							if (result.size() > 1) {
-								System.out.println("[WARN] Lookup of \"" + id
-										+ "\" resulted in " + result.size()
-										+ " matches");
-							}
-						} else {
-							ret = null;
-
-							// No point in continuing. We've failed to find a
-							// match
-							break;
-						}
-
-						idx.val++;
-					}
-
-					// Skip '()'
-					// In both the case of a function/task call or a cast, 
-					// we can ignore what's in the parens
-					int matchLevel = 1;
-
-					while (++idx.val < preTrigger.length() && matchLevel > 0) {
-						ch = preTrigger.charAt(idx.val);
-						if (ch == '(') {
-							matchLevel++;
-						} else if (ch == ')') {
-							matchLevel--;
-						}
-					}
-					idx.val++;
-				} else {
-					// 
-					if (ret.item == null) {
-						// First element, so we need to lookup the item
-						SVDBScopeItem tmp_context = context;
-						
-						while (tmp_context != null && ret.item == null) {
-							for (SVDBItem it : tmp_context.getItems()) {
-								if (it.getName().equals(id)) {
-									ret.item = it;
-									break;
-								}
-							}
-							tmp_context = tmp_context.getParent();
-						}
-					} else {
-						// Lookup what follows based on the trigger
-						// Search up hierarchy
-						// searcher.findByNameInClassHierarchy(id, ret.item);
-					}
-				}
-			} else {
-				// TODO: This is actually an error (?)
-				
-				// The identifier just read is not a function call
-				// Adjust the index based on the type of completion character
-				if (ch == ':'					
-					&& (idx.val + 1 < preTrigger.length() && preTrigger
-						.charAt(idx.val + 1) == ':')) {
-					idx.val += 2;
-				} else if (ch == '.') {
-					idx.val++;
-				} else {
-					System.out.println("other: ch=" + (char) ch);
-					idx.val++;
-				}
-				
-				// Now, do a bit of searching to figure out what this is
-				boolean found = false;
-				if (ret.item == null && 
-						(context.getType() == SVDBItemType.Function ||
-								context.getType() == SVDBItemType.Task)) {
-					// If the item is null, then this is the first 
-					// element in the expression. When this is the case, 
-					// we want to start our search by looking at the task/func
-					// parameters and local variables
-
-					List<SVDBItem> vars = searcher.findVarsByNameInScopes(
-							id, context, true);
-
-					if (vars.size() > 0) {
-						ret.item = searcher.findClassTypeOfItem(vars.get(0));
-						found = true;
-						break;
-					}
-					
-					if (!found) {
-						// Also look at task/function parameters
-						for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
-							if (it.getName().equals(id)) {
-								ret.item = it;
-								found = true;
-								break;
-							}
-						}
-					}
-					
-					if (found) {
-						
-					}
-				}
-				
-				if (!found) {
-					// Use ret.item as a type
-				}
-				
-				if (!found) {
-					// okay, we failed to find anything meaningful
-					ret = null;
-					break;
-				}
-			}
-		}
-
-		return ret;
 	}
 
 	private void addMatchingTasksVars(SVDBScopeItem src_scope, IDocument doc,
@@ -641,11 +301,8 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					|| it.getType() == SVDBItemType.Function
 					|| it.getType() == SVDBItemType.VarDecl
 					|| it.getType() == SVDBItemType.TaskFuncParam) {
-				if (it.getName().startsWith(pre)) {
-					Image img = SVDBIconUtils.getIcon(it);
-					addProposal(new CompletionProposal(it.getName(), start, pre
-							.length(), it.getName().length(), img, null, null,
-							null), proposals);
+				if (it.getName().toLowerCase().startsWith(pre)) {
+					addProposal(it, start, pre.length(), proposals);
 				}
 			}
 		}
@@ -728,7 +385,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				// look for include files that match the user-specified pattern
 				for (SVDBFile f : pd.getFileIndex().getFileList()) {
 					File file = new File(f.getName());
-					if (file.getName().startsWith(post_include)) {
+					if (file.getName().toLowerCase().startsWith(post_include)) {
 						display = file.getName();
 						replacement = file.getName();
 
@@ -754,7 +411,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				}
 			} else {
 				for (String p : fBuiltInMacroProposals) {
-					if (p.startsWith(pre)) {
+					if (p.toLowerCase().startsWith(pre)) {
 						addProposal(new CompletionProposal(p, start, pre
 								.length(), p.length()), proposals);
 					}
@@ -763,19 +420,65 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				for (SVDBFile f : pd.getFileIndex().getFileList()) {
 					for (SVDBItem it : f.getItems()) {
 						if (it.getType() == SVDBItemType.Macro) {
-							if (it.getName() != null
-									&& (pre.equals("") || it.getName()
-											.startsWith(pre))) {
-								Image img = SVDBIconUtils.getIcon(it);
-								addProposal(new CompletionProposal(
-										it.getName(), start, pre.length(), it
-												.getName().length(), img, null,
-										null, null), proposals);
+							if (it.getName() != null && (pre.equals("") || 
+									it.getName().toLowerCase().startsWith(pre))) {
+								addProposal(it, start, pre.length(), proposals);
 							}
 						}
 					}
 				}
 			}
+		}
+	}
+	
+	private static void addProposal(
+			SVDBItem 					it,
+			int							replacementOffset,
+			int							replacementLength,
+			List<ICompletionProposal> 	proposals) {
+		ICompletionProposal p = null;
+		
+		switch (it.getType()) {
+			case Function:
+			case Task: {
+				StringBuffer d = new StringBuffer();
+				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
+				
+				d.append(it.getName() + "(");
+				
+				for (int i=0; i<tf.getParams().size(); i++) {
+					SVDBTaskFuncParam param = tf.getParams().get(i);
+					
+					d.append(param.getTypeName() + " " + param.getName());
+					
+					if (i+1 < tf.getParams().size()) {
+						d.append(", ");
+					}
+				}
+				d.append(")");
+				
+				if (it.getType() == SVDBItemType.Function) {
+					d.append(" : ");
+					d.append(tf.getReturnType());
+				}
+				
+				p = new CompletionProposal(it.getName(),
+						replacementOffset, replacementLength, 
+						it.getName().length(), SVDBIconUtils.getIcon(it),
+						d.toString(), null, null);
+				}
+				break;
+				
+			default:
+				p = new CompletionProposal(it.getName(),
+						replacementOffset, replacementLength, 
+						it.getName().length(), SVDBIconUtils.getIcon(it),
+						null, null, null);
+				break;
+		}
+		
+		if (p != null) {
+			addProposal(p, proposals);
 		}
 	}
 

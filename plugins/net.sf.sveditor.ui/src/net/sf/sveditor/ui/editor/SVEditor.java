@@ -27,6 +27,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
@@ -103,6 +104,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		// on validity.
 		
 	}
+	
+	public ITextViewer getTextViewer() {
+		return getSourceViewer();
+	}
 
 	@Override
 	public void doSaveAs() {
@@ -134,16 +139,9 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		StringInputStream sin = new StringInputStream(doc.get());
 
 		// TODO: Need the editor to handle this automatically
-		long start = System.currentTimeMillis();
 		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
-		long end = System.currentTimeMillis();
 		
-		System.out.println("Total scan time: " + (end-start));
-		
-		start = System.currentTimeMillis();
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
-		end = System.currentTimeMillis();
-		System.out.println("Total merge time: " + (end-start));
 		
 		fSVDBFile.setFilePath(getFilePath());
 		

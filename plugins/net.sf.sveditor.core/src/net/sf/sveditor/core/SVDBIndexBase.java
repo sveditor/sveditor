@@ -2,9 +2,11 @@ package net.sf.sveditor.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,14 @@ import java.util.Queue;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,6 +38,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 	protected File								fBaseLocation;
 	protected Queue<File>						fFileQueue;
 	protected List<SVDBFile>					fFileList;
+	protected Map<String, SVDBFileTree>			fFileMap;
 	protected Map<File, Long>					fLastModifiedMap;
 	protected boolean							fDisposed;
 	protected ISVDBFileProvider					fFileProvider;
@@ -93,12 +104,46 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return fFileList;
 	}
 	
-	private IStatus run(IProgressMonitor monitor) {
+	public Map<String, SVDBFileTree> getFileMap() {
+		return fFileMap;
+	}
+	
+	public SVDBFileTree getFileTree(String path) {
+		Iterator<SVDBFileTree> it = fFileMap.values().iterator();
 		
-		while (!monitor.isCanceled()) {
+		while (it.hasNext()) {
+			SVDBFileTree ft = it.next();
+			
+			if (ft.getFilePath().endsWith(path)) {
+				return ft;
+			}
+		}
+		
+		return null;
+	}
+	
+	private IStatus run(IProgressMonitor monitor) {
+		SVPreProcScanner sc = new SVPreProcScanner();
+		SVDBPreProcObserver s_observer = new SVDBPreProcObserver();
+		
+		// First, scan all the files
+		long start = System.currentTimeMillis();
+		int num = fFileQueue.size();
+		int idx = 0;
+		List<File> scan_list = new ArrayList<File>();
+		
+		synchronized (fFileQueue) {
+			while (fFileQueue.size() > 0) {
+				scan_list.add(fFileQueue.poll());
+			}
+		}
+
+		sc.setObserver(s_observer);
+		
+		while (!monitor.isCanceled() && idx < scan_list.size()) {
 			File file = null;
 			
-			
+			/*
 			synchronized (fFileQueue) {
 				if (fFileQueue.size() == 0) {
 					break;
@@ -106,6 +151,43 @@ public class SVDBIndexBase implements ISVDBIndex {
 					file = fFileQueue.poll();
 				}
 			}
+			*/
+			
+			file = scan_list.get(idx++);
+			
+			if (file != null) {
+				try {
+					InputStream in = new FileInputStream(file);
+					sc.scan(in, file.getAbsolutePath());
+				} catch (IOException e) {
+					
+				}
+			}
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("Scan " + num + " in " + (end-start));
+		
+		// Organize the files
+		fFileMap = SVDBFileTreeUtils.organizeFiles(s_observer.getFiles());
+		
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(fFileMap);
+		
+		start = System.currentTimeMillis();
+		idx = 0;
+		while (!monitor.isCanceled() && idx < scan_list.size()) {
+			File file = null;
+			
+
+			/*
+			synchronized (fFileQueue) {
+				if (fFileQueue.size() == 0) {
+					break;
+				} else {
+					file = fFileQueue.poll();
+				}
+			}
+			 */
+			file = scan_list.get(idx++);
 			
 			if (file != null) {
 				SVDBFile svdb_f = null;
@@ -117,7 +199,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 					InputStream in = new FileInputStream(file);
 					
 					svdb_f = SVDBFileFactory.createFile(
-							in, file.getAbsolutePath(), fFileProvider);
+							in, file.getAbsolutePath(), fFileProvider, dp);
 					
 					in.close();
 					
@@ -150,6 +232,11 @@ public class SVDBIndexBase implements ISVDBIndex {
 				System.out.println("[ERROR] exit indexer thread loop");
 			}
 		}
+		end = System.currentTimeMillis();
+		System.out.println("Parse " + scan_list.size() + " in " +
+				(end-start));
+		
+		fFileList.clear();
 		
 		return Status.OK_STATUS;
 	}
@@ -158,13 +245,22 @@ public class SVDBIndexBase implements ISVDBIndex {
 		synchronized(fFileQueue) {
 			fFileQueue.add(file);
 		}
-		
+
+		/*
 		synchronized (fScanJob) {
 			if (fScanJob.getState() != Job.RUNNING) {
 				fScanJob.schedule();
 			}
 		}
+		 */
 	}
+	
+	protected void startScan() {
+		if (fScanJob.getState() != Job.RUNNING) {
+			fScanJob.schedule();
+		}
+	}
+	
 	
 
 }

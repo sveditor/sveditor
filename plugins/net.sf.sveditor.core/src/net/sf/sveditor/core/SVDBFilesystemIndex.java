@@ -27,8 +27,12 @@ public class SVDBFilesystemIndex extends SVDBIndexBase {
 		// recurse down 'root', finding SystemVerilog files
 		recurse(root);
 		
+		/**
 		fRefreshJob.setPriority(Job.LONG);
 		fRefreshJob.schedule();
+		 */
+		
+		startScan();
 	}
 	
 	private void recurse(File root) {

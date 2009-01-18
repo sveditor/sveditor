@@ -15,11 +15,23 @@ public class ScanLocation implements IScanLocation {
 		return fFile;
 	}
 	
+	public void setFileName(String name) {
+		fFile = name;
+	}
+	
 	public int getLineNo() {
 		return fLineno;
 	}
 	
+	public void setLineNo(int num) {
+		fLineno = num;
+	}
+	
 	public int getLinePos() {
 		return fLinepos;
+	}
+	
+	public void setLinePos(int pos) {
+		fLinepos = pos;
 	}
 }
