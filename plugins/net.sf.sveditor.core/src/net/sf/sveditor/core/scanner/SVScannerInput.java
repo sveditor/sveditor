@@ -230,7 +230,7 @@ public class SVScannerInput {
 		}
 	}
 	
-	public void pushUnaccContent(String str) {
+	private void pushUnaccContent(String str) {
 		for (int i=str.length()-1; i>=0; i--) {
 			fUnaccContent.append((char)str.charAt(i));
 		}
@@ -521,7 +521,7 @@ public class SVScannerInput {
 				fScanner.setStmtLocation(getLocation());
 			}
 
-			ch = skipWhite(get_ch());
+			ch = skipWhite(get_ch_ll());
 			StringBuffer def_line_i = new StringBuffer();
 			def_line_i.append(readLine(ch));
 			

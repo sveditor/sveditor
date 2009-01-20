@@ -1,7 +1,6 @@
 package net.sf.sveditor.core;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 
 public interface ISVDBFileProvider {
 	
@@ -9,6 +8,4 @@ public interface ISVDBFileProvider {
 	
 	SVDBFile getFile(String path);
 	
-	SVDBFileTree getFileTree(String path);
-
 }

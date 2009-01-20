@@ -2,6 +2,7 @@ package net.sf.sveditor.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,15 +35,23 @@ import org.eclipse.core.runtime.jobs.Job;
  */
 public class SVDBIndexBase implements ISVDBIndex {
 	
+	protected int								fIndexType;
 
 	protected File								fBaseLocation;
-	protected Queue<File>						fFileQueue;
-	protected List<SVDBFile>					fFileList;
-	protected Map<String, SVDBFileTree>			fFileMap;
-	protected Map<File, Long>					fLastModifiedMap;
+//	protected Queue<File>						fFileQueue;
+	
+	protected Map<File, SVDBFile>				fFileMap;
+	protected boolean							fFileMapValid;
+	protected boolean							fFileMapBuilding;
+	
+	protected Map<File, SVDBFileTree>			fFileTreeMap;
+	protected boolean							fFileTreeValid;
+	protected boolean							fFileTreeBuilding;
+	
 	protected boolean							fDisposed;
 	protected ISVDBFileProvider					fFileProvider;
-	private  Job								fScanJob;
+	private  Job                                fBuildFileTreeJob;
+	private  Job                                fBuildFileIndexJob;
 	
 	protected static final List<String>			fSVExtensions;
 	protected static final List<String>			fIgnoreDirs;
@@ -63,25 +72,65 @@ public class SVDBIndexBase implements ISVDBIndex {
 	}
 	
 
-	public SVDBIndexBase(File base_location, ISVDBFileProvider provider) {
+	public SVDBIndexBase(
+			File 				base_location,
+			int					index_type,
+			ISVDBFileProvider 	provider) {
 		fBaseLocation = base_location;
+		System.out.println("baseLocation=" + fBaseLocation);
+		fIndexType    = index_type;
 		
-		fFileQueue = new LinkedList<File>();
-		fFileList  = new ArrayList<SVDBFile>();
-		fLastModifiedMap = new HashMap<File, Long>();
+		fFileMap = new HashMap<File, SVDBFile>();
+		fFileMapValid = false;
+		fFileMapBuilding = false;
 		
+		fFileTreeMap = new HashMap<File, SVDBFileTree>();
+		fFileTreeValid = false;
+		fFileTreeBuilding = false;
+
 		fFileProvider = provider;
-		
-		fScanJob = new Job("SVDBWorkspaceIndex") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				return SVDBIndexBase.this.run(monitor);
-			}
-		};
-		
-		fScanJob.setPriority(Job.LONG);
 	}
 	
+	private void startBuildFileTreeJob() {
+		synchronized (this) {
+			if (fBuildFileTreeJob == null) {
+				fBuildFileTreeJob = new Job("BuildFileTree") {
+					protected IStatus run(IProgressMonitor mon) {
+						IStatus ret = SVDBIndexBase.this.buildFileTree(mon);
+						synchronized (SVDBIndexBase.this) {
+							fBuildFileTreeJob = null;
+						}
+						return ret;
+					}
+				};
+				fFileTreeBuilding = true;
+				fBuildFileTreeJob.setPriority(Job.SHORT);
+				fBuildFileTreeJob.schedule();
+			} else {
+				System.out.println("Not starting new BuildFileTreeJob");
+			}
+		}
+	}
+
+	private void startBuildFileIndexJob() {
+		synchronized (this) {
+			if (fBuildFileIndexJob == null) {
+				fBuildFileIndexJob = new Job("BuildFileIndex") {
+					protected IStatus run(IProgressMonitor mon) {
+						IStatus ret = SVDBIndexBase.this.buildFileIndex(mon);
+						synchronized (SVDBIndexBase.this) {
+							fBuildFileIndexJob = null;
+						}
+						return ret;
+					}
+				};
+				fFileMapBuilding = true;
+				fBuildFileIndexJob.setPriority(Job.SHORT);
+				fBuildFileIndexJob.schedule();
+			}
+		}
+	}
+
 	public void dispose() {
 		fDisposed = true;
 	}
@@ -95,172 +144,206 @@ public class SVDBIndexBase implements ISVDBIndex {
 		}
 	}
 	
-	
 	public File getBaseLocation() {
 		return fBaseLocation;
 	}
-	
-	public List<SVDBFile> getFileList() {
-		return fFileList;
-	}
-	
-	public Map<String, SVDBFileTree> getFileMap() {
+
+	public Map<File, SVDBFile> getFileDB() {
+		System.out.println("--> getFileDB()");
+		
+		if (fIndexType == IT_BuildPath) {
+			synchronized (this) {
+				if (!fFileMapValid) {
+					if (!fFileMapBuilding) {
+						// Start file map building
+						startBuildFileIndexJob();
+					}
+					
+					// Now, wait for file map to build
+					while (!fFileMapValid) {
+						try {
+							wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+		
+		System.out.println("<-- getFileDB()");
 		return fFileMap;
 	}
 	
-	public SVDBFileTree getFileTree(String path) {
-		Iterator<SVDBFileTree> it = fFileMap.values().iterator();
+	public Map<File, SVDBFileTree> getFileTree() {
 		
-		while (it.hasNext()) {
-			SVDBFileTree ft = it.next();
-			
-			if (ft.getFilePath().endsWith(path)) {
-				return ft;
+		System.out.println("--> getFileMap()");
+		
+		synchronized (this) {
+			if (!fFileTreeValid) {
+				if (!fFileTreeBuilding) {
+					startBuildFileTreeJob();
+				}
+				
+				// Now, wait for completion
+				while (!fFileTreeValid) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 		
-		return null;
+		System.out.println("<-- getFileMap()");
+
+		return fFileTreeMap;
 	}
 	
-	private IStatus run(IProgressMonitor monitor) {
+	private IStatus buildFileTree(IProgressMonitor monitor) {
+		fFileTreeMap.clear();
+		List<File> files = new ArrayList<File>();
 		SVPreProcScanner sc = new SVPreProcScanner();
 		SVDBPreProcObserver s_observer = new SVDBPreProcObserver();
 		
-		// First, scan all the files
-		long start = System.currentTimeMillis();
-		int num = fFileQueue.size();
-		int idx = 0;
-		List<File> scan_list = new ArrayList<File>();
+		System.out.println("--> buildFileTree()");
 		
-		synchronized (fFileQueue) {
-			while (fFileQueue.size() > 0) {
-				scan_list.add(fFileQueue.poll());
-			}
-		}
-
 		sc.setObserver(s_observer);
-		
-		while (!monitor.isCanceled() && idx < scan_list.size()) {
-			File file = null;
-			
-			/*
-			synchronized (fFileQueue) {
-				if (fFileQueue.size() == 0) {
-					break;
-				} else {
-					file = fFileQueue.poll();
-				}
-			}
-			*/
-			
-			file = scan_list.get(idx++);
-			
-			if (file != null) {
-				try {
-					InputStream in = new FileInputStream(file);
-					sc.scan(in, file.getAbsolutePath());
-				} catch (IOException e) {
-					
-				}
-			}
-		}
-		long end = System.currentTimeMillis();
-		System.out.println("Scan " + num + " in " + (end-start));
-		
-		// Organize the files
-		fFileMap = SVDBFileTreeUtils.organizeFiles(s_observer.getFiles());
-		
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(fFileMap);
-		
-		start = System.currentTimeMillis();
-		idx = 0;
-		while (!monitor.isCanceled() && idx < scan_list.size()) {
-			File file = null;
-			
 
-			/*
-			synchronized (fFileQueue) {
-				if (fFileQueue.size() == 0) {
-					break;
-				} else {
-					file = fFileQueue.poll();
-				}
-			}
-			 */
-			file = scan_list.get(idx++);
+		// Discover files
+
+		if (monitor != null) {
+			monitor.setTaskName("Discovering Files");
+		}
+		
+		find_files(fBaseLocation, files, monitor);
+				
+		if (monitor != null) {
+			monitor.setTaskName("Scanning files");
+		}
+
+		for (File f : files) {
 			
-			if (file != null) {
-				SVDBFile svdb_f = null;
-				boolean  existing = false;
-				
-				// First, parse the file
-				
-				try {
-					InputStream in = new FileInputStream(file);
-					
-					svdb_f = SVDBFileFactory.createFile(
-							in, file.getAbsolutePath(), fFileProvider, dp);
-					
-					in.close();
-					
-					if (fLastModifiedMap.containsKey(file)) {
-						fLastModifiedMap.remove(file);
-					}
-					fLastModifiedMap.put(file, file.lastModified());
-					
-					
-					// Find the file in the list and
-					synchronized(fFileList) {
-						for (int i=0; i<fFileList.size(); i++) {
-							if (fFileList.get(i).getFilePath().equals(file)) {
-								existing = true;
-								fFileList.set(i, svdb_f);
-								break;
-							}
-						}
-					}
-					
-					if (!existing && svdb_f != null) {
-						synchronized (fFileList) {
-							fFileList.add(svdb_f);
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			} else {
-				System.out.println("[ERROR] exit indexer thread loop");
+			try {
+				InputStream in = new FileInputStream(f);
+				sc.init(in, f.getAbsolutePath());
+				sc.scan();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-		end = System.currentTimeMillis();
-		System.out.println("Parse " + scan_list.size() + " in " +
-				(end-start));
+
 		
-		fFileList.clear();
+		fFileTreeMap.putAll(
+				SVDBFileTreeUtils.organizeFiles(s_observer.getFiles()));
+
+		synchronized (this) {
+			fFileTreeValid = true;
+			fFileTreeBuilding = false;
+			notifyAll();
+		}
+		
+		System.out.println("<-- buildFileTree()");
+		return Status.OK_STATUS;
+	}
+	
+	private IStatus buildFileIndex(IProgressMonitor monitor) {
+		Map<File, SVDBFileTree> file_tree = getFileTree();
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(this);
+
+		System.out.println("--> buildFileIndex()");
+		
+		fFileMap.clear();
+		Iterator<File> it = file_tree.keySet().iterator();
+		
+		while (it.hasNext()) {
+			File file = it.next();
+
+			InputStream in = null;
+			try {
+				in = new FileInputStream(file);
+			
+				// Where do defines come from?
+				dp.setFileContext(file_tree.get(file));
+			
+				SVDBFile svdb_f = SVDBFileFactory.createFile(
+						in, file.getAbsolutePath(), fFileProvider, dp);
+				fFileMap.put(file, svdb_f);
+			
+				in.close();
+			} catch (IOException e) {
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) { }
+				}
+			}
+		}
+		
+		synchronized (this) {
+			fFileMapValid = true;
+			fFileMapBuilding = false;
+			notifyAll();
+		}
+		
+		System.out.println("<-- buildFileIndex()");
 		
 		return Status.OK_STATUS;
 	}
 	
-	protected void push(File file) {
-		synchronized(fFileQueue) {
-			fFileQueue.add(file);
-		}
-
-		/*
-		synchronized (fScanJob) {
-			if (fScanJob.getState() != Job.RUNNING) {
-				fScanJob.schedule();
+	@Override
+	public SVDBFileTree findIncludedFile(String leaf) {
+		Iterator<File> it = getFileTree().keySet().iterator();
+		
+		while (it.hasNext()) {
+			File file = it.next();
+			
+			if (file.getPath().endsWith(leaf)) {
+				return getFileTree().get(file);
 			}
 		}
-		 */
+		
+		System.out.println("[WARN] failed to find include \"" + leaf + "\"");
+		
+		return null;
 	}
-	
-	protected void startScan() {
-		if (fScanJob.getState() != Job.RUNNING) {
-			fScanJob.schedule();
+
+	@Override
+	public int getIndexType() {
+		return fIndexType;
+	}
+
+	@Override
+	public void rebuildIndex() {
+		// TODO: force index and map to be invalid
+		System.out.println("[TODO] SVDBIndexBase.rebuildIndex");
+	}
+
+	private static void find_files(
+			File 				parent, 
+			List<File> 			files,
+			IProgressMonitor	monitor) {
+		for (File f : parent.listFiles()) {
+			if (monitor != null && monitor.isCanceled()) {
+				return;
+			}
+			if (f.isDirectory()) {
+				if (!fIgnoreDirs.contains(f.getName())) {
+					find_files(f, files, monitor);
+				}
+			} else {
+				String name = f.getName();
+				int last_dot;
+				
+				if ((last_dot = name.lastIndexOf('.')) >= 0) {
+					String suffix = name.substring(last_dot);
+					if (fSVExtensions.contains(suffix)) {
+						files.add(f);
+					}
+				}
+			}
 		}
 	}
-	
-	
-
 }

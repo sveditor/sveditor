@@ -18,6 +18,7 @@ import net.sf.sveditor.core.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -234,13 +235,34 @@ public class SVDBProjectData {
 					System.out.println("add index \"" + loc + "\"");
 					
 					if (path.isWSRelPath()) {
-						index = new SVDBWorkspaceIndex(
-								new Path(path.getPath()), fFileProvider);
+						try {
+							Path tp = new Path(path.getPath());
+							IContainer c = null;
+							
+							for (IProject p : ws_r.getProjects()) {
+								if (p.getFullPath().equals(tp)) {
+									System.out.println("found project w/path");
+									c = p;
+									break;
+								}
+							}
+						
+							if (c != null) {
+								index = new SVDBWorkspaceIndex(
+										c.getLocation(), 
+										ISVDBIndex.IT_BuildPath, fFileProvider);
+							} else {
+								System.out.println("Path \"" + path.getPath() + 
+									"\" does not exist in the workspace");
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					} else {
 						if (!loc.isDirectory()) {
 							System.out.println("[WARNING] build path \"" + loc + "\" doesn't exist");
 						} else {
-							index = new SVDBFilesystemIndex(loc, fFileProvider);
+							index = new SVDBFilesystemIndex(loc, ISVDBIndex.IT_BuildPath, fFileProvider);
 						}
 					}
 					

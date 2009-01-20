@@ -41,6 +41,9 @@ import org.eclipse.core.runtime.Path;
  * 
  * TODO: need to use an Eclipse job to decouple parsing from event notification.
  * 
+ * TODO: may wish to thin this class down a bit. Some of the functionality 
+ *       is a duplicate of what is already in the SVDBIndex classes
+ * 
  * @author ballance
  *
  */

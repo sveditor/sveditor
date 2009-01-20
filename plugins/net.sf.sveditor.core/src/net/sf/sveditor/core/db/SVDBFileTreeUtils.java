@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ public class SVDBFileTreeUtils {
 	 * 
 	 * @param files
 	 */
-	public static Map<String, SVDBFileTree> organizeFiles(List<SVDBFile> files) {
-		Map<String, SVDBFileTree> file_map = new HashMap<String, SVDBFileTree>();
+	public static Map<File, SVDBFileTree> organizeFiles(List<SVDBFile> files) {
+		Map<File, SVDBFileTree> file_map = new HashMap<File, SVDBFileTree>();
 		List<SVDBFileTree> org_files = new ArrayList<SVDBFileTree>();
 		
 		for (SVDBFile f : files) {
@@ -93,12 +94,12 @@ public class SVDBFileTreeUtils {
 			SVDBFile				file) {
 		for (SVDBItem it : file.getItems()) {
 			if (it instanceof SVDBInclude) {
-				SVDBFileTree t = new SVDBFileTree(it.getName());
+				SVDBFileTree t = new SVDBFileTree(new File(it.getName()));
 				file_t.getIncludedFiles().add(t);
 			} else if (it instanceof SVDBPackageDecl) {
 				for (SVDBItem it_p : ((SVDBPackageDecl) it).getItems()) {
 					if (it_p instanceof SVDBInclude) {
-						SVDBFileTree t = new SVDBFileTree(it.getName());
+						SVDBFileTree t = new SVDBFileTree(new File(it.getName()));
 						file_t.getIncludedFiles().add(t);
 					}
 				}
@@ -116,7 +117,7 @@ public class SVDBFileTreeUtils {
 			if (f.getSVDBFile() == null) {
 				// Search the top-level list
 				for (SVDBFileTree ft : files) {
-					if (ft.getFilePath().endsWith(f.getFilePath())) {
+					if (ft.getFilePath().getPath().endsWith(f.getFilePath().getPath())) {
 						file_t.getIncludedFiles().set(i, ft);
 						found = true;
 						break;

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.parser.SVInputStream;
 
 /**
  * 
@@ -33,7 +34,7 @@ import net.sf.sveditor.core.StringInputStream;
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
-	private Stack<SVScannerInput>	fInputStack = new Stack<SVScannerInput>();
+	private SVScannerTextUtils		fInput;
 	
 	private boolean					fNewStatement;
 	private ScanLocation			fStmtLocation;
@@ -71,9 +72,15 @@ public class SVScanner implements ISVScanner {
 	public void scan(InputStream in, String filename) {
 	
 		fNewStatement = true;
-		fInputStack.clear();
-		fInputStack.push(new SVScannerInput(
-				filename, in, this, fObserver, fDefineProvider));
+		
+		SVPreProcScanner pp = new SVPreProcScanner();
+		pp.setDefineProvider(fDefineProvider);
+		pp.setScanner(this);
+		
+		pp.init(in, filename);
+		pp.setExpandMacros(true);
+		
+		fInput = new SVScannerTextUtils(pp);
 		
 		if (fObserver != null) {
 			fObserver.enter_file(filename);
@@ -1000,11 +1007,7 @@ public class SVScanner implements ISVScanner {
 	 * @return
 	 */
 	private String readIdentifier(int ci) throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().readIdentifier(ci);
-		} else {
-			return "";
-		}
+		return fInput.readIdentifier(ci);
 	}
 
 	/* Currently unused
@@ -1176,17 +1179,11 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private int skipWhite(int ch) throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().skipWhite(ch);
-		} else {
-			return -1;
-		}
+		return fInput.skipWhite(ch);
 	}
 
 	private void startCapture(int ch) {
-		if (fInputStack.size() > 0) {
-			fInputStack.peek().startCapture(ch);
-		}
+		fInput.startCapture(ch);
 	}
 
 	private void startCapture() {
@@ -1194,27 +1191,15 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private String endCapture() throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().endCapture();
-		} else {
-			return "";
-		}
+		return fInput.endCapture();
 	}
 
 	private int skipPastMatch(String pair) throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().skipPastMatch(pair);
-		} else {
-			return -1;
-		}
+		return fInput.skipPastMatch(pair);
 	}
 
 	private int skipPastMatch(String pair, String escape) throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().skipPastMatch(pair, escape);
-		} else {
-			return -1;
-		}
+		return fInput.skipPastMatch(pair, escape);
 	}
 
 	/**
@@ -1225,7 +1210,8 @@ public class SVScanner implements ISVScanner {
 	 * @return
 	 */
 	private int next_ch() throws EOFException {
-		return fInputStack.peek().next_ch();
+		// return fInput.next_ch();
+		return fInput.get_ch();
 	}
 
 	private int get_ch() throws EOFException {
@@ -1233,9 +1219,7 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private void unget_str(String str) {
-		if (fInputStack.size() > 0) {
-			fInputStack.peek().unget_str(str);
-		}
+		fInput.unget_str(str);
 	}
 	
 	/*
@@ -1243,10 +1227,8 @@ public class SVScanner implements ISVScanner {
 	 */
 	private int get_ch(boolean eof_ex) throws EOFException {
 		int ch = -1;
-		
-		while (fInputStack.size() > 0 && 
-				(ch = fInputStack.peek().get_ch()) == -1) {
-		}
+
+		ch = fInput.get_ch();
 		
 		if (eof_ex && ch == -1) {
 			throw new EOFException();
@@ -1256,17 +1238,11 @@ public class SVScanner implements ISVScanner {
 	}
 	
 	private void unget_ch(int ch) {
-		if (fInputStack.size() > 0) {
-			fInputStack.peek().unget_ch(ch);
-		}
+		fInput.unget_ch(ch);
 	}
 	
 	public ScanLocation getLocation() {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().getLocation();
-		} else {
-			return new ScanLocation("", 0, 0);
-		}
+		return fInput.getLocation();
 	}
 
 	private void debug(String msg) {

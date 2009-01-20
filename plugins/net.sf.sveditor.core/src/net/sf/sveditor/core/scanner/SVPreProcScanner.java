@@ -9,6 +9,7 @@ import java.util.Stack;
 public class SVPreProcScanner implements ISVScanner {
 	private InputStream			fInput;
 	private String				fFileName;
+	private boolean				fExpandMacros;
 	
 	private byte				fInputBuffer[] = new byte[1024 * 1024];
 	private int					fInputBufferIdx = 0;
@@ -21,6 +22,8 @@ public class SVPreProcScanner implements ISVScanner {
 	private Stack<Boolean>		fPreProcEn;
 	private List<String>		fParamList;
 	private ISVScannerObserver	fObserver;
+	private ISVScanner			fScanner;
+	private IDefineProvider		fDefineProvider;
 	private ScanLocation		fScanLocation;
 
 	
@@ -30,6 +33,11 @@ public class SVPreProcScanner implements ISVScanner {
 		fPreProcEn = new Stack<Boolean>();
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
+		fExpandMacros = false;
+	}
+	
+	public void setExpandMacros(boolean expand_macros) {
+		fExpandMacros = expand_macros;
 	}
 	
 	public void setObserver(ISVScannerObserver observer) {
@@ -37,22 +45,29 @@ public class SVPreProcScanner implements ISVScanner {
 		fObserver.init(this);
 	}
 	
+	public void setDefineProvider(IDefineProvider def_provider) {
+		fDefineProvider = def_provider;
+	}
+	
+	public void setScanner(ISVScanner scanner) {
+		fScanner = scanner;
+	}
+	
 	@Override
 	public ScanLocation getStmtLocation() {
 		return fScanLocation;
+	}
+	
+	public ScanLocation getLocation() {
+		return new ScanLocation(fFileName, fLineno, 0);
 	}
 
 	@Override
 	public void setStmtLocation(ScanLocation location) {
 		// Do nothing
 	}
-
-	public void scan(InputStream in, String name) {
-		int     ch;
-		boolean new_stmt = true;
-		
-//		System.out.println("Scan file \"" + name + "\"");
-		
+	
+	public void init(InputStream in, String name) {
 		fLineno = 1;
 		fScanLocation.setLineNo(1);
 		
@@ -66,8 +81,14 @@ public class SVPreProcScanner implements ISVScanner {
 		fFileName = name;
 		
 		fScanLocation.setFileName(name);
-		
+	}
 
+	public void scan() {
+		int     ch;
+		boolean new_stmt = true;
+		
+		System.out.println("--> Scan file \"" + fFileName + "\"");
+		
 		if (fObserver != null) {
 			fObserver.enter_file(fFileName);
 		}
@@ -83,7 +104,7 @@ public class SVPreProcScanner implements ISVScanner {
 					
 					if (id != null) {
 						if (id.equals("package")) {
-							ch = skipWhite_ll(get_ch_ll());
+							ch = skipWhite(get_ch());
 							String pkg = readIdentifier(ch);
 						
 							if (fObserver != null) {
@@ -103,9 +124,43 @@ public class SVPreProcScanner implements ISVScanner {
 		if (fObserver != null) {
 			fObserver.leave_file();
 		}
+		
+		System.out.println("<-- Scan file \"" + fFileName + "\"");
 	}
 	
 	private String readIdentifier(int ci) {
+
+		fTmpBuffer.setLength(0);
+		
+		if (!Character.isJavaIdentifierStart(ci)) {
+			unget_ch(ci);
+			return null;
+		}
+
+		fTmpBuffer.append((char)ci);
+
+		while ((ci = get_ch()) != -1 && 
+				(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+			fTmpBuffer.append((char)ci);
+		}
+		unget_ch(ci);
+
+		// Even though ':' can appear as part of the identifier, it
+		// must not appear at the end of an identifier
+		while (fTmpBuffer.length() > 0 && 
+				fTmpBuffer.charAt(fTmpBuffer.length()-1) == ':') {
+			unget_ch(':');
+			fTmpBuffer.setLength(fTmpBuffer.length()-1);
+		}
+
+		if (fTmpBuffer.length() == 0) {
+			return null;
+		} else {
+			return fTmpBuffer.toString();
+		}
+	}
+
+	private String readIdentifier_ll(int ci) {
 
 		fTmpBuffer.setLength(0);
 		
@@ -159,6 +214,8 @@ public class SVPreProcScanner implements ISVScanner {
 
 			ci = get_ch_ll();
 		}
+		
+		unget_ch(ci);
 
 		if (fTmpBuffer.length() == 0) {
 			return null;
@@ -167,7 +224,7 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 	
-	public String readString_ll(int ci) {
+	private String readString(int ci) {
 		
 		fTmpBuffer.setLength(0);
 		int last_ch = -1;
@@ -176,7 +233,7 @@ public class SVPreProcScanner implements ISVScanner {
 			return null;
 		}
 		
-		ci = get_ch_ll();
+		ci = get_ch();
 		while ((ci != '"' && ci != '\n') || last_ch == '\\') {
 			if (last_ch == '\\' && ci == '"') {
 				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
@@ -197,7 +254,7 @@ public class SVPreProcScanner implements ISVScanner {
 				last_ch = ci;
 			}
 			
-			ci = get_ch_ll();
+			ci = get_ch();
 		}
 		
 		return fTmpBuffer.toString();
@@ -214,11 +271,13 @@ public class SVPreProcScanner implements ISVScanner {
 			ch = skipWhite_ll(get_ch_ll());
 			
 			// TODO: evaluate the expression?
-			readLine_ll(ch);
+			String remainder = readLine_ll(ch);
 			
 			if (type.equals("ifdef")) {
+				System.out.println("ifdef \"" + remainder + "\"");
 				fPreProcEn.push(false);
 			} else {
+				System.out.println("ifndef \"" + remainder + "\"");
 				fPreProcEn.push(true);
 			}
 		} else if (type.equals("else")) {
@@ -233,27 +292,36 @@ public class SVPreProcScanner implements ISVScanner {
 		} else if (type.equals("timescale")) {
 			// ignore
 			// TODO: read to line-end
+			readLine_ll(skipWhite_ll(get_ch_ll()));
 		} else if (type.equals("begin_keywords") || type.equals("end_keywords")) {
 			// TODO: read to line-end 
+			readLine_ll(skipWhite_ll(get_ch_ll()));
 		} else if (type.equals("define")) {
-			List<String> params = new ArrayList<String>();
 			String def_id = null;
 
 			// Push the line number up to the scanner
-			/*
 			if (fScanner != null) {
-				fScanner.setStmtLocation(getLocation());
+				fScanner.setStmtLocation(getStmtLocation());
 			}
-			 */
 
 			ch = skipWhite_ll(get_ch_ll());
 			
-			def_id = readIdentifier(ch);
+			def_id = readIdentifier_ll(ch);
+			
+			if (def_id.equals("ovm_object_utils_end")) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 //			System.out.println("    `define \"" + def_id + "\"");
 
 			fParamList.clear();
 			
-			if ((ch = get_ch_ll()) == '(') {
+			ch = get_ch_ll();
+			
+			if (ch == '(') {
 				// Has parameters
 				
 				do {
@@ -262,39 +330,89 @@ public class SVPreProcScanner implements ISVScanner {
 					if (!(Character.isJavaIdentifierPart(ch))) {
 						break;
 					} else {
-						String p = readIdentifier(ch);
+						String p = readIdentifier_ll(ch);
+						fParamList.add(p);
+					}
+					
+					ch = skipWhite_ll(get_ch_ll());
+				} while (ch == ',');
+				
+				if (ch == ')') {
+					ch = get_ch_ll();
+				}
+			}
+
+			// Now, read the remainder of the definition
+			String define = readLine_ll(ch);
+			
+			System.out.println("Define: " + def_id + "(" + fParamList.size() + ") " 
+					+ define);
+			if (fPreProcEn.peek()) {
+				if (fObserver != null) {
+					fObserver.preproc_define(def_id, fParamList, define);
+				}
+			}
+		} else if (type.equals("include")) {
+			ch = skipWhite_ll(get_ch_ll());
+
+			if (ch == '"') {
+				String inc = readString(ch);
+
+//				System.out.println("Include \"" + inc + "\"");
+				if (fPreProcEn.peek()) {
+					if (fObserver != null) {
+						fObserver.preproc_include(inc);
+					}
+				}
+			}
+		} else {
+			// macro expansion. 
+			ch = get_ch_ll();
+
+			fParamList.clear();
+			if (ch == '(') {
+				// Has parameters -- the remainder of the macro invocation
+				do {
+					ch = skipWhite_ll(get_ch_ll());
+					
+					if (!(Character.isJavaIdentifierPart(ch))) {
+						break;
+					} else {
+						String p = readIdentifier_ll(ch);
 						fParamList.add(p);
 					}
 					
 					ch = skipWhite_ll(get_ch_ll());
 				} while (ch == ',');
 			}
-
-			// Now, read the remainder of the definition
-			String define = readLine_ll(ch);
 			
-			if (fObserver != null) {
-				fObserver.preproc_define(def_id, params, define);
+			if (fDefineProvider != null && fExpandMacros && fPreProcEn.peek()) {
+				System.out.println("Expand macro \"" + type + "\" w/" + 
+						fParamList.size() + " parameters");
+				String val = fDefineProvider.getDefineVal(type, fParamList);
+				
+				System.out.println("expansion: " + val);
 			}
-		} else if (type.equals("include")) {
-			ch = skipWhite_ll(get_ch_ll());
-
-			if (ch == '"') {
-				String inc = readString_ll(ch);
-
-//				System.out.println("Include \"" + inc + "\"");
-				if (fObserver != null) {
-					fObserver.preproc_include(inc);
-				}
-			}
-		} else {
-			// macro expansion. We can just ignore this
-
-			readLine_ll(get_ch_ll());
 		}
 	}
 	
-	public int skipWhite_ll(int ch) {
+	private int skipWhite(int ch) {
+
+		// Skip whitespace. Consider the line-continuation character as WS
+		while (Character.isWhitespace(ch) || ch == '\\') {
+			int tmp = get_ch();
+			
+			if (ch == '\\' && (tmp != '\r' && tmp != '\n')) {
+				unget_ch(tmp);
+				return ch;
+			}
+			ch = tmp;
+		}
+		
+		return ch;
+	}
+
+	private int skipWhite_ll(int ch) {
 
 		// Skip whitespace. Consider the line-continuation character as WS
 		while (Character.isWhitespace(ch) || ch == '\\') {
@@ -309,8 +427,8 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		return ch;
 	}
-	
-	private int get_ch() {
+
+	public int get_ch() {
 		int ch = -1;
 		
 		do {
@@ -350,20 +468,22 @@ public class SVPreProcScanner implements ISVScanner {
 			} else if (ch == '`') {
 				ch = get_ch_ll();
 				
-				String type = readIdentifier(ch);
+				String type = readIdentifier_ll(ch);
 				
-				handle_preproc_directive(type);
+				if (type != null) {
+					handle_preproc_directive(type);
+				} else {
+					System.out.println("null type @ " + 
+							fFileName + ":" + fLineno);
+					try {
+						throw new Exception();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 
 				continue;
-			} /* else if (ch == '"') {
-				int ch_l = -1;
-				
-				// skip strings
-				while ((ch = get_ch_ll()) != -1 &&
-						ch != '"' && ch_l != '\\') {
-					ch_l = ch;
-				}
-			} */
+			}
 		} while (false);
 		
 		return ch;

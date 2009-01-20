@@ -2,6 +2,7 @@ package net.sf.sveditor.core.tests;
 
 import java.io.File;
 
+import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVDBFilesystemIndex;
 
 public class SVDBIndexProfiler {
@@ -13,7 +14,8 @@ public class SVDBIndexProfiler {
 		
 		provider.add_path(args[0]);
 		
-		SVDBFilesystemIndex index = new SVDBFilesystemIndex(root, provider);
+		SVDBFilesystemIndex index = new SVDBFilesystemIndex(
+				root, ISVDBIndex.IT_BuildPath, provider);
 		
 		try {
 			Thread.sleep(30000);

@@ -42,10 +42,4 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 		return ret;
 	}
 	
-	public SVDBFileTree getFileTree(String path) {
-		SVDBFileTree ret = null;
-		SVDBWorkspaceFileManager mgr = fProjectData.getFileCache();
-		
-		for (SVDB)
-	}
 }

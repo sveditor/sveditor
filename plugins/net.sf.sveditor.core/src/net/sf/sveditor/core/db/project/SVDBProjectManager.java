@@ -47,7 +47,8 @@ public class SVDBProjectManager implements IResourceChangeListener {
 				fProjectMap.get(root.getProject()).getFileProvider();
 				
 			}
-			ISVDBIndex ret = new SVDBWorkspaceIndex(root.getFullPath(), file_provider); 
+			ISVDBIndex ret = new SVDBWorkspaceIndex(
+					root.getLocation(), ISVDBIndex.IT_BuildPath, file_provider); 
 			fBuildPathEntries.put(ret.getBaseLocation(), ret);
 			
 			return ret;
@@ -59,7 +60,7 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			if (fBuildPathEntries.containsKey(root)) {
 				return fBuildPathEntries.get(root);
 			} else {
-				ISVDBIndex ret = new SVDBFilesystemIndex(root, provider); 
+				ISVDBIndex ret = new SVDBFilesystemIndex(root, ISVDBIndex.IT_BuildPath, provider); 
 				fBuildPathEntries.put(root, ret);
 				return ret;
 			}

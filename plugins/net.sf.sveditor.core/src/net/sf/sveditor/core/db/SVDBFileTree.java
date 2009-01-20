@@ -1,30 +1,31 @@
 package net.sf.sveditor.core.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBFileTree {
 	
-	String					fFilePath;
+	File					fFilePath;
 	SVDBFile				fSVDBFile;
 	List<SVDBFileTree>      fIncludedFiles   = new ArrayList<SVDBFileTree>();
 	List<SVDBFileTree>		fIncludedByFiles = new ArrayList<SVDBFileTree>();
 
-	public SVDBFileTree(String path) {
+	public SVDBFileTree(File path) {
 		fFilePath = path;
 	}
 
 	public SVDBFileTree(SVDBFile file) {
-		fFilePath = file.getFilePath().getAbsolutePath();
+		fFilePath = file.getFilePath();
 		fSVDBFile = file;
 	}
 	
 	
-	public String getFilePath() {
+	public File getFilePath() {
 		return fFilePath;
 	}
 	
-	public void setFileName(String path) {
+	public void setFileName(File path) {
 		fFilePath = path;
 	}
 	

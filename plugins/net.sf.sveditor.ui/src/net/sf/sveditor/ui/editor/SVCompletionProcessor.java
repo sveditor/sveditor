@@ -227,7 +227,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 
 		if (pd != null) {
 			// Collect all matching class names from the build path
-			for (SVDBFile f : pd.getFileIndex().getFileList()) {
+			for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
 				for (SVDBItem it : f.getItems()) {
 					if (it.getType() == SVDBItemType.Class) {
 						if (it.getName() != null && (pre.equals("") 
@@ -383,7 +383,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				}
 
 				// look for include files that match the user-specified pattern
-				for (SVDBFile f : pd.getFileIndex().getFileList()) {
+				for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
 					File file = new File(f.getName());
 					if (file.getName().toLowerCase().startsWith(post_include)) {
 						display = file.getName();
@@ -417,7 +417,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					}
 				}
 				// Collect matching macro names from the build path
-				for (SVDBFile f : pd.getFileIndex().getFileList()) {
+				for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
 					for (SVDBItem it : f.getItems()) {
 						if (it.getType() == SVDBItemType.Macro) {
 							if (it.getName() != null && (pre.equals("") || 
