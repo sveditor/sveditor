@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Stack;
 
 public class SVPreProcScanner implements ISVScanner {
+	
+	private static final int    PP_DISABLED = 0;
+	private static final int    PP_ENABLED  = 1;
+	private static final int    PP_CARRY    = 2;
+	
 	private InputStream			fInput;
 	private String				fFileName;
 	private boolean				fExpandMacros;
@@ -19,18 +24,20 @@ public class SVPreProcScanner implements ISVScanner {
 	private int					fLineno;
 	private StringBuffer		fPPBuffer;
 	private StringBuffer		fTmpBuffer;
-	private Stack<Boolean>		fPreProcEn;
+	private Stack<Integer>		fPreProcEn;
 	private List<String>		fParamList;
 	private ISVScannerObserver	fObserver;
 	private ISVScanner			fScanner;
 	private IDefineProvider		fDefineProvider;
 	private ScanLocation		fScanLocation;
+	private StringBuffer		fUnaccBuffer;
 
 	
 	public SVPreProcScanner() {
 		fPPBuffer  = new StringBuffer();
 		fTmpBuffer = new StringBuffer();
-		fPreProcEn = new Stack<Boolean>();
+		fUnaccBuffer = new StringBuffer();
+		fPreProcEn = new Stack<Integer>();
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
 		fExpandMacros = false;
@@ -53,7 +60,6 @@ public class SVPreProcScanner implements ISVScanner {
 		fScanner = scanner;
 	}
 	
-	@Override
 	public ScanLocation getStmtLocation() {
 		return fScanLocation;
 	}
@@ -62,7 +68,6 @@ public class SVPreProcScanner implements ISVScanner {
 		return new ScanLocation(fFileName, fLineno, 0);
 	}
 
-	@Override
 	public void setStmtLocation(ScanLocation location) {
 		// Do nothing
 	}
@@ -74,9 +79,7 @@ public class SVPreProcScanner implements ISVScanner {
 		fPPBuffer.setLength(0);
 		fTmpBuffer.setLength(0);
 		fPreProcEn.clear();
-		
-		fPreProcEn.push(true);
-		
+
 		fInput    = in;
 		fFileName = name;
 		
@@ -260,6 +263,48 @@ public class SVPreProcScanner implements ISVScanner {
 		return fTmpBuffer.toString();
 	}
 
+	private String readString_ll(int ci) {
+		
+		fTmpBuffer.setLength(0);
+		int last_ch = -1;
+		
+		if (ci != '"') {
+			return null;
+		}
+		
+		fTmpBuffer.append((char)ci);
+		
+		ci = get_ch_ll();
+		while ((ci != '"' && ci != '\n') || last_ch == '\\') {
+			if (last_ch == '\\' && ci == '"') {
+				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
+					fTmpBuffer.setCharAt(fTmpBuffer.length()-1, '"');
+				}
+			} else if (last_ch == '\\' && ci == '\n') {
+				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\r') {
+					fTmpBuffer.setLength(fTmpBuffer.length()-1);
+				}
+				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
+					fTmpBuffer.setCharAt(fTmpBuffer.length()-1, ' ');
+				}
+			} else {
+				fTmpBuffer.append((char)ci);
+			}
+			
+			if (ci != '\r') {
+				last_ch = ci;
+			}
+			
+			ci = get_ch_ll();
+		}
+
+		if (ci != -1) {
+			fTmpBuffer.append((char)ci);
+		}
+		
+		return fTmpBuffer.toString();
+	}
+
 	private void handle_preproc_directive(String type) {
 		int ch = -1;
 		
@@ -274,21 +319,14 @@ public class SVPreProcScanner implements ISVScanner {
 			String remainder = readLine_ll(ch);
 			
 			if (type.equals("ifdef")) {
-				System.out.println("ifdef \"" + remainder + "\"");
-				fPreProcEn.push(false);
+				enter_ifdef(false);
 			} else {
-				System.out.println("ifndef \"" + remainder + "\"");
-				fPreProcEn.push(true);
+				enter_ifdef(true);
 			}
 		} else if (type.equals("else")) {
-			if (fPreProcEn.size() > 0) {
-				boolean en = fPreProcEn.pop();
-				fPreProcEn.push(!en);
-			}
+			invert_ifdef();
 		} else if (type.equals("endif")) {
-			if (fPreProcEn.size() > 0) {
-				fPreProcEn.pop();
-			}
+			leave_ifdef();
 		} else if (type.equals("timescale")) {
 			// ignore
 			// TODO: read to line-end
@@ -308,15 +346,6 @@ public class SVPreProcScanner implements ISVScanner {
 			
 			def_id = readIdentifier_ll(ch);
 			
-			if (def_id.equals("ovm_object_utils_end")) {
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-//			System.out.println("    `define \"" + def_id + "\"");
-
 			fParamList.clear();
 			
 			ch = get_ch_ll();
@@ -345,9 +374,7 @@ public class SVPreProcScanner implements ISVScanner {
 			// Now, read the remainder of the definition
 			String define = readLine_ll(ch);
 			
-			System.out.println("Define: " + def_id + "(" + fParamList.size() + ") " 
-					+ define);
-			if (fPreProcEn.peek()) {
+			if (ifdef_enabled()) {
 				if (fObserver != null) {
 					fObserver.preproc_define(def_id, fParamList, define);
 				}
@@ -358,41 +385,106 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ch == '"') {
 				String inc = readString(ch);
 
-//				System.out.println("Include \"" + inc + "\"");
-				if (fPreProcEn.peek()) {
+				if (ifdef_enabled()) {
 					if (fObserver != null) {
 						fObserver.preproc_include(inc);
 					}
 				}
 			}
 		} else {
-			// macro expansion. 
-			ch = get_ch_ll();
+			// macro expansion.
+			// TODO: is TmpBuffer available?
+			fTmpBuffer.setLength(0);
+			
+			fTmpBuffer.append('`');
+			fTmpBuffer.append(type);
 
-			fParamList.clear();
-			if (ch == '(') {
-				// Has parameters -- the remainder of the macro invocation
-				do {
-					ch = skipWhite_ll(get_ch_ll());
-					
-					if (!(Character.isJavaIdentifierPart(ch))) {
-						break;
-					} else {
-						String p = readIdentifier_ll(ch);
-						fParamList.add(p);
-					}
-					
-					ch = skipWhite_ll(get_ch_ll());
-				} while (ch == ',');
+			// Read the full string
+
+			if (fDefineProvider != null && fDefineProvider.hasParameters(type)) {
+				// Try to read the parameter list
+				ch = get_ch_ll();
+				ch = skipWhite_ll(ch);
+				
+				if (ch == '(') {
+					fTmpBuffer.append((char)ch);
+
+					int matchLevel=1;
+
+					do {
+						ch = get_ch_ll();
+						
+						if (ch == '(') {
+							matchLevel++;
+						} else if (ch == ')') {
+							matchLevel--;
+						}
+						
+						if (ch != -1) {
+							fTmpBuffer.append((char)ch);
+						}
+					} while (ch != -1 && matchLevel > 0);
+				} else {
+					System.out.println("[ERROR] macro \"" + type + 
+							"\" should have parameters, but doesn't");
+					unget_ch(ch);
+				}
 			}
 			
-			if (fDefineProvider != null && fExpandMacros && fPreProcEn.peek()) {
-				System.out.println("Expand macro \"" + type + "\" w/" + 
-						fParamList.size() + " parameters");
-				String val = fDefineProvider.getDefineVal(type, fParamList);
-				
-				System.out.println("expansion: " + val);
+			if (fDefineProvider != null) {
+				if (fExpandMacros) {
+					push_unacc(fDefineProvider.expandMacro(fTmpBuffer.toString()));
+				}
 			}
+		}
+	}
+	
+	private void enter_ifdef(boolean enabled) {
+		int e = (enabled)?PP_ENABLED:PP_DISABLED;
+		
+		if (fPreProcEn.size() > 0) {
+			int e_t = fPreProcEn.peek();
+			
+			if ((e_t & PP_ENABLED) == 0) {
+				// Anything beneath a disabled section is also disabled
+				e = PP_DISABLED;
+				e |= PP_CARRY;
+			}
+		}
+		
+		fPreProcEn.push(e);
+	}
+	
+	private void leave_ifdef() {
+		if (fPreProcEn.size() > 0) {
+			fPreProcEn.pop();
+		}
+	}
+	
+	private void invert_ifdef() {
+		if (fPreProcEn.size() > 0) {
+			int e = fPreProcEn.pop();
+			
+			// Invert only if we're in an enabled scope
+			if (e != PP_CARRY) {
+				int e2 = ((e & PP_ENABLED) == PP_ENABLED)?PP_DISABLED:PP_ENABLED;
+				
+				if ((e & PP_CARRY) != 0) {
+					e2 |= PP_CARRY;
+				}
+				e = e2;
+			}
+			
+			fPreProcEn.push(e);
+		}
+	}
+	
+	private boolean ifdef_enabled() {
+		if (fPreProcEn.size() == 0) {
+			return true;
+		} else {
+			int e = fPreProcEn.peek();
+			return ((e & PP_ENABLED) == PP_ENABLED);
 		}
 	}
 	
@@ -433,7 +525,7 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		do {
 			ch = get_ch_pp();
-		} while (!fPreProcEn.peek() && ch != -1);
+		} while (!ifdef_enabled() && ch != -1);
 		
 		return ch;
 	}
@@ -441,9 +533,14 @@ public class SVPreProcScanner implements ISVScanner {
 	private int get_ch_pp() {
 		int ch=-1;
 
-		do {
-			ch = get_ch_ll();
-
+		while (true) {
+			if (fUnaccBuffer.length() > 0) {
+				ch = fUnaccBuffer.charAt(fUnaccBuffer.length()-1);
+				fUnaccBuffer.setLength(fUnaccBuffer.length()-1);
+			} else {
+				ch = get_ch_ll();
+			}
+			
 			if (ch == '/') {
 				int ch2 = get_ch_ll();
 
@@ -475,16 +572,13 @@ public class SVPreProcScanner implements ISVScanner {
 				} else {
 					System.out.println("null type @ " + 
 							fFileName + ":" + fLineno);
-					try {
-						throw new Exception();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
-
+				
 				continue;
 			}
-		} while (false);
+			
+			break;
+		}
 		
 		return ch;
 	}
@@ -522,5 +616,14 @@ public class SVPreProcScanner implements ISVScanner {
 	
 	private void unget_ch(int ch) {
 		fUngetCh = ch;
+	}
+	
+	private void push_unacc(String str) {
+		StringBuilder tmp = new StringBuilder(str);
+		if (fUnaccBuffer.length() == 0) {
+			fUnaccBuffer.append(tmp.reverse());
+		} else {
+			fUnaccBuffer.insert(0, tmp.reverse());
+		}
 	}
 }

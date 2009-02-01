@@ -28,12 +28,12 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		return fFileList;
 	}
 
-	@Override
+	
 	public void init(ISVScanner scanner) {
 		fScanner = scanner;
 	}
 
-	@Override
+	
 	public void enter_file(String filename) {
 		SVDBFile file = new SVDBFile(new File(filename));
 		fFileList.add(file);
@@ -41,35 +41,35 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		fScopeStack.push(file);
 	}
 	
-	@Override
+	
 	public void enter_package(String name) {
 		SVDBPackageDecl pd = new SVDBPackageDecl(name);
 		setLocation(pd);
 		fScopeStack.push(pd);
 	}
 	
-	@Override
+	
 	public void leave_package() {
 		if (fScopeStack.peek() instanceof SVDBPackageDecl) {
 			fScopeStack.pop();
 		}
 	}
 	
-	@Override
+	
 	public void preproc_define(String key, List<String> params, String value) {
 		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
 		setLocation(def);
 		fFileList.get(fFileList.size()-1).getItems().add(def);
 	}
 
-	@Override
+	
 	public void preproc_include(String path) {
 		SVDBInclude inc = new SVDBInclude(path);
 		setLocation(inc);
 		fScopeStack.peek().getItems().add(inc);
 	}
 	
-	@Override
+	
 	public void leave_file() {
 		fScopeStack.clear();
 	}
@@ -82,83 +82,83 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 				loc.getLineNo(), loc.getLinePos()));
 	}
 	
-	@Override
+	
 	public void error(String msg) {
 		System.out.println("[ERROR] " + msg);
 	}
 
 
-	@Override
+	
 	public void comment(String comment) {}
 
-	@Override
+	
 	public void covergroup_item(String name, String type) {}
 
-	@Override
+	
 	public void enter_class_decl(String name, List<SVClassIfcModParam> params,
 			String super_name, List<SVClassIfcModParam> super_params)
 			throws HaltScanException {}
 
-	@Override
+	
 	public void enter_covergroup(String name) {}
 
-	@Override
+	
 	public void enter_func_decl(String name, int attr, String ret_type,
 			List<SVTaskFuncParam> params) throws HaltScanException {}
 
-	@Override
+	
 	public void enter_interface_decl(String name, String ports)
 			throws HaltScanException {}
 
-	@Override
+	
 	public void enter_module_decl(String name, String ports)
 			throws HaltScanException {}
 
-	@Override
+	
 	public void enter_property(String name) {}
 
-	@Override
+	
 	public void enter_sequence(String name) {}
 
-	@Override
+	
 	public void enter_struct_decl(String name, List<SVClassIfcModParam> params)
 			throws HaltScanException {}
 
-	@Override
+	
 	public void enter_task_decl(String name, int attr,
 			List<SVTaskFuncParam> params) throws HaltScanException {}
 
-	@Override
+	
 	public void import_statment(String imp) throws HaltScanException {}
 
-	@Override
+	
 	public void leave_class_decl() throws HaltScanException {}
 
-	@Override
+	
 	public void leave_covergroup() {}
 
-	@Override
+	
 	public void leave_func_decl() {}
 
-	@Override
+	
 	public void leave_interface_decl() {}
 
-	@Override
+	
 	public void leave_module_decl() throws HaltScanException {}
 
-	@Override
+	
 	public void leave_property() {}
 
-	@Override
+	
 	public void leave_sequence() {}
 
-	@Override
+	
 	public void leave_struct_decl() {}
 
-	@Override
+	
 	public void leave_task_decl() {}
 
-	@Override
+	
 	public void variable_decl(SVTypeInfo type, int attr, List<String> variables)
 			throws HaltScanException {}
 

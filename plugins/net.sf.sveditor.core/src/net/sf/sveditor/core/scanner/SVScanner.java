@@ -678,50 +678,49 @@ public class SVScanner implements ISVScanner {
 	
 	private List<SVClassIfcModParam> parse_parameter_str(String p_str) {
 		List<SVClassIfcModParam> ret = new ArrayList<SVClassIfcModParam>();
+		ITextScanner in = new StringTextScanner(new StringBuilder(p_str));
+		/*
 		SVScannerInput in = new SVScannerInput("param_processor", 
 				new StringInputStream(p_str), 
 				null, fObserver, fDefineProvider);
+		 */
 		int    ch = 0;
 		String id;
 		
-		try {
-			
-			ch = in.skipWhite(in.next_ch());
-			if (ch != '(') {
-				in.unget_ch(ch);
-			}
-			
-			while (ch != -1) {
-				ch = in.skipWhite(in.next_ch());
+		ch = in.skipWhite(in.get_ch());
+		if (ch != '(') {
+			in.unget_ch(ch);
+		}
 
+		while (ch != -1) {
+			ch = in.skipWhite(in.get_ch());
+
+			id = in.readIdentifier(ch);
+
+			if (id == null) {
+				break;
+			}
+
+			if (id.equals("type")) {
+				ch = in.skipWhite(in.get_ch());
 				id = in.readIdentifier(ch);
-				
-				if (id == null) {
-					break;
-				}
-
-				if (id.equals("type")) {
-					ch = in.skipWhite(in.get_ch());
-					id = in.readIdentifier(ch);
-				}
-
-				// id now holds the template identifier
-
-				ret.add(new SVClassIfcModParam(id));
-
-				ch = in.skipWhite(in.next_ch());
-
-				if (ch == '(') {
-					ch = in.skipPastMatch("()");
-				}
-
-				ch = in.skipWhite(ch);
-
-				ch = in.skipToChar(ch, ',');
-
 			}
-		} catch (EOFException e) {
-			// Ignore, since this just means we hit the end of the string
+
+			// id now holds the template identifier
+
+			ret.add(new SVClassIfcModParam(id));
+
+			ch = in.skipWhite(in.get_ch());
+
+			if (ch == '(') {
+				ch = in.skipPastMatch("()");
+			}
+
+			ch = in.skipWhite(ch);
+
+			while (ch != -1 && ch != ',') {
+				ch = in.get_ch();
+			}
 		}
 		
 		return ret;

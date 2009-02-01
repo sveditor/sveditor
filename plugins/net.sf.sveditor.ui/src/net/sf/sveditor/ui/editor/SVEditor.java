@@ -355,7 +355,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		return super.getAdapter(adapter);
 	}
 
-	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
 		/*
 		System.out.println("--> documentChanged");
@@ -396,7 +395,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		 */
 	}
 
-	@Override
 	public void documentChanged(DocumentEvent event) {
 		/*
 		String doc_s = getDocumentProvider().getDocument(getEditorInput()).toString();

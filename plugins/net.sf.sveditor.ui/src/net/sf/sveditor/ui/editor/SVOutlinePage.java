@@ -55,7 +55,6 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 
 	
-	@Override
 	public void SVDBFileChanged(SVDBFile file, List<SVDBItem> adds,
 			List<SVDBItem> removes, List<SVDBItem> changes) {
 		if (file.getFilePath().equals(fEditor.getFilePath())) {

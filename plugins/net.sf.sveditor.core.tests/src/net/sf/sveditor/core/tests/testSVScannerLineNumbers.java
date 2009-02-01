@@ -11,7 +11,6 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 public class testSVScannerLineNumbers implements IApplication {
 
-	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		// InputStream in = Activator.openFile("data/ovm_tlm/ovm_ports.svh");
 		InputStream in = Activator.openFile("data/tlm_imps.svh");
@@ -25,6 +24,5 @@ public class testSVScannerLineNumbers implements IApplication {
 		return 0;
 	}
 
-	@Override
 	public void stop() {}
 }

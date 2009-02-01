@@ -380,6 +380,16 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		}
 	}
 	
+	public String expandMacro(String str) {
+		System.out.println("[FIXME] SVDBFileFactory.expandMacro()");
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
 	private String expandMacroDef(
 			SVDBMacroDef			def,
 			List<String>			params) {

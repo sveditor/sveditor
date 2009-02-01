@@ -654,10 +654,12 @@ public class SVScannerInput {
 			}
 			
 			String val = "";
-			
+
+			/*
 			if (fDefineProvider != null) {
 				val = fDefineProvider.getDefineVal(type, params);
 			}
+			 */
 			
 //			System.out.println("def value: \"" + val + "\"");
 

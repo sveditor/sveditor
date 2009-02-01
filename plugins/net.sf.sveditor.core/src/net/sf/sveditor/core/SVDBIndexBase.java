@@ -293,7 +293,6 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return Status.OK_STATUS;
 	}
 	
-	@Override
 	public SVDBFileTree findIncludedFile(String leaf) {
 		Iterator<File> it = getFileTree().keySet().iterator();
 		
@@ -310,12 +309,10 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return null;
 	}
 
-	@Override
 	public int getIndexType() {
 		return fIndexType;
 	}
 
-	@Override
 	public void rebuildIndex() {
 		// TODO: force index and map to be invalid
 		System.out.println("[TODO] SVDBIndexBase.rebuildIndex");

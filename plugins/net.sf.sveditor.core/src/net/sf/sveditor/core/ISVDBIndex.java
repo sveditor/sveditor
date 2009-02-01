@@ -1,10 +1,7 @@
 package net.sf.sveditor.core;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
-
-import javax.activation.FileTypeMap;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
