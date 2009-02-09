@@ -39,54 +39,24 @@ public class SVDBFileTreeUtils {
 			file_map.put(file_t.getFilePath(), file_t);
 		}
 
-		/** Do not need to remove the sub-files from the list
-		for (int i=0; i<org_files.size(); i++) {
-			SVDBFileTree f = org_files.get(i);
-			
-			if (f.getIncludedByFiles().size() == 1) {
-				org_files.remove(f);
-				i--;
-			}
-		}
-		 */
-		
-		/**
-		for (SVDBFileTree file_t : org_files) {
-			
-			if (file_t.getIncludedByFiles().size() > 1) {
-				System.out.println("File " + file_t.getFilePath()+ 
-						" is included by " + file_t.getIncludedByFiles().size() + " files");
-			} else if (file_t.getIncludedByFiles().size() == 0) {
-			} else if (file_t.getIncludedByFiles().size() == 1) {
-				System.out.println("File " + file_t.getFilePath()+ 
-						" is included by 1 file");
-			}
-		}
-        */
-
-		/*
-		SVDBFileTree f = file_map.get(
-				"/media/disk1/usr1/work/inFact/demos/uart_ovm_testbench_trunk/testbench_ovm/ovm-2.0.1/src/tlm/tlm_ifs.svh");
-		
-		if (f != null) {
-			System.out.println("f includes: " + f.getIncludedFiles().size());
-			while (f.getIncludedByFiles().size() == 1) {
-				f = f.getIncludedByFiles().get(0);
-				System.out.println("    included by \"" + f.getFilePath() + "\"");
-			}
-		}
-		 */
-		
 		return file_map;
 	}
+	
+	/*
+	public static SVDBFileTree resolveInclusions(
+			SVDBFileTree						file,
+			List<Map<File, SVDBFileTree>>		file_maps) {
+		
+	}
+	 */
+					
+			
 	
 	public static void updateFiles(
 			Map<String, SVDBFileTree>	map,
 			SVDBFile					new_file) {
 		SVDBFileTree file_t = new SVDBFileTree(new_file);
 		setupIncludedFiles(file_t, new_file);
-
-		
 	}
 	
 	private static void setupIncludedFiles(
@@ -99,7 +69,7 @@ public class SVDBFileTreeUtils {
 			} else if (it instanceof SVDBPackageDecl) {
 				for (SVDBItem it_p : ((SVDBPackageDecl) it).getItems()) {
 					if (it_p instanceof SVDBInclude) {
-						SVDBFileTree t = new SVDBFileTree(new File(it.getName()));
+						SVDBFileTree t = new SVDBFileTree(new File(it_p.getName()));
 						file_t.getIncludedFiles().add(t);
 					}
 				}
@@ -112,24 +82,44 @@ public class SVDBFileTreeUtils {
 			List<SVDBFileTree> 	files) {
 		for (int i=0; i<file_t.getIncludedFiles().size(); i++) {
 			SVDBFileTree f = file_t.getIncludedFiles().get(i);
-			boolean found = false;
+			SVDBFileTree inc_file = null;
 
 			if (f.getSVDBFile() == null) {
 				// Search the top-level list
 				for (SVDBFileTree ft : files) {
+					// TODO: must account for other files with the same name
+					// - Use distance as a similarity metric?
 					if (ft.getFilePath().getPath().endsWith(f.getFilePath().getPath())) {
-						file_t.getIncludedFiles().set(i, ft);
-						found = true;
-						break;
+						if (inc_file != null) {
+							inc_file = determineClosestMatch(file_t, f, inc_file, ft);
+						} else {
+							inc_file = ft;
+						}
 					}
 				}
 				
-				if (!found) {
+				if (inc_file != null) {
+					file_t.getIncludedFiles().set(i, inc_file);
+				} else {
 					System.out.println("Could not resolve inc \"" + 
 							f.getFilePath() + "\"");
 				}
 			}
 		}
+	}
+	
+	private static SVDBFileTree determineClosestMatch(
+			SVDBFileTree		inc_file,
+			SVDBFileTree		inc_path,
+			SVDBFileTree		f1,
+			SVDBFileTree		f2) {
+		System.out.println("determineClosestMatc: include \"" + 
+				inc_path.getFilePath() + "\" in file \"" + 
+				inc_file.getFilePath() + "\"");
+		System.out.println("    f1: " + f1.getFilePath());
+		System.out.println("    f2: " + f2.getFilePath());
+		
+		return f1;
 	}
 
 	private static void resolveIncludedRefs(
@@ -137,7 +127,8 @@ public class SVDBFileTreeUtils {
 			List<SVDBFileTree> 	files) {
 		for (SVDBFileTree f : files) {
 			for (SVDBFileTree fi : f.getIncludedFiles()) {
-				if (fi.equals(file_t)) {
+				//if (fi.equals(file_t)) {
+				if (fi.getFilePath().equals(file_t.getFilePath())) {
 					if (!file_t.getIncludedByFiles().contains(f)) {
 						file_t.getIncludedByFiles().add(f);
 					}
@@ -145,5 +136,4 @@ public class SVDBFileTreeUtils {
 			}
 		}
 	}
-
 }

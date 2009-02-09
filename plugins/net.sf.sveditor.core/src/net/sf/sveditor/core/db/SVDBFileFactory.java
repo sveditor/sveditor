@@ -26,7 +26,7 @@ import net.sf.sveditor.core.scanner.ScanLocation;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
+public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider */ {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
@@ -35,11 +35,12 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 	private SVDBFileFactory(IDefineProvider def_provider) {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
-		if (def_provider != null) {
-			fScanner.setDefineProvider(def_provider);
-		} else {
+		fScanner.setDefineProvider(def_provider);
+		/*
+		else {
 			fScanner.setDefineProvider(this);
-		}
+		} 
+		 */
 		fScopeStack = new Stack<SVDBScopeItem>();
 	}
 	
@@ -380,13 +381,8 @@ public class SVDBFileFactory implements ISVScannerObserver, IDefineProvider {
 		}
 	}
 	
-	public String expandMacro(String str) {
+	public String expandMacro(String str, String file, int lineno) {
 		System.out.println("[FIXME] SVDBFileFactory.expandMacro()");
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		return "";
 	}
 	

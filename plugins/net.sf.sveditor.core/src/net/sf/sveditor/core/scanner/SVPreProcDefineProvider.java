@@ -2,21 +2,29 @@ package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private ISVDBIndex					fIndex;
 	private SVDBFileTree				fContext;
+	private boolean						fDebugEnS = false;
+	private boolean						fDebugEn  = false;
+	private String						fFilename;
+	private int							fLineno;
+	private Stack<String>				fExpandStack;
+	
 	
 	public SVPreProcDefineProvider() {
+		fExpandStack = new Stack<String>();
 	}
 	
 	public SVPreProcDefineProvider(ISVDBIndex index) {
+		fExpandStack = new Stack<String>();
 		fIndex = index;
 	}
 	
@@ -24,21 +32,25 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		fContext = context;
 	}
 
-	public String getDefineVal(String key, List<String> params) {
-		System.out.println("[FIXME] getDefineVal()");
-		return "";
-	}
-	
-	public String expandMacro(String str) {
+	public synchronized String expandMacro(
+			String 			str, 
+			String 			filename, 
+			int 			lineno) {
 		StringTextScanner scanner = new StringTextScanner(
 				new StringBuilder(str));
+		
+		fFilename = filename;
+		fLineno   = lineno;
+		fExpandStack.clear();
 
 		debug("--> expandMacro(str): " + str);
 
 		expandMacro(scanner);
 		
 		debug("<-- expandMacro(str): " + str);
-		debug("    Result: " + scanner.getStorage().toString());
+		if (fDebugEn) {
+			debug("    Result: " + scanner.getStorage().toString());
+		}
 		return scanner.getStorage().toString();
 	}
 
@@ -58,7 +70,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		// Expect this to be '`'
 		if (ch != '`') {
 			System.out.println("[ERROR] Expect macro to start " +
-					"with '`', not " + (char)ch);
+					"with '`', not " + (char)ch + " @ " +
+					fFilename + ":" + fLineno);
 			try {
 				throw new Exception();
 			} catch (Exception e) {
@@ -69,12 +82,28 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		// Read the macro name
 		String key = scanner.readIdentifier(scanner.get_ch());
 		
+		if (key == null) {
+			ch = scanner.get_ch();
+			System.out.println("Failed to read macro name starting with " +	(char)ch);
+			scanner.unget_ch(ch);
+		}
+		
+		fExpandStack.push(key);
+		
 		ch = scanner.skipWhite(scanner.get_ch());
 		
 		SVDBMacroDef m = searchContext(fContext, key);
 		
 		if (m == null) {
-			System.out.println("[ERROR] macro \"" + key + "\" undefined");
+			System.out.println("[ERROR] macro \"" + key + "\" undefined @ " +
+					fFilename + ":" + fLineno);
+			walkStack();
+			
+			boolean tmp = fDebugEnS;
+			fDebugEnS = true;
+			searchContext(fContext, key);
+			fDebugEnS = tmp;
+			
 			if (ch == '(') {
 				ch = scanner.skipPastMatch("()");
 				scanner.unget_ch(ch);
@@ -91,9 +120,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			// Before parsing the parameters, make all macro substitutions
 			StringTextScanner scanner_s;
 
-			debug("pre-expand: str=" + scanner.getStorage()); 
+			if (fDebugEn) {
+				debug("pre-expand: str=" + scanner.getStorage());
+			}
 			expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
-			debug("post-expand: str=" + scanner.getStorage()); 
+			if (fDebugEn) {
+				debug("post-expand: str=" + scanner.getStorage());
+			}
 			
 			params = parse_params(m, scanner);
 			
@@ -101,8 +134,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					macro_start, scanner.getOffset());
 			expandMacro(scanner_s, m, params);
 			
-			debug("Expansion of " + m.getName() + " is: " +
-					scanner.getStorage().toString());
+			if (fDebugEn) {
+				debug("Expansion of " + m.getName() + " is: " +
+						scanner.getStorage().toString());
+			}
 			
 			ch = scanner.get_ch();
 
@@ -113,11 +148,16 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			
 			expandMacro(scanner_s, m, null);
 			
-			debug("Expansion Result: " + scanner_s.getStorage().toString());
+			if (fDebugEn) {
+				debug("Expansion Result: " + scanner_s.getStorage().toString());
+			}
+			/*
 			scanner.replace(macro_start, scanner.getOffset(), 
 					scanner_s.getStorage().toString());
+			 */
 		}
 		
+		fExpandStack.pop();
 		debug("<-- expandMacro(scanner)");
 		return 0;
 	}
@@ -132,13 +172,24 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			List<String> 			params) {
 		boolean expand_params = (params != null);
 		debug("--> expandMacro(" + m.getName() + ")");
-		debug("    text=" + scanner.substring(scanner.getOffset(), scanner.getLimit()));
+		if (fDebugEn) {
+			if (scanner.substring(scanner.getOffset(), scanner.getLimit()).equals("`ovm_component_utils_en")) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			debug("    text=" + scanner.substring(scanner.getOffset(), scanner.getLimit()));
+		}
 		
 		if (expand_params) {
 			expand_params = (params.size() == m.getParameters().size());
 			if (params.size() != m.getParameters().size()) {
-				System.out.println("[ERROR] param count doesn't match: " + 
+				System.out.println("[ERROR] param count for macro \"" + 
+						m.getName() + "\" doesn't match: " + 
 						params.size() + " vs " + m.getParameters().size());
+				System.out.println("    Location: " + fFilename + ":" + fLineno);
 				try {
 					throw new Exception();
 				} catch (Exception e) {
@@ -151,7 +202,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		if (m.getDef() == null) {
 			System.out.println("[ERROR] macro definition for key \"" + 
 					m.getName() + "\" is null");
-			return;
+			walkStack();
 		}
 		
 		debug("def=" + m.getDef());
@@ -169,15 +220,19 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		expandMacroRefs(new StringTextScanner(scanner));
 		
 		
-		debug("    text=" + scanner.getStorage().toString());
+		if (fDebugEn) {
+			debug("    text=" + scanner.getStorage().toString());
+		}
 		debug("<-- expandMacro(" + m.getName() + ")");
 	}
 	
 	private List<String> parse_params(
 			SVDBMacroDef			m,
 			StringTextScanner 		scanner) {
-		debug("--> parse_params(" + m.getName() + ")");
-		debug("    str=" + scanner.getStorage().substring(scanner.getOffset()));
+		if (fDebugEn) {
+			debug("--> parse_params(" + m.getName() + ")");
+			debug("    str=" + scanner.getStorage().substring(scanner.getOffset()));
+		}
 		List<String> params = new ArrayList<String>();
 		int ch = scanner.get_ch();
 		
@@ -189,12 +244,16 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				break;
 			}
 			
-			// Skip an argument, including 
+			scanner.unget_ch(ch);
+			
+			// Skip an argument, including () 
 			do {
 				ch = scanner.get_ch();
 				
 				if (ch == '(') {
 					ch = scanner.skipPastMatch("()");
+					
+					debug("    post-skip (): ch=" + (char)ch);
 				}
 			} while (ch != -1 && ch != ',' && ch != ')');
 			
@@ -205,8 +264,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				// Need to sub-expand this parameter
 				StringTextScanner scanner_s = new StringTextScanner(
 						scanner, p_start, p_end-1);
-				debug("String passed to expandMacro(1): " + 
-						scanner_s.substring(p_start, p_end-1));
+				if (fDebugEn) {
+					debug("String passed to expandMacro(1): " + 
+							scanner_s.substring(p_start, p_end-1));
+				}
 				expandMacro(scanner_s);
 
 				param = scanner_s.getStorage().toString();
@@ -225,8 +286,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			ch = scanner.skipWhite(ch);
 		}
 		
-		for (String s : params) {
-			debug("Param: \"" + s + "\"");
+		if (fDebugEn) {
+			for (String s : params) {
+				debug("Param: \"" + s + "\"");
+			}
 		}
 		
 		debug("<-- parse_params(" + m.getName() + ") => " + params.size());
@@ -247,8 +310,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			List<String>				param_vals) {
 		int ch;
 
-		debug("--> expandParameterRefs");
-		debug("pre=" + scanner.getStorage());
+		if (fDebugEn) {
+			debug("--> expandParameterRefs");
+			debug("pre=" + scanner.getStorage());
+		}
 
 		while ((ch = scanner.get_ch()) != -1) {
 			if (Character.isJavaIdentifierStart(ch)) {
@@ -263,20 +328,28 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							param_vals.get(index));
 				}
 			} else if (ch == '"') {
-				// Could skip string...
-				scanner.readString(ch);
+				// Don't consider `" 
+				if (scanner.getOffset() == 0 || 
+						scanner.getStorage().charAt(scanner.getOffset()-1) != '`') {
+					// Could skip string...
+					scanner.readString(ch);
+				}
 			}
 		}
-		
-		debug("<-- expandParameterRefs");
-		debug("post=" + scanner.getStorage());
+
+		if (fDebugEn) {
+			debug("<-- expandParameterRefs");
+			debug("post=" + scanner.getStorage());
+		}
 	}
 	
 	private void expandMacroRefs(StringTextScanner scanner) {
 		int ch;
 		
-		debug("--> expandMacroRefs");
-		debug("pre=" + scanner.getStorage().substring(scanner.getOffset(), scanner.getLimit()));
+		if (fDebugEn) {
+			debug("--> expandMacroRefs");
+			debug("pre=" + scanner.getStorage().substring(scanner.getOffset(), scanner.getLimit()));
+		}
 		
 		while ((ch = scanner.get_ch()) != -1) {
 			if (ch == '`') {
@@ -284,9 +357,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				
 				if (ch2 == '`') {
 					// Nothing -- `` is the same as ## in C++ pre-proc
-					scanner.delete(scanner.getOffset()-1, scanner.getOffset()+1);
+					scanner.delete(scanner.getOffset()-2, scanner.getOffset());
 				} else if (ch2 == '"' || ch2 == '\\') {
-					System.out.println("[TODO] must delete escaped '" + (char)ch2 + "'");
+					scanner.delete(scanner.getOffset()-2, scanner.getOffset()-1);
 				} else {
 					
 					// Expect an identifier
@@ -295,14 +368,18 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					ch = scanner.skipWhite(ch2);
 					String key = scanner.readIdentifier(ch);
 					
+					if (key == null) {
+						System.out.println("Failed to read macro name starting with " +	(char)ch);
+					}
+
 					SVDBMacroDef sub_m = searchContext(fContext, key);
 					List<String> sub_p = null;
 					ch = scanner.get_ch();
 					
 					debug("    ref=\"" + key + "\"");
 					
-					
 					int m_end = scanner.getOffset();
+					
 					if (hasParameters(key)) {
 						// TODO: Need to expand parameter references in this macro call
 						
@@ -313,36 +390,40 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							sub_p = parse_params(sub_m, scanner);
 //							scanner.get_ch();
 						}
-						m_end = scanner.getOffset()+1;
+						m_end = scanner.getOffset();
 					} else {
 						debug("    \"" + key + "\" doesn't have parameters");
 					}
 					
 					// Now, expand this macro
-					/*
-					debug("first char=" + scanner.getStorage().charAt(m_start));
-					debug("    offset=" + scanner.getOffset());
-					debug("    char=" + scanner.getStorage().charAt(m_end));
-					debug("    send substring: " + scanner.substring(m_start, m_end));
-					 */
-					
 					if (ch != -1) {
+						// Back up if we didn't end by exhausing the buffer. 
+						// We don't want to replace the character following the macro
 						scanner.unget_ch(ch);
-					}
+						m_end--;
+					} 
 					
-					StringTextScanner scanner_s = new StringTextScanner(scanner, m_start, m_end-1);
+					debug("    text for expansion ends with " + 
+							scanner.getStorage().charAt(m_end-1));
+					StringTextScanner scanner_s = new StringTextScanner(
+							scanner, m_start, m_end);
 					
 					if (sub_m != null) {
 						expandMacro(scanner_s, sub_m, sub_p);
 					} else {
-						System.out.println("[ERROR] Macro \"" + key + "\" undefined");
+						System.out.println("[ERROR] Macro \"" + key + 
+								"\" undefined @ " + fFilename + ":" + fLineno);
+						scanner.delete(m_start, m_end-1);
+						walkStack();
 					}
 				}
 			}
 		}
 		
-		debug("post=" + scanner.getStorage());
-		debug("<-- expandMacroRefs");
+		if (fDebugEn) {
+			debug("post=" + scanner.getStorage());
+			debug("<-- expandMacroRefs");
+		}
 	}
 
 	public boolean hasParameters(String key) {
@@ -363,93 +444,128 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			SVDBFileTree 	context, 
 			String 			key) {
 		SVDBMacroDef ret = null;
+		debug_s("--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
 		
-		if ((ret = searchLocal(context, key)) != null) {
-			return ret;
+		if (ret == null) {
+			ret = searchLocal(context, key);
 		}
-		
-		if ((ret = searchDown(context, key)) != null) {
-			return ret;
-		}
-		
-		if ((ret = searchUp(context, key)) != null) {
-			return ret;
-		}
-		
 
+		if (ret == null) {
+			ret = searchUp(context, key);
+		}
+
+		if (ret == null) {
+			ret = searchDown(context, key);
+		}
+		
+		debug_s("<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
 		return ret;
 	}
 	
 	private SVDBMacroDef searchLocal(SVDBFileTree context, String key) {
 		SVDBMacroDef m = null;
+		debug_s("--> searchLocal(" + context.getFilePath() + ", \"" + key + "\"");
 
 		for (SVDBItem it : context.getSVDBFile().getItems()) {
+			debug_s("    it=" + it.getName());
 			if (it instanceof SVDBMacroDef && it.getName().equals(key)) {
 				m = (SVDBMacroDef)it;
 				break;
 			}
 		}
 		
+		debug_s("<-- searchLocal(" + context.getFilePath() + ", \"" + key + "\"");
 		return m;
 	}
 	
 	private SVDBMacroDef searchDown(SVDBFileTree context, String key) {
 		SVDBMacroDef m = null;
-
-		for (SVDBFileTree inc : context.getIncludedFiles()) {
-			if (inc.getSVDBFile() == null) {
-				System.out.println("[TODO] do lookup of inc file \"" + 
-						inc.getFilePath().getPath() + "\"");
-			} else {
-				if ((m = searchLocal(inc, key)) != null) {
-					break;
-				}
+		debug_s("--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
+		
+		m = searchLocal(context, key); 
+		
+		if (m == null) {
+			for (SVDBFileTree inc : context.getIncludedFiles()) {
+				debug_s("    searching included file \"" + inc.getFilePath() + "\"");
+				if (inc.getSVDBFile() == null) {
+					System.out.println("[TODO] do lookup of inc file \"" + 
+							inc.getFilePath().getPath() + "\"");
+				} else {
+					if ((m = searchLocal(inc, key)) != null) {
+						break;
+					}
 				
-				if ((m = searchDown(inc, key)) != null) {
-					break;
+					if ((m = searchDown(inc, key)) != null) {
+						break;
+					}
 				}
 			}
 		}
 		
+		debug_s("<-- searchDown(" + context.getFilePath() + ", \"" + key + "\")");
 		return m;
 	}
 	
 	private SVDBMacroDef searchUp(SVDBFileTree context, String key) {
 		SVDBMacroDef m = null;
 		
-		for (SVDBFileTree is : context.getIncludedByFiles()) {
-			
-			if ((m = searchLocal(is, key)) != null) {
-				break;
-			}
+		debug_s("--> searchUp(" + context.getFilePath() + ", " + key + ")");
+		
+		m = searchLocal(context, key);
+		
+		if (m == null) {
+			for (SVDBFileTree is : context.getIncludedByFiles()) {
+				debug_s("    included-by file: " + is.getFilePath());
+				
 
-			for (SVDBFileTree inc : is.getIncludedFiles()) {
-				if (inc != context) {
-					if ((m = searchDown(inc, key)) != null) {
-						break;
+				if ((m = searchLocal(is, key)) != null) {
+					break;
+				}
+
+				for (SVDBFileTree inc : is.getIncludedFiles()) {
+					if (inc != context) {
+						if ((m = searchDown(inc, key)) != null) {
+							break;
+						}
 					}
 				}
-			}
-			
-			if (m != null) {
-				break;
-			}
-			
-			if ((m = searchUp(is, key)) != null) {
-				break;
+
+				if (m != null) {
+					break;
+				}
+
+				if ((m = searchUp(is, key)) != null) {
+					break;
+				}
 			}
 		}
 
+		debug_s("<-- searchUp(" + context.getFilePath() + ", " + key + ")");
 		return m;
 	}
 
-
-	private SVDBFileTree findFile(String file) {
-		return fIndex.findIncludedFile(file);
+	private void walkStack() {
+		String key;
+		Stack<String> tmp = new Stack<String>();
+		tmp.addAll(fExpandStack);
+		
+		System.out.println("walkStack");
+		while (tmp.size() > 0) {
+			key = tmp.pop();
+			System.out.println("    " + key);
+		}
 	}
 	
 	private void debug(String str) {
-//		System.out.println(str);
+		if (fDebugEn) {
+			System.out.println(str);
+		}
+	}
+	
+	private void debug_s(String str) {
+		if (fDebugEnS) {
+			System.out.println(str);
+		}
 	}
 
 }

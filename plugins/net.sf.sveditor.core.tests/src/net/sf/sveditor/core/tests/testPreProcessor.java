@@ -20,7 +20,7 @@ public class testPreProcessor implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		SVDBFilesystemIndex ovm = new SVDBFilesystemIndex(
 				new File("/tools/ovm/ovm-2.0.1/src"), ISVDBIndex.IT_BuildPath, null);
-		String filename = "/tools/ovm/ovm-2.0.1/src/tlm/ovm_ports.svh";
+		String filename = "/tools/ovm/ovm-2.0.1/src/base/ovm_factory.sv";
 		
 		ovm.getFileTree();
 		

@@ -59,6 +59,20 @@ public class SVDBIndexList implements ISVDBIndexList {
 
 		return fFileTree;
 	}
+	
+	public SVDBFile findFile(File file) {
+		synchronized (fIndexList) {
+			for (ISVDBIndex index : fIndexList) {
+				SVDBFile ret;
+				
+				if ((ret = index.findFile(file)) != null) {
+					return ret;
+				}
+			}
+		}
+		
+		return null;
+	}
 
 	public int getIndexType() {
 		return IT_IndexList;

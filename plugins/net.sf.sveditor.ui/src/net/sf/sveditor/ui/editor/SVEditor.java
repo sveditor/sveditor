@@ -139,13 +139,17 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		StringInputStream sin = new StringInputStream(doc.get());
 
 		// TODO: Need the editor to handle this automatically
+		System.out.println("[TODO] SVEditor must use project path in parsing content");
 		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
 		
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		
 		fSVDBFile.setFilePath(getFilePath());
-		
-		SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(fFile, fSVDBFile);
+
+		if (ed_in instanceof IFileEditorInput) {
+			SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(
+					((IFileEditorInput)ed_in).getFile(), fSVDBFile);
+		}
 	}
 
 

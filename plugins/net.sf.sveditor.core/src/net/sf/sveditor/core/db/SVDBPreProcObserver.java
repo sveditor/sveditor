@@ -45,6 +45,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void enter_package(String name) {
 		SVDBPackageDecl pd = new SVDBPackageDecl(name);
 		setLocation(pd);
+		fScopeStack.peek().addItem(pd);
 		fScopeStack.push(pd);
 	}
 	

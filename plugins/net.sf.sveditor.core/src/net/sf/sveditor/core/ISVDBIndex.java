@@ -40,7 +40,20 @@ public interface ISVDBIndex {
 	 */
 	Map<File, SVDBFile> getFileDB();
 	
+	/**
+	 * Returns the file tree for this index
+	 * @return
+	 */
 	Map<File, SVDBFileTree> getFileTree();
+
+	/**
+	 * Finds the specified file within this index. Returns 'null' if
+	 * it cannot be located
+	 * 
+	 * @param path
+	 * @return
+	 */
+	SVDBFile findFile(File path);
 	
 	/**
 	 * Locates a file with the following leaf. If the file cannot be

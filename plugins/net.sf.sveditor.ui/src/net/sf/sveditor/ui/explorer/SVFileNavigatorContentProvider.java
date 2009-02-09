@@ -40,8 +40,8 @@ public class SVFileNavigatorContentProvider
 	
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFile) {
-			File f = ((IFile)parentElement).getLocation().toFile();
-			SVDBFile file = fFileManager.getFile(f);
+			// File f = ((IFile)parentElement).getLocation().toFile();
+			SVDBFile file = fFileManager.getFile((IFile)parentElement);
 			
 			if (file != null) {
 				return file.getItems().toArray();

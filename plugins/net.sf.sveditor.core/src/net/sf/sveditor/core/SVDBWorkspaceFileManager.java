@@ -48,7 +48,7 @@ import org.eclipse.core.runtime.Path;
  *
  */
 public class SVDBWorkspaceFileManager 
-	implements IResourceChangeListener, IResourceDeltaVisitor {
+	/* implements IResourceChangeListener, IResourceDeltaVisitor  */{
 	
 	private List<ISVDBChangeListener>				fListeners;
 	private WeakHashMap<File, SVDBFile>				fFileCache;
@@ -60,9 +60,11 @@ public class SVDBWorkspaceFileManager
 		fListeners   = new ArrayList<ISVDBChangeListener>();
 		fFileCache   = new WeakHashMap<File, SVDBFile>();
 		fBackupCache = new HashMap<File, SVDBFile>();
-		fWS = ResourcesPlugin.getWorkspace(); 
 		
+		/*
+		fWS = ResourcesPlugin.getWorkspace(); 
 		fWS.addResourceChangeListener(this);
+		 */
 	}
 	
 	public void addSVDBChangeListener(ISVDBChangeListener l) {
@@ -74,35 +76,30 @@ public class SVDBWorkspaceFileManager
 	}
 	
 	public void dispose() {
-		fWS.removeResourceChangeListener(this);
+		// fWS.removeResourceChangeListener(this);
 	}
 	
-	public void setLiveSource(File file, SVDBFile in) {
+	public void setLiveSource(IFile ifile, SVDBFile in) {
 		List<SVDBItem> adds = new ArrayList<SVDBItem>();
 		List<SVDBItem> rem  = new ArrayList<SVDBItem>();
 		List<SVDBItem> chg  = new ArrayList<SVDBItem>();
+		File file = ifile.getLocation().toFile();
 		
-		ISVDBFileProvider file_p = null;
-		
-		IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot(); 
-		IFile ifile = ws_root.getFileForLocation(new Path(file.getAbsolutePath()));
-		
-		if (ifile != null) {
-			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
-			IProject proj = ifile.getProject();
-			SVDBProjectData pdata = mgr.getProjectData(proj);
-			
-			file_p = new SVDBProjectDataFileProvider(pdata);
-		}
-		
-		if (!fFileCache.containsKey(file) || !fBackupCache.containsKey(file)) {
+		if (!fFileCache.containsKey(file)) {
 			if (!fFileCache.containsKey(file)) {
-				SVDBFile f = parseFile(file, file_p);
+				SVDBFile f = getFile(ifile);
 				fFileCache.put(file, f);
 			}
 			
-			SVDBFile fs_file = (SVDBFile)fFileCache.get(file).duplicate();
-			fBackupCache.put(file, fs_file);
+			SVDBFile fs_file = (SVDBFile)fFileCache.get(file);
+			
+			if (fs_file != null) {
+				fs_file = (SVDBFile)fs_file.duplicate();
+				fBackupCache.put(file, fs_file);
+			} else {
+				System.out.println("Failed to get \"" + file + "\"");
+				return;
+			}
 		}
 		
 		SVDBFile pub_file = fFileCache.get(file);
@@ -132,7 +129,7 @@ public class SVDBWorkspaceFileManager
 		}
 	}
 
-	
+	/*
 	public void resourceChanged(IResourceChangeEvent event) {
 		if (event.getDelta() == null) {
 			return;
@@ -182,6 +179,7 @@ public class SVDBWorkspaceFileManager
 	}
 	
 	public SVDBFile getFile(File f) {
+		System.out.println("[FIXME] getFile(null)");
 		return getFile(f, null);
 	}
 	
@@ -200,10 +198,39 @@ public class SVDBWorkspaceFileManager
 		
 		return ret;
 	}
+	 */
+	
+	/**
+	 * 
+	 * Used only by SV ContentProvider 
+	 * @param f
+	 * @return
+	 */
+	public SVDBFile getFile(IFile f) {
+		IProject           p   = f.getProject();
+		SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = mgr.getProjectData(p);
+		
+		if (pd != null) {
+			File file = f.getLocation().toFile();
+			if (fFileCache.containsKey(file)) {
+				return fFileCache.get(file);
+			} else {
+				return pd.getFileIndex().findFile(f.getLocation().toFile());
+			}
+		} else {
+			System.out.println("[ERROR] failed to locate project data for \"" + 
+					f.getLocation() + "\"");
+		}
+			
+		return null;
+	}
 	
 	private static SVDBFile parseFile(File f, ISVDBFileProvider file_provider) {
 		SVDBFile    file = null;
 		InputStream in   = null;
+		
+		System.out.println("[FIXME] SVDBWorkspaceFileManager.parseFile()");
 		
 		try {
 			in = new FileInputStream(f);

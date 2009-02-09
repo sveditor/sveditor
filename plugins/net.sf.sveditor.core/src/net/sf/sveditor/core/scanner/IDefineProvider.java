@@ -6,7 +6,7 @@ public interface IDefineProvider {
 	
 //	String getDefineVal(String key, List<String> params);
 	
-	String expandMacro(String string);
+	String expandMacro(String string, String filename, int lineno);
 	
 	boolean hasParameters(String key);
 

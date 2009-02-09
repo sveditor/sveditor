@@ -61,5 +61,14 @@ public class SVDBFileTree {
 			return false;
 		}
 	}
+	
+	public SVDBFileTree duplicate() {
+		SVDBFileTree ret = new SVDBFileTree(fFilePath);
+		ret.fSVDBFile = fSVDBFile;
+		ret.fIncludedByFiles.addAll(fIncludedByFiles);
+		ret.fIncludedFiles.addAll(fIncludedFiles);
+		
+		return ret;
+	}
 
 }

@@ -19,8 +19,8 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 		
 	}
 
-	
 	public SVDBFile getFile(String path) {
+		/*
 		SVDBFile ret = null;
 		SVDBWorkspaceFileManager mgr = fProjectData.getFileCache();
 		
@@ -40,6 +40,9 @@ public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
 			}
 		}
 		return ret;
+	 */
+		System.out.println("[FIXME] SVDBProjectDataFile.getFile()");
+		return null;
 	}
 	
 }

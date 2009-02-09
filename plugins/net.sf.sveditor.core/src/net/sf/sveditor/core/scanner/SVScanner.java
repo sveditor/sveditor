@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.parser.SVInputStream;
-
 /**
  * 
  * @author ballance
@@ -791,6 +788,13 @@ public class SVScanner implements ISVScanner {
 		
 		id        = qual_ret.fField1;
 		modifiers = qual_ret.fField2;
+		
+		if (id == null) {
+			System.out.println("[ERROR] id=null @ " + 
+					getStmtLocation().getFileName() + ":" + 
+					getStmtLocation().getLineNo());
+			return false;
+		}
 		
 		debug("body item is: " + id);
 		
