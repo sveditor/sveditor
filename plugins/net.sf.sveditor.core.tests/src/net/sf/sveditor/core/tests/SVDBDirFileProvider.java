@@ -40,7 +40,7 @@ public class SVDBDirFileProvider implements ISVDBFileProvider {
 					try {
 						InputStream in = new FileInputStream(f); 
 						SVDBFile s_f = SVDBFileFactory.createFile(
-								in, f.getAbsolutePath(), this);
+								in, f.getAbsolutePath(), null);
 						in.close();
 						
 						fFileMap.put(f, s_f);

@@ -26,21 +26,16 @@ import net.sf.sveditor.core.scanner.ScanLocation;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 
-public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider */ {
+public class SVDBFileFactory implements ISVScannerObserver {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
-	private ISVDBFileProvider				fFileProvider;
+//	private ISVDBFileProvider				fFileProvider;
 	
 	private SVDBFileFactory(IDefineProvider def_provider) {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
 		fScanner.setDefineProvider(def_provider);
-		/*
-		else {
-			fScanner.setDefineProvider(this);
-		} 
-		 */
 		fScopeStack = new Stack<SVDBScopeItem>();
 	}
 	
@@ -62,17 +57,10 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 			e.printStackTrace();
 		}
 		
-		return parse(in, file.getFullPath().toOSString(), 
-				new SVDBProjectDataFileProvider(pdata));
+		return parse(in, file.getFullPath().toOSString()); 
 	}
 	
 	public SVDBFile parse(InputStream in, String name) {
-		return parse(in, name, null);
-	}
-
-	public SVDBFile parse(InputStream in, String name, ISVDBFileProvider file_p) {
-		fFileProvider = file_p;
-		
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(new File(name));
@@ -98,6 +86,7 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void leave_package() {
+		setEndLocation(fScopeStack.peek());
 		fScopeStack.pop();
 	}
 
@@ -249,6 +238,7 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void leave_file() {
+		setEndLocation(fScopeStack.peek());
 	}
 
 	
@@ -301,22 +291,12 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 	}
 
 	public static SVDBFile createFile(
-			InputStream in, 
-			String name, 
-			ISVDBFileProvider file_provider) {
-		SVDBFileFactory f = new SVDBFileFactory(null);
-		
-		return f.parse(in, name, file_provider);
-	}
-
-	public static SVDBFile createFile(
-			InputStream in, 
-			String name, 
-			ISVDBFileProvider file_provider,
-			IDefineProvider   def_provider) {
+			InputStream 		in, 
+			String 				name, 
+			IDefineProvider		def_provider) {
 		SVDBFileFactory f = new SVDBFileFactory(def_provider);
 		
-		return f.parse(in, name, file_provider);
+		return f.parse(in, name);
 	}
 
 	private void setLocation(SVDBItem item) {
@@ -331,7 +311,6 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void preproc_define(String key, List<String> params, String value) {
-//		System.out.println("key=" + key + " value=" + value);
 		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
 		
 		setLocation(def);
@@ -349,132 +328,12 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 		
 		setLocation(inc);
 		fScopeStack.peek().addItem(inc);
-		
-		// See if we can locate the file...
-		SVDBFile file = null;
-		if (fFileProvider != null) {
-			file = fFileProvider.getFile(path);
-		}
-		
-		if (file != null) {
-			fFile.addFileRef(file);
-		}
 	}
 	
 	public void comment(String comment) {
 		
 	}
 	
-	public String getDefineVal(String key, List<String> params) {
-//		System.out.println("getDefineVal: " + key);
-		
-		SVDBMacroDef def = fFile.getMacroDef(key);
-		
-		if (def != null) {
-			if (def.getParameters().size() > 0) {
-				return expandMacroDef(def, params);
-			} else {
-				return def.getDef();
-			}
-		} else {
-			return null;
-		}
-	}
-	
-	public String expandMacro(String str, String file, int lineno) {
-		System.out.println("[FIXME] SVDBFileFactory.expandMacro()");
-		return "";
-	}
-	
-	private String expandMacroDef(
-			SVDBMacroDef			def,
-			List<String>			params) {
-		Map<String, String> pmap = new HashMap<String, String>();
-		StringBuffer m = new StringBuffer();
-		StringBuffer t = new StringBuffer();
-		int i = 0;
-		
-		if (def.getParameters().size() != params.size()) {
-			/** TODO: investigate
-			System.out.println("[WARN] macro definition \"" + 
-					def.getName() + "\" has " + 
-					def.getParameters().size() + " parameters. " +
-					"Macro invocation has " + params.size() + " parameters");
-			 */
-		}
-		
-		for (i=0; i<params.size() && i<def.getParameters().size(); i++) {
-			pmap.put(def.getParameters().get(i), params.get(i));
-		}
-		
-		// Scan through the macro definition
-		i = 0;
-		String def_s = def.getDef(); 
-		while (i < def_s.length()) {
-			int     ch=-1;
-			boolean is_preproc;
-			
-			// skip whitespace
-			while (i < def_s.length()) {
-				ch = def_s.charAt(i);
-				
-				if (ch == '`' || Character.isJavaIdentifierPart(ch)) {
-					break;
-				} else {
-					m.append((char)ch);
-				}
-				i++;
-			}
-			
-			if (ch == '`') {
-				// skip
-				i++;
-				is_preproc = true;
-			}
-			
-			// Read an identifier
-			t.setLength(0);
-			while (i < def_s.length()) {
-				ch = def_s.charAt(i);
-				
-				if (!Character.isJavaIdentifierPart(ch)) {
-					break;
-				} else {
-					t.append((char)ch);
-				}
-				i++;
-			}
-			
-			if (pmap.containsKey(t.toString())) {
-				m.append(pmap.get(t.toString()));
-			} else {
-				m.append(t.toString());
-			}
-		}
-
-		/*
-		System.out.print("expand \"" + def.getName() + "(");
-		for (String p : def.getParameters()) {
-			System.out.print(p + ", ");
-		}
-		System.out.println(") to: ");
-		System.out.println(m.toString());
-		 */
-		
-		return m.toString();
-	}
-	
-	public boolean hasParameters(String key) {
-		SVDBMacroDef def;
-		
-		if ((def = fFile.getMacroDef(key)) != null) {
-			return (def.getParameters().size() > 0);
-		}
-		
-		return false;
-	}
-
-
 	public void enter_covergroup(String name) {
 		SVDBCoverGroup cg = new SVDBCoverGroup(name);
 		setLocation(cg);
@@ -485,6 +344,7 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void leave_covergroup() {
+		setEndLocation(fScopeStack.peek());
 		fScopeStack.pop();
 	}
 
@@ -519,6 +379,7 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void leave_sequence() {
+		setEndLocation(fScopeStack.peek());
 		fScopeStack.pop();
 	}
 
@@ -534,6 +395,7 @@ public class SVDBFileFactory implements ISVScannerObserver /*, IDefineProvider *
 
 	
 	public void leave_property() {
+		setEndLocation(fScopeStack.peek());
 		fScopeStack.pop();
 	}
 

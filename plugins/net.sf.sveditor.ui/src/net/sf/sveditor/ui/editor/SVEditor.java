@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
+import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.StringInputStream;
@@ -13,6 +14,8 @@ import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.scanner.IDefineProvider;
+import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 
@@ -120,8 +123,8 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		IEditorInput ed_in = getEditorInput();
 		IDocument doc = getDocumentProvider().getDocument(ed_in);
 		String path = ed_in.getName();
-		
-		ISVDBFileProvider file_p = null;
+
+		SVPreProcDefineProvider		def_p = null;
 		if (ed_in instanceof IURIEditorInput) {
 			SVDBProjectData pdata  = null;
 			IURIEditorInput uri_in = (IURIEditorInput)ed_in;
@@ -132,15 +135,17 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			
 			if (c != null && c.length > 0) {
 				pdata = mgr.getProjectData(c[0].getProject());
-				file_p = new SVDBProjectDataFileProvider(pdata);
+				ISVDBIndex index = pdata.getFileIndex();
+				def_p = new SVPreProcDefineProvider(index);
+				
+				def_p.setFileContext(index.getFileTree().get(c[0].getLocation().toFile()));
 			}
 		}
 		
 		StringInputStream sin = new StringInputStream(doc.get());
 
 		// TODO: Need the editor to handle this automatically
-		System.out.println("[TODO] SVEditor must use project path in parsing content");
-		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, file_p);
+		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, def_p);
 		
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		

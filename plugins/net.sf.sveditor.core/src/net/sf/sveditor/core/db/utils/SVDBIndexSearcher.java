@@ -37,18 +37,27 @@ public class SVDBIndexSearcher {
 	 * @param name
 	 * @return
 	 */
-	public SVDBModIfcClassDecl findNamedClass(String name) {
+	public SVDBModIfcClassDecl findNamedModClassIfc(String name) {
 		for (SVDBFile f : fFiles) {
 			for (SVDBItem it : f.getItems()) {
-				if (it.getType() == SVDBItemType.Class && 
-						it.getName() != null && 
-						it.getName().equals(name)) {
+				if ((it.getType() == SVDBItemType.Class ||
+						it.getType() == SVDBItemType.Module ||
+						it.getType() == SVDBItemType.Interface) && 
+						it.getName() != null &&	it.getName().equals(name)) {
 					return (SVDBModIfcClassDecl)it;
 				}
 			}
 		}
 
 		return null;
+	}
+	
+	public SVDBModIfcClassDecl findSuperClass(SVDBModIfcClassDecl cls) {
+		if (cls.getSuperClass() != null) {
+			return findNamedModClassIfc(cls.getSuperClass());
+		} else {
+			return null;
+		}
 	}
 	
 	/**
@@ -109,7 +118,7 @@ public class SVDBIndexSearcher {
 		
 		return ret;
 	}
-
+	
 	/**
 	 * Traverses scopes beginning with 'context' searching
 	 * for items named 'name'
@@ -257,7 +266,7 @@ public class SVDBIndexSearcher {
 			// Continue traversing the type hierarchy
 			if (ref_type.getType() == SVDBItemType.Class &&
 					((SVDBModIfcClassDecl)ref_type).getSuperClass() != null) {
-				ref_type = findNamedClass(
+				ref_type = findNamedModClassIfc(
 						((SVDBModIfcClassDecl)ref_type).getSuperClass());
 			} else {
 				ref_type = null;
@@ -301,7 +310,7 @@ public class SVDBIndexSearcher {
 				}
 			}
 			
-			scope = findNamedClass(((SVDBModIfcClassDecl)scope).getSuperClass()); 
+			scope = findNamedModClassIfc(((SVDBModIfcClassDecl)scope).getSuperClass()); 
 		}
 		
 		return ret;

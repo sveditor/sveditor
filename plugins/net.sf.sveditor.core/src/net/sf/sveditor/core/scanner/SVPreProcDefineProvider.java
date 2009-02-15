@@ -39,6 +39,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		StringTextScanner scanner = new StringTextScanner(
 				new StringBuilder(str));
 		
+		if (fContext == null) {
+			System.out.println("[WARN] File context not set");
+		}
+		
 		fFilename = filename;
 		fLineno   = lineno;
 		fExpandStack.clear();
@@ -92,7 +96,11 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		ch = scanner.skipWhite(scanner.get_ch());
 		
-		SVDBMacroDef m = searchContext(fContext, key);
+		SVDBMacroDef m = null;
+		
+		if (fContext != null) {
+			m = searchContext(fContext, key);
+		}
 		
 		if (m == null) {
 			System.out.println("[ERROR] macro \"" + key + "\" undefined @ " +
@@ -101,7 +109,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			
 			boolean tmp = fDebugEnS;
 			fDebugEnS = true;
-			searchContext(fContext, key);
+			if (fContext != null) {
+				searchContext(fContext, key);
+			}
 			fDebugEnS = tmp;
 			
 			if (ch == '(') {

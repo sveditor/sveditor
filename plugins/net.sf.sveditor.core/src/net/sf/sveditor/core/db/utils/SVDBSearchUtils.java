@@ -6,6 +6,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBSearchUtils {
@@ -31,6 +33,14 @@ public class SVDBSearchUtils {
 		}
 		
 		return ret;
+	}
+	
+	public static SVDBModIfcClassDecl findClassScope(SVDBScopeItem scope) {
+		while (scope != null && scope.getType() != SVDBItemType.Class) {
+			scope = scope.getParent();
+		}
+		
+		return (SVDBModIfcClassDecl)scope;
 	}
 
 	public static List<SVDBItem> findItemsByName(
@@ -68,8 +78,12 @@ public class SVDBSearchUtils {
 	 * @return
 	 */
 	public static SVDBScopeItem findActiveScope(SVDBScopeItem scope, int lineno) {
+		debug("findActiveScope: " + scope.getName() + " " + lineno);
 		for (SVDBItem it : scope.getItems()) {
 			if (it instanceof SVDBScopeItem) {
+				debug("    sub-scope " + it.getName() + " @ " + 
+						it.getLocation().getLine() + "-" + 
+						((SVDBScopeItem)it).getEndLocation().getLine());
 				SVDBScopeItem s_it = (SVDBScopeItem)it;
 				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
 					if (lineno >= s_it.getLocation().getLine() && 
@@ -90,4 +104,7 @@ public class SVDBSearchUtils {
 	}
 
 
+	private static void debug(String msg) {
+//		System.out.println(msg);
+	}
 }

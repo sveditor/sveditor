@@ -250,7 +250,7 @@ public class SVDBProjectData {
 							if (c != null) {
 								index = new SVDBWorkspaceIndex(
 										c.getLocation(), 
-										ISVDBIndex.IT_BuildPath, fFileProvider);
+										ISVDBIndex.IT_BuildPath);
 							} else {
 								System.out.println("Path \"" + path.getPath() + 
 									"\" does not exist in the workspace");
@@ -262,7 +262,7 @@ public class SVDBProjectData {
 						if (!loc.isDirectory()) {
 							System.out.println("[WARNING] build path \"" + loc + "\" doesn't exist");
 						} else {
-							index = new SVDBFilesystemIndex(loc, ISVDBIndex.IT_BuildPath, fFileProvider);
+							index = new SVDBFilesystemIndex(loc, ISVDBIndex.IT_BuildPath);
 						}
 					}
 					

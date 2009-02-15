@@ -277,7 +277,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 				
 				if (it == null) {
 					// Try type names
-					it = searcher.findNamedClass(text.toString());
+					it = searcher.findNamedModClassIfc(text.toString());
 				}
 			}
 			
@@ -377,7 +377,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		
 		while (true) {
 			if (enclosing_class.getSuperClass() == null ||
-					(enclosing_class = searcher.findNamedClass(
+					(enclosing_class = searcher.findNamedModClassIfc(
 							enclosing_class.getSuperClass())) == null) {
 				break;
 			}

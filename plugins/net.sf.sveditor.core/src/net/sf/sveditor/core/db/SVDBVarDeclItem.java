@@ -10,7 +10,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 		super(name, SVDBItemType.VarDecl);
 		fTypeName = type;
 	}
-	
+
 	public SVDBVarDeclItem(String type, String name, SVDBItemType itype) {
 		super(name, itype);
 		fTypeName = type;

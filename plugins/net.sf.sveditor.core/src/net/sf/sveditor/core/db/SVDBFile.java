@@ -10,62 +10,18 @@ public class SVDBFile extends SVDBScopeItem {
 	private long						fLastParseTimeStamp;
 	private File						fFile;
 	private Map<String, SVDBMacroDef>	fMacroDefs;
-	private List<SVDBFile>				fFileRefs;
 	
 	public SVDBFile(File file) {
 		super(file.getName(), SVDBItemType.File);
 		fFile               = file;
 		fLastParseTimeStamp = fFile.lastModified();
 		fMacroDefs			= new HashMap<String, SVDBMacroDef>();
-		fFileRefs			= new ArrayList<SVDBFile>();
 	}
 	
 	
 	
 	public Map<String, SVDBMacroDef> getMacroDefs() {
 		return fMacroDefs;
-	}
-	
-	public SVDBMacroDef getMacroDef(String key) {
-		if (fMacroDefs.containsKey(key)) {
-			return fMacroDefs.get(key);
-		} else {
-			List<SVDBFile> files = new ArrayList<SVDBFile>();
-			
-			return getMacroDef(key, files);
-		}
-	}
-	
-	public void addFileRef(SVDBFile file) {
-		boolean found = false;
-		
-		for (SVDBFile f : fFileRefs) {
-			if (f.getFilePath().equals(file.getFilePath())) {
-				found = true;
-			}
-		}
-		
-		if (!found) {
-			fFileRefs.add(file);
-		}
-	}
-	
-	private SVDBMacroDef getMacroDef(String key, List<SVDBFile> files) {
-		files.add(this);
-		
-		if (fMacroDefs.containsKey(key)) {
-			System.out.println("macroDef \"" + key + "\" in " +
-					fFile.getAbsolutePath());
-			return fMacroDefs.get(key);
-		} else {
-			for (SVDBFile f : fFileRefs) {
-				if (!files.contains(f)) {
-					return f.getMacroDef(key, files);
-				}
-			}
-		}
-		
-		return null;
 	}
 	
 	public boolean isUpToDate() {

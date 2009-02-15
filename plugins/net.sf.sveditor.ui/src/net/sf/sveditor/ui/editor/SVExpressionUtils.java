@@ -10,6 +10,7 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -165,6 +166,7 @@ public class SVExpressionUtils {
 			boolean						resolveFinalReturnType) {
 		String id = null;
 		
+		debug("processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator);
 		// Need to make some changes to track the preceeding character, not the
 		// next. For example, if the preceeding character was '.', then we should
 		// look for id() within typeof(ret.item)
@@ -203,7 +205,7 @@ public class SVExpressionUtils {
 				}
 				id = tmp.toString();
 				
-//				System.out.println("id=" + id + " ch after id=" + (char)ch);
+				debug("id=" + id + " ch after id=" + (char)ch);
 
 				if (ch == '(' || ch == '\'') {
 					String type_name = null;
@@ -211,7 +213,7 @@ public class SVExpressionUtils {
 					
 					if (ch == '(') {
 						// lookup id as a function
-//						System.out.println("Look for function \"" + id + "\"");
+						debug("Look for function \"" + id + "\"");
 
 						// TODO: must use scoped lookup by whatever preceeded
 						List<SVDBItem> matches = null;
@@ -230,10 +232,8 @@ public class SVExpressionUtils {
 							// TODO: Also want to support package-scope items (?)
 							matches = searcher.findByNameInScopes(id, context, true);
 
-							/*
-							System.out.println("first-item search for \"" + id + 
+							debug("first-item search for \"" + id + 
 									"\" returned " + matches.size() + " matches");
-							 */
 							
 							if (matches.size() > 0) {
 								func = matches.get(0);
@@ -245,11 +245,9 @@ public class SVExpressionUtils {
 										id, (SVDBScopeItem)search_ctxt, 
 										SVDBItemType.Function);
 
-							/*
-							System.out.println("next-item search for \"" + id + 
+							debug("next-item search for \"" + id + 
 									"\" in \"" + search_ctxt.getName() + 
 									"\" returned " + matches.size() + " matches");
-							 */
 							
 							if (matches.size() > 0) {
 								func = matches.get(0);
@@ -263,7 +261,7 @@ public class SVExpressionUtils {
 						item_list.add(func);
 						
 						// Now, compute the return type of this function
-//						System.out.println("return type is: " + ((SVDBTaskFuncScope)func).getReturnType());
+						debug("return type is: " + ((SVDBTaskFuncScope)func).getReturnType());
 						type_name = ((SVDBTaskFuncScope)func).getReturnType(); 
 					} else {
 						// ' indicates this is a type name
@@ -279,7 +277,7 @@ public class SVExpressionUtils {
 					// we can ignore what's in the parens
 					int matchLevel = 1;
 
-//					System.out.println("pre-skip =" + (char)preTrigger.charAt(idx));
+					debug("pre-skip =" + (char)preTrigger.charAt(idx));
 					while (matchLevel > 0 && ++idx < preTrigger.length()) {
 						ch = preTrigger.charAt(idx);
 						if (ch == '(') {
@@ -326,31 +324,54 @@ public class SVExpressionUtils {
 				} else {
 					// 
 					SVDBItem field = null;
-					List<SVDBItem> matches;
+					List<SVDBItem> matches = null;
 					
 					if (item_list.size() == 0) {
 						// First element, so we need to lookup the item
-						/*
-						System.out.println("Searching up scope for " + 
-								"id=\"" + id + "\"");
-						 */
+						debug("Searching up scope for id=\"" + id + "\"");
 						
-						matches = searcher.findVarsByNameInScopes(
-								id, context, true);
+						if (id.equals("this") || id.equals("super")) {
+							SVDBModIfcClassDecl class_type = 
+								SVDBSearchUtils.findClassScope(context);
+							
+							if (class_type != null) {
+								matches = new ArrayList<SVDBItem>();
+							
+								if (id.equals("this")) {
+									matches.add(class_type);
+								} else {
+									class_type = searcher.findSuperClass(class_type);
+									if (class_type != null) {
+										matches.add(class_type);
+									}
+								}
+							}
+						} else {
+							matches = searcher.findVarsByNameInScopes(
+									id, context, true);
+
+							if (matches == null || matches.size() == 0) {
+								SVDBModIfcClassDecl class_type = 
+									SVDBSearchUtils.findClassScope(context);
+
+								if (class_type != null) {
+									matches = searcher.findByNameInClassHierarchy(
+											id, class_type);
+								}
+							}
+						}
 					} else {
 						// Lookup what follows based on the trigger
 						SVDBItem search_ctxt = item_list.get(
 								item_list.size()-1);
 
-						/*
-						System.out.println("Searching type \"" + 
+						debug("Searching type \"" + 
 								search_ctxt.getName() + "\" for id=\"" + id + "\"");
-						 */
 						matches = searcher.findByNameInClassHierarchy(
 								id, (SVDBScopeItem)search_ctxt);
 					}
 					
-//					System.out.println("    result is " + matches.size() + " elements");
+					debug("    result is " + matches.size() + " elements");
 					
 					if (matches.size() == 0) {
 						return -1;
@@ -359,8 +380,14 @@ public class SVExpressionUtils {
 					field = matches.get(0);
 					item_list.add(field);
 					
-					SVDBItem type = searcher.findNamedClass(
-							((SVDBVarDeclItem)field).getTypeName());
+					SVDBItem type = null;
+					
+					if (field instanceof SVDBModIfcClassDecl) {
+						type = field;
+					} else {
+						type = searcher.findNamedModClassIfc(((SVDBVarDeclItem)field).getTypeName());
+					}
+							
 					
 					if (type == null) {
 						System.out.println("cannot find type \"" + 
@@ -381,4 +408,7 @@ public class SVExpressionUtils {
 		return idx;
 	}
 
+	private static void debug(String msg) {
+		System.out.println(msg);
+	}
 }

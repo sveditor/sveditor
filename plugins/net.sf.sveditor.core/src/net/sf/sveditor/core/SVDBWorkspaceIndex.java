@@ -16,9 +16,8 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 
 	public SVDBWorkspaceIndex(
 			IPath 				root,
-			int					index_type,
-			ISVDBFileProvider 	provider) {
-		super(root.toFile(), index_type, provider);
+			int					index_type) {
+		super(root.toFile(), index_type);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	

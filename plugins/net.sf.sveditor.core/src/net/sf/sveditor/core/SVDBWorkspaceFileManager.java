@@ -226,6 +226,7 @@ public class SVDBWorkspaceFileManager
 		return null;
 	}
 	
+	/*
 	private static SVDBFile parseFile(File f, ISVDBFileProvider file_provider) {
 		SVDBFile    file = null;
 		InputStream in   = null;
@@ -243,5 +244,6 @@ public class SVDBWorkspaceFileManager
 		
 		return file;
 	}
+	 */
 
 }

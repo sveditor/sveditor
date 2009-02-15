@@ -11,9 +11,8 @@ public class SVDBFilesystemIndex extends SVDBIndexBase {
 	
 	public SVDBFilesystemIndex(
 			File 					root, 
-			int						index_type,
-			ISVDBFileProvider 		provider) {
-		super(root, index_type, provider);
+			int						index_type) {
+		super(root, index_type);
 	}
 	
 	

@@ -49,7 +49,6 @@ public class SVDBIndexBase implements ISVDBIndex {
 	protected boolean							fFileTreeBuilding;
 	
 	protected boolean							fDisposed;
-	protected ISVDBFileProvider					fFileProvider;
 	private  Job                                fBuildFileTreeJob;
 	private  Job                                fBuildFileIndexJob;
 	
@@ -73,8 +72,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 	
 	public SVDBIndexBase(
 			File 				base_location,
-			int					index_type,
-			ISVDBFileProvider 	provider) {
+			int					index_type) {
 		fBaseLocation = base_location;
 		System.out.println("baseLocation=" + fBaseLocation);
 		fIndexType    = index_type;
@@ -86,8 +84,16 @@ public class SVDBIndexBase implements ISVDBIndex {
 		fFileTreeMap = new HashMap<File, SVDBFileTree>();
 		fFileTreeValid = false;
 		fFileTreeBuilding = false;
-
-		fFileProvider = provider;
+		
+		Job j = new Job("indexing") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				return SVDBIndexBase.this.updateFileIndex(monitor);
+			}
+		};
+		
+		j.setPriority(Job.LONG);
+		j.schedule(10000);
 	}
 	
 	public void dispose() {
@@ -151,7 +157,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return fFileTreeMap;
 	}
 	
-	private IStatus buildFileTree(IProgressMonitor monitor) {
+	private synchronized IStatus buildFileTree(IProgressMonitor monitor) {
 		try {
 			fFileTreeMap.clear();
 			List<File> files = new ArrayList<File>();
@@ -220,7 +226,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return Status.OK_STATUS;
 	}
 	
-	private IStatus updateFileIndex(IProgressMonitor monitor) {
+	private synchronized IStatus updateFileIndex(IProgressMonitor monitor) {
 		try {
 			Map<File, SVDBFileTree> file_tree = getFileTree();
 
@@ -268,7 +274,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 			dp.setFileContext(file_tree);
 
 			svdb_file = SVDBFileFactory.createFile(
-					in, file.getAbsolutePath(), fFileProvider, dp);
+					in, file.getAbsolutePath(), dp);
 			
 
 			in.close();

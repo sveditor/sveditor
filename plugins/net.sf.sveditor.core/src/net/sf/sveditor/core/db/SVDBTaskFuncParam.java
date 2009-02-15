@@ -1,12 +1,9 @@
 package net.sf.sveditor.core.db;
 
-public class SVDBTaskFuncParam extends SVDBItem {
-	
-	private String			fTypeName;
+public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 	
 	public SVDBTaskFuncParam(String type, String name) {
-		super(name, SVDBItemType.TaskFuncParam);
-		fTypeName = type;
+		super(type, name, SVDBItemType.TaskFuncParam);
 	}
 	
 	public SVDBItem duplicate() {
@@ -17,14 +14,4 @@ public class SVDBTaskFuncParam extends SVDBItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
-		super.init(other);
-		
-		fTypeName = ((SVDBTaskFuncParam)other).fTypeName;
-	}
-	
-	public String getTypeName() {
-		return fTypeName;
-	}
-
 }
