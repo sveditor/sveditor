@@ -371,9 +371,9 @@ public class SVExpressionUtils {
 								id, (SVDBScopeItem)search_ctxt);
 					}
 					
-					debug("    result is " + matches.size() + " elements");
+//					debug("    result is " + matches.size() + " elements");
 					
-					if (matches.size() == 0) {
+					if (matches == null || matches.size() == 0) {
 						return -1;
 					}
 					

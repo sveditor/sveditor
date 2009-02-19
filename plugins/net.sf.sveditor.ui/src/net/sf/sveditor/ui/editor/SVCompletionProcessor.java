@@ -21,11 +21,17 @@ import net.sf.sveditor.ui.SVDBIconUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
+import org.eclipse.jface.text.templates.TemplateProposal;
 
 public class SVCompletionProcessor implements IContentAssistProcessor {
 
@@ -55,7 +61,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		int start = offset;
 
 		IDocument doc = viewer.getDocument();
-		
+
 		
 		debug("computeCompletionProposals: ");
 
@@ -102,7 +108,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				// No need to scan backwards. The stem is all we have
 				pre = doc.get(idx + 1, offset - idx - 1).trim();
 
-				findPreProcProposals(root, trigger, pre, start, proposals);
+				findPreProcProposals(doc, root, trigger, pre, start, proposals);
 
 			} else if (!trigger.equals("")) {
 
@@ -235,7 +241,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					|| it.getType() == SVDBItemType.Function) {
 				if (it.getName() != null && (pre.equals("") 
 						|| isPrefix(pre, it))) {
-					addProposal(it, start, pre.length(), proposals);
+					addProposal(it, doc, start, pre.length(), proposals);
 				}
 			} else if (it.getType() == SVDBItemType.Module
 					|| it.getType() == SVDBItemType.Class) {
@@ -250,7 +256,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					if (it.getType() == SVDBItemType.Class) {
 						if (it.getName() != null && (pre.equals("") 
 								|| isPrefix(pre, it))) {
-							addProposal(it, start, pre.length(), proposals);
+							addProposal(it, doc, start, pre.length(), proposals);
 						}
 					} else if (it.getType() == SVDBItemType.PackageDecl) {
 					}
@@ -309,7 +315,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		}
 		
 		for (SVDBItem it : result) {
-			addProposal(it, start, pre.length(), proposals);
+			addProposal(it, viewer.getDocument(), start, pre.length(), proposals);
 		}
 	}
 
@@ -325,7 +331,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					|| it.getType() == SVDBItemType.VarDecl
 					|| it.getType() == SVDBItemType.TaskFuncParam) {
 				if (isPrefix(pre, it)) {
-					addProposal(it, start, pre.length(), proposals);
+					addProposal(it, doc, start, pre.length(), proposals);
 				}
 			}
 		}
@@ -378,8 +384,13 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	 * @param proposals
 	 * @param pre
 	 */
-	private void findPreProcProposals(String root, String trigger, String pre,
-			int start, List<ICompletionProposal> proposals) {
+	private void findPreProcProposals(
+			IDocument					doc,
+			String 						root, 
+			String 						trigger, 
+			String 						pre,
+			int 						start, 
+			List<ICompletionProposal>	proposals) {
 		SVDBProjectData pd = fEditor.getProjectData();
 
 		if (pd != null) {
@@ -447,7 +458,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 						if (it.getType() == SVDBItemType.Macro) {
 							if (it.getName() != null && 
 									(pre.equals("") || isPrefix(pre, it))) {
-								addProposal(it, start, pre.length(), proposals);
+								addProposal(it, doc, start, pre.length(), proposals);
 							}
 						}
 					}
@@ -458,6 +469,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	
 	private static void addProposal(
 			SVDBItem 					it,
+			IDocument					doc,
 			int							replacementOffset,
 			int							replacementLength,
 			List<ICompletionProposal> 	proposals) {
@@ -465,33 +477,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		
 		switch (it.getType()) {
 			case Function:
-			case Task: {
-				StringBuffer d = new StringBuffer();
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
-				
-				d.append(it.getName() + "(");
-				
-				for (int i=0; i<tf.getParams().size(); i++) {
-					SVDBTaskFuncParam param = tf.getParams().get(i);
-					
-					d.append(param.getTypeName() + " " + param.getName());
-					
-					if (i+1 < tf.getParams().size()) {
-						d.append(", ");
-					}
-				}
-				d.append(")");
-				
-				if (it.getType() == SVDBItemType.Function) {
-					d.append(" : ");
-					d.append(tf.getReturnType());
-				}
-				
-				p = new CompletionProposal(it.getName(),
-						replacementOffset, replacementLength, 
-						it.getName().length(), SVDBIconUtils.getIcon(it),
-						d.toString(), null, null);
-				}
+			case Task: 
+				addTaskFuncProposal(it, doc, replacementOffset, 
+						replacementLength, proposals);
 				break;
 				
 			default:
@@ -506,6 +494,64 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			addProposal(p, proposals);
 		}
 	}
+	
+	private static void addTaskFuncProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength,
+			List<ICompletionProposal> 	proposals) {
+		ICompletionProposal			p;
+
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
+		
+		d.append(it.getName() + "(");
+		r.append(it.getName() + "(");
+		
+		for (int i=0; i<tf.getParams().size(); i++) {
+			SVDBTaskFuncParam param = tf.getParams().get(i);
+			
+			d.append(param.getTypeName() + " " + param.getName());
+			r.append("${");
+			r.append(param.getName());
+			r.append("}");
+			
+			if (i+1 < tf.getParams().size()) {
+				d.append(", ");
+				r.append(", ");
+			}
+		}
+		d.append(")");
+		r.append(")");
+		
+		if (it.getType() == SVDBItemType.Function) {
+			d.append(" : ");
+			d.append(tf.getReturnType());
+		}
+		
+		Template t = new Template(d.toString(), "", "CONTEXT",
+				r.toString(), true);
+		
+		p = new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), null);
+
+		/*
+		p = new CompletionProposal(it.getName(),
+				replacementOffset, replacementLength, 
+				it.getName().length(), SVDBIconUtils.getIcon(it),
+				d.toString(), null, null);
+		 */
+		
+		proposals.add(p);
+	}
+
 
 	/**
 	 * Add a proposal to the proposals list, ensure that this proposal isn't a
