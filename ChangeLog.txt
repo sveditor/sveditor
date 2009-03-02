@@ -1,6 +1,84 @@
 
 -- 0.0.5 Release --
-20090102 -- Fix outline label provider to 
+
+== Completely new pre-processor architecture. Files in a build-path directory
+are processed in two passes now. First, the files are scanned for pre-processor
+definitions, conditionals, and inclusions. Then, when a file is scanned, the
+build context of the file is computed (ie which chain of files is likely to
+include the file being parsed). This allows us to determine which macros
+will be 'live' during file processing.
+
+The new pre-processor architecture allows SVEditor to deal with the heavy 
+macro use of libraries such as OVM. Now, for example, it is possible to
+provide content-assist for class elements in OVM classes that are contributed
+by macros (eg tasks in the various TLM port classes).
+
+== Continued work on content-assist. Now, the expression surrounding the 
+content-assist point is processed so better suggestions can be provided. 
+Also, more context information from the class hierarchy is used. 
+For example:
+
+- given the classes:
+
+class bar;
+    ovm_master_port #(int, int)    p;
+
+endclass
+
+class foo extends bar;
+    
+
+    function void do_something();
+       p.<CONTENT ASSIST> 
+        
+    endfunction
+
+endclass
+
+
+The content-assist processor recognizes that 'p' is the variable for 
+content-assist, locates 'p' via the class hierarchy, and prompts for tasks,
+functions, and fields in the class ovm_master_port.
+
+
+- given the classes:
+
+class bar;
+
+    int a, b, c;
+
+endclass
+
+
+class foo;
+
+    function bar get_bar();
+    endfunction
+
+    function void do_something();
+        get_bar().<CONTENT ASSIST>
+    endfunction
+
+endclass
+
+
+The content-assist processor recognizes the function 'get_bar', finds the 
+return type, and prompts for fields, tasks, etc from the class bar.
+
+
+== Added code templates to content assist. This provides argument templates
+for tasks, functions, macros, and templated classes. 
+
+
+== The content-assist processor can provide content-assist proposals for 
+include files. Typing: `include <CONTENT ASSIST> or 
+`include "prefix<CONTENT ASSIST> will present a list of matching 
+include-file names.
+
+
+
+
+20090102 -- Fix outline label provider
 20090103 -- Eliminate duplicate proposals for include files
          -- Fixed indexing of files in workspace paths. Previously, only files
             in non-workspace build paths were added to the index. 
@@ -12,6 +90,7 @@
             For example, endfunction: myfunction
 20090107 -- Update line numbers of SVDB items parsed from the live editor. Affected source
             is in SVDBFileMerger, SVDBItem, and SVDBScopeItem.
+
             
 
 ------------------------------------------------------------------------------
