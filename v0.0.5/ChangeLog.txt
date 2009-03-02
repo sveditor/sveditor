@@ -1,0 +1,203 @@
+
+-- 0.0.5 Release --
+
+== Completely new pre-processor architecture. Files in a build-path directory
+are processed in two passes now. First, the files are scanned for pre-processor
+definitions, conditionals, and inclusions. Then, when a file is scanned, the
+build context of the file is computed (ie which chain of files is likely to
+include the file being parsed). This allows us to determine which macros
+will be 'live' during file processing.
+
+The new pre-processor architecture allows SVEditor to deal with the heavy 
+macro use of libraries such as OVM. Now, for example, it is possible to
+provide content-assist for class elements in OVM classes that are contributed
+by macros (eg tasks in the various TLM port classes).
+
+== Continued work on content-assist. Now, the expression surrounding the 
+content-assist point is processed so better suggestions can be provided. 
+Also, more context information from the class hierarchy is used. 
+For example:
+
+- given the classes:
+
+class bar;
+    ovm_master_port #(int, int)    p;
+
+endclass
+
+class foo extends bar;
+    
+
+    function void do_something();
+       p.<CONTENT ASSIST> 
+        
+    endfunction
+
+endclass
+
+
+The content-assist processor recognizes that 'p' is the variable for 
+content-assist, locates 'p' via the class hierarchy, and prompts for tasks,
+functions, and fields in the class ovm_master_port.
+
+
+- given the classes:
+
+class bar;
+
+    int a, b, c;
+
+endclass
+
+
+class foo;
+
+    function bar get_bar();
+    endfunction
+
+    function void do_something();
+        get_bar().<CONTENT ASSIST>
+    endfunction
+
+endclass
+
+
+The content-assist processor recognizes the function 'get_bar', finds the 
+return type, and prompts for fields, tasks, etc from the class bar.
+
+
+== Added code templates to content assist. This provides argument templates
+for tasks, functions, macros, and templated classes. 
+
+
+== The content-assist processor can provide content-assist proposals for 
+include files. Typing: `include <CONTENT ASSIST> or 
+`include "prefix<CONTENT ASSIST> will present a list of matching 
+include-file names.
+
+
+
+
+20090102 -- Fix outline label provider
+20090103 -- Eliminate duplicate proposals for include files
+         -- Fixed indexing of files in workspace paths. Previously, only files
+            in non-workspace build paths were added to the index. 
+20090105 -- Correct skipping of constraint body. Constraint body is now ignored
+         -- Pre-processor seems to not always ignore comment content
+20090106 -- Correct problem with pre-processor that resulted in scanner incorrectly
+            processing lines that end with a single-line comment.
+         -- Correct problem with parsing identifiers directly followed by ':'. 
+            For example, endfunction: myfunction
+20090107 -- Update line numbers of SVDB items parsed from the live editor. Affected source
+            is in SVDBFileMerger, SVDBItem, and SVDBScopeItem.
+
+            
+
+------------------------------------------------------------------------------
+
+-- 0.0.4 Release --
+
+20081202 -- Add brace-matching highlighting to editor
+20081213 -- Remove conflict between JDT 'Open Declaration' shortcut and
+            SVEditor's shortcut
+
+          - Added a SVEditor build paths and include paths project-properties page
+
+* Add a build paths and include paths property page
+* Add support for including macros using `include and the file provider
+* Fix bug in handling of extern tasks/functions
+* Support indexing of elements on the build path
+* Extended support for 'open declaration'
+    * Navigation to class declarations defined on build path
+* Add exclusions to Index class: .svn CVS, etc
+* Enhance scanner
+    - Improve support for macros
+        * macros with parameters
+        * Change structure of pre-processor and scanner for better pre-processor support
+    * Scanner now parses 'extends' portion of class declaration
+    * Scanner now parses parameters to class-type fields. Type parameters 
+      are also displayed in the outline
+* Basic support for content assist
+    * Support content assist for `include directives
+    * Support content assist for macro invocations
+    * Prompt for classes on the build path
+    * Prompt for tasks, functions and fields in the current scope (doesn't handle task parameters)
+    * Prompt for tasks, functions, and members in the inheritance hierachy
+    * Support icons on content-assist (helpful in seeing type and attributes of a suggestion)
+* Ensure proper merging of current/new project settings
+* Field-attribute icons on outline now update properly when the attributes
+  change (ie protected -> local)
+* Fix problems with line-number accuracy and macro substitution
+    * Better, but still off-by-one occasionally
+* Enhance 'open declaration' to use the index to traverse the class 
+  hierarchy and find tasks, functions, fields
+
+------------------------------------------------------------------------------
+
+-- 0.0.3 Release --
+
+20081101 - 
+    - Add dedicated C-style comment detector for multi-line comments. Fixes
+      cases where the Eclipse built-in multi-line pattern detector failed.
+
+------------------------------------------------------------------------------
+
+-- Future --
+
+- Content Assist
+    - Prompt for macro parameters
+    - Prompt for class template parameters
+    - Parse chained expressions (foo().a.b)
+        - Live scan of file doesn't seem to be up-to-date when used for content assist
+          
+    - Use template parameters of super classes to provide better proposals
+    - Support task/function variables
+    - Add parameters to the display string for task/function content assist
+- SVDB Data Flow Changes
+    - SVEditor must be responsible for updating the 'live' copy of the SVDBFile
+        - On document change, the data is scanned and merged to the SVDBFile the SVEditor caches
+        - Users of this SVDBFile must register listeners on the SVEditor
+        - Not clear that we actually must ensure that the Explorer view is the same as the Outline view
+        - Use modification information as hints to preserve helpful SVDB information
+            - 
+- Hover info-pops
+    - Use same basic parsing strategy as content-assist, but use to drive info-pops that display
+      information about the element under the cursor
+
+- Begin work on users guide
+
+- SVDB Changes
+    - Want to represent parameterized class instances as unique types. We can always back-reference
+      the template class (could be helpful).
+- Scanner Improvements
+    * Add support for scanning variable declarations within task/function scopes
+    - Need a better strategy for detecting that we've left a scope during editing
+        - The problem comes up when we miss info defined later in the file because of current user edits
+        - Perhaps we can leverage the last-known-good data-structure and lines-modified information to determine
+          what portions of the file leave un-touched (with the exception, perhaps, of updating line info)
+    - Extend language coverage
+        - Add support for structures
+            - Structures are only supported as typedefs?
+        - Add support for unions
+        - Add support for typedefs
+            - Need to ignore forward declarations (typedef class <>; typedef struct <>;)
+        - Add exclusion for constraints
+    - Better exclusions for behavioral code inside behavioral scopes
+- Open Declaration Improvements
+    - Add Open Declaration support for included files
+    - Scan context, rather than just using highlighted term
+    - Recognize 'super' and search hierarchy
+- Need to create data files for the base SystemVerilog library, so we can prompt the users for built-in methods
+- Add auto-indent rules centered around begin/end and brackets
+- Add inheritance hierarchy viewer
+- Notification on build-path change. Ensure setting a new build path results in re-scanning
+- Need a better strategy for cross-editor navigation. We loose our build-path 
+  context when we switch to an editor for a file on the build path
+- Investigate mismatch between macro def and invocation parameter counts
+- Support folding of begin/end regions
+- Add Design Hierarchy view, showing modules and their instantiation relationships
+- Some sort of library-specific macro filtering could be helpful. (eg don't expand `ovm_component_utils)
+
+
+-----------------------------------------------------------------------------------------------
+

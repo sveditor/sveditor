@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="testSVScannerLineNumbers"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.sf.sveditor.core.tests.testSVScannerLineNumbers">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="testPreProcessor"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.sf.sveditor.core.tests.testPreProcessor">
+         </run>
+      </application>
+   </extension>
+
+</plugin>
