@@ -2,24 +2,19 @@ package net.sf.sveditor.core;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeUtils;
-import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -44,16 +39,16 @@ public class SVDBIndexBase implements ISVDBIndex {
 	protected boolean							fFileMapValid;
 	protected boolean							fFileMapBuilding;
 	
-	protected Map<File, SVDBFileTree>			fFileTreeMap;
+	protected Map<File, SVDBFile>				fPreProcFileMap;
 	protected boolean							fFileTreeValid;
 	protected boolean							fFileTreeBuilding;
 	
 	protected boolean							fDisposed;
-	private  Job                                fBuildFileTreeJob;
-	private  Job                                fBuildFileIndexJob;
 	
 	protected static final List<String>			fSVExtensions;
 	protected static final List<String>			fIgnoreDirs;
+	
+	protected List<ISVDBIndexChangeListener>	fIndexChageListeners;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -74,15 +69,15 @@ public class SVDBIndexBase implements ISVDBIndex {
 			File 				base_location,
 			int					index_type) {
 		fBaseLocation = base_location;
-		System.out.println("baseLocation=" + fBaseLocation);
 		fIndexType    = index_type;
+		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 		
 		fFileMap = new HashMap<File, SVDBFile>();
 		fFileMapValid = false;
 		fFileMapBuilding = false;
 		
-		fFileTreeMap = new HashMap<File, SVDBFileTree>();
-		fFileTreeValid = false;
+		fPreProcFileMap   = new HashMap<File, SVDBFile>(); 
+		fFileTreeValid    = false;
 		fFileTreeBuilding = false;
 		
 		Job j = new Job("indexing") {
@@ -93,7 +88,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 		};
 		
 		j.setPriority(Job.LONG);
-		j.schedule(10000);
+		j.schedule(5000);
 	}
 	
 	public void dispose() {
@@ -114,7 +109,6 @@ public class SVDBIndexBase implements ISVDBIndex {
 	}
 
 	public synchronized Map<File, SVDBFile> getFileDB() {
-		System.out.println("--> getFileDB()");
 		
 		if (fIndexType == IT_BuildPath) {
 			if (!fFileMapValid) {
@@ -122,49 +116,59 @@ public class SVDBIndexBase implements ISVDBIndex {
 			}
 		}
 		
-		System.out.println("<-- getFileDB()");
 		return fFileMap;
 	}
 	
 	public synchronized SVDBFile findFile(File file) {
-		Map<File, SVDBFileTree> file_tree = getFileTree();
-		
-		synchronized(file_tree) {
-			if (file_tree.containsKey(file)) {
-				synchronized (fFileMap) {
-					if (!fFileMap.containsKey(file)) {
-						// Create the file
-						SVDBFile svdb_file = parseFile(file, file_tree.get(file));
-						fFileMap.put(file, svdb_file);
+		SVDBFile pp_file = findPreProcFile(file);
+		Map<File, SVDBFile> file_list = getPreProcFileMap();
+
+		if (pp_file != null) {
+			synchronized (fFileMap) {
+				if (!fFileMap.containsKey(file)) {
+					// Create the file
+					// TODO: opportunity for caching
+					SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+					SVDBFileTree ft = null;
+					synchronized (file_list) {
+						ft = ft_utils.createFileContext(pp_file, file_list);
 					}
-					
-					return fFileMap.get(file);
+					SVDBFile svdb_file = parseFile(file, ft);
+					fFileMap.put(file, svdb_file);
 				}
+
+				return fFileMap.get(file);
 			}
 		}
 		
 		return null;
 	}
-	
-	public synchronized Map<File, SVDBFileTree> getFileTree() {
+
+	public synchronized SVDBFile findPreProcFile(File file) {
 		
-		System.out.println("--> getFileMap()");
+		if (!fPreProcFileMap.containsKey(file)) {
+			SVDBFile f = createPreProcFile(file);
+			
+			fPreProcFileMap.put(file, f);
+		}
+		
+		return fPreProcFileMap.get(file);
+	}
+
+	public synchronized Map<File, SVDBFile> getPreProcFileMap() {
 		
 		if (!fFileTreeValid) {
 			buildFileTree(new NullProgressMonitor());
 		}
 
-		return fFileTreeMap;
+		return fPreProcFileMap;
 	}
 	
 	private synchronized IStatus buildFileTree(IProgressMonitor monitor) {
 		try {
-			fFileTreeMap.clear();
-			List<File> files = new ArrayList<File>();
-			SVPreProcScanner sc = new SVPreProcScanner();
+			List<File>       files         = new ArrayList<File>();
+			SVPreProcScanner sc            = new SVPreProcScanner();
 			SVDBPreProcObserver s_observer = new SVDBPreProcObserver();
-		
-			System.out.println("--> buildFileTree()");
 		
 			sc.setObserver(s_observer);
 
@@ -181,37 +185,11 @@ public class SVDBIndexBase implements ISVDBIndex {
 			}
 
 			for (File f : files) {
-			
-				try {
-					InputStream in = new FileInputStream(f);
-					sc.init(in, f.getAbsolutePath());
-					sc.scan();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (fPreProcFileMap.containsKey(f)) {
+					fPreProcFileMap.remove(f);
 				}
+				fPreProcFileMap.put(f, createPreProcFile(f));
 			}
-
-		
-			fFileTreeMap.putAll(
-					SVDBFileTreeUtils.organizeFiles(s_observer.getFiles()));
-			
-			Iterator<SVDBFileTree> it = fFileTreeMap.values().iterator();
-			
-			/*
-			while (it.hasNext()) {
-				SVDBFileTree f = it.next();
-				System.out.println("[FILE] " + f.getFilePath());
-				System.out.println("    Included-by files");
-				for (SVDBFileTree fp : f.getIncludedByFiles()) {
-					System.out.println("        " + fp.getFilePath());
-				}
-				System.out.println("    Included files");
-				for (SVDBFileTree fp : f.getIncludedFiles()) {
-					System.out.println("        " + fp.getFilePath());
-				}
-			}
-			 */
-		
 		} catch (Exception e) { 
 			e.printStackTrace();
 		} finally {
@@ -220,26 +198,46 @@ public class SVDBIndexBase implements ISVDBIndex {
 				fFileTreeBuilding = false;
 				notifyAll();
 			}
-			System.out.println("<-- buildFileTree()");
 		}
 		
 		return Status.OK_STATUS;
 	}
 	
+	private SVDBFile createPreProcFile(File file) {
+		SVPreProcScanner sc            = new SVPreProcScanner();
+		SVDBPreProcObserver s_observer = new SVDBPreProcObserver();
+	
+		sc.setObserver(s_observer);
+
+		try {
+			InputStream in = new FileInputStream(file);
+			sc.init(in, file.getAbsolutePath());
+			sc.scan();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (s_observer.getFiles().size() > 0) {
+			return s_observer.getFiles().get(0);
+		} else {
+			return null;
+		}
+	}
+	
 	private synchronized IStatus updateFileIndex(IProgressMonitor monitor) {
 		try {
-			Map<File, SVDBFileTree> file_tree = getFileTree();
+			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+			Map<File, SVDBFile> pp_file_map = getPreProcFileMap();
 
-			System.out.println("--> buildFileIndex()");
-
-//			fFileMap.clear();
-			Iterator<File> it = file_tree.keySet().iterator();
+			Iterator<File> it = pp_file_map.keySet().iterator();
 
 			while (it.hasNext()) {
 				File file = it.next();
 				
 				if (!fFileMap.containsKey(file)) {
-					SVDBFile svdb_file = parseFile(file, file_tree.get(file));
+					SVDBFileTree ft = ft_utils.createFileContext(
+							pp_file_map.get(file), pp_file_map);
+					SVDBFile svdb_file = parseFile(file, ft);
 					
 					synchronized(fFileMap) {
 						fFileMap.put(file, svdb_file);
@@ -250,21 +248,18 @@ public class SVDBIndexBase implements ISVDBIndex {
 			e.printStackTrace();
 		} finally {
 			synchronized (this) {
-				System.out.println("-> fileMapValid=true");
 				fFileMapValid = true;
 				fFileMapBuilding = false;
 				notifyAll();
-				System.out.println("<- fileMapValid=true");
 			}
 
-			System.out.println("<-- buildFileIndex()");
 		}
 		
 		return Status.OK_STATUS;
 	}
 	
 	private SVDBFile parseFile(File file, SVDBFileTree file_tree) {
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(this);
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
 		SVDBFile svdb_file = null;
 		InputStream in = null;
 		try {
@@ -291,13 +286,17 @@ public class SVDBIndexBase implements ISVDBIndex {
 	}
 	
 	public SVDBFileTree findIncludedFile(String leaf) {
-		Iterator<File> it = getFileTree().keySet().iterator();
+		Iterator<File> it = getPreProcFileMap().keySet().iterator();
 		
 		while (it.hasNext()) {
 			File file = it.next();
 			
 			if (file.getPath().endsWith(leaf)) {
-				return getFileTree().get(file);
+				// TODO: opportunity for caching
+				SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+				SVDBFileTree ft = ft_utils.createFileContext(
+						getPreProcFileMap().get(file), getPreProcFileMap());
+				return ft;
 			}
 		}
 		
@@ -313,6 +312,82 @@ public class SVDBIndexBase implements ISVDBIndex {
 	public void rebuildIndex() {
 		// TODO: force index and map to be invalid
 		System.out.println("[TODO] SVDBIndexBase.rebuildIndex");
+	}
+	
+	public void addChangeListener(ISVDBIndexChangeListener l) {
+		fIndexChageListeners.add(l);
+	}
+
+	public void removeChangeListener(ISVDBIndexChangeListener l) {
+		fIndexChageListeners.remove(l);
+	}
+
+	protected void fileRemoved(File file) {
+		fPreProcFileMap.remove(file);
+		SVDBFile svdb_file = fFileMap.remove(file);
+
+		if (svdb_file != null) {
+			for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+				l.index_changed(ISVDBIndexChangeListener.FILE_REMOVED, svdb_file);
+			}
+		}
+	}
+	
+	protected void fileAdded(File file) {
+		if (fFileTreeValid) {
+			if (fPreProcFileMap.containsKey(file)) {
+				// hmmm... bad information
+				fPreProcFileMap.remove(file);
+			}
+			
+			fPreProcFileMap.put(file, createPreProcFile(file));
+		}
+		
+		if (fFileMapValid) {
+			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+			Map<File, SVDBFile> pp_file_map = getPreProcFileMap();
+			
+			if (fFileMap.containsKey(file)) {
+				fFileMap.remove(file);
+			}
+			
+			SVDBFileTree ft = ft_utils.createFileContext(
+					pp_file_map.get(file), pp_file_map);
+			SVDBFile svdb_file = parseFile(file, ft);
+			
+			synchronized(fFileMap) {
+				fFileMap.put(file, svdb_file);
+			}
+			
+			for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+				l.index_changed(ISVDBIndexChangeListener.FILE_ADDED, svdb_file);
+			}
+		}
+	}
+	
+	protected void fileChanged(File file) {
+		
+		if (fPreProcFileMap.containsKey(file)) {
+			fPreProcFileMap.remove(file);
+			fPreProcFileMap.put(file, createPreProcFile(file));
+		}
+
+		if (fFileMap.containsKey(file)) {
+			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+			Map<File, SVDBFile> pp_file_map = getPreProcFileMap();
+			
+			SVDBFileTree ft = ft_utils.createFileContext(
+					pp_file_map.get(file), pp_file_map);
+			SVDBFile svdb_file = parseFile(file, ft);
+			SVDBFile svdb_file_e = fFileMap.get(file);
+
+			// Merge any new content with the existing
+			SVDBFileMerger.merge(svdb_file_e, svdb_file, null, null, null);
+			
+			for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+				l.index_changed(ISVDBIndexChangeListener.FILE_CHANGED, svdb_file_e);
+			}
+		}
 	}
 
 	private static void find_files(

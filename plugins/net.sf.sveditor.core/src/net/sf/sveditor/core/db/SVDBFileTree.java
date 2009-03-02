@@ -6,6 +6,7 @@ import java.util.List;
 
 public class SVDBFileTree {
 	
+	boolean					fProcessed;
 	File					fFilePath;
 	SVDBFile				fSVDBFile;
 	List<SVDBFileTree>      fIncludedFiles   = new ArrayList<SVDBFileTree>();
@@ -20,6 +21,13 @@ public class SVDBFileTree {
 		fSVDBFile = file;
 	}
 	
+	public boolean getFileProcessed() {
+		return fProcessed;
+	}
+	
+	public void setFileProcessed(boolean is_processed) {
+		fProcessed = is_processed;
+	}
 	
 	public File getFilePath() {
 		return fFilePath;

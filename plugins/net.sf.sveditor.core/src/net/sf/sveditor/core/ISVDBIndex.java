@@ -41,10 +41,11 @@ public interface ISVDBIndex {
 	Map<File, SVDBFile> getFileDB();
 	
 	/**
-	 * Returns the file tree for this index
+	 * Returns list of SVDBFile with pre-proc info
+	 * 
 	 * @return
 	 */
-	Map<File, SVDBFileTree> getFileTree();
+	Map<File, SVDBFile> getPreProcFileMap();
 
 	/**
 	 * Finds the specified file within this index. Returns 'null' if
@@ -54,6 +55,14 @@ public interface ISVDBIndex {
 	 * @return
 	 */
 	SVDBFile findFile(File path);
+	
+	/**
+	 * Finds the specified file within the pre-processor index
+	 * fs
+	 * @param path
+	 * @return
+	 */
+	SVDBFile findPreProcFile(File path);
 	
 	/**
 	 * Locates a file with the following leaf. If the file cannot be
@@ -69,6 +78,13 @@ public interface ISVDBIndex {
 	 * Forces a rebuild of the index
 	 */
 	void rebuildIndex();
+	
+	/**
+	 * 
+	 */
+	void addChangeListener(ISVDBIndexChangeListener l);
+	
+	void removeChangeListener(ISVDBIndexChangeListener l);
 	
 	// TODO: add support for change listeners ???
 }

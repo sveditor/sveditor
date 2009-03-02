@@ -15,6 +15,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private InputStream			fInput;
 	private String				fFileName;
 	private boolean				fExpandMacros;
+	private boolean				fEvalConditionals;
 	
 	private byte				fInputBuffer[] = new byte[1024 * 1024];
 	private int					fInputBufferIdx = 0;
@@ -42,9 +43,10 @@ public class SVPreProcScanner implements ISVScanner {
 		fPreProcEn = new Stack<Integer>();
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
-		fExpandMacros = false;
-		fInString = false;
-		fLastChPP = -1;
+		fExpandMacros     = false;
+		fEvalConditionals = false;
+		fInString         = false;
+		fLastChPP         = -1;
 	}
 	
 	public void setExpandMacros(boolean expand_macros) {
@@ -316,17 +318,51 @@ public class SVPreProcScanner implements ISVScanner {
 			ch = skipWhite_ll(get_ch_ll());
 			
 			// TODO: evaluate the expression?
-			String remainder = readLine_ll(ch);
+			String remainder = readLine_ll(ch).trim();
 			
-			if (type.equals("ifdef")) {
-				enter_ifdef(false);
+			if (fEvalConditionals) {
+				if (fDefineProvider != null) {
+					System.out.println("    " + type + " " +
+							fDefineProvider.isDefined(remainder, fLineno));
+				}
+			
+				if (type.equals("ifdef")) {
+					if (fDefineProvider != null) {
+						enter_ifdef(fDefineProvider.isDefined(
+								remainder, fLineno));
+					} else {
+						enter_ifdef(false);
+					}
+				} else {
+					if (fDefineProvider != null) {
+						enter_ifdef(!fDefineProvider.isDefined(
+								remainder, fLineno));
+					} else {
+						enter_ifdef(true);
+					}
+				}
 			} else {
-				enter_ifdef(true);
+				if (fObserver != null) {
+					fObserver.enter_preproc_conditional(type, remainder);
+				}
 			}
 		} else if (type.equals("else")) {
-			invert_ifdef();
+			if (fEvalConditionals) {
+				invert_ifdef();
+			} else {
+				if (fObserver != null) {
+					fObserver.leave_preproc_conditional();
+					fObserver.enter_preproc_conditional("else", "");
+				}
+			}
 		} else if (type.equals("endif")) {
-			leave_ifdef();
+			if (fEvalConditionals) {
+				leave_ifdef();
+			} else {
+				if (fObserver != null) {
+					fObserver.leave_preproc_conditional();
+				}
+			}
 		} else if (type.equals("undef")) {
 			// Ignore
 			readLine_ll(get_ch_ll());
@@ -334,6 +370,8 @@ public class SVPreProcScanner implements ISVScanner {
 			// ignore
 			// TODO: read to line-end
 			readLine_ll(skipWhite_ll(get_ch_ll()));
+		} else if (type.equals("line") || type.equals("file")) {
+			// readLine_ll(get_ch_ll());
 		} else if (type.equals("begin_keywords") || type.equals("end_keywords")) {
 			// TODO: read to line-end 
 			readLine_ll(skipWhite_ll(get_ch_ll()));

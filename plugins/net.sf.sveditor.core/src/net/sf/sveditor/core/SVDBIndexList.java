@@ -9,14 +9,16 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 
-public class SVDBIndexList implements ISVDBIndexList {
+public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	
-	private List<ISVDBIndex>				fIndexList;
-	private File							fProjectDir;
-	private Map<File, SVDBFile>				fFileDB;
-	private Map<File, SVDBFileTree>			fFileTree;
+	private List<ISVDBIndex>							fIndexList;
+	private File										fProjectDir;
+	private Map<File, SVDBFile>							fFileDB;
+	private Map<File, SVDBFile>							fPreProcFileMap;
+	private List<ISVDBIndexChangeListener>				fIndexChangeListeners;
 	
 	public SVDBIndexList(File project_dir) {
+		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 		fIndexList = new ArrayList<ISVDBIndex>();
 		fProjectDir = project_dir;
 	}
@@ -37,7 +39,7 @@ public class SVDBIndexList implements ISVDBIndexList {
 		return null;
 	}
 
-	public Map<File, SVDBFile> getFileDB() {
+	public synchronized Map<File, SVDBFile> getFileDB() {
 		if (fFileDB == null) {
 			fFileDB = new HashMap<File, SVDBFile>();
 			for (ISVDBIndex index : fIndexList) {
@@ -48,16 +50,17 @@ public class SVDBIndexList implements ISVDBIndexList {
 		return fFileDB;
 	}
 
-	public Map<File, SVDBFileTree> getFileTree() {
-		if (fFileTree == null) {
-			fFileTree = new HashMap<File, SVDBFileTree>();
+	public synchronized Map<File, SVDBFile> getPreProcFileMap() {
+		
+		if (fPreProcFileMap == null) {
+			fPreProcFileMap = new HashMap<File, SVDBFile>();
 			
 			for (ISVDBIndex index : fIndexList) {
-				fFileTree.putAll(index.getFileTree());
+				fPreProcFileMap.putAll(index.getPreProcFileMap());
 			}
 		}
-
-		return fFileTree;
+		
+		return fPreProcFileMap;
 	}
 	
 	public SVDBFile findFile(File file) {
@@ -74,6 +77,22 @@ public class SVDBIndexList implements ISVDBIndexList {
 		return null;
 	}
 
+	public SVDBFile findPreProcFile(File path) {
+		synchronized (fIndexList) {
+			for (ISVDBIndex index : fIndexList) {
+				SVDBFile ret;
+				
+				if ((ret = index.findFile(path)) != null) {
+					return ret;
+				}
+			}
+		}
+
+		System.out.println("[WARN] failed to file pre-proc file \"" + 
+				path.getAbsolutePath() + "\" in index list");
+		return null;
+	}
+
 	public int getIndexType() {
 		return IT_IndexList;
 	}
@@ -87,26 +106,49 @@ public class SVDBIndexList implements ISVDBIndexList {
 	public void addIndex(ISVDBIndex idx) {
 		// TODO: signal change event?
 		fIndexList.add(idx);
+		idx.addChangeListener(this);
 	}
 	
 	public void removeIndex(ISVDBIndex idx) {
 		// TODO: signal change event?
 		fIndexList.remove(idx);
+		idx.removeChangeListener(this);
 	}
 	
 	public List<ISVDBIndex> getIndexList() {
 		return fIndexList;
 	}
 	
-	/*
-	public List<SVDBFile> getFileList() {
-		List<SVDBFile> ret = new ArrayList<SVDBFile>();
-		
-		for (ISVDBIndex idx : fIndexList) {
-			ret.addAll(idx.getFileList());
+	public void addChangeListener(ISVDBIndexChangeListener l) {
+		fIndexChangeListeners.add(l);
+	}
+
+	public void removeChangeListener(ISVDBIndexChangeListener l) {
+		fIndexChangeListeners.remove(l);
+	}
+
+	public void index_changed(int reason, SVDBFile file) {
+		if (reason == ISVDBIndexChangeListener.FILE_ADDED) {
+			if (fFileDB != null) {
+				fFileDB.put(file.getFilePath(), file);
+			}
+			if (fPreProcFileMap != null) {
+				fPreProcFileMap.put(file.getFilePath(), file);
+			}
+		} else if (reason == ISVDBIndexChangeListener.FILE_REMOVED) {
+			if (fFileDB != null) {
+				fFileDB.remove(file.getFilePath());
+			}
+			if (fPreProcFileMap != null) {
+				fPreProcFileMap.remove(file.getFilePath());
+			}
+		} else if (reason == ISVDBIndexChangeListener.FILE_CHANGED) {
+			
 		}
 		
-		return ret;
+		for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
+			l.index_changed(reason, file);
+		}
 	}
-	 */
 }
+

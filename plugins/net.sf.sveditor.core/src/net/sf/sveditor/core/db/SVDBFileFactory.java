@@ -86,8 +86,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_package() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.PackageDecl) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -120,8 +123,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_interface_decl() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Interface) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -154,8 +160,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_class_decl() throws HaltScanException {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Class) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -172,8 +181,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_struct_decl() throws HaltScanException {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 &&
+				fScopeStack.peek().getType() == SVDBItemType.Struct) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -221,13 +233,19 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_task_decl() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Task) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	public void leave_func_decl() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Function) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -238,13 +256,19 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_file() {
-		setEndLocation(fScopeStack.peek());
+		if (fScopeStack.size() > 0 &&
+				fScopeStack.peek().getType() == SVDBItemType.File) {
+			setEndLocation(fScopeStack.peek());
+		}
 	}
 
 	
 	public void leave_module_decl() throws HaltScanException {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Module) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 
@@ -330,6 +354,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		fScopeStack.peek().addItem(inc);
 	}
 	
+	public void enter_preproc_conditional(String type, String conditional) {}
+
+	public void leave_preproc_conditional() {}
+
+
 	public void comment(String comment) {
 		
 	}
@@ -344,8 +373,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_covergroup() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Covergroup) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -379,8 +411,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_sequence() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Sequence) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 	
@@ -395,8 +430,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void leave_property() {
-		setEndLocation(fScopeStack.peek());
-		fScopeStack.pop();
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Property) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
 	}
 
 }

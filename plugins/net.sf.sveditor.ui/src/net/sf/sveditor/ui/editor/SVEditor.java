@@ -2,19 +2,21 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Map;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
+import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
@@ -64,6 +66,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBProjectData					fProjectData;
 	private SVDBFile						fSVDBFile;
+	private SVDBFileTree					fSVDBFileTree;
 	private File							fFile;
 	private int								fFirstModLine;
 	private int								fNumModLines;
@@ -125,6 +128,8 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		String path = ed_in.getName();
 
 		SVPreProcDefineProvider		def_p = null;
+		
+		fSVDBFileTree = null;
 		if (ed_in instanceof IURIEditorInput) {
 			SVDBProjectData pdata  = null;
 			IURIEditorInput uri_in = (IURIEditorInput)ed_in;
@@ -136,10 +141,21 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			if (c != null && c.length > 0) {
 				pdata = mgr.getProjectData(c[0].getProject());
 				ISVDBIndex index = pdata.getFileIndex();
-				def_p = new SVPreProcDefineProvider(index);
+				def_p = new SVPreProcDefineProvider();
 				
-				def_p.setFileContext(index.getFileTree().get(c[0].getLocation().toFile()));
+				SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+				SVDBFile pp_svdb_f = index.findPreProcFile(c[0].getLocation().toFile());
+				
+				Map<File, SVDBFile> pp_map = index.getPreProcFileMap();
+				
+				fSVDBFileTree = ft_utils.createFileContext(pp_svdb_f, pp_map);
+				
+				def_p.setFileContext(fSVDBFileTree);
 			}
+		}
+		
+		if (fSVDBFileTree == null) {
+			fSVDBFileTree = new SVDBFileTree(getFilePath());
 		}
 		
 		StringInputStream sin = new StringInputStream(doc.get());
@@ -315,6 +331,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	public SVDBFile getSVDBFile() {
 		return fSVDBFile;
 	}
+	
+	public SVDBFileTree getSVDBFileTree() {
+		return fSVDBFileTree;
+	}
 
 	public File getFilePath() {
 		IEditorInput ed_in = getEditorInput();
@@ -329,24 +349,39 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		return ret;
 	}
 	
-	public void setSelection(int lineno) {
-		setSelection(lineno, false);
+	public void setSelection(SVDBItem it, boolean set_cursor) {
+		int start = -1;
+		int end   = -1;
+		
+		if (it.getLocation() != null) {
+			start = it.getLocation().getLine();
+			
+			if (it instanceof SVDBScopeItem &&
+					((SVDBScopeItem)it).getEndLocation() != null) {
+				end = ((SVDBScopeItem)it).getEndLocation().getLine();
+			}
+			setSelection(start, end, set_cursor);
+		}
 	}
 	
-	public void setSelection(int lineno, boolean set_cursor) {
+	public void setSelection(int start, int end, boolean set_cursor) {
 		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 		
 		// Lineno is used as an offset
-		if (lineno > 0) {
-			lineno--;
+		if (start > 0) {
+			start--;
+		}
+		
+		if (end == -1) {
+			end = start;
 		}
 		try {
-			int offset = doc.getLineOffset(lineno);
-			setHighlightRange(offset, 1, false);
+			int offset = doc.getLineOffset(start);
+			setHighlightRange(offset, (end-start)+1, false);
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
-			getSourceViewer().revealRange(offset, 1);
+			getSourceViewer().revealRange(offset, (end-start)+1);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

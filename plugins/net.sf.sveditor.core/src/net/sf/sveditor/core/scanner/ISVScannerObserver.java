@@ -32,6 +32,10 @@ public interface ISVScannerObserver {
 	
 	void import_statment(String imp) throws HaltScanException;
 	
+	void enter_preproc_conditional(String type, String conditional);
+	
+	void leave_preproc_conditional();
+	
 	/**
 	 * 
 	 * @param name

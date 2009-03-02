@@ -97,18 +97,24 @@ public class SVScanner implements ISVScanner {
 			while ((id = scan_statement()) != null) {
 				Pair<String, Integer> ret = scan_qualifiers(id, false);
 				id = ret.fField1;
-				
-				if (id.equals("module") ||
-						id.equals("interface") ||
-						id.equals("class")) {
-					// enter module scope
-					process_interface_module_class(id);
-				} else if (id.equals("struct")) {
-					process_struct_decl();
-				} else if (id.equals("package") || id.equals("endpackage")) {
-					process_package(id);
-				} else if (id.equals("import")) {
-					process_import();
+
+				if (id != null) {
+					if (id.equals("module") ||
+							id.equals("interface") ||
+							id.equals("class")) {
+						// enter module scope
+						process_interface_module_class(id);
+					} else if (id.equals("struct")) {
+						process_struct_decl();
+					} else if (id.equals("package") || id.equals("endpackage")) {
+						process_package(id);
+					} else if (id.equals("import")) {
+						process_import();
+					}
+				} else {
+					System.out.println("[WARN] id @ top-level is null");
+					System.out.println("    " + getLocation().getFileName() + 
+							":" + getLocation().getLineNo());
 				}
 			}
 		} catch (EOFException e) {
@@ -548,6 +554,8 @@ public class SVScanner implements ISVScanner {
 				}
 			} else if (ch != ';') {
 				System.out.println("Mystery post-class character: \"" + (char)ch + "\"");
+				System.out.println("    " + getLocation().getFileName() + ":" + 
+						getLocation().getLineNo());
 			}
 		} else {
 			// Module port-list

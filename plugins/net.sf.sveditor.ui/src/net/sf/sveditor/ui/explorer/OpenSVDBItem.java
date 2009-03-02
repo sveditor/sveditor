@@ -75,8 +75,7 @@ public class OpenSVDBItem extends CommonActionProvider {
 			
 			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {
 				IEditorPart ed_f = openEditor(it);
-
-				((SVEditor)ed_f).setSelection(it.getLocation().getLine(), true);
+				((SVEditor)ed_f).setSelection(it, true);
 			}
 		}
 		

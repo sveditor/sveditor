@@ -9,6 +9,7 @@ import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -104,10 +105,12 @@ public class SVOutlinePage extends ContentOutlinePage
 				if (event.getSelection() instanceof StructuredSelection) {
 					StructuredSelection sel = (StructuredSelection)event.getSelection();
 					if (sel.getFirstElement() instanceof SVDBItem) {
-						SVDBLocation loc = ((SVDBItem)sel.getFirstElement()).getLocation();
-						if (loc != null) {
-							fEditor.setSelection(loc.getLine());
-						}
+						int start = -1;
+						int end = -1;
+						
+						SVDBItem it = (SVDBItem)sel.getFirstElement();
+						
+						fEditor.setSelection(it, false);
 					}
 				}
 				

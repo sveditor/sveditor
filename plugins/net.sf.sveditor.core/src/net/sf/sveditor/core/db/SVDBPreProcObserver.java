@@ -60,10 +60,22 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void preproc_define(String key, List<String> params, String value) {
 		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
 		setLocation(def);
-		fFileList.get(fFileList.size()-1).getItems().add(def);
+		fScopeStack.peek().addItem(def);
+	}
+	
+	
+	public void enter_preproc_conditional(String type, String conditional) {
+		SVDBPreProcCond c = new SVDBPreProcCond(type, conditional);
+		setLocation(c);
+		
+		fScopeStack.peek().addItem(c);
+		fScopeStack.push(c);
 	}
 
-	
+	public void leave_preproc_conditional() {
+		fScopeStack.pop();
+	}
+
 	public void preproc_include(String path) {
 		SVDBInclude inc = new SVDBInclude(path);
 		setLocation(inc);

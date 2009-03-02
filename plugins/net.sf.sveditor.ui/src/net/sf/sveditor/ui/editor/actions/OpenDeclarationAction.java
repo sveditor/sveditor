@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -194,7 +195,9 @@ public class OpenDeclarationAction extends TextEditorAction {
 						idx++;
 					}
 					
-					System.out.println("Looking for include file \"" + text.toString() + "\"");
+					System.out.println("[TODO] Looking for include file \"" + text.toString() + "\"");
+					
+					SVDBFileTree ft = fEditor.getSVDBFileTree();
 				} else {
 					List<SVDBItem> result = searcher.findByName(
 							text.toString(), SVDBItemType.Macro);
@@ -323,8 +326,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		
 		if (it != null) {
 			IEditorPart ed_f = openEditor(it);
-
-			((SVEditor)ed_f).setSelection(it.getLocation().getLine(), true);
+			((SVEditor)ed_f).setSelection(it, true);
 		}
 	}
 	

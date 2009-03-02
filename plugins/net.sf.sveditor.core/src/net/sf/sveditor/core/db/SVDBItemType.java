@@ -12,6 +12,7 @@ public enum SVDBItemType {
 	ModIfcInst,
 	TaskFuncParam,
 	Macro,
+	PreProcCond,
 	Include,
 	PackageDecl,
 	Covergroup,

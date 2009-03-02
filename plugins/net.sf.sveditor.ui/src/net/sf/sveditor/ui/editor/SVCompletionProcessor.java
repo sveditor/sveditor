@@ -7,7 +7,9 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -35,7 +37,8 @@ import org.eclipse.jface.text.templates.TemplateProposal;
 
 public class SVCompletionProcessor implements IContentAssistProcessor {
 
-	private SVEditor fEditor;
+	private SVEditor 	fEditor;
+	private boolean		fDebugEn = false;
 
 	private static final char[] PROPOSAL_ACTIVATION_CHARS = { '.', ':' };
 	private static final String fBuiltInMacroProposals[] = { "define",
@@ -86,9 +89,20 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			while (idx >= 0) {
 				c = doc.getChar(idx);
 
-				if (c == '.' || c == '`' || (c == ':' && last_c == ':')
-						|| c == '\n') {
+				if (c == '.' || c == '`' ||	
+						(c == ':' && last_c == ':')	|| c == '\n' ||
+						c == ',' || c == '(') {
 					break;
+				} else if (c == ')') {
+					// scan back to matching
+					int matchLevel = 1;
+					while (idx >= 0) {
+						if (c == '(') {
+							matchLevel--;
+						} else if (c == ')') {
+							matchLevel++;
+						}
+					}
 				}
 				last_c = c;
 				idx--;
@@ -111,6 +125,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				findPreProcProposals(doc, root, trigger, pre, start, proposals);
 
 			} else if (!trigger.equals("")) {
+				
 
 				// There is a trigger, so use that as a reference point
 				pre = doc.get(idx + 1, offset - idx - 1).trim();
@@ -125,18 +140,31 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 							pre, start, proposals);
 				}
 			} else {
-				// No recognizable trigger character, so set 'pre' based on
-				// seeking backwards from the offset passed in
-				idx = offset - 1;
+				
+				if (c == '(' || c == ',') {
+					start = idx+1;
+					
+					// Scan forward to avoid any whitespace
+					while (start < doc.getLength() && 
+							Character.isWhitespace(doc.getChar(start))) {
+						idx++;
+						start++;
+					}
+					pre = doc.get(start, offset-idx-1);
+				} else {
+					// No recognizable trigger character, so set 'pre' based on
+					// seeking backwards from the offset passed in
+					idx = offset - 1;
 
-				while (idx >= viewer.getTopIndexStartOffset()
-						&& !Character.isWhitespace(doc.getChar(idx))) {
-					idx--;
+					// Only works in certain cases...
+					while (idx >= 0	&& !Character.isWhitespace(doc.getChar(idx))) {
+						idx--;
+					}
+
+					start = idx + 1;
+					pre = doc.get(idx + 1, offset - idx - 1).trim();
 				}
-
-				start = idx + 1;
-				pre = doc.get(idx + 1, offset - idx - 1).trim();
-
+				
 				findUntriggeredProposal(viewer.getDocument(), root, trigger,
 						pre, start, proposals);
 			}
@@ -211,7 +239,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				fEditor.getSVDBFile(), lineno);
 		
 		if (src_scope == null) {
-			debug("[WARN] cannot locate source scope");
+			System.out.println("[WARN] cannot locate source scope");
 		}
 
 		// Figure out which scope we're in and collect info from there...
@@ -253,15 +281,26 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			// Collect all matching class names from the build path
 			for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
 				for (SVDBItem it : f.getItems()) {
+					debug("un-triggered global proposal: " + it.getName());
 					if (it.getType() == SVDBItemType.Class) {
 						if (it.getName() != null && (pre.equals("") 
 								|| isPrefix(pre, it))) {
 							addProposal(it, doc, start, pre.length(), proposals);
 						}
 					} else if (it.getType() == SVDBItemType.PackageDecl) {
+						for (SVDBItem it_1 : ((SVDBScopeItem)it).getItems()) {
+							if (it_1.getType() == SVDBItemType.Class) {
+								if (it_1.getName() != null && (pre.equals("") 
+										|| isPrefix(pre, it_1))) {
+									addProposal(it_1, doc, start, pre.length(), proposals);
+								}
+							}
+						}
 					}
 				}
 			}
+		} else {
+			System.out.println("[WARN] project data is null");
 		}
 	}
 
@@ -291,6 +330,11 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		
 		debug("findTriggeredProposals: " + src_scope.getName() + 
 				" pre=" + pre + " trigger=" + trigger);
+		
+		try {
+		debug("    char @ pre-trigger index: " + 
+				viewer.getDocument().getChar(pre_trigger_idx));
+		} catch (Exception e) { }
 		
 		// Add the live version of the file to the search
 		searcher.addFile(fEditor.getSVDBFile());
@@ -363,10 +407,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			if (src_scope.getSuperClass() == null
 					|| (src_scope = searcher.findNamedModClassIfc(src_scope
 							.getSuperClass())) == null) {
-				System.out.println("End expansion: " + src_scope_t.getName());
-				System.out.println("    SuperClass="
-						+ src_scope_t.getSuperClass());
-				System.out.println("    Find="
+				debug("End expansion: " + src_scope_t.getName());
+				debug("    SuperClass="	+ src_scope_t.getSuperClass());
+				debug("    Find="
 						+ searcher.findNamedModClassIfc(src_scope_t.getSuperClass()));
 				break;
 			}
@@ -453,16 +496,29 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					}
 				}
 				// Collect matching macro names from the build path
-				for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
-					for (SVDBItem it : f.getItems()) {
-						if (it.getType() == SVDBItemType.Macro) {
-							if (it.getName() != null && 
-									(pre.equals("") || isPrefix(pre, it))) {
-								addProposal(it, doc, start, pre.length(), proposals);
-							}
-						}
-					}
+				for (SVDBFile f : pd.getFileIndex().getPreProcFileMap().values()) {
+					addMacroProposals(pre, f, doc, start, proposals);
 				}
+			}
+		}
+	}
+	
+	private void addMacroProposals(
+			String							pre,
+			SVDBScopeItem					scope,
+			IDocument						doc,
+			int								replacementOffset,
+			List<ICompletionProposal>		proposals) {
+		
+		for (SVDBItem it : scope.getItems()) {
+			if (it.getType() == SVDBItemType.Macro) {
+				if (it.getName() != null && 
+						(pre.equals("") || isPrefix(pre, it))) {
+					addProposal(it, doc, replacementOffset, pre.length(), proposals);
+				}
+			} else if (it instanceof SVDBScopeItem) {
+				addMacroProposals(
+						pre, (SVDBScopeItem)it, doc, replacementOffset, proposals);
 			}
 		}
 	}
@@ -479,6 +535,16 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			case Function:
 			case Task: 
 				addTaskFuncProposal(it, doc, replacementOffset, 
+						replacementLength, proposals);
+				break;
+				
+			case Macro:
+				addMacroProposal(it, doc, replacementOffset,
+						replacementLength, proposals);
+				break;
+				
+			case Class:
+				addClassProposal(it, doc, replacementOffset,
 						replacementLength, proposals);
 				break;
 				
@@ -531,23 +597,117 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		d.append(")");
 		r.append(")");
 		
-		if (it.getType() == SVDBItemType.Function) {
+		if (it.getType() == SVDBItemType.Function &&
+				!it.getName().equals("new")) {
 			d.append(" : ");
 			d.append(tf.getReturnType());
 		}
+		
+		// Find the class that this function belongs to (if any)
+		SVDBItem class_it = it;
+		
+		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
+			class_it = class_it.getParent();
+		}
+		
+		Template t = new Template(d.toString(), 
+				(class_it != null)?class_it.getName():"", "CONTEXT",
+				r.toString(), true);
+		
+		p = new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+		
+		proposals.add(p);
+	}
+
+	private static void addMacroProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength,
+			List<ICompletionProposal> 	proposals) {
+		ICompletionProposal			p;
+
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBMacroDef md = (SVDBMacroDef)it;
+		
+		d.append(it.getName() + "(");
+		r.append(it.getName() + "(");
+		
+		for (int i=0; i<md.getParameters().size(); i++) {
+			String param = md.getParameters().get(i);
+			
+			d.append(param);
+			r.append("${");
+			r.append(param);
+			r.append("}");
+			
+			if (i+1 < md.getParameters().size()) {
+				d.append(", ");
+				r.append(", ");
+			}
+		}
+		d.append(")");
+		r.append(")");
 		
 		Template t = new Template(d.toString(), "", "CONTEXT",
 				r.toString(), true);
 		
 		p = new TemplateProposal(t, ctxt,
-				new Region(replacementOffset, replacementLength), null);
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+		proposals.add(p);
+	}
 
-		/*
-		p = new CompletionProposal(it.getName(),
-				replacementOffset, replacementLength, 
-				it.getName().length(), SVDBIconUtils.getIcon(it),
-				d.toString(), null, null);
-		 */
+	private static void addClassProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength,
+			List<ICompletionProposal> 	proposals) {
+		ICompletionProposal			p;
+
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBModIfcClassDecl cl = (SVDBModIfcClassDecl)it;
+		
+		r.append(it.getName());
+		d.append(it.getName());
+		
+		if (cl.getParameters().size() > 0) {
+			r.append(" #(");
+			for (int i=0; i<cl.getParameters().size(); i++) {
+				SVDBModIfcClassParam pm = cl.getParameters().get(i);
+
+				r.append("${");
+				r.append(pm.getName());
+				r.append("}");
+				
+				if (i+1 < cl.getParameters().size()) {
+					r.append(", ");
+				}
+			}
+			r.append(")");
+		}
+		
+		Template t = new Template(
+				d.toString(), "", "CONTEXT", r.toString(), true);
+		
+		p = new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
 		
 		proposals.add(p);
 	}
@@ -580,8 +740,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		return it.getName().toLowerCase().startsWith(pre.toLowerCase());
 	}
 
-	public IContextInformation[] computeContextInformation(ITextViewer viewer,
-			int offset) {
+	public IContextInformation[] computeContextInformation(
+			ITextViewer viewer, int offset) {
+		
 		return NO_CONTEXTS;
 	}
 
@@ -605,7 +766,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	}
 	
 	private void debug(String msg) {
-		System.out.println(msg);
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 
 }

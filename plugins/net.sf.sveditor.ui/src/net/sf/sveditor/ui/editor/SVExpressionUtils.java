@@ -16,6 +16,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
 public class SVExpressionUtils {
+	
+	private static boolean fDebugEn = false;
 
 	
 	/**
@@ -57,7 +59,7 @@ public class SVExpressionUtils {
 					break;
 				}
 
-				if (ch == '(') {
+				if (ch == '(' || ch == ',') {
 					break;
 				} else if (ch == ')') {
 					if (last_nws_ch != '.' && last_nws_ch != ':'
@@ -409,6 +411,8 @@ public class SVExpressionUtils {
 	}
 
 	private static void debug(String msg) {
-		System.out.println(msg);
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 }

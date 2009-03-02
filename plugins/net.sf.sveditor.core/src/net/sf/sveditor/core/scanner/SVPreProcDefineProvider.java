@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
-	private ISVDBIndex					fIndex;
 	private SVDBFileTree				fContext;
 	private boolean						fDebugEnS = false;
 	private boolean						fDebugEn  = false;
+	private boolean						fDebugUndefinedMacros = true;
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
@@ -23,13 +24,14 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		fExpandStack = new Stack<String>();
 	}
 	
-	public SVPreProcDefineProvider(ISVDBIndex index) {
-		fExpandStack = new Stack<String>();
-		fIndex = index;
-	}
-	
 	public void setFileContext(SVDBFileTree context) {
 		fContext = context;
+	}
+	
+	public boolean isDefined(String name, int lineno) {
+		SVDBMacroDef m = searchContext(fContext, name);
+		
+		return (m != null && m.getLocation().getLine() <= lineno);
 	}
 
 	public synchronized String expandMacro(
@@ -51,8 +53,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 
 		expandMacro(scanner);
 		
-		debug("<-- expandMacro(str): " + str);
 		if (fDebugEn) {
+			debug("<-- expandMacro(str): " + str);
 			debug("    Result: " + scanner.getStorage().toString());
 		}
 		return scanner.getStorage().toString();
@@ -103,17 +105,21 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		if (m == null) {
-			System.out.println("[ERROR] macro \"" + key + "\" undefined @ " +
-					fFilename + ":" + fLineno);
-			walkStack();
-			
-			boolean tmp = fDebugEnS;
-			fDebugEnS = true;
-			if (fContext != null) {
-				searchContext(fContext, key);
+			if (fDebugUndefinedMacros) {
+				System.out.println("[ERROR] macro \"" + key + "\" undefined @ " +
+						fFilename + ":" + fLineno);
 			}
-			fDebugEnS = tmp;
 			
+			if (fDebugUndefinedMacros) {
+				walkStack();
+				boolean tmp = fDebugEnS;
+				fDebugEnS = true;
+				if (fContext != null) {
+					searchContext(fContext, key);
+				}
+				fDebugEnS = tmp;
+			}
+
 			if (ch == '(') {
 				ch = scanner.skipPastMatch("()");
 				scanner.unget_ch(ch);
@@ -450,6 +456,17 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 
+	/**
+	 * Search the given context for the named macro
+	 * 
+	 * Strategy is:
+	 * - Search the current context for the named macro
+	 * - Search the files included in the current context
+	 * - Search up the include tree  
+	 * @param context
+	 * @param key
+	 * @return
+	 */
 	private SVDBMacroDef searchContext(
 			SVDBFileTree 	context, 
 			String 			key) {
@@ -457,54 +474,58 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		debug_s("--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
 		
 		if (ret == null) {
-			ret = searchLocal(context, key);
+			ret = searchDown(context, key);
 		}
 
 		if (ret == null) {
 			ret = searchUp(context, key);
-		}
-
-		if (ret == null) {
-			ret = searchDown(context, key);
 		}
 		
 		debug_s("<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
 		return ret;
 	}
 	
-	private SVDBMacroDef searchLocal(SVDBFileTree context, String key) {
+	/**
+	 * Search the specified scope and any sub-scopes
+	 * 
+	 * @param file
+	 * @param context
+	 * @param key
+	 * @return
+	 */
+	private SVDBMacroDef searchLocal(SVDBFileTree file, SVDBScopeItem context, String key) {
 		SVDBMacroDef m = null;
-		debug_s("--> searchLocal(" + context.getFilePath() + ", \"" + key + "\"");
+		debug_s("--> searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
 
-		for (SVDBItem it : context.getSVDBFile().getItems()) {
+		for (SVDBItem it : context.getItems()) {
 			debug_s("    it=" + it.getName());
 			if (it instanceof SVDBMacroDef && it.getName().equals(key)) {
 				m = (SVDBMacroDef)it;
+			} else if (it instanceof SVDBScopeItem) {
+				m = searchLocal(file, (SVDBScopeItem)it, key);
+			}
+			
+			if (m != null) {
 				break;
 			}
 		}
 		
-		debug_s("<-- searchLocal(" + context.getFilePath() + ", \"" + key + "\"");
+		debug_s("<-- searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
 		return m;
 	}
 	
 	private SVDBMacroDef searchDown(SVDBFileTree context, String key) {
 		SVDBMacroDef m = null;
+		
 		debug_s("--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
 		
-		m = searchLocal(context, key); 
-		
-		if (m == null) {
+		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
 			for (SVDBFileTree inc : context.getIncludedFiles()) {
 				debug_s("    searching included file \"" + inc.getFilePath() + "\"");
 				if (inc.getSVDBFile() == null) {
 					System.out.println("[TODO] do lookup of inc file \"" + 
 							inc.getFilePath().getPath() + "\"");
 				} else {
-					if ((m = searchLocal(inc, key)) != null) {
-						break;
-					}
-				
 					if ((m = searchDown(inc, key)) != null) {
 						break;
 					}
@@ -521,30 +542,21 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		debug_s("--> searchUp(" + context.getFilePath() + ", " + key + ")");
 		
-		m = searchLocal(context, key);
-		
-		if (m == null) {
+		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
 			for (SVDBFileTree is : context.getIncludedByFiles()) {
 				debug_s("    included-by file: " + is.getFilePath());
 				
-
-				if ((m = searchLocal(is, key)) != null) {
+				if ((m = searchDown(is, key)) != null) {
 					break;
 				}
 
-				for (SVDBFileTree inc : is.getIncludedFiles()) {
-					if (inc != context) {
-						if ((m = searchDown(inc, key)) != null) {
-							break;
-						}
+				for (SVDBFileTree ib : is.getIncludedByFiles()) {
+					if ((m = searchUp(ib, key)) != null) {
+						break;
 					}
 				}
-
+				
 				if (m != null) {
-					break;
-				}
-
-				if ((m = searchUp(is, key)) != null) {
 					break;
 				}
 			}

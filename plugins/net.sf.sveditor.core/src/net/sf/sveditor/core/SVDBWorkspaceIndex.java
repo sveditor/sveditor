@@ -33,11 +33,11 @@ public class SVDBWorkspaceIndex extends SVDBIndexBase
 			
 			if (delta.getKind() == IResourceDelta.REMOVED) {
 				// remove from the queue (if present) and the index
-				System.out.println("[NOTE] file \"" + file.getAbsolutePath() + "\" removed");
+				fileRemoved(file);
 			} else if (delta.getKind() == IResourceDelta.ADDED) {
-				System.out.println("[NOTE] file \"" + file.getAbsolutePath() + "\" added");
+				fileAdded(file);
 			} else {
-				System.out.println("[NOTE] file \"" + file.getAbsolutePath() + "\" changed");
+				fileChanged(file);
 			}
 		}
 

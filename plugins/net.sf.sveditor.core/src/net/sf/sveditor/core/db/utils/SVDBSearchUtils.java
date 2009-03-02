@@ -3,14 +3,14 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBSearchUtils {
+	
+	private static boolean			fDebugEn = false;
 	
 	public static List<SVDBItem> findItemsByType(
 			SVDBScopeItem			scope,
@@ -105,6 +105,8 @@ public class SVDBSearchUtils {
 
 
 	private static void debug(String msg) {
-//		System.out.println(msg);
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 }
