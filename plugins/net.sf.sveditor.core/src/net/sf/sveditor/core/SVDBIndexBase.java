@@ -285,7 +285,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 		return svdb_file;
 	}
 	
-	public SVDBFileTree findIncludedFile(String leaf) {
+	public SVDBFile findIncludedFile(String leaf) {
 		Iterator<File> it = getPreProcFileMap().keySet().iterator();
 		
 		while (it.hasNext()) {
@@ -293,10 +293,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 			
 			if (file.getPath().endsWith(leaf)) {
 				// TODO: opportunity for caching
-				SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
-				SVDBFileTree ft = ft_utils.createFileContext(
-						getPreProcFileMap().get(file), getPreProcFileMap());
-				return ft;
+				return getPreProcFileMap().get(file);
 			}
 		}
 		

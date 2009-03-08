@@ -71,7 +71,7 @@ public interface ISVDBIndex {
 	 * @param suffix
 	 * @return
 	 */
-	SVDBFileTree findIncludedFile(String leaf);
+	SVDBFile findIncludedFile(String leaf);
 	
 
 	/**

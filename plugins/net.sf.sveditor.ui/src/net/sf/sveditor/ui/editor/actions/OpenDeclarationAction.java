@@ -6,12 +6,10 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
@@ -27,7 +25,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -55,12 +52,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 		update();
 	}
 
-	@Override
-	public void update() {
-		// TODO Auto-generated method stub
-		super.update();
-	}
-
 	private ITextSelection getTextSel() {
 		ITextSelection sel = null;
 		
@@ -84,14 +75,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 		ITextSelection sel = getTextSel();
 		
 		int offset = sel.getOffset() + sel.getLength();
-		SVDBProjectData pd = fEditor.getProjectData();
+		SVDBFile    		inc_file = null;
 		SVDBItem			it = null;
 
 		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
 		
 		// Add the live version of the file to the search
 		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(pd.getFileIndex());
+		searcher.addIndex(fEditor.getIndex());
 		
 		// Now, iterate through the items in the file and find something
 		// with the same name
@@ -195,9 +186,11 @@ public class OpenDeclarationAction extends TextEditorAction {
 						idx++;
 					}
 					
-					System.out.println("[TODO] Looking for include file \"" + text.toString() + "\"");
+					ISVDBIndex index = fEditor.getSVDBIndex();
 					
-					SVDBFileTree ft = fEditor.getSVDBFileTree();
+					if (index != null) {
+						inc_file = index.findIncludedFile(text.toString());
+					}
 				} else {
 					List<SVDBItem> result = searcher.findByName(
 							text.toString(), SVDBItemType.Macro);
@@ -327,6 +320,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 		if (it != null) {
 			IEditorPart ed_f = openEditor(it);
 			((SVEditor)ed_f).setSelection(it, true);
+		} else if (inc_file != null) {
+			openEditor(inc_file.getFilePath());
 		}
 	}
 	
@@ -444,9 +439,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 	}
 	
 	private IEditorPart openEditor(SVDBItem it) {
-		IEditorPart ret = null;
 		SVDBItem p = it.getParent();
-		IFile f = null;
 		// Find the file that this item belongs to
 		
 		while (p != null && !(p instanceof SVDBFile)) {
@@ -454,7 +447,15 @@ public class OpenDeclarationAction extends TextEditorAction {
 		}
 		
 		File file = ((SVDBFile)p).getFilePath();
-		if (p != null) { 
+		
+		return openEditor(file);
+	}
+	
+	private IEditorPart openEditor(File file) {
+		IFile f = null;
+		IEditorPart ret = null;
+		
+		if (file != null) { 
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IFile f_l[] = root.findFilesForLocation(
 					new Path(file.getAbsolutePath()));
@@ -517,7 +518,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 				e.printStackTrace();
 			}
 		}
-		
 		
 		return ret;
 	}

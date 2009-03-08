@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVDBIndexList;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
@@ -20,6 +21,7 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.ui.Activator;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -68,9 +70,11 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	private SVDBFile						fSVDBFile;
 	private SVDBFileTree					fSVDBFileTree;
 	private File							fFile;
+	private ISVDBIndex						fIndex;
+	private SVDBIndexList					fIndexList;
 	private int								fFirstModLine;
 	private int								fNumModLines;
-
+	
 	public SVEditor() {
 		super();
 		
@@ -130,6 +134,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		SVPreProcDefineProvider		def_p = null;
 		
 		fSVDBFileTree = null;
+		fIndex = null;
 		if (ed_in instanceof IURIEditorInput) {
 			SVDBProjectData pdata  = null;
 			IURIEditorInput uri_in = (IURIEditorInput)ed_in;
@@ -140,13 +145,13 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			
 			if (c != null && c.length > 0) {
 				pdata = mgr.getProjectData(c[0].getProject());
-				ISVDBIndex index = pdata.getFileIndex();
+				fIndex = pdata.getFileIndex();
 				def_p = new SVPreProcDefineProvider();
 				
 				SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
-				SVDBFile pp_svdb_f = index.findPreProcFile(c[0].getLocation().toFile());
+				SVDBFile pp_svdb_f = fIndex.findPreProcFile(c[0].getLocation().toFile());
 				
-				Map<File, SVDBFile> pp_map = index.getPreProcFileMap();
+				Map<File, SVDBFile> pp_map = fIndex.getPreProcFileMap();
 				
 				fSVDBFileTree = ft_utils.createFileContext(pp_svdb_f, pp_map);
 				
@@ -194,14 +199,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 
 		ResourceBundle bundle = Activator.getDefault().getResources();
 		
-		/*
-		Action action = new ContentAssistAction(bundle, "ContentAssistProposal.", this);
-		String id = ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS;
-		action.setActionDefinitionId(id);
-		setAction("ContentAssistProposal", action);
-		markAsStateDependentAction("ContentAssistProposal", true);
-		 */
-		
 		IAction a = new TextOperationAction(bundle,
 				"ContentAssistProposal.", this,
 				ISourceViewer.CONTENTASSIST_PROPOSALS);
@@ -242,9 +239,16 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 				bundle, "OpenDeclaration.", this);
 		od_action.setActionDefinitionId(Activator.PLUGIN_ID + ".editor.open.declaration");
 		setAction(Activator.PLUGIN_ID + ".svOpenEditorAction", od_action);
+
+		OverrideTaskFuncAction ov_tf_action = new OverrideTaskFuncAction(
+				bundle, "OverrideTaskFunc.", this);
+		ov_tf_action.setActionDefinitionId(
+				Activator.PLUGIN_ID + ".override.tf.command");
+		setAction(Activator.PLUGIN_ID + ".override.tf", ov_tf_action);
+
 	}
 	
-	public SVDBProjectData getProjectData() {
+	private SVDBProjectData getProjectData() {
 		if (fProjectData == null) {
 			File file = getFilePath();
 			
@@ -262,23 +266,57 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		return fProjectData;
 	}
 	
-	public void setProjectData(SVDBProjectData pd) {
+	private void setProjectData(SVDBProjectData pd) {
 		fProjectData = pd;
+	}
+	
+	public ISVDBIndex getIndex() {
+		if (fIndexList == null) {
+			fIndexList = new SVDBIndexList(getFilePath());
+
+			SVDBProjectData pd = getProjectData();
+			
+			fIndexList.addIndex(SVCorePlugin.getDefault().getBuiltinIndex());
+			
+			if (pd != null) {
+				fIndexList.addIndex(pd.getFileIndex());
+			}
+		}
+		
+		return fIndexList;
 	}
 
 	protected void editorContextMenuAboutToShow(IMenuManager menu) {
-		// TODO Auto-generated method stub
 		super.editorContextMenuAboutToShow(menu);
+		
+		System.out.println("editorContextMenuAboutToShow()");
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				Activator.PLUGIN_ID + ".svOpenEditorAction");
+		
+		/*
+		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
+				Activator.PLUGIN_ID + ".source.menu");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				"net.sf.sveditor.ui.source.menu.as");
+		 */
+		
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
+				"net.sf.sveditor.ui.override.tf");
+		/*
+		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
+				"net.sf.sveditor.ui.source.menu.as");
+		
+		IMenuManager editMenu = menu.findMenuUsingPath(
+				IWorkbenchActionConstants.M_EDIT);
+		
+		System.out.println("editMenu=" + editMenu);
+		 */
 	}
 	
 	@Override
 	public void dispose() {
 		super.dispose();
-		
-//		getDocumentProvider().getDocument(getEditorInput()).removeDocumentListener(this);
 		
 		if (fOutline != null) {
 			fOutline.dispose();
@@ -290,6 +328,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		}
 		
 		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
+		
+		if (fIndexList != null) {
+			fIndexList.dispose();
+		}
 	}
 
 	public void createPartControl(Composite parent) {
@@ -334,6 +376,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	
 	public SVDBFileTree getSVDBFileTree() {
 		return fSVDBFileTree;
+	}
+	
+	public ISVDBIndex getSVDBIndex() {
+		return fIndex;
 	}
 
 	public File getFilePath() {

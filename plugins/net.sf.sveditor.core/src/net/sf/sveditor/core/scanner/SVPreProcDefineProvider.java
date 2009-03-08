@@ -1,7 +1,9 @@
 package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -18,10 +20,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
+	private Map<String, SVDBMacroDef>	fMacroCache;
 	
 	
 	public SVPreProcDefineProvider() {
 		fExpandStack = new Stack<String>();
+		fMacroCache  = new HashMap<String, SVDBMacroDef>();
 	}
 	
 	public void setFileContext(SVDBFileTree context) {
@@ -470,17 +474,25 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private SVDBMacroDef searchContext(
 			SVDBFileTree 	context, 
 			String 			key) {
-		SVDBMacroDef ret = null;
+		SVDBMacroDef ret;
 		debug_s("--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
 		
-		if (ret == null) {
-			ret = searchDown(context, key);
+		
+		if ((ret = fMacroCache.get(key)) == null) {
+			if ((ret = searchDown(context, key)) == null) {
+				for (SVDBFileTree ib : context.getIncludedByFiles()) {
+					ret = searchUp(ib, context, key);
+				}
+			}
+			
+			if (ret != null) {
+				if (fMacroCache.containsKey(key)) {
+					fMacroCache.remove(key);
+				}
+				fMacroCache.put(key, ret);
+			}
 		}
 
-		if (ret == null) {
-			ret = searchUp(context, key);
-		}
-		
 		debug_s("<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
 		return ret;
 	}
@@ -537,22 +549,34 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		return m;
 	}
 	
-	private SVDBMacroDef searchUp(SVDBFileTree context, String key) {
+	/**
+	 * Search up the file tree. 
+	 * 
+	 * @param context - The context to search
+	 * @param child   - The file that is included by context
+	 * @param key     - 
+	 * @return
+	 */
+	private SVDBMacroDef searchUp(
+			SVDBFileTree 	context,
+			SVDBFileTree	child,
+			String 			key) {
 		SVDBMacroDef m = null;
 		
 		debug_s("--> searchUp(" + context.getFilePath() + ", " + key + ")");
 		
 		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			for (SVDBFileTree is : context.getIncludedByFiles()) {
-				debug_s("    included-by file: " + is.getFilePath());
+			for (SVDBFileTree is : context.getIncludedFiles()) {
 				
-				if ((m = searchDown(is, key)) != null) {
-					break;
-				}
-
-				for (SVDBFileTree ib : is.getIncludedByFiles()) {
-					if ((m = searchUp(ib, key)) != null) {
-						break;
+				if (!is.getFilePath().equals(child.getFilePath())) {
+					debug_s("    included file: " + is.getFilePath());
+				
+					if ((m = searchDown(is, key)) == null) {
+						for (SVDBFileTree ib : context.getIncludedByFiles()) {
+							if ((m = searchUp(ib, context, key)) != null) {
+								break;
+							}
+						}
 					}
 				}
 				

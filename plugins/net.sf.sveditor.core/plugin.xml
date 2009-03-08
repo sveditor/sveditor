@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="SVLibraries" name="SystemVerilog Libraries" schema="schema/SVLibraries.exsd"/>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
@@ -24,6 +25,13 @@
                class="net.sf.sveditor.core.SVProjectNature">
          </run>
       </runtime>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVLibraries">
+      <SVLibrary
+            name="SystemVerilog Builtin Types"
+            path="sv_builtin/sv_builtin.sv">
+      </SVLibrary>
    </extension>
 
 </plugin>

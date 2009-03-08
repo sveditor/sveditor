@@ -239,7 +239,7 @@ public class SVDBIndexSearcher {
 		
 		return ret;
 	}
-	
+
 	public List<SVDBItem> findByPrefixInTypeHierarchy(
 			String						prefix,
 			SVDBScopeItem				ref_type,

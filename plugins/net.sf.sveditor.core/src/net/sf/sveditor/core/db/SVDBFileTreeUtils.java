@@ -109,6 +109,13 @@ public class SVDBFileTreeUtils {
 		return ret;
 	}
 	
+	public void resolveConditionals(SVDBFileTree file) {
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
+		dp.setFileContext(file);
+		
+		processScope(file.getSVDBFile(), dp, file, null);
+	}
+	
 	private SVDBFileTree findIncParent(
 			SVDBFileTree 			file, 
 			List<SVDBFileTree>		file_l) {
@@ -289,23 +296,25 @@ public class SVDBFileTreeUtils {
 					i--;
 				}
 			} else if (it.getType() == SVDBItemType.Include) {
-				// TODO: opportunity for caching here
-				
-				// Find the include in the file list and process
-				SVDBFileTree inc_file = findIncludedFile(file, it.getName(), file_l);
-				
-				if (inc_file == null) {
-					System.out.println("[ERROR] cannot resolve inclusion \"" + 
-							it.getName() + "\"");
-				} else if (!file.getIncludedFiles().contains(inc_file)) {
-					debug("    include file \"" + it.getName() + "\"");
-					file.getIncludedFiles().add(inc_file);
-					
-					if (!inc_file.getFileProcessed()) {
-						processFile(dp, inc_file, file_l);
+				if (file_l != null) {
+					// TODO: opportunity for caching here
+
+					// Find the include in the file list and process
+					SVDBFileTree inc_file = findIncludedFile(file, it.getName(), file_l);
+
+					if (inc_file == null) {
+						System.out.println("[ERROR] cannot resolve inclusion \"" + 
+								it.getName() + "\"");
+					} else if (!file.getIncludedFiles().contains(inc_file)) {
+						debug("    include file \"" + it.getName() + "\"");
+						file.getIncludedFiles().add(inc_file);
+
+						if (!inc_file.getFileProcessed()) {
+							processFile(dp, inc_file, file_l);
+						}
+					} else {
+						debug("    file \"" + inc_file.getFilePath() + "\" already included");
 					}
-				} else {
-					debug("    file \"" + inc_file.getFilePath() + "\" already included");
 				}
 			} else if (it.getType() == SVDBItemType.PackageDecl) {
 				processScope((SVDBScopeItem)it, dp, file, file_l);

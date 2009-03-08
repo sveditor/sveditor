@@ -30,9 +30,8 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
-//	private ISVDBFileProvider				fFileProvider;
 	
-	private SVDBFileFactory(IDefineProvider def_provider) {
+	public SVDBFileFactory(IDefineProvider def_provider) {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
 		fScanner.setDefineProvider(def_provider);
@@ -45,10 +44,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	}
 	
 	public SVDBFile parse(IFile file) {
-		SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
-		
-		SVDBProjectData pdata = mgr.getProjectData(file.getProject());
-
 		InputStream in = null;
 		
 		try {
@@ -340,10 +335,12 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		setLocation(def);
 		
 		if (def.getName() == null || def.getName().equals("")) {
-			System.out.println("    " + def.getLocation().getFile().getName() + ":" + def.getLocation().getLine());
+			System.out.println("    " + 
+					def.getLocation().getFile().getName() + ":" + 
+					def.getLocation().getLine());
 		}
 		
-		fFile.addItem(def);
+		fScopeStack.peek().addItem(def);
 	}
 
 	

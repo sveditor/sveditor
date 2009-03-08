@@ -68,8 +68,9 @@ public class SVDBProjectData {
 					for (IProject p : svp.getProject().getReferencedProjects()) {
 						// TODO: should probably just reference the SVProject
 						// data for the referenced project if it exists
-						SVDBPath path = new SVDBPath(p.getLocation().toFile()
-								.getAbsolutePath(), false);
+						SVDBPath path = new SVDBPath(
+								p.getLocation().toFile().getAbsolutePath(), 
+								false, true);
 						ret.add(path);
 					}
 				}
@@ -96,7 +97,7 @@ public class SVDBProjectData {
 						// TODO: should probably just reference the SVProject
 						// data for the referenced project if it exists
 						SVDBPath path = new SVDBPath(p.getLocation().toFile()
-								.getAbsolutePath(), false);
+								.getAbsolutePath(), false, true);
 						ret.add(path);
 					}
 				}
@@ -165,7 +166,7 @@ public class SVDBProjectData {
 			List<SVDBPath> paths = new ArrayList<SVDBPath>();
 			
 			// Add an entry for this project
-			paths.add(new SVDBPath(proj_path.toOSString(), true));
+			paths.add(new SVDBPath(proj_path.toOSString(), true, true));
 			
 			// Add entries for everything currently on the build path
 			for (SVDBPath path : getBuildPaths()) {

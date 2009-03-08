@@ -4,7 +4,9 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.ui.Activator;
 
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
@@ -22,6 +24,8 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fContentFormatProposal;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	
+	protected MenuManager			   fSourceMenu;
 
 	public SVActionContributor() {
 		super();
@@ -36,16 +40,15 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
-		
+
 		fContentFormatProposal = new RetargetTextEditorAction(
 				bundle, "ContentFormatProposal.");
 		fContentAssistTip = new RetargetTextEditorAction(bundle,
 			"ContentAssistTip.");
-
-		
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
+		System.out.println("contributeToMenu");
 		IMenuManager editMenu = 
 			mm.findMenuUsingPath(IWorkbenchActionConstants.M_EDIT);
 		if (editMenu != null) {
@@ -56,16 +59,17 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fOpenDeclarationAction);
 		}
 	}
-		  
-		  
+	
 	/*
 	 * @see IEditorActionBarContributor#init(IActionBars)
 	 */
 	public void init(IActionBars bars) {
 		super.init(bars);
 
-		IMenuManager menuManager= bars.getMenuManager();
-		IMenuManager editMenu= menuManager.findMenuUsingPath(IWorkbenchActionConstants.M_EDIT);
+		IMenuManager menuManager = bars.getMenuManager();
+		IMenuManager editMenu = menuManager.findMenuUsingPath(
+				IWorkbenchActionConstants.M_EDIT);
+		
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);

@@ -148,7 +148,7 @@ public class SVProjectPathsPage {
 			// Add a new entry
 			fInitialDir = selectedDirectory;
 			
-			SVDBPath p = new SVDBPath(selectedDirectory, false);
+			SVDBPath p = new SVDBPath(selectedDirectory, false, false);
 			fPathList.add(p);
 			fPathListViewer.refresh();
 		}

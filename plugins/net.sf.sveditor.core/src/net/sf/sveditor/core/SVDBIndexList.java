@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 
 public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	
@@ -25,7 +24,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 
 	public void dispose() {
 		for (ISVDBIndex idx : fIndexList) {
-			idx.dispose();
+			idx.removeChangeListener(this);
 		}
 	}
 
@@ -33,10 +32,16 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return fProjectDir; 
 	}
 	
-	public SVDBFileTree findIncludedFile(String leaf) {
-		System.out.println("[TODO] findIncludedFile(" + leaf + ")");
-		// TODO Auto-generated method stub
-		return null;
+	public SVDBFile findIncludedFile(String leaf) {
+		SVDBFile ret = null;
+		
+		for (ISVDBIndex index : fIndexList) {
+			if ((ret = index.findIncludedFile(leaf)) != null) {
+				break;
+			}
+		}
+		
+		return ret;
 	}
 
 	public synchronized Map<File, SVDBFile> getFileDB() {

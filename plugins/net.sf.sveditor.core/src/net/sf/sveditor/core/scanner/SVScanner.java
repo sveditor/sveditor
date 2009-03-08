@@ -73,6 +73,7 @@ public class SVScanner implements ISVScanner {
 		SVPreProcScanner pp = new SVPreProcScanner();
 		pp.setDefineProvider(fDefineProvider);
 		pp.setScanner(this);
+		pp.setObserver(fObserver);
 		
 		pp.init(in, filename);
 		pp.setExpandMacros(true);

@@ -107,7 +107,8 @@ public class SVProjectFileWrapper {
 				path = "";
 			}
 			
-			element_list.add(new SVDBPath(path, (isWSRelPath == "true")));
+			element_list.add(
+					new SVDBPath(path, (isWSRelPath == "true"), false));
 		}
 		
 		return change;

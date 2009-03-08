@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -13,7 +14,6 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
@@ -218,14 +218,13 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String 						pre,
 			int 						start,
 			List<ICompletionProposal> 	proposals) {
-		SVDBProjectData pd = fEditor.getProjectData();
 		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
 		
 		debug("findUntriggeredProposal: root=" + root + " pre=" + pre);
 
 		// Add the live version of the file to the search
 		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(pd.getFileIndex());
+		searcher.addIndex(fEditor.getIndex());
 
 		int lineno = 0;
 
@@ -277,30 +276,28 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			}
 		}
 
-		if (pd != null) {
-			// Collect all matching class names from the build path
-			for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
-				for (SVDBItem it : f.getItems()) {
-					debug("un-triggered global proposal: " + it.getName());
-					if (it.getType() == SVDBItemType.Class) {
-						if (it.getName() != null && (pre.equals("") 
-								|| isPrefix(pre, it))) {
-							addProposal(it, doc, start, pre.length(), proposals);
-						}
-					} else if (it.getType() == SVDBItemType.PackageDecl) {
-						for (SVDBItem it_1 : ((SVDBScopeItem)it).getItems()) {
-							if (it_1.getType() == SVDBItemType.Class) {
-								if (it_1.getName() != null && (pre.equals("") 
-										|| isPrefix(pre, it_1))) {
-									addProposal(it_1, doc, start, pre.length(), proposals);
-								}
+		ISVDBIndex index = fEditor.getIndex();
+		
+		// Collect all matching class names from the build path
+		for (SVDBFile f : index.getFileDB().values()) {
+			for (SVDBItem it : f.getItems()) {
+				debug("un-triggered global proposal: " + it.getName());
+				if (it.getType() == SVDBItemType.Class) {
+					if (it.getName() != null && (pre.equals("") 
+							|| isPrefix(pre, it))) {
+						addProposal(it, doc, start, pre.length(), proposals);
+					}
+				} else if (it.getType() == SVDBItemType.PackageDecl) {
+					for (SVDBItem it_1 : ((SVDBScopeItem)it).getItems()) {
+						if (it_1.getType() == SVDBItemType.Class) {
+							if (it_1.getName() != null && (pre.equals("") 
+									|| isPrefix(pre, it_1))) {
+								addProposal(it_1, doc, start, pre.length(), proposals);
 							}
 						}
 					}
 				}
 			}
-		} else {
-			System.out.println("[WARN] project data is null");
 		}
 	}
 
@@ -325,7 +322,6 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String				pre,
 			int					start,
 			List<ICompletionProposal> proposals) {
-		SVDBProjectData pd = fEditor.getProjectData();
 		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
 		
 		debug("findTriggeredProposals: " + src_scope.getName() + 
@@ -338,7 +334,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		
 		// Add the live version of the file to the search
 		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(pd.getFileIndex());
+		searcher.addIndex(fEditor.getIndex());
 		
 		String preTrigger = SVExpressionUtils.extractPreTriggerPortion(
 				viewer.getDocument(), pre_trigger_idx, false);
@@ -434,71 +430,69 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String 						pre,
 			int 						start, 
 			List<ICompletionProposal>	proposals) {
-		SVDBProjectData pd = fEditor.getProjectData();
+		ISVDBIndex index = fEditor.getIndex();
 
-		if (pd != null) {
-			if (pre.startsWith("include")) {
-				boolean leading_quote = false, trailing_quote = false;
-				String display, replacement = "";
+		if (pre.startsWith("include")) {
+			boolean leading_quote = false, trailing_quote = false;
+			String display, replacement = "";
 
-				// Look at the point beyond the '`include'
-				String post_include = pre.substring("include".length());
+			// Look at the point beyond the '`include'
+			String post_include = pre.substring("include".length());
 
-				start += "include".length();
+			start += "include".length();
 
-				// Now, account for any whitespace
-				while (post_include.length() > 0
-						&& Character.isWhitespace(post_include.charAt(0))) {
-					post_include = post_include.substring(1);
-					start++;
-				}
+			// Now, account for any whitespace
+			while (post_include.length() > 0
+					&& Character.isWhitespace(post_include.charAt(0))) {
+				post_include = post_include.substring(1);
+				start++;
+			}
 
-				if (post_include.startsWith("\"")) {
-					// strip away the quote
-					leading_quote = true;
-					post_include = post_include.substring(1);
-					start++;
-				}
+			if (post_include.startsWith("\"")) {
+				// strip away the quote
+				leading_quote = true;
+				post_include = post_include.substring(1);
+				start++;
+			}
 
-				// look for include files that match the user-specified pattern
-				for (SVDBFile f : pd.getFileIndex().getFileDB().values()) {
-					File file = new File(f.getName());
-					
-					if (file.getName().toLowerCase().startsWith(post_include.toLowerCase())) {
-						display = file.getName();
-						replacement = file.getName();
+			// look for include files that match the user-specified pattern
+			for (SVDBFile f : index.getFileDB().values()) {
+				File file = new File(f.getName());
 
-						// Add quotes in if not present already...
-						if (!leading_quote) {
-							replacement = "\"" + replacement;
-						}
-						if (!trailing_quote) {
-							replacement += "\"";
-						}
+				if (file.getName().toLowerCase().startsWith(post_include.toLowerCase())) {
+					display = file.getName();
+					replacement = file.getName();
 
-						int replacement_length = post_include.length();
-						// replacementString
-						// replacementOffset
-						// replacementLength
-						// cursorPosition
-						addProposal(new CompletionProposal(replacement,
-										start, replacement_length,
-										replacement.length(), 
-										Activator.getImage(ISVIcons.INCLUDE_OBJ),
-										display, null, null), proposals);
+					// Add quotes in if not present already...
+					if (!leading_quote) {
+						replacement = "\"" + replacement;
 					}
-				}
-			} else {
-				for (String p : fBuiltInMacroProposals) {
-					if (p.toLowerCase().startsWith(pre.toLowerCase())) {
-						addProposal(new CompletionProposal(p, start, pre
-								.length(), p.length()), proposals);
+					if (!trailing_quote) {
+						replacement += "\"";
 					}
+
+					int replacement_length = post_include.length();
+					// replacementString
+					// replacementOffset
+					// replacementLength
+					// cursorPosition
+					addProposal(new CompletionProposal(replacement,
+							start, replacement_length,
+							replacement.length(), 
+							Activator.getImage(ISVIcons.INCLUDE_OBJ),
+							display, null, null), proposals);
 				}
-				// Collect matching macro names from the build path
-				for (SVDBFile f : pd.getFileIndex().getPreProcFileMap().values()) {
-					addMacroProposals(pre, f, doc, start, proposals);
+			}
+		} else {
+			for (String p : fBuiltInMacroProposals) {
+				if (p.toLowerCase().startsWith(pre.toLowerCase())) {
+					addProposal(new CompletionProposal(p, start, pre
+							.length(), p.length()), proposals);
 				}
+			}
+			// Collect matching macro names from the build path
+			for (SVDBFile f : index.getPreProcFileMap().values()) {
+				addMacroProposals(pre, f, doc, start, proposals);
 			}
 		}
 	}

@@ -163,6 +163,10 @@
             id="net.sf.sveditor.ui.editor.open.declaration"
             name="%ActionDefinition.openDeclaration.name">
       </command>
+      <command
+            id="net.sf.sveditor.ui.override.tf.command"
+            name="Override Tasks/Functions">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -185,6 +189,28 @@
                label="Open Editor"
                retarget="true">
          </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.declaration"
+               id="net.sf.sveditor.ui.override.tf"
+               label="Override Tasks/Functions"
+               retarget="true">
+         </action>
+      </actionSet>
+      <actionSet
+            id="net.sf.sveditor.ui.source.menu.as"
+            label="Source Menu"
+            visible="false">
+         <menu
+               id="net.sf.sveditor.ui.source.menu"
+               label="Source"
+               path="edit">
+            <separator
+                  name="commentGroup">
+            </separator>
+            <separator
+                  name="editGroup">
+            </separator>
+         </menu>
       </actionSet>
    </extension>
    <extension
@@ -194,6 +220,21 @@
             name="SVEditor Context"
             parentId="org.eclipse.ui.textEditorScope">
       </context>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="net.sf.sveditor.ui.viewCategory"
+            class="net.sf.sveditor.ui.views.SVHierarchyView"
+            icon="icons/eview16/class_hi.gif"
+            id="net.sf.sveditor.ui.hierarchyView"
+            name="Hierarchy"
+            restorable="true">
+      </view>
+      <category
+            id="net.sf.sveditor.ui.viewCategory"
+            name="SVEditor">
+      </category>
    </extension>
 
 </plugin>
