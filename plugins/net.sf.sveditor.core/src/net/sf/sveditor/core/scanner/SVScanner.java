@@ -149,12 +149,12 @@ public class SVScanner implements ISVScanner {
 					ch = skipWhite(next_ch());
 				} while (ch != -1 && !Character.isJavaIdentifierStart(ch));
 				
-				id = readIdentifier(ch);
-				
-				if (id.equals("begin")) {
-					begin_cnt++;
-				} else if (id.equals("end")) {
-					end_cnt++;
+				if ((id = readIdentifier(ch)) != null) {
+					if (id.equals("begin")) {
+						begin_cnt++;
+					} else if (id.equals("end")) {
+						end_cnt++;
+					}
 				}
 			} while (id != null && begin_cnt != end_cnt);
 		} else {
