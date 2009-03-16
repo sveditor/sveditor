@@ -17,7 +17,7 @@ import org.eclipse.jface.text.IDocument;
 
 public class SVExpressionUtils {
 	
-	private static boolean fDebugEn = false;
+	private static boolean fDebugEn = true;
 
 	
 	/**

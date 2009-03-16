@@ -7,11 +7,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.SVDBIncludeSearch;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 public class SVDBFileTreeUtils {
 	
 	private boolean			fDebugEn = false;
+	private ISVDBIndex		fIndex;
+	
+	
+	public void setIndex(ISVDBIndex index) {
+		fIndex = index;
+	}
 	
 	/**
 	 * Build a data structure that describes what files are included by
@@ -301,10 +309,25 @@ public class SVDBFileTreeUtils {
 
 					// Find the include in the file list and process
 					SVDBFileTree inc_file = findIncludedFile(file, it.getName(), file_l);
+					
+					if (inc_file == null && fIndex != null) {
+						SVDBFile f = new SVDBIncludeSearch(fIndex).findIncludedFile(it.getName());
+						
+						if (f != null) {
+							inc_file = new SVDBFileTree((SVDBFile)f.duplicate());
+						}
+					}
 
 					if (inc_file == null) {
 						System.out.println("[ERROR] cannot resolve inclusion \"" + 
 								it.getName() + "\"");
+						System.out.println("    superIndex=" + fIndex);
+						
+						try {
+							throw new Exception();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					} else if (!file.getIncludedFiles().contains(inc_file)) {
 						debug("    include file \"" + it.getName() + "\"");
 						file.getIncludedFiles().add(inc_file);
@@ -321,6 +344,7 @@ public class SVDBFileTreeUtils {
 			}
 		}
 	}
+	
 	
 	/**
 	 * Given a list of SVDBFiles from the SVPreProcScanner, resolve the

@@ -109,8 +109,8 @@ public class SVScanner implements ISVScanner {
 						process_struct_decl();
 					} else if (id.equals("package") || id.equals("endpackage")) {
 						process_package(id);
-					} else if (id.equals("import")) {
-						process_import();
+					} else if (id.equals("import") || id.equals("export")) {
+						process_import_export(id);
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
@@ -426,9 +426,21 @@ public class SVScanner implements ISVScanner {
 		}
 		
 		debug("" + id + " " + tf_name);
-
+		
+		boolean has_body = true;
+		
+		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) != 0 ||
+				(modifiers & ISVScannerObserver.FieldAttr_DPI) != 0) {
+			has_body = false;
+		}
+		
 		// External tasks/functions don't have a body
-		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) == 0) {
+		if ((modifiers & ISVScannerObserver.FieldAttr_Pure) != 0 &&
+				(modifiers & ISVScannerObserver.FieldAttr_Virtual) != 0) {
+			has_body = false;
+		}
+		
+		if (has_body) {
 			String  exp_end = "end" + id;
 			boolean var_enabled = true;
 			
@@ -534,22 +546,25 @@ public class SVScanner implements ISVScanner {
 			if (Character.isJavaIdentifierPart(ch)) {
 				// likely an 'extends' statement
 				String ext = readIdentifier(ch);
+				
 				ch = get_ch();
-				if (ext.equals("extends")) {
-					ch = skipWhite(ch);
-					super_name = readIdentifier(ch);
-					
-					ch = skipWhite(get_ch());
-					
-					if (ch == '#') {
-						// parameters
-						ch = skipWhite(next_ch());
-						if (ch == '(') {
-							startCapture();
-							ch = skipPastMatch("()");
-							String p_str = endCapture();
-							
-							super_params = parse_parameter_str(p_str);
+				if (ext != null) {
+					if (ext.equals("extends")) {
+						ch = skipWhite(ch);
+						super_name = readIdentifier(ch);
+
+						ch = skipWhite(get_ch());
+
+						if (ch == '#') {
+							// parameters
+							ch = skipWhite(next_ch());
+							if (ch == '(') {
+								startCapture();
+								ch = skipPastMatch("()");
+								String p_str = endCapture();
+
+								super_params = parse_parameter_str(p_str);
+							}
 						}
 					}
 				}
@@ -732,22 +747,46 @@ public class SVScanner implements ISVScanner {
 		return ret;
 	}
 	
-	private void process_import() throws EOFException {
+	private void process_import_export(String type) throws EOFException {
 		int ch = skipWhite(next_ch());
 		
-		// skip to end-of-statement
-		startCapture(ch);
-		while ((ch = next_ch()) != -1 && 
-				!Character.isWhitespace(ch) && ch != ';') {
-		}
-		String imp_str = endCapture();
-		
-		if (fObserver != null) {
-			fObserver.import_statment(imp_str);
-		}
+		if (ch == '"') {
+			// likely  DPI import/export. Double-check
+			String qualifier = readString(ch);
+			
+			if (qualifier != null && qualifier.equals("DPI") || qualifier.equals("DPI-C")) {
+				String id;
+				int modifiers = ISVScannerObserver.FieldAttr_DPI;
+				ch = skipWhite(get_ch());
+				
+				if ((id = readIdentifier(ch)) != null) {
+					Pair<String, Integer> qual_ret = scan_qualifiers(id, false);
+					ch = skipWhite(get_ch());
+				
+					id        = qual_ret.fField1;
+					modifiers |= qual_ret.fField2;
+				
+					// Read tf extern declaration
+					if (id != null) {
+						process_task_function(modifiers, id);
+					}
+				}
+			}
+		} else if (type.equals("import")) {
+			// skip to end-of-statement
+			startCapture(ch);
+			while ((ch = next_ch()) != -1 && 
+					!Character.isWhitespace(ch) && ch != ';') {
+			}
+			String imp_str = endCapture();
 
-		if (ch == ';') {
-			unget_ch(ch);
+			if (fObserver != null) {
+				fObserver.import_statment(imp_str);
+			}
+
+			if (ch == ';') {
+				unget_ch(ch);
+			}
 		}
 	}
 	
@@ -764,6 +803,7 @@ public class SVScanner implements ISVScanner {
 		fFieldQualifers.put("randc", ISVScannerObserver.FieldAttr_Randc);
 		fFieldQualifers.put("extern", ISVScannerObserver.FieldAttr_Extern);
 		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
+		fFieldQualifers.put("pure", ISVScannerObserver.FieldAttr_Pure);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO
@@ -1021,19 +1061,15 @@ public class SVScanner implements ISVScanner {
 	private String readIdentifier(int ci) throws EOFException {
 		return fInput.readIdentifier(ci);
 	}
-
+	
+	private String readString(int ci) {
+		return fInput.readString(ci);
+	}
+	
 	/* Currently unused
 	private String readLine(int ci) throws EOFException {
 		if (fInputStack.size() > 0) {
 			return fInputStack.peek().readLine(ci);
-		} else {
-			return "";
-		}
-	}
-	
-	private String readString(int ci) throws EOFException {
-		if (fInputStack.size() > 0) {
-			return fInputStack.peek().readString(ci);
 		} else {
 			return "";
 		}
@@ -1082,7 +1118,7 @@ public class SVScanner implements ISVScanner {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||
 				id.equals("bit") || id.equals("void") ||
-				id.equals("longint"));
+				id.equals("longint") || id.equals("chandle"));
 	}
 	
 	private SVTypeInfo readTypeName(int ch, boolean task_func) throws EOFException {

@@ -1,10 +1,13 @@
 package net.sf.sveditor.ui.editor.actions;
 
 import java.io.File;
+import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.PluginFileStore;
+import net.sf.sveditor.core.SVDBIncludeSearch;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -13,14 +16,17 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.PluginPathEditorInput;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVExpressionUtils;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -31,6 +37,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorRegistry;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -42,6 +49,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
+	private boolean					fDebugEn = false;
 
 	public OpenDeclarationAction(
 			ResourceBundle			bundle,
@@ -69,6 +77,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 	@Override
 	public void run() {
 		super.run();
+		
+		debug("OpenDeclarationAction.run()");
 		
 		IDocument doc = fEditor.getDocumentProvider().getDocument(
 				fEditor.getEditorInput());
@@ -107,7 +117,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 						|| c == '\n' || c == ',') {
 					break;
 				}
-				
+
 				last_c = c;
 				idx--;
 			}
@@ -172,6 +182,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 				}
 				
 				if (text.toString().equals("include")) {
+					debug("Open Declaration \"include\"");
+					
 					// Now, read forward to see what the included file is
 					while (idx < doc.getLength() && doc.getChar(idx) != '"') {
 						idx++;
@@ -186,10 +198,12 @@ public class OpenDeclarationAction extends TextEditorAction {
 						idx++;
 					}
 					
-					ISVDBIndex index = fEditor.getSVDBIndex();
+					ISVDBIndex index = fEditor.getIndex();
+					
+					debug("Searching for include \"" + text.toString() + "\" in index=" + index);
 					
 					if (index != null) {
-						inc_file = index.findIncludedFile(text.toString());
+						inc_file = new SVDBIncludeSearch(index).findIncludedFile(text.toString());
 					}
 				} else {
 					List<SVDBItem> result = searcher.findByName(
@@ -318,10 +332,10 @@ public class OpenDeclarationAction extends TextEditorAction {
 		 */
 		
 		if (it != null) {
-			IEditorPart ed_f = openEditor(it);
+			IEditorPart ed_f = openEditor(it, fEditor.getIndex());
 			((SVEditor)ed_f).setSelection(it, true);
 		} else if (inc_file != null) {
-			openEditor(inc_file.getFilePath());
+			openEditor(inc_file.getFilePath(), fEditor.getIndex());
 		}
 	}
 	
@@ -438,7 +452,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		return null;
 	}
 	
-	private IEditorPart openEditor(SVDBItem it) {
+	private IEditorPart openEditor(SVDBItem it, ISVDBIndex index) {
 		SVDBItem p = it.getParent();
 		// Find the file that this item belongs to
 		
@@ -448,51 +462,60 @@ public class OpenDeclarationAction extends TextEditorAction {
 		
 		File file = ((SVDBFile)p).getFilePath();
 		
-		return openEditor(file);
+		return openEditor(file, index);
 	}
 	
-	private IEditorPart openEditor(File file) {
+	private IEditorPart openEditor(
+			File 					file,
+			ISVDBIndex				index) {
 		IFile f = null;
+		String name;
 		IEditorPart ret = null;
 		
-		if (file != null) { 
+		if (file != null) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
 			IFile f_l[] = root.findFilesForLocation(
 					new Path(file.getAbsolutePath()));
-			
 			if (f_l != null && f_l.length > 0) {
+				name = f_l[0].getLocation().toString();
 				f = f_l[0];
+			} else {
+				name = file.getPath();
+			}
+			
+			IWorkbench wb = PlatformUI.getWorkbench();
+			IWorkbenchWindow w = wb.getActiveWorkbenchWindow();
 
-				IWorkbench wb = PlatformUI.getWorkbench();
-				IWorkbenchWindow w = wb.getActiveWorkbenchWindow();
+			for (IWorkbenchPage page : w.getPages()) {
+				for (IEditorReference ed_r : page.getEditorReferences()) {
+					String id = ed_r.getId();
 
-				for (IWorkbenchPage page : w.getPages()) {
-					for (IEditorReference ed_r : page.getEditorReferences()) {
-						String id = ed_r.getId();
+					if (!id.equals(Activator.PLUGIN_ID + ".editor")) {
+						continue;
+					}
+					IEditorInput in = null;
+
+					try {
+						in = ed_r.getEditorInput();
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
+
+					if (in instanceof IURIEditorInput) {
+						IURIEditorInput in_uri = (IURIEditorInput)in;
+
+						debug("URI path: " + in_uri.getURI().getPath());
 						
-						if (!id.equals(Activator.PLUGIN_ID + ".editor")) {
-							continue;
-						}
-						IEditorInput in = null;
-						
-						try {
-							in = ed_r.getEditorInput();
-						} catch (PartInitException e) {
-							e.printStackTrace();
-						}
-						
-						if (in instanceof FileEditorInput) {
-							FileEditorInput in_f = (FileEditorInput)in;
-							if (in_f.getPath().equals(f)) {
-								ret = ed_r.getEditor(true);
-								break;
-							}
+						if (in_uri.getURI().getPath().equals(name)) {
+							ret = ed_r.getEditor(true);
+							break;
 						}
 					}
-					
-					if (ret != null) {
-						break;
-					}
+				}
+
+				if (ret != null) {
+					break;
 				}
 			}
 		}
@@ -504,9 +527,27 @@ public class OpenDeclarationAction extends TextEditorAction {
 			IEditorDescriptor desc = rgy.getDefaultEditor(file.getName());
 			IEditorInput ed_in = null;
 			
+			debug("file=" + file.getPath());
+			
 			try {
 				if (f != null) {
 					ed_in = new FileEditorInput(f);
+				} else if (file.getPath().startsWith("plugin:/")) {
+					debug("plugin: " + file.getPath());
+					IFileSystem fs = null;
+					IFileStore store = null;
+					try {
+						fs = EFS.getFileSystem("plugin");
+						store = fs.getStore(new URI(file.getPath()));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					try {
+						ed_in = new PluginPathEditorInput((PluginFileStore)store);
+					} catch (CoreException e) {
+						e.printStackTrace();
+					}
 				} else {
 					IFileStore fs = EFS.getLocalFileSystem().getStore(file.toURI());
 					ed_in = new FileStoreEditorInput(fs);
@@ -514,11 +555,21 @@ public class OpenDeclarationAction extends TextEditorAction {
 					// TODO: need to connect up index to filesystem
 				}
 				ret = w.getActivePage().openEditor(ed_in, desc.getId());
+				
+				if (ret instanceof SVEditor) {
+					((SVEditor)ret).addIndex(index);
+				}
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
 		}
 		
 		return ret;
+	}
+	
+	private void debug(String msg) {
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 }

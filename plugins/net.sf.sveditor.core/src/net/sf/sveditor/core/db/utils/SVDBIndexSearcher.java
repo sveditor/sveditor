@@ -168,6 +168,7 @@ public class SVDBIndexSearcher {
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
 				for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
+					System.out.println("check param \"" + it.getName() + "\"");
 					if (it.getName().equals(name)) {
 						ret.add(it);
 						

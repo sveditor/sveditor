@@ -4,7 +4,7 @@
 - Add support for 'open declaration' on included file
 - Re-add support for includes and macro definitions in the editor outline
 - Add support for open-declaration on a macro call
-- Add 'Override/Implement Methods' action to the editor context menu
+- Add beginnings of 'Override/Implement Methods' action to the editor context menu
     - Prompts the user for tasks/functions in the super class hierarchy 
       that can be overridden
     - Inserts task/function outlines
@@ -12,7 +12,10 @@
   to be packaged in a plug-in
 - Begin adding support for core SystemVerilog classes (string for now)
 - Add OVM 2.0.1 to as a built-in library
-
+- Fix DR 2683568 -- scanner problem when parsing incomplete begin-end block
+- Add basic support for DPI tasks/functions in the scanner
+- Fixed a problem with content assist on task/function parameter names
+- Added an icon for local variables and task parameters
 
 
 ------------------------------------------------------------------------------
@@ -236,6 +239,12 @@ include-file names.
                 - Add to the DefineProvider
                 - Check whether file has already been parsed. 
                     - Add to TODO list if not
+ - Add basic support for Verilog .f files. This might be a concise way to specify the build process...
+ - Need a multi-level sort for content proposals
+    - order by name
+    - 
+    - order by scope distance (local variables, parameters, tf, types, etc)
+    - any 
 
 
 

@@ -35,12 +35,18 @@ public class SVDBIconUtils implements ISVIcons {
 			SVDBItemType   type = ((SVDBItem)it).getType();
 			
 			if (type == SVDBItemType.VarDecl) {
-				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-					return Activator.getImage(FIELD_PRIV_OBJ);
-				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-					return Activator.getImage(FIELD_PROT_OBJ);
+				if (it.getParent() != null && 
+						(it.getParent().getType() == SVDBItemType.Task ||
+								it.getParent().getType() == SVDBItemType.Function)) {
+					return Activator.getImage(LOCAL_OBJ);
 				} else {
-					return Activator.getImage(FIELD_PUB_OBJ);
+					if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
+						return Activator.getImage(FIELD_PRIV_OBJ);
+					} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
+						return Activator.getImage(FIELD_PROT_OBJ);
+					} else {
+						return Activator.getImage(FIELD_PUB_OBJ);
+					}
 				}
 			} else if (type == SVDBItemType.ModIfcInst) {
 				return Activator.getImage(MOD_IFC_INST_OBJ);
@@ -53,6 +59,8 @@ public class SVDBIconUtils implements ISVIcons {
 				} else {
 					return Activator.getImage(TASK_PUB_OBJ);
 				}
+			} else if (type == SVDBItemType.TaskFuncParam) {
+				return Activator.getImage(LOCAL_OBJ);
 			}
 		} else if (it instanceof SVDBItem) {
 			SVDBItemType type = ((SVDBItem)it).getType();

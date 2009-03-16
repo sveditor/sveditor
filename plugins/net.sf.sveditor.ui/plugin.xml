@@ -236,5 +236,12 @@
             name="SVEditor">
       </category>
    </extension>
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="net.sf.sveditor.ui.PluginFileEditorInputFactory"
+            id="net.sf.sveditor.ui.PluginFileEditorInputFactory">
+      </factory>
+   </extension>
 
 </plugin>

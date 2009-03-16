@@ -15,11 +15,13 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	private Map<File, SVDBFile>							fFileDB;
 	private Map<File, SVDBFile>							fPreProcFileMap;
 	private List<ISVDBIndexChangeListener>				fIndexChangeListeners;
+	private ISVDBIndex									fSuperIndex;
 	
 	public SVDBIndexList(File project_dir) {
 		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 		fIndexList = new ArrayList<ISVDBIndex>();
 		fProjectDir = project_dir;
+		fSuperIndex = null;
 	}
 
 	public void dispose() {
@@ -30,6 +32,14 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 
 	public File getBaseLocation() {
 		return fProjectDir; 
+	}
+	
+	public void setSuperIndex(ISVDBIndex index) {
+		fSuperIndex = index;
+	}
+	
+	public ISVDBIndex getSuperIndex() {
+		return fSuperIndex;
 	}
 	
 	public SVDBFile findIncludedFile(String leaf) {
@@ -109,9 +119,12 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	}
 
 	public void addIndex(ISVDBIndex idx) {
-		// TODO: signal change event?
-		fIndexList.add(idx);
-		idx.addChangeListener(this);
+		if (!fIndexList.contains(idx)) {
+			// TODO: signal change event?
+			fIndexList.add(idx);
+			idx.addChangeListener(this);
+			idx.setSuperIndex(this);
+		}
 	}
 	
 	public void removeIndex(ISVDBIndex idx) {

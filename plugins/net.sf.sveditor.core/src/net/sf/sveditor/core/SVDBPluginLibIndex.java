@@ -17,26 +17,29 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
+import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
 public class SVDBPluginLibIndex implements ISVDBIndex {
 	private Bundle					fBundle;
 	private String					fRoot;
+	private String					fPluginNS;
 	private Map<File, SVDBFile>		fFileList;
 	private boolean					fFileListValid;
 	
 	private Map<File, SVDBFile>		fFileIndex;
 	private boolean					fFileIndexValid;
+	private ISVDBIndex				fSuperIndex;
 	
 	public SVDBPluginLibIndex(
 			String				name,
-			Bundle				resource_bundle,
+			String				plugin_namespace,
 			String				root) {
-		fBundle = resource_bundle;
+		fPluginNS = plugin_namespace;
+		fBundle = Platform.getBundle(fPluginNS);
 		fRoot   = root;
 		
 		fFileList = new HashMap<File, SVDBFile>();
@@ -59,7 +62,6 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 	}
 
 	public SVDBFile findIncludedFile(String leaf) {
-		
 		Map<File, SVDBFile> map = getPreProcFileMap();
 		
 		Iterator<File> it = map.keySet().iterator();
@@ -76,10 +78,17 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 	}
 
 	public File getBaseLocation() {
-		System.out.println("[FIXME] getBaseLocation()");
-		return null;
+		return new File("plugin:/" + fPluginNS + "/" + fRoot);
 	}
 
+	public void setSuperIndex(ISVDBIndex index) {
+		fSuperIndex = index;
+	}
+	
+	public ISVDBIndex getSuperIndex() {
+		return fSuperIndex;
+	}
+	
 	public synchronized Map<File, SVDBFile> getFileDB() {
 		if (!fFileIndexValid) {
 			buildIndex();
@@ -89,8 +98,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 	}
 
 	public int getIndexType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return ISVDBIndex.IT_BuildPath;
 	}
 
 	public Map<File, SVDBFile> getPreProcFileMap() {
@@ -108,7 +116,6 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 		Enumeration<URL> entries = 
 			(Enumeration<URL>)fBundle.findEntries(root_dir, "*", true);
 		
-		long start = System.currentTimeMillis();
 		while (entries.hasMoreElements()) {
 			URL url = entries.nextElement();
 			SVPreProcScanner sc = new SVPreProcScanner();
@@ -123,28 +130,22 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 			
 			try {
 				InputStream in = url.openStream();
+				File f = new File("plugin:/" + fPluginNS + "/" + url.getPath());
 				
-				sc.init(in, url.getPath());
+				sc.init(in, f.getPath());
 				sc.scan();
 				
 				SVDBFile file = ob.getFiles().get(0);
 				
-				File f = new File(url.getPath());
 				if (fFileList.containsKey(f)) {
 					fFileList.remove(f);
 				}
 				fFileList.put(f, file);
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("path=" + url.getPath() + 
-						" file=" + url.getFile() + 
-						" protocol=" + url.getProtocol());
 			}
 		}
-		long end = System.currentTimeMillis();
 		
-		System.out.println("find-files: " + (end-start));
-
 		fFileListValid = true;
 	}
 	
@@ -158,17 +159,12 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 		
 		URL root = entries.nextElement();
 		
-		SVDBFile pp_file = findPreProcFile(new File(root.getPath()));
+		File f = new File("plugin:/" + fPluginNS + "/" + root.getPath());
+		SVDBFile pp_file = findPreProcFile(f);
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 		
-		long start = System.currentTimeMillis();
 		prepareFileTree(ft_root, null);
-		
 		processFile(ft_root, dp);
-		
-		long end = System.currentTimeMillis();
-		
-		System.out.println("build index took: " + (end-start));
 		
 		fFileIndexValid = true;
 	}
@@ -180,9 +176,16 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 		dp.setFileContext(path);
 		
 		SVDBFileFactory scanner = new SVDBFileFactory(dp);
+		
+		String path_s = path.getFilePath().getPath();
+		
+		path_s = path_s.substring("plugin:/".length());
+		path_s = path_s.substring(path_s.indexOf('/'));
+		
+		File path_f = new File(path_s);
 
 		Enumeration<URL> entries = (Enumeration<URL>)fBundle.findEntries(
-				path.getFilePath().getParent(), path.getFilePath().getName(), false);
+				path_f.getParent(), path_f.getName(), false);
 		
 		try {
 			URL url = entries.nextElement();
@@ -216,6 +219,8 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 			SVDBFileTree				parent) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 		
+		ft_utils.setIndex(fSuperIndex);
+		
 		ft_utils.resolveConditionals(root);
 		
 		if (parent != null) {
@@ -230,7 +235,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex {
 			SVDBScopeItem 		scope) {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Include) {
-				SVDBFile f = findIncludedFile(it.getName());
+				SVDBFile f = new SVDBIncludeSearch(this).findIncludedFile(it.getName());
 
 				SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.duplicate());
 				root.getIncludedFiles().add(ft);

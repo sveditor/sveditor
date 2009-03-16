@@ -1,6 +1,5 @@
 package net.sf.sveditor.ui.explorer;
 
-import java.io.File;
 import java.util.List;
 
 import net.sf.sveditor.core.ISVDBChangeListener;

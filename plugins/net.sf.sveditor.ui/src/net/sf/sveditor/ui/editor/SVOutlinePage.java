@@ -1,6 +1,5 @@
 package net.sf.sveditor.ui.editor;
 
-import java.io.File;
 import java.util.List;
 
 import net.sf.sveditor.core.ISVDBChangeListener;
@@ -8,8 +7,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -19,6 +16,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -60,7 +58,9 @@ public class SVOutlinePage extends ContentOutlinePage
 			List<SVDBItem> removes, List<SVDBItem> changes) {
 		if (file.getFilePath().equals(fEditor.getFilePath())) {
 			if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
-				getTreeViewer().getControl().getDisplay().timerExec(1000, this);
+				Display.getDefault().asyncExec(this);
+				// Display.getDefault().timerExec(1000, this);
+				// getTreeViewer().getControl().getDisplay().
 			}
 		}
 	}

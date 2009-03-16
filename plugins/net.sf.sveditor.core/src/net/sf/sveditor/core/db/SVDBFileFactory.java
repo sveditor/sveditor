@@ -3,16 +3,9 @@ package net.sf.sveditor.core.db;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
-import net.sf.sveditor.core.ISVDBFileProvider;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBProjectDataFileProvider;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.scanner.HaltScanException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVScanner;

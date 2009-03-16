@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 
 public interface ISVDBIndex {
 	int IT_IncludePath      = 1;
@@ -21,6 +20,16 @@ public interface ISVDBIndex {
 	 * @return
 	 */
 	File getBaseLocation();
+	
+	/**
+	 * Sets the containing index. This is typically used to pass the 
+	 * project's index to a client so that include files from some external
+	 * library can be located by a sub-index
+	 * @param index
+	 */
+	void setSuperIndex(ISVDBIndex index);
+	
+	ISVDBIndex getSuperIndex();
 	
 	/**
 	 * Returns the index type

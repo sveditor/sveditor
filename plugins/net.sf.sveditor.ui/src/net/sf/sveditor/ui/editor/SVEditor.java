@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.ISVDBIndexList;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBIndexList;
 import net.sf.sveditor.core.StringInputStream;
@@ -31,9 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -58,9 +57,8 @@ import org.eclipse.ui.texteditor.ResourceAction;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-public class SVEditor extends TextEditor implements IDocumentListener {
+public class SVEditor extends TextEditor {
 
-	// private ListenerList					fReconcileListeners;
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
 	private SVCodeScanner					fCodeScanner;
@@ -72,13 +70,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 	private File							fFile;
 	private ISVDBIndex						fIndex;
 	private SVDBIndexList					fIndexList;
-	private int								fFirstModLine;
-	private int								fNumModLines;
 	
 	public SVEditor() {
 		super();
 		
-//		fReconcileListeners = new ListenerList();
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
 		fCodeScanner = new SVCodeScanner();
@@ -99,8 +94,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);
-		
-		getDocumentProvider().getDocument(input).addDocumentListener(this);
 		
 		// Perform an initial parse of the file
 		updateSVDBFile();
@@ -126,7 +119,7 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		// TODO: Probably need to make some updates when the name changes
 	}
 
-	private void updateSVDBFile() {
+	void updateSVDBFile() {
 		IEditorInput ed_in = getEditorInput();
 		IDocument doc = getDocumentProvider().getDocument(ed_in);
 		String path = ed_in.getName();
@@ -176,6 +169,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(
 					((IFileEditorInput)ed_in).getFile(), fSVDBFile);
 		}
+	}
+	
+	public void addIndex(ISVDBIndex index) {
+		((ISVDBIndexList)getIndex()).addIndex(index);
 	}
 
 
@@ -257,17 +254,10 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 			if (files != null && files.length > 0) {
 				SVDBProjectManager pm = SVCorePlugin.getDefault().getProjMgr();
 				fProjectData = pm.getProjectData(files[0].getProject());
-			} else {
-				// Create an empty project data
-				System.out.println("[FIXME] create an empty SVProjectData item");
 			}
 		}
 		
 		return fProjectData;
-	}
-	
-	private void setProjectData(SVDBProjectData pd) {
-		fProjectData = pd;
 	}
 	
 	public ISVDBIndex getIndex() {
@@ -378,10 +368,6 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		return fSVDBFileTree;
 	}
 	
-	public ISVDBIndex getSVDBIndex() {
-		return fIndex;
-	}
-
 	public File getFilePath() {
 		IEditorInput ed_in = getEditorInput();
 		File ret = null;
@@ -445,52 +431,4 @@ public class SVEditor extends TextEditor implements IDocumentListener {
 		return super.getAdapter(adapter);
 	}
 
-	public void documentAboutToBeChanged(DocumentEvent event) {
-		/*
-		System.out.println("--> documentChanged");
-		IDocument doc = event.fDocument;
-		int change_new_offset = event.fText.length() - event.fLength;
-		int old_end_offset = event.fOffset + event.fLength;
-		int new_end_offset = event.fOffset + event.fText.length();
-		
-		int start_line = -1;
-		int old_end_line = -1;
-		int new_end_line = -1;
-		
-		try {
-			start_line = doc.getLineOfOffset(event.fOffset);
-		} catch (Exception e) { }
-		
-		try {
-			old_end_line = doc.getLineOfOffset(old_end_offset);
-		} catch (Exception e) { }
-		
-		try {
-			new_end_line = doc.getLineOfOffset(new_end_offset);
-		} catch (Exception e) { }
-		
-		System.out.println("start_line=" + start_line);
-		System.out.println("old_end_line=" + old_end_line);
-		System.out.println("new_end_line=" + new_end_line);
-		
-		System.out.println("change start offset=" + event.fOffset + " length=" + event.fLength);
-		System.out.println("change=" + event.fText);
-		try {
-			int end_line = doc.getLineOfOffset(event.fOffset+event.fLength);
-			System.out.println("starts @ " + start_line + " ends @ " + end_line);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("<-- documentChanged");
-		 */
-	}
-
-	public void documentChanged(DocumentEvent event) {
-		/*
-		String doc_s = getDocumentProvider().getDocument(getEditorInput()).toString();
-		StringInputStream in = new StringInputStream(doc_s);
-		SVDBFile file = SVDBFileFactory.createFile(in, fFile.getName());
-		 */
-		updateSVDBFile();
-	}
 }

@@ -1,11 +1,8 @@
 package net.sf.sveditor.ui.editor;
 
-import org.eclipse.jface.text.DefaultTextHover;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -16,7 +13,6 @@ import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.Token;
-import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -29,6 +25,8 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	public SVSourceViewerConfiguration(SVEditor editor) {
 		fEditor = editor;
 	}
+	
+	
 	
 	
 	@Override

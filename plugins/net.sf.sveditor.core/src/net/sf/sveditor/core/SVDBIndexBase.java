@@ -49,6 +49,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 	protected static final List<String>			fIgnoreDirs;
 	
 	protected List<ISVDBIndexChangeListener>	fIndexChageListeners;
+	protected ISVDBIndex						fSuperIndex;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -107,6 +108,14 @@ public class SVDBIndexBase implements ISVDBIndex {
 	public File getBaseLocation() {
 		return fBaseLocation;
 	}
+	
+	public void setSuperIndex(ISVDBIndex index) {
+		fSuperIndex = index;
+	}
+	
+	public ISVDBIndex getSuperIndex() {
+		return fSuperIndex;
+	}
 
 	public synchronized Map<File, SVDBFile> getFileDB() {
 		
@@ -129,6 +138,8 @@ public class SVDBIndexBase implements ISVDBIndex {
 					// Create the file
 					// TODO: opportunity for caching
 					SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+					ft_utils.setIndex(this);
+					
 					SVDBFileTree ft = null;
 					synchronized (file_list) {
 						ft = ft_utils.createFileContext(pp_file, file_list);
@@ -228,6 +239,9 @@ public class SVDBIndexBase implements ISVDBIndex {
 		try {
 			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 			Map<File, SVDBFile> pp_file_map = getPreProcFileMap();
+			
+			
+			ft_utils.setIndex(fSuperIndex);
 
 			Iterator<File> it = pp_file_map.keySet().iterator();
 
@@ -296,8 +310,6 @@ public class SVDBIndexBase implements ISVDBIndex {
 				return getPreProcFileMap().get(file);
 			}
 		}
-		
-		System.out.println("[WARN] failed to find include \"" + leaf + "\"");
 		
 		return null;
 	}
@@ -371,6 +383,7 @@ public class SVDBIndexBase implements ISVDBIndex {
 
 		if (fFileMap.containsKey(file)) {
 			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+			ft_utils.setIndex(this);
 			Map<File, SVDBFile> pp_file_map = getPreProcFileMap();
 			
 			SVDBFileTree ft = ft_utils.createFileContext(

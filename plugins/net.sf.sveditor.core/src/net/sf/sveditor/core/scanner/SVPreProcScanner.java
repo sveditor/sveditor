@@ -228,7 +228,8 @@ public class SVPreProcScanner implements ISVScanner {
 			return fTmpBuffer.toString();
 		}
 	}
-	
+
+	/*
 	private String readString(int ci) {
 		
 		fTmpBuffer.setLength(0);
@@ -264,6 +265,7 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		return fTmpBuffer.toString();
 	}
+	 */
 
 	private String readString_ll(int ci) {
 		

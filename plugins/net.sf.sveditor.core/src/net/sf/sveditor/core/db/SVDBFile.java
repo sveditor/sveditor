@@ -1,9 +1,7 @@
 package net.sf.sveditor.core.db;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SVDBFile extends SVDBScopeItem {

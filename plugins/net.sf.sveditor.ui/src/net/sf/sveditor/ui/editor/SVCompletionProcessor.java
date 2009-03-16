@@ -245,13 +245,24 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 
 		// Begin working outwards
 		while (src_scope != null) {
+			
+			if (src_scope.getType() == SVDBItemType.Task || 
+					src_scope.getType() == SVDBItemType.Function) {
+				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)src_scope;
+				
+				for (SVDBTaskFuncParam p : tf.getParams()) {
+					if (isPrefix(pre, p)) {
+						addProposal(p, doc, start, pre.length(), proposals);
+					}
+				}
+			}
 
 			// TODO: Search this scope and enclosing scopes for functions,
 			// tasks, and variables
 			// TODO: If one of the enclosing scopes is a class scope, then
 			// search the base-class tree as well
-			addMatchingTasksVars(src_scope, doc, root, trigger, pre, start,
-					proposals);
+			addMatchingTasksVars(
+					src_scope, doc, root, trigger, pre, start, proposals);
 
 			if (src_scope.getType() == SVDBItemType.Class) {
 				addClassHierarchyItems(searcher,
@@ -606,13 +617,21 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 		
 		Template t = new Template(d.toString(), 
 				(class_it != null)?class_it.getName():"", "CONTEXT",
-				r.toString(), true);
+				r.toString(), (tf.getParams().size() == 0));
 		
 		p = new TemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
 				SVDBIconUtils.getIcon(it));
-		
-		proposals.add(p);
+
+		boolean found = false;
+		for (ICompletionProposal p_t : proposals) {
+			if (p_t.getDisplayString().equals(p.getDisplayString())) {
+				found = true;
+			}
+		}
+		if (!found) {
+			proposals.add(p);
+		}
 	}
 
 	private static void addMacroProposal(

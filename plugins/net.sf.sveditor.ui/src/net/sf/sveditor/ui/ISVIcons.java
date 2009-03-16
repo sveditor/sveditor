@@ -15,6 +15,7 @@ public interface ISVIcons {
 	String SEQUENCE_OBJ = OBJ_ICONS + "sequence_16_16.gif";
 	String PROPERTY_OBJ  = OBJ_ICONS + "property_16_16.gif";
 	String MOD_IFC_INST_OBJ = OBJ_ICONS + "mod_ifc_inst.gif";
+	String LOCAL_OBJ        = OBJ_ICONS + "localvariable_obj.gif";
 
 	String DECL_ICONS = "icons/edecl16/";
 	String FIELD_PRIV_OBJ = DECL_ICONS + "field_private_obj.gif";

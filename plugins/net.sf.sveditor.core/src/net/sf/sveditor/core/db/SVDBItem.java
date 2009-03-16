@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db;
 
+
 public class SVDBItem {
 	private SVDBScopeItem			fParent;
 	private String					fName;

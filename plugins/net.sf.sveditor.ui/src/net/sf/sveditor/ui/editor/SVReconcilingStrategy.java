@@ -21,11 +21,13 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	
 	public void reconcile(IRegion partition) {
 		reconcileSource();
+		fEditor.updateSVDBFile();
 	}
 
 	
 	public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
 		reconcileSource();
+		fEditor.updateSVDBFile();
 	}
 
 	
@@ -36,8 +38,8 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	
 	public void initialReconcile() {
 		reconcileSource();
+		fEditor.updateSVDBFile();
 	}
-
 	
 	public void setProgressMonitor(IProgressMonitor monitor) {}
 

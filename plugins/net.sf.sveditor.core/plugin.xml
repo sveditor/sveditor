@@ -33,5 +33,14 @@
             path="sv_builtin/sv_builtin.sv">
       </SVLibrary>
    </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="plugin">
+         <run
+               class="net.sf.sveditor.core.PluginFilesystem">
+         </run>
+      </filesystem>
+   </extension>
 
 </plugin>

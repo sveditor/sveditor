@@ -9,6 +9,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.ISVDBIndex;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBFilesystemIndex;
 import net.sf.sveditor.core.SVDBIndexList;
 import net.sf.sveditor.core.SVDBProjectDataFileProvider;
@@ -32,11 +33,16 @@ public class SVDBProjectData {
 	private SVDBWorkspaceFileManager fFileCache;
 	private SVDBIndexList fIndexList;
 	private SVDBProjectDataFileProvider fFileProvider;
+	private SVDBIndexList fBigIndexList;
 
 	public SVDBProjectData(SVProjectFileWrapper wrapper, IPath projfile_path) {
 		fSVProjFilePath = projfile_path;
 		fFileCache = new SVDBWorkspaceFileManager();
 		fIndexList = new SVDBIndexList(projfile_path.toFile());
+		fBigIndexList = new SVDBIndexList(projfile_path.toFile());
+		
+		fBigIndexList.addIndex(fIndexList);
+		fBigIndexList.addIndex(SVCorePlugin.getDefault().getBuiltinIndex());
 
 		fFileProvider = new SVDBProjectDataFileProvider(this);
 
@@ -53,7 +59,7 @@ public class SVDBProjectData {
 	}
 
 	public ISVDBIndex getFileIndex() {
-		return fIndexList;
+		return fBigIndexList;
 	}
 
 	public List<SVDBPath> getBuildPaths() {

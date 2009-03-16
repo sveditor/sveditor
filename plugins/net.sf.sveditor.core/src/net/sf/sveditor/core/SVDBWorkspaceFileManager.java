@@ -1,9 +1,6 @@
 package net.sf.sveditor.core;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +8,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -19,15 +15,6 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
 
 /**
  * Manager for SVDBFile objects. Caches a collection of active 
@@ -53,7 +40,6 @@ public class SVDBWorkspaceFileManager
 	private List<ISVDBChangeListener>				fListeners;
 	private WeakHashMap<File, SVDBFile>				fFileCache;
 	private Map<File, SVDBFile>						fBackupCache;
-	private IWorkspace								fWS;
 	
 	
 	public SVDBWorkspaceFileManager() {

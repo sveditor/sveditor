@@ -1,10 +1,6 @@
 package net.sf.sveditor.core;
 
-import java.io.File;
-
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileMerger;
-import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class SVDBProjectDataFileProvider implements ISVDBFileProvider {
