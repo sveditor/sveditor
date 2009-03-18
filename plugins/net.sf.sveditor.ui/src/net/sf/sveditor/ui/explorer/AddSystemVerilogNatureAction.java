@@ -19,17 +19,12 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 public class AddSystemVerilogNatureAction extends CommonActionProvider {
 
 	public AddSystemVerilogNatureAction() {
-		
-		System.out.println("AddSystemVerilogNatureAction()");
-		// TODO Auto-generated constructor stub
 	}
 	
 	@Override
 	public void init(ICommonActionExtensionSite site) {
 		// TODO Auto-generated method stub
 		super.init(site);
-		System.out.println("AddSystemVerilogNature.init()");
-		
 		fAddSVNature = new AddSVNatureAction();
 	}
 
@@ -37,8 +32,6 @@ public class AddSystemVerilogNatureAction extends CommonActionProvider {
 
 	@Override
 	public void fillContextMenu(IMenuManager menu) {
-		
-//		System.out.println("AddSystemVerilogNature.fillContextMenu()");
 		menu.insertAfter(ICommonMenuConstants.GROUP_ADDITIONS, fAddSVNature);
 		fAddSVNature.selectionChanged(
 				(IStructuredSelection)getContext().getSelection());
@@ -56,7 +49,6 @@ public class AddSystemVerilogNatureAction extends CommonActionProvider {
 		@Override
 		@SuppressWarnings("unchecked")
 		public void run() {
-			System.out.println("Action.run()");
 			List<IResource> sel = (List<IResource>)getSelectedResources();
 			
 			for (IResource r : sel) {
@@ -76,8 +68,6 @@ public class AddSystemVerilogNatureAction extends CommonActionProvider {
 							String old_ids[] = d.getNatureIds();
 							String new_ids[] = new String[old_ids.length+1];
 							
-							System.out.println("old_ids.length=" + old_ids.length);
-
 							System.arraycopy(old_ids, 0, new_ids, 0, 
 									old_ids.length);
 						
@@ -92,7 +82,6 @@ public class AddSystemVerilogNatureAction extends CommonActionProvider {
 						}
 					}
 				}
-				System.out.println("r=" + r.getName());
 			}
 			super.run();
 		}

@@ -3,7 +3,7 @@
 <repository name='file:/C:/usr1/fun/sveditor/sveditor/trunk/update/ - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1236492787924'/>
+    <property name='p2.timestamp' value='1237164177593'/>
   </properties>
   <units size='26'>
     <unit id='net.sf.sveditor.core' version='0.0.2'>

@@ -3,4 +3,4 @@ Bundle-ManifestVersion: 2
 Bundle-Name: OVM Library plug-in
 Bundle-SymbolicName: net.sf.sveditor.libs.ovm;singleton:=true
 Bundle-Version: 0.0.6
-Require-Bundle: net.sf.sveditor.core;bundle-version="0.0.5"
+Require-Bundle: net.sf.sveditor.core

@@ -1,4 +1,12 @@
 
+-- 0.0.7 Release --
+    - Fix DR 2689430 -- problem with opening/closing/deleting a project in workspace
+        - Sometimes a resource-change event is signaled with a null event
+
+
+
+------------------------------------------------------------------------------
+
 -- 0.0.6 Release --
 
 - Add support for 'open declaration' on included file
@@ -249,4 +257,5 @@ include-file names.
 
 
 -----------------------------------------------------------------------------------------------
+
 
