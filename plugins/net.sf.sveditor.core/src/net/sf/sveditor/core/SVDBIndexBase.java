@@ -343,6 +343,30 @@ public class SVDBIndexBase implements ISVDBIndex {
 	}
 	
 	protected void fileAdded(File file) {
+		// First, decide whether this is a file to ignore
+		if (file.getName().lastIndexOf('.') != -1) {
+			String ext = file.getName().substring(
+					file.getName().lastIndexOf('.'));
+			
+			if (!fSVExtensions.contains(ext)) {
+				return;
+			}
+			
+			// Next, check whether there is an ignore dir on the path
+			File parent = file.getParentFile();
+			File last_parent = null;
+			
+			while (parent != null &&
+					(last_parent == null || !last_parent.equals(parent))) {
+				if (fIgnoreDirs.contains(parent.getName())) {
+					return;
+				}
+				last_parent = parent;
+				parent = file.getParentFile();
+			}
+			System.out.println("end fileAdded");
+		}
+		
 		if (fFileTreeValid) {
 			if (fPreProcFileMap.containsKey(file)) {
 				// hmmm... bad information
