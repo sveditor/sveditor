@@ -54,8 +54,24 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(
 			ISourceViewer sourceViewer, String contentType) {
-		
-		
+        String partitioning = 
+            getConfiguredDocumentPartitioning(sourceViewer);
+        
+        System.out.println("getAutoEditStrategies: contentType=" + contentType);
+        System.out.println("    partitioning: " + partitioning);
+       
+/* 
+        if (contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
+        	return new IAutoEditStrategy[] {
+        			new SVCommentAutoIndentStrategy(partitioning)
+        	};
+        } else {
+        	return new IAutoEditStrategy[] {
+        			new SVAutoIndentStrategy(partitioning)
+        	};
+        }
+ */
+
 		// TODO Auto-generated method stub
 		return super.getAutoEditStrategies(sourceViewer, contentType);
 	}
