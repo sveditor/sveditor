@@ -5,17 +5,17 @@ import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.ISVDBIndex;
-import net.sf.sveditor.core.PluginFileStore;
-import net.sf.sveditor.core.SVDBIncludeSearch;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.PluginFileStore;
+import net.sf.sveditor.core.db.index.SVDBIncludeSearch;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.PluginPathEditorInput;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVExpressionUtils;
@@ -491,7 +491,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 				for (IEditorReference ed_r : page.getEditorReferences()) {
 					String id = ed_r.getId();
 
-					if (!id.equals(Activator.PLUGIN_ID + ".editor")) {
+					if (!id.equals(SVUiPlugin.PLUGIN_ID + ".editor")) {
 						continue;
 					}
 					IEditorInput in = null;

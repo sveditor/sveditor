@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.scanutils.ITextScanner;
+import net.sf.sveditor.core.scanutils.ScanLocation;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
+
 /**
  * 
  * @author ballance
@@ -31,7 +35,7 @@ import java.util.Stack;
  */
 public class SVScanner implements ISVScanner {
 	private Stack<String>			fScopeStack = new Stack<String>();
-	private SVScannerTextUtils		fInput;
+	private SVScannerTextScanner		fInput;
 	
 	private boolean					fNewStatement;
 	private ScanLocation			fStmtLocation;
@@ -78,7 +82,7 @@ public class SVScanner implements ISVScanner {
 		pp.init(in, filename);
 		pp.setExpandMacros(true);
 		
-		fInput = new SVScannerTextUtils(pp);
+		fInput = new SVScannerTextScanner(pp);
 		
 		if (fObserver != null) {
 			fObserver.enter_file(filename);
@@ -804,6 +808,7 @@ public class SVScanner implements ISVScanner {
 		fFieldQualifers.put("extern", ISVScannerObserver.FieldAttr_Extern);
 		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
 		fFieldQualifers.put("pure", ISVScannerObserver.FieldAttr_Pure);
+		fFieldQualifers.put("context", ISVScannerObserver.FieldAttr_Context);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO

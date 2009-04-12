@@ -2,13 +2,13 @@ package net.sf.sveditor.ui.explorer;
 
 import java.util.List;
 
-import net.sf.sveditor.core.ISVDBChangeListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;

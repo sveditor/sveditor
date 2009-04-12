@@ -2,11 +2,11 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.List;
 
-import net.sf.sveditor.core.ISVDBChangeListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 

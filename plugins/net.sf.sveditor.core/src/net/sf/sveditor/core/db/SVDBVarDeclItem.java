@@ -2,6 +2,10 @@ package net.sf.sveditor.core.db;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 public class SVDBVarDeclItem extends SVDBFieldItem {
 	protected String						fTypeName;
 	protected List<SVDBModIfcClassParam>	fParameters;
@@ -14,6 +18,19 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public SVDBVarDeclItem(String type, String name, SVDBItemType itype) {
 		super(name, itype);
 		fTypeName = type;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public SVDBVarDeclItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(file, parent, type, reader);
+		fTypeName   = reader.readString();
+		fParameters = (List<SVDBModIfcClassParam>)reader.readItemList(file, parent);
+	}
+	
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		writer.writeString(fTypeName);
+		writer.writeItemList(fParameters);
 	}
 	
 	public List<SVDBModIfcClassParam> getParameters() {

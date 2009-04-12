@@ -232,6 +232,7 @@ public class SVKeywords {
 	};
 	
 	private static final String 					fTypeStrings[] = {
+		"void",
 		"bit",
 		"chandle",
 		"event",

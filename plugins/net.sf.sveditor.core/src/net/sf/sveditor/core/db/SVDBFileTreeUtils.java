@@ -7,15 +7,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.ISVDBIndex;
-import net.sf.sveditor.core.SVDBIncludeSearch;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIncludeSearch;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 public class SVDBFileTreeUtils {
 	
-	private boolean			fDebugEn = false;
-	private ISVDBIndex		fIndex;
-	
+	private boolean						fDebugEn = false;
+	private ISVDBIndex					fIndex;
+	private Map<File, SVDBFileTree>		fCache;
+
+	public SVDBFileTreeUtils() {
+		fCache = new HashMap<File, SVDBFileTree>();
+	}
 	
 	public void setIndex(ISVDBIndex index) {
 		fIndex = index;
@@ -161,11 +165,12 @@ public class SVDBFileTreeUtils {
 		} else if (file_dir.equals(p2_dir) && !file_dir.equals(p1_dir)) {
 			return p2;
 		} else {
-			//
+			/*
 			System.out.println("[TODO] Both p1 and p2 are in the same dir");
 			System.out.println("    file=" + file.getFilePath());
 			System.out.println("        p1=" + p1.getFilePath());
 			System.out.println("        p2=" + p2.getFilePath());
+			 */
 			
 			return p1;
 		}
@@ -247,12 +252,15 @@ public class SVDBFileTreeUtils {
 			SVDBFileTree 			file, 
 			List<SVDBFileTree> 		file_l) {
 		List<SVDBItem> it_l = scope.getItems(); 
+		System.out.println("processScope: " + scope.getName());
 		
 		for (int i=0; i<it_l.size(); i++) {
 			SVDBItem it = it_l.get(i);
 			
 			if (it.getType() == SVDBItemType.PreProcCond) {
 				SVDBPreProcCond c = (SVDBPreProcCond)it;
+				
+				System.out.println("cond=" + c.getConditional());
 				
 				debug("    pre-proc conditional " + c.getName() + " " + c.getConditional());
 				
@@ -403,6 +411,7 @@ public class SVDBFileTreeUtils {
 			String				name,
 			List<SVDBFileTree>	file_l) {
 		SVDBFileTree inc_file = null;
+		boolean multi_inc = false;
 
 		for (SVDBFileTree f : file_l) {
 			if (f.getFilePath().getPath().endsWith(name)) {
@@ -410,10 +419,17 @@ public class SVDBFileTreeUtils {
 					System.out.println("[WARN] multiple files match " +
 							"include \"" + name + "\""); 
 					inc_file = findBestIncParent(file_t, inc_file, f);
+					multi_inc = true;
 				} else {
 					inc_file = f;
 				}
 			}
+		}
+		
+		if (multi_inc) {
+			System.out.println("Resolved multi-inclusion of \"" + name + 
+					"\" in \"" + file_t.getFilePath() + "\" with \"" + 
+					inc_file.getFilePath() + "\"");
 		}
 		
 		return inc_file;
@@ -450,21 +466,6 @@ public class SVDBFileTreeUtils {
 		}
 	}
 	
-	/*
-	private static SVDBFileTree determineClosestMatch(
-			SVDBFileTree		inc_file,
-			SVDBFileTree		f1,
-			SVDBFileTree		f2) {
-		System.out.println("determineClosestMatch: include \"" + 
-				inc_path.getFilePath() + "\" in file \"" + 
-				inc_file.getFilePath() + "\"");
-		System.out.println("    f1: " + f1.getFilePath());
-		System.out.println("    f2: " + f2.getFilePath());
-		
-		return f1;
-	}
-	  */
-
 	private static void resolveIncludedRefs(
 			SVDBFileTree 		file_t, 
 			List<SVDBFileTree> 	files) {

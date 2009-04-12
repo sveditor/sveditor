@@ -23,6 +23,10 @@ public class SVColorManager {
 		return ret;
 	}
 	
+	public static synchronized void clear() {
+		fColorMap.clear();
+	}
+	
 	public static synchronized void dispose() {
 		for (Color color : fColorMap.values()) {
 			color.dispose();

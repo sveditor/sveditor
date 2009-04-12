@@ -8,8 +8,10 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private SVDBFileTree				fContext;
@@ -221,10 +223,23 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		if (m.getDef() == null) {
 			System.out.println("[ERROR] macro definition for key \"" + 
 					m.getName() + "\" is null");
+			SVDBItem top = m;
+			
+			while (top.getParent() != null) {
+				top = top.getParent();
+			}
+			System.out.println("Dumping null-macro provider");
+			SVDBItemPrint.printItem(top);
 			walkStack();
 		}
 		
 		debug("def=" + m.getDef());
+		
+		if (m.getDef() == null) {
+			System.out.println("Macro \"" + m.getName() + "\" @ " + 
+					m.getLocation().getFile().getFilePath().getPath() + ":" +
+					m.getLocation().getLine() + " is null");
+		}
 		
 		// Replace the text and adjust the limits
 		scanner.replace(scanner.getOffset(), scanner.getLimit(), m.getDef());

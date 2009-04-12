@@ -1,5 +1,9 @@
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 
 public class SVDBItem {
 	private SVDBScopeItem			fParent;
@@ -15,6 +19,19 @@ public class SVDBItem {
 		}
 		fType = type;
 		fLocation = null;
+	}
+	
+	public SVDBItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		fParent   = parent;
+		fType     = type;
+		fName     = reader.readString();
+		fLocation = new SVDBLocation(file, reader.readInt(), 0);
+	}
+	
+	public void dump(IDBWriter writer) {
+		writer.writeItemType(fType);
+		writer.writeString(fName);
+		writer.writeInt((fLocation != null)?fLocation.getLine():0);
 	}
 	
 	public SVDBLocation getLocation() {
@@ -78,4 +95,5 @@ public class SVDBItem {
 			return super.equals(obj);
 		}
 	}
+	
 }

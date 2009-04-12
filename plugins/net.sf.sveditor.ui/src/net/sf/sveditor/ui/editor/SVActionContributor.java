@@ -2,7 +2,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -28,7 +28,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 
 	public SVActionContributor() {
 		super();
-		ResourceBundle bundle = Activator.getDefault().getResources();
+		ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
 		
 		fContentAssistProposal = new RetargetTextEditorAction(
 				bundle, "ContentAssistProposal.");

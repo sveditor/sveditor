@@ -15,6 +15,7 @@ public interface ISVScannerObserver {
 	int FieldAttr_Const             = (1 << 8);
 	int FieldAttr_DPI				= (1 << 9);
 	int FieldAttr_Pure				= (1 << 10);
+	int FieldAttr_Context			= (1 << 11);
 	
 	int ParamAttr_Virtual           = (1 << 0);
 	int ParamAttr_Ref               = (1 << 1);

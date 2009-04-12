@@ -1,3 +1,4 @@
+
 package net.sf.sveditor.ui.editor;
 
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -57,23 +58,18 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
         String partitioning = 
             getConfiguredDocumentPartitioning(sourceViewer);
         
-        System.out.println("getAutoEditStrategies: contentType=" + contentType);
-        System.out.println("    partitioning: " + partitioning);
-       
-/* 
         if (contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
         	return new IAutoEditStrategy[] {
-        			new SVCommentAutoIndentStrategy(partitioning)
+        			new SVMultiLineCommentAutoIndentStrategy(partitioning)
         	};
         } else {
+    		return super.getAutoEditStrategies(sourceViewer, contentType);
+    		/*
         	return new IAutoEditStrategy[] {
         			new SVAutoIndentStrategy(partitioning)
         	};
+        	 */
         }
- */
-
-		// TODO Auto-generated method stub
-		return super.getAutoEditStrategies(sourceViewer, contentType);
 	}
 
 	
@@ -153,8 +149,12 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	
 	@Override
 	public ITextHover getTextHover(ISourceViewer viewer, String contentType) {
-		// TODO:
-		return super.getTextHover(viewer, contentType);
-		// return new SVTextHover(viewer);
+		if (!contentType.equals(SVDocumentPartitions.SV_STRING) &&
+			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+			!contentType.equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+			return new SVEditorTextHover(fEditor, viewer);
+		}
+		
+		return null;
 	}
 }

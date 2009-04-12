@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import net.sf.sveditor.core.scanutils.ScanLocation;
+
 public class SVPreProcScanner implements ISVScanner {
 	
 	private static final int    PP_DISABLED = 0;

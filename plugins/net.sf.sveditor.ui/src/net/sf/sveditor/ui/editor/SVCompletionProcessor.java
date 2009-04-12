@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -14,9 +13,10 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
@@ -490,7 +490,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					addProposal(new CompletionProposal(replacement,
 							start, replacement_length,
 							replacement.length(), 
-							Activator.getImage(ISVIcons.INCLUDE_OBJ),
+							SVUiPlugin.getImage(ISVIcons.INCLUDE_OBJ),
 							display, null, null), proposals);
 				}
 			}

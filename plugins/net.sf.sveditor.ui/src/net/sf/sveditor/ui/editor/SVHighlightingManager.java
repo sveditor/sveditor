@@ -38,6 +38,7 @@ public class SVHighlightingManager {
 	}
 	
 	public TextAttribute getHighlight(SVEditorColors key) {
+		System.out.println("getHighlight: " + key);
 		return fHighlightAttr.get(key);
 	}
 }

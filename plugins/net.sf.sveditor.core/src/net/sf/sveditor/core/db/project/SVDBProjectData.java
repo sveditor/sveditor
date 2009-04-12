@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
-import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBFilesystemIndex;
-import net.sf.sveditor.core.SVDBIndexList;
 import net.sf.sveditor.core.SVDBProjectDataFileProvider;
 import net.sf.sveditor.core.SVDBWorkspaceFileManager;
-import net.sf.sveditor.core.SVDBWorkspaceIndex;
-import net.sf.sveditor.core.SVProjectFileWrapper;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexList;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -23,7 +22,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
@@ -67,24 +65,7 @@ public class SVDBProjectData {
 
 		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(
 				fSVProjFilePath);
-		if (svp != null) {
-			try {
-				if (svp.getProject() != null) {
-					// Add build-path entries for each referenced project
-					for (IProject p : svp.getProject().getReferencedProjects()) {
-						// TODO: should probably just reference the SVProject
-						// data for the referenced project if it exists
-						SVDBPath path = new SVDBPath(
-								p.getLocation().toFile().getAbsolutePath(), 
-								false, true);
-						ret.add(path);
-					}
-				}
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
-
+		
 		ret.addAll(fFileWrapper.getBuildPaths());
 
 		return ret;
@@ -95,22 +76,6 @@ public class SVDBProjectData {
 
 		IFile svp = ResourcesPlugin.getWorkspace().getRoot().getFile(
 				fSVProjFilePath);
-		if (svp != null) {
-			try {
-				if (svp.getProject() != null) {
-					// Add build-path entries for each referenced project
-					for (IProject p : svp.getProject().getReferencedProjects()) {
-						// TODO: should probably just reference the SVProject
-						// data for the referenced project if it exists
-						SVDBPath path = new SVDBPath(p.getLocation().toFile()
-								.getAbsolutePath(), false, true);
-						ret.add(path);
-					}
-				}
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
 
 		ret.addAll(fFileWrapper.getIncludePaths());
 
@@ -156,9 +121,14 @@ public class SVDBProjectData {
 
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				fFileWrapper.toStream(out);
-
-				file.setContents(new ByteArrayInputStream(out.toByteArray()), 
-						true, true, null);
+				
+				if (file.exists()) {
+					file.setContents(new ByteArrayInputStream(
+							out.toByteArray()),	true, true, null);
+				} else {
+					file.create(new ByteArrayInputStream(
+							out.toByteArray()), true, null);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -172,7 +142,7 @@ public class SVDBProjectData {
 			List<SVDBPath> paths = new ArrayList<SVDBPath>();
 			
 			// Add an entry for this project
-			paths.add(new SVDBPath(proj_path.toOSString(), true, true));
+			paths.add(new SVDBPath("${workspace_loc}" + proj_path.toOSString(), true));
 			
 			// Add entries for everything currently on the build path
 			for (SVDBPath path : getBuildPaths()) {
@@ -187,9 +157,9 @@ public class SVDBProjectData {
 				// If this path is 
 				
 				for (SVDBPath path : paths) {
-					if (path.isWSRelPath()) {
-						IContainer c = ws_r.getContainerForLocation(new Path(path.getPath()));
-						// IFile f_t = ws_r.getFile(new Path(path.getPath()));
+					if (path.getPath().startsWith("${workspace_loc}")) {
+						String project_path = path.getPath().substring("${workspace_loc}".length());
+						IContainer c = ws_r.getContainerForLocation(new Path(project_path));
 						
 						if (c != null && c.getLocation().toFile().equals(
 								index.getBaseLocation())) {
@@ -216,11 +186,12 @@ public class SVDBProjectData {
 				SVDBPath path = paths.get(i);
 				File loc;
 				
-				if (path.isWSRelPath()) {
-					IProject p = ws_r.getProject(path.getPath());
+				if (path.getPath().startsWith("${workspace_loc}")) {
+					String project_path = path.getPath().substring("${workspace_loc}".length());
+					IProject p = ws_r.getProject(project_path);
 					
 					if (p == null) {
-						System.out.println("[ERROR] cannot locate file for path \"" + path.getPath() + "\"");
+						System.out.println("[ERROR] cannot locate file for path \"" + project_path + "\"");
 						loc = null;
 					} else {
 						loc = p.getLocation().toFile();
@@ -238,7 +209,7 @@ public class SVDBProjectData {
 				if (!found) {
 					ISVDBIndex index = null;
 					
-					if (path.isWSRelPath()) {
+					if (path.getPath().startsWith("${workspace_loc}")) {
 						try {
 							Path tp = new Path(path.getPath());
 							IContainer c = null;
@@ -251,9 +222,11 @@ public class SVDBProjectData {
 							}
 						
 							if (c != null) {
-								index = new SVDBWorkspaceIndex(
-										c.getLocation(), 
-										ISVDBIndex.IT_BuildPath);
+								SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+								
+								index = rgy.findCreateIndex(
+										c.getLocation().toFile().getPath(), 
+										ISVDBIndexFactory.TYPE_WorkspaceIndex);
 							}
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -262,7 +235,10 @@ public class SVDBProjectData {
 						if (!loc.isDirectory()) {
 							System.out.println("[WARNING] build path \"" + loc + "\" doesn't exist");
 						} else {
-							index = new SVDBFilesystemIndex(loc, ISVDBIndex.IT_BuildPath);
+							SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+							
+							index = rgy.findCreateIndex(loc.getPath(), 
+									ISVDBIndexFactory.TYPE_FilesystemIndex); 
 						}
 					}
 					

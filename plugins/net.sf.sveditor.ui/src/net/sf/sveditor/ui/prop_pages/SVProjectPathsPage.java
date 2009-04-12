@@ -32,7 +32,7 @@ public class SVProjectPathsPage {
 	private Button					fRemoveButton;
 	private Button					fEditButton;
 	private static String			fInitialDir = null;
-
+	
 	public void init(List<SVDBPath> path_list) {
 		fPathList.clear();
 		fPathList.addAll(path_list);
@@ -148,7 +148,7 @@ public class SVProjectPathsPage {
 			// Add a new entry
 			fInitialDir = selectedDirectory;
 			
-			SVDBPath p = new SVDBPath(selectedDirectory, false, false);
+			SVDBPath p = new SVDBPath(selectedDirectory, false);
 			fPathList.add(p);
 			fPathListViewer.refresh();
 		}

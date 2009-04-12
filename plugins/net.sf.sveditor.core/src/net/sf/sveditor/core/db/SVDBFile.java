@@ -1,25 +1,36 @@
 package net.sf.sveditor.core.db;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBFile extends SVDBScopeItem {
 	private long						fLastParseTimeStamp;
 	private File						fFile;
-	private Map<String, SVDBMacroDef>	fMacroDefs;
 	
 	public SVDBFile(File file) {
 		super(file.getName(), SVDBItemType.File);
 		fFile               = file;
 		fLastParseTimeStamp = fFile.lastModified();
-		fMacroDefs			= new HashMap<String, SVDBMacroDef>();
+	}
+	
+	public SVDBFile(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(file, parent, type, reader);
+		fFile               = new File(reader.readString());
+		fLastParseTimeStamp = reader.readLong();
+	}
+	
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		writer.writeString(fFile.getPath());
+		writer.writeLong(fLastParseTimeStamp);
 	}
 	
 	
-	
-	public Map<String, SVDBMacroDef> getMacroDefs() {
-		return fMacroDefs;
+	public long getLastParseTime() {
+		return fLastParseTimeStamp;
 	}
 	
 	public boolean isUpToDate() {
@@ -34,19 +45,6 @@ public class SVDBFile extends SVDBScopeItem {
 		fFile = file;
 	}
 	
-	@Override
-	public void addItem(SVDBItem item) {
-		super.addItem(item);
-		
-		if (item.getType() == SVDBItemType.Include) {
-		} else if (item.getType() == SVDBItemType.Macro) {
-			if (fMacroDefs.containsKey(((SVDBMacroDef)item).getName())) {
-				fMacroDefs.remove(((SVDBMacroDef)item).getName());
-			}
-			fMacroDefs.put(((SVDBMacroDef)item).getName(), (SVDBMacroDef)item); 
-		}
-	}
-
 	public SVDBItem duplicate() {
 		SVDBFile ret = new SVDBFile(fFile);
 		

@@ -38,35 +38,35 @@ public class SVDBIconUtils implements ISVIcons {
 				if (it.getParent() != null && 
 						(it.getParent().getType() == SVDBItemType.Task ||
 								it.getParent().getType() == SVDBItemType.Function)) {
-					return Activator.getImage(LOCAL_OBJ);
+					return SVUiPlugin.getImage(LOCAL_OBJ);
 				} else {
 					if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-						return Activator.getImage(FIELD_PRIV_OBJ);
+						return SVUiPlugin.getImage(FIELD_PRIV_OBJ);
 					} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-						return Activator.getImage(FIELD_PROT_OBJ);
+						return SVUiPlugin.getImage(FIELD_PROT_OBJ);
 					} else {
-						return Activator.getImage(FIELD_PUB_OBJ);
+						return SVUiPlugin.getImage(FIELD_PUB_OBJ);
 					}
 				}
 			} else if (type == SVDBItemType.ModIfcInst) {
-				return Activator.getImage(MOD_IFC_INST_OBJ);
+				return SVUiPlugin.getImage(MOD_IFC_INST_OBJ);
 			} else if (type == SVDBItemType.Task || 
 					type == SVDBItemType.Function) {
 				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-					return Activator.getImage(TASK_PRIV_OBJ);
+					return SVUiPlugin.getImage(TASK_PRIV_OBJ);
 				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-					return Activator.getImage(TASK_PROT_OBJ);
+					return SVUiPlugin.getImage(TASK_PROT_OBJ);
 				} else {
-					return Activator.getImage(TASK_PUB_OBJ);
+					return SVUiPlugin.getImage(TASK_PUB_OBJ);
 				}
 			} else if (type == SVDBItemType.TaskFuncParam) {
-				return Activator.getImage(LOCAL_OBJ);
+				return SVUiPlugin.getImage(LOCAL_OBJ);
 			}
 		} else if (it instanceof SVDBItem) {
 			SVDBItemType type = ((SVDBItem)it).getType();
 			
 			if (fImgDescMap.containsKey(type)) {
-				return Activator.getImage(fImgDescMap.get(type));
+				return SVUiPlugin.getImage(fImgDescMap.get(type));
 			}
 		}
 		

@@ -2,6 +2,11 @@
 -- 0.0.7 Release --
     - Fix DR 2689430 -- problem with opening/closing/deleting a project in workspace
         - Sometimes a resource-change event is signaled with a null event
+    - Add patch from <> for basic color preferences
+    - Incorporate patch from <> for DR <> -- problem with paths on Windows
+    - Fix problem with source cross-reference to classes declared 
+      directly within a package. This issue did not affect classes declared
+      within a package via an `include directive.
 
 
 
@@ -253,6 +258,27 @@ include-file names.
     - 
     - order by scope distance (local variables, parameters, tf, types, etc)
     - any 
+
+- Automate closing comments for blocks (emacs mode)
+- Better navigation, based on expr utils -- super.run()
+
+
+=== Improvements to Indexing ===
+- Change indexing strategy to an explicit-include model
+    - Must add nature to project
+    - Must edit paths to add required
+        - paths in the project
+        - libraries inside or outside of the project
+        - plugin-based libraries
+    - Need indexing to be done as a job, so it is user-visible
+- Add persistence model
+
+=== Global Preferences ===
+- 
+
+=== Debug Logging ===
+
+
 
 
 

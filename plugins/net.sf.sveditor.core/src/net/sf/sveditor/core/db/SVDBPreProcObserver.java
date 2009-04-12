@@ -11,7 +11,7 @@ import net.sf.sveditor.core.scanner.ISVScannerObserver;
 import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVTaskFuncParam;
 import net.sf.sveditor.core.scanner.SVTypeInfo;
-import net.sf.sveditor.core.scanner.ScanLocation;
+import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVDBPreProcObserver implements ISVScannerObserver {
 	private List<SVDBFile>              fFileList;

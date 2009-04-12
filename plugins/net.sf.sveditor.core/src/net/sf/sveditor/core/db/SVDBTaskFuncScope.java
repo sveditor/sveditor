@@ -3,6 +3,10 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
 	private int								fAttr;
@@ -11,6 +15,21 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
 		fParams = new ArrayList<SVDBTaskFuncParam>();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public SVDBTaskFuncScope(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(file, parent, type, reader);
+		fParams     = (List<SVDBTaskFuncParam>)reader.readItemList(file, this);
+		fAttr       = reader.readInt();
+		fRetType    = reader.readString();
+	}
+	
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		writer.writeItemList(fParams);
+		writer.writeInt(fAttr);
+		writer.writeString(fRetType);
 	}
 	
 	public void setAttr(int attr) {

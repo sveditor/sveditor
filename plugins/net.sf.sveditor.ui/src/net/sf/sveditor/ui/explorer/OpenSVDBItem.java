@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.resources.IFile;
@@ -106,7 +106,7 @@ public class OpenSVDBItem extends CommonActionProvider {
 						for (IEditorReference ed_r : page.getEditorReferences()) {
 							String id = ed_r.getId();
 							
-							if (!id.equals(Activator.PLUGIN_ID + ".editor")) {
+							if (!id.equals(SVUiPlugin.PLUGIN_ID + ".editor")) {
 								continue;
 							}
 							IEditorInput in = null;

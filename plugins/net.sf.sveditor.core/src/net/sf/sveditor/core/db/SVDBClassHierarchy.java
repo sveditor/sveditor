@@ -1,5 +1,9 @@
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 /**
  * The class hierarchy object represents an expanded class hierarchy
  * 
@@ -17,6 +21,17 @@ public class SVDBClassHierarchy extends SVDBModIfcClassDecl {
 		fOrigClass = orig_class;
 		super.init(fOrigClass);
 	}
+	
+	public SVDBClassHierarchy(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(file, parent, type, reader);
+		System.out.println("[ERROR] trying to load SVDBClassHierarchy");
+	}
+	
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		System.out.println("[ERROR] trying to dump SVDBClassHierarchy");
+	}
+	
 	
 	public SVDBClassHierarchy getParentClass() {
 		return fParentClass;

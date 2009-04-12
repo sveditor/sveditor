@@ -5,10 +5,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.ISVDBIndex;
-import net.sf.sveditor.core.ISVDBIndexList;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBIndexList;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
@@ -17,10 +14,13 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexList;
+import net.sf.sveditor.core.db.index.SVDBIndexList;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.ui.Activator;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 
@@ -39,6 +39,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -70,6 +72,7 @@ public class SVEditor extends TextEditor {
 	private File							fFile;
 	private ISVDBIndex						fIndex;
 	private SVDBIndexList					fIndexList;
+
 	
 	public SVEditor() {
 		super();
@@ -78,6 +81,8 @@ public class SVEditor extends TextEditor {
 		
 		fCodeScanner = new SVCodeScanner();
 		fCharacterMatcher = new SVCharacterPairMatcher();
+		SVUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(
+				fPropertyChangeListener);
 	}
 	
 	@Override
@@ -97,6 +102,7 @@ public class SVEditor extends TextEditor {
 		
 		// Perform an initial parse of the file
 		updateSVDBFile();
+		
 	}
 
 	@Override
@@ -186,7 +192,7 @@ public class SVEditor extends TextEditor {
 
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] {Activator.PLUGIN_ID + ".svEditorContext"});
+		setKeyBindingScopes(new String[] {SVUiPlugin.PLUGIN_ID + ".svEditorContext"});
 	}
 
 	@Override
@@ -194,7 +200,7 @@ public class SVEditor extends TextEditor {
 		// TODO Auto-generated method stub
 		super.createActions();
 
-		ResourceBundle bundle = Activator.getDefault().getResources();
+		ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
 		
 		IAction a = new TextOperationAction(bundle,
 				"ContentAssistProposal.", this,
@@ -234,14 +240,14 @@ public class SVEditor extends TextEditor {
 		
 		OpenDeclarationAction od_action = new OpenDeclarationAction(
 				bundle, "OpenDeclaration.", this);
-		od_action.setActionDefinitionId(Activator.PLUGIN_ID + ".editor.open.declaration");
-		setAction(Activator.PLUGIN_ID + ".svOpenEditorAction", od_action);
+		od_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.declaration");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", od_action);
 
 		OverrideTaskFuncAction ov_tf_action = new OverrideTaskFuncAction(
 				bundle, "OverrideTaskFunc.", this);
 		ov_tf_action.setActionDefinitionId(
-				Activator.PLUGIN_ID + ".override.tf.command");
-		setAction(Activator.PLUGIN_ID + ".override.tf", ov_tf_action);
+				SVUiPlugin.PLUGIN_ID + ".override.tf.command");
+		setAction(SVUiPlugin.PLUGIN_ID + ".override.tf", ov_tf_action);
 
 	}
 	
@@ -282,7 +288,7 @@ public class SVEditor extends TextEditor {
 		System.out.println("editorContextMenuAboutToShow()");
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
-				Activator.PLUGIN_ID + ".svOpenEditorAction");
+				SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction");
 		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
@@ -322,6 +328,8 @@ public class SVEditor extends TextEditor {
 		if (fIndexList != null) {
 			fIndexList.dispose();
 		}
+		SVUiPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(
+				fPropertyChangeListener);
 	}
 
 	public void createPartControl(Composite parent) {
@@ -430,5 +438,17 @@ public class SVEditor extends TextEditor {
 		}
 		return super.getAdapter(adapter);
 	}
+	
+	private IPropertyChangeListener fPropertyChangeListener = 
+		new IPropertyChangeListener() {
+
+			public void propertyChange(PropertyChangeEvent event) {
+				System.out.println("propertyChange()");
+				SVColorManager.clear();
+				getCodeScanner().updateRules();
+				getSourceViewer().getTextWidget().redraw();
+				getSourceViewer().getTextWidget().update();
+			}
+	};
 
 }

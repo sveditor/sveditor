@@ -143,6 +143,7 @@
             id="net.sf.sveditor.ui.SVPropPage"
             name="SystemVerilog Project Properties"
             objectClass="org.eclipse.core.resources.IProject">
+            <!--
          <enabledWhen>
             <adapt
                   type="org.eclipse.core.resources.IProject">
@@ -153,6 +154,7 @@
                </test>
             </adapt>
          </enabledWhen>
+             -->
       </page>
    </extension>
    <extension
@@ -243,5 +245,19 @@
             id="net.sf.sveditor.ui.PluginFileEditorInputFactory">
       </factory>
    </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="net.sf.sveditor.ui.pref.SVEditorPrefsPage"
+            id="net.sf.sveditor.ui.page1"
+            name="SVEditor">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="net.sf.sveditor.ui.pref.SVEditorPrefsInitialize">
+      </initializer>
+   </extension>
+   
 
 </plugin>

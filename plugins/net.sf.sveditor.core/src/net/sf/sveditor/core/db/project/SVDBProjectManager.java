@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.ISVDBFileProvider;
-import net.sf.sveditor.core.ISVDBIndex;
-import net.sf.sveditor.core.SVDBFilesystemIndex;
-import net.sf.sveditor.core.SVDBWorkspaceIndex;
-import net.sf.sveditor.core.SVProjectFileWrapper;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -45,8 +45,12 @@ public class SVDBProjectManager implements IResourceChangeListener {
 				fProjectMap.get(root.getProject()).getFileProvider();
 				
 			}
-			ISVDBIndex ret = new SVDBWorkspaceIndex(
-					root.getLocation(), ISVDBIndex.IT_BuildPath); 
+			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			
+			ISVDBIndex ret = rgy.findCreateIndex(
+					root.getLocation().toFile().getPath(),
+					ISVDBIndexFactory.TYPE_WorkspaceIndex);
+			
 			fBuildPathEntries.put(ret.getBaseLocation(), ret);
 			
 			return ret;
@@ -58,7 +62,9 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			if (fBuildPathEntries.containsKey(root)) {
 				return fBuildPathEntries.get(root);
 			} else {
-				ISVDBIndex ret = new SVDBFilesystemIndex(root, ISVDBIndex.IT_BuildPath); 
+				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+				ISVDBIndex ret = rgy.findCreateIndex(root.getPath(), ISVDBIndexFactory.TYPE_FilesystemIndex);
+				
 				fBuildPathEntries.put(root, ret);
 				return ret;
 			}

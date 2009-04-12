@@ -14,7 +14,7 @@ import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVScanner;
 import net.sf.sveditor.core.scanner.SVTaskFuncParam;
 import net.sf.sveditor.core.scanner.SVTypeInfo;
-import net.sf.sveditor.core.scanner.ScanLocation;
+import net.sf.sveditor.core.scanutils.ScanLocation;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -377,7 +377,7 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		if (type == null) {
 			return;
 		}
-		
+
 		if (type.equals("coverpoint")) {
 			it = new SVDBItem(name, SVDBItemType.Coverpoint);
 		} else {

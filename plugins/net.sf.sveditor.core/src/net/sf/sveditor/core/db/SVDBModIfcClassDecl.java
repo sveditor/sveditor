@@ -3,6 +3,10 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	private List<SVDBModIfcClassParam>			fParams;
@@ -15,6 +19,22 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		fParams = new ArrayList<SVDBModIfcClassParam>();
 		fSuperParams = new ArrayList<SVDBModIfcClassParam>();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public SVDBModIfcClassDecl(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(file, parent, type, reader);
+		fParams     = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
+		fSuperClass = reader.readString();
+		fSuperParams = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
+	}
+	
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		writer.writeItemList(fParams);
+		writer.writeString(fSuperClass);
+		writer.writeItemList(fSuperParams);
+	}
+	
 	
 	public List<SVDBModIfcClassParam> getParameters() {
 		return fParams;

@@ -2,7 +2,7 @@ package net.sf.sveditor.ui;
 
 import java.net.URI;
 
-import net.sf.sveditor.core.PluginFileStore;
+import net.sf.sveditor.core.db.index.PluginFileStore;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;

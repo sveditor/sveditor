@@ -54,6 +54,9 @@
          </documentation>
       </annotation>
       <complexType>
+         <sequence minOccurs="0" maxOccurs="1">
+            <element ref="description"/>
+         </sequence>
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
@@ -71,7 +74,32 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="default" type="boolean" use="required">
+            <annotation>
+               <documentation>
+                  Indicates whether this plugin library should be included in the index by default.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier"/>
+               </appinfo>
+            </annotation>
+         </attribute>
       </complexType>
+   </element>
+
+   <element name="description" type="string">
+      <annotation>
+         <documentation>
+            Human-readable description of the library
+         </documentation>
+      </annotation>
    </element>
 
    <annotation>

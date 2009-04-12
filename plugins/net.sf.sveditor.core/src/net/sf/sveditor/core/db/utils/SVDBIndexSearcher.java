@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.sveditor.core.ISVDBIndex;
 import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -12,6 +11,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 
 public class SVDBIndexSearcher {
 	private List<SVDBFile>			fFiles = new ArrayList<SVDBFile>();
@@ -38,17 +38,33 @@ public class SVDBIndexSearcher {
 	 * @return
 	 */
 	public SVDBModIfcClassDecl findNamedModClassIfc(String name) {
+		SVDBModIfcClassDecl c;
+		
 		for (SVDBFile f : fFiles) {
-			for (SVDBItem it : f.getItems()) {
-				if ((it.getType() == SVDBItemType.Class ||
-						it.getType() == SVDBItemType.Module ||
-						it.getType() == SVDBItemType.Interface) && 
-						it.getName() != null &&	it.getName().equals(name)) {
-					return (SVDBModIfcClassDecl)it;
-				}
+			if ((c= findNamedModClass(name, f)) != null) {
+				return c;
 			}
 		}
 
+		return null;
+	}
+	
+	private SVDBModIfcClassDecl findNamedModClass(String name, SVDBScopeItem parent) {
+		for (SVDBItem it : parent.getItems()) {
+			if ((it.getType() == SVDBItemType.Class ||
+					it.getType() == SVDBItemType.Module ||
+					it.getType() == SVDBItemType.Interface) && 
+					it.getName() != null &&	it.getName().equals(name)) {
+				return (SVDBModIfcClassDecl)it;
+			} else if (it.getType() == SVDBItemType.PackageDecl) {
+				SVDBModIfcClassDecl c;
+				
+				if ((c = findNamedModClass(name, (SVDBScopeItem)it)) != null) {
+					return c;
+				}
+			}
+		}
+		
 		return null;
 	}
 	

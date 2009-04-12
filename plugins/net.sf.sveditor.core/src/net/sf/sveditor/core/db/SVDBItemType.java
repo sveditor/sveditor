@@ -18,5 +18,6 @@ public enum SVDBItemType {
 	Covergroup,
 	Coverpoint,
 	Sequence,
-	Property
+	Property,
+	ModIfcClassParam
 }

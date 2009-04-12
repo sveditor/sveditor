@@ -19,6 +19,10 @@ import org.eclipse.jface.text.rules.WordRule;
 public class SVCodeScanner extends RuleBasedScanner {
 	
 	public SVCodeScanner() {
+		updateRules();
+	}
+	
+	public void updateRules() {
 		IToken keyword = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.KEYWORD),
 				null, SVEditorColors.getStyle(SVEditorColors.KEYWORD)));

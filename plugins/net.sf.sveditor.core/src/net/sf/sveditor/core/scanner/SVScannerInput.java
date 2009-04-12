@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Stack;
 
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVScannerInput {
 	private String				fName;

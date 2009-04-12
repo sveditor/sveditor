@@ -4,6 +4,8 @@
    <extension
          point="net.sf.sveditor.core.SVLibraries">
       <SVLibrary
+            default="false"
+            id="net.sf.sveditor.ovm_2.0.1"
             name="OVM 2.0.1 Library"
             path="ovm-2.0.1/src/ovm_pkg.sv">
       </SVLibrary>
