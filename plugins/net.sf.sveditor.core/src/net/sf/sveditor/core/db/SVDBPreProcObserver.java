@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -35,7 +34,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 
 	
 	public void enter_file(String filename) {
-		SVDBFile file = new SVDBFile(new File(filename));
+		SVDBFile file = new SVDBFile(filename);
 		fFileList.add(file);
 		
 		fScopeStack.push(file);
@@ -126,8 +125,9 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	
 	public void enter_module_decl(String name, String ports)
 			throws HaltScanException {}
-
 	
+	public void enter_program_decl(String name) throws HaltScanException {}
+
 	public void enter_property(String name) {}
 
 	
@@ -160,6 +160,9 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void leave_module_decl() throws HaltScanException {}
 
 	
+	public void leave_program_decl() throws HaltScanException {}
+
+
 	public void leave_property() {}
 
 	

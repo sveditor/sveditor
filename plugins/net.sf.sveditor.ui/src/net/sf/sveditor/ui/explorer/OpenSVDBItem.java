@@ -90,14 +90,15 @@ public class OpenSVDBItem extends CommonActionProvider {
 			}
 			
 			if (p != null) {
-				File file = ((SVDBFile)p).getFilePath();
+				String file = ((SVDBFile)p).getFilePath();
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				IFile f_l[] = root.findFilesForLocation(
-						new Path(file.getAbsolutePath()));
 				
-				if (f_l != null && f_l.length > 0) {
-					f = f_l[0];
+				if (file.startsWith("${workspace_loc}")) {
+					file = file.substring("${workspace_loc}".length());
+				}
+				f = root.getFile(new Path(file));
 
+				if (f != null) {
 					getActionSite().getViewSite().getShell();
 					IWorkbench wb = PlatformUI.getWorkbench();
 					IWorkbenchWindow w = wb.getActiveWorkbenchWindow();
@@ -140,8 +141,8 @@ public class OpenSVDBItem extends CommonActionProvider {
 				IEditorDescriptor desc = rgy.getDefaultEditor(f.getName());
 				
 				try {
-					ret = w.getActivePage().openEditor(new FileEditorInput(f), 
-						desc.getId());
+					ret = w.getActivePage().openEditor(
+							new FileEditorInput(f),	desc.getId());
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}

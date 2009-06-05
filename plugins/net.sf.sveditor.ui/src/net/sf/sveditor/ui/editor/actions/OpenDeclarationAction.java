@@ -11,12 +11,16 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.PluginFileStore;
-import net.sf.sveditor.core.db.index.SVDBIncludeSearch;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
+import net.sf.sveditor.core.db.search.SVDBFindByName;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
+import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.PluginPathEditorInput;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVExpressionUtils;
 
@@ -49,7 +53,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
-	private boolean					fDebugEn = false;
+	private boolean					fDebugEn = true;
 
 	public OpenDeclarationAction(
 			ResourceBundle			bundle,
@@ -88,11 +92,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDBFile    		inc_file = null;
 		SVDBItem			it = null;
 
-		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
-		
-		// Add the live version of the file to the search
-		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(fEditor.getIndex());
+		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 		
 		// Now, iterate through the items in the file and find something
 		// with the same name
@@ -198,15 +198,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 						idx++;
 					}
 					
-					ISVDBIndex index = fEditor.getIndex();
-					
-					debug("Searching for include \"" + text.toString() + "\" in index=" + index);
-					
-					if (index != null) {
-						inc_file = new SVDBIncludeSearch(index).findIncludedFile(text.toString());
-					}
+					SVDBFindIncludedFile finder_inc = 
+						new SVDBFindIncludedFile(index_it);
+					inc_file = finder_inc.find(text.toString());
 				} else {
-					List<SVDBItem> result = searcher.findByName(
+					SVDBFindByName finder_name =
+						new SVDBFindByName(index_it);
+					
+					List<SVDBItem> result = finder_name.find(
 							text.toString(), SVDBItemType.Macro);
 					
 					if (result.size() > 0) {
@@ -244,7 +243,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 					System.out.println("pre-trigger=\"" + pre_trigger + "\"");
 					
 					List<SVDBItem> item_list = SVExpressionUtils.processPreTriggerPortion(
-							searcher, active_scope, pre_trigger, false);
+							index_it, active_scope, pre_trigger, false);
 					
 					if (item_list != null && item_list.size() > 0) {
 						System.out.println("result: " + 
@@ -277,17 +276,29 @@ public class OpenDeclarationAction extends TextEditorAction {
 				List<SVDBItem> result = null;
 				
 				if (it == null) {
-					result = searcher.findByNameInClassHierarchy(
-							text.toString(), active_scope);
-
+					SVDBFindByNameInClassHierarchy finder_h =
+						new SVDBFindByNameInClassHierarchy(index_it);
+					
+					result = finder_h.find(active_scope, text.toString());
+					
 					if (result.size() > 0) {
 						it = result.get(0);
+						
+						if (result.size() > 1) {
+							System.out.println("multiple matches");
+							for (SVDBItem it_t : result) {
+								System.out.println("    " + it_t.getName());
+							}
+						}
 					}
 				} 
 				
 				if (it == null) {
 					// Try type names
-					it = searcher.findNamedModClassIfc(text.toString());
+					SVDBFindNamedModIfcClassIfc finder_cls =
+						new SVDBFindNamedModIfcClassIfc(index_it);
+					
+					it = finder_cls.find(text.toString());
 				}
 			}
 			
@@ -332,10 +343,10 @@ public class OpenDeclarationAction extends TextEditorAction {
 		 */
 		
 		if (it != null) {
-			IEditorPart ed_f = openEditor(it, fEditor.getIndex());
+			IEditorPart ed_f = openEditor(it, fEditor.getIndexIterator());
 			((SVEditor)ed_f).setSelection(it, true);
 		} else if (inc_file != null) {
-			openEditor(inc_file.getFilePath(), fEditor.getIndex());
+			openEditor(inc_file.getFilePath(), fEditor.getIndexIterator());
 		}
 	}
 	
@@ -452,36 +463,52 @@ public class OpenDeclarationAction extends TextEditorAction {
 		return null;
 	}
 	
-	private IEditorPart openEditor(SVDBItem it, ISVDBIndex index) {
+	private IEditorPart openEditor(
+			SVDBItem 			it,
+			ISVDBIndexIterator	index_it) {
 		SVDBItem p = it.getParent();
 		// Find the file that this item belongs to
 		
-		while (p != null && !(p instanceof SVDBFile)) {
+		while (p != null && p.getType() != SVDBItemType.File) {
 			p = p.getParent();
 		}
 		
-		File file = ((SVDBFile)p).getFilePath();
+		String file = ((SVDBFile)p).getFilePath();
 		
-		return openEditor(file, index);
+		return openEditor(file, index_it);
 	}
 	
 	private IEditorPart openEditor(
-			File 					file,
-			ISVDBIndex				index) {
+			String 					file,
+			ISVDBIndexIterator		index_it) {
 		IFile f = null;
-		String name;
+		String name = "";
 		IEditorPart ret = null;
+		
+		System.out.println("openEditor: " + file);
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		if (file != null) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			
-			IFile f_l[] = root.findFilesForLocation(
-					new Path(file.getAbsolutePath()));
-			if (f_l != null && f_l.length > 0) {
-				name = f_l[0].getLocation().toString();
-				f = f_l[0];
+
+			if (file.startsWith("${workspace_loc}")) {
+				file = file.substring("${workspace_loc}".length());
+				f = root.getFile(new Path(file));
+				
+				if (f != null) {
+					name = f.getFullPath().toOSString();
+				}
 			} else {
-				name = file.getPath();
+				f = root.getFileForLocation(new Path(file));
+				if (f != null) {
+					name = f.getLocation().toString();
+				} else {
+					name = file;
+				}
 			}
 			
 			IWorkbench wb = PlatformUI.getWorkbench();
@@ -524,21 +551,22 @@ public class OpenDeclarationAction extends TextEditorAction {
 			IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			IEditorRegistry rgy = PlatformUI.getWorkbench().getEditorRegistry();
 
-			IEditorDescriptor desc = rgy.getDefaultEditor(file.getName());
+			String leaf_name = new File(file).getName();
+			IEditorDescriptor desc = rgy.getDefaultEditor(leaf_name);
 			IEditorInput ed_in = null;
 			
-			debug("file=" + file.getPath());
+			debug("file=" + file);
 			
 			try {
 				if (f != null) {
 					ed_in = new FileEditorInput(f);
-				} else if (file.getPath().startsWith("plugin:/")) {
-					debug("plugin: " + file.getPath());
+				} else if (file.startsWith("plugin:/")) {
+					debug("plugin: " + file);
 					IFileSystem fs = null;
 					IFileStore store = null;
 					try {
 						fs = EFS.getFileSystem("plugin");
-						store = fs.getStore(new URI(file.getPath()));
+						store = fs.getStore(new URI(file));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -549,16 +577,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 						e.printStackTrace();
 					}
 				} else {
-					IFileStore fs = EFS.getLocalFileSystem().getStore(file.toURI());
+					File file_path = new File(file);
+					IFileStore fs = EFS.getLocalFileSystem().getStore(file_path.toURI());
 					ed_in = new FileStoreEditorInput(fs);
 					
 					// TODO: need to connect up index to filesystem
 				}
 				ret = w.getActivePage().openEditor(ed_in, desc.getId());
-				
-				if (ret instanceof SVEditor) {
-					((SVEditor)ret).addIndex(index);
-				}
+
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}

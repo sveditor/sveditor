@@ -1,35 +1,169 @@
 package net.sf.sveditor.ui.prop_pages;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 
-public class SourceCollectionsPage implements ISVProjectPropsPage {
+public class SourceCollectionsPage implements ISVProjectPropsPage,
+	ITreeContentProvider, ILabelProvider {
 	
-	private TreeViewer				fSourceCollectionsTree;
+	private TreeViewer						fSourceCollectionsTree;
+	private SVProjectFileWrapper			fFileWrapper;
+	private Button							fAddButton;
+	private Button							fEditButton;
+	private Button							fRemoveButton;
+	private List<SVDBSourceCollection>		fSourceCollections;
+	
+	public SourceCollectionsPage() {
+		fSourceCollections = new ArrayList<SVDBSourceCollection>();
+	}
 
 	public void init(SVProjectFileWrapper project_wrapper) {
-		// TODO Auto-generated method stub
-		
+		fFileWrapper = project_wrapper;
+		fSourceCollections.clear();
+		fSourceCollections.addAll(fFileWrapper.getSourceCollections());
 	}
 
 	public Control createContents(Composite parent) {
 		Composite frame = new Composite(parent, SWT.NONE);
-		frame.setLayout(new GridLayout(1, true));
+		frame.setLayout(new GridLayout(2, false));
+		
 
-		fSourceCollectionsTree = new TreeViewer(frame, SWT.NONE);
+		fSourceCollectionsTree = new TreeViewer(frame, SWT.BORDER);
 		fSourceCollectionsTree.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
+		fSourceCollectionsTree.addSelectionChangedListener(new ISelectionChangedListener() {
 		
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				updateSelection();
+			}
+		});
+		fSourceCollectionsTree.setContentProvider(this);
+		fSourceCollectionsTree.setLabelProvider(this);
+		fSourceCollectionsTree.setInput(fSourceCollections);
+		
+
+		Composite button_bar = new Composite(frame, SWT.NONE);
+		button_bar.setLayout(new GridLayout(1, true));
+
+		fAddButton = new Button(button_bar, SWT.PUSH);
+		fAddButton.setText("Add...");
+		fAddButton.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				add();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		
+		fEditButton = new Button(button_bar, SWT.PUSH);
+		fEditButton.setText("Edit...");
+		fEditButton.addSelectionListener(new SelectionListener(){
+		
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				edit();
+			}
+		
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		
+		fRemoveButton = new Button(button_bar, SWT.PUSH);
+		fRemoveButton.setText("Remove");
+		fRemoveButton.addSelectionListener(new SelectionListener(){
+		
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				remove();
+			}
+		
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		
+		updateSelection();
+
 		return frame;
+	}
+	
+	private void updateSelection() {
+		IStructuredSelection sel = 
+			(IStructuredSelection)fSourceCollectionsTree.getSelection();
+		
+		if (sel != null && sel.size() != 0) {
+			if (sel.size() == 1 && sel.getFirstElement() instanceof SVDBSourceCollection) {
+				fEditButton.setEnabled(true);
+			} else {
+				fEditButton.setEnabled(false);
+			}
+			fRemoveButton.setEnabled(true);
+		} else {
+			fRemoveButton.setEnabled(false);
+		}
+	}
+	
+	private void add() {
+		AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fAddButton.getShell());
+		dlg.setIncludes(SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes());
+		dlg.setExcludes(SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes());
+		
+		if (dlg.open() == Window.OK) {
+			// Add a new source collection
+			SVDBSourceCollection sc = new SVDBSourceCollection(dlg.getBase());
+			sc.getIncludes().addAll(
+					SVDBSourceCollection.parsePatternList(dlg.getIncludes()));
+			sc.getExcludes().addAll(
+					SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
+			fSourceCollections.add(sc);
+			fSourceCollectionsTree.refresh();
+		}
+	}
+	
+	private void edit() {
+		
+	}
+	
+	private void remove() {
+		IStructuredSelection sel = 
+			(IStructuredSelection)fSourceCollectionsTree.getSelection();
+		
+		if (sel != null && sel.size() > 0) {
+			for (Object s_o : sel.toList()) {
+				fSourceCollections.remove(s_o);
+			}
+		}
+		
+		fSourceCollectionsTree.refresh();
 	}
 
 	public Image getIcon() {
@@ -41,8 +175,91 @@ public class SourceCollectionsPage implements ISVProjectPropsPage {
 	}
 
 	public void perfomOk() {
-		// TODO Auto-generated method stub
-		
+		fFileWrapper.getSourceCollections().clear();
+		fFileWrapper.getSourceCollections().addAll(fSourceCollections);
 	}
-	
+
+	@Override
+	public Object[] getElements(Object inputElement) {
+		return fSourceCollections.toArray();
+	}
+
+	@Override
+	public void dispose() {}
+
+	@Override
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
+
+	@Override
+	public Image getImage(Object element) {
+		return null;
+	}
+
+	@Override
+	public String getText(Object element) {
+		if (element instanceof SVDBSourceCollection) {
+			return ((SVDBSourceCollection)element).getBaseLocation();
+		} else if (element instanceof IncExclWrapper) {
+			return ((IncExclWrapper)element).fLabel;
+		}
+		return null;
+	}
+
+	@Override
+	public Object[] getChildren(Object parentElement) {
+		if (parentElement instanceof SVDBSourceCollection) {
+			SVDBSourceCollection sc = (SVDBSourceCollection)parentElement;
+			IncExclWrapper inc = new IncExclWrapper();
+			inc.fParent = sc;
+
+			if (sc.getIncludes().size() == 0) {
+				inc.fLabel = "Includes: (Default)";
+			} else {
+				inc.fLabel = "Includes: " + sc.getIncludesStr();
+			}
+			
+			IncExclWrapper exc = new IncExclWrapper();
+			exc.fParent = sc;
+
+			if (sc.getExcludes().size() == 0) {
+				exc.fLabel = "Excludes: (Default)";
+			} else {
+				exc.fLabel = "Excludes: " + sc.getExcludesStr();
+			}
+
+			return new Object[] {inc, exc}; 
+		} else {
+			return new Object[0];
+		}
+	}
+
+	@Override
+	public Object getParent(Object element) {
+		if (element instanceof IncExclWrapper) {
+			return ((IncExclWrapper)element).fParent;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public boolean hasChildren(Object element) {
+		return (element instanceof SVDBSourceCollection);
+	}
+
+	@Override
+	public void addListener(ILabelProviderListener listener) {}
+
+	@Override
+	public boolean isLabelProperty(Object element, String property) {
+		return false;
+	}
+
+	@Override
+	public void removeListener(ILabelProviderListener listener) {}
+
+	private class IncExclWrapper {
+		public String				fLabel;
+		public SVDBSourceCollection	fParent;
+	}
 }

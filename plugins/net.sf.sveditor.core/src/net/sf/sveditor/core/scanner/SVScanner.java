@@ -12,17 +12,10 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 /**
- * 
+ * Scanner for SystemVerilog files. 
+ *  
  * @author ballance
  *
- * * Handle types with form <name>::<name>
- * * Module/Interface instances
- * * Handle non-single-word types: unsigned int/int unsigned
- * * Display bit sizes on variables: bit [4:0]
- * * Add covergroup as second-level scope
- *     * Add rudimentary handling of coverpoint
- * * Handle qualifiers (virtual) on classes
- * - Templates for class members
  * - Handle structures
  * - Handle enum types
  * - Handle export/import, "DPI-C", context as function/task qualifiers
@@ -106,7 +99,7 @@ public class SVScanner implements ISVScanner {
 				if (id != null) {
 					if (id.equals("module") ||
 							id.equals("interface") ||
-							id.equals("class")) {
+							id.equals("class") || id.equals("program")) {
 						// enter module scope
 						process_interface_module_class(id);
 					} else if (id.equals("struct")) {
@@ -577,7 +570,7 @@ public class SVScanner implements ISVScanner {
 				System.out.println("    " + getLocation().getFileName() + ":" + 
 						getLocation().getLineNo());
 			}
-		} else {
+		} else if (type.equals("module")) {
 			// Module port-list
 			if (ch == '(') {
 				startCapture(ch);
@@ -590,6 +583,8 @@ public class SVScanner implements ISVScanner {
 		if (fObserver != null) {
 			if (type.equals("module")) {
 				fObserver.enter_module_decl(module_type_name, ports);
+			} else if (type.equals("program")) {
+				fObserver.enter_program_decl(module_type_name);
 			} else if (type.equals("interface")) {
 				fObserver.enter_interface_decl(module_type_name, ports);
 			} else if (type.equals("class")) {
@@ -680,6 +675,8 @@ public class SVScanner implements ISVScanner {
 			if (type != null && fObserver != null) {
 				if (type.equals("module")) {
 					fObserver.leave_module_decl();
+				} else if (type.equals("program")) {
+					fObserver.leave_program_decl();
 				} else if (type.equals("interface")) {
 					fObserver.leave_interface_decl();
 				} else if (type.equals("class")) {
@@ -870,6 +867,9 @@ public class SVScanner implements ISVScanner {
 		} else if (id.equals("sequence")) {
 			unget_ch(ch);
 			process_sequence(id);
+		} else if (id.equals("import")) {
+			unget_ch(ch);
+			process_import_export(id);
 		} else if (id.startsWith("end")) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.

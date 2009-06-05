@@ -3,12 +3,15 @@ package net.sf.sveditor.ui.explorer;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -20,11 +23,8 @@ public class SVFileNavigatorContentProvider
 	implements ITreeContentProvider, Runnable,ISVDBChangeListener {
 	
 	private Viewer									fViewer;
-	SVDBWorkspaceFileManager									fFileManager;
 	
 	public SVFileNavigatorContentProvider() {
-		fFileManager = SVCorePlugin.getDefault().getSVDBMgr();
-		fFileManager.addSVDBChangeListener(this);
 	}
 	
 	
@@ -39,11 +39,19 @@ public class SVFileNavigatorContentProvider
 	
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFile) {
-			// File f = ((IFile)parentElement).getLocation().toFile();
-			SVDBFile file = fFileManager.getFile((IFile)parentElement);
+			IFile file = (IFile)parentElement;
+			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+			SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
+			SVDBIndexCollectionMgr index_mgr = pdata.getProjectIndexMgr();
 			
-			if (file != null) {
-				return file.getItems().toArray();
+			List<SVDBSearchResult<SVDBFile>> res = 
+				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
+			
+			if (res.size() == 0) {
+				System.out.println("SVFileNavigatorContentProvider: " +
+						"failed to find \"" + file.getFullPath() + "\"");
+			} else {
+				return res.get(0).getItem().getItems().toArray();
 			}
 		} else if (parentElement instanceof SVDBScopeItem &&
 				!(parentElement instanceof SVDBTaskFuncScope)) {
@@ -76,7 +84,6 @@ public class SVFileNavigatorContentProvider
 
 	
 	public void dispose() {
-		fFileManager.removeSVDBChangeListener(this);
 	}
 
 	

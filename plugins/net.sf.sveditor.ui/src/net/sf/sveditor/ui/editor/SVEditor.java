@@ -2,31 +2,29 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexList;
-import net.sf.sveditor.core.db.index.SVDBIndexList;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.db.search.SVDBFileContextIndexSearcher;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
@@ -52,6 +50,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDEActionFactory;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AddTaskAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -68,10 +67,9 @@ public class SVEditor extends TextEditor {
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBProjectData					fProjectData;
 	private SVDBFile						fSVDBFile;
-	private SVDBFileTree					fSVDBFileTree;
-	private File							fFile;
-	private ISVDBIndex						fIndex;
-	private SVDBIndexList					fIndexList;
+	private String							fFile;
+	private SVDBFileContextIndexSearcher	fIndexSearcher;
+	private SVDBIndexCollectionMgr			fIndexMgr;
 
 	
 	public SVEditor() {
@@ -93,16 +91,20 @@ public class SVEditor extends TextEditor {
 		
 		if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
-			fFile = new File(uri.getPath()); 
+			if (uri.getScheme().equals("plugin")) {
+				fFile = "plugin:" + uri.getPath();
+			} else {
+				fFile = uri.getPath();
+			}
+			
 		} else if (input instanceof IFileEditorInput) {
-			fFile = ((IFileEditorInput)input).getFile().getLocation().toFile();
+			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);
 		
 		// Perform an initial parse of the file
 		updateSVDBFile();
-		
 	}
 
 	@Override
@@ -128,60 +130,97 @@ public class SVEditor extends TextEditor {
 	void updateSVDBFile() {
 		IEditorInput ed_in = getEditorInput();
 		IDocument doc = getDocumentProvider().getDocument(ed_in);
-		String path = ed_in.getName();
+		String path = null;
 
-		SVPreProcDefineProvider		def_p = null;
+		fIndexSearcher = null;
 		
-		fSVDBFileTree = null;
-		fIndex = null;
 		if (ed_in instanceof IURIEditorInput) {
 			SVDBProjectData pdata  = null;
 			IURIEditorInput uri_in = (IURIEditorInput)ed_in;
 			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
-			
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IContainer c[] = root.findContainersForLocationURI(uri_in.getURI());
-			
-			if (c != null && c.length > 0) {
-				pdata = mgr.getProjectData(c[0].getProject());
-				fIndex = pdata.getFileIndex();
-				def_p = new SVPreProcDefineProvider();
+
+			if (uri_in.getURI().getScheme().equals("plugin")) {
+				path = "plugin:" + uri_in.getURI().getPath();
 				
-				SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
-				SVDBFile pp_svdb_f = fIndex.findPreProcFile(c[0].getLocation().toFile());
+				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+				SVDBPluginLibDescriptor target = null;
 				
-				Map<File, SVDBFile> pp_map = fIndex.getPreProcFileMap();
+				String uri_path = uri_in.getURI().getPath();
+				String plugin = uri_path.substring(1, uri_path.indexOf('/', 1));
+				String root_file = uri_path.substring(uri_path.indexOf('/', 1));
 				
-				fSVDBFileTree = ft_utils.createFileContext(pp_svdb_f, pp_map);
+				for (SVDBPluginLibDescriptor d : SVCorePlugin.getDefault().getPluginLibList()) {
+					if (d.getNamespace().equals(plugin)) {
+						String root_dir = new File(d.getPath()).getParent();
+						if (!root_dir.startsWith("/")) {
+							root_dir = "/" + root_dir;
+						}
+						
+						if (root_file.startsWith(root_dir)) {
+							target = d;
+							break;
+						}
+					}
+				}
 				
-				def_p.setFileContext(fSVDBFileTree);
+				fIndexMgr = new SVDBIndexCollectionMgr(plugin);
+
+				if (target != null) {
+					fIndexMgr.addPluginLibrary(rgy.findCreateIndex("GLOBAL", 
+							target.getId(), SVDBPluginLibIndexFactory.TYPE, null));
+				}
+			} else {
+				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+				if (ed_in instanceof FileEditorInput) {
+					FileEditorInput fi = (FileEditorInput)ed_in;
+					
+					pdata = mgr.getProjectData(fi.getFile().getProject());
+					fIndexMgr = pdata.getProjectIndexMgr();
+					path = "${workspace_loc}" + fi.getFile().getFullPath().toOSString();
+					
+					if (fIndexMgr.findPreProcFile(path).size() == 0) {
+						System.out.println("Create a shadow index");
+						ISVDBIndex index = rgy.findCreateIndex(
+								fi.getFile().getProject().getName(), 
+								new File(path).getParent(),
+								SVDBSourceCollectionIndexFactory.TYPE, null);
+						fIndexMgr.addShadowIndex(index.getBaseLocation(), index);
+					}
+				} else {
+					// Create an index manager for this directory
+					System.out.println("Editor Input: " + ed_in.getClass().getName());
+					path = uri_in.getURI().getPath();
+					File fs_path = new File(path);
+
+					fIndexMgr = new SVDBIndexCollectionMgr(fs_path.getParent());
+					ISVDBIndex index = rgy.findCreateIndex(
+							fs_path.getParent(), fs_path.getParent(),
+							SVDBSourceCollectionIndexFactory.TYPE, null);
+					
+					fIndexMgr.addSourceCollection(index);
+					
+					// TODO: add default plugin and global libraries
+				}
 			}
-		}
-		
-		if (fSVDBFileTree == null) {
-			fSVDBFileTree = new SVDBFileTree(getFilePath());
+			
+		} else {
+			System.out.println("[ERROR] SVEditor input is of type " +
+					ed_in.getClass().getName());
 		}
 		
 		StringInputStream sin = new StringInputStream(doc.get());
 
-		// TODO: Need the editor to handle this automatically
-		SVDBFile new_in = SVDBFileFactory.createFile(sin, path, def_p);
+		SVDBFile new_in = fIndexMgr.parse(sin, path);
 		
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		
-		fSVDBFile.setFilePath(getFilePath());
-
-		if (ed_in instanceof IFileEditorInput) {
-			SVCorePlugin.getDefault().getSVDBMgr().setLiveSource(
-					((IFileEditorInput)ed_in).getFile(), fSVDBFile);
+		fSVDBFile.setFilePath(path);
+		
+		if (fOutline != null) {
+			fOutline.refresh();
 		}
 	}
 	
-	public void addIndex(ISVDBIndex index) {
-		((ISVDBIndexList)getIndex()).addIndex(index);
-	}
-
-
 	public SVCodeScanner getCodeScanner() {
 		return fCodeScanner;
 	}
@@ -253,7 +292,7 @@ public class SVEditor extends TextEditor {
 	
 	private SVDBProjectData getProjectData() {
 		if (fProjectData == null) {
-			File file = getFilePath();
+			File file = new File(getFilePath());
 			
 			IFile files[] = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI());
 			
@@ -266,6 +305,24 @@ public class SVEditor extends TextEditor {
 		return fProjectData;
 	}
 	
+	/*
+	public ISVDBFileContextIndexSearcher getIndexSearcher() {
+		if (fIndexSearcher == null) {
+			fIndexSearcher = new SVDBFileContextIndexSearcher(fSVDBFile);
+			
+			if (getProjectData() != null) {
+				fIndexSearcher.addIndexCollection(getProjectData().getProjectIndexMgr());
+			}
+		}
+		
+		return fIndexSearcher;
+	}
+	 */
+	public ISVDBIndexIterator getIndexIterator() {
+		return fIndexMgr;
+	}
+
+	/*
 	public ISVDBIndex getIndex() {
 		if (fIndexList == null) {
 			fIndexList = new SVDBIndexList(getFilePath());
@@ -281,11 +338,10 @@ public class SVEditor extends TextEditor {
 		
 		return fIndexList;
 	}
+	 */
 
 	protected void editorContextMenuAboutToShow(IMenuManager menu) {
 		super.editorContextMenuAboutToShow(menu);
-		
-		System.out.println("editorContextMenuAboutToShow()");
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction");
@@ -323,11 +379,10 @@ public class SVEditor extends TextEditor {
 			fCharacterMatcher = null;
 		}
 		
+		/*
 		SVCorePlugin.getDefault().getSVDBMgr().removeLiveSource(fFile);
+		 */
 		
-		if (fIndexList != null) {
-			fIndexList.dispose();
-		}
 		SVUiPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(
 				fPropertyChangeListener);
 	}
@@ -344,8 +399,6 @@ public class SVEditor extends TextEditor {
 					(SVPresentationReconciler)getSourceViewerConfiguration().getPresentationReconciler(getSourceViewer()),
 					this);
 		}
-		
-//		fOutline = new SVOutlinePage(this);
 		
 		// Setup matching character highligher
 		if (fMatchingCharacterPainter == null) {
@@ -372,18 +425,14 @@ public class SVEditor extends TextEditor {
 		return fSVDBFile;
 	}
 	
-	public SVDBFileTree getSVDBFileTree() {
-		return fSVDBFileTree;
-	}
-	
-	public File getFilePath() {
+	public String getFilePath() {
 		IEditorInput ed_in = getEditorInput();
-		File ret = null;
+		String ret = null;
 		
 		if (ed_in instanceof IFileEditorInput) {
-			ret = ((IFileEditorInput)ed_in).getFile().getLocation().toFile();
+			ret = ((IFileEditorInput)ed_in).getFile().getFullPath().toOSString();
 		} else if (ed_in instanceof IURIEditorInput) {
-			ret = new File(((IURIEditorInput)ed_in).getURI().getPath());
+			ret = ((IURIEditorInput)ed_in).getURI().getPath();
 		}
 		
 		return ret;
@@ -416,12 +465,13 @@ public class SVEditor extends TextEditor {
 			end = start;
 		}
 		try {
-			int offset = doc.getLineOffset(start);
-			setHighlightRange(offset, (end-start)+1, false);
+			int offset   = doc.getLineOffset(start);
+			int offset_e = doc.getLineOffset(end); 
+			setHighlightRange(offset, (offset_e-offset), false);
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
-			getSourceViewer().revealRange(offset, (end-start)+1);
+			getSourceViewer().revealRange(offset, (offset_e-offset));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

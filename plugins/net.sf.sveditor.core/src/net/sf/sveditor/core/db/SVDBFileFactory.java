@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,42 +15,34 @@ import net.sf.sveditor.core.scanner.SVTaskFuncParam;
 import net.sf.sveditor.core.scanner.SVTypeInfo;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-
 public class SVDBFileFactory implements ISVScannerObserver {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
-	
-	public SVDBFileFactory(IDefineProvider def_provider) {
+
+	public SVDBFileFactory() {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
-		fScanner.setDefineProvider(def_provider);
 		fScopeStack = new Stack<SVDBScopeItem>();
 	}
+
+	public SVDBFileFactory(IDefineProvider def_provider) {
+		this();
+		setDefineProvider(def_provider);
+	}
 	
+	public void setDefineProvider(IDefineProvider dp) {
+		fScanner.setDefineProvider(dp);
+	}
 	
 	public void error(String msg) {
 		System.out.println("[ERROR] " + msg);
 	}
 	
-	public SVDBFile parse(IFile file) {
-		InputStream in = null;
-		
-		try {
-			in = file.getContents();
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		
-		return parse(in, file.getFullPath().toOSString()); 
-	}
-	
 	public SVDBFile parse(InputStream in, String name) {
 		fScopeStack.clear();
 		
-		fFile = new SVDBFile(new File(name));
+		fFile = new SVDBFile(name);
 		fScopeStack.push(fFile);
 		fScanner.scan(in, name);
 		
@@ -99,6 +90,15 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	}
 	
 	
+	public void enter_program_decl(String name) throws HaltScanException {
+		SVDBProgramBlock p = new SVDBProgramBlock(name);
+		
+		fScopeStack.peek().addItem(p);
+		fScopeStack.push(p);
+		
+		setLocation(p);
+	}
+
 	public void enter_interface_decl(String name, String ports)
 			throws HaltScanException {
 		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
@@ -259,8 +259,16 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		}
 	}
 
-
 	
+	public void leave_program_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Program) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+
 	public void variable_decl(SVTypeInfo type, int attr, List<String> variables)
 			throws HaltScanException {
 		

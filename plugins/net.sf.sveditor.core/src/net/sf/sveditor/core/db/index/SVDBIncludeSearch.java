@@ -12,8 +12,16 @@ public class SVDBIncludeSearch {
 	}
 	
 	public SVDBFile findIncludedFile(String name) {
-		SVDBFile ret;
+		SVDBFile ret = null;
 		
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			System.out.println("[ERROR] SVDBIncludeSearch.findIncludedFile()");
+			e.printStackTrace();
+		}
+		
+		/*
 		if ((ret = fIndex.findIncludedFile(name)) == null) {
 			// Now try searching up
 			ISVDBIndex index = fIndex.getSuperIndex();
@@ -26,6 +34,7 @@ public class SVDBIncludeSearch {
 				index = index.getSuperIndex();
 			}
 		}
+		 */
 		
 		return ret;
 	}

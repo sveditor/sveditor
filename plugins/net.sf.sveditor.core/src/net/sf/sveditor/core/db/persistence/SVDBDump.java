@@ -20,10 +20,10 @@ public class SVDBDump implements IDBWriter {
 		index.getBaseLocation();
 		
 		// TODO: Write DB header
-		writeRawString("SDB<" + index.getBaseLocation().getPath() + ">");
+		writeRawString("SDB<" + index.getBaseLocation() + ">");
 //		writeString("DBT<" + index.getTypeID() + ">");
 		
-		System.out.println("dump " + index.getBaseLocation().getPath() + 
+		System.out.println("dump " + index.getBaseLocation() + 
 				": list.size=" + index.getPreProcFileMap().values().size() +
 				" ; db.size=" + index.getFileDB().values().size());
 		System.out.println("--> write pre-proc map");

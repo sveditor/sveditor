@@ -49,6 +49,9 @@ public interface ISVScannerObserver {
 			String 			name, 
 			String			ports) throws HaltScanException;
 	
+	void enter_program_decl(
+			String			name) throws HaltScanException;
+	
 	void enter_interface_decl(
 			String			name,
 			String			ports) throws HaltScanException;
@@ -78,6 +81,8 @@ public interface ISVScannerObserver {
 		throws HaltScanException;
 	
 	void leave_module_decl() throws HaltScanException;
+	
+	void leave_program_decl() throws HaltScanException;
 	
 	void leave_class_decl() throws HaltScanException;
 

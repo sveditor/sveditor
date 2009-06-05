@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-import net.sf.sveditor.core.ISVDBFileProvider;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -33,41 +30,6 @@ public class SVDBProjectManager implements IResourceChangeListener {
 	public SVDBProjectManager() {
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-	}
-	
-	public ISVDBIndex findBuildPathIndex(IFile root) {
-		File file = root.getLocation().toFile();
-		
-		if (fBuildPathEntries.containsKey(file)) {
-			return fBuildPathEntries.get(file);
-		} else {
-			if (fProjectMap.containsKey(root.getProject())) {
-				fProjectMap.get(root.getProject()).getFileProvider();
-				
-			}
-			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			
-			ISVDBIndex ret = rgy.findCreateIndex(
-					root.getLocation().toFile().getPath(),
-					ISVDBIndexFactory.TYPE_WorkspaceIndex);
-			
-			fBuildPathEntries.put(ret.getBaseLocation(), ret);
-			
-			return ret;
-		}
-	}
-	
-	public ISVDBIndex findBuildPathIndex(File root, ISVDBFileProvider provider) {
-
-			if (fBuildPathEntries.containsKey(root)) {
-				return fBuildPathEntries.get(root);
-			} else {
-				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-				ISVDBIndex ret = rgy.findCreateIndex(root.getPath(), ISVDBIndexFactory.TYPE_FilesystemIndex);
-				
-				fBuildPathEntries.put(root, ret);
-				return ret;
-			}
 	}
 	
 	public SVDBProjectData getProjectData(IProject proj) {
@@ -98,6 +60,8 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			if (f_wrapper == null) {
 				f_wrapper = new SVProjectFileWrapper();
 				
+				setupDefaultProjectFile(f_wrapper);
+				
 				// Write the file
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				f_wrapper.toStream(bos);
@@ -114,65 +78,29 @@ public class SVDBProjectManager implements IResourceChangeListener {
 				}
 			}
 			
-			ret = new SVDBProjectData(f_wrapper, svproject.getFullPath());
+			ret = new SVDBProjectData(proj.getName(), f_wrapper, svproject.getFullPath());
 			
 			fProjectMap.put(proj.getFullPath(), ret);
 		}
 		
 		return ret;
 	}
-	
-	public SVDBProjectData getProjectData(IFolder dir) {
-		SVDBProjectData ret = null;
-		
-		if (fProjectMap.containsKey(dir.getFullPath())) {
-			ret = fProjectMap.get(dir.getFullPath());
-		} else {
-			IFile svproject;
-			SVProjectFileWrapper f_wrapper = null;
-			if ((svproject = dir.getFile(".svproject")).exists()) {
-				InputStream in = null;
-				try {
-					svproject.refreshLocal(IResource.DEPTH_ZERO, null);
-					in = svproject.getContents();
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
 
-				try {
-					f_wrapper = new SVProjectFileWrapper(in);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+	/**
+	 * Setup the default project data.
+	 * - Includes default plugin libraries
+	 * 
+	 * @param file_wrapper
+	 */
+	private static void setupDefaultProjectFile(SVProjectFileWrapper file_wrapper) {
+		List<SVDBPluginLibDescriptor> lib_d = SVCorePlugin.getDefault().getPluginLibList();
+		
+		for (SVDBPluginLibDescriptor d : lib_d) {
+			if (d.isDefault()) {
+				file_wrapper.getPluginPaths().add(new SVDBPath(d.getId()));
 			}
-			
-			if (f_wrapper == null) {
-				f_wrapper = new SVProjectFileWrapper();
-				
-				// Write the file
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				f_wrapper.toStream(bos);
-				ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-				
-				try {
-					if (svproject.exists()) {
-						svproject.setContents(bis, true, true, null);
-					} else {
-						svproject.create(bis, true, null);
-					}
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			ret = new SVDBProjectData(f_wrapper, svproject.getFullPath());
-			
-			fProjectMap.put(dir.getFullPath(), ret);
 		}
-		
-		return ret;
 	}
-
 	
 	public void resourceChanged(IResourceChangeEvent event) {
 		final List<IProject> changed_projects = new ArrayList<IProject>();

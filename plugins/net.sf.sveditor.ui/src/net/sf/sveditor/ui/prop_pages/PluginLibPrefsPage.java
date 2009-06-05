@@ -3,7 +3,7 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;

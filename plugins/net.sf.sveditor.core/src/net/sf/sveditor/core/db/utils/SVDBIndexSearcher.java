@@ -22,7 +22,7 @@ public class SVDBIndexSearcher {
 	public SVDBIndexSearcher(ISVDBIndex index) {
 		fFiles.addAll(index.getFileDB().values());
 	}
-	
+
 	public void addIndex(ISVDBIndex index) {
 		fFiles.addAll(index.getFileDB().values());
 	}

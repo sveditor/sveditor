@@ -21,8 +21,6 @@ public class SVDBPreProcCond extends SVDBScopeItem {
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		System.out.println("dump pre-proc conditional \"" + getName() + "\" - " 
-				+ fConditional);
 		writer.writeString(fConditional);
 	}
 	

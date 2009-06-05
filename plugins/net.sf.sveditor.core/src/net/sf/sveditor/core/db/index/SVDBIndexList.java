@@ -1,19 +1,22 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.search.ISVDBItemVisitor;
 
 public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	
 	private List<ISVDBIndex>							fIndexList;
 	private File										fProjectDir;
-	private Map<File, SVDBFile>							fFileDB;
-	private Map<File, SVDBFile>							fPreProcFileMap;
+	private Map<String, SVDBFile>						fFileDB;
+	private Map<String, SVDBFile>						fPreProcFileMap;
 	private List<ISVDBIndexChangeListener>				fIndexChangeListeners;
 	private ISVDBIndex									fSuperIndex;
 	
@@ -37,7 +40,13 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	public String getTypeID() {
 		return "net.sf.sveditor.svdb_index_list";
 	}
-	
+
+	@Override
+	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public boolean isLoaded() {
 		// Doesn't really matter
 		return false;
@@ -47,8 +56,8 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		System.out.println("[ERROR] cannot load an index list");
 	}
 
-	public File getBaseLocation() {
-		return fProjectDir; 
+	public String getBaseLocation() {
+		return fProjectDir.getAbsolutePath(); 
 	}
 	
 	public void setSuperIndex(ISVDBIndex index) {
@@ -59,6 +68,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return fSuperIndex;
 	}
 	
+	/*
 	public SVDBFile findIncludedFile(String leaf) {
 		SVDBFile ret = null;
 		
@@ -70,10 +80,11 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		
 		return ret;
 	}
+	 */
 
-	public synchronized Map<File, SVDBFile> getFileDB() {
+	public synchronized Map<String, SVDBFile> getFileDB() {
 		if (fFileDB == null) {
-			fFileDB = new HashMap<File, SVDBFile>();
+			fFileDB = new HashMap<String, SVDBFile>();
 			for (ISVDBIndex index : fIndexList) {
 				fFileDB.putAll(index.getFileDB());
 			}
@@ -82,10 +93,10 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return fFileDB;
 	}
 
-	public synchronized Map<File, SVDBFile> getPreProcFileMap() {
+	public synchronized Map<String, SVDBFile> getPreProcFileMap() {
 		
 		if (fPreProcFileMap == null) {
-			fPreProcFileMap = new HashMap<File, SVDBFile>();
+			fPreProcFileMap = new HashMap<String, SVDBFile>();
 			
 			for (ISVDBIndex index : fIndexList) {
 				fPreProcFileMap.putAll(index.getPreProcFileMap());
@@ -95,7 +106,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return fPreProcFileMap;
 	}
 	
-	public SVDBFile findFile(File file) {
+	public SVDBFile findFile(String file) {
 		synchronized (fIndexList) {
 			for (ISVDBIndex index : fIndexList) {
 				SVDBFile ret;
@@ -109,7 +120,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return null;
 	}
 
-	public SVDBFile findPreProcFile(File path) {
+	public SVDBFile findPreProcFile(String path) {
 		synchronized (fIndexList) {
 			for (ISVDBIndex index : fIndexList) {
 				SVDBFile ret;
@@ -121,7 +132,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		}
 
 		System.out.println("[WARN] failed to file pre-proc file \"" + 
-				path.getAbsolutePath() + "\" in index list");
+				path + "\" in index list");
 		return null;
 	}
 
@@ -140,7 +151,6 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 			// TODO: signal change event?
 			fIndexList.add(idx);
 			idx.addChangeListener(this);
-			idx.setSuperIndex(this);
 		}
 	}
 	
@@ -150,6 +160,12 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		idx.removeChangeListener(this);
 	}
 	
+	public SVDBFile parse(InputStream in, String path) {
+		System.out.println("SVDBIndexList.parse()");
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public List<ISVDBIndex> getIndexList() {
 		return fIndexList;
 	}
@@ -185,5 +201,12 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 			l.index_changed(reason, file);
 		}
 	}
+
+	public void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }
 

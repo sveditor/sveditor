@@ -64,6 +64,12 @@ public class SVOutlinePage extends ContentOutlinePage
 			}
 		}
 	}
+	
+	public void refresh() {
+		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
+			Display.getDefault().asyncExec(this);
+		}
+	}
 
 	public void run() {
 		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
@@ -105,9 +111,6 @@ public class SVOutlinePage extends ContentOutlinePage
 				if (event.getSelection() instanceof StructuredSelection) {
 					StructuredSelection sel = (StructuredSelection)event.getSelection();
 					if (sel.getFirstElement() instanceof SVDBItem) {
-						int start = -1;
-						int end = -1;
-						
 						SVDBItem it = (SVDBItem)sel.getFirstElement();
 						
 						fEditor.setSelection(it, false);

@@ -1,12 +1,11 @@
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 
-public interface ISVDBIndex {
+public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator {
 	int IT_IncludePath      = 1;
 	int IT_BuildPath        = 2;
 	int IT_IndexList        = 3;
@@ -22,7 +21,7 @@ public interface ISVDBIndex {
 	 * Returns the base location for this index.
 	 * @return
 	 */
-	File getBaseLocation();
+	String getBaseLocation();
 	
 	/**
 	 * Returns the type identifier for this index. This is
@@ -41,14 +40,11 @@ public interface ISVDBIndex {
 	void load(List<SVDBFile> pp_files, List<SVDBFile> db_files);
 	
 	/**
-	 * Sets the containing index. This is typically used to pass the 
-	 * project's index to a client so that include files from some external
-	 * library can be located by a sub-index
+	 * Sets the include provider
+	 * 
 	 * @param index
 	 */
-	void setSuperIndex(ISVDBIndex index);
-	
-	ISVDBIndex getSuperIndex();
+	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
 	/**
 	 * Returns the index type
@@ -66,14 +62,14 @@ public interface ISVDBIndex {
 	 * NOTE: this method is non-functional if the index is an Include Path
 	 * @return
 	 */
-	Map<File, SVDBFile> getFileDB();
+	Map<String, SVDBFile> getFileDB();
 	
 	/**
 	 * Returns list of SVDBFile with pre-proc info
 	 * 
 	 * @return
 	 */
-	Map<File, SVDBFile> getPreProcFileMap();
+	Map<String, SVDBFile> getPreProcFileMap();
 
 	/**
 	 * Finds the specified file within this index. Returns 'null' if
@@ -82,7 +78,7 @@ public interface ISVDBIndex {
 	 * @param path
 	 * @return
 	 */
-	SVDBFile findFile(File path);
+	SVDBFile findFile(String path);
 	
 	/**
 	 * Finds the specified file within the pre-processor index
@@ -90,16 +86,8 @@ public interface ISVDBIndex {
 	 * @param path
 	 * @return
 	 */
-	SVDBFile findPreProcFile(File path);
+	SVDBFile findPreProcFile(String path);
 	
-	/**
-	 * Locates a file with the following leaf. If the file cannot be
-	 * found, returns 'null'
-	 * 
-	 * @param suffix
-	 * @return
-	 */
-	SVDBFile findIncludedFile(String leaf);
 	
 
 	/**

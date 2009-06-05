@@ -69,20 +69,6 @@ public class SVProjectProps extends PropertyPage implements
 			item.setControl(page.createContents(folder));
 		}
 		
-		/*
-		item = new TabItem(folder, SWT.NONE);
-		item.setText("Build Paths");
-		fBuildPathsPage = new SVProjectPathsPage();
-		fBuildPathsPage.init(fProjectFileWrapper.getBuildPaths());
-		item.setControl(fBuildPathsPage.createContents(folder));
-		
-		item = new TabItem(folder, SWT.NONE);
-		item.setText("Include Paths");
-		fIncludePathsPage = new SVProjectPathsPage();
-		fIncludePathsPage.init(fProjectFileWrapper.getIncludePaths());
-		item.setControl(fIncludePathsPage.createContents(folder));
-		 */
-
 		Dialog.applyDialogFont(folder);
 		
 		return folder;
@@ -91,20 +77,9 @@ public class SVProjectProps extends PropertyPage implements
 
 	@Override
 	public boolean performOk() {
-		
 		for (ISVProjectPropsPage page : fPropertyPages) {
 			page.perfomOk();
 		}
-		
-		/*
-		fProjectFileWrapper.getBuildPaths().clear();
-		fProjectFileWrapper.getBuildPaths().addAll(
-				fBuildPathsPage.getPathList());
-		
-		fProjectFileWrapper.getIncludePaths().clear();
-		fProjectFileWrapper.getIncludePaths().addAll(
-				fIncludePathsPage.getPathList());
-		 */
 		
 		fProjectData.setProjectFileWrapper(fProjectFileWrapper);
 		

@@ -26,20 +26,12 @@ public class SVDBMacroDef extends SVDBItem {
 		super(file, parent, type, reader);
 		fParams = reader.readStringList();
 		fDef    = reader.readString();
-		
-		if (getName().equals("ovm_component_utils")) {
-			System.out.println("fDef=" + fDef);
-		}
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeStringList(fParams);
 		writer.writeString(fDef);
-		
-		if (getName().equals("ovm_component_utils")) {
-			System.out.println("writing fDef=" + fDef);
-		}
 	}
 	
 	

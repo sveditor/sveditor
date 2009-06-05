@@ -113,6 +113,17 @@
             </instanceof>
          </enablement>
       </actionProvider>
+      <actionProvider
+            class="net.sf.sveditor.ui.explorer.RebuildSvIndexAction"
+            id="net.sf.sveditor.ui.explorer.RebuildSvIndexAction">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+               </adapt>
+            </or>
+         </enablement>
+      </actionProvider>
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"

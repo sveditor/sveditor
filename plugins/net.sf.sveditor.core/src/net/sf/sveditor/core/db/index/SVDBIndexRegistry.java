@@ -10,12 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileMerger;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
 
@@ -23,7 +21,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 
 /**
@@ -34,31 +31,55 @@ import org.eclipse.core.runtime.Platform;
  *
  */
 public class SVDBIndexRegistry implements ISVDBIndexRegistry {
-	private List<ISVDBIndex>					fIndexList;
-	private File								fDatabaseDir;
-	private List<SVDBPersistenceDescriptor>		fDatabaseDescriptors;
+	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
+	private File											fDatabaseDir;
+	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
 
 	/**
 	 * SVDBIndexRegistry constructor. Only intended to be called by
 	 * 
 	 * @param state_location
 	 */
-	public SVDBIndexRegistry(IPath state_location) {
+	public SVDBIndexRegistry() {
+		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
+		// fDatabaseDir = new File(state_location.toFile(), "db");
+		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		
-		fIndexList   = new ArrayList<ISVDBIndex>();
-		fDatabaseDir = new File(state_location.toFile(), "db");
-		fDatabaseDescriptors = new ArrayList<SVDBPersistenceDescriptor>();
+	}
+	
+	public void init(File state_location) {
+		fDatabaseDir = new File(state_location, "db");
+		fProjectIndexMap.clear();
+		fDatabaseDescMap.clear();
 		
 		load_database_descriptors();
 	}
 	
-	public ISVDBIndex findCreateIndex(String base_location, String type) {
+	/**
+	 * Finds or creates an index
+	 * 
+	 * @param project        project this index is associated with
+	 * @param base_location  base location for the index
+	 * @param type           index type
+	 * @return
+	 */
+	public ISVDBIndex findCreateIndex(
+			String 					project, 
+			String 					base_location, 
+			String 					type,
+			Map<String, Object>		config) {
 		ISVDBIndex ret = null;
 		
-		System.out.println("findCreateIndex: " +base_location + " ; " + type);
+		System.out.println("findCreateIndex: " + base_location + " ; " + type);
 		
-		for (ISVDBIndex index : fIndexList) {
-			if (index.getBaseLocation().getPath().equals(base_location) &&
+		if (!fProjectIndexMap.containsKey(project)) {
+			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
+		}
+		
+		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
+		
+		for (ISVDBIndex index : project_index) {
+			if (index.getBaseLocation().equals(base_location) &&
 					index.getTypeID().equals(type)) {
 				ret = index;
 				break;
@@ -66,31 +87,58 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		}
 		
 		if (ret == null) {
+			System.out.println("    Index does not exist -- creating");
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
 			
 			System.out.println("factory=" + factory);
-			ret = factory.createSVDBIndex(base_location);
+			ret = factory.createSVDBIndex(project, base_location, config);
 			
 			ret.init(this);
 			
-			fIndexList.add(ret);
+			project_index.add(ret);
+		} else {
+			System.out.println("    Index already exists");
 		}
 		
 		return ret;
 	}
 	
-	public boolean loadPersistedData(ISVDBIndex index) {
-		System.out.println("loadPersistedData: " + index.getBaseLocation().getPath());
-		
-		// Persistence disabled for now
-		if (true) {
-			return false;
+	public void rebuildIndex(String project) {
+		if (!fProjectIndexMap.containsKey(project)) {
+			return;
 		}
-		String base_location = index.getBaseLocation().getPath();
+		
+		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
+			if (index.isLoaded()) {
+				index.rebuildIndex();
+			}
+		}
+		
+		// Also clear any persistence data for the project
+		if (fDatabaseDescMap.containsKey(project)) {
+			List<SVDBPersistenceDescriptor> db_desc = fDatabaseDescMap.get(project);
+			
+			for (SVDBPersistenceDescriptor d : db_desc) {
+				d.getDBFile().delete();
+			}
+			fDatabaseDescMap.remove(project);
+		}
+	}
+	
+	public boolean loadPersistedData(String project, ISVDBIndex index) {
+		System.out.println("loadPersistedData: " + index.getBaseLocation());
+		
+		String base_location = index.getBaseLocation();
 		SVDBPersistenceDescriptor desc = null;
 		
-		for (SVDBPersistenceDescriptor d : fDatabaseDescriptors) {
+		if (!fDatabaseDescMap.containsKey(project)) {
+			return false;
+		}
+		
+		List<SVDBPersistenceDescriptor> db_desc = fDatabaseDescMap.get(project);
+		
+		for (SVDBPersistenceDescriptor d : db_desc) {
 			if (d.getBaseLocation().equals(base_location)) {
 				desc = d;
 				break;
@@ -126,18 +174,28 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		if (fDatabaseDir.exists()) {
 			SVDBLoad loader = new SVDBLoad();
 			
-			for (File f : fDatabaseDir.listFiles()) {
-				if (f.isFile() && f.getName().endsWith(".db")) {
-					try {
-						FileInputStream in = new FileInputStream(f);
-						String base = loader.readBaseLocation(in);
-						
-						System.out.println("base=" + base);
-						fDatabaseDescriptors.add(
-							new SVDBPersistenceDescriptor(f, base));
-					} catch (Exception e) {
-						e.printStackTrace();
+			for (File d : fDatabaseDir.listFiles()) {
+				if (d.isDirectory()) {
+					String project_name = d.getName();
+					List<SVDBPersistenceDescriptor> db_desc = 
+						new ArrayList<SVDBPersistenceDescriptor>();
+					
+					for (File f : d.listFiles()) {
+						if (f.isFile() && f.getName().endsWith(".db")) {
+							try {
+								FileInputStream in = new FileInputStream(f);
+								String base = loader.readBaseLocation(in);
+								
+								System.out.println("base=" + base);
+								db_desc.add(
+									new SVDBPersistenceDescriptor(f, base));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
 					}
+					
+					fDatabaseDescMap.put(project_name, db_desc);
 				}
 			}
 		}
@@ -148,26 +206,58 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 * Saves the state of loaded indexes to the state_location directory
 	 */
 	public void save_state() {
-		SVDBDump dumper = new SVDBDump();
 		System.out.println("save_state()");
 		
-		for (ISVDBIndex index : fIndexList) {
+		for (String proj_name : fProjectIndexMap.keySet()) {
+			save_state(proj_name, fProjectIndexMap.get(proj_name));
+		}
+		
+		// Now, iterate through each saved database and clean up
+		// any leftover saved-database files
+		
+	}
+	
+	private void save_state(String proj_name, List<ISVDBIndex> index_list) {
+		SVDBDump dumper = new SVDBDump();
+		List<SVDBPersistenceDescriptor>		db_list = fDatabaseDescMap.get(proj_name);
+		
+		if (!fDatabaseDir.exists()) {
+			if (!fDatabaseDir.mkdirs()) {
+				System.out.println("[ERROR] cannot create database dir");
+			}
+		}
+		
+		for (ISVDBIndex index : index_list) {
+			System.out.println("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
+			SVDBFile f = index.findPreProcFile("${workspace_loc}/infact_coverage/sv/inFactCovSv.sv");
+			if (f != null) {
+				System.out.println("inFactCovSv timestamp: " + f.getLastModified());
+			}
+			
+			if (proj_name == null) {
+				System.out.println("proj_name null on : " + index.getClass().getName());
+			}
+			File proj_db_dir = new File(fDatabaseDir, proj_name);
+			
+			if (!proj_db_dir.exists()) {
+				if (!(proj_db_dir.mkdirs())) {
+					System.out.println("[ERROR] cannot create project db dir");
+				}
+			}
+			
 			if (index.isLoaded()) {
 				// Dump out to the state location
 				
-				if (!fDatabaseDir.exists()) {
-					if (!fDatabaseDir.mkdirs()) {
-						System.out.println("[ERROR] cannot create database dir");
-					}
-				}
+				SVDBPersistenceDescriptor d = null;
 				
-				SVDBPersistenceDescriptor d = findPersistenceDescriptor(
-						index.getBaseLocation().getPath());
+				if (db_list != null) {
+					d = findPersistenceDescriptor(db_list, index.getBaseLocation());
+				}
 				
 				File index_file;
 				if (d == null) {
 					// Pick a new filename
-					index_file = pickIndexFileName();
+					index_file = pickIndexFileName(proj_db_dir);
 				} else {
 					index_file = d.getDBFile();
 				}
@@ -186,101 +276,16 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					e.printStackTrace();
 				}
 				
-				// Okay, now let's load back the files to check
-				SVDBLoad loader = new SVDBLoad();
-				try {
-					FileInputStream in = new FileInputStream(index_file);
-					Map<File, SVDBFile> pp_map = new HashMap<File, SVDBFile>();
-					Map<File, SVDBFile> db_map = new HashMap<File, SVDBFile>();
-					
-					loader.load(pp_map, db_map, in);
-					
-					// Now, compare
-					
-					SVDBFile pp_file = pp_map.get(new File(
-							"plugin:/net.sf.sveditor.libs.ovm/ovm-2.0.1/src/macros/ovm_object_defines.svh"));
-					
-					if (pp_file != null) {
-						SVDBFile pp_file_orig = index.getPreProcFileMap().get(new File(
-								"plugin:/net.sf.sveditor.libs.ovm/ovm-2.0.1/src/macros/ovm_object_defines.svh"));
-						
-						System.out.println("Original file: ");
-						SVDBItemPrint.printItem(pp_file_orig);
-						
-						System.out.println("Loaded file: ");
-						SVDBItemPrint.printItem(pp_file);
-					}
-					
-					List<SVDBItem> adds = new ArrayList<SVDBItem>();
-					List<SVDBItem> rems = new ArrayList<SVDBItem>();
-					List<SVDBItem> chgs = new ArrayList<SVDBItem>();
-					
-					for (File f : index.getPreProcFileMap().keySet()) {
-						SVDBFile orig_file = index.getPreProcFileMap().get(f);
-						SVDBFile load_file = pp_map.get(f);
-						
-						adds.clear();
-						rems.clear();
-						chgs.clear();
-						
-						SVDBFileMerger.merge(orig_file, load_file, 
-								adds, rems, chgs);
-						
-						if (adds.size() > 0) {
-							System.out.println("" + adds.size() + " adds in pp file \"" + 
-									f.getPath() + "\"");
-						}
-						if (rems.size() > 0) {
-							System.out.println("" + rems.size() + " rems in pp file \"" + 
-									f.getPath() + "\"");
-						}
-						if (chgs.size() > 0) {
-							System.out.println("" + chgs.size() + " chgs in pp file \"" + 
-									f.getPath() + "\"");
-						}
-					}
-					
-					for (File f : index.getFileDB().keySet()) {
-						SVDBFile orig_file = index.getFileDB().get(f);
-						SVDBFile load_file = db_map.get(f);
-						
-						adds.clear();
-						rems.clear();
-						chgs.clear();
-						
-						SVDBFileMerger.merge(orig_file, load_file, 
-								adds, rems, chgs);
-						
-						if (adds.size() > 0) {
-							System.out.println("" + adds.size() + " adds in db file \"" + 
-									f.getPath() + "\"");
-						}
-						if (rems.size() > 0) {
-							System.out.println("" + rems.size() + " rems in db file \"" + 
-									f.getPath() + "\"");
-						}
-						if (chgs.size() > 0) {
-							System.out.println("" + chgs.size() + " chgs in db file \"" + 
-									f.getPath() + "\"");
-						}
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
 				// Delete the index file
 				// index_file.delete();
-				
 			}
 		}
-		
-		// Now, iterate through each saved database and clean up
-		// any leftover saved-database files
-		
 	}
 	
-	private SVDBPersistenceDescriptor findPersistenceDescriptor(String base) {
-		for (SVDBPersistenceDescriptor d : fDatabaseDescriptors) {
+	private SVDBPersistenceDescriptor findPersistenceDescriptor(
+			List<SVDBPersistenceDescriptor>		db_list,
+			String 								base) {
+		for (SVDBPersistenceDescriptor d : db_list) {
 			if (d.getBaseLocation().equals(base)) {
 				return d;
 			}
@@ -289,13 +294,13 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		return null;
 	}
 	
-	private File pickIndexFileName() {
-		if (!fDatabaseDir.exists()) {
-			fDatabaseDir.mkdirs();
+	private static File pickIndexFileName(File db_dir) {
+		if (!db_dir.exists()) {
+			db_dir.mkdirs();
 		}
 		
 		for (int i=0; i<1000000; i++) {
-			File test = new File(fDatabaseDir, "index_" + i + ".db");
+			File test = new File(db_dir, "index_" + i + ".db");
 			
 			if (!test.exists()) {
 				return test;

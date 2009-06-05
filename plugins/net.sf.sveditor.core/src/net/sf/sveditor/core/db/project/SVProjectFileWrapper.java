@@ -295,6 +295,10 @@ public class SVProjectFileWrapper {
 		return fPluginPaths;
 	}
 	
+	public List<SVDBSourceCollection> getSourceCollections() {
+		return fSourceCollections;
+	}
+	
 	public void toStream(OutputStream out) {
 		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
 		// Transformer t = null;
@@ -340,11 +344,16 @@ public class SVProjectFileWrapper {
 	public void init(SVProjectFileWrapper fw) {
 		fIncludePaths.clear();
 		fPluginPaths.clear();
+		fLibraryPaths.clear();
 		fSourceCollections.clear();
 		fBuildPaths.clear();
 		
 		for (SVDBPath p : fw.fIncludePaths) {
 			fIncludePaths.add(p.duplicate());
+		}
+		
+		for (SVDBPath p : fw.getLibraryPaths()) {
+			fLibraryPaths.add(p.duplicate());
 		}
 		
 		for (SVDBPath p : fw.getPluginPaths()) {
@@ -373,15 +382,36 @@ public class SVProjectFileWrapper {
 				}
 			}
 			
-			if (p.fBuildPaths.size() != fBuildPaths.size()) {
+			if (p.fLibraryPaths.size() != fLibraryPaths.size()) {
 				return false;
 			}
-			for (int i=0; i<fBuildPaths.size(); i++) {
-				if (!p.fBuildPaths.get(i).getPath().equals(
-						fBuildPaths.get(i).getPath())) {
+			
+			for (int i=0; i<fLibraryPaths.size(); i++) {
+				if (!p.fLibraryPaths.get(i).equals(fLibraryPaths.get(i))) {
 					return false;
 				}
 			}
+
+			if (fSourceCollections.size() != p.fSourceCollections.size()) {
+				return false;
+			}
+			
+			for (int i=0; i<fSourceCollections.size(); i++) {
+				if (!p.fSourceCollections.get(i).equals(fSourceCollections.get(i))) {
+					return false;
+				}
+			}
+			
+			if (fPluginPaths.size() != p.fPluginPaths.size()) {
+				return false;
+			}
+			
+			for (int i=0; i<fPluginPaths.size(); i++) {
+				if (!p.fPluginPaths.get(i).equals(fPluginPaths.get(i))) {
+					return false;
+				}
+			}
+			
 			return true;
 		}
 		return false;

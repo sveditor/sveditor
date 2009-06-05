@@ -8,6 +8,8 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -47,11 +49,7 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 		
 		int offset = sel.getOffset() + sel.getLength();
 
-		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
-		
-		// Add the live version of the file to the search
-		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(fEditor.getIndex());
+		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 		
 		// Now, iterate through the items in the file and find something
 		// with the same name
@@ -101,7 +99,7 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 
 		OverrideMethodsDialog dlg = new OverrideMethodsDialog(
 				fEditor.getSite().getShell(), 
-				(SVDBModIfcClassDecl)active_scope, searcher);
+				(SVDBModIfcClassDecl)active_scope, index_it);
 
 		System.out.println("open dialog");
 		dlg.setBlockOnOpen(true);

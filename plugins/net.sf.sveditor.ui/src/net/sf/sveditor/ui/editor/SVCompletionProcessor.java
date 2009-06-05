@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -13,12 +12,14 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -38,7 +39,7 @@ import org.eclipse.jface.text.templates.TemplateProposal;
 public class SVCompletionProcessor implements IContentAssistProcessor {
 
 	private SVEditor 	fEditor;
-	private boolean		fDebugEn = false;
+	private boolean		fDebugEn = true;
 
 	private static final char[] PROPOSAL_ACTIVATION_CHARS = { '.', ':' };
 	private static final String fBuiltInMacroProposals[] = { "define",
@@ -123,7 +124,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				pre = doc.get(idx + 1, offset - idx - 1).trim();
 
 				findPreProcProposals(doc, root, trigger, pre, start, proposals);
-
+				
 			} else if (!trigger.equals("")) {
 				
 
@@ -141,11 +142,13 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				}
 			} else {
 				
-				if (c == '(' || c == ',') {
+				System.out.println("c=" + (char)c);
+				
+				if (c == '(' || c == ',' || c == '>' || c == '<') {
 					start = idx+1;
 					
 					// Scan forward to avoid any whitespace
-					while (start < doc.getLength() && 
+					while (start < doc.getLength() && start < offset &&  
 							Character.isWhitespace(doc.getChar(start))) {
 						idx++;
 						start++;
@@ -173,7 +176,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			e.printStackTrace();
 		}
 
-		order_proposals(proposals);
+		order_proposals(pre, proposals);
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
 	}
 
@@ -184,13 +187,27 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	 * 
 	 * @param proposals
 	 */
-	private void order_proposals(List<ICompletionProposal> proposals) {
+	private void order_proposals(String prefix, List<ICompletionProposal> proposals) {
 		for (int i = 0; i < proposals.size(); i++) {
 			ICompletionProposal p_i = proposals.get(i);
 			for (int j = i + 1; j < proposals.size(); j++) {
 				ICompletionProposal p_j = proposals.get(j);
 
 				if (p_i.getDisplayString().compareTo(p_j.getDisplayString()) > 0) {
+					proposals.set(i, p_j);
+					proposals.set(j, p_i);
+					p_i = p_j;
+				}
+			}
+		}
+		
+		for (int i=0; i<proposals.size(); i++) {
+			ICompletionProposal p_i = proposals.get(i);
+			for (int j=i+1; j<proposals.size(); j++) {
+				ICompletionProposal p_j = proposals.get(j);
+				
+				if (prefix.compareTo(p_i.getDisplayString()) >
+						prefix.compareTo(p_j.getDisplayString())) {
 					proposals.set(i, p_j);
 					proposals.set(j, p_i);
 					p_i = p_j;
@@ -218,13 +235,9 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String 						pre,
 			int 						start,
 			List<ICompletionProposal> 	proposals) {
-		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
+		ISVDBIndexIterator index_iterator = fEditor.getIndexIterator();
 		
 		debug("findUntriggeredProposal: root=" + root + " pre=" + pre);
-
-		// Add the live version of the file to the search
-		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(fEditor.getIndex());
 
 		int lineno = 0;
 
@@ -265,7 +278,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 					src_scope, doc, root, trigger, pre, start, proposals);
 
 			if (src_scope.getType() == SVDBItemType.Class) {
-				addClassHierarchyItems(searcher,
+				addClassHierarchyItems(index_iterator,
 						(SVDBModIfcClassDecl) src_scope, doc, root, trigger,
 						pre, start, proposals);
 			}
@@ -287,27 +300,21 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			}
 		}
 
-		ISVDBIndex index = fEditor.getIndex();
+		final String 					pre_f = pre;
+		final IDocument 				doc_f = doc;
+		final int						start_f = start;
+		final List<ICompletionProposal> proposals_f = proposals;
 		
 		// Collect all matching class names from the build path
-		for (SVDBFile f : index.getFileDB().values()) {
-			for (SVDBItem it : f.getItems()) {
-				debug("un-triggered global proposal: " + it.getName());
-				if (it.getType() == SVDBItemType.Class) {
-					if (it.getName() != null && (pre.equals("") 
-							|| isPrefix(pre, it))) {
-						addProposal(it, doc, start, pre.length(), proposals);
-					}
-				} else if (it.getType() == SVDBItemType.PackageDecl) {
-					for (SVDBItem it_1 : ((SVDBScopeItem)it).getItems()) {
-						if (it_1.getType() == SVDBItemType.Class) {
-							if (it_1.getName() != null && (pre.equals("") 
-									|| isPrefix(pre, it_1))) {
-								addProposal(it_1, doc, start, pre.length(), proposals);
-							}
-						}
-					}
-				}
+		ISVDBItemIterator<SVDBItem> item_it = index_iterator.getItemIterator();
+		
+		while (item_it.hasNext()) {
+			SVDBItem it = item_it.nextItem();
+			
+			if (it.getName() != null && 
+					(it.getType() != SVDBItemType.File) &&
+					(pre_f.equals("") || isPrefix(pre_f, it))) {
+				addProposal(it, doc_f, start_f, pre_f.length(), proposals_f);
 			}
 		}
 	}
@@ -333,7 +340,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String				pre,
 			int					start,
 			List<ICompletionProposal> proposals) {
-		SVDBIndexSearcher searcher = new SVDBIndexSearcher();
+		ISVDBIndexIterator index_iterator = fEditor.getIndexIterator();
 		
 		debug("findTriggeredProposals: " + src_scope.getName() + 
 				" pre=" + pre + " trigger=" + trigger);
@@ -343,29 +350,42 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 				viewer.getDocument().getChar(pre_trigger_idx));
 		} catch (Exception e) { }
 		
-		// Add the live version of the file to the search
-		searcher.addFile(fEditor.getSVDBFile());
-		searcher.addIndex(fEditor.getIndex());
-		
 		String preTrigger = SVExpressionUtils.extractPreTriggerPortion(
 				viewer.getDocument(), pre_trigger_idx, false);
 		
 		debug("    preTrigger=" + preTrigger);
 		List<SVDBItem> info = SVExpressionUtils.processPreTriggerPortion(
-				searcher, src_scope, preTrigger, true);
+				index_iterator, src_scope, preTrigger, true);
 		
-		List<SVDBItem> result = new ArrayList<SVDBItem>();
+		final List<SVDBItem> result_f = new ArrayList<SVDBItem>();
 		
 		if (info != null && info.size() > 0) {
 			// Get the last item
 			SVDBItem res = info.get(info.size()-1);
+			final String pre_f = pre;
 			
 			debug("use " + res.getName());
-			result.addAll(searcher.findByPrefixInTypeHierarchy(
-					pre, (SVDBScopeItem)res, null)); 
+			
+			SVDBModIfcClassDecl res_c = (SVDBModIfcClassDecl)res;
+			SVDBFindSuperClass finder_sc = new SVDBFindSuperClass(index_iterator);
+
+			while (res_c != null) {
+				
+				for (SVDBItem it : res_c.getItems()) {
+					if (isPrefix(pre_f, it)) {
+						result_f.add(it);
+					}
+				}
+
+				if (res_c.getSuperClass() != null) {
+					res_c = finder_sc.find(res_c);
+				} else {
+					res_c = null;
+				}
+			}
 		}
 		
-		for (SVDBItem it : result) {
+		for (SVDBItem it : result_f) {
 			addProposal(it, viewer.getDocument(), start, pre.length(), proposals);
 		}
 	}
@@ -401,23 +421,31 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 	 * @param start
 	 * @param proposals
 	 */
-	private void addClassHierarchyItems(SVDBIndexSearcher searcher,
-			SVDBModIfcClassDecl src_scope, IDocument doc, String root,
-			String trigger, String pre, int start,
-			List<ICompletionProposal> proposals) {
+	private void addClassHierarchyItems(
+			ISVDBIndexIterator			index_it,
+			SVDBModIfcClassDecl 		src_scope, 
+			IDocument 					doc, 
+			String 						root,
+			String 						trigger, 
+			String 						pre, 
+			int 						start,
+			List<ICompletionProposal> 	proposals) {
 		debug("addClassHierarchyItems()");
 
 		while (true) {
 			debug("src_scope=" + src_scope.getName()
 					+ " superClass=" + src_scope.getSuperClass());
 			SVDBModIfcClassDecl src_scope_t = src_scope;
+			SVDBFindNamedModIfcClassIfc finder_class =
+				new SVDBFindNamedModIfcClassIfc(index_it);
+			
 			if (src_scope.getSuperClass() == null
-					|| (src_scope = searcher.findNamedModClassIfc(src_scope
-							.getSuperClass())) == null) {
+					|| (src_scope = finder_class.find(
+							src_scope.getSuperClass())) == null) {
 				debug("End expansion: " + src_scope_t.getName());
 				debug("    SuperClass="	+ src_scope_t.getSuperClass());
 				debug("    Find="
-						+ searcher.findNamedModClassIfc(src_scope_t.getSuperClass()));
+						+ finder_class.find(src_scope_t.getSuperClass()));
 				break;
 			}
 
@@ -441,7 +469,7 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			String 						pre,
 			int 						start, 
 			List<ICompletionProposal>	proposals) {
-		ISVDBIndex index = fEditor.getIndex();
+		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 
 		if (pre.startsWith("include")) {
 			boolean leading_quote = false, trailing_quote = false;
@@ -467,31 +495,48 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 			}
 
 			// look for include files that match the user-specified pattern
-			for (SVDBFile f : index.getFileDB().values()) {
-				File file = new File(f.getName());
-
-				if (file.getName().toLowerCase().startsWith(post_include.toLowerCase())) {
+			final String 					pre_f = pre;
+			final IDocument 				doc_f = doc;
+			final int						start_f = start;
+			final List<ICompletionProposal> proposals_f = proposals;
+			final boolean leading_quote_f = leading_quote;
+			final boolean trailing_quote_f = trailing_quote;
+			final String post_include_f = post_include;
+			
+			// Collect all matching class names from the build path
+			ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
+			
+			while (item_it.hasNext()) {
+				SVDBItem it = item_it.nextItem();
+				
+				if (it.getType() != SVDBItemType.Include) {
+					continue;
+				}
+				
+				File file = new File(it.getName());
+				
+				if (file.getName().toLowerCase().startsWith(post_include_f.toLowerCase())) {
 					display = file.getName();
 					replacement = file.getName();
 
 					// Add quotes in if not present already...
-					if (!leading_quote) {
+					if (!leading_quote_f) {
 						replacement = "\"" + replacement;
 					}
-					if (!trailing_quote) {
+					if (!trailing_quote_f) {
 						replacement += "\"";
 					}
 
-					int replacement_length = post_include.length();
+					int replacement_length = post_include_f.length();
 					// replacementString
 					// replacementOffset
 					// replacementLength
 					// cursorPosition
 					addProposal(new CompletionProposal(replacement,
-							start, replacement_length,
+							start_f, replacement_length,
 							replacement.length(), 
 							SVUiPlugin.getImage(ISVIcons.INCLUDE_OBJ),
-							display, null, null), proposals);
+							display, null, null), proposals_f);
 				}
 			}
 		} else {
@@ -501,10 +546,24 @@ public class SVCompletionProcessor implements IContentAssistProcessor {
 							.length(), p.length()), proposals);
 				}
 			}
-			// Collect matching macro names from the build path
+			// TODO: Collect matching macro names from the build path
+			/*
 			for (SVDBFile f : index.getPreProcFileMap().values()) {
 				addMacroProposals(pre, f, doc, start, proposals);
 			}
+			 */
+			
+			ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
+			
+			while (item_it.hasNext()) {
+				SVDBItem it = item_it.nextItem();
+				
+				if (isPrefix(pre, it)) {
+					addProposal(it, doc, start, pre.length(), proposals);
+				}
+				System.out.println("it=" + it.getName());
+			}
+			System.out.println("[TODO] Collect matching macro names from build path");
 		}
 	}
 	

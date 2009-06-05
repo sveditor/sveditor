@@ -1,6 +1,8 @@
 package net.sf.sveditor.ui.prop_pages;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -20,6 +22,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 public class WorkspaceFileDialog extends Dialog {
 	private String 				fPathStr;
 	private TreeViewer			fTreeViewer;
+	private boolean				fSelectFiles = true;
 	
 	
 	public WorkspaceFileDialog(Shell shell) {
@@ -28,6 +31,10 @@ public class WorkspaceFileDialog extends Dialog {
 
 	public String getPath() {
 		return fPathStr;
+	}
+	
+	public void setSelectFiles(boolean sel_files) {
+		fSelectFiles = sel_files;
 	}
 	
 	@Override
@@ -49,12 +56,22 @@ public class WorkspaceFileDialog extends Dialog {
 		fTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
-				if (sel.getFirstElement() != null && 
-						sel.getFirstElement() instanceof IFile) {
-					fPathStr = ((IFile)sel.getFirstElement()).getFullPath().toOSString();
-					getButton(IDialogConstants.OK_ID).setEnabled(true);
+				if (fSelectFiles) {
+					if (sel.getFirstElement() != null && 
+							sel.getFirstElement() instanceof IFile) {
+						fPathStr = ((IFile)sel.getFirstElement()).getFullPath().toOSString();
+						getButton(IDialogConstants.OK_ID).setEnabled(true);
+					} else {
+						getButton(IDialogConstants.OK_ID).setEnabled(false);
+					}
 				} else {
-					getButton(IDialogConstants.OK_ID).setEnabled(false);
+					if (sel.getFirstElement() != null && 
+							sel.getFirstElement() instanceof IContainer) {
+						fPathStr = ((IContainer)sel.getFirstElement()).getFullPath().toOSString();
+						getButton(IDialogConstants.OK_ID).setEnabled(true);
+					} else {
+						getButton(IDialogConstants.OK_ID).setEnabled(false);
+					}
 				}
 			}
 		});

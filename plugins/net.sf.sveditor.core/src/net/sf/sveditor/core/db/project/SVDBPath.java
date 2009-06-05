@@ -5,7 +5,12 @@ public class SVDBPath {
 	
 	private String					fPath;
 	private boolean					fPhantom;
-	
+
+	public SVDBPath(String path) {
+		fPath        = path;
+		fPhantom     = false;
+	}
+
 	public SVDBPath(String path, boolean is_phantom) {
 		fPath        = path;
 		fPhantom     = is_phantom;

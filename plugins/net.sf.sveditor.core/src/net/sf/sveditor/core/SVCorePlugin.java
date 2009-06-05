@@ -1,15 +1,13 @@
 package net.sf.sveditor.core;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexList;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVDBSourceCollection;
+import net.sf.sveditor.core.fileset.SVFileSet;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -32,7 +30,6 @@ public class SVCorePlugin extends Plugin {
 	private SVDBWorkspaceFileManager		fSVDBMgr;
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
-	private SVDBIndexList					fBuiltinList;	
 	private SVDBIndexRegistry				fIndexRegistry;
 	
 	/**
@@ -49,8 +46,6 @@ public class SVCorePlugin extends Plugin {
 		super.start(context);
 		fPlugin = this;
 		fTodoScanner = new SVTodoScanner();
-		
-		loadBuiltInLibraries();
 	}
 
 	/*
@@ -141,91 +136,32 @@ public class SVCorePlugin extends Plugin {
 	
 	public SVDBIndexRegistry getSVDBIndexRegistry() {
 		if (fIndexRegistry == null) {
-			fIndexRegistry = new SVDBIndexRegistry(getStateLocation());
+			fIndexRegistry = new SVDBIndexRegistry();
+			fIndexRegistry.init(getStateLocation().toFile());
 		}
 		
 		return fIndexRegistry;
 	}
 	
-	private void loadBuiltInLibraries() {
-		fBuiltinList = new SVDBIndexList(new File("BUILTIN"));
-		
-		SVDBIndexRegistry index_rgy = getSVDBIndexRegistry();
-		
-		
-		for (SVDBPluginLibDescriptor lib_desc : getPluginLibList()) {
-			ISVDBIndex index = index_rgy.findCreateIndex(
-					"plugin:/" + lib_desc.getNamespace() + "/" + lib_desc.getPath(), 
-					ISVDBIndexFactory.TYPE_PluginLibIndex);
-			
-			fBuiltinList.addIndex(index);
-		}
-
-		/*
-		File index_dir = new File("/tmp/index_dir");
-		
-		if (!index_dir.isDirectory()) {
-			index_dir.mkdirs();
-		}
-		
-		for (SVDBPluginLibDescriptor lib_desc : getPluginLibList()) {
-			SVDBPluginLibIndex index = new SVDBPluginLibIndex(
-					lib_desc.getName(), lib_desc.getNamespace(),
-					lib_desc.getPath());
-			
-			try {
-				SVDBDump dumper = new SVDBDump();
-				
-				OutputStream out = new FileOutputStream(
-						new File(index_dir, index.toString() + ".db"));
-				BufferedOutputStream out_b = new BufferedOutputStream(out);
-				
-				
-				long start = System.currentTimeMillis();
-				index.getPreProcFileMap();
-				index.getFileDB();
-				long end = System.currentTimeMillis();
-				
-				start = System.currentTimeMillis();
-				dumper.dump(index, out_b);
-				end = System.currentTimeMillis();
-				
-				System.out.println("dump " + lib_desc.getName() + " in " + 
-						(end-start));
-				
-				out_b.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				SVDBLoad load = new SVDBLoad();
-				
-				InputStream in = new FileInputStream(
-						new File(index_dir, index.toString() + ".db"));
-				
-				long start = System.currentTimeMillis();
-				load.load(index, in);
-				long end = System.currentTimeMillis();
-				
-				System.out.println("load " + lib_desc.getName() + " in " +
-						(end-start));
-				
-				in.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			fBuiltinList.addIndex(index);
-		}
-		 */
+	public String getDefaultSourceCollectionIncludes() {
+		return "**/*.sv, **/*.svh, **/*.v, **/*.vl, **/*.vlog";
 	}
 	
-	public ISVDBIndex getBuiltinIndex() {
-		if (fBuiltinList == null) {
-			loadBuiltInLibraries();
+	public String getDefaultSourceCollectionExcludes() {
+		return "**/.svn/**, **/CVS/**";
+	}
+	
+	public SVFileSet getDefaultFileSet(String base) {
+		SVFileSet ret = new SVFileSet(base);
+		
+		for (String inc : SVDBSourceCollection.parsePatternList(getDefaultSourceCollectionIncludes())) {
+			ret.addInclude(inc);
 		}
-		return fBuiltinList;
+		for (String exc : SVDBSourceCollection.parsePatternList(getDefaultSourceCollectionExcludes())) {
+			ret.addExclude(exc);
+		}
+		
+		return ret;
 	}
 }
 

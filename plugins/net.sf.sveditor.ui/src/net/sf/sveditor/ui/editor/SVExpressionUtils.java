@@ -2,6 +2,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -9,6 +10,14 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
+import net.sf.sveditor.core.db.search.SVDBFindByName;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 
@@ -44,7 +53,9 @@ public class SVExpressionUtils {
 		int last_nws_ch = -1;
 		String end_match[] = { "nde", // end
 				"nigeb", // begin
-				";" };
+				";",
+				"*/",
+				"//"};
 
 		try {
 			while (idx >= 0) {
@@ -52,6 +63,7 @@ public class SVExpressionUtils {
 				// Skip whitespace
 				while (idx >= 0
 						&& Character.isWhitespace((ch = doc.getChar(idx)))) {
+					tmp.append((char)ch);
 					idx--;
 				}
 
@@ -89,16 +101,26 @@ public class SVExpressionUtils {
 				last_nws_ch = ch;
 				idx--;
 
-				boolean found_end = false;
+				String end = null;
 				for (int i = 0; i < end_match.length; i++) {
 					if (tmp.toString().endsWith(end_match[i])) {
 						tmp.setLength(tmp.length() - end_match[i].length());
-						found_end = true;
+						System.out.println("matched \"" + end_match[i] + "\"");
+						end = end_match[i];
 						break;
 					}
 				}
 
-				if (found_end) {
+				if (end != null) {
+					if (end.equals("//")) {
+						// We scanned to the beginning of a comment. 
+						// backtrack now
+						int i=tmp.length();
+						while (i>0 && tmp.charAt(i-1) != '\n') {
+							i--;
+						}
+						tmp.setLength(i);
+					}
 					break;
 				}
 			}
@@ -106,7 +128,7 @@ public class SVExpressionUtils {
 			e.printStackTrace();
 		}
 
-		return tmp.reverse().toString();
+		return tmp.reverse().toString().trim();
 	}
 	
 	
@@ -119,14 +141,14 @@ public class SVExpressionUtils {
 	 * @return
 	 */
 	public static List<SVDBItem> processPreTriggerPortion(
-			SVDBIndexSearcher			searcher,
+			ISVDBIndexIterator			index_it,
 			SVDBScopeItem				context,
 			String						preTrigger,
 			boolean						allowNonClassLastElem) {
 		List<SVDBItem> item_list = new ArrayList<SVDBItem>();
 		
 		int ret = processPreTriggerPortion(0, null, item_list, 
-				searcher, context, preTrigger, allowNonClassLastElem);
+				index_it, context, preTrigger, allowNonClassLastElem);
 		
 		if (ret == -1) {
 			return null;
@@ -162,7 +184,7 @@ public class SVExpressionUtils {
 			int							idx,
 			String						preceeding_activator,
 			List<SVDBItem>				item_list,
-			SVDBIndexSearcher			searcher,
+			ISVDBIndexIterator			index_it,
 			SVDBScopeItem				context,
 			String						preTrigger,
 			boolean						resolveFinalReturnType) {
@@ -180,7 +202,7 @@ public class SVExpressionUtils {
 				// recursively expand
 				idx = processPreTriggerPortion(
 						idx, preceeding_activator, item_list,
-						searcher, context, preTrigger, resolveFinalReturnType);
+						index_it, context, preTrigger, resolveFinalReturnType);
 				
 				// Give up because the lower-level parser did...
 				if (idx == -1) {
@@ -232,7 +254,11 @@ public class SVExpressionUtils {
 
 							// Browse up the search context to reach the class scope
 							// TODO: Also want to support package-scope items (?)
-							matches = searcher.findByNameInScopes(id, context, true);
+							
+							SVDBFindByNameInScopes finder_scopes =
+								new SVDBFindByNameInScopes(index_it);
+							
+							matches = finder_scopes.find(context, id, true);
 
 							debug("first-item search for \"" + id + 
 									"\" returned " + matches.size() + " matches");
@@ -243,10 +269,13 @@ public class SVExpressionUtils {
 						} else {
 							search_ctxt = item_list.get(item_list.size()-1);
 							
-							matches = searcher.findByNameInClassHierarchy(
-										id, (SVDBScopeItem)search_ctxt, 
-										SVDBItemType.Function);
-
+							SVDBFindByNameInClassHierarchy finder_h =
+								new SVDBFindByNameInClassHierarchy(index_it);
+							
+							
+							matches = finder_h.find((SVDBScopeItem)search_ctxt, id,
+									SVDBItemType.Function);
+								
 							debug("next-item search for \"" + id + 
 									"\" in \"" + search_ctxt.getName() + 
 									"\" returned " + matches.size() + " matches");
@@ -269,9 +298,10 @@ public class SVExpressionUtils {
 						// ' indicates this is a type name
 						// TODO: We don't yet have the infrastructure to deal with types
 						type_name = id;
-						List<SVDBItem> result = searcher.findByName(id,
+						SVDBFindByName finder_name = new SVDBFindByName(index_it);
+						
+						List<SVDBItem> result = finder_name.find(id,
 								SVDBItemType.Class, SVDBItemType.Struct);
-
 					}
 
 					// Skip '()'
@@ -304,7 +334,9 @@ public class SVExpressionUtils {
 					// it's not the last element in the string or
 					// we want the type resolved
 					if (idx < preTrigger.length() || resolveFinalReturnType) {
-						List<SVDBItem> result = searcher.findByName(type_name, 
+						SVDBFindByName finder_name = new SVDBFindByName(index_it);
+						
+						List<SVDBItem> result = finder_name.find(type_name, 
 								SVDBItemType.Struct, SVDBItemType.Class);
 
 						if (result.size() > 0) {
@@ -342,23 +374,32 @@ public class SVExpressionUtils {
 								if (id.equals("this")) {
 									matches.add(class_type);
 								} else {
-									class_type = searcher.findSuperClass(class_type);
+									SVDBFindSuperClass super_finder =
+										new SVDBFindSuperClass(index_it);
+									
+									class_type = super_finder.find(class_type);
+									
 									if (class_type != null) {
 										matches.add(class_type);
 									}
 								}
 							}
 						} else {
-							matches = searcher.findVarsByNameInScopes(
-									id, context, true);
+							SVDBFindVarsByNameInScopes finder =
+								new SVDBFindVarsByNameInScopes(index_it);
+							
+							matches = finder.find(context, id, true);
+							
+							System.out.println("matches.size=" + matches.size());
 
 							if (matches == null || matches.size() == 0) {
 								SVDBModIfcClassDecl class_type = 
 									SVDBSearchUtils.findClassScope(context);
 
 								if (class_type != null) {
-									matches = searcher.findByNameInClassHierarchy(
-											id, class_type);
+									SVDBFindByNameInClassHierarchy finder_c = 
+										new SVDBFindByNameInClassHierarchy(index_it);
+									matches = finder_c.find((SVDBScopeItem)class_type, id);
 								}
 							}
 						}
@@ -369,8 +410,9 @@ public class SVExpressionUtils {
 
 						debug("Searching type \"" + 
 								search_ctxt.getName() + "\" for id=\"" + id + "\"");
-						matches = searcher.findByNameInClassHierarchy(
-								id, (SVDBScopeItem)search_ctxt);
+						SVDBFindByNameInClassHierarchy finder = 
+							new SVDBFindByNameInClassHierarchy(index_it);
+						matches = finder.find((SVDBScopeItem)search_ctxt, id);
 					}
 					
 //					debug("    result is " + matches.size() + " elements");
@@ -383,11 +425,14 @@ public class SVExpressionUtils {
 					item_list.add(field);
 					
 					SVDBItem type = null;
-					
+
+					System.out.println("field=" + field);
 					if (field instanceof SVDBModIfcClassDecl) {
 						type = field;
 					} else {
-						type = searcher.findNamedModClassIfc(((SVDBVarDeclItem)field).getTypeName());
+						SVDBFindNamedModIfcClassIfc finder = 
+							new SVDBFindNamedModIfcClassIfc(index_it);
+						type = finder.find(((SVDBVarDeclItem)field).getTypeName());
 					}
 							
 					
@@ -398,6 +443,7 @@ public class SVExpressionUtils {
 					}
 					
 					// TODO: lookup type of field
+					debug("Adding type \"" + type.getName() + "\" to proposal list");
 					item_list.add(type);
 				}
 			} else {

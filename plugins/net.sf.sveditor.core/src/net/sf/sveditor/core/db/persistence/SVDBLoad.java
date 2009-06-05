@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db.persistence;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
+import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -109,7 +109,7 @@ public class SVDBLoad implements IDBReader {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void load(Map<File, SVDBFile> pp_map, Map<File, SVDBFile> db_map, InputStream in)  throws DBFormatException {
+	public void load(Map<String, SVDBFile> pp_map, Map<String, SVDBFile> db_map, InputStream in)  throws DBFormatException {
 		fIn = in;
 		fUngetCh = -1;
 		fBufIdx  = 0;
@@ -412,6 +412,10 @@ public class SVDBLoad implements IDBReader {
 				ret = new SVDBModIfcClassDecl(file, parent, type, this);
 				break;
 				
+			case Program:
+				ret = new SVDBProgramBlock(file, parent, type, this);
+				break;
+				
 			case Covergroup:
 				ret = new SVDBCoverGroup(file, parent, type, this);
 				break;
@@ -458,8 +462,6 @@ public class SVDBLoad implements IDBReader {
 				
 			case PreProcCond:
 				ret = new SVDBPreProcCond(file, parent, type, this);
-				System.out.println("loaded PreProcCond: " +
-						((SVDBPreProcCond)ret).getConditional());
 				break;
 				
 			case Property:

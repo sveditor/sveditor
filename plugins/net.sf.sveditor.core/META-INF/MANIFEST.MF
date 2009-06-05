@@ -11,14 +11,20 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.core.resources,
  org.eclipse.core.filesystem,
- org.eclipse.ant.core;bundle-version="3.2.0",
- org.apache.ant;bundle-version="1.7.0"
+ org.eclipse.ant.core,
+ org.apache.ant,
+ org.eclipse.core.variables
 Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.db,
  net.sf.sveditor.core.db.index,
+ net.sf.sveditor.core.db.index.plugin_lib,
+ net.sf.sveditor.core.db.index.src_collection,
+ net.sf.sveditor.core.db.persistence,
  net.sf.sveditor.core.db.project,
+ net.sf.sveditor.core.db.search,
  net.sf.sveditor.core.db.utils,
+ net.sf.sveditor.core.parser,
  net.sf.sveditor.core.scanner,
  net.sf.sveditor.core.scanutils
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

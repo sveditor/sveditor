@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileMerger;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -66,6 +64,7 @@ public class SVDBWorkspaceFileManager
 		// fWS.removeResourceChangeListener(this);
 	}
 	
+	/*
 	public void setLiveSource(IFile ifile, SVDBFile in) {
 		List<SVDBItem> adds = new ArrayList<SVDBItem>();
 		List<SVDBItem> rem  = new ArrayList<SVDBItem>();
@@ -115,6 +114,7 @@ public class SVDBWorkspaceFileManager
 			}
 		}
 	}
+	 */
 
 	/*
 	public void resourceChanged(IResourceChangeEvent event) {
@@ -203,7 +203,9 @@ public class SVDBWorkspaceFileManager
 			if (fFileCache.containsKey(file)) {
 				return fFileCache.get(file);
 			} else {
-				return pd.getFileIndex().findFile(f.getLocation().toFile());
+				// TODO: Want to do something far simpler. Just scan the file
+				// (without expanding macros)
+				// return pd.getFileIndex().findFile(f.getLocation().toFile());
 			}
 		} else {
 			System.out.println("[ERROR] failed to locate project data for \"" + 

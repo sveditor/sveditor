@@ -7,6 +7,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -29,9 +32,9 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	public OverrideMethodsDialog(
 			Shell						parent,
 			SVDBModIfcClassDecl			leaf_class,
-			SVDBIndexSearcher			index_searcher) {
+			ISVDBIndexIterator			index_it) {
 		super(parent, new SVTreeLabelProvider(), 
-		new OverrideMethodsContentProvider(leaf_class, index_searcher));
+		new OverrideMethodsContentProvider(leaf_class, index_it));
 
 		fLeafClass     = leaf_class;
 		setInput(fLeafClass);
@@ -81,14 +84,14 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	
 	private static class OverrideMethodsContentProvider implements ITreeContentProvider {
 		private SVDBModIfcClassDecl				fLeafClass;
-		private SVDBIndexSearcher				fIndexSearcher;
+		private ISVDBIndexIterator				fIndexIterator;
 		private Object							fEmptyList[] = new Object[0];
 		
 		public OverrideMethodsContentProvider(
 				SVDBModIfcClassDecl			leaf_class,
-				SVDBIndexSearcher			index_searcher) {
-			fLeafClass = leaf_class;
-			fIndexSearcher = index_searcher;
+				ISVDBIndexIterator			index_it) {
+			fLeafClass 		= leaf_class;
+			fIndexIterator 	= index_it;
 		}
 		
 		
@@ -96,9 +99,12 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 			List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
 
 			SVDBModIfcClassDecl cl = fLeafClass;
+			SVDBFindSuperClass  finder_super = 
+				new SVDBFindSuperClass(fIndexIterator);
 
 			while (cl != null) {
-				cl = fIndexSearcher.findSuperClass(cl);
+				
+				cl = finder_super.find(cl);
 				
 				if (cl != null && classHasOverrideTargets(cl)) {
 					ret.add(cl);

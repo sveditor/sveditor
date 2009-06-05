@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
@@ -237,7 +237,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		if (m.getDef() == null) {
 			System.out.println("Macro \"" + m.getName() + "\" @ " + 
-					m.getLocation().getFile().getFilePath().getPath() + ":" +
+					m.getLocation().getFile().getFilePath() + ":" +
 					m.getLocation().getLine() + " is null");
 		}
 		
@@ -550,7 +550,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				debug_s("    searching included file \"" + inc.getFilePath() + "\"");
 				if (inc.getSVDBFile() == null) {
 					System.out.println("[TODO] do lookup of inc file \"" + 
-							inc.getFilePath().getPath() + "\"");
+							inc.getFilePath() + "\"");
 				} else {
 					if ((m = searchDown(inc, key)) != null) {
 						break;

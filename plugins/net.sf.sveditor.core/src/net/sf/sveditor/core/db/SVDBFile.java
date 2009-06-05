@@ -7,41 +7,49 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBFile extends SVDBScopeItem {
-	private long						fLastParseTimeStamp;
-	private File						fFile;
+	private long						fLastModified;
+	private String						fFile;
 	
-	public SVDBFile(File file) {
-		super(file.getName(), SVDBItemType.File);
+	public SVDBFile(String file) {
+		super(new File(file).getName(), SVDBItemType.File);
 		fFile               = file;
-		fLastParseTimeStamp = fFile.lastModified();
 	}
-	
-	public SVDBFile(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+
+	public SVDBFile(String file, long lastModified) {
+		this(file);
+		
+		fLastModified = lastModified;
+	}
+
+	public SVDBFile(
+			SVDBFile file, 
+			SVDBScopeItem parent, 
+			SVDBItemType type, 
+			IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
-		fFile               = new File(reader.readString());
-		fLastParseTimeStamp = reader.readLong();
+		fFile               = reader.readString();
+		fLastModified 		= reader.readLong();
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		writer.writeString(fFile.getPath());
-		writer.writeLong(fLastParseTimeStamp);
+		writer.writeString(fFile);
+		writer.writeLong(fLastModified);
 	}
 	
-	
-	public long getLastParseTime() {
-		return fLastParseTimeStamp;
+	public long getLastModified() {
+		return fLastModified;
 	}
 	
-	public boolean isUpToDate() {
-		return (fFile.lastModified() <= fLastParseTimeStamp);
+	public void setLastModified(long lastModified) {
+		fLastModified = lastModified;
 	}
 	
-	public File getFilePath() {
+	public String getFilePath() {
 		return fFile;
 	}
 	
-	public void setFilePath(File file) {
+	public void setFilePath(String file) {
 		fFile = file;
 	}
 	
@@ -57,7 +65,7 @@ public class SVDBFile extends SVDBScopeItem {
 		super.init(other);
 
 		fFile               = ((SVDBFile)other).fFile;
-		fLastParseTimeStamp = ((SVDBFile)other).fLastParseTimeStamp;
+		fLastModified = ((SVDBFile)other).fLastModified;
 	}
 	
 }

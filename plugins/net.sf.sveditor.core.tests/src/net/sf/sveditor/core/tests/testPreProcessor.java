@@ -6,11 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBFilesystemIndex;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.src_collection.SVDBFilesystemSourceCollectionIndex;
+import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -24,9 +27,11 @@ public class testPreProcessor implements IApplication {
 		SVDBFilesystemIndex ovm = new SVDBFilesystemIndex(
 				new File("/tools/ovm/ovm-2.0.1/src"), ISVDBIndex.IT_BuildPath);
 		 */
-		SVDBFilesystemIndex ovm = new SVDBFilesystemIndex(
-				new File("/usr1/fun/sveditor/uart_ovm_testbench_trunk"),
-				ISVDBIndex.IT_BuildPath);
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC", "/usr1/fun/sveditor",
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
 		// String filename = "/tools/ovm/ovm-2.0.1/src/base/ovm_factory.sv";
 		String filename = "/usr1/fun/sveditor/uart_ovm_testbench_trunk/inFact/uart_iVCs_ovm/uart_scenario_generator/uart_scenario_generator.svh";
 		
@@ -34,13 +39,14 @@ public class testPreProcessor implements IApplication {
 		
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
 
-		Map<File, SVDBFile> pp_map = ovm.getPreProcFileMap();
+		Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
 		
 		SVDBFile scen_gen = pp_map.get(new File(filename));
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 		
 		System.out.println("--> createFileContext()");
-		SVDBFileTree scen_gen_ctxt = ft_utils.createFileContext(scen_gen, pp_map);
+		// TODO: need to provide IncludeProvider
+		SVDBFileTree scen_gen_ctxt = ft_utils.createFileContext(scen_gen, null); 
 		System.out.println("<-- createFileContext()");
 		
 		/*
