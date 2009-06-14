@@ -2,8 +2,6 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVDBWorkspaceFileManager;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
@@ -27,7 +25,6 @@ public class SVOutlinePage extends ContentOutlinePage
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
 	private boolean						fIgnoreSelection = false;
-	private SVDBWorkspaceFileManager	fFileManager;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -48,9 +45,6 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
-		
-		fFileManager = SVCorePlugin.getDefault().getSVDBMgr();
-		fFileManager.addSVDBChangeListener(this);
 	}
 
 	

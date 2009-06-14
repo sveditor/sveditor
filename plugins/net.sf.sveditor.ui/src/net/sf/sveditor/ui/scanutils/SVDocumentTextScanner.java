@@ -28,6 +28,12 @@ public class SVDocumentTextScanner
 		fUngetCh = -1;
 	}
 	
+	public SVDocumentTextScanner(
+			IDocument 				doc,
+			int						offset) {
+		this(doc, "", offset, true);
+	}
+	
 	public void setScanFwd(boolean scan_fwd) {
 		// TODO: I'm not sure switching directions is quite so simple
 		fScanFwd = scan_fwd;
@@ -35,6 +41,25 @@ public class SVDocumentTextScanner
 	
 	public boolean getScanFwd() {
 		return fScanFwd;
+	}
+	
+	public long getPos() {
+		return (long)fOffset;
+	}
+	
+	public void seek(long pos) {
+		fOffset = (int)pos;
+		fUngetCh = -1;
+	}
+	
+	@Override
+	public String get_str(long start, int length) {
+		try {
+			return fDoc.get((int)start, length);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public ScanLocation getLocation() {

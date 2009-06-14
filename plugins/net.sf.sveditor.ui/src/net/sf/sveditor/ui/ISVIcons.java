@@ -21,6 +21,8 @@ public interface ISVIcons {
 	String FIELD_PRIV_OBJ = DECL_ICONS + "field_private_obj.gif";
 	String FIELD_PROT_OBJ = DECL_ICONS + "field_protected_obj.gif";
 	String FIELD_PUB_OBJ = DECL_ICONS + "field_public_obj.gif";
+	
+	String CONSTRAINT_OBJ = OBJ_ICONS + "constraint_obj.gif";
 
 	String TASK_PRIV_OBJ = DECL_ICONS + "private_co.gif";
 	String TASK_PROT_OBJ = DECL_ICONS + "protected_co.gif";

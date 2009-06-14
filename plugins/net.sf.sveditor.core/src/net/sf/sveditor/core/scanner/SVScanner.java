@@ -106,8 +106,10 @@ public class SVScanner implements ISVScanner {
 						process_struct_decl();
 					} else if (id.equals("package") || id.equals("endpackage")) {
 						process_package(id);
-					} else if (id.equals("import") || id.equals("export")) {
-						process_import_export(id);
+					} else if (id.equals("import")) {
+						process_import(id);
+					} else if (id.equals("export")) {
+						process_export(id);
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
@@ -164,12 +166,20 @@ public class SVScanner implements ISVScanner {
 		
 		ch = skipWhite(ch);
 		
-		/* String cname = */ readIdentifier(ch);
+		String cname = readIdentifier(ch);
 		
 		ch = skipWhite(get_ch());
 		
 		if (ch == '{') {
+			startCapture();
 			ch = skipPastMatch("{}");
+			String expr = endCapture();
+			
+			expr = expr.substring(0, expr.length()-2);
+			
+			if (fObserver != null) {
+				fObserver.constraint(cname, expr);
+			}
 		}
 	}
 	
@@ -217,10 +227,7 @@ public class SVScanner implements ISVScanner {
 					ch = skipWhite(next_ch());
 					String name = id;
 					
-//					System.out.println("ch=" + (char)ch);
 					String type = readIdentifier(ch);
-					
-//					System.out.println("name=" + name + " type=" + type);
 					
 					if (fObserver != null) {
 						fObserver.covergroup_item(name, type);
@@ -748,7 +755,7 @@ public class SVScanner implements ISVScanner {
 		return ret;
 	}
 	
-	private void process_import_export(String type) throws EOFException {
+	private void process_import(String type) throws EOFException {
 		int ch = skipWhite(next_ch());
 		
 		if (ch == '"') {
@@ -788,6 +795,28 @@ public class SVScanner implements ISVScanner {
 			if (ch == ';') {
 				unget_ch(ch);
 			}
+		}
+	}
+	
+	private void process_export(String type) throws EOFException {
+		int ch = skipWhite(next_ch());
+
+		String qualifier = readString(ch);
+		
+		if (qualifier != null && qualifier.equals("DPI") || qualifier.equals("DPI-C")) {
+			ch = skipWhite(get_ch());
+			
+			String kind = readIdentifier(ch);
+			
+			ch = skipWhite(get_ch());
+			
+			String id = readIdentifier(ch);
+			
+			if (kind != null && id != null) {
+				
+			}
+			
+			System.out.println("EXPORT \"" + kind + "\" \"" + id + "\"");
 		}
 	}
 	
@@ -869,7 +898,7 @@ public class SVScanner implements ISVScanner {
 			process_sequence(id);
 		} else if (id.equals("import")) {
 			unget_ch(ch);
-			process_import_export(id);
+			process_import(id);
 		} else if (id.startsWith("end")) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.

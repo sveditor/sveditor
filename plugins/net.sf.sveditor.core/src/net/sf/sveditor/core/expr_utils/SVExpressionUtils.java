@@ -1,8 +1,7 @@
-package net.sf.sveditor.ui.editor;
+package net.sf.sveditor.core.expr_utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -11,18 +10,14 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
-import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
+import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 public class SVExpressionUtils {
 	
@@ -45,10 +40,7 @@ public class SVExpressionUtils {
 	 * @param search_forward
 	 * @return
 	 */
-	public static String extractPreTriggerPortion(
-			IDocument				doc,
-			int						idx,
-			boolean					search_forward) {
+	public static String extractPreTriggerPortion(IBIDITextScanner doc) {
 		StringBuffer tmp = new StringBuffer();
 		int last_nws_ch = -1;
 		String end_match[] = { "nde", // end
@@ -56,77 +48,73 @@ public class SVExpressionUtils {
 				";",
 				"*/",
 				"//"};
+		
+		doc.setScanFwd(false);
+		int ch = -1;
 
-		try {
-			while (idx >= 0) {
-				int ch = -1;
-				// Skip whitespace
-				while (idx >= 0
-						&& Character.isWhitespace((ch = doc.getChar(idx)))) {
-					tmp.append((char)ch);
-					idx--;
-				}
+		do {
+			
+			// Skip whitespace
+			while ((ch = doc.get_ch()) != -1 && Character.isWhitespace(ch)) {
+				tmp.append((char)ch);
+			}
 
-				if (idx < 0) {
+			if (ch == -1) {
+				break;
+			}
+
+			if (ch == '(' || ch == ',') {
+				break;
+			} else if (ch == ')') {
+				if (last_nws_ch != '.' && last_nws_ch != ':'
+					&& last_nws_ch != -1) {
 					break;
 				}
 
-				if (ch == '(' || ch == ',') {
-					break;
-				} else if (ch == ')') {
-					if (last_nws_ch != '.' && last_nws_ch != ':'
-							&& last_nws_ch != -1) {
-						break;
+				int matchLevel = 1;
+
+				tmp.append((char) ch);
+
+				// Otherwise, skip matching braces
+				while (matchLevel > 0 && (ch = doc.get_ch()) != -1) {
+					// next char
+					if (ch == ')') {
+						matchLevel++;
+					} else if (ch == '(') {
+						matchLevel--;
 					}
-
-					int matchLevel = 1;
-
-					tmp.append((char) ch);
-
-					// Otherwise, skip matching braces
-					while (matchLevel > 0 && --idx >= 0) {
-						// next char
-						ch = doc.getChar(idx);
-						if (ch == ')') {
-							matchLevel++;
-						} else if (ch == '(') {
-							matchLevel--;
-						}
-						tmp.append((char) ch);
-					}
-				} else {
 					tmp.append((char) ch);
 				}
+			} else {
+				tmp.append((char) ch);
+			}
 
-				last_nws_ch = ch;
-				idx--;
+			last_nws_ch = ch;
+			// TODO: idx--;
 
-				String end = null;
-				for (int i = 0; i < end_match.length; i++) {
-					if (tmp.toString().endsWith(end_match[i])) {
-						tmp.setLength(tmp.length() - end_match[i].length());
-						System.out.println("matched \"" + end_match[i] + "\"");
-						end = end_match[i];
-						break;
-					}
-				}
-
-				if (end != null) {
-					if (end.equals("//")) {
-						// We scanned to the beginning of a comment. 
-						// backtrack now
-						int i=tmp.length();
-						while (i>0 && tmp.charAt(i-1) != '\n') {
-							i--;
-						}
-						tmp.setLength(i);
-					}
+			String end = null;
+			for (int i = 0; i < end_match.length; i++) {
+				if (tmp.toString().endsWith(end_match[i])) {
+					tmp.setLength(tmp.length() - end_match[i].length());
+					System.out.println("matched \"" + end_match[i] + "\"");
+					end = end_match[i];
 					break;
 				}
 			}
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
+
+			if (end != null) {
+				if (end.equals("//")) {
+					// We scanned to the beginning of a comment. 
+					// backtrack now
+					int i=tmp.length();
+					while (i>0 && tmp.charAt(i-1) != '\n') {
+						i--;
+					}
+					tmp.setLength(i);
+				}
+				break;
+			}
+		} while (ch != -1);
 
 		return tmp.reverse().toString().trim();
 	}

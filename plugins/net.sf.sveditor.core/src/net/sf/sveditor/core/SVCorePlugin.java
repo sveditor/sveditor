@@ -27,7 +27,6 @@ public class SVCorePlugin extends Plugin {
 
 	// The shared instance
 	private static SVCorePlugin 			fPlugin;
-	private SVDBWorkspaceFileManager		fSVDBMgr;
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
@@ -54,11 +53,6 @@ public class SVCorePlugin extends Plugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		fPlugin = null;
-		
-		if (fSVDBMgr != null) {
-			fSVDBMgr.dispose();
-			fSVDBMgr = null;
-		}
 		
 		if (fTodoScanner != null) {
 			fTodoScanner.dispose();
@@ -89,13 +83,6 @@ public class SVCorePlugin extends Plugin {
 			fProjManager = new SVDBProjectManager();
 		}
 		return fProjManager;
-	}
-	
-	public SVDBWorkspaceFileManager getSVDBMgr() {
-		if (fSVDBMgr == null) {
-			fSVDBMgr = new SVDBWorkspaceFileManager();
-		}
-		return fSVDBMgr;
 	}
 	
 	public List<SVDBPluginLibDescriptor> getPluginLibList() {

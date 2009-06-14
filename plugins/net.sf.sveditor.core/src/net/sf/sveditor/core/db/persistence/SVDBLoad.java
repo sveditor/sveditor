@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
@@ -487,6 +488,9 @@ public class SVDBLoad implements IDBReader {
 			case VarDecl:
 				ret = new SVDBVarDeclItem(file, parent, type, this);
 				break;
+				
+			case Constraint:
+				ret = new SVDBConstraint(file, parent, type, this);
 				
 			default:
 				System.out.println("[ERROR] unimplemented SVDBLoad type " + type);

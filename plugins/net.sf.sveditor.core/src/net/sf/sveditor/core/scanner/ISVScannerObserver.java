@@ -126,6 +126,8 @@ public interface ISVScannerObserver {
 	
 	void covergroup_item(String name, String type);
 	
+	void constraint(String name, String expr);
+	
 	void enter_sequence(String name);
 	
 	void leave_sequence();

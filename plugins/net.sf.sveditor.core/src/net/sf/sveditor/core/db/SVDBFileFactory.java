@@ -397,8 +397,15 @@ public class SVDBFileFactory implements ISVScannerObserver {
 			fScopeStack.peek().addItem(it);
 		}
 	}
-
 	
+	
+	@Override
+	public void constraint(String name, String expr) {
+		SVDBConstraint c = new SVDBConstraint(name, expr);
+		setLocation(c);
+		fScopeStack.peek().addItem(c);
+	}
+
 	public void enter_sequence(String name) {
 		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Sequence);
 		

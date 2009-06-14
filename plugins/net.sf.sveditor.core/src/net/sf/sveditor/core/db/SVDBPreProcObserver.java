@@ -149,8 +149,9 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 
 	
 	public void leave_covergroup() {}
-
 	
+	public void constraint(String name, String expr) {}
+
 	public void leave_func_decl() {}
 
 	

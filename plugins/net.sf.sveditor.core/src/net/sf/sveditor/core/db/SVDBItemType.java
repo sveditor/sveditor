@@ -20,5 +20,6 @@ public enum SVDBItemType {
 	Coverpoint,
 	Sequence,
 	Property,
-	ModIfcClassParam
+	ModIfcClassParam,
+	Constraint
 }

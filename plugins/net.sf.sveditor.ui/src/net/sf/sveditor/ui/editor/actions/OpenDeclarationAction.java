@@ -19,10 +19,12 @@ import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
+import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.PluginPathEditorInput;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.SVExpressionUtils;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -239,7 +241,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 				if (idx < doc.getLength()) {
 					idx--;
 					// now, search backwards
-					String pre_trigger =SVExpressionUtils.extractPreTriggerPortion(doc, idx, false);
+					IBIDITextScanner doc_scanner = new SVDocumentTextScanner(doc, idx);
+					String pre_trigger = SVExpressionUtils.extractPreTriggerPortion(doc_scanner);
 					System.out.println("pre-trigger=\"" + pre_trigger + "\"");
 					
 					List<SVDBItem> item_list = SVExpressionUtils.processPreTriggerPortion(
