@@ -5,8 +5,18 @@ public class SVArrayAccessExpr extends SVExpr {
 	private SVExpr				fIndex;
 	
 	public SVArrayAccessExpr(SVExpr lhs, SVExpr index) {
+		super(SVExprType.ArrayAccess);
+		
 		fLhs   = lhs;
 		fIndex = index;
+	}
+	
+	public SVExpr getLhs() {
+		return fLhs;
+	}
+	
+	public SVExpr getIndex() {
+		return fIndex;
 	}
 
 }

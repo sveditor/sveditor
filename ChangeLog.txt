@@ -7,6 +7,17 @@
     - Fix problem with source cross-reference to classes declared 
       directly within a package. This issue did not affect classes declared
       within a package via an `include directive.
+    - Add persistence support to prevent unchanged source files from being 
+      re-parsed on every invocation
+*   - Fix problem with resolving macros in the SourceCollection index
+    - Expanded index support with the following new types
+        - Source collection index -- examines file structure and attempts to 
+          determine correct parse order based on include relationships
+        - Library index -- entry point is the root file of a package-based
+          library. Locates included files
+        - Plugin library -- support for packaging common source in a plugin
+          that can be distributed with SVEditor
+    - 
 
 
 

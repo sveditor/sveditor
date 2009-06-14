@@ -6,9 +6,23 @@ public class SVBinaryExpr extends SVExpr {
 	private SVExpr				fRhs;
 	
 	public SVBinaryExpr(SVExpr lhs, String op, SVExpr rhs) {
+		super(SVExprType.Binary);
+		
 		fLhs = lhs;
 		fOp = op;
 		fRhs = rhs;
+	}
+	
+	public SVExpr getLhs() {
+		return fLhs;
+	}
+	
+	public String getOp() {
+		return fOp;
+	}
+	
+	public SVExpr getRhs() {
+		return fRhs;
 	}
 
 }

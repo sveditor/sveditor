@@ -2,11 +2,7 @@ package net.sf.sveditor.core.constraint.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ConstraintLexer {
@@ -306,6 +302,10 @@ public class ConstraintLexer {
 						fIsOperator = true;
 					}
 				}
+			} else if (fOperatorSet.contains(tmp)) {
+				// single-char operator
+				fIsOperator = true;
+				fStringBuffer.append(tmp);
 			}
 		
 			if (!fIsOperator) {
@@ -348,7 +348,7 @@ public class ConstraintLexer {
 		}
 		
 		if (fStringBuffer.length() == 0) {
-			throw new EOFException();
+			// throw new EOFException();
 		}
 		
 		fImage = fStringBuffer.toString();

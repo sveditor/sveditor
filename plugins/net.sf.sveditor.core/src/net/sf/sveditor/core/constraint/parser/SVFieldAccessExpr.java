@@ -5,7 +5,17 @@ public class SVFieldAccessExpr extends SVExpr {
 	private String					fId;
 
 	public SVFieldAccessExpr(SVExpr expr, String id) {
+		super(SVExprType.FieldAccess);
+		
 		fExpr = expr;
 		fId   = id;
+	}
+	
+	public SVExpr getExpr() {
+		return fExpr;
+	}
+	
+	public String getId() {
+		return fId;
 	}
 }

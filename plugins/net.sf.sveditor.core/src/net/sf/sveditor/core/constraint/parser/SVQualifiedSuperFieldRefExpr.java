@@ -2,8 +2,22 @@ package net.sf.sveditor.core.constraint.parser;
 
 public class SVQualifiedSuperFieldRefExpr extends SVExpr {
 	
+	private SVExpr				fLhs;
+	private String				fId;
+	
 	public SVQualifiedSuperFieldRefExpr(SVExpr lhs, String id) {
-		System.out.println("[TODO] SVQualifiedSuperFieldRefExpr");
+		super(SVExprType.QualifiedSuperFieldRef);
+		
+		fLhs = lhs;
+		fId  = id;
+	}
+	
+	public SVExpr getLhs() {
+		return fLhs;
+	}
+	
+	public String getId() {
+		return fId;
 	}
 
 }

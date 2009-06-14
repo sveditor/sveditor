@@ -5,29 +5,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConstraintParser {
-	private IConstraintParserObserver			fObserver;
 	private ConstraintLexer						fLexer;
-	private List<SVConstraintExpr>				fConstraints;
+	private SVExprDump							fExprDump;
+	private boolean								fDebugEn = true;
 	
 	public ConstraintParser() {
-		fConstraints = new ArrayList<SVConstraintExpr>();
 		fLexer = new ConstraintLexer();
+		fExprDump = new SVExprDump(System.out);
 	}
 	
 	
 	public List<SVConstraintExpr> parse(InputStream in) throws ParseException {
 		fLexer.init(in);
 		
-		fConstraints.clear();
+		List<SVConstraintExpr> ret = new ArrayList<SVConstraintExpr>();
 
 		try {
-			while (true) {
-				if (peekKeyword("solve")) {
-				
-				} else {
-					constraint_expression();
-				}
-			} 
+			SVConstraintExpr expr;
+			
+			while (!peek().equals("")) {
+				System.out.println("top of while: peek=" + peek());
+				expr = constraint_block_item();
+				ret.add(expr);
+			}
 		} catch (Exception e) {
 			if (!(e instanceof EOFException)) {
 				// Problem
@@ -36,15 +36,32 @@ public class ConstraintParser {
 			}
 		}
 		
-		return fConstraints;
+		return ret;
 	}
 	
+	public SVConstraintExpr constraint_block_item() throws ParseException, LexerException {
+		
+		if (peekKeyword("solve")) {
+			// TODO: do actual parse
+			solve_expression();
+		} else {
+			constraint_expression();
+		}
+		
+		return null;
+	}
+	
+	
 	public SVConstraintExpr constraint_expression() throws ParseException, LexerException {
+		SVConstraintExpr ret = null;
+		
+		debug("--> constraint_expression()");
 		
 		if (peekKeyword("if")) {
-			// TODO:
+			ret = constraint_if_expression();
 		} else if (peekKeyword("foreach")) {
 			// TODO:
+			throw new ParseException("foreach unhandled");
 		} else {
 			// Not sure. Possibly one of:
 			// - expression_or_dist
@@ -54,22 +71,101 @@ public class ConstraintParser {
 			// tok = expression(tok);
 			SVExpr expr = expression();
 			
-			debug("expr=" + expr);
+			if (fDebugEn) {
+				System.out.print("expr=");
+				fExprDump.dump(expr);
+				System.out.println();
+			}
 			
 			if (peekKeyword("dist")) {
 				eatToken();
 				// It's the first
 				throw new ParseException("Distributions not supported yet");
+			} else if (peekOperator(";")) {
+				// Done
+				eatToken();
 			} else if (peekKeyword("inside")) {
 				// TODO: handle inside
 			} else if (peekOperator("->")) {
 				eatToken();
 				
-				// It's the second
-				throw new ParseException("Implication not supported yet");
+				constraint_set();
 			} else {
 				throw new ParseException("Unknown suffix for expression: " + fLexer.getImage());
 			}
+		}
+		
+		debug("<-- constraint_expression()");
+		
+		return ret;
+	}
+	
+	/**
+	 * ConstraintIfExpression ::=
+	 *     if ( expression ) ConstraintSet [else ConstraintSet]
+	 * @return
+	 * @throws ParseException
+	 * @throws LexerException
+	 */
+	public SVConstraintIfExpr constraint_if_expression() throws ParseException, LexerException {
+		SVConstraintIfExpr ret;
+		debug("--> constraint_if_expression");
+		
+		eatToken(); // 'if'
+		
+		readOperator("(");
+		SVExpr if_expr = expression();
+		readOperator(")");
+		
+		SVConstraintSetExpr constraint = constraint_set();
+		
+		if (peekKeyword("else")) {
+			eatToken();
+			SVConstraintSetExpr else_expr = constraint_set();
+			ret = new SVConstraintIfExpr(if_expr, constraint, else_expr);
+		} else {
+			ret = new SVConstraintIfExpr(if_expr, constraint, null);
+		}
+		
+		debug("<-- constraint_if_expression");
+		return ret;
+	}
+	
+	public SVConstraintSetExpr constraint_set() throws ParseException, LexerException {
+		SVConstraintSetExpr ret = new SVConstraintSetExpr(); 
+		debug("--> constraint_set()");
+		
+		if (peekOperator("{")) {
+			eatToken();
+			do {
+				ret.getConstraintList().add(constraint_expression());
+			} while (!peekOperator("}"));
+			readOperator("}");
+		} else {
+			ret.getConstraintList().add(constraint_expression());
+		}
+		
+		debug("<-- constraint_set()");
+		return ret;
+	}
+	
+	public SVExpr solve_expression() throws ParseException, LexerException {
+		eatToken();
+		
+		// solve <var> {, <var>} ...
+		String sb_var = readIdentifier();
+		
+		while (peekOperator(",")) {
+			readIdentifier();
+		}
+		
+		// solve <var> before ...
+		readKeyword("before");
+		
+		readIdentifier();
+		
+		while (peekOperator(",")) {
+			readIdentifier();
 		}
 		
 		return null;

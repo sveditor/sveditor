@@ -9,9 +9,23 @@ public class SVAssignExpr extends SVExpr {
 			SVExpr			lhs,
 			String			op,
 			SVExpr			rhs) {
+		super(SVExprType.Assign);
+		
 		fLhs = lhs;
 		fOp  = op;
 		fRhs = rhs;
+	}
+	
+	public SVExpr getLhs() {
+		return fLhs;
+	}
+	
+	public String getOp() {
+		return fOp;
+	}
+	
+	public SVExpr getRhs() {
+		return fRhs;
 	}
 
 }
