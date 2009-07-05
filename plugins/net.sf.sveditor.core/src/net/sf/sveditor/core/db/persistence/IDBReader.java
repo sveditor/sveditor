@@ -20,5 +20,7 @@ public interface IDBReader {
 	List readItemList(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;
 	
 	List<String> readStringList() throws DBFormatException;
+	
+	List<Integer> readIntList() throws DBFormatException;
 
 }

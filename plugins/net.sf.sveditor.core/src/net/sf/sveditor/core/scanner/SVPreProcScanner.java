@@ -55,6 +55,10 @@ public class SVPreProcScanner implements ISVScanner {
 		fExpandMacros = expand_macros;
 	}
 	
+	public void setEvalConditionals(boolean eval_conditionals) {
+		fEvalConditionals = eval_conditionals;
+	}
+	
 	public void setObserver(ISVScannerObserver observer) {
 		fObserver = observer;
 		fObserver.init(this);

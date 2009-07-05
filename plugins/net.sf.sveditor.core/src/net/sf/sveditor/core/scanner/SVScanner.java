@@ -35,12 +35,17 @@ public class SVScanner implements ISVScanner {
 	
 	private ISVScannerObserver		fObserver;
 	private IDefineProvider			fDefineProvider;
+	private boolean					fEvalConditionals = true;
 	
 	public SVScanner() {
 	}
 	
 	public void setDefineProvider(IDefineProvider p) {
 		fDefineProvider = p;
+	}
+	
+	public void setEvalConditionals(boolean eval) {
+		fEvalConditionals = eval;
 	}
 	
 	public ScanLocation getStmtLocation() {
@@ -74,6 +79,7 @@ public class SVScanner implements ISVScanner {
 		
 		pp.init(in, filename);
 		pp.setExpandMacros(true);
+		pp.setEvalConditionals(fEvalConditionals);
 		
 		fInput = new SVScannerTextScanner(pp);
 		
@@ -110,6 +116,8 @@ public class SVScanner implements ISVScanner {
 						process_import(id);
 					} else if (id.equals("export")) {
 						process_export(id);
+					} else if (id.equals("typedef")) {
+						process_typedef();
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
@@ -219,7 +227,7 @@ public class SVScanner implements ISVScanner {
 			if (id.equals("endgroup")) {
 				break;
 			} else {
-				// This is likely a coverpoint/bin 
+				// This is likely a coverpoint/coverpoint cross 
 				ch = skipWhite(get_ch());
 				
 				if (ch == ':') {
@@ -229,14 +237,40 @@ public class SVScanner implements ISVScanner {
 					
 					String type = readIdentifier(ch);
 					
-					if (fObserver != null) {
-						fObserver.covergroup_item(name, type);
+					// Now, skip forward and try to read the target
+					ch = skipWhite(get_ch());
+					
+					// read any expression character
+					startCapture(ch);
+					while (ch != -1 && ch != '{' && ch != ';') {
+						ch = next_ch();
+					}
+					String target = endCapture();
+					
+					if (target != null) {
+						if (target.endsWith("{")) {
+							target = target.substring(0, target.length()-1);
+						}
+						target = target.trim();
 					}
 					
-					ch = skipWhite(get_ch());
+					
+					ch = skipWhite(ch);
 
+					String body = "";
 					if (ch == '{') {
+						startCapture();
 						skipPastMatch("{}");
+						body = endCapture();
+						
+						body = body.trim();
+						if (body.endsWith("}")) {
+							body = body.substring(0, body.length()-1);
+						}
+					}
+					
+					if (fObserver != null) {
+						fObserver.covergroup_item(name, type, target, body);
 					}
 				}
 			}
@@ -820,6 +854,26 @@ public class SVScanner implements ISVScanner {
 		}
 	}
 	
+	private void process_typedef() throws EOFException {
+		
+		// typedef <type> <name>;
+		
+		int ch = skipWhite(get_ch());
+		
+		SVTypeInfo type = readTypeName(ch, false);
+		
+		ch = skipWhite(get_ch());
+		
+		if (Character.isJavaIdentifierPart(ch)) {
+			String id = readIdentifier(ch);
+			
+			
+			if (fObserver != null) {
+				fObserver.typedef(id, type);
+			}
+		}
+	}
+	
 	static private final Map<String, Integer>	fFieldQualifers;
 	static private final Map<String, Integer>	fTaskFuncParamQualifiers;
 	static {
@@ -908,6 +962,9 @@ public class SVScanner implements ISVScanner {
 					fScopeStack.pop();
 				}
 			}
+		} else if (id.startsWith("typedef")) {
+			unget_ch(ch);
+			process_typedef();
 		} else if (isFirstLevelScope(id)) {
 			// We've hit a first-level qualifier. This probably means that
 			// there is a missing
@@ -1180,6 +1237,8 @@ public class SVScanner implements ISVScanner {
 				ret.append(" ");
 				is_builtin |= (1 << idx);
 				ch = skipWhite(ch);
+				
+				System.out.println("bitrange: " + bitrange);
 			}
 			
 			if (!Character.isJavaIdentifierStart(ch)) {
@@ -1241,6 +1300,7 @@ public class SVScanner implements ISVScanner {
 				ret.append(bitrange);
 				ret.append(" ");
 				ch = skipWhite(ch);
+				System.out.println("bitrange (2): " + bitrange);
 			}
 			
 			idx++;
@@ -1253,7 +1313,44 @@ public class SVScanner implements ISVScanner {
 		debug("--> readTypeName(task_func=" + task_func + ") -> " + 
 				ret.toString().trim());
 		if (ret.length() != 0) {
-			type.fTypeName = ret.toString();
+			String type_name = ret.toString().trim();
+			
+			if (type_name.startsWith("enum")) {
+				// Could be enum <basetype>
+				
+				ch = skipWhite(get_ch());
+				
+				type.fEnumType = true;
+				type.fEnumVals = new ArrayList<SVEnumVal>();
+				
+				if (ch == '{') {
+					// we're probably scanning a typedef
+					do {
+						ch = skipWhite(get_ch());
+						
+						id = readIdentifier(ch);
+						type.fEnumVals.add(new SVEnumVal(id, -1));
+						
+						ch = skipWhite(get_ch());
+						
+						if (ch == '=') {
+							// handle optional equals clause
+							while ((ch = next_ch()) != -1 &&
+									ch != ',' && ch != '}') {
+								// skip to the next item
+							}
+						}
+						
+						if (ch != ',') {
+							break;
+						}
+					} while (true);
+				} else {
+					// likely we're scanning an in-line declaration
+				}
+			} else {
+				type.fTypeName = type_name;
+			}
 			return type;
 		} else {
 			return null;

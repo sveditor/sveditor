@@ -111,7 +111,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected abstract boolean isLoadUpToDate();
 
 	public synchronized Map<String, SVDBFile> getFileDB() {
-		if (!fFileIndexValid) {
+		if (!fFileIndexValid && fIndexRegistry != null) {
 			fIndexRegistry.loadPersistedData(fProjectName, this);
 		}
 		
@@ -125,7 +125,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected abstract void buildIndex();
 
 	public synchronized Map<String, SVDBFile> getPreProcFileMap() {
-		if (!fFileListValid) {
+		if (!fFileListValid && fIndexRegistry != null) {
 			fIndexRegistry.loadPersistedData(fProjectName, this);
 		}
 		

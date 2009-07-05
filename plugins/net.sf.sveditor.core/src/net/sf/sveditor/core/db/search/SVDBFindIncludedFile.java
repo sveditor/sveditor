@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.db.search;
 
-import java.util.Iterator;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;

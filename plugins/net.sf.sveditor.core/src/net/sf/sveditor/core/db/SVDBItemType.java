@@ -18,8 +18,10 @@ public enum SVDBItemType {
 	PackageDecl,
 	Covergroup,
 	Coverpoint,
+	CoverpointCross,
 	Sequence,
 	Property,
 	ModIfcClassParam,
-	Constraint
+	Constraint,
+	Typedef
 }

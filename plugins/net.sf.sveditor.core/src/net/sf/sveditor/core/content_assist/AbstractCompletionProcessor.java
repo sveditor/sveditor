@@ -7,9 +7,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -18,6 +16,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
@@ -30,14 +29,19 @@ public abstract class AbstractCompletionProcessor {
 		"define", "include" 
 	};
 	
+	public AbstractCompletionProcessor() {
+		fCompletionProposals = new ArrayList<SVCompletionProposal>();
+	}
+	
 	protected abstract ISVDBIndexIterator getIndexIterator();
 	
 	protected abstract SVDBFile getSVDBFile();
 	
 	protected void addProposal(SVCompletionProposal p) {
 		boolean found = false;
+		
 		for (SVCompletionProposal p_t : fCompletionProposals) {
-			if (p_t.getReplacement().equals(p.getReplacement())) {
+			if (p_t.equals(p)) {
 				found = true;
 				break;
 			}
@@ -48,22 +52,21 @@ public abstract class AbstractCompletionProcessor {
 		}
 	}
 	
+	public List<SVCompletionProposal> getCompletionProposals() {
+		return fCompletionProposals;
+	}
 
 	public void computeProposals(
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
+		SVExpressionUtils expr_utils = new SVExpressionUtils();
 		
 		fCompletionProposals.clear();
 		
-		// Prefix for the completion string
-		String pre = null;
-		
 		// Trigger characters and string prior to the trigger (if any)
-		String trigger = null, root = null;
 
 		// Start marks the point just after the trigger character
-		long start = scanner.getPos();
 		scanner.setScanFwd(false);
 
 		
@@ -78,96 +81,26 @@ public abstract class AbstractCompletionProcessor {
 			debug("Source scope: " + src_scope.getName());
 		}
 
-		int c = -1, last_c = -1;
+		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
 
-		long offset = scanner.getPos();
-
-		// Scan backwards to an activation character or the beginning of
-		// line
-		while ((c = scanner.get_ch()) != -1) {
-
-			if (c == '.' || c == '`' ||	
-					(c == ':' && last_c == ':')	|| c == '\n' ||
-					c == ',' || c == '(') {
-				break;
-			} else if (c == ')') {
-				// scan back to matching
-				int matchLevel = 1;
-				while ((c = scanner.get_ch()) != -1) {
-					if (c == '(') {
-						matchLevel--;
-					} else if (c == ')') {
-						matchLevel++;
-					}
-				}
-			}
-			last_c = c;
-		}
-
-		if (c == '.' || c == '`') {
-			trigger = "" + (char) c;
-		} else if (c == ':' && last_c == ':') {
-			trigger = "::";
-		} else {
-			trigger = "";
-		}
-
-		start = scanner.getPos() + 1;
-
-		if (trigger.equals("`")) {
+		if (ctxt.fTrigger.equals("`")) {
 			// No need to scan backwards. The stem is all we have
-			pre = scanner.get_str(start, (int)(offset-start-1)).trim();
+			findPreProcProposals(scanner, ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
 
-			findPreProcProposals(scanner, root, trigger, pre, (int)start);
-
-		} else if (!trigger.equals("")) {
-
-
-			// There is a trigger, so use that as a reference point
-			pre = scanner.get_str(start, (int)(offset - start - 1)).trim();
-
+		} else if (!ctxt.fTrigger.equals("")) {
 			// Now, look before the trigger to see what we have
 			// idx -= trigger.length();
 
 			if (src_scope != null) {
-				findTriggeredProposals(scanner, src_scope, 
-						(int)(start - trigger.length()), 
-						trigger,
-						pre, (int)start);
+				findTriggeredProposals(scanner, src_scope,
+						ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
 			}
 		} else {
-
-			System.out.println("c=" + (char)c);
-
-			if (c == '(' || c == ',' || c == '>' || c == '<') {
-				start = scanner.getPos()+1;
-
-				// Scan forward to avoid any whitespace
-				while ((c = scanner.get_ch()) != -1 && start < offset &&  
-						Character.isWhitespace(c)) {
-					start++;
-				}
-				pre = scanner.get_str(start, (int)scanner.getPos());
-			} else {
-				// No recognizable trigger character, so set 'pre' based on
-				// seeking backwards from the offset passed in
-				// idx = offset - 1;
-				scanner.seek(offset-1);
-				scanner.setScanFwd(false);
-
-				// Only works in certain cases...
-				while ((c = scanner.get_ch()) != -1
-						&& !Character.isWhitespace(c)) {}
-
-				start = scanner.getPos()+1;
-				pre = scanner.get_str(
-						(int)start, (int)(offset-start-2)).trim();
-			}
-
-			findUntriggeredProposal(scanner, root, trigger, pre, (int)start);
+			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
+					ctxt.fLeaf, ctxt.fStart);
 		}
 		
-		order_proposals(pre, fCompletionProposals);
+		order_proposals(ctxt.fLeaf, fCompletionProposals);
 	}
 	
 	/**
@@ -180,17 +113,17 @@ public abstract class AbstractCompletionProcessor {
 	 * index
 	 * 
 	 * @param proposals
-	 * @param pre
+	 * @param leaf
 	 */
 	private void findUntriggeredProposal(
 			IBIDITextScanner			scanner,
 			String 						root,
 			String 						trigger,
-			String 						pre,
+			String 						leaf,
 			int 						start) {
 		ISVDBIndexIterator index_iterator = getIndexIterator();
 		
-		debug("findUntriggeredProposal: root=" + root + " pre=" + pre);
+		debug("findUntriggeredProposal: root=" + root + " leaf=" + leaf);
 
 		scanner.seek(start);
 		int lineno = scanner.getLocation().getLineNo();
@@ -212,8 +145,8 @@ public abstract class AbstractCompletionProcessor {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)src_scope;
 				
 				for (SVDBTaskFuncParam p : tf.getParams()) {
-					if (isPrefix(pre, p)) {
-						addProposal(p, start, pre.length());
+					if (isPrefix(leaf, p)) {
+						addProposal(p, start, leaf.length());
 					}
 				}
 			}
@@ -222,12 +155,12 @@ public abstract class AbstractCompletionProcessor {
 			// tasks, and variables
 			// TODO: If one of the enclosing scopes is a class scope, then
 			// search the base-class tree as well
-			addMatchingTasksVars(src_scope, root, trigger, pre, start);
+			addMatchingTasksVars(src_scope, root, trigger, leaf, start);
 
 			if (src_scope.getType() == SVDBItemType.Class) {
 				addClassHierarchyItems(index_iterator, 
 						(SVDBModIfcClassDecl)src_scope, root, trigger,
-						pre, start);
+						leaf, start);
 			}
 
 			src_scope = src_scope.getParent();
@@ -237,9 +170,9 @@ public abstract class AbstractCompletionProcessor {
 			if (it.getType() == SVDBItemType.VarDecl
 					|| it.getType() == SVDBItemType.Task
 					|| it.getType() == SVDBItemType.Function) {
-				if (it.getName() != null && (pre.equals("") 
-						|| isPrefix(pre, it))) {
-					addProposal(it, start, pre.length());
+				if (it.getName() != null && (leaf.equals("") 
+						|| isPrefix(leaf, it))) {
+					addProposal(it, start, leaf.length());
 				}
 			} else if (it.getType() == SVDBItemType.Module
 					|| it.getType() == SVDBItemType.Class) {
@@ -255,8 +188,8 @@ public abstract class AbstractCompletionProcessor {
 			
 			if (it.getName() != null && 
 					(it.getType() != SVDBItemType.File) &&
-					(pre.equals("") || isPrefix(pre, it))) {
-				addProposal(it, start, pre.length());
+					(leaf.equals("") || isPrefix(leaf, it))) {
+				addProposal(it, start, leaf.length());
 			}
 		}
 	}
@@ -270,45 +203,33 @@ public abstract class AbstractCompletionProcessor {
 	 * @param src_scope
 	 * @param pre_trigger_idx
 	 * @param trigger
-	 * @param pre
+	 * @param leaf
 	 * @param start
 	 * @param proposals
 	 */
 	private void findTriggeredProposals(
 			IBIDITextScanner	scanner,
 			SVDBScopeItem		src_scope,
-			int					pre_trigger_idx,
+			String				root,
 			String				trigger,
-			String				pre,
+			String				leaf,
 			int					start) {
 		ISVDBIndexIterator index_iterator = getIndexIterator();
+		SVExpressionUtils expr_utils = new SVExpressionUtils();
 		
 		debug("findTriggeredProposals: " + src_scope.getName() + 
-				" pre=" + pre + " trigger=" + trigger);
+				" pre=" + leaf + " trigger=" + trigger);
 		
-		/*
-		try {
-		debug("    char @ pre-trigger index: " + 
-				viewer.getDocument().getChar(pre_trigger_idx));
-		} catch (Exception e) { }
-		 */
-
-		// TODO: not sure
-		scanner.seek(pre_trigger_idx);
-		
-		String preTrigger = 
-			SVExpressionUtils.extractPreTriggerPortion(scanner);
-		
-		debug("    preTrigger=" + preTrigger);
-		List<SVDBItem> info = SVExpressionUtils.processPreTriggerPortion(
-				index_iterator, src_scope, preTrigger, true);
+		debug("    preTrigger=" + leaf);
+		List<SVDBItem> info = expr_utils.processPreTriggerPortion(
+				index_iterator, src_scope, leaf, true);
 		
 		final List<SVDBItem> result_f = new ArrayList<SVDBItem>();
 		
 		if (info != null && info.size() > 0) {
 			// Get the last item
 			SVDBItem res = info.get(info.size()-1);
-			final String pre_f = pre;
+			final String pre_f = leaf;
 			
 			debug("use " + res.getName());
 			
@@ -332,7 +253,7 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		for (SVDBItem it : result_f) {
-			addProposal(it, start, pre.length());
+			addProposal(it, start, leaf.length());
 		}
 	}
 
@@ -518,9 +439,9 @@ public abstract class AbstractCompletionProcessor {
 				if (isPrefix(pre, it)) {
 					addProposal(it, start, pre.length());
 				}
-				System.out.println("it=" + it.getName());
+				debug("it=" + it.getName());
 			}
-			System.out.println("[TODO] Collect matching macro names from build path");
+			debug("[TODO] Collect matching macro names from build path");
 		}
 	}
 
@@ -569,203 +490,20 @@ public abstract class AbstractCompletionProcessor {
 			SVDBItem 		it, 
 			int 			replacementOffset, 
 			int 			replacementLength) {
-		
-		switch (it.getType()) {
-			case Function:
-			case Task: 
-				addTaskFuncProposal(
-						it, replacementOffset, replacementLength);
-				break;
-				
-			case Macro:
-				addMacroProposal(
-						it, replacementOffset, replacementLength);
-				break;
-				
-			case Class:
-				addClassProposal(
-						it, replacementOffset, replacementLength);
-				break;
-				
-			default:
-				/** TODO: 
-				p = new CompletionProposal(it.getName(),
-						replacementOffset, replacementLength, 
-						it.getName().length(), SVDBIconUtils.getIcon(it),
-						null, null, null);
-				 */
-				break;
-		}
-		
-		/** TODO: 
-		if (p != null) {
-			addProposal(p, proposals);
-		}
-		 */
-	}
-
-	private static void addTaskFuncProposal(
-			SVDBItem 					it,
-			int							replacementOffset,
-			int							replacementLength) {
-		/** TODO:  
-		TemplateContext ctxt = new DocumentTemplateContext(
-				new TemplateContextType("CONTEXT"),
-				doc, replacementOffset, replacementLength);
-		 */
-		
-		StringBuilder d = new StringBuilder();
-		StringBuilder r = new StringBuilder();
-		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
-		
-		d.append(it.getName() + "(");
-		r.append(it.getName() + "(");
-		
-		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBTaskFuncParam param = tf.getParams().get(i);
-			
-			d.append(param.getTypeName() + " " + param.getName());
-			r.append("${");
-			r.append(param.getName());
-			r.append("}");
-			
-			if (i+1 < tf.getParams().size()) {
-				d.append(", ");
-				r.append(", ");
-			}
-		}
-		d.append(")");
-		r.append(")");
-		
-		if (it.getType() == SVDBItemType.Function &&
-				!it.getName().equals("new")) {
-			d.append(" : ");
-			d.append(tf.getReturnType());
-		}
-		
-		// Find the class that this function belongs to (if any)
-		SVDBItem class_it = it;
-		
-		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
-			class_it = class_it.getParent();
-		}
-
-		/** TODO: 
-		Template t = new Template(d.toString(), 
-				(class_it != null)?class_it.getName():"", "CONTEXT",
-				r.toString(), (tf.getParams().size() == 0));
-		
-		p = new TemplateProposal(t, ctxt,
-				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
-
 		boolean found = false;
-		for (ICompletionProposal p_t : proposals) {
-			if (p_t.getDisplayString().equals(p.getDisplayString())) {
+		
+		for (SVCompletionProposal p : fCompletionProposals) {
+			if (p.getItem() != null && p.getItem().equals(it)) {
 				found = true;
+				break;
 			}
 		}
+		
 		if (!found) {
-			proposals.add(p);
+			addProposal(
+				new SVCompletionProposal(it, replacementOffset, replacementLength));
 		}
-		 */
 	}
-	
-	private static void addMacroProposal(
-			SVDBItem 					it,
-			int							replacementOffset,
-			int							replacementLength) {
-		/** TODO: 
-		ICompletionProposal			p;
-
-		TemplateContext ctxt = new DocumentTemplateContext(
-				new TemplateContextType("CONTEXT"),
-				doc, replacementOffset, replacementLength);
-		 */
-
-		StringBuilder d = new StringBuilder();
-		StringBuilder r = new StringBuilder();
-		SVDBMacroDef md = (SVDBMacroDef)it;
-		
-		d.append(it.getName() + "(");
-		r.append(it.getName() + "(");
-		
-		for (int i=0; i<md.getParameters().size(); i++) {
-			String param = md.getParameters().get(i);
-			
-			d.append(param);
-			r.append("${");
-			r.append(param);
-			r.append("}");
-			
-			if (i+1 < md.getParameters().size()) {
-				d.append(", ");
-				r.append(", ");
-			}
-		}
-		d.append(")");
-		r.append(")");
-		
-		/** TODO: 
-		Template t = new Template(d.toString(), "", "CONTEXT",
-				r.toString(), true);
-		
-		p = new TemplateProposal(t, ctxt,
-				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
-		proposals.add(p);
-		 */
-	}
-
-	private static void addClassProposal(
-			SVDBItem 					it,
-			int							replacementOffset,
-			int							replacementLength) {
-		
-		/** TODO: 
-		ICompletionProposal			p;
-
-		TemplateContext ctxt = new DocumentTemplateContext(
-				new TemplateContextType("CONTEXT"),
-				doc, replacementOffset, replacementLength);
-		 */
-
-		StringBuilder d = new StringBuilder();
-		StringBuilder r = new StringBuilder();
-		SVDBModIfcClassDecl cl = (SVDBModIfcClassDecl)it;
-		
-		r.append(it.getName());
-		d.append(it.getName());
-		
-		if (cl.getParameters().size() > 0) {
-			r.append(" #(");
-			for (int i=0; i<cl.getParameters().size(); i++) {
-				SVDBModIfcClassParam pm = cl.getParameters().get(i);
-
-				r.append("${");
-				r.append(pm.getName());
-				r.append("}");
-				
-				if (i+1 < cl.getParameters().size()) {
-					r.append(", ");
-				}
-			}
-			r.append(")");
-		}
-
-		/** TODO: 
-		Template t = new Template(
-				d.toString(), "", "CONTEXT", r.toString(), true);
-		
-		p = new TemplateProposal(t, ctxt,
-				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
-		
-		proposals.add(p);
-		 */
-	}
-
-	
 	
 	protected void debug(String msg) {
 		if (fDebug) {

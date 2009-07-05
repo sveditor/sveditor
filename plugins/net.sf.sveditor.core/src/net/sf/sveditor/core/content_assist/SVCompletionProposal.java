@@ -6,11 +6,16 @@ public class SVCompletionProposal {
 	
 	private SVDBItem				fItem;
 	private String					fReplacement;
-	private int						fStartOffset;
+	private int						fReplacementOffset;
 	private int						fReplacementLength;
 	
-	public SVCompletionProposal(SVDBItem item) {
+	public SVCompletionProposal(
+			SVDBItem item,
+			int				replacementOffset,
+			int				replacementLength) {
 		fItem = item;
+		fReplacementOffset = replacementOffset;
+		fReplacementLength = replacementLength;
 	}
 	
 	public String getReplacement() {
@@ -22,12 +27,20 @@ public class SVCompletionProposal {
 			int 				startOffset, 
 			int 				replacementLength) {
 		fReplacement 		= replacement;
-		fStartOffset 		= startOffset;
+		fReplacementOffset 		= startOffset;
 		fReplacementLength 	= replacementLength;
 	}
 	
 	public SVDBItem getItem() {
 		return fItem;
+	}
+	
+	public int getReplacementOffset() {
+		return fReplacementOffset;
+	}
+	
+	public int getReplacementLength() {
+		return fReplacementLength;
 	}
 
 }

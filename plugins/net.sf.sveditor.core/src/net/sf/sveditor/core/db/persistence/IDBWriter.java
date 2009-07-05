@@ -20,4 +20,6 @@ public interface IDBWriter {
 	
 	void writeStringList(List<String> items);
 	
+	void writeIntList(List<Integer> items);
+	
 }

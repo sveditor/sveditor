@@ -35,6 +35,10 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		fScanner.setDefineProvider(dp);
 	}
 	
+	public SVScanner getScanner() {
+		return fScanner;
+	}
+	
 	public void error(String msg) {
 		System.out.println("[ERROR] " + msg);
 	}
@@ -379,7 +383,7 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	}
 
 	
-	public void covergroup_item(String name, String type) {
+	public void covergroup_item(String name, String type, String target, String body) {
 		SVDBItem it = null;
 		
 		if (type == null) {
@@ -387,7 +391,16 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		}
 
 		if (type.equals("coverpoint")) {
-			it = new SVDBItem(name, SVDBItemType.Coverpoint);
+			it = new SVDBCoverPoint(name, target, body);
+		} else if (type.equals("cross")) {
+			it = new SVDBCoverpointCross(name, body);
+			
+			for (String cp : target.split(",")) {
+				cp = cp.trim();
+				if (!cp.equals("")) {
+					((SVDBCoverpointCross)it).getCoverpointList().add(cp);
+				}
+			}
 		} else {
 //			System.out.println("unknown covergroup item: " + type);
 		}
@@ -441,5 +454,24 @@ public class SVDBFileFactory implements ISVScannerObserver {
 			fScopeStack.pop();
 		}
 	}
+
+	@Override
+	public void typedef(String typeName, SVTypeInfo typeInfo) {
+		SVDBTypedef typedef;
+		
+		if (typeInfo.fEnumType) {
+			typedef = new SVDBTypedef(typeName);
+			
+		} else {
+			typedef = new SVDBTypedef(typeInfo.fTypeName, typeName);
+		}
+		
+		if (fScopeStack.size() > 0) {
+			setLocation(typedef);
+			fScopeStack.peek().addItem(typedef);
+		}
+	}
+	
+	
 
 }

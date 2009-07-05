@@ -8,6 +8,8 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBCoverPoint;
+import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -22,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 
@@ -346,6 +349,40 @@ public class SVDBLoad implements IDBReader {
 		}
 	}
 	
+	@Override
+	public List<Integer> readIntList() throws DBFormatException {
+		String type = readTypeString();
+		
+		if (!"SNL".equals(type)) {
+			throw new DBFormatException(
+					"Bad format for integer-list: \"" + type + "\"");
+		}
+		
+		int ch;
+		int size;
+		
+		if ((ch = getch()) != '<') { // expect '<'
+			throw new DBFormatException(
+					"Bad format for string-list: expecting '<' (" + (char)ch + ")");
+		}
+		
+		size = readRawInt();
+		
+		ch = getch(); // expect '>'
+		
+		if (size == -1) {
+			return null;
+		} else {
+			List<Integer> ret = new ArrayList<Integer>();
+
+			while (size-- > 0) {
+				ret.add(readInt());
+			}
+			
+			return ret;
+		}
+	}
+
 	private int readRawInt() throws DBFormatException {
 		int ret = 0;
 		int ch;
@@ -422,7 +459,11 @@ public class SVDBLoad implements IDBReader {
 				break;
 				
 			case Coverpoint:
-				ret = new SVDBItem(file, parent, type, this);
+				ret = new SVDBCoverPoint(file, parent, type, this);
+				break;
+				
+			case CoverpointCross:
+				ret = new SVDBCoverpointCross(file, parent, type, this);
 				break;
 				
 			case File:
@@ -491,6 +532,11 @@ public class SVDBLoad implements IDBReader {
 				
 			case Constraint:
 				ret = new SVDBConstraint(file, parent, type, this);
+				break;
+				
+			case Typedef: 
+				ret = new SVDBTypedef(file, parent, type, this);
+				break;
 				
 			default:
 				System.out.println("[ERROR] unimplemented SVDBLoad type " + type);

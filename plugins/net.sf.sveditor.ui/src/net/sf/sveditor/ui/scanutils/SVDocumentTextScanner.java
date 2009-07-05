@@ -80,16 +80,19 @@ public class SVDocumentTextScanner
 			ch = fUngetCh;
 			fUngetCh = -1;
 		} else {
-			if (fOffset < fDoc.getLength()) {
-				try {
-					ch = fDoc.getChar(fOffset);
-					if (fScanFwd) {
+			try {
+				if (fScanFwd) {
+					if (fOffset < fDoc.getLength()) {
+						ch = fDoc.getChar(fOffset);
 						fOffset++;
-					} else {
-						fOffset--;
 					}
-				} catch (BadLocationException e) { }
-			}
+				} else {
+					if (fOffset > 0) {
+						fOffset--;
+						ch = fDoc.getChar(fOffset);
+					}
+				}
+			} catch (BadLocationException e) { }
 		}
 		
 		return ch;

@@ -94,6 +94,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDBFile    		inc_file = null;
 		SVDBItem			it = null;
 
+		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset);
+
 		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 		
 		// Now, iterate through the items in the file and find something
@@ -242,10 +244,11 @@ public class OpenDeclarationAction extends TextEditorAction {
 					idx--;
 					// now, search backwards
 					IBIDITextScanner doc_scanner = new SVDocumentTextScanner(doc, idx);
-					String pre_trigger = SVExpressionUtils.extractPreTriggerPortion(doc_scanner);
+					SVExpressionUtils expr_utils = new SVExpressionUtils();
+					String pre_trigger = expr_utils.extractPreTriggerPortion(doc_scanner);
 					System.out.println("pre-trigger=\"" + pre_trigger + "\"");
 					
-					List<SVDBItem> item_list = SVExpressionUtils.processPreTriggerPortion(
+					List<SVDBItem> item_list = expr_utils.processPreTriggerPortion(
 							index_it, active_scope, pre_trigger, false);
 					
 					if (item_list != null && item_list.size() > 0) {

@@ -124,7 +124,7 @@ public interface ISVScannerObserver {
 
 	void leave_covergroup();
 	
-	void covergroup_item(String name, String type);
+	void covergroup_item(String name, String type, String target, String body);
 	
 	void constraint(String name, String expr);
 	
@@ -135,4 +135,6 @@ public interface ISVScannerObserver {
 	void enter_property(String name);
 	
 	void leave_property();
+	
+	void typedef(String type_name, SVTypeInfo type_info);
 }

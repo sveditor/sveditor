@@ -104,7 +104,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void comment(String comment) {}
 
 	
-	public void covergroup_item(String name, String type) {}
+	public void covergroup_item(String name, String type, String target, String body) {}
 
 	
 	public void enter_class_decl(String name, List<SVClassIfcModParam> params,
@@ -174,8 +174,10 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 
 	
 	public void leave_task_decl() {}
-
 	
+	@Override
+	public void typedef(String typeName, SVTypeInfo typeInfo) {}
+
 	public void variable_decl(SVTypeInfo type, int attr, List<String> variables)
 			throws HaltScanException {}
 

@@ -9,7 +9,6 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.search.ISVDBItemVisitor;
 
 public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	

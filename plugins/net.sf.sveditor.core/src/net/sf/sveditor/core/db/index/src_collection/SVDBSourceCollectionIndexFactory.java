@@ -20,11 +20,6 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 		ISVDBIndex ret;
 		
 		System.out.println("createSVDBIndex: " + project_name + " ; " + base_location);
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 		SVFileSet fs = null;
 		

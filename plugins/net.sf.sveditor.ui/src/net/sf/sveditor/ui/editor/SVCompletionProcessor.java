@@ -6,15 +6,32 @@ import java.util.List;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
+import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateContext;
+import org.eclipse.jface.text.templates.TemplateContextType;
+import org.eclipse.jface.text.templates.TemplateProposal;
+
 
 public class SVCompletionProcessor extends AbstractCompletionProcessor 
 		implements IContentAssistProcessor {
@@ -51,19 +68,187 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		// convert SVProposal list to ICompletionProposal list
 		for (SVCompletionProposal p : fCompletionProposals) {
-			fProposals.add(convertToProposal(p));
+			fProposals.add(convertToProposal(p, viewer.getDocument()));
 		}
 		
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
 	}
 	
-	protected ICompletionProposal convertToProposal(SVCompletionProposal p) {
+	protected ICompletionProposal convertToProposal(
+			SVCompletionProposal		p,
+			IDocument					doc) {
 		ICompletionProposal cp = null;
+		int replacementOffset = p.getReplacementOffset();
+		int replacementLength = p.getReplacementLength();
 		
+		System.out.println("convertToProposal: " + p.getItem());
+		
+		if (p.getItem() != null) {
+			SVDBItem it = p.getItem();
+			switch (p.getItem().getType()) {
+				case Function:
+				case Task: 
+					cp = createTaskFuncProposal(
+							it, doc, replacementOffset, replacementLength);
+					break;
+		
+				case Macro:
+					cp = createMacroProposal(
+							it, doc, replacementOffset, replacementLength);
+					break;
+		
+				case Class:
+					cp = createClassProposal(
+							it, doc, replacementOffset, replacementLength);
+					break;
+		
+				default:
+					cp = new CompletionProposal(it.getName(),
+							replacementOffset, replacementLength, 
+							it.getName().length(), SVDBIconUtils.getIcon(it),
+							null, null, null);
+					break;
+			}
+		} else {
+		}
+
 		return cp;
 	}
 	
-	
+	private ICompletionProposal createTaskFuncProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength) {
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
+		
+		d.append(it.getName() + "(");
+		r.append(it.getName() + "(");
+		
+		for (int i=0; i<tf.getParams().size(); i++) {
+			SVDBTaskFuncParam param = tf.getParams().get(i);
+			
+			d.append(param.getTypeName() + " " + param.getName());
+			r.append("${");
+			r.append(param.getName());
+			r.append("}");
+			
+			if (i+1 < tf.getParams().size()) {
+				d.append(", ");
+				r.append(", ");
+			}
+		}
+		d.append(")");
+		r.append(")");
+		
+		if (it.getType() == SVDBItemType.Function &&
+				!it.getName().equals("new")) {
+			d.append(" : ");
+			d.append(tf.getReturnType());
+		}
+		
+		// Find the class that this function belongs to (if any)
+		SVDBItem class_it = it;
+		
+		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
+			class_it = class_it.getParent();
+		}
+
+		Template t = new Template(d.toString(), 
+				(class_it != null)?class_it.getName():"", "CONTEXT",
+				r.toString(), (tf.getParams().size() == 0));
+		
+		return new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+	}
+
+	private ICompletionProposal createMacroProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength) {
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBMacroDef md = (SVDBMacroDef)it;
+		
+		d.append(it.getName() + "(");
+		r.append(it.getName() + "(");
+		
+		for (int i=0; i<md.getParameters().size(); i++) {
+			String param = md.getParameters().get(i);
+			
+			d.append(param);
+			r.append("${");
+			r.append(param);
+			r.append("}");
+			
+			if (i+1 < md.getParameters().size()) {
+				d.append(", ");
+				r.append(", ");
+			}
+		}
+		d.append(")");
+		r.append(")");
+		
+		Template t = new Template(d.toString(), "", "CONTEXT",
+				r.toString(), true);
+		
+		return new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+	}
+
+	private ICompletionProposal createClassProposal(
+			SVDBItem 					it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength) {
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBModIfcClassDecl cl = (SVDBModIfcClassDecl)it;
+		
+		r.append(it.getName());
+		d.append(it.getName());
+		
+		if (cl.getParameters().size() > 0) {
+			r.append(" #(");
+			for (int i=0; i<cl.getParameters().size(); i++) {
+				SVDBModIfcClassParam pm = cl.getParameters().get(i);
+
+				r.append("${");
+				r.append(pm.getName());
+				r.append("}");
+				
+				if (i+1 < cl.getParameters().size()) {
+					r.append(", ");
+				}
+			}
+			r.append(")");
+		}
+
+		Template t = new Template(
+				d.toString(), "", "CONTEXT", r.toString(), true);
+		
+		return new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+	}
+
 	@Override
 	protected ISVDBIndexIterator getIndexIterator() {
 		return fEditor.getIndexIterator();
