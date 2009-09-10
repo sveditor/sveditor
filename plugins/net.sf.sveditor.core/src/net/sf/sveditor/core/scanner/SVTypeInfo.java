@@ -4,8 +4,10 @@ import java.util.List;
 
 public class SVTypeInfo {
 	public boolean						fEnumType = false;
+	public boolean						fModIfc   = false;
 	public List<SVEnumVal>				fEnumVals;
 	public String						fTypeName;
+	public String						fVectorDim;
 	public int							fTypeQualifiers;
 	public List<SVClassIfcModParam>		fParameters;
 	

@@ -1,6 +1,9 @@
 
 package net.sf.sveditor.ui.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
@@ -63,12 +66,16 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
         			new SVMultiLineCommentAutoIndentStrategy(partitioning)
         	};
         } else {
-    		return super.getAutoEditStrategies(sourceViewer, contentType);
-    		/*
-        	return new IAutoEditStrategy[] {
-        			new SVAutoIndentStrategy(partitioning)
-        	};
-        	 */
+        	List<IAutoEditStrategy> ret = new ArrayList<IAutoEditStrategy>();
+        	
+        	IAutoEditStrategy ss[] = super.getAutoEditStrategies(sourceViewer, contentType);
+        	
+        	ret.add(new SVAutoIndentStrategy(partitioning));
+        	for (IAutoEditStrategy si : ss) {
+        		ret.add(si);
+        	}
+        	
+    		return ret.toArray(new IAutoEditStrategy[ret.size()]); 
         }
 	}
 

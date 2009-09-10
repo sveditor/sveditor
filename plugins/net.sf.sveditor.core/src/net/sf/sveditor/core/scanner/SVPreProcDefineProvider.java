@@ -34,6 +34,16 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	}
 	
 	public boolean isDefined(String name, int lineno) {
+		if (fContext == null) {
+			System.out.println("[WARN] File context not set");
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+		
 		SVDBMacroDef m = searchContext(fContext, name);
 		
 		return (m != null && m.getLocation().getLine() <= lineno);

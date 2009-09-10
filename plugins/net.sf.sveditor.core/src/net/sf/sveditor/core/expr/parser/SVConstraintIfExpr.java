@@ -3,12 +3,12 @@ package net.sf.sveditor.core.expr.parser;
 public class SVConstraintIfExpr extends SVConstraintExpr {
 	private SVExpr					fIfExpr;
 	private SVConstraintSetExpr		fConstraint;
-	private SVConstraintSetExpr		fElse;
+	private SVExpr					fElse;
 	
 	public SVConstraintIfExpr(
 			SVExpr 					expr,
 			SVConstraintSetExpr		constraint,
-			SVConstraintSetExpr		else_expr) {
+			SVExpr					else_expr) {
 		super(SVExprType.ConstraintIf);
 		fIfExpr 	= expr;
 		fConstraint = constraint;
@@ -23,7 +23,7 @@ public class SVConstraintIfExpr extends SVConstraintExpr {
 		return fConstraint;
 	}
 	
-	public SVConstraintSetExpr getElseClause() {
+	public SVExpr getElseClause() {
 		return fElse;
 	}
 

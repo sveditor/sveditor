@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -44,6 +45,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	private List<ICompletionProposal>				fProposals = 
 		new ArrayList<ICompletionProposal>();
 
+	public SVCompletionProcessor() {
+		fLog = LogFactory.getDefault().getLogHandle("SVCompletionProcessor");
+	}
 	
 	public void init(SVEditor editor) {
 		fEditor = editor;
@@ -68,7 +72,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		// convert SVProposal list to ICompletionProposal list
 		for (SVCompletionProposal p : fCompletionProposals) {
-			fProposals.add(convertToProposal(p, viewer.getDocument()));
+			ICompletionProposal cp = convertToProposal(p, viewer.getDocument());
+			if (cp != null) {
+				fProposals.add(cp);
+			} else {
+				System.out.println("[WARN] convertToProposal returned null"); 
+			}
 		}
 		
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
@@ -80,8 +89,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		ICompletionProposal cp = null;
 		int replacementOffset = p.getReplacementOffset();
 		int replacementLength = p.getReplacementLength();
-		
-		System.out.println("convertToProposal: " + p.getItem());
 		
 		if (p.getItem() != null) {
 			SVDBItem it = p.getItem();
@@ -110,6 +117,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					break;
 			}
 		} else {
+			cp = new CompletionProposal(p.getReplacement(), 
+					p.getReplacementOffset(), p.getReplacementLength(), 
+					p.getReplacement().length());
 		}
 
 		return cp;
@@ -181,9 +191,11 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
 		SVDBMacroDef md = (SVDBMacroDef)it;
-		
-		d.append(it.getName() + "(");
-		r.append(it.getName() + "(");
+
+		if (md.getParameters().size() > 0) {
+			d.append(it.getName() + "(");
+			r.append(it.getName() + "(");
+		}
 		
 		for (int i=0; i<md.getParameters().size(); i++) {
 			String param = md.getParameters().get(i);
@@ -198,8 +210,11 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				r.append(", ");
 			}
 		}
-		d.append(")");
-		r.append(")");
+		
+		if (md.getParameters().size() > 0) {
+			d.append(")");
+			r.append(")");
+		}
 		
 		Template t = new Template(d.toString(), "", "CONTEXT",
 				r.toString(), true);

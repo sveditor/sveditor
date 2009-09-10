@@ -18,6 +18,10 @@ public class SVDBCoverPoint extends SVDBItem {
 		return fTarget;
 	}
 	
+	public String getBody() {
+		return fBody;
+	}
+	
 	public SVDBCoverPoint(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) 
 		throws DBFormatException {
 		super(file, parent, type, reader);

@@ -13,6 +13,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator {
 	private String							fProject;
@@ -22,6 +25,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	private List<ISVDBIndex>				fPluginLibraryList;
 	private List<List<ISVDBIndex>>			fFileSearchOrder;
 	private Map<String, ISVDBIndex>			fShadowIndexes;
+	private LogHandle						fLog;
 
 	
 	public SVDBIndexCollectionMgr(String project) {
@@ -37,9 +41,16 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fFileSearchOrder.add(fIncludePathList);
 		fFileSearchOrder.add(fLibraryPathList);
 		fFileSearchOrder.add(fPluginLibraryList);
+		
+		fLog = LogFactory.getDefault().getLogHandle("IndexCollectionMgr");
+	}
+	
+	public String getProject() {
+		return fProject;
 	}
 	
 	public void clear() {
+		fLog.debug("clear");
 		for (ISVDBIndex index : fSourceCollectionList) {
 			index.setIncludeFileProvider(null);
 		}
@@ -75,6 +86,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	}
 
 	public void addSourceCollection(ISVDBIndex index) {
+		fLog.debug("addSourceCollection: " + index.getBaseLocation());
+		
 		IncludeProvider p = new IncludeProvider(index);
 		p.addSearchPath(fSourceCollectionList);
 		p.addSearchPath(fIncludePathList);
@@ -85,6 +98,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	}
 	
 	public void addShadowIndex(String dir, ISVDBIndex index) {
+		fLog.debug("addShadowIndex: " + dir + "(" + index.getBaseLocation() + ")");
+		
 		IncludeProvider p = new IncludeProvider(index);
 		p.addSearchPath(fSourceCollectionList);
 		p.addSearchPath(fIncludePathList);
@@ -127,6 +142,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.add(index);
 	}
 	
+	@Override
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
@@ -147,28 +163,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				}
 			}
 		}
-		
-		/*
-		if (ret.size() == 0) {
-			System.out.println("Failed to find pre-proc file \"" + path + "\"");
-			System.out.println("    Searched the following files");
-			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
-				for (ISVDBIndex index : index_l) {
-					System.out.println("        Index: " + index.getClass().getName());
-					for (String file : index.getPreProcFileMap().keySet()) {
-						System.out.println("            " + file);
-						
-					}
-				}
-			}
-			
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		 */
 		
 		return ret;
 	}

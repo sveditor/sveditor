@@ -20,6 +20,8 @@ import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFac
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBFileContextIndexSearcher;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
@@ -70,6 +72,7 @@ public class SVEditor extends TextEditor {
 	private String							fFile;
 	private SVDBFileContextIndexSearcher	fIndexSearcher;
 	private SVDBIndexCollectionMgr			fIndexMgr;
+	private LogHandle						fLog;
 
 	
 	public SVEditor() {
@@ -81,6 +84,8 @@ public class SVEditor extends TextEditor {
 		fCharacterMatcher = new SVCharacterPairMatcher();
 		SVUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(
 				fPropertyChangeListener);
+		
+		fLog = LogFactory.getDefault().getLogHandle("SVEditor");
 	}
 	
 	@Override
@@ -179,7 +184,7 @@ public class SVEditor extends TextEditor {
 					path = "${workspace_loc}" + fi.getFile().getFullPath().toOSString();
 					
 					if (fIndexMgr.findPreProcFile(path).size() == 0) {
-						System.out.println("Create a shadow index");
+						fLog.debug("Create a shadow index for \"" + path + "\"");
 						ISVDBIndex index = rgy.findCreateIndex(
 								fi.getFile().getProject().getName(), 
 								new File(path).getParent(),

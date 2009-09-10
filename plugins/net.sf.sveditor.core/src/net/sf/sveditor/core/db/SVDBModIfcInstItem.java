@@ -6,7 +6,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBModIfcInstItem extends SVDBVarDeclItem {
 	
-	public SVDBModIfcInstItem(String type, String name) {
+	public SVDBModIfcInstItem(SVDBTypeInfo type, String name) {
 		super(type, name, SVDBItemType.ModIfcInst);
 	}
 	
@@ -19,7 +19,7 @@ public class SVDBModIfcInstItem extends SVDBVarDeclItem {
 	}
 	
 	public SVDBItem duplicate() {
-		SVDBItem ret = new SVDBModIfcInstItem(fTypeName, getName());
+		SVDBItem ret = new SVDBModIfcInstItem(fTypeInfo, getName());
 		
 		init(ret);
 		

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.scanner.SVKeywords;
+
 public class SVExprLexer {
 	private int 						fUngetCh;
 	private InputStream					fInput;
@@ -17,6 +19,7 @@ public class SVExprLexer {
 	private Set<String>					fKeywordSet;
 	
 	private String						fImage;
+	private boolean						fIsString;
 	private boolean						fIsOperator;
 	private boolean						fIsNumber;
 	private boolean						fIsIdentifier;
@@ -44,7 +47,9 @@ public class SVExprLexer {
 	private static String keywords[] = {
 		"super", "this", "new",
 		"if", "else", "solve", "before", "foreach", "dist",
-		"inside"
+		"inside",
+		"wildcard", "iff", "bins", "illegal_bins", "ignore_bins",
+		"default", "sequence"
 	};
 	
 	public SVExprLexer() {
@@ -68,7 +73,10 @@ public class SVExprLexer {
 			fOperatorSet.add(op);
 		}
 		
-		for (String kw : keywords) {
+		for (String kw : SVKeywords.getKeywords()) {
+			if (kw.endsWith("*")) {
+				kw = kw.substring(0,kw.length()-1);
+			}
 			fKeywordSet.add(kw);
 		}
 		fDebugEn = false;
@@ -202,8 +210,27 @@ public class SVExprLexer {
 		return fImage;
 	}
 	
-	public void eatToken() {
+	public String eatToken() {
 		fTokenConsumed = true;
+		return fImage;
+	}
+	
+	public String readString() throws SVExprLexerException {
+		peek();
+		
+		if (!fIsString) {
+			throw new SVExprLexerException("Expecting a string ; received \"" +
+					fImage + "\"");
+		}
+		fTokenConsumed = true;
+		
+		return fImage;
+	}
+
+	public boolean peekString() throws SVExprLexerException {
+		peek();
+		
+		return fIsString;
 	}
 
 	public String readId() throws SVExprLexerException {
@@ -237,6 +264,7 @@ public class SVExprLexer {
 		fIsNumber      = false;
 		fIsIdentifier  = false;
 		fIsKeyword     = false;
+		fIsString      = false;
 		
 		// Skip whitespace and comments
 		while (true) {
@@ -270,8 +298,19 @@ public class SVExprLexer {
 		fStringBuffer.setLength(0);
 		String tmp = "" + (char)ch;
 
-		// Operators that can have up to two elements
-		if (fOperatorSet.contains(tmp) || 
+		if (ch == '"') {
+			// String
+			while ((ch = get_ch()) != -1 && ch != '"') {
+				fStringBuffer.append((char)ch);
+			}
+			
+			if (ch != '"') {
+				throw new SVExprLexerException("Unterminated string");
+			}
+			fIsString = true;
+
+		} else if (fOperatorSet.contains(tmp) || 
+				// Operators that can have up to two elements
 				f2SeqPrefixes.contains(tmp) ||
 				f3SeqPrefixes.contains(tmp)) {
 			// Probably an operator in some form

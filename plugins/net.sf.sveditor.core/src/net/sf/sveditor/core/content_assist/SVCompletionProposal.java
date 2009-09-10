@@ -22,12 +22,16 @@ public class SVCompletionProposal {
 		return fReplacement;
 	}
 	
+	public void setReplacement(String replacement) {
+		fReplacement = replacement;
+	}
+	
 	public SVCompletionProposal(
 			String 				replacement, 
 			int 				startOffset, 
 			int 				replacementLength) {
 		fReplacement 		= replacement;
-		fReplacementOffset 		= startOffset;
+		fReplacementOffset 	= startOffset;
 		fReplacementLength 	= replacementLength;
 	}
 	

@@ -4,7 +4,7 @@ public class SVIdentifierExpr extends SVExpr {
 	private String				fId[];
 	private String				fIdStr;
 	
-	public SVIdentifierExpr(String id[]) {
+	public SVIdentifierExpr(String ... id) {
 		super(SVExprType.Identifier);
 		
 		fId = id;

@@ -189,6 +189,8 @@ public class SVScanner implements ISVScanner {
 				fObserver.constraint(cname, expr);
 			}
 		}
+		
+		fNewStatement = true;
 	}
 	
 	private void process_covergroup(String id) throws EOFException {
@@ -272,6 +274,7 @@ public class SVScanner implements ISVScanner {
 					if (fObserver != null) {
 						fObserver.covergroup_item(name, type, target, body);
 					}
+					fNewStatement = true;
 				}
 			}
 		}
@@ -641,7 +644,7 @@ public class SVScanner implements ISVScanner {
 			if (id.equals("end" + type)) {
 				break;
 			}
-			ret = process_module_class_interface_body_item(id);
+			ret = process_module_class_interface_body_item(type, id);
 
 			// Check whether we aborted parsing the body because
 			// we found a 1st-level scope keyword
@@ -907,7 +910,9 @@ public class SVScanner implements ISVScanner {
 		return fTaskFuncParamQualifiers.containsKey(id);
 	}
 	
-	private boolean process_module_class_interface_body_item(String id) throws EOFException {
+	private boolean process_module_class_interface_body_item(
+			String	scope,
+			String 	id) throws EOFException {
 		int     ch, modifiers = 0;
 		boolean ret = true;
 		
@@ -953,7 +958,7 @@ public class SVScanner implements ISVScanner {
 		} else if (id.equals("import")) {
 			unget_ch(ch);
 			process_import(id);
-		} else if (id.startsWith("end")) {
+		} else if (id.startsWith("end") && SVKeywords.isSVKeyword(id)) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.
 			if (fScopeStack.size() > 0) {
@@ -962,9 +967,13 @@ public class SVScanner implements ISVScanner {
 					fScopeStack.pop();
 				}
 			}
-		} else if (id.startsWith("typedef")) {
+		} else if (id.equals("typedef")) {
 			unget_ch(ch);
 			process_typedef();
+		} else if (id.equals("class") && scope.equals("module")) {
+			unget_ch(ch);
+			process_interface_module_class(id);
+			fNewStatement = true;
 		} else if (isFirstLevelScope(id)) {
 			// We've hit a first-level qualifier. This probably means that
 			// there is a missing
@@ -999,10 +1008,10 @@ public class SVScanner implements ISVScanner {
 	 * Expects first string(s) read to be the type name
 	 */
 	private boolean scanVariableDeclaration(int modifiers) throws EOFException {
-		List<String> 	vars = new ArrayList<String>();
-		SVTypeInfo		type;
-		int 			ch;
-		boolean         is_variable = true;
+		List<SvVarInfo> 	vars = new ArrayList<SvVarInfo>();
+		SVTypeInfo			type;
+		int 				ch;
+		boolean         	is_variable = true;
 		
 		ch = skipWhite(next_ch());
 		
@@ -1053,11 +1062,12 @@ public class SVScanner implements ISVScanner {
 			
 			ch = skipWhite(get_ch());
 			
-			
-			vars.add(inst_name_or_var);
+			SvVarInfo var_info = new SvVarInfo();
+			var_info.fName = inst_name_or_var;
+			vars.add(var_info);
 			
 			if (ch == '(') {
-				type.fTypeName = ISVScannerObserver.ModIfcInstPref + type.fTypeName;
+				type.fModIfc = true;
 				
 				// it's a module
 				debug("module instantation - " + inst_name_or_var);
@@ -1067,6 +1077,31 @@ public class SVScanner implements ISVScanner {
 					unget_ch(ch);
 				}
 				break;
+			} else if (ch == '[') {
+				// Array type
+				startCapture();
+				skipPastMatch("[]");
+				String bounds = endCapture();
+				
+				if (bounds != null) {
+					// remove ']'
+					bounds = bounds.substring(0, bounds.length()-1);
+					bounds = bounds.trim();
+					
+					if (bounds.startsWith("$")) {
+						var_info.fAttr |= SvVarInfo.Attr_Queue;
+					} else if (bounds.equals("")) {
+						var_info.fAttr |= SvVarInfo.Attr_DynamicArray;
+					} else {
+						// TODO: Don't really know. Could be a fixed-size array or
+						// a fixed-size array
+						if (bounds.equals("*")) {
+							var_info.fAttr |= SvVarInfo.Attr_AssocArray;
+						} else {
+							var_info.fArrayDim = bounds;
+						}
+					}
+				}
 			}
 
 			ch = skipWhite(ch);
@@ -1238,7 +1273,7 @@ public class SVScanner implements ISVScanner {
 				is_builtin |= (1 << idx);
 				ch = skipWhite(ch);
 				
-				System.out.println("bitrange: " + bitrange);
+				type.fVectorDim = bitrange;
 			}
 			
 			if (!Character.isJavaIdentifierStart(ch)) {
@@ -1300,7 +1335,7 @@ public class SVScanner implements ISVScanner {
 				ret.append(bitrange);
 				ret.append(" ");
 				ch = skipWhite(ch);
-				System.out.println("bitrange (2): " + bitrange);
+				type.fVectorDim = bitrange;
 			}
 			
 			idx++;
@@ -1425,7 +1460,7 @@ public class SVScanner implements ISVScanner {
 	}
 
 	private void debug(String msg) {
-//		System.out.println(msg);
+		// System.out.println(msg);
 	}
 	
 }

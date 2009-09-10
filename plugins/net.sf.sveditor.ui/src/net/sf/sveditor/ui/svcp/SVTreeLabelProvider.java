@@ -5,6 +5,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
@@ -34,14 +35,15 @@ public class SVTreeLabelProvider extends LabelProvider {
 				SVDBVarDeclItem var = (SVDBVarDeclItem)element;
 				
 				ret = ret + " : " + ((SVDBVarDeclItem)element).getTypeName();
+				SVDBTypeInfo type = var.getTypeInfo();
 				
-				if (var.getParameters() != null && var.getParameters().size() > 0) {
+				if (type.getParameters() != null && type.getParameters().size() > 0) {
 					ret += "<";
 					
-					for (int i=0; i<var.getParameters().size(); i++) {
-						SVDBModIfcClassParam p = var.getParameters().get(i);
+					for (int i=0; i<type.getParameters().size(); i++) {
+						SVDBModIfcClassParam p = type.getParameters().get(i);
 						ret += p.getName();
-						if (i+1 < var.getParameters().size()) {
+						if (i+1 < type.getParameters().size()) {
 							ret += ", ";
 						}
 					}

@@ -8,6 +8,9 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.SVFileSet;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogListener;
+import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -20,7 +23,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVCorePlugin extends Plugin {
+public class SVCorePlugin extends Plugin implements ILogListener {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -30,6 +33,7 @@ public class SVCorePlugin extends Plugin {
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
+	private boolean							fDebugEn = false;
 	
 	/**
 	 * The constructor
@@ -45,6 +49,8 @@ public class SVCorePlugin extends Plugin {
 		super.start(context);
 		fPlugin = this;
 		fTodoScanner = new SVTodoScanner();
+		
+		LogFactory.getDefault().addLogListener(this);
 	}
 
 	/*
@@ -65,6 +71,8 @@ public class SVCorePlugin extends Plugin {
 		if (fIndexRegistry != null) {
 			fIndexRegistry.save_state();
 		}
+		
+		LogFactory.getDefault().removeLogListener(this);
 		
 		super.stop(context);
 	}
@@ -150,6 +158,19 @@ public class SVCorePlugin extends Plugin {
 		
 		return ret;
 	}
+
+	@Override
+	public void message(ILogHandle handle, int type, int level, String message) {
+		if (fDebugEn) {
+			if (type == ILogListener.Type_Error) {
+				System.err.println("[" + handle.getName() + "] " + message);
+			} else {
+				System.out.println("[" + handle.getName() + "] " + message);
+			}
+		}
+	}
+	
+	
 }
 
 

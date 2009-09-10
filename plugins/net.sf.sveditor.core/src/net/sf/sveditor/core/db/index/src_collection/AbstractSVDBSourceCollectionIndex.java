@@ -222,6 +222,8 @@ public abstract class AbstractSVDBSourceCollectionIndex
 	private SVDBFile parseFile(InputStream in, String path, SVDBFileTree file_tree) {
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
 		SVDBFile svdb_file = null;
+		
+		System.out.println("file_tree=" + file_tree);
 
 		// Where do defines come from?
 		dp.setFileContext(file_tree);

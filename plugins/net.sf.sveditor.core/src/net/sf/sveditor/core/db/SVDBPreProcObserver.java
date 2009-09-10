@@ -10,6 +10,7 @@ import net.sf.sveditor.core.scanner.ISVScannerObserver;
 import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVTaskFuncParam;
 import net.sf.sveditor.core.scanner.SVTypeInfo;
+import net.sf.sveditor.core.scanner.SvVarInfo;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVDBPreProcObserver implements ISVScannerObserver {
@@ -178,7 +179,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	@Override
 	public void typedef(String typeName, SVTypeInfo typeInfo) {}
 
-	public void variable_decl(SVTypeInfo type, int attr, List<String> variables)
+	public void variable_decl(SVTypeInfo type, int attr, List<SvVarInfo> variables)
 			throws HaltScanException {}
 
 }

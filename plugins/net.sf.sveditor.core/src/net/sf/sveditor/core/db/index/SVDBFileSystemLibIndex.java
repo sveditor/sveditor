@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
 
@@ -16,6 +18,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 public class SVDBFileSystemLibIndex extends AbstractSVDBLibIndex {
 	private File					fBaseLocationFile;
 	private String					fBaseLocation;
+	private File					fBaseLocationDir;
 	
 	public SVDBFileSystemLibIndex(
 			String 			project, 
@@ -33,9 +36,8 @@ public class SVDBFileSystemLibIndex extends AbstractSVDBLibIndex {
 			e.printStackTrace();
 		}
 		
-		System.out.println("exp=" + exp);
-		
 		fBaseLocationFile = new File(exp);
+		fBaseLocationDir = fBaseLocationFile.getParentFile();
 		
 		SVFilesystemFileMatcher matcher = new SVFilesystemFileMatcher();
 		SVFileSet fs = SVCorePlugin.getDefault().getDefaultFileSet(
@@ -51,6 +53,20 @@ public class SVDBFileSystemLibIndex extends AbstractSVDBLibIndex {
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
+	
+	public SVDBFile findIncludedFile(String leaf) {
+		Map<String, SVDBFile> pp_map = getPreProcFileMap();
+		
+		File target = new File(fBaseLocationDir, leaf);
+		
+		if (pp_map.containsKey(target.getAbsolutePath())) {
+			return pp_map.get(target.getAbsolutePath());
+		} else if (target.isFile()) {
+			return processPreProcFile(target.getAbsolutePath());
+		} else {
+			return null;
+		}
+	}
 
 	@Override
 	protected InputStream openStream(String path) {
@@ -58,10 +74,7 @@ public class SVDBFileSystemLibIndex extends AbstractSVDBLibIndex {
 		
 		try {
 			ret = new FileInputStream(path);
-		} catch(IOException e) {
-			System.out.println("Failed to open path \"" + path + "\"");
-			e.printStackTrace();
-		}
+		} catch(IOException e) {}
 
 		return ret;
 	}

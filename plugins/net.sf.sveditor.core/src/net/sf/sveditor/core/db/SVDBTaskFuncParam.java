@@ -6,12 +6,12 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 	
-	public SVDBTaskFuncParam(String type, String name) {
+	public SVDBTaskFuncParam(SVDBTypeInfo type, String name) {
 		super(type, name, SVDBItemType.TaskFuncParam);
 	}
 	
 	public SVDBItem duplicate() {
-		SVDBItem ret = new SVDBTaskFuncParam(fTypeName, getName());
+		SVDBItem ret = new SVDBTaskFuncParam(fTypeInfo, getName());
 		
 		init(ret);
 		

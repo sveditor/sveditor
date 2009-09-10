@@ -378,8 +378,6 @@ public class SVPreProcScanner implements ISVScanner {
 			// ignore
 			// TODO: read to line-end
 			readLine_ll(skipWhite_ll(get_ch_ll()));
-		} else if (type.equals("line") || type.equals("file")) {
-			// readLine_ll(get_ch_ll());
 		} else if (type.equals("begin_keywords") || type.equals("end_keywords")) {
 			// TODO: read to line-end 
 			readLine_ll(skipWhite_ll(get_ch_ll()));
@@ -445,6 +443,14 @@ public class SVPreProcScanner implements ISVScanner {
 						fObserver.preproc_include(inc);
 					}
 				}
+			}
+		} else if (type.equals("__LINE__")) {
+			if (fExpandMacros) {
+				push_unacc("" + getLocation().getLineNo());
+			}
+		} else if (type.equals("__FILE__")) {
+			if (fExpandMacros) {
+				push_unacc("\"" + fFileName + "\"");
 			}
 		} else {
 			// macro expansion.

@@ -23,6 +23,10 @@ public enum SVExprType {
 	DistList,
 	DistItem,
 	Implication,
-	SolveBefore
+	SolveBefore,
+	
+	Coverpoint,
+	CoverBins,
+	Concatenation
 
 }

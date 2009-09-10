@@ -2,6 +2,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public enum SVKeywords {
 	
@@ -239,6 +240,10 @@ public enum SVKeywords {
 	
 	public static boolean isKeyword(String s) {
 		return fKeywords.containsKey(s);
+	}
+	
+	public static Set<String> getKeywords() {
+		return fKeywords.keySet();
 	}
 	
 	public static SVKeywords getKeyword(String s) {

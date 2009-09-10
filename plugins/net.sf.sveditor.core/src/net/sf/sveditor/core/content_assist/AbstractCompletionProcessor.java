@@ -18,13 +18,14 @@ import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 
 public abstract class AbstractCompletionProcessor {
 	protected List<SVCompletionProposal>		fCompletionProposals;
 	
-	protected boolean							fDebug = false;
+	protected LogHandle							fLog;
 	private static final String 				fBuiltInMacroProposals[] = { 
 		"define", "include" 
 	};
@@ -82,6 +83,8 @@ public abstract class AbstractCompletionProcessor {
 		}
 
 		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
+		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 
 		if (ctxt.fTrigger.equals("`")) {
 			// No need to scan backwards. The stem is all we have
@@ -94,11 +97,15 @@ public abstract class AbstractCompletionProcessor {
 			if (src_scope != null) {
 				findTriggeredProposals(scanner, src_scope,
 						ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
+			} else {
+				System.out.println("[WARN] src_scope is null");
 			}
 		} else {
 			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
 					ctxt.fLeaf, ctxt.fStart);
 		}
+
+		System.out.println("ctxt.fLeaf=" + ctxt.fLeaf);
 		
 		order_proposals(ctxt.fLeaf, fCompletionProposals);
 	}
@@ -222,7 +229,7 @@ public abstract class AbstractCompletionProcessor {
 		
 		debug("    preTrigger=" + leaf);
 		List<SVDBItem> info = expr_utils.processPreTriggerPortion(
-				index_iterator, src_scope, leaf, true);
+				index_iterator, src_scope, root, true);
 		
 		final List<SVDBItem> result_f = new ArrayList<SVDBItem>();
 		
@@ -358,7 +365,7 @@ public abstract class AbstractCompletionProcessor {
 
 		if (pre.startsWith("include")) {
 			boolean leading_quote = false, trailing_quote = false;
-			String display = "", replacement = "";
+			String replacement = "";
 
 			// Look at the point beyond the '`include'
 			String post_include = pre.substring("include".length());
@@ -394,7 +401,6 @@ public abstract class AbstractCompletionProcessor {
 				File file = new File(it.getName());
 				
 				if (file.getName().toLowerCase().startsWith(post_include.toLowerCase())) {
-					display = file.getName();
 					replacement = file.getName();
 
 					// Add quotes in if not present already...
@@ -412,10 +418,6 @@ public abstract class AbstractCompletionProcessor {
 					// cursorPosition
 					addProposal(new SVCompletionProposal(replacement,
 							start, replacement_length));
-					/*
-							SVUiPlugin.getImage(ISVIcons.INCLUDE_OBJ),
-							display, null, null), proposals_f);
-					 */
 				}
 			}
 		} else {
@@ -424,24 +426,17 @@ public abstract class AbstractCompletionProcessor {
 					addProposal(new SVCompletionProposal(p, start, pre.length()));
 				}
 			}
-			// TODO: Collect matching macro names from the build path
-			/*
-			for (SVDBFile f : index.getPreProcFileMap().values()) {
-				addMacroProposals(pre, f, doc, start, proposals);
-			}
-			 */
-			
 			ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
 			
 			while (item_it.hasNext()) {
 				SVDBItem it = item_it.nextItem();
 				
-				if (isPrefix(pre, it)) {
+				if (it.getType() == SVDBItemType.Macro &&
+						isPrefix(pre, it)) {
 					addProposal(it, start, pre.length());
 				}
 				debug("it=" + it.getName());
 			}
-			debug("[TODO] Collect matching macro names from build path");
 		}
 	}
 
@@ -462,8 +457,21 @@ public abstract class AbstractCompletionProcessor {
 			SVCompletionProposal p_i = proposals.get(i);
 			for (int j = i + 1; j < proposals.size(); j++) {
 				SVCompletionProposal p_j = proposals.get(j);
+				String s_i, s_j;
+				
+				if (p_i.getItem() != null) {
+					s_i = p_i.getItem().getName();
+				} else {
+					s_i = p_i.getReplacement();
+				}
+				
+				if (p_j.getItem() != null) {
+					s_j = p_j.getItem().getName();
+				} else {
+					s_j = p_j.getReplacement();
+				}
 
-				if (p_i.getItem().getName().compareTo(p_j.getItem().getName()) > 0) {
+				if (s_i.compareTo(s_j) > 0) {
 					proposals.set(i, p_j);
 					proposals.set(j, p_i);
 					p_i = p_j;
@@ -475,9 +483,22 @@ public abstract class AbstractCompletionProcessor {
 			SVCompletionProposal p_i = proposals.get(i);
 			for (int j=i+1; j<proposals.size(); j++) {
 				SVCompletionProposal p_j = proposals.get(j);
+
+				String s_i, s_j;
 				
-				if (prefix.compareTo(p_i.getItem().getName()) >
-						prefix.compareTo(p_j.getItem().getName())) {
+				if (p_i.getItem() != null) {
+					s_i = p_i.getItem().getName();
+				} else {
+					s_i = p_i.getReplacement();
+				}
+				
+				if (p_j.getItem() != null) {
+					s_j = p_j.getItem().getName();
+				} else {
+					s_j = p_j.getReplacement();
+				}
+
+				if (prefix.compareTo(s_i) > prefix.compareTo(s_j)) {
 					proposals.set(i, p_j);
 					proposals.set(j, p_i);
 					p_i = p_j;
@@ -500,15 +521,14 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		if (!found) {
+			System.out.println("addProposal: " + it.getName());
 			addProposal(
 				new SVCompletionProposal(it, replacementOffset, replacementLength));
 		}
 	}
 	
 	protected void debug(String msg) {
-		if (fDebug) {
-			System.out.println(msg);
-		}
+		fLog.debug(msg);
 	}
 
 }

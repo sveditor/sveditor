@@ -74,7 +74,6 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 	}
 	 */
 	
-	@Override
 	@SuppressWarnings("unchecked")
 	protected List<String> getFileList() {
 		String root_dir = new File(fRootFile).getParent();
@@ -144,18 +143,21 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 	protected InputStream openStream(String path) {
 		InputStream ret = null;
 		
-		String leaf = path.substring(("plugin:/" + fPluginNS).length());
-		
-		URL url = fBundle.getEntry(leaf);
-		
-		if (url == null) {
-			System.out.println("Failed to find entry \"" + leaf + "\"");
-		}
-		
-		try {
-			ret = url.openStream();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (path.startsWith("plugin:/")) {
+
+			String leaf = path.substring(("plugin:/" + fPluginNS).length());
+
+			URL url = fBundle.getEntry(leaf);
+
+			if (url == null) {
+				System.out.println("Failed to find entry \"" + leaf + "\"");
+			} else {
+				try {
+					ret = url.openStream();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		return ret;

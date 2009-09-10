@@ -23,8 +23,6 @@ public interface ISVScannerObserver {
 	int ParamAttr_Output			= (1 << 3);
 	int ParamAttr_Inout				= (1 << 4);
 	
-	String ModIfcInstPref           = "@@module_ifc@@";
-	
 	void error(String msg);
 	
 	void init(ISVScanner scanner);
@@ -77,7 +75,7 @@ public interface ISVScannerObserver {
 	 * @param variables
 	 * @throws HaltScanException
 	 */
-	void variable_decl(SVTypeInfo type, int attr, List<String> variables) 
+	void variable_decl(SVTypeInfo type, int attr, List<SvVarInfo> variables) 
 		throws HaltScanException;
 	
 	void leave_module_decl() throws HaltScanException;

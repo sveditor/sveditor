@@ -13,9 +13,6 @@
          <contentTypeBinding
                contentTypeId="net.sf.sveditor.core.systemverilog">
          </contentTypeBinding>
-         <contentTypeBinding
-               contentTypeId="net.sf.sveditor.core.verilog">
-         </contentTypeBinding>
       </editor>
    </extension>
    <extension

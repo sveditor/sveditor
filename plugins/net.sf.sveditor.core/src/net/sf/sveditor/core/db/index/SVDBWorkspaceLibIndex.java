@@ -3,8 +3,10 @@ package net.sf.sveditor.core.db.index;
 import java.io.InputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.fileset.SVWorkspaceFileMatcher;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -17,6 +19,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 public class SVDBWorkspaceLibIndex extends AbstractSVDBLibIndex {
 	private String					fBaseLocation;
 	private IFile					fLibFile;
+	private IContainer				fLibDir;
 	
 	public SVDBWorkspaceLibIndex(
 			String			project_name,
@@ -41,6 +44,7 @@ public class SVDBWorkspaceLibIndex extends AbstractSVDBLibIndex {
 		
 		if (fLibFile != null) {
 			try {
+				fLibDir = fLibFile.getParent();
 				fLibFile.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) { }
 		}
@@ -68,6 +72,7 @@ public class SVDBWorkspaceLibIndex extends AbstractSVDBLibIndex {
 			ret = file.getContents();
 		} catch (CoreException e) { }
 		
+		
 		return ret;
 	}
 	
@@ -88,7 +93,25 @@ public class SVDBWorkspaceLibIndex extends AbstractSVDBLibIndex {
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
-
+	
+	public SVDBFile findIncludedFile(String leaf) {
+		
+		IFile target = fLibDir.getFile(new Path(leaf));
+		String path = "${workspace_loc}" + target.getFullPath().toOSString();
+		
+		System.out.println("findIncludedFile: path=" + path);
+		
+		if (fFileIndex.containsKey(path)) {
+			return fFileIndex.get(path);
+		} else if (target.exists()) {
+			SVDBFile pp_file = processPreProcFile(path);
+			fFileIndex.put(path, pp_file);
+			return pp_file;
+		} else {
+			return null;
+		}
+	}
+	
 	public String getTypeID() {
 		return SVDBLibPathIndexFactory.TYPE;
 	}

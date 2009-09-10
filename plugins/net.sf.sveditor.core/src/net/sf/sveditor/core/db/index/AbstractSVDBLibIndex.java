@@ -16,6 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -26,7 +28,9 @@ import org.eclipse.core.variables.VariablesPlugin;
 public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 	protected Map<String, SVDBFileTree>		fFileTreeMap;
 	protected String						fRoot;
+	protected String						fResolvedRoot;
 	protected List<AbstractSVFileMatcher>	fFileMatchers;
+	protected LogHandle						fLog;
 	
 	
 	public AbstractSVDBLibIndex(String project, String root) {
@@ -35,6 +39,7 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		fFileTreeMap 	= new HashMap<String, SVDBFileTree>();
 		fRoot 			= root;
 		fFileMatchers	= new ArrayList<AbstractSVFileMatcher>();
+		fLog = LogFactory.getDefault().getLogHandle("AbstractSVDBLibIndex");
 	}
 
 
@@ -49,15 +54,24 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 	
 	public String getResolvedBaseLocation() {
 		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
-		
-		String exp = fRoot;
-		try {
-			exp = mgr.performStringSubstitution(fRoot);
-		} catch (CoreException e) {
-			e.printStackTrace();
+
+		if (fResolvedRoot == null) {
+			String exp = fRoot;
+			fResolvedRoot = fRoot;
+			if (exp.startsWith("${workspace_loc}")) {
+				fResolvedRoot = fResolvedRoot.substring("${workspace_loc}".length());
+			}
+			try {
+				fResolvedRoot = mgr.performStringSubstitution(fRoot);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+			if (exp.startsWith("${workspace_loc}")) {
+				fResolvedRoot = "${workspace_loc}" + fResolvedRoot;
+			}
 		}
 		
-		return exp;
+		return fResolvedRoot;
 	}
 	
 	public int getIndexType() {
@@ -83,6 +97,8 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 	
 	@Override
 	protected boolean isLoadUpToDate() {
+		System.out.println("[TODO] AbstractSVDBLibIndex.isLoadUpToDate()");
+		/*
 		List<String> fileList = getFileList();
 		
 		if (fileList.size() != fFileList.size()) {
@@ -107,18 +123,32 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		}
 		
 		return true;
+		 */
+		return false;
 	}
 	
 
 	public SVDBFile parse(InputStream in, String path) {
-		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider();
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
 		SVDBFileFactory scanner = new SVDBFileFactory(dp);
 		
 		getFileDB();
 		
 		SVDBFileTree file_tree = fFileTreeMap.get(path);
 		
+		if (file_tree == null) {
+			// Create an entry if possible
+			SVDBFile svdb_f = findPreProcFile(path);
+			
+			if (svdb_f != null) {
+				file_tree = new SVDBFileTree((SVDBFile)svdb_f.duplicate());
+				
+				prepareFileTree(file_tree, null);
+			}
+		}
+		
 		if (file_tree != null) {
+			dp.setFileContext(file_tree);
 			SVDBFile svdb_f = scanner.parse(in, file_tree.getFilePath());
 			svdb_f.setLastModified(getLastModifiedTime(path));
 			return svdb_f;
@@ -131,7 +161,23 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		}
 	}
 
+	/**
+	 * buildPreProcFileMap()
+	 * 
+	 * Creating the pre-processor map requires that we build the
+	 * 
+	 */
 	protected void buildPreProcFileMap() {
+		// Say the index is valid for now
+		fFileListValid = true;
+		
+		// Getting the file database will ensure the
+		// pre-proc map is up-to-date
+		// getFileDB();
+	}
+	
+	/*
+	protected void buildPreProcFileMap_2() {
 		Iterator<String> entries = getFileList().iterator();
 		
 		while (entries.hasNext()) {
@@ -163,7 +209,9 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		
 		fFileListValid = true;
 	}
+	 */
 	
+	/*
 	protected List<String> getFileList() {
 		List<String> ret; 
 		debug("AbstractSVDBLibIndex.getFileList()");
@@ -184,30 +232,74 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		
 		return ret;
 	}
+	 */
 	
 	protected abstract InputStream openStream(String path);
 
 	protected abstract long getLastModifiedTime(String file);
 
+	/**
+	 * buildIndex()
+	 * 
+	 * Called by AbstractSVDBIndex to build the index
+	 */
 	protected void buildIndex() {
-		System.out.println("--> buildIndex()");
+		fLog.debug("--> buildIndex()");
 		long start = System.currentTimeMillis();
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider();
 		
-		SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());
+		// SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());
+		SVDBFile pp_file = processPreProcFile(getResolvedBaseLocation());
 
 		if (pp_file == null) {
 			System.out.println("Failed to find file \"" + getResolvedBaseLocation() + "\"");
 			System.out.println("    class: " + getClass().getName());
+			fFileIndexValid = true;
+			return;
 		}
+		
+		if (fFileList.containsKey(getResolvedBaseLocation())) {
+			fFileList.remove(getResolvedBaseLocation());
+		}
+		fFileList.put(getResolvedBaseLocation(), pp_file);
+		
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 		
 		prepareFileTree(ft_root, null);
 		processFile(ft_root, dp);
 		
 		fFileIndexValid = true;
+		fFileListValid = true;
+		
 		long end = System.currentTimeMillis();
-		System.out.println("<-- buildIndex(" + (end-start) + ")");
+		fLog.debug("<-- buildIndex(" + (end-start) + ")");
+	}
+	
+	protected SVDBFile processPreProcFile(String path) {
+		SVPreProcScanner 	sc = new SVPreProcScanner();
+		SVDBPreProcObserver ob = new SVDBPreProcObserver();
+
+		sc.setObserver(ob);
+		
+		fLog.debug("processPreProcFile: path=" + path);
+		InputStream in = openStream(path);
+		
+		if (in == null) {
+			System.out.println("failed to open \"" + path + "\"");
+		}
+
+		sc.init(in, path);
+		sc.scan();
+		
+		try {
+			in.close();
+		} catch (IOException e) { }
+
+		SVDBFile file = ob.getFiles().get(0);
+
+		file.setLastModified(getLastModifiedTime(path));
+		
+		return file;
 	}
 
 	protected void processFile(
@@ -259,7 +351,8 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		
 		addIncludeFiles(root, root.getSVDBFile());
 	}
-	
+
+	/*
 	protected SVDBFile findIncludeFile(String path) {
 		for (String p : getPreProcFileMap().keySet()) {
 			if (p.endsWith(path)) {
@@ -269,6 +362,7 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		
 		return null;
 	}
+	 */
 
 	protected void addIncludeFiles(
 			SVDBFileTree 		root, 
@@ -276,7 +370,8 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Include) {
 				debug("Include file: " + it.getName());
-				SVDBFile f = findIncludeFile(it.getName());
+				
+				SVDBFile f = findIncludedFile(it.getName());
 
 				if (f != null) {
 					SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.duplicate());
@@ -292,8 +387,28 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		}
 	}
 	
+	public SVDBFile findPreProcFile(String path) {
+		debug("findPreProcFile \"" + path + "\"");
+		if (fFileList.containsKey(path)) {
+			return fFileList.get(path);
+		} else {
+			InputStream in = openStream(path);
+			
+			if (in != null) {
+				SVDBFile file = processPreProcFile(path);
+				fFileList.put(path, file);
+				try {
+					in.close();
+				} catch (IOException e) { }
+				
+				return file;
+			}
+		}
+		return null;
+	}
+	
 	private void debug(String msg) {
-		
+		fLog.debug(msg);
 	}
 
 }

@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.expr.parser.SVConstraintExpr;
 import net.sf.sveditor.core.expr.parser.SVConstraintSetExpr;
+import net.sf.sveditor.core.expr.parser.SVExpr;
 import net.sf.sveditor.core.expr.parser.SVExprDump;
 import net.sf.sveditor.core.expr.parser.SVExprParseException;
 import net.sf.sveditor.core.expr.parser.SVExprParser;
@@ -26,7 +27,7 @@ public class SmokeTest extends TestCase {
 		String constraint = "if (a == 5) {b inside {6, 7, [8:10]}; c == 7;} else if (b == 6) { c == 8 ; d == 10;}";
 		StringInputStream in = new StringInputStream(constraint);
 		SVExprDump dump = new SVExprDump(System.out);
-		List<SVConstraintExpr> expr_l = null;
+		List<SVExpr> expr_l = null;
 		
 		try {
 			expr_l = p.parse_constraint(in);
@@ -41,7 +42,7 @@ public class SmokeTest extends TestCase {
 		SVDBFile file = null;
 		InputStream in = null;
 		List<SVDBConstraint>	constraints = new ArrayList<SVDBConstraint>();
-		List<List<SVConstraintExpr>> constraint_expr = new ArrayList<List<SVConstraintExpr>>();
+		List<List<SVExpr>> constraint_expr = new ArrayList<List<SVExpr>>();
 		SVExprParser p = new SVExprParser();
 		
 		try {

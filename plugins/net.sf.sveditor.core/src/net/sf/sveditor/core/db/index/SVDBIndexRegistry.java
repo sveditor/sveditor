@@ -156,6 +156,10 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				loaded = true;
 			} catch (Exception e) {
 				e.printStackTrace();
+				
+				// Remove the DB file, since it's bad... 
+				File db_file = desc.getDBFile();
+				db_file.delete();
 			} finally {
 				if (in != null) {
 					try {

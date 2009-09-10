@@ -14,6 +14,10 @@ public class SVExprParser {
 		fExprDump = new SVExprDump(System.out);
 	}
 	
+	public void init(InputStream in) {
+		fLexer.init(in);
+	}
+	
 
 	/**
 	 * parse_constraint()
@@ -24,10 +28,10 @@ public class SVExprParser {
 	 * @return
 	 * @throws SVExprParseException
 	 */
-	public List<SVConstraintExpr> parse_constraint(InputStream in) throws SVExprParseException {
+	public List<SVExpr> parse_constraint(InputStream in) throws SVExprParseException {
 		fLexer.init(in);
 		
-		List<SVConstraintExpr> ret = new ArrayList<SVConstraintExpr>();
+		List<SVExpr> ret = new ArrayList<SVExpr>();
 
 		try {
 			SVExpr expr;
@@ -37,7 +41,13 @@ public class SVExprParser {
 				expr = constraint_block_item();
 				
 				if (expr != null) {
-					ret.add((SVConstraintExpr)expr);
+					try {
+						ret.add(expr);
+					} catch (Exception e) {
+						System.out.println("expr is of type " + expr.getClass().getName());
+						System.out.println("    expr: " + SVExprUtils.getDefault().exprToString(expr));
+						throw e;
+					}
 				} else {
 					System.out.println("[FIXME] null expr");
 				}
@@ -79,8 +89,87 @@ public class SVExprParser {
 		return expr;
 	}
 	
-	public List<SVCoverageExpr> parse_coverpoint(InputStream in) throws SVExprParseException {
-		return null;
+	/**
+	 * Parse the description of the coverpoint target
+	 * 
+	 * @param coverpoint
+	 */
+	public void coverpoint_target(SVCoverpointExpr coverpoint) 
+		throws SVExprLexerException, SVExprParseException {
+		
+		SVExpr target = expression();
+		
+		coverpoint.setTarget(target);
+		
+		if (peekKeyword("iff")) {
+			eatToken();
+			readOperator("(");
+			SVExpr iff_expr = expression();
+			readOperator(")");
+			
+			coverpoint.setIFFExpr(iff_expr);
+		}
+	}
+	
+	public void coverpoint_body(SVCoverpointExpr coverpoint) 
+		throws SVExprParseException, SVExprLexerException {
+		
+		while (peekKeyword("wildcard", "bins", "ignore_bins", "illegal_bins",
+				"option", "type_option")) {
+			
+			if (peekKeyword("option", "type_option")) {
+				String kw = eatToken();
+				
+				readOperator(".");
+				
+				String option = readIdentifier();
+				
+				if (!fLexer.peekString() && !fLexer.peekNumber()) {
+					throw new SVExprParseException("unknown option value type \"" +
+							peek() + "\"");
+				}
+				
+				if (kw.equals("option")) {
+					coverpoint.addOption(option, eatToken());
+				} else {
+					coverpoint.addTypeOption(option, eatToken());
+				}
+			} else {
+				if (peekKeyword("wildcard")) {
+					eatToken();
+				}
+
+				String bins_kw = readKeyword("bins", "ignore_bins", "illegal_bins");
+				String bins_id = readIdentifier();
+
+				SVCoverBinsExpr bins = new SVCoverBinsExpr(bins_id, bins_kw);
+
+				if (peekOperator("[")) {
+					eatToken();
+
+					bins.setIsArray(true);
+
+					if (!peekOperator("]")) {
+						// read the inner expression
+						bins.setArrayExpr(expression());
+					}
+					readOperator("]");
+				}
+
+				readOperator("=");
+
+				if (peekOperator("{")) {
+					open_range_list(bins.getRangeList());
+				} else {
+					throw new SVExprParseException("Unsupported coverage expression: " + 
+							peek());
+					// 'default' or 'default sequence'
+					// ???
+				}
+
+				coverpoint.getCoverBins().add(bins);
+			}
+		}
 	}
 	
 	public List<SVCoverageExpr> parse_covercross(InputStream in) throws SVExprParseException {
@@ -215,8 +304,13 @@ public class SVExprParser {
 		SVConstraintSetExpr constraint = constraint_set();
 		
 		if (peekKeyword("else")) {
+			SVExpr else_expr;
 			eatToken();
-			SVConstraintSetExpr else_expr = constraint_set();
+			if (peekKeyword("if")) {
+				else_expr = constraint_if_expression();
+			} else {
+				else_expr = constraint_set();
+			}
 			ret = new SVConstraintIfExpr(if_expr, constraint, else_expr);
 		} else {
 			ret = new SVConstraintIfExpr(if_expr, constraint, null);
@@ -310,29 +404,39 @@ public class SVExprParser {
 		} else if (peekKeyword("inside")) {
 			eatToken();
 			SVInsideExpr inside = new SVInsideExpr(a);
-			readOperator("{");
-			do {
-				if (peekOperator(",")) {
-					eatToken();
-				}
-				if (peekOperator("[")) {
-					eatToken();
-					SVExpr left = expression();
-					readOperator(":");
-					SVExpr right = expression();
-					inside.getValueRangeList().add(new SVRangeExpr(left, right));
-					readOperator("]");
-				} else {
-					inside.getValueRangeList().add(expression());
-				}
-			} while (peekOperator(","));
-			readOperator("}");
+			
+			open_range_list(inside.getValueRangeList());
 			
 			a = inside;
 		}
 
 		debug("<-- assignmentExpression() " + a);
 		return a;
+	}
+	
+	public void open_range_list(List<SVExpr> list) throws SVExprParseException, SVExprLexerException {
+		readOperator("{");
+		do {
+			if (peekOperator(",")) {
+				eatToken();
+			}
+			if (peekOperator("[")) {
+				list.add(parse_range());
+			} else {
+				list.add(expression());
+			}
+		} while (peekOperator(","));
+		readOperator("}");
+	}
+	
+	public SVRangeExpr parse_range() throws SVExprParseException, SVExprLexerException {
+		readOperator("[");
+		SVExpr left = expression();
+		readOperator(":");
+		SVExpr right = expression();
+		readOperator("]");
+		
+		return new SVRangeExpr(left, right);
 	}
 	
 	/**
@@ -544,6 +648,9 @@ public class SVExprParser {
 					debug("  after id-read: " + peek());
 					debug("  qi.length=" + qi.length);
 				}
+			} else if (fLexer.peekOperator("{")) {
+				// concatenation
+				ret = concatenation();
 			} else if (peekKeyword("this")) {
 				eatToken();
 				
@@ -563,6 +670,25 @@ public class SVExprParser {
 		}
 		
 		debug("<-- primary() " + ret);
+		return ret;
+	}
+	
+	private SVExpr concatenation() throws SVExprLexerException, SVExprParseException {
+		readOperator("{");
+		SVConcatenationExpr ret = new SVConcatenationExpr();
+		
+		do {
+			ret.getElements().add(expression());
+			
+			if (peekOperator(",")) {
+				eatToken();
+			} else {
+				break;
+			}
+		} while (true);
+		
+		readOperator("}");
+		
 		return ret;
 	}
 	
@@ -696,8 +822,8 @@ public class SVExprParser {
 		return fLexer.readNumber();
 	}
 	
-	private void eatToken() {
-		fLexer.eatToken();
+	private String eatToken() {
+		return fLexer.eatToken();
 	}
 	
 	private void debug(String msg) {

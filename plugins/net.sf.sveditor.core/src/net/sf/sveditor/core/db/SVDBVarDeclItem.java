@@ -1,53 +1,50 @@
 package net.sf.sveditor.core.db;
 
-import java.util.List;
-
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBVarDeclItem extends SVDBFieldItem {
-	protected String						fTypeName;
-	protected List<SVDBModIfcClassParam>	fParameters;
+	protected SVDBTypeInfo					fTypeInfo;
 	
-	public SVDBVarDeclItem(String type, String name) {
+	public SVDBVarDeclItem(SVDBTypeInfo type, String name) {
 		super(name, SVDBItemType.VarDecl);
-		fTypeName = type;
+		fTypeInfo = type;
 	}
 
-	public SVDBVarDeclItem(String type, String name, SVDBItemType itype) {
+	public SVDBVarDeclItem(SVDBTypeInfo type, String name, SVDBItemType itype) {
 		super(name, itype);
-		fTypeName = type;
+		fTypeInfo = type;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public SVDBVarDeclItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
-		fTypeName   = reader.readString();
-		fParameters = (List<SVDBModIfcClassParam>)reader.readItemList(file, parent);
+		
+		// The constructor doesn't load the type info 
+		SVDBItemType ti = reader.readItemType();
+		if (ti != SVDBItemType.TypeInfo) {
+			throw new DBFormatException("Expecting type TypeInfo, received " +
+					ti.toString());
+		}
+		fTypeInfo = new SVDBTypeInfo(file, parent, SVDBItemType.TypeInfo, reader);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		writer.writeString(fTypeName);
-		writer.writeItemList(fParameters);
+		
+		fTypeInfo.dump(writer);
 	}
-	
-	public List<SVDBModIfcClassParam> getParameters() {
-		return fParameters;
-	}
-	
-	public void setParameters(List<SVDBModIfcClassParam> parameters) {
-		fParameters = parameters;
-	}
-
 	
 	public String getTypeName() {
-		return fTypeName;
+		return fTypeInfo.getName();
+	}
+	
+	public SVDBTypeInfo getTypeInfo() {
+		return fTypeInfo;
 	}
 	
 	public SVDBItem duplicate() {
-		SVDBVarDeclItem ret = new SVDBVarDeclItem(fTypeName, getName());
+		SVDBVarDeclItem ret = new SVDBVarDeclItem(fTypeInfo, getName());
 		
 		ret.init(this);
 		
@@ -57,7 +54,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public void init(SVDBItem other) {
 		super.init(other);
 
-		fTypeName = ((SVDBVarDeclItem)other).fTypeName;
+		fTypeInfo.init(((SVDBVarDeclItem)other).fTypeInfo);
 	}
 
 }

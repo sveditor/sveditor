@@ -270,7 +270,44 @@ public class SVExpressionUtils {
 			return item_list;
 		}
 	}
-	
+
+	/**
+	 * Process the pre-trigger portion of a context string
+	 * 
+	 * @param searcher
+	 * @param context
+	 * @param preTrigger
+	 * @return
+	 */
+	public List<SVDBItem> processPreTriggerPortion_2(
+			ISVDBIndexIterator			index_it,
+			SVDBScopeItem				context,
+			String						preTrigger,
+			boolean						allowNonClassLastElem) {
+		List<SVExprItemInfo> info_list = new ArrayList<SVExprItemInfo>();
+		
+		if (processPreTriggerPortion(0, null, info_list, preTrigger) == -1) {
+			return null;
+		}
+		
+		List<SVDBItem> item_list = new ArrayList<SVDBItem>();
+		
+		for (SVExprItemInfo info : info_list) {
+			switch (info.getType()) {
+				case TaskFunc:
+					break;
+					
+				case SubExpr:
+					break;
+					
+				case Id:
+					break;
+			}
+		}
+
+		return item_list;
+	}
+
 	/**
 	 * 
 	 * The procedure here is pretty simple:
