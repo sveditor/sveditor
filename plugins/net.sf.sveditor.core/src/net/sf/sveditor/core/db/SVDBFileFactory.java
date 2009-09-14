@@ -420,6 +420,9 @@ public class SVDBFileFactory implements ISVScannerObserver {
 			for (String cp : target.split(",")) {
 				cp = cp.trim();
 				if (!cp.equals("")) {
+					if (cp.endsWith(";")) {
+						cp = cp.substring(0, cp.length()-1).trim();
+					}
 					((SVDBCoverpointCross)it).getCoverpointList().add(cp);
 				}
 			}

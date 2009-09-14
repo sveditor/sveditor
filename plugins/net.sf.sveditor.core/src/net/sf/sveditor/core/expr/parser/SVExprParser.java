@@ -160,6 +160,9 @@ public class SVExprParser {
 
 				if (peekOperator("{")) {
 					open_range_list(bins.getRangeList());
+				} else if (peekKeyword("default")) {
+					eatToken();
+					bins.setIsDefault(true);
 				} else {
 					throw new SVExprParseException("Unsupported coverage expression: " + 
 							peek());
@@ -168,6 +171,10 @@ public class SVExprParser {
 				}
 
 				coverpoint.getCoverBins().add(bins);
+				
+				if (peekOperator(";")) {
+					eatToken();
+				}
 			}
 		}
 	}

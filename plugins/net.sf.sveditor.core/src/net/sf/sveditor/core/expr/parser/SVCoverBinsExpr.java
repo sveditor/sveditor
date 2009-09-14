@@ -1,9 +1,7 @@
 package net.sf.sveditor.core.expr.parser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SVCoverBinsExpr extends SVCoverageExpr {
 	private String				fName;
@@ -11,6 +9,7 @@ public class SVCoverBinsExpr extends SVCoverageExpr {
 	private boolean				fIsArray;
 	private SVExpr				fArrayExpr;
 	private List<SVExpr>		fRangeList;
+	private boolean				fIsDefault;
 	
 	public SVCoverBinsExpr(String name, String bins_type) {
 		super(SVExprType.CoverBins);
@@ -21,6 +20,14 @@ public class SVCoverBinsExpr extends SVCoverageExpr {
 	
 	public String getName() {
 		return fName;
+	}
+	
+	public void setIsDefault(boolean dflt) {
+		fIsDefault = dflt;
+	}
+	
+	public boolean isDefault() {
+		return fIsDefault;
 	}
 	
 	public String getBinsType() {
