@@ -69,5 +69,37 @@ public class SVDBTypedef extends SVDBItem {
 	public String getTypeName() {
 		return fTypeName;
 	}
+
+	@Override
+	public SVDBItem duplicate() {
+		SVDBTypedef ret = new SVDBTypedef(fTypeName);
+		
+		ret.init(this);
+
+		return ret;
+	}
+
+	@Override
+	public void init(SVDBItem other) {
+		SVDBTypedef ot = (SVDBTypedef)other;
+		
+		fIsEnum = ot.fIsEnum;
+		
+		super.init(other);
+		
+		fTypeName = ot.fTypeName;
+		
+		if (fIsEnum) {
+			fEnumNames = new ArrayList<String>();
+			fEnumVals = new ArrayList<Integer>();
+			fEnumNames.addAll(ot.fEnumNames);
+			fEnumVals.addAll(ot.fEnumVals);
+		} else {
+			fEnumNames = null;
+			fEnumVals = null;
+		}
+	}
+	
+	
 	
 }

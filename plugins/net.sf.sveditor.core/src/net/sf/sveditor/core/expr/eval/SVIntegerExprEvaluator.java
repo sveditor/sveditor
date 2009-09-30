@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 import net.sf.sveditor.core.expr.parser.SVBinaryExpr;
 import net.sf.sveditor.core.expr.parser.SVExpr;
+import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
 import net.sf.sveditor.core.expr.parser.SVLiteralExpr;
 
 public class SVIntegerExprEvaluator {
@@ -26,6 +27,17 @@ public class SVIntegerExprEvaluator {
 						evaluate(binary.getLhs()), 
 						binary.getOp(),
 						evaluate(binary.getRhs()));
+			}
+			
+			case Identifier: {
+				SVIdentifierExpr id = (SVIdentifierExpr)expr;
+				
+				if (fValueProvider != null) {
+					return fValueProvider.get_value(id.getIdStr());
+				} else {
+					throw new Exception("Unable to resolve value of id \"" + 
+							id.getIdStr() + "\"; ValueProvider is null");
+				}
 			}
 				
 			default:

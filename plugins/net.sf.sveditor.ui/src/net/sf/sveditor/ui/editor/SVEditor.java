@@ -263,8 +263,11 @@ public class SVEditor extends TextEditor {
 		setAction("ContentAssistTip", a);
 
 		a = new TextOperationAction(bundle,
-				"ContentFormatProposal.", this, ISourceViewer.FORMAT);
-		setAction("ContentFormatProposal", a);
+				"Format.", this, ISourceViewer.FORMAT);
+		a.setActionDefinitionId("net.sveditor.ui.indent");
+		setAction("Format", a);
+		markAsStateDependentAction("Format", true);
+		markAsSelectionDependentAction("Format", true);
 
 		
 		// Add the task action to the Edit pulldown menu (bookmark action is

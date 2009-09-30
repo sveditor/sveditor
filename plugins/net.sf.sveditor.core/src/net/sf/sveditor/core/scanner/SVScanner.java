@@ -1359,23 +1359,67 @@ public class SVScanner implements ISVScanner {
 				type.fEnumVals = new ArrayList<SVEnumVal>();
 				
 				if (ch == '{') {
+					long c_val = 0;
+					
 					// we're probably scanning a typedef
 					do {
 						ch = skipWhite(get_ch());
 						
 						id = readIdentifier(ch);
-						type.fEnumVals.add(new SVEnumVal(id, -1));
+						long val_i = -1;
 						
 						ch = skipWhite(get_ch());
 						
 						if (ch == '=') {
+							ch = skipWhite(get_ch());
+							
+							startCapture(ch);
+							
 							// handle optional equals clause
 							while ((ch = next_ch()) != -1 &&
 									ch != ',' && ch != '}') {
 								// skip to the next item
 							}
+							
+							String val = endCapture();
+							
+							if (val.endsWith(",") || val.endsWith("}")) {
+								val = val.substring(0, val.length()-1);
+							}
+							val = val.trim();
+							
+							int radix = 10;
+							
+							if (val.startsWith("'")) {
+								int radix_c = Character.toLowerCase(val.charAt(1));
+								
+								if (radix_c == 'd') {
+									radix = 10;
+								} else if (radix_c == 'h') {
+									radix = 16;
+								} else if (radix_c == 'b') {
+									radix = 2;
+								} else if (radix_c == 'o') {
+									radix = 8;
+								} else {
+									System.out.println("[WARN] unknown radix \"" + 
+											(char)radix_c + "\"");
+								}
+								val = val.substring(2);
+							}
+							
+							try {
+								val_i = Long.parseLong(val, radix);
+								c_val = val_i;
+							} catch (NumberFormatException e) {
+								System.out.println("[WARN] problem parsing enum val \"" + 
+										val + "\"");
+							}
 						}
-						
+
+						type.fEnumVals.add(new SVEnumVal(id, c_val));
+						c_val++;
+
 						if (ch != ',') {
 							break;
 						}

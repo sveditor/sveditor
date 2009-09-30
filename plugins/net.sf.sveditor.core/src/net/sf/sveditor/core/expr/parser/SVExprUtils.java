@@ -128,6 +128,8 @@ public class SVExprUtils {
 					ps.print(":");
 					expr_to_string(ps, r.getRight());
 					ps.print("]");
+				} else if (r_i.getType() == SVExprType.Identifier) {
+					ps.print(getAccess(((SVIdentifierExpr)r_i).getIdStr()));
 				}
 				if (i+1 < i_expr.getValueRangeList().size()) {
 					ps.print(", ");

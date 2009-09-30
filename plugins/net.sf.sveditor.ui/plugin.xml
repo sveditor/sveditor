@@ -177,6 +177,10 @@
             id="net.sf.sveditor.ui.override.tf.command"
             name="Override Tasks/Functions">
       </command>
+      <command
+            id="net.sf.sveditor.ui.indent"
+            name="Indent">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -185,6 +189,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.indent"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+I">
       </key>
    </extension>
    <extension
@@ -221,6 +231,17 @@
                   name="editGroup">
             </separator>
          </menu>
+      </actionSet>
+      <actionSet
+            id="net.sf.sveditor.ui.actionSet1"
+            label="SV Source Editor">
+         <action
+               definitionId="net.sf.sveditor.ui.indent"
+               id="net.sf.sveditor.ui.actions.Indent"
+               label="Indent"
+               retarget="true"
+               style="push">
+         </action>
       </actionSet>
    </extension>
    <extension

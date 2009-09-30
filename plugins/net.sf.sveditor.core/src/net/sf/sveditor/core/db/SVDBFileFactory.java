@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
 import net.sf.sveditor.core.scanner.HaltScanException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVScanner;
@@ -486,9 +487,12 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		
 		if (typeInfo.fEnumType) {
 			typedef = new SVDBTypedef(typeName);
+			
 			for (SVEnumVal v : typeInfo.fEnumVals) {
 				typedef.getEnumNames().add(v.fName);
+				typedef.getEnumVals().add((int)v.fVal);
 			}
+			
 		} else {
 			typedef = new SVDBTypedef(typeInfo.fTypeName, typeName);
 		}

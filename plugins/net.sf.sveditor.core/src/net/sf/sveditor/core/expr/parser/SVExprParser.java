@@ -20,6 +20,7 @@ public class SVExprParser {
 	
 
 	/**
+	 * 
 	 * parse_constraint()
 	 * 
 	 * Parse the body of a constraint statement
@@ -318,9 +319,9 @@ public class SVExprParser {
 			} else {
 				else_expr = constraint_set();
 			}
-			ret = new SVConstraintIfExpr(if_expr, constraint, else_expr);
+			ret = new SVConstraintIfExpr(if_expr, constraint, else_expr, true);
 		} else {
-			ret = new SVConstraintIfExpr(if_expr, constraint, null);
+			ret = new SVConstraintIfExpr(if_expr, constraint, null, false);
 		}
 		
 		debug("<-- constraint_if_expression");
