@@ -16,6 +16,8 @@ public interface ISVIcons {
 	String PROPERTY_OBJ  = OBJ_ICONS + "property_16_16.gif";
 	String MOD_IFC_INST_OBJ = OBJ_ICONS + "mod_ifc_inst.gif";
 	String LOCAL_OBJ        = OBJ_ICONS + "localvariable_obj.gif";
+	String ENUM_TYPE_OBJ = OBJ_ICONS + "enum_obj.gif";
+	String TYPEDEF_TYPE_OBJ = OBJ_ICONS + "typedef_obj.gif";
 
 	String DECL_ICONS = "icons/edecl16/";
 	String FIELD_PRIV_OBJ = DECL_ICONS + "field_private_obj.gif";
@@ -27,5 +29,6 @@ public interface ISVIcons {
 	String TASK_PRIV_OBJ = DECL_ICONS + "private_co.gif";
 	String TASK_PROT_OBJ = DECL_ICONS + "protected_co.gif";
 	String TASK_PUB_OBJ = DECL_ICONS + "public_co.gif";
+	
 	
 }

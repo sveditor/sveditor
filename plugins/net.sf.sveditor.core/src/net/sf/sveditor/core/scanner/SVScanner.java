@@ -427,7 +427,11 @@ public class SVScanner implements ISVScanner {
 				while (ch == '[') {
 					startCapture(ch);
 					ch = skipPastMatch("[]", ",;");
-					t.fTypeName += endCapture();
+					
+					String capture = endCapture();
+					capture = capture.substring(0, capture.length()-1).trim();
+					
+					t.fTypeName += capture; 
 					ch = skipWhite(ch);
 				}
 				
@@ -503,6 +507,7 @@ public class SVScanner implements ISVScanner {
 						fObserver.error("missing \"" + exp_end + "\" @ " +
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
+						System.out.println("second-level scope \"" + id + "\"");
 					}
 
 					// 
@@ -516,6 +521,8 @@ public class SVScanner implements ISVScanner {
 								getLocation().getFileName() + ":" +
 								getLocation().getLineNo());
 					}
+
+					System.out.println("first-level scope \"" + id + "\" " + tf_name);
 
 					// We're in a first-level scope.
 					// we pick it up on next pass
@@ -984,6 +991,8 @@ public class SVScanner implements ISVScanner {
 			// Labeled statement -- often a cover
 			System.out.println("labeled statement: " + id);
 			System.out.println("    " + getLocation().getFileName() + ":" + getLocation().getLineNo());
+			fNewStatement = true;
+			ret = false; 
 		} else {
 			// likely a variable or module declaration
 			
@@ -1083,6 +1092,8 @@ public class SVScanner implements ISVScanner {
 				skipPastMatch("[]");
 				String bounds = endCapture();
 				
+				bounds = bounds.substring(0, bounds.length()-1).trim();
+				
 				if (bounds != null) {
 					// remove ']'
 					bounds = bounds.substring(0, bounds.length()-1);
@@ -1142,6 +1153,7 @@ public class SVScanner implements ISVScanner {
 				case '\n':
 					// Typically mark the end of statements
 					fNewStatement = true;
+					// System.out.println("new statement @ " + getLocation().getLineNo() + "(" + (char)ch + ")");
 					break;
 					
 				// Ignore whitespace...
@@ -1267,6 +1279,9 @@ public class SVScanner implements ISVScanner {
 				ch = skipPastMatch("[]", "[");
 				bitrange = endCapture();
 				
+				// Ensure the last character is removed. 
+				bitrange = bitrange.substring(0, bitrange.length()-1).trim();
+				
 				ret.append(" ");
 				ret.append(bitrange);
 				ret.append(" ");
@@ -1331,6 +1346,10 @@ public class SVScanner implements ISVScanner {
 				ch = skipPastMatch("[]", "[");
 				bitrange = endCapture();
 				
+				// Ensure the last character is removed. 
+				bitrange = bitrange.substring(0, bitrange.length()-1).trim();
+				
+				
 				ret.append(" ");
 				ret.append(bitrange);
 				ret.append(" ");
@@ -1388,28 +1407,9 @@ public class SVScanner implements ISVScanner {
 							}
 							val = val.trim();
 							
-							int radix = 10;
-							
-							if (val.startsWith("'")) {
-								int radix_c = Character.toLowerCase(val.charAt(1));
-								
-								if (radix_c == 'd') {
-									radix = 10;
-								} else if (radix_c == 'h') {
-									radix = 16;
-								} else if (radix_c == 'b') {
-									radix = 2;
-								} else if (radix_c == 'o') {
-									radix = 8;
-								} else {
-									System.out.println("[WARN] unknown radix \"" + 
-											(char)radix_c + "\"");
-								}
-								val = val.substring(2);
-							}
 							
 							try {
-								val_i = Long.parseLong(val, radix);
+								val_i = VerilogNumberParser.parseLong(val);
 								c_val = val_i;
 							} catch (NumberFormatException e) {
 								System.out.println("[WARN] problem parsing enum val \"" + 

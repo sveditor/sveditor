@@ -29,6 +29,11 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	public void init(ISVDBIndexRegistry registry) {
 		// nothing
 	}
+	
+	public SVDBFile findIncludedFile(String leaf) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public void dispose() {
 		for (ISVDBIndex idx : fIndexList) {
@@ -40,7 +45,6 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return "net.sf.sveditor.svdb_index_list";
 	}
 
-	@Override
 	public ISVDBItemIterator<SVDBItem> getItemIterator() {
 		// TODO Auto-generated method stub
 		return null;

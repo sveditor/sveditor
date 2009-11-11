@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
 import net.sf.sveditor.core.scanner.HaltScanException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVScanner;
@@ -437,8 +436,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		}
 	}
 	
-	
-	@Override
 	public void constraint(String name, String expr) {
 		SVDBConstraint c = new SVDBConstraint(name, expr);
 		setLocation(c);
@@ -481,7 +478,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		}
 	}
 
-	@Override
 	public void typedef(String typeName, SVTypeInfo typeInfo) {
 		SVDBTypedef typedef;
 		

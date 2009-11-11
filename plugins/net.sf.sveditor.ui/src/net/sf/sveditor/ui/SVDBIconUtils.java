@@ -6,6 +6,7 @@ import java.util.Map;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTypedef;
 
 import org.eclipse.swt.graphics.Image;
 
@@ -68,6 +69,14 @@ public class SVDBIconUtils implements ISVIcons {
 			
 			if (fImgDescMap.containsKey(type)) {
 				return SVUiPlugin.getImage(fImgDescMap.get(type));
+			} else if (it.getType() == SVDBItemType.Typedef) {
+				SVDBTypedef td = (SVDBTypedef)it;
+				
+				if (td.isEnumType()) {
+					return SVUiPlugin.getImage(ENUM_TYPE_OBJ);
+				} else {
+					return SVUiPlugin.getImage(TYPEDEF_TYPE_OBJ);
+				}
 			}
 		}
 		

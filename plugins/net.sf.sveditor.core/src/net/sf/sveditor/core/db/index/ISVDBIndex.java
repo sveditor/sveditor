@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 
-public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator {
+public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBIncludeFileProvider {
 	int IT_IncludePath      = 1;
 	int IT_BuildPath        = 2;
 	int IT_IndexList        = 3;

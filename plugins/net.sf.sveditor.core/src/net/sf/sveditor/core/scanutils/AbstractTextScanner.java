@@ -60,7 +60,25 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		
 		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
 	}
-	
+
+	public String readPreProcIdentifier(int ci) {
+		fTmpBuffer.setLength(0);
+		
+		if (!Character.isJavaIdentifierStart(ci)) {
+			unget_ch(ci);
+			return null;
+		}
+
+		fTmpBuffer.append((char)ci);
+
+		while ((ci = get_ch()) != -1 && Character.isJavaIdentifierPart(ci)) {
+			fTmpBuffer.append((char)ci);
+		}
+		unget_ch(ci);
+
+		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
+	}
+
 	public String readString(int ch) {
 		fTmpBuffer.setLength(0);
 		int last_ch = -1;

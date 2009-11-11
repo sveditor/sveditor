@@ -14,25 +14,26 @@ import org.eclipse.jface.text.TextUtilities;
 
 public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	
-	private final String				fParititioning;
+	private List<String>				fEndBlockStartKW;
 	private List<String>				fEndTerminatedKW;
 	
 	public SVAutoIndentStrategy(String p) {
-		fParititioning = p;
-		
 		fEndTerminatedKW = new ArrayList<String>();
+		fEndBlockStartKW = new ArrayList<String>();
 		
 		for (String kw : SVKeywords.getKeywords()) {
 			if (kw.startsWith("end") && !kw.equals("end")) {
 				if (kw.equals("endgroup")) {
-					fEndTerminatedKW.add("covergroup");
+					fEndBlockStartKW.add("covergroup");
 				} else {
-					fEndTerminatedKW.add(kw.substring("end".length()));
+					fEndBlockStartKW.add(kw.substring("end".length()));
 				}
+				fEndTerminatedKW.add(kw);
 			}
 		}
 		// search in priority order
 		fEndTerminatedKW.add("end");
+		fEndBlockStartKW.add("begin");
 	}
 	
 	private boolean isLineDelimiter(IDocument document, String text) {
@@ -42,10 +43,10 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 			return false;
 	}
 	
-	private boolean containsEndTermKW(String line) {
+	private boolean containsBlockEndStartKW(String line) {
 		int idx;
 		
-		for (String word : fEndTerminatedKW) {
+		for (String word : fEndBlockStartKW) {
 			if ((idx = line.indexOf(word)) != -1) {
 				if ((idx == 0 || Character.isWhitespace(line.charAt(idx-1))) &&
 						((line.length() == idx+word.length()) || 
@@ -104,7 +105,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 					}
 					
 					String id = sb.reverse().toString();
-					if (fEndTerminatedKW.contains(id) || id.equals("begin")) {
+					if (fEndBlockStartKW.contains(id)) {
 						level--;
 					} else if (SVKeywords.isKeyword(id) && id.startsWith("end")) {
 						level++;
@@ -136,7 +137,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 			
 			// See if the last thing on the line qualifies for an indent
 			String line_t = doc.get(line.getOffset(), line.getLength());
-			if (line_t.endsWith("begin") || containsEndTermKW(line_t) || line_t.endsWith("{")) {
+			if (line_t.endsWith("begin") || containsBlockEndStartKW(line_t) || line_t.endsWith("{")) {
 				// okay, find how much whitespace is at the head of the line and add one tab
 				sb.setLength(0);
 				
@@ -207,17 +208,21 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 								
 							IRegion target_line = doc.getLineInformationOfOffset(cmd.offset-1);
 								
-							// Determine the end of whitespace for the '}' line
-							int ws_lim = target_line.getOffset();
-							while (Character.isWhitespace(doc.getChar(ws_lim)) &&
-									(ws_lim < (target_line.getOffset()+target_line.getLength()))) { ws_lim++; }
-								
-							
-							if ((ws_lim - target_line.getOffset()) > 0) {
-								
-								doc.replace(target_line.getOffset(),
-										(ws_lim - target_line.getOffset() - 1), sb.toString());
-								cmd.offset -= 1;
+							// Only try to indent if the closing brace is on 
+							// a different line than the opening brace 
+							if (!target_line.equals(line)) {
+								// Determine the end of whitespace for the '}' line
+								int ws_lim = target_line.getOffset();
+								while (Character.isWhitespace(doc.getChar(ws_lim)) &&
+										(ws_lim < (target_line.getOffset()+target_line.getLength()))) { ws_lim++; }
+
+
+								if ((ws_lim - target_line.getOffset()) > 0) {
+
+									doc.replace(target_line.getOffset(),
+											(ws_lim - target_line.getOffset() - 1), sb.toString());
+									cmd.offset -= 1;
+								}
 							}
 							break;
 						}

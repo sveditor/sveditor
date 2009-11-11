@@ -8,6 +8,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIncludePathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -170,6 +171,12 @@ public class SVDBProjectData {
 						"[ERROR] failed to create library index \"" +
 						path.getPath() + "\"");
 			}
+		}
+		
+		for (SVDBPath path : fw.getArgFilePaths()) {
+			ISVDBIndex index = rgy.findCreateIndex(
+					fProjectName, path.getPath(),
+					SVDBArgFileIndexFactory.TYPE, null);
 		}
 		
 		for (SVDBSourceCollection srcc : fw.getSourceCollections()) {

@@ -13,7 +13,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -72,7 +71,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.clear();
 	}
 	
-	@Override
 	public ISVDBItemIterator<SVDBItem> getItemIterator() {
 		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator();
 		
@@ -142,7 +140,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.add(index);
 	}
 	
-	@Override
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
@@ -244,20 +241,24 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 
 		public SVDBFile findIncludedFile(String leaf) {
-			SVDBFile ret;
+			SVDBFile ret = null;
 			
+			/*
 			if ((ret = findIncludedFile(fIndex, leaf)) != null) {
 				System.out.println("findIncludedFile \"" + leaf + "\" in " +
 						"current index \"" + fIndex.getBaseLocation() + "\"");
 				return ret;
 			}
+			 */
 			
 			for (List<ISVDBIndex> index_l : fSearchPath) {
 				for (ISVDBIndex index : index_l) {
 					if (index != fIndex) {
 						if ((ret = findIncludedFile(index, leaf)) != null) {
+							/*
 							System.out.println("findIncludedFile \"" + leaf + "\" in " +
 									"index \"" + index.getBaseLocation() + "\"");
+							 */
 							return ret;
 						}
 					}
@@ -268,6 +269,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 		
 		private SVDBFile findIncludedFile(ISVDBIndex index, String leaf) {
+			/*
 			Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
 			
 			for (String f : pp_map.keySet()) {
@@ -277,6 +279,10 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			}
 			
 			return null;
+			System.out.println("findIncludedFile: " + fIndex.getBaseLocation() + " " +
+					index.getBaseLocation());
+			 */
+			return index.findIncludedFile(leaf);
 		}
 	};
 }

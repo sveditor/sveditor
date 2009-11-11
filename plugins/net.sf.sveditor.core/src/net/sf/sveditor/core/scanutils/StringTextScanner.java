@@ -11,22 +11,26 @@ public class StringTextScanner extends AbstractTextScanner {
 		fStr   = scanner.getStorage();
 		fIdx   = idx;
 		fLimit = -1;
+		fUngetCh = -1;
 	}
 
 	public StringTextScanner(StringTextScanner scanner) {
 		fStr   = scanner.getStorage();
 		fIdx   = scanner.getOffset();
 		fLimit = -1;
+		fUngetCh = -1;
 	}
 
 	public StringTextScanner(StringTextScanner scanner, int idx, int limit) {
 		fStr   = scanner.getStorage();
 		fIdx   = idx;
 		fLimit = limit;
+		fUngetCh = -1;
 	}
 
 	public StringTextScanner(StringBuilder str) {
 		init(str);
+		fUngetCh = -1;
 	}
 
 	public StringTextScanner(StringBuilder str, int idx) {
@@ -117,6 +121,9 @@ public class StringTextScanner extends AbstractTextScanner {
 	}
 	
 	public String substring(int start, int end) {
+		if (end > fStr.length()) {
+			System.out.println("end " + end + " outside legal range of " + fStr.length());
+		}
 		return fStr.substring(start, end);
 	}
 	

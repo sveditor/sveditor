@@ -159,7 +159,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return ret;
 	}
 
-	@Override
 	public void message(ILogHandle handle, int type, int level, String message) {
 		if (fDebugEn) {
 			if (type == ILogListener.Type_Error) {
@@ -169,8 +168,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			}
 		}
 	}
-	
-	
+
 }
 
 

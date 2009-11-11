@@ -88,7 +88,6 @@ public class AddSourceCollectionDialog extends Dialog {
 		gd.widthHint = 250;
 		fPath.setLayoutData(gd);
 		fPath.addModifyListener(new ModifyListener(){
-			@Override
 			public void modifyText(ModifyEvent e) {
 				fPathStr = fPath.getText();
 			}
@@ -105,7 +104,6 @@ public class AddSourceCollectionDialog extends Dialog {
 		use_default.setSelection(fUseDefaults);
 		use_default.addSelectionListener(new SelectionListener(){
 		
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fUseDefaults = ((Button)e.getSource()).getSelection();
 				fIncludes.setEditable(!fUseDefaults);
@@ -114,7 +112,6 @@ public class AddSourceCollectionDialog extends Dialog {
 				fExcludes.setEnabled(!fUseDefaults);
 			}
 		
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		use_default.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false,
@@ -134,12 +131,10 @@ public class AddSourceCollectionDialog extends Dialog {
 		fIncludes.setEnabled(!fUseDefaults);
 		fIncludes.addSelectionListener(new SelectionListener() {
 		
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fIncludeStr = fIncludes.getText();
 			}
 		
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
@@ -157,12 +152,10 @@ public class AddSourceCollectionDialog extends Dialog {
 		fExcludes.setEnabled(!fUseDefaults);
 		fExcludes.addSelectionListener(new SelectionListener() {
 		
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fExcludeStr = fExcludes.getText();
 			}
 		
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		

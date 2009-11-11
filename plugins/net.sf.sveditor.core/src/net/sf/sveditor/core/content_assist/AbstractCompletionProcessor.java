@@ -195,6 +195,7 @@ public abstract class AbstractCompletionProcessor {
 			
 			if (it.getName() != null && 
 					(it.getType() != SVDBItemType.File) &&
+					(it.getType() != SVDBItemType.Macro) &&
 					(leaf.equals("") || isPrefix(leaf, it))) {
 				addProposal(it, start, leaf.length());
 			}
@@ -453,6 +454,27 @@ public abstract class AbstractCompletionProcessor {
 	 * @param proposals
 	 */
 	private void order_proposals(String prefix, List<SVCompletionProposal> proposals) {
+		
+		// First eliminate any class typedefs for which the actual class is available
+		for (int i=0; i<proposals.size(); i++) {
+			SVCompletionProposal p = proposals.get(i);
+			if (p.getItem() != null && p.getItem().getType() == SVDBItemType.Typedef) {
+				boolean found = false;
+				
+				for (SVCompletionProposal p_t : proposals) {
+					if (p_t != p && p_t.getItem() != null && 
+							p_t.getItem().getName().equals(p.getItem().getName())) {
+						found = true;
+						break;
+					}
+				}
+				
+				if (found) {
+					proposals.remove(i);
+					i--;
+				}
+			}
+		}
 		for (int i = 0; i < proposals.size(); i++) {
 			SVCompletionProposal p_i = proposals.get(i);
 			for (int j = i + 1; j < proposals.size(); j++) {
@@ -498,7 +520,7 @@ public abstract class AbstractCompletionProcessor {
 					s_j = p_j.getReplacement();
 				}
 
-				if (prefix.compareTo(s_i) > prefix.compareTo(s_j)) {
+				if (prefix.compareTo(s_i) < prefix.compareTo(s_j)) {
 					proposals.set(i, p_j);
 					proposals.set(j, p_i);
 					p_i = p_j;

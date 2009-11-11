@@ -42,7 +42,6 @@ public class LogFactory implements ILogListener {
 	}
 
 
-	@Override
 	public void message(ILogHandle handle, int type, int level, String message) {
 		for (ILogListener l : fLogListeners) {
 			l.message(handle, type, level, message);

@@ -18,7 +18,6 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 		fIndexList.add(index);
 	}
 
-	@Override
 	public boolean hasNext() {
 		if (fIndexIterator != null && !fIndexIterator.hasNext()) {
 			fIndexIterator = null;
@@ -34,7 +33,6 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 				|| fIndexListIdx < fIndexList.size());
 	}
 
-	@Override
 	public SVDBItem nextItem() {
 		boolean had_next = hasNext();
 		

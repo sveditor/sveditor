@@ -27,12 +27,10 @@ public class StringBIDITextScanner
 		}
 	}
 
-	@Override
 	public boolean getScanFwd() {
 		return fScanFwd;
 	}
 
-	@Override
 	public void setScanFwd(boolean scanFwd) {
 		if (fScanFwd != scanFwd) {
 			fUngetCh = -1;
@@ -40,7 +38,6 @@ public class StringBIDITextScanner
 		fScanFwd = scanFwd;
 	}
 
-	@Override
 	public int get_ch() {
 		int ret = -1;
 		
@@ -64,7 +61,6 @@ public class StringBIDITextScanner
 		return ret;
 	}
 
-	@Override
 	public ScanLocation getLocation() {
 		int lineno = -1;
 		
@@ -79,23 +75,19 @@ public class StringBIDITextScanner
 		return new ScanLocation("", lineno, 0);
 	}
 
-	@Override
 	public void unget_ch(int ch) {
 		fUngetCh = ch;
 	}
 
-	@Override
 	public String get_str(long start, int length) {
 		System.out.println("get_str() " + start + ":" + length + " str length=" + fData.length());
 		return fData.substring((int)start, (int)start+length);
 	}
 
-	@Override
 	public long getPos() {
 		return fIdx;
 	}
 
-	@Override
 	public void seek(long pos) {
 		fIdx = (int)pos;
 	}

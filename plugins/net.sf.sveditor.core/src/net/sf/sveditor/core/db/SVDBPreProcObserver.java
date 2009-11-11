@@ -176,7 +176,6 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	
 	public void leave_task_decl() {}
 	
-	@Override
 	public void typedef(String typeName, SVTypeInfo typeInfo) {}
 
 	public void variable_decl(SVTypeInfo type, int attr, List<SvVarInfo> variables)

@@ -39,7 +39,6 @@ public class SVWorkspaceFileMatcher extends AbstractSVFileMatcher {
 				final String base_loc = base.getFullPath().toOSString();
 				base.accept(new IResourceVisitor(){
 
-					@Override
 					public boolean visit(IResource resource) throws CoreException {
 						if (resource instanceof IFile) {
 							String full_path = ((IFile)resource).getFullPath().toOSString();

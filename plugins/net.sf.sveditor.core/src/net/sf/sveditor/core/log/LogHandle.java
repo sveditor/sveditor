@@ -17,11 +17,9 @@ public class LogHandle implements ILogHandle {
 		return fName;
 	}
 
-	@Override
 	public void print(int type, int level, String msg) {
 	}
 
-	@Override
 	public void println(int type, int level, String msg) {
 		fListener.message(this, type, level, msg);
 	}

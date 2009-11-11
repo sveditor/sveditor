@@ -10,7 +10,6 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -59,7 +58,6 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		fSourceCollectionsTree.addSelectionChangedListener(new ISelectionChangedListener() {
 		
-			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				updateSelection();
 			}
@@ -76,12 +74,10 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		fAddButton.setText("Add...");
 		fAddButton.addSelectionListener(new SelectionListener() {
 
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				add();
 			}
 			
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
@@ -89,12 +85,10 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		fEditButton.setText("Edit...");
 		fEditButton.addSelectionListener(new SelectionListener(){
 		
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				edit();
 			}
 		
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
@@ -102,12 +96,10 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		fRemoveButton.setText("Remove");
 		fRemoveButton.addSelectionListener(new SelectionListener(){
 		
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				remove();
 			}
 		
-			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
@@ -179,23 +171,18 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		fFileWrapper.getSourceCollections().addAll(fSourceCollections);
 	}
 
-	@Override
 	public Object[] getElements(Object inputElement) {
 		return fSourceCollections.toArray();
 	}
 
-	@Override
 	public void dispose() {}
 
-	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
 
-	@Override
 	public Image getImage(Object element) {
 		return null;
 	}
 
-	@Override
 	public String getText(Object element) {
 		if (element instanceof SVDBSourceCollection) {
 			return ((SVDBSourceCollection)element).getBaseLocation();
@@ -205,7 +192,6 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		return null;
 	}
 
-	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof SVDBSourceCollection) {
 			SVDBSourceCollection sc = (SVDBSourceCollection)parentElement;
@@ -233,7 +219,6 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		}
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		if (element instanceof IncExclWrapper) {
 			return ((IncExclWrapper)element).fParent;
@@ -242,20 +227,16 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		return null;
 	}
 
-	@Override
 	public boolean hasChildren(Object element) {
 		return (element instanceof SVDBSourceCollection);
 	}
 
-	@Override
 	public void addListener(ILabelProviderListener listener) {}
 
-	@Override
 	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
-	@Override
 	public void removeListener(ILabelProviderListener listener) {}
 
 	private class IncExclWrapper {

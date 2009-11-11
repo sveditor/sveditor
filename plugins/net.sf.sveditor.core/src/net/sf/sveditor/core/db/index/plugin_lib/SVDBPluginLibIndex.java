@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBLibIndex;
@@ -68,12 +67,6 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
 	
-	/*
-	public String getBaseLocation() {
-		return "plugin:/" + fPluginNS + "/" + fRoot;
-	}
-	 */
-	
 	@SuppressWarnings("unchecked")
 	protected List<String> getFileList() {
 		String root_dir = new File(fRootFile).getParent();
@@ -122,22 +115,6 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		
 		return ret;
 	}
-	
-	protected SVDBFile findIncludeFile(String path) {
-		SVDBFile ret = null;
-		
-		String root_dir = new File(fRootFile).getParent();
-		URL url = fBundle.getEntry(root_dir + "/" + path);
-		
-		if (url != null) {
-			Map<String, SVDBFile> pp_map = getPreProcFileMap();
-			String key = "plugin:/" + fPluginNS + url.getPath();
-			
-			ret = pp_map.get(key);
-		}
-		
-		return ret;
-	}
 
 	@Override
 	protected InputStream openStream(String path) {
@@ -149,9 +126,7 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 
 			URL url = fBundle.getEntry(leaf);
 
-			if (url == null) {
-				System.out.println("Failed to find entry \"" + leaf + "\"");
-			} else {
+			if (url != null) {
 				try {
 					ret = url.openStream();
 				} catch (IOException e) {

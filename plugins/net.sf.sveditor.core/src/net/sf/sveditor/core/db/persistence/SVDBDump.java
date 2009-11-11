@@ -101,7 +101,6 @@ public class SVDBDump implements IDBWriter {
 		}
 	}
 
-	@Override
 	public void writeIntList(List<Integer> items) {
 		if (items == null) {
 			writeRawString("SNL<-1>");

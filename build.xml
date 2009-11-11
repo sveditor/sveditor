@@ -19,8 +19,9 @@
     <!-- build.qualifier -->
     <property name="forceContextQualifier" value="0"/> 
     <property name="configs" value="${os}, ${ws}, ${arch}"/>
-    <property name="buildDirectory" value="${basedir}/build"/>
-    <property name="archivePrefix"  value=""/>
+    <property name="buildDirectory"   value="${basedir}/build"/>
+    <property name="archivePrefix"    value=""/>
+    <property name="outputUpdateJars" value="true"/>
 
 
     <!-- Compiler Options -->
@@ -32,8 +33,9 @@
 
     <property name="srcdir" value="${basedir}"/>
 
+    <target name="build" depends="compile, mkupdate"/>
 
-    <target name="build"> 
+    <target name="compile"> 
         <delete dir="${basedir}/build"/>
         <mkdir dir="${basedir}/build"/>
         <copy todir="${basedir}/build">
@@ -62,6 +64,39 @@
             target="build.jars"/>
         <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
              dir="${buildDirectory}"/>
+    </target>
+
+    <target name="mkupdate">
+        <delete dir="${basedir}/update_tmp"/>
+        <mkdir dir="${basedir}/update_tmp"/>
+
+        <copy todir="${basedir}/update_tmp">
+            <fileset dir="${basedir}/update">
+                <include name="site.xml"/>
+            </fileset>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+
+        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
+               dest="${basedir}/update_tmp"/>
+
+        <jar destfile="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}.jar" 
+             basedir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"
+             includes="**/*"/>
+        <delete dir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"/>
+        <jar destfile="${basedir}/sveditor-${feature.version}.jar"
+             basedir="${basedir}/update_tmp"
+             includes="site.xml, features/**, plugins/**"/>
+        <delete dir="${basedir}/update_tmp"/>
+    </target>
+
+    <target name="mksrc">
+        <delete dir="${basedir}/src_tmp"/>
+        <mkdir dir="${basedir}/src_tmp"/>
+
+        <delete dir="${basedir}/src_tmp"/>
     </target>
 
 </project>

@@ -329,10 +329,6 @@ public class SVPreProcScanner implements ISVScanner {
 			String remainder = readLine_ll(ch).trim();
 			
 			if (fEvalConditionals) {
-				if (fDefineProvider != null) {
-					System.out.println("    " + type + " " +
-							fDefineProvider.isDefined(remainder, fLineno));
-				}
 			
 				if (type.equals("ifdef")) {
 					if (fDefineProvider != null) {
@@ -452,6 +448,31 @@ public class SVPreProcScanner implements ISVScanner {
 			if (fExpandMacros) {
 				push_unacc("\"" + fFileName + "\"");
 			}
+		} else if (type.equals("pragma")) {
+			ch = skipWhite_ll(get_ch_ll());
+			String id = readIdentifier_ll(ch);
+			
+			if (id != null) {
+				// Ignore everything in the 'protected' region. 
+				// Not much we can meaningfully show...
+				if (id.equals("protect")) {
+					ch = skipWhite_ll(get_ch_ll());
+					
+					id = readIdentifier_ll(ch);
+					
+					if (id != null) {
+						if (id.equals("begin_protected")) {
+							enter_ifdef(false);
+						} else if (id.equals("end_protected")) {
+							leave_ifdef();
+						}
+					}
+				}
+			}
+		} else if (type.equals("protected")) {
+			enter_ifdef(false);
+		} else if (type.equals("endprotected")) {
+			leave_ifdef();
 		} else {
 			// macro expansion.
 			// TODO: is TmpBuffer available?

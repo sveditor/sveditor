@@ -39,7 +39,6 @@ public class SVLexer {
 		
 		// Now, see what we have...
 		
-		System.out.println("ch=" + (char)ch);
 		if (ch == '"') {
 			// String
 			while ((ch = fInput.get_ch()) != -1 && ch != '"') {

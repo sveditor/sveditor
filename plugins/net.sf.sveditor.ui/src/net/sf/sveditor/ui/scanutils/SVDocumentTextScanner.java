@@ -52,7 +52,6 @@ public class SVDocumentTextScanner
 		fUngetCh = -1;
 	}
 	
-	@Override
 	public String get_str(long start, int length) {
 		try {
 			return fDoc.get((int)start, length);

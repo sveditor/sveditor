@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.index.src_collection;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +35,8 @@ public abstract class AbstractSVDBSourceCollectionIndex
 	protected boolean							fDisposed;
 
 	protected List<ISVDBIndexChangeListener>	fIndexChageListeners;
+	
+	protected List<ISVDBIncludeFileProvider>	fIncludePaths;
 	
 	protected SVDBFileTreeUtils					fFileTreeUtils;
 	protected AbstractSVFileMatcher				fFileMatcher;
@@ -351,6 +354,7 @@ public abstract class AbstractSVDBSourceCollectionIndex
 			}
 		}
 	}
+	
 	
 	protected void fileChanged(String file) {
 		

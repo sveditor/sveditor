@@ -25,20 +25,18 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 		fFileIterator = index_items.values().iterator();
 	}
 
-	@Override
 	public boolean hasNext() {
 		return (fFileIterator.hasNext() 
 				|| (!fScopeStack.empty() && fScopeStack.peek().hasNext())
 				|| (fScopeIterator != null && fScopeIterator.hasNext()));
 	}
 
-	@Override
 	public SVDBItem nextItem() {
 		SVDBItem ret = null;
 		
 		boolean had_next = hasNext();
 
-		for (int i=0; i<16 && ret == null; i++) {
+		for (int i=0; i<16536 && ret == null; i++) {
 			if (fScopeIterator != null && fScopeIterator.hasNext()) {
 				ret = fScopeIterator.next();
 				// System.out.println("Item from scope iterator \"" + ret.getName() + "\"");

@@ -62,6 +62,10 @@
             class="net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory"
             id="net.sf.sveditor.libIndex">
       </SVDBIndexFactory>
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory"
+            id="net.sf.sveditor.argFileIndex">
+      </SVDBIndexFactory>
    </extension>
 
 </plugin>

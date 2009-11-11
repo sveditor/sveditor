@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://sveditor.sourceforge.net">
-      SystemVerilog Editor
-   </description>
-   <feature url="features/net.sf.sveditor_0.0.6.jar" id="net.sf.sveditor" version="0.0.6">
-      <category name="SVEditor Feature"/>
+   <feature url="features/net.sf.sveditor_1.2.3.jar" id="net.sf.sveditor" version="1.2.3">
+      <category name="SVEditor"/>
    </feature>
-   <category-def name="SVEditor Feature" label="SVEditor Feature">
-      <description>
-         Provides a SystemVerilog editor and related features
-      </description>
-   </category-def>
+   <category-def name="SVEditor" label="SVEditor"/>
 </site>

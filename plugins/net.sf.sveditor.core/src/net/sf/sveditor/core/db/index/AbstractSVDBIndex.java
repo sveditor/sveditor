@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 
@@ -63,6 +67,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		return (fFileIndexValid && fFileListValid);
 	}
 	
+	/**
+	 * Search for an include file locally
+	 */
 	public SVDBFile findIncludedFile(String leaf) {
 		Map<String, SVDBFile> map = getPreProcFileMap();
 		
@@ -79,6 +86,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		}
 		
 		return null;
+	}
+	
+	public SVDBFile findIncludedFileGlobal(String leaf) {
+		SVDBFile ret = findIncludedFile(leaf);
+		
+		if (ret != null && fIncludeFileProvider != null) {
+			ret = fIncludeFileProvider.findIncludedFile(leaf);
+		}
+		
+		return ret;
 	}
 
 	public void load(List<SVDBFile> pp_files, List<SVDBFile> db_files) {
@@ -138,7 +155,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	protected abstract void buildPreProcFileMap();
 
-	@Override
 	public ISVDBItemIterator<SVDBItem> getItemIterator() {
 		return new SVDBIndexItemIterator(getFileDB());
 	}
@@ -157,4 +173,73 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	public void dispose() {
 	}
+	
+	protected static String expandVars(
+			String 			path,
+			boolean			expand_env_vars) {
+		boolean workspace_prefix = path.startsWith("${workspace_loc}");
+		String exp_path = path;
+		
+		if (workspace_prefix) {
+			exp_path = exp_path.substring("${workspace_loc}".length());
+		}
+		
+		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
+		
+		try {
+			exp_path = mgr.performStringSubstitution(exp_path);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		if (expand_env_vars) {
+			StringBuilder sb = new StringBuilder(exp_path);
+			StringBuilder tmp = new StringBuilder();
+			int idx = 0;
+			
+			while (idx < sb.length()) {
+				if (sb.charAt(idx) == '$') {
+					tmp.setLength(0);
+					
+					int start = idx, end;
+					String key, val=null;
+					idx++;
+					if (sb.charAt(idx) == '{') {
+						idx++;
+						
+						while (idx < sb.length() && sb.charAt(idx) != '}') {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
+						end = idx;
+					} else {
+						while (idx < sb.length() && 
+								sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
+						end = (idx-1);
+					}
+
+					key = tmp.toString();
+					if ((val = System.getenv(key)) != null) {
+						sb.replace(start, end, val);
+					}
+				} else {
+					idx++;
+				}
+			}
+			
+			for (int i=0; i<sb.length(); i++) {
+				
+			}
+		}
+		
+		if (workspace_prefix) {
+			exp_path = "${workspace_loc}" + exp_path;
+		}
+		
+		return exp_path;
+	}
+	
 }

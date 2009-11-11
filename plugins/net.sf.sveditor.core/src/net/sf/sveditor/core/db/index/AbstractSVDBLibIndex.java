@@ -1,11 +1,11 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +47,6 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 	public void removeChangeListener(ISVDBIndexChangeListener l) {}
 
 	
-	@Override
 	public String getBaseLocation() {
 		return fRoot;
 	}
@@ -89,42 +88,70 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		super.load(ppFiles, dbFiles);
 		
 		if (fFileIndexValid && fFileListValid) {
-			SVDBFile pp_file = findPreProcFile(fRoot);
+			SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());
 			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 			prepareFileTree(ft_root, null);
+		}
+	}
+
+	/**
+	 * findIncludedFile()
+	 * 
+	 * Search the include paths within this index
+	 */
+	public SVDBFile findIncludedFile(String path) {
+		String root_dir = new File(getResolvedBaseLocation()).getParent();
+		String inc_path = root_dir + "/" + path;
+		
+		Map<String, SVDBFile> pp_map = getPreProcFileMap();
+		
+		if (pp_map.containsKey(inc_path)) {
+			return pp_map.get(inc_path);
+		} else {
+			SVDBFile pp_file = null;
+			InputStream in = openStream(inc_path);
+			
+			if (path.contains("ovm.svh")) {
+				System.out.println("OpenStream \"" + inc_path + "\": " + in);
+			}
+			
+			if (in != null) {
+				pp_file = processPreProcFile(inc_path);
+			
+				if (pp_file != null) {
+					pp_map.put(inc_path, pp_file);
+				}
+				try {
+					in.close();
+				} catch (IOException e) { }
+				
+			}
+			return pp_file;
 		}
 	}
 	
 	@Override
 	protected boolean isLoadUpToDate() {
-		System.out.println("[TODO] AbstractSVDBLibIndex.isLoadUpToDate()");
-		/*
-		List<String> fileList = getFileList();
-		
-		if (fileList.size() != fFileList.size()) {
-			debug("    fileList.size=" + fileList.size() + " fFileList.size=" + fFileList.size());
-			return false;
-		}
 		
 		// Now, iterate through and check lastModified timestamps
-		for (String f : fileList) {
-			SVDBFile svdb_f = fFileList.get(f);
+		for (SVDBFile svdb_f : fFileList.values()) {
+			InputStream in = openStream(svdb_f.getFilePath());
+			String path = svdb_f.getFilePath();
 			
-			if (svdb_f == null || 
-					(svdb_f.getLastModified() != getLastModifiedTime(f))) {
-				if (svdb_f == null) {
-					debug("    Failed to find file \"" + f + "\"");
-				} else {
-					debug("    file \"" + f + "\": saved timestamp: " +
-							svdb_f.getLastModified() + " ; current timestamp: " + getLastModifiedTime(f));
-				}
+			if (in == null ||  
+					(svdb_f.getLastModified() != getLastModifiedTime(path))) {
+				debug("    file \"" + path + "\": saved timestamp: " +
+						svdb_f.getLastModified() + " ; current timestamp: " + 
+						getLastModifiedTime(path));
 				return false;
+			} else {
+				try {
+					in.close();
+				} catch (IOException e) { }
 			}
 		}
 		
 		return true;
-		 */
-		return false;
 	}
 	
 
@@ -285,7 +312,13 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		InputStream in = openStream(path);
 		
 		if (in == null) {
-			System.out.println("failed to open \"" + path + "\"");
+			System.out.println(getClass().getName() + ": failed to open \"" + path + "\"");
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 
 		sc.init(in, path);
@@ -352,18 +385,6 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 		addIncludeFiles(root, root.getSVDBFile());
 	}
 
-	/*
-	protected SVDBFile findIncludeFile(String path) {
-		for (String p : getPreProcFileMap().keySet()) {
-			if (p.endsWith(path)) {
-				return getPreProcFileMap().get(p);
-			}
-		}
-		
-		return null;
-	}
-	 */
-
 	protected void addIncludeFiles(
 			SVDBFileTree 		root, 
 			SVDBScopeItem 		scope) {
@@ -371,14 +392,15 @@ public abstract class AbstractSVDBLibIndex extends AbstractSVDBIndex {
 			if (it.getType() == SVDBItemType.Include) {
 				debug("Include file: " + it.getName());
 				
-				SVDBFile f = findIncludedFile(it.getName());
+				SVDBFile f = findIncludedFileGlobal(it.getName());
 
 				if (f != null) {
 					SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.duplicate());
 					root.getIncludedFiles().add(ft);
 					prepareFileTree(ft, root);
 				} else {
-					System.out.println("failed to find file " + it.getName());
+					System.out.println("AbstractSVDBLibIndex: " +
+							getBaseLocation() + " failed to find include file " + it.getName());
 				}
 				
 			} else if (it instanceof SVDBScopeItem) {

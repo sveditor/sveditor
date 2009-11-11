@@ -50,6 +50,7 @@ public class SVProjectProps extends PropertyPage implements
 		fPropertyPages.add(new SourceCollectionsPage());
 		fPropertyPages.add(new IncludePathsPage());
 		fPropertyPages.add(new LibraryPathsPage());
+		fPropertyPages.add(new ArgumentFilePathsPage());
 		fPropertyPages.add(new PluginLibPrefsPage());
 		
 		TabFolder folder = new TabFolder(parent, SWT.NONE);

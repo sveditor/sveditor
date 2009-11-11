@@ -10,8 +10,13 @@ public class SVDBIncludePathIndexFactory implements ISVDBIndexFactory {
 			String 					project_name, 
 			String 					base_location,
 			Map<String, Object>		config) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		if (base_location.startsWith("${workspace_loc}")) {
+			// TODO:
+			return null;
+		} else {
+			return new SVDBFilesystemIncludePathIndex(project_name, base_location);
+		}
 	}
 
 }

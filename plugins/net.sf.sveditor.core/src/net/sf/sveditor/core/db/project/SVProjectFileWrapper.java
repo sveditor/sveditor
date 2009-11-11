@@ -27,6 +27,7 @@ public class SVProjectFileWrapper {
 	private List<SVDBPath>	    		fLibraryPaths;
 	private List<SVDBPath>	    		fBuildPaths;
 	private List<SVDBPath>				fPluginPaths;
+	private List<SVDBPath>				fArgFilePaths;
 	private List<SVDBSourceCollection>	fSourceCollections;
 	
 	public SVProjectFileWrapper() {
@@ -35,6 +36,7 @@ public class SVProjectFileWrapper {
 		fLibraryPaths       = new ArrayList<SVDBPath>();
 		fBuildPaths 		= new ArrayList<SVDBPath>();
 		fPluginPaths 		= new ArrayList<SVDBPath>();
+		fArgFilePaths		= new ArrayList<SVDBPath>();
 		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
@@ -55,6 +57,7 @@ public class SVProjectFileWrapper {
 		fLibraryPaths       = new ArrayList<SVDBPath>();
 		fBuildPaths 		= new ArrayList<SVDBPath>();
 		fPluginPaths 		= new ArrayList<SVDBPath>();
+		fArgFilePaths		= new ArrayList<SVDBPath>();
 		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
@@ -83,6 +86,7 @@ public class SVProjectFileWrapper {
 		change |= init_paths(svproject, "buildPaths", "buildPath", fBuildPaths);
 		change |= init_paths(svproject, "pluginPaths", "pluginPath", fPluginPaths);
 		change |= init_paths(svproject, "libraryPaths", "libraryPath", fLibraryPaths);
+		change |= init_paths(svproject, "argFilePaths", "argFilePath", fArgFilePaths);
 		change |= init_source_collections(svproject, "sourceCollections", 
 				"sourceCollection", fSourceCollections);
 		
@@ -200,6 +204,7 @@ public class SVProjectFileWrapper {
 		marshall_paths(svproject, "buildPaths", "buildPath", fBuildPaths);
 		marshall_paths(svproject, "libraryPaths", "libraryPath", fLibraryPaths);
 		marshall_paths(svproject, "pluginPaths", "pluginPath", fPluginPaths);
+		marshall_paths(svproject, "argFilePaths", "argFilePath", fArgFilePaths);
 		marshall_source_collections(svproject, fSourceCollections);
 	}
 	
@@ -294,6 +299,10 @@ public class SVProjectFileWrapper {
 		return fPluginPaths;
 	}
 	
+	public List<SVDBPath> getArgFilePaths() {
+		return fArgFilePaths;
+	}
+	
 	public List<SVDBSourceCollection> getSourceCollections() {
 		return fSourceCollections;
 	}
@@ -344,6 +353,7 @@ public class SVProjectFileWrapper {
 		fIncludePaths.clear();
 		fPluginPaths.clear();
 		fLibraryPaths.clear();
+		fArgFilePaths.clear();
 		fSourceCollections.clear();
 		fBuildPaths.clear();
 		
@@ -361,6 +371,10 @@ public class SVProjectFileWrapper {
 		
 		for (SVDBSourceCollection c : fw.fSourceCollections) {
 			fSourceCollections.add(c.duplicate());
+		}
+		
+		for (SVDBPath p : fw.getArgFilePaths()) {
+			fArgFilePaths.add(p.duplicate());
 		}
 		
 		for (SVDBPath p : fw.fBuildPaths) {
@@ -387,6 +401,16 @@ public class SVProjectFileWrapper {
 			
 			for (int i=0; i<fLibraryPaths.size(); i++) {
 				if (!p.fLibraryPaths.get(i).equals(fLibraryPaths.get(i))) {
+					return false;
+				}
+			}
+			
+			if (p.getArgFilePaths().size() != fArgFilePaths.size()) {
+				return false;
+			}
+			
+			for (int i=0; i<fArgFilePaths.size(); i++) {
+				if (!p.fArgFilePaths.get(i).equals(fArgFilePaths.get(i))) {
 					return false;
 				}
 			}
