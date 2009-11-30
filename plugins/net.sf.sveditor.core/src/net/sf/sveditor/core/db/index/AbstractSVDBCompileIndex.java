@@ -15,6 +15,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
@@ -204,10 +205,10 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 			if (it.getType() == SVDBItemType.Include) {
 				fLog.debug("Include file: " + it.getName());
 				
-				SVDBFile f = findIncludedFileGlobal(it.getName());
+				SVDBSearchResult<SVDBFile> f = findIncludedFileGlobal(it.getName());
 
 				if (f != null) {
-					SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.duplicate());
+					SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.getItem().duplicate());
 					root.getIncludedFiles().add(ft);
 					prepareFileTree(ft, root);
 				} else {
@@ -220,7 +221,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 		}
 	}	
 
-	public SVDBFile findIncludedFile(String leaf) {
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
 		Map<String, SVDBFile> map = getPreProcFileMap();
 		
 		Iterator<String> it = map.keySet().iterator();
@@ -231,7 +232,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 			String norm_path = fWinPathPattern.matcher(f).replaceAll("/");
 			
 			if (norm_path.endsWith(leaf)) {
-				return map.get(f);
+				return new SVDBSearchResult<SVDBFile>(map.get(f), this);
 			}
 		}
 		
@@ -248,7 +249,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 					in.close();
 				} catch (IOException e) {}
 				
-				return file;
+				return new SVDBSearchResult<SVDBFile>(file, this);
 			}
 		}
 		

@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
@@ -118,7 +119,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 				c = doc.getChar(idx);
 				
 				if (c == '.' || c == '`' || (c == ':' && last_c == ':') 
-						|| c == '\n' || c == ',') {
+						|| c == '\n' || c == ',' || c == '(') {
 					break;
 				}
 
@@ -202,6 +203,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 						idx++;
 					}
 					
+					debug("Searching for include file \"" + text.toString() + "\"");
+					
 					SVDBFindIncludedFile finder_inc = 
 						new SVDBFindIncludedFile(index_it);
 					inc_file = finder_inc.find(text.toString());
@@ -265,8 +268,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 				text.setLength(0);
 				idx = offset;
 				
-				while (idx >= 0 &&  
-						!Character.isWhitespace(doc.getChar(idx))) {
+				while (idx >= 0 && Character.isJavaIdentifierPart(doc.getChar(idx))) {
 					idx--;
 				}
 				idx++;
@@ -305,6 +307,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 						new SVDBFindNamedModIfcClassIfc(index_it);
 					
 					it = finder_cls.find(text.toString());
+					
+					System.out.println("Class item=" + it);
 				}
 			}
 			
@@ -492,11 +496,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 		IEditorPart ret = null;
 		
 		System.out.println("openEditor: " + file);
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 		if (file != null) {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();

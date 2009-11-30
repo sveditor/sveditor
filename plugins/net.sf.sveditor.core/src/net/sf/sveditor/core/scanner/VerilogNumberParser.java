@@ -31,6 +31,11 @@ public class VerilogNumberParser {
 			p_number = p_number.substring(2);
 		}
 		
+		// Remove any '_' separators
+		if (p_number.indexOf('_') != -1) {
+			p_number = p_number.replace("_", "");
+		}
+		
 		return Long.parseLong(p_number, radix);
 	}
 }

@@ -21,10 +21,6 @@ public class SVDBFilesystemSourceCollectionIndex extends AbstractSVDBSourceColle
 		return SVDBSourceCollectionIndexFactory.TYPE;
 	}
 
-	public void dispose() {
-		super.dispose();
-	}
-
 	@Override
 	protected InputStream openStream(String path) {
 		InputStream in = null;
@@ -44,6 +40,4 @@ public class SVDBFilesystemSourceCollectionIndex extends AbstractSVDBSourceColle
 		
 		return f.lastModified();
 	}
-	
-	
 }

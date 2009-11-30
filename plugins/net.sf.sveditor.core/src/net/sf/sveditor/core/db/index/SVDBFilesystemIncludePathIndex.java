@@ -11,6 +11,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 public class SVDBFilesystemIncludePathIndex extends AbstractSVDBIndex {
@@ -35,12 +36,12 @@ public class SVDBFilesystemIncludePathIndex extends AbstractSVDBIndex {
 		fBaseLocationDir = new File(base_location_exp);
 	}
 	
-	@Override
-	public SVDBFile findIncludedFile(String leaf) {
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
 		File try_file = new File(fBaseLocationDir, leaf);
 		
 		if (try_file.exists()) {
-			return processPreProcFile(try_file);
+			SVDBFile file = processPreProcFile(try_file);
+			return new SVDBSearchResult<SVDBFile>(file, this);
 		} else {
 			return null;
 		}

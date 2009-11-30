@@ -10,15 +10,16 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 			String 					project_name, 
 			String 					base_location,
 			Map<String, Object>		config) {
-		ISVDBIndex ret = null;
+		ISVDBFileSystemProvider fs_provider;
 		
 		if (base_location.startsWith("${workspace_loc}")) {
-			ret = new SVDBWorkspaceLibIndex(project_name, base_location);
+			fs_provider = new SVDBWSFileSystemProvider();
 		} else {
-			ret = new SVDBFileSystemLibIndex(project_name, base_location);
+			fs_provider = new SVDBFSFileSystemProvider();
 		}
-
-		return ret;
+		
+		return new SVDBLibIndex(
+				project_name, base_location, fs_provider);
 	}
 
 }

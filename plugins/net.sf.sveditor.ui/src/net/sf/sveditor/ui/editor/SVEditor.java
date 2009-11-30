@@ -2,6 +2,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -20,6 +21,7 @@ import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFac
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBFileContextIndexSearcher;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -73,6 +75,7 @@ public class SVEditor extends TextEditor {
 	private SVDBFileContextIndexSearcher	fIndexSearcher;
 	private SVDBIndexCollectionMgr			fIndexMgr;
 	private LogHandle						fLog;
+	private String							fSVDBFilePath;
 
 	
 	public SVEditor() {
@@ -108,6 +111,9 @@ public class SVEditor extends TextEditor {
 		
 		fSVDBFile = new SVDBFile(fFile);
 		
+		// Hook into the SVDB management structure
+		initSVDBMgr();
+		
 		// Perform an initial parse of the file
 		updateSVDBFile();
 	}
@@ -131,12 +137,10 @@ public class SVEditor extends TextEditor {
 		
 		// TODO: Probably need to make some updates when the name changes
 	}
-
-	void updateSVDBFile() {
+	
+	private void initSVDBMgr() {
 		IEditorInput ed_in = getEditorInput();
-		IDocument doc = getDocumentProvider().getDocument(ed_in);
 		String path = null;
-
 		fIndexSearcher = null;
 		
 		if (ed_in instanceof IURIEditorInput) {
@@ -145,6 +149,7 @@ public class SVEditor extends TextEditor {
 			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
 
 			if (uri_in.getURI().getScheme().equals("plugin")) {
+				fLog.debug("Editor path is in a plugin: " + uri_in.getURI());
 				path = "plugin:" + uri_in.getURI().getPath();
 				
 				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -171,25 +176,40 @@ public class SVEditor extends TextEditor {
 				fIndexMgr = new SVDBIndexCollectionMgr(plugin);
 
 				if (target != null) {
+					fLog.debug("Found a target plugin library");
 					fIndexMgr.addPluginLibrary(rgy.findCreateIndex("GLOBAL", 
 							target.getId(), SVDBPluginLibIndexFactory.TYPE, null));
+				} else {
+					fLog.debug("Did not find the target plugin library");
 				}
 			} else {
 				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 				if (ed_in instanceof FileEditorInput) {
 					FileEditorInput fi = (FileEditorInput)ed_in;
+					fLog.debug("Path \"" + fi.getFile().getFullPath() + 
+							"\" is in project " + fi.getFile().getProject().getName());
 					
 					pdata = mgr.getProjectData(fi.getFile().getProject());
 					fIndexMgr = pdata.getProjectIndexMgr();
 					path = "${workspace_loc}" + fi.getFile().getFullPath().toOSString();
 					
-					if (fIndexMgr.findPreProcFile(path).size() == 0) {
+					List<SVDBSearchResult<SVDBFile>> result;
+					if ((result = fIndexMgr.findPreProcFile(path)).size() == 0) {
 						fLog.debug("Create a shadow index for \"" + path + "\"");
 						ISVDBIndex index = rgy.findCreateIndex(
 								fi.getFile().getProject().getName(), 
 								new File(path).getParent(),
 								SVDBSourceCollectionIndexFactory.TYPE, null);
 						fIndexMgr.addShadowIndex(index.getBaseLocation(), index);
+					} else {
+						fLog.debug("File is in index \"" + 
+								result.get(0).getIndex().getBaseLocation() + 
+								"\" (" + result.size() + " results)");
+						if (result.size() > 1) {
+							for (SVDBSearchResult<SVDBFile> r : result) {
+								fLog.debug("    " + r.getIndex().getBaseLocation());
+							}
+						}
 					}
 				} else {
 					// Create an index manager for this directory
@@ -213,13 +233,19 @@ public class SVEditor extends TextEditor {
 					ed_in.getClass().getName());
 		}
 		
+		fSVDBFilePath = path;
+	}
+
+	void updateSVDBFile() {
+		IEditorInput ed_in = getEditorInput();
+		IDocument doc = getDocumentProvider().getDocument(ed_in);
+		
 		StringInputStream sin = new StringInputStream(doc.get());
 
-		SVDBFile new_in = fIndexMgr.parse(sin, path);
-		
+		SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath);
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		
-		fSVDBFile.setFilePath(path);
+		fSVDBFile.setFilePath(fSVDBFilePath);
 		
 		if (fOutline != null) {
 			fOutline.refresh();

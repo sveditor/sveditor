@@ -16,6 +16,8 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -34,6 +36,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
 	private File											fDatabaseDir;
 	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
+	private LogHandle										fLog;
 
 	/**
 	 * SVDBIndexRegistry constructor. Only intended to be called by
@@ -44,6 +47,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		// fDatabaseDir = new File(state_location.toFile(), "db");
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
+		fLog = LogFactory.getDefault().getLogHandle("SVDBIndexRegistry");
 		
 	}
 	
@@ -70,7 +74,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			Map<String, Object>		config) {
 		ISVDBIndex ret = null;
 		
-		System.out.println("findCreateIndex: " + base_location + " ; " + type);
+		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		
 		if (!fProjectIndexMap.containsKey(project)) {
 			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
@@ -87,7 +91,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		}
 		
 		if (ret == null) {
-			System.out.println("    Index does not exist -- creating");
+			fLog.debug("    Index does not exist -- creating");
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
 			
@@ -105,13 +109,18 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	public void rebuildIndex(String project) {
+		fLog.debug("rebuildIndex \"" + project + "\"");
 		if (!fProjectIndexMap.containsKey(project)) {
+			fLog.debug("    skipping - not a registered project");
 			return;
 		}
 		
 		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
 			if (index.isLoaded()) {
+				fLog.debug("    rebuild index \"" + index.getBaseLocation() + "\"");
 				index.rebuildIndex();
+			} else {
+				fLog.debug("    skipping index \"" + index.getBaseLocation() + "\" - not loaded");
 			}
 		}
 		

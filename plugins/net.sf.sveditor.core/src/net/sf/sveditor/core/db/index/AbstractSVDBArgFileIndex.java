@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -21,12 +22,13 @@ import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 public abstract class AbstractSVDBArgFileIndex extends AbstractSVDBIndex {
 	
-	protected String				fArgFile;
-	protected String				fBaseDir;
-	protected List<String>			fFilePaths;
-	protected List<String>			fIncludePaths;
-	protected Map<String, String>	fDefineMap;
-	protected LogHandle				fLog;
+	protected String						fArgFile;
+	protected String						fBaseDir;
+	protected List<String>					fFilePaths;
+	protected List<String>					fIncludePaths;
+	protected Map<String, String>			fDefineMap;
+	protected Map<String, SVDBFileTree>		fFileTreeMap;
+	protected LogHandle						fLog;
 	
 	public AbstractSVDBArgFileIndex(
 			String					project_name,
@@ -53,6 +55,8 @@ public abstract class AbstractSVDBArgFileIndex extends AbstractSVDBIndex {
 		if (define_map != null) {
 			fDefineMap.putAll(define_map);
 		}
+		
+		fFileTreeMap = new HashMap<String, SVDBFileTree>();
 	}
 			
 	
@@ -83,16 +87,19 @@ public abstract class AbstractSVDBArgFileIndex extends AbstractSVDBIndex {
 			
 			for (String f : scanner.getFilePaths()) {
 				System.out.println("[FILE PATH] " + f);
-				fFilePaths.add(f);
+				fFilePaths.add(expandVars(f, true));
 			}
 			
 			for (String inc : scanner.getIncludePaths()) {
-				fIncludePaths.add(inc);
+				System.out.println("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
+				fIncludePaths.add(expandVars(inc, true));
 			}
 			
 		} else {
 			System.out.println("[ERROR] failed to open file \"" + fArgFile + "\"");
 		}
+		
+		fFileTreeMap = new HashMap<String, SVDBFileTree>();
 	}
 	
 	protected abstract InputStream openStream(String path);
@@ -116,60 +123,125 @@ public abstract class AbstractSVDBArgFileIndex extends AbstractSVDBIndex {
 
 	@Override
 	protected void buildIndex() {
-		// TODO Auto-generated method stub
-
+		System.out.println("[TODO] buildIndex");
 	}
 
+	/**
+	 * Need to have a FileTree for each file. Should build this up
+	 * while 
+	 */
 	@Override
 	protected void buildPreProcFileMap() {
+		System.out.println("[NOTE] AbstractSVDBArgFileIndex: buildPreProcFileMap()");
 		
 		for (String path : fFilePaths) {
-			SVDBFileTree ft = buildFileTree(null, path);
+			SVDBFile file = processPreProcFile(resolvePath(path));
+			
+			if (file == null) {
+				System.out.println("Failed to find \"" + path + "\" \"" +
+						resolvePath(path) + "\"");
+			} else {
+				fFileList.put(file.getFilePath(), file);
+				SVDBFileTree ft = buildFileTree(null, file);
+
+				processPreProcFile(file, ft, true);
+			}
 		}
 		
+		fFileListValid = true;
 	}
 	
-	
-	
-	@Override
-	public SVDBFile findIncludedFile(String leaf) {
-		// TODO Auto-generated method stub
-		return super.findIncludedFile(leaf);
+	private void processPreProcFile(
+			SVDBFile				file,
+			SVDBFileTree			ft,
+			boolean					add_to_map) {
+		
+		if (add_to_map) {
+			System.out.println("file=" + file);
+			fFileTreeMap.put(file.getFilePath(), ft);
+		}
+		
+		// Iterate through included files
+		for (SVDBItem it : ft.getSVDBFile().getItems()) {
+			if (it.getType() == SVDBItemType.Include) {
+				// See if we can find the path
+				SVDBSearchResult<SVDBFile> inc_file;
+				boolean is_local;
+				
+				if ((inc_file = findIncludedFile(it.getName())) != null) {
+					is_local = true;
+				} else if ((inc_file = findIncludedFileGlobal(it.getName())) != null) {
+					is_local = false;
+				} else {
+					// Didn't find it anywhere...
+					System.out.println("[ERROR] failed to find \"" + it.getName() + "\"");
+					continue;
+				}
+				SVDBFileTree inc_file_ft = buildFileTree(ft, inc_file.getItem());
+				
+				ft.getIncludedFiles().add(inc_file_ft);
+				inc_file_ft.getIncludedByFiles().add(ft);
+				
+				processPreProcFile(inc_file.getItem(), inc_file_ft, is_local);
+			}
+		}
 	}
+	
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
+		SVDBFile ret = null;
+		
+		for (SVDBFile path : fFileList.values()) {
+			if (path.getFilePath().endsWith(leaf)) {
+				ret = path;
+				break;
+			}
+		}
+		
+		if (ret != null) {
+			return new SVDBSearchResult<SVDBFile>(ret, this);
+		}
+		
+		// Iterate through the include paths
+		for (String inc_path : fIncludePaths) {
+			String try_path = resolvePath(inc_path) + "/" + leaf;
+			InputStream in = openStream(try_path);
 
-	protected SVDBFileTree getFileTree() {
-		return null;
+			System.out.println("[NOTE] try path \"" + try_path + "\"");
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {}
+				ret = processPreProcFile(try_path);
+				
+				if (!fFileList.containsKey(ret.getFilePath())) {
+					fFileList.put(ret.getFilePath(), ret);
+				}
+				break;
+			}
+		}
+		
+		if (ret != null) {
+			return new SVDBSearchResult<SVDBFile>(ret, this);
+		} else {
+			return null;
+		}
 	}
 
 	protected SVDBFileTree buildFileTree(
 			SVDBFileTree			parent_ft,
-			String					path) {
+			SVDBFile				file) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
-		String resolved_path = resolvePath(path);
-		SVDBFile file = processPreProcFile(resolved_path);
 		
-		if (file != null) {
-			fFileList.put(path, file);
-			SVDBFileTree ft = new SVDBFileTree((SVDBFile)file.duplicate());
-			
-			if (parent_ft != null) {
-				ft.getIncludedByFiles().add(parent_ft);
-				parent_ft.getIncludedFiles().add(ft);
-			}
-			
-			ft_utils.resolveConditionals(ft);
-			
-			for (SVDBItem it : ft.getSVDBFile().getItems()) {
-				if (it.getType() == SVDBItemType.Include) {
-					// See if we can find the path
-					SVDBFile inc_file = findIncludedFileGlobal(it.getName());
-				}
-			}
-		
-			return ft;
+		SVDBFileTree ft = new SVDBFileTree((SVDBFile)file.duplicate());
+
+		if (parent_ft != null) {
+			ft.getIncludedByFiles().add(parent_ft);
+			parent_ft.getIncludedFiles().add(ft);
 		}
-		
-		return null;
+
+		ft_utils.resolveConditionals(ft);
+
+		return ft;
 	}
 	
 	protected SVDBFile processPreProcFile(String path) {

@@ -101,7 +101,13 @@ public class SVExpressionUtils {
 			ret.fLeaf = scanner.get_str(start, (int)(offset-start)).trim();
 			ret.fRoot = extractPreTriggerPortion(scanner);
 		} else {
-			ret.fLeaf = scanner.get_str(start, (int)(offset-start)).trim();
+			String leaf = scanner.get_str(start, (int)(offset-start));
+			
+			if (leaf == null) {
+				ret.fLeaf = "";
+			} else {
+				ret.fLeaf = leaf.trim();
+			}
 
 			/*
 			if (c == '(' || c == ',' || c == '>' || c == '<') {

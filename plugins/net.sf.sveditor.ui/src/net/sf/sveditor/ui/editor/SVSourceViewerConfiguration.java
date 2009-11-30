@@ -91,11 +91,13 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		
 		formatter.setMasterStrategy(new SVFormattingStrategy());
 		
+		/*
 		try {
 			throw new Exception();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		*/
 		
 		
 		return formatter;

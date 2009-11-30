@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 	
@@ -30,7 +31,7 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		// nothing
 	}
 	
-	public SVDBFile findIncludedFile(String leaf) {
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
 		// TODO Auto-generated method stub
 		return null;
 	}

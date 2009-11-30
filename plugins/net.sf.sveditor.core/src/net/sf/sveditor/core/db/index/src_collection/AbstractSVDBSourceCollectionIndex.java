@@ -3,7 +3,6 @@ package net.sf.sveditor.core.db.index.src_collection;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +17,7 @@ import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -122,7 +122,25 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		
 		return parseFile(in, path, ft);
 	}
-
+	
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
+		Map<String, SVDBFile> map = getPreProcFileMap();
+		
+		Iterator<String> it = map.keySet().iterator();
+		
+		while (it.hasNext()) {
+			String f = it.next();
+			
+			String norm_path = fWinPathPattern.matcher(f).replaceAll("/");
+			
+			if (norm_path.endsWith(leaf)) {
+				return new SVDBSearchResult<SVDBFile>(map.get(f), this);
+			}
+		}
+		
+		return null;
+	}
+	
 	protected abstract InputStream openStream(String path);
 	
 	protected abstract long getLastModifiedTime(String path);

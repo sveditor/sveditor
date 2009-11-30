@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.index;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 public interface ISVDBIncludeFileProvider {
 
@@ -11,7 +12,7 @@ public interface ISVDBIncludeFileProvider {
 	 * @param suffix
 	 * @return
 	 */
-	SVDBFile findIncludedFile(String leaf);
+	SVDBSearchResult<SVDBFile> findIncludedFile(String leaf);
 	
 
 }

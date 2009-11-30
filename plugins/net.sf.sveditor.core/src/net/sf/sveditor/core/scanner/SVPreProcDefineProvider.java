@@ -11,6 +11,8 @@ import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
@@ -22,11 +24,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
 	private Map<String, SVDBMacroDef>	fMacroCache;
+	private LogHandle					fLog;
 	
 	
 	public SVPreProcDefineProvider() {
 		fExpandStack = new Stack<String>();
 		fMacroCache  = new HashMap<String, SVDBMacroDef>();
+		fLog = LogFactory.getDefault().getLogHandle("PreProcDefineProvider");
 	}
 	
 	public void setFileContext(SVDBFileTree context) {
@@ -263,10 +267,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			System.out.println("Macro \"" + m.getName() + "\" @ " + 
 					m.getLocation().getFile().getFilePath() + ":" +
 					m.getLocation().getLine() + " is null");
+			// Replace the text with ""
+			scanner.replace(scanner.getOffset(), scanner.getLimit(), "");
+		} else {
+			// Replace the text and adjust the limits
+			scanner.replace(scanner.getOffset(), scanner.getLimit(), m.getDef());
 		}
-		
-		// Replace the text and adjust the limits
-		scanner.replace(scanner.getOffset(), scanner.getLimit(), m.getDef());
 
 		// Expand the parameter references within the replacement
 		if (expand_params) {
@@ -444,12 +450,18 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		while ((ch = scanner.get_ch()) != -1) {
+			if (fDebugEn) {
+				debug("ch=\"" + (char)ch + "\"");
+			}
 			if (ch == '`') {
 				int ch2 = scanner.get_ch();
-				
+				if (fDebugEn) {
+					debug("    ch2=\"" + (char)ch2 + "\"");
+				}
 				if (ch2 == '`') {
 					// Nothing -- `` is the same as ## in C++ pre-proc
 					scanner.delete(scanner.getOffset()-2, scanner.getOffset());
+					debug("        delete ``");
 				} else if (ch2 == '"' || ch2 == '\\') {
 					scanner.delete(scanner.getOffset()-2, scanner.getOffset()-1);
 				} else {
@@ -679,13 +691,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	
 	private void debug(String str) {
 		if (fDebugEn) {
-			System.out.println(str);
+			fLog.debug(str);
 		}
 	}
 	
 	private void debug_s(String str) {
 		if (fDebugEnS) {
-			System.out.println(str);
+			fLog.debug(str);
 		}
 	}
 

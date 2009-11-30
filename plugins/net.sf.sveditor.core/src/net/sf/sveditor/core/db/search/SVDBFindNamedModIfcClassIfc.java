@@ -25,6 +25,10 @@ public class SVDBFindNamedModIfcClassIfc {
 				System.out.println("it == null ; hasNext=" + had_next);
 			}
 			
+			if (it.getType() == SVDBItemType.Class && it.getName().startsWith("wb_dma")) {
+				System.out.println("class item: \"" + it.getName() + "\"");
+			}
+			
 			if ((it.getType() == SVDBItemType.Class ||
 					it.getType() == SVDBItemType.Module ||
 					it.getType() == SVDBItemType.Interface) && 

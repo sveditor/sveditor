@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.db.index;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.resources.IFile;
@@ -35,16 +37,19 @@ public class SVDBWorkspaceArgFileIndex extends AbstractSVDBArgFileIndex {
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(path));
+			
+			try {
+				ret = file.getContents();
+			} catch (CoreException e) { }
+		} else {
+			try {
+				ret = new FileInputStream(path);
+			} catch (IOException e) {}
 		}
-		
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
-		IFile file = root.getFile(new Path(path));
-		
-		try {
-			ret = file.getContents();
-		} catch (CoreException e) { }
-		
 		
 		return ret;
 	}

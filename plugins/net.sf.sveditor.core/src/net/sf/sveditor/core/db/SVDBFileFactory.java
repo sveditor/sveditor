@@ -488,7 +488,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 				typedef.getEnumNames().add(v.fName);
 				typedef.getEnumVals().add((int)v.fVal);
 			}
-			
 		} else {
 			typedef = new SVDBTypedef(typeInfo.fTypeName, typeName);
 		}

@@ -196,6 +196,7 @@ public abstract class AbstractCompletionProcessor {
 			if (it.getName() != null && 
 					(it.getType() != SVDBItemType.File) &&
 					(it.getType() != SVDBItemType.Macro) &&
+					(it.getType() != SVDBItemType.Include) &&
 					(leaf.equals("") || isPrefix(leaf, it))) {
 				addProposal(it, start, leaf.length());
 			}

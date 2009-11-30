@@ -112,8 +112,26 @@ public class StringTextScanner extends AbstractTextScanner {
 	}
 	
 	public void delete(int start, int end) {
-//		System.out.println("[TODO] fix delete");
+		/*
+		System.out.println("delete (" + start + ", " + end + "): " + 
+				fStr.substring(start, end) + " - idx=" + fIdx);
+		 */
+		int ch_p = fStr.charAt(fIdx);
 		fStr.delete(start, end);
+		
+		if (start <= fIdx) {
+			if (end > fIdx) {
+				fIdx -= (fIdx - start);
+			} else {
+				fIdx -= (end - start);
+			}
+		}
+		
+		int ch_a = fStr.charAt(fIdx);
+		
+		if (ch_p != ch_a) {
+			System.out.println("ch_p=\"" + (char)ch_p + "\" ch_a=\"" + (char)ch_a + "\"");
+		}
 
 		if (fLimit != -1) {
 			fLimit -= (end-start);

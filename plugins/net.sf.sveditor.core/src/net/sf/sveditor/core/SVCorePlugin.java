@@ -33,7 +33,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
-	private boolean							fDebugEn = false;
+	private boolean							fDebugEn = true;
 	
 	/**
 	 * The constructor
@@ -160,10 +160,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	}
 
 	public void message(ILogHandle handle, int type, int level, String message) {
-		if (fDebugEn) {
-			if (type == ILogListener.Type_Error) {
-				System.err.println("[" + handle.getName() + "] " + message);
-			} else {
+		if (type == ILogListener.Type_Error) {
+			System.err.println("[" + handle.getName() + "] " + message);
+		} else {
+			if (fDebugEn) {
 				System.out.println("[" + handle.getName() + "] " + message);
 			}
 		}

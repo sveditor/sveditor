@@ -1028,7 +1028,7 @@ public class SVScanner implements ISVScanner {
 		ch = skipWhite(get_ch());
 
 		// bail out if there's an error
-		if (type == null || 
+		if (type == null || type.fTypeName == null ||
 				type.fTypeName.equals("begin") || 
 				type.fTypeName.equals("end")) {
 			return false;
@@ -1430,8 +1430,15 @@ public class SVScanner implements ISVScanner {
 			} else {
 				type.fTypeName = type_name;
 			}
-			return type;
+			
+			if (type.fTypeName != null || type.fEnumType) {
+				return type;
+			} else {
+				System.out.println("TypeName == null");
+				return null;
+			}
 		} else {
+			System.out.println("ret.length == 0");
 			return null;
 		}
 	}

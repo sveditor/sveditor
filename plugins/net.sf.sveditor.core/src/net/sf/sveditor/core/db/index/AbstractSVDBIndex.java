@@ -2,17 +2,18 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.log.LogHandle;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 
 public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected String						fProjectName;
@@ -29,6 +30,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected static Pattern				fWinPathPattern;
 	protected static final List<String>		fSVExtensions;
 	protected static final List<String>		fIgnoreDirs;
+	protected LogHandle						fLog;
+	protected ISVDBFileSystemProvider		fFileSystemProvider;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -52,7 +55,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		
 		fFileList = new HashMap<String, SVDBFile>();
 		fFileIndex = new HashMap<String, SVDBFile>();
+	}
+
+	public AbstractSVDBIndex(String project, ISVDBFileSystemProvider fs_provider) {
+		fProjectName 			= project;
+		fFileSystemProvider 	= fs_provider;
 		
+		fFileList 				= new HashMap<String, SVDBFile>();
+		fFileIndex 				= new HashMap<String, SVDBFile>();
 	}
 
 	public void init(ISVDBIndexRegistry registry) {
@@ -69,7 +79,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	
 	/**
 	 * Search for an include file locally
-	 */
 	public SVDBFile findIncludedFile(String leaf) {
 		Map<String, SVDBFile> map = getPreProcFileMap();
 		
@@ -87,12 +96,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		
 		return null;
 	}
+	 */
 	
-	public SVDBFile findIncludedFileGlobal(String leaf) {
-		SVDBFile ret = findIncludedFile(leaf);
+	public SVDBSearchResult<SVDBFile> findIncludedFileGlobal(String leaf) {
+		SVDBSearchResult<SVDBFile> ret = findIncludedFile(leaf);
 		
-		if (ret != null && fIncludeFileProvider != null) {
-			ret = fIncludeFileProvider.findIncludedFile(leaf);
+		if (ret == null) {
+			if (fIncludeFileProvider != null) {
+				ret = fIncludeFileProvider.findIncludedFile(leaf);
+				fLog.debug("Searching for \"" + leaf + "\" in global (ret=" + ret + ")");
+			} else {
+				fLog.debug("IncludeFileProvider not set");
+			}
 		}
 		
 		return ret;
@@ -172,6 +187,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	
 
 	public void dispose() {
+		if (fFileSystemProvider != null) {
+			fFileSystemProvider.dispose();
+		}
 	}
 	
 	protected static String expandVars(
@@ -183,15 +201,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		if (workspace_prefix) {
 			exp_path = exp_path.substring("${workspace_loc}".length());
 		}
-		
-		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
-		
-		try {
-			exp_path = mgr.performStringSubstitution(exp_path);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		
+
 		if (expand_env_vars) {
 			StringBuilder sb = new StringBuilder(exp_path);
 			StringBuilder tmp = new StringBuilder();
@@ -211,7 +221,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 							tmp.append(sb.charAt(idx));
 							idx++;
 						}
-						end = idx;
+						if (idx < sb.length()) {
+							end = ++idx;
+						} else {
+							end = idx;
+						}
 					} else {
 						while (idx < sb.length() && 
 								sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
@@ -222,7 +236,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 					}
 
 					key = tmp.toString();
+					System.out.println("Check key \"" + key + "\"");
 					if ((val = System.getenv(key)) != null) {
+						System.out.println("    value=\"" + val + "\"");
 						sb.replace(start, end, val);
 					}
 				} else {
@@ -230,10 +246,17 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 				}
 			}
 			
-			for (int i=0; i<sb.length(); i++) {
-				
-			}
+			exp_path = sb.toString();
 		}
+
+		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
+		
+		try {
+			exp_path = mgr.performStringSubstitution(exp_path);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
 		
 		if (workspace_prefix) {
 			exp_path = "${workspace_loc}" + exp_path;

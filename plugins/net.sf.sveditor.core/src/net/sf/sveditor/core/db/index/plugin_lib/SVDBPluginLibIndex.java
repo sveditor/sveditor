@@ -10,13 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.AbstractSVDBLibIndex;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import net.sf.sveditor.core.db.index.SVDBLibIndex;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
+public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemProvider {
 	private Bundle					fBundle;
 	private String					fPluginNS;
 	private String					fRootFile;
@@ -24,7 +26,9 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 	public SVDBPluginLibIndex(
 			String 			project, 
 			String 			base_location) {
-		super(project, base_location);
+		super(project, base_location, null);
+		
+		fFileSystemProvider = this;
 		
 		System.out.println("SVDBPluginLibIndex: 2-arg");
 
@@ -40,13 +44,15 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		fFileList = new HashMap<String, SVDBFile>();
 		fFileIndex = new HashMap<String, SVDBFile>();
 	}
-
+	
 	public SVDBPluginLibIndex(
 			String 			project, 
 			String			plugin_ns,
 			String			root) {
-		super(project, "plugin:/" + plugin_ns + "/" + root);
-		
+		super(project, "plugin:/" + plugin_ns + "/" + root, null);
+
+		fFileSystemProvider = this;
+
 		System.out.println("SVDBPluginLibIndex: 3-arg");
 
 		fRootFile = root;
@@ -62,7 +68,7 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		fFileList = new HashMap<String, SVDBFile>();
 		fFileIndex = new HashMap<String, SVDBFile>();
 	}
-
+	
 	public String getTypeID() {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
@@ -115,9 +121,28 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		
 		return ret;
 	}
+	
+	public void closeStream(InputStream in) {
+		try {
+			in.close();
+		} catch (IOException e) {}
+	}
 
-	@Override
-	protected InputStream openStream(String path) {
+	public boolean fileExists(String path) {
+ 		if (path.startsWith("plugin:/")) {
+
+			String leaf = path.substring(("plugin:/" + fPluginNS).length());
+
+			return (fBundle.getEntry(leaf) != null);
+		} else {
+			return false;
+		}
+	}
+
+	// Init for ISVDBFileSystem interface
+	public void init(String root) {}
+
+	public InputStream openStream(String path) {
 		InputStream ret = null;
 		
 		if (path.startsWith("plugin:/")) {
@@ -138,10 +163,13 @@ public class SVDBPluginLibIndex extends AbstractSVDBLibIndex {
 		return ret;
 	}
 	
-	@Override
-	protected long getLastModifiedTime(String file) {
+	public long getLastModifiedTime(String file) {
 		return fBundle.getLastModified();
 	}
+	
+	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
+	public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
+
 
 	public void rebuildIndex() {}
 

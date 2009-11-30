@@ -329,7 +329,6 @@ public class SVPreProcScanner implements ISVScanner {
 			String remainder = readLine_ll(ch).trim();
 			
 			if (fEvalConditionals) {
-			
 				if (type.equals("ifdef")) {
 					if (fDefineProvider != null) {
 						enter_ifdef(fDefineProvider.isDefined(
@@ -417,6 +416,10 @@ public class SVPreProcScanner implements ISVScanner {
 			// Now, read the remainder of the definition
 			String define = readLine_ll(ch);
 			
+			if (define == null) {
+				define = ""; // define this macro as existing
+			}
+			
 			if (ifdef_enabled()) {
 				if (fObserver != null) {
 					/*
@@ -481,47 +484,50 @@ public class SVPreProcScanner implements ISVScanner {
 			fTmpBuffer.append('`');
 			fTmpBuffer.append(type);
 
-			// Read the full string
+			// If we're in a disabled section, don't try to expand
+			if (ifdef_enabled()) {
+				// Read the full string
 
-			if (fDefineProvider != null && fDefineProvider.hasParameters(type)) {
-				// Try to read the parameter list
-				ch = get_ch_ll();
-				ch = skipWhite_ll(ch);
-				
-				if (ch == '(') {
-					fTmpBuffer.append((char)ch);
+				if (fDefineProvider != null && fDefineProvider.hasParameters(type)) {
+					// Try to read the parameter list
+					ch = get_ch_ll();
+					ch = skipWhite_ll(ch);
 
-					int matchLevel=1;
+					if (ch == '(') {
+						fTmpBuffer.append((char)ch);
 
-					do {
-						ch = get_ch_ll();
-						
-						if (ch == '(') {
-							matchLevel++;
-						} else if (ch == ')') {
-							matchLevel--;
-						}
-						
-						if (ch != -1) {
-							fTmpBuffer.append((char)ch);
-						}
-					} while (ch != -1 && matchLevel > 0);
-				} else {
-					System.out.println("[ERROR] macro \"" + type + 
-							"\" should have parameters, but doesn't");
-					System.out.println("    " + 
-							getLocation().getFileName() + ":" + 
-							getLocation().getLineNo());
-					unget_ch(ch);
+						int matchLevel=1;
+
+						do {
+							ch = get_ch_ll();
+
+							if (ch == '(') {
+								matchLevel++;
+							} else if (ch == ')') {
+								matchLevel--;
+							}
+
+							if (ch != -1) {
+								fTmpBuffer.append((char)ch);
+							}
+						} while (ch != -1 && matchLevel > 0);
+					} else {
+						System.out.println("[ERROR] macro \"" + type + 
+						"\" should have parameters, but doesn't");
+						System.out.println("    " + 
+								getLocation().getFileName() + ":" + 
+								getLocation().getLineNo());
+						unget_ch(ch);
+					}
 				}
-			}
-			
-			if (fDefineProvider != null) {
-				if (fExpandMacros) {
-					push_unacc(fDefineProvider.expandMacro(
-							fTmpBuffer.toString(), 
-							getLocation().getFileName(),
-							getLocation().getLineNo()));
+
+				if (fDefineProvider != null) {
+					if (fExpandMacros) {
+						push_unacc(fDefineProvider.expandMacro(
+								fTmpBuffer.toString(), 
+								getLocation().getFileName(),
+								getLocation().getLineNo()));
+					}
 				}
 			}
 		}

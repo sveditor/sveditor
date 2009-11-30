@@ -177,6 +177,17 @@ public class SVDBProjectData {
 			ISVDBIndex index = rgy.findCreateIndex(
 					fProjectName, path.getPath(),
 					SVDBArgFileIndexFactory.TYPE, null);
+			
+			/**
+			if (index != null) {
+				sc.addLibraryPath(index);
+			} else {
+				System.out.println(
+						"[ERROR] failed to create library index \"" +
+						path.getPath() + "\"");
+			}
+			 */
+			System.out.println("[SVDBProjectData TODO] add ArgFilePath to LibraryPath list");
 		}
 		
 		for (SVDBSourceCollection srcc : fw.getSourceCollections()) {
