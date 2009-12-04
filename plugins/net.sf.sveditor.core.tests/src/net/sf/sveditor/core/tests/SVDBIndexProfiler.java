@@ -4,9 +4,7 @@ import java.io.File;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.src_collection.SVDBFilesystemSourceCollectionIndex;
 import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 
 public class SVDBIndexProfiler {

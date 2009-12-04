@@ -47,7 +47,8 @@ public class SVExpressionUtils {
 			
 			while (((c = scanner.get_ch()) != -1) && 
 					Character.isJavaIdentifierPart(c)) {}
-			offset = scanner.getPos();
+			offset = scanner.getPos()-1;
+			scanner.seek(offset);
 		}
 
 		long start;
@@ -57,6 +58,7 @@ public class SVExpressionUtils {
 		// line
 		debug("-- scan back to activation character");
 		while ((c = scanner.get_ch()) != -1) {
+			debug("    ch=" + (char)c);
 			if (c == '.' || c == '`' ||	
 					(c == ':' && last_c == ':')	|| c == '\n' ||
 					c == ',' || c == '(') {
@@ -175,9 +177,11 @@ public class SVExpressionUtils {
 	public String extractPreTriggerPortion(IBIDITextScanner doc) {
 		StringBuffer tmp = new StringBuffer();
 		int last_nws_ch = -1;
-		String end_match[] = { "nde", // end
+		String end_match[] = { 
+				"dne", // end
 				"nigeb", // begin
 				";",
+				"=",
 				"*/",
 				"//"};
 		
@@ -364,6 +368,18 @@ public class SVExpressionUtils {
 				// Give up because the lower-level parser did...
 				if (idx == -1) {
 					break;
+				}
+			} else if (ch == '[') {
+				// TODO: This is an array reference. Must find base type of preceeding variable
+				int l_match = 1, r_match = 0;
+				
+				while (idx < preTrigger.length() && l_match != r_match) {
+					ch = preTrigger.charAt(idx++);
+					if (ch == '[') {
+						l_match++;
+					} else if (ch == ']') {
+						r_match++;
+					}
 				}
 			} else if (ch == '.') {
 				// use the preceeding

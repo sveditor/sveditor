@@ -15,7 +15,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 
-public class SVDBWorkspaceSourceCollectionIndex extends AbstractSVDBSourceCollectionIndex 
+public class SVDBWorkspaceSourceCollectionIndex extends SVDBSourceCollectionIndex 
 		implements IResourceChangeListener, IResourceDeltaVisitor {
 
 	public SVDBWorkspaceSourceCollectionIndex(
@@ -23,7 +23,7 @@ public class SVDBWorkspaceSourceCollectionIndex extends AbstractSVDBSourceCollec
 			String 					root,
 			int						index_type,
 			AbstractSVFileMatcher	matcher) {
-		super(project, root, index_type, matcher);
+		super(project, root, index_type, matcher, null);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	
@@ -36,7 +36,6 @@ public class SVDBWorkspaceSourceCollectionIndex extends AbstractSVDBSourceCollec
 		return SVDBSourceCollectionIndexFactory.TYPE;
 	}
 	
-	@Override
 	protected InputStream openStream(String path) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
@@ -71,7 +70,6 @@ public class SVDBWorkspaceSourceCollectionIndex extends AbstractSVDBSourceCollec
 		return in;
 	}
 	
-	@Override
 	protected long getLastModifiedTime(String path) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		

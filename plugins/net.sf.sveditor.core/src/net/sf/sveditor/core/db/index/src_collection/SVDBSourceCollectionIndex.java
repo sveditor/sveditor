@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -26,7 +27,7 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
  * Manages the index for a workspace location
  * 
  */
-public abstract class AbstractSVDBSourceCollectionIndex 
+public class SVDBSourceCollectionIndex 
 	extends AbstractSVDBIndex implements ISVDBIncludeFileProvider {
 	
 	protected int								fIndexType;
@@ -41,12 +42,13 @@ public abstract class AbstractSVDBSourceCollectionIndex
 	protected SVDBFileTreeUtils					fFileTreeUtils;
 	protected AbstractSVFileMatcher				fFileMatcher;
 	
-	public AbstractSVDBSourceCollectionIndex(
+	public SVDBSourceCollectionIndex(
 			String					project,
 			String 					base_location,
 			int						index_type,
-			AbstractSVFileMatcher	file_matcher) {
-		super(project);
+			AbstractSVFileMatcher	file_matcher,
+			ISVDBFileSystemProvider	fs_provider) {
+		super(project, fs_provider);
 
 		fFileMatcher = file_matcher;
 		
@@ -65,6 +67,10 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		fFileTreeUtils    = new SVDBFileTreeUtils();
 	}
 	
+	public String getTypeID() {
+		return SVDBSourceCollectionIndexFactory.TYPE;
+	}
+
 	@Override
 	protected boolean isLoadUpToDate() {
 		List<String> files = fFileMatcher.findIncludedPaths();
@@ -79,14 +85,14 @@ public abstract class AbstractSVDBSourceCollectionIndex
 			SVDBFile pp_file = fFileList.get(file);
 			
 			if (pp_file == null ||
-					(pp_file.getLastModified() != getLastModifiedTime(file))) {
+					(pp_file.getLastModified() != fFileSystemProvider.getLastModifiedTime(file))) {
 				if (pp_file == null) {
 					System.out.println("    Index not up-to-date: file \"" +
 							file + "\" not in index");
 				} else {
 					System.out.println("    Index not up-to-date: file \"" +
 							file + "\" cached timestamp " + pp_file.getLastModified() + 
-							" filesystem timestamp " + getLastModifiedTime(file));
+							" filesystem timestamp " + fFileSystemProvider.getLastModifiedTime(file));
 				}
 				return false;
 			}
@@ -141,10 +147,6 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		return null;
 	}
 	
-	protected abstract InputStream openStream(String path);
-	
-	protected abstract long getLastModifiedTime(String path);
-	
 	protected synchronized void buildPreProcFileMap() {
 		try {
 			SVPreProcScanner sc            = new SVPreProcScanner();
@@ -184,7 +186,7 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		sc.setObserver(s_observer);
 
 		try {
-			InputStream in = openStream(file);
+			InputStream in = fFileSystemProvider.openStream(file);
 			sc.init(in, file);
 			sc.scan();
 			
@@ -196,7 +198,7 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		if (s_observer.getFiles().size() > 0) {
 			SVDBFile svdb_f = s_observer.getFiles().get(0);
 			
-			svdb_f.setLastModified(getLastModifiedTime(file));
+			svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(file));
 			
 			return svdb_f;
 		} else {
@@ -236,7 +238,7 @@ public abstract class AbstractSVDBSourceCollectionIndex
 	}
 	
 	private SVDBFile parseFile(String file, SVDBFileTree file_tree) {
-		InputStream in = openStream(file);
+		InputStream in = fFileSystemProvider.openStream(file);
 		return parseFile(in, file, file_tree);
 	}
 
@@ -251,7 +253,7 @@ public abstract class AbstractSVDBSourceCollectionIndex
 		
 		svdb_file = SVDBFileFactory.createFile(in, path, dp);
 		
-		svdb_file.setLastModified(getLastModifiedTime(path));
+		svdb_file.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
 		try {
 			in.close();

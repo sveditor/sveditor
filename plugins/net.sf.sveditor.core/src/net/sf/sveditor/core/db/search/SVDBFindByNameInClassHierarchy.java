@@ -22,7 +22,8 @@ public class SVDBFindByNameInClassHierarchy {
 			SVDBItemType	...	types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+		while (scope != null && scope.getType() != SVDBItemType.Class &&
+				scope.getType() != SVDBItemType.Struct) {
 			scope = scope.getParent();
 		}
 		
@@ -41,7 +42,7 @@ public class SVDBFindByNameInClassHierarchy {
 						break;
 					}
 				}
-				
+
 				if (matches && it.getName().equals(id)) {
 					ret.add(it);
 				}
@@ -54,5 +55,4 @@ public class SVDBFindByNameInClassHierarchy {
 		
 		return ret;
 	}
-
 }

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -20,6 +21,7 @@ import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.PluginPathEditorInput;
@@ -53,6 +55,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.TextEditorAction;
+
+import com.sun.org.apache.bcel.internal.generic.RET;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
@@ -95,7 +99,155 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDBFile    		inc_file = null;
 		SVDBItem			it = null;
 
-		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset);
+		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
+		SVExpressionUtils		expr_utils = new SVExpressionUtils();
+		
+		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		
+		System.out.println("Expression Context: root=" + expr_ctxt.fRoot +
+				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
+
+		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
+		
+		// Now, iterate through the items in the file and find something
+		// with the same name
+		SVDBFile file = fEditor.getSVDBFile();
+		
+		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
+				file, getTextSel().getStartLine());
+		
+		// Scan back to the last stop-point to see if we can characterize 
+		// this location
+		String trigger = null;
+		int start = -1;
+		
+		int c = -1, last_c = -1, idx = offset-1;
+		StringBuffer text = new StringBuffer();
+
+
+		if (!expr_ctxt.fTrigger.equals("")) {
+			List<SVDBItem> pre_trigger = expr_utils.processPreTriggerPortion(
+					index_it, active_scope, expr_ctxt.fRoot, false);
+			
+			if (pre_trigger != null && pre_trigger.size() != 0) {
+				SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
+				
+				if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
+					SVDBFindByNameInClassHierarchy finder_h = 
+						new SVDBFindByNameInClassHierarchy(index_it);
+					List<SVDBItem> fields = finder_h.find(
+							(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
+					
+					if (fields.size() > 0) {
+						it = fields.get(0);
+					}
+				}
+			}
+		} else {
+			// No trigger info. Re-do this search by reading the identifier surrounding
+			// the cursor location
+
+			text.setLength(0);
+			text.append(expr_ctxt.fRoot);
+			idx = offset;
+
+			System.out.println("Looking for un-triggered identifier \"" +
+					text.toString() + "\"");
+			List<SVDBItem> result = null;
+
+			if (it == null) {
+				SVDBFindByNameInClassHierarchy finder_h =
+					new SVDBFindByNameInClassHierarchy(index_it);
+
+				result = finder_h.find(active_scope, text.toString());
+
+				if (result.size() > 0) {
+					it = result.get(0);
+
+					if (result.size() > 1) {
+						System.out.println("multiple matches");
+						for (SVDBItem it_t : result) {
+							System.out.println("    " + it_t.getName());
+						}
+					}
+				}
+			} 
+
+			if (it == null) {
+				// Try type names
+				SVDBFindNamedModIfcClassIfc finder_cls =
+					new SVDBFindNamedModIfcClassIfc(index_it);
+
+				it = finder_cls.find(text.toString());
+
+				System.out.println("Class item=" + it);
+			}
+		}
+		
+		// Search up the scope for a matching name
+		/**
+		if (active_scope != null) {
+			it = findNamedItem(text, active_scope);
+
+			SVDBModIfcClassDecl enclosing_class = null;
+			
+			if (it == null) {
+				it = searchEnclosingScope(text, active_scope);
+			}
+		
+			if (it == null && pd != null && 
+					(enclosing_class = findEnclosingClass(active_scope)) != null &&
+					enclosing_class.getSuperClass() != null && 
+					!enclosing_class.getSuperClass().equals("")) {
+				// TODO: Now, search up the class hierarchy for a match
+				it = searchClassHierarchy(text, enclosing_class, pd.getFileIndex());
+			}
+		}
+		
+		if (it == null && pd != null) {
+			// Search through the indexed files for a matching macro
+			// or class declaration
+			SVDBIndexSearcher index_search = new SVDBIndexSearcher();
+			index_search.addFile(fEditor.getSVDBFile());
+			index_search.addIndex(pd.getFileIndex());
+			
+			System.out.println("searching index for " + text);
+			List<SVDBItem> result = index_search.findByName(text);
+			
+			if (result.size() > 0) {
+				it = result.get(0);
+			}
+		}
+		 */
+		
+		if (it != null) {
+			IEditorPart ed_f = openEditor(it, fEditor.getIndexIterator());
+			((SVEditor)ed_f).setSelection(it, true);
+		} else if (inc_file != null) {
+			openEditor(inc_file.getFilePath(), fEditor.getIndexIterator());
+		}
+	}
+
+	public void run_2() {
+		super.run();
+		
+		debug("OpenDeclarationAction.run()");
+		
+		IDocument doc = fEditor.getDocumentProvider().getDocument(
+				fEditor.getEditorInput());
+		ITextSelection sel = getTextSel();
+		
+		int offset = sel.getOffset() + sel.getLength();
+		SVDBFile    		inc_file = null;
+		SVDBItem			it = null;
+
+		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
+		SVExpressionUtils		expr_utils = new SVExpressionUtils();
+		
+		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		
+		System.out.println("Expression Context: root=" + expr_ctxt.fRoot +
+				" leaf=" + expr_ctxt.fLeaf);
 
 		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 		
@@ -247,7 +399,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 					idx--;
 					// now, search backwards
 					IBIDITextScanner doc_scanner = new SVDocumentTextScanner(doc, idx);
-					SVExpressionUtils expr_utils = new SVExpressionUtils();
+					// SVExpressionUtils expr_utils = new SVExpressionUtils();
 					String pre_trigger = expr_utils.extractPreTriggerPortion(doc_scanner);
 					System.out.println("pre-trigger=\"" + pre_trigger + "\"");
 					
