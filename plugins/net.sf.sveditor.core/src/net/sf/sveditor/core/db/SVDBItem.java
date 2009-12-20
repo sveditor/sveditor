@@ -54,6 +54,10 @@ public class SVDBItem {
 		return fName;
 	}
 	
+	public void setName(String name) {
+		fName = name;
+	}
+	
 	public SVDBItemType getType() {
 		return fType;
 	}

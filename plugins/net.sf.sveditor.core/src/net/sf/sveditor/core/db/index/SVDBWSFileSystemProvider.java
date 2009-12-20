@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.db.index;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			} catch (CoreException e) { }
 		}
 		
+		System.out.println("ROOT_DIR=" + fRootDir);
+		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);		
 	}
 	
@@ -60,13 +64,16 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	public boolean fileExists(String path) {
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(path));
+			
+			return file.exists();
+		} else {
+			// Also look at the filesystem
+			return new File(path).exists();
 		}
-		
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
-		IFile file = root.getFile(new Path(path));
-		
-		return file.exists();
 	}
 
 	public void closeStream(InputStream in) {
@@ -80,15 +87,21 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(path));
+			
+			try {
+				ret = file.getContents();
+			} catch (CoreException e) { 
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				ret = new FileInputStream(path);
+			} catch (IOException e) {}
 		}
-		
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
-		IFile file = root.getFile(new Path(path));
-		
-		try {
-			ret = file.getContents();
-		} catch (CoreException e) { }
 		
 		return ret;
 	}
@@ -96,16 +109,18 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	public long getLastModifiedTime(String path) {
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
-		}
-		
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
-		IFile file = root.getFile(new Path(path));
-		
-		if (file != null) {
-			return file.getModificationStamp();
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(path));
+			
+			if (file != null) {
+				return file.getModificationStamp();
+			} else {
+				return 0;
+			}
 		} else {
-			return 0;
+			return new File(path).lastModified();
 		}
 	}
 

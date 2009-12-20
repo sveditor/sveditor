@@ -558,7 +558,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	 * @param key
 	 * @return
 	 */
-	private SVDBMacroDef searchContext(
+	protected SVDBMacroDef searchContext(
 			SVDBFileTree 	context, 
 			String 			key) {
 		SVDBMacroDef ret;

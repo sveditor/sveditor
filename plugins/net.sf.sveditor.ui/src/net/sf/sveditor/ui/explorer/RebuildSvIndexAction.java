@@ -11,7 +11,6 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.navigator.CommonActionProvider;
@@ -37,7 +36,6 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 			fLog = LogFactory.getDefault().getLogHandle("RebuildIndexAction");
 		}
 		
-		@SuppressWarnings("unchecked")
 		public void run() {
 			
 			IStructuredSelection sel_s = (IStructuredSelection)

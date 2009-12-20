@@ -171,7 +171,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void leave_sequence() {}
 
 	
-	public void leave_struct_decl() {}
+	public void leave_struct_decl(String name) {}
 
 	
 	public void leave_task_decl() {}

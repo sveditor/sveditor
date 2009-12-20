@@ -523,10 +523,16 @@ public class SVPreProcScanner implements ISVScanner {
 
 				if (fDefineProvider != null) {
 					if (fExpandMacros) {
-						push_unacc(fDefineProvider.expandMacro(
-								fTmpBuffer.toString(), 
-								getLocation().getFileName(),
-								getLocation().getLineNo()));
+						try {
+							push_unacc(fDefineProvider.expandMacro(
+									fTmpBuffer.toString(), 
+									getLocation().getFileName(),
+									getLocation().getLineNo()));
+						} catch (Exception e) {
+							System.out.println("Exception while expanding \"" + 
+									fTmpBuffer.toString() + "\"");
+							e.printStackTrace();
+						}
 					}
 				}
 			}

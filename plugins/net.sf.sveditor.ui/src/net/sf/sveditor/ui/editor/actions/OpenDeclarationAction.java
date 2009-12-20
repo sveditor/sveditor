@@ -5,7 +5,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -13,7 +12,6 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
@@ -55,8 +53,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.TextEditorAction;
-
-import com.sun.org.apache.bcel.internal.generic.RET;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
@@ -148,7 +144,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 			// the cursor location
 
 			text.setLength(0);
-			text.append(expr_ctxt.fRoot);
+			text.append(expr_ctxt.fLeaf);
 			idx = offset;
 
 			System.out.println("Looking for un-triggered identifier \"" +
@@ -181,6 +177,18 @@ public class OpenDeclarationAction extends TextEditorAction {
 				it = finder_cls.find(text.toString());
 
 				System.out.println("Class item=" + it);
+			}
+			
+			if (it == null) {
+				// Try global task/function
+				SVDBFindByName finder_tf = new SVDBFindByName(index_it);
+				
+				List<SVDBItem> it_l= finder_tf.find(text.toString(), 
+						SVDBItemType.Task, SVDBItemType.Function);
+				
+				if (it_l != null && it_l.size() > 0) {
+					it = it_l.get(0);
+				}
 			}
 		}
 		

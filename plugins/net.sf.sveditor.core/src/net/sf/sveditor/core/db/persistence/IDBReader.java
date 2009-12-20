@@ -12,6 +12,8 @@ public interface IDBReader {
 	
 	long readLong() throws DBFormatException;
 	
+	byte [] readByteArray() throws DBFormatException;
+	
 	String readString() throws DBFormatException;
 	
 	SVDBItemType readItemType() throws DBFormatException;

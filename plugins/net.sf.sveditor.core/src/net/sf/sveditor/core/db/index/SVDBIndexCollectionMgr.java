@@ -22,8 +22,9 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	private List<ISVDBIndex>				fIncludePathList;
 	private List<ISVDBIndex>				fLibraryPathList;
 	private List<ISVDBIndex>				fPluginLibraryList;
+	private List<ISVDBIndex>				fShadowIndexList;
 	private List<List<ISVDBIndex>>			fFileSearchOrder;
-	private Map<String, ISVDBIndex>			fShadowIndexes;
+	private Map<String, ISVDBIndex>			fShadowIndexMap;
 	private LogHandle						fLog;
 
 	
@@ -33,7 +34,9 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fIncludePathList 		= new ArrayList<ISVDBIndex>();
 		fLibraryPathList 		= new ArrayList<ISVDBIndex>();
 		fPluginLibraryList 		= new ArrayList<ISVDBIndex>();
-		fShadowIndexes			= new HashMap<String, ISVDBIndex>();
+		fShadowIndexList		= new ArrayList<ISVDBIndex>();
+
+		fShadowIndexMap			= new HashMap<String, ISVDBIndex>();
 		
 		fFileSearchOrder		= new ArrayList<List<ISVDBIndex>>();
 		fFileSearchOrder.add(fLibraryPathList);
@@ -80,6 +83,11 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			}
 		}
 		
+		// Finally, add the shadow indexes
+		for (ISVDBIndex index : fShadowIndexList) {
+			ret.addIndex(index);
+		}
+		
 		return ret;
 	}
 
@@ -105,7 +113,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		p.addSearchPath(fPluginLibraryList);
 		index.setIncludeFileProvider(p);
 		
-		fShadowIndexes.put(dir, index);
+		fShadowIndexList.add(index);
+		fShadowIndexMap.put(dir, index);
 	}
 	
 	public void addIncludePath(ISVDBIndex index) {
@@ -154,7 +163,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 
 		if (ret.size() == 0) {
-			for (ISVDBIndex index : fShadowIndexes.values()) {
+			for (ISVDBIndex index : fShadowIndexMap.values()) {
 				if ((result = index.findPreProcFile(path)) != null) {
 					ret.add(new SVDBSearchResult<SVDBFile>(result, index));
 				}
@@ -178,7 +187,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 		
 		if (ret.size() == 0) {
-			for (ISVDBIndex index : fShadowIndexes.values()) {
+			for (ISVDBIndex index : fShadowIndexMap.values()) {
 				if ((result = index.findFile(path)) != null) {
 					ret.add(new SVDBSearchResult<SVDBFile>(result, index));
 				}
@@ -206,7 +215,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			// Create a shadow index using the current directory
 			String dir = new File(path).getParent();
 			
-			if (!fShadowIndexes.containsKey(dir)) {
+			if (!fShadowIndexMap.containsKey(dir)) {
 				ISVDBIndex index = null;
 				
 				if (fProject != null) {
@@ -222,7 +231,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				addShadowIndex(dir, index);
 			}
 			
-			ret = fShadowIndexes.get(dir).parse(in, path);
+			ret = fShadowIndexMap.get(dir).parse(in, path);
 		}
 		
 		return ret;
@@ -264,23 +273,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			}
 			
 			return ret;
-		}
-		
-		private SVDBSearchResult<SVDBFile> findIncludedFile(ISVDBIndex index, String leaf) {
-			/*
-			Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
-			
-			for (String f : pp_map.keySet()) {
-				if (f.endsWith(leaf)) {
-					return pp_map.get(f);
-				}
-			}
-			
-			return null;
-			System.out.println("findIncludedFile: " + fIndex.getBaseLocation() + " " +
-					index.getBaseLocation());
-			 */
-			return index.findIncludedFile(leaf);
 		}
 	};
 }

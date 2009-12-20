@@ -1,6 +1,6 @@
 
 
-class __sv_queue #(type T=int);
+class __sv_builtin_queue #(type T=int);
 
 	extern function int size();
 	

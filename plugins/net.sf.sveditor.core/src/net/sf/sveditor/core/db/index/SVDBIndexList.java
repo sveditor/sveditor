@@ -9,6 +9,8 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
@@ -56,7 +58,11 @@ public class SVDBIndexList implements ISVDBIndexList, ISVDBIndexChangeListener {
 		return false;
 	}
 	
-	public void load(List<SVDBFile> pp_list, List<SVDBFile> db_list) {
+	public void dump(IDBWriter index_data) {
+		
+	}
+	
+	public void load(IDBReader index_data, List<SVDBFile> pp_list, List<SVDBFile> db_list) {
 		System.out.println("[ERROR] cannot load an index list");
 	}
 

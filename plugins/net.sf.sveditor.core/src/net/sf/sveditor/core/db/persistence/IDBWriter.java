@@ -11,6 +11,8 @@ public interface IDBWriter {
 	
 	void writeLong(long val);
 	
+	void writeByteArray(byte data[]);
+	
 	void writeString(String val);
 	
 	void writeItemType(SVDBItemType type);

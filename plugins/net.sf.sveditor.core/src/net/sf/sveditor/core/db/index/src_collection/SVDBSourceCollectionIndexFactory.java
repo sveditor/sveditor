@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db.index.src_collection;
 
-import java.io.InputStream;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -14,18 +13,27 @@ import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
 import net.sf.sveditor.core.fileset.SVWorkspaceFileMatcher;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.sourceCollectionIndex";
 	public static final String  FILESET = "FILE_SET";
+	private LogHandle				fLog;
+	
+	public SVDBSourceCollectionIndexFactory() {
+		fLog = LogFactory.getDefault().getLogHandle(
+				"SVDBSourceCollectionIndexFactory");
+	}
+	
 
 	public ISVDBIndex createSVDBIndex(String project_name,
 			String base_location, Map<String, Object> config) {
 		ISVDBIndex ret;
 		ISVDBFileSystemProvider fs_provider = null;
 		
-		System.out.println("createSVDBIndex: " + project_name + " ; " + base_location);
+		fLog.debug("createSVDBIndex: " + project_name + " ; " + base_location);
 		
 		SVFileSet fs = null;
 		AbstractSVFileMatcher matcher = null;
@@ -48,7 +56,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			matcher = new SVWorkspaceFileMatcher();
 			matcher.addFileSet(fs);
 			
-			fs_provider = new SVDBFSFileSystemProvider();
+			fs_provider = new SVDBWSFileSystemProvider();
 			
 		} else {
 			if (fs == null) {
@@ -63,7 +71,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			matcher = new SVFilesystemFileMatcher();
 			matcher.addFileSet(fs);
 			
-			fs_provider = new SVDBWSFileSystemProvider();
+			fs_provider = new SVDBFSFileSystemProvider();
 		}
 
 		ret = new SVDBSourceCollectionIndex(

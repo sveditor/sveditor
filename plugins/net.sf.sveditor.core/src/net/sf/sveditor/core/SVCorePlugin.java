@@ -33,7 +33,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
-	private boolean							fDebugEn = true;
+	private boolean							fDebugEn = false;
 	
 	/**
 	 * The constructor

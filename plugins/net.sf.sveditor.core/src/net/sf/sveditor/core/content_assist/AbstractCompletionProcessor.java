@@ -193,6 +193,10 @@ public abstract class AbstractCompletionProcessor {
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();
 			
+			if (it.getType() == SVDBItemType.Struct) {
+				System.out.println("struct type \"" + it.getName() + "\"");
+			}
+			
 			if (it.getName() != null && 
 					(it.getType() != SVDBItemType.File) &&
 					(it.getType() != SVDBItemType.Macro) &&

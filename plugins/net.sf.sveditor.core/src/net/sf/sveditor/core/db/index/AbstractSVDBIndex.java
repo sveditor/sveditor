@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -112,10 +114,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		
 		return ret;
 	}
+	
+	public void dump(IDBWriter index_data) {
+		// Dump nothing...
+	}
 
-	public void load(List<SVDBFile> pp_files, List<SVDBFile> db_files) {
-		System.out.println("AbstractSVDBIndex.load()");
-		
+	public void load(
+			IDBReader			index_data,
+			List<SVDBFile> 		pp_files, 
+			List<SVDBFile> 		db_files) {
 		fFileList.clear();
 		fFileIndex.clear();
 		
@@ -128,11 +135,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		}
 
 		if (isLoadUpToDate()) {
-			System.out.println("[NOTE] index \"" + getBaseLocation() + "\" IS up-to-date");
+			fLog.debug("index \"" + getBaseLocation() + "\" IS up-to-date");
 			fFileIndexValid = true;
 			fFileListValid  = true;
 		} else {
-			System.out.println("[NOTE] index \"" + getBaseLocation() + "\" NOT up-to-date");
+			fLog.debug("index \"" + getBaseLocation() + "\" NOT up-to-date");
 			fFileIndexValid = false;
 			fFileListValid  = false;
 			fFileList.clear();
@@ -236,9 +243,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 					}
 
 					key = tmp.toString();
-					System.out.println("Check key \"" + key + "\"");
 					if ((val = System.getenv(key)) != null) {
-						System.out.println("    value=\"" + val + "\"");
 						sb.replace(start, end, val);
 					}
 				} else {

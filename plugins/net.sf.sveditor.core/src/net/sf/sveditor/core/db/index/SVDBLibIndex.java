@@ -15,6 +15,8 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
@@ -35,7 +37,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fFileTreeMap 	= new HashMap<String, SVDBFileTree>();
 		fRoot 			= root;
 		fResolvedRoot	= expandVars(fRoot, true);
-		fLog = LogFactory.getDefault().getLogHandle("AbstractSVDBLibIndex");
+		fLog = LogFactory.getDefault().getLogHandle("SVDBLibIndex");
 		
 		// Initialize the filesystem interface
 		if (fFileSystemProvider != null) {
@@ -80,8 +82,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	}
 	
 	@Override
-	public void load(List<SVDBFile> ppFiles, List<SVDBFile> dbFiles) {
-		super.load(ppFiles, dbFiles);
+	public void load(IDBReader index_data, List<SVDBFile> ppFiles, List<SVDBFile> dbFiles) {
+		super.load(index_data, ppFiles, dbFiles);
 		
 		if (fFileIndexValid && fFileListValid) {
 			SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());

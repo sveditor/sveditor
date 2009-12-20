@@ -21,6 +21,7 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
+	private SVDBModIfcClassDecl				fStruct;
 
 	public SVDBFileFactory() {
 		fScanner = new SVScanner();
@@ -173,12 +174,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		setLocation(decl);
 	}
 
-	
-	public void leave_struct_decl() throws HaltScanException {
+	public void leave_struct_decl(String name) throws HaltScanException {
 		if (fScopeStack.size() > 0 &&
 				fScopeStack.peek().getType() == SVDBItemType.Struct) {
 			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop();
+			fScopeStack.pop().setName(name);
 		}
 	}
 

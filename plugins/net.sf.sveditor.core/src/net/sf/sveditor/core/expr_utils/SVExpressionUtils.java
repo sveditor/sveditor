@@ -17,11 +17,18 @@ import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 public class SVExpressionUtils {
 	
-	private boolean fDebugEn = false;
+	private boolean 			fDebugEn = true;
+	private LogHandle			fLog;
+	
+	public SVExpressionUtils() {
+		fLog = LogFactory.getDefault().getLogHandle("SVExpressionUtils");
+	}
 	
 	
 	/**
@@ -60,8 +67,9 @@ public class SVExpressionUtils {
 		while ((c = scanner.get_ch()) != -1) {
 			debug("    ch=" + (char)c);
 			if (c == '.' || c == '`' ||	
-					(c == ':' && last_c == ':')	|| c == '\n' ||
-					c == ',' || c == '(') {
+					(c == ':' && last_c == ':')	|| 
+					c == '\n' || c == ' ' || c == '\t' ||
+					c == ',' || c == '(' ) {
 				debug("  ** stop -- saw activator character");
 				break;
 			} else if (c == ')') {
@@ -86,7 +94,7 @@ public class SVExpressionUtils {
 			ret.fTrigger = "" + (char) c;
 		} else if (c == ':' && last_c == ':') {
 			ret.fTrigger = "::";
-		} else if (c == '\n') {
+		} else if (Character.isWhitespace(c)) {
 			// Scan forward so 'start' actually points at the beginning of the
 			// token
 			ret.fTrigger = "";
@@ -743,7 +751,7 @@ public class SVExpressionUtils {
 
 	private void debug(String msg) {
 		if (fDebugEn) {
-			System.out.println(msg);
+			fLog.debug(msg);
 		}
 	}
 }

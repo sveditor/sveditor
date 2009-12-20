@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBIncludeFileProvider {
 	int IT_IncludePath      = 1;
@@ -35,9 +37,17 @@ public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBI
 	boolean isLoaded();
 	
 	/**
+	 * Dump index-specific data
+	 */
+	void dump(IDBWriter			index_data);
+	
+	/**
 	 * Load this index from the specified lists
 	 */
-	void load(List<SVDBFile> pp_files, List<SVDBFile> db_files);
+	void load(
+			IDBReader			index_data,
+			List<SVDBFile> 		pp_files, 
+			List<SVDBFile> 		db_files);
 	
 	/**
 	 * Sets the include provider

@@ -1,11 +1,9 @@
 package net.sf.sveditor.core.db.persistence;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
@@ -27,144 +25,24 @@ import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 
-public class SVDBLoad implements IDBReader {
-	private InputStream 		fIn;
-	private int					fUngetCh;
-	private StringBuilder		fTmpBuffer = new StringBuilder();
+public class SVDBPersistenceReader implements IDBReader {
+	private InputStream			fIn;
 	private byte				fBuf[];
 	private int					fBufIdx;
 	private int					fBufSize;
-	private LogHandle			fLog;
-	
-	public SVDBLoad() {
-		fBuf = new byte[1024*1024];
-		fBufIdx  = 0;
-		fBufSize = 0;
-		fLog = LogFactory.getDefault().getLogHandle("SVDBLoad");
-	}
-	
-	public String readBaseLocation(InputStream in) throws DBFormatException {
-		fIn = in;
-		fUngetCh = -1;
-		fBufIdx  = 0;
-		fBufSize = 0;
-		
-		String SDB = readTypeString();
-		
-		if (!"SDB".equals(SDB)) {
-			throw new DBFormatException("Database not prefixed with SDB");
-		}
-		
-		int ch;
-		
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("Missing '<'");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-         		
-		if (ch != '>') {
-			throw new DBFormatException("Unterminated SDB record");
-		}
+	private int					fUngetCh;
+	private StringBuilder		fTmpBuffer;
 
-		return fTmpBuffer.toString();
-	}
 	
-	@SuppressWarnings("unchecked")
-	public void load(ISVDBIndex index, InputStream in) throws DBFormatException {
-		IDBReader		index_data = null;
-		fIn = in;
-		fUngetCh = -1;
-		fBufIdx  = 0;
-		fBufSize = 0;
-
-		String SDB = readTypeString();
-		
-		if (!"SDB".equals(SDB)) {
-			throw new DBFormatException("Database not prefixed with SDB");
-		}
-		
-		int ch;
-		
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("Missing '<'");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-		
-		if (ch != '>') {
-			throw new DBFormatException("Unterminated SDB record");
-		}
-		
-		byte [] index_data_arr = readByteArray();
-		
-		if (index_data_arr != null) {
-			index_data = new SVDBPersistenceReader(
-					new ByteArrayInputStream(index_data_arr));
-		}
-		
-		// TODO: Check base location against index being loaded
-		List<SVDBFile> pp_list = (List<SVDBFile>)readItemList(null, null);
-		List<SVDBFile> db_list = (List<SVDBFile>)readItemList(null, null);
-		
-		fLog.debug("pp_list.size=" + pp_list.size() + 
-				" db_list.size=" + db_list.size());
-		
-		index.load(index_data, pp_list, db_list);
-	}
 	
-	@SuppressWarnings("unchecked")
-	public void load(Map<String, SVDBFile> pp_map, Map<String, SVDBFile> db_map, InputStream in)  throws DBFormatException {
-		fIn = in;
-		fUngetCh = -1;
-		fBufIdx  = 0;
-		fBufSize = 0;
-
-		String SDB = readTypeString();
-		
-		if (!"SDB".equals(SDB)) {
-			throw new DBFormatException("Database not prefixed with SDB");
-		}
-		
-		int ch;
-		
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("Missing '<'");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-		
-		if (ch != '>') {
-			throw new DBFormatException("Unterminated SDB record");
-		}
-		
-		// TODO: Check base location against index being loaded
-		List<SVDBFile> pp_list = (List<SVDBFile>)readItemList(null, null);
-		List<SVDBFile> db_list = (List<SVDBFile>)readItemList(null, null);
-		
-		for (SVDBFile f : pp_list) {
-			pp_map.put(f.getFilePath(), f);
-		}
-		
-		for (SVDBFile f : db_list) {
-			db_map.put(f.getFilePath(), f);
-		}
+	public SVDBPersistenceReader(InputStream in) {
+		fIn      	= in;
+		fBuf     	= new byte[1024*1024];
+		fBufIdx  	= 0;
+		fBufSize 	= 0;
+		fUngetCh	= -1;
+		fTmpBuffer 	= new StringBuilder();
 	}
 
 	public int readInt() throws DBFormatException {
@@ -186,6 +64,74 @@ public class SVDBLoad implements IDBReader {
 		}
 
 		return ret;
+	}
+
+	public List<Integer> readIntList() throws DBFormatException {
+		String type = readTypeString();
+		
+		if (!"SNL".equals(type)) {
+			throw new DBFormatException(
+					"Bad format for integer-list: \"" + type + "\"");
+		}
+		
+		int ch;
+		int size;
+		
+		if ((ch = getch()) != '<') { // expect '<'
+			throw new DBFormatException(
+					"Bad format for string-list: expecting '<' (" + (char)ch + ")");
+		}
+		
+		size = readRawInt();
+		
+		ch = getch(); // expect '>'
+		
+		if (size == -1) {
+			return null;
+		} else {
+			List<Integer> ret = new ArrayList<Integer>();
+
+			while (size-- > 0) {
+				ret.add(readInt());
+			}
+			
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List readItemList(SVDBFile file, SVDBScopeItem parent)
+			throws DBFormatException {
+		String type = readTypeString();
+		
+		if (!"SIL".equals(type)) {
+			throw new DBFormatException(
+					"Bad format for item list: \"" + type + "\"");
+		}
+		
+		int ch;
+		int size;
+		
+		if ((ch = getch()) != '<') { // expect '<'
+			throw new DBFormatException("Missing '<' on item-list size (" + (char)ch + ")"); 
+		}
+
+		size = readRawInt();
+		
+		if ((ch = getch()) != '>') {
+			throw new DBFormatException("Missing '>' on item-list size");
+		}
+		
+		if (size == -1) {
+			return null;
+		} else {
+			List ret = new ArrayList();
+			while (size-- > 0) {
+				ret.add(readSVDBItem(file, parent));
+			}
+			
+			return ret;
+		}
 	}
 
 	public SVDBItemType readItemType() throws DBFormatException {
@@ -214,7 +160,7 @@ public class SVDBLoad implements IDBReader {
 		try {
 			ret = SVDBItemType.valueOf(fTmpBuffer.toString());
 		} catch (Exception e) {
-			fLog.error("value \"" + fTmpBuffer.toString() + "\" isn't an SVDBItemType value");
+			System.out.println("[ERROR] value \"" + fTmpBuffer.toString() + "\" isn't an SVDBItemType value");
 		}
 		
 		return ret;
@@ -283,7 +229,7 @@ public class SVDBLoad implements IDBReader {
 
 			// if ((ch = getch()) != '>') {
 			if (ch != '>') {
-				fLog.debug("string thus far is: " + 
+				System.out.println("string thus far is: " + 
 						fTmpBuffer.toString());
 				throw new DBFormatException(
 						"Unterminated string: \"" + (char)ch + "\"");
@@ -292,7 +238,7 @@ public class SVDBLoad implements IDBReader {
 			return fTmpBuffer.toString();
 		}
 	}
-	
+
 	public byte [] readByteArray() throws DBFormatException {
 		byte ret[] = null;
 
@@ -350,43 +296,7 @@ public class SVDBLoad implements IDBReader {
 		
 		return ret;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public List readItemList(
-			SVDBFile			file,
-			SVDBScopeItem		parent) throws DBFormatException {
-		String type = readTypeString();
-		
-		if (!"SIL".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for item list: \"" + type + "\"");
-		}
-		
-		int ch;
-		int size;
-		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException("Missing '<' on item-list size (" + (char)ch + ")"); 
-		}
 
-		size = readRawInt();
-		
-		if ((ch = getch()) != '>') {
-			throw new DBFormatException("Missing '>' on item-list size");
-		}
-		
-		if (size == -1) {
-			return null;
-		} else {
-			List ret = new ArrayList();
-			while (size-- > 0) {
-				ret.add(readSVDBItem(file, parent));
-			}
-			
-			return ret;
-		}
-	}
-	
 	public List<String> readStringList() throws DBFormatException {
 		String type = readTypeString();
 		
@@ -419,39 +329,6 @@ public class SVDBLoad implements IDBReader {
 			return ret;
 		}
 	}
-	
-	public List<Integer> readIntList() throws DBFormatException {
-		String type = readTypeString();
-		
-		if (!"SNL".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for integer-list: \"" + type + "\"");
-		}
-		
-		int ch;
-		int size;
-		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException(
-					"Bad format for string-list: expecting '<' (" + (char)ch + ")");
-		}
-		
-		size = readRawInt();
-		
-		ch = getch(); // expect '>'
-		
-		if (size == -1) {
-			return null;
-		} else {
-			List<Integer> ret = new ArrayList<Integer>();
-
-			while (size-- > 0) {
-				ret.add(readInt());
-			}
-			
-			return ret;
-		}
-	}
 
 	private int readRawInt() throws DBFormatException {
 		int ret = 0;
@@ -477,7 +354,7 @@ public class SVDBLoad implements IDBReader {
 		
 		return ret;
 	}
-
+	
 	private int readRawHexInt() throws DBFormatException {
 		int ret = 0;
 		int ch;
@@ -506,7 +383,7 @@ public class SVDBLoad implements IDBReader {
 			return ret;
 		}
 	}
-
+	
 	private SVDBItem readSVDBItem(
 			SVDBFile			file,
 			SVDBScopeItem		parent
@@ -609,13 +486,13 @@ public class SVDBLoad implements IDBReader {
 				break;
 				
 			default:
-				fLog.error("unimplemented SVDBLoad type " + type);
+				System.out.println("[ERROR] unimplemented SVDBLoad type " + type);
 				break;
 		}
 		
 		return ret;
 	}
-	
+
 	private String readTypeString() {
 		fTmpBuffer.setLength(0);
 		
@@ -633,8 +510,7 @@ public class SVDBLoad implements IDBReader {
 			return null;
 		}
 	}
-	
-	
+
 	private int getch() {
 		int ch = -1;
 		

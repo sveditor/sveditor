@@ -68,7 +68,7 @@ public interface ISVScannerObserver {
 			String						name,
 			List<SVClassIfcModParam>	params) throws HaltScanException;
 	
-	void leave_struct_decl();
+	void leave_struct_decl(String name);
 	/**
 	 * Handles all 
 	 * @param type

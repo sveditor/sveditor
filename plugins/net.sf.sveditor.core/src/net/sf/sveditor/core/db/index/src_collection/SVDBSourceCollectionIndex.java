@@ -1,7 +1,6 @@
 package net.sf.sveditor.core.db.index.src_collection;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,6 +10,7 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -65,6 +66,9 @@ public class SVDBSourceCollectionIndex
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 
 		fFileTreeUtils    = new SVDBFileTreeUtils();
+		fLog = LogFactory.getDefault().getLogHandle("SVDBSourceCollectionIndex");
+		
+		fDefineProvider.setFileContext(new SVDBFileTree("Dummy"));
 	}
 	
 	public String getTypeID() {
@@ -185,16 +189,16 @@ public class SVDBSourceCollectionIndex
 	
 		sc.setObserver(s_observer);
 
-		try {
-			InputStream in = fFileSystemProvider.openStream(file);
+		InputStream in = fFileSystemProvider.openStream(file);
+
+		if (in != null) {
 			sc.init(in, file);
 			sc.scan();
-			
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			fFileSystemProvider.closeStream(in);
+		} else {
+			fLog.error("Failed to open file \"" + file + "\" in index " + fFileSystemProvider.getClass().getName());
 		}
-
+			
 		if (s_observer.getFiles().size() > 0) {
 			SVDBFile svdb_f = s_observer.getFiles().get(0);
 			
@@ -243,54 +247,17 @@ public class SVDBSourceCollectionIndex
 	}
 
 	private SVDBFile parseFile(InputStream in, String path, SVDBFileTree file_tree) {
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
 		SVDBFile svdb_file = null;
 		
-		System.out.println("file_tree=" + file_tree);
-
-		// Where do defines come from?
-		dp.setFileContext(file_tree);
-		
-		svdb_file = SVDBFileFactory.createFile(in, path, dp);
+		fDefineProvider.setFileContext(new SVDBFileTree(path));
+		svdb_file = SVDBFileFactory.createFile(in, path, fDefineProvider);
 		
 		svdb_file.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
-		try {
-			in.close();
-		} catch (IOException e) { }
+		fFileSystemProvider.closeStream(in);
 		
 		return svdb_file;
 	}
-
-	/*
-	public SVDBFile findIncludedFile(String leaf) {
-		System.out.println("findIncludedFile: " + leaf);
-		
-		Iterator<String> it = getPreProcFileMap().keySet().iterator();
-		
-		while (it.hasNext()) {
-			String file = it.next();
-			
-			// Normalize the path so this works on Windows
-			String path_norm =
-				fWinPathPattern.matcher(file).replaceAll("/");
-			
-			if (path_norm.endsWith(leaf)) {
-				// TODO: opportunity for caching
-				return getPreProcFileMap().get(file);
-			}
-		}
-		
-		if (fIncludeProvider != null) {
-			return fIncludeProvider.findIncludedFile(leaf);
-		} else {
-			System.out.println("[ERROR] SourceCollectionIndex @ " +
-					fBaseLocation + " does not have IncludeProvider");
-		}
-		
-		return null;
-	}
-	 */
 
 	public int getIndexType() {
 		return fIndexType;
@@ -308,6 +275,8 @@ public class SVDBSourceCollectionIndex
 	public void removeChangeListener(ISVDBIndexChangeListener l) {
 		fIndexChageListeners.remove(l);
 	}
+	
+	
 
 	protected void fileRemoved(String file) {
 		fFileList.remove(file);
@@ -399,4 +368,16 @@ public class SVDBSourceCollectionIndex
 			}
 		}
 	}
+	
+	private SVPreProcDefineProvider	fDefineProvider = new SVPreProcDefineProvider() {
+
+		@Override
+		protected SVDBMacroDef searchContext(SVDBFileTree context, String key) {
+			System.out.println("searchContext: \"" + key + "\"");
+			
+			return null;
+		}
+
+	};
+	
 }

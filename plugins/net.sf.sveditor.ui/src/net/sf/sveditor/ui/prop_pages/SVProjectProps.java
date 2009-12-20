@@ -48,7 +48,7 @@ public class SVProjectProps extends PropertyPage implements
 		
 		// Create property pages
 		fPropertyPages.add(new SourceCollectionsPage());
-		fPropertyPages.add(new IncludePathsPage());
+		// fPropertyPages.add(new IncludePathsPage());
 		fPropertyPages.add(new LibraryPathsPage());
 		fPropertyPages.add(new ArgumentFilePathsPage());
 		fPropertyPages.add(new PluginLibPrefsPage());

@@ -109,7 +109,7 @@ public class SVScanner implements ISVScanner {
 						// enter module scope
 						process_interface_module_class(id);
 					} else if (id.equals("struct")) {
-						process_struct_decl();
+						process_struct_decl(null);
 					} else if (id.equals("package") || id.equals("endpackage")) {
 						process_package(id);
 					} else if (id.equals("import")) {
@@ -118,6 +118,8 @@ public class SVScanner implements ISVScanner {
 						process_export(id);
 					} else if (id.equals("typedef")) {
 						process_typedef();
+					} else if (id.equals("function") || id.equals("task")) {
+						process_task_function(0, id);
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
@@ -666,8 +668,10 @@ public class SVScanner implements ISVScanner {
 		debug("<-- process_module()");
 	}
 	
-	private void process_struct_decl() throws EOFException {
+	private void process_struct_decl(SVTypeInfo type_info) throws EOFException {
 		int ch = skipWhite(get_ch());
+		
+		System.out.println("process_struct_decl");
 		
 		while (Character.isJavaIdentifierStart(ch)) {
 			/* String qual = */ readIdentifier(ch);
@@ -679,19 +683,51 @@ public class SVScanner implements ISVScanner {
 			return;
 		}
 		
+		if (fObserver != null) {
+			fObserver.enter_struct_decl("", null);
+		}
+		
+		String id;
+		
+		while ((id = scan_statement()) != null) {
+			boolean ret = process_module_class_interface_body_item("struct", id);
+			
+			if (!ret) {
+				break;
+			}
+			
+
+			// Recognize when we've reached the end of the
+			// struct definition
+			ch = skipWhite(get_ch());
+			
+			if (ch == ';') {
+				int ch2 = skipWhite(get_ch());
+				if (ch2 == '}') {
+					break;
+				} else {
+					unget_ch(ch2);
+					unget_ch(ch);
+				}
+			}
+		}
+		
+		if (type_info == null) {
+			if (fObserver != null) {
+				fStmtLocation = getLocation();
+				fObserver.leave_struct_decl("ANONYMOUS");
+			}
+		}
+
+		/*
 		startCapture();
 		ch = skipPastMatch("{}");
-		/* String content = */ endCapture();
+		endCapture();
 		
 		// TODO: 
 		
 		ch = skipWhite(ch);
-		
-		String typename = readIdentifier(ch);
-		
-		if (fObserver != null) {
-			fObserver.enter_struct_decl(typename, null);
-		}
+		 */
 	}
 	
 	private void process_package(String id) throws EOFException {
@@ -733,7 +769,7 @@ public class SVScanner implements ISVScanner {
 				} else if (type.equals("class")) {
 					fObserver.leave_class_decl();
 				} else if (type.equals("struct")) {
-					fObserver.leave_struct_decl();
+					fObserver.leave_struct_decl("");
 				} else if (type.equals("task")) {
 					fObserver.leave_task_decl();
 				} else if (type.equals("function")) {
@@ -877,9 +913,15 @@ public class SVScanner implements ISVScanner {
 		if (Character.isJavaIdentifierPart(ch)) {
 			String id = readIdentifier(ch);
 			
-			
-			if (fObserver != null) {
-				fObserver.typedef(id, type);
+			if (type != null) {
+				if (fObserver != null) {
+					if (!type.fStructType) {
+						fObserver.typedef(id, type);
+					} else {
+						fStmtLocation = getLocation();
+						fObserver.leave_struct_decl(id);
+					}
+				}
 			}
 		}
 	}
@@ -1427,6 +1469,10 @@ public class SVScanner implements ISVScanner {
 				} else {
 					// likely we're scanning an in-line declaration
 				}
+			} else if (type_name.startsWith("struct")) {
+				type.fStructType = true;
+				type.fTypeName   = type_name;
+				process_struct_decl(type);
 			} else {
 				type.fTypeName = type_name;
 			}

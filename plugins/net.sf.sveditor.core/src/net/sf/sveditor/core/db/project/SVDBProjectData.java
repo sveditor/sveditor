@@ -15,6 +15,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -26,11 +28,13 @@ public class SVDBProjectData {
 	private SVProjectFileWrapper 			fFileWrapper;
 	private SVDBIndexCollectionMgr			fIndexCollection;
 	private String							fProjectName;
+	private LogHandle						fLog;
 
 	public SVDBProjectData(
 			String						project_name,
 			SVProjectFileWrapper 		wrapper, 
 			IPath 						projfile_path) {
+		fLog = LogFactory.getDefault().getLogHandle("SVDBProjectData");
 		fProjectName    = project_name;
 		fSVProjFilePath = projfile_path;
 		
@@ -73,10 +77,10 @@ public class SVDBProjectData {
 		
 		if (fFileWrapper == null || !fFileWrapper.equals(w)) {
 			// Need to refresh
-			System.out.println("need to refresh");
+			fLog.debug("need to refresh");
 			refresh = true;
 		} else {
-			System.out.println("no need to refresh");
+			fLog.debug("no need to refresh");
 		}
 		
 		fFileWrapper = w;
@@ -139,8 +143,8 @@ public class SVDBProjectData {
 			if (index != null) {
 				sc.addPluginLibrary(index);
 			} else {
-				System.out.println(
-						"[ERROR] failed to create library index \"" +
+				fLog.error(
+						"failed to create library index \"" +
 						path.getPath() + "\"");
 			}
 		}
@@ -153,8 +157,8 @@ public class SVDBProjectData {
 			if (index != null) {
 				sc.addIncludePath(index);
 			} else {
-				System.out.println(
-						"[ERROR] failed to create include index \"" +
+				fLog.error(
+						"failed to create include index \"" +
 						path.getPath() + "\"");
 			}
 		}
@@ -167,8 +171,8 @@ public class SVDBProjectData {
 			if (index != null) {
 				sc.addLibraryPath(index);
 			} else {
-				System.out.println(
-						"[ERROR] failed to create library index \"" +
+				fLog.error(
+						"failed to create library index \"" +
 						path.getPath() + "\"");
 			}
 		}
@@ -178,16 +182,13 @@ public class SVDBProjectData {
 					fProjectName, path.getPath(),
 					SVDBArgFileIndexFactory.TYPE, null);
 			
-			/**
 			if (index != null) {
 				sc.addLibraryPath(index);
 			} else {
-				System.out.println(
-						"[ERROR] failed to create library index \"" +
+				fLog.error(
+						"failed to create arg-file index \"" +
 						path.getPath() + "\"");
 			}
-			 */
-			System.out.println("[SVDBProjectData TODO] add ArgFilePath to LibraryPath list");
 		}
 		
 		for (SVDBSourceCollection srcc : fw.getSourceCollections()) {
@@ -204,8 +205,8 @@ public class SVDBProjectData {
 			if (index != null) {
 				sc.addSourceCollection(index);
 			} else {
-				System.out.println(
-						"[ERROR] failed to create source-collection index " +
+				fLog.error(
+						"failed to create source-collection index " +
 						"\"" + srcc.getBaseLocation() + "\"");
 			}
 		}

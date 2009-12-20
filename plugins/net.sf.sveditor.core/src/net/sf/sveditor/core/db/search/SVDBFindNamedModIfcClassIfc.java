@@ -27,7 +27,8 @@ public class SVDBFindNamedModIfcClassIfc {
 			
 			if ((it.getType() == SVDBItemType.Class ||
 					it.getType() == SVDBItemType.Module ||
-					it.getType() == SVDBItemType.Interface) && 
+					it.getType() == SVDBItemType.Interface ||
+					it.getType() == SVDBItemType.Struct) && 
 				it.getName().equals(type_name)) {
 				ret = (SVDBModIfcClassDecl)it;
 				break;

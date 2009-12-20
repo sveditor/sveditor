@@ -11,13 +11,15 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			String 					projectName, 
 			String 					base_location,
 			Map<String, Object> 	config) {
-		if (base_location.startsWith("${workspace_loc}")) {
-			return new SVDBWorkspaceArgFileIndex(projectName, base_location);
-		} else {
-			
-		}
+		ISVDBFileSystemProvider fs_provider;
 		
-		return null;
+		if (base_location.startsWith("${workspace_loc}")) {
+			fs_provider = new SVDBWSFileSystemProvider();
+		} else {
+			fs_provider = new SVDBFSFileSystemProvider();
+		}
+
+		return new SVDBArgFileIndex(projectName, base_location, fs_provider);
 	}
 
 }

@@ -3,6 +3,8 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVKeywords;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -16,8 +18,14 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	
 	private List<String>				fEndBlockStartKW;
 	private List<String>				fEndTerminatedKW;
+	private boolean						fDebugEn = false;
+	private SVEditor					fEditor;
+	private LogHandle					fLog;
 	
-	public SVAutoIndentStrategy(String p) {
+	public SVAutoIndentStrategy(SVEditor editor, String p) {
+		fEditor = editor;
+		
+		fLog = LogFactory.getDefault().getLogHandle("SVAutoIndentStrategy");
 		fEndTerminatedKW = new ArrayList<String>();
 		fEndBlockStartKW = new ArrayList<String>();
 		
@@ -31,6 +39,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 				fEndTerminatedKW.add(kw);
 			}
 		}
+		
 		// search in priority order
 		fEndTerminatedKW.add("end");
 		fEndBlockStartKW.add("begin");
@@ -66,7 +75,15 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 			if ((idx = line.indexOf(word)) != -1) {
 				idx += word.length();
 				
-				if (idx == line.length() || Character.isWhitespace(line.charAt(idx))) {
+				if (idx == line.length()) {
+					return true;
+				} else {
+					// If only whitespace remains, the line ends with the word
+					for (int i=idx; i<line.length(); i++) {
+						if (!Character.isWhitespace(line.charAt(i))) {
+							return false;
+						}
+					}
 					return true;
 				}
 			}
@@ -160,6 +177,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 	}
 	
 	private void indentOnKeypress(IDocument doc, DocumentCommand cmd) {
+		debug("indentOnKeypress() - cmd=" + cmd.text);
 		try {
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
 			
@@ -169,6 +187,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 				if (endsWithEndTermKW(line_t)) {
 					String indent = getMatchingIndent(doc, cmd.offset);
 					String ref_indent = getIndentString(doc, cmd_line);
+					
+					debug("    line \"" + line_t + "\" ends with termination keyword");
 
 					doc.replace(cmd_line.getOffset(), 
 							ref_indent.length(), indent);
@@ -247,6 +267,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
     		indentAfterNewLine(doc, cmd);
     	} else if (cmd.length == 0) {
     		indentOnKeypress(doc, cmd);
+    	}
+    }
+    
+    private void debug(String msg) {
+    	if (fDebugEn) {
+    		fLog.debug(msg);
     	}
     }
 }

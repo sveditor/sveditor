@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -8,14 +9,26 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBDump implements IDBWriter {
 	private OutputStream					fOut;
 	private StringBuilder					fBuf;
+	private LogHandle						fLog;
+	
+	public SVDBDump() {
+		fLog = LogFactory.getDefault().getLogHandle("SVDBDump");
+	}
 	
 	public void dump(ISVDBIndex index, OutputStream out) {
+		ByteArrayOutputStream	index_data_bos = new ByteArrayOutputStream();
+		SVDBPersistenceWriter	index_data = new SVDBPersistenceWriter(index_data_bos);
 		fOut    = out;
 		fBuf    = new StringBuilder();
+		
+		index.dump(index_data);
+		index_data.close();
 
 		index.getBaseLocation();
 		
@@ -23,15 +36,18 @@ public class SVDBDump implements IDBWriter {
 		writeRawString("SDB<" + index.getBaseLocation() + ">");
 //		writeString("DBT<" + index.getTypeID() + ">");
 		
-		System.out.println("dump " + index.getBaseLocation() + 
+		// Write back the index-specific data
+		writeByteArray(index_data_bos.toByteArray());
+		
+		fLog.debug("dump " + index.getBaseLocation() + 
 				": list.size=" + index.getPreProcFileMap().values().size() +
 				" ; db.size=" + index.getFileDB().values().size());
-		System.out.println("--> write pre-proc map");
+		fLog.debug("--> write pre-proc map");
 		writeItemList(index.getPreProcFileMap().values());
-		System.out.println("<-- write pre-proc map");
-		System.out.println("--> write index map");
+		fLog.debug("<-- write pre-proc map");
+		fLog.debug("--> write index map");
 		writeItemList(index.getFileDB().values());
-		System.out.println("<-- write index map");
+		fLog.debug("<-- write index map");
 		
 		if (fBuf.length() > 0) {
 			try {
@@ -60,6 +76,20 @@ public class SVDBDump implements IDBWriter {
 			writeRawString("S<<-1>>");
 		} else {
 			writeRawString("S<<" + val.length() + ">" + val + ">");
+		}
+	}
+	
+	public void writeByteArray(byte data[]) {
+		if (data == null) {
+			writeRawString("BA<<-1>>");
+		} else {
+			writeRawString("BA<<" + data.length + ">");
+			for (int i=0; i<data.length; i++) {
+				writeRawString("" + data[i]);
+				if (i+1 < data.length) {
+					writeRawString(",");
+				}
+			}
 		}
 	}
 

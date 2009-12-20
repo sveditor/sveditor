@@ -47,7 +47,6 @@ public class SVActionContributor extends TextEditorActionContributor {
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
-		System.out.println("contributeToMenu");
 		IMenuManager editMenu = 
 			mm.findMenuUsingPath(IWorkbenchActionConstants.M_EDIT);
 		if (editMenu != null) {

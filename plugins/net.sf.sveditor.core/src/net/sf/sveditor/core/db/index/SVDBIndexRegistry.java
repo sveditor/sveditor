@@ -95,14 +95,13 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
 			
-			System.out.println("factory=" + factory);
 			ret = factory.createSVDBIndex(project, base_location, config);
 			
 			ret.init(this);
 			
 			project_index.add(ret);
 		} else {
-			System.out.println("    Index already exists");
+			fLog.debug("    Index already exists");
 		}
 		
 		return ret;
@@ -136,7 +135,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	public boolean loadPersistedData(String project, ISVDBIndex index) {
-		System.out.println("loadPersistedData: " + index.getBaseLocation());
+		fLog.debug("loadPersistedData: " + index.getBaseLocation());
 		
 		String base_location = index.getBaseLocation();
 		SVDBPersistenceDescriptor desc = null;
@@ -160,7 +159,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			boolean loaded = false;
 			try {
 				in = new FileInputStream(desc.getDBFile());
-				System.out.println("Loading from file \"" + desc.getDBFile().getPath() + "\"");
+				fLog.debug("Loading from file \"" + desc.getDBFile().getPath() + "\"");
 				loader.load(index, in);
 				loaded = true;
 			} catch (Exception e) {
@@ -199,7 +198,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 								FileInputStream in = new FileInputStream(f);
 								String base = loader.readBaseLocation(in);
 								
-								System.out.println("base=" + base);
+								fLog.debug("base=" + base);
 								db_desc.add(
 									new SVDBPersistenceDescriptor(f, base));
 							} catch (Exception e) {
@@ -219,7 +218,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 * Saves the state of loaded indexes to the state_location directory
 	 */
 	public void save_state() {
-		System.out.println("save_state()");
+		fLog.debug("save_state()");
 		
 		for (String proj_name : fProjectIndexMap.keySet()) {
 			save_state(proj_name, fProjectIndexMap.get(proj_name));
@@ -236,25 +235,25 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		if (!fDatabaseDir.exists()) {
 			if (!fDatabaseDir.mkdirs()) {
-				System.out.println("[ERROR] cannot create database dir");
+				fLog.error("cannot create database dir");
 			}
 		}
 		
 		for (ISVDBIndex index : index_list) {
-			System.out.println("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
+			fLog.debug("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
 			SVDBFile f = index.findPreProcFile("${workspace_loc}/infact_coverage/sv/inFactCovSv.sv");
 			if (f != null) {
-				System.out.println("inFactCovSv timestamp: " + f.getLastModified());
+				fLog.debug("inFactCovSv timestamp: " + f.getLastModified());
 			}
 			
 			if (proj_name == null) {
-				System.out.println("proj_name null on : " + index.getClass().getName());
+				fLog.error("proj_name null on : " + index.getClass().getName());
 			}
 			File proj_db_dir = new File(fDatabaseDir, proj_name);
 			
 			if (!proj_db_dir.exists()) {
 				if (!(proj_db_dir.mkdirs())) {
-					System.out.println("[ERROR] cannot create project db dir");
+					fLog.error("cannot create project db dir");
 				}
 			}
 			
@@ -275,7 +274,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					index_file = d.getDBFile();
 				}
 				
-				System.out.println("Saving index \"" + index + "\"");
+				fLog.debug("Saving index \"" + index + "\"");
 				// Dump the database to disk
 				try {
 					FileOutputStream out = new FileOutputStream(index_file);
