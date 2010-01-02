@@ -32,4 +32,14 @@ public class LogHandle implements ILogHandle {
 		println(ILogListener.Type_Error, fDebugLevel, msg);
 	}
 
+	public void error(String msg, Exception e) {
+		println(ILogListener.Type_Error, fDebugLevel, msg);
+		println(ILogListener.Type_Error, fDebugLevel, e.getMessage());
+		for (StackTraceElement s_e : e.getStackTrace()) {
+			println(ILogListener.Type_Error, fDebugLevel, "    at " + 
+					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
+					s_e.getFileName() + ":" + s_e.getLineNumber() + ")");
+		}
+	}
+
 }

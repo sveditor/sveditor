@@ -1,5 +1,9 @@
 package net.sf.sveditor.ui.editor;
 
+import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -15,8 +19,15 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 	}
 
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-		System.out.println("getHoverInfo: " + hoverRegion.getOffset() + ", " + hoverRegion.getLength());
+		SVDocumentTextScanner scanner = 
+			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset());
+		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		
+		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		
 		String str = null;
+		/*
+		System.out.println("getHoverInfo: " + hoverRegion.getOffset() + ", " + hoverRegion.getLength());
 		try {
 			str = textViewer.getDocument().get(
 					hoverRegion.getOffset(), hoverRegion.getLength());
@@ -26,6 +37,13 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 		}
 		
 		// TODO Auto-generated method stub
+		 */
+		
+		if (expr_ctxt.fTrigger != null) {
+			str = expr_ctxt.fRoot + expr_ctxt.fTrigger + expr_ctxt.fLeaf;
+		} else {
+			str = expr_ctxt.fLeaf;
+		}
 		return str;
 	}
 

@@ -4,6 +4,11 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -14,7 +19,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVUiPlugin extends AbstractUIPlugin {
+public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListener {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
@@ -41,6 +46,11 @@ public class SVUiPlugin extends AbstractUIPlugin {
 		fPlugin = this;
 		
 		// TODO: add console listener
+		
+		getPreferenceStore().addPropertyChangeListener(this);
+		
+		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
+		SVCorePlugin.getDefault().enableDebug(debug_en);
 	}
 
 	/*
@@ -49,9 +59,21 @@ public class SVUiPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		fPlugin = null;
+		
+		getPreferenceStore().removePropertyChangeListener(this);
 		super.stop(context);
 	}
 	
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_ENABLED_S)) {
+			if (((Boolean)event.getNewValue())) {
+				SVCorePlugin.getDefault().enableDebug(true);
+			} else {
+				SVCorePlugin.getDefault().enableDebug(false);
+			}
+		}
+	}
+
 	public ResourceBundle getResources() {
 		if (fResources == null) {
 			try {

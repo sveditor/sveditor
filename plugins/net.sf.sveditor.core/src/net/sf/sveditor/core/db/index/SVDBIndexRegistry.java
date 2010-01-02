@@ -1,19 +1,21 @@
 package net.sf.sveditor.core.db.index;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
 import net.sf.sveditor.core.log.LogFactory;
@@ -45,10 +47,8 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 */
 	public SVDBIndexRegistry() {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
-		// fDatabaseDir = new File(state_location.toFile(), "db");
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getDefault().getLogHandle("SVDBIndexRegistry");
-		
 	}
 	
 	public void init(File state_location) {
@@ -158,12 +158,23 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			InputStream in = null;
 			boolean loaded = false;
 			try {
+				ZipInputStream zip_in = null;
 				in = new FileInputStream(desc.getDBFile());
+				
+				if (desc.getDBFile().getName().endsWith(".zip")) {
+					zip_in = new ZipInputStream(in);
+					zip_in.getNextEntry();
+					in = zip_in;
+				}
 				fLog.debug("Loading from file \"" + desc.getDBFile().getPath() + "\"");
 				loader.load(index, in);
 				loaded = true;
+				
+				in.close();
 			} catch (Exception e) {
-				e.printStackTrace();
+				fLog.error("Failed to load index for project \"" + project + 
+						"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
+						"\"", e);
 				
 				// Remove the DB file, since it's bad... 
 				File db_file = desc.getDBFile();
@@ -192,17 +203,32 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					List<SVDBPersistenceDescriptor> db_desc = 
 						new ArrayList<SVDBPersistenceDescriptor>();
 					
+					fLog.debug("Load persistent data for project \"" + d.getName() + "\"");
+					
 					for (File f : d.listFiles()) {
-						if (f.isFile() && f.getName().endsWith(".db")) {
+						if (f.isFile() && 
+								(f.getName().endsWith(".db") || f.getName().endsWith(".db.zip"))) {
 							try {
-								FileInputStream in = new FileInputStream(f);
+								ZipInputStream zip_in = null;
+								InputStream in = new FileInputStream(f);
+								
+								if (f.getName().endsWith(".zip")) {
+									zip_in = new ZipInputStream(in);
+									ZipEntry entry = zip_in.getNextEntry();
+									fLog.debug("Open entry \"" + entry.getName() + "\" in db file \"" + 
+											f.getAbsolutePath() + "\"");
+									in = zip_in;
+								}
 								String base = loader.readBaseLocation(in);
 								
-								fLog.debug("base=" + base);
+								fLog.debug("Add index " + f.getAbsolutePath() + " with base=" + base);
 								db_desc.add(
 									new SVDBPersistenceDescriptor(f, base));
+								
+								in.close();
 							} catch (Exception e) {
-								e.printStackTrace();
+								fLog.error("Failed to read base location from index \"" + 
+										f.getAbsolutePath() + "\" for project \"" + d.getName() + "\"", e);
 							}
 						}
 					}
@@ -241,10 +267,6 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		for (ISVDBIndex index : index_list) {
 			fLog.debug("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
-			SVDBFile f = index.findPreProcFile("${workspace_loc}/infact_coverage/sv/inFactCovSv.sv");
-			if (f != null) {
-				fLog.debug("inFactCovSv timestamp: " + f.getLastModified());
-			}
 			
 			if (proj_name == null) {
 				fLog.error("proj_name null on : " + index.getClass().getName());
@@ -274,18 +296,37 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					index_file = d.getDBFile();
 				}
 				
-				fLog.debug("Saving index \"" + index + "\"");
+				fLog.debug("Saving index \"" + index + "\" for project \"" + 
+						proj_db_dir.getName() + "\"");
+				
 				// Dump the database to disk
 				try {
-					FileOutputStream out = new FileOutputStream(index_file);
-					BufferedOutputStream out_b = new BufferedOutputStream(out);
+					ZipOutputStream zip_out = null;
+					OutputStream out;
 					
-					dumper.dump(index, out_b);
-					
-					out_b.close();
+					if (index_file.getName().endsWith(".zip")) {
+						index_file.delete(); // ensure we clear out the file
+						out = new FileOutputStream(index_file);
+						String entry_name = index_file.getName();
+						entry_name = entry_name.substring(0, entry_name.length()-4);
+						zip_out = new ZipOutputStream(out);
+						zip_out.putNextEntry(new ZipEntry(entry_name));
+						out = zip_out;
+					} else {
+						 out = new FileOutputStream(index_file);						
+					}
+					dumper.dump(index, out);
+
+					if (zip_out != null) {
+						zip_out.closeEntry();
+					}
+
+					out.flush();
 					out.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					fLog.error("Failed to save index \"" + 
+							index.getBaseLocation() + "\" to persistence file \"" + 
+							index_file.getAbsolutePath() + "\"", e);
 				}
 				
 				// Delete the index file
@@ -307,15 +348,21 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	private static File pickIndexFileName(File db_dir) {
+		final boolean use_zip = true;
 		if (!db_dir.exists()) {
 			db_dir.mkdirs();
 		}
 		
 		for (int i=0; i<1000000; i++) {
 			File test = new File(db_dir, "index_" + i + ".db");
+			File test_z = new File(db_dir, "index_" + i + ".db.zip");
 			
-			if (!test.exists()) {
-				return test;
+			if (!test.exists() && !test_z.exists()) {
+				if (use_zip) {
+					return test_z;
+				} else {
+					return test;
+				}
 			}
 		}
 		
@@ -339,7 +386,8 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 						ret = (ISVDBIndexFactory)cel.createExecutableExtension(
 							"class");
 					} catch (Exception e) {
-						e.printStackTrace();
+						fLog.error("Failed to create .exe class for IndexFactory " +
+								"extension \"" + id + "\"", e);
 					}
 					break;
 				}

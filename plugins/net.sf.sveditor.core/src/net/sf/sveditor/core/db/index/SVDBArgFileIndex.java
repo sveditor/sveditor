@@ -58,15 +58,38 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	}
 
 	@Override
-	public void load(IDBReader index_data, List<SVDBFile> ppFiles,
-			List<SVDBFile> dbFiles) {
+	public void load(
+			IDBReader 		index_data, 
+			List<SVDBFile> 	pp_files,
+			List<SVDBFile> 	db_files) {
 		try {
 			fArgFileLastModified = index_data.readLong();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		super.load(index_data, ppFiles, dbFiles);
+		fFileList.clear();
+		fFileIndex.clear();
+		
+		for (SVDBFile f : pp_files) {
+			fFileList.put(f.getFilePath(), f);
+		}
+		
+		for (SVDBFile f : db_files) {
+			fFileIndex.put(f.getFilePath(), f);
+		}
+
+		if (isLoadUpToDate()) {
+			fLog.debug("index \"" + getBaseLocation() + "\" IS up-to-date");
+			fFileIndexValid = true;
+			fFileListValid  = true;
+		} else {
+			fLog.debug("index \"" + getBaseLocation() + "\" NOT up-to-date");
+			fFileIndexValid = false;
+			fFileListValid  = false;
+			fFileList.clear();
+			fFileIndex.clear();
+		}
 	}
 
 	@Override
@@ -78,7 +101,6 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	
 	@Override
 	public void fileChanged(String path) {
-		System.out.println("fileChanged: \"" + path + "\"");
 		if (path.equals(getResolvedBaseLocation())) {
 			fFileIndexValid = false;
 			fFileListValid  = false;
@@ -102,17 +124,17 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			}
 			
 			for (String f : scanner.getFilePaths()) {
-				System.out.println("[FILE PATH] " + f);
+				fLog.debug("[FILE PATH] " + f);
 				fFilePaths.add(expandVars(f, true));
 			}
 			
 			for (String inc : scanner.getIncludePaths()) {
-				System.out.println("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
+				fLog.debug("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
 				fIncludePaths.add(expandVars(inc, true));
 			}
 			
 		} else {
-			System.out.println("[ERROR] failed to open file \"" + getResolvedBaseLocation() + "\"");
+			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
 		}
 		
 		// Say the index is already valid
@@ -123,7 +145,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			SVDBFile pp_file = processPreProcFile(file);
 			
 			if (pp_file == null) {
-				System.out.println("Failed to find file \"" + file + "\"");
+				fLog.error("Failed to find file \"" + file + "\"");
 				return;
 			}
 			
@@ -142,7 +164,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			SVDBFile pp_file = findPreProcFile(file);
 			
 			if (pp_file == null) {
-				System.out.println("Failed to find file \"" + file + "\"");
+				fLog.error("Failed to find file \"" + file + "\"");
 				return;
 			}
 			
@@ -180,16 +202,55 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	protected String resolvePath(String path) {
 		// relative to the base location
 		if (path.startsWith("..")) {
-			return getResolvedBaseLocationDir() + "/" + path;
+			path = getResolvedBaseLocationDir() + "/" + path;
 		} else if (path.startsWith(".")) {
 			if (path.equals(".")) {
-				return getResolvedBaseLocationDir();
+				path = getResolvedBaseLocationDir();
 			} else { 
-				return getResolvedBaseLocationDir() + "/" + path.substring(2);
+				path = getResolvedBaseLocationDir() + "/" + path.substring(2);
 			}
-		} else {
-			return path;
 		}
+		
+		String norm_path = normalizePath(path);
+		
+		return norm_path;
+	}
+	
+	protected String normalizePath(String path) {
+		StringBuilder ret = new StringBuilder();
+		
+		int i=path.length()-1;
+		int end;
+		int skipCnt = 0;
+		
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+			
+			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+			
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length()-1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+		
+		return ret.reverse().toString();
 	}
 
 }

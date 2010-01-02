@@ -31,8 +31,7 @@ public class testPreProcessor implements IApplication {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", "/usr1/fun/sveditor",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		// String filename = "/tools/ovm/ovm-2.0.1/src/base/ovm_factory.sv";
-		String filename = "/usr1/fun/sveditor/uart_ovm_testbench_trunk/inFact/uart_iVCs_ovm/uart_scenario_generator/uart_scenario_generator.svh";
+		String filename = "/tools/ovm/ovm-2.0.1/src/base/ovm_factory.sv";
 		
 		// ovm.getFileTree();
 		

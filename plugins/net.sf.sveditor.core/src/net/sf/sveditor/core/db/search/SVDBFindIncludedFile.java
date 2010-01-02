@@ -27,8 +27,6 @@ public class SVDBFindIncludedFile {
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();
 			
-			System.out.println("IncludeFinder: " + it.getType() + " " + it.getName());
-			
 			if (it.getType() == SVDBItemType.File) {
 				String f = it.getName();
 				String norm_path = fWinPathPattern.matcher(f).replaceAll("/");

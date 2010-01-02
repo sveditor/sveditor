@@ -7,17 +7,28 @@ public abstract class AbstractTextScanner implements ITextScanner {
 	protected boolean					fCaptureEnabled;
 	protected int						fLineno;
 	protected int						fLastCh;
+	protected boolean					fScanFwd;
+	
 
 	public AbstractTextScanner() {
 		fTmpBuffer      = new StringBuilder();
 		fCaptureBuffer  = new StringBuilder();
 		fCaptureEnabled = false;
+		fScanFwd = true;
 		fLastCh  = -1;
 		fLineno  = 1;
 	}
 	
 	public void init() {
 		fCaptureEnabled = false;
+	}
+	
+	public boolean getScanFwd() {
+		return fScanFwd;
+	}
+
+	public void setScanFwd(boolean scanFwd) {
+		fScanFwd = scanFwd;
 	}
 	
 	public int skipWhite(int ch) {
@@ -37,25 +48,40 @@ public abstract class AbstractTextScanner implements ITextScanner {
 	public String readIdentifier(int ci) {
 		fTmpBuffer.setLength(0);
 		
-		if (!Character.isJavaIdentifierStart(ci)) {
-			unget_ch(ci);
-			return null;
-		}
+		if (fScanFwd) {
+			if (!Character.isJavaIdentifierStart(ci)) {
+				unget_ch(ci);
+				return null;
+			}
 
-		fTmpBuffer.append((char)ci);
-
-		while ((ci = get_ch()) != -1 && 
-				(Character.isJavaIdentifierPart(ci) || ci == ':')) {
 			fTmpBuffer.append((char)ci);
-		}
-		unget_ch(ci);
 
-		// Even though ':' can appear as part of the identifier, it
-		// must not appear at the end of an identifier
-		while (fTmpBuffer.length() > 0 && 
-				fTmpBuffer.charAt(fTmpBuffer.length()-1) == ':') {
-			unget_ch(':');
-			fTmpBuffer.setLength(fTmpBuffer.length()-1);
+			while ((ci = get_ch()) != -1 && 
+					(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+				fTmpBuffer.append((char)ci);
+			}
+			unget_ch(ci);
+
+			// Even though ':' can appear as part of the identifier, it
+			// must not appear at the end of an identifier
+			while (fTmpBuffer.length() > 0 && 
+					fTmpBuffer.charAt(fTmpBuffer.length()-1) == ':') {
+				unget_ch(':');
+				fTmpBuffer.setLength(fTmpBuffer.length()-1);
+			}
+		} else {
+			if (!Character.isJavaIdentifierPart(ci)) {
+				unget_ch(ci);
+				return null;
+			}
+
+			fTmpBuffer.append((char)ci);
+
+			while ((ci = get_ch()) != -1 && 
+					(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+				fTmpBuffer.append((char)ci);
+			}
+			unget_ch(ci);
 		}
 		
 		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;

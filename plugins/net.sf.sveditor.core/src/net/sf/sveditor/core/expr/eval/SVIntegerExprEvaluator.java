@@ -82,6 +82,8 @@ public class SVIntegerExprEvaluator {
 			return lhs.add(rhs);
 		} else if (op.equals("-")) {
 			return lhs.subtract(rhs);
+		} else if (op.equals("*")) {
+			return lhs.multiply(rhs);
 		} else {
 			throw new Exception("Unsupported binary operator \"" + op + "\"");
 		}

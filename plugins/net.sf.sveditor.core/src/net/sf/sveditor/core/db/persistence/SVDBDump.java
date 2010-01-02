@@ -27,10 +27,13 @@ public class SVDBDump implements IDBWriter {
 		fOut    = out;
 		fBuf    = new StringBuilder();
 		
-		index.dump(index_data);
-		index_data.close();
-
-		index.getBaseLocation();
+		try {
+			index.dump(index_data);
+			index_data.close();
+			index.getBaseLocation();
+		} catch (Exception e) {
+			fLog.error("Problem while dumping index-specific data", e);
+		}
 		
 		// TODO: Write DB header
 		writeRawString("SDB<" + index.getBaseLocation() + ">");
@@ -90,6 +93,7 @@ public class SVDBDump implements IDBWriter {
 					writeRawString(",");
 				}
 			}
+			writeRawString(">");
 		}
 	}
 

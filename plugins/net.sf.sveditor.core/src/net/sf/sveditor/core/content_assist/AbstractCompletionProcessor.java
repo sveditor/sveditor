@@ -67,10 +67,6 @@ public abstract class AbstractCompletionProcessor {
 		
 		// Trigger characters and string prior to the trigger (if any)
 
-		// Start marks the point just after the trigger character
-		scanner.setScanFwd(false);
-
-		
 		debug("computeCompletionProposals: ");
 
 		SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
@@ -85,14 +81,15 @@ public abstract class AbstractCompletionProcessor {
 		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
-
-		if (ctxt.fTrigger.equals("`")) {
+		
+		if (ctxt.fTrigger == null) {
+			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
+					ctxt.fLeaf, ctxt.fStart);
+		} else if (ctxt.fTrigger.equals("`")) {
 			// No need to scan backwards. The stem is all we have
 			findPreProcProposals(scanner, ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
-
-		} else if (!ctxt.fTrigger.equals("")) {
+		} else {
 			// Now, look before the trigger to see what we have
-			// idx -= trigger.length();
 
 			if (src_scope != null) {
 				findTriggeredProposals(scanner, src_scope,
@@ -100,12 +97,7 @@ public abstract class AbstractCompletionProcessor {
 			} else {
 				System.out.println("[WARN] src_scope is null");
 			}
-		} else {
-			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
-					ctxt.fLeaf, ctxt.fStart);
 		}
-
-		System.out.println("ctxt.fLeaf=" + ctxt.fLeaf);
 		
 		order_proposals(ctxt.fLeaf, fCompletionProposals);
 	}
@@ -548,7 +540,7 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		if (!found) {
-			System.out.println("addProposal: " + it.getName());
+			debug("addProposal: " + it.getName());
 			addProposal(
 				new SVCompletionProposal(it, replacementOffset, replacementLength));
 		}

@@ -7,14 +7,12 @@ public class StringBIDITextScanner
 	extends AbstractTextScanner implements IBIDITextScanner {
 	private String				fData;
 	private int					fIdx;
-	private boolean				fScanFwd;
 	private int					fUngetCh;
 	List<Integer>				fLineOffsets;
 	
 	public StringBIDITextScanner(String data) {
 		fData    = data;
 		fIdx     = 0;
-		fScanFwd = true;
 		fUngetCh = -1;
 		
 		fLineOffsets = new ArrayList<Integer>();
@@ -25,10 +23,6 @@ public class StringBIDITextScanner
 				fLineOffsets.add(i+1);
 			}
 		}
-	}
-
-	public boolean getScanFwd() {
-		return fScanFwd;
 	}
 
 	public void setScanFwd(boolean scanFwd) {
@@ -52,8 +46,8 @@ public class StringBIDITextScanner
 				}
 			} else {
 				if ((fIdx-1) >= 0) {
-					fIdx--;
 					ret = fData.charAt(fIdx);
+					fIdx--;
 				}
 			}
 		}
@@ -76,7 +70,11 @@ public class StringBIDITextScanner
 	}
 
 	public void unget_ch(int ch) {
-		fUngetCh = ch;
+		if (fScanFwd) {
+			fIdx--;
+		} else {
+			fIdx++;
+		}
 	}
 
 	public String get_str(long start, int length) {

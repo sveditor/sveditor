@@ -271,6 +271,11 @@ public class SVDBPersistenceReader implements IDBReader {
 			if ((ch = getch()) != '>') {
 				throw new DBFormatException("Unterminated null string");
 			}
+		} else if (size == 0) {
+			// Expect a closing '>'
+			if ((ch = getch()) != '>') {
+				throw new DBFormatException("Unterminated empty byte array");
+			}
 		} else {
 			ret = new byte[size];
 			

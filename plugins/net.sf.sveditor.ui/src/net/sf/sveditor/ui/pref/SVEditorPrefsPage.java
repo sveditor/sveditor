@@ -4,9 +4,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import net.sf.sveditor.ui.SVUiPlugin;
 
-public class SVEditorPrefsPage
-	extends FieldEditorPreferencePage
-	implements IWorkbenchPreferencePage {
+public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
 	public SVEditorPrefsPage() {
 		super(GRID);
@@ -22,6 +20,8 @@ public class SVEditorPrefsPage
 //		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_ML_COMMENT_C, "Multi line comment color:", SVEditorPrefsConstants.P_ML_COMMENT_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_STRING_C, "String color:", SVEditorPrefsConstants.P_STRING_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_KEYWORD_C, "Keyword color:", SVEditorPrefsConstants.P_KEYWORD_S, getFieldEditorParent()));
+		
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_DEBUG_ENABLED_S, "Enable Debug:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

@@ -16,4 +16,6 @@ public class SVEditorPrefsConstants {
 	
 	public static final String P_SV_FILE_EXTENSIONS_S = "svFileExtensions";
 	
+	public static final String P_DEBUG_ENABLED_S = "debugEnabled";
+	
 }

@@ -23,7 +23,6 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		IResourceChangeListener, IResourceDeltaVisitor {
 	
 	private List<ISVDBFileSystemChangeListener>			fChangeListeners;
-	private String										fRootDir;
 	
 	public SVDBWSFileSystemProvider() {
 		fChangeListeners = new ArrayList<ISVDBFileSystemChangeListener>();
@@ -46,13 +45,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		}
 		
 		if (folder != null) {
-			fRootDir = "${workspace_loc}" + folder.getFullPath().toOSString();
 			try {
 				folder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) { }
 		}
-		
-		System.out.println("ROOT_DIR=" + fRootDir);
 		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);		
 	}
@@ -139,22 +135,18 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			file += ((IFile)delta.getResource()).getFullPath().toOSString();
 			
-			System.out.println("visit: file=" + file);
-			
-			if (file.startsWith(fRootDir)) {
-				if (delta.getKind() == IResourceDelta.REMOVED) {
-					// remove from the queue (if present) and the index
-					for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-						l.fileRemoved(file);
-					}
-				} else if (delta.getKind() == IResourceDelta.ADDED) {
-					for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-						l.fileAdded(file);
-					}
-				} else {
-					for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-						l.fileChanged(file);
-					}
+			if (delta.getKind() == IResourceDelta.REMOVED) {
+				// remove from the queue (if present) and the index
+				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
+					l.fileRemoved(file);
+				}
+			} else if (delta.getKind() == IResourceDelta.ADDED) {
+				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
+					l.fileAdded(file);
+				}
+			} else {
+				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
+					l.fileChanged(file);
 				}
 			}
 		}

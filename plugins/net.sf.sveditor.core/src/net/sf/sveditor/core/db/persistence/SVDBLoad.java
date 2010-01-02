@@ -56,7 +56,7 @@ public class SVDBLoad implements IDBReader {
 		String SDB = readTypeString();
 		
 		if (!"SDB".equals(SDB)) {
-			throw new DBFormatException("Database not prefixed with SDB");
+			throw new DBFormatException("Database not prefixed with SDB (" + SDB + ")");
 		}
 		
 		int ch;
@@ -325,6 +325,11 @@ public class SVDBLoad implements IDBReader {
 			if ((ch = getch()) != '>') {
 				throw new DBFormatException("Unterminated null string");
 			}
+		} else if (size == 0) {
+			// Expect a closing '>'
+			if ((ch = getch()) != '>') {
+				throw new DBFormatException("Unterminated empty byte array");
+			}
 		} else {
 			ret = new byte[size];
 			
@@ -333,7 +338,7 @@ public class SVDBLoad implements IDBReader {
 				while ((ch = getch()) != -1 && ch != ',' && ch != '>') {
 					fTmpBuffer.append((char)ch);
 				}
-				
+
 				try {
 					ret[i] = Byte.parseByte(fTmpBuffer.toString());
 				} catch (NumberFormatException e) {

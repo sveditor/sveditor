@@ -12,7 +12,6 @@ public class SVDocumentTextScanner
 	
 	private IDocument				fDoc;
 	private int						fOffset;
-	private boolean					fScanFwd;
 	private String					fName;
 	private int						fUngetCh;
 	
@@ -36,11 +35,10 @@ public class SVDocumentTextScanner
 	
 	public void setScanFwd(boolean scan_fwd) {
 		// TODO: I'm not sure switching directions is quite so simple
-		fScanFwd = scan_fwd;
-	}
-	
-	public boolean getScanFwd() {
-		return fScanFwd;
+		if (fScanFwd != scan_fwd) {
+			fUngetCh = -1;
+		}
+		super.setScanFwd(scan_fwd);
 	}
 	
 	public long getPos() {
@@ -86,9 +84,9 @@ public class SVDocumentTextScanner
 						fOffset++;
 					}
 				} else {
-					if (fOffset > 0) {
-						fOffset--;
+					if (fOffset >= 0) {
 						ch = fDoc.getChar(fOffset);
+						fOffset--;
 					}
 				}
 			} catch (BadLocationException e) { }
@@ -98,7 +96,11 @@ public class SVDocumentTextScanner
 	}
 
 	public void unget_ch(int ch) {
-		fUngetCh = ch;
+		if (fScanFwd) {
+			fOffset--;
+		} else {
+			fOffset++;
+		}
 	}
 
 }

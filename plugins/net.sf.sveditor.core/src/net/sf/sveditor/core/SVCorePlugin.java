@@ -52,6 +52,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		LogFactory.getDefault().addLogListener(this);
 	}
+	
+	public void enableDebug(boolean en) {
+		fDebugEn = en;
+	}
 
 	/*
 	 * (non-Javadoc)

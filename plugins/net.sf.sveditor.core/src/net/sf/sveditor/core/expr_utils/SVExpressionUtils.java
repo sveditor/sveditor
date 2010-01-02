@@ -3,6 +3,7 @@ package net.sf.sveditor.core.expr_utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -20,6 +21,7 @@ import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVExpressionUtils {
 	
@@ -44,127 +46,255 @@ public class SVExpressionUtils {
 		SVExprContext ret = new SVExprContext();
 		debug("--> extractExprContext()");
 
-		int c = -1, last_c = -1;
-
-		long offset = scanner.getPos();
+		int c = -1;
 		
-		// Scan forward (adjust offset) until 
-		if (leaf_scan_fwd) {
-			scanner.setScanFwd(true);
-			
-			while (((c = scanner.get_ch()) != -1) && 
-					Character.isJavaIdentifierPart(c)) {}
-			offset = scanner.getPos()-1;
-			scanner.seek(offset);
-		}
-
-		long start;
+		boolean scan_fwd = scanner.getScanFwd();
 		scanner.setScanFwd(false);
+		debug("    First Ch (non-adjusted): \"" + (char)scanner.get_ch() + "\"");
+		scanner.unget_ch(-1);
+		scanner.setScanFwd(scan_fwd);
 
-		// Scan backwards to an activation character or the beginning of
-		// line
-		debug("-- scan back to activation character");
-		while ((c = scanner.get_ch()) != -1) {
-			debug("    ch=" + (char)c);
-			if (c == '.' || c == '`' ||	
-					(c == ':' && last_c == ':')	|| 
-					c == '\n' || c == ' ' || c == '\t' ||
-					c == ',' || c == '(' ) {
-				debug("  ** stop -- saw activator character");
-				break;
-			} else if (c == ')') {
-				// scan back to matching
-				int matchLevel = 1;
-				while ((c = scanner.get_ch()) != -1) {
-					if (c == '(') {
-						matchLevel--;
-					} else if (c == ')') {
-						matchLevel++;
-					}
-				}
-			}
-			last_c = c;
-		}
-		start = scanner.getPos()+1;
-		
-		debug("-- done scanning back to activator char \"" + (char)c + "\"");
-		debug("    start=" + start);
-
-		if (c == '.' || c == '`') {
-			ret.fTrigger = "" + (char) c;
-		} else if (c == ':' && last_c == ':') {
-			ret.fTrigger = "::";
-		} else if (Character.isWhitespace(c)) {
-			// Scan forward so 'start' actually points at the beginning of the
-			// token
-			ret.fTrigger = "";
-			
-			scanner.setScanFwd(true);
-			while ((c = scanner.get_ch()) != -1 && Character.isWhitespace(c)) {}
-			start = scanner.getPos()-1;
-		} else {
-			ret.fTrigger = "";
+		// We'll start by scanning backwards. On entry, the
+		// cursor has been placed to read going forward
+		if (scanner.getScanFwd() && scanner.getPos() > 0) {
+			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
+					scanner.get_str(scanner.getPos()-1, 1) + "\"");
+			scanner.seek(scanner.getPos()-1);
 		}
 		
-		if (!ret.fTrigger.equals("")) {
-			// There is a trigger, so use that as a reference point
-			ret.fLeaf = scanner.get_str(start, (int)(offset-start)).trim();
-			ret.fRoot = extractPreTriggerPortion(scanner);
-		} else {
-			String leaf = scanner.get_str(start, (int)(offset-start));
+		scanner.setScanFwd(false);
+		
+		debug("    First Ch (adjusted): \"" + (char)scanner.get_ch() + "\"");
+		scanner.unget_ch(-1);
+
+		// Check whether we're currently in a string
+		if (isInString(scanner)) {
+			debug("isInString()");
+			// It's most likely that we're looking at an include
+
+			ret.fLeaf = readString(scanner, leaf_scan_fwd);
+			ret.fStart = (int)scanner.getPos();
 			
-			if (leaf == null) {
-				ret.fLeaf = "";
-			} else {
-				ret.fLeaf = leaf.trim();
-			}
+			// Now, continue scanning backwards to determine how to
+			// deal with this
+			scanner.setScanFwd(false);
+			c = scanner.skipWhite(scanner.get_ch());
 
-			/*
-			if (c == '(' || c == ',' || c == '>' || c == '<') {
-				ret.fStart = (int)scanner.getPos()+1;
-				scanner.setScanFwd(true);
-				scanner.seek(ret.fStart);
+			debug("string=\"" + ret.fLeaf + "\" next=\"" + (char)c + "\"");
 
-				// Scan forward to avoid any whitespace
-				while ((c = scanner.get_ch()) != -1 && ret.fStart < offset &&  
-						Character.isWhitespace(c)) {
-					ret.fStart++;
-				}
-				ret.fPre = scanner.get_str(ret.fStart, (int)scanner.getPos());
-			} else {
-				// No recognizable trigger character, so set 'pre' based on
-				// seeking backwards from the offset passed in
-				// idx = offset - 1;
-				scanner.seek(offset-1);
-				scanner.setScanFwd(false);
-
-				// Only works in certain cases...
-				while ((c = scanner.get_ch()) != -1
-						&& !Character.isWhitespace(c)) {}
-
-				ret.fStart = (int)scanner.getPos()+1;
+			if (Character.isJavaIdentifierPart(c)) {
+				String id = new StringBuilder(scanner.readIdentifier(c)).reverse().toString();
+				debug("id=\"" + id + "\"");
 				
-				System.out.println("offset=" + offset + " start=" + ret.fStart);
-				if (offset > ret.fStart) {
-					ret.fPre = scanner.get_str(
-							ret.fStart, (int)(offset-ret.fStart-1)).trim();
-					System.out.println("pre=" + ret.fPre);
-				} else {
-					// TODO: not quite sure how to handle this
-					System.out.println("offset < start");
-					return null;
+				c = scanner.skipWhite(scanner.get_ch());
+				
+				debug("next=\"" + (char)c + "\"");
+				
+				if (c == '`' && id.equals("include")) {
+					ret.fTrigger = "`";
+					ret.fRoot = "include";
 				}
 			}
-			 */
+		} else if (Character.isJavaIdentifierPart((c = scanner.get_ch()))) {
+			debug("notInString c=\"" + (char)c + "\"");
+			scanner.unget_ch(c);
+			String id = readIdentifier(scanner, leaf_scan_fwd);
+			ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
+			ret.fLeaf = id;
+			
+			debug("id=\"" + id + "\"");
+
+			// See if we're working with a triggered expression
+			ret.fTrigger = readTriggerStr(scanner);
+			debug("trigger=\"" + ret.fTrigger + "\"");
+			
+			if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
+				// Read an expression
+				ret.fRoot = readExpression(scanner);
+			} else if (ret.fTrigger == null) {
+					
+				// Just process the identifier
+				c = scanner.skipWhite(scanner.get_ch());
+				
+				if (Character.isJavaIdentifierPart(c)) {
+					ret.fRoot = scanner.readIdentifier(c);
+				}
+			}
+		} else {
+			// backup and try for a triggered identifier
+			debug("notInId: ch=\"" + (char)c + "\"");
+			
+			scanner.unget_ch(c);
+			if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
+				ret.fRoot = readExpression(scanner);
+				ret.fLeaf = "";
+			}
 		}
-
-		ret.fStart = (int)start;
-
+		
 		debug("<-- extractExprContext()");
 		
 		return ret;
 	}
+	
+	/**
+	 * Read a string surrounding the current position. The scanner will
+	 * be left at the beginning of the string.
+	 * 
+	 * @param scanner
+	 * @param scan_fwd
+	 * @return
+	 */
+	private String readString(IBIDITextScanner scanner, boolean scan_fwd) {
+		int ch;
+		
+		long end_pos = scanner.getPos();
+		long start_pos = -1, seek;
+		
+		// First, scan back to the string beginning
+		scanner.setScanFwd(false);
+		while ((ch = scanner.get_ch()) != -1 && 
+				ch != '\n' && ch != '"') { 
+		}
+		
+		start_pos = scanner.getPos();
+		
+		if (ch == '"') {
+			seek = start_pos-1;
+			start_pos += 2;
+		} else {
+			seek = start_pos;
+		}
+		
+		if (scan_fwd) {
+			scanner.setScanFwd(true);
+			scanner.seek(start_pos);
+			
+			while ((ch = scanner.get_ch()) != -1 &&
+					ch != '"' && ch != '\n') { 
+			}
+			
+			end_pos = scanner.getPos();
+			if (ch == '"') {
+				end_pos--;
+			}
+		}
+		
+		scanner.seek(seek);
+		
+		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
+	}
 
+	/**
+	 * readIdentifier()
+	 * 
+	 * Reads the identifier surrounding the current location. 
+	 * 
+	 * @param scanner
+	 * @param scan_fwd
+	 * @return
+	 */
+	private String readIdentifier(IBIDITextScanner scanner, boolean scan_fwd) {
+		int ch;
+		
+		long end_pos = (scanner.getScanFwd())?scanner.getPos():(scanner.getPos()+1);
+		long start_pos = -1, seek;
+		
+		// First, scan back to the string beginning
+		scanner.setScanFwd(false);
+		while ((ch = scanner.get_ch()) != -1 &&
+				Character.isJavaIdentifierPart(ch)) { }
+		
+		start_pos = scanner.getPos() + 2;
+		seek = scanner.getPos() + 1;
+		
+		if (scan_fwd) {
+			scanner.setScanFwd(true);
+			scanner.seek(start_pos);
+			
+			while ((ch = scanner.get_ch()) != -1 &&
+					Character.isJavaIdentifierPart(ch)) { }
+			
+			end_pos = scanner.getPos() - 1;
+		}
+		
+		scanner.seek(seek);
+
+		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
+	}
+	
+	/**
+	 * 
+	 * @param scanner
+	 * @return
+	 */
+	private String readTriggerStr(IBIDITextScanner scanner) {
+		long start_pos = scanner.getPos();
+		scanner.setScanFwd(false);
+		int ch = scanner.skipWhite(scanner.get_ch());
+		
+		if (ch == '.' || ch == '`') {
+			return "" + (char)ch;
+		} else if (ch == ':') {
+			int ch2 = scanner.get_ch();
+			
+			if (ch2 == ':') {
+				return "::";
+			}
+		}
+		
+		// If we didn't identify a trigger, then restore the
+		// previous position
+		scanner.seek(start_pos);
+		return null;
+	}
+
+	private boolean isInString(IBIDITextScanner scanner) {
+		boolean ret = false;
+		long sav_pos = scanner.getPos();
+		boolean scan_fwd = scanner.getScanFwd();
+		int ch;
+		
+		// Continue scanning backwards
+		scanner.setScanFwd(false);
+		while ((ch = scanner.get_ch()) != -1 && 
+				ch != '"' && ch != '\n') {
+		}
+		
+		if (ch == '"') {
+			ret = true;
+		}
+		
+		scanner.seek(sav_pos);
+		scanner.setScanFwd(scan_fwd);
+		return ret;
+	}
+	
+	private String readExpression(IBIDITextScanner scanner) {
+		int ch;
+		
+		// Continue moving backwards
+		scanner.setScanFwd(false);
+		
+		ch = scanner.skipWhite(scanner.get_ch());
+		scanner.unget_ch(ch);
+		long end_pos = scanner.getPos(), start_pos;
+		
+		do {
+			ch = scanner.skipWhite(scanner.get_ch());
+			
+			if (ch == ')') {
+				scanner.startCapture(ch);
+				scanner.skipPastMatch(")(");
+			} else if (Character.isJavaIdentifierPart(ch)) {
+				scanner.readIdentifier(ch);
+			} else {
+				fLog.error("unknown ch \"" + (char)ch + "\"");
+			}
+			start_pos = scanner.getPos();
+		} while (readTriggerStr(scanner) != null);
+		
+		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
+	}
 	
 	/**
 	 * Scans backwards (from idx) in the text viewer 
@@ -410,11 +540,8 @@ public class SVExpressionUtils {
 				}
 				id = tmp.toString();
 				
-				debug("id=" + id + " ch after id=" + (char)ch);
-
 				if (ch == '(' || ch == '\'') {
 					String type_name = null;
-					int elem_type = ch;
 					
 					if (ch == '(') {
 						// lookup id as a function
@@ -461,9 +588,8 @@ public class SVExpressionUtils {
 									"\" in \"" + search_ctxt.getName() + 
 									"\" returned " + matches.size() + " matches");
 							
-							if (matches.size() > 0) {
-								func = matches.get(0);
-							}
+							func = filterByAttr(matches, preceeding_activator);
+
 						}
 						
 						if (func == null) {
@@ -477,7 +603,6 @@ public class SVExpressionUtils {
 						type_name = ((SVDBTaskFuncScope)func).getReturnType(); 
 					} else {
 						// ' indicates this is a type name
-						// TODO: We don't yet have the infrastructure to deal with types
 						type_name = id;
 						SVDBFindByName finder_name = new SVDBFindByName(index_it);
 						
@@ -500,16 +625,6 @@ public class SVExpressionUtils {
 						}
 					}
 					idx++;
-
-					/*
-					if (idx < preTrigger.length()) {
-						System.out.println("post-consume () - idx=" + idx + 
-								" len=" + preTrigger.length() + "(" + 
-								preTrigger.charAt(idx) + ")");
-					} else {
-						System.out.println("post-consume () - exceeded length");
-					}
-					 */
 
 					// Only resolve this function return type of
 					// it's not the last element in the string or
@@ -610,15 +725,19 @@ public class SVExpressionUtils {
 					debug("field=" + field);
 					if (field instanceof SVDBModIfcClassDecl) {
 						type = field;
-					} else {
+					} else if (field instanceof SVDBVarDeclItem) {
 						SVDBFindNamedModIfcClassIfc finder = 
 							new SVDBFindNamedModIfcClassIfc(index_it);
 						type = finder.find(((SVDBVarDeclItem)field).getTypeName());
+					} else {
+						fLog.error("Unknown scope type for \"" +
+								field.getName() + "\" " + field.getClass().getName());
+						return -1;
 					}
 							
 					
 					if (type == null) {
-						System.out.println("cannot find type \"" + 
+						fLog.error("cannot find type \"" + 
 								((SVDBVarDeclItem)field).getTypeName() + "\"");
 						return -1;
 					}
@@ -629,12 +748,38 @@ public class SVExpressionUtils {
 				}
 			} else {
 				// TODO: This is actually an error (?)
-				System.out.println("CHECK: ch=" + (char)ch + " is this an error?");
+				fLog.error("CHECK: ch=" + (char)ch + " is this an error?");
 				return -1;
 			}
 		}
 
 		return idx;
+	}
+	
+	private SVDBItem filterByAttr(List<SVDBItem> items, String trigger) {
+		SVDBItem ret = null;
+		
+		for (SVDBItem it : items) {
+			int attr = 0;
+			
+			if (it.getType() == SVDBItemType.Task || it.getType() == SVDBItemType.Function) {
+				attr = ((SVDBTaskFuncScope)it).getAttr();
+			} else if (it.getType() == SVDBItemType.VarDecl) {
+				attr = ((SVDBVarDeclItem)it).getAttr();
+			}
+			
+			if (trigger != null && trigger.equals("::")) {
+				if ((attr & IFieldItemAttr.FieldAttr_Static) != 0) {
+					ret = it;
+					break;
+				}
+			} else {
+				ret = it;
+				break;
+			}
+		}
+		
+		return ret;
 	}
 
 	/**
@@ -741,7 +886,7 @@ public class SVExpressionUtils {
 				}
 			} else {
 				// TODO: This is actually an error (?)
-				System.out.println("CHECK: ch=" + (char)ch + " is this an error?");
+				fLog.error("CHECK: ch=" + (char)ch + " is this an error?");
 				return -1;
 			}
 		}

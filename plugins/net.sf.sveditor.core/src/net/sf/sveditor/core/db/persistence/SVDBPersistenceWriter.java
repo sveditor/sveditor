@@ -84,6 +84,7 @@ public class SVDBPersistenceWriter implements IDBWriter {
 					writeRawString(",");
 				}
 			}
+			writeRawString(">");
 		}
 	}
 

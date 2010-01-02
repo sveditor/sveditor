@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
@@ -21,6 +22,8 @@ import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.PluginPathEditorInput;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -56,6 +59,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
+	private LogHandle				fLog;
 	private boolean					fDebugEn = true;
 
 	public OpenDeclarationAction(
@@ -63,6 +67,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 			String					prefix,
 			SVEditor				editor) {
 		super(bundle, prefix, editor);
+		fLog = LogFactory.getDefault().getLogHandle("OpenDeclarationAction");
 		fEditor = editor;
 		update();
 	}
@@ -112,30 +117,43 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, getTextSel().getStartLine());
 		
-		// Scan back to the last stop-point to see if we can characterize 
-		// this location
-		String trigger = null;
-		int start = -1;
-		
-		int c = -1, last_c = -1, idx = offset-1;
 		StringBuffer text = new StringBuffer();
 
 
-		if (!expr_ctxt.fTrigger.equals("")) {
-			List<SVDBItem> pre_trigger = expr_utils.processPreTriggerPortion(
-					index_it, active_scope, expr_ctxt.fRoot, false);
-			
-			if (pre_trigger != null && pre_trigger.size() != 0) {
-				SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
+		if (expr_ctxt.fTrigger != null) {
+			if (expr_ctxt.fTrigger.equals("`")) {
+				if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
+					SVDBFindIncludedFile finder = new SVDBFindIncludedFile(index_it);
+					it = finder.find(expr_ctxt.fLeaf);
+				} else {
+					// most likely a macro call
+					ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
+					while (it_i.hasNext()) {
+						SVDBItem it_t = it_i.nextItem();
+						
+						if (it_t.getType() == SVDBItemType.Macro &&
+								it_t.getName().equals(expr_ctxt.fLeaf)) {
+							it = it_t;
+							break;
+						}
+					}
+				}
+			} else {
+				List<SVDBItem> pre_trigger = expr_utils.processPreTriggerPortion(
+						index_it, active_scope, expr_ctxt.fRoot, false);
 				
-				if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
-					SVDBFindByNameInClassHierarchy finder_h = 
-						new SVDBFindByNameInClassHierarchy(index_it);
-					List<SVDBItem> fields = finder_h.find(
-							(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
+				if (pre_trigger != null && pre_trigger.size() != 0) {
+					SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
 					
-					if (fields.size() > 0) {
-						it = fields.get(0);
+					if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
+						SVDBFindByNameInClassHierarchy finder_h = 
+							new SVDBFindByNameInClassHierarchy(index_it);
+						List<SVDBItem> fields = finder_h.find(
+								(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
+						
+						if (fields.size() > 0) {
+							it = fields.get(0);
+						}
 					}
 				}
 			}
@@ -145,7 +163,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 			text.setLength(0);
 			text.append(expr_ctxt.fLeaf);
-			idx = offset;
 
 			System.out.println("Looking for un-triggered identifier \"" +
 					text.toString() + "\"");
@@ -191,326 +208,6 @@ public class OpenDeclarationAction extends TextEditorAction {
 				}
 			}
 		}
-		
-		// Search up the scope for a matching name
-		/**
-		if (active_scope != null) {
-			it = findNamedItem(text, active_scope);
-
-			SVDBModIfcClassDecl enclosing_class = null;
-			
-			if (it == null) {
-				it = searchEnclosingScope(text, active_scope);
-			}
-		
-			if (it == null && pd != null && 
-					(enclosing_class = findEnclosingClass(active_scope)) != null &&
-					enclosing_class.getSuperClass() != null && 
-					!enclosing_class.getSuperClass().equals("")) {
-				// TODO: Now, search up the class hierarchy for a match
-				it = searchClassHierarchy(text, enclosing_class, pd.getFileIndex());
-			}
-		}
-		
-		if (it == null && pd != null) {
-			// Search through the indexed files for a matching macro
-			// or class declaration
-			SVDBIndexSearcher index_search = new SVDBIndexSearcher();
-			index_search.addFile(fEditor.getSVDBFile());
-			index_search.addIndex(pd.getFileIndex());
-			
-			System.out.println("searching index for " + text);
-			List<SVDBItem> result = index_search.findByName(text);
-			
-			if (result.size() > 0) {
-				it = result.get(0);
-			}
-		}
-		 */
-		
-		if (it != null) {
-			IEditorPart ed_f = openEditor(it, fEditor.getIndexIterator());
-			((SVEditor)ed_f).setSelection(it, true);
-		} else if (inc_file != null) {
-			openEditor(inc_file.getFilePath(), fEditor.getIndexIterator());
-		}
-	}
-
-	public void run_2() {
-		super.run();
-		
-		debug("OpenDeclarationAction.run()");
-		
-		IDocument doc = fEditor.getDocumentProvider().getDocument(
-				fEditor.getEditorInput());
-		ITextSelection sel = getTextSel();
-		
-		int offset = sel.getOffset() + sel.getLength();
-		SVDBFile    		inc_file = null;
-		SVDBItem			it = null;
-
-		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		SVExpressionUtils		expr_utils = new SVExpressionUtils();
-		
-		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
-		
-		System.out.println("Expression Context: root=" + expr_ctxt.fRoot +
-				" leaf=" + expr_ctxt.fLeaf);
-
-		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
-		
-		// Now, iterate through the items in the file and find something
-		// with the same name
-		SVDBFile file = fEditor.getSVDBFile();
-		
-		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
-				file, getTextSel().getStartLine());
-		
-		// Scan back to the last stop-point to see if we can characterize 
-		// this location
-		String trigger = null;
-		int start = -1;
-		
-		try {
-			int c = -1, last_c = -1, idx = offset-1;
-			StringBuffer text = new StringBuffer();
-			
-			while (idx >= 0) {
-				c = doc.getChar(idx);
-				
-				if (c == '.' || c == '`' || (c == ':' && last_c == ':') 
-						|| c == '\n' || c == ',' || c == '(') {
-					break;
-				}
-
-				last_c = c;
-				idx--;
-			}
-			
-			if (c == '.') {
-				// See if this might not really be an include
-				int tmpc = -1;
-				for (int i=0; i<16; i++) {
-					tmpc = doc.getChar(idx+i);
-					
-					if (tmpc == '(' || tmpc == '"' ||
-							Character.isWhitespace(tmpc)) {
-						break;
-					}
-				}
-				
-				if (tmpc == '"') {
-					// Search backwards further from idx
-					int old_idx = idx;
-					
-					while (idx >= 0) {
-						tmpc = doc.getChar(idx);
-						
-						if (tmpc == '`') {
-							break;
-						}
-						
-						idx--;
-					}
-					
-					if (tmpc == '`') {
-						c = tmpc;
-					} else {
-						idx = old_idx;
-					}
-				}
-			}
-
-			if (c == '.' || c == '`') {
-				trigger = "" + (char)c;
-			} else if (c == ':' && last_c == ':') {
-				trigger = "::";
-			} else {
-				trigger = "";
-			}
-			start = idx + 1;
-			
-			if (trigger.equals("`")) {
-				// Read forward to see what type of directive this is
-				idx = start;
-				
-				text.setLength(0);
-				while (idx < doc.getLength()) {
-					int ch = doc.getChar(idx);
-					
-					if (!Character.isWhitespace(ch) && ch != '(') {
-						text.append((char)ch);
-					} else {
-						break;
-					}
-					idx++;
-				}
-				
-				if (text.toString().equals("include")) {
-					debug("Open Declaration \"include\"");
-					
-					// Now, read forward to see what the included file is
-					while (idx < doc.getLength() && doc.getChar(idx) != '"') {
-						idx++;
-					}
-					
-					text.setLength(0);
-					idx++;
-					while (idx < doc.getLength() && 
-							doc.getChar(idx) != '"' &&
-							!Character.isWhitespace(doc.getChar(idx))) {
-						text.append((char)doc.getChar(idx));
-						idx++;
-					}
-					
-					debug("Searching for include file \"" + text.toString() + "\"");
-					
-					SVDBFindIncludedFile finder_inc = 
-						new SVDBFindIncludedFile(index_it);
-					inc_file = finder_inc.find(text.toString());
-				} else {
-					SVDBFindByName finder_name =
-						new SVDBFindByName(index_it);
-					
-					List<SVDBItem> result = finder_name.find(
-							text.toString(), SVDBItemType.Macro);
-					
-					if (result.size() > 0) {
-						it = result.get(0);
-					}
-				}
-			} else if (!trigger.equals("")) {
-				// Read forward to the next '.', '::', or ';'. If a '(' is seen, skip the enclosing
-				
-				int tmpc = -1;
-				while (++idx < doc.getLength()) {
-					tmpc = doc.getChar(idx);
-					
-					if (tmpc == '.' || tmpc == ':' || tmpc == ';') {
-						break;
-					} else if (tmpc == '(') {
-						int matchLevel = 1;
-						
-						while (matchLevel > 0 && ++idx < doc.getLength()) {
-							tmpc = doc.getChar(idx);
-							
-							if (tmpc == '(') {
-								matchLevel++;
-							} else if (tmpc == ')') {
-								matchLevel--;
-							}
-						}
-					}
-				}
-				
-				if (idx < doc.getLength()) {
-					idx--;
-					// now, search backwards
-					IBIDITextScanner doc_scanner = new SVDocumentTextScanner(doc, idx);
-					// SVExpressionUtils expr_utils = new SVExpressionUtils();
-					String pre_trigger = expr_utils.extractPreTriggerPortion(doc_scanner);
-					System.out.println("pre-trigger=\"" + pre_trigger + "\"");
-					
-					List<SVDBItem> item_list = expr_utils.processPreTriggerPortion(
-							index_it, active_scope, pre_trigger, false);
-					
-					if (item_list != null && item_list.size() > 0) {
-						System.out.println("result: " + 
-								item_list.get(item_list.size()-1).getName());
-						it = item_list.get(item_list.size()-1);
-					}
-				}
-				
-			} else {
-				// No trigger info. Re-do this search by reading the identifier surrounding
-				// the cursor location
-				
-				text.setLength(0);
-				idx = offset;
-				
-				while (idx >= 0 && Character.isJavaIdentifierPart(doc.getChar(idx))) {
-					idx--;
-				}
-				idx++;
-				
-				while (idx < doc.getLength() &&
-						Character.isJavaIdentifierPart(doc.getChar(idx))) {
-					text.append((char)doc.getChar(idx));
-					idx++;
-				}
-				
-				System.out.println("Looking for un-triggered identifier \"" +
-						text.toString() + "\"");
-				List<SVDBItem> result = null;
-				
-				if (it == null) {
-					SVDBFindByNameInClassHierarchy finder_h =
-						new SVDBFindByNameInClassHierarchy(index_it);
-					
-					result = finder_h.find(active_scope, text.toString());
-					
-					if (result.size() > 0) {
-						it = result.get(0);
-						
-						if (result.size() > 1) {
-							System.out.println("multiple matches");
-							for (SVDBItem it_t : result) {
-								System.out.println("    " + it_t.getName());
-							}
-						}
-					}
-				} 
-				
-				if (it == null) {
-					// Try type names
-					SVDBFindNamedModIfcClassIfc finder_cls =
-						new SVDBFindNamedModIfcClassIfc(index_it);
-					
-					it = finder_cls.find(text.toString());
-					
-					System.out.println("Class item=" + it);
-				}
-			}
-			
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		}
-		
-		// Search up the scope for a matching name
-		/**
-		if (active_scope != null) {
-			it = findNamedItem(text, active_scope);
-
-			SVDBModIfcClassDecl enclosing_class = null;
-			
-			if (it == null) {
-				it = searchEnclosingScope(text, active_scope);
-			}
-		
-			if (it == null && pd != null && 
-					(enclosing_class = findEnclosingClass(active_scope)) != null &&
-					enclosing_class.getSuperClass() != null && 
-					!enclosing_class.getSuperClass().equals("")) {
-				// TODO: Now, search up the class hierarchy for a match
-				it = searchClassHierarchy(text, enclosing_class, pd.getFileIndex());
-			}
-		}
-		
-		if (it == null && pd != null) {
-			// Search through the indexed files for a matching macro
-			// or class declaration
-			SVDBIndexSearcher index_search = new SVDBIndexSearcher();
-			index_search.addFile(fEditor.getSVDBFile());
-			index_search.addIndex(pd.getFileIndex());
-			
-			System.out.println("searching index for " + text);
-			List<SVDBItem> result = index_search.findByName(text);
-			
-			if (result.size() > 0) {
-				it = result.get(0);
-			}
-		}
-		 */
 		
 		if (it != null) {
 			IEditorPart ed_f = openEditor(it, fEditor.getIndexIterator());
@@ -636,7 +333,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 	private IEditorPart openEditor(
 			SVDBItem 			it,
 			ISVDBIndexIterator	index_it) {
-		SVDBItem p = it.getParent();
+		SVDBItem p = it;
 		// Find the file that this item belongs to
 		
 		while (p != null && p.getType() != SVDBItemType.File) {
@@ -753,6 +450,9 @@ public class OpenDeclarationAction extends TextEditorAction {
 			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
+		} else {
+			IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			w.getActivePage().activate(ret);
 		}
 		
 		return ret;
@@ -760,7 +460,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 	
 	private void debug(String msg) {
 		if (fDebugEn) {
-			System.out.println(msg);
+			fLog.debug(msg);
 		}
 	}
 }

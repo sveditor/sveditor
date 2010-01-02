@@ -155,7 +155,8 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 				try {
 					ret = url.openStream();
 				} catch (IOException e) {
-					e.printStackTrace();
+					fLog.error("Failed to open plugin file \"" + 
+							path + "\"", e);
 				}
 			}
 		}
