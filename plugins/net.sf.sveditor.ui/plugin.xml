@@ -83,6 +83,7 @@
                class="net.sf.sveditor.ui.explorer.SVFileSorter">
          </commonSorter>
       </navigatorContent>
+<!--
       <actionProvider
             class="net.sf.sveditor.ui.explorer.AddSystemVerilogNatureAction"
             id="net.sf.sveditor.ui.explorer.AddSystemVerilogNatureAction">
@@ -101,6 +102,7 @@
             </and>
          </enablement>
       </actionProvider>
+ -->
       <actionProvider
             class="net.sf.sveditor.ui.explorer.OpenSVDBItem"
             id="net.sf.sveditor.ui.explorer.OpenSVDBItem">

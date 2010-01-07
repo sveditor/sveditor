@@ -3,13 +3,14 @@ package net.sf.sveditor.core.db.project;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIncludePathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
@@ -24,17 +25,19 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
 public class SVDBProjectData {
-	private IPath 							fSVProjFilePath;
-	private SVProjectFileWrapper 			fFileWrapper;
-	private SVDBIndexCollectionMgr			fIndexCollection;
-	private String							fProjectName;
-	private LogHandle						fLog;
+	private IPath 									fSVProjFilePath;
+	private SVProjectFileWrapper 					fFileWrapper;
+	private SVDBIndexCollectionMgr					fIndexCollection;
+	private String									fProjectName;
+	private LogHandle								fLog;
+	private List<ISVDBProjectSettingsListener>		fListeners;
 
 	public SVDBProjectData(
 			String						project_name,
 			SVProjectFileWrapper 		wrapper, 
 			IPath 						projfile_path) {
 		fLog = LogFactory.getDefault().getLogHandle("SVDBProjectData");
+		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project_name;
 		fSVProjFilePath = projfile_path;
 		
@@ -42,6 +45,18 @@ public class SVDBProjectData {
 		
 		fFileWrapper = null;
 		setProjectFileWrapper(wrapper, false);
+	}
+	
+	public String getName() {
+		return fProjectName;
+	}
+	
+	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
+		fListeners.add(l);
+	}
+	
+	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
+		fListeners.remove(l);
 	}
 
 	public synchronized SVDBIndexCollectionMgr getProjectIndexMgr() {
@@ -149,20 +164,6 @@ public class SVDBProjectData {
 			}
 		}
 		
-		for (SVDBPath path : fw.getIncludePaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(
-					fProjectName, path.getPath(), 
-					SVDBIncludePathIndexFactory.TYPE, null);
-			
-			if (index != null) {
-				sc.addIncludePath(index);
-			} else {
-				fLog.error(
-						"failed to create include index \"" +
-						path.getPath() + "\"");
-			}
-		}
-
 		for (SVDBPath path : fw.getLibraryPaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(
 					fProjectName, path.getPath(), 
@@ -210,5 +211,13 @@ public class SVDBProjectData {
 						"\"" + srcc.getBaseLocation() + "\"");
 			}
 		}
+		
+		// Project settings have changed, so notify listeners
+		for (ISVDBProjectSettingsListener l : fListeners) {
+			l.projectSettingsChanged(this);
+		}
+		
+		// Also notify global listeners
+		SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
 	}
 }

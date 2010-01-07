@@ -3,15 +3,25 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBItem> {
 	List<ISVDBIndex>			fIndexList;
 	int							fIndexListIdx = 0;
 	ISVDBItemIterator<SVDBItem>	fIndexIterator;
+	ISVDBIndex					fOverrideIndex;
+	SVDBFile					fOverrideFile;
 	
 	public SVDBIndexCollectionItemIterator() {
 		fIndexList = new ArrayList<ISVDBIndex>();
+	}
+	
+	public void setOverride(ISVDBIndex index, SVDBFile file) {
+		fOverrideIndex = index;
+		fOverrideFile  = file;
 	}
 	
 	public void addIndex(ISVDBIndex index) {
@@ -44,7 +54,11 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator();
 			fIndexListIdx++;
 		}
-		
+
+		if (fIndexList.get(fIndexListIdx-1) == fOverrideIndex) {
+			((SVDBIndexItemIterator)fIndexIterator).setOverride(fOverrideFile);
+		}
+
 		SVDBItem ret = null;
 		if (fIndexIterator != null) {
 			ret = fIndexIterator.nextItem();

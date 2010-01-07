@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
@@ -28,10 +29,10 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			String 			base_location) {
 		super(project, base_location, null);
 		
+		fLog = LogFactory.getDefault().getLogHandle("SVDBPluginLibIndex");
+		
 		fFileSystemProvider = this;
 		
-		System.out.println("SVDBPluginLibIndex: 2-arg");
-
 		base_location = base_location.substring("plugin:/".length());
 		
 		fPluginNS = base_location.substring(0, base_location.indexOf('/'));
@@ -39,7 +40,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		fRootFile = base_location.substring(base_location.indexOf('/')-1);
 		fBundle = Platform.getBundle(fPluginNS);
 		
-		System.out.println("RootFile: " + fRootFile + " Root: " + fRoot);
+		fLog.debug("RootFile: " + fRootFile + " Root: " + fRoot);
 		
 		fFileList = new HashMap<String, SVDBFile>();
 		fFileIndex = new HashMap<String, SVDBFile>();
@@ -51,9 +52,9 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			String			root) {
 		super(project, "plugin:/" + plugin_ns + "/" + root, null);
 
-		fFileSystemProvider = this;
+		fLog = LogFactory.getDefault().getLogHandle("SVDBPluginLibIndex");
 
-		System.out.println("SVDBPluginLibIndex: 3-arg");
+		fFileSystemProvider = this;
 
 		fRootFile = root;
 		fPluginNS = plugin_ns;
@@ -82,7 +83,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			(Enumeration<URL>)fBundle.findEntries(root_dir, "*", true);
 		
 		if (entries == null) {
-			System.out.println("Failed to find bundle entry \"" + root_dir + "\"");
+			fLog.error("Failed to find bundle entry \"" + root_dir + "\"");
 		}
 		
 		while (entries.hasMoreElements()) {

@@ -12,17 +12,17 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 	private Stack<Iterator<SVDBItem>>	fScopeStack;
 	private Iterator<SVDBFile>			fFileIterator;
 	private Iterator<SVDBItem>			fScopeIterator;
+	private SVDBFile					fOverrideFile;
 	
 	public SVDBIndexItemIterator(Map<String, SVDBFile> index_items) {
 		fFileIterator = index_items.values().iterator();
 		fScopeStack = new Stack<Iterator<SVDBItem>>();
 		
-		/*
-		while (fFileIterator.hasNext()) {
-			System.out.println("    file=" + fFileIterator.next());
-		}
-		 */
 		fFileIterator = index_items.values().iterator();
+	}
+	
+	public void setOverride(SVDBFile file) {
+		fOverrideFile = file;
 	}
 
 	public boolean hasNext() {
@@ -39,6 +39,7 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 		for (int i=0; i<16536 && ret == null; i++) {
 			if (fScopeIterator != null && fScopeIterator.hasNext()) {
 				ret = fScopeIterator.next();
+				
 				// System.out.println("Item from scope iterator \"" + ret.getName() + "\"");
 				if (ret instanceof SVDBScopeItem) {
 					SVDBScopeItem it = (SVDBScopeItem)ret;
@@ -54,6 +55,13 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 				fScopeIterator = fScopeStack.pop();
 			} else if (fFileIterator.hasNext()) {
 				SVDBFile file = fFileIterator.next();
+				
+				// Replace the file from the database with the override file
+				if (fOverrideFile != null &&
+						file.getFilePath().equals(fOverrideFile.getFilePath())) {
+					file = fOverrideFile;
+				}
+				
 				// System.out.println("Switch to next file: " + file.getName());
 				ret = file;
 				

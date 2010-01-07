@@ -26,7 +26,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	private List<List<ISVDBIndex>>			fFileSearchOrder;
 	private Map<String, ISVDBIndex>			fShadowIndexMap;
 	private LogHandle						fLog;
-
 	
 	public SVDBIndexCollectionMgr(String project) {
 		fProject 				= project;

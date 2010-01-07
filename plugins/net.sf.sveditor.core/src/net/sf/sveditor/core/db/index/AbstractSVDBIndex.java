@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -122,7 +123,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	public void load(
 			IDBReader			index_data,
 			List<SVDBFile> 		pp_files, 
-			List<SVDBFile> 		db_files) {
+			List<SVDBFile> 		db_files) throws DBFormatException {
+		load_base(index_data, pp_files, db_files);
+	}
+
+	protected void load_base(
+			IDBReader			index_data,
+			List<SVDBFile> 		pp_files, 
+			List<SVDBFile> 		db_files) throws DBFormatException {
 		fFileList.clear();
 		fFileIndex.clear();
 		
@@ -145,8 +153,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 			fFileList.clear();
 			fFileIndex.clear();
 		}
-	}
-	
+	}			
+
 	protected abstract boolean isLoadUpToDate();
 
 	public synchronized Map<String, SVDBFile> getFileDB() {

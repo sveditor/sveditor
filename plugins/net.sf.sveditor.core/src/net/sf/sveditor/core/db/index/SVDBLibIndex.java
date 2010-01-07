@@ -15,6 +15,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
@@ -80,9 +81,11 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fFileListValid  = false;
 	}
 	
-	@Override
-	public void load(IDBReader index_data, List<SVDBFile> ppFiles, List<SVDBFile> dbFiles) {
-		super.load(index_data, ppFiles, dbFiles);
+	public void load(
+			IDBReader index_data, 
+			List<SVDBFile> ppFiles, 
+			List<SVDBFile> dbFiles) throws DBFormatException {
+		load_base(index_data, ppFiles, dbFiles);
 		
 		if (fFileIndexValid && fFileListValid) {
 			SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());

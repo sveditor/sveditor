@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -61,34 +62,27 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	public void load(
 			IDBReader 		index_data, 
 			List<SVDBFile> 	pp_files,
-			List<SVDBFile> 	db_files) {
-		try {
-			fArgFileLastModified = index_data.readLong();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			List<SVDBFile> 	db_files) throws DBFormatException {
+		fArgFileLastModified = index_data.readLong();
 		
-		fFileList.clear();
-		fFileIndex.clear();
+		load_base(index_data, pp_files, db_files);
 		
-		for (SVDBFile f : pp_files) {
-			fFileList.put(f.getFilePath(), f);
-		}
-		
-		for (SVDBFile f : db_files) {
-			fFileIndex.put(f.getFilePath(), f);
-		}
+		if (isLoaded()) {
+			readArgFile();
 
-		if (isLoadUpToDate()) {
-			fLog.debug("index \"" + getBaseLocation() + "\" IS up-to-date");
-			fFileIndexValid = true;
-			fFileListValid  = true;
-		} else {
-			fLog.debug("index \"" + getBaseLocation() + "\" NOT up-to-date");
-			fFileIndexValid = false;
-			fFileListValid  = false;
-			fFileList.clear();
-			fFileIndex.clear();
+			// re-build the FileTree structure
+			for (String file : fFilePaths) {
+				file = resolvePath(file);
+				SVDBFile pp_file = findPreProcFile(file);
+				
+				if (pp_file == null) {
+					fLog.error("Failed to find file \"" + file + "\"");
+					continue;
+				}
+				
+				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
+				buildPreProcFileMap(null, ft_root);
+			}
 		}
 	}
 
@@ -111,31 +105,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 
 	@Override
 	protected void buildPreProcFileMap() {
-		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
-		
-		if (in != null) {
-			ITextScanner sc = new InputStreamTextScanner(in, getResolvedBaseLocation());
-			SVFScanner scanner = new SVFScanner();
-			
-			try {
-				scanner.scan(sc);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			for (String f : scanner.getFilePaths()) {
-				fLog.debug("[FILE PATH] " + f);
-				fFilePaths.add(expandVars(f, true));
-			}
-			
-			for (String inc : scanner.getIncludePaths()) {
-				fLog.debug("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
-				fIncludePaths.add(expandVars(inc, true));
-			}
-			
-		} else {
-			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
-		}
+		readArgFile();
 		
 		// Say the index is already valid
 		fFileListValid = true;
@@ -151,6 +121,38 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			
 			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 			buildPreProcFileMap(null, ft_root);
+		}
+	}
+	
+	protected void readArgFile() {
+		fFilePaths.clear();
+		fIncludePaths.clear();
+		
+		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
+		
+		if (in != null) {
+			ITextScanner sc = new InputStreamTextScanner(in, getResolvedBaseLocation());
+			SVFScanner scanner = new SVFScanner();
+			
+			try {
+				scanner.scan(sc);
+			} catch (Exception e) {
+				fLog.error("Failed to read argument file \"" + 
+						getResolvedBaseLocation() + "\"", e);
+			}
+			
+			for (String f : scanner.getFilePaths()) {
+				fLog.debug("[FILE PATH] " + f);
+				fFilePaths.add(expandVars(f, true));
+			}
+			
+			for (String inc : scanner.getIncludePaths()) {
+				fLog.debug("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
+				fIncludePaths.add(expandVars(inc, true));
+			}
+			
+		} else {
+			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
 		}
 	}
 	

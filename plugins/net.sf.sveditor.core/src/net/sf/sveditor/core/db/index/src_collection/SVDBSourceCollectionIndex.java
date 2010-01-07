@@ -74,7 +74,7 @@ public class SVDBSourceCollectionIndex
 	public String getTypeID() {
 		return SVDBSourceCollectionIndexFactory.TYPE;
 	}
-
+	
 	@Override
 	protected boolean isLoadUpToDate() {
 		List<String> files = fFileMatcher.findIncludedPaths();

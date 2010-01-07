@@ -9,9 +9,12 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -20,11 +23,15 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Display;
 
 public class SVFileNavigatorContentProvider 
-	implements ITreeContentProvider, Runnable,ISVDBChangeListener {
+	implements ITreeContentProvider, Runnable, ISVDBChangeListener,
+		ISVDBProjectSettingsListener {
 	
 	private Viewer									fViewer;
+	private LogHandle								fLog;
 	
 	public SVFileNavigatorContentProvider() {
+		SVCorePlugin.getDefault().getProjMgr().addProjectSettingsListener(this);
+		fLog = LogFactory.getDefault().getLogHandle("SVFileNavigatorContentProvider");
 	}
 	
 	
@@ -35,8 +42,16 @@ public class SVFileNavigatorContentProvider
 			List<SVDBItem> 		changes) {
 		Display.getDefault().asyncExec(this);
 	}
-
 	
+	public void projectSettingsChanged(SVDBProjectData data) {
+		// refresh, just in case the new index allows us
+		// to display structure information where we couldn't 
+		// previously
+		fLog.debug("Project settings changed -- refreshing");
+		Display.getDefault().asyncExec(this);
+	}
+
+
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFile) {
 			IFile file = (IFile)parentElement;
@@ -47,12 +62,32 @@ public class SVFileNavigatorContentProvider
 			List<SVDBSearchResult<SVDBFile>> res = 
 				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
 			
+			SVDBFile svdb_file = null;
 			if (res.size() == 0) {
-				System.out.println("SVFileNavigatorContentProvider: " +
-						"failed to find \"" + file.getFullPath() + "\"");
+				// If the file is not currently included in an index, then don't
+				// try to fix things up. We don't want to accidentally start parsing
+				// large numbers of files
+				/*
+				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+				ISVDBIndex index = rgy.findCreateIndex(
+						file.getProject().getName(),
+						"${workspace_loc}" + file.getParent().getFullPath().toOSString(),
+						SVDBSourceCollectionIndexFactory.TYPE, null);
+				index_mgr.addShadowIndex(index.getBaseLocation(), index);
+				
+				res = index_mgr.findFile("${workspace_loc}" + file.getFullPath());
+				if (res.size() > 0) {
+					svdb_file = res.get(0).getItem();
+				} else {
+					fLog.error("Failed to find \"" + file.getFullPath() + "\" even after " +
+							"adding a shadow index");
+				}
+				 */
 			} else {
-				return res.get(0).getItem().getItems().toArray();
+				svdb_file = res.get(0).getItem();
 			}
+			
+			return (svdb_file != null)?svdb_file.getItems().toArray():new Object[0];
 		} else if (parentElement instanceof SVDBScopeItem &&
 				!(parentElement instanceof SVDBTaskFuncScope)) {
 			return ((SVDBScopeItem)parentElement).getItems().toArray();
@@ -84,6 +119,7 @@ public class SVFileNavigatorContentProvider
 
 	
 	public void dispose() {
+		SVCorePlugin.getDefault().getProjMgr().removeProjectSettingsListener(this);
 	}
 
 	
@@ -93,6 +129,7 @@ public class SVFileNavigatorContentProvider
 	
 	public void run() {
 		if (!fViewer.getControl().isDisposed()) {
+			fLog.debug("Refreshing the project view");
 			fViewer.refresh();
 		}
 	}

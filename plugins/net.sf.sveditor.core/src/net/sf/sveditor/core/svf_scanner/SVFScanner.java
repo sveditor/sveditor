@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 
 /**
@@ -15,6 +17,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
  *
  */
 public class SVFScanner {
+	private LogHandle					fLog;
 	private ITextScanner				fScanner;
 	private List<String>				fIncludePaths;
 	private Map<String, String>			fDefineMap;
@@ -25,6 +28,8 @@ public class SVFScanner {
 		fIncludePaths 	= new ArrayList<String>();
 		fDefineMap 		= new HashMap<String, String>();
 		fFilePaths 		= new ArrayList<String>();
+		
+		fLog = LogFactory.getDefault().getLogHandle("SVArgFileScanner");
 	}
 	
 	public List<String> getIncludePaths() {
@@ -59,7 +64,7 @@ public class SVFScanner {
 					}
 				}
 				
-				System.out.println("key=" + tmp.toString());
+				fLog.debug("key=" + tmp.toString());
 				
 				if (tmp.toString().equals("+define+")) {
 					String key, val;

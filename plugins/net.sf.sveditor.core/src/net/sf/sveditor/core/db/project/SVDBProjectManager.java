@@ -2,14 +2,12 @@ package net.sf.sveditor.core.db.project;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 
 import org.eclipse.core.resources.IFile;
@@ -25,11 +23,26 @@ import org.eclipse.core.runtime.IPath;
 
 public class SVDBProjectManager implements IResourceChangeListener {
 	private WeakHashMap<IPath, SVDBProjectData>		fProjectMap;
-	private WeakHashMap<File, ISVDBIndex>			fBuildPathEntries;
+	private List<ISVDBProjectSettingsListener>		fListeners;
 	
 	public SVDBProjectManager() {
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
+		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+	}
+	
+	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
+		fListeners.add(l);
+	}
+	
+	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
+		fListeners.remove(l);
+	}
+	
+	void projectSettingsChanged(SVDBProjectData data) {
+		for (ISVDBProjectSettingsListener l : fListeners) {
+			l.projectSettingsChanged(data);
+		}
 	}
 	
 	public SVDBProjectData getProjectData(IProject proj) {

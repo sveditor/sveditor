@@ -21,7 +21,6 @@ import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVExpressionUtils {
 	
@@ -290,7 +289,7 @@ public class SVExpressionUtils {
 			} else {
 				fLog.error("unknown ch \"" + (char)ch + "\"");
 			}
-			start_pos = scanner.getPos();
+			start_pos = (scanner.getPos()+1);
 		} while (readTriggerStr(scanner) != null);
 		
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
@@ -850,9 +849,6 @@ public class SVExpressionUtils {
 				debug("id=" + id + " ch after id=" + (char)ch);
 
 				if (ch == '(' || ch == '\'') {
-					String type_name = null;
-					int elem_type = ch;
-					
 					if (ch == '(') {
 						// lookup id as a function
 						debug("Look for function \"" + id + "\"");
@@ -861,9 +857,7 @@ public class SVExpressionUtils {
 								new SVExprItemInfo(SVExprItemType.TaskFunc, id));
 					} else {
 						// ' indicates this is a type name
-						// TODO: We don't yet have the infrastructure to deal with types
-						item_list.add(
-								new SVExprItemInfo(SVExprItemType.TypeId, id));
+						item_list.add(new SVExprItemInfo(SVExprItemType.TypeId, id));
 					}
 
 					// Skip '()'

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
@@ -47,7 +48,7 @@ public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBI
 	void load(
 			IDBReader			index_data,
 			List<SVDBFile> 		pp_files, 
-			List<SVDBFile> 		db_files);
+			List<SVDBFile> 		db_files) throws DBFormatException;
 	
 	/**
 	 * Sets the include provider
