@@ -1,4 +1,27 @@
 
+-- 0.0.8 Release --
+
+The 0.0.8 release contains major changes to SVEditor. 
+
+The source-discovery mechanism has changed completely. Now, for best results, 
+the user should provide SVEditor with paths to the package files and/or 
+file lists that specify the source files. If a file is opened that is 
+not part of a defined index, SVEditor will setup a temporary index containing 
+just files in the parent directory.
+
+Improvements have continued on the persistence support. On exit of Eclipse, 
+SVEditor saves the parsed representation of all active indexes to the workspace. 
+SVEditor is able to simply re-load the database from this save file if 
+none of the SystemVerilog files have subseqently been modified. 
+This can save a significant amount of time during Eclipse startup by reducing 
+the amount of redundant parsing. 
+
+Added logging infrastructure, including a method to control debug logging
+from the preferences page and saving the debug log to a file in the workspace.
+
+
+------------------------------------------------------------------------------
+
 -- 0.0.7 Release --
     - Fix DR 2689430 -- problem with opening/closing/deleting a project in workspace
         - Sometimes a resource-change event is signaled with a null event
@@ -18,8 +41,6 @@
         - Plugin library -- support for packaging common source in a plugin
           that can be distributed with SVEditor
     - 
-
-
 
 ------------------------------------------------------------------------------
 

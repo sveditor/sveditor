@@ -1,5 +1,10 @@
 package net.sf.sveditor.core;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +39,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
 	private boolean							fDebugEn = false;
+	private OutputStream					fLogStream;
+	private PrintStream						fLogPS;
 	
 	/**
 	 * The constructor
@@ -49,6 +56,15 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		super.start(context);
 		fPlugin = this;
 		fTodoScanner = new SVTodoScanner();
+		
+		File state_location = getStateLocation().toFile();
+		
+		try {
+			fLogStream = new FileOutputStream(new File(state_location, "sveditor.log"));
+			fLogPS = new PrintStream(fLogStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		LogFactory.getDefault().addLogListener(this);
 	}
@@ -77,6 +93,13 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		}
 		
 		LogFactory.getDefault().removeLogListener(this);
+		
+		if (fLogStream != null) {
+			fLogPS.flush();
+			try {
+				fLogStream.close();
+			} catch (IOException e) {}
+		}
 		
 		super.stop(context);
 	}
@@ -166,13 +189,17 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public void message(ILogHandle handle, int type, int level, String message) {
 		if (type == ILogListener.Type_Error) {
 			System.err.println("[" + handle.getName() + "] " + message);
+			if (fLogPS != null) {
+				fLogPS.println("[" + handle.getName() + "] " + message);
+			}
 		} else {
 			if (fDebugEn) {
 				System.out.println("[" + handle.getName() + "] " + message);
+				if (fLogPS != null) {
+					fLogPS.println("[" + handle.getName() + "] " + message);
+				}
 			}
 		}
 	}
-
 }
-
 
