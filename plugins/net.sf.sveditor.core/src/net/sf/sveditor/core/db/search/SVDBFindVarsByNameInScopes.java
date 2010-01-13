@@ -23,7 +23,6 @@ public class SVDBFindVarsByNameInScopes {
 			boolean			stop_on_first_match) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 
-
 		// Search up the scope
 		while (context != null) {
 			

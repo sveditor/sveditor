@@ -516,7 +516,7 @@ public class SVScanner implements ISVScanner {
 					fNewStatement = true;
 					unget_str(id + " ");
 					break;
-				} else if (isFirstLevelScope(id)) {
+				} else if (isFirstLevelScope(id, 0)) {
 //					System.out.println("id \"" + id + "\" is a first-level scope");
 					if (fObserver != null) {
 						fObserver.error("missing \"" + exp_end + "\" @ " +
@@ -1023,7 +1023,7 @@ public class SVScanner implements ISVScanner {
 			unget_ch(ch);
 			process_interface_module_class(id);
 			fNewStatement = true;
-		} else if (isFirstLevelScope(id)) {
+		} else if (isFirstLevelScope(id, modifiers)) {
 			// We've hit a first-level qualifier. This probably means that
 			// there is a missing
 			unget_str(id + " ");
@@ -1172,9 +1172,10 @@ public class SVScanner implements ISVScanner {
 	}
 			
 	
-	private boolean isFirstLevelScope(String id) {
-		return (id.equals("class") || 
-				id.equals("interface") ||
+	private boolean isFirstLevelScope(String id, int modifiers) {
+		return (id.equals("class") ||
+				// virtual interface is a valid field
+				(id.equals("interface") && (modifiers & ISVScannerObserver.FieldAttr_Virtual) == 0) ||
 				id.equals("struct") ||
 				id.equals("module"));
 	}
@@ -1473,6 +1474,9 @@ public class SVScanner implements ISVScanner {
 				type.fStructType = true;
 				type.fTypeName   = type_name;
 				process_struct_decl(type);
+			} else if (type_name.startsWith("class")) {
+				type.fClassType = true;
+				type.fTypeName  = type_name;
 			} else {
 				type.fTypeName = type_name;
 			}

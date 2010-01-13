@@ -9,11 +9,14 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
+import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
@@ -125,13 +128,188 @@ public class SVExpressionUtils {
 			
 			scanner.unget_ch(c);
 			if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
+				if (scan_fwd) {
+					scanner.setScanFwd(true);
+					c = scanner.get_ch();
+					fLog.debug("post-trigger c=\"" + (char)c + "\"");
+					ret.fLeaf = readIdentifier(scanner, true);
+					
+					// Now, back up to ensure that we get the pre-trigger portion
+					scanner.setScanFwd(false);
+					c = scanner.get_ch();
+					fLog.debug("post-leaf c=\"" + (char)c + "\"");
+				} else {
+					ret.fLeaf = "";
+				}
 				ret.fRoot = readExpression(scanner);
-				ret.fLeaf = "";
 			}
 		}
 		
 		debug("<-- extractExprContext()");
 		
+		return ret;
+	}
+	
+	public List<SVDBItem> findItems(
+			ISVDBIndexIterator	index_it,
+			SVDBScopeItem		active_scope,
+			SVExprContext		expr_ctxt,
+			boolean				match_prefix) {
+		return findItems(index_it, active_scope, expr_ctxt, match_prefix, 0);
+		
+	}
+	
+	public List<SVDBItem> findItems(
+			ISVDBIndexIterator	index_it,
+			SVDBScopeItem		active_scope,
+			SVExprContext		expr_ctxt,
+			boolean				match_prefix,
+			int					max_matches) {
+		fLog.debug("--> findItems(active_scope=\"" + 
+				((active_scope != null)?active_scope.getName():null) + "\" " +
+				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
+				"\" leaf=\"" + expr_ctxt.fLeaf + "\" match_prefix=" + match_prefix + ")");
+		
+		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+
+		StringBuffer text = new StringBuffer();
+
+		if (expr_ctxt.fTrigger != null) {
+			if (expr_ctxt.fTrigger.equals("`")) {
+				if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
+					if (!match_prefix) {
+						SVDBFindIncludedFile finder = new SVDBFindIncludedFile(index_it);
+						SVDBItem it_t = finder.find(expr_ctxt.fLeaf);
+						
+						if (it_t != null && (max_matches == 0 || ret.size() < max_matches)) {
+							ret.add(it_t);
+						}
+					} else {
+						fLog.error("FIXME: match prefixes for include file \"" + expr_ctxt.fLeaf + "\"");
+					}
+				} else {
+					// most likely a macro call
+					if (!match_prefix) {
+						ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
+						while (it_i.hasNext()) {
+							SVDBItem it_t = it_i.nextItem();
+
+							if (it_t.getType() == SVDBItemType.Macro &&
+									it_t.getName().equals(expr_ctxt.fLeaf)) {
+								if (max_matches == 0 || (ret.size() < max_matches)) {
+									ret.add(it_t);
+								}
+								break;
+							}
+						}
+					} else {
+						fLog.error("FIXME: match prefixes for macro \"" + expr_ctxt.fLeaf + "\"");
+					}
+				}
+			} else {
+				fLog.debug("Expression is triggered expression");
+				List<SVDBItem> pre_trigger = processPreTriggerPortion(
+						index_it, active_scope, expr_ctxt.fRoot, !match_prefix);
+				
+				if (!match_prefix) {
+					if (pre_trigger != null && pre_trigger.size() != 0) {
+						SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
+						
+						fLog.debug("Using " + it_t.getType() + " " + 
+								it_t.getName() + " as search base");
+
+						if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
+							SVDBFindByNameInClassHierarchy finder_h = 
+								new SVDBFindByNameInClassHierarchy(index_it);
+							List<SVDBItem> fields = finder_h.find(
+									(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
+							
+							fLog.debug("Find Named Field returns " + fields.size() + " results");
+							for (SVDBItem it : fields) {
+								fLog.debug("    " + it.getType() + " " + it.getName());
+							}
+
+							if (fields.size() > 0) {
+								if (max_matches == 0 || (ret.size() < max_matches)) {
+									ret.addAll(fields);
+								}
+							}
+						} else {
+							fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
+						}
+					}
+				} else {
+					fLog.error("FIXME: implement match-prefix for triggered content assist");
+				}
+			}
+		} else {		
+			// No trigger info. Re-do this search by reading the identifier surrounding
+			// the cursor location
+
+			text.setLength(0);
+			text.append(expr_ctxt.fLeaf);
+
+			fLog.debug("Looking for un-triggered identifier \"" + 
+					text.toString() + "\"");
+			List<SVDBItem> result = null;
+			
+			if (!match_prefix) {
+				SVDBFindByNameInClassHierarchy finder_h =
+					new SVDBFindByNameInClassHierarchy(index_it);
+
+				result = finder_h.find(active_scope, text.toString());
+
+				if (result.size() > 0) {
+					if (max_matches == 0 || (ret.size() < max_matches)) {
+						ret.addAll(result);
+					}
+				}
+
+				// Try type names
+				SVDBFindNamedModIfcClassIfc finder_cls =
+					new SVDBFindNamedModIfcClassIfc(index_it);
+
+				SVDBItem it_t = finder_cls.find(text.toString());
+				
+				if (it_t != null) {
+					fLog.debug("Global type search for \"" + text.toString() + 
+							"\" returned " + it_t.getType() + " " + it_t.getName());
+					if (max_matches == 0 || ret.size() < max_matches) {
+						ret.add(it_t);
+					}
+				} else {
+					fLog.debug("Global class find for \"" + text.toString() + 
+							"\" returned no results");
+				}
+			
+				// Try global task/function
+				SVDBFindByName finder_tf = new SVDBFindByName(index_it);
+				
+				List<SVDBItem> it_l= finder_tf.find(text.toString(), 
+						SVDBItemType.Task, SVDBItemType.Function);
+				
+				if (it_l != null && it_l.size() > 0) {
+					fLog.debug("Global find-by-name \"" + text.toString() + 
+							"\" returned:");
+					for (SVDBItem it : it_l) {
+						fLog.debug("    " + it.getType() + " " + it.getName());
+					}
+					
+					if (max_matches == 0 || (ret.size() < max_matches)) {
+						ret.addAll(it_l);
+					}
+				} else {
+					fLog.debug("Global find-by-name \"" + text.toString() + 
+							"\" returned no results");
+				}
+			} else {
+				fLog.error("FIXME: Implement prefix-based matching for untriggered");
+			}
+		}
+
+		fLog.debug("<-- findItems(root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + 
+				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
+				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
 		return ret;
 	}
 	
@@ -194,6 +372,7 @@ public class SVExpressionUtils {
 	 */
 	private String readIdentifier(IBIDITextScanner scanner, boolean scan_fwd) {
 		int ch;
+		fLog.debug("--> readIdentifier(scan_fwd=" + scan_fwd + ")");
 		
 		long end_pos = (scanner.getScanFwd())?scanner.getPos():(scanner.getPos()+1);
 		long start_pos = -1, seek;
@@ -218,6 +397,7 @@ public class SVExpressionUtils {
 		
 		scanner.seek(seek);
 
+		fLog.debug("<-- readIdentifier(scan_fwd=" + scan_fwd + ")");
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
 	}
 	
@@ -270,7 +450,9 @@ public class SVExpressionUtils {
 	
 	private String readExpression(IBIDITextScanner scanner) {
 		int ch;
+		String trigger = null;
 		
+		fLog.debug("--> readExpression");
 		// Continue moving backwards
 		scanner.setScanFwd(false);
 		
@@ -280,17 +462,25 @@ public class SVExpressionUtils {
 		
 		do {
 			ch = scanner.skipWhite(scanner.get_ch());
+			fLog.debug("    trigger=\"" + trigger + "\" ch=\"" + (char)ch + "\"");
 			
 			if (ch == ')') {
-				scanner.startCapture(ch);
 				scanner.skipPastMatch(")(");
+			} else if (ch == ']') {
+				// Skip what's in an array reference
+				ch = scanner.skipPastMatch("][");
+				if (Character.isJavaIdentifierPart(ch)) {
+					scanner.readIdentifier(ch);
+				}
 			} else if (Character.isJavaIdentifierPart(ch)) {
 				scanner.readIdentifier(ch);
 			} else {
 				fLog.error("unknown ch \"" + (char)ch + "\"");
 			}
 			start_pos = (scanner.getPos()+1);
-		} while (readTriggerStr(scanner) != null);
+		} while ((trigger = readTriggerStr(scanner)) != null);
+		
+		fLog.debug("<-- readExpression");
 		
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
 	}
@@ -425,7 +615,6 @@ public class SVExpressionUtils {
 	 * @param context
 	 * @param preTrigger
 	 * @return
-	 */
 	public List<SVDBItem> processPreTriggerPortion_2(
 			ISVDBIndexIterator			index_it,
 			SVDBScopeItem				context,
@@ -454,6 +643,7 @@ public class SVExpressionUtils {
 
 		return item_list;
 	}
+	 */
 
 	/**
 	 * 
@@ -488,7 +678,7 @@ public class SVExpressionUtils {
 			boolean						resolveFinalReturnType) {
 		String id = null;
 		
-		debug("processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator);
+		debug("--> processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
 		// Need to make some changes to track the preceeding character, not the
 		// next. For example, if the preceeding character was '.', then we should
 		// look for id() within typeof(ret.item)
@@ -685,9 +875,40 @@ public class SVExpressionUtils {
 							
 							matches = finder.find(context, id, true);
 							
-							debug("matches.size=" + matches.size());
+							fLog.debug("FindVarsByNameInScope \"" + context.getName() + 
+									"\" returns " + matches.size() + " matches");
+							
+							if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.Typedef) {
+								SVDBFindNamedModIfcClassIfc finder_c = 
+									new SVDBFindNamedModIfcClassIfc(index_it);
+								SVDBTypedef td = (SVDBTypedef)matches.get(0);
+								
+								System.out.println("Lookup typename \"" + td.getTypeName() + "\"");
+								
+								SVDBModIfcClassDecl cls = finder_c.find(td.getName());
+								
+								if (cls != null) {
+									matches.set(0, cls);
+								}
+							}
 
-							if (matches == null || matches.size() == 0) {
+							// If this is the first element and we didn't find a field,
+							// then this might be a static reference. Look for a type...
+							if (preceeding_activator == null &&
+									(matches == null || matches.size() == 0)) {
+								SVDBFindNamedModIfcClassIfc finder_c = 
+									new SVDBFindNamedModIfcClassIfc(index_it);
+								
+								SVDBModIfcClassDecl cls = finder_c.find(id);
+								
+								if (cls != null) {
+									fLog.debug("Found \"" + id + "\" as a type");
+									matches = new ArrayList<SVDBItem>();
+									matches.add(cls);
+								} else {
+									fLog.debug("Did not find \"" + id + "\" as a type");
+								}
+								/*
 								SVDBModIfcClassDecl class_type = 
 									SVDBSearchUtils.findClassScope(context);
 
@@ -696,6 +917,7 @@ public class SVExpressionUtils {
 										new SVDBFindByNameInClassHierarchy(index_it);
 									matches = finder_c.find((SVDBScopeItem)class_type, id);
 								}
+								 */
 							}
 						}
 					} else {
@@ -728,6 +950,13 @@ public class SVExpressionUtils {
 						SVDBFindNamedModIfcClassIfc finder = 
 							new SVDBFindNamedModIfcClassIfc(index_it);
 						type = finder.find(((SVDBVarDeclItem)field).getTypeName());
+					} else if (field instanceof SVDBTypedef) {
+						SVDBTypedef td = (SVDBTypedef)field;
+						SVDBFindNamedModIfcClassIfc finder = 
+							new SVDBFindNamedModIfcClassIfc(index_it);
+						debug("field is a typedef type=\"" + td.getName() + "\" typeName=\"" + td.getTypeName() + "\"");
+						
+						type = finder.find(td.getTypeName());
 					} else {
 						fLog.error("Unknown scope type for \"" +
 								field.getName() + "\" " + field.getClass().getName());
@@ -752,6 +981,10 @@ public class SVExpressionUtils {
 			}
 		}
 
+		debug("<-- processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
+		for (SVDBItem it : item_list) {
+			fLog.debug("    " + it.getType() + " " + it.getName());
+		}
 		return idx;
 	}
 	
@@ -800,7 +1033,6 @@ public class SVExpressionUtils {
 	 * @param context
 	 * @param preTrigger
 	 * @return
-	 */
 	public int processPreTriggerPortion(
 			int							idx,
 			String						preceeding_activator,
@@ -808,7 +1040,7 @@ public class SVExpressionUtils {
 			String						preTrigger) {
 		String id = null;
 		
-		debug("processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator);
+		debug("--> processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
 		// Need to make some changes to track the preceeding character, not the
 		// next. For example, if the preceeding character was '.', then we should
 		// look for id() within typeof(ret.item)
@@ -885,8 +1117,14 @@ public class SVExpressionUtils {
 			}
 		}
 
+		debug("<-- processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
+		for (SVExprItemInfo it : item_list) {
+			debug("    item " + it.getName());
+		}
+		
 		return idx;
 	}
+	 */
 
 	private void debug(String msg) {
 		if (fDebugEn) {

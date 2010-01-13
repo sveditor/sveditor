@@ -39,6 +39,10 @@ public class SVDBMacroDef extends SVDBItem {
 		return fDef;
 	}
 	
+	public void setDef(String def) {
+		fDef = def;
+	}
+	
 	public List<String> getParameters() {
 		return fParams;
 	}

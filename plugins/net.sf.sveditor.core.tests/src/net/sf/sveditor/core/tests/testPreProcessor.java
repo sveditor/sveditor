@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -35,7 +36,8 @@ public class testPreProcessor implements IApplication {
 		
 		// ovm.getFileTree();
 		
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
 		Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
 		
@@ -53,7 +55,7 @@ public class testPreProcessor implements IApplication {
 		System.out.println("<-- getFileTree");
 		 */
 		
-		dp.setFileContext(scen_gen_ctxt);
+		mp.setFileContext(scen_gen_ctxt);
 		
 		SVPreProcScanner sc = new SVPreProcScanner();
 		sc.setExpandMacros(true);

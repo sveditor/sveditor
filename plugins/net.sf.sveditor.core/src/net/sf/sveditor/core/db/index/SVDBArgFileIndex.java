@@ -13,7 +13,7 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
@@ -111,11 +111,12 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		fFileListValid = true;
 		
 		for (String file : fFilePaths) {
-			file = resolvePath(file);
-			SVDBFile pp_file = processPreProcFile(file);
+			String r_file = resolvePath(file);
+			fLog.debug("Resolved path for \"" + file + "\" is \"" + r_file + "\"");
+			SVDBFile pp_file = processPreProcFile(r_file);
 			
 			if (pp_file == null) {
-				fLog.error("Failed to find file \"" + file + "\"");
+				fLog.error("Failed to find file \"" + r_file + "\"");
 				return;
 			}
 			
@@ -158,7 +159,6 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	
 	@Override
 	protected void buildIndex() {
-		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider();
 		getPreProcFileMap(); // force pre-proc info to be built
 
 		for (String file : fFilePaths) {
@@ -171,8 +171,9 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			}
 			
 			SVDBFileTree ft_root = fFileTreeMap.get(file);
+			SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(ft_root);
 			
-			processFile(ft_root, dp);
+			processFile(ft_root, mp);
 		}
 		
 		fFileIndexValid = true;
@@ -202,14 +203,19 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	}
 
 	protected String resolvePath(String path) {
+		
 		// relative to the base location
 		if (path.startsWith("..")) {
 			path = getResolvedBaseLocationDir() + "/" + path;
-		} else if (path.startsWith(".")) {
+		} else if (path.startsWith(".") || Character.isJavaIdentifierStart(path.charAt(0))) {
 			if (path.equals(".")) {
 				path = getResolvedBaseLocationDir();
-			} else { 
+			} else if (path.startsWith(".")) { 
 				path = getResolvedBaseLocationDir() + "/" + path.substring(2);
+			} else {
+				// This path is an implicit relative path that is 
+				// relative to the base directory
+				path = getResolvedBaseLocationDir() + "/" + path;
 			}
 		}
 		
@@ -250,6 +256,10 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 					skipCnt--;
 				}
 			}
+		}
+		
+		if (skipCnt > 0) {
+			throw new RuntimeException("exceeded skipCnt");
 		}
 		
 		return ret.reverse().toString();

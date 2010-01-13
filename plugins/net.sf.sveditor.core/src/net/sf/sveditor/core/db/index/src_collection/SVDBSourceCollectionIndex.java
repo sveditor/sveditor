@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.index.src_collection;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,8 +11,11 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
@@ -21,6 +25,7 @@ import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -67,8 +72,6 @@ public class SVDBSourceCollectionIndex
 
 		fFileTreeUtils    = new SVDBFileTreeUtils();
 		fLog = LogFactory.getDefault().getLogHandle("SVDBSourceCollectionIndex");
-		
-		fDefineProvider.setFileContext(new SVDBFileTree("Dummy"));
 	}
 	
 	public String getTypeID() {
@@ -80,7 +83,7 @@ public class SVDBSourceCollectionIndex
 		List<String> files = fFileMatcher.findIncludedPaths();
 		
 		if (files.size() != fFileList.size()) {
-			System.out.println("    Index not up-to-date: files.size=" + 
+			fLog.debug("    Index not up-to-date: files.size=" + 
 					files.size() + " fFileList.size=" + fFileList.size());
 			return false;
 		}
@@ -91,10 +94,10 @@ public class SVDBSourceCollectionIndex
 			if (pp_file == null ||
 					(pp_file.getLastModified() != fFileSystemProvider.getLastModifiedTime(file))) {
 				if (pp_file == null) {
-					System.out.println("    Index not up-to-date: file \"" +
+					fLog.debug("    Index not up-to-date: file \"" +
 							file + "\" not in index");
 				} else {
-					System.out.println("    Index not up-to-date: file \"" +
+					fLog.debug("    Index not up-to-date: file \"" +
 							file + "\" cached timestamp " + pp_file.getLastModified() + 
 							" filesystem timestamp " + fFileSystemProvider.getLastModifiedTime(file));
 				}
@@ -159,7 +162,7 @@ public class SVDBSourceCollectionIndex
 			sc.setObserver(s_observer);
 
 			// 	Discover files
-			System.out.println("Building SourceCollection index " + fBaseLocation);
+			fLog.debug("Building SourceCollection index " + fBaseLocation);
 			if (fFileMatcher == null) {
 				try {
 					throw new Exception();
@@ -168,7 +171,7 @@ public class SVDBSourceCollectionIndex
 				}
 			}
 			for (String path : fFileMatcher.findIncludedPaths()) {
-				System.out.println("    path=" + path);
+				fLog.debug("    path=" + path);
 				if (fFileList.containsKey(path)) {
 					fFileList.remove(path);
 				}
@@ -211,7 +214,7 @@ public class SVDBSourceCollectionIndex
 	}
 	
 	protected synchronized void buildIndex() {
-		System.out.println("SourceCollectionIndex: updateFileIndex \"" + fBaseLocation + "\"");
+		fLog.debug("SourceCollectionIndex: updateFileIndex \"" + fBaseLocation + "\"");
 		
 		try {
 			Map<String, SVDBFile> pp_file_map = getPreProcFileMap();
@@ -220,7 +223,7 @@ public class SVDBSourceCollectionIndex
 
 			while (it.hasNext()) {
 				String file = it.next();
-				System.out.println("    file=" + file);
+				fLog.debug("    file=" + file);
 				
 				if (!fFileIndex.containsKey(file)) {
 					SVDBFileTree ft = fFileTreeUtils.createFileContext(
@@ -249,8 +252,8 @@ public class SVDBSourceCollectionIndex
 	private SVDBFile parseFile(InputStream in, String path, SVDBFileTree file_tree) {
 		SVDBFile svdb_file = null;
 		
-		fDefineProvider.setFileContext(new SVDBFileTree(path));
-		svdb_file = SVDBFileFactory.createFile(in, path, fDefineProvider);
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(fMacroProvider);
+		svdb_file = SVDBFileFactory.createFile(in, path, dp);
 		
 		svdb_file.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
@@ -265,7 +268,7 @@ public class SVDBSourceCollectionIndex
 
 	public void rebuildIndex() {
 		// TODO: force index and map to be invalid
-		System.out.println("[TODO] SVDBIndexBase.rebuildIndex");
+		fLog.debug("[TODO] SVDBIndexBase.rebuildIndex");
 	}
 	
 	public void addChangeListener(ISVDBIndexChangeListener l) {
@@ -368,16 +371,51 @@ public class SVDBSourceCollectionIndex
 			}
 		}
 	}
-	
-	private SVPreProcDefineProvider	fDefineProvider = new SVPreProcDefineProvider() {
 
-		@Override
-		protected SVDBMacroDef searchContext(SVDBFileTree context, String key) {
-			System.out.println("searchContext: \"" + key + "\"");
+	private IPreProcMacroProvider fMacroProvider = new IPreProcMacroProvider() {
+		Map<String, SVDBMacroDef> fMacroCache = new HashMap<String, SVDBMacroDef>();
+		
+		public void setMacro(String key, String value) {
+			if (fMacroCache.containsKey(key)) {
+				fMacroCache.get(key).setDef(value);
+			} else {
+				SVDBMacroDef def = new SVDBMacroDef(key, new ArrayList<String>(), value);
+				fMacroCache.put(key, def);
+			}
+		}
+		
+		public SVDBMacroDef findMacro(String name, int lineno) {
+			if (fMacroCache.containsKey(name)) {
+				return fMacroCache.get(name);
+			} else {
+				SVDBMacroDef m = null;
+				for (SVDBFile pp : getPreProcFileMap().values()) {
+					if ((m = find_macro(name, pp)) != null) {
+						break;
+					}
+				}
+				return m;
+			}
+		}
+		
+		private SVDBMacroDef find_macro(String key, SVDBScopeItem scope) {
+			for (SVDBItem it : scope.getItems()) {
+				if (it.getType() == SVDBItemType.Macro && it.getName().equals(key)) {
+					return (SVDBMacroDef)it;
+				} else if (it instanceof SVDBScopeItem) {
+					return find_macro(key, (SVDBScopeItem)it);
+				}
+			}
 			
 			return null;
 		}
-
+		
+		public void addMacro(SVDBMacroDef macro) {
+			if (fMacroCache.containsKey(macro.getName())) {
+				fMacroCache.remove(macro.getName());
+			}
+			fMacroCache.put(macro.getName(), macro);
+		}
 	};
 	
 }

@@ -110,15 +110,22 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
 		
+		
 		// Now, iterate through the items in the file and find something
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
 		
 		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, getTextSel().getStartLine());
-		
-		StringBuffer text = new StringBuffer();
 
+		List<SVDBItem> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
+		
+		if (items.size() > 0) {
+			it = items.get(0);
+		}
+
+		/*
+		StringBuffer text = new StringBuffer();
 
 		if (expr_ctxt.fTrigger != null) {
 			if (expr_ctxt.fTrigger.equals("`")) {
@@ -208,6 +215,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 				}
 			}
 		}
+		 */
 		
 		if (it != null) {
 			IEditorPart ed_f = openEditor(it, fEditor.getIndexIterator());

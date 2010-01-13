@@ -1,5 +1,10 @@
 package net.sf.sveditor.ui.editor;
 
+import java.util.List;
+
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -13,8 +18,10 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 
 public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ {
+	private SVEditor					fEditor;
 	
 	public SVEditorTextHover(SVEditor editor, ITextViewer viewer) {
+		fEditor = editor;
 		
 	}
 
@@ -25,25 +32,29 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 		
 		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
 		
-		String str = null;
-		/*
-		System.out.println("getHoverInfo: " + hoverRegion.getOffset() + ", " + hoverRegion.getLength());
+		System.out.println("root=" + expr_ctxt.fRoot + " trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
+		
+		int lineno = -1;
 		try {
-			str = textViewer.getDocument().get(
-					hoverRegion.getOffset(), hoverRegion.getLength());
-			System.out.println("    " + str);
-		} catch (Exception e) {
-			e.printStackTrace();
+			lineno = textViewer.getDocument().getLineOfOffset(hoverRegion.getOffset()); 
+		} catch (BadLocationException e) { }
+		
+		SVDBScopeItem src_scope = null;
+		
+		if (lineno != -1) {
+			src_scope = SVDBSearchUtils.findActiveScope(fEditor.getSVDBFile(), lineno);
 		}
 		
-		// TODO Auto-generated method stub
-		 */
-		
-		if (expr_ctxt.fTrigger != null) {
-			str = expr_ctxt.fRoot + expr_ctxt.fTrigger + expr_ctxt.fLeaf;
-		} else {
-			str = expr_ctxt.fLeaf;
+		String str = null;
+		if (src_scope != null) {
+			List<SVDBItem> info = expr_utils.processPreTriggerPortion(
+					fEditor.getIndexIterator(), src_scope, expr_ctxt.fRoot, true);
+			if (info != null && info.size() > 0) {
+				SVDBItem it = info.get(0);
+				str = it.getType() + " : " + it.getName();
+			}
 		}
+		
 		return str;
 	}
 

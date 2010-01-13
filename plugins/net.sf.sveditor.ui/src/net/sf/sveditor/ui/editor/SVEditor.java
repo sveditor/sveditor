@@ -156,7 +156,7 @@ public class SVEditor extends TextEditor
 					SVDBSourceCollectionIndexFactory.TYPE, null);
 			fIndexMgr.addShadowIndex(fSVDBIndex.getBaseLocation(), fSVDBIndex);
 		} else {
-			fLog.debug("File is in index \"" + 
+			fLog.debug("File \"" + fSVDBFilePath + "\" is in index \"" + 
 					result.get(0).getIndex().getBaseLocation() + 
 					"\" (" + result.size() + " results)");
 			fSVDBIndex = result.get(0).getIndex();
@@ -210,7 +210,7 @@ public class SVEditor extends TextEditor
 				} else {
 					fLog.debug("Did not find the target plugin library");
 				}
-			} else {
+			} else { // regular workspace or filesystem path
 				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 				if (ed_in instanceof FileEditorInput) {
 					FileEditorInput fi = (FileEditorInput)ed_in;
@@ -226,16 +226,38 @@ public class SVEditor extends TextEditor
 					projectSettingsChanged(fProjectData);
 				} else {
 					// Create an index manager for this directory
-					System.out.println("Editor Input: " + ed_in.getClass().getName());
 					fSVDBFilePath = uri_in.getURI().getPath();
+					fLog.debug("File \"" + fSVDBFilePath + "\" is outside the workspace");
 					File fs_path = new File(fSVDBFilePath);
-
-					fIndexMgr = new SVDBIndexCollectionMgr(fs_path.getParent());
-					fSVDBIndex = rgy.findCreateIndex(
-							fs_path.getParent(), fs_path.getParent(),
-							SVDBSourceCollectionIndexFactory.TYPE, null);
 					
-					fIndexMgr.addSourceCollection(fSVDBIndex);
+					fIndexMgr = null;
+					
+					for (SVDBProjectData pd : mgr.getProjectList()) {
+						SVDBIndexCollectionMgr index_mgr = pd.getProjectIndexMgr();
+						List<SVDBSearchResult<SVDBFile>> result;
+					
+						result = index_mgr.findPreProcFile(fSVDBFilePath);
+						
+						fLog.debug("Searching for \"" + fSVDBFilePath + "\" in project " +
+								pd.getName() + ": " + result.size() + " results");
+						
+						if (result.size() != 0) {
+							fIndexMgr = index_mgr;
+							fSVDBIndex = result.get(0).getIndex();
+							fLog.debug("File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
+							break;
+						}
+					}
+
+					if (fIndexMgr == null) {
+						fLog.debug("Creating temporary source collection manager");
+						fIndexMgr = new SVDBIndexCollectionMgr(fs_path.getParent());
+						fSVDBIndex = rgy.findCreateIndex(
+								fs_path.getParent(), fs_path.getParent(),
+								SVDBSourceCollectionIndexFactory.TYPE, null);
+						fIndexMgr.addSourceCollection(fSVDBIndex);
+					}
+					
 					
 					// TODO: add default plugin and global libraries
 				}
@@ -271,6 +293,7 @@ public class SVEditor extends TextEditor
 		setKeyBindingScopes(new String[] {SVUiPlugin.PLUGIN_ID + ".svEditorContext"});
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void createActions() {
 		// TODO Auto-generated method stub

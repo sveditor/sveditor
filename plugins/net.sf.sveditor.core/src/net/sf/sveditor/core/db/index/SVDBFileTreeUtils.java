@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 public class SVDBFileTreeUtils {
@@ -131,8 +132,9 @@ public class SVDBFileTreeUtils {
 	}
 	
 	public void resolveConditionals(SVDBFileTree file) {
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
-		dp.setFileContext(file);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
+		mp.setFileContext(file);
 		
 		processScope(file.getSVDBFile(), dp, file, null);
 	}

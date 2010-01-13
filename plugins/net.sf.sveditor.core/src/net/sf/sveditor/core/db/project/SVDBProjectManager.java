@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -43,6 +44,22 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		for (ISVDBProjectSettingsListener l : fListeners) {
 			l.projectSettingsChanged(data);
 		}
+	}
+	
+	public List<SVDBProjectData> getProjectList() {
+		List<SVDBProjectData> ret = new ArrayList<SVDBProjectData>();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		for (IProject p : root.getProjects()) {
+			if (p.isOpen() && p.getFile(".svproject").exists()) {
+				SVDBProjectData pd = getProjectData(p);
+				if (pd != null) {
+					ret.add(pd);
+				}
+			}
+		}
+		
+		return ret;
 	}
 	
 	public SVDBProjectData getProjectData(IProject proj) {

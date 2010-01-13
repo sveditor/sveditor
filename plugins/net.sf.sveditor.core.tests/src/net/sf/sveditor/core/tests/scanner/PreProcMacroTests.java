@@ -6,6 +6,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -55,8 +56,9 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
 		ft_utils.resolveConditionals(ft_root);
 		
-		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider();
-		dp.setFileContext(ft_root);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
+		mp.setFileContext(ft_root);
 		
 		String result = dp.expandMacro("`analysis_closure_imp(foo, bar, write_func)", "text", 1);
 		

@@ -21,7 +21,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
-	private SVDBModIfcClassDecl				fStruct;
 
 	public SVDBFileFactory() {
 		fScanner = new SVScanner();

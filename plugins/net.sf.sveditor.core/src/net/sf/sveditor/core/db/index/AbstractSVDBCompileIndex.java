@@ -18,6 +18,7 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -93,7 +94,8 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 	protected void buildIndex(String path) {
 		fLog.debug("--> buildIndex()");
 		long start = System.currentTimeMillis();
-		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		
 		dp.addDefines(fDefineMap);
 		
@@ -115,7 +117,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 		
 		prepareFileTree(ft_root, null);
-		processFile(ft_root, dp);
+		processFile(ft_root, dp, mp);
 		
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
@@ -149,9 +151,10 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 	}
 	
 	protected void processFile(
-			SVDBFileTree				path,
-			SVPreProcDefineProvider		dp) {
-		dp.setFileContext(path);
+			SVDBFileTree					path,
+			SVPreProcDefineProvider			dp,
+			FileContextSearchMacroProvider	mp) {
+		mp.setFileContext(path);
 		
 		SVDBFileFactory scanner = new SVDBFileFactory(dp);
 		
@@ -169,7 +172,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 		// Now, recurse through the files included
 		for (SVDBFileTree ft_t : path.getIncludedFiles()) {
 			if (!fFileIndex.containsKey(ft_t.getFilePath())) {
-				processFile(ft_t, dp);
+				processFile(ft_t, dp, mp);
 			}
 		}
 
@@ -302,7 +305,8 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 	public void removeChangeListener(ISVDBIndexChangeListener l) {}
 
 	public SVDBFile parse(InputStream in, String path) {
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		SVDBFileFactory scanner = new SVDBFileFactory(dp);
 		
 		dp.addDefines(fDefineMap);
@@ -323,7 +327,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 		}
 		
 		if (file_tree != null) {
-			dp.setFileContext(file_tree);
+			mp.setFileContext(file_tree);
 			SVDBFile svdb_f = scanner.parse(in, file_tree.getFilePath());
 			svdb_f.setLastModified(getLastModifiedTime(path));
 			return svdb_f;

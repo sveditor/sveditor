@@ -4,6 +4,7 @@ public class LogHandle implements ILogHandle {
 	private String			fName;
 	private ILogListener	fListener;
 	private int				fDebugLevel = 10;
+	private int				fIndent;
 	
 	public LogHandle(String name) {
 		fName = name;
@@ -25,9 +26,22 @@ public class LogHandle implements ILogHandle {
 	}
 	
 	public void debug(String msg) {
-		println(ILogListener.Type_Debug, fDebugLevel, msg);
+		println(ILogListener.Type_Debug, fDebugLevel, 
+				(fIndent > 0)?(indent(fIndent) + msg):msg);
 	}
-	
+
+	public void enter(String msg) {
+		debug(msg);
+		fIndent++;
+	}
+
+	public void leave(String msg) {
+		if (fIndent > 0) {
+			fIndent--;
+		}
+		debug(msg);
+	}
+
 	public void error(String msg) {
 		println(ILogListener.Type_Error, fDebugLevel, msg);
 	}
@@ -40,6 +54,15 @@ public class LogHandle implements ILogHandle {
 					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
 					s_e.getFileName() + ":" + s_e.getLineNumber() + ")");
 		}
+	}
+	
+	private String indent(int ind) {
+		String ret = "";
+		while (ind-- > 0) {
+			ret += "    ";
+		}
+		
+		return ret;
 	}
 
 }

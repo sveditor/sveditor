@@ -1,7 +1,6 @@
 package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -9,58 +8,43 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
-	private SVDBFileTree				fContext;
-	private boolean						fDebugEnS = false;
 	private boolean						fDebugEn  = false;
 	private boolean						fDebugUndefinedMacros = true;
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
-	private Map<String, SVDBMacroDef>	fMacroCache;
 	private LogHandle					fLog;
-	
-	
-	public SVPreProcDefineProvider() {
+	private IPreProcMacroProvider		fMacroProvider;
+
+
+	public SVPreProcDefineProvider(IPreProcMacroProvider macro_provider) {
 		fExpandStack = new Stack<String>();
-		fMacroCache  = new HashMap<String, SVDBMacroDef>();
 		fLog = LogFactory.getDefault().getLogHandle("PreProcDefineProvider");
+
+		fMacroProvider = macro_provider;
 	}
 	
-	public void setFileContext(SVDBFileTree context) {
-		fContext = context;
+	public void setMacroProvider(IPreProcMacroProvider provider) {
+		fMacroProvider = provider;
+	}
+	
+	public IPreProcMacroProvider getMacroProvider() {
+		return fMacroProvider;
 	}
 	
 	public void addDefines(Map<String, String> defs) {
 		for (String key : defs.keySet()) {
-			SVDBMacroDef def = new SVDBMacroDef(key, new ArrayList<String>(), defs.get(key));
-			
-			if (fMacroCache.containsKey(key)) {
-				fMacroCache.remove(key);
-			}
-			
-			fMacroCache.put(key, def);
+			fMacroProvider.setMacro(key, defs.get(key));
 		}
 	}
 	
 	public boolean isDefined(String name, int lineno) {
-		if (fContext == null) {
-			System.out.println("[WARN] File context not set");
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return false;
-		}
-		
-		SVDBMacroDef m = searchContext(fContext, name);
+		SVDBMacroDef m = fMacroProvider.findMacro(name, lineno);
 		
 		return (m != null && m.getLocation().getLine() <= lineno);
 	}
@@ -72,15 +56,22 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		StringTextScanner scanner = new StringTextScanner(
 				new StringBuilder(str));
 		
-		if (fContext == null) {
-			System.out.println("[WARN] File context not set");
-		}
-		
 		fFilename = filename;
 		fLineno   = lineno;
-		fExpandStack.clear();
+		
 
 		debug("--> expandMacro(str): " + str);
+		
+		if (fMacroProvider == null) {
+			fLog.error("No macro provider specified");
+			debug("<-- expandMacro(str): " + str);
+			debug("    Result: \"\"");
+			return "";
+		}
+
+		fMacroProvider.setMacro("__FILE__", fFilename);
+		fMacroProvider.setMacro("__LINE__", "" + fLineno);
+		fExpandStack.clear();
 
 		expandMacro(scanner);
 		
@@ -88,6 +79,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			debug("<-- expandMacro(str): " + str);
 			debug("    Result: " + scanner.getStorage().toString());
 		}
+		
 		return scanner.getStorage().toString();
 	}
 
@@ -121,7 +113,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		if (key == null) {
 			ch = scanner.get_ch();
-			System.out.println("Failed to read macro name starting with " +	(char)ch);
+			fLog.error("Failed to read macro name starting with " + (char)ch);
 			scanner.unget_ch(ch);
 		}
 		
@@ -129,29 +121,28 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		ch = scanner.skipWhite(scanner.get_ch());
 		
-		SVDBMacroDef m = null;
-		
-		if (fContext != null) {
-			m = searchContext(fContext, key);
-		}
+		SVDBMacroDef m = fMacroProvider.findMacro(key, fLineno);
 		
 		if (m == null) {
 			if (fDebugUndefinedMacros) {
-				System.out.println("[ERROR] macro \"" + key + "\" undefined @ " +
+				fLog.error("macro \"" + key + "\" undefined @ " +
 						fFilename + ":" + fLineno);
 			}
 			
+			/*
 			if (fDebugUndefinedMacros) {
-				/*
+				fLog.debug("macro \"" + key + "\" undefined @ " +
+						fFilename + ":" + fLineno);
 				walkStack();
 				boolean tmp = fDebugEnS;
 				fDebugEnS = true;
+				fIndent = 0;
 				if (fContext != null) {
 					searchContext(fContext, key);
 				}
 				fDebugEnS = tmp;
-				 */
 			}
+			 */
 
 			if (ch == '(') {
 				ch = scanner.skipPastMatch("()");
@@ -476,7 +467,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						System.out.println("Failed to read macro name starting with " +	(char)ch);
 					}
 
-					SVDBMacroDef sub_m = searchContext(fContext, key);
+					SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
 					List<String> sub_p = null;
 					ch = scanner.get_ch();
 					
@@ -518,7 +509,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					if (sub_m != null) {
 						expandMacro(scanner_s, sub_m, sub_p);
 					} else {
-						System.out.println("[ERROR] Macro \"" + key + 
+						fLog.debug("Macro \"" + key + 
 								"\" undefined @ " + fFilename + ":" + fLineno);
 						scanner.delete(m_start, m_end-1);
 						walkStack();
@@ -534,11 +525,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	}
 
 	public boolean hasParameters(String key) {
-		if (fContext == null) {
-			return false;
-		}
 		
-		SVDBMacroDef m = searchContext(fContext, key);
+		SVDBMacroDef m = fMacroProvider.findMacro(key, -1);
 		
 		if (m != null) {
 			return (m.getParameters().size() != 0);
@@ -547,145 +535,15 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 
-	/**
-	 * Search the given context for the named macro
-	 * 
-	 * Strategy is:
-	 * - Search the current context for the named macro
-	 * - Search the files included in the current context
-	 * - Search up the include tree  
-	 * @param context
-	 * @param key
-	 * @return
-	 */
-	protected SVDBMacroDef searchContext(
-			SVDBFileTree 	context, 
-			String 			key) {
-		SVDBMacroDef ret;
-		debug_s("--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
-		
-		
-		if ((ret = fMacroCache.get(key)) == null) {
-			if ((ret = searchDown(context, key)) == null) {
-				for (SVDBFileTree ib : context.getIncludedByFiles()) {
-					ret = searchUp(ib, context, key);
-				}
-			}
-			
-			if (ret != null) {
-				if (fMacroCache.containsKey(key)) {
-					fMacroCache.remove(key);
-				}
-				fMacroCache.put(key, ret);
-			}
-		}
-
-		debug_s("<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
-		return ret;
-	}
-	
-	/**
-	 * Search the specified scope and any sub-scopes
-	 * 
-	 * @param file
-	 * @param context
-	 * @param key
-	 * @return
-	 */
-	private SVDBMacroDef searchLocal(SVDBFileTree file, SVDBScopeItem context, String key) {
-		SVDBMacroDef m = null;
-		debug_s("--> searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
-
-		for (SVDBItem it : context.getItems()) {
-			debug_s("    it=" + it.getName());
-			if (it instanceof SVDBMacroDef && it.getName().equals(key)) {
-				m = (SVDBMacroDef)it;
-			} else if (it instanceof SVDBScopeItem) {
-				m = searchLocal(file, (SVDBScopeItem)it, key);
-			}
-			
-			if (m != null) {
-				break;
-			}
-		}
-		
-		debug_s("<-- searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
-		return m;
-	}
-	
-	private SVDBMacroDef searchDown(SVDBFileTree context, String key) {
-		SVDBMacroDef m = null;
-		
-		debug_s("--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
-		
-		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			for (SVDBFileTree inc : context.getIncludedFiles()) {
-				debug_s("    searching included file \"" + inc.getFilePath() + "\"");
-				if (inc.getSVDBFile() == null) {
-					System.out.println("[TODO] do lookup of inc file \"" + 
-							inc.getFilePath() + "\"");
-				} else {
-					if ((m = searchDown(inc, key)) != null) {
-						break;
-					}
-				}
-			}
-		}
-		
-		debug_s("<-- searchDown(" + context.getFilePath() + ", \"" + key + "\")");
-		return m;
-	}
-	
-	/**
-	 * Search up the file tree. 
-	 * 
-	 * @param context - The context to search
-	 * @param child   - The file that is included by context
-	 * @param key     - 
-	 * @return
-	 */
-	private SVDBMacroDef searchUp(
-			SVDBFileTree 	context,
-			SVDBFileTree	child,
-			String 			key) {
-		SVDBMacroDef m = null;
-		
-		debug_s("--> searchUp(" + context.getFilePath() + ", " + key + ")");
-		
-		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			for (SVDBFileTree is : context.getIncludedFiles()) {
-				
-				if (!is.getFilePath().equals(child.getFilePath())) {
-					debug_s("    included file: " + is.getFilePath());
-				
-					if ((m = searchDown(is, key)) == null) {
-						for (SVDBFileTree ib : context.getIncludedByFiles()) {
-							if ((m = searchUp(ib, context, key)) != null) {
-								break;
-							}
-						}
-					}
-				}
-				
-				if (m != null) {
-					break;
-				}
-			}
-		}
-
-		debug_s("<-- searchUp(" + context.getFilePath() + ", " + key + ")");
-		return m;
-	}
-
 	private void walkStack() {
 		String key;
 		Stack<String> tmp = new Stack<String>();
 		tmp.addAll(fExpandStack);
 		
-		System.out.println("walkStack");
+		fLog.debug("walkStack");
 		while (tmp.size() > 0) {
 			key = tmp.pop();
-			System.out.println("    " + key);
+			fLog.debug("    " + key);
 		}
 	}
 	
@@ -695,10 +553,5 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 	
-	private void debug_s(String str) {
-		if (fDebugEnS) {
-			fLog.debug(str);
-		}
-	}
 
 }

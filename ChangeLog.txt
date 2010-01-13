@@ -1,4 +1,29 @@
 
+-- 0.0.9 Release --
+
+- Corrected a bug with implicit-relative paths in an argument file. 
+Previously, ./<path> and ../<path> were recognized as relative paths. 
+Now <path> is also recognized as a relative path.
+
+- Corrected a bug in processing virtual interface fields. The scanner was 
+incorrectly identifying these fields as a change of scope. Interface is a 
+first-level keyword, but virtual interface is a valid field.
+
+- Corrected problem in parsing indexed expressions when extracting
+root/trigger/leaf from an expression.
+
+- Enhanced expression parsing (translation from text to SVDBItems) to account
+for static references based as a class type: <class>::<field>::...
+
+- Enhanced the lookup procedure performed by the editor on startup to 
+determine which index manages a given source file. Extended to recognize
+files from the filesystem that are managed by an index attached to a 
+project in the workspace.
+
+
+
+------------------------------------------------------------------------------
+
 -- 0.0.8 Release --
 
 The 0.0.8 release contains major changes to SVEditor. 
