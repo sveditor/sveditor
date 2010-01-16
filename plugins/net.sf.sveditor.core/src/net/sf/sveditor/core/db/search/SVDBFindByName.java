@@ -15,7 +15,7 @@ public class SVDBFindByName {
 		fIndexIterator = index_it;
 	}
 	
-	public List<SVDBItem> find(String name, SVDBItemType ... types) {
+	public List<SVDBItem> find(String name, boolean match_prefix, SVDBItemType ... types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
 		ISVDBItemIterator<SVDBItem> item_it = fIndexIterator.getItemIterator();
@@ -32,8 +32,17 @@ public class SVDBFindByName {
 				}
 			}
 			
-			if (type_match && it.getName() != null && it.getName().equals(name)) {
-				ret.add(it);
+			
+			if (type_match) {
+				if (match_prefix) {
+					if (name.equals("") || it.getName().startsWith(name)) {
+						ret.add(it);
+					}
+				} else {
+					if (it.getName() != null && it.getName().equals(name)) {
+						ret.add(it);
+					}
+				}
 			}
 		}
 		

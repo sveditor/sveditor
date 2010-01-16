@@ -27,7 +27,7 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
 		SVDocumentTextScanner scanner = 
-			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset());
+			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset()+1);
 		SVExpressionUtils expr_utils = new SVExpressionUtils();
 		
 		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
@@ -47,8 +47,13 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 		
 		String str = null;
 		if (src_scope != null) {
+			/*
 			List<SVDBItem> info = expr_utils.processPreTriggerPortion(
 					fEditor.getIndexIterator(), src_scope, expr_ctxt.fRoot, true);
+			 */
+			List<SVDBItem> info = expr_utils.findItems(
+					fEditor.getIndexIterator(), src_scope, expr_ctxt, false);
+			
 			if (info != null && info.size() > 0) {
 				SVDBItem it = info.get(0);
 				str = it.getType() + " : " + it.getName();

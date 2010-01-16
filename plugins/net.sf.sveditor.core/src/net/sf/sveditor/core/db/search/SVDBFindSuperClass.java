@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.db.search;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
@@ -16,7 +18,9 @@ public class SVDBFindSuperClass {
 			SVDBFindNamedModIfcClassIfc finder = 
 				new SVDBFindNamedModIfcClassIfc(fIndexIterator);
 			
-			return finder.find(cls.getSuperClass());
+			List<SVDBModIfcClassDecl> ret = finder.find(cls.getSuperClass(), false);
+			
+			return (ret.size() > 0)?ret.get(0):null;
 		} else {
 			return null;
 		}

@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.db.search;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -21,8 +23,9 @@ public class SVDBFindIncludedFile {
 		fIndexIterator = index_it;
 	}
 	
-	public SVDBFile find(String name) {
+	public List<SVDBFile> find(String name, boolean match_prefix) {
 		ISVDBItemIterator<SVDBItem> item_it = fIndexIterator.getItemIterator();
+		List<SVDBFile> ret = new ArrayList<SVDBFile>();
 		
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();
@@ -31,13 +34,25 @@ public class SVDBFindIncludedFile {
 				String f = it.getName();
 				String norm_path = fWinPathPattern.matcher(f).replaceAll("/");
 				
-				if (norm_path.endsWith(name)) {
-					return (SVDBFile)it;
+				if (match_prefix) {
+					String last_elem;
+					if (norm_path.indexOf('/') != -1) {
+						last_elem = norm_path.substring(norm_path.lastIndexOf('/')+1);
+					} else {
+						last_elem = norm_path;
+					}
+					if (last_elem.startsWith(name)) {
+						ret.add((SVDBFile)it);
+					}
+				} else {
+					if (norm_path.endsWith(name)) {
+						ret.add((SVDBFile)it);
+					}
 				}
 			}
 		}
 		
-		return null;
+		return ret;
 	}
 
 }

@@ -20,6 +20,12 @@ determine which index manages a given source file. Extended to recognize
 files from the filesystem that are managed by an index attached to a 
 project in the workspace.
 
+- Corrected a bug with class-field lookup (cross-linking and context assist) 
+where the super-class hierarchy was not considered.
+
+- Centralized lookup code for expressions, combining content-assist and
+cross-linking lookup
+
 
 
 ------------------------------------------------------------------------------

@@ -24,6 +24,7 @@ public class SVDBFindByNameInClassHierarchy {
 	public List<SVDBItem> find(
 			SVDBScopeItem 		scope, 
 			String 				id,
+			boolean				match_prefix,
 			SVDBItemType	...	types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
@@ -58,14 +59,21 @@ public class SVDBFindByNameInClassHierarchy {
 					}
 				}
 
-				if (matches && it.getName().equals(id)) {
-					ret.add(it);
+				if (matches) {
+					if (match_prefix) {
+						if (id.equals("") || it.getName().startsWith(id)) {
+							ret.add(it);
+						}
+					} else {
+						if (it.getName().equals(id)) {
+							ret.add(it);
+						}
+					}
 				}
 			}
-			
-			SVDBFindNamedModIfcClassIfc finder = 
-				new SVDBFindNamedModIfcClassIfc(fIndexIterator);
-			scope = finder.find(((SVDBModIfcClassDecl)scope).getSuperClass());
+
+			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator);
+			scope = finder.find((SVDBModIfcClassDecl)scope);
 		}
 		
 		fLog.debug("<-- find(\"" + id + "\") returns " + ret.size() + " results");

@@ -7,14 +7,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
@@ -26,9 +20,11 @@ public abstract class AbstractCompletionProcessor {
 	protected List<SVCompletionProposal>		fCompletionProposals;
 	
 	protected LogHandle							fLog;
+	/**
 	private static final String 				fBuiltInMacroProposals[] = { 
 		"define", "include" 
 	};
+	 */
 	
 	public AbstractCompletionProcessor() {
 		fCompletionProposals = new ArrayList<SVCompletionProposal>();
@@ -82,6 +78,7 @@ public abstract class AbstractCompletionProcessor {
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 		
+		/*
 		if (ctxt.fTrigger == null) {
 			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
 					ctxt.fLeaf, ctxt.fStart);
@@ -96,6 +93,32 @@ public abstract class AbstractCompletionProcessor {
 						ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
 			} else {
 				System.out.println("[WARN] src_scope is null");
+			}
+		}
+		*/
+		List<SVDBItem> items = expr_utils.findItems(
+				getIndexIterator(), src_scope, ctxt, true);
+		
+		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
+				ctxt.fRoot.startsWith("include")) {
+			String replacement = "";
+
+			for (SVDBItem it : items) {
+				File file = new File(it.getName());
+				replacement = file.getName();
+				
+				// Add quotes in if not present already...
+				if (!scanner.get_str(ctxt.fStart-1, 1).equals("\"")) {
+					replacement = "\"" + replacement;
+				}
+				replacement += "\"";
+				
+				addProposal(new SVCompletionProposal(
+						replacement, ctxt.fStart, ctxt.fLeaf.length()));
+			}
+		} else {
+			for (SVDBItem it : items) {
+				addProposal(it, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		}
 		
@@ -113,7 +136,6 @@ public abstract class AbstractCompletionProcessor {
 	 * 
 	 * @param proposals
 	 * @param leaf
-	 */
 	private void findUntriggeredProposal(
 			IBIDITextScanner			scanner,
 			String 						root,
@@ -185,10 +207,6 @@ public abstract class AbstractCompletionProcessor {
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();
 			
-			if (it.getType() == SVDBItemType.Struct) {
-				System.out.println("struct type \"" + it.getName() + "\"");
-			}
-			
 			if (it.getName() != null && 
 					(it.getType() != SVDBItemType.File) &&
 					(it.getType() != SVDBItemType.Macro) &&
@@ -198,6 +216,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		}
 	}
+	 */
 
 	/**
 	 * Find proposals that result from a triggered content-assist request
@@ -211,7 +230,6 @@ public abstract class AbstractCompletionProcessor {
 	 * @param leaf
 	 * @param start
 	 * @param proposals
-	 */
 	private void findTriggeredProposals(
 			IBIDITextScanner	scanner,
 			SVDBScopeItem		src_scope,
@@ -261,7 +279,9 @@ public abstract class AbstractCompletionProcessor {
 			addProposal(it, start, leaf.length());
 		}
 	}
+	 */
 
+	/**
 	private void addMatchingTasksVars(
 			SVDBScopeItem 	src_scope, 
 			String 			root, 
@@ -282,7 +302,9 @@ public abstract class AbstractCompletionProcessor {
 			}
 		}
 	}
+	 */
 	
+	/**
 	private void addMacroProposals(
 			String							pre,
 			SVDBScopeItem					scope,
@@ -300,6 +322,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		}
 	}
+	 */
 
 
 	/**
@@ -314,7 +337,6 @@ public abstract class AbstractCompletionProcessor {
 	 * @param pre
 	 * @param start
 	 * @param proposals
-	 */
 	private void addClassHierarchyItems(
 			ISVDBIndexIterator			index_it,
 			SVDBModIfcClassDecl 		src_scope, 
@@ -344,6 +366,7 @@ public abstract class AbstractCompletionProcessor {
 			addMatchingTasksVars(src_scope, root, trigger, pre, start);
 		}
 	}
+	 */
 
 	/**
 	 * findPreProcProposals()
@@ -352,7 +375,6 @@ public abstract class AbstractCompletionProcessor {
 	 * 
 	 * @param proposals
 	 * @param pre
-	 */
 	private void findPreProcProposals(
 			IBIDITextScanner			scanner,
 			String 						root, 
@@ -437,6 +459,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		}
 	}
+	 */
 
 
 	protected boolean isPrefix(String pre, SVDBItem it) {

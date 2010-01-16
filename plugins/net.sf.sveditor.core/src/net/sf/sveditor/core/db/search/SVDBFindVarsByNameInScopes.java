@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -22,6 +23,8 @@ public class SVDBFindVarsByNameInScopes {
 			String 			name,
 			boolean			stop_on_first_match) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		
+		SVDBScopeItem context_save = context;
 
 		// Search up the scope
 		while (context != null) {
@@ -62,6 +65,40 @@ public class SVDBFindVarsByNameInScopes {
 			}
 
 			context = context.getParent();
+		}
+		
+		if (ret.size() == 0 || !stop_on_first_match) {
+			context = context_save;
+			while (context != null && 
+					context.getType() != SVDBItemType.Class) {
+				context = context.getParent();
+			}
+			
+			if (context != null) {
+				SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)context;
+				
+				while (cls != null) {
+					for (SVDBItem it : cls.getItems()) {
+						if (it.getType() == SVDBItemType.VarDecl) {
+							if (it.getName().equals(name)) {
+								ret.add(it);
+								
+								if (stop_on_first_match) {
+									break;
+								}
+							}
+						}
+					}
+					
+					if (ret.size() > 0 && stop_on_first_match) {
+						break;
+					}
+					
+					SVDBFindSuperClass finder = 
+						new SVDBFindSuperClass(fIndexIterator);
+					cls = finder.find(cls);
+				}
+			}
 		}
 		
 		return ret;

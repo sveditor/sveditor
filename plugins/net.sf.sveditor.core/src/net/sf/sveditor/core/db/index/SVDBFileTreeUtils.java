@@ -483,7 +483,6 @@ public class SVDBFileTreeUtils {
 			List<SVDBFileTree> 	files) {
 		for (SVDBFileTree f : files) {
 			for (SVDBFileTree fi : f.getIncludedFiles()) {
-				//if (fi.equals(file_t)) {
 				if (fi.getFilePath().equals(file_t.getFilePath())) {
 					if (!file_t.getIncludedByFiles().contains(f)) {
 						file_t.getIncludedByFiles().add(f);

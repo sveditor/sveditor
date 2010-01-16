@@ -390,6 +390,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	}
 	
 	public void fileAdded(String path) {
+		// fileAdded is ignored for LibIndex, since all the
+		// files are explicitly specified
 	}
 
 	public void fileChanged(String path) {
