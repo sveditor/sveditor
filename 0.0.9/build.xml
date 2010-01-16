@@ -1,0 +1,103 @@
+
+<project name="Build Eclipse Feature">
+    <property environment="env"/>
+    <property file="sveditor.info"/>
+
+    <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
+<!--
+    <property name="feature.version" value="0.0.7"/>
+    <property name="featureVersion"  value="0.0.7"/>
+  -->
+    <property name="feature.version" value="${version}"/>
+    <property name="feature.id"      value="net.sf.sveditor"/>
+
+    <!-- Options used by the Eclipse build -->
+    <property name="buildLabel" value=""/>
+    <property name="buildId" value="${feature.version}"/>
+    <property name="type" value="feature"/>
+
+    <!-- build.qualifier -->
+    <property name="forceContextQualifier" value="0"/> 
+    <property name="configs" value="${os}, ${ws}, ${arch}"/>
+    <property name="buildDirectory"   value="${basedir}/build"/>
+    <property name="archivePrefix"    value=""/>
+    <property name="outputUpdateJars" value="true"/>
+
+
+    <!-- Compiler Options -->
+    <property name="javacDebugInfo"   value="false"/>
+    <property name="javacFailOnError" value="true"/>
+    <property name="javacSource"      value="1.5"/>
+    <property name="javacTarget"      value="1.5"/>
+    <property name="compilerArg"      value="-warn:-discouraged"/>
+
+    <property name="srcdir" value="${basedir}"/>
+
+    <target name="build" depends="compile, mkupdate"/>
+
+    <target name="compile"> 
+        <delete dir="${basedir}/build"/>
+        <mkdir dir="${basedir}/build"/>
+        <copy todir="${basedir}/build">
+            <fileset dir="${srcdir}">
+                <include name="plugins/**"/>
+                <include name="features/**"/>
+                <exclude name="**/*.svn/**"/>
+            </fileset>
+        </copy>
+        <copy todir="${basedir}/build" overwrite="true">
+            <fileset dir="${srcdir}" 
+                includes="features/**/*.xml, plugins/**/*.xml, plugins/**/*.MF, plugins/**/*.properties"/>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+        <eclipse.buildScript
+            elements="${type}@${feature.id}"
+            buildDirectory="${buildDirectory}"
+            baseLocation="${eclipse.home}"
+            configInfo="${configs}"
+            forceContextQualifier="${forceContextQualifier}"
+            generateFeatureVersionSuffix="true"/>
+        <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
+            dir="${buildDirectory}/features/${feature.id}"
+            target="build.jars"/>
+        <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
+             dir="${buildDirectory}"/>
+    </target>
+
+    <target name="mkupdate">
+        <delete dir="${basedir}/update_tmp"/>
+        <mkdir dir="${basedir}/update_tmp"/>
+
+        <copy todir="${basedir}/update_tmp">
+            <fileset dir="${basedir}/update">
+                <include name="site.xml"/>
+            </fileset>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+
+        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
+               dest="${basedir}/update_tmp"/>
+
+        <jar destfile="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}.jar" 
+             basedir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"
+             includes="**/*"/>
+        <delete dir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"/>
+        <jar destfile="${basedir}/sveditor-${feature.version}.jar"
+             basedir="${basedir}/update_tmp"
+             includes="site.xml, features/**, plugins/**"/>
+        <delete dir="${basedir}/update_tmp"/>
+    </target>
+
+    <target name="mksrc">
+        <delete dir="${basedir}/src_tmp"/>
+        <mkdir dir="${basedir}/src_tmp"/>
+
+        <delete dir="${basedir}/src_tmp"/>
+    </target>
+
+</project>
+
