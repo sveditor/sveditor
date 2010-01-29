@@ -5,21 +5,28 @@ import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogListener;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListener {
+public class SVUiPlugin extends AbstractUIPlugin 
+	implements IPropertyChangeListener, ILogListener {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
@@ -29,6 +36,8 @@ public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListe
 	private ResourceBundle						fResources;
 	private WeakHashMap<String, Image>			fImageMap;
 	private MessageConsole						fConsole;
+	private MessageConsoleStream				fStdoutStream;
+	private MessageConsoleStream				fStderrStream;
 	
 	/**
 	 * The constructor
@@ -45,7 +54,8 @@ public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListe
 		super.start(context);
 		fPlugin = this;
 		
-		// TODO: add console listener
+		// add console listener
+		LogFactory.getDefault().addLogListener(this);
 		
 		getPreferenceStore().addPropertyChangeListener(this);
 		
@@ -61,6 +71,9 @@ public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListe
 		fPlugin = null;
 		
 		getPreferenceStore().removePropertyChangeListener(this);
+
+		LogFactory.getDefault().removeLogListener(this);
+
 		super.stop(context);
 	}
 	
@@ -73,6 +86,22 @@ public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListe
 			}
 		}
 	}
+	
+	public void message(ILogHandle handle, int type, int level, String message) {
+		MessageConsoleStream out = null;
+		
+		if (type == ILogListener.Type_Error) {
+			out = getStderrStream();
+		} else if (SVCorePlugin.getDefault().getDebugEn()) {
+			out = getStdoutStream();
+		}
+		
+		if (out != null) {
+			out.println("[" + handle.getName() + "] " + message);			
+		}
+	}
+	
+	
 
 	public ResourceBundle getResources() {
 		if (fResources == null) {
@@ -101,18 +130,45 @@ public class SVUiPlugin extends AbstractUIPlugin implements IPropertyChangeListe
 		return p.fImageMap.get(resource);
 	}
 	
-	public static MessageConsole getConsole() {
-		SVUiPlugin plugin = getDefault();
+	public MessageConsole getConsole() {
 		
-		if (plugin.fConsole == null) {
-			plugin.fConsole = new MessageConsole("SVEditor", null);
+		if (fConsole == null) {
+			fConsole = new MessageConsole("SVEditor", null);
 			ConsolePlugin.getDefault().getConsoleManager().addConsoles(
-					new IConsole[] { plugin.fConsole });
+					new IConsole[] { fConsole });
 		}
 		
-		return plugin.fConsole;
+		return fConsole;
 	}
 	
+	public MessageConsoleStream getStdoutStream() {
+		if (fStdoutStream == null) {
+			fStdoutStream = getConsole().newMessageStream();
+			fStdoutStream.setActivateOnWrite(true);
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					fStdoutStream.setColor(
+							Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+				}
+			});
+		}
+		return fStdoutStream;
+	}
+
+	public MessageConsoleStream getStderrStream() {
+		if (fStderrStream == null) {
+			fStderrStream = getConsole().newMessageStream();
+			fStderrStream.setActivateOnWrite(true);
+			Display.getDefault().syncExec(new Runnable() {
+				public void run() {
+					fStderrStream.setColor(
+							Display.getDefault().getSystemColor(SWT.COLOR_RED));
+				}
+			});
+		}
+		return fStderrStream;
+	}
+
 	/**
 	 * Returns the shared instance
 	 *

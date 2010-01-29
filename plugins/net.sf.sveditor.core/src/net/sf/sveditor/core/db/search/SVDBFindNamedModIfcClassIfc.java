@@ -10,13 +10,17 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
 public class SVDBFindNamedModIfcClassIfc {
-	ISVDBIndexIterator			fIndexIt;
+	private ISVDBIndexIterator			fIndexIt;
+	private ISVDBFindNameMatcher		fMatcher;
 	
-	public SVDBFindNamedModIfcClassIfc(ISVDBIndexIterator index_it) {
+	public SVDBFindNamedModIfcClassIfc(
+			ISVDBIndexIterator 		index_it,
+			ISVDBFindNameMatcher	matcher) {
 		fIndexIt = index_it;
+		fMatcher = matcher;
 	}
 	
-	public List<SVDBModIfcClassDecl> find(String type_name, boolean match_prefix) {
+	public List<SVDBModIfcClassDecl> find(String type_name) {
 		ISVDBItemIterator<SVDBItem> item_it = fIndexIt.getItemIterator();
 		List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
 		
@@ -32,14 +36,8 @@ public class SVDBFindNamedModIfcClassIfc {
 					it.getType() == SVDBItemType.Module ||
 					it.getType() == SVDBItemType.Interface ||
 					it.getType() == SVDBItemType.Struct)) {
-				if (match_prefix) {
-					if (type_name.equals("") || it.getName().startsWith(type_name)) {
-						ret.add((SVDBModIfcClassDecl)it);
-					}
-				} else {
-					if (it.getName().equals(type_name)) {
-						ret.add((SVDBModIfcClassDecl)it);
-					}
+				if (fMatcher.match(it, type_name)) {
+					ret.add((SVDBModIfcClassDecl)it);
 				}
 			}
 		}

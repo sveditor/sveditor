@@ -11,7 +11,9 @@ public class SVDocumentTextScanner
 	extends AbstractTextScanner implements IBIDITextScanner {
 	
 	private IDocument				fDoc;
+	private int						fIdx;
 	private int						fOffset;
+	private int						fLimit;
 	private String					fName;
 	private int						fUngetCh;
 	
@@ -22,9 +24,11 @@ public class SVDocumentTextScanner
 			boolean 				scan_fwd) {
 		fDoc     = doc;
 		fName    = name;
-		fOffset  = offset;
+		fOffset  = -1;
+		fIdx  	 = offset;
 		fScanFwd = scan_fwd;
 		fUngetCh = -1;
+		fLimit   = -1;
 	}
 	
 	public SVDocumentTextScanner(
@@ -32,7 +36,16 @@ public class SVDocumentTextScanner
 			int						offset) {
 		this(doc, "", offset, true);
 	}
-	
+
+	public SVDocumentTextScanner(
+			IDocument 				doc,
+			int						offset,
+			int						limit) {
+		this(doc, "", offset, true);
+		fOffset = offset;
+		fLimit  = limit;
+	}
+
 	public void setScanFwd(boolean scan_fwd) {
 		// TODO: I'm not sure switching directions is quite so simple
 		if (fScanFwd != scan_fwd) {
@@ -42,11 +55,11 @@ public class SVDocumentTextScanner
 	}
 	
 	public long getPos() {
-		return (long)fOffset;
+		return (long)fIdx;
 	}
 	
 	public void seek(long pos) {
-		fOffset = (int)pos;
+		fIdx = (int)pos;
 		fUngetCh = -1;
 	}
 	
@@ -63,7 +76,7 @@ public class SVDocumentTextScanner
 		int lineno = -1;
 		
 		try {
-			int off = fOffset < (fDoc.getLength())?fOffset:fDoc.getLength()-1;
+			int off = fIdx < (fDoc.getLength())?fIdx:fDoc.getLength()-1;
 			lineno = fDoc.getLineOfOffset(off);
 		} catch (BadLocationException e) {}
 		
@@ -79,14 +92,15 @@ public class SVDocumentTextScanner
 		} else {
 			try {
 				if (fScanFwd) {
-					if (fOffset < fDoc.getLength()) {
-						ch = fDoc.getChar(fOffset);
-						fOffset++;
+					if ((fLimit == -1 && (fIdx < fDoc.getLength())) ||
+						(fLimit != -1 && (fIdx <= fLimit))) {
+						ch = fDoc.getChar(fIdx);
+						fIdx++;
 					}
 				} else {
-					if (fOffset >= 0) {
-						ch = fDoc.getChar(fOffset);
-						fOffset--;
+					if (fIdx >= fOffset) {
+						ch = fDoc.getChar(fIdx);
+						fIdx--;
 					}
 				}
 			} catch (BadLocationException e) { }
@@ -97,9 +111,9 @@ public class SVDocumentTextScanner
 
 	public void unget_ch(int ch) {
 		if (fScanFwd) {
-			fOffset--;
+			fIdx--;
 		} else {
-			fOffset++;
+			fIdx++;
 		}
 	}
 

@@ -72,6 +72,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public void enableDebug(boolean en) {
 		fDebugEn = en;
 	}
+	
+	public boolean getDebugEn() {
+		return fDebugEn;
+	}
 
 	/*
 	 * (non-Javadoc)

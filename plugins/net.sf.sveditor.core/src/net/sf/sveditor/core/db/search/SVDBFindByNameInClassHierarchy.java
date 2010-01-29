@@ -7,24 +7,31 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBFindByNameInClassHierarchy {
-	private ISVDBIndexIterator		fIndexIterator;
-	private LogHandle				fLog;
+	private ISVDBIndexIterator				fIndexIterator;
+	private LogHandle						fLog;
+	private ISVDBFindNameMatcher			fMatcher;
+	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
 	
 	
-	public SVDBFindByNameInClassHierarchy(ISVDBIndexIterator index_it) {
+	public SVDBFindByNameInClassHierarchy(
+			ISVDBIndexIterator 		index_it,
+			ISVDBFindNameMatcher	matcher) {
 		fIndexIterator = index_it;
+		fMatcher = matcher;
+		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
 		fLog = LogFactory.getDefault().getLogHandle("FindByNameInClassHierarchy");
 	}
 	
 	public List<SVDBItem> find(
 			SVDBScopeItem 		scope, 
 			String 				id,
-			boolean				match_prefix,
 			SVDBItemType	...	types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
@@ -37,6 +44,9 @@ public class SVDBFindByNameInClassHierarchy {
 				scope.getType() != SVDBItemType.Struct) {
 			fLog.debug("Searching up-scope (current is " + scope.getType() + 
 					" " + scope.getName() + ")");
+			if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
+				findTFParamsLocals(ret, (SVDBTaskFuncScope)scope, id, types);
+			}
 			scope = scope.getParent();
 		}
 		
@@ -60,23 +70,56 @@ public class SVDBFindByNameInClassHierarchy {
 				}
 
 				if (matches) {
-					if (match_prefix) {
-						if (id.equals("") || it.getName().startsWith(id)) {
-							ret.add(it);
-						}
-					} else {
-						if (it.getName().equals(id)) {
-							ret.add(it);
-						}
+					if (fMatcher.match(it, id)) {
+						ret.add(it);
 					}
 				}
 			}
 
-			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator);
+			// Always match exact
+			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
 			scope = finder.find((SVDBModIfcClassDecl)scope);
 		}
 		
 		fLog.debug("<-- find(\"" + id + "\") returns " + ret.size() + " results");
 		return ret;
+	}
+	
+	private void findTFParamsLocals(
+			List<SVDBItem>		items,
+			SVDBTaskFuncScope 	scope, 
+			String 				id,
+			SVDBItemType	...	types) {
+		boolean matches = (types.length == 0);
+
+		for (SVDBTaskFuncParam it : scope.getParams()) {
+			for (SVDBItemType type : types) {
+				if (it.getType() == type) {
+					matches = true;
+					break;
+				}
+			}
+			
+			if (matches) {
+				if (fMatcher.match(it, id)) {
+					items.add(it);
+				}
+			}
+		}
+		
+		for (SVDBItem it : scope.getItems()) {
+			for (SVDBItemType type : types) {
+				if (it.getType() == type) {
+					matches = true;
+					break;
+				}
+			}
+			
+			if (matches) {
+				if (fMatcher.match(it, id)) {
+					items.add(it);
+				}
+			}
+		}
 	}
 }

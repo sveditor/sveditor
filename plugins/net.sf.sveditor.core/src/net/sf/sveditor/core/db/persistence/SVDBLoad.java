@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.SVDBAlwaysBlock;
+import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBCoverPoint;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBInitialBlock;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -611,6 +614,18 @@ public class SVDBLoad implements IDBReader {
 				
 			case Typedef: 
 				ret = new SVDBTypedef(file, parent, type, this);
+				break;
+				
+			case InitialBlock:
+				ret = new SVDBInitialBlock(file, parent, type, this);
+				break;
+				
+			case AlwaysBlock:
+				ret = new SVDBAlwaysBlock(file, parent, type, this);
+				break;
+				
+			case Assign:
+				ret = new SVDBAssign(file, parent, type, this);
 				break;
 				
 			default:

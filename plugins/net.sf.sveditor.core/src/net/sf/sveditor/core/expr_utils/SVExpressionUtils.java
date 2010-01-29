@@ -14,9 +14,11 @@ import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
@@ -36,11 +38,19 @@ import net.sf.sveditor.core.scanutils.IBIDITextScanner;
  */
 public class SVExpressionUtils {
 	
-	private boolean 			fDebugEn = true;
-	private LogHandle			fLog;
+	private boolean 						fDebugEn = true;
+	private LogHandle						fLog;
+	private ISVDBFindNameMatcher			fNameMatcher;
+	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
 	
-	public SVExpressionUtils() {
+	public SVExpressionUtils(ISVDBFindNameMatcher matcher) {
 		fLog = LogFactory.getDefault().getLogHandle("SVExpressionUtils");
+		fNameMatcher = matcher;
+		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
+	}
+	
+	public void setMatcher(ISVDBFindNameMatcher matcher) {
+		fNameMatcher = matcher;
 	}
 	
 	
@@ -207,8 +217,9 @@ public class SVExpressionUtils {
 		if (expr_ctxt.fTrigger != null) {
 			if (expr_ctxt.fTrigger.equals("`")) {
 				if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
-					SVDBFindIncludedFile finder = new SVDBFindIncludedFile(index_it);
-					List<SVDBFile> it_l = finder.find(expr_ctxt.fLeaf, match_prefix);
+					SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
+							index_it, fNameMatcher);
+					List<SVDBFile> it_l = finder.find(expr_ctxt.fLeaf);
 
 					if (it_l.size() > 0 && (max_matches == 0 || ret.size() < max_matches)) {
 						ret.addAll(it_l);
@@ -254,9 +265,9 @@ public class SVExpressionUtils {
 
 					if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
 						SVDBFindByNameInClassHierarchy finder_h = 
-							new SVDBFindByNameInClassHierarchy(index_it);
+							new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
 						List<SVDBItem> fields = finder_h.find(
-								(SVDBScopeItem)it_t, expr_ctxt.fLeaf, match_prefix);
+								(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
 						
 						fLog.debug("Find Named Field returns " + fields.size() + " results");
 						for (SVDBItem it : fields) {
@@ -285,9 +296,9 @@ public class SVExpressionUtils {
 			List<SVDBItem> result = null;
 			
 			SVDBFindByNameInClassHierarchy finder_h =
-				new SVDBFindByNameInClassHierarchy(index_it);
+				new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
 
-			result = finder_h.find(active_scope, text.toString(), match_prefix);
+			result = finder_h.find(active_scope, text.toString());
 
 			if (result.size() > 0) {
 				if (max_matches == 0 || (ret.size() < max_matches)) {
@@ -297,9 +308,9 @@ public class SVExpressionUtils {
 
 			// Try type names
 			SVDBFindNamedModIfcClassIfc finder_cls =
-				new SVDBFindNamedModIfcClassIfc(index_it);
+				new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
 
-			List<SVDBModIfcClassDecl> cl_l = finder_cls.find(text.toString(), match_prefix);
+			List<SVDBModIfcClassDecl> cl_l = finder_cls.find(text.toString());
 			
 			if (cl_l.size() > 0) {
 				fLog.debug("Global type search for \"" + text.toString() + 
@@ -316,10 +327,10 @@ public class SVExpressionUtils {
 			}
 		
 			// Try global task/function
-			SVDBFindByName finder_tf = new SVDBFindByName(index_it);
+			SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
 			
-			List<SVDBItem> it_l= finder_tf.find(text.toString(), match_prefix,
-					SVDBItemType.Task, SVDBItemType.Function);
+			List<SVDBItem> it_l= finder_tf.find(text.toString(),
+					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
 			
 			if (it_l != null && it_l.size() > 0) {
 				fLog.debug("Global find-by-name \"" + text.toString() + 
@@ -476,6 +487,15 @@ public class SVExpressionUtils {
 		
 		if (ch == '"') {
 			ret = true;
+			
+			// Just to be sure, continue scanning backwards to
+			// be sure we don't find another matching quite
+			while ((ch = scanner.get_ch()) != -1 &&
+					ch != '"' && ch != '\n') { }
+			
+			if (ch == '"') {
+				ret = false;
+			}
 		}
 		
 		scanner.seek(sav_pos);
@@ -765,11 +785,11 @@ public class SVExpressionUtils {
 							search_ctxt = item_list.get(item_list.size()-1);
 							
 							SVDBFindByNameInClassHierarchy finder_h =
-								new SVDBFindByNameInClassHierarchy(index_it);
+								new SVDBFindByNameInClassHierarchy(index_it, fDefaultMatcher);
 							
 							
 							matches = finder_h.find((SVDBScopeItem)search_ctxt, 
-									id, false, SVDBItemType.Function);
+									id, SVDBItemType.Function);
 								
 							debug("next-item search for \"" + id + 
 									"\" in \"" + search_ctxt.getName() + 
@@ -813,9 +833,10 @@ public class SVExpressionUtils {
 					// it's not the last element in the string or
 					// we want the type resolved
 					if (idx < preTrigger.length() || resolveFinalReturnType) {
-						SVDBFindByName finder_name = new SVDBFindByName(index_it);
+						SVDBFindByName finder_name = 
+							new SVDBFindByName(index_it, fDefaultMatcher);
 						
-						List<SVDBItem> result = finder_name.find(type_name, false,
+						List<SVDBItem> result = finder_name.find(type_name,
 								SVDBItemType.Struct, SVDBItemType.Class);
 
 						if (result.size() > 0) {
@@ -854,7 +875,7 @@ public class SVExpressionUtils {
 									matches.add(class_type);
 								} else {
 									SVDBFindSuperClass super_finder =
-										new SVDBFindSuperClass(index_it);
+										new SVDBFindSuperClass(index_it, fDefaultMatcher);
 									
 									class_type = super_finder.find(class_type);
 									
@@ -865,7 +886,7 @@ public class SVExpressionUtils {
 							}
 						} else {
 							SVDBFindVarsByNameInScopes finder =
-								new SVDBFindVarsByNameInScopes(index_it);
+								new SVDBFindVarsByNameInScopes(index_it, fDefaultMatcher);
 							
 							matches = finder.find(context, id, true);
 							
@@ -874,12 +895,12 @@ public class SVExpressionUtils {
 							
 							if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.Typedef) {
 								SVDBFindNamedModIfcClassIfc finder_c = 
-									new SVDBFindNamedModIfcClassIfc(index_it);
+									new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 								SVDBTypedef td = (SVDBTypedef)matches.get(0);
 								
 								fLog.debug("Lookup typename \"" + td.getTypeName() + "\"");
 								
-								List<SVDBModIfcClassDecl> cls_l = finder_c.find(td.getName(), false);
+								List<SVDBModIfcClassDecl> cls_l = finder_c.find(td.getName());
 								
 								if (cls_l.size() > 0) {
 									matches.set(0, cls_l.get(0));
@@ -891,9 +912,9 @@ public class SVExpressionUtils {
 							if (preceeding_activator == null &&
 									(matches == null || matches.size() == 0)) {
 								SVDBFindNamedModIfcClassIfc finder_c = 
-									new SVDBFindNamedModIfcClassIfc(index_it);
+									new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 								
-								List<SVDBModIfcClassDecl> cls_l = finder_c.find(id, false);
+								List<SVDBModIfcClassDecl> cls_l = finder_c.find(id);
 								
 								if (cls_l.size() > 0) {
 									fLog.debug("Found \"" + id + "\" as a type");
@@ -922,8 +943,8 @@ public class SVExpressionUtils {
 						debug("Searching type \"" + 
 								search_ctxt.getName() + "\" for id=\"" + id + "\"");
 						SVDBFindByNameInClassHierarchy finder = 
-							new SVDBFindByNameInClassHierarchy(index_it);
-						matches = finder.find((SVDBScopeItem)search_ctxt, id, false);
+							new SVDBFindByNameInClassHierarchy(index_it, fDefaultMatcher);
+						matches = finder.find((SVDBScopeItem)search_ctxt, id);
 					}
 					
 //					debug("    result is " + matches.size() + " elements");
@@ -942,19 +963,18 @@ public class SVExpressionUtils {
 						type = field;
 					} else if (field instanceof SVDBVarDeclItem) {
 						SVDBFindNamedModIfcClassIfc finder = 
-							new SVDBFindNamedModIfcClassIfc(index_it);
+							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 						List<SVDBModIfcClassDecl> cl_l = finder.find(
-								((SVDBVarDeclItem)field).getTypeName(), false);
+								((SVDBVarDeclItem)field).getTypeName());
 						
 						type = (cl_l.size() > 0)?cl_l.get(0):null;
 					} else if (field instanceof SVDBTypedef) {
 						SVDBTypedef td = (SVDBTypedef)field;
 						SVDBFindNamedModIfcClassIfc finder = 
-							new SVDBFindNamedModIfcClassIfc(index_it);
+							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 						debug("field is a typedef type=\"" + td.getName() + "\" typeName=\"" + td.getTypeName() + "\"");
 						
-						List<SVDBModIfcClassDecl> cl_l = finder.find(
-								td.getTypeName(), false);
+						List<SVDBModIfcClassDecl> cl_l = finder.find(td.getTypeName());
 						type = (cl_l.size() > 0)?cl_l.get(0):null;
 					} else {
 						fLog.error("Unknown scope type for \"" +

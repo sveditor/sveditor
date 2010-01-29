@@ -1,6 +1,6 @@
 
 
-class __sv_builtin_array;
+class __sv_builtin_array #(type T=int);
 
 	extern function int size();
 	

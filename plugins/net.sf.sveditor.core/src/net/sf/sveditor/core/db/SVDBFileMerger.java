@@ -41,12 +41,20 @@ public class SVDBFileMerger {
 				}
 				temp.add(it_2);
 			} else {
-				SVDBItem it_1 =scope1.getItems().get(
+				SVDBItem it_1 = scope1.getItems().get(
 						scope1.getItems().indexOf(it_2));
 				it_1.setLocation(it_2.getLocation());
 				if (it_1 instanceof SVDBScopeItem) {
 					((SVDBScopeItem)it_1).setEndLocation(
 							((SVDBScopeItem)it_2).getEndLocation());
+				}
+				
+				if (it_1 instanceof SVDBTaskFuncScope) {
+					SVDBTaskFuncScope tf_1 = (SVDBTaskFuncScope)it_1;
+					SVDBTaskFuncScope tf_2 = (SVDBTaskFuncScope)it_2;
+					tf_1.getParams().clear();
+					tf_1.getParams().addAll(tf_2.getParams());
+					tf_1.setReturnType(tf_2.getReturnType());
 				}
 				temp.add(it_1);
 			}

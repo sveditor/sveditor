@@ -24,5 +24,8 @@ public enum SVDBItemType {
 	ModIfcClassParam,
 	Constraint,
 	Typedef,
-	TypeInfo
+	TypeInfo,
+	InitialBlock,
+	AlwaysBlock,
+	Assign
 }

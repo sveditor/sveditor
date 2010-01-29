@@ -5,17 +5,24 @@ import net.sf.sveditor.core.db.SVDBItem;
 public class SVCompletionProposal {
 	
 	private SVDBItem				fItem;
+	private String					fPrefix;
 	private String					fReplacement;
 	private int						fReplacementOffset;
 	private int						fReplacementLength;
 	
 	public SVCompletionProposal(
-			SVDBItem item,
+			SVDBItem 		item,
+			String			prefix,
 			int				replacementOffset,
 			int				replacementLength) {
-		fItem = item;
-		fReplacementOffset = replacementOffset;
-		fReplacementLength = replacementLength;
+		fItem 				= item;
+		fPrefix 			= prefix;
+		fReplacementOffset 	= replacementOffset;
+		fReplacementLength 	= replacementLength;
+	}
+	
+	public String getPrefix() {
+		return fPrefix;
 	}
 	
 	public String getReplacement() {

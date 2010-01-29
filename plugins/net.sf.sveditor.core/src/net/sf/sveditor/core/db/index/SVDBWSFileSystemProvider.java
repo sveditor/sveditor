@@ -74,7 +74,9 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 
 	public void closeStream(InputStream in) {
 		try {
-			in.close();
+			if (in != null) {
+				in.close();
+			}
 		} catch (IOException e) { }
 	}
 
@@ -88,10 +90,21 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			IFile file = root.getFile(new Path(path));
 			
-			try {
-				ret = file.getContents();
-			} catch (CoreException e) { 
-				e.printStackTrace();
+			for (int i=0; i<2; i++) {
+				try {
+					ret = file.getContents();
+					break;
+				} catch (CoreException e) {
+					// Often times, we can just refresh the resource to avoid
+					// an indexing failure
+					if (i == 0 && e.getMessage().contains("out of sync")) {
+						try {
+							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+						} catch (CoreException e2) {}
+					} else {
+						e.printStackTrace();
+					}
+				}
 			}
 		} else {
 			try {

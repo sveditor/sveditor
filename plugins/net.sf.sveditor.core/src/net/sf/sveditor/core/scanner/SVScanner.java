@@ -134,24 +134,58 @@ public class SVScanner implements ISVScanner {
 	
 	private void process_initial_always(String id) throws EOFException {
 		int ch = skipWhite(get_ch());
+		String expr = "", name = "";
+		String type = id;
 		
 		if (id.equals("always")) {
 			if (ch == '@') {
+				startCapture(ch);
 				ch = skipWhite(next_ch());
+				
+				if (ch == '(') {
+					ch = skipPastMatch("()");
+				}
+				expr = endCapture();
+			} else if (ch == '#') {
+				startCapture(ch);
+				ch = skipWhite(next_ch());
+				
+				if (ch == '(') {
+					ch = skipPastMatch("()");
+				} else {
+					// Just read to the end of the next whitespace item
+					while ((ch = get_ch()) != -1 && !Character.isWhitespace(ch)) {}
+				}
+				
+				expr = endCapture();
 			}
 			
-			if (ch == '(') {
-				ch = skipPastMatch("()");
-			}
 		}
 		
 		ch = skipWhite(ch);
 		
 		id = readIdentifier(ch);
 		
+		if (fObserver != null) {
+			fObserver.enter_initial_always_block(type, expr);
+		}
+		
 		if (id != null && id.equals("begin")) {
 			int begin_cnt = 1;
 			int end_cnt = 0;
+
+			ch = skipWhite(next_ch());
+			
+			if (ch == ':') {
+				// named begin
+				ch = skipWhite(next_ch());
+				
+				if (Character.isJavaIdentifierStart(ch)) {
+					name = readIdentifier(ch);
+				}
+			} else {
+				unget_ch(ch);
+			}
 			
 			do {
 				do {
@@ -168,6 +202,27 @@ public class SVScanner implements ISVScanner {
 			} while (id != null && begin_cnt != end_cnt);
 		} else {
 			// single-statement begin.
+		}
+		
+		if (fObserver != null) {
+			fObserver.leave_initial_always_block(name);
+		}
+	}
+	
+	private void process_assign() throws EOFException {
+		int ch = skipWhite(get_ch());
+		String target = "";
+
+		if (ch == '(' || Character.isJavaIdentifierStart(ch)) {
+			target = readExpression(ch);
+		} else if (ch == '{') {
+			startCapture(ch);
+			ch = skipPastMatch("{}");
+			target = endCapture();
+		}
+		
+		if (fObserver != null) {
+			fObserver.assign_stmt(target);
 		}
 	}
 	
@@ -995,6 +1050,9 @@ public class SVScanner implements ISVScanner {
 		} else if (id.equals("always") || id.equals("initial")) {
 			unget_ch(ch);
 			process_initial_always(id);
+		} else if (id.equals("assign")) {
+			unget_ch(ch);
+			process_assign();
 		} else if (id.equals("constraint")) {
 			unget_ch(ch);
 			process_constraint(id);
@@ -1182,7 +1240,9 @@ public class SVScanner implements ISVScanner {
 	
 	private boolean isSecondLevelScope(String id) {
 		return (id.equals("task") ||
-				id.equals("function"));
+				id.equals("function") ||
+				id.equals("always") ||
+				id.equals("initial"));
 	}
 	
 	/**
@@ -1274,27 +1334,37 @@ public class SVScanner implements ISVScanner {
 		
 		return ret.toString();
 	}
-
-	/** Currently unused
-	private String readImportSpec(int ci) throws EOFException {
-		if (!Character.isJavaIdentifierStart(ci)) {
-			unget_ch(ci);
-			return null;
-		}
-		StringBuffer ret = new StringBuffer();
+	
+	private String readExpression(int ci) throws EOFException {
+		StringBuilder ret = new StringBuilder();
 		
-		ret.append((char)ci);
-		
-		while ((ci = get_ch()) != -1 && 
-				(Character.isJavaIdentifierPart(ci) || ci == ':' || ci == '*')) {
-			ret.append((char)ci);
+		while (true) {
+			if (ci == '(') {
+				startCapture(ci);
+				unget_ch(skipPastMatch("()"));
+				ret.append(endCapture());
+			} else if (Character.isJavaIdentifierStart(ci)) {
+				ret.append(readIdentifier(ci));
+			} else {
+				break;
+			}
+			
+			ci = skipWhite(get_ch());
+			
+			if (ci == '.') {
+				ret.append((char)ci);
+			} else if (ci == ':' && (ci = get_ch()) == ':') {
+				ret.append("::");
+			} else {
+				break;
+			}
+			
+			ci = skipWhite(get_ch());
 		}
-		unget_ch(ci);
 		
 		return ret.toString();
 	}
-	*/
-	
+
 	private boolean isBuiltInType(String id) {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||

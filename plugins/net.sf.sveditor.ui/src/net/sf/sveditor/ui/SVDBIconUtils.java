@@ -29,6 +29,13 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Sequence, SEQUENCE_OBJ);
 		fImgDescMap.put(SVDBItemType.Property, PROPERTY_OBJ);
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
+		fImgDescMap.put(SVDBItemType.AlwaysBlock, ALWAYS_BLOCK_OBJ);
+		fImgDescMap.put(SVDBItemType.InitialBlock, INITIAL_OBJ);
+		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
+	}
+	
+	public static Image getIcon(String key) {
+		return SVUiPlugin.getImage(key);
 	}
 	
 	public static Image getIcon(SVDBItem it) {

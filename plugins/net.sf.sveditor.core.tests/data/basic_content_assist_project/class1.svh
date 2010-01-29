@@ -1,16 +1,21 @@
 
-`ifndef INCLUDED_CLASS1_SVH
+`ifndef INCLUDED_CLASS1_SVH    
 `define INCLUDED_CLASS1_SVH
 
 class class1;
 
-	function new();
+	/****************************************************************
+	 * new()
+	 ****************************************************************/
+	function new(int a, 
+		int b);
 	
+		foo = boolean'(get_bit());
 	endfunction
 	
 	
 	function int get_data();
-		return 5;
+		return 'h5;
 	endfunction
 	
 endclass

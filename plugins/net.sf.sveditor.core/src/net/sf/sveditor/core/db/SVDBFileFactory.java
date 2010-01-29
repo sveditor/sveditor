@@ -242,8 +242,36 @@ public class SVDBFileFactory implements ISVScannerObserver {
 			fScopeStack.pop();
 		}
 	}
-
 	
+	public void enter_initial_always_block(String id, String expr) {
+		SVDBScopeItem scope;
+		if (id.equals("always")) {
+			scope = new SVDBAlwaysBlock(expr);
+		} else {
+			scope = new SVDBInitialBlock();
+		}
+		setLocation(scope);
+		
+		fScopeStack.peek().addItem(scope);
+		fScopeStack.push(scope);
+	}
+	
+	public void leave_initial_always_block(String name) {
+		if (fScopeStack.size() > 0 &&
+				(fScopeStack.peek().getType() == SVDBItemType.AlwaysBlock ||
+				 fScopeStack.peek().getType() == SVDBItemType.InitialBlock)) {
+			setEndLocation(fScopeStack.peek());
+			SVDBScopeItem scope = fScopeStack.pop();
+			scope.setName(name);
+		}
+	}
+	
+	public void assign_stmt(String target) {
+		SVDBAssign assign = new SVDBAssign(target);
+		setLocation(assign);
+		fScopeStack.peek().addItem(assign);
+	}
+
 	public void init(ISVScanner scanner) {
 		// TODO Auto-generated method stub
 		

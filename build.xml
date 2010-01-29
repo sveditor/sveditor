@@ -33,7 +33,17 @@
 
     <property name="srcdir" value="${basedir}"/>
 
-    <target name="build" depends="compile, mkupdate"/>
+    <target name="build" depends="compile, mkupdate">
+        <delete dir="${basedir}/update_tmp"/>
+    </target>
+
+    <target name="release" depends="compile, mksrc, mkupdate">
+        <exec executable="/bin/sh">
+            <arg value="upload_release.sh"/>
+            <arg value="${version}"/>
+        </exec>
+        <delete dir="${basedir}/update_tmp"/>
+    </target>
 
     <target name="compile"> 
         <delete dir="${basedir}/build"/>
@@ -66,6 +76,12 @@
              dir="${buildDirectory}"/>
     </target>
 
+    <target name="mksrc">
+        <exec executable="/bin/sh">
+            <arg value="mksrc.sh"/>
+        </exec>
+    </target>
+
     <target name="mkupdate">
         <delete dir="${basedir}/update_tmp"/>
         <mkdir dir="${basedir}/update_tmp"/>
@@ -89,14 +105,9 @@
         <jar destfile="${basedir}/sveditor-${feature.version}.jar"
              basedir="${basedir}/update_tmp"
              includes="site.xml, features/**, plugins/**"/>
+<!--
         <delete dir="${basedir}/update_tmp"/>
-    </target>
-
-    <target name="mksrc">
-        <delete dir="${basedir}/src_tmp"/>
-        <mkdir dir="${basedir}/src_tmp"/>
-
-        <delete dir="${basedir}/src_tmp"/>
+  -->
     </target>
 
 </project>

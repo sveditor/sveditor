@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -10,7 +11,8 @@ public class ExpressionUtils extends TestCase {
 	
 	
 	public void testExtractPreTriggerPortion() {
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		SVExpressionUtils expr_utils = new SVExpressionUtils(
+				new SVDBFindContentAssistNameMatcher());
 		
 		String doc1 = 
 			"class my_class;\n" +
@@ -73,7 +75,7 @@ public class ExpressionUtils extends TestCase {
 	    "\n";
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(content));
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindContentAssistNameMatcher());
 		
 		scanner.seek(tt_utils.getTagPos("CA"));
 		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
@@ -83,7 +85,7 @@ public class ExpressionUtils extends TestCase {
 	}
 	
 	public void testExtractExprContext() {
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindContentAssistNameMatcher());
 		
 		String doc1 = 
 			"class my_class;\n" +

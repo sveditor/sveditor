@@ -8,9 +8,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -99,8 +98,8 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 			List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
 
 			SVDBModIfcClassDecl cl = fLeafClass;
-			SVDBFindSuperClass  finder_super = 
-				new SVDBFindSuperClass(fIndexIterator);
+			SVDBFindSuperClass  finder_super = new SVDBFindSuperClass(
+					fIndexIterator, SVDBFindDefaultNameMatcher.getDefault());
 
 			while (cl != null) {
 				

@@ -12,10 +12,16 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindVarsByNameInScopes {
 	
-	ISVDBIndexIterator				fIndexIterator;
+	private ISVDBIndexIterator				fIndexIterator;
+	private ISVDBFindNameMatcher			fMatcher;
+	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
 	
-	public SVDBFindVarsByNameInScopes(ISVDBIndexIterator index_it) {
+	public SVDBFindVarsByNameInScopes(
+			ISVDBIndexIterator 		index_it,
+			ISVDBFindNameMatcher	matcher) {
 		fIndexIterator = index_it;
+		fMatcher = matcher;
+		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
 	}
 	
 	public List<SVDBItem> find(
@@ -50,7 +56,7 @@ public class SVDBFindVarsByNameInScopes {
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
 				for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
-					if (it.getName().equals(name)) {
+					if (fMatcher.match(it, name)) {
 						ret.add(it);
 						
 						if (stop_on_first_match) {
@@ -95,7 +101,7 @@ public class SVDBFindVarsByNameInScopes {
 					}
 					
 					SVDBFindSuperClass finder = 
-						new SVDBFindSuperClass(fIndexIterator);
+						new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
 					cls = finder.find(cls);
 				}
 			}

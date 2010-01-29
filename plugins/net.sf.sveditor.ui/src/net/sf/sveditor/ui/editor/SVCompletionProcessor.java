@@ -13,8 +13,10 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -72,21 +74,20 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		// convert SVProposal list to ICompletionProposal list
 		for (SVCompletionProposal p : fCompletionProposals) {
-			ICompletionProposal cp = convertToProposal(p, viewer.getDocument());
-			if (cp != null) {
-				fProposals.add(cp);
-			} else {
-				System.out.println("[WARN] convertToProposal returned null"); 
-			}
+			List<ICompletionProposal> cp = convertToProposal(p, viewer.getDocument()); 
+ 
+			fProposals.addAll(cp);
 		}
 		
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
 	}
 	
-	protected ICompletionProposal convertToProposal(
+	protected List<ICompletionProposal> convertToProposal(
 			SVCompletionProposal		p,
 			IDocument					doc) {
-		ICompletionProposal cp = null;
+		List<ICompletionProposal> 	ret = new ArrayList<ICompletionProposal>();
+		ICompletionProposal 		cp = null;
+		String prefix = p.getPrefix();
 		int replacementOffset = p.getReplacementOffset();
 		int replacementLength = p.getReplacementLength();
 		
@@ -108,6 +109,39 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					cp = createClassProposal(
 							it, doc, replacementOffset, replacementLength);
 					break;
+					
+				case Typedef: {
+					SVDBTypedef td = (SVDBTypedef)it;
+					String td_name_lc = td.getName().toLowerCase();
+					String prefix_lc  = prefix.toLowerCase();
+					
+					// If we matched the typename, then construct a typedef
+					// proposal.
+					if (prefix.equals("") || td_name_lc.startsWith(prefix_lc)) {
+						cp = new CompletionProposal(it.getName(),
+								replacementOffset, replacementLength, 
+								it.getName().length(), SVDBIconUtils.getIcon(it),
+								null, null, null);
+						ret.add(cp);
+					}
+					
+					// Check to see if the name matches any enum values
+					if (td.isEnumType()) {
+						for (String name : td.getEnumNames()) {
+							String name_lc = name.toLowerCase();
+							if (prefix.equals("") || name_lc.startsWith(prefix_lc)) {
+								String label = td.getName() + "::" + name;
+								cp = new CompletionProposal(name,
+										replacementOffset, replacementLength, 
+										name.length(),
+										SVDBIconUtils.getIcon(ISVIcons.ENUM_TYPE_OBJ),
+										label, null, null);
+								ret.add(cp);
+							}
+						}
+					}
+					cp = null;
+				} break;
 		
 				default:
 					cp = new CompletionProposal(it.getName(),
@@ -121,8 +155,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					p.getReplacementOffset(), p.getReplacementLength(), 
 					p.getReplacement().length());
 		}
+		
+		if (cp != null) {
+			ret.add(cp);
+		}
 
-		return cp;
+		return ret;
 	}
 	
 	private ICompletionProposal createTaskFuncProposal(

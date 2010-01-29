@@ -107,6 +107,12 @@ public interface ISVScannerObserver {
 
 	void leave_func_decl();
 	
+	void enter_initial_always_block(String id, String expr);
+	
+	void leave_initial_always_block(String name);
+	
+	void assign_stmt(String target);
+	
 	void preproc_define(String key, List<String> params, String value);
 	
 	void preproc_include(String path);

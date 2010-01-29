@@ -1,4 +1,32 @@
 
+-- 0.1.0 Release --
+
+- Ensure that changes to task/function arguments are updated in the database
+when the file changes.
+
+- Make expression parsing more selective with respect to quoted strings. 
+Content assist adjacent to a string (eg in a $display() call) now works 
+much better
+
+- Corrected a lookup bug that prevented task/function parameters or locals
+from being presented as content-assist proposals
+
+- Added support for always/initial blocks and assigns to the scanner and 
+outline view
+
+- Direct debug output (enabled from SVEditor preferences page) to console
+in active workbench.
+
+- Update support for enumerated types. Enum types and values are presented
+and typenames can be cross-referenced
+
+- Update Outline view to show function return type
+
+-> Need to change prefix-matching to be modular 
+(and in content-assist case, case-insensitive)
+
+------------------------------------------------------------------------------
+
 -- 0.0.9 Release --
 
 - Corrected a bug with implicit-relative paths in an argument file. 
@@ -281,10 +309,10 @@ include-file names.
             - Need to ignore forward declarations (typedef class <>; typedef struct <>;)
         - Add exclusion for constraints
     - Better exclusions for behavioral code inside behavioral scopes
- - Open Declaration Improvements
+ * Open Declaration Improvements
     * Add Open Declaration support for included files
-    - Scan context, rather than just using highlighted term
-    - Recognize 'super' and search hierarchy
+    * Scan context, rather than just using highlighted term
+    * Recognize 'super' and search hierarchy
  - Need to create data files for the base SystemVerilog library, so we can prompt the users for built-in methods
  - Add auto-indent rules centered around begin/end and brackets
  - Add inheritance hierarchy viewer
@@ -296,11 +324,11 @@ include-file names.
    relationships
  - Some sort of library-specific macro filtering could be helpful. (eg don't expand `ovm_component_utils)
 
- - Update build-path management to support
+ * Update build-path management to support
     - 'library' entries -- single file that is the root of a library (eg OVM)
     - filtering source from 
 
- - Support persisting SVDB. Saves time after the first parse
+ * Support persisting SVDB. Saves time after the first parse
 
  * Support read-only source in a plugin. Useful for libraries (OVM/VMM).
     - A library index processes files as follows:

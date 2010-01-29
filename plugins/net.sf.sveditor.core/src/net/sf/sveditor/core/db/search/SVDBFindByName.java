@@ -10,12 +10,14 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
 public class SVDBFindByName {
 	private ISVDBIndexIterator			fIndexIterator;
+	private ISVDBFindNameMatcher		fMatcher;
 	
-	public SVDBFindByName(ISVDBIndexIterator index_it) {
+	public SVDBFindByName(ISVDBIndexIterator index_it, ISVDBFindNameMatcher matcher) {
 		fIndexIterator = index_it;
+		fMatcher = matcher;
 	}
 	
-	public List<SVDBItem> find(String name, boolean match_prefix, SVDBItemType ... types) {
+	public List<SVDBItem> find(String name, SVDBItemType ... types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
 		ISVDBItemIterator<SVDBItem> item_it = fIndexIterator.getItemIterator();
@@ -32,16 +34,9 @@ public class SVDBFindByName {
 				}
 			}
 			
-			
 			if (type_match) {
-				if (match_prefix) {
-					if (name.equals("") || it.getName().startsWith(name)) {
-						ret.add(it);
-					}
-				} else {
-					if (it.getName() != null && it.getName().equals(name)) {
-						ret.add(it);
-					}
+				if (fMatcher.match(it, name)) {
+					ret.add(it);
 				}
 			}
 		}

@@ -3,9 +3,15 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVKeywords;
+import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
@@ -13,14 +19,18 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 
-public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
+public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy 
+	implements IPropertyChangeListener {
 	
 	private List<String>				fEndBlockStartKW;
 	private List<String>				fEndTerminatedKW;
 	private boolean						fDebugEn = false;
 	private SVEditor					fEditor;
 	private LogHandle					fLog;
+	private boolean						fAutoIndentEnabled;
 	
 	public SVAutoIndentStrategy(SVEditor editor, String p) {
 		fEditor = editor;
@@ -43,8 +53,19 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 		// search in priority order
 		fEndTerminatedKW.add("end");
 		fEndBlockStartKW.add("begin");
+		
+		fAutoIndentEnabled = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
+				SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S);
 	}
 	
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S)) {
+			fAutoIndentEnabled = event.getNewValue().toString().equals("true");
+		}
+	}
+
+
+
 	private boolean isLineDelimiter(IDocument document, String text) {
 		String[] delimiters= document.getLegalLineDelimiters();
 		if (delimiters != null)
@@ -256,17 +277,53 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy {
 		}
 	}
 	
+	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
+		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
+		
+		try {
+			int lineno = doc.getLineOfOffset(cmd.offset);
+			fLog.debug("active line is: " + lineno);
+			SVDBScopeItem scope = SVDBSearchUtils.findActiveScope(
+					fEditor.getSVDBFile(), lineno);
+			
+			if (scope != null) {
+				if (scope.getLocation() != null && scope.getEndLocation() != null) {
+					IBIDITextScanner scanner = new SVDocumentTextScanner(doc, 
+							doc.getLineOffset(scope.getLocation().getLine()),
+							doc.getLineOffset(scope.getEndLocation().getLine()) +
+								doc.getLineLength(scope.getEndLocation().getLine()));
+					fLog.debug("active scope: " + scope.getName());
+					fLog.debug("    starts on " + scope.getLocation().getLine());
+					fLog.debug("    ends on " + scope.getEndLocation().getLine());
+				}
+			} else {
+				// likely file scope
+				fLog.debug("Failed to find active scope");
+			}
+			
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
     public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {
     	
-    	/*
-    	if (cmd.doit == false) {
+    	if (!fAutoIndentEnabled) {
     		return;
     	}
-    	 */
-    	if (cmd.length == 0 && cmd.text != null && isLineDelimiter(doc, cmd.text)) {
-    		indentAfterNewLine(doc, cmd);
-    	} else if (cmd.length == 0) {
-    		indentOnKeypress(doc, cmd);
+    	
+    	System.out.println("cmd.length=" + cmd.length + " cmd.text=" + cmd.text);
+    	if (cmd.length == 0) {
+    		// adding text
+    		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
+        		indentAfterNewLine(doc, cmd);
+    		} else if (cmd.text.length() == 1) {
+        		indentOnKeypress(doc, cmd);
+    		}
+    	}
+    	if (cmd.text.length() > 1) {
+    		indentPastedContent(doc, cmd);
     	}
     }
     

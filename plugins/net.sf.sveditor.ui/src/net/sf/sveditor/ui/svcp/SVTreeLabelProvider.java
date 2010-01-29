@@ -1,6 +1,8 @@
 package net.sf.sveditor.ui.svcp;
 
+import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
@@ -53,7 +55,7 @@ public class SVTreeLabelProvider extends LabelProvider {
 			} else if (element instanceof SVDBTaskFuncScope) {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
 				
-				ret = ret + " : (";
+				ret = ret + "(";
 				for (SVDBTaskFuncParam p : tf.getParams()) {
 					ret = ret + p.getTypeName() + ", ";
 				}
@@ -62,6 +64,12 @@ public class SVTreeLabelProvider extends LabelProvider {
 					ret = ret.substring(0, ret.length()-2);
 				}
 				ret += ")";
+				
+				if (tf.getType() == SVDBItemType.Function && 
+						tf.getReturnType() != null && 
+						!tf.getReturnType().equals("void")) {
+					ret += ": " + tf.getReturnType();
+				}
 			} else if (element instanceof SVDBModIfcClassDecl) {
 				SVDBModIfcClassDecl decl = (SVDBModIfcClassDecl)element;
 
@@ -77,6 +85,10 @@ public class SVTreeLabelProvider extends LabelProvider {
 					}
 					
 					ret += ">";
+				}
+			} if (element instanceof SVDBAlwaysBlock) {
+				if (ret.equals("")) {
+					ret = ((SVDBAlwaysBlock)element).getExpr().trim();
 				}
 			}
 			

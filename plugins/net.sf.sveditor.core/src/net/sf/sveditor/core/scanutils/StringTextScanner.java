@@ -1,7 +1,8 @@
 package net.sf.sveditor.core.scanutils;
 
 
-public class StringTextScanner extends AbstractTextScanner {
+public class StringTextScanner extends AbstractTextScanner 
+	implements IRandomAccessTextScanner {
 	private StringBuilder	fStr;
 	private int				fIdx;
 	private int				fLimit;
@@ -49,6 +50,18 @@ public class StringTextScanner extends AbstractTextScanner {
 		fUngetCh = -1;
 	}
 	
+	public String get_str(long start, int length) {
+		return fStr.substring((int)start, (int)(start+length-1));
+	}
+
+	public long getPos() {
+		return fIdx;
+	}
+
+	public void seek(long pos) {
+		fIdx = (int)pos;
+	}
+
 	public int get_ch() {
 		int ch = -1;
 		

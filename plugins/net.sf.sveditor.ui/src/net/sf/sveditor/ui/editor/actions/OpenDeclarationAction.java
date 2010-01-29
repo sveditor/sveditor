@@ -11,6 +11,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBOpenDeclarationIncludeNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
@@ -91,7 +93,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDBItem			it = null;
 
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		SVExpressionUtils		expr_utils = new SVExpressionUtils();
+		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		
 		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
 		
@@ -107,6 +109,12 @@ public class OpenDeclarationAction extends TextEditorAction {
 		
 		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, getTextSel().getStartLine());
+		
+		// If this is an include lookup, then use a different matching strategy
+		if (expr_ctxt.fTrigger != null && expr_ctxt.fRoot != null &&
+				expr_ctxt.fTrigger.equals("`") && expr_ctxt.fRoot.equals("include")) {
+			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
+		}
 
 		List<SVDBItem> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
 		

@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
@@ -28,7 +29,7 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
 		SVDocumentTextScanner scanner = 
 			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset()+1);
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		
 		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
 		

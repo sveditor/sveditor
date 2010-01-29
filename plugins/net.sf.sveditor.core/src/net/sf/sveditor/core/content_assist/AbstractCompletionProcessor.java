@@ -9,6 +9,8 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.SVDBContentAssistIncludeNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
@@ -57,7 +59,8 @@ public abstract class AbstractCompletionProcessor {
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
+		SVExpressionUtils expr_utils = new SVExpressionUtils(
+				new SVDBFindContentAssistNameMatcher());
 		
 		fCompletionProposals.clear();
 		
@@ -96,6 +99,12 @@ public abstract class AbstractCompletionProcessor {
 			}
 		}
 		*/
+		// If this is an include lookup, then use a different matching strategy
+		if (ctxt.fTrigger != null && ctxt.fRoot != null &&
+				ctxt.fTrigger.equals("`") && ctxt.fRoot.equals("include")) {
+			expr_utils.setMatcher(new SVDBContentAssistIncludeNameMatcher());
+		}
+		
 		List<SVDBItem> items = expr_utils.findItems(
 				getIndexIterator(), src_scope, ctxt, true);
 		
@@ -118,7 +127,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		} else {
 			for (SVDBItem it : items) {
-				addProposal(it, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		}
 		
@@ -550,7 +559,8 @@ public abstract class AbstractCompletionProcessor {
 	}
 
 	protected void addProposal(
-			SVDBItem 		it, 
+			SVDBItem 		it,
+			String			prefix,
 			int 			replacementOffset, 
 			int 			replacementLength) {
 		boolean found = false;
@@ -564,8 +574,8 @@ public abstract class AbstractCompletionProcessor {
 		
 		if (!found) {
 			debug("addProposal: " + it.getName());
-			addProposal(
-				new SVCompletionProposal(it, replacementOffset, replacementLength));
+			addProposal(new SVCompletionProposal(it, prefix, 
+					replacementOffset, replacementLength));
 		}
 	}
 	

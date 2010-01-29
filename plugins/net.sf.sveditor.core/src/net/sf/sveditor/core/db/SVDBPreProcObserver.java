@@ -154,8 +154,13 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void constraint(String name, String expr) {}
 
 	public void leave_func_decl() {}
-
 	
+	public void enter_initial_always_block(String id, String expr) {}
+
+	public void leave_initial_always_block(String name) {}
+	
+	public void assign_stmt(String target) {}
+
 	public void leave_interface_decl() {}
 
 	
