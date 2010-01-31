@@ -1,4 +1,4 @@
 #!/bin/sh
 
-rm -rf build
+rm -rf build update/plugins/* update/features/*
 

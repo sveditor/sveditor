@@ -1,13 +1,11 @@
 
-<project name="Build Eclipse Feature">
+<project name="SVEditor Feature">
     <property environment="env"/>
+
+    <!-- Import the version info -->
     <property file="sveditor.info"/>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
-<!--
-    <property name="feature.version" value="0.0.7"/>
-    <property name="featureVersion"  value="0.0.7"/>
-  -->
     <property name="feature.version" value="${version}"/>
     <property name="feature.id"      value="net.sf.sveditor"/>
 
@@ -33,16 +31,31 @@
 
     <property name="srcdir" value="${basedir}"/>
 
-    <target name="build" depends="compile, mkupdate">
-        <delete dir="${basedir}/update_tmp"/>
-    </target>
+    <target name="build" depends="compile, mkarchive"/>
 
-    <target name="release" depends="compile, mksrc, mkupdate">
+
+    <target name="release" depends="compile, mksrc, mkarchive">
+        <mkdir dir="${basedir}/release"/>
+       
+        <!-- Create the release fragment file -->
+        <copy todir="${basedir}/release" overwrite="true">
+            <fileset dir="${srcdir}/etc"
+                includes="new_release_fragment.xml"/>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+
+        <mkdir dir="release/update_site"/>
+  
+        <unzip src="${basedir}/sveditor-${feature.version}.jar"
+               dest="${basedir}/release/update_site"/>
+
         <exec executable="/bin/sh">
-            <arg value="upload_release.sh"/>
-            <arg value="${version}"/>
+            <arg value="scripts/upload_release.sh"/>
         </exec>
-        <delete dir="${basedir}/update_tmp"/>
+
+        <delete dir="${basedir}/release"/> 
     </target>
 
     <target name="compile"> 
@@ -78,15 +91,20 @@
 
     <target name="mksrc">
         <exec executable="/bin/sh">
-            <arg value="mksrc.sh"/>
+            <arg value="scripts/mksrc.sh"/>
         </exec>
     </target>
 
-    <target name="mkupdate">
-        <delete dir="${basedir}/update_tmp"/>
-        <mkdir dir="${basedir}/update_tmp"/>
+    <!-- ************************************************************
+         * mkarchive
+         *
+         * Build an archived update site of the release
+         ************************************************************ -->
+    <target name="mkarchive">
+        <delete dir="${basedir}/archive_tmp"/>
+        <mkdir dir="${basedir}/archive_tmp"/>
 
-        <copy todir="${basedir}/update_tmp">
+        <copy todir="${basedir}/archive_tmp">
             <fileset dir="${basedir}/update">
                 <include name="site.xml"/>
             </fileset>
@@ -95,19 +113,28 @@
             </filterset>
         </copy>
 
-        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
-               dest="${basedir}/update_tmp"/>
-
-        <jar destfile="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}.jar" 
-             basedir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"
-             includes="**/*"/>
-        <delete dir="${basedir}/update_tmp/features/net.sf.sveditor_${feature.version}"/>
-        <jar destfile="${basedir}/sveditor-${feature.version}.jar"
-             basedir="${basedir}/update_tmp"
-             includes="site.xml, features/**, plugins/**"/>
 <!--
-        <delete dir="${basedir}/update_tmp"/>
+        <copy todir="${basedir}">
+            <fileset dir="${basedir}/etc/new_release_fragment.xml">
+                <include name="new_release_fragment.xml"/>
+            </fileset>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
   -->
+
+        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
+               dest="${basedir}/archive_tmp"/>
+
+        <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 
+             basedir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"
+             includes="**/*"/>
+        <delete dir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"/>
+        <jar destfile="${basedir}/sveditor-${feature.version}.jar"
+             basedir="${basedir}/archive_tmp"
+             includes="site.xml, features/**, plugins/**"/>
+        <delete dir="${basedir}/archive_tmp"/>
     </target>
 
 </project>

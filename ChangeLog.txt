@@ -22,8 +22,8 @@ and typenames can be cross-referenced
 
 - Update Outline view to show function return type
 
--> Need to change prefix-matching to be modular 
-(and in content-assist case, case-insensitive)
+- Changed content-assist searches to be case-insensitive. The code architecture
+is also now more modular, to permit easier future updates.
 
 ------------------------------------------------------------------------------
 
