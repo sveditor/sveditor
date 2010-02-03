@@ -21,6 +21,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fContentAssistProposal;
 	protected RetargetTextEditorAction fContentAssistTip;
 	protected RetargetTextEditorAction fContentFormatProposal;
+	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
 	
@@ -39,6 +40,10 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
+		
+		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
+		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
+		
 
 		fContentFormatProposal = new RetargetTextEditorAction(
 				bundle, "ContentFormatProposal.");

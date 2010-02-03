@@ -10,8 +10,6 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
-import org.eclipse.jface.text.formatter.IContentFormatter;
-import org.eclipse.jface.text.formatter.MultiPassContentFormatter;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -31,9 +29,6 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	public SVSourceViewerConfiguration(SVEditor editor) {
 		fEditor = editor;
 	}
-	
-	
-	
 	
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
@@ -81,20 +76,6 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
         }
 	}
 	
-	@Override
-	public IContentFormatter getContentFormatter(ISourceViewer sourceViewer) {
-		MultiPassContentFormatter formatter = new MultiPassContentFormatter(
-				getConfiguredDocumentPartitioning(sourceViewer),
-				IDocument.DEFAULT_CONTENT_TYPE);
-		
-		formatter.setMasterStrategy(new SVFormattingStrategy());
-		
-		return formatter;
-	}
-
-
-
-
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer viewer) {
 		return new String[] {

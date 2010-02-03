@@ -10,6 +10,12 @@ class class1;
 	
 	
 	function int get_data();
+		if (foobar) begin
+			if (foo2) begin
+				foo = 2;
+			end // end1
+			foo2 = 5;
+		end // end2
 		return 5;
 	endfunction
 	

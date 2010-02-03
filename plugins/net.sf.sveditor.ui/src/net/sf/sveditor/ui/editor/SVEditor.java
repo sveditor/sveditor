@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 
@@ -318,9 +319,9 @@ public class SVEditor extends TextEditor
 		setAction("ContentAssistTip", a);
 
 		a = new TextOperationAction(bundle,
-				"Format.", this, ISourceViewer.FORMAT);
+				"ContentFormat.", this, ISourceViewer.FORMAT);
 		a.setActionDefinitionId("net.sveditor.ui.indent");
-		setAction("Format", a);
+		setAction("ContentFormat", a);
 		markAsStateDependentAction("Format", true);
 		markAsSelectionDependentAction("Format", true);
 
@@ -344,7 +345,12 @@ public class SVEditor extends TextEditor
 				bundle, "OpenDeclaration.", this);
 		od_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.declaration");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", od_action);
-
+		
+		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
+		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
+		
+		
 		OverrideTaskFuncAction ov_tf_action = new OverrideTaskFuncAction(
 				bundle, "OverrideTaskFunc.", this);
 		ov_tf_action.setActionDefinitionId(

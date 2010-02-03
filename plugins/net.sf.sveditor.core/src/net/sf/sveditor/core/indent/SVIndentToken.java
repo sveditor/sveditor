@@ -9,6 +9,7 @@ public class SVIndentToken {
 	protected boolean								fStartLine;
 	protected boolean								fDoIt;
 	protected int									fPos;
+	protected int									fLineno;
 	
 	public SVIndentToken(SVIndentTokenType type, String leading_ws, String image) {
 		fType 		= type;
@@ -26,12 +27,30 @@ public class SVIndentToken {
 		fDoIt		= true;
 	}
 	
+	public boolean isId(String s) {
+		return (getType() == SVIndentTokenType.Identifier &&
+				getImage().equals(s));
+	}
+	
+	public boolean isOp(String s) {
+		return (getType() == SVIndentTokenType.Operator &&
+				getImage().equals(s));
+	}
+	
 	public void setPos(int pos) {
 		fPos = pos;
 	}
 	
 	public int getPos() {
 		return fPos;
+	}
+	
+	public void setLineno(int lineno) {
+		fLineno = lineno;
+	}
+	
+	public int getLineno() {
+		return fLineno;
 	}
 	
 	public SVIndentTokenType getType() {

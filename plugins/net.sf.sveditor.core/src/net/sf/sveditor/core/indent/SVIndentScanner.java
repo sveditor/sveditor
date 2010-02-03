@@ -1,21 +1,20 @@
 package net.sf.sveditor.core.indent;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IRandomAccessTextScanner;
 
 public class SVIndentScanner implements ISVIndentScanner {
 	private IRandomAccessTextScanner	fScanner;
-	private int							fStartOffset;
-	private int							fEndOffset;
-	private StringBuilder				fResult;
 	private Stack<Integer>				fTabStack;
 	private int							fUngetCh;
 	private int							fLastCh[] = {-1, -1};
+	private int							fLastChT  = -1;
+	private int							fLineno;
 	
 	private boolean						fStartLine;
 	private String						fLeadingWS;
@@ -24,7 +23,10 @@ public class SVIndentScanner implements ISVIndentScanner {
 	private static Set<String>			fScopeKeywords;
 	private static Set<String>			fQualifiers;
 	private StringBuilder				fTmp;
+	private boolean						fDebugEn = false;
+	
 	private static Set<String>			fOperators;
+	private LogHandle					fLog;
 	private static final String			fOperatorList[] = {
 		// unary operators
 		"+", "-", "!", "~", "&", "|", "~|", "^", "~^", "^~",
@@ -47,7 +49,9 @@ public class SVIndentScanner implements ISVIndentScanner {
 		// binary module-path operator
 		"==", "!=", "&&", "||", "&", "|", "^", "^~", "~^",
 		
-		":", "::"
+		":", "::",
+		
+		"{", "}", "#", "[", "]", ".", ",", "@", "?", "$"
 	};
 
 	
@@ -74,10 +78,17 @@ public class SVIndentScanner implements ISVIndentScanner {
 	}
 	
 	
-	public SVIndentScanner(ISVIndenter indenter) {
-		fResult  = new StringBuilder();
+	public SVIndentScanner(IRandomAccessTextScanner scanner) {
 		fTabStack = new Stack<Integer>();
 		fTmp = new StringBuilder();
+		fScanner = scanner;
+
+		fUngetCh   = -1;
+		fLastCh[0] = -1;
+		fLastCh[1] = '\n';
+		fLineno    = 1;
+		
+		fLog = LogFactory.getDefault().getLogHandle("SVIndentScanner");
 	}
 	
 	public SVIndentToken next() {
@@ -94,6 +105,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 			fLeadingWS = getIndent();
 		}
 		int c = get_ch();
+		int lineno = fLineno;
 
 		if (c == '\n') {
 			token = new SVIndentToken(SVIndentTokenType.BlankLine, fLeadingWS);
@@ -110,6 +122,20 @@ public class SVIndentScanner implements ISVIndentScanner {
 			} else if (c2 == '*') {
 				token = read_multi_line_comment(fLeadingWS);
 			}
+		} else if (c == '"') {
+			// Read to the end of the string
+			int last_c = -1;
+			
+			fTmp.append((char)c);
+			while ((c = get_ch()) != -1 && 
+					c != '"' && last_c != '\\') {
+				fTmp.append((char)c);
+				last_c = c;
+			}
+			fTmp.append((char)c);
+
+			token = new SVIndentToken(SVIndentTokenType.String, 
+					fLeadingWS, fTmp.toString());
 		} else if (c == '`' || Character.isJavaIdentifierStart(c)) {
 			boolean is_macro = (c == '`');
 
@@ -188,13 +214,14 @@ public class SVIndentScanner implements ISVIndentScanner {
 						fLeadingWS, fTmp.toString());
 			} else {
 				token = null;
-				System.out.println("[NOTE] Unknown character \"" + (char)c + "\"");
+				fLog.error("Unknown character \"" + (char)c + "\"");
 			}
 		}
 			
 		fLeadingWS = null;
 
 		if (token != null) {
+			token.setLineno(lineno);
 			token.setPos(pos);
 
 			c = get_ch();
@@ -221,6 +248,10 @@ public class SVIndentScanner implements ISVIndentScanner {
 				}
 			}
 			token.setIsStartLine(start_line);
+			
+			debug("token \"" + 
+					((token.getType() == SVIndentTokenType.Identifier)?token.getImage():token.getType()) + 
+					"\" - line " + token.getLineno());
 		}
 		
 		fCurrent = token;
@@ -230,36 +261,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 	
 	public SVIndentToken current() {
 		return fCurrent;
-	}
-	
-	public String indent(
-			IRandomAccessTextScanner 	scanner, 
-			int 						start_offset, 
-			int 						end_offset) {
-		fResult.setLength(0);
-		
-		fScanner		= scanner;
-		fStartOffset	= start_offset;
-		fEndOffset		= end_offset;
-		fUngetCh		= -1;
-		fLastCh[0] = -1;
-		fLastCh[1] = '\n';
-		
-		fTabStack.clear();
-		fTabStack.push(0);
-		
-		indent();
-		// Standalone comment
-		
-
-		return fResult.toString();
-	}
-	
-	public String indent(IRandomAccessTextScanner scanner) {
-		return indent(scanner, -1, -1);
-	}
-	
-	private void indent() {
 	}
 	
 	private SVIndentToken read_expression(String leading_ws) {
@@ -394,22 +395,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 		return fTmp.toString();
 	}
 	
-	private boolean isQualifier(String key) {
-		return fQualifiers.contains(key);
-	}
-	
-	private void inc_indent() {
-		fTabStack.push(fTabStack.peek()+1);
-	}
-	
-	private void dec_indent() {
-		fTabStack.pop();
-	}
-	
-	private int get_indent() {
-		return fTabStack.peek();
-	}
-	
 	/**
 	 * Get the indent of the current line. 
 	 * 
@@ -442,32 +427,23 @@ public class SVIndentScanner implements ISVIndentScanner {
 			
 			fLastCh[0] = fLastCh[1];
 			fLastCh[1] = c;
+			
+			if (fLastChT == '\n') {
+				fLineno++;
+			}
+			fLastChT = c;
 		}
 		
 		return c;
-	}
-	
-	private int get_lastch() {
-		return fLastCh[0];
 	}
 	
 	private void unget_ch(int ch) {
 		fUngetCh = ch;
 	}
 	
-	private void put_ch(int c) {
-		fResult.append((char)c);
-	}
-	
-	private void put_str(String str) {
-		for (int i=0; i<str.length(); i++) {
-			put_ch(str.charAt(i));
+	private void debug(String msg) {
+		if (fDebugEn) {
+			fLog.debug(msg);
 		}
 	}
-	
-	private boolean is_enabled(int pos) {
-		return ((pos >= fStartOffset || fStartOffset == -1) &&
-				(pos <= fEndOffset || fEndOffset == -1));
-	}
-	
 }

@@ -7,5 +7,6 @@ public enum SVIndentTokenType {
 	MultiLineComment,
 	SingleLineComment,
 	Number,
-	BlankLine
+	BlankLine,
+	String
 }

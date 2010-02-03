@@ -212,6 +212,12 @@
                retarget="true">
          </action>
          <action
+         		definitionId="net.sf.sveditor.ui.indent"
+         		id="net.sf.sveditor.ui.svIndentEditorAction"
+         		label="Indent"
+         		retarget="true">
+         </action>
+         <action
                definitionId="net.sf.sveditor.ui.editor.open.declaration"
                id="net.sf.sveditor.ui.override.tf"
                label="Override Tasks/Functions"
