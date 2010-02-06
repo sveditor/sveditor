@@ -1,4 +1,26 @@
 
+-- 0.1.1 Release --
+
+- Add the beginnings of an indenter. To activate, select text in the editor
+and select <CTRL>-I. Currently, blocks such as classes, modules, 
+tasks/functions, and begin/end blocks are supported. 
+    - This is still fairly experimental functionality. Please report any
+      issues you see!
+    - Unclear how best to indent macro invocations, since many 
+      are not terminated at statement boundaries (at least in OVM). 
+      For now, assuming that macro invocations end at a line boundary.
+
+
+? Support auto-indent for paste using the indenter
+
+? Investigate undefined macro errors
+
+? Annotate undefined macros as markers?
+
+? Support Open Declaration on enum value
+
+------------------------------------------------------------------------------
+
 -- 0.1.0 Release --
 
 - Ensure that changes to task/function arguments are updated in the database

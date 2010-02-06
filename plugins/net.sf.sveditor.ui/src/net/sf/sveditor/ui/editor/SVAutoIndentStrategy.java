@@ -1,3 +1,15 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
@@ -5,10 +17,13 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVKeywords;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -27,7 +42,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private List<String>				fEndBlockStartKW;
 	private List<String>				fEndTerminatedKW;
-	private boolean						fDebugEn = false;
+	private boolean						fDebugEn = true;
 	private SVEditor					fEditor;
 	private LogHandle					fLog;
 	private boolean						fAutoIndentEnabled;
@@ -282,25 +297,57 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
-			fLog.debug("active line is: " + lineno);
-			SVDBScopeItem scope = SVDBSearchUtils.findActiveScope(
-					fEditor.getSVDBFile(), lineno);
+			if (doc.getLineOffset(lineno) != cmd.offset) {
+				// If this is a block copy
+				System.out.println("not a block copy");
+				return;
+			}
+			int line_cnt = 0;
 			
-			if (scope != null) {
-				if (scope.getLocation() != null && scope.getEndLocation() != null) {
-					IBIDITextScanner scanner = new SVDocumentTextScanner(doc, 
-							doc.getLineOffset(scope.getLocation().getLine()),
-							doc.getLineOffset(scope.getEndLocation().getLine()) +
-								doc.getLineLength(scope.getEndLocation().getLine()));
-					fLog.debug("active scope: " + scope.getName());
-					fLog.debug("    starts on " + scope.getLocation().getLine());
-					fLog.debug("    ends on " + scope.getEndLocation().getLine());
+			for (int i=0; i<cmd.text.length(); i++) {
+				if (cmd.text.charAt(i) == '\n') {
+					line_cnt++;
 				}
-			} else {
-				// likely file scope
-				fLog.debug("Failed to find active scope");
 			}
 			
+			fLog.debug("Document line start=" + lineno);
+			
+			StringBuilder doc_str = new StringBuilder();
+			// Append what's before the
+			
+			System.out.println("cmd_offset=" + cmd.offset);
+			doc_str.append(doc.get(0, cmd.offset));
+			doc_str.append(cmd.text);
+			doc_str.append(doc.get(
+					cmd.offset+cmd.length, 
+					(doc.getLength()-(cmd.offset+cmd.length)-1)));
+			
+			System.out.println("doc to indent: " + doc_str.toString());
+			
+			StringBIDITextScanner text_scanner = 
+				new StringBIDITextScanner(doc_str.toString());
+			
+			SVDefaultIndenter indenter = new SVDefaultIndenter();
+			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
+			
+			indenter.init(scanner);
+			
+			// The goal, here, is to format the entire document
+			// with the new text added. Then, extract out the 'new'
+			// portion and send it as the modification event
+			
+			
+			try {
+				System.out.println("lineno=" + lineno + " end=" + (lineno+line_cnt));
+				String result = indenter.indent(lineno+1, (lineno+line_cnt+1));
+				
+				System.out.println("result=\"" + result + "\"");
+				
+				cmd.text = result;
+			} catch (Exception e) {
+			}
+
+			fLog.debug("active line is: " + lineno);
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -322,9 +369,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
         		indentOnKeypress(doc, cmd);
     		}
     	}
+    	/*
     	if (cmd.text.length() > 1) {
     		indentPastedContent(doc, cmd);
     	}
+    	 */
     }
     
     private void debug(String msg) {

@@ -1,3 +1,15 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.indent;
 
 import java.util.HashSet;
@@ -19,6 +31,10 @@ public class SVIndentScanner implements ISVIndentScanner {
 	private boolean						fStartLine;
 	private String						fLeadingWS;
 	private SVIndentToken				fCurrent;
+	
+	// Flag controls whether an expression (..) is 
+	// returned as a monolithic item
+	private boolean						fMonolithicExpr;
 	
 	private static Set<String>			fScopeKeywords;
 	private static Set<String>			fQualifiers;
@@ -51,7 +67,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 		
 		":", "::",
 		
-		"{", "}", "#", "[", "]", ".", ",", "@", "?", "$"
+		"{", "}", "#", "[", "]", ".", ",", "@", "?", "$",
+		"(", ")"
 	};
 
 	
@@ -83,12 +100,17 @@ public class SVIndentScanner implements ISVIndentScanner {
 		fTmp = new StringBuilder();
 		fScanner = scanner;
 
-		fUngetCh   = -1;
-		fLastCh[0] = -1;
-		fLastCh[1] = '\n';
-		fLineno    = 1;
+		fUngetCh   		= -1;
+		fLastCh[0] 		= -1;
+		fLastCh[1] 		= '\n';
+		fLineno    		= 1;
+		fMonolithicExpr = true;
 		
 		fLog = LogFactory.getDefault().getLogHandle("SVIndentScanner");
+	}
+	
+	public void setMonolithicExpr(boolean en) {
+		fMonolithicExpr = en;
 	}
 	
 	public SVIndentToken next() {
@@ -136,8 +158,9 @@ public class SVIndentScanner implements ISVIndentScanner {
 
 			token = new SVIndentToken(SVIndentTokenType.String, 
 					fLeadingWS, fTmp.toString());
-		} else if (c == '`' || Character.isJavaIdentifierStart(c)) {
+		} else if (c == '`' || c == '$' || Character.isJavaIdentifierStart(c)) {
 			boolean is_macro = (c == '`');
+			int tmp_c = c;
 
 			if (is_macro) {
 				c = get_ch();
@@ -145,13 +168,18 @@ public class SVIndentScanner implements ISVIndentScanner {
 			String id = readIdentifier(c);
 
 			if (is_macro) {
-				id = '`' + id;
+				id = (char)tmp_c + id;
 			}
 
 			token = new SVIndentToken(SVIndentTokenType.Identifier, fLeadingWS, id);
 		} else if (c == '(') {
-			// read an expression
-			token = read_expression(fLeadingWS);
+			System.out.println("fMonolithicExpr=" + fMonolithicExpr);
+			if (fMonolithicExpr) {
+				// read an expression
+				token = read_expression(fLeadingWS);
+			} else {
+				token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, "(");
+			}
 		} else if (c == ';') {
 			token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, ";");
 		} else if (Character.isDigit(c) || c == '\'') {
@@ -229,6 +257,18 @@ public class SVIndentScanner implements ISVIndentScanner {
 			if (c == '\n') {
 				token.setIsEndLine(true);
 				fStartLine = true;
+				if (token.getType() == SVIndentTokenType.BlankLine) {
+					unget_ch(c);
+				} else {
+					fTmp.setLength(0);
+					while ((c = get_ch()) != -1 && 
+							Character.isWhitespace(c) && c != '\n') {
+						fTmp.append((char)c);
+					}
+					
+					unget_ch(c);
+					fLeadingWS = fTmp.toString();
+				}
 			} else {
 				fTmp.setLength(0);
 				unget_ch(c);

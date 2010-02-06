@@ -1,9 +1,23 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.indent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.log.LogFactory;
@@ -15,13 +29,14 @@ public class SVDefaultIndenter {
 	};
 	private ISVIndentScanner				fScanner;
 	private Stack<String>					fIndentStack;
-	private List<SVIndentToken>				fTokenList; 
-	private int								fTokenIdx;
+	private List<SVIndentToken>				fTokenList;
+	private SVIndentToken					fCurrent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
 	private boolean							fDebugEn = false;
 	
 	static private Map<String, Integer>		fQualifierMap;
+	static private Set<String>				fPreProcDirectives;
 
 	static {
 		fQualifierMap = new HashMap<String, Integer>();
@@ -31,12 +46,21 @@ public class SVDefaultIndenter {
 		fQualifierMap.put("protected",	1 << 3);
 		fQualifierMap.put("public",		1 << 4);
 		fQualifierMap.put("extern",		1 << 5);
+		
+		fPreProcDirectives = new HashSet<String>();
+		fPreProcDirectives.add("`define");
+		fPreProcDirectives.add("`undef");
+		fPreProcDirectives.add("`ifdef");
+		fPreProcDirectives.add("`else");
+		fPreProcDirectives.add("`ifndef");
+		fPreProcDirectives.add("`endif");
+		fPreProcDirectives.add("`include");
+		fPreProcDirectives.add("`timescale");
 	}
 	
 	public SVDefaultIndenter() {
 		fIndentStack = new Stack<String>();
 		fTokenList = new ArrayList<SVIndentToken>();
-		fTokenIdx  = -1;
 		fLog = LogFactory.getDefault().getLogHandle("SVDefaultIndenter");
 	}
 	
@@ -49,9 +73,11 @@ public class SVDefaultIndenter {
 		StringBuilder sb = new StringBuilder();
 		SVIndentToken 	tok;
 		
+		/*
 		while ((tok = fScanner.next()) != null) {
 			fTokenList.add(tok);
 		}
+		 */
 		
 		while ((tok = next()) != null) {
 			
@@ -77,6 +103,7 @@ public class SVDefaultIndenter {
 						fQualifiers = 0;
 					} else if (tok.isOp(";")) {
 						fQualifiers = 0;
+						tok = next();
 					} else {
 						tok = next();
 					} 
@@ -149,7 +176,7 @@ public class SVDefaultIndenter {
 		debug("--> indent_loop_stmt() tok=" + tok.getImage());
 		
 		
-		if (tok.isId("repeat") || tok.isId("while")) {
+		if (tok.isId("repeat") || tok.isId("while") || tok.isId("for")) {
 			tok = next_s();
 			if (tok.getType() != SVIndentTokenType.Expression) {
 				return tok;
@@ -231,17 +258,36 @@ public class SVDefaultIndenter {
 		SVIndentToken tok = current_s();
 		String end = get_end_kw(item);
 		debug("--> indent_ifc_module_class(" + item + ")");
+
+		((SVIndentScanner)fScanner).setMonolithicExpr(false);
+		// double-indent any lines that are part of the the 
+		// declaration
+		push_indent();
+		push_indent();
 		
+		System.out.println("first tok=" + tok.getImage());
+
+		SVIndentToken last = tok;
 		// Reach the end of the declaration
-		while (tok != null && !tok.isOp(";")) {
+		while (!tok.isOp(";")) {
+			if (last.isOp(",")) {
+				System.out.println("after ',' next=" + tok.getImage() + " isStart=" + tok.isStartLine());
+			}
+
+			last = tok;
 			tok = next_s();
 		}
+		((SVIndentScanner)fScanner).setMonolithicExpr(true);
 		
-		push_indent();
+		// pop back to 'normal' scope indent
+		pop_indent();
+		
 		tok = next_s();
 		
 		// Now, read body items
 		while (tok != null) {
+			
+			System.out.println("tok=\"" + tok.getImage() + "\"");
 		
 			if (tok.isId(end)) {
 				break;
@@ -252,6 +298,13 @@ public class SVDefaultIndenter {
 				tok = indent_task_function(tok.getImage());
 			} else if (tok.isId("covergroup")) {
 				tok = indent_covergroup();
+			} else if (tok.isPreProc() && tok.isStartLine()) {
+				// Just read to the end of the line, since it's
+				// unlikely this statement will end with a ';'
+				while (!tok.isEndLine() && !tok.isOp(";")) {
+					tok = next_s();
+				}
+				tok = next_s();
 			} else {
 				tok = indent_block_or_statement();
 			}
@@ -260,7 +313,7 @@ public class SVDefaultIndenter {
 		pop_indent();
 		set_indent(tok);
 		
-		tok = next_s();
+		tok = consume_labeled_block(next_s());
 		
 		debug("--> indent_ifc_module_class(" + item + ") next=" + 
 				((tok != null)?tok.getImage():"null"));
@@ -356,7 +409,7 @@ public class SVDefaultIndenter {
 			set_indent(tok);
 		}
 
-		tok = next_s();
+		tok = consume_labeled_block(next_s());
 		
 		debug("--> indent_task_function(" + item + ") " +
 				((tok != null)?tok.getImage():"null"));
@@ -380,7 +433,9 @@ public class SVDefaultIndenter {
 					pop_indent();
 					set_indent(tok);
 					debug("Setting indent \"" + get_indent() + "\"");
-					tok = next();
+					tok = next_s();
+					
+					tok = consume_labeled_block(tok);
 					break;
 				} else {
 					tok = indent_block_or_statement();
@@ -401,8 +456,17 @@ public class SVDefaultIndenter {
 			} else if (tok.isId("typedef")) {
 				tok = indent_typedef();
 			} else if (tok.isId("while") || tok.isId("do") ||
-					tok.isId("repeat") || tok.isId("forever")) {
+					tok.isId("repeat") || tok.isId("forever") ||
+					tok.isId("for")) {
 				tok = indent_loop_stmt();
+			} else if (tok.isPreProc()) {
+				// For now, just read the line. This could be a problem in some cases
+				push_indent();
+				while (!tok.isOp(";") && !tok.isEndLine()) {
+					tok = next_s();
+				}
+				pop_indent();
+				tok = next_s();
 			} else {
 				// Push an indent to handle case where the statement is
 				// broken across multiple lines
@@ -488,42 +552,60 @@ public class SVDefaultIndenter {
 		}
 	}
 	
+	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
+		if (tok.isOp(":")) {
+			tok = next_s();
+			tok = next_s();
+		}
+		return tok;
+	}
+	
 	private SVIndentToken next() {
 		SVIndentToken tok = null;
 		
-		// Advance to ensure that current() returns null
-		if (fTokenIdx+1 >= fTokenList.size()) {
-			fTokenIdx++;
-		}
-		
-		while ((fTokenIdx+1) < fTokenList.size() &&
-				(tok = fTokenList.get(++fTokenIdx)) != null &&
+		while ((tok = fScanner.next()) != null &&
 				(tok.getType() == SVIndentTokenType.BlankLine ||
 					tok.getType() == SVIndentTokenType.MultiLineComment ||
-					tok.getType() == SVIndentTokenType.SingleLineComment)) {
-			debug("    skipped-next: " + tok.getImage());
+					tok.getType() == SVIndentTokenType.SingleLineComment ||
+					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage())))) {
+			System.out.println("    skipped-next: " + tok.getType() + " " + tok.getImage() + " @ " + tok.getLineno());
 			if (tok.getType() == SVIndentTokenType.SingleLineComment) {
 				set_indent(tok);
+				fTokenList.add(tok);
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
 				indent_multi_line_comment(tok);
+				fTokenList.add(tok);
+			} else if (tok.isPreProc()) {
+				// If this is a built-in directive, then place at the
+				// beginning of the line
+				Stack<String> stack = fIndentStack;
+				fIndentStack = new Stack<String>();
+				fIndentStack.push("");
+				set_indent(tok);
+				while (tok != null && !tok.isEndLine()) {
+					fTokenList.add(tok);
+					tok = next();
+				}
+				fIndentStack = stack;
+			} else {
+				fTokenList.add(tok);
 			}
 		}
 		
-		debug("next: tok=" + ((tok != null)?tok.getImage():"null"));
+		System.out.println("next: tok=" + ((tok != null)?tok.getImage():"null"));
 		
 		if (tok != null) {
 			set_indent(tok);
+			fTokenList.add(tok);
 		}
+		
+		fCurrent = tok;
 		
 		return tok;
 	}
 	
 	private SVIndentToken current() {
-		if (fTokenIdx >= fTokenList.size()) {
-			return null;
-		}
-		
-		return fTokenList.get(fTokenIdx);
+		return fCurrent;
 	}
 	
 	private SVIndentToken current_s() {
