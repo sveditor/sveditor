@@ -52,7 +52,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fFileTreeMap 	= new HashMap<String, SVDBFileTree>();
 		fRoot 			= root;
 		fResolvedRoot	= expandVars(fRoot, true);
-		fLog = LogFactory.getDefault().getLogHandle("SVDBLibIndex");
+		fLog = LogFactory.getLogHandle("SVDBLibIndex");
 		
 		// Initialize the filesystem interface
 		if (fFileSystemProvider != null) {

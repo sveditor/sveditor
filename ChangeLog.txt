@@ -10,14 +10,16 @@ tasks/functions, and begin/end blocks are supported.
       are not terminated at statement boundaries (at least in OVM). 
       For now, assuming that macro invocations end at a line boundary.
 
+- Update on-the-fly auto-indent to use the new indenter. This replaces a 
+whole raft of heuristic code that was less than reliable. However, as noted
+above, the new indenter is less than fully-tested, so expect some instability. 
 
-? Support auto-indent for paste using the indenter
+- Support auto-indent for paste using the indenter. This functionality is 
+only enabled if auto-indent is enabled in the SVEditor Preferences.
 
-? Investigate undefined macro errors
-
-? Annotate undefined macros as markers?
-
-? Support Open Declaration on enum value
+- Auto-indent is enabled by default for 'new' workspaces. For existing 
+workspaces, the user will need to enable auto-indent via the SVEditor 
+preferences page.
 
 ------------------------------------------------------------------------------
 

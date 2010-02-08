@@ -60,7 +60,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	public SVDBIndexRegistry() {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
-		fLog = LogFactory.getDefault().getLogHandle("SVDBIndexRegistry");
+		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 	}
 	
 	public void init(File state_location) {

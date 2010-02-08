@@ -61,23 +61,21 @@ public class SVDefaultIndenter {
 	public SVDefaultIndenter() {
 		fIndentStack = new Stack<String>();
 		fTokenList = new ArrayList<SVIndentToken>();
-		fLog = LogFactory.getDefault().getLogHandle("SVDefaultIndenter");
+		fLog = LogFactory.getLogHandle("SVDefaultIndenter");
 	}
 	
 	public void init(ISVIndentScanner scanner) {
 		fScanner = scanner;
 		fIndentStack.push("");
 	}
+	
+	public String indent() {
+		return indent(-1, -1);
+	}
 
 	public String indent(int start_line, int end_line) {
 		StringBuilder sb = new StringBuilder();
 		SVIndentToken 	tok;
-		
-		/*
-		while ((tok = fScanner.next()) != null) {
-			fTokenList.add(tok);
-		}
-		 */
 		
 		while ((tok = next()) != null) {
 			
@@ -128,6 +126,44 @@ public class SVDefaultIndenter {
 		return sb.toString();
 	}
 	
+	public String getLineIndent(int lineno) {
+		String ret = null;
+		
+		for (SVIndentToken t : fTokenList) {
+			if (t.getLineno() == lineno) {
+				ret = t.getLeadingWS();
+				break;
+			}
+		}
+		
+		return ret;
+	}
+	
+	public String getLine(int lineno) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i=0; i<fTokenList.size(); i++) {
+			SVIndentToken t = fTokenList.get(i);
+			
+			if (t.getLineno() == lineno) {
+				for (int j=i; j<fTokenList.size(); j++) {
+					t = fTokenList.get(j);
+					if (t.getLineno() == lineno) {
+						sb.append(t.getLeadingWS() + 
+								t.getImage() +
+								t.getTrailingWS() +
+								((t.isEndLine())?"\n":""));
+					} else {
+						break;
+					}
+				}
+				break;
+			}
+		}
+		
+		return sb.toString();
+	}
+	
 	private SVIndentToken indent_if() {
 		boolean non_block_stmt = false;
 		SVIndentToken tok = current();
@@ -156,7 +192,7 @@ public class SVDefaultIndenter {
 		if (tok.isId("else")) {
 			tok = next_s();
 			if (tok.isId("if")) {
-				indent_if();
+				tok = indent_if();
 			} else {
 				tok = indent_block_or_statement();
 			}
@@ -265,16 +301,8 @@ public class SVDefaultIndenter {
 		push_indent();
 		push_indent();
 		
-		System.out.println("first tok=" + tok.getImage());
-
-		SVIndentToken last = tok;
 		// Reach the end of the declaration
 		while (!tok.isOp(";")) {
-			if (last.isOp(",")) {
-				System.out.println("after ',' next=" + tok.getImage() + " isStart=" + tok.isStartLine());
-			}
-
-			last = tok;
 			tok = next_s();
 		}
 		((SVIndentScanner)fScanner).setMonolithicExpr(true);
@@ -287,8 +315,6 @@ public class SVDefaultIndenter {
 		// Now, read body items
 		while (tok != null) {
 			
-			System.out.println("tok=\"" + tok.getImage() + "\"");
-		
 			if (tok.isId(end)) {
 				break;
 			} else if (tok.getType() == SVIndentTokenType.Identifier &&
@@ -296,8 +322,17 @@ public class SVDefaultIndenter {
 				tok = next_s();
 			} else if (tok.isId("function") || tok.isId("task")) {
 				tok = indent_task_function(tok.getImage());
+			} else if (tok.isId("initial") || tok.isId("always")) {
+				tok = next_s();
+				if (tok.equals("@")) {
+					tok = next_s(); // expression
+					tok = next_s(); // beginning of statement
+				}
+				tok = indent_block_or_statement();
 			} else if (tok.isId("covergroup")) {
 				tok = indent_covergroup();
+			} else if (tok.isId("constraint")) {
+				tok = indent_constraint();
 			} else if (tok.isPreProc() && tok.isStartLine()) {
 				// Just read to the end of the line, since it's
 				// unlikely this statement will end with a ';'
@@ -349,6 +384,32 @@ public class SVDefaultIndenter {
 		
 		debug("--> indent_covergroup() next=" +
 				((tok != null)?tok.getImage():"null"));
+		return tok;
+	}
+	
+	private SVIndentToken indent_constraint() {
+		SVIndentToken tok = current_s();
+		
+		tok = next_s(); // name of constraint
+		
+		tok = next_s(); // Should be '{'
+		
+		if (!tok.isOp("{")) {
+			// Not sure what happened...
+			return tok;
+		}
+		push_indent();
+		
+		tok = next_s();
+		while (!tok.isOp("}")) {
+			tok = indent_constraint_stmt();
+		}
+		
+		pop_indent();
+		set_indent(tok);
+		
+		tok = next_s();
+		
 		return tok;
 	}
 	
@@ -442,42 +503,7 @@ public class SVDefaultIndenter {
 				}
 			}
 		} else {
-			// Just indent the statement
-			if (tok.isId("if")) {
-				tok = indent_if();
-			} else if (tok.isId("case")) {
-				tok = indent_case();
-			} else if (tok.isId("always")) {
-				if ((tok = next_s()).isOp("@")) {
-					tok = next_s();
-					tok = next_s(); // Should be either stmt or begin
-					indent_block_or_statement();
-				}
-			} else if (tok.isId("typedef")) {
-				tok = indent_typedef();
-			} else if (tok.isId("while") || tok.isId("do") ||
-					tok.isId("repeat") || tok.isId("forever") ||
-					tok.isId("for")) {
-				tok = indent_loop_stmt();
-			} else if (tok.isPreProc()) {
-				// For now, just read the line. This could be a problem in some cases
-				push_indent();
-				while (!tok.isOp(";") && !tok.isEndLine()) {
-					tok = next_s();
-				}
-				pop_indent();
-				tok = next_s();
-			} else {
-				// Push an indent to handle case where the statement is
-				// broken across multiple lines
-				// This is a bit of a temporary hack...
-				push_indent();
-				while (!tok.isOp(";")) {
-					tok = next_s();
-				}
-				pop_indent();
-				tok = next_s();
-			}
+			tok = indent_stmt();
 		}
 
 		debug("<-- indent_block_or_statement() tok=" + 
@@ -486,10 +512,142 @@ public class SVDefaultIndenter {
 		return tok;
 	}
 	
+	private SVIndentToken indent_stmt() {
+		SVIndentToken tok = current_s();
+		
+		// Just indent the statement
+		if (tok.isId("if")) {
+			tok = indent_if();
+		} else if (tok.isId("case")) {
+			tok = indent_case();
+		} else if (tok.isId("always")) {
+			if ((tok = next_s()).isOp("@")) {
+				tok = next_s();
+				tok = next_s(); // Should be either stmt or begin
+				indent_block_or_statement();
+			}
+		} else if (tok.isId("typedef")) {
+			tok = indent_typedef();
+		} else if (tok.isId("while") || tok.isId("do") ||
+				tok.isId("repeat") || tok.isId("forever") ||
+				tok.isId("for")) {
+			tok = indent_loop_stmt();
+		} else if (tok.isPreProc()) {
+			// For now, just read the line. This could be a problem in some cases
+			push_indent();
+			while (!tok.isOp(";") && !tok.isEndLine()) {
+				tok = next_s();
+			}
+			pop_indent();
+			tok = next_s();
+		} else {
+			// Push an indent to handle case where the statement is
+			// broken across multiple lines
+			// This is a bit of a temporary hack...
+			push_indent();
+			while (!tok.isOp(";")) {
+				tok = next_s();
+			}
+			pop_indent();
+			tok = next_s();
+		}
+		
+		return tok;
+	}
+	
+	private SVIndentToken indent_constraint_block_or_stmt() {
+		SVIndentToken tok = current_s();
+		
+		if (tok.isOp("{")) {
+			push_indent();
+			tok = next_s();
+			while (!tok.isOp("}")) {
+				tok = indent_constraint_block_or_stmt();
+			}
+			pop_indent();
+			set_indent(tok);
+			
+			tok = next_s();
+		} else {
+			tok = indent_constraint_stmt();
+		}
+		
+		return tok;
+	}
+	
+	private SVIndentToken indent_constraint_stmt() {
+		SVIndentToken tok = current_s();
+		
+		if (tok.isId("if")) {
+			tok = indent_constraint_if();
+		} else if (tok.getType() == SVIndentTokenType.Expression) {
+			// very likely an implication statement
+			tok = next_s();
+			
+			// (expr) -> [stmt | stmt_block]
+			if (tok.isOp("->")) {
+				tok = next_s();
+				tok = indent_constraint_block_or_stmt();
+			}
+			// Otherwise, really don't know what's being specified
+		} else {
+			// Read a statement up to a semi-colon
+			
+			while (!tok.isOp(";")) {
+				tok = next_s();
+			}
+			
+			tok = next_s();
+		}
+
+		return tok;
+	}
+	
+	private SVIndentToken indent_constraint_if() {
+		boolean non_block_stmt = false;
+		SVIndentToken tok = current();
+		debug("--> indent_constraint_if() tok=" + tok.getImage());
+		
+		tok = next_s();
+		if (tok.getType() != SVIndentTokenType.Expression) {
+			// Doesn't seem right for an if
+			return tok;
+		}
+		
+		// Advance past expression
+		tok = next_s();
+		
+		if (!tok.isOp("{")) {
+			push_indent();
+			set_indent(tok);
+			non_block_stmt = true;
+		}
+		
+		tok = indent_constraint_block_or_stmt();
+		
+		if (non_block_stmt) {
+			pop_indent();
+			set_indent(tok);
+		}
+		
+		if (tok.isId("else")) {
+			tok = next_s();
+			if (tok.isId("if")) {
+				tok = indent_constraint_if();
+			} else {
+				tok = indent_constraint_block_or_stmt();
+			}
+		}
+		
+		debug("<-- indent_constraint_if() tok=" + 
+				((tok != null)?tok.getImage():"null"));
+		
+		return tok;
+	}
+	
+	
 	private SVIndentToken indent_case() {
 		SVIndentToken tok = current();
-		
-		System.out.println("indent_case()");
 		
 		push_indent();
 		
@@ -568,7 +726,6 @@ public class SVDefaultIndenter {
 					tok.getType() == SVIndentTokenType.MultiLineComment ||
 					tok.getType() == SVIndentTokenType.SingleLineComment ||
 					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage())))) {
-			System.out.println("    skipped-next: " + tok.getType() + " " + tok.getImage() + " @ " + tok.getLineno());
 			if (tok.getType() == SVIndentTokenType.SingleLineComment) {
 				set_indent(tok);
 				fTokenList.add(tok);
@@ -591,8 +748,6 @@ public class SVDefaultIndenter {
 				fTokenList.add(tok);
 			}
 		}
-		
-		System.out.println("next: tok=" + ((tok != null)?tok.getImage():"null"));
 		
 		if (tok != null) {
 			set_indent(tok);

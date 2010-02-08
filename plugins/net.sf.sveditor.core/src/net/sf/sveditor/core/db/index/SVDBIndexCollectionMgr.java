@@ -55,7 +55,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fFileSearchOrder.add(fIncludePathList);
 		fFileSearchOrder.add(fPluginLibraryList);
 		
-		fLog = LogFactory.getDefault().getLogHandle("IndexCollectionMgr");
+		fLog = LogFactory.getLogHandle("IndexCollectionMgr");
 	}
 	
 	public String getProject() {

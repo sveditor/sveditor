@@ -43,7 +43,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			String						root,
 			ISVDBFileSystemProvider		fs_provider) {
 		super(project, root, fs_provider);
-		fLog = LogFactory.getDefault().getLogHandle("SVDBArgFileIndex");
+		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
 		
 		fFilePaths = new ArrayList<String>();
 		fIncludePaths = new ArrayList<String>();

@@ -36,13 +36,15 @@ public class LogFactory implements ILogListener {
 		return fDefault;
 	}
 	
-	public LogHandle getLogHandle(String name) {
-		if (!fLogHandleMap.containsKey(name)) {
+	public static LogHandle getLogHandle(String name) {
+		LogFactory f = getDefault();
+		
+		if (!f.fLogHandleMap.containsKey(name)) {
 			LogHandle handle = new LogHandle(name);
-			handle.init(this);
-			fLogHandleMap.put(name, handle);
+			handle.init(f);
+			f.fLogHandleMap.put(name, handle);
 		}
-		return fLogHandleMap.get(name);
+		return f.fLogHandleMap.get(name);
 	}
 
 	public void addLogListener(ILogListener l) {

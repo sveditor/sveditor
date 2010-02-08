@@ -44,6 +44,9 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_ML_COMMENT_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_STRING_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_KEYWORD_S, SWT.BOLD);
+		
+		store.setDefault(SVEditorPrefsConstants.P_DEBUG_ENABLED_S, false);
+		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
 	}
 
 }

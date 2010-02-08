@@ -14,7 +14,6 @@ package net.sf.sveditor.core.indent;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -22,7 +21,6 @@ import net.sf.sveditor.core.scanutils.IRandomAccessTextScanner;
 
 public class SVIndentScanner implements ISVIndentScanner {
 	private IRandomAccessTextScanner	fScanner;
-	private Stack<Integer>				fTabStack;
 	private int							fUngetCh;
 	private int							fLastCh[] = {-1, -1};
 	private int							fLastChT  = -1;
@@ -68,7 +66,9 @@ public class SVIndentScanner implements ISVIndentScanner {
 		":", "::",
 		
 		"{", "}", "#", "[", "]", ".", ",", "@", "?", "$",
-		"(", ")"
+		"(", ")",
+		
+		"->"
 	};
 
 	
@@ -96,7 +96,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 	
 	
 	public SVIndentScanner(IRandomAccessTextScanner scanner) {
-		fTabStack = new Stack<Integer>();
 		fTmp = new StringBuilder();
 		fScanner = scanner;
 
@@ -106,7 +105,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 		fLineno    		= 1;
 		fMonolithicExpr = true;
 		
-		fLog = LogFactory.getDefault().getLogHandle("SVIndentScanner");
+		fLog = LogFactory.getLogHandle("SVIndentScanner");
 	}
 	
 	public void setMonolithicExpr(boolean en) {
@@ -173,7 +172,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 
 			token = new SVIndentToken(SVIndentTokenType.Identifier, fLeadingWS, id);
 		} else if (c == '(') {
-			System.out.println("fMonolithicExpr=" + fMonolithicExpr);
 			if (fMonolithicExpr) {
 				// read an expression
 				token = read_expression(fLeadingWS);

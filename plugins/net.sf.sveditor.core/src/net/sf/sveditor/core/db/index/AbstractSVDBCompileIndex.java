@@ -49,7 +49,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 	
 	private List<String>							fIncludePaths;
 	private List<String>							fFilePaths;
-	private LogHandle								fLog;
+	private static LogHandle						fLog;
 	private Map<String, SVDBFileTree>				fFileTreeMap;
 	private Map<String, String>						fDefineMap;
 	
@@ -59,8 +59,7 @@ public abstract class AbstractSVDBCompileIndex extends AbstractSVDBIndex {
 		fIncludePaths 	= new ArrayList<String>();
 		fFilePaths 		= new ArrayList<String>();
 		fFileTreeMap	= new HashMap<String, SVDBFileTree>();
-		fLog			= LogFactory.getDefault().getLogHandle(
-				"SVDBFileSystemCompileIndex");
+		fLog			= LogFactory.getLogHandle("SVDBFileSystemCompileIndex");
 		fDefineMap 		= new HashMap<String, String>();
 	}
 	
