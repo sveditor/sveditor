@@ -121,9 +121,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			if (indent_newline) {
 				doc_str.append("DUMMY STATEMENT;\n");
 			}
-			doc_str.append(doc.get(
-				cmd.offset+cmd.length, 
-				(doc.getLength()-(cmd.offset+cmd.length)-1)));
+			
+			if (doc.getLength() > (cmd.offset+cmd.length)) {
+				doc_str.append(doc.get(
+						cmd.offset+cmd.length, 
+						(doc.getLength()-(cmd.offset+cmd.length)-1)));
+			}
 			
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
@@ -151,7 +154,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     			} else {
     				int n_ws_chars = 0;
     				// replace any leading whitespace with the new indent
-    				while (Character.isWhitespace(
+    				while ((cmd_line.getOffset()+n_ws_chars) < doc.getLength() &&
+    						Character.isWhitespace(
     						doc.getChar(cmd_line.getOffset()+n_ws_chars)) &&
     						doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\n') {
     					n_ws_chars++;
@@ -180,7 +184,10 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     					doc_str.reverse();
     					
     					if ((doc_str.toString().startsWith("end") ||
-    							doc_str.toString().equals("while")) 
+    							doc_str.toString().equals("while") ||
+    							doc_str.toString().equals("join") ||
+    							doc_str.toString().equals("join_any") ||
+    							doc_str.toString().equals("join_none")) 
     						&& (indent.length() < n_ws_chars)) {
         					doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
         					cmd.offset += (indent.length() - n_ws_chars);

@@ -30,5 +30,9 @@ public class SVRangeExpr extends SVExpr {
 	public SVExpr getRight() {
 		return fRight;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVRangeExpr(fLeft.duplicate(), fRight.duplicate());
+	}
 
 }

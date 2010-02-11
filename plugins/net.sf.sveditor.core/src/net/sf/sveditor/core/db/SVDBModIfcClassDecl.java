@@ -56,6 +56,11 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		return fSuperParams;
 	}
 	
+	public boolean isParameterized() {
+		return ((fParams != null && fParams.size() > 0) ||
+				(fSuperParams != null && fSuperParams.size() > 0));
+	}
+	
 	public String getSuperClass() {
 		return fSuperClass;
 	}
@@ -75,9 +80,13 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	public void init(SVDBItem other) {
 		super.init(other);
 
-		fParams.clear();
-		for (SVDBModIfcClassParam p : ((SVDBModIfcClassDecl)other).fParams) {
-			fParams.add((SVDBModIfcClassParam)p.duplicate());
+		if (((SVDBModIfcClassDecl)other).fParams != null) {
+			fParams.clear();
+			for (SVDBModIfcClassParam p : ((SVDBModIfcClassDecl)other).fParams) {
+				fParams.add((SVDBModIfcClassParam)p.duplicate());
+			}
+		} else {
+			fParams = null;
 		}
 	}
 }

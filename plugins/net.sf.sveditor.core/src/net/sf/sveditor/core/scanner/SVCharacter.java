@@ -10,23 +10,20 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.expr.parser;
+package net.sf.sveditor.core.scanner;
 
-public class SVQualifiedThisRefExpr extends SVExpr {
-	private SVExpr 				fExpr;
-	
-	public SVQualifiedThisRefExpr(SVExpr expr) {
-		super(SVExprType.QualifiedThisRef);
-		
-		fExpr = expr;
+public class SVCharacter {
+
+	public static boolean isSVIdentifierStart(int c) {
+		return (Character.isJavaIdentifierStart(c) ||
+				c == '$'
+				);
 	}
-	
-	public SVExpr getExpr() {
-		return fExpr;
-	}
-	
-	public SVExpr duplicate() {
-		return new SVQualifiedThisRefExpr(fExpr.duplicate());
+
+	public static boolean isSVIdentifierPart(int c) {
+		return (Character.isJavaIdentifierPart(c) ||
+				c == '$'
+				);
 	}
 
 }

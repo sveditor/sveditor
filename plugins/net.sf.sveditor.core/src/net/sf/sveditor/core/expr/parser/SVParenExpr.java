@@ -24,5 +24,9 @@ public class SVParenExpr extends SVExpr {
 	public SVExpr getExpr() {
 		return fExpr;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVParenExpr(fExpr.duplicate());
+	}
 
 }

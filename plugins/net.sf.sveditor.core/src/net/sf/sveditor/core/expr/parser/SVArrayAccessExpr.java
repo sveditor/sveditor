@@ -37,4 +37,22 @@ public class SVArrayAccessExpr extends SVExpr {
 		return fHigh;
 	}
 	
+	public SVExpr duplicate() {
+		SVArrayAccessExpr ret = new SVArrayAccessExpr(fLhs, fLow, fHigh);
+		
+		ret.init(this);
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		SVArrayAccessExpr aa = (SVArrayAccessExpr)other;
+
+		super.init(other);
+
+		fLhs = aa.fLhs;
+		fLow = aa.fLow;
+		fHigh = aa.fHigh;
+	}
+	
 }

@@ -17,5 +17,9 @@ public class SVDistListExpr extends SVExpr {
 	public SVDistListExpr() {
 		super(SVExprType.DistList);
 	}
+	
+	public SVExpr duplicate() {
+		return new SVDistListExpr();
+	}
 
 }

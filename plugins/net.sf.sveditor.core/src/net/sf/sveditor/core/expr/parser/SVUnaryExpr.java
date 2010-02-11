@@ -30,5 +30,9 @@ public class SVUnaryExpr extends SVExpr {
 	public String getOp() {
 		return fOp;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVUnaryExpr(fOp, fExpr.duplicate());
+	}
 
 }

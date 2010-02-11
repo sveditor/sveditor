@@ -30,4 +30,8 @@ public class SVFieldAccessExpr extends SVExpr {
 	public String getId() {
 		return fId;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVFieldAccessExpr(fExpr.duplicate(), fId);
+	}
 }

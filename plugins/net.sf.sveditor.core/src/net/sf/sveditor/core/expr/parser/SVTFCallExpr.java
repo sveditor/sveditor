@@ -37,4 +37,13 @@ public class SVTFCallExpr extends SVExpr {
 		return fArgs;
 	}
 	
+	public SVExpr duplicate() {
+		SVExpr args[] = new SVExpr[fArgs.length];
+		
+		for (int i=0; i<fArgs.length; i++) {
+			args[i] = fArgs[i].duplicate();
+		}
+		
+		return new SVTFCallExpr(fTarget.duplicate(), fName, args);
+	}
 }

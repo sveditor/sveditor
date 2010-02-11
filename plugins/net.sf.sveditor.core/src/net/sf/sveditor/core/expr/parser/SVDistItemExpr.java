@@ -12,9 +12,10 @@
 
 package net.sf.sveditor.core.expr.parser;
 
-public class SVDistItemExpr {
+public class SVDistItemExpr extends SVExpr {
 	
 	public SVDistItemExpr() {
+		super(SVExprType.DistList);
 		
 	}
 

@@ -25,5 +25,9 @@ public class SVLiteralExpr extends SVExpr {
 	public String getValue() {
 		return fLiteral;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVLiteralExpr(fLiteral);
+	}
 
 }

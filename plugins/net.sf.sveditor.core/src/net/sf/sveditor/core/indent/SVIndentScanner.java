@@ -30,10 +30,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 	private String						fLeadingWS;
 	private SVIndentToken				fCurrent;
 	
-	// Flag controls whether an expression (..) is 
-	// returned as a monolithic item
-	private boolean						fMonolithicExpr;
-	
 	private static Set<String>			fScopeKeywords;
 	private static Set<String>			fQualifiers;
 	private StringBuilder				fTmp;
@@ -103,13 +99,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 		fLastCh[0] 		= -1;
 		fLastCh[1] 		= '\n';
 		fLineno    		= 1;
-		fMonolithicExpr = true;
 		
 		fLog = LogFactory.getLogHandle("SVIndentScanner");
-	}
-	
-	public void setMonolithicExpr(boolean en) {
-		fMonolithicExpr = en;
 	}
 	
 	public SVIndentToken next() {
@@ -171,6 +162,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 			}
 
 			token = new SVIndentToken(SVIndentTokenType.Identifier, fLeadingWS, id);
+/*			
 		} else if (c == '(') {
 			if (fMonolithicExpr) {
 				// read an expression
@@ -178,6 +170,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 			} else {
 				token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, "(");
 			}
+ */
 		} else if (c == ';') {
 			token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, ";");
 		} else if (Character.isDigit(c) || c == '\'') {
@@ -300,7 +293,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 	public SVIndentToken current() {
 		return fCurrent;
 	}
-	
+
+/*	
 	private SVIndentToken read_expression(String leading_ws) {
 		SVIndentExprToken ret = new SVIndentExprToken(leading_ws);
 		int n_left = 1, n_right = 0, c;
@@ -350,6 +344,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 		// Return null if the braces didn't match
 		return (n_left == n_right)?ret:null;
 	}
+*/
 	
 	
 	private SVIndentToken read_single_line_comment(String leading_ws) {

@@ -36,5 +36,19 @@ public class SVCondExpr extends SVExpr {
 	public SVExpr getRhs() {
 		return fRhs;
 	}
+	
+	public SVExpr duplicate() {
+		SVCondExpr ret = new SVCondExpr(fLhs.duplicate(), fMhs.duplicate(), fRhs.duplicate());
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		SVCondExpr ce = (SVCondExpr)other;
+		
+		fLhs = ce.fLhs.duplicate();
+		fMhs = ce.fMhs.duplicate();
+		fRhs = ce.fRhs.duplicate();
+	}
 
 }

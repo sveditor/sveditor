@@ -31,5 +31,10 @@ public class SVImplicationExpr extends SVConstraintExpr {
 	public SVConstraintSetExpr getConstraintSet() {
 		return fConstraint;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVImplicationExpr(fExpr.duplicate(), 
+				(SVConstraintSetExpr)fConstraint.duplicate());
+	}
 
 }

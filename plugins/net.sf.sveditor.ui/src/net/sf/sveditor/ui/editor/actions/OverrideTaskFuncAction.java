@@ -22,7 +22,12 @@ import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -111,7 +116,6 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 				fEditor.getSite().getShell(), 
 				(SVDBModIfcClassDecl)active_scope, index_it);
 
-		System.out.println("open dialog");
 		dlg.setBlockOnOpen(true);
 		
 		dlg.open();
@@ -171,6 +175,35 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 			
 			offset = doc.getLineOffset(insert_point_line);
 			doc.replace(offset, 0, new_tf.toString());
+			
+			// Now, format the new addition if auto-indent is enabled
+			boolean indent_en = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
+					SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S);
+			
+			if (indent_en) {
+				int line_cnt = 0;
+				
+				for (int i=0; i<new_tf.length(); i++) {
+					if (new_tf.charAt(i) == '\n') {
+						line_cnt++;
+					}
+				}
+				
+				SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
+				
+				SVDefaultIndenter indenter = new SVDefaultIndenter();
+				SVIndentScanner scanner = new SVIndentScanner(text_scanner);
+				
+				indenter.init(scanner);
+				
+				try {
+					String str = indenter.indent(insert_point_line+1, 
+							(insert_point_line+line_cnt));
+					doc.replace(offset, new_tf.length(), str);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

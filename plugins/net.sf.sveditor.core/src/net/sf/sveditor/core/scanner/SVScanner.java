@@ -131,7 +131,7 @@ public class SVScanner implements ISVScanner {
 					} else if (id.equals("typedef")) {
 						process_typedef();
 					} else if (id.equals("function") || id.equals("task")) {
-						process_task_function(0, id);
+						process_task_function(ret.fField2, id);
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
@@ -1381,7 +1381,8 @@ public class SVScanner implements ISVScanner {
 		return (id.equals("int") || id.equals("integer") || 
 				id.equals("unsigned") || id.equals("signed") ||
 				id.equals("bit") || id.equals("void") ||
-				id.equals("longint") || id.equals("chandle"));
+				id.equals("longint") || id.equals("chandle") ||
+				id.equals("real") || id.equals("shortreal"));
 	}
 	
 	private SVTypeInfo readTypeName(int ch, boolean task_func) throws EOFException {

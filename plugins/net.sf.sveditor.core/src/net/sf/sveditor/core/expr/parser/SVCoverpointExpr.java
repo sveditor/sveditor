@@ -73,5 +73,21 @@ public class SVCoverpointExpr extends SVCoverageExpr {
 	public Map<String, String> getTypeOptionMap() {
 		return fTypeOptionMap;
 	}
+	
+	public SVExpr duplicate() {
+		SVCoverpointExpr ret = new SVCoverpointExpr();
+		
+		ret.fOptionMap.putAll(fOptionMap);
+		ret.fTypeOptionMap.putAll(fTypeOptionMap);
+
+		for (SVCoverBinsExpr e : fCoverBins) {
+			ret.fCoverBins.add((SVCoverBinsExpr)e.duplicate());
+		}
+		
+		ret.fIffExpr = (fIffExpr != null)?fIffExpr.duplicate():null;
+		ret.fTarget  = (fTarget != null)?fTarget.duplicate():null;
+		
+		return ret;
+	}
 
 }

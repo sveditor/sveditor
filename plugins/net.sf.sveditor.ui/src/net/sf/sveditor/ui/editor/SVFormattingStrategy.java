@@ -13,7 +13,6 @@
 package net.sf.sveditor.ui.editor;
 
 import org.eclipse.jface.text.formatter.ContextBasedFormattingStrategy;
-import org.eclipse.jface.text.formatter.IFormattingStrategy;
 
 public class SVFormattingStrategy extends ContextBasedFormattingStrategy {
 

@@ -36,5 +36,21 @@ public class SVBinaryExpr extends SVExpr {
 	public SVExpr getRhs() {
 		return fRhs;
 	}
+	
+	public SVExpr duplicate() {
+		SVBinaryExpr ret = new SVBinaryExpr(fLhs.duplicate(), fOp, fRhs.duplicate());
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		super.init(other);
+		
+		SVBinaryExpr be = (SVBinaryExpr)other;
+		
+		fLhs = be.fLhs.duplicate();
+		fOp  = be.fOp;
+		fRhs = be.fRhs.duplicate();
+	}
 
 }

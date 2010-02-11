@@ -31,4 +31,18 @@ public class SVCastExpr extends SVExpr {
 		return fExpr;
 	}
 	
+	public SVCastExpr duplicate() {
+		SVCastExpr ret = new SVCastExpr(fCastType.duplicate(), fExpr.duplicate());
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		super.init(other);
+		
+		SVCastExpr ce = (SVCastExpr)other;
+		fCastType = ce.fCastType.duplicate();
+		fExpr     = ce.fExpr.duplicate();
+	}
+	
 }

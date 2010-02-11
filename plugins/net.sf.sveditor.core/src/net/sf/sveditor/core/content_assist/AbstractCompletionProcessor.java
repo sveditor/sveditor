@@ -585,7 +585,10 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		if (!found) {
-			debug("addProposal: " + it.getName());
+			debug("addProposal: " + it.getName() + " " + it.getType());
+			System.out.println("addProposal: replacement=" + it.getName() +  
+					 " replacementOffset=" + replacementOffset + 
+					 " replacementLength=" + replacementLength);
 			addProposal(new SVCompletionProposal(it, prefix, 
 					replacementOffset, replacementLength));
 		}

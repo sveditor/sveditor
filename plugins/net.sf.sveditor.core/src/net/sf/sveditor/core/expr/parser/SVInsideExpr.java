@@ -32,5 +32,15 @@ public class SVInsideExpr extends SVExpr {
 	public List<SVExpr> getValueRangeList() {
 		return fValueRangeList;
 	}
+	
+	public SVExpr duplicate() {
+		SVInsideExpr ret = new SVInsideExpr(fLhs.duplicate());
+		
+		for (SVExpr e : fValueRangeList) {
+			ret.getValueRangeList().add(e.duplicate());
+		}
+		
+		return ret;
+	}
 
 }

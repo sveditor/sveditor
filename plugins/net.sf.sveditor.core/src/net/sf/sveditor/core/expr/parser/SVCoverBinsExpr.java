@@ -66,5 +66,17 @@ public class SVCoverBinsExpr extends SVCoverageExpr {
 		return fRangeList;
 	}
 	
+	public SVExpr duplicate() {
+		SVCoverBinsExpr ret = new SVCoverBinsExpr(fName, fBinsType);
+		ret.fIsArray = fIsArray;
+		ret.fArrayExpr = (fArrayExpr != null)?fArrayExpr.duplicate():null;
+		for (SVExpr e : fRangeList) {
+			ret.fRangeList.add(e.duplicate());
+		}
+		ret.fIsDefault = fIsDefault;
+		
+		return ret;
+	}
+	
 
 }

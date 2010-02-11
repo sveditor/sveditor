@@ -10,23 +10,16 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.expr.parser;
+package net.sf.sveditor.core.expr.eval;
 
-public class SVQualifiedThisRefExpr extends SVExpr {
-	private SVExpr 				fExpr;
+import net.sf.sveditor.core.expr.parser.SVExpr;
+
+public class SVExprComparator {
 	
-	public SVQualifiedThisRefExpr(SVExpr expr) {
-		super(SVExprType.QualifiedThisRef);
-		
-		fExpr = expr;
-	}
-	
-	public SVExpr getExpr() {
-		return fExpr;
-	}
-	
-	public SVExpr duplicate() {
-		return new SVQualifiedThisRefExpr(fExpr.duplicate());
+	public synchronized boolean is_equal(
+			SVExpr				expr_1,
+			SVExpr				expr_2) {
+		return false;
 	}
 
 }

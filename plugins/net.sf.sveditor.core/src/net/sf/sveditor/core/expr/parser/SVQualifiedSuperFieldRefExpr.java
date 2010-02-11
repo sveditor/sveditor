@@ -31,5 +31,9 @@ public class SVQualifiedSuperFieldRefExpr extends SVExpr {
 	public String getId() {
 		return fId;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVQualifiedSuperFieldRefExpr(fLhs.duplicate(), fId);
+	}
 
 }

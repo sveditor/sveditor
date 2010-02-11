@@ -32,5 +32,14 @@ public class SVSolveBeforeExpr extends SVConstraintExpr {
 	public List<String> getSolveAfterList() {
 		return fSolveAfterList;
 	}
+	
+	public SVExpr duplicate() {
+		SVSolveBeforeExpr ret = new SVSolveBeforeExpr();
+		
+		ret.fSolveBeforeList.addAll(fSolveAfterList);
+		ret.fSolveAfterList.addAll(fSolveAfterList);
+		
+		return ret;
+	}
 
 }

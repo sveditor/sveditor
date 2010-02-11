@@ -26,5 +26,15 @@ public class SVConstraintSetExpr extends SVExpr {
 	public List<SVExpr> getConstraintList() {
 		return fConstraintList;
 	}
+	
+	public SVExpr duplicate() {
+		SVConstraintSetExpr ret = new SVConstraintSetExpr();
+		
+		for (SVExpr e : fConstraintList) {
+			ret.fConstraintList.add(e.duplicate());
+		}
+		
+		return ret;
+	}
 
 }

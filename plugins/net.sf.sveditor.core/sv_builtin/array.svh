@@ -6,7 +6,7 @@ class __sv_builtin_array #(type T=int);
 	
 endclass
 
-class __sv_builtin_assoc_array #(type IDX=int, type T=int);
+class __sv_builtin_assoc_array #(type T=int, type IDX=int);
 
 	extern function int num();
 	

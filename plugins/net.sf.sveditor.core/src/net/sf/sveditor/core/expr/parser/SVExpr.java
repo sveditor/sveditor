@@ -28,4 +28,15 @@ public class SVExpr {
 		return SVExprUtils.getDefault().exprToString(this);
 	}
 	
+	public SVExpr duplicate() {
+		SVExpr ret = new SVExpr(fType);
+		
+		ret.init(this);
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		fType = other.fType;
+	}
 }

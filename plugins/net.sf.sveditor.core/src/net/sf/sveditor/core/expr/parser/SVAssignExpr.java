@@ -32,12 +32,41 @@ public class SVAssignExpr extends SVExpr {
 		return fLhs;
 	}
 	
+	public void setLhs(SVExpr lhs) {
+		fLhs = lhs;
+	}
+	
 	public String getOp() {
 		return fOp;
+	}
+	
+	public void setOp(String op) {
+		fOp = op;
 	}
 	
 	public SVExpr getRhs() {
 		return fRhs;
 	}
+	
+	public void setRhs(SVExpr rhs) {
+		fRhs = rhs;
+	}
 
+	public SVExpr duplicate() {
+		SVAssignExpr ret = new SVAssignExpr(fLhs, fOp, fRhs);
+		
+		ret.init(this);
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		SVAssignExpr ae = (SVAssignExpr)other;
+		
+		super.init(other);
+		
+		fLhs = ae.fLhs;
+		fOp  = ae.fOp;
+		fRhs = ae.fRhs;
+	}
 }

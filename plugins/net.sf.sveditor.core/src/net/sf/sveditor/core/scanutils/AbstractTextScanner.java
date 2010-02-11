@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.scanutils;
 
+import net.sf.sveditor.core.scanner.SVCharacter;
+
 
 public abstract class AbstractTextScanner implements ITextScanner {
 	protected StringBuilder				fTmpBuffer;
@@ -61,7 +63,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		fTmpBuffer.setLength(0);
 		
 		if (fScanFwd) {
-			if (!Character.isJavaIdentifierStart(ci)) {
+			if (!SVCharacter.isSVIdentifierStart(ci)) {
 				unget_ch(ci);
 				return null;
 			}
@@ -69,7 +71,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 			fTmpBuffer.append((char)ci);
 
 			while ((ci = get_ch()) != -1 && 
-					(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+					(SVCharacter.isSVIdentifierPart(ci) || ci == ':')) {
 				fTmpBuffer.append((char)ci);
 			}
 			unget_ch(ci);
@@ -82,7 +84,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 				fTmpBuffer.setLength(fTmpBuffer.length()-1);
 			}
 		} else {
-			if (!Character.isJavaIdentifierPart(ci)) {
+			if (!SVCharacter.isSVIdentifierPart(ci)) {
 				unget_ch(ci);
 				return null;
 			}
@@ -90,7 +92,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 			fTmpBuffer.append((char)ci);
 
 			while ((ci = get_ch()) != -1 && 
-					(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+					(SVCharacter.isSVIdentifierPart(ci) || ci == ':')) {
 				fTmpBuffer.append((char)ci);
 			}
 			unget_ch(ci);
@@ -98,18 +100,19 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		
 		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
 	}
+	
 
 	public String readPreProcIdentifier(int ci) {
 		fTmpBuffer.setLength(0);
 		
-		if (!Character.isJavaIdentifierStart(ci)) {
+		if (!SVCharacter.isSVIdentifierStart(ci)) {
 			unget_ch(ci);
 			return null;
 		}
 
 		fTmpBuffer.append((char)ci);
 
-		while ((ci = get_ch()) != -1 && Character.isJavaIdentifierPart(ci)) {
+		while ((ci = get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ci)) {
 			fTmpBuffer.append((char)ci);
 		}
 		unget_ch(ci);

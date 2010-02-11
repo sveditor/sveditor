@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 import org.eclipse.jface.text.TextAttribute;
@@ -85,11 +86,11 @@ public class SVCodeScanner extends RuleBasedScanner {
 
 		WordRule wordRule = new WordRule(new IWordDetector() {
 			public boolean isWordPart(char c) {
-				return Character.isJavaIdentifierPart(c);
+				return SVCharacter.isSVIdentifierPart(c);
 			}
 			
 			public boolean isWordStart(char c) {
-				return Character.isJavaIdentifierStart(c);
+				return SVCharacter.isSVIdentifierStart(c);
 			}
 		}, default_t);
 		
@@ -107,7 +108,7 @@ public class SVCodeScanner extends RuleBasedScanner {
 		// Add a coloring rule for pre-processor operations
 		rules.add(new WordRule(new IWordDetector() {
 			public boolean isWordPart(char c) {
-				return Character.isJavaIdentifierPart(c);
+				return SVCharacter.isSVIdentifierPart(c);
 			}
 
 			public boolean isWordStart(char c) {

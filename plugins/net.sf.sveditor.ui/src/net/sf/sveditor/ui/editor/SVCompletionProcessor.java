@@ -60,7 +60,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		new ArrayList<ICompletionProposal>();
 
 	public SVCompletionProcessor() {
-		fLog = LogFactory.getDefault().getLogHandle("SVCompletionProcessor");
+		fLog = LogFactory.getLogHandle("SVCompletionProcessor");
 	}
 	
 	public void init(SVEditor editor) {
@@ -175,6 +175,14 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		return ret;
 	}
 	
+	private String escapeId(String id) {
+		if (id.startsWith("$")) {
+			return "$" + id;
+		} else {
+			return id;
+		}
+	}
+	
 	private ICompletionProposal createTaskFuncProposal(
 			SVDBItem 					it,
 			IDocument					doc,
@@ -184,12 +192,14 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
 		
+		System.out.println("createTaskFuncProposal: " + it.getName());
+		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
 		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
 		
 		d.append(it.getName() + "(");
-		r.append(it.getName() + "(");
+		r.append(escapeId(it.getName()) + "(");
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
 			SVDBTaskFuncParam param = tf.getParams().get(i);
@@ -208,6 +218,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		r.append(")");
 		
 		if (it.getType() == SVDBItemType.Function &&
+				tf.getReturnType() != null &&
+				!tf.getReturnType().equals("void") &&
 				!it.getName().equals("new")) {
 			d.append(" : ");
 			d.append(tf.getReturnType());
@@ -219,9 +231,21 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
 			class_it = class_it.getParent();
 		}
+		
+		String cls_name = null;
+		if (class_it != null) {
+			cls_name = class_it.getName();
+			if (cls_name.equals("__sv_builtin_queue")) {
+				cls_name = "[$]";
+			} else if (cls_name.equals("__sv_builtin_array")) {
+				cls_name = "[]";
+			} else if (cls_name.equals("__sv_builtin_assoc_array")) {
+				cls_name = "[*]";
+			}
+		}
 
 		Template t = new Template(d.toString(), 
-				(class_it != null)?class_it.getName():"", "CONTEXT",
+				(cls_name != null)?cls_name:"", "CONTEXT",
 				r.toString(), (tf.getParams().size() == 0));
 		
 		return new TemplateProposal(t, ctxt,

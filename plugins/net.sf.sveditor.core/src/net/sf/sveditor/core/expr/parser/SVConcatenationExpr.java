@@ -27,5 +27,25 @@ public class SVConcatenationExpr extends SVExpr {
 		return fElems;
 	}
 	
+	public SVExpr duplicate() {
+		SVConcatenationExpr ret = new SVConcatenationExpr();
+		
+		ret.init(this);
+		
+		return ret;
+	}
+	
+	public void init(SVExpr other) {
+		SVConcatenationExpr ce = (SVConcatenationExpr)other;
+		
+		super.init(other);
+		
+		fElems.clear();
+		
+		for (SVExpr e : ce.fElems) {
+			fElems.add(e.duplicate());
+		}
+	}
+	
 
 }

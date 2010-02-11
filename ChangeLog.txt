@@ -1,4 +1,53 @@
 
+-- 0.1.2 Release --
+
+- Add content-assist support for parameterized classes. Now, content assist
+will parse and operate on the specialized class rather than its base type. 
+This means that, for example, content assist can 'see through' a parameterized
+member field.
+
+- Improve content-assist support for dynamic arrays, queues, and 
+associative arrays. Now, methods that are part of the type (ie queue) are 
+provided as content-assist proposals.
+
+- Fix bug with accepting a expression content proposal with no leaf. 
+For example: foo.<CTRL-SPACE>. Previously, performing this operation would
+result in the content being inserted at the beginning of the document. 
+
+- Apply auto-indent to content inserted by Override Methods dialog
+
+- Correct a bug in the scanner with extern tasks/functions outside a 
+class/package scope
+
+? Fix auto-indent bugs
+    - Support package as an indent scope
+    - Resolve issues when typing at the very end of a document.
+    - Properly indent class declarations within packages and modules
+    - Correct issue with indenting extern task/function
+    - Support fork/join* as an indent scope
+    - Fix problem with pasting, with auto-indent, in the middle of a port map
+
+- Remove OVM plugin library from distribution. Source from user's environment
+is typically used.
+
+? Fix duplicates in content-assist list for include
+
+? Add SystemVerilog system tasks and functions to the default library
+
+? Check into Override dialog logic. Why is nothing shown for ovm_env?
+
+? Add resolve-path support to the FileSystem interface. This will allow 
+relative paths to reach beyond the scope of the enclosing project
+
+
+
+? Covergroup methods
+
+? Constraint methods
+
+
+------------------------------------------------------------------------------
+
 -- 0.1.1 Release --
 
 - Add the beginnings of an indenter. To activate, select text in the editor

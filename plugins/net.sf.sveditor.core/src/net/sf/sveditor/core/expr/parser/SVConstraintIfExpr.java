@@ -45,5 +45,11 @@ public class SVConstraintIfExpr extends SVConstraintExpr {
 	public boolean isElseIf() {
 		return fElseIf;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVConstraintIfExpr(fIfExpr.duplicate(),
+				(SVConstraintSetExpr)fConstraint.duplicate(),
+				(fElse != null)?fElse.duplicate():null, fElseIf);
+	}
 
 }

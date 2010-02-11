@@ -40,5 +40,10 @@ public class SVIdentifierExpr extends SVExpr {
 		
 		return fIdStr;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVIdentifierExpr(fId);
+	}
+	
 
 }

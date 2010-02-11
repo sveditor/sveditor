@@ -41,7 +41,7 @@ public class SVFScanner {
 		fDefineMap 		= new HashMap<String, String>();
 		fFilePaths 		= new ArrayList<String>();
 		
-		fLog = LogFactory.getDefault().getLogHandle("SVArgFileScanner");
+		fLog = LogFactory.getLogHandle("SVArgFileScanner");
 	}
 	
 	public List<String> getIncludePaths() {
@@ -138,6 +138,26 @@ public class SVFScanner {
 				// TODO: decide 
 				
 			} else {
+				if (ch == '/') {
+					int ch2 = fScanner.get_ch();
+					if (ch2 == '/') {
+						while ((ch = fScanner.get_ch()) != -1 && 
+								ch != '\n') {}
+						fScanner.unget_ch(ch);
+						continue;
+					} else if (ch2 == '*') {
+						int match[] = {-1, -1};
+						do {
+							match[0] = match[1];
+							match[1] = fScanner.get_ch();
+						} while ((match[0] != -1 || match[1] != -1) &&
+								match[0] != '*' || match[1] != '/');
+						continue;
+					} else {
+						fScanner.unget_ch(ch2);
+					}
+				}
+				
 				// Probably a file path
 				
 				tmp.setLength(0);

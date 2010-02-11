@@ -30,5 +30,9 @@ public class SVIncDecExpr extends SVExpr {
 	public String getOp() {
 		return fOp;
 	}
+	
+	public SVExpr duplicate() {
+		return new SVIncDecExpr(fOp, fExpr.duplicate());
+	}
 
 }
