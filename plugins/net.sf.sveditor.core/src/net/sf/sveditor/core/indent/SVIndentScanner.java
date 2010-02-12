@@ -90,7 +90,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 		}
 	}
 	
-	
 	public SVIndentScanner(IRandomAccessTextScanner scanner) {
 		fTmp = new StringBuilder();
 		fScanner = scanner;
@@ -162,15 +161,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 			}
 
 			token = new SVIndentToken(SVIndentTokenType.Identifier, fLeadingWS, id);
-/*			
-		} else if (c == '(') {
-			if (fMonolithicExpr) {
-				// read an expression
-				token = read_expression(fLeadingWS);
-			} else {
-				token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, "(");
-			}
- */
 		} else if (c == ';') {
 			token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, ";");
 		} else if (Character.isDigit(c) || c == '\'') {

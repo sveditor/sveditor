@@ -19,13 +19,15 @@ result in the content being inserted at the beginning of the document.
 - Correct a bug in the scanner with extern tasks/functions outside a 
 class/package scope
 
-? Fix auto-indent bugs
+- Fix auto-indent bugs
     - Support package as an indent scope
     - Resolve issues when typing at the very end of a document.
     - Properly indent class declarations within packages and modules
     - Correct issue with indenting extern task/function
     - Support fork/join* as an indent scope
     - Fix problem with pasting, with auto-indent, in the middle of a port map
+    ? Resolve problems with some blank but non-empty lines being removed
+      during indent
 
 - Remove OVM plugin library from distribution. Source from user's environment
 is typically used.
@@ -35,17 +37,10 @@ now appear as content assist proposals
 
 ? Fix duplicates in content-assist list for include
 
-? Check into Override dialog logic. Why is nothing shown for ovm_env?
-
 ? Add resolve-path support to the FileSystem interface. This will allow 
 relative paths to reach beyond the scope of the enclosing project
 
-
-
-? Covergroup methods
-
-? Constraint methods
-
+? Check into Override dialog logic. Why is nothing shown for ovm_env?
 
 ------------------------------------------------------------------------------
 

@@ -24,9 +24,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDefaultIndenter {
-	enum State {
-		
-	};
 	private ISVIndentScanner				fScanner;
 	private Stack<String>					fIndentStack;
 	private List<SVIndentToken>				fTokenList;
@@ -57,6 +54,8 @@ public class SVDefaultIndenter {
 		fPreProcDirectives.add("`endif");
 		fPreProcDirectives.add("`include");
 		fPreProcDirectives.add("`timescale");
+		fPreProcDirectives.add("`begin_keywords");
+		fPreProcDirectives.add("`end_keywords");
 	}
 	
 	public SVDefaultIndenter() {
@@ -587,14 +586,9 @@ public class SVDefaultIndenter {
 			pop_indent();
 			tok = next_s();
 		} else {
-			// Push an indent to handle case where the statement is
-			// broken across multiple lines
-			// This is a bit of a temporary hack...
-			push_indent();
 			while (!tok.isOp(";")) {
 				tok = next_s();
 			}
-			pop_indent();
 			tok = next_s();
 		}
 		
