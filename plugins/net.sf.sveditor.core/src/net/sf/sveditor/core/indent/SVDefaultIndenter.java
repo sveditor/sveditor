@@ -225,7 +225,6 @@ public class SVDefaultIndenter {
 			
 			tok = indent_stmt();
 		}
-		System.out.println("end token=" + tok.getImage());
 		pop_indent();
 		set_indent(tok);
 		
@@ -249,6 +248,8 @@ public class SVDefaultIndenter {
 			} else {
 				return tok;
 			}
+		} else {
+			tok = next_s();
 		}
 		
 		if (!tok.isId("begin")) {
