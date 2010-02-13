@@ -13,8 +13,9 @@ provided as content-assist proposals.
 - Add Class Hierarchy viewer. Selecting a class name in the editor and opening
 the Hierarchy view via the shortcut (F4) or the context menu will display the
 class super- and sub- class hierarchy. Class members for the selected class
-are shown in a separate pane. Classes and members may be opened by 
-double-clicking on the appropriate element in the Hierarchy viewer.
+are shown in a separate pane. The source location for Classes and members 
+may be opened by double-clicking on the appropriate element in the 
+Hierarchy viewer.
 
 - Fix bug with accepting a expression content proposal with no leaf. 
 For example: foo.<CTRL-SPACE>. Previously, performing this operation would
@@ -32,8 +33,6 @@ class/package scope
     - Correct issue with indenting extern task/function
     - Support fork/join* as an indent scope
     - Fix problem with pasting, with auto-indent, in the middle of a port map
-    ? Resolve problems with some blank but non-empty lines being removed
-      during indent
 
 - Remove OVM plugin library from distribution. Source from user's environment
 is typically used.
@@ -42,13 +41,6 @@ is typically used.
 now appear as content assist proposals
 
 - Correct a bug with scanning class declarations that occur on a single line
-
-? Fix duplicates in content-assist list for include
-
-? Add resolve-path support to the FileSystem interface. This will allow 
-relative paths to reach beyond the scope of the enclosing project
-
-? Check into Override dialog logic. Why is nothing shown for ovm_env?
 
 ------------------------------------------------------------------------------
 
