@@ -10,6 +10,12 @@ member field.
 associative arrays. Now, methods that are part of the type (ie queue) are 
 provided as content-assist proposals.
 
+- Add Class Hierarchy viewer. Selecting a class name in the editor and opening
+the Hierarchy view via the shortcut (F4) or the context menu will display the
+class super- and sub- class hierarchy. Class members for the selected class
+are shown in a separate pane. Classes and members may be opened by 
+double-clicking on the appropriate element in the Hierarchy viewer.
+
 - Fix bug with accepting a expression content proposal with no leaf. 
 For example: foo.<CTRL-SPACE>. Previously, performing this operation would
 result in the content being inserted at the beginning of the document. 
@@ -34,6 +40,8 @@ is typically used.
 
 - Add SystemVerilog system tasks and functions to the default library. These
 now appear as content assist proposals
+
+- Correct a bug with scanning class declarations that occur on a single line
 
 ? Fix duplicates in content-assist list for include
 

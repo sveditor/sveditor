@@ -36,6 +36,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -52,7 +53,12 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
-		
+
+		fOpenTypeHierarchyAction = new RetargetTextEditorAction(
+				bundle, "OpenTypeHierarchy.");
+		fOpenTypeHierarchyAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.open.type.hierarchy");
+
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
 		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
 		
@@ -72,6 +78,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentFormatProposal);
 			editMenu.add(fContentAssistTip);
 			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fOpenTypeHierarchyAction);
 		}
 	}
 	
@@ -90,9 +97,8 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fContentAssistTip);
 		}	
-
-
 	}
+	
 	/**
 	 * Sets the active editor to this contributor. This updates the actions to
 	 * reflect the SQL editor.
@@ -109,7 +115,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fContentAssistTip.setAction(getAction(editor, "ContentAssistTip")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
-
+		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
 	}
 
 	/*

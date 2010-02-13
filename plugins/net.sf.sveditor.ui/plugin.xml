@@ -183,6 +183,11 @@
             id="net.sf.sveditor.ui.indent"
             name="Indent">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.editor.open.type.hierarchy"
+            name="Open Type Hierarchy">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -198,6 +203,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+I">
       </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.type.hierarchy"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F4">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
@@ -208,7 +219,7 @@
          <action
                definitionId="net.sf.sveditor.ui.editor.open.declaration"
                id="net.sf.sveditor.ui.svOpenEditorAction"
-               label="Open Editor"
+               label="Open Declaration"
                retarget="true">
          </action>
          <action
@@ -221,6 +232,12 @@
                definitionId="net.sf.sveditor.ui.editor.open.declaration"
                id="net.sf.sveditor.ui.override.tf"
                label="Override Tasks/Functions"
+               retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.type.hierarchy"
+               id="net.sf.sveditor.ui.svOpenTypeHierarchyAction"
+               label="Open Type Hierarchy"
                retarget="true">
          </action>
       </actionSet>
@@ -263,12 +280,16 @@
    <extension
          point="org.eclipse.ui.views">
       <view
+            allowMultiple="false"
             category="net.sf.sveditor.ui.viewCategory"
-            class="net.sf.sveditor.ui.views.SVHierarchyView"
+            class="net.sf.sveditor.ui.views.hierarchy.SVHierarchyView"
             icon="icons/eview16/class_hi.gif"
             id="net.sf.sveditor.ui.hierarchyView"
             name="Hierarchy"
             restorable="true">
+         <description>
+            SystemVerilog Class Hierarchy Viewer
+         </description>
       </view>
       <category
             id="net.sf.sveditor.ui.viewCategory"
@@ -294,6 +315,18 @@
       <initializer
             class="net.sf.sveditor.ui.pref.SVEditorPrefsInitialize">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               id="net.sf.sveditor.ui.hierarchyView"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.navigator.ProjectExplorer">
+         </view>
+      </perspectiveExtension>
    </extension>
    
 

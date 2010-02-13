@@ -41,6 +41,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -101,7 +102,7 @@ public class SVEditor extends TextEditor
 		SVUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(
 				fPropertyChangeListener);
 		
-		fLog = LogFactory.getDefault().getLogHandle("SVEditor");
+		fLog = LogFactory.getLogHandle("SVEditor");
 	}
 	
 	@Override
@@ -353,11 +354,14 @@ public class SVEditor extends TextEditor
 		setAction("DefineFoldingRegion", a);
 		 */
 		
-		OpenDeclarationAction od_action = new OpenDeclarationAction(
-				bundle, "OpenDeclaration.", this);
+		OpenDeclarationAction od_action = new OpenDeclarationAction(bundle, this);
 		od_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.declaration");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", od_action);
-		
+
+		OpenTypeHierarchyAction th_action = new OpenTypeHierarchyAction(bundle, this);
+		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction", th_action);
+
 		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
@@ -402,6 +406,10 @@ public class SVEditor extends TextEditor
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				"net.sf.sveditor.ui.override.tf");
+		
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
+		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				"net.sf.sveditor.ui.source.menu.as");

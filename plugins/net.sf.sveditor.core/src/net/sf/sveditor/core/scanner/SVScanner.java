@@ -699,6 +699,7 @@ public class SVScanner implements ISVScanner {
 			}
 		}
 		ch = skipWhite(ch);
+		unget_ch(ch);
 		
 		if (fObserver != null) {
 			if (type.equals("module")) {
