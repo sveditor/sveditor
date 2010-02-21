@@ -17,8 +17,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBItem> {
 	List<ISVDBIndex>			fIndexList;

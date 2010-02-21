@@ -93,14 +93,20 @@ public class SVFScanner {
 						// read a value as well
 						tmp.setLength(0);
 						
-						while ((ch = fScanner.get_ch()) != -1 && !Character.isWhitespace(ch)) {
-							tmp.append((char)ch);
+						ch = fScanner.get_ch();
+						
+						if (ch == '"') {
+							val = fScanner.readString(ch);
+						} else {
+							val = fScanner.readIdentifier(ch);
 						}
-						val = tmp.toString();
 					} else {
 						val = "";
 					}
 					
+					if (fDefineMap.containsKey(key)) {
+						fDefineMap.remove(key);
+					}
 					fDefineMap.put(key, val);
 				} else if (tmp.toString().equals("+incdir+")) {
 					ch = fScanner.skipWhite(fScanner.get_ch());
@@ -109,22 +115,25 @@ public class SVFScanner {
 					// Read the include path
 					tmp.setLength(0);
 					tmp.append((char)ch);
-					while ((ch = fScanner.get_ch()) != -1 && 
-							!Character.isWhitespace(ch)) {
-						tmp.append((char)ch);
-					}
-					
-					fIncludePaths.add(tmp.toString());
-				} else {
-					if (ch == '=') {
-						// ignore the remainder
-						
+					do {
 						while ((ch = fScanner.get_ch()) != -1 && 
-								!Character.isWhitespace(ch)) { }
-					}
+								!Character.isWhitespace(ch)) {
+							tmp.append((char)ch);
+						}
+					
+						fIncludePaths.add(tmp.toString());
+					} while (ch == '+');
+					
+					fScanner.unget_ch(ch);
+				} else {
+					fLog.debug("Ignoring unknown plusarg " + tmp.toString());
+					// Read to the end of the string
+					while ((ch = fScanner.get_ch()) != -1 &&
+							!Character.isWhitespace(ch)) {}
+					fScanner.unget_ch(ch);
 				}
 			} else if (ch == '-') {
-				String key, val;
+				String key=null, val=null;
 				tmp.setLength(0);
 				tmp.append((char)ch);
 				
@@ -135,8 +144,49 @@ public class SVFScanner {
 				
 				key = tmp.toString();
 				
-				// TODO: decide 
-				
+				if (key.equals("-DEF") || key.toLowerCase().equals("-define")) {
+					ch = fScanner.skipWhite(ch);
+					
+					key = fScanner.readIdentifier(ch);
+					
+					ch = fScanner.get_ch();
+					if (ch == '=') {
+						// have a value
+						ch = fScanner.get_ch();
+						if (ch == '"') {
+							val = fScanner.readString(ch);
+						} else {
+							val = fScanner.readIdentifier(ch);
+						}
+					} else {
+						val = "";
+						fScanner.unget_ch(ch);
+					}
+					
+					if (fDefineMap.containsKey(key)) {
+						fDefineMap.remove(key);
+					}
+					fDefineMap.put(key, val);
+				} else if (key.equals("-IN") || key.toLowerCase().equals("-incdir")) {
+					ch = fScanner.skipWhite(fScanner.get_ch());
+					
+					tmp.setLength(0);
+					tmp.append((char)ch);
+					while ((ch = fScanner.get_ch()) != -1 && 
+							!Character.isWhitespace(ch)) {
+						tmp.append((char)ch);
+					}
+
+					fIncludePaths.add(tmp.toString());
+				} else if (key.equals("-error") ||
+						key.equals("-warning") || key.equals("-error")) {
+					// Skip the next parameter
+
+					ch = fScanner.skipWhite(fScanner.get_ch());
+					while ((ch = fScanner.get_ch()) != -1 && 
+							!Character.isWhitespace(ch)) {
+					}
+				}
 			} else {
 				if (ch == '/') {
 					int ch2 = fScanner.get_ch();

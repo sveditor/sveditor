@@ -374,7 +374,7 @@ extern function int $test$plusargs(string plusarg);
 /********************************************************************
  * $value$plusargs()
  ********************************************************************/
-extern function int $test$plusargs(string format, int variable);
+extern function int $value$plusargs(string format, int variable);
 
 /********************************************************************
  * $dumpfile()

@@ -154,6 +154,19 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					cp = null;
 				} break;
+				
+				case PackageDecl: {
+					String import_all = it.getName() + "::*;";
+					cp = new CompletionProposal(it.getName(),
+							replacementOffset, replacementLength, 
+							it.getName().length(), SVDBIconUtils.getIcon(it),
+							null, null, null);
+					ret.add(cp);
+					cp = new CompletionProposal(import_all, 
+							replacementOffset, replacementLength, 
+							import_all.length(), SVDBIconUtils.getIcon(it),
+							null, null, null);
+				} break;
 		
 				default:
 					cp = new CompletionProposal(it.getName(),
@@ -176,11 +189,14 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	}
 	
 	private String escapeId(String id) {
-		if (id.startsWith("$")) {
-			return "$" + id;
-		} else {
-			return id;
+		StringBuilder sb = new StringBuilder(id);
+		for (int i=0; i<sb.length(); i++) {
+			if (sb.charAt(i) == '$') {
+				sb.insert(i, '$');
+				i++;
+			}
 		}
+		return sb.toString();
 	}
 	
 	private ICompletionProposal createTaskFuncProposal(
@@ -191,8 +207,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		TemplateContext ctxt = new DocumentTemplateContext(
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
-		
-		System.out.println("createTaskFuncProposal: " + it.getName());
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
@@ -241,6 +255,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				cls_name = "[]";
 			} else if (cls_name.equals("__sv_builtin_assoc_array")) {
 				cls_name = "[*]";
+			} else if (cls_name.startsWith("__sv_builtin")) {
+				cls_name = cls_name.substring("__sv_builtin".length());
 			}
 		}
 

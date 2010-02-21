@@ -25,7 +25,7 @@ public class TestCompletionProcessor extends AbstractCompletionProcessor {
 	public TestCompletionProcessor(SVDBFile file, ISVDBIndexIterator iterator) {
 		fSVDBFile      = file;
 		fIndexIterator = iterator;
-		fLog = LogFactory.getDefault().getLogHandle("TestCompletionProcessor");
+		fLog = LogFactory.getLogHandle("TestCompletionProcessor");
 	}
 
 	@Override

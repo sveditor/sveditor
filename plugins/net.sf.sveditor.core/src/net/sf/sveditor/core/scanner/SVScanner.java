@@ -38,12 +38,13 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
  * - handle class declaration within module
  * - Handle sequence as empty construct
  */
-public class SVScanner implements ISVScanner {
+public class SVScanner implements ISVScanner, IPreProcErrorListener {
 	private Stack<String>			fScopeStack = new Stack<String>();
 	private SVScannerTextScanner		fInput;
 	
 	private boolean					fNewStatement;
 	private ScanLocation			fStmtLocation;
+	private ScanLocation			fStartLocation;
 	
 	private ISVScannerObserver		fObserver;
 	private IDefineProvider			fDefineProvider;
@@ -68,12 +69,22 @@ public class SVScanner implements ISVScanner {
 		return fStmtLocation;
 	}
 	
+	public ScanLocation getStartLocation() {
+		return fStartLocation;
+	}
+
 	public void setStmtLocation(ScanLocation loc) {
 		fStmtLocation = loc;
 	}
 	
 	public void setObserver(ISVScannerObserver observer) {
 		fObserver = observer;
+	}
+	
+	public void preProcError(String msg, String filename, int lineno) {
+		if (fObserver != null) {
+			fObserver.error(msg, filename, lineno);
+		}
 	}
 
 	/**
@@ -83,6 +94,10 @@ public class SVScanner implements ISVScanner {
 	public void scan(InputStream in, String filename) {
 	
 		fNewStatement = true;
+		
+		if (fDefineProvider != null) {
+			fDefineProvider.addErrorListener(this);
+		}
 		
 		SVPreProcScanner pp = new SVPreProcScanner();
 		pp.setDefineProvider(fDefineProvider);
@@ -103,6 +118,10 @@ public class SVScanner implements ISVScanner {
 
 		if (fObserver != null) {
 			fObserver.leave_file();
+		}
+		
+		if (fDefineProvider != null) {
+			fDefineProvider.removeErrorListener(this);
 		}
 	}
 	
@@ -265,6 +284,7 @@ public class SVScanner implements ISVScanner {
 	private void process_covergroup(String id) throws EOFException {
 		int ch = get_ch();
 		
+		
 		fScopeStack.push("covergroup");
 		
 		
@@ -295,6 +315,8 @@ public class SVScanner implements ISVScanner {
 		
 		// Skip statements
 		while ((id = scan_statement()) != null) {
+			fStartLocation = getStmtLocation(); 
+			
 			if (id.equals("endgroup")) {
 				break;
 			} else {
@@ -340,6 +362,8 @@ public class SVScanner implements ISVScanner {
 						}
 					}
 					
+					// Update the end location
+					setStmtLocation(getLocation());
 					if (fObserver != null) {
 						fObserver.covergroup_item(name, type, target, body);
 					}
@@ -573,8 +597,8 @@ public class SVScanner implements ISVScanner {
 				} else if (isSecondLevelScope(id)) {
 //					System.out.println("id \"" + id + "\" is a second-level scope");
 					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\" @ " +
-								getLocation().getFileName() + ":" +
+						fObserver.error("missing \"" + exp_end + "\"",
+								getLocation().getFileName(),
 								getLocation().getLineNo());
 						System.out.println("second-level scope \"" + id + "\"");
 					}
@@ -586,8 +610,8 @@ public class SVScanner implements ISVScanner {
 				} else if (isFirstLevelScope(id, 0)) {
 //					System.out.println("id \"" + id + "\" is a first-level scope");
 					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\" @ " +
-								getLocation().getFileName() + ":" +
+						fObserver.error("missing \"" + exp_end + "\"",
+								getLocation().getFileName(),
 								getLocation().getLineNo());
 					}
 
@@ -1009,6 +1033,7 @@ public class SVScanner implements ISVScanner {
 		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
 		fFieldQualifers.put("pure", ISVScannerObserver.FieldAttr_Pure);
 		fFieldQualifers.put("context", ISVScannerObserver.FieldAttr_Context);
+		fFieldQualifers.put("__sv_builtin_global", ISVScannerObserver.FieldAttr_SvBuiltinGlobal);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO

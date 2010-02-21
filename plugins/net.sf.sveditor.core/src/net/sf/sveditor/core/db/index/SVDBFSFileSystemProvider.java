@@ -39,6 +39,10 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		
 		return f.lastModified();
 	}
+	
+	public String resolvePath(String path) {
+		return path;
+	}
 
 	public InputStream openStream(String path) {
 		InputStream in = null;

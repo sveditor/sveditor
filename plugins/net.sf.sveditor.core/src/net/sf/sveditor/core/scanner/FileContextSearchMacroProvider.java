@@ -34,7 +34,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	
 	public FileContextSearchMacroProvider() {
 		fMacroCache = new HashMap<String, SVDBMacroDef>();
-		fLog = LogFactory.getDefault().getLogHandle("FileContextSearchMacroProvider");
+		fLog = LogFactory.getLogHandle("FileContextSearchMacroProvider");
 	}
 	
 	public void setFileContext(SVDBFileTree context) {

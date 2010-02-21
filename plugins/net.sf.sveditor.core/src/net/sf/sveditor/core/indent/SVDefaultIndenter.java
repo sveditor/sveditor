@@ -181,6 +181,8 @@ public class SVDefaultIndenter {
 		if (tok.isOp("(")) {
 			tok = consume_expression();
 		} else {
+			System.out.println("[ERROR] unsure what happened - tok=" + 
+					tok.getImage());
 			// bail out -- not sure what happened...
 			return tok;
 		}
@@ -203,7 +205,19 @@ public class SVDefaultIndenter {
 			if (tok.isId("if")) {
 				tok = indent_if();
 			} else {
+				non_block_stmt = false;
+				if (!tok.isId("begin")) {
+					push_indent();
+					set_indent(tok);
+					non_block_stmt = true;
+				}
+				
 				tok = indent_block_or_statement();
+				
+				if (non_block_stmt) {
+					pop_indent();
+					set_indent(tok);
+				}
 			}
 		}
 		
@@ -264,13 +278,14 @@ public class SVDefaultIndenter {
 			pop_indent();
 			set_indent(tok);
 		}
-		
+
 		if (first.isId("do")) {
 			// Just read to end of statement
 			while (!tok.isOp(";")) {
-				next_s();
+				tok = next_s();
 			}
 			tok = next_s();
+			
 		}
 		
 		debug("<-- indent_loop_stmt() tok=" + 
@@ -359,7 +374,8 @@ public class SVDefaultIndenter {
 			} else if (tok.isId("class")) {
 				tok = indent_ifc_module_class(tok.getImage());
 				fQualifiers = 0;
-			} else if (tok.isId("initial") || tok.isId("always")) {
+			} else if (tok.isId("initial") || tok.isId("always") || 
+					tok.isId("final")) {
 				tok = next_s();
 				if (tok.equals("@")) {
 					tok = next_s(); // expression
@@ -771,7 +787,7 @@ public class SVDefaultIndenter {
 			tok = next_s();
 		} while (n_lbrace != n_rbrace);
 		
-		return next_s();
+		return tok;
 	}
 	
 	private SVIndentToken next() {

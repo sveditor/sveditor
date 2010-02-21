@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
@@ -107,7 +108,8 @@ public class BundleUtils {
 			
 			try {
 				if (!parent.exists()) {
-					parent.create(true, false, new NullProgressMonitor());
+					createDirTree(parent);
+//					parent.create(true, false, new NullProgressMonitor());
 				}
 				
 				InputStream in = url.openStream();
@@ -123,6 +125,15 @@ public class BundleUtils {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private void createDirTree(IContainer dir) throws CoreException {
+		if (dir.getParent() != null) {
+			if (!dir.getParent().exists()) {
+				createDirTree(dir.getParent());
+			}
+		}
+		((IFolder)dir).create(true, false, new NullProgressMonitor());
 	}
 
 	public ByteArrayOutputStream readBundleFile(String bundle_path) {

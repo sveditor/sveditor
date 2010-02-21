@@ -13,9 +13,17 @@
 package net.sf.sveditor.core.expr_utils;
 
 public class SVExprContext {
+	public enum ContextType {
+		String,
+		Untriggered,
+		Triggered,
+		Import
+	};
 	
 	// Document offset where 'leaf' begins
 	public int 						fStart;
+	
+	public ContextType				fType;
 	
 	// Root of the expression
 	public String					fRoot;

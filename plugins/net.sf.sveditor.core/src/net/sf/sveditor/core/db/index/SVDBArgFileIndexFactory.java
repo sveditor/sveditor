@@ -17,7 +17,6 @@ import java.util.Map;
 public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.argFileIndex";
-	public static final String  ARG_ArgFiles = "argFileIndex.argFiles";
 
 	public ISVDBIndex createSVDBIndex(
 			String 					projectName, 
@@ -31,7 +30,13 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
 
-		return new SVDBArgFileIndex(projectName, base_location, fs_provider);
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
+				projectName, base_location, fs_provider);
+		
+
+		SVDBIndexFactoryUtils.setBaseProperties(config, index);
+		
+		return index;
 	}
 
 }

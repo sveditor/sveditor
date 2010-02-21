@@ -26,8 +26,17 @@ public class Tuple<T1, T2> {
 		return first;
 	}
 	
+	public void setFirst(T1 f) {
+		first = f;
+	}
+	
 	public T2 second() {
 		return second;
 	}
+	
+	public void setSecond(T2 s) {
+		second = s;
+	}
+	
 
 }

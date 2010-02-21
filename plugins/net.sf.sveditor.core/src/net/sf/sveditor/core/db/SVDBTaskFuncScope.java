@@ -79,6 +79,7 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	public void init(SVDBItem other) {
 		super.init(other);
 
+		fAttr = ((SVDBTaskFuncScope)other).fAttr;
 		fParams.clear();
 		for (SVDBTaskFuncParam p : ((SVDBTaskFuncScope)other).fParams) {
 			fParams.add((SVDBTaskFuncParam)p.duplicate());

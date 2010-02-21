@@ -47,7 +47,17 @@ public class TestWorkspaceLibPersistence extends TestCase {
         instanceLoc.set(ws, true);
          */
 	}
-	
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		if (fTmpDir != null) {
+			fTmpDir.delete();
+			fTmpDir = null;
+		}
+	}
+
 	/**
 	 * Tests FileSystemLib persistence by changing a file, saving the database,
 	 * and checking whether the changed timestamp is detected on reload
@@ -77,7 +87,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+//			System.out.println("tmp_it=" + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				target_it = tmp_it;
@@ -165,7 +175,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+			// System.out.println("tmp_it=" + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				target_it = tmp_it;
@@ -182,11 +192,13 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.init(fTmpDir);
 		
 		// Sleep to ensure that the timestamp is different
+		System.out.println("[NOTE] pre-sleep");
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		System.out.println("[NOTE] post-sleep");
 
 		// Change class1.svh
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -220,17 +232,5 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", target_it.getName());
 	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		if (fTmpDir != null) {
-			fTmpDir.delete();
-			fTmpDir = null;
-		}
-	}
-	
-	
 
 }

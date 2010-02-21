@@ -1,3 +1,47 @@
+-- 0.1.3 Release --
+
+- Change the way that files are associated with indexes. Previously, only the
+containing project's indexes were checked to locate the index a file should
+be associated with. Typical setup for projects with a single build file and 
+multiple source locations do not work well with this scheme.  
+Now, the following is done:
+    - The file's containing project is checked to see if it manages the index.
+      This gives local settings priority
+    - Next, other open projects in the workspace are checked
+    - Finally, shadow indexes in the projects are checked
+
+- Correct bug with propagation of +define+ arguments from the argument file
+to the index define map.
+
+- Add Project Properties page for setting global pre-processor defines
+
+- Update indexers to use global defines. Now, the user can provide global
+defines -- ones, for instance, that might be provided directed to the 
+compile command.
+
+- Fixed a few minor bugs in indent support and added a few tests
+
+- Fix a minor pre-processor bug with macro expansion
+
+- Fix bug with indent of forever. Add test
+
+- Add content-assist support for '= new()'. Now, content assist provides 
+the constructor argument list.
+
+- Correct a bug with the Type Hierarchy view where a non-extended class
+is not shown.
+
+- Add icon for Coverpoint Cross
+
+- Add content-assist support for import. 
+
+- Add content assist for covergroups and coverpoints
+    - Support for accessing covergroup and sub-coverpoints in an expression
+    - Support for built-in methods (get_coverage, sample, etc)
+    - Support covergroup, coverpoint, and coverpoint cross options 
+
+
+------------------------------------------------------------------------------
 
 -- 0.1.2 Release --
 

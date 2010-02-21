@@ -26,21 +26,30 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private boolean						fDebugEn  = false;
-	private boolean						fDebugUndefinedMacros = true;
+	private boolean						fDebugUndefinedMacros = false;
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
 	private LogHandle					fLog;
 	private IPreProcMacroProvider		fMacroProvider;
-
+	private List<IPreProcErrorListener>	fErrorListeners;
 
 	public SVPreProcDefineProvider(IPreProcMacroProvider macro_provider) {
 		fExpandStack = new Stack<String>();
-		fLog = LogFactory.getDefault().getLogHandle("PreProcDefineProvider");
+		fLog = LogFactory.getLogHandle("PreProcDefineProvider");
 
-		fMacroProvider = macro_provider;
+		fMacroProvider  = macro_provider;
+		fErrorListeners = new ArrayList<IPreProcErrorListener>();
 	}
 	
+	public void addErrorListener(IPreProcErrorListener l) {
+		fErrorListeners.add(l);
+	}
+
+	public void removeErrorListener(IPreProcErrorListener l) {
+		fErrorListeners.remove(l);
+	}
+
 	public void setMacroProvider(IPreProcMacroProvider provider) {
 		fMacroProvider = provider;
 	}
@@ -58,7 +67,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	public boolean isDefined(String name, int lineno) {
 		SVDBMacroDef m = fMacroProvider.findMacro(name, lineno);
 		
-		return (m != null && m.getLocation().getLine() <= lineno);
+		// The location is null for command-line defines
+		if (m != null) {
+			return (m.getLocation() == null || m.getLocation().getLine() <= lineno);
+		} else {
+			return false;
+		}
 	}
 
 	public synchronized String expandMacro(
@@ -136,6 +150,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		SVDBMacroDef m = fMacroProvider.findMacro(key, fLineno);
 		
 		if (m == null) {
+			error("macro \"" + key + "\" undefined");
 			if (fDebugUndefinedMacros) {
 				fLog.error("macro \"" + key + "\" undefined @ " +
 						fFilename + ":" + fLineno);
@@ -199,6 +214,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					scanner, macro_start, scanner.getOffset());
 			
 			expandMacro(scanner_s, m, null);
+			
+			scanner.seek(scanner_s.getOffset()-1);
 			
 			if (fDebugEn) {
 				debug("Expansion Result: " + scanner_s.getStorage().toString());
@@ -446,6 +463,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	
 	private void expandMacroRefs(StringTextScanner scanner) {
 		int ch;
+		int iteration = 0;
 		
 		if (fDebugEn) {
 			debug("--> expandMacroRefs");
@@ -453,6 +471,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		while ((ch = scanner.get_ch()) != -1) {
+			iteration++;
+			
 			if (fDebugEn) {
 				debug("ch=\"" + (char)ch + "\"");
 			}
@@ -473,10 +493,17 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					int m_start = scanner.getOffset()-2;
 					
 					ch = scanner.skipWhite(ch2);
+
+					// Skip any non-identifier characters
+					// TODO: this seems a bit strange...
+					if (!SVCharacter.isSVIdentifierStart(ch)) {
+						continue;
+					}
+					
 					String key = scanner.readPreProcIdentifier(ch);
 					
 					if (key == null) {
-						System.out.println("Failed to read macro name starting with " +	(char)ch);
+						fLog.error("Failed to read macro name starting with " +	(char)ch);
 					}
 
 					SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
@@ -513,13 +540,34 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						m_end--;
 					} 
 					
+					if ((m_end-1) >= scanner.getStorage().length()) {
+						System.out.println("m_end=" + m_end + " storage.length=" +
+								scanner.getStorage().length() + 
+								" scanner.offset=" + scanner.getOffset() +
+								" scanner.limit=" + scanner.getLimit());
+						System.out.println("storage=" + scanner.getStorage().toString());
+						System.out.println("iteration=" + iteration);
+					}
 					debug("    text for expansion ends with " + 
 							scanner.getStorage().charAt(m_end-1));
 					StringTextScanner scanner_s = new StringTextScanner(
 							scanner, m_start, m_end);
 					
 					if (sub_m != null) {
+						if (scanner.getOffset() > scanner.getLimit()) {
+							System.out.println("scanner offset > limit before sub-expand iteration "
+									+ iteration);
+							System.out.println("    sub-expand of " + sub_m.getName());
+						}
 						expandMacro(scanner_s, sub_m, sub_p);
+						
+						scanner.seek(scanner_s.getOffset()-1);
+						
+						if (scanner.getOffset() > scanner.getLimit()) {
+							System.out.println("scanner offset > limit after sub-expand iteration "
+									+ iteration);
+							System.out.println("    sub-expand of " + sub_m.getName());
+						}
 					} else {
 						fLog.debug("Macro \"" + key + 
 								"\" undefined @ " + fFilename + ":" + fLineno);
@@ -546,6 +594,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			return false;
 		}
 	}
+	
+	private void error(String msg) {
+		for (IPreProcErrorListener l : fErrorListeners) {
+			l.preProcError(msg, fFilename, fLineno);
+		}
+	}
 
 	private void walkStack() {
 		String key;
@@ -564,6 +618,5 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			fLog.debug(str);
 		}
 	}
-	
 
 }

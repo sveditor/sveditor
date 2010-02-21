@@ -26,6 +26,10 @@ public class SVDBFindIncludedFile {
 	private ISVDBIndexIterator				fIndexIterator;
 	private ISVDBFindNameMatcher			fMatcher;
 	
+	public SVDBFindIncludedFile(ISVDBIndexIterator index_it) {
+		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
+	}
+	
 	public SVDBFindIncludedFile(
 			ISVDBIndexIterator 		index_it,
 			ISVDBFindNameMatcher	matcher) {

@@ -84,7 +84,7 @@ public abstract class AbstractCompletionProcessor {
 				active_file, lineno);
 
 		if (src_scope == null) {
-			debug("[WARN] cannot locate source scope");
+			debug("In global scope");
 		} else {
 			debug("Source scope: " + src_scope.getName());
 		}
@@ -121,7 +121,7 @@ public abstract class AbstractCompletionProcessor {
 				getIndexIterator(), src_scope, ctxt, true);
 		
 		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
-				ctxt.fRoot.startsWith("include")) {
+				ctxt.fRoot != null && ctxt.fRoot.startsWith("include")) {
 			String replacement = "";
 
 			for (SVDBItem it : items) {
@@ -586,9 +586,6 @@ public abstract class AbstractCompletionProcessor {
 		
 		if (!found) {
 			debug("addProposal: " + it.getName() + " " + it.getType());
-			System.out.println("addProposal: replacement=" + it.getName() +  
-					 " replacementOffset=" + replacementOffset + 
-					 " replacementLength=" + replacementLength);
 			addProposal(new SVCompletionProposal(it, prefix, 
 					replacementOffset, replacementLength));
 		}

@@ -31,7 +31,7 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
@@ -189,7 +189,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		}
 		
 		if (file_tree != null) {
-			fDefineProvider.setMacroProvider(new SVFileTreeMacroProvider(file_tree));
+			fDefineProvider.setMacroProvider(createMacroProvider(file_tree));
 			SVDBFile svdb_f = scanner.parse(in, file_tree.getFilePath());
 			svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 			return svdb_f;
@@ -201,7 +201,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			return null;
 		}
 	}
-
+	
 	/**
 	 * buildPreProcFileMap()
 	 * 
@@ -248,7 +248,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			root.getIncludedByFiles().add(parent);
 		}
 		
-		ft_utils.resolveConditionals(root);
+		ft_utils.resolveConditionals(root, 
+				new SVPreProcDefineProvider(createPreProcMacroProvider(root)));
 		
 		if (fFileTreeMap.containsKey(file.getFilePath())) {
 			fFileTreeMap.remove(file.getFilePath());
@@ -282,7 +283,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 
 		SVDBFileTree ft_root = fFileTreeMap.get(getResolvedBaseLocation());
 		
-		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(ft_root);
+		IPreProcMacroProvider mp = createMacroProvider(ft_root);
 		processFile(ft_root, mp);
 		
 		fFileIndexValid = true;
@@ -326,11 +327,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 
 	protected void processFile(
 			SVDBFileTree				path,
-			SVFileTreeMacroProvider 	mp) {
-		
-		if (path.getFilePath().indexOf("xbus_master_seq_lib.sv") != -1) {
-			dumpUp(path);
-		}
+			IPreProcMacroProvider 		mp) {
 		
 		fDefineProvider.setMacroProvider(mp);
 		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
@@ -366,7 +363,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			// don't try to process files included from another index
 			if (!fFileIndex.containsKey(ft_t.getFilePath()) &&
 					fFileList.containsKey(ft_t.getFilePath())) {
-				mp = new SVFileTreeMacroProvider(ft_t);
+				mp = createMacroProvider(ft_t);
 				processFile(ft_t, mp);
 			}
 		}
@@ -404,6 +401,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	public void fileAdded(String path) {
 		// fileAdded is ignored for LibIndex, since all the
 		// files are explicitly specified
+		System.out.println("SVDBLibIndex: fileAdded \"" + path + "\"");
 	}
 
 	public void fileChanged(String path) {
@@ -426,13 +424,14 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			if (fFileIndexValid && fFileIndex.containsKey(path)) {
 				// rebuild the index
 				SVDBFileTree ft_root = fFileTreeMap.get(path);
-				SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(ft_root);
+				IPreProcMacroProvider mp = createMacroProvider(ft_root);
 				
 				processFile(ft_root, mp);
 			}
 		}
 	}
 	
+	/*
 	private void dumpUp(SVDBFileTree ft) {
 		if (ft.getIncludedByFiles().size() > 0) {
 			dumpUp(ft.getIncludedByFiles().get(0));
@@ -454,6 +453,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			dumpDown(indent+1, ft_s);
 		}
 	}
+	 */
 
 	public void fileRemoved(String path) {
 		if (fFileListValid && fFileList.containsKey(path)) {

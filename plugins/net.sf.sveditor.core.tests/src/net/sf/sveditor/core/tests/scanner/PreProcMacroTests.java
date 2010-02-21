@@ -66,11 +66,12 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
-		ft_utils.resolveConditionals(ft_root);
-		
 		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		mp.setFileContext(ft_root);
+		
+		ft_utils.resolveConditionals(ft_root, dp);
+		
 		
 		String result = dp.expandMacro("`analysis_closure_imp(foo, bar, write_func)", "text", 1);
 		

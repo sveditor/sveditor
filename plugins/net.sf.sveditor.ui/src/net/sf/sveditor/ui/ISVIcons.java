@@ -24,6 +24,7 @@ public interface ISVIcons {
 	String STRUCT_OBJ = OBJ_ICONS + "struct_obj.gif";
 	String COVERGROUP_OBJ = OBJ_ICONS + "covergroup_16_16.gif";
 	String COVERPOINT_OBJ = OBJ_ICONS + "coverpoint_16_16.gif";
+	String COVERPOINT_CROSS_OBJ = OBJ_ICONS + "coverpoint_cross_16_16.gif";
 	String SEQUENCE_OBJ = OBJ_ICONS + "sequence_16_16.gif";
 	String PROPERTY_OBJ  = OBJ_ICONS + "property_16_16.gif";
 	String MOD_IFC_INST_OBJ = OBJ_ICONS + "mod_ifc_inst.gif";

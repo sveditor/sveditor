@@ -35,7 +35,4 @@ public class SVDBOpenDeclarationIncludeNameMatcher extends
 			return super.match(it, name);
 		}
 	}
-	
-	
-
 }

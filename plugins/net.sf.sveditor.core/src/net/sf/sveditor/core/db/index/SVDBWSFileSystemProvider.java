@@ -126,6 +126,95 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		
 		return ret;
 	}
+	
+	public String resolvePath(String path) {
+		if (!path.startsWith("${workspace_loc}")) {
+			return path;
+		}
+		
+		// Trim workspace_loc off so we can recognize when we've reached the root
+		path = path.substring("${workspace_loc}".length());
+		StringBuilder ret = new StringBuilder();
+		
+		int i=path.length()-1;
+		int end;
+		int skipCnt = 0;
+		
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+			
+			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+			
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length()-1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+		
+		if (skipCnt > 0) {
+			throw new RuntimeException("exceeded skipCnt");
+		}
+		
+		return ret.reverse().toString();
+	}
+	
+	protected String normalizePath(String path) {
+		StringBuilder ret = new StringBuilder();
+		
+		int i=path.length()-1;
+		int end;
+		int skipCnt = 0;
+		
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+			
+			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+			
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length()-1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+		
+		if (skipCnt > 0) {
+			throw new RuntimeException("exceeded skipCnt");
+		}
+		
+		return ret.reverse().toString();
+	}
+	
 
 	public long getLastModifiedTime(String path) {
 		if (path.startsWith("${workspace_loc}")) {

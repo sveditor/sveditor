@@ -29,6 +29,7 @@ public class SVCompletionProposal {
 			int				replacementLength) {
 		fItem 				= item;
 		fPrefix 			= prefix;
+		fReplacement		= item.getName();
 		fReplacementOffset 	= replacementOffset;
 		fReplacementLength 	= replacementLength;
 	}

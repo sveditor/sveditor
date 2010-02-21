@@ -23,7 +23,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.editors.text.TextEditorActionContributor;
-import org.eclipse.ui.part.EditorActionBarContributor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.RetargetTextEditorAction;
@@ -31,8 +30,6 @@ import org.eclipse.ui.texteditor.RetargetTextEditorAction;
 public class SVActionContributor extends TextEditorActionContributor {
 	
 	protected RetargetTextEditorAction fContentAssistProposal;
-	protected RetargetTextEditorAction fContentAssistTip;
-	protected RetargetTextEditorAction fContentFormatProposal;
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
@@ -61,12 +58,6 @@ public class SVActionContributor extends TextEditorActionContributor {
 
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
 		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
-		
-
-		fContentFormatProposal = new RetargetTextEditorAction(
-				bundle, "ContentFormatProposal.");
-		fContentAssistTip = new RetargetTextEditorAction(bundle,
-			"ContentAssistTip.");
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -75,10 +66,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);
-			editMenu.add(fContentFormatProposal);
-			editMenu.add(fContentAssistTip);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fIndentAction);
 		}
 	}
 	
@@ -95,16 +85,12 @@ public class SVActionContributor extends TextEditorActionContributor {
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);
-			editMenu.add(fContentAssistTip);
+			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fIndentAction);
 		}	
 	}
 	
-	/**
-	 * Sets the active editor to this contributor. This updates the actions to
-	 * reflect the SQL editor.
-	 * 
-	 * @see EditorActionBarContributor#setActiveEditor(org.eclipse.ui.IEditorPart)
-	 */
 	private void doSetActiveEditor(IEditorPart part) {
 		super.setActiveEditor(part);
 
@@ -113,9 +99,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editor= (ITextEditor) part;
 
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
-		fContentAssistTip.setAction(getAction(editor, "ContentAssistTip")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
+		fIndentAction.setAction(getAction(editor, "Indent"));
 	}
 
 	/*

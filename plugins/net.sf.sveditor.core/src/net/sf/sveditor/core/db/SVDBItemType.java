@@ -39,5 +39,6 @@ public enum SVDBItemType {
 	TypeInfo,
 	InitialBlock,
 	AlwaysBlock,
-	Assign
+	Assign,
+	Marker
 }

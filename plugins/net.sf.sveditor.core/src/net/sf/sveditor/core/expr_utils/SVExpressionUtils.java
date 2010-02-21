@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -38,7 +39,9 @@ import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
+import net.sf.sveditor.core.db.search.SVDBPackageItemFinder;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -108,6 +111,8 @@ public class SVExpressionUtils {
 		if (isInString(scanner)) {
 			debug("isInString()");
 			// It's most likely that we're looking at an include
+			
+			ret.fType = ContextType.String;
 
 			ret.fLeaf = readString(scanner, leaf_scan_fwd);
 			
@@ -163,14 +168,17 @@ public class SVExpressionUtils {
 				
 				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
 					// Read an expression
+					ret.fType = ContextType.Triggered;
 					ret.fRoot = readExpression(scanner);
 				} else if (ret.fTrigger == null) {
+					ret.fType = ContextType.Untriggered;
 						
 					// Just process the identifier
 					c = scanner.skipWhite(scanner.get_ch());
 					
 					if (SVCharacter.isSVIdentifierPart(c)) {
-						ret.fRoot = scanner.readIdentifier(c);
+						scanner.unget_ch(c);
+						ret.fRoot = readIdentifier(scanner, false);
 					}
 				}
 			} else {
@@ -182,6 +190,8 @@ public class SVExpressionUtils {
 				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
 				
 				if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
+					ret.fType = ContextType.Triggered;
+					
 					if (scan_fwd) {
 						scanner.setScanFwd(true);
 						c = scanner.get_ch();
@@ -196,6 +206,26 @@ public class SVExpressionUtils {
 						ret.fLeaf = "";
 					}
 					ret.fRoot = readExpression(scanner);
+				}
+			}
+		}
+		
+		if (ret.fType != ContextType.String) {
+			if (ret.fRoot != null && ret.fRoot.equals("import")) {
+				ret.fType = ContextType.Import;
+			} else {
+				// Read preceeding token. It's possible we need to change this type
+				c = scanner.skipWhite(scanner.get_ch());
+
+				if (SVCharacter.isSVIdentifierPart(c)) {
+					scanner.unget_ch(c);
+					String tmp = readIdentifier(scanner, false);
+					
+					fLog.debug("preceeding token: " + tmp.toString());
+						
+					if (tmp.equals("import")) {
+						ret.fType = ContextType.Import;
+					}
 				}
 			}
 		}
@@ -232,7 +262,7 @@ public class SVExpressionUtils {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 
 		StringBuffer text = new StringBuffer();
-
+		
 		if (expr_ctxt.fTrigger != null) {
 			if (expr_ctxt.fTrigger.equals("`")) {
 				if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
@@ -282,7 +312,10 @@ public class SVExpressionUtils {
 					fLog.debug("Using " + it_t.getType() + " " + 
 							it_t.getName() + " as search base");
 
-					if (it_t.getType() == SVDBItemType.Class || it_t.getType() == SVDBItemType.Struct) {
+					if (it_t.getType() == SVDBItemType.Class || 
+							it_t.getType() == SVDBItemType.Struct ||
+							it_t.getType() == SVDBItemType.Covergroup ||
+							it_t.getType() == SVDBItemType.Coverpoint) {
 						SVDBFindByNameInClassHierarchy finder_h = 
 							new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
 						List<SVDBItem> fields = finder_h.find(
@@ -298,72 +331,94 @@ public class SVExpressionUtils {
 								ret.addAll(fields);
 							}
 						}
+					} else if (it_t.getType() == SVDBItemType.PackageDecl) {
+						SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
+								index_it, fNameMatcher);
+						ret.addAll(finder_p.find((SVDBPackageDecl)it_t, expr_ctxt.fLeaf));
 					} else {
 						fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
 					}
 				}
 			}
-		} else {		
-			// No trigger info. Re-do this search by reading the identifier surrounding
-			// the cursor location
+		} else {
+			// Trigger is null
+			if (expr_ctxt.fType == ContextType.Import) {
+				SVDBFindByName finder = new SVDBFindByName(index_it, fNameMatcher);
+				ret.addAll(finder.find(expr_ctxt.fLeaf, SVDBItemType.PackageDecl));
+			} else { 			
+				text.setLength(0);
+				text.append(expr_ctxt.fLeaf);
 
-			text.setLength(0);
-			text.append(expr_ctxt.fLeaf);
+				fLog.debug("Looking for un-triggered identifier \"" + 
+						text.toString() + "\"");
+				List<SVDBItem> result = null;
 
-			fLog.debug("Looking for un-triggered identifier \"" + 
-					text.toString() + "\"");
-			List<SVDBItem> result = null;
-			
-			SVDBFindByNameInClassHierarchy finder_h =
-				new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
+				SVDBFindByNameInClassHierarchy finder_h =
+					new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
 
-			result = finder_h.find(active_scope, text.toString());
+				result = finder_h.find(active_scope, text.toString());
 
-			if (result.size() > 0) {
-				if (max_matches == 0 || (ret.size() < max_matches)) {
-					ret.addAll(result);
+				if (result.size() > 0) {
+					if (max_matches == 0 || (ret.size() < max_matches)) {
+						ret.addAll(result);
+					}
 				}
-			}
 
-			// Try type names
-			SVDBFindNamedModIfcClassIfc finder_cls =
-				new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
+				// Try type names
+				SVDBFindNamedModIfcClassIfc finder_cls =
+					new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
 
-			List<SVDBModIfcClassDecl> cl_l = finder_cls.find(text.toString());
-			
-			if (cl_l.size() > 0) {
-				fLog.debug("Global type search for \"" + text.toString() + 
-						"\" returned " + cl_l.size());
-				for (SVDBModIfcClassDecl cl : cl_l) {
-					fLog.debug("    " + cl.getType() + " " + cl.getName());
+				List<SVDBModIfcClassDecl> cl_l = finder_cls.find(text.toString());
+
+				if (cl_l.size() > 0) {
+					fLog.debug("Global type search for \"" + text.toString() + 
+							"\" returned " + cl_l.size());
+					for (SVDBModIfcClassDecl cl : cl_l) {
+						fLog.debug("    " + cl.getType() + " " + cl.getName());
+					}
+					if (max_matches == 0 || ret.size() < max_matches) {
+						ret.addAll(cl_l);
+					}
+				} else {
+					fLog.debug("Global class find for \"" + text.toString() + 
+					"\" returned no results");
 				}
-				if (max_matches == 0 || ret.size() < max_matches) {
-					ret.addAll(cl_l);
-				}
-			} else {
-				fLog.debug("Global class find for \"" + text.toString() + 
-						"\" returned no results");
-			}
-		
-			// Try global task/function
-			SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
-			
-			List<SVDBItem> it_l= finder_tf.find(text.toString(),
-					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
-			
-			if (it_l != null && it_l.size() > 0) {
-				fLog.debug("Global find-by-name \"" + text.toString() + 
-						"\" returned:");
-				for (SVDBItem it : it_l) {
-					fLog.debug("    " + it.getType() + " " + it.getName());
-				}
+
+				// Try global task/function
+				SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
+
+				List<SVDBItem> it_l= finder_tf.find(text.toString(),
+						SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
 				
-				if (max_matches == 0 || (ret.size() < max_matches)) {
-					ret.addAll(it_l);
+				// Remove any definitions of extern tasks/functions, 
+				// since the name prefix was incorrectly matched
+				for (int i=0; i<it_l.size(); i++) {
+					if (it_l.get(i).getType() == SVDBItemType.Function || 
+							it_l.get(i).getType() == SVDBItemType.Task) {
+						SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
+						fLog.debug("t/f attr=" + tf.getAttr());
+						if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
+								tf.getName().contains("::")) {
+							it_l.remove(i);
+							i--;
+						}
+					}
 				}
-			} else {
-				fLog.debug("Global find-by-name \"" + text.toString() + 
-						"\" returned no results");
+
+				if (it_l != null && it_l.size() > 0) {
+					fLog.debug("Global find-by-name \"" + text.toString() + 
+					"\" returned:");
+					for (SVDBItem it : it_l) {
+						fLog.debug("    " + it.getType() + " " + it.getName());
+					}
+
+					if (max_matches == 0 || (ret.size() < max_matches)) {
+						ret.addAll(it_l);
+					}
+				} else {
+					fLog.debug("Global find-by-name \"" + text.toString() + 
+					"\" returned no results");
+				}
 			}
 		}
 
@@ -483,6 +538,12 @@ public class SVExpressionUtils {
 			
 			if (ch2 == ':') {
 				return "::";
+			}
+		} else if (ch == '=') {
+			int ch2 = scanner.get_ch();
+			if (ch2 != '=') {
+				scanner.unget_ch(ch2);
+				return "=";
 			}
 		}
 		
@@ -924,105 +985,114 @@ public class SVExpressionUtils {
 								}
 							}
 						} else {
-							SVDBFindVarsByNameInScopes finder =
-								new SVDBFindVarsByNameInScopes(index_it, fDefaultMatcher);
-							
-							matches = finder.find(context, id, true);
-							
-							fLog.debug("FindVarsByNameInScope \"" + context.getName() + 
-									"\" returns " + matches.size() + " matches");
-
-							if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.VarDecl) {
-								SVDBVarDeclItem var_decl = (SVDBVarDeclItem)matches.get(0);
-								int attr = var_decl.getTypeInfo().getAttr();
+							if (context == null) {
+								// With a null context, we're looking for classes, typedefs, and packages
+								SVDBFindByName finder = new SVDBFindByName(index_it);
 								
-								if (var_decl.getTypeInfo().getParameters() != null) {
-									SVDBModIfcClassDecl cls_t = pclass_finder.find(
-											var_decl.getTypeInfo());
+								matches = finder.find(id, SVDBItemType.Class, 
+										SVDBItemType.Struct, SVDBItemType.PackageDecl,
+										SVDBItemType.Typedef);
+							} else {
+								SVDBFindVarsByNameInScopes finder =
+									new SVDBFindVarsByNameInScopes(index_it, fDefaultMatcher);
+								
+								matches = finder.find(context, id, true);
+								
+								fLog.debug("FindVarsByNameInScope \"" + context.getName() + 
+										"\" returns " + matches.size() + " matches");
+
+								if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.VarDecl) {
+									SVDBVarDeclItem var_decl = (SVDBVarDeclItem)matches.get(0);
+									int attr = var_decl.getTypeInfo().getAttr();
 									
-									if (cls_t != null) {
-										matches.set(0, cls_t);
+									if (var_decl.getTypeInfo().getParameters() != null) {
+										SVDBModIfcClassDecl cls_t = pclass_finder.find(
+												var_decl.getTypeInfo());
+										
+										if (cls_t != null) {
+											matches.set(0, cls_t);
+										}
+									} else if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0 ||
+										(attr & SVDBTypeInfo.TypeAttr_DynamicArray) != 0) {
+										String base;
+										if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0) {
+											base = "__sv_builtin_queue";
+										} else {
+											base = "__sv_builtin_array";
+										}
+										List<SVDBModIfcClassParam> params = 
+											new ArrayList<SVDBModIfcClassParam>();
+										params.add(new SVDBModIfcClassParam(
+												var_decl.getTypeInfo().getName()));
+										SVDBTypeInfo type_info = new SVDBTypeInfo(
+												base, SVDBTypeInfo.TypeAttr_Parameterized);
+										type_info.setParameters(params);
+										SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
+										
+										if (cls_t != null) {
+											matches.set(0, cls_t);
+										}
+									} else if ((attr & SVDBTypeInfo.TypeAttr_AssocArray) != 0) {
+										String base = "__sv_builtin_assoc_array";
+										List<SVDBModIfcClassParam> params = 
+											new ArrayList<SVDBModIfcClassParam>();
+										params.add(new SVDBModIfcClassParam(
+												var_decl.getTypeInfo().getName()));
+										System.out.println("Array Dim: " + var_decl.getTypeInfo().getArrayDim());
+										params.add(new SVDBModIfcClassParam(
+												var_decl.getTypeInfo().getArrayDim()));
+										SVDBTypeInfo type_info = new SVDBTypeInfo(
+												base, SVDBTypeInfo.TypeAttr_Parameterized);
+										type_info.setParameters(params);
+										SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
+										
+										if (cls_t != null) {
+											matches.set(0, cls_t);
+										}
 									}
-								} else if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0 ||
-									(attr & SVDBTypeInfo.TypeAttr_DynamicArray) != 0) {
-									String base;
-									if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0) {
-										base = "__sv_builtin_queue";
+								}
+								
+								if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.Typedef) {
+									SVDBFindNamedModIfcClassIfc finder_c = 
+										new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
+									SVDBTypedef td = (SVDBTypedef)matches.get(0);
+									
+									fLog.debug("Lookup typename \"" + td.getTypeName() + "\"");
+									
+									List<SVDBModIfcClassDecl> cls_l = finder_c.find(td.getName());
+									
+									if (cls_l.size() > 0) {
+										matches.set(0, cls_l.get(0));
+									}
+								}
+
+								// If this is the first element and we didn't find a field,
+								// then this might be a static reference. Look for a type...
+								if (preceeding_activator == null &&
+										(matches == null || matches.size() == 0)) {
+									SVDBFindNamedModIfcClassIfc finder_c = 
+										new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
+									
+									List<SVDBModIfcClassDecl> cls_l = finder_c.find(id);
+									
+									if (cls_l.size() > 0) {
+										fLog.debug("Found \"" + id + "\" as a type");
+										matches = new ArrayList<SVDBItem>();
+										matches.add(cls_l.get(0));
 									} else {
-										base = "__sv_builtin_array";
+										fLog.debug("Did not find \"" + id + "\" as a type");
 									}
-									List<SVDBModIfcClassParam> params = 
-										new ArrayList<SVDBModIfcClassParam>();
-									params.add(new SVDBModIfcClassParam(
-											var_decl.getTypeInfo().getName()));
-									SVDBTypeInfo type_info = new SVDBTypeInfo(
-											base, SVDBTypeInfo.TypeAttr_Parameterized);
-									type_info.setParameters(params);
-									SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
-									
-									if (cls_t != null) {
-										matches.set(0, cls_t);
-									}
-								} else if ((attr & SVDBTypeInfo.TypeAttr_AssocArray) != 0) {
-									String base = "__sv_builtin_assoc_array";
-									List<SVDBModIfcClassParam> params = 
-										new ArrayList<SVDBModIfcClassParam>();
-									params.add(new SVDBModIfcClassParam(
-											var_decl.getTypeInfo().getName()));
-									System.out.println("Array Dim: " + var_decl.getTypeInfo().getArrayDim());
-									params.add(new SVDBModIfcClassParam(
-											var_decl.getTypeInfo().getArrayDim()));
-									SVDBTypeInfo type_info = new SVDBTypeInfo(
-											base, SVDBTypeInfo.TypeAttr_Parameterized);
-									type_info.setParameters(params);
-									SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
-									
-									if (cls_t != null) {
-										matches.set(0, cls_t);
-									}
-								}
-							}
-							
-							if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.Typedef) {
-								SVDBFindNamedModIfcClassIfc finder_c = 
-									new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-								SVDBTypedef td = (SVDBTypedef)matches.get(0);
-								
-								fLog.debug("Lookup typename \"" + td.getTypeName() + "\"");
-								
-								List<SVDBModIfcClassDecl> cls_l = finder_c.find(td.getName());
-								
-								if (cls_l.size() > 0) {
-									matches.set(0, cls_l.get(0));
-								}
-							}
+									/*
+									SVDBModIfcClassDecl class_type = 
+										SVDBSearchUtils.findClassScope(context);
 
-							// If this is the first element and we didn't find a field,
-							// then this might be a static reference. Look for a type...
-							if (preceeding_activator == null &&
-									(matches == null || matches.size() == 0)) {
-								SVDBFindNamedModIfcClassIfc finder_c = 
-									new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-								
-								List<SVDBModIfcClassDecl> cls_l = finder_c.find(id);
-								
-								if (cls_l.size() > 0) {
-									fLog.debug("Found \"" + id + "\" as a type");
-									matches = new ArrayList<SVDBItem>();
-									matches.add(cls_l.get(0));
-								} else {
-									fLog.debug("Did not find \"" + id + "\" as a type");
+									if (class_type != null) {
+										SVDBFindByNameInClassHierarchy finder_c = 
+											new SVDBFindByNameInClassHierarchy(index_it);
+										matches = finder_c.find((SVDBScopeItem)class_type, id);
+									}
+									 */
 								}
-								/*
-								SVDBModIfcClassDecl class_type = 
-									SVDBSearchUtils.findClassScope(context);
-
-								if (class_type != null) {
-									SVDBFindByNameInClassHierarchy finder_c = 
-										new SVDBFindByNameInClassHierarchy(index_it);
-									matches = finder_c.find((SVDBScopeItem)class_type, id);
-								}
-								 */
 							}
 						}
 					} else {
@@ -1049,7 +1119,8 @@ public class SVExpressionUtils {
 					SVDBItem type = null;
 
 					debug("field=" + field);
-					if (field instanceof SVDBModIfcClassDecl) {
+					if (field instanceof SVDBModIfcClassDecl ||
+							field instanceof SVDBPackageDecl) {
 						type = field;
 					} else if (field instanceof SVDBVarDeclItem) {
 						SVDBFindNamedModIfcClassIfc finder = 

@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
-public class SVDBCoverGroup extends SVDBScopeItem {
+public class SVDBCoverGroup extends SVDBModIfcClassDecl {
 	
 	public SVDBCoverGroup(String name) {
 		super(name, SVDBItemType.Covergroup);
@@ -30,5 +30,16 @@ public class SVDBCoverGroup extends SVDBScopeItem {
 		super.dump(writer);
 	}
 	
+	public SVDBItem duplicate() {
+		SVDBCoverGroup cg = new SVDBCoverGroup(getName());
+		
+		cg.init(this);
+		
+		return cg;
+	}
+	
+	public void init(SVDBItem other) {
+		super.init(other);
+	}
 	
 }

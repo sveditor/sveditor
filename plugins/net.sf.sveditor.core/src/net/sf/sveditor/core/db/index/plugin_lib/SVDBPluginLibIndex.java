@@ -41,7 +41,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			String 			base_location) {
 		super(project, base_location, null);
 		
-		fLog = LogFactory.getDefault().getLogHandle("SVDBPluginLibIndex");
+		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 		
 		fFileSystemProvider = this;
 		
@@ -64,7 +64,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			String			root) {
 		super(project, "plugin:/" + plugin_ns + "/" + root, null);
 
-		fLog = LogFactory.getDefault().getLogHandle("SVDBPluginLibIndex");
+		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 
 		fFileSystemProvider = this;
 
@@ -150,6 +150,10 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		} else {
 			return false;
 		}
+	}
+	
+	public String resolvePath(String path) {
+		return path;
 	}
 
 	// Init for ISVDBFileSystem interface

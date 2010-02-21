@@ -15,13 +15,11 @@ package net.sf.sveditor.core.tests.indent;
 import java.io.ByteArrayOutputStream;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -39,16 +37,96 @@ public class IndentTests extends TestCase {
 			}
 		});
 		
-		bos = utils.readBundleFile("/data/basic_content_assist_project/class1.svh");
+		bos = utils.readBundleFile("/indent/class1.svh");
 		
-		StringBuilder sb = new StringBuilder(bos.toString());
+		String ref = bos.toString();
+		StringBuilder sb = new StringBuilder();
+		
+		int i=0;
+		
+		while (i < ref.length()) {
+			// Read leading whitespace
+			while (i < ref.length() && 
+					Character.isWhitespace(ref.charAt(i)) &&
+					ref.charAt(i) != '\n') {
+				i++;
+			}
+			
+			if (i >= ref.length()) {
+				break;
+			}
+			
+			if (ref.charAt(i) == '\n') {
+				sb.append('\n');
+				i++;
+				continue;
+			} else {
+				// Read to the end of the line
+				while (i < ref.length() && ref.charAt(i) != '\n') {
+					sb.append(ref.charAt(i));
+					i++;
+				}
+				
+				if (i < ref.charAt(i)) {
+					sb.append('\n');
+				}
+			}
+		}
+
+		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
 		SVDefaultIndenter indenter = new SVDefaultIndenter();
 		indenter.init(scanner);
 		
-		String result = indenter.indent(-1, -1);
+		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
+		StringBuilder reference = new StringBuilder(ref);
 		
-		System.out.println("Result: \"" + result + "\"");
+		String ref_line, ind_line;
+		int err_cnt = 0;
+		int pass_cnt = 0;
+		
+		do {
+			ref_line = readLine(reference);
+			ind_line = readLine(result);
+			
+			if (ref_line != null && ind_line != null) {
+				if (ref_line.equals(ind_line)) {
+					System.out.println("[OK ]:" + ref_line);
+					pass_cnt++;
+				} else {
+					System.out.println("[ERR]:" + ref_line);
+					System.out.println("[   ]:" + ind_line);
+					err_cnt++;
+				}
+			}
+		} while (ref_line != null && ind_line != null);
+		
+		assertNull(ref_line);
+		assertNull(ind_line);
+		
+		assertEquals("Expect no errors", 0, err_cnt);
+		assertTrue("Check accomplished work", (pass_cnt != 0));
+	}
+	
+	private String readLine(StringBuilder sb) {
+		int end = 0;
+		String ret = null;
+		
+		while (end < sb.length() && sb.charAt(end) != '\n') {
+			end++;
+		}
+		
+		if (end < sb.length()) {
+			if (end == 0) {
+				ret = "";
+				sb.delete(0, 1);
+			} else {
+				ret = sb.substring(0, end);
+				sb.delete(0, end+1);
+			}
+		}
+		
+		return ret;
 	}
 
 }

@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
-public class SVDBCoverpointCross extends SVDBItem {
+public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 	private List<String>		fCoverpointList;
 	private String				fBody;
 

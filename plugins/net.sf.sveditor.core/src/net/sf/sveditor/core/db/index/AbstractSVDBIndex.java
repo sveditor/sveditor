@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -25,6 +26,9 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
+import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.variables.IStringVariableManager;
@@ -47,6 +51,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected static final List<String>		fIgnoreDirs;
 	protected LogHandle						fLog;
 	protected ISVDBFileSystemProvider		fFileSystemProvider;
+	protected Map<String, String>			fGlobalDefines;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -70,6 +75,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		
 		fFileList = new HashMap<String, SVDBFile>();
 		fFileIndex = new HashMap<String, SVDBFile>();
+		fGlobalDefines = new HashMap<String, String>();
 	}
 
 	public AbstractSVDBIndex(String project, ISVDBFileSystemProvider fs_provider) {
@@ -78,6 +84,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		
 		fFileList 				= new HashMap<String, SVDBFile>();
 		fFileIndex 				= new HashMap<String, SVDBFile>();
+		fGlobalDefines = new HashMap<String, String>();
+	}
+	
+	public void setGlobalDefine(String key, String val) {
+		if (fGlobalDefines.containsKey(key)) {
+			fGlobalDefines.remove(key);
+		}
+		fGlobalDefines.put(key, val);
 	}
 
 	public void init(ISVDBIndexRegistry registry) {
@@ -90,6 +104,27 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	public boolean isLoaded() {
 		return (fFileIndexValid && fFileListValid);
+	}
+	
+	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
+		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(file_tree);
+		
+		for (Entry<String, String> entry : fGlobalDefines.entrySet()) {
+			mp.setMacro(entry.getKey(), entry.getValue());
+		}
+		
+		return mp;
+	}
+	
+	protected IPreProcMacroProvider createPreProcMacroProvider(SVDBFileTree file) {
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		mp.setFileContext(file);
+
+		for (Entry<String, String> entry : fGlobalDefines.entrySet()) {
+			mp.setMacro(entry.getKey(), entry.getValue());
+		}
+
+		return mp;
 	}
 	
 	/**

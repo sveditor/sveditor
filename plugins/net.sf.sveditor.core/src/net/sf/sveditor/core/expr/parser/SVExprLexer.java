@@ -56,14 +56,6 @@ public class SVExprLexer {
 		
 	};
 	
-	private static String keywords[] = {
-		"super", "this", "new",
-		"if", "else", "solve", "before", "foreach", "dist",
-		"inside",
-		"wildcard", "iff", "bins", "illegal_bins", "ignore_bins",
-		"default", "sequence"
-	};
-	
 	public SVExprLexer() {
 		fBuffer = new byte[1024*1024];
 		

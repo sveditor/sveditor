@@ -16,11 +16,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 
 public class SVDBIncludeSearch {
 	
-	private ISVDBIndex				fIndex;
-	private boolean					fDebugEn = false;
-	
 	public SVDBIncludeSearch(ISVDBIndex index) {
-		fIndex = index;
 	}
 	
 	public SVDBFile findIncludedFile(String name) {
@@ -49,11 +45,5 @@ public class SVDBIncludeSearch {
 		 */
 		
 		return ret;
-	}
-	
-	private void debug(String msg) {
-		if (fDebugEn) {
-			System.out.println(msg);
-		}
 	}
 }

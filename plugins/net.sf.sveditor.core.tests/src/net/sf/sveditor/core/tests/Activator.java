@@ -26,10 +26,11 @@ public class Activator extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core.tests";
+	
+	public static final String OVM_LIBRARY_ID = "org.ovmworld.ovm";
 
 	// The shared instance
 	private static Activator    plugin;
-	private BundleContext		fBundleContext;
 	
 	/**
 	 * The constructor
@@ -43,7 +44,6 @@ public class Activator extends Plugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		fBundleContext = context;
 		plugin = this;
 	}
 

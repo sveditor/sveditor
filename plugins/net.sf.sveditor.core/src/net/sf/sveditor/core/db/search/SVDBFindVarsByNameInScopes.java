@@ -88,7 +88,7 @@ public class SVDBFindVarsByNameInScopes {
 		if (ret.size() == 0 || !stop_on_first_match) {
 			context = context_save;
 			while (context != null && 
-					context.getType() != SVDBItemType.Class) {
+					!(context instanceof SVDBModIfcClassDecl)) {
 				context = context.getParent();
 			}
 			
@@ -97,7 +97,9 @@ public class SVDBFindVarsByNameInScopes {
 				
 				while (cls != null) {
 					for (SVDBItem it : cls.getItems()) {
-						if (it.getType() == SVDBItemType.VarDecl) {
+						if (it.getType() == SVDBItemType.VarDecl ||
+								it.getType() == SVDBItemType.Covergroup ||
+								it.getType() == SVDBItemType.Coverpoint) {
 							if (it.getName().equals(name)) {
 								ret.add(it);
 								

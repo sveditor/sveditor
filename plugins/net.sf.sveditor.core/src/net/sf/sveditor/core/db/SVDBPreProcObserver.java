@@ -108,8 +108,9 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	}
 	
 	
-	public void error(String msg) {
-		System.out.println("[ERROR] " + msg);
+	public void error(String msg, String filename, int lineno) {
+		// Ignore errors in the pre-processor stage
+		// System.out.println("[ERROR] " + msg);
 	}
 
 

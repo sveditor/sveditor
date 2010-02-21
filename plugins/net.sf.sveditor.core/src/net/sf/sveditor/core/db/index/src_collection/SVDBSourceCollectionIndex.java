@@ -83,7 +83,7 @@ public class SVDBSourceCollectionIndex
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 
 		fFileTreeUtils    = new SVDBFileTreeUtils();
-		fLog = LogFactory.getDefault().getLogHandle("SVDBSourceCollectionIndex");
+		fLog = LogFactory.getLogHandle("SVDBSourceCollectionIndex");
 	}
 	
 	public String getTypeID() {
@@ -406,6 +406,12 @@ public class SVDBSourceCollectionIndex
 						break;
 					}
 				}
+				
+				if (m == null && fGlobalDefines.containsKey(name)) {
+					setMacro(name, fGlobalDefines.get(name));
+					m = fMacroCache.get(name);
+				}
+				
 				return m;
 			}
 		}

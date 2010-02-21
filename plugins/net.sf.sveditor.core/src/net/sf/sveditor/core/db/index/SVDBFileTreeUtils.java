@@ -25,8 +25,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.scanner.IDefineProvider;
 
 public class SVDBFileTreeUtils {
 	
@@ -143,10 +142,7 @@ public class SVDBFileTreeUtils {
 		return ret;
 	}
 	
-	public void resolveConditionals(SVDBFileTree file) {
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
-		mp.setFileContext(file);
+	public void resolveConditionals(SVDBFileTree file, IDefineProvider dp) {
 		
 		processScope(file.getSVDBFile(), dp, file, null);
 	}
@@ -230,7 +226,7 @@ public class SVDBFileTreeUtils {
 	}
 	
 	private void processFile(
-			SVPreProcDefineProvider	dp,
+			IDefineProvider			dp,
 			SVDBFileTree 			file, 
 			List<SVDBFileTree> 		file_l) {
 		debug("--> processFile(" + file.getFilePath() + ")");
@@ -273,7 +269,7 @@ public class SVDBFileTreeUtils {
 	 */
 	private void processScope(
 			SVDBScopeItem			scope,
-			SVPreProcDefineProvider	dp,
+			IDefineProvider			dp,
 			SVDBFileTree 			file, 
 			List<SVDBFileTree> 		file_l) {
 		List<SVDBItem> it_l = scope.getItems(); 

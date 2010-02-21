@@ -5,3 +5,4 @@
 `include "process.svh"
 `include "queue.svh"
 `include "array.svh"
+`include "covergroup.svh"

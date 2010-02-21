@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -48,7 +50,7 @@ public class SVDBProjectData {
 			String						project_name,
 			SVProjectFileWrapper 		wrapper, 
 			IPath 						projfile_path) {
-		fLog = LogFactory.getDefault().getLogHandle("SVDBProjectData");
+		fLog = LogFactory.getLogHandle("SVDBProjectData");
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project_name;
 		fSVProjFilePath = projfile_path;
@@ -135,7 +137,7 @@ public class SVDBProjectData {
 		}
 		
 		if (refresh && fIndexCollection != null) {
-			setProjectPaths(fIndexCollection, fFileWrapper);
+			setProjectPaths(fIndexCollection, fFileWrapper, set_contents);
 		}
 	}
 	
@@ -149,22 +151,32 @@ public class SVDBProjectData {
 		SVDBIndexCollectionMgr ret = new SVDBIndexCollectionMgr(fProjectName);
 		SVProjectFileWrapper fw = getProjectFileWrapper();
 		
-		setProjectPaths(ret, fw);
+		setProjectPaths(ret, fw, false);
 
 		return ret;
 	}
 	
 	private void setProjectPaths(
 			SVDBIndexCollectionMgr 		sc,
-			SVProjectFileWrapper		fw) {
+			SVProjectFileWrapper		fw,
+			boolean						refresh) {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		Map<String, String> define_map = new HashMap<String, String>();
+		Map<String, Object> args = new HashMap<String, Object>();
+		
+		for (Tuple<String, String> def : fw.getGlobalDefines()) {
+			if (define_map.containsKey(def.first())) {
+				define_map.remove(def.first());
+			}
+			define_map.put(def.first(), def.second());
+		}
 		
 		sc.clear();
 
 		// Add enabled plugin paths
 		for (SVDBPath path : fw.getPluginPaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(
-				"GLOBAL", path.getPath(), 
+				SVDBIndexRegistry.GLOBAL_PROJECT, path.getPath(), 
 				SVDBPluginLibIndexFactory.TYPE, null);
 			
 			if (index != null) {
@@ -176,10 +188,12 @@ public class SVDBProjectData {
 			}
 		}
 		
+		args.clear();
+		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getLibraryPaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(
 					fProjectName, path.getPath(), 
-					SVDBLibPathIndexFactory.TYPE, null);
+					SVDBLibPathIndexFactory.TYPE, args);
 			
 			if (index != null) {
 				sc.addLibraryPath(index);
@@ -190,10 +204,12 @@ public class SVDBProjectData {
 			}
 		}
 		
+		args.clear();
+		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getArgFilePaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(
 					fProjectName, path.getPath(),
-					SVDBArgFileIndexFactory.TYPE, null);
+					SVDBArgFileIndexFactory.TYPE, args);
 			
 			if (index != null) {
 				sc.addLibraryPath(index);
@@ -230,6 +246,8 @@ public class SVDBProjectData {
 		}
 		
 		// Also notify global listeners
-		SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
+		if (refresh) {
+			SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
+		}
 	}
 }

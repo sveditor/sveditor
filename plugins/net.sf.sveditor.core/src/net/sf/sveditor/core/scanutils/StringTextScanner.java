@@ -15,10 +15,10 @@ package net.sf.sveditor.core.scanutils;
 
 public class StringTextScanner extends AbstractTextScanner 
 	implements IRandomAccessTextScanner {
-	private StringBuilder	fStr;
-	private int				fIdx;
-	private int				fLimit;
-	private int				fUngetCh;
+	private StringBuilder		fStr;
+	private int					fIdx;
+	private int					fLimit;
+	private int					fUngetCh;
 	
 	public StringTextScanner(StringTextScanner scanner, int idx) {
 		fStr   = scanner.getStorage();
@@ -119,6 +119,21 @@ public class StringTextScanner extends AbstractTextScanner
 		return (fLimit != -1)?fLimit:fStr.length();
 	}
 	
+	private void update_idx_replace(int start, int end, int len) {
+		if (start < fIdx) {
+			fIdx += (len-(end-start));
+		}
+		if (fLimit != -1) {
+			fLimit += (len - (end-start));
+		}
+		
+		/*
+		if (fParent != null) {
+			fParent.update_idx_replace(start, end, len);
+		}
+		 */
+	}
+	
 	public void replace(int start, int end, String replace) {
 		try {
 			fStr.replace(start, end, replace);
@@ -127,19 +142,11 @@ public class StringTextScanner extends AbstractTextScanner
 			System.out.println("replace " + start + ", " + end + ", \"" + replace + "\"");
 		}
 		
-		if (start < fIdx) {
-			fIdx += (replace.length()-(end-start));
-		}
-		
-		if (fLimit != -1) {
-			fLimit += (replace.length() - (end-start));
-		}
+		update_idx_replace(start, end, replace.length());
 	}
 	
-	public void delete(int start, int end) {
-		fStr.delete(start, end);
-		
-		if (start <= fIdx) {
+	private void update_idx_delete(int start, int end) {
+		if (start < fIdx) {
 			if (end > fIdx) {
 				fIdx -= (fIdx - start);
 			} else {
@@ -150,6 +157,18 @@ public class StringTextScanner extends AbstractTextScanner
 		if (fLimit != -1) {
 			fLimit -= (end-start);
 		}
+	
+		/*
+		if (fParent != null) {
+			fParent.update_idx_delete(start, end);
+		}
+		 */
+	}
+	
+	public void delete(int start, int end) {
+		fStr.delete(start, end);
+		
+		update_idx_delete(start, end);
 	}
 	
 	public String substring(int start, int end) {

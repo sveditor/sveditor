@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
@@ -35,8 +36,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 	private LogHandle				fLog;
 	
 	public SVDBSourceCollectionIndexFactory() {
-		fLog = LogFactory.getDefault().getLogHandle(
-				"SVDBSourceCollectionIndexFactory");
+		fLog = LogFactory.getLogHandle("SVDBSourceCollectionIndexFactory");
 	}
 	
 
@@ -88,6 +88,8 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 
 		ret = new SVDBSourceCollectionIndex(
 				project_name, base_location, ISVDBIndex.IT_BuildPath, matcher, fs_provider);
+		
+		SVDBIndexFactoryUtils.setBaseProperties(config, ret);
 		
 		return ret;
 	}

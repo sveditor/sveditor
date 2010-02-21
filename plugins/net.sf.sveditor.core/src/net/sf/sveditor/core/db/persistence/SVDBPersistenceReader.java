@@ -17,15 +17,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBAlwaysBlock;
+import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBCoverPoint;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBInitialBlock;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
@@ -37,6 +41,7 @@ import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 
 public class SVDBPersistenceReader implements IDBReader {
 	private InputStream			fIn;
@@ -55,6 +60,43 @@ public class SVDBPersistenceReader implements IDBReader {
 		fBufSize 	= 0;
 		fUngetCh	= -1;
 		fTmpBuffer 	= new StringBuilder();
+	}
+	
+	public void init(InputStream in) {
+		fIn = in;
+		fUngetCh = -1;
+		fBufIdx  = 0;
+		fBufSize = 0;
+	}
+	
+	public String readBaseLocation() throws DBFormatException {
+		String SDB = readTypeString();
+		
+		if (!"SDB".equals(SDB)) {
+			throw new DBFormatException("Database not prefixed with SDB (" + SDB + ")");
+		}
+		
+		int ch;
+		
+		if ((ch = getch()) != '<') {
+			throw new DBFormatException("Missing '<'");
+		}
+		
+		fTmpBuffer.setLength(0);
+		
+		while ((ch = getch()) != -1 && ch != '>') {
+			fTmpBuffer.append((char)ch);
+		}
+         		
+		if (ch != '>') {
+			throw new DBFormatException("Unterminated SDB record");
+		}
+
+		return fTmpBuffer.toString();
+	}
+	
+	public void load(ISVDBIndex index) throws DBFormatException {
+		
 	}
 
 	public int readInt() throws DBFormatException {
@@ -502,6 +544,24 @@ public class SVDBPersistenceReader implements IDBReader {
 				ret = new SVDBTypedef(file, parent, type, this);
 				break;
 				
+			case InitialBlock:
+				ret = new SVDBInitialBlock(file, parent, type, this);
+				break;
+				
+			case AlwaysBlock:
+				ret = new SVDBAlwaysBlock(file, parent, type, this);
+				break;
+				
+			case Assign:
+				ret = new SVDBAssign(file, parent, type, this);
+				break;
+				
+
+			case Marker:
+				ret = new SVDBMarkerItem(file, parent, type, this);
+				break;
+				
+				
 			default:
 				System.out.println("[ERROR] unimplemented SVDBLoad type " + type);
 				break;
@@ -510,7 +570,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		return ret;
 	}
 
-	private String readTypeString() {
+	public String readTypeString() {
 		fTmpBuffer.setLength(0);
 		
 		int ch;
@@ -528,7 +588,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 
-	private int getch() {
+	public int getch() {
 		int ch = -1;
 		
 		if (fUngetCh != -1) {
@@ -550,7 +610,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		return ch;
 	}
 	
-	private void unget(int ch) {
+	public void unget(int ch) {
 		fUngetCh = ch;
 	}
 }

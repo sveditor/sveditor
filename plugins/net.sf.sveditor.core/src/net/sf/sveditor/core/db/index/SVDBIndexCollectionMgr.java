@@ -160,7 +160,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.add(index);
 	}
 	
-	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path) {
+	
+	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
 		
@@ -211,7 +212,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	public SVDBFile parse(InputStream in, String path) {
 		SVDBFile ret = null;
 		
-		List<SVDBSearchResult<SVDBFile>> result = findPreProcFile(path);
+		List<SVDBSearchResult<SVDBFile>> result = findPreProcFile(path, true);
 		
 		fLog.debug("parse(" + path + ") - results of findPreProcFile:");
 		for (SVDBSearchResult<SVDBFile> r : result) {

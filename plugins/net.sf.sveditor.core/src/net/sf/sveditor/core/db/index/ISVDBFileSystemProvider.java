@@ -20,6 +20,14 @@ public interface ISVDBFileSystemProvider {
 	
 	void dispose();
 	
+	/**
+	 * Resolve any relative references
+	 * 
+	 * @param path
+	 * @return
+	 */
+	String resolvePath(String path);
+	
 	boolean fileExists(String path);
 	
 	InputStream openStream(String path);

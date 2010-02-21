@@ -37,8 +37,18 @@ public class TestFilesystemLibPersistence extends TestCase {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
-		
 	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		if (fTmpDir != null) {
+			fTmpDir.delete();
+			fTmpDir = null;
+		}
+	}
+	
 	
 	/**
 	 * Tests FileSystemLib persistence by changing a file, saving the database,
@@ -208,15 +218,6 @@ public class TestFilesystemLibPersistence extends TestCase {
 		assertEquals("class1_2", target_it.getName());
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		if (fTmpDir != null) {
-			fTmpDir.delete();
-			fTmpDir = null;
-		}
-	}
 	
 	
 

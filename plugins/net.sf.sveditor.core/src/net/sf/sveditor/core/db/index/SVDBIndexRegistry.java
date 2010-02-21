@@ -47,6 +47,9 @@ import org.eclipse.core.runtime.Platform;
  *
  */
 public class SVDBIndexRegistry implements ISVDBIndexRegistry {
+	public static final String								GLOBAL_PROJECT = "GLOBAL";
+	
+	private SVDBIndexCollectionMgr							fGlobalIndexMgr;
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
 	private File											fDatabaseDir;
 	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
@@ -61,6 +64,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
+		fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
 	}
 	
 	public void init(File state_location) {
@@ -69,6 +73,28 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fDatabaseDescMap.clear();
 		
 		load_database_descriptors();
+
+		/*
+		// Ensure the global index has access to the built-in types
+		ISVDBIndex index = findCreateIndex(
+				SVDBIndexRegistry.GLOBAL_PROJECT, "net.sf.sveditor.sv_builtin", 
+				SVDBPluginLibIndexFactory.TYPE, null);
+		if (index != null) {
+			fGlobalIndexMgr.addPluginLibrary(index);
+		}
+		 */
+	}
+	
+	public List<ISVDBIndex> getProjectIndexList(String project) {
+		if (fProjectIndexMap.containsKey(project)) {
+			return fProjectIndexMap.get(project);
+		} else {
+			return new ArrayList<ISVDBIndex>();
+		}
+	}
+	
+	public SVDBIndexCollectionMgr getGlobalIndexMgr() {
+		return fGlobalIndexMgr;
 	}
 	
 	/**

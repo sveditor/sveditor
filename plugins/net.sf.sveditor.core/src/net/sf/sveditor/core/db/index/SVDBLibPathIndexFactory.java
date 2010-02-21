@@ -30,8 +30,12 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
 		
-		return new SVDBLibIndex(
+		ISVDBIndex index = new SVDBLibIndex(
 				project_name, base_location, fs_provider);
+		
+		SVDBIndexFactoryUtils.setBaseProperties(config, index);
+		
+		return index;
 	}
 
 }

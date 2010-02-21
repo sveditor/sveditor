@@ -20,5 +20,7 @@ public interface ISVScanner {
 	void setStmtLocation(ScanLocation location);
 	
 	ScanLocation getStmtLocation();
+	
+	ScanLocation getStartLocation();
 
 }

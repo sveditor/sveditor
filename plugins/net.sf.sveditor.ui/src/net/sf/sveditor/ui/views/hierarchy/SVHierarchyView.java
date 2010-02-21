@@ -190,6 +190,11 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 		while (fRoot.getParent() != null) {
 			fRoot = fRoot.getParent();
 		}
+		// Add an empty node to contain the tree
+		target = new HierarchyTreeNode(null, "");
+		fRoot.setParent(target);
+		target.addChild(fRoot);
+		fRoot = target;
 		
 		Display.getDefault().asyncExec(new Runnable() {
 			

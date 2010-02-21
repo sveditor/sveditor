@@ -33,9 +33,18 @@
             thread="main"
             visible="true">
          <run
-               class="net.sf.sveditor.core.tests.testPersistence">
+               class="net.sf.sveditor.core.tests.SVDBPersistence">
          </run>
       </application>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVLibraries">
+      <SVLibrary
+            default="false"
+            id="org.ovmworld.ovm"
+            name="OVM Library"
+            path="ovm/src/ovm_pkg.sv">
+      </SVLibrary>
    </extension>
 
 </plugin>

@@ -151,8 +151,12 @@
       <page
             class="net.sf.sveditor.ui.prop_pages.SVProjectProps"
             id="net.sf.sveditor.ui.SVPropPage"
-            name="SystemVerilog Project Properties"
-            objectClass="org.eclipse.core.resources.IProject">
+            name="SystemVerilog Project Properties">
+         <enabledWhen>
+            <adapt
+                  type="org.eclipse.core.resources.IProject">
+            </adapt>
+         </enabledWhen>
             <!--
          <enabledWhen>
             <adapt
@@ -166,20 +170,40 @@
          </enabledWhen>
              -->
       </page>
+      <page
+            class="net.sf.sveditor.ui.prop_pages.SVFilePropertyPage"
+            id="net.sf.sveditor.ui.SVEditorInfo"
+            name="SVEditor Info">
+         <enabledWhen>
+            <and>
+               <adapt
+                     type="org.eclipse.core.resources.IFile">
+               </adapt>
+	            <test
+                  args="contentTypeId"
+                  forcePluginActivation="true"
+                  property="org.eclipse.core.resources.filePropertyTester"
+                  value="net.sf.sveditor.core.systemverilog">
+    	        </test>
+            </and>
+         </enabledWhen>
+      </page>
+      
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            description="%ActionDefinition.openDeclaration.description"
+            description="Open Declaration"
             id="net.sf.sveditor.ui.editor.open.declaration"
-            name="%ActionDefinition.openDeclaration.name">
+            name="Open Declaration">
       </command>
       <command
             id="net.sf.sveditor.ui.override.tf.command"
             name="Override Tasks/Functions">
       </command>
       <command
+            description="Indent Source"
             id="net.sf.sveditor.ui.indent"
             name="Indent">
       </command>
@@ -229,7 +253,7 @@
          		retarget="true">
          </action>
          <action
-               definitionId="net.sf.sveditor.ui.editor.open.declaration"
+               definitionId="net.sf.sveditor.ui.override.tf.command"
                id="net.sf.sveditor.ui.override.tf"
                label="Override Tasks/Functions"
                retarget="true">
@@ -256,17 +280,6 @@
                   name="editGroup">
             </separator>
          </menu>
-      </actionSet>
-      <actionSet
-            id="net.sf.sveditor.ui.actionSet1"
-            label="SV Source Editor">
-         <action
-               definitionId="net.sf.sveditor.ui.indent"
-               id="net.sf.sveditor.ui.actions.Indent"
-               label="Indent"
-               retarget="true"
-               style="push">
-         </action>
       </actionSet>
    </extension>
    <extension

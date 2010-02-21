@@ -38,6 +38,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Struct, STRUCT_OBJ);
 		fImgDescMap.put(SVDBItemType.Covergroup, COVERGROUP_OBJ);
 		fImgDescMap.put(SVDBItemType.Coverpoint, COVERPOINT_OBJ);
+		fImgDescMap.put(SVDBItemType.CoverpointCross, COVERPOINT_CROSS_OBJ);
 		fImgDescMap.put(SVDBItemType.Sequence, SEQUENCE_OBJ);
 		fImgDescMap.put(SVDBItemType.Property, PROPERTY_OBJ);
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);

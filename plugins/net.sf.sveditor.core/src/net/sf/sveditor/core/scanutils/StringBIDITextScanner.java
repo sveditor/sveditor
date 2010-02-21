@@ -90,7 +90,6 @@ public class StringBIDITextScanner
 	}
 
 	public String get_str(long start, int length) {
-		System.out.println("get_str() " + start + ":" + length + " str length=" + fData.length());
 		return fData.substring((int)start, (int)start+length);
 	}
 

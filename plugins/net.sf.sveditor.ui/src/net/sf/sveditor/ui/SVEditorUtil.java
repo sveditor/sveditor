@@ -19,6 +19,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.filesystem.EFS;
@@ -44,6 +46,8 @@ import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 
 public class SVEditorUtil {
+	
+	private static LogHandle				fLog = LogFactory.getLogHandle("SVEditorUtil");
 	
 	public static IEditorPart openEditor(SVDBItem it) {
 		SVDBItem p = it;
@@ -173,6 +177,6 @@ public class SVEditorUtil {
 	}
 	
 	private static void debug(String msg) {
-		
+		fLog.debug(msg);
 	}
 }

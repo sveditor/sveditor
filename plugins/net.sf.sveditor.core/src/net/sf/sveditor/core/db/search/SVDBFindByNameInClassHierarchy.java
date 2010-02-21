@@ -38,7 +38,7 @@ public class SVDBFindByNameInClassHierarchy {
 		fIndexIterator = index_it;
 		fMatcher = matcher;
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
-		fLog = LogFactory.getDefault().getLogHandle("FindByNameInClassHierarchy");
+		fLog = LogFactory.getLogHandle("FindByNameInClassHierarchy");
 	}
 	
 	public List<SVDBItem> find(
@@ -52,8 +52,11 @@ public class SVDBFindByNameInClassHierarchy {
 			fLog.debug("    TYPE " + t);
 		}
 		
-		while (scope != null && scope.getType() != SVDBItemType.Class &&
-				scope.getType() != SVDBItemType.Struct) {
+		while (scope != null && 
+				scope.getType() != SVDBItemType.Class &&
+				scope.getType() != SVDBItemType.Struct &&
+				scope.getType() != SVDBItemType.Covergroup &&
+				scope.getType() != SVDBItemType.Coverpoint) {
 			fLog.debug("Searching up-scope (current is " + scope.getType() + 
 					" " + scope.getName() + ")");
 			if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
@@ -80,6 +83,10 @@ public class SVDBFindByNameInClassHierarchy {
 						break;
 					}
 				}
+				
+				if (scope.getType() == SVDBItemType.Covergroup) {
+					fLog.debug("item=" + it.getType() + " " + it.getName());
+				}
 
 				if (matches) {
 					if (fMatcher.match(it, id)) {
@@ -90,7 +97,14 @@ public class SVDBFindByNameInClassHierarchy {
 
 			// Always match exact
 			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
-			scope = finder.find((SVDBModIfcClassDecl)scope);
+			if (((SVDBModIfcClassDecl)scope).getSuperClass() != null) {
+				scope = finder.find((SVDBModIfcClassDecl)scope);
+				fLog.debug("Find super-class \"" + 
+						((SVDBModIfcClassDecl)scope).getSuperClass() + "\" returns " + scope);
+			} else {
+				fLog.debug("No super-class");
+				scope = null;
+			}
 		}
 		
 		fLog.debug("<-- find(\"" + id + "\") returns " + ret.size() + " results");

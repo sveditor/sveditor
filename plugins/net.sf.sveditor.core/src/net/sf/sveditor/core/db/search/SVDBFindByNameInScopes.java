@@ -23,10 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindByNameInScopes {
 	
-	private ISVDBIndexIterator				fIndexIterator;
-	
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it) {
-		fIndexIterator = index_it;
 	}
 	
 	public List<SVDBItem> find(

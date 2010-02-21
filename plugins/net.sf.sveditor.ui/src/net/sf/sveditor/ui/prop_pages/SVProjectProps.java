@@ -59,6 +59,7 @@ public class SVProjectProps extends PropertyPage implements
 		fProjectFileWrapper = fProjectData.getProjectFileWrapper().duplicate();
 		
 		// Create property pages
+		fPropertyPages.add(new GlobalDefinesPage());
 		fPropertyPages.add(new SourceCollectionsPage());
 		// fPropertyPages.add(new IncludePathsPage());
 		fPropertyPages.add(new LibraryPathsPage());

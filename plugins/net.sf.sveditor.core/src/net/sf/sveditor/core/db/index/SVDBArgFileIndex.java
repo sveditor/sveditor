@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -25,7 +26,7 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
@@ -37,7 +38,6 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	protected List<String>				fIncludePaths;
 	protected Map<String, String>		fDefineMap;
 	
-	
 	public SVDBArgFileIndex(
 			String						project,
 			String						root,
@@ -45,9 +45,9 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		super(project, root, fs_provider);
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
 		
-		fFilePaths = new ArrayList<String>();
-		fIncludePaths = new ArrayList<String>();
-		fDefineMap = new HashMap<String, String>();
+		fFilePaths 			= new ArrayList<String>();
+		fIncludePaths 		= new ArrayList<String>();
+		fDefineMap			= new HashMap<String, String>();
 	}
 	
 	public String getTypeID() {
@@ -137,9 +137,33 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		}
 	}
 	
+	@Override
+	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree fileTree) {
+		
+		IPreProcMacroProvider mp = super.createMacroProvider(fileTree); 
+		for (Entry<String, String> entry : fDefineMap.entrySet()) {
+			mp.setMacro(entry.getKey(), entry.getValue());
+		}
+			
+		return mp; 
+	}
+	
+	@Override
+	protected IPreProcMacroProvider createPreProcMacroProvider(SVDBFileTree file) {
+		IPreProcMacroProvider mp = super.createPreProcMacroProvider(file);
+		
+		for (Entry<String, String> entry : fDefineMap.entrySet()) {
+			mp.setMacro(entry.getKey(), entry.getValue());
+		}
+		
+		return mp;
+	}
+
 	protected void readArgFile() {
 		fFilePaths.clear();
 		fIncludePaths.clear();
+		fDefineMap.clear();
+		fDefineMap.putAll(fGlobalDefines);
 		
 		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
 		
@@ -164,6 +188,11 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				fIncludePaths.add(expandVars(inc, true));
 			}
 			
+			for (Entry<String, String> entry : scanner.getDefineMap().entrySet()) {
+				fLog.debug("[DEFINE] " + entry.getKey() + "=" + entry.getValue());
+				fDefineMap.put(entry.getKey(), entry.getValue());
+			}
+			
 		} else {
 			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
 		}
@@ -183,7 +212,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			}
 			
 			SVDBFileTree ft_root = fFileTreeMap.get(file);
-			SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(ft_root);
+			IPreProcMacroProvider mp = createMacroProvider(ft_root);
 			
 			processFile(ft_root, mp);
 		}

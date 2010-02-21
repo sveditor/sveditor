@@ -20,5 +20,9 @@ public interface IDefineProvider {
 	boolean isDefined(String name, int lineno);
 	
 	boolean hasParameters(String key);
+	
+	void addErrorListener(IPreProcErrorListener l);
+	
+	void removeErrorListener(IPreProcErrorListener l);
 
 }

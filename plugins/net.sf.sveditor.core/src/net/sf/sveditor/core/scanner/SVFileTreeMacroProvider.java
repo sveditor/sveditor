@@ -34,7 +34,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	private LogHandle						fLog;
 	
 	public SVFileTreeMacroProvider(SVDBFileTree context) {
-		fLog = LogFactory.getDefault().getLogHandle("SVFileTreeMacroProvider");
+		fLog = LogFactory.getLogHandle("SVFileTreeMacroProvider");
 		
 		fContext = context;
 		fMacroCache = new HashMap<String, SVDBMacroDef>();
@@ -53,7 +53,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		if (fMacroCache.containsKey(key)) {
 			fMacroCache.get(key).setDef(value);
 		} else {
-			fMacroCache.put(key, new SVDBMacroDef(key, new ArrayList<String>(), value));
+			fMacroCache.put(key, 
+					new SVDBMacroDef(key, new ArrayList<String>(), value));
 		}
 	}
 

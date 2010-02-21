@@ -88,6 +88,10 @@ public class SVPreProcScanner implements ISVScanner {
 		return fScanLocation;
 	}
 	
+	public ScanLocation getStartLocation() {
+		return fScanLocation;
+	}
+	
 	public ScanLocation getLocation() {
 		return new ScanLocation(fFileName, fLineno, 0);
 	}
@@ -542,7 +546,9 @@ public class SVPreProcScanner implements ISVScanner {
 									getLocation().getLineNo()));
 						} catch (Exception e) {
 							System.out.println("Exception while expanding \"" + 
-									fTmpBuffer.toString() + "\"");
+									fTmpBuffer.toString() + "\" @ " +
+									getLocation().getFileName() + ":" + 
+									getLocation().getLineNo());
 							e.printStackTrace();
 						}
 					}

@@ -38,6 +38,8 @@ public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBI
 	 */
 	String getBaseLocation();
 	
+	void setGlobalDefine(String key, String val);
+	
 	/**
 	 * Returns the type identifier for this index. This is
 	 * typically used in conjunction with the database factory

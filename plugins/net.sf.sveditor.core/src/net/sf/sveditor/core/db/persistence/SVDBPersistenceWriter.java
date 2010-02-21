@@ -29,6 +29,11 @@ public class SVDBPersistenceWriter implements IDBWriter {
 		fBuf = new StringBuilder();
 	}
 	
+	public void init(OutputStream out) {
+		fOutputStream = out;
+		fBuf.setLength(0);
+	}
+	
 	public void close() {
 		if (fBuf.length() > 0) {
 			try {

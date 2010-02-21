@@ -32,7 +32,18 @@ public class IndentAction extends TextEditorAction {
 	
 	public IndentAction(ResourceBundle bundle, String prefix, SVEditor editor) {
 		super(bundle, prefix, editor);
+		update();
 	}
+	
+	
+	
+	@Override
+	public boolean isEnabled() {
+		return true;
+		// return super.isEnabled();
+	}
+
+
 
 	@Override
 	public void run() {

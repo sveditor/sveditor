@@ -25,7 +25,7 @@ public interface ISVDBPreProcIndexSearcher {
 	 * @param path
 	 * @return
 	 */
-	List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path);
+	List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow);
 	
 	List<SVDBSearchResult<SVDBFile>> findIncParent(SVDBFile file);
 

@@ -26,6 +26,8 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import net.sf.sveditor.core.Tuple;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -35,6 +37,7 @@ import org.xml.sax.SAXParseException;
 
 public class SVProjectFileWrapper {
 	private Document					fDocument;
+	private List<Tuple<String, String>>	fGlobalDefines;
 	private List<SVDBPath>	    		fIncludePaths;
 	private List<SVDBPath>	    		fLibraryPaths;
 	private List<SVDBPath>	    		fBuildPaths;
@@ -44,6 +47,7 @@ public class SVProjectFileWrapper {
 	
 	public SVProjectFileWrapper() {
 		
+		fGlobalDefines		= new ArrayList<Tuple<String,String>>();
 		fIncludePaths 		= new ArrayList<SVDBPath>();
 		fLibraryPaths       = new ArrayList<SVDBPath>();
 		fBuildPaths 		= new ArrayList<SVDBPath>();
@@ -65,6 +69,7 @@ public class SVProjectFileWrapper {
 	}
 	
 	public SVProjectFileWrapper(InputStream in) throws Exception {
+		fGlobalDefines		= new ArrayList<Tuple<String,String>>();
 		fIncludePaths 		= new ArrayList<SVDBPath>();
 		fLibraryPaths       = new ArrayList<SVDBPath>();
 		fBuildPaths 		= new ArrayList<SVDBPath>();
@@ -94,6 +99,7 @@ public class SVProjectFileWrapper {
 			svproject = (Element)svprojectList.item(0);
 		}
 		
+		change |= init_defines(svproject);
 		change |= init_paths(svproject, "includePaths", "includePath", fIncludePaths);
 		change |= init_paths(svproject, "buildPaths", "buildPath", fBuildPaths);
 		change |= init_paths(svproject, "pluginPaths", "pluginPath", fPluginPaths);
@@ -136,6 +142,42 @@ public class SVProjectFileWrapper {
 			}
 			
 			element_list.add(new SVDBPath(path, false));
+		}
+		
+		return change;
+	}
+
+	private boolean init_defines(Element svproject) { 
+		boolean change = false;
+		
+		// Look for includePaths element
+		NodeList pathsList = svproject.getElementsByTagName("defines");
+		
+		Element paths = null;
+		if (pathsList.getLength() > 0) {
+			System.out.println("use existing defines list");
+			paths = (Element)pathsList.item(0);
+		} else {
+			System.out.println("create new defines list");
+			paths = fDocument.createElement("defines");
+			svproject.appendChild(paths);
+			change = true;
+		}
+		
+		NodeList defineList = paths.getElementsByTagName("define");
+		
+		System.out.println("defineList is " + defineList.getLength() + " long");
+		for (int i=0; i<defineList.getLength(); i++) {
+			Element define = (Element)defineList.item(i);
+			
+			String key = define.getAttribute("key");
+			String val = define.getAttribute("val");
+			
+			if (key == null) {
+				key = "";
+			}
+			
+			fGlobalDefines.add(new Tuple<String, String>(key, val));
 		}
 		
 		return change;
@@ -212,6 +254,7 @@ public class SVProjectFileWrapper {
 			svproject = (Element)svprojectList.item(0);
 		}
 		
+		marshall_defines(svproject);
 		marshall_paths(svproject, "includePaths", "includePath", fIncludePaths);
 		marshall_paths(svproject, "buildPaths", "buildPath", fBuildPaths);
 		marshall_paths(svproject, "libraryPaths", "libraryPath", fLibraryPaths);
@@ -249,6 +292,35 @@ public class SVProjectFileWrapper {
 			path.setAttribute("path", ip.getPath());
 			
 			paths.appendChild(path);
+		}
+	}
+
+	private void marshall_defines(Element svproject) {
+		
+		NodeList definesList = svproject.getElementsByTagName("defines");
+		
+		Element defines = null;
+		if (definesList.getLength() > 0) {
+			defines = (Element)definesList.item(0);
+		} else {
+			defines = fDocument.createElement("defines");
+			svproject.appendChild(defines);
+		}
+		
+		NodeList defineList = defines.getElementsByTagName("define");
+		
+		// Remove these elements
+		for (int i=0; i<defineList.getLength(); i++) {
+			defines.removeChild((Element)defineList.item(i));
+		}
+		
+		for (Tuple<String, String> def : fGlobalDefines) {
+			Element def_e = fDocument.createElement("define");
+			
+			def_e.setAttribute("key", def.first());
+			def_e.setAttribute("val", def.second());
+			
+			defines.appendChild(def_e);
 		}
 	}
 
@@ -315,6 +387,10 @@ public class SVProjectFileWrapper {
 		return fArgFilePaths;
 	}
 	
+	public List<Tuple<String, String>> getGlobalDefines() {
+		return fGlobalDefines;
+	}
+	
 	public List<SVDBSourceCollection> getSourceCollections() {
 		return fSourceCollections;
 	}
@@ -368,6 +444,7 @@ public class SVProjectFileWrapper {
 		fArgFilePaths.clear();
 		fSourceCollections.clear();
 		fBuildPaths.clear();
+		fGlobalDefines.clear();
 		
 		for (SVDBPath p : fw.fIncludePaths) {
 			fIncludePaths.add(p.duplicate());
@@ -391,6 +468,12 @@ public class SVProjectFileWrapper {
 		
 		for (SVDBPath p : fw.fBuildPaths) {
 			fBuildPaths.add(p.duplicate());
+		}
+		
+		for (Tuple<String, String> def : fw.fGlobalDefines) {
+			Tuple<String, String> dup = 
+				new Tuple<String, String>(def.first(), def.second());
+			fGlobalDefines.add(dup);
 		}
 	}
 	
@@ -443,6 +526,19 @@ public class SVProjectFileWrapper {
 			
 			for (int i=0; i<fPluginPaths.size(); i++) {
 				if (!p.fPluginPaths.get(i).equals(fPluginPaths.get(i))) {
+					return false;
+				}
+			}
+			
+			if (fGlobalDefines.size() != p.fGlobalDefines.size()) {
+				return false;
+			}
+			
+			for (int i=0; i<fGlobalDefines.size(); i++) {
+				if (!p.fGlobalDefines.get(i).first().equals(
+						fGlobalDefines.get(i).first()) ||
+					!p.fGlobalDefines.get(i).second().equals(
+						fGlobalDefines.get(i).second())) {
 					return false;
 				}
 			}

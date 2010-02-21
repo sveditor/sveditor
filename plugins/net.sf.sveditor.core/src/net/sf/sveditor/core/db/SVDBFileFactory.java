@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.scanner.HaltScanException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVScanner;
@@ -53,8 +54,12 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		return fScanner;
 	}
 	
-	public void error(String msg) {
-		System.out.println("[ERROR] " + msg);
+	public void error(String msg, String filename, int lineno) {
+		SVDBMarkerItem marker = new SVDBMarkerItem(
+				SVDBMarkerItem.MARKER_ERR, msg);
+		marker.setLocation(new SVDBLocation(fFile, lineno, 0));
+		
+		fScopeStack.peek().addItem(marker);
 	}
 	
 	public SVDBFile parse(InputStream in, String name) {
@@ -384,6 +389,14 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		return f.parse(in, name);
 	}
 
+	private void setStartLocation(SVDBItem item) {
+		ScanLocation loc = fScanner.getStartLocation();
+		
+		if (loc != null) {
+			item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
+		}
+	}
+	
 	private void setLocation(SVDBItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
 		item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
@@ -428,6 +441,7 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	
 	public void enter_covergroup(String name) {
 		SVDBCoverGroup cg = new SVDBCoverGroup(name);
+		cg.setSuperClass(BuiltinClassConstants.Covergroup);
 		setLocation(cg);
 		
 		fScopeStack.peek().addItem(cg);
@@ -445,7 +459,7 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 	
 	public void covergroup_item(String name, String type, String target, String body) {
-		SVDBItem it = null;
+		SVDBScopeItem it = null;
 		
 		if (type == null) {
 			return;
@@ -453,9 +467,12 @@ public class SVDBFileFactory implements ISVScannerObserver {
 
 		if (type.equals("coverpoint")) {
 			it = new SVDBCoverPoint(name, target, body);
+			((SVDBCoverPoint)it).setSuperClass(BuiltinClassConstants.Coverpoint);
 		} else if (type.equals("cross")) {
 			it = new SVDBCoverpointCross(name, body);
-			
+
+			((SVDBCoverpointCross)it).setSuperClass(BuiltinClassConstants.CoverpointCross);
+
 			for (String cp : target.split(",")) {
 				cp = cp.trim();
 				if (!cp.equals("")) {
@@ -470,7 +487,8 @@ public class SVDBFileFactory implements ISVScannerObserver {
 		}
 			
 		if (it != null) {
-			setLocation(it);
+			setStartLocation(it);
+			setEndLocation(it);
 			fScopeStack.peek().addItem(it);
 		}
 	}
