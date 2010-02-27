@@ -1,0 +1,116 @@
+package net.sf.sveditor.core.tests.index.libIndex;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+
+import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.utils.BundleUtils;
+import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Path;
+
+public class WSArgFileIndexChanges extends TestCase {
+	
+	public void testArgFileChange() {
+		File tmpdir = TestUtils.createTempDir();
+		
+		try {
+			int_testArgFileChange(tmpdir);
+		} catch (RuntimeException e) {
+			throw e;
+		} finally {
+			tmpdir.delete();
+		}
+	}
+	
+	private void int_testArgFileChange(File tmpdir) {
+		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		
+		IProject project_dir = TestUtils.createProject("project");
+		
+		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		
+		File db = new File(tmpdir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(tmpdir);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBItem class1_it = null, class1_2_it = null;
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1_it = tmp_it;
+			} else if (tmp_it.getName().equals("class1_2")) {
+				class1_2_it = tmp_it;
+			}
+		}
+		
+		assertNotNull("Expect to find class1", class1_it);
+		assertNull("Expect to not fine class1_2", class1_2_it);
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(out);
+		
+		ps.println("\n\n");
+		ps.println("class class1_2;\n");
+		ps.println("\n\n");
+		ps.println("endclass\n\n");
+		ps.flush();
+		
+		// Now, write back the file
+		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1_2.svh")));
+
+		out = new ByteArrayOutputStream();
+		ps = new PrintStream(out);
+		
+		ps.println("\n\n");
+		ps.println("basic_lib_pkg.sv");
+		ps.println("class1_2.svh");
+		ps.flush();
+		
+		// Now, write back the file
+		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/basic_lib.f")));
+
+		// Wait a bit...
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) { }
+
+		it = index.getItemIterator();
+		class1_it = null;
+		class1_2_it = null;
+
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1_it = tmp_it;
+			} else if (tmp_it.getName().equals("class1_2")) {
+				class1_2_it = tmp_it;
+			}
+		}
+
+		assertNotNull("Expect to find class1", class1_it);
+		assertNotNull("Expect to find class1_2", class1_2_it);
+	}
+
+}

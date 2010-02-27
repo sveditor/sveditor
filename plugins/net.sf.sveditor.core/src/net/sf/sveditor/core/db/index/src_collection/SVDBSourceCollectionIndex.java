@@ -45,15 +45,13 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
  * Manages the index for a workspace location
  * 
  */
-public class SVDBSourceCollectionIndex 
-	extends AbstractSVDBIndex implements ISVDBIncludeFileProvider {
+public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	
 	protected int								fIndexType;
 
 	protected String							fBaseLocation;
 	protected boolean							fDisposed;
 
-	protected List<ISVDBIndexChangeListener>	fIndexChageListeners;
 	
 	protected List<ISVDBIncludeFileProvider>	fIncludePaths;
 	
@@ -80,7 +78,6 @@ public class SVDBSourceCollectionIndex
 		
 		fBaseLocation = base_location;
 		fIndexType    = index_type;
-		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 
 		fFileTreeUtils    = new SVDBFileTreeUtils();
 		fLog = LogFactory.getLogHandle("SVDBSourceCollectionIndex");
@@ -94,14 +91,14 @@ public class SVDBSourceCollectionIndex
 	protected boolean isLoadUpToDate() {
 		List<String> files = fFileMatcher.findIncludedPaths();
 		
-		if (files.size() != fFileList.size()) {
+		if (files.size() != fPreProcFileMap.size()) {
 			fLog.debug("    Index not up-to-date: files.size=" + 
-					files.size() + " fFileList.size=" + fFileList.size());
+					files.size() + " fFileList.size=" + fPreProcFileMap.size());
 			return false;
 		}
 		
 		for (String file : files) {
-			SVDBFile pp_file = fFileList.get(file);
+			SVDBFile pp_file = fPreProcFileMap.get(file);
 			
 			if (pp_file == null ||
 					(pp_file.getLastModified() != fFileSystemProvider.getLastModifiedTime(file))) {
@@ -184,16 +181,16 @@ public class SVDBSourceCollectionIndex
 			}
 			for (String path : fFileMatcher.findIncludedPaths()) {
 				fLog.debug("    path=" + path);
-				if (fFileList.containsKey(path)) {
-					fFileList.remove(path);
+				if (fPreProcFileMap.containsKey(path)) {
+					fPreProcFileMap.remove(path);
 				}
-				fFileList.put(path, createPreProcFile(path));
+				fPreProcFileMap.put(path, createPreProcFile(path));
 			}
 		} catch (Exception e) { 
 			e.printStackTrace();
 		} finally {
 			synchronized (this) {
-				fFileListValid = true;
+				fPreProcFileMapValid = true;
 			}
 		}
 	}
@@ -237,13 +234,13 @@ public class SVDBSourceCollectionIndex
 				String file = it.next();
 				fLog.debug("    file=" + file);
 				
-				if (!fFileIndex.containsKey(file)) {
+				if (!fIndexFileMap.containsKey(file)) {
 					SVDBFileTree ft = fFileTreeUtils.createFileContext(
 							pp_file_map.get(file), this);
 					SVDBFile svdb_file = parseFile(file, ft);
 					
-					synchronized(fFileIndex) {
-						fFileIndex.put(file, svdb_file);
+					synchronized(fIndexFileMap) {
+						fIndexFileMap.put(file, svdb_file);
 					}
 				}
 			}
@@ -251,7 +248,7 @@ public class SVDBSourceCollectionIndex
 			e.printStackTrace();
 		} finally {
 			synchronized (this) {
-				fFileIndexValid = true;
+				fIndexFileMapValid = true;
 			}
 		}
 	}
@@ -279,23 +276,14 @@ public class SVDBSourceCollectionIndex
 	}
 
 	public void rebuildIndex() {
+		
 		// TODO: force index and map to be invalid
 		fLog.debug("[TODO] SVDBIndexBase.rebuildIndex");
 	}
 	
-	public void addChangeListener(ISVDBIndexChangeListener l) {
-		fIndexChageListeners.add(l);
-	}
-
-	public void removeChangeListener(ISVDBIndexChangeListener l) {
-		fIndexChageListeners.remove(l);
-	}
-	
-	
-
 	protected void fileRemoved(String file) {
-		fFileList.remove(file);
-		SVDBFile svdb_file = fFileIndex.remove(file);
+		fPreProcFileMap.remove(file);
+		SVDBFile svdb_file = fIndexFileMap.remove(file);
 
 		if (svdb_file != null) {
 			for (ISVDBIndexChangeListener l : fIndexChageListeners) {
@@ -329,28 +317,28 @@ public class SVDBSourceCollectionIndex
 			return;
 		}
 		
-		if (fFileListValid) {
-			if (fFileList.containsKey(file)) {
+		if (fPreProcFileMapValid) {
+			if (fPreProcFileMap.containsKey(file)) {
 				// hmmm... bad information
-				fFileList.remove(file);
+				fPreProcFileMap.remove(file);
 			}
 			
-			fFileList.put(file, createPreProcFile(file));
+			fPreProcFileMap.put(file, createPreProcFile(file));
 		}
 		
-		if (fFileIndexValid) {
+		if (fIndexFileMapValid) {
 			Map<String, SVDBFile> pp_file_map = getPreProcFileMap();
 			
-			if (fFileIndex.containsKey(file)) {
-				fFileIndex.remove(file);
+			if (fIndexFileMap.containsKey(file)) {
+				fIndexFileMap.remove(file);
 			}
 			
 			SVDBFileTree ft = fFileTreeUtils.createFileContext(
 					pp_file_map.get(file), this);
 			SVDBFile svdb_file = parseFile(file, ft);
 			
-			synchronized(fFileIndex) {
-				fFileIndex.put(file, svdb_file);
+			synchronized(fIndexFileMap) {
+				fIndexFileMap.put(file, svdb_file);
 			}
 			
 			for (ISVDBIndexChangeListener l : fIndexChageListeners) {
@@ -362,18 +350,18 @@ public class SVDBSourceCollectionIndex
 	
 	protected void fileChanged(String file) {
 		
-		if (fFileList.containsKey(file)) {
-			fFileList.remove(file);
-			fFileList.put(file, createPreProcFile(file));
+		if (fPreProcFileMap.containsKey(file)) {
+			fPreProcFileMap.remove(file);
+			fPreProcFileMap.put(file, createPreProcFile(file));
 		}
 
-		if (fFileIndex.containsKey(file)) {
+		if (fIndexFileMap.containsKey(file)) {
 			Map<String, SVDBFile> pp_file_map = getPreProcFileMap();
 			
 			SVDBFileTree ft = fFileTreeUtils.createFileContext(
 					pp_file_map.get(file), this);
 			SVDBFile svdb_file = parseFile(file, ft);
-			SVDBFile svdb_file_e = fFileIndex.get(file);
+			SVDBFile svdb_file_e = fIndexFileMap.get(file);
 
 			// Merge any new content with the existing
 			SVDBFileMerger.merge(svdb_file_e, svdb_file, null, null, null);

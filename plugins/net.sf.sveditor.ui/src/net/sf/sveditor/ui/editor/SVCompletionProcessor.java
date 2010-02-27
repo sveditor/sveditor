@@ -277,14 +277,18 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		TemplateContext ctxt = new DocumentTemplateContext(
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
+		
+		fLog.debug("createMacroProposal: " + it.getName());
 
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
 		SVDBMacroDef md = (SVDBMacroDef)it;
 
+		d.append(it.getName());
+		r.append(it.getName());
 		if (md.getParameters().size() > 0) {
-			d.append(it.getName() + "(");
-			r.append(it.getName() + "(");
+			d.append("(");
+			r.append("(");
 		}
 		
 		for (int i=0; i<md.getParameters().size(); i++) {

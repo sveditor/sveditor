@@ -49,6 +49,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	public void removeErrorListener(IPreProcErrorListener l) {
 		fErrorListeners.remove(l);
 	}
+	
+	public void error(String msg, String filename, int lineno) {
+		for (IPreProcErrorListener l : fErrorListeners) {
+			l.preProcError(msg, filename, lineno);
+		}
+	}
 
 	public void setMacroProvider(IPreProcMacroProvider provider) {
 		fMacroProvider = provider;

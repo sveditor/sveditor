@@ -68,9 +68,10 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	public void init(File state_location) {
-		fDatabaseDir = new File(state_location, "db");
 		fProjectIndexMap.clear();
 		fDatabaseDescMap.clear();
+		fDatabaseDir = new File(state_location, "db");
+		fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
 		
 		load_database_descriptors();
 
@@ -267,6 +268,8 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 							} catch (Exception e) {
 								fLog.error("Failed to read base location from index \"" + 
 										f.getAbsolutePath() + "\" for project \"" + d.getName() + "\"", e);
+								// If the file is corrupt, delete it
+								f.delete();
 							}
 						}
 					}
@@ -349,18 +352,22 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 						entry_name = entry_name.substring(0, entry_name.length()-4);
 						zip_out = new ZipOutputStream(out);
 						zip_out.putNextEntry(new ZipEntry(entry_name));
-						out = zip_out;
 					} else {
 						 out = new FileOutputStream(index_file);						
 					}
-					dumper.dump(index, out);
 
 					if (zip_out != null) {
+						dumper.dump(index, zip_out);
 						zip_out.closeEntry();
+						
+						zip_out.flush();
+						zip_out.close();
+						out.close();
+					} else {
+						dumper.dump(index, out);
+						out.flush();
+						out.close();
 					}
-
-					out.flush();
-					out.close();
 				} catch (Exception e) {
 					fLog.error("Failed to save index \"" + 
 							index.getBaseLocation() + "\" to persistence file \"" + 

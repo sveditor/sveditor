@@ -14,28 +14,31 @@ package net.sf.sveditor.core.tests.indent;
 
 import java.io.ByteArrayOutputStream;
 
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.ILogListener;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 
 public class IndentTests extends TestCase {
 	
+	public static Test suite() {
+		TestSuite suite = new TestSuite("IndentTests");
+		suite.addTest(new TestSuite(IndentTests.class));
+		suite.addTest(new TestSuite(NoHangIndentTests.class));
+		
+		return suite;
+	}
+	
 	public void testBasics() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
-		LogFactory.getDefault().addLogListener(new ILogListener() {
-			
-			public void message(ILogHandle handle, int type, int level, String message) {
-				System.out.println("[" + handle.getName() + "] " + message);
-			}
-		});
+		// SVCorePlugin.getDefault().enableDebug(true);
 		
 		bos = utils.readBundleFile("/indent/class1.svh");
 		
@@ -101,8 +104,8 @@ public class IndentTests extends TestCase {
 			}
 		} while (ref_line != null && ind_line != null);
 		
-		assertNull(ref_line);
-		assertNull(ind_line);
+		assertNull("Checking that output not truncated", ref_line);
+		assertNull("Checking for no excess output", ind_line);
 		
 		assertEquals("Expect no errors", 0, err_cnt);
 		assertTrue("Check accomplished work", (pass_cnt != 0));

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.sveditor.core.parser.SVToken.Type;
+import net.sf.sveditor.core.scanner.SVKeywords;
 
 /**
  * Parses a SystemVerilog description. The structure is based on Annex A 
@@ -24,12 +25,12 @@ import net.sf.sveditor.core.parser.SVToken.Type;
  * 
  * @author ballance
  */
-public class SystemVerilogParser {
+public class SystemVerilogParser_sav {
 	private SVLexer				fLexer;
 	private int					fLifetimeFlags;
 	private int					fClassItemQualifier;
 	
-	public SystemVerilogParser(SVLexer lex) {
+	public SystemVerilogParser_sav(SVLexer lex) {
 		fLexer = lex;
 	}
 	
@@ -40,7 +41,7 @@ public class SystemVerilogParser {
 		SVToken tok = next_token_ignore_attr();
 		
 		while (tok != null) {
-			if (tok.getKeyword() == SVKeywords.KW_class) {
+			if (tok.isKeyword("class")) {
 				System.out.println("class");
 				tok = class_declaration(tok);
 			} else {
@@ -66,11 +67,11 @@ public class SystemVerilogParser {
 	 * @return
 	 */
 	private SVToken description(SVToken tok) {
+		/*
 		while (true) {
 			// handle attributes that may be attached to this description
 		
 			if (tok.getType() == Type.Keyword) {
-				SVKeywords kw = tok.getKeyword();
 				if (kw == SVKeywords.KW_module || kw == SVKeywords.KW_macromodule) {
 					tok = module_declaration(tok);
 				} else if (kw == SVKeywords.KW_class || kw == SVKeywords.KW_virtual) {
@@ -82,6 +83,7 @@ public class SystemVerilogParser {
 				break;
 			}
 		}
+			*/
 		
 		return tok;
 	}
@@ -93,15 +95,19 @@ public class SystemVerilogParser {
 	 * @return
 	 */
 	private SVToken module_declaration(SVToken tok) {
+		/*
 		assert tok.getKeyword() == SVKeywords.KW_module || 
 			tok.getKeyword() == SVKeywords.KW_macromodule;
+		 */
 		
 		tok = next_token_ignore_attr();
 		
+		/*
 		if (tok.getKeyword() == SVKeywords.KW_extern) {
 			// TODO: add extern to some flag list
 			tok = next_token_ignore_attr();
 		}
+		 */
 		
 		// allow specification of lifetime
 		tok = lifetime(tok);
@@ -128,7 +134,7 @@ public class SystemVerilogParser {
 		
 		// Ensure that we have proper termination of the module declaration
 
-		assert tok.getKeyword() == SVKeywords.KW_endmodule;
+		// assert tok.getKeyword() == SVKeywords.KW_endmodule;
 		
 		tok = next_token_ignore_attr();
 		
@@ -136,6 +142,7 @@ public class SystemVerilogParser {
 	}
 	
 	private SVToken class_declaration(SVToken tok) {
+		/*
 		if (tok.getKeyword() == SVKeywords.KW_virtual) {
 			tok = next_token_ignore_attr();
 		}
@@ -189,6 +196,7 @@ public class SystemVerilogParser {
 			
 			tok = next_token_ignore_attr(); // true next token
 		}
+		 */
 		
 		return tok;
 	}
@@ -208,24 +216,35 @@ public class SystemVerilogParser {
 	private boolean isClassItemStart(SVToken tok) {
 		boolean ret = false;
 		
+		/*
+		
 		ret |= isClassItemQualifier(tok);
 		ret |= isMethodQualifier(tok);
 		
 		ret |= (tok.getKeyword() == SVKeywords.KW_task ||
 				tok.getKeyword() == SVKeywords.KW_function);
+				
+				*/
 		
 		return false;
 	}
 	
 	private boolean isClassItemQualifier(SVToken tok) {
+		return false;
+		/*
 		return (tok.getKeyword() == SVKeywords.KW_static ||
 				tok.getKeyword() == SVKeywords.KW_protected ||
 				tok.getKeyword() == SVKeywords.KW_local);
+		 */
 	}
 	
 	private boolean isMethodQualifier(SVToken tok) {
+		return false;
+		
+		/*
 		return (tok.getKeyword() == SVKeywords.KW_virtual ||
 				isClassItemQualifier(tok));
+		 */
 	}
 	
 	private SVToken method_qualifier(SVToken tok) {
@@ -251,15 +270,19 @@ public class SystemVerilogParser {
 	}
 	
 	private boolean isClassMethodStart(SVToken tok) {
+		return false;
+		/*
 		return (tok.getKeyword() == SVKeywords.KW_extern ||
 				tok.getKeyword() == SVKeywords.KW_function ||
 				tok.getKeyword() == SVKeywords.KW_task ||
 				tok.getKeyword() == SVKeywords.KW_extern);
+		 */
 	}
 	
 	private SVToken class_method(SVToken tok) {
 		boolean extern = false;
 		
+		/*
 		if (tok.getKeyword() == SVKeywords.KW_extern) {
 			extern = true;
 			tok = next_token_ignore_attr();
@@ -274,6 +297,7 @@ public class SystemVerilogParser {
 			// could be either a function or a constructor
 			tok = next_token_ignore_attr();
 		}
+		 */
 		
 		return tok;
 	}
@@ -302,9 +326,11 @@ public class SystemVerilogParser {
 		// -> TODO: handle signed types (?)
 	
 		// ->function_data_type
+		/*
 		if (tok.getKeyword() != SVKeywords.KW_void) {
 			tok = data_type(tok);
 		}
+		 */
 		
 		// [ interface_identifier '.' | class_scope ]
 		
@@ -359,6 +385,7 @@ public class SystemVerilogParser {
 		
 		tok = next_token();
 		
+		/*
 		if (import_export.getKeyword() == SVKeywords.KW_import) {
 			SVToken import_property;
 			
@@ -407,6 +434,7 @@ public class SystemVerilogParser {
 
 			expect_next_type(Type.Semicolon);
 		}
+		 */
 		
 		tok = next_token();
 		
@@ -460,11 +488,13 @@ public class SystemVerilogParser {
 	}
 	
 	private SVToken function_data_type(SVToken tok) {
+		/*
 		if (tok.getKeyword() == SVKeywords.KW_void) {
 			tok = next_token();
 		} else {
 			tok = data_type(tok);
 		}
+		 */
 		
 		return tok;
 	}
@@ -535,9 +565,12 @@ public class SystemVerilogParser {
 	 */
 	
 	private boolean isTFPortDirection(SVToken tok) {
+		/*
 		return (tok.getKeyword() == SVKeywords.KW_input ||
 				tok.getKeyword() == SVKeywords.KW_output ||
 				tok.getKeyword() == SVKeywords.KW_inout);
+		 */
+		return false;
 	}
 	
 	private SVToken tf_item_declaration(SVToken tok) {
@@ -634,11 +667,13 @@ public class SystemVerilogParser {
 	private SVToken lifetime(SVToken tok) {
 		fLifetimeFlags = 0;
 		
+		/*
 		if (tok.getKeyword() == SVKeywords.KW_static) {
 			tok = next_token_ignore_attr();
 		} else if (tok.getKeyword() == SVKeywords.KW_automatic) {
 			tok = next_token_ignore_attr();
 		}
+		 */
 		
 		return tok;
 	}
@@ -720,7 +755,7 @@ public class SystemVerilogParser {
 			try {
 				InputStream in = new FileInputStream(arg);
 				SVLexer lex = new SVLexer(new SVInputStream(in));
-				SystemVerilogParser p = new SystemVerilogParser(lex);
+				SystemVerilogParser_sav p = new SystemVerilogParser_sav(lex);
 				p.parse();
 			} catch (IOException e) {
 				e.printStackTrace();

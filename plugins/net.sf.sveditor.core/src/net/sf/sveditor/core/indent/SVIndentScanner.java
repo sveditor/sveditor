@@ -117,6 +117,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 		}
 		int c = get_ch();
 		int lineno = fLineno;
+		
+		debug("Top of loop: c=\"" + (char)c + "\"");
 
 		if (c == '\n') {
 			token = new SVIndentToken(SVIndentTokenType.BlankLine, fLeadingWS);
@@ -132,11 +134,15 @@ public class SVIndentScanner implements ISVIndentScanner {
 				token.setIsEndLine(true);
 			} else if (c2 == '*') {
 				token = read_multi_line_comment(fLeadingWS);
+			} else {
+				unget_ch(c2);
+				token = new SVIndentToken(SVIndentTokenType.Operator, fLeadingWS, "/");
 			}
 		} else if (c == '"') {
 			// Read to the end of the string
 			int last_c = -1;
 			
+			fTmp.setLength(0);
 			fTmp.append((char)c);
 			while ((c = get_ch()) != -1 && 
 					c != '"' && last_c != '\\') {
@@ -144,7 +150,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 				last_c = c;
 			}
 			fTmp.append((char)c);
-
+			
 			token = new SVIndentToken(SVIndentTokenType.String, 
 					fLeadingWS, fTmp.toString());
 		} else if (c == '`' || c == '$' || Character.isJavaIdentifierStart(c)) {
@@ -197,6 +203,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 						fLeadingWS, fTmp.toString());
 			}
 		} else if (c == -1) {
+			debug("End of input");
 			token = null;
 		} else {
 			fTmp.setLength(0);
@@ -208,6 +215,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 				}
 				fTmp.append((char)c);
 			}
+			
+			debug("trial operator string: \"" + fTmp.toString() + "\"");
 
 			if (!fOperators.contains(fTmp.toString())) {
 				if (fTmp.length() > 1) {
@@ -271,8 +280,11 @@ public class SVIndentScanner implements ISVIndentScanner {
 			token.setIsStartLine(start_line);
 			
 			debug("token \"" + 
-					((token.getType() == SVIndentTokenType.Identifier)?token.getImage():token.getType()) + 
+					((token.getType() == SVIndentTokenType.Identifier ||
+							token.getType() == SVIndentTokenType.Operator)?token.getImage():token.getType()) + 
 					"\" - line " + token.getLineno());
+		} else {
+			debug("null token");
 		}
 		
 		fCurrent = token;
@@ -284,58 +296,6 @@ public class SVIndentScanner implements ISVIndentScanner {
 		return fCurrent;
 	}
 
-/*	
-	private SVIndentToken read_expression(String leading_ws) {
-		SVIndentExprToken ret = new SVIndentExprToken(leading_ws);
-		int n_left = 1, n_right = 0, c;
-		boolean read_leading_ws = false;
-		fTmp.setLength(0);
-		
-		fTmp.append('(');
-		
-		while ((c = get_ch()) != -1 && n_left != n_right) {
-			if (read_leading_ws) {
-				if (Character.isWhitespace(c)) {
-					leading_ws += (char)c;
-				} else {
-					read_leading_ws = false;
-					unget_ch(c);
-				}
-			} else {
-				if (c == '(') {
-					n_left++;
-				} else if (c == ')') {
-					n_right++;
-				}
-				
-				fTmp.append((char)c);
-				if (c == '\n') {
-					SVIndentToken tok = new SVIndentToken(
-							SVIndentTokenType.Expression, leading_ws,
-							fTmp.toString());
-					tok.setIsEndLine(true);
-					ret.addExprElem(tok);
-					fTmp.setLength(0);
-					read_leading_ws = true;
-					leading_ws = "";
-				}
-			}
-		}
-		
-		unget_ch(c);
-		
-		if (fTmp.length() > 0) {
-			SVIndentToken tok = new SVIndentToken(
-					SVIndentTokenType.Expression, leading_ws,
-					fTmp.toString());
-			ret.addExprElem(tok);
-		}
-
-		// Return null if the braces didn't match
-		return (n_left == n_right)?ret:null;
-	}
-*/
-	
 	
 	private SVIndentToken read_single_line_comment(String leading_ws) {
 		int c;
@@ -447,6 +407,8 @@ public class SVIndentScanner implements ISVIndentScanner {
 			fUngetCh = -1;
 		} else {
 			c = fScanner.get_ch();
+			
+			debug("c=\"" + (char)c + "\"");
 			
 			fLastCh[0] = fLastCh[1];
 			fLastCh[1] = c;

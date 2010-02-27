@@ -54,8 +54,8 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		
 		fLog.debug("RootFile: " + fRootFile + " Root: " + fRoot);
 		
-		fFileList = new HashMap<String, SVDBFile>();
-		fFileIndex = new HashMap<String, SVDBFile>();
+		fPreProcFileMap = new HashMap<String, SVDBFile>();
+		fIndexFileMap = new HashMap<String, SVDBFile>();
 	}
 	
 	public SVDBPluginLibIndex(
@@ -78,8 +78,8 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		
 		
 		
-		fFileList = new HashMap<String, SVDBFile>();
-		fFileIndex = new HashMap<String, SVDBFile>();
+		fPreProcFileMap = new HashMap<String, SVDBFile>();
+		fIndexFileMap = new HashMap<String, SVDBFile>();
 	}
 	
 	public String getTypeID() {
@@ -135,6 +135,10 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		return ret;
 	}
 	
+	public void addMarker(String path, String type, int lineno, String msg) {}
+
+	public void clearMarkers(String path) {}
+
 	public void closeStream(InputStream in) {
 		try {
 			in.close();

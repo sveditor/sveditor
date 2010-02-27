@@ -83,10 +83,6 @@ public class SVDBFindByNameInClassHierarchy {
 						break;
 					}
 				}
-				
-				if (scope.getType() == SVDBItemType.Covergroup) {
-					fLog.debug("item=" + it.getType() + " " + it.getName());
-				}
 
 				if (matches) {
 					if (fMatcher.match(it, id)) {

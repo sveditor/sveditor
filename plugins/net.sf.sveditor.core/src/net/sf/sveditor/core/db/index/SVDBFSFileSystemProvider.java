@@ -22,6 +22,10 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 	public void init(String path) {}
 	
 	public void dispose() {}
+	
+	public void addMarker(String path, String type, int lineno, String msg) {}
+
+	public void clearMarkers(String path) {}
 
 	public void closeStream(InputStream in) {
 		try {

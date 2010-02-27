@@ -22,7 +22,9 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
@@ -52,7 +54,8 @@ public class ContentAssistBasics extends TestCase {
 				rgy.findCreateIndex(pname, Activator.OVM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		// SVCorePlugin.getDefault().enableDebug(true);
+		// Force database loading
+		fIndexCollectionMgr.getItemIterator();
 				
 	}
 	
@@ -105,7 +108,7 @@ public class ContentAssistBasics extends TestCase {
 			"    int           my_field2_class2;\n" +
 			"\n" +
 			"    function void foo();\n" +
-			"        int my_<<MARK>>\n" +
+			"        int v = my_<<MARK>>\n" +
 			"    endfunction\n" +
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
@@ -123,9 +126,73 @@ public class ContentAssistBasics extends TestCase {
 		
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
-		// TODO: Ideally 'my_' would not appear in the proposals list...
-		validateResults(new String[] {"my_field1_class2", "my_field2_class2", "my_",
+		validateResults(new String[] {"my_field1_class2", "my_field2_class2",
 				"my_class1", "my_class2"}, proposals);
+	}
+
+	public void testScopedFieldContentAssist() {
+		String doc =
+			"class my_class1;\n" +
+			"    int           my_field1_class1;\n" +
+			"    int           my_field2_class1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class2;\n" +
+			"    int           my_field1_class2;\n" +
+			"    int           my_field2_class2;\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        my_class1 v1;\n" +
+			"        v1.<<MARK>>\n" +
+			"    endfunction\n" +
+			"endclass\n";
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionMgr);
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+		
+		
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		validateResults(new String[] {"my_field1_class1", "my_field2_class1"}, proposals);
+	}
+
+	public void testScopedTypedefFieldContentAssist() {
+		String doc =
+			"class my_class1;\n" +
+			"    int           my_field1_class1;\n" +
+			"    int           my_field2_class1;\n" +
+			"endclass\n" +
+			"\n" +
+			"typedef my_class1 class_t;\n" +
+			"class my_class2;\n" +
+			"    int           my_field1_class2;\n" +
+			"    int           my_field2_class2;\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        class_t v1;\n" +
+			"        v1.<<MARK>>\n" +
+			"    endfunction\n" +
+			"endclass\n";
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionMgr);
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+		
+		
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		validateResults(new String[] {"my_field1_class1", "my_field2_class1"}, proposals);
 	}
 
 	public void testScopedInheritanceAssist() {
@@ -179,6 +246,8 @@ public class ContentAssistBasics extends TestCase {
 			"class my_class2 extends my_class1;\n" +
 			"    int           my_field1_class2;\n" +
 			"    int           my_field2_class2;\n" +
+			"    int           new_field;\n" +
+			"\n" +
 			"    function new(int p1);\n" +
 			"    endfunction\n" +
 			"\n" +
@@ -201,12 +270,26 @@ public class ContentAssistBasics extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		
-		assertEquals("Expecting only one proposal", 1, proposals.size());
+		assertEquals("Expecting two proposals", 2, proposals.size());
+
+		SVDBTaskFuncScope 	new_f;
+		SVDBVarDeclItem		new_field;
+
+		if (proposals.get(0).getItem().getType() == SVDBItemType.Function) {
+			new_f = (SVDBTaskFuncScope)proposals.get(0).getItem();
+			new_field = (SVDBVarDeclItem)proposals.get(1).getItem();
+		} else {
+			new_f = (SVDBTaskFuncScope)proposals.get(1).getItem();
+			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
+		}
 		
-		SVDBTaskFuncScope new_f = (SVDBTaskFuncScope)proposals.get(0).getItem();
+		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
+		assertEquals("Expect field name to be 'new_field'", "new_field", new_field.getName());
 		
-		assertEquals("Expect to get new from class1", 
+		assertEquals("Expect to get 'new' from class1", 
 				"my_class1", new_f.getParent().getName());
+		assertEquals("Expect to get 'new_field' from class2", 
+				"my_class2", new_field.getParent().getName());
 	}
 
 	public void testUntriggeredClassAssist() {
@@ -256,6 +339,29 @@ public class ContentAssistBasics extends TestCase {
 		
 		validateResults(new String[] {"ovm_comparer", 
 				"ovm_component", "ovm_component_registry"}, proposals);
+	}
+	
+	public void testMacroCompletion() {
+		String doc =
+			"class my_class extends ovm_object;\n" +
+			"    `ovm_object_u<<MARK>>\n" +
+			"endclass\n";
+		
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(
+				ini.second().getStrippedData());
+
+		// We only look at the local index here (no OVM)
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionMgr);
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		validateResults(new String[] {"ovm_object_utils_begin", "ovm_object_utils", 
+				"ovm_object_utils_end"}, proposals);
 	}
 
 	

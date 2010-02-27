@@ -16,9 +16,21 @@ import java.io.InputStream;
 
 public interface ISVDBFileSystemProvider {
 	
+	String				MARKER_TYPE_ERROR   = "ERROR";
+	String				MARKER_TYPE_WARNING = "WARNING";
+	String				MARKER_TYPE_INFO    = "INFO";
+	
 	void init(String root);
 	
 	void dispose();
+	
+	void addMarker(
+			String 			path,
+			String			type,
+			int				lineno,
+			String			msg);
+			
+	void clearMarkers(String path);
 	
 	/**
 	 * Resolve any relative references

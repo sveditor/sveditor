@@ -1,3 +1,44 @@
+
+-- 0.1.4 Release --
+
+- Add content-assist support for class typedefs. Now, class typedefs are 
+recognized as aliases for the underlying type.
+
+- Correct a bug with content assist for macros having no parameters. 
+Previously, these macros were displayed incorrectly in the content proposal.
+
+- Correct a bug with content-assist on the other side of an '='. 
+
+- Correct a bug with expression indenting. Fix bug / add tests for indenting of covergroups, coverpoints.
+
+? Completion of a class name within a macro (`ovm_object_utils_begin) fails
+    - Cannot reproduce now
+
+== Focus on Indexers ==
+
+? Collect and display markers
+    ? Missing define
+    ? Missing include file
+
+? Revisit index architecture to ensure appropriate partitioning
+
+? Expand testing of indexing
+    ? SourceCollection Index
+        ? Update structure-determining logic to recognize package-based struct
+        ? Ensure defines located
+        ? Ensure new files are correctly added, especially when struct changes
+    - Library Index
+        - Ensure new files are correctly merged in
+            - On load, discovering a previously-missing file triggers an 
+              index build (Workspace and Filesystem varieties)
+            - During operation, adding a file that was previously a 
+              missing include triggers index rebuild (Workspace only)
+    - Argument File Index
+        - On load, discovering an updated index triggers index rebuild
+        - Ensure index is re-scanned when the argument file changes
+
+------------------------------------------------------------------------------
+
 -- 0.1.3 Release --
 
 - Change the way that files are associated with indexes. Previously, only the

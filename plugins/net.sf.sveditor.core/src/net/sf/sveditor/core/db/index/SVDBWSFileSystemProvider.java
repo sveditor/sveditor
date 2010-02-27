@@ -16,11 +16,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -29,7 +31,10 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
 		IResourceChangeListener, IResourceDeltaVisitor {
@@ -64,7 +69,74 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);		
 	}
-	
+
+	public void addMarker(
+			String 			path,
+			final String			type,
+			final int				lineno,
+			final String			msg) {
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			final IFile file = root.getFile(new Path(path));
+
+			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
+				
+				@Override
+				protected void execute(IProgressMonitor monitor) throws CoreException,
+						InvocationTargetException, InterruptedException {
+					IMarker marker = null;
+					
+					try {
+						marker = file.createMarker(IMarker.PROBLEM);
+						if (type.equals(MARKER_TYPE_ERROR)) {
+							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+						} else if (type.equals(MARKER_TYPE_WARNING)) {
+							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+						} else {
+							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+						}
+						marker.setAttribute(IMarker.LINE_NUMBER, lineno);
+						marker.setAttribute(IMarker.MESSAGE, msg);
+					} catch (CoreException e) {
+						if (marker != null) {
+							marker.delete();
+						}
+					}
+				}
+			};
+
+			try {
+				op.run(new NullProgressMonitor());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void clearMarkers(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(path));
+			
+			try {
+				IMarker markers[] = file.findMarkers(
+						IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+				
+				for (IMarker m : markers) {
+					m.delete();
+				}
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);		
 	}
@@ -258,9 +330,11 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
 					l.fileAdded(file);
 				}
-			} else {
-				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-					l.fileChanged(file);
+			} else if (delta.getKind() == IResourceDelta.CHANGED) {
+				if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
+					for (ISVDBFileSystemChangeListener l : fChangeListeners) {
+						l.fileChanged(file);
+					}
 				}
 			}
 		}

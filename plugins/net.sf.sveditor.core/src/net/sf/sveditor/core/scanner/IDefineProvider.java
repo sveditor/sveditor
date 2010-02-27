@@ -24,5 +24,8 @@ public interface IDefineProvider {
 	void addErrorListener(IPreProcErrorListener l);
 	
 	void removeErrorListener(IPreProcErrorListener l);
+	
+	// Pass an error through the DefineProvider
+	void error(String msg, String filename, int lineno);
 
 }

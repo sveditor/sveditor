@@ -18,8 +18,8 @@ import java.util.List;
 
 public class SVExprParser {
 	private SVExprLexer						fLexer;
-	private SVExprDump							fExprDump;
-	private boolean								fDebugEn = false;
+	private SVExprDump						fExprDump;
+	private boolean							fDebugEn = false;
 	
 	public SVExprParser() {
 		fLexer = new SVExprLexer();

@@ -56,10 +56,11 @@ public class SVDBFileFactory implements ISVScannerObserver {
 	
 	public void error(String msg, String filename, int lineno) {
 		SVDBMarkerItem marker = new SVDBMarkerItem(
-				SVDBMarkerItem.MARKER_ERR, msg);
+				SVDBMarkerItem.MARKER_ERR,
+				SVDBMarkerItem.KIND_GENERIC, msg);
 		marker.setLocation(new SVDBLocation(fFile, lineno, 0));
 		
-		fScopeStack.peek().addItem(marker);
+		fFile.addItem(marker);
 	}
 	
 	public SVDBFile parse(InputStream in, String name) {

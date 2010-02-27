@@ -119,6 +119,7 @@ public class SVDefaultIndenter {
 			}
 		}
 		
+		debug("Indent operation complete");
 		for (SVIndentToken t : fTokenList) {
 			if ((t.getLineno() >= start_line || start_line == -1) &&
 					(t.getLineno() <= end_line || end_line == -1)) {

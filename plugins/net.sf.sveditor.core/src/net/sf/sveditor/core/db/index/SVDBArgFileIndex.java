@@ -108,8 +108,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	@Override
 	public void fileChanged(String path) {
 		if (path.equals(getResolvedBaseLocation())) {
-			fFileIndexValid = false;
-			fFileListValid  = false;
+			rebuildIndex();
 		} else {
 			super.fileChanged(path);
 		}
@@ -120,12 +119,12 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		readArgFile();
 		
 		// Say the index is already valid
-		fFileListValid = true;
+		fPreProcFileMapValid = true;
 		
 		for (String file : fFilePaths) {
 			String r_file = resolvePath(file);
 			fLog.debug("Resolved path for \"" + file + "\" is \"" + r_file + "\"");
-			SVDBFile pp_file = processPreProcFile(r_file);
+			SVDBFile pp_file = processPreProcFile(r_file, true);
 			
 			if (pp_file == null) {
 				fLog.error("Failed to find file \"" + r_file + "\"");
@@ -180,12 +179,12 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			
 			for (String f : scanner.getFilePaths()) {
 				fLog.debug("[FILE PATH] " + f);
-				fFilePaths.add(expandVars(f, true));
+				fFilePaths.add(SVDBIndexUtil.expandVars(f, true));
 			}
 			
 			for (String inc : scanner.getIncludePaths()) {
-				fLog.debug("[INC PATH] " + inc + " (" + expandVars(inc, true) + ")");
-				fIncludePaths.add(expandVars(inc, true));
+				fLog.debug("[INC PATH] " + inc + " (" + SVDBIndexUtil.expandVars(inc, true) + ")");
+				fIncludePaths.add(SVDBIndexUtil.expandVars(inc, true));
 			}
 			
 			for (Entry<String, String> entry : scanner.getDefineMap().entrySet()) {
@@ -217,7 +216,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			processFile(ft_root, mp);
 		}
 		
-		fFileIndexValid = true;
+		fIndexFileMapValid = true;
 	}
 	
 	@Override
@@ -234,7 +233,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			inc = inc + "/" + path;
 			
 			if (fFileSystemProvider.fileExists(inc)) {
-				SVDBFile pp_file = processPreProcFile(inc);
+				SVDBFile pp_file = processPreProcFile(inc, true);
 				
 				ret = new SVDBSearchResult<SVDBFile>(pp_file, this);
 			}

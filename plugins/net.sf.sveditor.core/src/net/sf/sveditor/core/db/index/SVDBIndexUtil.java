@@ -17,6 +17,9 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 
 
 
@@ -111,6 +114,77 @@ public class SVDBIndexUtil {
 		} else {
 			return null;
 		}
+	}
+
+	public static String expandVars(
+			String 			path,
+			boolean			expand_env_vars) {
+		boolean workspace_prefix = path.startsWith("${workspace_loc}");
+		String exp_path = path;
+		
+		if (workspace_prefix) {
+			exp_path = exp_path.substring("${workspace_loc}".length());
+		}
+	
+		if (expand_env_vars) {
+			StringBuilder sb = new StringBuilder(exp_path);
+			StringBuilder tmp = new StringBuilder();
+			int idx = 0;
+			
+			while (idx < sb.length()) {
+				if (sb.charAt(idx) == '$') {
+					tmp.setLength(0);
+					
+					int start = idx, end;
+					String key, val=null;
+					idx++;
+					if (sb.charAt(idx) == '{') {
+						idx++;
+						
+						while (idx < sb.length() && sb.charAt(idx) != '}') {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
+						if (idx < sb.length()) {
+							end = ++idx;
+						} else {
+							end = idx;
+						}
+					} else {
+						while (idx < sb.length() && 
+								sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
+						end = (idx-1);
+					}
+	
+					key = tmp.toString();
+					if ((val = System.getenv(key)) != null) {
+						sb.replace(start, end, val);
+					}
+				} else {
+					idx++;
+				}
+			}
+			
+			exp_path = sb.toString();
+		}
+	
+		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
+		
+		try {
+			exp_path = mgr.performStringSubstitution(exp_path);
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		
+		if (workspace_prefix) {
+			exp_path = "${workspace_loc}" + exp_path;
+		}
+		
+		return exp_path;
 	}
 
 }

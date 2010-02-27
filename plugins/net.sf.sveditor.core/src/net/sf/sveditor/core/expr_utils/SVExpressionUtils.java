@@ -176,6 +176,14 @@ public class SVExpressionUtils {
 					// Just process the identifier
 					c = scanner.skipWhite(scanner.get_ch());
 					
+					if (c == '=') {
+						int c2 = scanner.get_ch();
+						if (c2 != '=') {
+							c = scanner.skipWhite(c2);
+							ret.fTrigger = "=";
+						}
+					}
+					
 					if (SVCharacter.isSVIdentifierPart(c)) {
 						scanner.unget_ch(c);
 						ret.fRoot = readIdentifier(scanner, false);
@@ -261,164 +269,23 @@ public class SVExpressionUtils {
 		
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 
-		StringBuffer text = new StringBuffer();
-		
-		if (expr_ctxt.fTrigger != null) {
+		if (expr_ctxt.fTrigger != null && !expr_ctxt.fTrigger.equals("=")) {
 			if (expr_ctxt.fTrigger.equals("`")) {
-				if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
-					SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
-							index_it, fNameMatcher);
-					List<SVDBFile> it_l = finder.find(expr_ctxt.fLeaf);
-
-					if (it_l.size() > 0 && (max_matches == 0 || ret.size() < max_matches)) {
-						ret.addAll(it_l);
-					}
-				} else {
-					// most likely a macro call
-					ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
-					while (it_i.hasNext()) {
-						SVDBItem it_t = it_i.nextItem();
-
-						if (it_t.getType() == SVDBItemType.Macro) {
-							if (match_prefix) {
-								if (expr_ctxt.fLeaf.equals("") || 
-										it_t.getName().startsWith(expr_ctxt.fLeaf)) {
-									if (max_matches == 0 || (ret.size() < max_matches)) {
-										ret.add(it_t);
-									} else {
-										break;
-									}
-								}
-							} else {
-								if (it_t.getName().equals(expr_ctxt.fLeaf)) {
-									if (max_matches == 0 || (ret.size() < max_matches)) {
-										ret.add(it_t);
-									} else {
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
+				findMacroItems(expr_ctxt, index_it, max_matches, match_prefix, ret);
 			} else {
-				fLog.debug("Expression is triggered expression");
-				List<SVDBItem> pre_trigger = processPreTriggerPortion(
-						index_it, active_scope, expr_ctxt.fRoot, !match_prefix);
-				
-				if (pre_trigger != null && pre_trigger.size() != 0) {
-					SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
-					
-					fLog.debug("Using " + it_t.getType() + " " + 
-							it_t.getName() + " as search base");
-
-					if (it_t.getType() == SVDBItemType.Class || 
-							it_t.getType() == SVDBItemType.Struct ||
-							it_t.getType() == SVDBItemType.Covergroup ||
-							it_t.getType() == SVDBItemType.Coverpoint) {
-						SVDBFindByNameInClassHierarchy finder_h = 
-							new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
-						List<SVDBItem> fields = finder_h.find(
-								(SVDBScopeItem)it_t, expr_ctxt.fLeaf);
-						
-						fLog.debug("Find Named Field returns " + fields.size() + " results");
-						for (SVDBItem it : fields) {
-							fLog.debug("    " + it.getType() + " " + it.getName());
-						}
-
-						if (fields.size() > 0) {
-							if (max_matches == 0 || (ret.size() < max_matches)) {
-								ret.addAll(fields);
-							}
-						}
-					} else if (it_t.getType() == SVDBItemType.PackageDecl) {
-						SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
-								index_it, fNameMatcher);
-						ret.addAll(finder_p.find((SVDBPackageDecl)it_t, expr_ctxt.fLeaf));
-					} else {
-						fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
-					}
-				}
+				findTriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger, 
+						expr_ctxt.fLeaf, active_scope, index_it, max_matches, 
+						match_prefix, ret);
 			}
 		} else {
-			// Trigger is null
+			// Trigger is null or '='
 			if (expr_ctxt.fType == ContextType.Import) {
 				SVDBFindByName finder = new SVDBFindByName(index_it, fNameMatcher);
 				ret.addAll(finder.find(expr_ctxt.fLeaf, SVDBItemType.PackageDecl));
-			} else { 			
-				text.setLength(0);
-				text.append(expr_ctxt.fLeaf);
-
-				fLog.debug("Looking for un-triggered identifier \"" + 
-						text.toString() + "\"");
-				List<SVDBItem> result = null;
-
-				SVDBFindByNameInClassHierarchy finder_h =
-					new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
-
-				result = finder_h.find(active_scope, text.toString());
-
-				if (result.size() > 0) {
-					if (max_matches == 0 || (ret.size() < max_matches)) {
-						ret.addAll(result);
-					}
-				}
-
-				// Try type names
-				SVDBFindNamedModIfcClassIfc finder_cls =
-					new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
-
-				List<SVDBModIfcClassDecl> cl_l = finder_cls.find(text.toString());
-
-				if (cl_l.size() > 0) {
-					fLog.debug("Global type search for \"" + text.toString() + 
-							"\" returned " + cl_l.size());
-					for (SVDBModIfcClassDecl cl : cl_l) {
-						fLog.debug("    " + cl.getType() + " " + cl.getName());
-					}
-					if (max_matches == 0 || ret.size() < max_matches) {
-						ret.addAll(cl_l);
-					}
-				} else {
-					fLog.debug("Global class find for \"" + text.toString() + 
-					"\" returned no results");
-				}
-
-				// Try global task/function
-				SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
-
-				List<SVDBItem> it_l= finder_tf.find(text.toString(),
-						SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
-				
-				// Remove any definitions of extern tasks/functions, 
-				// since the name prefix was incorrectly matched
-				for (int i=0; i<it_l.size(); i++) {
-					if (it_l.get(i).getType() == SVDBItemType.Function || 
-							it_l.get(i).getType() == SVDBItemType.Task) {
-						SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
-						fLog.debug("t/f attr=" + tf.getAttr());
-						if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
-								tf.getName().contains("::")) {
-							it_l.remove(i);
-							i--;
-						}
-					}
-				}
-
-				if (it_l != null && it_l.size() > 0) {
-					fLog.debug("Global find-by-name \"" + text.toString() + 
-					"\" returned:");
-					for (SVDBItem it : it_l) {
-						fLog.debug("    " + it.getType() + " " + it.getName());
-					}
-
-					if (max_matches == 0 || (ret.size() < max_matches)) {
-						ret.addAll(it_l);
-					}
-				} else {
-					fLog.debug("Global find-by-name \"" + text.toString() + 
-					"\" returned no results");
-				}
+			} else {
+				findUntriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger,
+						expr_ctxt.fLeaf, active_scope, index_it, 
+						max_matches, match_prefix, ret);
 			}
 		}
 
@@ -426,6 +293,220 @@ public class SVExpressionUtils {
 				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
 				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
 		return ret;
+	}
+	
+	private void findMacroItems(
+			SVExprContext 			expr_ctxt,
+			ISVDBIndexIterator		index_it,
+			int						max_matches,
+			boolean					match_prefix,
+			List<SVDBItem> 			ret) {
+		
+		if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
+			SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
+					index_it, fNameMatcher);
+			List<SVDBFile> it_l = finder.find(expr_ctxt.fLeaf);
+
+			if (it_l.size() > 0 && (max_matches == 0 || ret.size() < max_matches)) {
+				ret.addAll(it_l);
+			}
+		} else {
+			// most likely a macro call
+			ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
+			while (it_i.hasNext()) {
+				SVDBItem it_t = it_i.nextItem();
+
+				if (it_t.getType() == SVDBItemType.Macro) {
+					if (match_prefix) {
+						if (expr_ctxt.fLeaf.equals("") || 
+								it_t.getName().startsWith(expr_ctxt.fLeaf)) {
+							if (max_matches == 0 || (ret.size() < max_matches)) {
+								ret.add(it_t);
+							} else {
+								break;
+							}
+						}
+					} else {
+						if (it_t.getName().equals(expr_ctxt.fLeaf)) {
+							if (max_matches == 0 || (ret.size() < max_matches)) {
+								ret.add(it_t);
+							} else {
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void findTriggeredItems(
+			String					root,
+			String					trigger,
+			String					leaf,
+			SVDBScopeItem			active_scope,
+			ISVDBIndexIterator		index_it,
+			int						max_matches,
+			boolean					match_prefix,
+			List<SVDBItem> 			ret) {
+		fLog.debug("Expression is triggered expression");
+		List<SVDBItem> pre_trigger = processPreTriggerPortion(
+				index_it, active_scope, root, !match_prefix);
+		
+		if (pre_trigger != null && pre_trigger.size() != 0) {
+			SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
+			
+			fLog.debug("Using " + it_t.getType() + " " + 
+					it_t.getName() + " as search base");
+
+			if (it_t.getType() == SVDBItemType.Class || 
+					it_t.getType() == SVDBItemType.Struct ||
+					it_t.getType() == SVDBItemType.Covergroup ||
+					it_t.getType() == SVDBItemType.Coverpoint) {
+				SVDBFindByNameInClassHierarchy finder_h = 
+					new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
+				List<SVDBItem> fields = finder_h.find((SVDBScopeItem)it_t, leaf);
+				
+				fLog.debug("Find Named Field returns " + fields.size() + " results");
+				for (SVDBItem it : fields) {
+					fLog.debug("    " + it.getType() + " " + it.getName());
+				}
+
+				if (fields.size() > 0) {
+					if (max_matches == 0 || (ret.size() < max_matches)) {
+						ret.addAll(fields);
+					}
+				}
+			} else if (it_t.getType() == SVDBItemType.PackageDecl) {
+				SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
+						index_it, fNameMatcher);
+				ret.addAll(finder_p.find((SVDBPackageDecl)it_t, leaf));
+			} else {
+				fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
+			}
+		}
+	}
+	
+	private void findUntriggeredItems(
+			String					root,
+			String					trigger,
+			String					leaf,
+			SVDBScopeItem			active_scope,
+			ISVDBIndexIterator		index_it,
+			int						max_matches,
+			boolean					match_prefix,
+			List<SVDBItem> 			ret) {
+
+		fLog.debug("Looking for un-triggered identifier \"" + leaf + "\"");
+		List<SVDBItem> result = null;
+
+		SVDBFindByNameInClassHierarchy finder_h =
+			new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
+
+		result = finder_h.find(active_scope, leaf);
+
+		if (result.size() > 0) {
+			for (int i=0; i<result.size(); i++) {
+				boolean add = true;
+				
+				if (trigger != null && trigger.equals("=") &&
+						"new".startsWith(leaf)) {
+					// This is possibly a call to 'new'. We'll add
+					// a proposal for this later based on the base type
+					if (result.get(i).getType() == SVDBItemType.Function &&
+							result.get(i).getName().equals("new")) {
+						add = false;
+					}
+				}
+				
+				if (max_matches > 0 && ret.size() >= max_matches) {
+					add = false;
+				}
+				
+				if (add) {
+					ret.add(result.get(i));
+				}
+			}
+		}
+
+		// Try type names
+		SVDBFindNamedModIfcClassIfc finder_cls =
+			new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
+
+		List<SVDBModIfcClassDecl> cl_l = finder_cls.find(leaf);
+
+		if (cl_l.size() > 0) {
+			fLog.debug("Global type search for \"" + leaf + 
+					"\" returned " + cl_l.size());
+			for (SVDBModIfcClassDecl cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + cl.getName());
+			}
+			if (max_matches == 0 || ret.size() < max_matches) {
+				ret.addAll(cl_l);
+			}
+		} else {
+			fLog.debug("Global class find for \"" + leaf + 
+			"\" returned no results");
+		}
+
+		// Try global task/function
+		SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
+
+		List<SVDBItem> it_l= finder_tf.find(leaf,
+				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
+		
+		// Remove any definitions of extern tasks/functions, 
+		// since the name prefix was incorrectly matched
+		for (int i=0; i<it_l.size(); i++) {
+			if (it_l.get(i).getType() == SVDBItemType.Function || 
+					it_l.get(i).getType() == SVDBItemType.Task) {
+				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
+				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
+						tf.getName().contains("::")) {
+					it_l.remove(i);
+					i--;
+				}
+				
+				// Do not include tasks/functions unless they are completely
+				// global or members of a package
+				SVDBScopeItem scope_t = tf;
+				while (scope_t != null && 
+						scope_t.getType() != SVDBItemType.Class &&
+						scope_t.getType() != SVDBItemType.Module) {
+					scope_t = scope_t.getParent();
+				}
+				
+				if (scope_t != null && 
+						(scope_t.getType() == SVDBItemType.Class ||
+						scope_t.getType() == SVDBItemType.Module)) {
+					it_l.remove(i);
+					i--;
+				}
+			}
+		}
+		
+		if (it_l != null && it_l.size() > 0) {
+			fLog.debug("Global find-by-name \"" + leaf + "\" returned:");
+			for (SVDBItem it : it_l) {
+				fLog.debug("    " + it.getType() + " " + it.getName());
+			}
+
+			if (max_matches == 0 || (ret.size() < max_matches)) {
+				ret.addAll(it_l);
+			}
+		} else {
+			fLog.debug("Global find-by-name \"" + leaf + 
+			"\" returned no results");
+		}
+		
+		// Special case: If this is a constructor call, then do a 
+		// context lookup on the LHS
+		if (root != null && trigger != null && trigger.equals("=") &&
+				leaf != null && "new".startsWith(leaf)) {
+			fLog.debug("Looking for new in root=" + root);
+			findTriggeredItems(root, "=", "new", active_scope, 
+					index_it, max_matches, false, ret);
+		}
 	}
 	
 	/**
@@ -538,12 +619,6 @@ public class SVExpressionUtils {
 			
 			if (ch2 == ':') {
 				return "::";
-			}
-		} else if (ch == '=') {
-			int ch2 = scanner.get_ch();
-			if (ch2 != '=') {
-				scanner.unget_ch(ch2);
-				return "=";
 			}
 		}
 		
@@ -1127,6 +1202,18 @@ public class SVExpressionUtils {
 							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 						List<SVDBModIfcClassDecl> cl_l = finder.find(
 								((SVDBVarDeclItem)field).getTypeName());
+						
+						if (cl_l.size() == 0) {
+							// Try treating this as a typedef
+							SVDBFindByName finder_n = new SVDBFindByName(index_it);
+							
+							List<SVDBItem> result = finder_n.find(
+									((SVDBVarDeclItem)field).getTypeName(), SVDBItemType.Typedef);
+							
+							if (result.size() > 0 && !((SVDBTypedef)result.get(0)).isEnumType()) {
+								cl_l = finder.find(((SVDBTypedef)result.get(0)).getTypeName());
+							}
+						}
 						
 						type = (cl_l.size() > 0)?cl_l.get(0):null;
 					} else if (field instanceof SVDBTypedef) {

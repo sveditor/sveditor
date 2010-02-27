@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcScanner implements ISVScanner {
@@ -48,6 +50,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fUnaccBuffer;
 	private boolean				fInString;
 	private int					fLastChPP;
+	private static LogHandle	fLog = LogFactory.getLogHandle("SVPreProcScanner");
 
 	
 	public SVPreProcScanner() {
@@ -528,11 +531,14 @@ public class SVPreProcScanner implements ISVScanner {
 							}
 						} while (ch != -1 && matchLevel > 0);
 					} else {
-						System.out.println("[ERROR] macro \"" + type + 
-						"\" should have parameters, but doesn't");
-						System.out.println("    " + 
-								getLocation().getFileName() + ":" + 
-								getLocation().getLineNo());
+						fDefineProvider.error("macro \"" + type +
+								"\" should have parameters, but doesn't", 
+								fScanLocation.getFileName(),
+								fScanLocation.getLineNo());
+						fLog.debug("[ERROR] macro \"" + type + 
+						"\" should have parameters, but doesn't @ " +
+							fScanLocation.getFileName() + ":" + 
+							fScanLocation.getLineNo());
 						unget_ch(ch);
 					}
 				}

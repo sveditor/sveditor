@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.parser.SVToken.Type;
+import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVLexer {
 	private SVInputStream			fInput;
@@ -119,7 +120,7 @@ public class SVLexer {
 			fInput.unget_ch(ch);
 			String image = fBuffer.toString();
 			
-			if (SVKeywords.isKeyword(image)) {
+			if (SVKeywords.isSVKeyword(image)) {
 				ret = new SVToken(SVToken.Type.Keyword, fBuffer.toString());
 			} else {
 				ret = new SVToken(SVToken.Type.Id, fBuffer.toString());

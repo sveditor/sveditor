@@ -17,6 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -49,6 +50,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		fContentProvider = new SVTreeContentProvider();
 		
 		getTreeViewer().setContentProvider(fContentProvider);
+		getTreeViewer().addFilter(new SVDBDefaultContentFilter());
 		getTreeViewer().setLabelProvider(new SVTreeLabelProvider());
 		
 		getTreeViewer().setInput(fEditor.getSVDBFile());

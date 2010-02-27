@@ -41,7 +41,6 @@ import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
 
 public class SVDBPersistenceReader implements IDBReader {
 	private InputStream			fIn;
@@ -95,10 +94,6 @@ public class SVDBPersistenceReader implements IDBReader {
 		return fTmpBuffer.toString();
 	}
 	
-	public void load(ISVDBIndex index) throws DBFormatException {
-		
-	}
-
 	public int readInt() throws DBFormatException {
 		String type = readTypeString();
 		

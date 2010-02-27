@@ -14,18 +14,18 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 	
 	public void setFile(SVDBFile file) {
-		fFileIndex.remove(file.getName());
-		fFileIndex.put(file.getName(), file);
+		fIndexFileMap.remove(file.getName());
+		fIndexFileMap.put(file.getName(), file);
 	}
 
 	@Override
 	protected void buildIndex() {
-		fFileIndexValid = true;
+		fIndexFileMapValid = true;
 	}
 
 	@Override
 	protected void buildPreProcFileMap() {
-		fFileListValid = true;
+		fPreProcFileMapValid = true;
 	}
 
 	@Override

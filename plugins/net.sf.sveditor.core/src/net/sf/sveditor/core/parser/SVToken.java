@@ -35,11 +35,11 @@ public class SVToken {
 		fType  = type;
 		fImage = image;
 	}
-
-	public SVKeywords getKeyword() {
-		return SVKeywords.getKeyword(fImage);
-	}
 	
+	public boolean isKeyword(String kw) {
+		return (fImage.equals(kw));
+	}
+
 	public String getImage() {
 		return fImage;
 	}

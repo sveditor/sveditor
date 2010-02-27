@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class SVInputStream {
-	private SystemVerilogParser 			fParser;
+	private SystemVerilogParser_sav 			fParser;
 	private int								fLineno;
 	private int								fLinepos;
 	private InputStream						fInput;
@@ -27,7 +27,7 @@ public class SVInputStream {
 		fUngetBuffer = new StringBuffer();
 	}
 	
-	public void init(SystemVerilogParser p) {
+	public void init(SystemVerilogParser_sav p) {
 		fParser = p;
 	}
 	

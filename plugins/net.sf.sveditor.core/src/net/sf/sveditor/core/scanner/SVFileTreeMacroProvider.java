@@ -65,6 +65,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		}
 		if (fLastLineno < lineno) {
 			collectThisFileMacros(lineno);
+			fLastLineno = lineno;
 		}
 		
 		SVDBMacroDef m = fMacroCache.get(name);
@@ -128,7 +129,9 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					}
 					
 					if (inc != null) {
-						collectMacroDefs(inc, inc.getSVDBFile(), null);
+						if (inc.getSVDBFile() != null) {
+							collectMacroDefs(inc, inc.getSVDBFile(), null);
+						}
 					} else {
 						fLog.error("Failed to find \"" + it.getName() + "\" in file-tree");
 					}
@@ -144,8 +147,39 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	}
 	
 	private void collectThisFileMacros(int lineno) {
-		
+		collectThisFileMacros(fContext.getSVDBFile(), lineno);
 	}
-
+	
+	private boolean collectThisFileMacros(SVDBScopeItem scope, int lineno) {
+		for (SVDBItem it : scope.getItems()) {
+			if (it.getLocation() != null && it.getLocation().getLine() > lineno) {
+				return false;
+			} else if (it instanceof SVDBScopeItem) {
+				if (!collectThisFileMacros((SVDBScopeItem)it, lineno)) {
+					return false;
+				}
+			} else if (it.getType() == SVDBItemType.Macro) {
+				addMacro((SVDBMacroDef)it);
+			} else if (it.getType() == SVDBItemType.Include) {
+				// Look for the included file
+				SVDBFileTree inc = null;
+				for (SVDBFileTree inc_t : fContext.getIncludedFiles()) {
+					if (inc_t.getFilePath().endsWith(it.getName())) {
+						inc = inc_t;
+						break;
+					}
+				}
+				
+				if (inc != null) {
+					// Collect all macros
+					collectThisFileMacros(inc.getSVDBFile(), -1);
+				} else {
+					fLog.error("Failed to find \"" + it.getName() + "\" in file-tree");
+				}
+			}
+		}
+		
+		return true;
+	}
 
 }
