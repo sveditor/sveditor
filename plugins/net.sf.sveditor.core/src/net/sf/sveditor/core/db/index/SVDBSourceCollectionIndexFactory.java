@@ -10,17 +10,11 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index.src_collection;
+package net.sf.sveditor.core.db.index;
 
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.fileset.SVFileSet;
@@ -87,7 +81,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 		}
 
 		ret = new SVDBSourceCollectionIndex(
-				project_name, base_location, ISVDBIndex.IT_BuildPath, matcher, fs_provider);
+				project_name, base_location, matcher, fs_provider);
 		
 		SVDBIndexFactoryUtils.setBaseProperties(config, ret);
 		

@@ -21,20 +21,24 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
-import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 
 public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemProvider {
 	private Bundle					fBundle;
 	private String					fPluginNS;
 	private String					fRootFile;
+	private long					fBundleVersion = -1;
 	
 	public SVDBPluginLibIndex(
 			String 			project, 
@@ -88,7 +92,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	
 	@SuppressWarnings("unchecked")
 	protected List<String> getFileList() {
-		String root_dir = new File(fRootFile).getParent();
+		String root_dir = SVFileUtils.getPathParent(fRootFile);
 		List<String> ret = new ArrayList<String>();
 		
 		Enumeration<URL> entries = 
@@ -186,7 +190,21 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	}
 	
 	public long getLastModifiedTime(String file) {
-		return fBundle.getLastModified();
+		if (fBundleVersion == -1) {
+			Version v = SVCorePlugin.getDefault().getBundle().getVersion();
+			// Ensure the version is always really big to work around the temporary 
+			// current problem of having existing versions out in the wild
+			fBundleVersion  = v.getMicro();
+			fBundleVersion |= v.getMinor() << 16;
+			fBundleVersion |= v.getMajor() << 24;
+			fBundleVersion |= (8L << 48L);
+		}
+		if (fBundleVersion < fBundle.getLastModified()) {
+			System.out.println("computed bundle version older than BundleVersion: " +
+					fBundleVersion + " " + fBundle.getLastModified());
+		}
+		
+		return fBundleVersion;
 	}
 	
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}

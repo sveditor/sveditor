@@ -16,6 +16,11 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class WSArgFileIndexChanges extends TestCase {
@@ -35,7 +40,9 @@ public class WSArgFileIndexChanges extends TestCase {
 	private void int_testArgFileChange(File tmpdir) {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
-		IProject project_dir = TestUtils.createProject("project");
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		final IProject project_dir = TestUtils.createProject("project");
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
 		
@@ -67,6 +74,14 @@ public class WSArgFileIndexChanges extends TestCase {
 		assertNotNull("Expect to find class1", class1_it);
 		assertNull("Expect to not fine class1_2", class1_2_it);
 
+
+		// Wait a bit...
+		/*
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) { }
+		 */
+
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(out);
 		
@@ -89,11 +104,6 @@ public class WSArgFileIndexChanges extends TestCase {
 		
 		// Now, write back the file
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/basic_lib.f")));
-
-		// Wait a bit...
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) { }
 
 		it = index.getItemIterator();
 		class1_it = null;

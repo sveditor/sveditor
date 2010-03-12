@@ -63,7 +63,9 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	
 	
 	public void leave_package() {
-		if (fScopeStack.peek() instanceof SVDBPackageDecl) {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.PackageDecl) {
+			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
 	}
@@ -107,6 +109,12 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 				loc.getLineNo(), loc.getLinePos()));
 	}
 	
+	private void setEndLocation(SVDBScopeItem item) {
+		ScanLocation loc = fScanner.getStmtLocation();
+		item.setEndLocation(new SVDBLocation(null, loc.getLineNo(), loc.getLinePos()));
+	}
+	
+	
 	
 	public void error(String msg, String filename, int lineno) {
 		// Ignore errors in the pre-processor stage
@@ -134,13 +142,57 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 
 	
 	public void enter_interface_decl(String name, String ports)
-			throws HaltScanException {}
+			throws HaltScanException {
+		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Interface);
+		fScopeStack.peek().addItem(id);
+		fScopeStack.push(id);
+		
+		setLocation(id);
+	}
 
+	public void leave_interface_decl() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Interface) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
 	
 	public void enter_module_decl(String name, String ports)
-			throws HaltScanException {}
-	
-	public void enter_program_decl(String name) throws HaltScanException {}
+			throws HaltScanException {
+		SVDBModIfcClassDecl md = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Module);
+		fScopeStack.peek().addItem(md);
+		fScopeStack.push(md);
+
+		setLocation(md);
+	}
+
+	public void leave_module_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Module) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	public void enter_program_decl(String name) throws HaltScanException {
+		SVDBProgramBlock p = new SVDBProgramBlock(name);
+		
+		fScopeStack.peek().addItem(p);
+		fScopeStack.push(p);
+		
+		setLocation(p);
+	}
+
+	public void leave_program_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Program) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
 
 	public void enter_property(String name) {}
 
@@ -173,14 +225,6 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	public void leave_initial_always_block(String name) {}
 	
 	public void assign_stmt(String target) {}
-
-	public void leave_interface_decl() {}
-
-	
-	public void leave_module_decl() throws HaltScanException {}
-
-	
-	public void leave_program_decl() throws HaltScanException {}
 
 
 	public void leave_property() {}

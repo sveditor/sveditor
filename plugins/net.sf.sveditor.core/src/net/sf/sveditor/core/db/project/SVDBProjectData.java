@@ -28,8 +28,8 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -237,6 +237,13 @@ public class SVDBProjectData {
 				fLog.error(
 						"failed to create source-collection index " +
 						"\"" + srcc.getBaseLocation() + "\"");
+			}
+		}
+		
+		// Push defines to all indexes. This may cause index rebuild
+		for (ISVDBIndex index : rgy.getProjectIndexList(fProjectName)) {
+			for (Tuple<String, String> def : fw.getGlobalDefines()) {
+				index.setGlobalDefine(def.first(), def.second());
 			}
 		}
 		

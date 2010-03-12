@@ -20,9 +20,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVFileUtils;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -47,18 +50,42 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	
 	public void init(String path) {
 		IFile 		file;
-		IContainer 	folder;
+		IContainer 	folder = null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
 		}
 		
-		folder = root.getFolder(new Path(path));
+		try {
+			folder = root.getFolder(new Path(path));
+
+			if (!folder.exists()) {
+				file = root.getFile(new Path(path));
+				folder = file.getParent();
+				
+				if (!folder.exists()) {
+					folder = null;
+				}
+			}
+		} catch (IllegalArgumentException e) {} // Happens when the folder is a project
 		
-		if (!folder.exists()) {
-			file = root.getFile(new Path(path));
-			folder = file.getParent();
+		if (folder == null) {
+			// Try looking at open projects
+			String pname = path;
+			
+			if (pname.startsWith("/")) {
+				pname = pname.substring(1);
+			}
+			if (pname.endsWith("/")) {
+				pname = pname.substring(0, pname.length()-1);
+			}
+			
+			for (IProject p_t : root.getProjects()) {
+				if (p_t.isOpen() && p_t.getName().equals(pname)) {
+					folder = p_t;
+				}
+			}
 		}
 		
 		if (folder != null) {
@@ -319,7 +346,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		if (delta.getResource() instanceof IFile) {
 			String file = "${workspace_loc}";
 			
-			file += ((IFile)delta.getResource()).getFullPath().toOSString();
+			file += SVFileUtils.normalize(((IFile)delta.getResource()).getFullPath().toOSString());
 			
 			if (delta.getKind() == IResourceDelta.REMOVED) {
 				// remove from the queue (if present) and the index

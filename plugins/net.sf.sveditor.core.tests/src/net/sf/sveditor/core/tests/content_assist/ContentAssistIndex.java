@@ -39,12 +39,12 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 		return "";
 	}
 
-	public int getIndexType() {
-		return 0;
-	}
-
 	public String getTypeID() {
 		return "ContentAssistIndex";
+	}
+	
+	public String getTypeName() {
+		return "";
 	}
 
 	public void rebuildIndex() {}

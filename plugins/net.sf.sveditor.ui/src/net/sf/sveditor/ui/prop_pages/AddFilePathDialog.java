@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.ui.prop_pages;
 
+import net.sf.sveditor.ui.WorkspaceFileDialog;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;

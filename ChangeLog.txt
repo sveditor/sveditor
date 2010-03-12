@@ -11,31 +11,48 @@ Previously, these macros were displayed incorrectly in the content proposal.
 
 - Correct a bug with expression indenting. Fix bug / add tests for indenting of covergroups, coverpoints.
 
-? Completion of a class name within a macro (`ovm_object_utils_begin) fails
-    - Cannot reproduce now
+? Fix bug with opening a file that exists in the root of a project
+
+? Add markers to ArgFile when file path does not exist
+
 
 == Focus on Indexers ==
 
-? Collect and display markers
-    ? Missing define
-    ? Missing include file
+- Collect and display markers
+    - Missing define
+    - Missing include file
+    - Annotate the parent index that manages the file 
 
 ? Revisit index architecture to ensure appropriate partitioning
 
-? Expand testing of indexing
-    ? SourceCollection Index
-        ? Update structure-determining logic to recognize package-based struct
-        ? Ensure defines located
-        ? Ensure new files are correctly added, especially when struct changes
+- Expand testing of indexing
     - Library Index
         - Ensure new files are correctly merged in
             - On load, discovering a previously-missing file triggers an 
               index build (Workspace and Filesystem varieties)
             - During operation, adding a file that was previously a 
               missing include triggers index rebuild (Workspace only)
+        - Ensure global defines are propagated
+        - Ensure missing includes/defines are annotated
     - Argument File Index
         - On load, discovering an updated index triggers index rebuild
         - Ensure index is re-scanned when the argument file changes
+        - Ensure global defines are propagated
+        - Ensure missing includes/defines are annotated
+    - Plugin Lib Index
+        - Ensure new files added (ie new release) result in updated index. 
+    ? SourceCollection Index
+        - Update structure-determining logic to recognize 
+          package,module,interface, and program-based structures
+        - Ensure global defines are propagated
+        ? Ensure included files are located -- inside and outside active index
+        - Ensure missing includes/defines are annotated
+        ? Ensure new files are correctly added, especially when struct changes
+
+== 
+
+? Completion of a class name within a macro (`ovm_object_utils_begin) fails
+    - Cannot reproduce now
 
 ------------------------------------------------------------------------------
 

@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -35,7 +35,6 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	private String						fBaseLocationDir;
 	private long						fArgFileLastModified;
 	protected List<String>				fFilePaths;
-	protected List<String>				fIncludePaths;
 	protected Map<String, String>		fDefineMap;
 	
 	public SVDBArgFileIndex(
@@ -54,9 +53,14 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
 	
+	@Override
+	public String getTypeName() {
+		return "ArgFileIndex";
+	}
+
 	private String getResolvedBaseLocationDir() {
 		if (fBaseLocationDir == null) {
-			fBaseLocationDir = new File(getResolvedBaseLocation()).getParent();
+			fBaseLocationDir = SVFileUtils.getPathParent(getResolvedBaseLocation());
 		}
 		return fBaseLocationDir;
 	}
@@ -80,7 +84,6 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		load_base(index_data, pp_files, db_files);
 		
 		if (isLoaded()) {
-			readArgFile();
 
 			// re-build the FileTree structure
 			for (String file : fFilePaths) {
@@ -95,14 +98,18 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 				buildPreProcFileMap(null, ft_root);
 			}
+			
+			loadMarkers();
 		}
 	}
 
 	@Override
 	protected boolean isLoadUpToDate() {
-		return (fFileSystemProvider.fileExists(getResolvedBaseLocation()) &&
-				fArgFileLastModified >= fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation()) &&
-				super.isLoadUpToDate());
+		if (fFileSystemProvider.fileExists(getResolvedBaseLocation()) &&
+				fArgFileLastModified >= fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation())) {
+			return super.isLoadUpToDate();
+		}
+		return false;
 	}
 	
 	@Override
@@ -116,7 +123,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 
 	@Override
 	protected void buildPreProcFileMap() {
-		readArgFile();
+		initPaths();
 		
 		// Say the index is already valid
 		fPreProcFileMapValid = true;
@@ -158,11 +165,15 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		return mp;
 	}
 
-	protected void readArgFile() {
+	@Override
+	protected void initPaths() {
 		fFilePaths.clear();
 		fIncludePaths.clear();
 		fDefineMap.clear();
 		fDefineMap.putAll(fGlobalDefines);
+		
+		// Add an include path for the arg file location
+		fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
 		
 		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
 		

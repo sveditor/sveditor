@@ -51,6 +51,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected LogHandle							fLog;
 	protected ISVDBFileSystemProvider			fFileSystemProvider;
 	protected Map<String, String>				fGlobalDefines;
+	protected boolean							fLoadUpToDate;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -84,11 +85,31 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		fFileSystemProvider 	= fs_provider;
 	}
 	
+	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {
+		fFileSystemProvider = fs_provider;
+	}
+	
+	public ISVDBFileSystemProvider getFileSystemProvider() {
+		return fFileSystemProvider;
+	}
+	
 	public void setGlobalDefine(String key, String val) {
+		fLog.debug("setGlobalDefine(" + key + ", " + val + ")");
+		
+		// Rebuild the index when something changes
+		if (!fGlobalDefines.containsKey(key) ||
+				!fGlobalDefines.get(key).equals(val)) {
+			rebuildIndex();
+		}
+		
 		if (fGlobalDefines.containsKey(key)) {
 			fGlobalDefines.remove(key);
 		}
 		fGlobalDefines.put(key, val);
+	}
+	
+	public void clearGlobalDefines() {
+		fGlobalDefines.clear();
 	}
 
 	public void init(ISVDBIndexRegistry registry) {
@@ -107,7 +128,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		fIndexChageListeners.remove(l);
 	}
 	
-
 	public boolean isLoaded() {
 		return (fIndexFileMapValid && fPreProcFileMapValid);
 	}
@@ -149,13 +169,35 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 	
 	public void dump(IDBWriter index_data) {
-		// Dump nothing...
+		// Dump Global Defines, so we can check for changes on restart
+		index_data.writeInt(fGlobalDefines.size());
+		for (Entry<String, String> def : fGlobalDefines.entrySet()) {
+			index_data.writeString(def.getKey());
+			index_data.writeString(def.getValue());
+		}
 	}
 
 	public void load(
 			IDBReader			index_data,
 			List<SVDBFile> 		pp_files, 
 			List<SVDBFile> 		db_files) throws DBFormatException {
+		fLoadUpToDate = true;
+		
+		// Read back the Global Defines. Project settings will already
+		// be set.  
+		int n_defines = index_data.readInt();
+		for (int i=0; i<n_defines; i++) {
+			String key = index_data.readString();
+			String val = index_data.readString();
+			
+			if (fGlobalDefines.containsKey(key) ||
+					!fGlobalDefines.get(key).equals(val)) {
+				fGlobalDefines.remove(key);
+				fGlobalDefines.put(key, val);
+				fLoadUpToDate = false;
+			}
+		}
+		
 		load_base(index_data, pp_files, db_files);
 	}
 
@@ -174,16 +216,19 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 			fIndexFileMap.put(f.getFilePath(), f);
 		}
 
-		if (isLoadUpToDate()) {
+		if (fLoadUpToDate && isLoadUpToDate()) {
 			fLog.debug("index \"" + getBaseLocation() + "\" IS up-to-date");
 			fIndexFileMapValid = true;
 			fPreProcFileMapValid  = true;
 		} else {
 			fLog.debug("index \"" + getBaseLocation() + "\" NOT up-to-date");
+			rebuildIndex();
+			/*
 			fIndexFileMapValid = false;
 			fPreProcFileMapValid  = false;
 			fPreProcFileMap.clear();
 			fIndexFileMap.clear();
+			 */
 		}
 	}			
 

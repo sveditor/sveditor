@@ -134,16 +134,18 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		SVDBMacroDef m = null;
 		
 		debug_s(indent(fIndent++) + "--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
-		
-		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			for (SVDBFileTree inc : context.getIncludedFiles()) {
-				debug_s(indent(fIndent) + "    searching included file \"" + inc.getFilePath() + "\"");
-				if (inc.getSVDBFile() == null) {
-					fLog.error("[TODO] do lookup of inc file \"" + 
-							inc.getFilePath() + "\"");
-				} else {
-					if ((m = searchDown(boundary, inc, key)) != null) {
-						break;
+
+		if (context.getSVDBFile() != null) {
+			if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
+				for (SVDBFileTree inc : context.getIncludedFiles()) {
+					debug_s(indent(fIndent) + "    searching included file \"" + inc.getFilePath() + "\"");
+					if (inc.getSVDBFile() == null) {
+						fLog.error("[TODO] do lookup of inc file \"" + 
+								inc.getFilePath() + "\"");
+					} else {
+						if ((m = searchDown(boundary, inc, key)) != null) {
+							break;
+						}
 					}
 				}
 			}

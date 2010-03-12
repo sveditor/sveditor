@@ -11,7 +11,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -44,6 +43,8 @@ public class ArgFilePersistence extends TestCase {
 		ByteArrayOutputStream 	out;
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		IProject project_dir = TestUtils.createProject("project");
 		

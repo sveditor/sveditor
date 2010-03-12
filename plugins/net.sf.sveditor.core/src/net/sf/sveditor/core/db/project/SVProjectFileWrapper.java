@@ -151,12 +151,12 @@ public class SVProjectFileWrapper {
 		boolean change = false;
 		
 		// Look for includePaths element
-		NodeList pathsList = svproject.getElementsByTagName("defines");
+		NodeList definesList = svproject.getElementsByTagName("defines");
 		
 		Element paths = null;
-		if (pathsList.getLength() > 0) {
+		if (definesList.getLength() > 0) {
 			System.out.println("use existing defines list");
-			paths = (Element)pathsList.item(0);
+			paths = (Element)definesList.item(0);
 		} else {
 			System.out.println("create new defines list");
 			paths = fDocument.createElement("defines");

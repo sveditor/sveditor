@@ -17,7 +17,7 @@ import java.io.File;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 
 public class SVDBIndexProfiler {
 	

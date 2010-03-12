@@ -52,7 +52,7 @@ public class NoHangIndentTests extends TestCase {
 	
 	private boolean noHangTestInt(final URL url) {
 		boolean ret = true;
-		System.out.println("URL: " + url.getPath());
+		// System.out.println("URL: " + url.getPath());
 		InputStream in_t = null;
 		final Object monitor = new Object();
 		

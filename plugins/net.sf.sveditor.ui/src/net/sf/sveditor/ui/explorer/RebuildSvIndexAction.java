@@ -20,8 +20,10 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionListenerAction;
@@ -45,7 +47,7 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 		
 		public RebuildIndexAction() {
 			super("Rebuild SV Index");
-			fLog = LogFactory.getDefault().getLogHandle("RebuildIndexAction");
+			fLog = LogFactory.getLogHandle("RebuildIndexAction");
 		}
 		
 		public void run() {
@@ -74,6 +76,10 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 			
 			for (IProject p : projects) {
 				fLog.debug("Rebuild index for project \"" + p.getName() + "\"");
+				try {
+					p.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+				} catch (CoreException e) {}
+				
 				rgy.rebuildIndex(p.getName());
 			}
 		}

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -104,7 +104,8 @@ public class SVDBIndexUtil {
 				project = SVDBIndexRegistry.GLOBAL_PROJECT;
 			}
 			
-			index = rgy.findCreateIndex(project, new File(path).getParent(),
+			index = rgy.findCreateIndex(project,
+					SVFileUtils.getPathParent(path),
 					SVDBSourceCollectionIndexFactory.TYPE, null);
 			index_mgr.addShadowIndex(index.getBaseLocation(), index);
 		}

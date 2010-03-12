@@ -44,6 +44,10 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	
+	public void init() {
+		fProjectMap.clear();
+	}
+	
 	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
 		fListeners.add(l);
 	}

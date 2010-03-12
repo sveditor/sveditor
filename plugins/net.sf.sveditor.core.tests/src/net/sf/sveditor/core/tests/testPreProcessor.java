@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -58,7 +58,7 @@ public class testPreProcessor implements IApplication {
 		
 		System.out.println("--> createFileContext()");
 		// TODO: need to provide IncludeProvider
-		SVDBFileTree scen_gen_ctxt = ft_utils.createFileContext(scen_gen, null); 
+		SVDBFileTree scen_gen_ctxt = null; // ft_utils.createFileContext(scen_gen, null); 
 		System.out.println("<-- createFileContext()");
 		
 		/*

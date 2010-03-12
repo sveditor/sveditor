@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.index.src_collection.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
@@ -225,7 +225,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			ret = result.get(0).getIndex().parse(in, path);
 		} else {
 			// Create a shadow index using the current directory
-			String dir = new File(path).getParent();
+			String dir = SVFileUtils.getPathParent(path);
 			
 			if (!fShadowIndexMap.containsKey(dir)) {
 				ISVDBIndex index = null;

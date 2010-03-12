@@ -21,9 +21,6 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBIncludeFileProvider {
-	int IT_IncludePath      = 1;
-	int IT_BuildPath        = 2;
-	int IT_IndexList        = 3;
 	
 	void init(ISVDBIndexRegistry registry);
 	
@@ -40,11 +37,20 @@ public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBI
 	
 	void setGlobalDefine(String key, String val);
 	
+	void clearGlobalDefines();
+	
 	/**
 	 * Returns the type identifier for this index. This is
 	 * typically used in conjunction with the database factory
 	 */
 	String getTypeID();
+	
+	/**
+	 * Returns a human-readable name for this index type
+	 * 
+	 * @return
+	 */
+	String getTypeName();
 	
 	/**
 	 * Returns whether this database has loaded information from all its files
@@ -71,13 +77,6 @@ public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBI
 	 */
 	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
-	/**
-	 * Returns the index type
-	 * 
-	 * @return
-	 */
-	int getIndexType();
-
 	/**
 	 * Returns the parsed list of files
 	 * 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="methodologyTemplates" name="Methodology Templates" schema="schema/methodologyTemplates.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -340,6 +341,86 @@
                relative="org.eclipse.ui.navigator.ProjectExplorer">
          </view>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="net.sf.sveditor.ui.svNewWizards"
+            name="SVEditor">
+      </category>
+      <wizard
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVClassWizard"
+            icon="icons/edecl16/class_obj.gif"
+            id="net.sf.sveditor.ui.newSVClassWizard"
+            name="SystemVerilog Class"
+            project="false">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="net.sf.sveditor.ui.SVPerspectiveFactory"
+            fixed="false"
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svPerspective"
+            name="SystemVerilog">
+      </perspective>
+   </extension>
+   <extension
+         point="net.sf.sveditor.ui.methodologyTemplates">
+      <category
+            id="net.sf.sveditor.ui.ovmCategory"
+            name="OVM"></category>
+      <methodologyTemplate
+            category="net.sf.sveditor.ui.ovmCategory"
+            id="net.sf.sveditor.ui.ovmComponent"
+            name="OVM Component">
+         <definition>
+            ${comment.fileheader}
+`ifndef INCLUDED_${classname}_SVH
+`define INCLUDED_${classname}_SVH
+
+class ${classname} extends ovm_component;
+	
+	`ovm_component_utils(${classname})
+
+	/****************************************************************
+	 * ${classname} constructor
+	 ****************************************************************/
+	function new(string name, ovm_component parent=null);
+		super.new(name, parent);
+	endfunction
+
+	/****************************************************************
+	 * build()
+	 ****************************************************************/
+	function void build();
+		super.build();
+	endfunction
+
+	/****************************************************************
+	 * connect()
+	 ****************************************************************/
+	function void connect();
+		super.connect();
+	endfunction
+
+	/****************************************************************
+	 * run()
+	 ****************************************************************/
+	task run();
+		
+	endtask
+
+endclass
+
+`endif /* INCLUDED_${classname}_SVH */
+         </definition>
+         <description>
+            Creates an OVM Component with the specified name
+         </description>
+      </methodologyTemplate>
    </extension>
    
 

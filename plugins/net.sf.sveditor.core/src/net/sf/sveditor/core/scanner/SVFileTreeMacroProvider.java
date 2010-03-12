@@ -171,8 +171,12 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				}
 				
 				if (inc != null) {
-					// Collect all macros
-					collectThisFileMacros(inc.getSVDBFile(), -1);
+					if (inc.getSVDBFile() != null) {
+						// Collect all macros
+						collectThisFileMacros(inc.getSVDBFile(), -1);
+					} else {
+						fLog.error("Include file \"" + inc.getFilePath() + "\" missing");
+					}
 				} else {
 					fLog.error("Failed to find \"" + it.getName() + "\" in file-tree");
 				}

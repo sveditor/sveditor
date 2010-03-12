@@ -95,6 +95,7 @@ public class TestUtils {
 		
 		try {
 			if (project.exists()) {
+				project.close(new NullProgressMonitor());
 				project.delete(true, true, new NullProgressMonitor());
 			}
 

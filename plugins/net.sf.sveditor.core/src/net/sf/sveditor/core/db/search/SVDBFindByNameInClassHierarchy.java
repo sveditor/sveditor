@@ -95,8 +95,10 @@ public class SVDBFindByNameInClassHierarchy {
 			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
 			if (((SVDBModIfcClassDecl)scope).getSuperClass() != null) {
 				scope = finder.find((SVDBModIfcClassDecl)scope);
-				fLog.debug("Find super-class \"" + 
+				if (scope != null) {
+					fLog.debug("Find super-class \"" + 
 						((SVDBModIfcClassDecl)scope).getSuperClass() + "\" returns " + scope);
+				}
 			} else {
 				fLog.debug("No super-class");
 				scope = null;
