@@ -1,0 +1,141 @@
+
+<project name="SVEditor Feature">
+    <property environment="env"/>
+
+    <!-- Import the version info -->
+    <property file="sveditor.info"/>
+
+    <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
+    <property name="feature.version" value="${version}"/>
+    <property name="feature.id"      value="net.sf.sveditor"/>
+
+    <!-- Options used by the Eclipse build -->
+    <property name="buildLabel" value=""/>
+    <property name="buildId" value="${feature.version}"/>
+    <property name="type" value="feature"/>
+
+    <!-- build.qualifier -->
+    <property name="forceContextQualifier" value="0"/> 
+    <property name="configs" value="${os}, ${ws}, ${arch}"/>
+    <property name="buildDirectory"   value="${basedir}/build"/>
+    <property name="archivePrefix"    value=""/>
+    <property name="outputUpdateJars" value="true"/>
+
+
+    <!-- Compiler Options -->
+    <property name="javacDebugInfo"   value="false"/>
+    <property name="javacFailOnError" value="true"/>
+    <property name="javacSource"      value="1.5"/>
+    <property name="javacTarget"      value="1.5"/>
+    <property name="compilerArg"      value="-warn:-discouraged"/>
+
+    <property name="srcdir" value="${basedir}"/>
+
+    <target name="build" depends="compile, mkarchive"/>
+
+
+    <target name="release" depends="compile, mksrc, mkarchive">
+        <mkdir dir="${basedir}/release"/>
+       
+        <!-- Create the release fragment file -->
+        <copy todir="${basedir}/release" overwrite="true">
+            <fileset dir="${srcdir}/etc"
+                includes="new_release_fragment.xml"/>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+
+        <mkdir dir="release/update_site"/>
+  
+        <unzip src="${basedir}/sveditor-${feature.version}.jar"
+               dest="${basedir}/release/update_site"/>
+
+        <exec executable="/bin/sh">
+            <arg value="scripts/upload_release.sh"/>
+        </exec>
+
+        <delete dir="${basedir}/release"/> 
+    </target>
+
+    <target name="compile"> 
+        <delete dir="${basedir}/build"/>
+        <mkdir dir="${basedir}/build"/>
+        <copy todir="${basedir}/build">
+            <fileset dir="${srcdir}">
+                <include name="plugins/**"/>
+                <include name="features/**"/>
+                <exclude name="**/*.svn/**"/>
+            </fileset>
+        </copy>
+        <copy todir="${basedir}/build" overwrite="true">
+            <fileset dir="${srcdir}" 
+                includes="features/**/*.xml, plugins/**/*.xml, plugins/**/*.MF, plugins/**/*.properties"/>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+        <eclipse.buildScript
+            elements="${type}@${feature.id}"
+            buildDirectory="${buildDirectory}"
+            baseLocation="${eclipse.home}"
+            configInfo="${configs}"
+            forceContextQualifier="${forceContextQualifier}"
+            generateFeatureVersionSuffix="true"/>
+        <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
+            dir="${buildDirectory}/features/${feature.id}"
+            target="build.jars"/>
+        <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
+             dir="${buildDirectory}"/>
+    </target>
+
+    <target name="mksrc">
+        <exec executable="/bin/sh">
+            <arg value="scripts/mksrc.sh"/>
+        </exec>
+    </target>
+
+    <!-- ************************************************************
+         * mkarchive
+         *
+         * Build an archived update site of the release
+         ************************************************************ -->
+    <target name="mkarchive">
+        <delete dir="${basedir}/archive_tmp"/>
+        <mkdir dir="${basedir}/archive_tmp"/>
+
+        <copy todir="${basedir}/archive_tmp">
+            <fileset dir="${basedir}/update">
+                <include name="site.xml"/>
+            </fileset>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+
+<!--
+        <copy todir="${basedir}">
+            <fileset dir="${basedir}/etc/new_release_fragment.xml">
+                <include name="new_release_fragment.xml"/>
+            </fileset>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
+  -->
+
+        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
+               dest="${basedir}/archive_tmp"/>
+
+        <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 
+             basedir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"
+             includes="**/*"/>
+        <delete dir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"/>
+        <jar destfile="${basedir}/sveditor-${feature.version}.jar"
+             basedir="${basedir}/archive_tmp"
+             includes="site.xml, features/**, plugins/**"/>
+        <delete dir="${basedir}/archive_tmp"/>
+    </target>
+
+</project>
+
