@@ -53,7 +53,6 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			int lineno = doc.getLineOfOffset(cmd.offset);
 			if (doc.getLineOffset(lineno) != cmd.offset) {
 				// If this is a block copy
-//				System.out.println("not a block copy");
 				return;
 			}
 			int line_cnt = 0;
@@ -62,6 +61,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				if (cmd.text.charAt(i) == '\n') {
 					line_cnt++;
 				}
+			}
+			
+			// Don't try to indent content that isn't on a line boundary
+			if (line_cnt == 0) {
+				return;
 			}
 			
 			fLog.debug("Document line start=" + lineno);

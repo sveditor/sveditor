@@ -45,6 +45,12 @@
             name="OVM Library"
             path="ovm/src/ovm_pkg.sv">
       </SVLibrary>
+      <SVLibrary
+            default="false"
+            id="org.vmmcentral.vmm"
+            name="VMM Library"
+            path="vmm/sv/vmm_lib.sv">
+      </SVLibrary>
    </extension>
 
 </plugin>

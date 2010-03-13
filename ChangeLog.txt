@@ -7,23 +7,21 @@ recognized as aliases for the underlying type.
 - Correct a bug with content assist for macros having no parameters. 
 Previously, these macros were displayed incorrectly in the content proposal.
 
-- Correct a bug with content-assist on the other side of an '='. 
+- Correct a bug with content-assist on the RHS of an '='. 
 
 - Correct a bug with expression indenting. Fix bug / add tests for indenting of covergroups, coverpoints.
 
-? Fix bug with opening a file that exists in the root of a project
+- Fix bug with opening a file that exists in the root of a project
 
-? Add markers to ArgFile when file path does not exist
+- Correct a windows-specific bug that resulted in the built-in library
+  missing files
 
+- Correct a bug with indenting pre-processor directives such as `timescale
 
-== Focus on Indexers ==
-
-- Collect and display markers
+- Collect and display errors as markers
     - Missing define
     - Missing include file
     - Annotate the parent index that manages the file 
-
-? Revisit index architecture to ensure appropriate partitioning
 
 - Expand testing of indexing
     - Library Index
@@ -41,18 +39,12 @@ Previously, these macros were displayed incorrectly in the content proposal.
         - Ensure missing includes/defines are annotated
     - Plugin Lib Index
         - Ensure new files added (ie new release) result in updated index. 
-    ? SourceCollection Index
+    - SourceCollection Index
         - Update structure-determining logic to recognize 
           package,module,interface, and program-based structures
         - Ensure global defines are propagated
-        ? Ensure included files are located -- inside and outside active index
+        - Ensure included files are located
         - Ensure missing includes/defines are annotated
-        ? Ensure new files are correctly added, especially when struct changes
-
-== 
-
-? Completion of a class name within a macro (`ovm_object_utils_begin) fails
-    - Cannot reproduce now
 
 ------------------------------------------------------------------------------
 

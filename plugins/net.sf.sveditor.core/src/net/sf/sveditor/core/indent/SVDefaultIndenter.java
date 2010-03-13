@@ -30,7 +30,7 @@ public class SVDefaultIndenter {
 	private SVIndentToken					fCurrent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
-	private boolean							fDebugEn = false;
+	private boolean							fDebugEn = true;
 	private int								fNLeftParen, fNRightParen;
 	
 	static private Map<String, Integer>		fQualifierMap;
@@ -341,20 +341,12 @@ public class SVDefaultIndenter {
 		String end = get_end_kw(item);
 		debug("--> indent_ifc_module_class(" + item + ")");
 
-//		((SVIndentScanner)fScanner).setMonolithicExpr(false);
-		// double-indent any lines that are part of the the 
-		// declaration
-		push_indent();
 		push_indent();
 		
 		// Reach the end of the declaration
 		while (!tok.isOp(";")) {
 			tok = next_s();
 		}
-//		((SVIndentScanner)fScanner).setMonolithicExpr(true);
-		
-		// pop back to 'normal' scope indent
-		pop_indent();
 		
 		tok = next_s();
 		
@@ -814,7 +806,12 @@ public class SVDefaultIndenter {
 				set_indent(tok);
 				while (tok != null && !tok.isEndLine()) {
 					fTokenList.add(tok);
-					tok = next();
+					tok = fScanner.next();
+					debug("pre-proc line: " + ((tok != null)?tok.getImage():"null"));
+				}
+				
+				if (tok != null) {
+					fTokenList.add(tok);
 				}
 				fIndentStack = stack;
 			} else {
@@ -858,6 +855,8 @@ public class SVDefaultIndenter {
 	
 	private SVIndentToken next_s() {
 		SVIndentToken ret = next();
+		
+		debug("next_s: " + ((ret != null)?ret.getImage():"null"));
 		
 		if (ret == null) {
 			throw new RuntimeException();
