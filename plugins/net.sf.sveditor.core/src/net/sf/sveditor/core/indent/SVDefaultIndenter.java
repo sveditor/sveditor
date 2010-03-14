@@ -30,7 +30,7 @@ public class SVDefaultIndenter {
 	private SVIndentToken					fCurrent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
-	private boolean							fDebugEn = true;
+	private boolean							fDebugEn = false;
 	private int								fNLeftParen, fNRightParen;
 	
 	static private Map<String, Integer>		fQualifierMap;
@@ -369,12 +369,26 @@ public class SVDefaultIndenter {
 				fQualifiers = 0;
 			} else if (tok.isId("initial") || tok.isId("always") || 
 					tok.isId("final")) {
+				boolean not_block = false;
 				tok = next_s();
-				if (tok.equals("@")) {
-					tok = next_s(); // expression
-					tok = next_s(); // beginning of statement
+				
+				if (tok.isOp("@")) {
+					tok = next_s(); // paren
+					tok = consume_expression();
 				}
+				
+				if (!tok.isId("begin")) {
+					not_block = true;
+					push_indent();
+					set_indent(tok);
+				}
+				
 				tok = indent_block_or_statement();
+				
+				if (not_block) {
+					pop_indent();
+					set_indent(tok);
+				}
 				fQualifiers = 0;
 			} else if (tok.isId("covergroup")) {
 				tok = indent_covergroup();

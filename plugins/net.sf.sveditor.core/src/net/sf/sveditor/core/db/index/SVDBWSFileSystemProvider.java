@@ -159,7 +159,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 					m.delete();
 				}
 			} catch (CoreException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 	}

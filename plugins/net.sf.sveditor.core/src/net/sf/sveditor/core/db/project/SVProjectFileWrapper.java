@@ -155,10 +155,8 @@ public class SVProjectFileWrapper {
 		
 		Element paths = null;
 		if (definesList.getLength() > 0) {
-			System.out.println("use existing defines list");
 			paths = (Element)definesList.item(0);
 		} else {
-			System.out.println("create new defines list");
 			paths = fDocument.createElement("defines");
 			svproject.appendChild(paths);
 			change = true;
@@ -166,7 +164,6 @@ public class SVProjectFileWrapper {
 		
 		NodeList defineList = paths.getElementsByTagName("define");
 		
-		System.out.println("defineList is " + defineList.getLength() + " long");
 		for (int i=0; i<defineList.getLength(); i++) {
 			Element define = (Element)defineList.item(i);
 			

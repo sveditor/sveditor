@@ -10,4 +10,12 @@ module top(
 		a = 5;
 	endfunction
 
+	always @(posedge clk)
+		dat = 1;
+
+	always @(posedge clk) begin
+		dat = 1;
+		dat = 2;
+	end
+
 endmodule

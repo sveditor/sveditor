@@ -42,7 +42,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 	
 	
-	public void testFindSourceRecurse() {
+	public void testFindSourceRecursePkg() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -51,12 +51,12 @@ public class SrcCollectionBasics extends TestCase {
 			project_dir.delete();
 		}
 		
-		utils.copyBundleDirToFS("/project_dir_src_collection/", project_dir);
+		utils.copyBundleDirToFS("/project_dir_src_collection_pkg/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(project_dir);
 		
-		File path = new File(project_dir, "project_dir_src_collection");
+		File path = new File(project_dir, "project_dir_src_collection_pkg");
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -99,6 +99,63 @@ public class SrcCollectionBasics extends TestCase {
 
 	}
 	
+	public void testFindSourceRecurseNoPkg() {
+		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			project_dir.delete();
+		}
+		
+		utils.copyBundleDirToFS("/project_dir_src_collection_nopkg/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(project_dir);
+		
+		File path = new File(project_dir, "project_dir_src_collection_nopkg");
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBItem class1 = null;
+		SVDBItem class2 = null;
+		SVDBItem class3 = null;
+		SVDBItem def_function = null;
+		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1 = tmp_it;
+			} else if (tmp_it.getName().equals("class2")) {
+				class2 = tmp_it;
+			} else if (tmp_it.getName().equals("class3")) {
+				class3 = tmp_it;
+			} else if (tmp_it.getName().equals("def_function")) {
+				def_function = tmp_it;
+			} else if (tmp_it.getType() == SVDBItemType.Marker) {
+				markers.add(tmp_it);
+			}
+		}
+
+		for (SVDBItem warn : markers) {
+			System.out.println("SVDBMarkerItem: " + 
+					((SVDBMarkerItem)warn).getMessage());
+		}
+		
+		assertEquals("Confirm no warnings", 0, markers.size());
+		assertNotNull("located class1", class1);
+		assertNotNull("located class2", class2);
+		assertNotNull("located class3", class3);
+		assertNotNull("located def_function", def_function);
+		assertEquals("class1", class1.getName());
+		
+		// rgy.save_state();
+
+	}
+
 	public void testBasicClassIncludingModule() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		

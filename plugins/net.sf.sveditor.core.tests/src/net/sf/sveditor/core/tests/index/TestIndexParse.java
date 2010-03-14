@@ -1,28 +1,34 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.InputStream;
 
-import org.eclipse.core.resources.IProject;
-
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-import junit.framework.TestCase;
 
-public class TestGlobalDefine extends TestCase {
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Path;
 
+/**
+ * These tests exercise the ISVDBIndex.parse() method to ensure that
+ * the index can parse a file that exists within the index
+ * 
+ * @author ballance
+ *
+ */
+public class TestIndexParse extends TestCase {
+	
 	private File					fTmpDir;
 
 	@Override
@@ -41,43 +47,13 @@ public class TestGlobalDefine extends TestCase {
 			fTmpDir = null;
 		}
 	}
-
-	public void testLibIndexGlobalDefine() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
-		
-		IProject project_dir = TestUtils.createProject("project");
-		
-		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
-		SVCorePlugin.getDefault().getProjMgr().init();
-		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
-				"${workspace_loc}/project/basic_lib_global_defs/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
-		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
 	
-		try {
-			int_testGlobalDefine(p_data, index);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
-	}
-
-	public void testArgFileIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+	public void testWSLibIndexParse() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
+		utils.copyBundleDirToWS("/project_dir/", project_dir);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -89,25 +65,55 @@ public class TestGlobalDefine extends TestCase {
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
-				"${workspace_loc}/project/basic_lib_global_defs/proj.f", 
+				"${workspace_loc}/project/project_dir/basic_lib_pkg.sv", 
+				SVDBLibPathIndexFactory.TYPE, null);
+
+		String path = "${workspace_loc}" +
+			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
+		
+		try {
+			int_testIndexParse(index, path);
+		} finally {
+			TestUtils.deleteProject(project_dir);
+		}
+	}
+
+	public void testWSArgFileIndexParse() {
+		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		
+		IProject project_dir = TestUtils.createProject("project");
+		
+		utils.copyBundleDirToWS("/project_dir/", project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		SVCorePlugin.getDefault().getProjMgr().init();
+		
+		ISVDBIndex index = rgy.findCreateIndex("project", 
+				"${workspace_loc}/project/project_dir/testbench.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
-		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
+
+		String path = "${workspace_loc}" +
+			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
 		
 		try {
-			int_testGlobalDefine(p_data, index);
+			int_testIndexParse(index, path);
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
 	}
 
-	public void testSourceCollectionIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+	public void testWSSourceCollectionIndexParse() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
+		utils.copyBundleDirToWS("/project_dir/", project_dir);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -119,40 +125,45 @@ public class TestGlobalDefine extends TestCase {
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
-				"${workspace_loc}/project/basic_lib_global_defs",
+				"${workspace_loc}/project/project_dir", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
+
+		String path = "${workspace_loc}" +
+			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
 		
 		try {
-			int_testGlobalDefine(p_data, index);
+			int_testIndexParse(index, path);
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
 	}
 
-	private void int_testGlobalDefine(
-			SVDBProjectData				project_data,
-			ISVDBIndex					index) {
-		// Add the definition that we'll check for
-		SVProjectFileWrapper p_wrap = project_data.getProjectFileWrapper().duplicate();
-		p_wrap.getGlobalDefines().add(new Tuple<String, String>("ENABLE_CLASS1", ""));
-		project_data.setProjectFileWrapper(p_wrap);
+	private void int_testIndexParse(ISVDBIndex index, String path) {
+		String path_n = SVFileUtils.normalize(path);
 		
-		p_wrap = project_data.getProjectFileWrapper();
-		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
+		InputStream in = ((AbstractSVDBIndex)index).getFileSystemProvider().openStream(path);
 		
-		ISVDBItemIterator<SVDBItem> index_it = index.getItemIterator();
+		assertNotNull("Failed to open path \"" + path + "\"", in);
 		
-		SVDBItem class1_it = null;
-		while (index_it.hasNext()) {
-			SVDBItem it_tmp = index_it.nextItem();
-			if (it_tmp.getName().equals("class1")) {
-				class1_it = it_tmp;
-			}
-		}
+		SVDBFile file = index.parse(in, path);
 		
-		assertNotNull("Expect to find \"class1\"", class1_it);
-	}
+		assertNotNull("Failed to parse path \"" + path + "\"", file);
+		
+		((AbstractSVDBIndex)index).getFileSystemProvider().closeStream(in);
+
+		// If the normalized path is different (ie Windows), then
+		// run extra tests to ensure that either path works
+		if (!path_n.equals(path)) {
+			in = ((AbstractSVDBIndex)index).getFileSystemProvider().openStream(path_n);
 			
+			assertNotNull("Failed to open path \"" + path_n + "\"", in);
+			
+			file = index.parse(in, path_n);
+			
+			assertNotNull("Failed to parse path \"" + path_n + "\"", file);
+			
+			((AbstractSVDBIndex)index).getFileSystemProvider().closeStream(in);
+		}
+	}
+
 }

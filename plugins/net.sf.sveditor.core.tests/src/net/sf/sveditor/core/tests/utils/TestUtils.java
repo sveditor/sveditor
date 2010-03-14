@@ -112,5 +112,14 @@ public class TestUtils {
 		return project;
 	}
 	
+	public static void deleteProject(IProject project_dir) {
+		try {
+			project_dir.close(new NullProgressMonitor());
+			project_dir.delete(true, true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 }

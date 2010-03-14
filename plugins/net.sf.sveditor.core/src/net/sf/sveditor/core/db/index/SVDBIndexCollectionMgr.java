@@ -212,6 +212,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	public SVDBFile parse(InputStream in, String path) {
 		SVDBFile ret = null;
 		
+		path = SVFileUtils.normalize(path);
+		
 		List<SVDBSearchResult<SVDBFile>> result = findPreProcFile(path, true);
 		
 		fLog.debug("parse(" + path + ") - results of findPreProcFile:");

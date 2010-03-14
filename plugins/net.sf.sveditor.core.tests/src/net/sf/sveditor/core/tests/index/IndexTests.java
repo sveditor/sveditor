@@ -18,6 +18,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestIndexMissingIncludeDefine.class));
 		suite.addTest(new TestSuite(TestGlobalDefine.class));
 		suite.addTest(new TestSuite(TestVmmBasics.class));
+		suite.addTest(new TestSuite(TestIndexParse.class));
 		
 		return suite;
 	}

@@ -1,4 +1,10 @@
 
+-- 0.1.5 Release --
+
+- Resolve a bug in indent support for always 
+
+- Resolve a critical bug with file paths on Windows
+
 -- 0.1.4 Release --
 
 - Add content-assist support for class typedefs. Now, class typedefs are 

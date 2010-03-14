@@ -17,6 +17,7 @@ import java.net.URI;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -182,6 +183,7 @@ public class SVEditor extends TextEditor
 			if (uri_in.getURI().getScheme().equals("plugin")) {
 				fLog.debug("Editor path is in a plugin: " + uri_in.getURI());
 				fSVDBFilePath = "plugin:" + uri_in.getURI().getPath();
+				fSVDBFilePath = SVFileUtils.normalize(fSVDBFilePath);
 				
 				SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 				SVDBPluginLibDescriptor target = null;
@@ -223,13 +225,14 @@ public class SVEditor extends TextEditor
 					// re-adjust
 					
 					fSVDBFilePath = "${workspace_loc}" + fi.getFile().getFullPath().toOSString();
+					fSVDBFilePath = SVFileUtils.normalize(fSVDBFilePath);
 					
 					projectSettingsChanged(mgr.getProjectData(fi.getFile().getProject()));
 					
 					mgr.addProjectSettingsListener(this);
 				} else {
 					// Check whether another 
-					fSVDBFilePath = uri_in.getURI().getPath();
+					fSVDBFilePath = SVFileUtils.normalize(uri_in.getURI().getPath());
 					fLog.debug("File \"" + fSVDBFilePath + "\" is outside the workspace");
 					
 					fIndexMgr = null;

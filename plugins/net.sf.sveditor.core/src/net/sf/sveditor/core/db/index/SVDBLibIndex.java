@@ -288,6 +288,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	public SVDBFile parse(InputStream in, String path) {
 		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
 		
+		path = SVFileUtils.normalize(path);
+		
 		InputStreamCopier copier = new InputStreamCopier(in);
 		in = null;
 		
