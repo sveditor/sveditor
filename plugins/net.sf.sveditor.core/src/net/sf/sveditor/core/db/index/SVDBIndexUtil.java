@@ -1,6 +1,17 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +33,18 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
 
-
 public class SVDBIndexUtil {
 	
 	private static LogHandle		fLog = LogFactory.getLogHandle("SVDBIndexUtil");
 	
+	/**
+	 * findIndexFile()
+	 * 
+	 * @param path
+	 * @param project
+	 * @param create_shadow
+	 * @return
+	 */
 	public static Tuple<ISVDBIndex, SVDBIndexCollectionMgr> findIndexFile(String path, String project, boolean create_shadow) {
 		ISVDBIndex 				index     = null;
 		SVDBIndexCollectionMgr	index_mgr = null;

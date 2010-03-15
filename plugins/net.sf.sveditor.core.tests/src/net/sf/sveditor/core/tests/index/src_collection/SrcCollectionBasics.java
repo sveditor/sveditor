@@ -1,3 +1,15 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.tests.index.src_collection;
 
 import java.io.File;
@@ -70,6 +82,8 @@ public class SrcCollectionBasics extends TestCase {
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
 			
+			System.out.println("it: " + tmp_it.getType() + " " + tmp_it.getName());
+			
 			if (tmp_it.getName().equals("class1")) {
 				class1 = tmp_it;
 			} else if (tmp_it.getName().equals("class2")) {
@@ -102,6 +116,8 @@ public class SrcCollectionBasics extends TestCase {
 	public void testFindSourceRecurseNoPkg() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
@@ -114,7 +130,8 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(project_dir);
 		
 		File path = new File(project_dir, "project_dir_src_collection_nopkg");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(
+				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
@@ -126,6 +143,8 @@ public class SrcCollectionBasics extends TestCase {
 		
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
+			
+			System.out.println("it: " + tmp_it.getType() + " " + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				class1 = tmp_it;

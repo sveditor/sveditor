@@ -69,7 +69,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		}
 		
 		SVDBMacroDef m = fMacroCache.get(name);
-
+		
 		/*
 		fLog.debug("findMacro(\"" + name + "\") => " + ((m != null)?"Defined":"Undefined") +
 				" (" + fContext.getFilePath() + ")");
@@ -80,6 +80,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	
 	private void collectParentFileMacros() {
 		List<SVDBFileTree> file_list = new ArrayList<SVDBFileTree>();
+		fLog.debug("collectParentFileMacros()");
 		
 		SVDBFileTree ib = fContext;
 		file_list.add(ib);
@@ -152,13 +153,15 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	
 	private boolean collectThisFileMacros(SVDBScopeItem scope, int lineno) {
 		for (SVDBItem it : scope.getItems()) {
-			if (it.getLocation() != null && it.getLocation().getLine() > lineno) {
+			if (it.getLocation() != null && 
+					it.getLocation().getLine() > lineno && lineno != -1) {
 				return false;
 			} else if (it instanceof SVDBScopeItem) {
 				if (!collectThisFileMacros((SVDBScopeItem)it, lineno)) {
 					return false;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
+				fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName());
 				addMacro((SVDBMacroDef)it);
 			} else if (it.getType() == SVDBItemType.Include) {
 				// Look for the included file

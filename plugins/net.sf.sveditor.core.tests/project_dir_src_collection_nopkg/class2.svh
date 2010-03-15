@@ -11,6 +11,8 @@ class class2;
 	
 	`make_function(def_function)
 	
+	`accessor_func
+	
 	function int get_data();
 		return 5;
 	endfunction

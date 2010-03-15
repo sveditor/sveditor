@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.index.plugin_lib;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

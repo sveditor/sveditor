@@ -507,7 +507,7 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ifdef_enabled()) {
 				// Read the full string
 
-				if (fDefineProvider != null && fDefineProvider.hasParameters(type)) {
+				if (fDefineProvider != null && fDefineProvider.hasParameters(type, fLineno)) {
 					// Try to read the parameter list
 					ch = get_ch_ll();
 					ch = skipWhite_ll(ch);

@@ -25,8 +25,8 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
-	private boolean						fDebugEn  = false;
-	private boolean						fDebugUndefinedMacros = false;
+	private boolean						fDebugEn				= false;
+	private boolean						fDebugUndefinedMacros	= false;
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
@@ -520,7 +520,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					
 					int m_end = scanner.getOffset();
 					
-					if (hasParameters(key)) {
+					if (hasParameters(key, fLineno)) {
 						// TODO: Need to expand parameter references in this macro call
 						
 						debug("    \"" + key + "\" has parameters");
@@ -590,9 +590,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 
-	public boolean hasParameters(String key) {
+	public boolean hasParameters(String key, int lineno) {
 		
-		SVDBMacroDef m = fMacroProvider.findMacro(key, -1);
+		SVDBMacroDef m = fMacroProvider.findMacro(key, lineno);
 		
 		if (m != null) {
 			return (m.getParameters().size() != 0);
