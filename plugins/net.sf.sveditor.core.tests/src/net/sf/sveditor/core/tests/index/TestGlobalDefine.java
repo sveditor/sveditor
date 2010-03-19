@@ -84,7 +84,6 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testArgFileIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -114,7 +113,6 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testSourceCollectionIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");

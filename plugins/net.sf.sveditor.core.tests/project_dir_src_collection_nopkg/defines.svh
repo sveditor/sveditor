@@ -1,4 +1,5 @@
 
+`include "subdir/defines2.svh"
 
 `define make_function(name) \
     function void name (); \

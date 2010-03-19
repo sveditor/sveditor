@@ -145,8 +145,6 @@ public class TestFilesystemLibPersistence extends TestCase {
 	public void testFSLibIndexFilelistChangeDetected() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
-		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {

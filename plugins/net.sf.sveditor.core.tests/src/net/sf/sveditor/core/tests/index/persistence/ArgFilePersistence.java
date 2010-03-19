@@ -56,8 +56,6 @@ public class ArgFilePersistence extends TestCase {
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
-		
 		IProject project_dir = TestUtils.createProject("project");
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);

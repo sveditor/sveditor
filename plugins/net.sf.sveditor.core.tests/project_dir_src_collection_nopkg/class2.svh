@@ -11,6 +11,8 @@ class class2;
 	
 	`make_function(def_function)
 	
+	`make_task(def_task)
+	
 	`accessor_func
 	
 	function int get_data();

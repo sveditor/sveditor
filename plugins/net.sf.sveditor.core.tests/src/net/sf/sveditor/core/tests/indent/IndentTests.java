@@ -38,8 +38,6 @@ public class IndentTests extends TestCase {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
-		// SVCorePlugin.getDefault().enableDebug(true);
-		
 		bos = utils.readBundleFile("/indent/class1.svh");
 		
 		String ref = bos.toString();
@@ -114,8 +112,6 @@ public class IndentTests extends TestCase {
 	public void testModule() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		ByteArrayOutputStream bos;
-		
-		SVCorePlugin.getDefault().enableDebug(true);
 		
 		bos = utils.readBundleFile("/indent/module.svh");
 		

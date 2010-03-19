@@ -495,13 +495,18 @@ public class SVDefaultIndenter {
 				tok = next_s();
 				if (tok.isOp("{")) {
 					lb_count++;
+					push_indent();
 				} else if (tok.isOp("}")) {
 					rb_count++;
+					pop_indent();
+					set_indent(tok);
 				}
 			} while (lb_count != rb_count);
 			
+			/*
 			pop_indent();
 			set_indent(tok);
+			 */
 		}
 		
 		tok = next_s();

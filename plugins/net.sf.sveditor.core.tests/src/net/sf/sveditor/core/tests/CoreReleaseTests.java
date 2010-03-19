@@ -21,9 +21,9 @@ import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 
-public class ReleaseTests extends TestSuite {
+public class CoreReleaseTests extends TestSuite {
 	
-	public ReleaseTests() {
+	public CoreReleaseTests() {
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(IndentTests.suite());
 		addTest(ContentAssistTests.suite());
@@ -60,7 +60,7 @@ public class ReleaseTests extends TestSuite {
 		
 		return suite;
 		 */
-		return new ReleaseTests();
+		return new CoreReleaseTests();
 	}
 	
 }

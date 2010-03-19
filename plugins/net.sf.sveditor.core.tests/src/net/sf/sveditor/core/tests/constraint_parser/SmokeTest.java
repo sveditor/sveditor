@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -24,13 +25,10 @@ import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.expr.parser.SVConstraintExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintSetExpr;
 import net.sf.sveditor.core.expr.parser.SVExpr;
 import net.sf.sveditor.core.expr.parser.SVExprDump;
 import net.sf.sveditor.core.expr.parser.SVExprParseException;
 import net.sf.sveditor.core.expr.parser.SVExprParser;
-import junit.framework.TestCase;
 
 public class SmokeTest extends TestCase {
 	

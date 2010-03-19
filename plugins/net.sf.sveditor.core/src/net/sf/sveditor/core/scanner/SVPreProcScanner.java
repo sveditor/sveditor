@@ -15,7 +15,9 @@ package net.sf.sveditor.core.scanner;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.log.LogFactory;
@@ -50,7 +52,27 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fUnaccBuffer;
 	private boolean				fInString;
 	private int					fLastChPP;
+	private static final Set<String>	fIgnoredDirectives;
 	private static LogHandle	fLog = LogFactory.getLogHandle("SVPreProcScanner");
+	
+	static {
+		fIgnoredDirectives = new HashSet<String>();
+		fIgnoredDirectives.add("begin_keywords");
+		fIgnoredDirectives.add("celldefine");
+		fIgnoredDirectives.add("default_nettype");
+		fIgnoredDirectives.add("end_keywords");
+		fIgnoredDirectives.add("endcelldefine");
+		// Ignored for now
+		fIgnoredDirectives.add("line");
+		fIgnoredDirectives.add("nounconnected_drive");
+		fIgnoredDirectives.add("timescale");
+		// Ignored for now
+		fIgnoredDirectives.add("resetall");
+		fIgnoredDirectives.add("unconnected_drive");
+		// Ignored for now
+		fIgnoredDirectives.add("undef");
+		fIgnoredDirectives.add("undefineall");
+	}
 
 	
 	public SVPreProcScanner() {
@@ -385,16 +407,9 @@ public class SVPreProcScanner implements ISVScanner {
 					fObserver.leave_preproc_conditional();
 				}
 			}
-		} else if (type.equals("undef")) {
-			// Ignore
+		} else if (fIgnoredDirectives.contains(type)) {
+			// Skip entire line 
 			readLine_ll(get_ch_ll());
-		} else if (type.equals("timescale")) {
-			// ignore
-			// TODO: read to line-end
-			readLine_ll(skipWhite_ll(get_ch_ll()));
-		} else if (type.equals("begin_keywords") || type.equals("end_keywords")) {
-			// TODO: read to line-end 
-			readLine_ll(skipWhite_ll(get_ch_ll()));
 		} else if (type.equals("define")) {
 			String def_id = null;
 

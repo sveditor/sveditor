@@ -503,7 +503,10 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 					break;
 				}
 
-				t = readTypeName(ch, true);
+				if ((t = readTypeName(ch, true)) == null) {
+					break;
+				}
+			
 				ch = get_ch();
 				
 				ch = skipWhite(ch);
@@ -516,7 +519,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 				// Should be name of 
 				n = readIdentifier(ch);
 				ch = get_ch();
-				
+
 				while (ch == '[') {
 					startCapture(ch);
 					ch = skipPastMatch("[]", ",;");

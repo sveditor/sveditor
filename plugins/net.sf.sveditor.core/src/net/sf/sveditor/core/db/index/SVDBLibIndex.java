@@ -74,11 +74,16 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	public String getTypeName() {
 		return "LibraryIndex";
 	}
-
+	
 	protected void initPaths() {
 		// Add an include path for the base directory
 		fIncludePaths.clear();
 		fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
+	}
+	
+	public Map<String, SVDBFileTree> getFileTreeMap() {
+		getPreProcFileMap(); // Ensure the map is built
+		return fFileTreeMap;
 	}
 
 	public void addChangeListener(ISVDBIndexChangeListener l) {}
@@ -273,18 +278,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		return true;
 	}
 	
-	private void find_foo(SVDBScopeItem parent) {
-		for (SVDBItem it : parent.getItems()) {
-			if (it instanceof SVDBScopeItem) {
-				find_foo((SVDBScopeItem)it);
-			} else if (it.getType() == SVDBItemType.Macro) {
-				if (it.getName().startsWith("foo")) {
-					fLog.debug("Macro \"" + it.getName() + "\" defined");
-				}
-			}
-		}
-	}
-
 	public SVDBFile parse(InputStream in, String path) {
 		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
 		
@@ -327,7 +320,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			
 			fLog.debug("Processed pre-proc file");
 			
-			find_foo(svdb_f);
 			file_tree.setSVDBFile(svdb_f);
 		}
 		
@@ -546,6 +538,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 				if (f != null) {
 					fLog.debug("Found include file \"" + it.getName() + "\" in index \"" + 
 							f.getIndex().getBaseLocation() + "\"");
+					fLog.debug("Adding included file \"" + it.getName() + " to FileTree \"" +
+							root.getFilePath() + "\"");
 					SVDBFileTree ft = new SVDBFileTree((SVDBFile)f.getItem().duplicate());
 					root.getIncludedFiles().add(ft);
 					buildPreProcFileMap(root, ft);

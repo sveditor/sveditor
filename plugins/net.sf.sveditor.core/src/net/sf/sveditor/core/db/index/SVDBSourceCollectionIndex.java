@@ -158,11 +158,15 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		getPreProcFileMap(); // force pre-proc info to be built
 		
 		for (SVDBFile pp_file : fModIfcClsFiles) {
-			dump_file_tree("ROOT", fFileTreeMap.get(pp_file.getFilePath()));
+			if (fFileTreeMap.get(pp_file.getFilePath()) != null) {
+				dump_file_tree("ROOT", fFileTreeMap.get(pp_file.getFilePath()));
+			}
 		}
 
 		for (SVDBFile pp_file : fUnincludedFiles) {
-			dump_file_tree("UNINC", fFileTreeMap.get(pp_file.getFilePath()));
+			if (fFileTreeMap.get(pp_file.getFilePath()) != null) {
+				dump_file_tree("UNINC", fFileTreeMap.get(pp_file.getFilePath()));
+			}
 		}
 
 		for (SVDBFile pp_file : fModIfcClsFiles) {

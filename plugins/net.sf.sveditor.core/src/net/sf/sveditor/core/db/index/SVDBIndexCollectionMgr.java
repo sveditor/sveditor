@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;

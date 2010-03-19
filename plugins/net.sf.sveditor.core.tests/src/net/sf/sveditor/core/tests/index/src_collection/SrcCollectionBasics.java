@@ -38,7 +38,6 @@ public class SrcCollectionBasics extends TestCase {
 		System.out.println("setUp");
 		super.setUp();
 		
-		SVCorePlugin.getDefault().enableDebug(true);
 		fTmpDir = TestUtils.createTempDir();
 	}
 
@@ -81,8 +80,6 @@ public class SrcCollectionBasics extends TestCase {
 		
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
-			
-			System.out.println("it: " + tmp_it.getType() + " " + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				class1 = tmp_it;
@@ -139,17 +136,90 @@ public class SrcCollectionBasics extends TestCase {
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
 		SVDBItem def_function = null;
+		SVDBItem def_task = null;
 		List<SVDBItem> markers = new ArrayList<SVDBItem>();
 		
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
 			
-			System.out.println("it: " + tmp_it.getType() + " " + tmp_it.getName());
-			
 			if (tmp_it.getName().equals("class1")) {
 				class1 = tmp_it;
 			} else if (tmp_it.getName().equals("class2")) {
 				class2 = tmp_it;
+			} else if (tmp_it.getName().equals("class3")) {
+				class3 = tmp_it;
+			} else if (tmp_it.getName().equals("def_function")) {
+				def_function = tmp_it;
+			} else if (tmp_it.getName().equals("def_task")) {
+				def_task = tmp_it;
+			} else if (tmp_it.getType() == SVDBItemType.Marker) {
+				markers.add(tmp_it);
+			}
+		}
+
+		for (SVDBItem warn : markers) {
+			System.out.println("SVDBMarkerItem: " + 
+					((SVDBMarkerItem)warn).getMessage());
+		}
+		
+		assertEquals("Confirm no warnings", 0, markers.size());
+		assertNotNull("located class1", class1);
+		assertNotNull("located class2", class2);
+		assertNotNull("located class3", class3);
+		assertNotNull("located def_function", def_function);
+		assertNotNull("located def_task", def_task);
+		assertEquals("class1", class1.getName());
+		
+		// rgy.save_state();
+
+	}
+
+	/**
+	 * Tests that module hierarchies are correctly compiled and
+	 * defines from included files are located. Also ensures that
+	 * `celldefine directives are processed properly
+	 */
+	public void testFindSourceRecurseModule() {
+		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			project_dir.delete();
+		}
+		
+		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(project_dir);
+		
+		File path = new File(project_dir, "project_dir_src_collection_module");
+		ISVDBIndex index = rgy.findCreateIndex(
+				project_dir.getName(), path.getAbsolutePath(), 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBItem top=null, top_t=null, sub=null;
+		SVDBItem class1 = null;
+		SVDBItem class3 = null;
+		SVDBItem def_function = null;
+		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			System.out.println("tmp_it=" + tmp_it.getName());
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1 = tmp_it;
+			} else if (tmp_it.getName().equals("top")) {
+				top = tmp_it;
+			} else if (tmp_it.getName().equals("top_t")) {
+				top_t = tmp_it;
+			} else if (tmp_it.getName().equals("sub")) {
+				sub = tmp_it;
 			} else if (tmp_it.getName().equals("class3")) {
 				class3 = tmp_it;
 			} else if (tmp_it.getName().equals("def_function")) {
@@ -166,13 +236,12 @@ public class SrcCollectionBasics extends TestCase {
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
 		assertNotNull("located class1", class1);
-		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
+		assertNotNull("located top", top);
+		assertNotNull("located top_t", top_t);
+		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
 		assertEquals("class1", class1.getName());
-		
-		// rgy.save_state();
-
 	}
 
 	public void testBasicClassIncludingModule() {

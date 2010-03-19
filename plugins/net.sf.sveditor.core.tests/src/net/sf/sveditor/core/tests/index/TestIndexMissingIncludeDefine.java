@@ -14,8 +14,6 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IProject;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
@@ -28,6 +26,8 @@ import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.resources.IProject;
 
 public class TestIndexMissingIncludeDefine extends TestCase {
 	
@@ -98,6 +98,8 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	public void testWSSourceCollectionMissingIncludeDefine() {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
 		IProject project_dir = TestUtils.createProject("ws_sc_project");
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
@@ -123,11 +125,16 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 					((AbstractSVDBIndex)index).getFileSystemProvider());
 		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
-		
 		// Force the file database to be built
+
+		/*
+		String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
+		InputStream in = fs_provider_m.openStream(path);
+		index.parse(in, path);
+		 */
+
 		index.getFileDB();
-		
+
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
 	}

@@ -52,8 +52,6 @@ public class WSArgFileIndexChanges extends TestCase {
 	private void int_testArgFileChange(File tmpdir) {
 		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
-		
 		final IProject project_dir = TestUtils.createProject("project");
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);

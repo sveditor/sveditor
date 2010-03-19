@@ -48,8 +48,6 @@ public class TestBuiltinIndex extends TestCase {
 	public void testBuiltinIndexNoErrors() {
 		File tmpdir = new File(fTmpDir, "no_errors");
 		
-		SVCorePlugin.getDefault().enableDebug(true);
-		
 		if (tmpdir.exists()) {
 			tmpdir.delete();
 		}

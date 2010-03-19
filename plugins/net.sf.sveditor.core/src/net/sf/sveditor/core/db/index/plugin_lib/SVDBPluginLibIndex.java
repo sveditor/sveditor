@@ -15,14 +15,8 @@ package net.sf.sveditor.core.db.index.plugin_lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -33,7 +27,8 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
-public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemProvider {
+public class SVDBPluginLibIndex extends SVDBLibIndex 
+						implements ISVDBFileSystemProvider {
 	private Bundle					fBundle;
 	private String					fPluginNS;
 	private String					fRootFile;
@@ -56,9 +51,6 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		fBundle = Platform.getBundle(fPluginNS);
 		
 		fLog.debug("RootFile: " + fRootFile + " Root: " + fRoot);
-		
-		fPreProcFileMap = new HashMap<String, SVDBFile>();
-		fIndexFileMap = new HashMap<String, SVDBFile>();
 	}
 	
 	public SVDBPluginLibIndex(
@@ -78,17 +70,13 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			root = "/" + root;
 		}
 		fBundle = Platform.getBundle(fPluginNS);
-		
-		
-		
-		fPreProcFileMap = new HashMap<String, SVDBFile>();
-		fIndexFileMap = new HashMap<String, SVDBFile>();
 	}
 	
 	public String getTypeID() {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
 	
+	/*
 	@SuppressWarnings("unchecked")
 	protected List<String> getFileList() {
 		String root_dir = SVFileUtils.getPathParent(fRootFile);
@@ -137,6 +125,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		
 		return ret;
 	}
+	 */
 	
 	public void addMarker(String path, String type, int lineno, String msg) {}
 
