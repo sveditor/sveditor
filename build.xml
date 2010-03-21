@@ -46,7 +46,7 @@
             </filterset>
         </copy>
 
-        <mkdir dir="release/update_site"/>
+        <mkdir dir="${basedir}/release/update_site"/>
   
         <unzip src="${basedir}/sveditor-${feature.version}.jar"
                dest="${basedir}/release/update_site"/>
@@ -56,19 +56,20 @@
         </exec>
 
         <delete dir="${basedir}/release"/> 
+        <delete dir="${buildDirectory}"/>
     </target>
 
     <target name="compile"> 
-        <delete dir="${basedir}/build"/>
-        <mkdir dir="${basedir}/build"/>
-        <copy todir="${basedir}/build">
+        <delete dir="${buildDirectory}"/>
+        <mkdir dir="${buildDirectory}"/>
+        <copy todir="${buildDirectory}">
             <fileset dir="${srcdir}">
                 <include name="plugins/**"/>
                 <include name="features/**"/>
                 <exclude name="**/*.svn/**"/>
             </fileset>
         </copy>
-        <copy todir="${basedir}/build" overwrite="true">
+        <copy todir="${buildDirectory}" overwrite="true">
             <fileset dir="${srcdir}" 
                 includes="features/**/*.xml, plugins/**/*.xml, plugins/**/*.MF, plugins/**/*.properties"/>
             <filterset begintoken="1" endtoken="3">
@@ -113,18 +114,7 @@
             </filterset>
         </copy>
 
-<!--
-        <copy todir="${basedir}">
-            <fileset dir="${basedir}/etc/new_release_fragment.xml">
-                <include name="new_release_fragment.xml"/>
-            </fileset>
-            <filterset begintoken="1" endtoken="3">
-                <filter token=".2." value="${feature.version}"/>
-            </filterset>
-        </copy>
-  -->
-
-        <unzip src="${basedir}/build/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
+        <unzip src="${buildDirectory}/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
                dest="${basedir}/archive_tmp"/>
 
         <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 

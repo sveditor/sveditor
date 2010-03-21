@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -126,15 +127,20 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
 		
 		// Force the file database to be built
+		index.getFileDB();
+		assertEquals("Expecting a total of two errors", 
+				2, fs_provider_m.getMarkers().size());
 
-		/*
+		// Ensure that the define- and include-missing markers exist
+		fs_provider_m.getMarkers().clear();
 		String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
 		InputStream in = fs_provider_m.openStream(path);
 		index.parse(in, path);
-		 */
-
-		index.getFileDB();
-
+		
+		for (String err : fs_provider_m.getMarkers()) {
+			System.out.println("[MARKER] " + err);
+		}
+		
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
 	}

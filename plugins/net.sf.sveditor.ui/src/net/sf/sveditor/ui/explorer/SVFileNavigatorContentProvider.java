@@ -12,11 +12,13 @@
 
 package net.sf.sveditor.ui.explorer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
@@ -43,7 +45,7 @@ public class SVFileNavigatorContentProvider
 	
 	public SVFileNavigatorContentProvider() {
 		SVCorePlugin.getDefault().getProjMgr().addProjectSettingsListener(this);
-		fLog = LogFactory.getDefault().getLogHandle("SVFileNavigatorContentProvider");
+		fLog = LogFactory.getLogHandle("SVFileNavigatorContentProvider");
 	}
 	
 	
@@ -99,7 +101,20 @@ public class SVFileNavigatorContentProvider
 				svdb_file = res.get(0).getItem();
 			}
 			
-			return (svdb_file != null)?svdb_file.getItems().toArray():new Object[0];
+			
+			if (svdb_file != null) {
+				List<SVDBItem> ret = new ArrayList<SVDBItem>();
+				
+				for (SVDBItem it : svdb_file.getItems()) {
+					if (it.getType() != SVDBItemType.Marker) {
+						ret.add(it);
+					}
+				}
+				
+				return ret.toArray();
+			} else {
+				return new Object[0];
+			}
 		} else if (parentElement instanceof SVDBScopeItem &&
 				!(parentElement instanceof SVDBTaskFuncScope)) {
 			return ((SVDBScopeItem)parentElement).getItems().toArray();

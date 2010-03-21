@@ -16,7 +16,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
 public class SVHierarchyViewerSorter extends ViewerSorter {
-	private boolean			fSortByDefiningType;
+	// private boolean			fSortByDefiningType;
 
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {

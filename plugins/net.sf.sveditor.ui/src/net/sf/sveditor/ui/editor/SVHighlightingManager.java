@@ -20,8 +20,10 @@ import org.eclipse.jface.text.source.SourceViewer;
 public class SVHighlightingManager {
 	
 	private static EnumMap<SVEditorColors, TextAttribute>		fHighlightAttr;
+	/*
 	private SVHightingPresenter			fPresenter;
 	private SVPresentationReconciler	fReconciler;
+	 */
 	
 	static {
 		if (fHighlightAttr == null) {
@@ -41,8 +43,8 @@ public class SVHighlightingManager {
 			SourceViewer 				viewer, 
 			SVPresentationReconciler 	rec, 
 			SVEditor 		editor) {
-		fPresenter = new SVHightingPresenter();
 		/*
+		fPresenter = new SVHightingPresenter();
 		fPresenter.install(viewer, rec);
 		fReconciler = new SVPresentationReconciler();
 		fReconciler.install(this, fPresenter, editor);

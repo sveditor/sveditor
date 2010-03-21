@@ -183,10 +183,11 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	 * to the specified DB object (typically the Index DB)
 	 * @param db_file
 	 */
-	protected void propagateMarkersPreProc2DB(SVDBFile db_file) {
+	protected void propagateMarkersPreProc2DB(
+			SVDBFileTree	ft,
+			SVDBFile		svdb_pp,
+			SVDBFile 		db_file) {
 		String path_s = db_file.getFilePath();
-		SVDBFile svdb_pp = findPreProcFile(path_s);
-		SVDBFileTree ft = fFileTreeMap.get(path_s);
 		
 		for (SVDBItem it : svdb_pp.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
@@ -280,14 +281,15 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	
 	public SVDBFile parse(InputStream in, String path) {
 		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
-		
+
 		path = SVFileUtils.normalize(path);
-		
+
 		InputStreamCopier copier = new InputStreamCopier(in);
 		in = null;
-		
+
+		// Ensure database is built
 		getFileDB();
-		
+
 		SVDBFileTree file_tree = fFileTreeMap.get(path);
 
 		if (file_tree == null) {
@@ -302,45 +304,39 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			if (svdb_f != null) {
 				file_tree = new SVDBFileTree((SVDBFile)svdb_f.duplicate());
 			} else {
-				fLog.error("Failed to find pre-proc file \"" + path + "\" during parse()");
+				debug("path \"" + path + "\" not in FileTree map");
+				for (SVDBFileTree ft : fFileTreeMap.values()) {
+					debug("    " + ft.getFilePath());
+				}
+				return null;
 			}
-		} else {
-			SVPreProcScanner 	sc = new SVPreProcScanner();
-			SVDBPreProcObserver ob = new SVDBPreProcObserver();
-			sc.setObserver(ob);
-			
-			file_tree = file_tree.duplicate();
-			
-			sc.init(copier.copy(), path);
-			sc.scan();
-			
-			SVDBFile svdb_f = ob.getFiles().get(0);
-
-			addMarkers(file_tree.getFilePath(), file_tree.getSVDBFile());
-			
-			fLog.debug("Processed pre-proc file");
-			
-			file_tree.setSVDBFile(svdb_f);
 		}
+
+		SVPreProcScanner 	sc = new SVPreProcScanner();
+		SVDBPreProcObserver ob = new SVDBPreProcObserver();
+		sc.setObserver(ob);
+
+		file_tree = file_tree.duplicate();
+
+		sc.init(copier.copy(), path);
+		sc.scan();
+
+		SVDBFile svdb_pp = ob.getFiles().get(0);
+
+		fLog.debug("Processed pre-proc file");
+
+		fFileSystemProvider.clearMarkers(file_tree.getFilePath());
+		file_tree.setSVDBFile(svdb_pp);
+		addIncludeFiles(file_tree, file_tree.getSVDBFile());
 		
-		if (file_tree != null) {
-			fDefineProvider.setMacroProvider(createMacroProvider(file_tree));
-			SVDBFile svdb_f = scanner.parse(copier.copy(), file_tree.getFilePath());
-			svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
-			
-			fFileSystemProvider.clearMarkers(path);
+		fDefineProvider.setMacroProvider(createMacroProvider(file_tree));
+		SVDBFile svdb_f = scanner.parse(copier.copy(), file_tree.getFilePath());
+		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
-			addMarkers(path, svdb_f);
-			
-			
-			return svdb_f;
-		} else {
-			debug("path \"" + path + "\" not in FileTree map");
-			for (SVDBFileTree ft : fFileTreeMap.values()) {
-				debug("    " + ft.getFilePath());
-			}
-			return null;
-		}
+		propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
+		addMarkers(path, svdb_f);
+
+		return svdb_f;
 	}
 	
 	/**
@@ -495,7 +491,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fFileSystemProvider.clearMarkers(path_s);
 		
 		// Reflect markers from pre-processor to index database
-		propagateMarkersPreProc2DB(svdb_f);
+		propagateMarkersPreProc2DB(path, fPreProcFileMap.get(path_s), svdb_f);
 		addMarkers(path_s, svdb_f);
 		
 		if (fIndexFileMap.containsKey(path.getFilePath())) {

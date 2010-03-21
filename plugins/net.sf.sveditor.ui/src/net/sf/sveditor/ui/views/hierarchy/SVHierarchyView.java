@@ -13,9 +13,7 @@
 package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -37,16 +35,16 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.part.MessagePage;
-import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.ViewPart;
 
 public class SVHierarchyView extends ViewPart implements SelectionListener {
 	
 	private TreeViewer					fClassTree;
 	private TableViewer					fMemberList;
+	/*
 	private PageBook					fPageBook;
 	private MessagePage					fNoSelPage;
+	 */
 	private HierarchyTreeNode			fTarget;
 	private HierarchyTreeNode			fRoot;
 	private SVTreeContentProvider		fMemberContentProvider;
@@ -54,11 +52,13 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 	private Label						fSelectedClass;
 	private SVHierarchyViewerFilter		fViewerFilter;
 	private Button						fShowInheritedMembers;
+	/*
 	private Button						fHideFields;
 	private Button						fHideStatic;
 	private Button						fHideNonPublic;
 	
 	private Button						fSortByDefiningType;
+	 */
 
 	@Override
 	public void createPartControl(Composite parent) {

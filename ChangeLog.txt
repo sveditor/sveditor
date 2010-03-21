@@ -1,3 +1,24 @@
+-- 0.1.6 Release --
+
+- Correct include-pathing issue for nested defines. 
+
+- Correct macro-resolution bug for macros defined in sub-included files
+
+- Update list of supported directives. Most of these are ignored for now, but
+  produce no errors.
+    - `celldefine 
+    - `endcelldefine
+    - `line
+    - `nounconnected_drive
+    - `resetall
+    - `unconnected_drive
+    - `undef
+    - `undefineall
+
+- Fix project explorer to not display error markers as part of the file structure
+
+? Missing include not propagated to SVDBFile returned from parse()
+
 
 -- 0.1.5 Release --
 

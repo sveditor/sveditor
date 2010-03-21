@@ -68,13 +68,15 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	
 	private void reconcileSource() {
 		if (fDocument != null) {
+			/*
 			long modTS;
 			String content;
+			 */
 			
 			synchronized(getLockObject()) {
-				content = fDocument.get();
+				/* content = */ fDocument.get();
 				
-				modTS = ((IDocumentExtension4)fDocument).getModificationStamp();
+				/* modTS = */ ((IDocumentExtension4)fDocument).getModificationStamp();
 			}
 		}
 		

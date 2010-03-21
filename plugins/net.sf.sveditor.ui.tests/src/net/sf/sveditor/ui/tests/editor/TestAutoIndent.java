@@ -101,6 +101,51 @@ public class TestAutoIndent extends TestCase {
 		assertEquals("Covergroup indent failed", expected, result);
 	}
 
+	public void disabled_testCaseStatement() throws BadLocationException {
+		String input = 
+			"class foobar;\n" +
+			"\n" +
+			"function void foobar();\n" +
+			"case" +
+			"covergroup foobar;\n\n" +
+			"var_cp : coverpoint (var) iff (var_cond);\n\n" +
+			"var2_cp : coverpoint (var) iff (var_cond) {\n" +
+			"bins subrange1[] = {[0:3]};\n" +
+			"bins subrange2[] = {\n" +
+			"[0:3],\n" +
+			"[4:7]\n" +
+			"};\n" +
+			"}\n" +
+			"endgroup\n";
+		String expected =
+			"class foobar;\n" +
+			"\t\n" +
+			"\tcovergroup foobar;\n" +
+			"\t\t\n" +
+			"\t\tvar_cp : coverpoint (var) iff (var_cond);\n" +
+			"\t\t\n" +
+			"\t\tvar2_cp : coverpoint (var) iff (var_cond) {\n" +
+			"\t\t\tbins subrange1[] = {[0:3]};\n" +
+			"\t\t\tbins subrange2[] = {\n" +
+			"\t\t\t\t[0:3],\n" +
+			"\t\t\t\t[4:7]\n" +
+			"\t\t\t};\n" +
+			"\t\t}\n" +
+			"\tendgroup\n" +
+			"\t";
+		
+		AutoEditTester tester = createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+		
+		
+		if (!expected.equals(result)) {
+			System.out.println("result=\"" + result + "\"");
+			System.out.println("expected=\"" + expected + "\"");
+		}
+		assertEquals("Covergroup indent failed", expected, result);
+	}
+
 	public void disabled_testModifyIndent() throws BadLocationException {
 		int offset1, offset2;
 		AutoEditTester tester = createAutoEditTester();

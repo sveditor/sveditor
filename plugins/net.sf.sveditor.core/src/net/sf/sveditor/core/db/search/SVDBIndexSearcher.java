@@ -52,10 +52,9 @@ public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 	}
 
 	public SVDBModIfcClassDecl findNamedModClassIfc(String name) {
-		SVDBModIfcClassDecl c;
-
 		System.out.println("[FIXME] findNamedModClassIfc(" + name + ")");
 		/*
+		SVDBModIfcClassDecl c;
 		for (SVDBFile f : fFiles) {
 			if ((c= findNamedModClass(name, f)) != null) {
 				return c;
@@ -78,8 +77,10 @@ public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 	}
 
 	public void visitItems(ISVDBItemVisitor visitor, SVDBItemType type) {
+		/*
 		for (SVDBIndexCollectionMgr c : fIndexCollection) {
 		}
+		 */
 	}
 
 	public void visitItemsInTypeHierarchy(SVDBScopeItem scope,
@@ -89,9 +90,11 @@ public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 	}
 	
 	public SVDBFile findIncludedFile(String path) {
+		/*
 		for (SVDBIndexCollectionMgr c : fIndexCollection) {
 			
 		}
+		 */
 		return null;
 	}
 

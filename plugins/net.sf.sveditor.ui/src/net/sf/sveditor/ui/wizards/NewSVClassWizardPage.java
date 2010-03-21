@@ -43,7 +43,7 @@ public class NewSVClassWizardPage extends WizardPage {
 	private String					fNameStr;
 	
 	private Text					fSuperClass;
-	private String					fSuperClassStr;
+//	private String					fSuperClassStr;
 	private Button					fSuperClassBrowse;
 	
 	
