@@ -139,10 +139,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
 				for (SVDBFileTree inc : context.getIncludedFiles()) {
 					debug_s(indent(fIndent) + "    searching included file \"" + inc.getFilePath() + "\"");
-					if (inc.getSVDBFile() == null) {
-						fLog.error("[TODO] do lookup of inc file \"" + 
-								inc.getFilePath() + "\"");
-					} else {
+					if (inc.getSVDBFile() != null) {
 						if ((m = searchDown(boundary, inc, key)) != null) {
 							break;
 						}

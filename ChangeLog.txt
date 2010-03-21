@@ -17,9 +17,6 @@
 
 - Fix project explorer to not display error markers as part of the file structure
 
-? Missing include not propagated to SVDBFile returned from parse()
-
-
 -- 0.1.5 Release --
 
 - Resolve a bug in indent support for always 
