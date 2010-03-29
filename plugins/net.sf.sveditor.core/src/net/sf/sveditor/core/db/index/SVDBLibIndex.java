@@ -50,7 +50,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			String 					project, 
 			String 					root,
 			ISVDBFileSystemProvider fs_provider) {
-		super(project, fs_provider);
+		super(project, null);
 		
 		fDefineProvider = new SVPreProcDefineProvider(null);
 		fFileTreeMap 	= new HashMap<String, SVDBFileTree>();
@@ -60,11 +60,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		fIncludePaths = new ArrayList<String>();
 		
-		// Initialize the filesystem interface
-		if (fFileSystemProvider != null) {
-			fFileSystemProvider.init(fResolvedRoot);
-			fFileSystemProvider.addFileSystemChangeListener(this);
-		}
+		setFileSystemProvider(fs_provider);
 	}
 	
 	public String getTypeID() {
@@ -81,21 +77,29 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
 	}
 	
+	@Override
+	public void setFileSystemProvider(ISVDBFileSystemProvider fsProvider) {
+		if (fFileSystemProvider != null) {
+			fFileSystemProvider.removeFileSystemChangeListener(this);
+		}
+		super.setFileSystemProvider(fsProvider);
+		
+		if (fFileSystemProvider != null) {
+			fFileSystemProvider.init(getResolvedBaseLocation());
+			fFileSystemProvider.addFileSystemChangeListener(this);
+		}
+	}
+
 	public Map<String, SVDBFileTree> getFileTreeMap() {
 		getPreProcFileMap(); // Ensure the map is built
 		return fFileTreeMap;
 	}
 
-	public void addChangeListener(ISVDBIndexChangeListener l) {}
-	public void removeChangeListener(ISVDBIndexChangeListener l) {}
-
-	
 	public String getBaseLocation() {
 		return fRoot;
 	}
 	
 	public String getResolvedBaseLocation() {
-
 		if (fResolvedRoot == null) {
 			fResolvedRoot = SVDBIndexUtil.expandVars(fRoot, true);
 		}
@@ -293,7 +297,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		SVDBFileTree file_tree = fFileTreeMap.get(path);
 
 		if (file_tree == null) {
-			fLog.error("File \"" + path + "\" not in FileTreeMap of " + getResolvedBaseLocation());
+			fLog.error("parse: File \"" + path + "\" not in FileTreeMap of " + getResolvedBaseLocation());
 			for (SVDBFileTree ft : fFileTreeMap.values()) {
 				fLog.error("    " + ft.getFilePath());
 			}
@@ -426,6 +430,10 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		processFile(ft_root, mp);
 		
 		fIndexFileMapValid = true;
+
+		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+			l.index_rebuilt();
+		}
 		
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
@@ -477,13 +485,18 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 
 		InputStream in = fFileSystemProvider.openStream(path_s);
 		
-		
 		if (in == null) {
 			fLog.error("Failed to open file \"" + path_s + "\"");
 		}
+		
 		BufferedInputStream in_b = new BufferedInputStream(in);
 
 		SVDBFile svdb_f = scanner.parse(in_b, path.getFilePath());
+
+		// Problem parsing the file..
+		if (svdb_f == null) {
+			return;
+		}
 		
 		svdb_f.setLastModified(
 				fFileSystemProvider.getLastModifiedTime(path.getFilePath()));

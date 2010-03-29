@@ -15,6 +15,13 @@ package net.sf.sveditor.core;
 import java.io.File;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
+
 public class SVFileUtils {
 	private static Pattern					fWinPathPattern;
 	
@@ -32,5 +39,35 @@ public class SVFileUtils {
 		return fWinPathPattern.matcher(path).replaceAll("/");
 	}
 	
+	public static IContainer getWorkspaceFolder(String path) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource r = null;
+		IProject  p = null;
+
+		try {
+			if ((r = root.getFolder(new Path(path))) != null && r.exists()) {
+				return (IContainer)r;
+			}
+		} catch (IllegalArgumentException e) {
+			// ignore, since this probably means we're looking at a project
+		}
+		
+		// See if this is a project root
+		String pname = path;
+		if (pname.startsWith("/")) {
+			pname = pname.substring(1);
+		}
+		if (pname.endsWith("/")) {
+			pname = pname.substring(0, pname.length()-1);
+		}
+		for (IProject p_t : root.getProjects()) {
+			if (p_t.getName().equals(pname)) {
+				p = p_t;
+				break;
+			}
+		}
+		
+		return p;
+	}
 
 }

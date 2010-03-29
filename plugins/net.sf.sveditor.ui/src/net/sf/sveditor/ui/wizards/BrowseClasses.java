@@ -17,19 +17,25 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
+import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -40,40 +46,54 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 
 public class BrowseClasses extends SelectionStatusDialog 
-	implements IStructuredContentProvider, ILabelProvider {
+	implements IStructuredContentProvider {
 	
 	private Text					fClassName;
 	private String					fClassNameStr;
 	private boolean					fModifyInProgress;
 	
-	private ListViewer				fClassList;
+	private TableViewer				fClassList;
+	private SVDBModIfcClassDecl		fSelectedClass;
 	private ISVDBIndexIterator		fIndexIt;
 	private List<SVDBItem>			fProposals;
 	
-	public BrowseClasses(
-			Shell 					shell,
-			ISVDBIndexIterator		index_it) {
+	public BrowseClasses(Shell shell, ISVDBIndexIterator index_it) {
 		super(shell);
 		fIndexIt = index_it;
 		fProposals = new ArrayList<SVDBItem>();
+		setTitle("Browse Classes");
+		setStatusLineAboveButtons(true);
+	}
+	
+	public void setClassName(String classname) {
+		fClassNameStr = classname;
+		if (fClassName != null) {
+			fClassName.setText(fClassNameStr);
+		}
+	}
+	
+	public SVDBModIfcClassDecl getSelectedClass() {
+		return fSelectedClass;
 	}
 	
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Label l;
+		GridData gd;
 		
 		Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
+		c.setLayout(new GridLayout(2, false));
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.widthHint = 320;
+		gd.heightHint = 320;
+		c.setLayoutData(gd);
 		
-		Composite name_c = new Composite(c, SWT.NONE);
-		name_c.setLayout(new GridLayout(2, false));
-		l = new Label(name_c, SWT.NONE);
+		l = new Label(c, SWT.NONE);
 		l.setText("Name:");
 		
-		fClassName = new Text(name_c, SWT.BORDER);
+		fClassName = new Text(c, SWT.BORDER);
 		fClassName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fClassName.addModifyListener(new ModifyListener() {
-			
 			public void modifyText(ModifyEvent e) {
 				fClassNameStr = fClassName.getText();
 				if (!fModifyInProgress) {
@@ -82,12 +102,34 @@ public class BrowseClasses extends SelectionStatusDialog
 			}
 		});
 		
-		fClassList = new ListViewer(c);
-		fClassList.getControl().setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, true));
+		fClassList = new TableViewer(c, SWT.SINGLE);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 2;
+		fClassList.getControl().setLayoutData(gd);
 		fClassList.setContentProvider(this);
+		fClassList.setLabelProvider(new SVTreeLabelProvider());
 		fClassList.setInput(fProposals);
-		
+		fClassList.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)fClassList.getSelection();
+				
+				if (sel.getFirstElement() == null) {
+					fSelectedClass = null;
+					updateStatus(new Status(IStatus.ERROR, SVUiPlugin.PLUGIN_ID, "No class selected"));
+				} else {
+					fSelectedClass = (SVDBModIfcClassDecl)sel.getFirstElement();
+					updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
+							"Selected class \"" + fSelectedClass.getName() + "\""));
+				}
+			}
+		});
+
+		if (fClassNameStr != null) {
+			fClassName.setText(fClassNameStr);
+		} else {
+			fClassName.setText("");
+		}
+		updateProposals();
 
 		return c;
 	}
@@ -98,17 +140,33 @@ public class BrowseClasses extends SelectionStatusDialog
 		List<SVDBItem> proposals = null;
 		
 		fProposals.clear();
-		if (!fClassNameStr.equals("")) { 
-			proposals = finder.find(fClassNameStr, SVDBItemType.Class);
-			fProposals.addAll(proposals);
+		IStructuredSelection sel = (IStructuredSelection)fClassList.getSelection();
+		if (fClassNameStr == null) {
+			fClassNameStr = "";
 		}
+		proposals = finder.find(fClassNameStr, SVDBItemType.Class);
+		fProposals.addAll(proposals);
+
+		for (SVDBItem cls : fProposals) {
+			if (cls.getName().equals(fClassNameStr)) {
+				sel = new StructuredSelection(cls);
+			}
+		}
+		fClassList.setSelection(sel);
 		fClassList.refresh();
+		
+		sel = (IStructuredSelection)fClassList.getSelection();
+		if (sel != null && sel.getFirstElement() != null) {
+			fSelectedClass = (SVDBModIfcClassDecl)sel.getFirstElement();
+			updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
+					"Selected class \"" + fSelectedClass.getName() + "\""));
+		} else {
+			updateStatus(new Status(IStatus.ERROR, SVUiPlugin.PLUGIN_ID, "No class selected"));
+		}
 	}
 
 	@Override
 	protected void computeResult() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	// ContentProvider implementation
@@ -119,21 +177,4 @@ public class BrowseClasses extends SelectionStatusDialog
 	public Object[] getElements(Object inputElement) {
 		return fProposals.toArray();
 	}
-
-	// LabelProvider implementation
-	public Image getImage(Object element) {
-		return null;
-	}
-
-	public String getText(Object element) {
-		return ((SVDBItem)element).getName();
-	}
-
-	public void addListener(ILabelProviderListener listener) {}
-	public void removeListener(ILabelProviderListener listener) {}
-
-	public boolean isLabelProperty(Object element, String property) {
-		return false;
-	}
-
 }

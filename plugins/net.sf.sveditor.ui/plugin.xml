@@ -124,6 +124,15 @@
             </or>
          </enablement>
       </actionProvider>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVClassWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -349,6 +358,7 @@
             name="SVEditor">
       </category>
       <wizard
+            canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
             class="net.sf.sveditor.ui.wizards.NewSVClassWizard"
             icon="icons/edecl16/class_obj.gif"
@@ -421,6 +431,13 @@ endclass
             Creates an OVM Component with the specified name
          </description>
       </methodologyTemplate>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <group
+            id="net.sf.sveditor.ui.newSVWizards"
+            separatorsVisible="true">
+      </group>
    </extension>
    
 

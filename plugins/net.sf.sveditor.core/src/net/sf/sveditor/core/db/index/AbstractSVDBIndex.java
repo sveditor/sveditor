@@ -82,7 +82,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	public AbstractSVDBIndex(String project, ISVDBFileSystemProvider fs_provider) {
 		this(project);
-		fFileSystemProvider 	= fs_provider;
+		setFileSystemProvider(fs_provider);
 	}
 	
 	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {
@@ -223,12 +223,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		} else {
 			fLog.debug("index \"" + getBaseLocation() + "\" NOT up-to-date");
 			rebuildIndex();
-			/*
-			fIndexFileMapValid = false;
-			fPreProcFileMapValid  = false;
-			fPreProcFileMap.clear();
-			fIndexFileMap.clear();
-			 */
 		}
 	}			
 

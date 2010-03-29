@@ -64,6 +64,12 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			
 			for (int i=0; i<fFilePaths.size(); i++) {
 				fFilePaths.set(i, SVFileUtils.normalize(fFilePaths.get(i)));
+				
+				// If we've added a new file, then give up and rebuild
+				if (!fPreProcFileMap.containsKey(fFilePaths.get(i))) {
+					rebuildIndex();
+					return;
+				}
 			}
 			
 			initPaths();
@@ -94,6 +100,16 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		}
 	}
 	
+	@Override
+	public void rebuildIndex() {
+		super.rebuildIndex();
+		fModIfcClsFiles.clear();
+		fUnincludedFiles.clear();
+		if (fFilePaths != null) {
+			fFilePaths.clear();
+		}
+	}
+
 	/**
 	 * initPaths()
 	 * 
@@ -185,6 +201,9 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 
 		fIndexFileMapValid = true;
 		
+		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+			l.index_rebuilt();
+		}
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
 	}
@@ -242,6 +261,22 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		}
 		
 		return false;
+	}
+	
+	@Override
+	public void fileAdded(String path) {
+		String res_base = getResolvedBaseLocation();
+		
+		if (path.startsWith(res_base)) {
+			rebuildIndex();
+		}
+	}
+
+	@Override
+	public void fileRemoved(String path) {
+		if (fPreProcFileMap.containsKey(path)) {
+			rebuildIndex();
+		}
 	}
 
 	@Override

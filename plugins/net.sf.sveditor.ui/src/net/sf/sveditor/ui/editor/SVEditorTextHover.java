@@ -32,10 +32,10 @@ import org.eclipse.jface.text.Region;
 
 public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ {
 	private SVEditor					fEditor;
+	// private boolean						fHoverEnabled;
 	
 	public SVEditorTextHover(SVEditor editor, ITextViewer viewer) {
 		fEditor = editor;
-		
 	}
 
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
@@ -44,8 +44,6 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		
 		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
-		
-		System.out.println("root=" + expr_ctxt.fRoot + " trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
 		
 		int lineno = -1;
 		try {
@@ -77,7 +75,6 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 	}
 
 	public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
-		System.out.println("getHoverRegion: " + offset);
 		return findWord(textViewer.getDocument(), offset);
 	}
 	

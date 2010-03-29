@@ -151,15 +151,17 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			IFile file = root.getFile(new Path(path));
 			
-			try {
-				IMarker markers[] = file.findMarkers(
-						IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-				
-				for (IMarker m : markers) {
-					m.delete();
+			if (file.exists()) {
+				try {
+					IMarker markers[] = file.findMarkers(
+							IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+
+					for (IMarker m : markers) {
+						m.delete();
+					}
+				} catch (CoreException e) {
+					// e.printStackTrace();
 				}
-			} catch (CoreException e) {
-				// e.printStackTrace();
 			}
 		}
 	}
@@ -200,6 +202,9 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			IFile file = root.getFile(new Path(path));
+			if (!file.exists()) {
+				return null;
+			}
 			
 			for (int i=0; i<2; i++) {
 				try {

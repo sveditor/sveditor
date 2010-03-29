@@ -12,14 +12,17 @@
 
 package net.sf.sveditor.ui.wizards;
 
+
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
@@ -32,6 +35,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -42,13 +46,20 @@ public class NewSVClassWizardPage extends WizardPage {
 	private Text					fName;
 	private String					fNameStr;
 	
+	private Text					fFileName;
+	private String					fFileNameStr;
+	private Button					fFileNameDefault;
+	
 	private Text					fSuperClass;
-//	private String					fSuperClassStr;
+	private String					fSuperClassStr;
 	private Button					fSuperClassBrowse;
 	
+	private boolean					fOverrideNewFlag;
+	private Button					fOverrideNew;
 	
 	public NewSVClassWizardPage() {
-		super("New SystemVerilog Class");
+		super("New SystemVerilog Class", "SystemVerilog Class", null);
+		setDescription("Create a new SystemVerilog class");
 	}
 	
 	public void setSourceFolder(String folder) {
@@ -62,14 +73,28 @@ public class NewSVClassWizardPage extends WizardPage {
 	public String getName() {
 		return fNameStr;
 	}
+	
+	public String getFileName() {
+		return fFileNameStr;
+	}
+	
+	public String getSuperClass() {
+		return fSuperClassStr;
+	}
+	
+	public boolean getOverrideNew() {
+		return fOverrideNewFlag;
+	}
 
 	//
 	// Source Folder
 	// 
 	public void createControl(Composite parent) {
-		final Composite c = new Composite(parent, SWT.NONE);
 		Label l;
-		Button b;
+		
+		fNameStr = "";
+		
+		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
 
 		Composite src_c = new Composite(c, SWT.NONE);
@@ -88,59 +113,154 @@ public class NewSVClassWizardPage extends WizardPage {
 			public void modifyText(ModifyEvent e) {
 				fSourceFolderStr = fSourceFolder.getText();
 				updateClassBrowseState();				
+				validate();
 			}
 		});
-		
-		fSuperClassBrowse = new Button(src_c, SWT.NONE);
-		fSuperClassBrowse.setText("Browse");
-		fSuperClassBrowse.addSelectionListener(new SelectionListener() {
-			
+		final Button sf_browse = new Button(src_c, SWT.PUSH);
+		sf_browse.setText("Browse");
+		sf_browse.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				WorkspaceDirectoryDialog dlg = 
-					new WorkspaceDirectoryDialog(c.getShell());
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(
+						sf_browse.getShell());
 				if (dlg.open() == Window.OK) {
 					fSourceFolder.setText(dlg.getPath());
 				}
+				validate();
 			}
-			
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
-		// TODO: Add divider
-		Composite name_c = new Composite(c, SWT.NONE);
-		name_c.setLayout(new GridLayout(2, false));
-		name_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		l = new Label(name_c, SWT.NONE);
-		l.setText("Name:");
+		Composite s = new Composite(src_c, SWT.BORDER);
+		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan = 3;
+		gd.heightHint = 1;
+		s.setLayoutData(gd);
+
+		l = new Label(src_c, SWT.NONE);
+		l.setText("Class Name:");
 		
-		fName = new Text(name_c, SWT.BORDER);
-		fName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fName = new Text(src_c, SWT.BORDER);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		fName.setLayoutData(gd);
 		fName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				fNameStr = fName.getText();
+				if (fFileNameDefault.getSelection()) {
+					fFileName.setEnabled(true);
+					if (!fNameStr.equals("")) {
+						fFileName.setText(fNameStr + ".svh");
+					} else {
+						fFileName.setText("");
+					}
+					fFileName.setEnabled(false);
+				}
+				validate();
+			}
+		});
+
+		l = new Label(src_c, SWT.NONE);
+		l.setText("Filename:");
+		
+		fFileName = new Text(src_c, SWT.BORDER);
+		fFileName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fFileName.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				fFileNameStr = fFileName.getText();
+				validate();
 			}
 		});
 		
-		l = new Label(name_c, SWT.NONE);
+		fFileNameDefault = new Button(src_c, SWT.CHECK);
+		fFileNameDefault.setText("Default Filename");
+		fFileNameDefault.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) {
+				if (!fFileNameDefault.getSelection()) {
+					fFileName.setEditable(true);
+					fFileName.setEnabled(true);
+				} else {
+					fFileName.setEnabled(true);
+					if (!fNameStr.equals("")) {
+						fFileName.setText(fNameStr + ".svh");
+					} else {
+						fFileName.setText("");
+					}
+					fFileName.setEnabled(false);
+					fFileName.setEditable(false);
+				}
+				validate();
+			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		fFileNameDefault.setSelection(true);
+		fFileName.setEnabled(false);
+		fFileName.setEditable(false);
+		
+		l = new Label(src_c, SWT.NONE);
 		l.setText("Super Class:");
 		
-		Composite super_cls_c = new Composite(name_c, SWT.NONE);
-		super_cls_c.setLayout(new GridLayout(2, false));
-		super_cls_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fSuperClass = new Text(super_cls_c, SWT.BORDER);
+		fSuperClass = new Text(src_c, SWT.BORDER);
 		fSuperClass.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		b = new Button(super_cls_c, SWT.NONE);
-		b.setText("Browse");
-		b.addSelectionListener(new SelectionListener() {
+		fSuperClass.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				fSuperClassStr = fSuperClass.getText();
+				validate();
+			}
+		});
+		fSuperClassBrowse = new Button(src_c, SWT.NONE);
+		fSuperClassBrowse.setText("Browse");
+		fSuperClassBrowse.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				browseClass();
+				validate();
 			}
 			
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
-
+		Group group = new Group(src_c, SWT.BORDER);
+		group.setText("Style Options");
+		group.setLayout(new GridLayout());
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 3;
+		group.setLayoutData(gd);
+		
+		fOverrideNew = new Button(group, SWT.CHECK);
+		fOverrideNew.setText("Implement new()");
+		fOverrideNew.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println("OverrideNew: " + fOverrideNew.getSelection());
+				fOverrideNewFlag = fOverrideNew.getSelection();
+			}
+			public void widgetDefaultSelected(SelectionEvent e) {}
+		});
+		fOverrideNew.setSelection(true);
+		fOverrideNewFlag = true;
+		
+		setPageComplete(false);
 		setControl(c);
+	}
+	
+	private void validate() {
+		setErrorMessage(null);
+		if (!SVCharacter.isSVIdentifier(fNameStr)) {
+			setErrorMessage("Invalid class name format");
+		}
+		
+		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
+		if (c != null) {
+			if (fFileNameStr != null && !fFileNameStr.equals("")) {
+				IFile f = c.getFile(new Path(fFileNameStr));
+				if (f.exists()) {
+					setErrorMessage("File \"" + fFileNameStr + "\" exists");
+				}
+			}
+		} else {
+			setErrorMessage("Directory \"" + 
+					fSourceFolderStr + "\" does not exist");
+		}
+		
+		setPageComplete((getErrorMessage() == null));
 	}
 	
 	private void updateClassBrowseState() {
@@ -148,46 +268,41 @@ public class NewSVClassWizardPage extends WizardPage {
 	}
 	
 	private IProject findDestProject() {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource r = null;
-		IProject  p = null;
+		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
 
-		try {
-			if ((r = root.getFolder(new Path(fSourceFolderStr))) != null && r.exists()) {
-				return r.getProject();
-			}
-		} catch (IllegalArgumentException e) {
-			// ignore, since this probably means we're 
+		if (c == null) {
+			return null;
+		} else if (c instanceof IProject) {
+			return (IProject)c;
+		} else {
+			return c.getProject();
 		}
-		
-		// See if this is a project root
-		String pname = fSourceFolderStr;
-		if (pname.startsWith("/")) {
-			pname = pname.substring(1);
-		}
-		if (pname.endsWith("/")) {
-			pname = pname.substring(0, pname.length()-1);
-		}
-		for (IProject p_t : root.getProjects()) {
-			if (p_t.getName().equals(pname)) {
-				p = p_t;
-				break;
-			}
-		}
-		
-		return p;
 	}
 	
-	private void browseClass() {
+	public SVDBProjectData getProjectData() {
 		IProject p = findDestProject();
+		if (p == null) {
+			return null;
+		}
+
 		SVDBProjectData pdata = 
 			SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
 		
+		return pdata;
+	}
+	
+	private void browseClass() {
+		SVDBProjectData pdata = getProjectData();
+		
 		BrowseClasses dlg = new BrowseClasses(
 				fSuperClass.getShell(), pdata.getProjectIndexMgr());
+		dlg.setClassName(fSuperClassStr);
 		
 		if (dlg.open() == Window.OK) {
-			
+			SVDBModIfcClassDecl cls = dlg.getSelectedClass();
+			if (cls != null) {
+				fSuperClass.setText(cls.getName());
+			}
 		}
 	}
 

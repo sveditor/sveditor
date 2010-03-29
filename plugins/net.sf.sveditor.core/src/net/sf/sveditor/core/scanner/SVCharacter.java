@@ -25,5 +25,23 @@ public class SVCharacter {
 				c == '$'
 				);
 	}
+	
+	public static boolean isSVIdentifier(String id) {
+		if (id.length() == 0) {
+			return false;
+		}
+		
+		if (!isSVIdentifierStart(id.charAt(0))) {
+			return false;
+		}
+		
+		for (int i=1; i<id.length(); i++) {
+			if (!isSVIdentifierPart(id.charAt(i))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 }

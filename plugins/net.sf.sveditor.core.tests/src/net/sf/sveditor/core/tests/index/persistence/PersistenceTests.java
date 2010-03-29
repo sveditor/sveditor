@@ -22,6 +22,7 @@ public class PersistenceTests {
 		suite.addTest(new TestSuite(TestFilesystemLibPersistence.class));
 		suite.addTest(new TestSuite(TestWorkspaceLibPersistence.class));
 		suite.addTest(new TestSuite(ArgFilePersistence.class));
+		suite.addTest(new TestSuite(SrcCollectionPersistence.class));
 		
 		return suite;
 	}

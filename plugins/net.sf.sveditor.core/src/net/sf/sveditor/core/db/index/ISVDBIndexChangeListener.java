@@ -22,5 +22,7 @@ public interface ISVDBIndexChangeListener {
 	
 	
 	void index_changed(int reason, SVDBFile file);
+	
+	void index_rebuilt();
 
 }

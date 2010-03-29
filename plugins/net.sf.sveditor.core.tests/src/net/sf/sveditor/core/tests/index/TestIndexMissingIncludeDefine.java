@@ -71,7 +71,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		int_TestMissingIncludeDefine(index);
+		int_TestMissingIncludeDefine(index, 2);
 	}
 
 	public void testWSArgFileMissingIncludeDefine() {
@@ -93,7 +93,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		int_TestMissingIncludeDefine(index);
+		int_TestMissingIncludeDefine(index, 2);
 	}
 
 	public void testWSSourceCollectionMissingIncludeDefine() {
@@ -117,11 +117,12 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 				"${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		int_TestMissingIncludeDefine(index);
+		int_TestMissingIncludeDefine(index, 1);
 	}
 
 	public void int_TestMissingIncludeDefine(
-			ISVDBIndex					index) {
+			ISVDBIndex					index,
+			int							expected_errors) {
 		SaveMarkersFileSystemProvider fs_provider_m = new SaveMarkersFileSystemProvider(
 					((AbstractSVDBIndex)index).getFileSystemProvider());
 		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
@@ -141,8 +142,8 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 			System.out.println("[MARKER] " + err);
 		}
 		
-		assertEquals("Expecting a total of two errors", 
-				2, fs_provider_m.getMarkers().size());
+		assertEquals("Expecting a total of " + expected_errors + " error(s)", 
+				expected_errors, fs_provider_m.getMarkers().size());
 	}
 
 }

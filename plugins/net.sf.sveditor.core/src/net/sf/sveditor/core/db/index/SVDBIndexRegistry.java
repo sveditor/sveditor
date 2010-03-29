@@ -211,6 +211,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				
 				in.close();
 			} catch (Exception e) {
+				e.printStackTrace();
 				fLog.error("Failed to load index for project \"" + project + 
 						"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
 						"\"", e);

@@ -1,3 +1,9 @@
+-- 0.1.7 Release --
+
+- Add class-creation wizard that supports browsing for a super-class and 
+  implementing the constructor with super-constructor parameters
+
+
 -- 0.1.6 Release --
 
 - Correct include-pathing issue for nested defines. 
