@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: net.sf.sveditor.core.tests;singleton:=true
+Bundle-Version: 1.2.3
+Bundle-Activator: net.sf.sveditor.core.tests.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit,
+ net.sf.sveditor.core,
+ org.apache.ant,
+ org.eclipse.core.resources;bundle-version="3.5.0"
+Eclipse-LazyStart: true
+Export-Package: net.sf.sveditor.core.tests,
+ net.sf.sveditor.core.tests.constraint_parser,
+ net.sf.sveditor.core.tests.content_assist,
+ net.sf.sveditor.core.tests.indent,
+ net.sf.sveditor.core.tests.index,
+ net.sf.sveditor.core.tests.index.libIndex,
+ net.sf.sveditor.core.tests.index.persistence,
+ net.sf.sveditor.core.tests.index.src_collection,
+ net.sf.sveditor.core.tests.scanner,
+ net.sf.sveditor.core.tests.utils
