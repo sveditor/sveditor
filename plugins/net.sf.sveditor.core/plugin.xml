@@ -3,6 +3,7 @@
 <plugin>
    <extension-point id="SVLibraries" name="SystemVerilog Libraries" schema="schema/SVLibraries.exsd"/>
    <extension-point id="SVDBIndexFactories" name="SVDB Index Factory extension point" schema="schema/SVDBIndexFactories.exsd"/>
+   <extension-point id="SVMethodologyTemplates" name="SVEditor Methodology Templates" schema="schema/SVMethodologyTemplates.exsd"/>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
@@ -66,6 +67,35 @@
             class="net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory"
             id="net.sf.sveditor.argFileIndex">
       </SVDBIndexFactory>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVMethodologyTemplates">
+      <methodologyCategory
+            id="org.ovmworld.ovm"
+            name="Open Verification Methodology">
+      </methodologyCategory>
+      <methodologyTemplate
+            category="org.ovmworld.ovm"
+            id="net.sf.sveditor.core.ovmSequenceTemplate"
+            name="OVM Sequence"
+            superclass="ovm_sequence"
+            superclass_selectable="true"
+            templateFile="templates/OVM/ovm_sequence_template.svh">
+         <description>
+            OVM Sequence class template
+         </description>
+      </methodologyTemplate>
+      <methodologyTemplate
+            category="org.ovmworld.ovm"
+            id="net.sf.sveditor.core.ovm_component_template"
+            name="OVM Component"
+            superclass="ovm_component"
+            superclass_selectable="true"
+            templateFile="templates/OVM/ovm_component_template.svh">
+         <description>
+            OVM Component-based class
+         </description>
+      </methodologyTemplate>
    </extension>
 
 </plugin>

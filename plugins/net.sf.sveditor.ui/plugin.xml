@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension-point id="methodologyTemplates" name="Methodology Templates" schema="schema/methodologyTemplates.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -133,6 +132,14 @@
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
+      <!--
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.svMethodologyClassWizard">
+         <enablement></enablement>
+      </commonWizard>
+       -->
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -366,6 +373,14 @@
             name="SystemVerilog Class"
             project="false">
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVMethodologyClassWizard"
+            id="net.sf.sveditor.ui.svMethodologyClassWizard"
+            name="SystemVerilog Methodology Class"
+            project="false">
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -378,66 +393,20 @@
       </perspective>
    </extension>
    <extension
-         point="net.sf.sveditor.ui.methodologyTemplates">
-      <category
-            id="net.sf.sveditor.ui.ovmCategory"
-            name="OVM"></category>
-      <methodologyTemplate
-            category="net.sf.sveditor.ui.ovmCategory"
-            id="net.sf.sveditor.ui.ovmComponent"
-            name="OVM Component">
-         <definition>
-            ${comment.fileheader}
-`ifndef INCLUDED_${classname}_SVH
-`define INCLUDED_${classname}_SVH
-
-class ${classname} extends ovm_component;
-	
-	`ovm_component_utils(${classname})
-
-	/****************************************************************
-	 * ${classname} constructor
-	 ****************************************************************/
-	function new(string name, ovm_component parent=null);
-		super.new(name, parent);
-	endfunction
-
-	/****************************************************************
-	 * build()
-	 ****************************************************************/
-	function void build();
-		super.build();
-	endfunction
-
-	/****************************************************************
-	 * connect()
-	 ****************************************************************/
-	function void connect();
-		super.connect();
-	endfunction
-
-	/****************************************************************
-	 * run()
-	 ****************************************************************/
-	task run();
-		
-	endtask
-
-endclass
-
-`endif /* INCLUDED_${classname}_SVH */
-         </definition>
-         <description>
-            Creates an OVM Component with the specified name
-         </description>
-      </methodologyTemplate>
-   </extension>
-   <extension
          point="org.eclipse.ui.menus">
       <group
             id="net.sf.sveditor.ui.newSVWizards"
             separatorsVisible="true">
       </group>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            class="net.sf.sveditor.ui.search.SVSearchPage"
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.searchPage"
+            label="SystemVerilog Search">
+      </page>
    </extension>
    
 

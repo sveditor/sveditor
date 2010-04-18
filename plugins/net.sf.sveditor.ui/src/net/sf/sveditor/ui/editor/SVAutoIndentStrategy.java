@@ -51,6 +51,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
+			int target_lineno = lineno;
 			if (doc.getLineOffset(lineno) != cmd.offset) {
 				// If this is a block copy
 				return;
@@ -87,6 +88,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			indenter.init(scanner);
 			
+			indenter.setAdaptiveIndent(true);
+			indenter.setAdaptiveIndentEnd(target_lineno);
+			
 			// The goal, here, is to format the entire document
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
@@ -117,6 +121,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 
 		try {
+			int target_lineno = doc.getLineOfOffset(cmd.offset);
 			doc_str.append(doc.get(0, cmd.offset));
 			doc_str.append(cmd.text);
 			
@@ -140,6 +145,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			indenter.init(scanner);
 			
+			indenter.setAdaptiveIndent(true);
+			if (cmd.text.equals("\n")) {
+				target_lineno++;
+			}
+			indenter.setAdaptiveIndentEnd(target_lineno);
 			indenter.indent();
 
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
@@ -206,7 +216,6 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
     public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {
-    	
     	if (!fAutoIndentEnabled) {
     		return;
     	}

@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db;
+package net.sf.sveditor.core.scanner;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,32 +18,46 @@ import java.util.List;
 import java.util.Stack;
 
 import net.sf.sveditor.core.BuiltinClassConstants;
-import net.sf.sveditor.core.scanner.HaltScanException;
-import net.sf.sveditor.core.scanner.IDefineProvider;
-import net.sf.sveditor.core.scanner.ISVScanner;
-import net.sf.sveditor.core.scanner.ISVScannerObserver;
-import net.sf.sveditor.core.scanner.SVClassIfcModParam;
-import net.sf.sveditor.core.scanner.SVEnumVal;
-import net.sf.sveditor.core.scanner.SVScanner;
-import net.sf.sveditor.core.scanner.SVTaskFuncParam;
-import net.sf.sveditor.core.scanner.SVTypeInfo;
-import net.sf.sveditor.core.scanner.SvVarInfo;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBAlwaysBlock;
+import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBConstraint;
+import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBCoverPoint;
+import net.sf.sveditor.core.db.SVDBCoverpointCross;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBInitialBlock;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBProgramBlock;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVDBFileFactory implements ISVScannerObserver {
+public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFactory {
 	private SVScanner						fScanner;
 	private SVDBFile						fFile;
 	private Stack<SVDBScopeItem>			fScopeStack;
 
-	public SVDBFileFactory() {
+	public ScannerSVDBFileFactory(IDefineProvider def_provider) {
 		fScanner = new SVScanner();
 		fScanner.setObserver(this);
 		fScopeStack = new Stack<SVDBScopeItem>();
-	}
-
-	public SVDBFileFactory(IDefineProvider def_provider) {
-		this();
-		setDefineProvider(def_provider);
+		if (def_provider != null) {
+			setDefineProvider(def_provider);
+		}
 	}
 	
 	public void setDefineProvider(IDefineProvider dp) {
@@ -153,7 +167,9 @@ public class SVDBFileFactory implements ISVScannerObserver {
 				name, SVDBItemType.Class);
 		
 		for (SVClassIfcModParam p : params) {
-			decl.getParameters().add(new SVDBModIfcClassParam(p.getName()));
+			SVDBModIfcClassParam p_svdb = new SVDBModIfcClassParam(p.getName());
+			p_svdb.setDefault(p.getDefault());
+			decl.getParameters().add(p_svdb);
 		}
 		
 		decl.setSuperClass(super_name);
@@ -375,19 +391,6 @@ public class SVDBFileFactory implements ISVScannerObserver {
 				}
 			}
 		}
-	}
-
-	public static SVDBFile createFile(InputStream in, String name) {
-		return createFile(in, name, null);
-	}
-
-	public static SVDBFile createFile(
-			InputStream 		in, 
-			String 				name, 
-			IDefineProvider		def_provider) {
-		SVDBFileFactory f = new SVDBFileFactory(def_provider);
-		
-		return f.parse(in, name);
 	}
 
 	private void setStartLocation(SVDBItem item) {

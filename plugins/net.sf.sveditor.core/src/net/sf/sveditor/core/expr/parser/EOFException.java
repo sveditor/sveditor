@@ -12,7 +12,9 @@
 
 package net.sf.sveditor.core.expr.parser;
 
-public class EOFException extends SVExprLexerException {
+import net.sf.sveditor.core.parser.SVParseException;
+
+public class EOFException extends SVParseException {
 	
 	private static final long serialVersionUID = 2218914100688690292L;
 

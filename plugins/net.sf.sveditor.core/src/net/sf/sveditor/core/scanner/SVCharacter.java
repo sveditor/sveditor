@@ -43,5 +43,31 @@ public class SVCharacter {
 		
 		return true;
 	}
+	
+	/**
+	 * Converts a string to a SystemVerilog identifier by
+	 * replacing all non-id characters with '_'
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String toSVIdentifier(String str) {
+		String id;
+		
+		if (SVCharacter.isSVIdentifierStart(str.charAt(0))) {
+			id = "" + str.charAt(0);
+		} else {
+			id = "_";
+		}
+		for (int i=1; i<str.length(); i++) {
+			if (SVCharacter.isSVIdentifierPart(str.charAt(i))) {
+				id += str.charAt(i);
+			} else {
+				id += "_";
+			}
+		}
+		
+		return id;
+	}
 
 }

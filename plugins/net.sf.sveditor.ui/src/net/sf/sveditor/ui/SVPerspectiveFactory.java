@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui;
 
 import net.sf.sveditor.ui.wizards.NewSVClassWizard;
+import net.sf.sveditor.ui.wizards.NewSVMethodologyClassWizard;
 
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -57,6 +58,7 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
         layout.addNewWizardShortcut(BasicNewFolderResourceWizard.WIZARD_ID);
         layout.addNewWizardShortcut(BasicNewFileResourceWizard.WIZARD_ID);
         layout.addNewWizardShortcut(NewSVClassWizard.ID);
+        layout.addNewWizardShortcut(NewSVMethodologyClassWizard.ID);
         
         // Add "show views".
         layout.addShowViewShortcut(ProjectExplorer.VIEW_ID);

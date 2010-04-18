@@ -13,10 +13,45 @@
 package net.sf.sveditor.core.expr.parser;
 
 public class SVDistItemExpr extends SVExpr {
+	private SVExpr				fLHS;
+	private SVExpr				fRHS;
+	private boolean				fIsDist;
 	
 	public SVDistItemExpr() {
 		super(SVExprType.DistList);
+	}
+	
+	public void setLHS(SVExpr lhs) {
+		fLHS = lhs;
+	}
+	
+	public SVExpr getLHS() {
+		return fLHS;
+	}
+	
+	public void setRHS(SVExpr rhs) {
+		fRHS = rhs;
+	}
+	
+	public SVExpr getRHS() {
+		return fRHS;
+	}
+	
+	public boolean isDist() {
+		return fIsDist;
+	}
+	
+	public void setIsDist(boolean is_dist) {
+		fIsDist = is_dist;
+	}
+	
+	public SVExpr duplicate() {
+		SVDistItemExpr ret = new SVDistItemExpr();
+		ret.setLHS(fLHS.duplicate());
+		ret.setRHS(fRHS.duplicate());
+		ret.setIsDist(fIsDist);
 		
+		return ret;
 	}
 
 }

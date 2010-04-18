@@ -13,9 +13,10 @@
 package net.sf.sveditor.core.tests.scanner;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 
 public class ProgramBlockTests extends TestCase {
 	
@@ -34,7 +35,7 @@ public class ProgramBlockTests extends TestCase {
 				"class foo_c;\n" +
 				"endclass\n" +
 				"\n\n\n\n");
-		SVDBFileFactory f = new SVDBFileFactory();
+		ISVDBFileFactory f = SVCorePlugin.getDefault().createFileFactory(null);
 		
 		SVDBFile file = f.parse(in, "test");
 		

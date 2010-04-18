@@ -1,15 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="net.sf.sveditor.ui" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="net.sf.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="net.sf.sveditor.ui" id="methodologyTemplates" name="Methodology Templates"/>
+         <meta.schema plugin="net.sf.sveditor.core" id="SVMethodologyTemplates" name="SVEditor Methodology Templates"/>
       </appInfo>
       <documentation>
-         The Methodology Templates extension point provides a way to define class templates that are specific to a verification methodology (eg OVM).
-The following variables are permitted in the definition:
-- ${comment.fileheader}
-- ${classname}
+         [Enter description of this extension point.]
       </documentation>
    </annotation>
 
@@ -20,8 +17,8 @@ The following variables are permitted in the definition:
          </appInfo>
       </annotation>
       <complexType>
-         <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="category"/>
+         <choice minOccurs="0" maxOccurs="unbounded">
+            <element ref="methodologyCategory"/>
             <element ref="methodologyTemplate"/>
          </choice>
          <attribute name="point" type="string" use="required">
@@ -51,39 +48,21 @@ The following variables are permitted in the definition:
       </complexType>
    </element>
 
-   <element name="category">
-      <complexType>
-         <attribute name="id" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="name" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-      </complexType>
-   </element>
-
    <element name="methodologyTemplate">
       <complexType>
-         <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="definition"/>
-            <element ref="description"/>
+         <choice>
+            <sequence minOccurs="0" maxOccurs="1">
+               <element ref="description"/>
+            </sequence>
          </choice>
-         <attribute name="id" type="string">
+         <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="name" type="string">
+         <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
                   
@@ -97,13 +76,59 @@ The following variables are permitted in the definition:
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="templateFile" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="superclass" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="superclass_selectable" type="boolean" use="default" value="true">
+            <annotation>
+               <documentation>
+                  Specifies whether the super class is user-specifiable.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
-   <element name="definition" type="string">
+   <element name="methodologyCategory">
+      <complexType>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  Name of a methodology template
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  ID for the methodology template
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
    </element>
 
    <element name="description" type="string">
+   </element>
+
+   <element name="template" type="string">
+   </element>
+
+   <element name="new_element" type="string">
    </element>
 
    <annotation>

@@ -15,14 +15,14 @@ package net.sf.sveditor.core.parser;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SVInputStream {
+public class SVInputStream_sav {
 	private SystemVerilogParser_sav 			fParser;
 	private int								fLineno;
 	private int								fLinepos;
 	private InputStream						fInput;
 	private StringBuffer					fUngetBuffer;
 	
-	public SVInputStream(InputStream in) {
+	public SVInputStream_sav(InputStream in) {
 		fInput = in;
 		fUngetBuffer = new StringBuffer();
 	}

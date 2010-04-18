@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -48,6 +49,8 @@ import org.eclipse.ui.dialogs.SelectionStatusDialog;
 public class BrowseClasses extends SelectionStatusDialog 
 	implements IStructuredContentProvider {
 	
+	private String					fSuperClass;
+	
 	private Text					fClassName;
 	private String					fClassNameStr;
 	private boolean					fModifyInProgress;
@@ -63,6 +66,10 @@ public class BrowseClasses extends SelectionStatusDialog
 		fProposals = new ArrayList<SVDBItem>();
 		setTitle("Browse Classes");
 		setStatusLineAboveButtons(true);
+	}
+	
+	public void setSuperClass(String superclass) {
+		fSuperClass = superclass;
 	}
 	
 	public void setClassName(String classname) {
@@ -136,7 +143,13 @@ public class BrowseClasses extends SelectionStatusDialog
 	
 	private void updateProposals() {
 		SVDBFindByName finder = new SVDBFindByName(fIndexIt, 
-				new SVDBFindContentAssistNameMatcher());
+				new SVDBFindContentAssistNameMatcher() {
+					@Override
+					public boolean match(SVDBItem it, String name) {
+						return (!it.getName().startsWith("__sv_builtin") &&
+								super.match(it, name));
+					}
+			});
 		List<SVDBItem> proposals = null;
 		
 		fProposals.clear();
@@ -146,6 +159,10 @@ public class BrowseClasses extends SelectionStatusDialog
 		}
 		proposals = finder.find(fClassNameStr, SVDBItemType.Class);
 		fProposals.addAll(proposals);
+		
+		if (fSuperClass != null) {
+			filter_by_superclass();
+		}
 
 		for (SVDBItem cls : fProposals) {
 			if (cls.getName().equals(fClassNameStr)) {
@@ -162,6 +179,31 @@ public class BrowseClasses extends SelectionStatusDialog
 					"Selected class \"" + fSelectedClass.getName() + "\""));
 		} else {
 			updateStatus(new Status(IStatus.ERROR, SVUiPlugin.PLUGIN_ID, "No class selected"));
+		}
+	}
+	
+	private void filter_by_superclass() {
+		SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIt);
+		
+		for (int i=0; i<fProposals.size(); i++) {
+			SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)fProposals.get(i);
+			boolean found = false;
+			
+			// Search each class' super-class hierarchy looking for
+			// the desired super-class
+			while (cls != null) {
+				SVDBModIfcClassDecl super_cls = finder.find(cls);
+				if (super_cls != null && super_cls.getName().equals(fSuperClass)) {
+					found = true;
+					break;
+				}
+				cls = super_cls;
+			}
+			
+			if (!found) {
+				fProposals.remove(i);
+				i--;
+			}
 		}
 	}
 

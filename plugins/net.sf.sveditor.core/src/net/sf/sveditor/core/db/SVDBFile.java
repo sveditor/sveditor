@@ -17,10 +17,23 @@ import java.io.File;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBFile extends SVDBScopeItem {
 	private long						fLastModified;
 	private String						fFile;
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBFile(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.File); 
+	}
 	
 	public SVDBFile(String file) {
 		super(new File(file).getName(), SVDBItemType.File);

@@ -18,17 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.expr.parser.SVExpr;
 import net.sf.sveditor.core.expr.parser.SVExprDump;
 import net.sf.sveditor.core.expr.parser.SVExprParseException;
-import net.sf.sveditor.core.expr.parser.SVExprParser;
+import net.sf.sveditor.core.parser.SVExprParser;
+import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SmokeTest extends TestCase {
 	
@@ -40,7 +43,7 @@ public class SmokeTest extends TestCase {
 		List<SVExpr> expr_l = null;
 		
 		try {
-			expr_l = p.parse_constraint(in);
+			expr_l = p.parse_constraint(new InputStreamTextScanner(in, ""));
 		} catch (SVExprParseException e) {
 			e.printStackTrace();
 		}
@@ -48,7 +51,7 @@ public class SmokeTest extends TestCase {
 	}
 	
 	public void testReal() {
-		SVDBFileFactory factory = new SVDBFileFactory();
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
 		SVDBFile file = null;
 		InputStream in = null;
 		List<SVDBConstraint>	constraints = new ArrayList<SVDBConstraint>();
@@ -69,7 +72,8 @@ public class SmokeTest extends TestCase {
 		for (SVDBConstraint c : constraints) {
 			System.out.println("[CONSTRAINT] " + c.getConstraintExpr());
 			try {
-				constraint_expr.add(p.parse_constraint(new StringInputStream(c.getConstraintExpr())));
+				constraint_expr.add(p.parse_constraint(
+						new StringTextScanner(c.getConstraintExpr())));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

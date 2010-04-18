@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
@@ -75,8 +76,6 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 		
 		SVDBScopeItem insert_point = active_scope;
 		
-		System.out.println("active_scope=" + active_scope);
-
 		// Make the default insert point the current cursor location
 		int insert_point_line = getTextSel().getStartLine();
 		
@@ -149,6 +148,7 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 					
 					for (int i=0; i<tf.getParams().size(); i++) {
 						SVDBTaskFuncParam p = tf.getParams().get(i);
+						SVDBTypeInfo ti = p.getTypeInfo();
 						
 						new_tf.append(p.getTypeName());
 						new_tf.append(" ");

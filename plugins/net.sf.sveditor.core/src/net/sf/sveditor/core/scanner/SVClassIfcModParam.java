@@ -14,13 +14,23 @@ package net.sf.sveditor.core.scanner;
 
 public class SVClassIfcModParam {
 	private String				fName;
+	private String				fDefault;
 	
 	
 	public SVClassIfcModParam(String name) {
 		fName = name;
+		fDefault = "";
 	}
 
 	public String getName() {
 		return fName;
+	}
+
+	public void setDefault(String dflt) {
+		fDefault = dflt;
+	}
+	
+	public String getDefault() {
+		return fDefault;
 	}
 }

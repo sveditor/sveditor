@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.ui.pref;
 
+import net.sf.sveditor.ui.SVUiPlugin;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
-
-import net.sf.sveditor.ui.SVUiPlugin;
 
 /**
  * Class used to initialize default preference values.

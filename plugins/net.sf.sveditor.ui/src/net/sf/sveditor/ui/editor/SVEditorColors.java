@@ -20,7 +20,6 @@ import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 

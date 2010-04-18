@@ -13,9 +13,11 @@
 package net.sf.sveditor.core.tests.scanner;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
+import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
 public class EnumTypes extends TestCase {
 	
@@ -33,7 +35,7 @@ public class EnumTypes extends TestCase {
 			"\n\n";
 		StringInputStream in = new StringInputStream(enum_defs);
 		
-		SVDBFileFactory f = new SVDBFileFactory();
+		ISVDBFileFactory f = SVCorePlugin.getDefault().createFileFactory(null);
 		
 		SVDBFile file = f.parse(in, "enum_defs");
 		

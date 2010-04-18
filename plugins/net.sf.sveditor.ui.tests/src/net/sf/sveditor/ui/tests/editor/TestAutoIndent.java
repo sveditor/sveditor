@@ -101,6 +101,107 @@ public class TestAutoIndent extends TestCase {
 		assertEquals("Covergroup indent failed", expected, result);
 	}
 
+	public void testVirtualFunction() throws BadLocationException {
+		String input1 = 
+			"class foobar;\n\n" +
+			"function new();\n" +
+			"endfunction\n" +
+			"\n" +
+			"virtual function string foo();";
+		String input2 = "\n" +
+			"a = 5;\n" +
+			"endfunction\n";
+		String expected =
+			"class foobar;\n" +
+			"	\n" +
+			"	function new();\n" +
+			"	endfunction\n" +
+			"	\n" +
+			"	virtual function string foo();\n" +
+			"		a = 5;\n" +
+			"	endfunction\n" +
+			"	";
+		
+		
+		AutoEditTester tester = createAutoEditTester();
+		tester.type(input1);
+		// SVCorePlugin.getDefault().enableDebug(true);
+		tester.type(input2);
+		String result = tester.getContent();
+		
+		
+		if (!expected.equals(result)) {
+			System.out.println("result=\"" + result + "\"");
+			System.out.println("expected=\"" + expected + "\"");
+		}
+		assertEquals("Virtual Function indent failed", expected, result);
+	}
+
+	public void testPastePostStringAdaptiveIndent() throws BadLocationException {
+		AutoEditTester tester = createAutoEditTester();
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"function void foo2();\n" +
+			"	$psprintf(\"Hello World\\n    Testing %d\\n\",\n" +
+			"		a, b, c);\n\n";
+		String expected =
+			"class foobar;\n" +
+			"\n" +
+			"function void foo2();\n" +
+			"	$psprintf(\"Hello World\\n    Testing %d\\n\",\n" +
+			"		a, b, c);\n" +
+			"" +
+			"	if (foobar) begin\n" +
+			"		a = 6;\n" +
+			"	end\n";
+		tester.setContent(content);
+		//SVCorePlugin.getDefault().enableDebug(true);
+		tester.paste(
+				"if (foobar) begin\n" +
+				"a = 6;\n" +
+				"end\n");
+		
+		String result = tester.getContent();
+		
+		System.out.println("Expected:");
+		System.out.println(expected.trim());
+		System.out.println("Result:");
+		System.out.println(result.trim());
+		
+		assertEquals("Expected indent result",
+				expected.trim(), result.trim());
+	}
+
+	public void testPasteAdaptiveIndent() throws BadLocationException {
+		AutoEditTester tester = createAutoEditTester();
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"function void foo2();\n\n";
+		String expected =
+			"class foobar;\n" +
+			"\n" +
+			"function void foo2();\n" +
+			"	if (foobar) begin\n" +
+			"		a = 6;\n" +
+			"	end\n";
+		
+		tester.setContent(content);
+		tester.paste(
+				"if (foobar) begin\n" +
+				"a = 6;\n" +
+				"end\n");
+		
+		String result = tester.getContent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		
+		assertEquals("Expected indent result",
+				expected.trim(), result.trim());
+	}
+
 	public void disabled_testCaseStatement() throws BadLocationException {
 		String input = 
 			"class foobar;\n" +

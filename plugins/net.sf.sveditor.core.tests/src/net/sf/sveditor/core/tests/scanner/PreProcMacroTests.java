@@ -14,6 +14,7 @@ package net.sf.sveditor.core.tests.scanner;
 
 import java.io.InputStream;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -23,8 +24,6 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 import org.apache.tools.ant.filters.StringInputStream;
-
-import junit.framework.TestCase;
 
 public class PreProcMacroTests extends TestCase {
 	

@@ -14,8 +14,7 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IProject;
-
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -31,7 +30,8 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-import junit.framework.TestCase;
+
+import org.eclipse.core.resources.IProject;
 
 public class TestGlobalDefine extends TestCase {
 

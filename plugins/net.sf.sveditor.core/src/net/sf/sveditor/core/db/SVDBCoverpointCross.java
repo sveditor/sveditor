@@ -18,10 +18,24 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 	private List<String>		fCoverpointList;
 	private String				fBody;
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBCoverpointCross(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.CoverpointCross); 
+	}
+	
 
 	public SVDBCoverpointCross(String name, String body) {
 		super(name, SVDBItemType.CoverpointCross);

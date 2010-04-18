@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypedef;
@@ -262,12 +263,11 @@ public class SVExpressionUtils {
 			SVExprContext		expr_ctxt,
 			boolean				match_prefix,
 			int					max_matches) {
+		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		fLog.debug("--> findItems(active_scope=\"" + 
 				((active_scope != null)?active_scope.getName():null) + "\" " +
 				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
 				"\" leaf=\"" + expr_ctxt.fLeaf + "\" match_prefix=" + match_prefix + ")");
-		
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 
 		if (expr_ctxt.fTrigger != null && !expr_ctxt.fTrigger.equals("=")) {
 			if (expr_ctxt.fTrigger.equals("`")) {
@@ -1197,25 +1197,53 @@ public class SVExpressionUtils {
 					if (field instanceof SVDBModIfcClassDecl ||
 							field instanceof SVDBPackageDecl) {
 						type = field;
-					} else if (field instanceof SVDBVarDeclItem) {
+					} else if ((field instanceof SVDBVarDeclItem) ||
+							(field instanceof SVDBTaskFuncParam)) {
 						SVDBFindNamedModIfcClassIfc finder = 
 							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-						List<SVDBModIfcClassDecl> cl_l = finder.find(
-								((SVDBVarDeclItem)field).getTypeName());
+						String typename;
+						if (field instanceof SVDBVarDeclItem) {
+							typename = ((SVDBVarDeclItem)field).getTypeName();
+						} else {
+							typename = ((SVDBTaskFuncParam)field).getTypeName();
+						}
 						
+						List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
+						type = (cl_l.size() > 0)?cl_l.get(0):null;
+						
+						// Didn't find anything. Try treating this as a typedef
 						if (cl_l.size() == 0) {
-							// Try treating this as a typedef
 							SVDBFindByName finder_n = new SVDBFindByName(index_it);
 							
 							List<SVDBItem> result = finder_n.find(
-									((SVDBVarDeclItem)field).getTypeName(), SVDBItemType.Typedef);
+									typename, SVDBItemType.Typedef);
 							
 							if (result.size() > 0 && !((SVDBTypedef)result.get(0)).isEnumType()) {
 								cl_l = finder.find(((SVDBTypedef)result.get(0)).getTypeName());
 							}
+							type = (cl_l.size() > 0)?cl_l.get(0):null;
 						}
 						
-						type = (cl_l.size() > 0)?cl_l.get(0):null;
+						// Didn't find anything. Look at parameters in the class
+						if (cl_l.size() == 0) {
+							SVDBItem field_p = field.getParent();
+							while (field_p != null && field_p.getType() != SVDBItemType.Class) {
+								field_p = field_p.getParent();
+							}
+							
+							if (field_p != null) {
+								SVDBModIfcClassDecl c_decl = (SVDBModIfcClassDecl)field_p;
+								for (SVDBModIfcClassParam p : c_decl.getParameters()) {
+									System.out.println("param \"" + p.getName() + "\" \"" + p.getDefault() + "\"");
+									
+									if (p.getName().equals(typename)) {
+										cl_l = finder.find(p.getDefault());										
+									}
+								}
+							}
+							
+							type = (cl_l.size() > 0)?cl_l.get(0):null;
+						}
 					} else if (field instanceof SVDBTypedef) {
 						SVDBTypedef td = (SVDBTypedef)field;
 						SVDBFindNamedModIfcClassIfc finder = 

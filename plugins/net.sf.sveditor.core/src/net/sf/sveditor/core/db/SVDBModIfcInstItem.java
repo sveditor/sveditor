@@ -15,8 +15,21 @@ package net.sf.sveditor.core.db;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBModIfcInstItem extends SVDBVarDeclItem {
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBModIfcInstItem(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ModIfcInst); 
+	}
 	
 	public SVDBModIfcInstItem(SVDBTypeInfo type, String name) {
 		super(type, name, SVDBItemType.ModIfcInst);

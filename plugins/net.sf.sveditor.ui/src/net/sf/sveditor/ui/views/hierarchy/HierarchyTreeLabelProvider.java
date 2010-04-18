@@ -12,9 +12,9 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
-import org.eclipse.swt.graphics.Image;
-
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+
+import org.eclipse.swt.graphics.Image;
 
 public class HierarchyTreeLabelProvider extends SVTreeLabelProvider {
 

@@ -12,14 +12,40 @@
 
 package net.sf.sveditor.core.expr.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SVDistListExpr extends SVExpr {
+	private SVExpr							fLHS;
+	private List<SVDistItemExpr>			fDistItems;
 	
 	public SVDistListExpr() {
 		super(SVExprType.DistList);
+		fDistItems = new ArrayList<SVDistItemExpr>();
+	}
+	
+	public void setLHS(SVExpr lhs) {
+		fLHS = lhs;
+	}
+	
+	public SVExpr getLHS() {
+		return fLHS;
+	}
+	
+	public List<SVDistItemExpr> getDistItems() {
+		return fDistItems;
+	}
+	
+	public void addDistItem(SVDistItemExpr item) {
+		fDistItems.add(item);
 	}
 	
 	public SVExpr duplicate() {
-		return new SVDistListExpr();
+		SVDistListExpr ret = new SVDistListExpr();
+		ret.getDistItems().addAll(fDistItems);
+		ret.setLHS(fLHS.duplicate());
+		
+		return ret;
 	}
 
 }

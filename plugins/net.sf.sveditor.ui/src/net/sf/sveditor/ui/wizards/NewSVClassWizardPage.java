@@ -237,6 +237,9 @@ public class NewSVClassWizardPage extends WizardPage {
 		fOverrideNew.setSelection(true);
 		fOverrideNewFlag = true;
 		
+		// Set focus on name field
+		fName.setFocus();
+		
 		setPageComplete(false);
 		setControl(c);
 	}

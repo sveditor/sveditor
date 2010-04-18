@@ -45,7 +45,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fTmpBuffer;
 	private Stack<Integer>		fPreProcEn;
 	private List<String>		fParamList;
-	private ISVScannerObserver	fObserver;
+	private ISVPreProcScannerObserver	fObserver;
 	private ISVScanner			fScanner;
 	private IDefineProvider		fDefineProvider;
 	private ScanLocation		fScanLocation;
@@ -96,7 +96,7 @@ public class SVPreProcScanner implements ISVScanner {
 		fEvalConditionals = eval_conditionals;
 	}
 	
-	public void setObserver(ISVScannerObserver observer) {
+	public void setObserver(ISVPreProcScannerObserver observer) {
 		fObserver = observer;
 		fObserver.init(this);
 	}

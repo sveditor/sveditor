@@ -45,6 +45,10 @@ public class StringTextScanner extends AbstractTextScanner
 		init(str);
 		fUngetCh = -1;
 	}
+	
+	public StringTextScanner(String str) {
+		this(new StringBuilder(str));
+	}
 
 	public StringTextScanner(StringBuilder str, int idx) {
 		init(str, idx);

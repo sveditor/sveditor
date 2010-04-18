@@ -19,11 +19,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.BuiltinClassConstants;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBAlwaysBlock;
+import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBConstraint;
+import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBCoverPoint;
+import net.sf.sveditor.core.db.SVDBCoverpointCross;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBInitialBlock;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBProgramBlock;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.scanner.EOFException;
+import net.sf.sveditor.core.scanner.HaltScanException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
+import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
 import net.sf.sveditor.core.scanner.ISVScannerObserver;
+import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVClassIfcModParam;
 import net.sf.sveditor.core.scanner.SVEnumVal;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -38,26 +68,46 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 /**
- * Parser/Scanner for SystemVerilog files. This file was originally a
- * copy of SVScanner, and will incrementally be updated as parsing of
- * the various SystemVerilog elements is completed
+ * Scanner for SystemVerilog files. 
  *  
  * @author ballance
  *
+ * - Handle structures
+ * - Handle enum types
+ * - Handle export/import, "DPI-C", context as function/task qualifiers
+ * - type is always <type> <qualifier>, so no need to handle complex ordering
+ *    (eg unsigned int)
+ * - handle property as second-level scope
+ * - recognize 'import'
+ * - handle class declaration within module
+ * - Handle sequence as empty construct
  */
-public class SVParser implements ISVScanner, IPreProcErrorListener {
-	private Stack<String>			fScopeStack = new Stack<String>();
+public class ParserSVDBFileFactory 
+	implements ISVScanner, IPreProcErrorListener, ISVDBFileFactory,
+		ISVPreProcScannerObserver {
+	private Stack<String>			fSemanticScopeStack;
 	private SVScannerTextScanner	fInput;
+	private SVLexer					fLexer;
 	
 	private boolean					fNewStatement;
 	private ScanLocation			fStmtLocation;
 	private ScanLocation			fStartLocation;
 	
-	private ISVScannerObserver		fObserver;
 	private IDefineProvider			fDefineProvider;
 	private boolean					fEvalConditionals = true;
+
+	private SVDBFile				fFile;
+	private Stack<SVDBScopeItem>	fScopeStack;
+
 	
-	public SVParser() {
+	public ParserSVDBFileFactory(IDefineProvider dp) {
+		setDefineProvider(dp);
+		fScopeStack = new Stack<SVDBScopeItem>();
+		fSemanticScopeStack = new Stack<String>();
+		
+		if (dp != null) {
+			setDefineProvider(dp);
+		}
 	}
 	
 	public void setDefineProvider(IDefineProvider p) {
@@ -84,14 +134,8 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		fStmtLocation = loc;
 	}
 	
-	public void setObserver(ISVScannerObserver observer) {
-		fObserver = observer;
-	}
-	
 	public void preProcError(String msg, String filename, int lineno) {
-		if (fObserver != null) {
-			fObserver.error(msg, filename, lineno);
-		}
+		error(msg, filename, lineno);
 	}
 
 	/**
@@ -109,23 +153,21 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		SVPreProcScanner pp = new SVPreProcScanner();
 		pp.setDefineProvider(fDefineProvider);
 		pp.setScanner(this);
-		pp.setObserver(fObserver);
+		pp.setObserver(this);
 		
 		pp.init(in, filename);
 		pp.setExpandMacros(true);
 		pp.setEvalConditionals(fEvalConditionals);
 		
 		fInput = new SVScannerTextScanner(pp);
+		fLexer = new SVLexer();
+		fLexer.init(fInput);
 		
-		if (fObserver != null) {
-			fObserver.enter_file(filename);
-		}
+		enter_file(filename);
 
 		process();
 
-		if (fObserver != null) {
-			fObserver.leave_file();
-		}
+		leave_file();
 		
 		if (fDefineProvider != null) {
 			fDefineProvider.removeErrorListener(this);
@@ -141,9 +183,11 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				id = ret.fField1;
 
 				if (id != null) {
-					if (id.equals("module") ||
+					if (id.equals("class")) {
+						process_interface_module_class(id);
+					} else if (id.equals("module") ||
 							id.equals("interface") ||
-							id.equals("class") || id.equals("program")) {
+							id.equals("program")) {
 						// enter module scope
 						process_interface_module_class(id);
 					} else if (id.equals("struct")) {
@@ -169,7 +213,6 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		}
 	}
 	
-	
 	private void process_initial_always(String id) throws EOFException {
 		int ch = skipWhite(get_ch());
 		String expr = "", name = "";
@@ -178,7 +221,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		if (id.equals("always")) {
 			if (ch == '@') {
 				startCapture(ch);
-				ch = skipWhite(next_ch());
+				ch = skipWhite(get_ch());
 				
 				if (ch == '(') {
 					ch = skipPastMatch("()");
@@ -186,7 +229,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				expr = endCapture();
 			} else if (ch == '#') {
 				startCapture(ch);
-				ch = skipWhite(next_ch());
+				ch = skipWhite(get_ch());
 				
 				if (ch == '(') {
 					ch = skipPastMatch("()");
@@ -204,21 +247,20 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		
 		id = readIdentifier(ch);
 		
-		if (fObserver != null) {
-			fObserver.enter_initial_always_block(type, expr);
-		}
+		enter_initial_always_block(type, expr);
 		
 		if (id != null && id.equals("begin")) {
 			int begin_cnt = 1;
 			int end_cnt = 0;
+			boolean var_enabled = true;
 
-			ch = skipWhite(next_ch());
+			ch = skipWhite(get_ch());
 			
 			if (ch == ':') {
 				// named begin
-				ch = skipWhite(next_ch());
+				ch = skipWhite(get_ch());
 				
-				if (Character.isJavaIdentifierStart(ch)) {
+				if (SVCharacter.isSVIdentifierStart(ch)) {
 					name = readIdentifier(ch);
 				}
 			} else {
@@ -227,8 +269,8 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			
 			do {
 				do {
-					ch = skipWhite(next_ch());
-				} while (ch != -1 && !Character.isJavaIdentifierStart(ch));
+					ch = skipWhite(get_ch());
+				} while (ch != -1 && !SVCharacter.isSVIdentifierStart(ch));
 				
 				if ((id = readIdentifier(ch)) != null) {
 					if (id.equals("begin")) {
@@ -242,16 +284,14 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			// single-statement begin.
 		}
 		
-		if (fObserver != null) {
-			fObserver.leave_initial_always_block(name);
-		}
+		leave_initial_always_block(name);
 	}
 	
 	private void process_assign() throws EOFException {
 		int ch = skipWhite(get_ch());
 		String target = "";
 
-		if (ch == '(' || Character.isJavaIdentifierStart(ch)) {
+		if (ch == '(' || SVCharacter.isSVIdentifierStart(ch)) {
 			target = readExpression(ch);
 		} else if (ch == '{') {
 			startCapture(ch);
@@ -259,9 +299,9 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			target = endCapture();
 		}
 		
-		if (fObserver != null) {
-			fObserver.assign_stmt(target);
-		}
+		SVDBAssign assign = new SVDBAssign(target);
+		setLocation(assign);
+		fScopeStack.peek().addItem(assign);
 	}
 	
 	private void process_constraint(String id) throws EOFException {
@@ -280,9 +320,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			
 			expr = expr.substring(0, expr.length()-2);
 			
-			if (fObserver != null) {
-				fObserver.constraint(cname, expr);
-			}
+			constraint(cname, expr);
 		}
 		
 		fNewStatement = true;
@@ -292,16 +330,14 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		int ch = get_ch();
 		
 		
-		fScopeStack.push("covergroup");
+		fSemanticScopeStack.push("covergroup");
 		
 		
 		ch = skipWhite(ch);
 		
 		String cg_name = readIdentifier(ch);
 
-		if (fObserver != null) {
-			fObserver.enter_covergroup(cg_name);
-		}
+		enter_covergroup(cg_name);
 
 		ch = skipWhite(get_ch());
 		
@@ -332,7 +368,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				
 				if (ch == ':') {
 					// yep...
-					ch = skipWhite(next_ch());
+					ch = skipWhite(get_ch());
 					String name = id;
 					
 					String type = readIdentifier(ch);
@@ -343,7 +379,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					// read any expression character
 					startCapture(ch);
 					while (ch != -1 && ch != '{' && ch != ';') {
-						ch = next_ch();
+						ch = get_ch();
 					}
 					String target = endCapture();
 					
@@ -371,9 +407,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					
 					// Update the end location
 					setStmtLocation(getLocation());
-					if (fObserver != null) {
-						fObserver.covergroup_item(name, type, target, body);
-					}
+					covergroup_item(name, type, target, body);
 					fNewStatement = true;
 				}
 			}
@@ -387,11 +421,9 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		int ch = skipWhite(get_ch());
 		
 		String name = readIdentifier(ch);
-		fScopeStack.push("sequence");
+		fSemanticScopeStack.push("sequence");
 		
-		if (fObserver != null) {
-			fObserver.enter_sequence(name);
-		}
+		enter_sequence(name);
 		
 		while ((id = scan_statement()) != null) {
 			if (id.equals("endsequence")) {
@@ -406,11 +438,15 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		int ch = skipWhite(get_ch());
 		
 		String name = readIdentifier(ch);
-		fScopeStack.push("property");
+		fSemanticScopeStack.push("property");
 		
-		if (fObserver != null) {
-			fObserver.enter_property(name);
-		}
+		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Property);
+		
+		setLocation(it);
+		
+		fScopeStack.peek().addItem(it);
+		fScopeStack.push(it);
+		
 		
 		while ((id = scan_statement()) != null) {
 			if (id.equals("endproperty")) {
@@ -458,7 +494,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		boolean ret = true;
 		int ch = skipWhite(get_ch());
 		
-		fScopeStack.push(id);
+		fSemanticScopeStack.push(id);
 		
 		tf_name = readIdentifier(ch);
 		ch = skipWhite(get_ch());
@@ -475,10 +511,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			// could have a return type.
 			unget_ch(ch);
 			unget_str(tf_name + " ");
-			ch = skipWhite(next_ch());
+			ch = skipWhite(get_ch());
 			SVTypeInfo typename = readTypeName(ch, false);
 			ret_type = typename.fTypeName;
-			ch = skipWhite(next_ch());
+			ch = skipWhite(get_ch());
 			
 			if (ch == '(' || ch == ';') {
 				// no return type
@@ -497,11 +533,11 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			int cnt = 0;
 			
 			while (ch == '(') {
-				ch = skipWhite(next_ch());
+				ch = skipWhite(get_ch());
 				cnt++;
 			}
 			
-			debug("next_ch=" + (char)ch);
+			debug("get_ch=" + (char)ch);
 			
 			do {
 				ch = skipWhite(ch);
@@ -510,7 +546,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					break;
 				}
 
-				t = readTypeName(ch, true);
+				if ((t = readTypeName(ch, true)) == null) {
+					break;
+				}
+			
 				ch = get_ch();
 				
 				ch = skipWhite(ch);
@@ -519,11 +558,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					break;
 				}
 				
-
 				// Should be name of 
 				n = readIdentifier(ch);
 				ch = get_ch();
-				
+
 				while (ch == '[') {
 					startCapture(ch);
 					ch = skipPastMatch("[]", ",;");
@@ -531,7 +569,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					String capture = endCapture();
 					capture = capture.substring(0, capture.length()-1).trim();
 					
-					t.fTypeName += capture; 
+					t.fArrayDim = capture;
 					ch = skipWhite(ch);
 				}
 				
@@ -541,10 +579,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				ch = skipWhite(ch);
 
 				if (ch == '=') {
-					ch = skipWhite(next_ch());
+					ch = skipWhite(get_ch());
 					while (ch != -1 && ch != ',' && ch != ')' &&
 							!Character.isWhitespace(ch)) {
-						ch = next_ch();
+						ch = get_ch();
 					}
 					ch = skipWhite(ch);
 				}
@@ -555,19 +593,17 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				
 				ch = skipWhite(ch);
 				if (ch == ',') {
-					ch = skipWhite(next_ch());
+					ch = skipWhite(get_ch());
 				} else {
 					break;
 				}
 			} while (t != null && ch != ')' && ch != -1);
 		}
 		
-		if (fObserver != null) {
-			if (ret_type != null) {
-				fObserver.enter_func_decl(tf_name, modifiers, ret_type, params);
-			} else {
-				fObserver.enter_task_decl(tf_name, modifiers, params);
-			}
+		if (ret_type != null) {
+			enter_func_decl(tf_name, modifiers, ret_type, params);
+		} else {
+			enter_task_decl(tf_name, modifiers, params);
 		}
 		
 		debug("" + id + " " + tf_name);
@@ -575,6 +611,8 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		boolean has_body = true;
 		
 		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) != 0 ||
+				((modifiers & ISVScannerObserver.FieldAttr_Pure) != 0 &&
+				 (modifiers & ISVScannerObserver.FieldAttr_Virtual) != 0) ||
 				(modifiers & ISVScannerObserver.FieldAttr_DPI) != 0) {
 			has_body = false;
 		}
@@ -587,59 +625,60 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		
 		if (has_body) {
 			String  exp_end = "end" + id;
-			boolean var_enabled = true;
+			ret = task_function_initial_body(exp_end);
 			
-			while ((id = scan_statement()) != null) {
-				// First, look for local variables
-				if (var_enabled && !id.equals(exp_end)) {
-					if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
-						unget_str(id + " ");
-						
-						var_enabled = scanVariableDeclaration(0);
-					} else {
-						var_enabled = false;
-					}
-				} else if (id.equals(exp_end)) {
-					break;
-				} else if (isSecondLevelScope(id)) {
-//					System.out.println("id \"" + id + "\" is a second-level scope");
-					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\"",
-								getLocation().getFileName(),
-								getLocation().getLineNo());
-						System.out.println("second-level scope \"" + id + "\"");
-					}
-
-					// 
-					fNewStatement = true;
-					unget_str(id + " ");
-					break;
-				} else if (isFirstLevelScope(id, 0)) {
-//					System.out.println("id \"" + id + "\" is a first-level scope");
-					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\"",
-								getLocation().getFileName(),
-								getLocation().getLineNo());
-					}
-
-					System.out.println("first-level scope \"" + id + "\" " + tf_name);
-
-					// We're in a first-level scope.
-					// we pick it up on next pass
-					handle_leave_scope();
-					ret = false;
-					fNewStatement = true;
-					unget_str(id + " ");
-					break;
-				}
-				debug("    behave section: " + id);
-			}
-			debug("    endbehave: " + id);
 		} else {
 			debug("    extern task/function declaration");
 		}
 		
 		handle_leave_scope();
+		
+		return ret;
+	}
+	
+	private boolean task_function_initial_body(String exp_end) throws EOFException {
+		boolean var_enabled = true;
+		String id;
+		boolean ret = true;
+		
+		while ((id = scan_statement()) != null) {
+			// First, look for local variables
+			if (var_enabled && !id.equals(exp_end)) {
+				if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
+					unget_str(id + " ");
+					
+					var_enabled = scanVariableDeclaration(0);
+				} else {
+					var_enabled = false;
+				}
+			} else if (id.equals(exp_end)) {
+				break;
+			} else if (isSecondLevelScope(id)) {
+//				System.out.println("id \"" + id + "\" is a second-level scope");
+				error("missing \"" + exp_end + "\"",
+						getLocation().getFileName(),
+						getLocation().getLineNo());
+
+				// 
+				fNewStatement = true;
+				unget_str(id + " ");
+				break;
+			} else if (isFirstLevelScope(id, 0)) {
+				error("missing \"" + exp_end + "\"",
+						getLocation().getFileName(),
+						getLocation().getLineNo());
+
+				// We're in a first-level scope.
+				// we pick it up on next pass
+				handle_leave_scope();
+				ret = false;
+				fNewStatement = true;
+				unget_str(id + " ");
+				break;
+			}
+			debug("    behave section: " + id);
+		}
+		debug("    endbehave: " + id);
 		
 		return ret;
 	}
@@ -651,11 +690,11 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		List<SVClassIfcModParam>	super_params = null;
 		String module_type_name = null;
 		String ports = null;
-		int ch = skipWhite(next_ch());
+		int ch = skipWhite(get_ch());
 		
 		debug("--> process_module()");
 
-		fScopeStack.push(type);
+		fSemanticScopeStack.push(type);
 		
 		//
 		// Skip up to point of module type name
@@ -663,7 +702,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		
 		ch = skipWhite(ch);
 		
-		if (Character.isJavaIdentifierStart(ch)) {
+		if (SVCharacter.isSVIdentifierStart(ch)) {
 			module_type_name = readIdentifier(ch);
 			ch = get_ch();
 			debug("  module_type_name=" + module_type_name);
@@ -674,7 +713,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		// Handle modules with parameters
 		ch = skipWhite(ch);
 		if (ch == '#') {
-			ch = skipWhite(next_ch());
+			ch = skipWhite(get_ch());
 			if (ch == '(') {
 				startCapture();
 				ch = skipPastMatch("()");
@@ -691,7 +730,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		// Class extension
 		ch = skipWhite(ch);
 		if (type.equals("class")) {
-			if (Character.isJavaIdentifierPart(ch)) {
+			if (SVCharacter.isSVIdentifierPart(ch)) {
 				// likely an 'extends' statement
 				String ext = readIdentifier(ch);
 				
@@ -705,7 +744,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 
 						if (ch == '#') {
 							// parameters
-							ch = skipWhite(next_ch());
+							ch = skipWhite(get_ch());
 							if (ch == '(') {
 								startCapture();
 								ch = skipPastMatch("()");
@@ -732,18 +771,16 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		ch = skipWhite(ch);
 		unget_ch(ch);
 		
-		if (fObserver != null) {
-			if (type.equals("module")) {
-				fObserver.enter_module_decl(module_type_name, ports);
-			} else if (type.equals("program")) {
-				fObserver.enter_program_decl(module_type_name);
-			} else if (type.equals("interface")) {
-				fObserver.enter_interface_decl(module_type_name, ports);
-			} else if (type.equals("class")) {
-				fObserver.enter_class_decl(module_type_name, params, super_name, super_params);
-			} else if (type.equals("struct")) {
-				fObserver.enter_struct_decl(module_type_name, params);
-			}
+		if (type.equals("module")) {
+			enter_module_decl(module_type_name, ports);
+		} else if (type.equals("program")) {
+			enter_program_decl(module_type_name);
+		} else if (type.equals("interface")) {
+			enter_interface_decl(module_type_name, ports);
+		} else if (type.equals("class")) {
+			enter_class_decl(module_type_name, params, super_name, super_params);
+		} else if (type.equals("struct")) {
+			enter_struct_decl(module_type_name, params);
 		}
 
 		while ((id = scan_statement()) != null) {
@@ -772,7 +809,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		
 		System.out.println("process_struct_decl");
 		
-		while (Character.isJavaIdentifierStart(ch)) {
+		while (SVCharacter.isSVIdentifierStart(ch)) {
 			/* String qual = */ readIdentifier(ch);
 			
 			ch = skipWhite(get_ch());
@@ -782,9 +819,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			return;
 		}
 		
-		if (fObserver != null) {
-			fObserver.enter_struct_decl("", null);
-		}
+		enter_struct_decl("", null);
 		
 		String id;
 		
@@ -812,10 +847,8 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		}
 		
 		if (type_info == null) {
-			if (fObserver != null) {
-				fStmtLocation = getLocation();
-				fObserver.leave_struct_decl("ANONYMOUS");
-			}
+			fStmtLocation = getLocation();
+			leave_struct_decl("ANONYMOUS");
 		}
 
 		/*
@@ -831,13 +864,11 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 	
 	private void process_package(String id) throws EOFException {
 		if (id.equals("package")) {
-			int ch = skipWhite(next_ch());
+			int ch = skipWhite(get_ch());
 			String pkg = readQualifiedIdentifier(ch);
-			fObserver.enter_package(pkg);
+			enter_package(pkg);
 		} else {
-			if (fObserver != null) {
-				fObserver.leave_package();
-			}
+			leave_package();
 		}
 	}
 	
@@ -850,35 +881,43 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		for (int i=0; i<levels; i++) {
 			String type = null;
 			
-			if (fScopeStack.size() > 0) {
-				type = fScopeStack.pop();
+			if (fSemanticScopeStack.size() > 0) {
+				type = fSemanticScopeStack.pop();
 			} else {
 				System.out.println("[ERROR] attempting to leave scope @ " + 
 						getLocation().getFileName() + ":" +
 						getLocation().getLineNo());
 			}
 			
-			if (type != null && fObserver != null) {
+			if (type != null) {
 				if (type.equals("module")) {
-					fObserver.leave_module_decl();
+					leave_module_decl();
 				} else if (type.equals("program")) {
-					fObserver.leave_program_decl();
+					leave_program_decl();
 				} else if (type.equals("interface")) {
-					fObserver.leave_interface_decl();
+					leave_interface_decl();
 				} else if (type.equals("class")) {
-					fObserver.leave_class_decl();
+					leave_class_decl();
 				} else if (type.equals("struct")) {
-					fObserver.leave_struct_decl("");
+					leave_struct_decl("");
 				} else if (type.equals("task")) {
-					fObserver.leave_task_decl();
+					leave_task_decl();
 				} else if (type.equals("function")) {
-					fObserver.leave_func_decl();
+					leave_func_decl();
 				} else if (type.equals("covergroup")) {
-					fObserver.leave_covergroup();
+					leave_covergroup();
 				} else if (type.equals("sequence")) {
-					fObserver.leave_sequence();
+					if (fScopeStack.size() > 0 && 
+							fScopeStack.peek().getType() == SVDBItemType.Sequence) {
+						setEndLocation(fScopeStack.peek());
+						fScopeStack.pop();
+					}
 				} else if (type.equals("property")) {
-					fObserver.leave_property();
+					if (fScopeStack.size() > 0 && 
+							fScopeStack.peek().getType() == SVDBItemType.Property) {
+						setEndLocation(fScopeStack.peek());
+						fScopeStack.pop();
+					}
 				}
 			}
 		}
@@ -901,6 +940,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		}
 
 		while (ch != -1) {
+			SVClassIfcModParam p;
 			ch = in.skipWhite(in.get_ch());
 
 			id = in.readIdentifier(ch);
@@ -915,8 +955,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			}
 
 			// id now holds the template identifier
-
-			ret.add(new SVClassIfcModParam(id));
+			p = new SVClassIfcModParam(id);
 
 			ch = in.skipWhite(in.get_ch());
 
@@ -925,17 +964,26 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			}
 
 			ch = in.skipWhite(ch);
+			
+			if (ch == '=') {
+				ch = in.skipWhite(in.get_ch());
+				if ((id = in.readIdentifier(ch)) != null) {
+					p.setDefault(id);
+				}
+			}
 
 			while (ch != -1 && ch != ',') {
 				ch = in.get_ch();
 			}
+			
+			ret.add(p);
 		}
 		
 		return ret;
 	}
 	
 	private void process_import(String type) throws EOFException {
-		int ch = skipWhite(next_ch());
+		int ch = skipWhite(get_ch());
 		
 		if (ch == '"') {
 			// likely  DPI import/export. Double-check
@@ -962,14 +1010,12 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		} else if (type.equals("import")) {
 			// skip to end-of-statement
 			startCapture(ch);
-			while ((ch = next_ch()) != -1 && 
+			while ((ch = get_ch()) != -1 && 
 					!Character.isWhitespace(ch) && ch != ';') {
 			}
 			String imp_str = endCapture();
 
-			if (fObserver != null) {
-				fObserver.import_statment(imp_str);
-			}
+			import_statment(imp_str);
 
 			if (ch == ';') {
 				unget_ch(ch);
@@ -978,7 +1024,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 	}
 	
 	private void process_export(String type) throws EOFException {
-		int ch = skipWhite(next_ch());
+		int ch = skipWhite(get_ch());
 
 		String qualifier = readString(ch);
 		
@@ -1009,17 +1055,15 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		
 		ch = skipWhite(get_ch());
 		
-		if (Character.isJavaIdentifierPart(ch)) {
+		if (SVCharacter.isSVIdentifierPart(ch)) {
 			String id = readIdentifier(ch);
 			
 			if (type != null) {
-				if (fObserver != null) {
-					if (!type.fStructType) {
-						fObserver.typedef(id, type);
-					} else {
-						fStmtLocation = getLocation();
-						fObserver.leave_struct_decl(id);
-					}
+				if (!type.fStructType) {
+					typedef(id, type);
+				} else {
+					fStmtLocation = getLocation();
+					leave_struct_decl(id);
 				}
 			}
 		}
@@ -1113,10 +1157,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		} else if (id.startsWith("end") && SVKeywords.isSVKeyword(id)) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.
-			if (fScopeStack.size() > 0) {
+			if (fSemanticScopeStack.size() > 0) {
 				// We've hit end of our current section
-				if (("end" + fScopeStack.peek()).equals(id)) {
-					fScopeStack.pop();
+				if (("end" + fSemanticScopeStack.peek()).equals(id)) {
+					fSemanticScopeStack.pop();
 				}
 			}
 		} else if (id.equals("typedef")) {
@@ -1167,7 +1211,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		int 				ch;
 		boolean         	is_variable = true;
 		
-		ch = skipWhite(next_ch());
+		ch = skipWhite(get_ch());
 		
 		type = readTypeName(ch, false);
 		ch = skipWhite(get_ch());
@@ -1182,7 +1226,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		// First, skip qualifiers
 		/*
 		if (ch == '#') {
-			ch = skipWhite(next_ch());
+			ch = skipWhite(get_ch());
 			
 			if (ch == '(') {
 				ch = skipPastMatch("()");
@@ -1200,7 +1244,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		do {
 			
 			if (ch == ',') {
-				ch = next_ch();
+				ch = get_ch();
 			}
 			
 			ch = skipWhite(ch);
@@ -1267,8 +1311,8 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 			unget_ch(ch);
 		}
 		
-		if (fObserver != null && vars.size() > 0) {
-			fObserver.variable_decl(type, modifiers, vars);
+		if (vars.size() > 0) {
+			variable_decl(type, modifiers, vars);
 		}
 		
 		return is_variable;
@@ -1295,15 +1339,15 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 	 */
 	private String scan_statement() throws EOFException {
 		int     ch;
-		while ((ch = next_ch()) != -1) {
+		
+		while ((ch = get_ch()) != -1) {
 			switch (ch) {
 				case ';':
 				case '\n':
 					// Typically mark the end of statements
 					fNewStatement = true;
-					// System.out.println("new statement @ " + getLocation().getLineNo() + "(" + (char)ch + ")");
 					break;
-					
+
 				// Ignore whitespace...
 				case ' ':
 				case '\t':
@@ -1312,19 +1356,17 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				default:
 					if (fNewStatement) {
 						fStmtLocation = getLocation();
-						String id = null;
-						if (Character.isJavaIdentifierStart(ch)) {
-							id = readIdentifier(ch);
-							
-							if (id != null) {
+						if (SVCharacter.isSVIdentifierStart(ch)) {
+							unget_ch(ch);
+							fLexer.next_token();
+							if (fLexer.isIdentifier()) {
 								fNewStatement = false;
 							}
-							
-							return id;
+							return fLexer.getImage();
 						} else if (ch == '`') {
 							System.out.println("[ERROR] pre-processor directive encountered");
 							/*
-							ch = skipWhite(next_ch());
+							ch = skipWhite(get_ch());
 							handle_preproc_directive(readIdentifier(ch));
 							 */
 							
@@ -1363,7 +1405,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 	 */
 
 	private String readQualifiedIdentifier(int ci) throws EOFException {
-		if (!Character.isJavaIdentifierStart(ci)) {
+		if (!SVCharacter.isSVIdentifierStart(ci)) {
 			unget_ch(ci);
 			return null;
 		}
@@ -1372,7 +1414,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		ret.append((char)ci);
 		
 		while ((ci = get_ch()) != -1 && 
-				(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+				(SVCharacter.isSVIdentifierPart(ci) || ci == ':')) {
 			ret.append((char)ci);
 		}
 		unget_ch(ci);
@@ -1388,7 +1430,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				startCapture(ci);
 				unget_ch(skipPastMatch("()"));
 				ret.append(endCapture());
-			} else if (Character.isJavaIdentifierStart(ci)) {
+			} else if (SVCharacter.isSVIdentifierStart(ci)) {
 				ret.append(readIdentifier(ci));
 			} else {
 				break;
@@ -1450,7 +1492,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 				type.fVectorDim = bitrange;
 			}
 			
-			if (!Character.isJavaIdentifierStart(ch)) {
+			if (!SVCharacter.isSVIdentifierStart(ch)) {
 				break;
 			}
 			
@@ -1477,10 +1519,10 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 					// assume this is a user-defined type
 					ret.append(id);
 					
-					ch = skipWhite(next_ch());
+					ch = skipWhite(get_ch());
 					// Allow parameterized types
 					if (ch == '#') {
-						ch = skipWhite(next_ch());
+						ch = skipWhite(get_ch());
 						
 						if (ch == '(') {
 							startCapture(ch) ;
@@ -1554,7 +1596,7 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 							startCapture(ch);
 							
 							// handle optional equals clause
-							while ((ch = next_ch()) != -1 &&
+							while ((ch = get_ch()) != -1 &&
 									ch != ',' && ch != '}') {
 								// skip to the next item
 							}
@@ -1633,18 +1675,6 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 		return fInput.skipPastMatch(pair, escape);
 	}
 
-	/**
-	 * next_ch()
-	 * 
-	 * Returns the next character, after skipping any comments
-	 * 
-	 * @return
-	 */
-	private int next_ch() throws EOFException {
-		// return fInput.next_ch();
-		return fInput.get_ch();
-	}
-
 	private int get_ch() throws EOFException {
 		return get_ch(true);
 	}
@@ -1679,5 +1709,461 @@ public class SVParser implements ISVScanner, IPreProcErrorListener {
 	private void debug(String msg) {
 		// System.out.println(msg);
 	}
+
+	public void error(String msg, String filename, int lineno) {
+		SVDBMarkerItem marker = new SVDBMarkerItem(
+				SVDBMarkerItem.MARKER_ERR,
+				SVDBMarkerItem.KIND_GENERIC, msg);
+		marker.setLocation(new SVDBLocation(fFile, lineno, 0));
+		
+		fFile.addItem(marker);
+	}
 	
+	public SVDBFile parse(InputStream in, String name) {
+		fScopeStack.clear();
+		
+		fFile = new SVDBFile(name);
+		fScopeStack.push(fFile);
+		scan(in, name);
+		
+		return fFile;
+	}
+	
+	
+	public void enter_file(String filename) {
+	}
+	
+	
+	public void enter_package(String name) {
+		SVDBPackageDecl pkg_decl = new SVDBPackageDecl(name);
+		
+		setLocation(pkg_decl);
+
+		fScopeStack.peek().addItem(pkg_decl);
+		fScopeStack.push(pkg_decl);
+	}
+
+	
+	public void leave_package() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.PackageDecl) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	
+	public void import_statment(String imp) throws HaltScanException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+	public void enter_module_decl(String name, String ports)
+			throws HaltScanException {
+		SVDBModIfcClassDecl md = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Module);
+		fScopeStack.peek().addItem(md);
+		fScopeStack.push(md);
+
+		setLocation(md);
+	}
+	
+	
+	public void enter_program_decl(String name) throws HaltScanException {
+		SVDBProgramBlock p = new SVDBProgramBlock(name);
+		
+		fScopeStack.peek().addItem(p);
+		fScopeStack.push(p);
+		
+		setLocation(p);
+	}
+
+	public void enter_interface_decl(String name, String ports)
+			throws HaltScanException {
+		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Interface);
+		fScopeStack.peek().addItem(id);
+		fScopeStack.push(id);
+		
+		setLocation(id);
+	}
+
+	
+	public void leave_interface_decl() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Interface) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	
+	public void enter_class_decl(
+			String 						name, 
+			List<SVClassIfcModParam> 	params,
+			String						super_name,
+			List<SVClassIfcModParam>	super_params) 
+		throws HaltScanException {
+		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Class);
+		
+		for (SVClassIfcModParam p : params) {
+			SVDBModIfcClassParam p_svdb = new SVDBModIfcClassParam(p.getName());
+			p_svdb.setDefault(p.getDefault());
+			decl.getParameters().add(p_svdb);
+		}
+		
+		decl.setSuperClass(super_name);
+		
+		if (super_params != null) {
+			for (SVClassIfcModParam p : super_params) {
+				decl.getSuperParameters().add(new SVDBModIfcClassParam(p.getName()));
+			}
+		}
+		
+		fScopeStack.peek().addItem(decl);
+		fScopeStack.push(decl);
+		
+		setLocation(decl);
+	}
+
+	
+	public void leave_class_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Class) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	
+	public void enter_struct_decl(String name, List<SVClassIfcModParam> params) 
+		throws HaltScanException {
+		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+				name, SVDBItemType.Struct);
+		
+		fScopeStack.peek().addItem(decl);
+		fScopeStack.push(decl);
+		
+		setLocation(decl);
+	}
+
+	public void leave_struct_decl(String name) throws HaltScanException {
+		if (fScopeStack.size() > 0 &&
+				fScopeStack.peek().getType() == SVDBItemType.Struct) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop().setName(name);
+		}
+	}
+
+	
+	public void enter_task_decl(
+			String 						name,
+			int 						attr,
+			List<SVTaskFuncParam> 		params)
+			throws HaltScanException {
+		SVDBTaskFuncScope task = new SVDBTaskFuncScope(name, SVDBItemType.Task);
+		task.setAttr(attr);
+		
+		for (SVTaskFuncParam p : params) {
+			// TODO: fixme. Parameters can be of array/queue type too
+			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+			task.addParam(svp);
+		}
+		
+		fScopeStack.peek().addItem(task);
+		fScopeStack.push(task);
+		
+		setLocation(task);
+	}
+	
+	public void enter_func_decl(
+			String 						name,
+			int 						attr,
+			String						ret_type,
+			List<SVTaskFuncParam> 		params)
+			throws HaltScanException {
+		SVDBTaskFuncScope func = new SVDBTaskFuncScope(name, SVDBItemType.Function);
+		func.setAttr(attr);
+		func.setReturnType(ret_type);
+		
+		for (SVTaskFuncParam p : params) {
+			// TODO: fixme. Parameters can be of array/queue type too
+			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+			func.addParam(svp);
+		}
+		
+		fScopeStack.peek().addItem(func);
+		fScopeStack.push(func);
+		
+		setLocation(func);
+	}
+
+	
+	public void leave_task_decl() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Task) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	public void leave_func_decl() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Function) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+	
+	public void enter_initial_always_block(String id, String expr) {
+		SVDBScopeItem scope;
+		if (id.equals("always")) {
+			scope = new SVDBAlwaysBlock(expr);
+		} else {
+			scope = new SVDBInitialBlock();
+		}
+		setLocation(scope);
+		
+		fScopeStack.peek().addItem(scope);
+		fScopeStack.push(scope);
+	}
+	
+	public void leave_initial_always_block(String name) {
+		if (fScopeStack.size() > 0 &&
+				(fScopeStack.peek().getType() == SVDBItemType.AlwaysBlock ||
+				 fScopeStack.peek().getType() == SVDBItemType.InitialBlock)) {
+			setEndLocation(fScopeStack.peek());
+			SVDBScopeItem scope = fScopeStack.pop();
+			scope.setName(name);
+		}
+	}
+	
+	public void init(ISVScanner scanner) {
+		// TODO Auto-generated method stub
+	}
+
+	
+	public void leave_file() {
+		if (fScopeStack.size() > 0 &&
+				fScopeStack.peek().getType() == SVDBItemType.File) {
+			setEndLocation(fScopeStack.peek());
+		}
+	}
+
+	
+	public void leave_module_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Module) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	
+	public void leave_program_decl() throws HaltScanException {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Program) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	public void variable_decl(
+			SVTypeInfo 		type, 
+			int 			attr, 
+			List<SvVarInfo>	variables) throws HaltScanException {
+		
+		if (type.fModIfc) {
+			SVDBTypeInfo type_info = new SVDBTypeInfo(
+					type.fTypeName, SVDBTypeInfo.TypeAttr_ModIfc);
+			SVDBModIfcInstItem item = new SVDBModIfcInstItem(
+					type_info, variables.get(0).fName);
+			setLocation(item);
+			fScopeStack.peek().addItem(item);
+		} else {
+			List<SVDBModIfcClassParam> parameters = null;
+			
+			if (type.fParameters != null) {
+				parameters = new ArrayList<SVDBModIfcClassParam>();
+				for (SVClassIfcModParam p : type.fParameters) {
+					parameters.add(new SVDBModIfcClassParam(p.getName()));
+				}
+			}
+			
+			int type_attr = 0;
+			
+			if (type.fParameters != null && type.fParameters.size() > 0) {
+				type_attr  |= SVDBTypeInfo.TypeAttr_Parameterized;
+			}
+			
+			if (type.fVectorDim != null) {
+				type_attr |= SVDBTypeInfo.TypeAttr_Vectored;
+			}
+				
+			SVDBTypeInfo type_info = null;
+			
+			for (SvVarInfo var : variables) {
+				if (var != null) {
+					type_info = new SVDBTypeInfo(type.fTypeName, type_attr|var.fAttr);
+					type_info.setArrayDim(var.fArrayDim);
+					type_info.setVectorDim(type.fVectorDim);
+					SVDBVarDeclItem item = new SVDBVarDeclItem(type_info, var.fName);
+					setLocation(item);
+					type_info.setParameters(parameters);
+				
+					if (item.getName() == null || item.getName().equals("")) {
+						System.out.println("    " + item.getLocation().getFile().getName() + ":" + item.getLocation().getLine());
+					}
+					item.setAttr(attr);
+					fScopeStack.peek().addItem(item);
+				} else {
+					// TODO: variable name is null
+				}
+			}
+		}
+	}
+
+	private void setStartLocation(SVDBItem item) {
+		ScanLocation loc = getStartLocation();
+		
+		if (loc != null) {
+			item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
+		}
+	}
+	
+	private void setLocation(SVDBItem item) {
+		ScanLocation loc = getStmtLocation();
+		item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
+	}
+	
+	private void setEndLocation(SVDBScopeItem item) {
+		ScanLocation loc = getStmtLocation();
+		item.setEndLocation(new SVDBLocation(null, loc.getLineNo(), loc.getLinePos()));
+	}
+
+	
+	public void preproc_define(String key, List<String> params, String value) {
+		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
+		
+		setLocation(def);
+		
+		if (def.getName() == null || def.getName().equals("")) {
+			System.out.println("    " + 
+					def.getLocation().getFile().getName() + ":" + 
+					def.getLocation().getLine());
+		}
+		
+		fScopeStack.peek().addItem(def);
+	}
+
+	
+	public void preproc_include(String path) {
+		SVDBInclude inc = new SVDBInclude(path);
+		
+		setLocation(inc);
+		fScopeStack.peek().addItem(inc);
+	}
+	
+	public void enter_preproc_conditional(String type, String conditional) {
+		
+	}
+
+	public void leave_preproc_conditional() {}
+
+
+	public void comment(String comment) {
+		
+	}
+	
+	public void enter_covergroup(String name) {
+		SVDBCoverGroup cg = new SVDBCoverGroup(name);
+		cg.setSuperClass(BuiltinClassConstants.Covergroup);
+		setLocation(cg);
+		
+		fScopeStack.peek().addItem(cg);
+		fScopeStack.push(cg);
+	}
+
+	
+	public void leave_covergroup() {
+		if (fScopeStack.size() > 0 && 
+				fScopeStack.peek().getType() == SVDBItemType.Covergroup) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+	}
+
+	
+	public void covergroup_item(String name, String type, String target, String body) {
+		SVDBScopeItem it = null;
+		
+		if (type == null) {
+			return;
+		}
+
+		if (type.equals("coverpoint")) {
+			it = new SVDBCoverPoint(name, target, body);
+			((SVDBCoverPoint)it).setSuperClass(BuiltinClassConstants.Coverpoint);
+		} else if (type.equals("cross")) {
+			it = new SVDBCoverpointCross(name, body);
+
+			((SVDBCoverpointCross)it).setSuperClass(BuiltinClassConstants.CoverpointCross);
+
+			for (String cp : target.split(",")) {
+				cp = cp.trim();
+				if (!cp.equals("")) {
+					if (cp.endsWith(";")) {
+						cp = cp.substring(0, cp.length()-1).trim();
+					}
+					((SVDBCoverpointCross)it).getCoverpointList().add(cp);
+				}
+			}
+		} else {
+//			System.out.println("unknown covergroup item: " + type);
+		}
+			
+		if (it != null) {
+			setStartLocation(it);
+			setEndLocation(it);
+			fScopeStack.peek().addItem(it);
+		}
+	}
+	
+	public void constraint(String name, String expr) {
+		SVDBConstraint c = new SVDBConstraint(name, expr);
+		setLocation(c);
+		fScopeStack.peek().addItem(c);
+	}
+
+	public void enter_sequence(String name) {
+		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Sequence);
+		
+		setLocation(it);
+		fScopeStack.peek().addItem(it);
+		fScopeStack.push(it);
+	}
+
+	public void typedef(String typeName, SVTypeInfo typeInfo) {
+		SVDBTypedef typedef;
+		
+		if (typeInfo.fEnumType) {
+			typedef = new SVDBTypedef(typeName);
+			
+			for (SVEnumVal v : typeInfo.fEnumVals) {
+				typedef.getEnumNames().add(v.fName);
+				typedef.getEnumVals().add((int)v.fVal);
+			}
+		} else {
+			typedef = new SVDBTypedef(typeInfo.fTypeName, typeName);
+		}
+		
+		if (fScopeStack.size() > 0) {
+			setLocation(typedef);
+			fScopeStack.peek().addItem(typedef);
+		}
+	}
 }

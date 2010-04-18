@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -30,6 +29,8 @@ public class IndentTests extends TestCase {
 		TestSuite suite = new TestSuite("IndentTests");
 		suite.addTest(new TestSuite(IndentTests.class));
 		suite.addTest(new TestSuite(NoHangIndentTests.class));
+		suite.addTest(new TestSuite(TestIndentScanner.class));
+		suite.addTest(new TestSuite(TestAdaptiveIndent.class));
 		
 		return suite;
 	}
@@ -41,39 +42,8 @@ public class IndentTests extends TestCase {
 		bos = utils.readBundleFile("/indent/class1.svh");
 		
 		String ref = bos.toString();
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = removeLeadingWS(ref);
 		
-		int i=0;
-		
-		while (i < ref.length()) {
-			// Read leading whitespace
-			while (i < ref.length() && 
-					Character.isWhitespace(ref.charAt(i)) &&
-					ref.charAt(i) != '\n') {
-				i++;
-			}
-			
-			if (i >= ref.length()) {
-				break;
-			}
-			
-			if (ref.charAt(i) == '\n') {
-				sb.append('\n');
-				i++;
-				continue;
-			} else {
-				// Read to the end of the line
-				while (i < ref.length() && ref.charAt(i) != '\n') {
-					sb.append(ref.charAt(i));
-					i++;
-				}
-				
-				if (i < ref.charAt(i)) {
-					sb.append('\n');
-				}
-			}
-		}
-
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
 		SVDefaultIndenter indenter = new SVDefaultIndenter();
@@ -116,42 +86,8 @@ public class IndentTests extends TestCase {
 		bos = utils.readBundleFile("/indent/module.svh");
 		
 		String ref = bos.toString();
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = removeLeadingWS(ref);
 		
-		int i=0;
-		
-		// 
-		while (i < ref.length()) {
-			// Read leading whitespace
-			while (i < ref.length() && 
-					Character.isWhitespace(ref.charAt(i)) &&
-					ref.charAt(i) != '\n') {
-				i++;
-			}
-			
-			if (i >= ref.length()) {
-				break;
-			}
-			
-			if (ref.charAt(i) == '\n') {
-				sb.append('\n');
-				i++;
-				continue;
-			} else {
-				// Read to the end of the line
-				while (i < ref.length() && ref.charAt(i) != '\n') {
-					sb.append(ref.charAt(i));
-					i++;
-				}
-
-				/*
-				if (i < ref.length()) {
-					sb.append('\n');
-				}
-				 */
-			}
-		}
-
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
 		SVDefaultIndenter indenter = new SVDefaultIndenter();
@@ -186,7 +122,71 @@ public class IndentTests extends TestCase {
 		assertEquals("Expect no errors", 0, err_cnt);
 		assertTrue("Check accomplished work", (pass_cnt != 0));
 	}
+
+	public void testMultiBlankLine() {
+		String ref = 
+		"class my_component1 extends ovm_component;\n" +
+		"	\n" +
+		"			\n" +
+		"	function new(string name, ovm_component parent);\n" +
+		"		super.new(name, parent);\n" +
+		"	endfunction\n" +
+		"	\n"  +
+		"		\n" +
+		"endclass\n";
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		indenter.init(scanner);
+		
+		String result = indenter.indent(-1, -1);
+		
+		System.out.println("Ref:");
+		System.out.print(ref);
+		System.out.println("====");
+		System.out.println("Result:");
+		System.out.print(result);
+		System.out.println("====");
+		
+		assertEquals("Check for expected indent result", ref, result);
+	}
 	
+	private StringBuilder removeLeadingWS(String ref) {
+		StringBuilder sb = new StringBuilder();
+		int i=0;
+		while (i < ref.length()) {
+			// Read leading whitespace
+			while (i < ref.length() && 
+					Character.isWhitespace(ref.charAt(i)) &&
+					ref.charAt(i) != '\n') {
+				i++;
+			}
+			
+			if (i >= ref.length()) {
+				break;
+			}
+			
+			if (ref.charAt(i) == '\n') {
+				sb.append('\n');
+				i++;
+				continue;
+			} else {
+				// Read to the end of the line
+				while (i < ref.length() && ref.charAt(i) != '\n') {
+					sb.append(ref.charAt(i));
+					i++;
+				}
+				
+				if (i < ref.charAt(i)) {
+					sb.append('\n');
+				}
+			}
+		}
+		
+		return sb;
+	}
+
 	private String readLine(StringBuilder sb) {
 		int end = 0;
 		String ret = null;
@@ -207,5 +207,6 @@ public class IndentTests extends TestCase {
 		
 		return ret;
 	}
+	
 
 }

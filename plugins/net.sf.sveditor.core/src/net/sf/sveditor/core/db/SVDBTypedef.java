@@ -18,12 +18,25 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTypedef extends SVDBItem {
 	private List<String>					fEnumNames;
 	private List<Integer>					fEnumVals;
 	private boolean							fIsEnum;
 	private String							fTypeName;
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBTypedef(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Typedef); 
+	}
 	
 	
 	public SVDBTypedef(String type, String name) {

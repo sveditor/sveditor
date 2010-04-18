@@ -16,8 +16,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.sf.sveditor.core.parser.SVToken.Type;
-import net.sf.sveditor.core.scanner.SVKeywords;
+import net.sf.sveditor.core.parser.SVToken_sav.Type;
 
 /**
  * Parses a SystemVerilog description. The structure is based on Annex A 
@@ -26,11 +25,11 @@ import net.sf.sveditor.core.scanner.SVKeywords;
  * @author ballance
  */
 public class SystemVerilogParser_sav {
-	private SVLexer				fLexer;
+	private SVLexer_sav				fLexer;
 	private int					fLifetimeFlags;
 	private int					fClassItemQualifier;
 	
-	public SystemVerilogParser_sav(SVLexer lex) {
+	public SystemVerilogParser_sav(SVLexer_sav lex) {
 		fLexer = lex;
 	}
 	
@@ -38,7 +37,7 @@ public class SystemVerilogParser_sav {
 	 * 
 	 */
 	public void parse() {
-		SVToken tok = next_token_ignore_attr();
+		SVToken_sav tok = next_token_ignore_attr();
 		
 		while (tok != null) {
 			if (tok.isKeyword("class")) {
@@ -55,7 +54,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken timeunits_declaration(SVToken tok) {
+	private SVToken_sav timeunits_declaration(SVToken_sav tok) {
 		// TODO:
 		
 		return tok;
@@ -66,7 +65,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken description(SVToken tok) {
+	private SVToken_sav description(SVToken_sav tok) {
 		/*
 		while (true) {
 			// handle attributes that may be attached to this description
@@ -94,7 +93,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken module_declaration(SVToken tok) {
+	private SVToken_sav module_declaration(SVToken_sav tok) {
 		/*
 		assert tok.getKeyword() == SVKeywords.KW_module || 
 			tok.getKeyword() == SVKeywords.KW_macromodule;
@@ -112,8 +111,8 @@ public class SystemVerilogParser_sav {
 		// allow specification of lifetime
 		tok = lifetime(tok);
 		
-		tok = expect_next_type(SVToken.Type.Id);
-		SVToken name = tok;
+		tok = expect_next_type(SVToken_sav.Type.Id);
+		SVToken_sav name = tok;
 		
 		/**
 		 * Allow module in-line parameter declaration 
@@ -141,7 +140,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private SVToken class_declaration(SVToken tok) {
+	private SVToken_sav class_declaration(SVToken_sav tok) {
 		/*
 		if (tok.getKeyword() == SVKeywords.KW_virtual) {
 			tok = next_token_ignore_attr();
@@ -202,7 +201,7 @@ public class SystemVerilogParser_sav {
 	}
 	
 	
-	private SVToken list_of_arguments(SVToken tok) {
+	private SVToken_sav list_of_arguments(SVToken_sav tok) {
 		// TODO:
 		return tok;
 	}
@@ -213,7 +212,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private boolean isClassItemStart(SVToken tok) {
+	private boolean isClassItemStart(SVToken_sav tok) {
 		boolean ret = false;
 		
 		/*
@@ -229,7 +228,7 @@ public class SystemVerilogParser_sav {
 		return false;
 	}
 	
-	private boolean isClassItemQualifier(SVToken tok) {
+	private boolean isClassItemQualifier(SVToken_sav tok) {
 		return false;
 		/*
 		return (tok.getKeyword() == SVKeywords.KW_static ||
@@ -238,7 +237,7 @@ public class SystemVerilogParser_sav {
 		 */
 	}
 	
-	private boolean isMethodQualifier(SVToken tok) {
+	private boolean isMethodQualifier(SVToken_sav tok) {
 		return false;
 		
 		/*
@@ -247,7 +246,7 @@ public class SystemVerilogParser_sav {
 		 */
 	}
 	
-	private SVToken method_qualifier(SVToken tok) {
+	private SVToken_sav method_qualifier(SVToken_sav tok) {
 		fClassItemQualifier = 0;
 		
 		while (isMethodQualifier(tok)) {
@@ -258,7 +257,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 
-	private SVToken class_item_qualifier(SVToken tok) {
+	private SVToken_sav class_item_qualifier(SVToken_sav tok) {
 		fClassItemQualifier = 0;
 		
 		while (isClassItemQualifier(tok)) {
@@ -269,7 +268,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private boolean isClassMethodStart(SVToken tok) {
+	private boolean isClassMethodStart(SVToken_sav tok) {
 		return false;
 		/*
 		return (tok.getKeyword() == SVKeywords.KW_extern ||
@@ -279,7 +278,7 @@ public class SystemVerilogParser_sav {
 		 */
 	}
 	
-	private SVToken class_method(SVToken tok) {
+	private SVToken_sav class_method(SVToken_sav tok) {
 		boolean extern = false;
 		
 		/*
@@ -302,7 +301,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private SVToken task_declaration(SVToken tok) {
+	private SVToken_sav task_declaration(SVToken_sav tok) {
 		
 		// TODO:
 		
@@ -315,7 +314,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken function_declaration(SVToken tok) {
+	private SVToken_sav function_declaration(SVToken_sav tok) {
 		boolean ansi_style_decl = false;
 		
 		tok = next_token_ignore_attr();
@@ -335,17 +334,17 @@ public class SystemVerilogParser_sav {
 		// [ interface_identifier '.' | class_scope ]
 		
 		// function_identifier
-		SVToken function_identifier = tok;
+		SVToken_sav function_identifier = tok;
 		
 		tok = next_token();
 		
 		// ANSI-style prototype
-		if (tok.getType().equals(SVToken.Type.LParen)) {
+		if (tok.getType().equals(SVToken_sav.Type.LParen)) {
 			tok = tf_port_list(tok);
 			ansi_style_decl = true;
 		}
 		
-		tok = expect_next_type(SVToken.Type.Semicolon);
+		tok = expect_next_type(SVToken_sav.Type.Semicolon);
 		tok = next_token_ignore_attr();
 		
 		// non-ANSI-style parameter declarations
@@ -362,7 +361,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private boolean isTFStatement(SVToken tok) {
+	private boolean isTFStatement(SVToken_sav tok) {
 		// TODO:
 		return false;
 	}
@@ -373,11 +372,11 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken dpi_import_export(SVToken tok) {
-		SVToken import_export = tok;
-		SVToken task_or_function = null;
+	private SVToken_sav dpi_import_export(SVToken_sav tok) {
+		SVToken_sav import_export = tok;
+		SVToken_sav task_or_function = null;
 		
-		tok = expect_next_type(SVToken.Type.String);
+		tok = expect_next_type(SVToken_sav.Type.String);
 		
 		if (!tok.getImage().equals("DPI-C") && !tok.getImage().equals("DPI")) {
 			System.out.println("[ERROR] expecting \"DPI-C\" or \"DPI\"");
@@ -446,9 +445,9 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken task_prototype(SVToken tok) {
+	private SVToken_sav task_prototype(SVToken_sav tok) {
 		
-		SVToken task_identifier = tok = expect_next_type(Type.Id);
+		SVToken_sav task_identifier = tok = expect_next_type(Type.Id);
 		
 		tok = expect_next_type(Type.LParen);
 		
@@ -467,14 +466,14 @@ public class SystemVerilogParser_sav {
 	 * On entry, expect 'tok' == "function"
 	 * 
 	 */
-	private SVToken function_prototype(SVToken tok) {
+	private SVToken_sav function_prototype(SVToken_sav tok) {
 		
 		tok = next_token_ignore_attr();
 		
 		tok = function_data_type(tok);
 		
 		expect_type(tok, Type.Id);
-		SVToken function_id = tok;
+		SVToken_sav function_id = tok;
 		
 		tok = expect_next_type(Type.LParen);
 		
@@ -487,7 +486,7 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private SVToken function_data_type(SVToken tok) {
+	private SVToken_sav function_data_type(SVToken_sav tok) {
 		/*
 		if (tok.getKeyword() == SVKeywords.KW_void) {
 			tok = next_token();
@@ -505,7 +504,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken tf_port_list(SVToken tok) {
+	private SVToken_sav tf_port_list(SVToken_sav tok) {
 
 		if (tok.getType() != Type.RParen) {
 			// assume we have items
@@ -522,8 +521,8 @@ public class SystemVerilogParser_sav {
 		return tok;
 	}
 	
-	private SVToken tf_port_item(SVToken tok) {
-		SVToken param_name = null;
+	private SVToken_sav tf_port_item(SVToken_sav tok) {
+		SVToken_sav param_name = null;
 		if (isTFPortDirection(tok)) {
 			tok = next_token();
 		}
@@ -564,7 +563,7 @@ public class SystemVerilogParser_sav {
 	}
 	 */
 	
-	private boolean isTFPortDirection(SVToken tok) {
+	private boolean isTFPortDirection(SVToken_sav tok) {
 		/*
 		return (tok.getKeyword() == SVKeywords.KW_input ||
 				tok.getKeyword() == SVKeywords.KW_output ||
@@ -573,7 +572,7 @@ public class SystemVerilogParser_sav {
 		return false;
 	}
 	
-	private SVToken tf_item_declaration(SVToken tok) {
+	private SVToken_sav tf_item_declaration(SVToken_sav tok) {
 		return tok;
 	}
 	
@@ -597,7 +596,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken data_type(SVToken tok) {
+	private SVToken_sav data_type(SVToken_sav tok) {
 		// TODO:
 		return tok;
 	}
@@ -610,7 +609,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken parameter_port_list(SVToken tok) {
+	private SVToken_sav parameter_port_list(SVToken_sav tok) {
 		tok = expect_next_type(Type.LParen);
 		
 		// TODO:
@@ -624,7 +623,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken list_of_ports(SVToken tok) {
+	private SVToken_sav list_of_ports(SVToken_sav tok) {
 		expect_type(tok, Type.LParen);
 		
 		do {
@@ -649,7 +648,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken port(SVToken tok) {
+	private SVToken_sav port(SVToken_sav tok) {
 		if (tok.getType() == Type.Period) {
 			// port_identifier '(' optional_port_expression ')'
 		} else {
@@ -664,7 +663,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken lifetime(SVToken tok) {
+	private SVToken_sav lifetime(SVToken_sav tok) {
 		fLifetimeFlags = 0;
 		
 		/*
@@ -684,7 +683,7 @@ public class SystemVerilogParser_sav {
 	 * @param tok
 	 * @return
 	 */
-	private SVToken attribute_instance(SVToken tok) {
+	private SVToken_sav attribute_instance(SVToken_sav tok) {
 		// TODO:
 		
 		return tok;
@@ -693,8 +692,8 @@ public class SystemVerilogParser_sav {
 	/**
 	 * Fetch the next token and check that its type is 'type'
 	 */
-	private SVToken expect_next_type(SVToken.Type type) {
-		SVToken ret = next_token_ignore_attr();
+	private SVToken_sav expect_next_type(SVToken_sav.Type type) {
+		SVToken_sav ret = next_token_ignore_attr();
 		
 		if (ret.getType() != type) {
 			System.out.println("[ERROR] expect type " + type + " ; receive " +
@@ -704,10 +703,10 @@ public class SystemVerilogParser_sav {
 		return ret;
 	}
 	
-	private void expect_type(SVToken tok, SVToken.Type ... types) {
+	private void expect_type(SVToken_sav tok, SVToken_sav.Type ... types) {
 		boolean match = false;
 		
-		for (SVToken.Type t : types) {
+		for (SVToken_sav.Type t : types) {
 			if (tok.getType() == t) {
 				match = true;
 				break;
@@ -717,7 +716,7 @@ public class SystemVerilogParser_sav {
 		if (!match) {
 			String types_s = "";
 			
-			for (SVToken.Type t : types) {
+			for (SVToken_sav.Type t : types) {
 				types_s += t.name() + ", ";
 			}
 			
@@ -730,14 +729,14 @@ public class SystemVerilogParser_sav {
 		}
 	}
 	
-	private SVToken next_token_ignore_attr() {
-		SVToken tok = next_token();
+	private SVToken_sav next_token_ignore_attr() {
+		SVToken_sav tok = next_token();
 		
 		return attribute_instance(tok);
 	}
 	
-	private SVToken next_token() {
-		SVToken ret = fLexer.next_token();
+	private SVToken_sav next_token() {
+		SVToken_sav ret = fLexer.next_token();
 		
 		if (ret != null) {
 			System.out.println("tok: \"" + ret.getImage() + "\"");
@@ -754,7 +753,7 @@ public class SystemVerilogParser_sav {
 		for (String arg : args) {
 			try {
 				InputStream in = new FileInputStream(arg);
-				SVLexer lex = new SVLexer(new SVInputStream(in));
+				SVLexer_sav lex = new SVLexer_sav(new SVInputStream_sav(in));
 				SystemVerilogParser_sav p = new SystemVerilogParser_sav(lex);
 				p.parse();
 			} catch (IOException e) {

@@ -204,6 +204,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		if (id != null && id.equals("begin")) {
 			int begin_cnt = 1;
 			int end_cnt = 0;
+			boolean var_enabled = true;
 
 			ch = skipWhite(next_ch());
 			
@@ -515,7 +516,6 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 					break;
 				}
 				
-
 				// Should be name of 
 				n = readIdentifier(ch);
 				ch = get_ch();
@@ -527,7 +527,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 					String capture = endCapture();
 					capture = capture.substring(0, capture.length()-1).trim();
 					
-					t.fTypeName += capture; 
+					t.fArrayDim = capture;
 					ch = skipWhite(ch);
 				}
 				
@@ -571,6 +571,8 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		boolean has_body = true;
 		
 		if ((modifiers & ISVScannerObserver.FieldAttr_Extern) != 0 ||
+				((modifiers & ISVScannerObserver.FieldAttr_Pure) != 0 &&
+				 (modifiers & ISVScannerObserver.FieldAttr_Virtual) != 0) ||
 				(modifiers & ISVScannerObserver.FieldAttr_DPI) != 0) {
 			has_body = false;
 		}
@@ -583,59 +585,68 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		
 		if (has_body) {
 			String  exp_end = "end" + id;
-			boolean var_enabled = true;
+			ret = task_function_initial_body(exp_end);
 			
-			while ((id = scan_statement()) != null) {
-				// First, look for local variables
-				if (var_enabled && !id.equals(exp_end)) {
-					if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
-						unget_str(id + " ");
-						
-						var_enabled = scanVariableDeclaration(0);
-					} else {
-						var_enabled = false;
-					}
-				} else if (id.equals(exp_end)) {
-					break;
-				} else if (isSecondLevelScope(id)) {
-//					System.out.println("id \"" + id + "\" is a second-level scope");
-					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\"",
-								getLocation().getFileName(),
-								getLocation().getLineNo());
-						System.out.println("second-level scope \"" + id + "\"");
-					}
-
-					// 
-					fNewStatement = true;
-					unget_str(id + " ");
-					break;
-				} else if (isFirstLevelScope(id, 0)) {
-//					System.out.println("id \"" + id + "\" is a first-level scope");
-					if (fObserver != null) {
-						fObserver.error("missing \"" + exp_end + "\"",
-								getLocation().getFileName(),
-								getLocation().getLineNo());
-					}
-
-					System.out.println("first-level scope \"" + id + "\" " + tf_name);
-
-					// We're in a first-level scope.
-					// we pick it up on next pass
-					handle_leave_scope();
-					ret = false;
-					fNewStatement = true;
-					unget_str(id + " ");
-					break;
-				}
-				debug("    behave section: " + id);
-			}
-			debug("    endbehave: " + id);
 		} else {
 			debug("    extern task/function declaration");
 		}
 		
 		handle_leave_scope();
+		
+		return ret;
+	}
+	
+	private boolean task_function_initial_body(String exp_end) throws EOFException {
+		boolean var_enabled = true;
+		String id;
+		boolean ret = true;
+		
+		while ((id = scan_statement()) != null) {
+			// First, look for local variables
+			if (var_enabled && !id.equals(exp_end)) {
+				if (!SVKeywords.isSVKeyword(id) || SVKeywords.isBuiltInType(id)) {
+					unget_str(id + " ");
+					
+					var_enabled = scanVariableDeclaration(0);
+				} else {
+					var_enabled = false;
+				}
+			} else if (id.equals(exp_end)) {
+				break;
+			} else if (isSecondLevelScope(id)) {
+//				System.out.println("id \"" + id + "\" is a second-level scope");
+				if (fObserver != null) {
+					fObserver.error("missing \"" + exp_end + "\"",
+							getLocation().getFileName(),
+							getLocation().getLineNo());
+					System.out.println("second-level scope \"" + id + "\"");
+				}
+
+				// 
+				fNewStatement = true;
+				unget_str(id + " ");
+				break;
+			} else if (isFirstLevelScope(id, 0)) {
+//				System.out.println("id \"" + id + "\" is a first-level scope");
+				if (fObserver != null) {
+					fObserver.error("missing \"" + exp_end + "\"",
+							getLocation().getFileName(),
+							getLocation().getLineNo());
+				}
+
+				// System.out.println("first-level scope \"" + id + "\" " + tf_name);
+
+				// We're in a first-level scope.
+				// we pick it up on next pass
+				handle_leave_scope();
+				ret = false;
+				fNewStatement = true;
+				unget_str(id + " ");
+				break;
+			}
+			debug("    behave section: " + id);
+		}
+		debug("    endbehave: " + id);
 		
 		return ret;
 	}
@@ -897,6 +908,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		}
 
 		while (ch != -1) {
+			SVClassIfcModParam p;
 			ch = in.skipWhite(in.get_ch());
 
 			id = in.readIdentifier(ch);
@@ -911,8 +923,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 			}
 
 			// id now holds the template identifier
-
-			ret.add(new SVClassIfcModParam(id));
+			p = new SVClassIfcModParam(id);
 
 			ch = in.skipWhite(in.get_ch());
 
@@ -921,10 +932,19 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 			}
 
 			ch = in.skipWhite(ch);
+			
+			if (ch == '=') {
+				ch = in.skipWhite(in.get_ch());
+				if ((id = in.readIdentifier(ch)) != null) {
+					p.setDefault(id);
+				}
+			}
 
 			while (ch != -1 && ch != ',') {
 				ch = in.get_ch();
 			}
+			
+			ret.add(p);
 		}
 		
 		return ret;

@@ -22,9 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -284,7 +285,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	}
 	
 	public SVDBFile parse(InputStream in, String path) {
-		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
+		
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(fDefineProvider);
 
 		path = SVFileUtils.normalize(path);
 
@@ -334,7 +336,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		addIncludeFiles(file_tree, file_tree.getSVDBFile());
 		
 		fDefineProvider.setMacroProvider(createMacroProvider(file_tree));
-		SVDBFile svdb_f = scanner.parse(copier.copy(), file_tree.getFilePath());
+		SVDBFile svdb_f = factory.parse(copier.copy(), file_tree.getFilePath());
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
 		propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
@@ -479,7 +481,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			IPreProcMacroProvider 		mp) {
 		
 		fDefineProvider.setMacroProvider(mp);
-		SVDBFileFactory scanner = new SVDBFileFactory(fDefineProvider);
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(fDefineProvider); 
 		
 		String path_s = path.getFilePath();
 
@@ -491,7 +493,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		BufferedInputStream in_b = new BufferedInputStream(in);
 
-		SVDBFile svdb_f = scanner.parse(in_b, path.getFilePath());
+		SVDBFile svdb_f = factory.parse(in_b, path.getFilePath());
 
 		// Problem parsing the file..
 		if (svdb_f == null) {

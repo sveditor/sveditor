@@ -15,32 +15,14 @@ package net.sf.sveditor.core.db.persistence;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
-import net.sf.sveditor.core.db.SVDBAssign;
-import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
-import net.sf.sveditor.core.db.SVDBCoverPoint;
-import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBInitialBlock;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBPreProcCond;
-import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypedef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
 public class SVDBPersistenceReader implements IDBReader {
 	private InputStream			fIn;
@@ -49,9 +31,12 @@ public class SVDBPersistenceReader implements IDBReader {
 	private int					fBufSize;
 	private int					fUngetCh;
 	private StringBuilder		fTmpBuffer;
+	private static final Map<SVDBItemType, ISVDBPersistenceFactory>	fSVDBFactoryMap;
+	
+	static {
+		fSVDBFactoryMap = new HashMap<SVDBItemType, ISVDBPersistenceFactory>();
+	}
 
-	
-	
 	public SVDBPersistenceReader(InputStream in) {
 		fIn      	= in;
 		fBuf     	= new byte[1024*1024];
@@ -66,6 +51,17 @@ public class SVDBPersistenceReader implements IDBReader {
 		fUngetCh = -1;
 		fBufIdx  = 0;
 		fBufSize = 0;
+	}
+	
+	public static void registerPersistenceFactory(
+			ISVDBPersistenceFactory factory,
+			SVDBItemType 	...		types) {
+		for (SVDBItemType type : types) {
+			if (fSVDBFactoryMap.containsKey(type)) {
+				fSVDBFactoryMap.remove(type);
+			}
+			fSVDBFactoryMap.put(type, factory);
+		}
 	}
 	
 	public String readBaseLocation() throws DBFormatException {
@@ -446,120 +442,10 @@ public class SVDBPersistenceReader implements IDBReader {
 		
 		SVDBItemType type   = readItemType();
 		
-		switch (type) {
-			case Class:
-				ret = new SVDBModIfcClassDecl(file, parent, type, this);
-				break;
-				
-			case Program:
-				ret = new SVDBProgramBlock(file, parent, type, this);
-				break;
-				
-			case Covergroup:
-				ret = new SVDBCoverGroup(file, parent, type, this);
-				break;
-				
-			case Coverpoint:
-				ret = new SVDBCoverPoint(file, parent, type, this);
-				break;
-				
-			case CoverpointCross:
-				ret = new SVDBCoverpointCross(file, parent, type, this);
-				break;
-				
-			case File:
-				ret = new SVDBFile(file, parent, type, this);
-				break;
-				
-			case Function:
-				ret = new SVDBTaskFuncScope(file, parent, type, this);
-				break;
-				
-			case Include:
-				ret = new SVDBInclude(file, parent, type, this);
-				break;
-				
-			case Interface:
-				ret = new SVDBModIfcClassDecl(file, parent, type, this);
-				break;
-				
-			case Macro:
-				ret = new SVDBMacroDef(file, parent, type, this);
-				break;
-				
-			case ModIfcClassParam:
-				ret = new SVDBModIfcClassParam(file, parent, type, this);
-				break;
-				
-			case ModIfcInst:
-				ret = new SVDBModIfcInstItem(file, parent, type, this);
-				break;
-				
-			case Module:
-				ret = new SVDBModIfcClassDecl(file, parent, type, this);
-				break;
-				
-			case PackageDecl:
-				ret = new SVDBPackageDecl(file, parent, type, this);
-				break;
-				
-			case PreProcCond:
-				ret = new SVDBPreProcCond(file, parent, type, this);
-				break;
-				
-			case Property:
-				ret = new SVDBScopeItem(file, parent, type, this);
-				break;
-				
-			case Sequence:
-				ret = new SVDBScopeItem(file, parent, type, this);
-				break;
-				
-			case Struct:
-				ret = new SVDBModIfcClassDecl(file, parent, type, this);
-				break;
-				
-			case Task:
-				ret = new SVDBTaskFuncScope(file, parent, type, this);
-				break;
-				
-			case TaskFuncParam:
-				ret = new SVDBTaskFuncParam(file, parent, type, this);
-				break;
-				
-			case VarDecl:
-				ret = new SVDBVarDeclItem(file, parent, type, this);
-				break;
-				
-			case Constraint:
-				ret = new SVDBConstraint(file, parent, type, this);
-				break;
-				
-			case Typedef: 
-				ret = new SVDBTypedef(file, parent, type, this);
-				break;
-				
-			case InitialBlock:
-				ret = new SVDBInitialBlock(file, parent, type, this);
-				break;
-				
-			case AlwaysBlock:
-				ret = new SVDBAlwaysBlock(file, parent, type, this);
-				break;
-				
-			case Assign:
-				ret = new SVDBAssign(file, parent, type, this);
-				break;
-				
-
-			case Marker:
-				ret = new SVDBMarkerItem(file, parent, type, this);
-				break;
-				
-				
-			default:
-				System.out.println("[ERROR] unimplemented SVDBLoad type " + type);
-				break;
+		if (fSVDBFactoryMap.containsKey(type)) {
+			ret = fSVDBFactoryMap.get(type).readSVDBItem(this, type, file, parent);
+		} else {
+			throw new DBFormatException("Unsupported SVDBItemType " + type);
 		}
 		
 		return ret;

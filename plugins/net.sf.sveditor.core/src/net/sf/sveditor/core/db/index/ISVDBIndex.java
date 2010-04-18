@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +21,11 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
-public interface ISVDBIndex extends ISVDBFileFactory, ISVDBIndexIterator, ISVDBIncludeFileProvider {
+public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider {
 	
 	void init(ISVDBIndexRegistry registry);
+	
+	SVDBFile parse(InputStream in, String path);
 	
 	/**
 	 * Cleans up this entry

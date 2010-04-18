@@ -32,24 +32,12 @@ public class NewClassGenerator {
 			IProgressMonitor	monitor) {
 		String subst_filename = "";
 		
-		monitor.beginTask("Creating class", 100);
-		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
+		monitor.beginTask("Creating class", 100);
 		
-		if (SVCharacter.isSVIdentifierStart(file_path.getName().charAt(0))) {
-			subst_filename = "" + file_path.getName().charAt(0);
-		} else {
-			subst_filename = "_";
-		}
-		for (int i=1; i<file_path.getName().length(); i++) {
-			if (SVCharacter.isSVIdentifierPart(file_path.getName().charAt(i))) {
-				subst_filename += file_path.getName().charAt(i);
-			} else {
-				subst_filename += "_";
-			}
-		}
+		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
 		
 		String template =
 			"/****************************************************************************\n" +
@@ -61,7 +49,6 @@ public class NewClassGenerator {
 		
 		template += "class " + clsname;
 
-		long start = System.currentTimeMillis();
 		SVDBModIfcClassDecl superclass_decl = null;
 		if (superclass != null && 
 				!superclass.trim().equals("")) {
@@ -77,7 +64,6 @@ public class NewClassGenerator {
 			}
 		}
 		monitor.worked(25);
-		long post_superclass = System.currentTimeMillis();
 		
 		if (superclass_decl != null) {
 			if (superclass_decl.getParameters() != null && 
@@ -149,8 +135,6 @@ public class NewClassGenerator {
 		}
 		monitor.worked(25);
 		
-		long post_impl_new = System.currentTimeMillis();
-		
 		template += "\n\n";
 		template += "endclass\n";
 		
@@ -167,8 +151,6 @@ public class NewClassGenerator {
 		
 		monitor.worked(25);
 		
-		long post_indent = System.currentTimeMillis();
-		
 		try {
 			if (file_path.exists()) {
 				file_path.setContents(in, true, true, new NullProgressMonitor());
@@ -177,9 +159,6 @@ public class NewClassGenerator {
 			}
 		} catch (CoreException e) {}
 		
-		System.out.println("start=" + start + " post_superclass=" + post_superclass + " post_new=" + post_impl_new + 
-				" post_indent=" + post_indent + " total=" + (post_indent-start));
-
 		monitor.done();
 	}
 	

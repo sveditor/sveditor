@@ -12,166 +12,462 @@
 
 package net.sf.sveditor.core.parser;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.HashSet;
+import java.util.Set;
 
-import net.sf.sveditor.core.parser.SVToken.Type;
 import net.sf.sveditor.core.scanner.SVKeywords;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 
 public class SVLexer {
-	private SVInputStream			fInput;
-	private Stack<SVToken>			fUngetStack;
-	private StringBuffer			fBuffer;
-	private final Map<Integer, SVToken.Type>		fSingleCharOpMap;
+	private ITextScanner				fScanner;
+	private Set<String>					f2SeqPrefixes;
+	private Set<String>					f3SeqPrefixes;
+	private Set<String>					fOperatorSet;
+	private Set<String>					fKeywordSet;
 	
-	public SVLexer(SVInputStream in) {
-		fInput = in;
-		fUngetStack = new Stack<SVToken>();
-		fBuffer = new StringBuffer();
+	private String						fImage;
+	private boolean						fIsString;
+	private boolean						fIsOperator;
+	private boolean						fIsNumber;
+	private boolean						fIsIdentifier;
+	private boolean						fIsKeyword;
+	private boolean						fTokenConsumed;
+	
+	private StringBuilder				fStringBuffer;
+	private boolean						fDebugEn;
+	
+	private static String operators[] = {
+		"(", ")", "{", "}", "[", "]",
+		"&", "&&", "|", "||", 
+		"-", "--", "+", "++",
+		"%", "!", "*", "/",
+		"<", "<<", "<=",
+		">", ">>", ">=",
+		":", ":/", ":=",
+		",", ";", ".", ":",
+		"->",
+		"=", "*=", "/=", "%=", "+=", "==", "!=",
+		"-=", "<<=", ">>=", "&=", "^=", "|="
+	};
+	
+	public SVLexer() {
+		f2SeqPrefixes = new HashSet<String>();
+		f3SeqPrefixes = new HashSet<String>();
+		fOperatorSet  = new HashSet<String>();
 		
-		fSingleCharOpMap = new HashMap<Integer, SVToken.Type>();
-		fSingleCharOpMap.put((int)',', SVToken.Type.Comma);
-		fSingleCharOpMap.put((int)';', SVToken.Type.Semicolon);
-		fSingleCharOpMap.put((int)':', SVToken.Type.Colon);
-	}
-	
-	public SVToken next_token() {
-		if (fUngetStack.size() > 0) {
-			return fUngetStack.pop();
+		fKeywordSet = new HashSet<String>();
+
+		fStringBuffer = new StringBuilder();
+		
+		for (String op : operators) {
+			if (op.length() == 3) {
+				f3SeqPrefixes.add(op.substring(0, 1));
+				f3SeqPrefixes.add(op.substring(0, 2));
+			} else if (op.length() == 2) {
+				f2SeqPrefixes.add(op.substring(0, 1));
+			}
+			fOperatorSet.add(op);
 		}
 		
-		SVToken ret = null;
-		int ch = fInput.get_ch();
-		
-		fBuffer.setLength(0);
-		
-		// First, skip whitespace and comments
-		System.out.println("call skipCommentsWs: " + (char)ch);
-		ch = skipCommentsWS(ch);
-		
-		// Now, see what we have...
-		
-		if (ch == '"') {
-			// String
-			while ((ch = fInput.get_ch()) != -1 && ch != '"') {
-				fBuffer.append((char)ch);
+		for (String kw : SVKeywords.getKeywords()) {
+			if (kw.endsWith("*")) {
+				kw = kw.substring(0,kw.length()-1);
 			}
-			ret = new SVToken(Type.String, fBuffer.toString());
-		} else if (fSingleCharOpMap.containsKey(ch)) {
-			System.out.println("single-char op: " + (char)ch);
-			return new SVToken(fSingleCharOpMap.get(ch), "" + (char)ch);
-		} else if (ch == '!' || ch == '&') {
-			// single-character operators
-		} else if (ch == '|' || ch == '+' || ch == '-') {
-			// one- or two-character operators that have same char repeat
-			int ch2 = fInput.get_ch();
-			
-			if (ch2 == ch) {
-				
+			fKeywordSet.add(kw);
+		}
+		fDebugEn = false;
+	}
+	
+	public void init(ITextScanner scanner) {
+		fTokenConsumed = true;
+		fScanner = scanner;
+	}
+	
+	public String peek() {
+		if (fTokenConsumed) {
+			next_token();
+			debug("peek() -- \"" + fImage + "\"");
+		}
+		return fImage;
+	}
+	
+	public boolean isIdentifier() {
+		return fIsIdentifier;
+	}
+	
+	public boolean isNumber() {
+		return fIsNumber;
+	}
+	
+	public String getImage() {
+		return fImage;
+	}
+	
+	public boolean peekOperator(String ... ops) throws SVParseException {
+		peek();
+		
+		if (fIsOperator) {
+			for (String op : ops) {
+				if (fImage.equals(op)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean peekId() throws SVParseException {
+		peek();
+		
+		return fIsIdentifier;
+	}
+	
+	public boolean peekNumber() throws SVParseException {
+		peek();
+		
+		return fIsNumber;
+	}
+	
+	public String readOperator(String ... ops) throws SVParseException {
+		peek();
+		
+		boolean found = false;
+		if (fIsOperator) {
+			if (ops.length == 0) {
+				found = true;
 			} else {
-				fInput.unget_ch(ch2);
-				// single-char
+				for (String op : ops) {
+					if (fImage.equals(op)) {
+						found = true;
+						break;
+					}
+				}
 			}
-		} else if (ch == '>' || ch == '<') {
-			// one- two- or three-character operators that have same-char
-			// repeat
-			int ch2 = fInput.get_ch();
+		}
+		
+		if (!found) {
+			StringBuilder sb = new StringBuilder();
 			
-			if (ch2 == ch) {
-				int ch3 = fInput.get_ch();
-				if (ch2 == ch3) {
-					
+			for (int i=0; i<ops.length; i++) {
+				sb.append(ops[i]);
+				if (i+1 < ops.length) {
+					sb.append(", ");
+				}
+			}
+			
+			throw new SVParseException("Expecting one of operator \"" + 
+					sb.toString() + "\" ; received \"" + fImage + "\"");
+		}
+		
+		fTokenConsumed = true;
+		return fImage;
+	}
+
+	public boolean peekKeyword(String ... kw) throws SVParseException {
+		peek();
+		
+		boolean found = false;
+		if (fIsKeyword) {
+			if (kw.length == 0) {
+				found = true;
+			} else {
+				for (String k : kw) {
+					if (fImage.equals(k)) {
+						found = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return found;
+	}
+	
+	public String readKeyword(String ... kw) throws SVParseException {
+		
+		if (!peekKeyword(kw)) {
+			StringBuilder sb = new StringBuilder();
+			
+			for (int i=0; i<kw.length; i++) {
+				sb.append(kw[i]);
+				if (i+1 < kw.length) {
+					sb.append(", ");
+				}
+			}
+			
+			throw new SVParseException("Expecting one of keyword \"" + 
+					sb.toString() + "\" ; received \"" + fImage + "\"");
+		}
+		
+		fTokenConsumed = true;
+		return fImage;
+	}
+	
+	public String eatToken() {
+		fTokenConsumed = true;
+		return fImage;
+	}
+	
+	public String readString() throws SVParseException {
+		peek();
+		
+		if (!fIsString) {
+			throw new SVParseException("Expecting a string ; received \"" +
+					fImage + "\"");
+		}
+		fTokenConsumed = true;
+		
+		return fImage;
+	}
+
+	public boolean peekString() throws SVParseException {
+		peek();
+		
+		return fIsString;
+	}
+
+	public String readId() throws SVParseException {
+		peek();
+
+		if (!fIsIdentifier) {
+			throw new SVParseException("Expecting an identifier ; received \"" + 
+					fImage + "\"");
+		}
+		fTokenConsumed = true;
+		return fImage;
+	}
+	
+	public String readNumber() throws SVParseException {
+		peek();
+
+		if (!fIsNumber) {
+			throw new SVParseException("Expecting a number ; received \"" + 
+					fImage + "\"");
+		}
+
+		fTokenConsumed = true;
+		return fImage;
+	}
+	
+	public boolean next_token() {
+		try {
+			next_token_int();
+		} catch (SVParseException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	private void next_token_int() throws SVParseException {
+		int ch = get_ch();
+		int ch2 = -1;
+		
+		fIsOperator    = false;
+		fIsNumber      = false;
+		fIsIdentifier  = false;
+		fIsKeyword     = false;
+		fIsString      = false;
+		
+		// Skip whitespace and comments
+		while (true) {
+			if (ch == '/') {
+				ch2 = get_ch();
+
+				if (ch2 == '/') {
+					while ((ch = get_ch()) != -1 && ch != '\n') {}
+				} else if (ch2 == '*') {
+					int end_comment[] = {-1, -1};
+
+					while ((ch = get_ch()) != -1) {
+						end_comment[0] = end_comment[1];
+						end_comment[1] = ch;
+
+						if (end_comment[0] == '*' && end_comment[1] == '/') {
+							break;
+						}
+					}
+
+					ch = ' ';
 				} else {
-					fInput.unget_ch(ch3);
+					unget_ch(ch2);
+					break;
 				}
 			} else {
-				fInput.unget_ch(ch2);
+				if (!Character.isWhitespace(ch)) {
+					break;
+				}
 			}
-		} else if (ch == '=') {
-			return new SVToken(Type.Equals, "=");
-		} else if (ch == '~' || ch == '^') {
-			// one- or two-character operators
-		} else if (ch == '(') {
-			int ch2 = fInput.get_ch();
-			
-			if (ch2 == '*') {
-				// attribute begin
-				
-			} else {
-				fInput.unget_ch(ch2);
-				// single paren
-			}
-		} else if (ch == '*') {
-			int ch2 = fInput.get_ch();
-			
-			if (ch2 == ')') { 
-				// attribute end
-			} else {
-				fInput.unget_ch(ch2);
-				// just '*'
-			}
-		} else if (isIdentifierStart(ch) || ch == '$') {
-			fBuffer.append((char)ch);
-			
-			while ((ch = fInput.get_ch()) != -1 && isSimpleIdentifierPart(ch)) {
-				fBuffer.append((char)ch);
-			}
-			fInput.unget_ch(ch);
-			String image = fBuffer.toString();
-			
-			if (SVKeywords.isSVKeyword(image)) {
-				ret = new SVToken(SVToken.Type.Keyword, fBuffer.toString());
-			} else {
-				ret = new SVToken(SVToken.Type.Id, fBuffer.toString());
-			}
+			ch = get_ch();
 		}
+		fStringBuffer.setLength(0);
+		String tmp = "" + (char)ch;
+
+		if (ch == '\n') {
+			fStringBuffer.append('\n');
+			fIsOperator = true;
+		} else if (ch == '"') {
+			// String
+			while ((ch = get_ch()) != -1 && ch != '"') {
+				fStringBuffer.append((char)ch);
+			}
 			
-		return ret;
-	}
-	
-	private static boolean isIdentifierStart(int ch) {
-		return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-				ch == '_');
-	}
-	
-	private static boolean isSimpleIdentifierPart(int ch) {
-		return ((ch >= 'a' && ch <='z') || (ch >= 'A' && ch <= 'Z') ||
-				ch == '$' || ch == '_' || (ch >= '0' && ch <= '9'));
-	}
-	
-	private int skipCommentsWS(int ch) {
-		do {
-			while (ch != -1 && Character.isWhitespace(ch)) { 
-				ch = fInput.get_ch();
+			if (ch != '"') {
+				throw new SVParseException("Unterminated string");
+			}
+			fIsString = true;
+
+		} else if (fOperatorSet.contains(tmp) || 
+				// Operators that can have up to two elements
+				f2SeqPrefixes.contains(tmp) ||
+				f3SeqPrefixes.contains(tmp)) {
+			// Probably an operator in some form
+			if (f2SeqPrefixes.contains(tmp)) {
+				// Peek forward to see if the 2-wise sequence is present
+				if ((ch2 = get_ch()) != -1) {
+					String tmp2 = tmp + (char)ch2;
+					if (fOperatorSet.contains(tmp2)) {
+						if ((ch2 = get_ch()) != -1) {
+							String tmp3 = tmp2 + (char)ch2;
+							if (fOperatorSet.contains(tmp3)) {
+								fStringBuffer.append(tmp3);
+								fIsOperator = true;
+							} else {
+								unget_ch(ch2);
+								fStringBuffer.append(tmp2);
+								fIsOperator = true;
+							}
+						}
+					} else {
+						unget_ch(ch2);
+						tmp = "" + (char)ch;
+						if (fOperatorSet.contains(tmp)) {
+							fStringBuffer.append(tmp);
+							fIsOperator = true;
+						}
+					}
+				} else {
+					if (fOperatorSet.contains(tmp)) {
+						fStringBuffer.append(tmp);
+						fIsOperator = true;
+					}
+				}
+			} else if (fOperatorSet.contains(tmp)) {
+				// single-char operator
+				fIsOperator = true;
+				fStringBuffer.append(tmp);
+			}
+		
+			if (!fIsOperator) {
+				throw new SVParseException("Bad partial operator: " + tmp);
+			}
+			
+		} else if (Character.isJavaIdentifierStart(ch)) {
+			// Identifier or keyword
+			fStringBuffer.append((char)ch);
+			while ((ch = get_ch()) != -1 && Character.isJavaIdentifierPart(ch)) {
+				fStringBuffer.append((char)ch);
+			}
+			unget_ch(ch);
+			fIsIdentifier = true;
+		} else if (ch == '\'' || (ch >= '0' && ch <= '9')) {
+			
+			if (ch == '\'') {
+				fStringBuffer.append((char)ch);
+				ch = get_ch();
+				
+				if (ch == -1) {
+					throw new SVParseException("unexpected EOF after \"'\"");
+				}
+				fStringBuffer.append((char)ch);
+				
+				// TODO: probably should be more selective here
+				while ((ch = get_ch()) != -1 && 
+						((ch >= '0' && ch <= '9') ||
+						 (ch >= 'a' && ch <= 'f') ||
+						 (ch >= 'A' && ch <= 'F'))) {
+					fStringBuffer.append((char)ch);
+				}
+			} else {
+				// Possibly a base...
+				fStringBuffer.append((char)ch);
+				
+				while ((ch = get_ch()) != -1 && 
+						(ch >= '0' && ch <= '9')) {
+					fStringBuffer.append((char)ch);
+				}
+				
+				if (ch == '\'') {
+					fStringBuffer.append((char)ch);
+					
+					// read the format character
+					fStringBuffer.append((char)get_ch());
+					
+					// read balance of the number
+					while ((ch = get_ch()) != -1 && 
+							((ch >= '0' && ch <= '9') ||
+							 (ch >= 'a' && ch <= 'f') ||
+							 (ch >= 'A' && ch <= 'F'))) {
+						fStringBuffer.append((char)ch);
+					}
+				}
+			}
+			
+			
+			if (ch != -1) {
+				unget_ch(ch);
 			}
 
-			if (ch == '/') {
-				int ch2 = fInput.get_ch();
-				if (ch2 == '/') {
-					// scan forward to end-of-line
-					while ((ch = fInput.get_ch()) != -1 && ch != '\n') { }
-					if (ch != -1) {
-						ch = ' '; // ensure that we go around the loop another time
-					}
-				} else if (ch2 == '*') {
-					int match[] = {-1, -1};
-					
-					do {
-						match[0] = match[1];
-						match[1] = fInput.get_ch();
-					} while (match[1] != -1 && 
-							(match[0] != '*' || match[1] != '/'));
-					if (ch != -1) {
-						ch = ' '; // ensure we go 'round the look another time
-					}
-				} else {
-					fInput.unget_ch(ch2);
-				}
-			}
-		} while (Character.isWhitespace(ch));
+			fIsNumber = true;
+		}
 		
-		return ch;
+		if (fStringBuffer.length() == 0) {
+			// throw new EOFException();
+		}
+		
+		fImage = fStringBuffer.toString();
+		
+		if (fIsIdentifier) {
+			if ((fIsKeyword = fKeywordSet.contains(fImage))) {
+				fIsIdentifier = false;
+			}
+		}
+		fTokenConsumed = false;
+	}
+	
+	private int get_ch() {
+		/*
+		int ret = -1;
+		
+		if (fUngetCh != -1) {
+			ret = fUngetCh;
+			fUngetCh = -1;
+		} else {
+			if (fBufferIdx >= fBufferMax) {
+				try {
+					fBufferMax = fInput.read(fBuffer, 0, fBuffer.length);
+					fBufferIdx = 0;
+				} catch (IOException e) { }
+			}
+			
+			if (fBufferIdx < fBufferMax) {
+				ret = fBuffer[fBufferIdx++];
+			}
+		}
+		
+		return ret;
+		 */
+		return fScanner.get_ch();
+	}
+	
+	private void unget_ch(int ch) {
+		// fUngetCh = ch;
+		fScanner.unget_ch(ch);
+	}
+	
+	private void debug(String msg) {
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 
 }

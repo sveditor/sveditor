@@ -22,6 +22,7 @@ public class SVTypeInfo {
 	public List<SVEnumVal>				fEnumVals;
 	public String						fTypeName;
 	public String						fVectorDim;
+	public String						fArrayDim;
 	public int							fTypeQualifiers;
 	public List<SVClassIfcModParam>		fParameters;
 	

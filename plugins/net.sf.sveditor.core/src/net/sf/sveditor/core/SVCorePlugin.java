@@ -15,11 +15,15 @@ package net.sf.sveditor.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -28,13 +32,19 @@ import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.scanner.IDefineProvider;
+import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -54,6 +64,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private boolean							fDebugEn = false;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
+	private boolean							fUseParserFactory = false; // leave scanner enabled for now
 	
 	/**
 	 * The constructor
@@ -68,6 +79,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		fPlugin = this;
+		
+		SVDB.init();
+		
 		fTodoScanner = new SVTodoScanner();
 		
 		File state_location = getStateLocation().toFile();
@@ -88,6 +102,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public boolean getDebugEn() {
 		return fDebugEn;
+	}
+	
+	public ISVDBFileFactory createFileFactory(IDefineProvider dp) {
+		if (fUseParserFactory) {
+			return new ParserSVDBFileFactory(dp);
+		} else {
+			return new ScannerSVDBFileFactory(dp);
+		}
 	}
 
 	/*
@@ -218,5 +240,30 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			}
 		}
 	}
+	
+	public static StringBuilder readResourceFile(IConfigurationElement element, String attr) {
+		Bundle bundle = Platform.getBundle(element.getContributor().getName());
+		String filePath = element.getAttribute(attr);
+		if (filePath != null) {
+			URL fileURL = FileLocator.find(bundle, new Path(filePath), null);              
+			if (fileURL != null) {
+				try {
+					StringBuilder sb = new StringBuilder();
+					InputStream in = fileURL.openStream();
+					byte tmp[] = new byte[1024*8];
+					int sz;
+					while ((sz = in.read(tmp, 0, tmp.length)) > 0) {
+						for (int i=0; i<sz; i++) {
+							sb.append(tmp[i]);
+						}
+					}
+					in.close();
+					return sb;
+				} catch (IOException e) {}
+			}       
+		}
+		return null;
+	}
+
 }
 

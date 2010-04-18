@@ -18,6 +18,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTypeInfo extends SVDBItem {
 	public static final int				TypeAttr_FixedArray        = (1 << 0);
@@ -32,6 +34,16 @@ public class SVDBTypeInfo extends SVDBItem {
 	protected List<SVDBModIfcClassParam>			fParameters;
 	protected String								fVectorDim;
 	protected String								fArrayDim;
+
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type,
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBTypeInfo(file, parent, type, reader);
+			}
+		};
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.TypeInfo);
+	}
 	
 	public SVDBTypeInfo(String typename, int attr) {
 		super(typename, SVDBItemType.TypeInfo);

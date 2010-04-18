@@ -51,15 +51,21 @@ public class IndentAction extends TextEditorAction {
 		IDocument 		doc = getTextEditor().getDocumentProvider().getDocument(
 				getTextEditor().getEditorInput());
 		int start_line, end_line;
+		boolean full_file = false;
 		
 		// Don't yet try to indent entire files
 		if (sel.getLength() == 0) {
-			return;
+			full_file = true;
 		}
 
 		try {
-			start_line = doc.getLineOfOffset(sel.getOffset());
-			end_line = doc.getLineOfOffset(sel.getOffset() + sel.getLength());
+			if (full_file) {
+				start_line = doc.getLineOfOffset(0);
+				end_line = doc.getLineOfOffset(doc.getLength()-1);
+			} else {
+				start_line = doc.getLineOfOffset(sel.getOffset());
+				end_line = doc.getLineOfOffset(sel.getOffset() + sel.getLength());
+			}
 			
 			SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
 			
@@ -67,6 +73,12 @@ public class IndentAction extends TextEditorAction {
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
 			indenter.init(scanner);
+			
+			// Don't use adaptive indent if we're indenting the entire file
+			if (!full_file) {
+				indenter.setAdaptiveIndent(true);
+				indenter.setAdaptiveIndentEnd(start_line-1);
+			}
 			
 			String str = null;
 			int length = 0;

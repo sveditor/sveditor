@@ -12,12 +12,12 @@
 
 package net.sf.sveditor.ui.scanutils;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
+
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 
 public class SVDocumentTextScanner 
 	extends AbstractTextScanner implements IBIDITextScanner {

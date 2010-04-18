@@ -18,12 +18,27 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	private List<SVDBModIfcClassParam>			fParams;
 	private String								fSuperClass;
 	private List<SVDBModIfcClassParam>			fSuperParams;
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBModIfcClassDecl(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f,
+				SVDBItemType.Class, SVDBItemType.Module, SVDBItemType.Interface,
+				SVDBItemType.Struct); 
+	}
 	
 	public SVDBModIfcClassDecl(String name, SVDBItemType type) {
 		super(name, type);

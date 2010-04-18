@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -27,8 +28,6 @@ import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import junit.framework.TestCase;
 
 public class TestFilesystemLibPersistence extends TestCase {
 	

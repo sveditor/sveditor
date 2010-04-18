@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
-public class SVToken {
+public class SVToken_sav {
 	enum Type {
 		Id,
 		Keyword,
@@ -31,7 +31,7 @@ public class SVToken {
 	private Type				fType;
 	
 	
-	public SVToken(Type type, String image) {
+	public SVToken_sav(Type type, String image) {
 		fType  = type;
 		fImage = image;
 	}

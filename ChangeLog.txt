@@ -1,3 +1,30 @@
+
+-- 0.1.8 Release --
+
+- Make auto-indenter adaptive to surrounding scope indent. This means that
+  if class methods have the same indent as the class scope (aligned to margin),
+  the auto-identer will indent the method body statements one tab in from the
+  margin.
+
+- Corrected a bug with auto-indent paste and strings with embedded 
+  control characters. In this situation, the pasted content would 'disappear'.
+
+- Enhance content-assist when editing parameterized classes by searching 
+  class parameters as a data-type
+
+- Enable full-file indent via CTRL-I. Previously, this operation was diabled.
+
+- Resolved a bug in auto-indent scanner that caused some combinations of 
+  empty lines to be collapsed into one
+
+- Filter __sv_builtin classes from super-class proposal list
+
+- Change default focus in 'New SV Class' wizard to 'Class Name' field
+
+- Add scanner support for 'pure virtual' tasks/functions
+
+- Auto-indent now recognizes foreach as a loop construct
+
 -- 0.1.7 Release --
 
 - Add class-creation wizard that supports browsing for a super-class and 

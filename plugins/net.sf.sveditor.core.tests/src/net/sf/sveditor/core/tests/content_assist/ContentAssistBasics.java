@@ -20,8 +20,8 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -77,7 +77,7 @@ public class ContentAssistBasics extends TestCase {
 			"endclass\n";
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		SVDBFileFactory factory = new SVDBFileFactory();
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -368,7 +368,7 @@ public class ContentAssistBasics extends TestCase {
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		SVDBFileFactory factory = new SVDBFileFactory();
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
 		fIndex.setFile(file);

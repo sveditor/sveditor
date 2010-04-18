@@ -18,11 +18,25 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
 	private int								fAttr;
 	private String							fRetType;
+	
+	public static void init() {
+		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
+			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+				return new SVDBTaskFuncScope(file, parent, type, reader);
+			}
+		};
+		
+		SVDBPersistenceReader.registerPersistenceFactory(f,
+				SVDBItemType.Function, SVDBItemType.Task);
+	}
 	
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);

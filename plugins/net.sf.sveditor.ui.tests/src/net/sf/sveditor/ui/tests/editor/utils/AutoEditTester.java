@@ -169,6 +169,11 @@ public class AutoEditTester {
 		return fDoc.get(region.getOffset(), region.getLength());
 	}
 	
+	public void setContent(String content) throws BadLocationException {
+		fDoc.set(content);
+		fCaretOffset = fDoc.getLength()-1;
+	}
+	
 	public String getContent() throws BadLocationException {
 		return fDoc.get();
 	}

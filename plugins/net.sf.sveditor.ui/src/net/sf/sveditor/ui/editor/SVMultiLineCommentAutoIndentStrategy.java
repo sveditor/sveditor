@@ -152,7 +152,6 @@ public class SVMultiLineCommentAutoIndentStrategy extends
     }
 
     public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {
-    	System.out.println("customizeDocumentCommand: \"" + cmd.text + "\"");
         // TODO Test for smart mode.
         if (cmd.text != null) {
             // No auto-indent if replacing existing characters.
