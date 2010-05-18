@@ -52,6 +52,25 @@ public class PreProcMacroTests extends TestCase {
 			"\n" +
 			"`analysis_closure_imp(foo, bar, write_func)\n" +
 			"\n";
+		String expected =
+			"typedef class bar; \n" +
+			"class analysis_closure_foo_bar_write_func \n" +
+			"	extends ovm_component; \n" +
+			"	ovm_analysis_imp #(foo, \n" +
+			"		analysis_closure_foo_bar_write_func) exp; \n" +
+			"	\n" +
+			"	bar							m_target_ptr; \n" +
+			"	\n" +
+			"	function new(string name, bar t); \n" +
+			"		super.new(name, t); \n" +
+			"		m_target_ptr = t; \n" +
+			"		exp = new(\"exp\", this); \n" +
+			"	endfunction \n" +
+			"	\n" +
+			"	virtual function void write(foo t); \n" +
+			"		m_target_ptr. write_func (t); \n" +
+			"	endfunction \n" +
+			"endclass";			
 			
 		InputStream in = new StringInputStream(text);
 		SVPreProcScanner 	sc = new SVPreProcScanner();
@@ -74,7 +93,40 @@ public class PreProcMacroTests extends TestCase {
 		
 		String result = dp.expandMacro("`analysis_closure_imp(foo, bar, write_func)", "text", 1);
 		
-		System.out.println("result: \"" + result + "\"");
+		System.out.println("expected: \"" + expected.trim() + "\"");
+		System.out.println("====");
+		System.out.println("result: \"" + result.trim() + "\"");
+		assertEquals(expected, result.trim());
 	}
 
+	public void testNestedExpansion() {
+		String text = 
+			"`define vmm_channel_( T ) T``_channel\n" +
+			"\n" +
+			"`define vmm_channel( T ) \\\n" +
+			"class `vmm_channel_( T ) extends vmm_channel;";
+		InputStream in = new StringInputStream(text);
+		SVPreProcScanner 	sc = new SVPreProcScanner();
+		SVDBPreProcObserver ob = new SVDBPreProcObserver();
+
+		sc.init(in, "text");
+		sc.setObserver(ob);
+		sc.scan();
+
+		SVDBFile pp_file = ob.getFiles().get(0);
+		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
+
+		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
+		mp.setFileContext(ft_root);
+		
+		ft_utils.resolveConditionals(ft_root, dp);
+		
+		
+		String result = dp.expandMacro("`vmm_channel( foo )", "text", 1);
+		
+		System.out.println("result: \"" + result + "\"");
+		assertEquals("class  foo_channel extends vmm_channel;", result.trim());
+	}
 }

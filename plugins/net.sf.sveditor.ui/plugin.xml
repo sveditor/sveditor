@@ -339,6 +339,12 @@
             id="net.sf.sveditor.ui.page1"
             name="SVEditor">
       </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVTemplatePrefsPage"
+            id="net.sf.sveditor.ui.svEditorTemplates"
+            name="Templates">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -407,6 +413,46 @@
             id="net.sf.sveditor.ui.searchPage"
             label="SystemVerilog Search">
       </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="net.sf.sveditor.ui.editor.SVTemplateContextType"
+            id="net.sf.sveditor.ui.svTemplateContext"
+            name="SystemVerilog Template Context">
+      </contextType>
+      <resolver
+            class="net.sf.sveditor.ui.editor.SVContextTemplateVariableResolver"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            type="src">
+      </resolver>
+      <!--
+      <template
+            autoinsert="false"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            description="Iterate over an array with a temporary variable"
+            icon="icons/template.gif"
+            id="net.sf.sveditor.ui.svForLoop"
+            name="for">
+         <pattern>
+            for (int ${index}; ${condition}; ${increment}) begin
+	${cursor}
+end
+         </pattern>
+      </template>
+      <template
+            autoinsert="false"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            icon="icons/template.gif"
+            id="net.sf.sveditor.ui.template1"
+            name="class">
+         <pattern>
+            class ${name} extends ${superclass};
+	${cursor}
+endclass
+         </pattern>
+      </template>
+       -->
    </extension>
    
 

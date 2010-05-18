@@ -59,11 +59,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	private List<ICompletionProposal>				fProposals = 
 		new ArrayList<ICompletionProposal>();
 
-	public SVCompletionProcessor() {
+	public SVCompletionProcessor(SVEditor editor) {
 		fLog = LogFactory.getLogHandle("SVCompletionProcessor");
-	}
-	
-	public void init(SVEditor editor) {
 		fEditor = editor;
 	}
 	
@@ -90,6 +87,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
  
 			fProposals.addAll(cp);
 		}
+		
 		
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
 	}

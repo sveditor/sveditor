@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBTaskFuncParam>			fParams;
 	private int								fAttr;
-	private String							fRetType;
+	private SVDBTypeInfo					fRetType;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -41,21 +41,35 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
 		fParams = new ArrayList<SVDBTaskFuncParam>();
+		fRetType = new SVDBTypeInfo("", 0);
 	}
-	
+
+	public SVDBTaskFuncScope(String name, SVDBTypeInfo	ret_type) {
+		super(name, SVDBItemType.Function);
+		fParams = new ArrayList<SVDBTaskFuncParam>();
+		fRetType = ret_type;
+	}
+
 	@SuppressWarnings("unchecked")
 	public SVDBTaskFuncScope(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
 		fParams     = (List<SVDBTaskFuncParam>)reader.readItemList(file, this);
 		fAttr       = reader.readInt();
-		fRetType    = reader.readString();
+		SVDBItemType it = reader.readItemType();
+		
+		
+		if (it != SVDBItemType.TypeInfo) {
+			throw new DBFormatException("Bad item type \"" + it + "\": expecting TypeInfo");
+		}
+		
+		fRetType	= new SVDBTypeInfo(file, this, it, reader);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeItemList(fParams);
 		writer.writeInt(fAttr);
-		writer.writeString(fRetType);
+		fRetType.dump(writer);
 	}
 	
 	public void setAttr(int attr) {
@@ -75,11 +89,18 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		return fParams;
 	}
 	
-	public String getReturnType() {
+	public void setParams(List<SVDBTaskFuncParam> params) {
+		fParams = params;
+		for (SVDBTaskFuncParam p : params) {
+			p.setParent(this);
+		}
+	}
+	
+	public SVDBTypeInfo getReturnType() {
 		return fRetType;
 	}
 	
-	public void setReturnType(String ret) {
+	public void setReturnType(SVDBTypeInfo ret) {
 		fRetType = ret;
 	}
 	public SVDBItem duplicate() {

@@ -22,13 +22,15 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTypeInfo extends SVDBItem {
-	public static final int				TypeAttr_FixedArray        = (1 << 0);
-	public static final int				TypeAttr_DynamicArray      = (1 << 1);
-	public static final int				TypeAttr_Queue             = (1 << 2);
-	public static final int				TypeAttr_AssocArray        = (1 << 3);
-	public static final int				TypeAttr_ModIfc            = (1 << 4);
-	public static final int				TypeAttr_Parameterized     = (1 << 5);
-	public static final int				TypeAttr_Vectored          = (1 << 6);
+	public static final int				TypeAttr_FixedArray			= (1 << 0);
+	public static final int				TypeAttr_DynamicArray		= (1 << 1);
+	public static final int				TypeAttr_Queue				= (1 << 2);
+	public static final int				TypeAttr_AssocArray			= (1 << 3);
+	public static final int				TypeAttr_ModIfc				= (1 << 4);
+	public static final int				TypeAttr_Parameterized		= (1 << 5);
+	public static final int				TypeAttr_Vectored			= (1 << 6);
+	public static final int				TypeAttr_Signed				= (1 << 7);
+	public static final int				TypeAttr_Unsigned			= (1 << 8);
 
 	protected int									fAttr;
 	protected List<SVDBModIfcClassParam>			fParameters;
@@ -71,6 +73,14 @@ public class SVDBTypeInfo extends SVDBItem {
 	
 	public int getAttr() {
 		return fAttr;
+	}
+	
+	public void setAttr(int attr) {
+		fAttr |= attr;
+	}
+	
+	public void resetAttr(int attr) {
+		fAttr = attr;
 	}
 
 	public List<SVDBModIfcClassParam> getParameters() {

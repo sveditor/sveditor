@@ -217,7 +217,7 @@ public class SVDefaultIndenter {
 			non_block_stmt = true;
 		}
 		
-		tok = indent_block_or_statement();
+		tok = indent_block_or_statement(null);
 		
 		if (non_block_stmt) {
 			pop_indent(tok);
@@ -234,7 +234,7 @@ public class SVDefaultIndenter {
 					non_block_stmt = true;
 				}
 				
-				tok = indent_block_or_statement();
+				tok = indent_block_or_statement(null);
 				
 				if (non_block_stmt) {
 					pop_indent(tok);
@@ -266,7 +266,7 @@ public class SVDefaultIndenter {
 				!tok.isId("join_none") && 
 				!tok.isId("join_any")) {
 			
-			tok = indent_stmt();
+			tok = indent_stmt("fork");
 		}
 		pop_indent(tok);
 		
@@ -306,7 +306,7 @@ public class SVDefaultIndenter {
 			non_block_stmt = true;
 		}
 		
-		tok = indent_block_or_statement();
+		tok = indent_block_or_statement(null);
 		
 		if (non_block_stmt) {
 			pop_indent(tok);
@@ -435,7 +435,7 @@ public class SVDefaultIndenter {
 					push_indent(tok);
 				}
 				
-				tok = indent_block_or_statement();
+				tok = indent_block_or_statement(null);
 				
 				if (not_block) {
 					pop_indent(tok);
@@ -457,7 +457,7 @@ public class SVDefaultIndenter {
 				tok = next_s();
 				fQualifiers = 0;
 			} else {
-				tok = indent_block_or_statement();
+				tok = indent_block_or_statement(item);
 			}
 		}
 		
@@ -613,7 +613,7 @@ public class SVDefaultIndenter {
 				if (tok.isId(end)) {
 					break;
 				} else {
-					tok = indent_block_or_statement();
+					tok = indent_block_or_statement(item);
 				}
 			}
 			pop_indent(tok);
@@ -634,15 +634,14 @@ public class SVDefaultIndenter {
 		return tok;
 	}
 	
-	private SVIndentToken indent_block_or_statement() {
-		boolean is_block = false;
+	private SVIndentToken indent_block_or_statement(String parent) {
 		SVIndentToken tok = current();
 		if (fDebugEn) {
 			debug("--> indent_block_or_statement() tok=" + tok.getImage());
 		}
 		
 		if (tok.isId("begin")) {
-			is_block = true;
+			parent = "begin";
 			
 			tok = next_s();
 			push_indent(tok);
@@ -661,22 +660,22 @@ public class SVDefaultIndenter {
 					tok = consume_labeled_block(tok);
 					break;
 				} else {
-					tok = indent_block_or_statement();
+					tok = indent_block_or_statement(parent);
 				}
 			}
 		} else {
-			tok = indent_stmt();
+			tok = indent_stmt(parent);
 		}
 
 		if (fDebugEn) {
 			debug("<-- indent_block_or_statement() tok=" + 
-				((tok != null)?tok.getImage():"null") + " is_block=" + is_block);
+				((tok != null)?tok.getImage():"null") + " parent=" + parent);
 		}
 		
 		return tok;
 	}
 	
-	private SVIndentToken indent_stmt() {
+	private SVIndentToken indent_stmt(String parent) {
 		SVIndentToken tok = current_s();
 		
 		// Just indent the statement
@@ -691,7 +690,7 @@ public class SVDefaultIndenter {
 			if ((tok = next_s()).isOp("@")) {
 				tok = next_s();
 				tok = next_s(); // Should be either stmt or begin
-				indent_block_or_statement();
+				indent_block_or_statement(null);
 			}
 			leave_scope();
 		} else if (tok.isId("typedef")) {
@@ -713,10 +712,24 @@ public class SVDefaultIndenter {
 			pop_indent(null);
 			tok = next_s();
 		} else {
+			boolean do_next = true;
 			while (!tok.isOp(";")) {
+				if (parent != null) {
+					if ((parent.equals("begin") && tok.isId("end")) ||
+						tok.isId("end" + parent)) {
+						do_next = false;
+						break;
+					} else if (parent.equals("fork") && 
+							(tok.isId("join") || tok.isId("join_any") || tok.isId("join_none"))) {
+						do_next = false;
+						break;
+					}
+				}
 				tok = next_s();
 			}
-			tok = next_s();
+			if (do_next) {
+				tok = next_s();
+			}
 		}
 		
 		return tok;
@@ -839,7 +852,7 @@ public class SVDefaultIndenter {
 			
 			if (tok.isOp(":")) {
 				tok = next_s();
-				tok = indent_block_or_statement();
+				tok = indent_block_or_statement("case");
 			}
 		}
 		

@@ -20,11 +20,15 @@ import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
+import net.sf.sveditor.core.tests.parser.ParserTests;
+import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 
 public class CoreReleaseTests extends TestSuite {
 	
 	public CoreReleaseTests() {
 		addTest(new TestSuite(SVScannerTests.class));
+		addTest(ParserTests.suite());
+		addTest(new TestSuite(PreProcMacroTests.class));
 		addTest(IndentTests.suite());
 		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());

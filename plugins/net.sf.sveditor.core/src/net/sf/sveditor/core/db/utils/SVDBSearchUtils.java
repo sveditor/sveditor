@@ -95,11 +95,11 @@ public class SVDBSearchUtils {
 		for (SVDBItem it : scope.getItems()) {
 			if (it instanceof SVDBScopeItem) {
 				SVDBLocation end_loc = ((SVDBScopeItem)it).getEndLocation(); 
-				debug("    sub-scope " + it.getName() + " @ " + 
-						it.getLocation().getLine() + "-" + 
-						((end_loc != null)?end_loc.getLine():-1));
 				SVDBScopeItem s_it = (SVDBScopeItem)it;
 				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
+					debug("    sub-scope " + it.getName() + " @ " + 
+							it.getLocation().getLine() + "-" + 
+							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 
 							lineno <= s_it.getEndLocation().getLine()) {
 						SVDBScopeItem s_it_p = findActiveScope(s_it, lineno);

@@ -21,6 +21,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -46,8 +47,7 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		if (fContentAssist == null) {
 			fContentAssist = new ContentAssistant();
-			SVCompletionProcessor p = new SVCompletionProcessor();
-			p.init(fEditor);
+			IContentAssistProcessor p = new SVTemplateCompletionProcessor(fEditor);
 
 			fContentAssist.setContentAssistProcessor(p,
 					IDocument.DEFAULT_CONTENT_TYPE);

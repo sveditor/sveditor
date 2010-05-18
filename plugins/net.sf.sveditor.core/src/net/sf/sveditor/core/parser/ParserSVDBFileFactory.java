@@ -84,7 +84,7 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
  */
 public class ParserSVDBFileFactory 
 	implements ISVScanner, IPreProcErrorListener, ISVDBFileFactory,
-		ISVPreProcScannerObserver {
+		ISVPreProcScannerObserver, ISVParser {
 	private Stack<String>			fSemanticScopeStack;
 	private SVScannerTextScanner	fInput;
 	private SVLexer					fLexer;
@@ -98,12 +98,14 @@ public class ParserSVDBFileFactory
 
 	private SVDBFile				fFile;
 	private Stack<SVDBScopeItem>	fScopeStack;
+	private SVParsers				fSVParsers;
 
 	
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		setDefineProvider(dp);
 		fScopeStack = new Stack<SVDBScopeItem>();
 		fSemanticScopeStack = new Stack<String>();
+		fSVParsers = new SVParsers(this);
 		
 		if (dp != null) {
 			setDefineProvider(dp);
@@ -161,11 +163,15 @@ public class ParserSVDBFileFactory
 		
 		fInput = new SVScannerTextScanner(pp);
 		fLexer = new SVLexer();
-		fLexer.init(fInput);
+		fLexer.init(this);
 		
 		enter_file(filename);
 
-		process();
+		try {
+			process();
+		} catch (SVParseException e) {
+			e.printStackTrace();
+		}
 
 		leave_file();
 		
@@ -174,7 +180,7 @@ public class ParserSVDBFileFactory
 		}
 	}
 	
-	private void process() {
+	private void process() throws SVParseException {
 		String id;
 		
 		try {
@@ -184,7 +190,12 @@ public class ParserSVDBFileFactory
 
 				if (id != null) {
 					if (id.equals("class")) {
-						process_interface_module_class(id);
+						SVDBModIfcClassDecl cls = null;
+						try {
+							cls = parsers().classParser().parse(ret.fField2);
+						} catch (SVParseException e) {
+							e.printStackTrace();
+						}
 					} else if (id.equals("module") ||
 							id.equals("interface") ||
 							id.equals("program")) {
@@ -434,7 +445,7 @@ public class ParserSVDBFileFactory
 		handle_leave_scope();
 	}
 	
-	private void process_property(String id) throws EOFException {
+	private SVDBItem process_property(String id) throws EOFException {
 		int ch = skipWhite(get_ch());
 		
 		String name = readIdentifier(ch);
@@ -447,7 +458,6 @@ public class ParserSVDBFileFactory
 		fScopeStack.peek().addItem(it);
 		fScopeStack.push(it);
 		
-		
 		while ((id = scan_statement()) != null) {
 			if (id.equals("endproperty")) {
 				break;
@@ -455,6 +465,8 @@ public class ParserSVDBFileFactory
 		}
 		
 		handle_leave_scope();
+		
+		return it;
 	}
 	
 	private class Pair <T1, T2> {
@@ -465,7 +477,6 @@ public class ParserSVDBFileFactory
 	private Pair<String, Integer> scan_qualifiers(String id, boolean param) throws EOFException {
 		Pair<String, Integer> ret = new Pair<String, Integer>();
 		int modifiers = 0;
-		int ch = get_ch();
 		Map<String, Integer>	qmap = (param)?fTaskFuncParamQualifiers:fFieldQualifers;
 		
 		ret.fField2 = 0;
@@ -473,12 +484,11 @@ public class ParserSVDBFileFactory
 			debug("item modified by \"" + id + "\"");
 			modifiers |= qmap.get(id);
 			
-			ch = skipWhite(ch);
-			id = readIdentifier(ch);
-			ch = skipWhite(get_ch());
+			if (!lexer().next_token()) {
+				break;
+			}
+			id = lexer().peek();
 		}
-		
-		unget_ch(ch);
 		
 		ret.fField1 = id;
 		ret.fField2 = modifiers;
@@ -486,26 +496,45 @@ public class ParserSVDBFileFactory
 		return ret;
 	}
 	
-	private boolean process_task_function(int modifiers, String id) throws EOFException {
+	public String scopedIdentifier() throws SVParseException {
+		StringBuilder id = new StringBuilder();
+		
+		id.append(lexer().readId());
+		
+		while (lexer().peekOperator("::")) {
+			id.append("::");
+			id.append(lexer().readId());
+		}
+		
+		return id.toString();
+	}
+	
+	private SVDBItem process_task_function(int modifiers, String id) throws SVParseException {
 		// Scan for end-of-section
 		String 						tf_name;
 		String						ret_type = null;
 		List<SVTaskFuncParam>		params = new ArrayList<SVTaskFuncParam>();
-		boolean ret = true;
+		SVDBTaskFuncScope			scope;
+		debug("--> process_task_function \"" + id + "\"");
 		int ch = skipWhite(get_ch());
 		
 		fSemanticScopeStack.push(id);
 		
-		tf_name = readIdentifier(ch);
-		ch = skipWhite(get_ch());
+		// This could be:
+		// task name
+		// 'new'
+		tf_name = lexer().readId();
+		
+		debug("    tf_name=" + tf_name);
 
 		unget_ch(ch);
 		Pair<String, Integer> mod_ret = scan_qualifiers(tf_name, false);
 		ch = get_ch();
 
-		tf_name   = mod_ret.fField1;
+		tf_name    = mod_ret.fField1;
 		modifiers |= mod_ret.fField2;
 
+		debug("    tf_name=" + tf_name);
 		
 		if (id.equals("function")) {
 			// could have a return type.
@@ -601,9 +630,36 @@ public class ParserSVDBFileFactory
 		}
 		
 		if (ret_type != null) {
-			enter_func_decl(tf_name, modifiers, ret_type, params);
+			scope = new SVDBTaskFuncScope(tf_name, SVDBItemType.Function);
+			scope.setAttr(modifiers);
+			scope.setReturnType(new SVDBTypeInfo(ret_type, 0));
+			
+			for (SVTaskFuncParam p : params) {
+				// TODO: fixme. Parameters can be of array/queue type too
+				SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+				SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+				scope.addParam(svp);
+			}
+			
+			fScopeStack.peek().addItem(scope);
+			fScopeStack.push(scope);
+			
+			setLocation(scope);
 		} else {
-			enter_task_decl(tf_name, modifiers, params);
+			scope = new SVDBTaskFuncScope(tf_name, SVDBItemType.Task);
+			scope.setAttr(modifiers);
+			
+			for (SVTaskFuncParam p : params) {
+				// TODO: fixme. Parameters can be of array/queue type too
+				SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+				SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+				scope.addParam(svp);
+			}
+			
+			fScopeStack.peek().addItem(scope);
+			fScopeStack.push(scope);
+			
+			setLocation(scope);
 		}
 		
 		debug("" + id + " " + tf_name);
@@ -625,18 +681,20 @@ public class ParserSVDBFileFactory
 		
 		if (has_body) {
 			String  exp_end = "end" + id;
-			ret = task_function_initial_body(exp_end);
-			
+			if (!task_function_initial_body(exp_end)) {
+				scope = null;
+			}
 		} else {
 			debug("    extern task/function declaration");
 		}
 		
 		handle_leave_scope();
 		
-		return ret;
+		debug("--> process_task_function \"" + scope.getName() + "\"");
+		return scope;
 	}
 	
-	private boolean task_function_initial_body(String exp_end) throws EOFException {
+	private boolean task_function_initial_body(String exp_end) throws SVParseException {
 		boolean var_enabled = true;
 		String id;
 		boolean ret = true;
@@ -683,7 +741,8 @@ public class ParserSVDBFileFactory
 		return ret;
 	}
 	
-	private void process_interface_module_class(String type) throws EOFException {
+	private SVDBItem process_interface_module_class(String type) throws SVParseException {
+		SVDBItem it = null;
 		String id;
 		List<SVClassIfcModParam>	params = null;
 		String super_name = null;
@@ -707,7 +766,7 @@ public class ParserSVDBFileFactory
 			ch = get_ch();
 			debug("  module_type_name=" + module_type_name);
 		} else {
-			return;
+			return it;
 		}
 
 		// Handle modules with parameters
@@ -772,39 +831,88 @@ public class ParserSVDBFileFactory
 		unget_ch(ch);
 		
 		if (type.equals("module")) {
-			enter_module_decl(module_type_name, ports);
+			SVDBModIfcClassDecl cls = 
+				new SVDBModIfcClassDecl(module_type_name, SVDBItemType.Module);
+			fScopeStack.peek().addItem(cls);
+			fScopeStack.push(cls);
+
+			setLocation(cls);
+			it = cls;
 		} else if (type.equals("program")) {
-			enter_program_decl(module_type_name);
+			SVDBProgramBlock p = new SVDBProgramBlock(module_type_name);
+			
+			fScopeStack.peek().addItem(p);
+			fScopeStack.push(p);
+			
+			setLocation(p);
+			it = p;
 		} else if (type.equals("interface")) {
-			enter_interface_decl(module_type_name, ports);
+			SVDBModIfcClassDecl ifc = new SVDBModIfcClassDecl(
+					module_type_name, SVDBItemType.Interface);
+			fScopeStack.peek().addItem(ifc);
+			fScopeStack.push(ifc);
+			
+			setLocation(ifc);
+			it = ifc;
 		} else if (type.equals("class")) {
-			enter_class_decl(module_type_name, params, super_name, super_params);
+			System.out.println("[ERROR] should not be calling enter_class_decl");
+			SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+					module_type_name, SVDBItemType.Class);
+			
+			for (SVClassIfcModParam p : params) {
+				SVDBModIfcClassParam p_svdb = new SVDBModIfcClassParam(p.getName());
+				p_svdb.setDefault(p.getDefault());
+				decl.getParameters().add(p_svdb);
+			}
+			
+			decl.setSuperClass(super_name);
+			
+			if (super_params != null) {
+				for (SVClassIfcModParam p : super_params) {
+					decl.getSuperParameters().add(new SVDBModIfcClassParam(p.getName()));
+				}
+			}
+			
+			fScopeStack.peek().addItem(decl);
+			fScopeStack.push(decl);
+			
+			setLocation(decl);
+			it = decl;
 		} else if (type.equals("struct")) {
-			enter_struct_decl(module_type_name, params);
+			SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+					module_type_name, SVDBItemType.Struct);
+			
+			fScopeStack.peek().addItem(decl);
+			fScopeStack.push(decl);
+			
+			setLocation(decl);
 		}
 
 		while ((id = scan_statement()) != null) {
-			boolean ret;
 			debug("id=" + id);
 			if (id.equals("end" + type)) {
 				break;
 			}
-			ret = process_module_class_interface_body_item(type, id);
+			SVDBItem item = process_module_class_interface_body_item(type, id);
 
 			// Check whether we aborted parsing the body because
 			// we found a 1st-level scope keyword
-			if (!ret) {
+			if (item == null) {
 				break;
 			}
+			
+			// TODO: Should have already been added ?
+			// fScopeStack.peek().addItem(item);
 		}
 		
 		// Pop the first-level scope
 		handle_leave_scope();
 		
 		debug("<-- process_module()");
+		return it;
 	}
 	
-	private void process_struct_decl(SVTypeInfo type_info) throws EOFException {
+	private void process_struct_decl(SVTypeInfo type_info) throws SVParseException {
 		int ch = skipWhite(get_ch());
 		
 		System.out.println("process_struct_decl");
@@ -818,18 +926,26 @@ public class ParserSVDBFileFactory
 		if (ch != '{') {
 			return;
 		}
+
+		// Add struct declaration
+		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
+				"", SVDBItemType.Struct);
+		fScopeStack.peek().addItem(decl);
+		fScopeStack.push(decl);
+		setLocation(decl);
 		
-		enter_struct_decl("", null);
 		
 		String id;
 		
 		while ((id = scan_statement()) != null) {
-			boolean ret = process_module_class_interface_body_item("struct", id);
+			SVDBItem item = process_module_class_interface_body_item("struct", id);
 			
-			if (!ret) {
+			if (item == null) {
 				break;
 			}
 			
+			// Add the item to the struct declaration
+			fScopeStack.peek().addItem(item);
 
 			// Recognize when we've reached the end of the
 			// struct definition
@@ -872,7 +988,12 @@ public class ParserSVDBFileFactory
 		}
 	}
 	
-	private void handle_leave_scope() {
+	public void enter_scope(String type, SVDBScopeItem scope) {
+		fSemanticScopeStack.push(type);
+		fScopeStack.peek().addItem(scope);
+	}
+	
+	public void handle_leave_scope() {
 		handle_leave_scope(1);
 	}
 	
@@ -982,7 +1103,7 @@ public class ParserSVDBFileFactory
 		return ret;
 	}
 	
-	private void process_import(String type) throws EOFException {
+	private void process_import(String type) throws SVParseException {
 		int ch = skipWhite(get_ch());
 		
 		if (ch == '"') {
@@ -1045,7 +1166,7 @@ public class ParserSVDBFileFactory
 		}
 	}
 	
-	private void process_typedef() throws EOFException {
+	private void process_typedef() throws SVParseException {
 		
 		// typedef <type> <name>;
 		
@@ -1103,20 +1224,23 @@ public class ParserSVDBFileFactory
 		return fTaskFuncParamQualifiers.containsKey(id);
 	}
 	
-	private boolean process_module_class_interface_body_item(
+	
+	private static SVDBItem			fSpecialNonNull = new SVDBItem("SPECIAL_NON_NULL", SVDBItemType.VarDecl);
+	
+	public SVDBItem process_module_class_interface_body_item(
 			String	scope,
-			String 	id) throws EOFException {
-		int     ch, modifiers = 0;
-		boolean ret = true;
+			String 	id) throws SVParseException {
+		int     ch=-1, modifiers = 0;
+		SVDBItem ret = null;
 		
 		debug("--> process_module_class_interface_body_item: \"" + id + "\"");
 		
 		// Ignore modifiers for now
-		ch = skipWhite(get_ch());
+		lexer().next_token(); // ch = skipWhite(get_ch());
 		
-		unget_ch(ch);
+		// unget_ch(ch);
 		Pair<String, Integer> qual_ret = scan_qualifiers(id, false);
-		ch = skipWhite(get_ch());
+		// ch = skipWhite(get_ch());
 		
 		id        = qual_ret.fField1;
 		modifiers = qual_ret.fField2;
@@ -1125,35 +1249,41 @@ public class ParserSVDBFileFactory
 			System.out.println("[ERROR] id=null @ " + 
 					getStmtLocation().getFileName() + ":" + 
 					getStmtLocation().getLineNo());
-			return false;
+			return ret;
 		}
 		
 		debug("body item is: " + id);
 		
 		if (id.equals("task") || id.equals("function")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			ret = process_task_function(modifiers, id);
 		} else if (id.equals("property")) {
-			unget_ch(ch);
-			process_property(id);
+			// unget_ch(ch);
+			ret = process_property(id);
 		} else if (id.equals("always") || id.equals("initial")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_initial_always(id);
+			ret = fSpecialNonNull;
 		} else if (id.equals("assign")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_assign();
+			ret = fSpecialNonNull;
 		} else if (id.equals("constraint")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_constraint(id);
+			ret = fSpecialNonNull;
 		} else if (id.equals("covergroup")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_covergroup(id);
+			ret = fSpecialNonNull;
 		} else if (id.equals("sequence")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_sequence(id);
+			ret = fSpecialNonNull;
 		} else if (id.equals("import")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_import(id);
+			ret = fSpecialNonNull;
 		} else if (id.startsWith("end") && SVKeywords.isSVKeyword(id)) {
 			// it's likely that we've encountered a parse error 
 			// or incomplete text section.
@@ -1164,24 +1294,25 @@ public class ParserSVDBFileFactory
 				}
 			}
 		} else if (id.equals("typedef")) {
-			unget_ch(ch);
+			// unget_ch(ch);
 			process_typedef();
+			ret = fSpecialNonNull;
 		} else if (id.equals("class") && scope.equals("module")) {
-			unget_ch(ch);
-			process_interface_module_class(id);
+			// unget_ch(ch);
+			ret = process_interface_module_class(id);
 			fNewStatement = true;
 		} else if (isFirstLevelScope(id, modifiers)) {
 			// We've hit a first-level qualifier. This probably means that
 			// there is a missing
 			unget_str(id + " ");
 			fNewStatement = true;
-			ret = false; 
+			ret = null; 
 		} else if (ch == ':') {
 			// Labeled statement -- often a cover
 			System.out.println("labeled statement: " + id);
 			System.out.println("    " + getLocation().getFileName() + ":" + getLocation().getLineNo());
 			fNewStatement = true;
-			ret = false; 
+			ret = null; 
 		} else {
 			// likely a variable or module declaration
 			
@@ -1191,6 +1322,7 @@ public class ParserSVDBFileFactory
 			unget_str(id + " ");
 			
 			scanVariableDeclaration(modifiers);
+			ret = fSpecialNonNull;
 		}
 		
 		debug("<-- process_module_class_interface_body_item");
@@ -1205,7 +1337,7 @@ public class ParserSVDBFileFactory
 	 * 
 	 * Expects first string(s) read to be the type name
 	 */
-	private boolean scanVariableDeclaration(int modifiers) throws EOFException {
+	private boolean scanVariableDeclaration(int modifiers) throws SVParseException {
 		List<SvVarInfo> 	vars = new ArrayList<SvVarInfo>();
 		SVTypeInfo			type;
 		int 				ch;
@@ -1319,7 +1451,7 @@ public class ParserSVDBFileFactory
 	}
 			
 	
-	private boolean isFirstLevelScope(String id, int modifiers) {
+	public static boolean isFirstLevelScope(String id, int modifiers) {
 		return (id.equals("class") ||
 				// virtual interface is a valid field
 				(id.equals("interface") && (modifiers & ISVScannerObserver.FieldAttr_Virtual) == 0) ||
@@ -1327,7 +1459,7 @@ public class ParserSVDBFileFactory
 				id.equals("module"));
 	}
 	
-	private boolean isSecondLevelScope(String id) {
+	public static boolean isSecondLevelScope(String id) {
 		return (id.equals("task") ||
 				id.equals("function") ||
 				id.equals("always") ||
@@ -1337,7 +1469,7 @@ public class ParserSVDBFileFactory
 	/**
 	 * scan_statement()
 	 */
-	private String scan_statement() throws EOFException {
+	public String scan_statement() {
 		int     ch;
 		
 		while ((ch = get_ch()) != -1) {
@@ -1460,16 +1592,17 @@ public class ParserSVDBFileFactory
 				id.equals("real") || id.equals("shortreal"));
 	}
 	
-	private SVTypeInfo readTypeName(int ch, boolean task_func) throws EOFException {
+	private SVTypeInfo readTypeName(int ch, boolean task_func) throws SVParseException {
 		StringBuffer ret = new StringBuffer();
 		String id = null;
 		SVTypeInfo type = new SVTypeInfo();
 		int    is_builtin = 0;
 		int    is_qual    = 0;
 		int    idx        = 0;
-
-		debug("--> readTypeName(task_func=" + task_func + ")");
+		
+		debug("--> readTypeName(task_func=" + task_func + ") - ch=" + (char)ch);
 		while (true) {
+			debug("    ch=" + (char)ch);
 			ch = skipWhite(ch);
 
 			debug("    pre-readQualifiedIdentifier ch=" + (char)ch);
@@ -1565,7 +1698,7 @@ public class ParserSVDBFileFactory
 			unget_ch(ch);
 		}
 		
-		debug("--> readTypeName(task_func=" + task_func + ") -> " + 
+		debug("<-- readTypeName(task_func=" + task_func + ") -> " + 
 				ret.toString().trim());
 		if (ret.length() != 0) {
 			String type_name = ret.toString().trim();
@@ -1675,7 +1808,7 @@ public class ParserSVDBFileFactory
 		return fInput.skipPastMatch(pair, escape);
 	}
 
-	private int get_ch() throws EOFException {
+	private int get_ch() {
 		return get_ch(true);
 	}
 	
@@ -1707,7 +1840,7 @@ public class ParserSVDBFileFactory
 	}
 
 	private void debug(String msg) {
-		// System.out.println(msg);
+		System.out.println(msg);
 	}
 
 	public void error(String msg, String filename, int lineno) {
@@ -1727,6 +1860,31 @@ public class ParserSVDBFileFactory
 		scan(in, name);
 		
 		return fFile;
+	}
+	
+	public void init(InputStream in, String name) {
+		fScopeStack.clear();
+		fFile = new SVDBFile(name);
+		fScopeStack.push(fFile);
+		
+		fNewStatement = true;
+		
+		if (fDefineProvider != null) {
+			fDefineProvider.addErrorListener(this);
+		}
+		
+		SVPreProcScanner pp = new SVPreProcScanner();
+		pp.setDefineProvider(fDefineProvider);
+		pp.setScanner(this);
+		pp.setObserver(this);
+		
+		pp.init(in, name);
+		pp.setExpandMacros(true);
+		pp.setEvalConditionals(fEvalConditionals);
+		
+		fInput = new SVScannerTextScanner(pp);
+		fLexer = new SVLexer();
+		fLexer.init(this);
 	}
 	
 	
@@ -1759,73 +1917,12 @@ public class ParserSVDBFileFactory
 	}
 
 	
-	public void enter_module_decl(String name, String ports)
-			throws HaltScanException {
-		SVDBModIfcClassDecl md = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Module);
-		fScopeStack.peek().addItem(md);
-		fScopeStack.push(md);
-
-		setLocation(md);
-	}
-	
-	
-	public void enter_program_decl(String name) throws HaltScanException {
-		SVDBProgramBlock p = new SVDBProgramBlock(name);
-		
-		fScopeStack.peek().addItem(p);
-		fScopeStack.push(p);
-		
-		setLocation(p);
-	}
-
-	public void enter_interface_decl(String name, String ports)
-			throws HaltScanException {
-		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Interface);
-		fScopeStack.peek().addItem(id);
-		fScopeStack.push(id);
-		
-		setLocation(id);
-	}
-
-	
 	public void leave_interface_decl() {
 		if (fScopeStack.size() > 0 && 
 				fScopeStack.peek().getType() == SVDBItemType.Interface) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
-	}
-
-	
-	public void enter_class_decl(
-			String 						name, 
-			List<SVClassIfcModParam> 	params,
-			String						super_name,
-			List<SVClassIfcModParam>	super_params) 
-		throws HaltScanException {
-		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Class);
-		
-		for (SVClassIfcModParam p : params) {
-			SVDBModIfcClassParam p_svdb = new SVDBModIfcClassParam(p.getName());
-			p_svdb.setDefault(p.getDefault());
-			decl.getParameters().add(p_svdb);
-		}
-		
-		decl.setSuperClass(super_name);
-		
-		if (super_params != null) {
-			for (SVClassIfcModParam p : super_params) {
-				decl.getSuperParameters().add(new SVDBModIfcClassParam(p.getName()));
-			}
-		}
-		
-		fScopeStack.peek().addItem(decl);
-		fScopeStack.push(decl);
-		
-		setLocation(decl);
 	}
 
 	
@@ -1837,69 +1934,12 @@ public class ParserSVDBFileFactory
 		}
 	}
 
-	
-	public void enter_struct_decl(String name, List<SVClassIfcModParam> params) 
-		throws HaltScanException {
-		SVDBModIfcClassDecl decl = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Struct);
-		
-		fScopeStack.peek().addItem(decl);
-		fScopeStack.push(decl);
-		
-		setLocation(decl);
-	}
-
 	public void leave_struct_decl(String name) throws HaltScanException {
 		if (fScopeStack.size() > 0 &&
 				fScopeStack.peek().getType() == SVDBItemType.Struct) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop().setName(name);
 		}
-	}
-
-	
-	public void enter_task_decl(
-			String 						name,
-			int 						attr,
-			List<SVTaskFuncParam> 		params)
-			throws HaltScanException {
-		SVDBTaskFuncScope task = new SVDBTaskFuncScope(name, SVDBItemType.Task);
-		task.setAttr(attr);
-		
-		for (SVTaskFuncParam p : params) {
-			// TODO: fixme. Parameters can be of array/queue type too
-			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
-			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
-			task.addParam(svp);
-		}
-		
-		fScopeStack.peek().addItem(task);
-		fScopeStack.push(task);
-		
-		setLocation(task);
-	}
-	
-	public void enter_func_decl(
-			String 						name,
-			int 						attr,
-			String						ret_type,
-			List<SVTaskFuncParam> 		params)
-			throws HaltScanException {
-		SVDBTaskFuncScope func = new SVDBTaskFuncScope(name, SVDBItemType.Function);
-		func.setAttr(attr);
-		func.setReturnType(ret_type);
-		
-		for (SVTaskFuncParam p : params) {
-			// TODO: fixme. Parameters can be of array/queue type too
-			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
-			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
-			func.addParam(svp);
-		}
-		
-		fScopeStack.peek().addItem(func);
-		fScopeStack.push(func);
-		
-		setLocation(func);
 	}
 
 	
@@ -2166,4 +2206,32 @@ public class ParserSVDBFileFactory
 			fScopeStack.peek().addItem(typedef);
 		}
 	}
+
+	public boolean error_limit_reached() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public SVLexer lexer() {
+		return fLexer;
+	}
+
+	public ITextScanner scanner() {
+		return fInput;
+	}
+
+	public void warning(String msg, int lineno) {
+		System.out.println("[FIXME] warning \"" + msg + "\" @ " + lineno);
+	}
+	
+	public void error(String msg, int lineno) {
+		System.out.println("[FIXME] error \"" + msg + "\" @ " + lineno);
+	}
+
+	public SVParsers parsers() {
+		return fSVParsers;
+	}
+	
+	
+	
 }

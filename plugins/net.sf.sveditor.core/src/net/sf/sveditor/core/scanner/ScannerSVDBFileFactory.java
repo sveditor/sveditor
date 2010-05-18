@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.swing.text.StyledEditorKit.ForegroundAction;
+
 import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBAlwaysBlock;
@@ -85,6 +87,10 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		fScanner.scan(in, name);
 		
 		return fFile;
+	}
+	
+	public void init(InputStream in, String filename) {
+		throw new RuntimeException("Test-only method");
 	}
 	
 	
@@ -243,9 +249,9 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 			String						ret_type,
 			List<SVTaskFuncParam> 		params)
 			throws HaltScanException {
-		SVDBTaskFuncScope func = new SVDBTaskFuncScope(name, SVDBItemType.Function);
+		SVDBTaskFuncScope func = new SVDBTaskFuncScope(
+				name, new SVDBTypeInfo(ret_type, 0));
 		func.setAttr(attr);
-		func.setReturnType(ret_type);
 		
 		for (SVTaskFuncParam p : params) {
 			// TODO: fixme. Parameters can be of array/queue type too

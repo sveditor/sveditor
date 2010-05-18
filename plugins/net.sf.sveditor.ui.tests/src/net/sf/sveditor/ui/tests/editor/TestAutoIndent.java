@@ -59,6 +59,27 @@ public class TestAutoIndent extends TestCase {
 		System.out.println("content=\n" + content);
 	}
 	
+	public void testPaste() throws BadLocationException {
+		String first =
+			"`ifndef INCLUDED_transport_packet_svh\n" +
+			"`define INCLUDED_transport_packet_svh\n" +
+			"\n";
+		
+		String text = 
+			"class vmm_xactor;\n" +
+			"\n" +
+			"`VMM_NOTIFY notify;\n";
+		
+		AutoEditTester tester = createAutoEditTester();
+		tester.type(first);
+		tester.paste(text);
+		
+		String content = tester.getContent();
+		
+		System.out.println("content=\"" + content + "\"");
+		
+	}
+	
 	public void testCovergroup() throws BadLocationException {
 		String input = 
 			"class foobar;\n\n" +

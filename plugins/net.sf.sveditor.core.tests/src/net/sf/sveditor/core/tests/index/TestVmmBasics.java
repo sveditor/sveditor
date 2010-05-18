@@ -65,6 +65,7 @@ public class TestVmmBasics extends TestCase {
 		ISVDBItemIterator<SVDBItem> index_it = index_mgr.getItemIterator();
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
 		SVDBItem vmm_xtor=null;
+		SVDBItem vmm_err=null;
 		
 		while (index_it.hasNext()) {
 			SVDBItem it = index_it.nextItem();
@@ -75,11 +76,16 @@ public class TestVmmBasics extends TestCase {
 				if (it.getName().equals("vmm_xactor")) {
 					vmm_xtor = it;
 				}
+			} else if (it.getType() == SVDBItemType.Macro) {
+				if (it.getName().equals("vmm_error")) {
+					vmm_err = it;
+				}
 			}
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
 		assertNotNull("Check found vmm_xtor", vmm_xtor);
+		assertNotNull("Check found vmm_error", vmm_err);
 	}
 
 }

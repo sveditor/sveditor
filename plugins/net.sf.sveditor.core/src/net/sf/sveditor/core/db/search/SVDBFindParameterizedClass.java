@@ -140,7 +140,9 @@ public class SVDBFindParameterizedClass {
 			Map<String, String>		param_map) {
 		if (tf.getType() == SVDBItemType.Function) {
 			if (param_map.containsKey(tf.getReturnType())) {
-				tf.setReturnType(param_map.get(tf.getReturnType()));
+				SVDBTypeInfo ret_type = new SVDBTypeInfo(
+						param_map.get(tf.getReturnType().getName()), 0);
+				tf.setReturnType(ret_type);
 			}
 		}
 		

@@ -48,6 +48,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
+		fLog.debug("    content=\"" + cmd.text + "\"");
 		
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
@@ -76,9 +77,16 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			doc_str.append(doc.get(0, cmd.offset));
 			doc_str.append(cmd.text);
-			doc_str.append(doc.get(
-					cmd.offset+cmd.length, 
-					(doc.getLength()-(cmd.offset+cmd.length)-1)));
+			int start = cmd.offset+cmd.length;
+			int len = (doc.getLength()-(cmd.offset+cmd.length)-1);
+			try {
+				if (len > 0) {
+					doc_str.append(doc.get(start, len));
+				}
+			} catch (BadLocationException e) {
+				System.out.println("[ERROR] start=" + start + " len=" + len + " length=" + doc.getLength());
+				throw e;
+			}
 			
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());

@@ -28,6 +28,7 @@ public class Activator extends Plugin {
 	public static final String PLUGIN_ID = "net.sf.sveditor.core.tests";
 	
 	public static final String OVM_LIBRARY_ID = "org.ovmworld.ovm";
+	public static final String VMM_LIBRARY_ID = "org.vmmcentral.vmm";
 
 	// The shared instance
 	private static Activator    plugin;

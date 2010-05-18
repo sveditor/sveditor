@@ -53,18 +53,53 @@ import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 public class SVExprParser extends SVParserBase {
 	private SVExprDump						fExprDump;
 	private boolean							fDebugEn = false;
+	private SVLexer							fLexer;
 	
 	public SVExprParser() {
-		this(new SVLexer());
-	}
-	
-	public SVExprParser(SVLexer lexer) {
-		super(lexer);
+		super(null);
+		fLexer = new SVLexer();
 		fExprDump = new SVExprDump(System.out);
 	}
 	
+	public SVExprParser(ISVParser parser) {
+		super(parser);
+		fLexer = parser.lexer();
+		fExprDump = new SVExprDump(System.out);
+	}
+	
+	@Deprecated
 	public void init(InputStream in) {
-		fLexer.init(new InputStreamTextScanner(in, ""));
+		init(new InputStreamTextScanner(in, ""));
+	}
+	
+	@Deprecated
+	public void init(final ITextScanner scanner) {
+		fLexer.init(new ISVParser() {
+			
+			public void warning(String msg, int lineno) {
+			}
+			
+			public ITextScanner scanner() {
+				return scanner;
+			}
+			
+			public SVLexer lexer() {
+				// TODO Auto-generated method stub
+				return fLexer;
+			}
+			
+			public boolean error_limit_reached() {
+				return true;
+			}
+			
+			public void error(String msg, int lineno) {
+			}
+
+			public SVParsers parsers() {
+				return null;
+			}
+			
+		}); 
 	}
 	
 
@@ -79,7 +114,7 @@ public class SVExprParser extends SVParserBase {
 	 * @throws SVExprParseException
 	 */
 	public List<SVExpr> parse_constraint(ITextScanner in) throws SVExprParseException {
-		fLexer.init(in);
+		init(in);
 		
 		List<SVExpr> ret = new ArrayList<SVExpr>();
 
@@ -123,7 +158,7 @@ public class SVExprParser extends SVParserBase {
 	 * @throws SVExprParseException
 	 */
 	public SVExpr parse_expression(ITextScanner in) throws SVExprParseException {
-		fLexer.init(in);
+		init(in);
 		SVExpr expr = null;
 		
 		try {
@@ -334,9 +369,14 @@ public class SVExprParser extends SVParserBase {
 			ret.setLHS(expression());
 		}
 
-		String type = readOperator(":=", ":/");
-		ret.setIsDist(type.equals(":/"));
-		ret.setRHS(expression());
+		if (peekOperator(",", "}")) {
+			ret.setIsDist(false);
+			ret.setRHS(new SVLiteralExpr("1"));
+		} else {
+			String type = readOperator(":=", ":/");
+			ret.setIsDist(type.equals(":/"));
+			ret.setRHS(expression());
+		}
 
 		return ret;
 	}

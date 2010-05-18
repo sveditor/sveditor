@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui;
 
+import java.io.IOException;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
@@ -22,6 +23,8 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.jface.text.templates.ContextTypeRegistry;
+import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -31,6 +34,8 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
+import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -50,6 +55,11 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private MessageConsole						fConsole;
 	private MessageConsoleStream				fStdoutStream;
 	private MessageConsoleStream				fStderrStream;
+	private ContributionContextTypeRegistry		fContextRegistry;
+	private TemplateStore						fTemplateStore;
+	public static final String					CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
+	public static final String					SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
+	
 	
 	/**
 	 * The constructor
@@ -73,6 +83,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
 		SVCorePlugin.getDefault().enableDebug(debug_en);
+		
 	}
 
 	/*
@@ -153,6 +164,29 @@ public class SVUiPlugin extends AbstractUIPlugin
 		return fConsole;
 	}
 	
+	public ContextTypeRegistry getContextTypeRegistry() {
+		if (fContextRegistry == null) {
+			fContextRegistry = new ContributionContextTypeRegistry();
+			fContextRegistry.addContextType(SV_TEMPLATE_CONTEXT);
+		}
+		return fContextRegistry;
+	}
+	
+	public TemplateStore getTemplateStore() {
+		if (fTemplateStore == null) {
+			fTemplateStore = new ContributionTemplateStore(
+					SVUiPlugin.getDefault().getContextTypeRegistry(), 
+					SVUiPlugin.getDefault().getPreferenceStore(), 
+					SVUiPlugin.CUSTOM_TEMPLATES_KEY);
+			try {
+				fTemplateStore.load();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return fTemplateStore;
+	}
+	
 	public MessageConsoleStream getStdoutStream() {
 		if (fStdoutStream == null) {
 			fStdoutStream = getConsole().newMessageStream();
@@ -189,6 +223,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public static SVUiPlugin getDefault() {
 		return fPlugin;
 	}
+	
 	
 	
 

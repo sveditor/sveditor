@@ -1,4 +1,17 @@
 
+-- 0.2.0 Release --
+
+- Add basic support for code templates. Currently, no built-in code templates
+  are provided, though contributions are very welcome. Suggestions for
+  extending code-template support are, likewise, welcome.
+
+-- 0.1.9 Release --
+
+- Correct a macro-expansion bug with nested macros that was triggered 
+  by the VMM library source
+
+- Correct a bug with handling of endfunction/endtask with a end label 
+
 -- 0.1.8 Release --
 
 - Make auto-indenter adaptive to surrounding scope indent. This means that

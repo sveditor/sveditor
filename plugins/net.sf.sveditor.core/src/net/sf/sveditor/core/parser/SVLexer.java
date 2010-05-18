@@ -36,6 +36,8 @@ public class SVLexer {
 	private StringBuilder				fStringBuffer;
 	private boolean						fDebugEn;
 	
+	private ISVParser					fParser;
+	
 	private static String operators[] = {
 		"(", ")", "{", "}", "[", "]",
 		"&", "&&", "|", "||", 
@@ -78,9 +80,10 @@ public class SVLexer {
 		fDebugEn = false;
 	}
 	
-	public void init(ITextScanner scanner) {
+	public void init(ISVParser parser) {
+		fParser = parser;
 		fTokenConsumed = true;
-		fScanner = scanner;
+		fScanner = parser.scanner();
 	}
 	
 	public String peek() {
@@ -92,11 +95,18 @@ public class SVLexer {
 	}
 	
 	public boolean isIdentifier() {
+		peek();
 		return fIsIdentifier;
 	}
 	
 	public boolean isNumber() {
+		peek();
 		return fIsNumber;
+	}
+	
+	public boolean isKeyword() {
+		peek();
+		return fIsKeyword;
 	}
 	
 	public String getImage() {
@@ -126,6 +136,14 @@ public class SVLexer {
 		peek();
 		
 		return fIsNumber;
+	}
+	
+	public String read() throws SVParseException {
+		peek();
+		
+		fTokenConsumed = true;
+		
+		return fImage;
 	}
 	
 	public String readOperator(String ... ops) throws SVParseException {
@@ -236,7 +254,7 @@ public class SVLexer {
 		fTokenConsumed = true;
 		return fImage;
 	}
-	
+
 	public String readNumber() throws SVParseException {
 		peek();
 

@@ -982,7 +982,7 @@ public class SVExpressionUtils {
 						
 						// Now, compute the return type of this function
 						debug("return type is: " + ((SVDBTaskFuncScope)func).getReturnType());
-						type_name = ((SVDBTaskFuncScope)func).getReturnType(); 
+						type_name = ((SVDBTaskFuncScope)func).getReturnType().getName(); 
 					} else {
 						// ' indicates this is a type name
 						type_name = id;
@@ -1003,6 +1003,7 @@ public class SVExpressionUtils {
 						}
 					}
 					idx++;
+
 
 					// Only resolve this function return type of
 					// it's not the last element in the string or

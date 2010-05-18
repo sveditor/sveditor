@@ -1,98 +1,102 @@
 package net.sf.sveditor.core.parser;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import sun.font.EAttribute;
+
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.scanner.SVClassIfcModParam;
-import net.sf.sveditor.core.scanutils.ITextScanner;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 
 public class SVClassDeclParser extends SVParserBase {
-	private ITextScanner				fScanner;
-	private SVParameterDeclParser		fParamDeclParser;
 	
-	public SVClassDeclParser(SVLexer lexer, ITextScanner scanner) {
-		super(lexer);
-		fScanner = scanner;
-		fParamDeclParser 	= new SVParameterDeclParser(lexer);
+	public SVClassDeclParser(ISVParser parser) {
+		super(parser);
 	}
 	
+	/**
+	 * 
+	 * [ virtual ] class [ lifetime ] class_identifier [ parameter_port_list ]
+	 * [ extends class_type [ ( list_of_arguments ) ] ];
+	 * @param qualifiers
+	 * @return
+	 * @throws SVParseException
+	 */
 	public SVDBModIfcClassDecl parse(int qualifiers) throws SVParseException {
 		SVDBModIfcClassDecl cls = null;
 		String id;
-		List<SVClassIfcModParam>	params = null;
-		String super_name = null;
-		List<SVClassIfcModParam>	super_params = null;
 		String cls_type_name = null;
-		String ports = null;
 		
-		debug("--> process_module()");
+		debug("--> process_class()");
+		
+		// Expect to enter on 'class'
+		lexer().readKeyword("class");
+		
+		if (lexer().peekKeyword("automatic", "static")) {
+			// TODO: set lifetime on class declaration
+			lexer().eatToken();
+		}
 
 		//
 		// Class ID
 		//
-		cls_type_name = fLexer.readId();
+		cls_type_name = lexer().readId();
 		
 		cls = new SVDBModIfcClassDecl(cls_type_name, SVDBItemType.Class);
-
-		if (fLexer.peekOperator("#")) {
+		
+		// TODO: Should remove this later
+		parsers().SVParser().enter_scope("class", cls);
+		
+		if (lexer().peekOperator("#")) {
 			// Handle classes with parameters
-			cls.getParameters().addAll(fParamDeclParser.parse());
-		}
-		/*
-		ch = skipWhite(ch);
-		if (ch == '#') {
-			ch = skipWhite(get_ch());
-			if (ch == '(') {
-				startCapture();
-				ch = skipPastMatch("()");
-				String p_str = endCapture();
-				
-				params = parse_parameter_str(p_str);
-			}
-		}
-		 */
-		
-		if (params == null) {
-			params = new ArrayList<SVClassIfcModParam>();
+			cls.getParameters().addAll(parsers().paramPortListParser().parse());
 		}
 		
-		if (fLexer.peekKeyword("extends")) {
-			String ext = fLexer.readId();
-			cls.setSuperClass(ext);
+		if (lexer().peekKeyword("extends")) {
+			lexer().eatToken();
+			cls.setSuperClass(lexer().readId());
 
-			if (fLexer.peekOperator("#")) {
-				
-				// TODO: super-class parameterization ?
-				/*
-				for (SVClassIfcModParam p : super_params) {
-					decl.getSuperParameters().add(new SVDBModIfcClassParam(p.getName()));
-				}
-				 */
+			if (lexer().peekOperator("#")) {
+				// scanner().unget_ch('#');
+				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
+				// cls.getSuperParameters().addAll(params);
+				scanner().skipWhite(scanner().get_ch());
+				scanner().skipPastMatch("()");
 			}
 		}
 		
-		fLexer.readOperator(";");
-		/*
-		while ((id = scan_statement()) != null) {
-			boolean ret;
-			debug("id=" + id);
-			if (id.equals("end" + type)) {
+		lexer().readOperator(";");
+		
+		// TODO: need a better 
+		while ((id = parsers().SVParser().scan_statement()) != null) {
+			SVDBItem item;
+			if (id.equals("endclass")) {
 				break;
 			}
-			ret = process_module_class_interface_body_item(type, id);
+			
+			item = parsers().SVParser().process_module_class_interface_body_item("class", id);
 
 			// Check whether we aborted parsing the body because
 			// we found a 1st-level scope keyword
-			if (!ret) {
+			if (item == null) {
 				break;
+			}
+			
+			// TODO: normally we'd add this item to the class, but that's already being done
+		}
+
+		if (lexer().peekKeyword("endclass")) {
+			lexer().eatToken();
+			// endclass : classname
+			if (lexer().peekOperator(":")) { 
+				lexer().eatToken();
+				lexer().readId();
 			}
 		}
 		
-		// Pop the first-level scope
-		handle_leave_scope();
-		 */
+		// TODO: remove this later
+		parsers().SVParser().handle_leave_scope();
 		
 		return cls;
 	}

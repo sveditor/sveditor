@@ -17,6 +17,8 @@ cp -r $top/plugins $top/features $top/ChangeLog.txt .
 
 # Remove .svn directories
 rm -rf `find -name '.svn' -print`
+rm -rf `find -name 'bin' -print`
+rm -rf `find -name 'class' -print`
 
 cd $top
 zip -r "sveditor-src-${version}.zip" sveditor-src-${version}

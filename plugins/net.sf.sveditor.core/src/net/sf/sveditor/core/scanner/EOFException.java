@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.scanner;
 
-public class EOFException extends Exception {
+public class EOFException extends RuntimeException {
 
 	/**
 	 * 

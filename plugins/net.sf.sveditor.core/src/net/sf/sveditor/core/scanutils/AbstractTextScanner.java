@@ -72,7 +72,17 @@ public abstract class AbstractTextScanner implements ITextScanner {
 
 			while ((ci = get_ch()) != -1 && 
 					(SVCharacter.isSVIdentifierPart(ci) || ci == ':')) {
-				fTmpBuffer.append((char)ci);
+				if (ci == ':') {
+					int c2 = get_ch();
+					if (c2 == ':') {
+						fTmpBuffer.append("::");
+					} else {
+						unget_ch(c2);
+						break;
+					}
+				} else {
+					fTmpBuffer.append((char)ci);
+				}
 			}
 			unget_ch(ci);
 

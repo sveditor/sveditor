@@ -64,7 +64,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private boolean							fDebugEn = false;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
-	private boolean							fUseParserFactory = false; // leave scanner enabled for now
+	public boolean							fUseParserFactory = false; // leave scanner enabled for now
 	
 	/**
 	 * The constructor

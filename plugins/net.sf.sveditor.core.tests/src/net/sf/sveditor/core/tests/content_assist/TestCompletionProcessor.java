@@ -14,6 +14,7 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 
@@ -27,7 +28,7 @@ public class TestCompletionProcessor extends AbstractCompletionProcessor {
 		fIndexIterator = iterator;
 		fLog = LogFactory.getLogHandle("TestCompletionProcessor");
 	}
-
+	
 	@Override
 	protected ISVDBIndexIterator getIndexIterator() {
 		return fIndexIterator;

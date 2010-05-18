@@ -8,25 +8,25 @@ import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 public class SVParameterDeclParser extends SVParserBase {
 	private SVExprParser				fExprParser;
 	
-	public SVParameterDeclParser(SVLexer lexer) {
-		super(lexer);
-		fExprParser			= new SVExprParser(lexer);
+	public SVParameterDeclParser(ISVParser parser) {
+		super(parser);
+		fExprParser			= new SVExprParser(parser);
 	}
 	
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
 		List<SVDBModIfcClassParam> param_l = new ArrayList<SVDBModIfcClassParam>();
-		fLexer.readOperator("(");
+		lexer().readOperator("(");
 		
-		while (fLexer.peekKeyword("type") || fLexer.peekId()) {
-			if (fLexer.peekKeyword("type")) {
+		while (lexer().peekKeyword("type") || lexer().peekId()) {
+			if (lexer().peekKeyword("type")) {
 				// TODO: recognize parameters as typed
-				fLexer.eatToken();
+				lexer().eatToken();
 			}
-			SVDBModIfcClassParam p = new SVDBModIfcClassParam(fLexer.getImage());
+			SVDBModIfcClassParam p = new SVDBModIfcClassParam(lexer().getImage());
 			
 			// TODO: {unpacked dimension}
 			
-			fLexer.readOperator("=");
+			lexer().readOperator("=");
 			
 			
 		}
