@@ -3,9 +3,12 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.scanner.SVKeywords;
-import net.sf.sveditor.core.scanner.SVTypeInfo;
 
 public class SVDataTypeParser extends SVParserBase {
 	public static final Set<String>			IntegerAtomType;
@@ -65,30 +68,32 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		if (IntegerVectorType.contains(id)) {
 			// integer_vector_type [signing] { packed_dimension }
-			type = new SVDBTypeInfo(id, 0);
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
 			
 			// signing
 			if (lexer().peekKeyword("signed", "unsigned")) {
-				type.setAttr(lexer().peekKeyword("signed")?
-						SVDBTypeInfo.TypeAttr_Signed:
-							SVDBTypeInfo.TypeAttr_Unsigned);
+				builtin_type.setAttr(lexer().peekKeyword("signed")?
+						SVDBTypeInfoBuiltin.TypeAttr_Signed:
+							SVDBTypeInfoBuiltin.TypeAttr_Unsigned);
 				lexer().eatToken();
 			}
 			
 			if (lexer().peekOperator("[")) {
 				// TODO: packed_dimension
 			}
+			type = builtin_type;
 		} else if (IntegerAtomType.contains(id)) {
-			type = new SVDBTypeInfo(id, 0);
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
 			
 			if (lexer().peekKeyword("signed", "unsigned")) {
-				type.setAttr(lexer().peekKeyword("signed")?
-						SVDBTypeInfo.TypeAttr_Signed:
-							SVDBTypeInfo.TypeAttr_Unsigned);
+				builtin_type.setAttr(lexer().peekKeyword("signed")?
+						SVDBTypeInfoBuiltin.TypeAttr_Signed:
+							SVDBTypeInfoBuiltin.TypeAttr_Unsigned);
 				lexer().eatToken();
 			}
+			type = builtin_type;
 		} else if (NonIntegerType.contains(id)) {
-			type = new SVDBTypeInfo(id, 0);
+			type = new SVDBTypeInfoBuiltin(id);
 		} else if (id.equals("struct") || id.equals("union")) {
 			if (id.equals("union")) {
 				if (lexer().peekKeyword("tagged")) {
@@ -97,20 +102,22 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			// TODO:
 		} else if (id.equals("enum")) {
+			lexer().parseException("enum type currently unsupported");
 		} else if (BuiltInTypes.contains(id)) {
 			// string, chandle, etc
-			type = new SVDBTypeInfo(id, 0);
+			type = new SVDBTypeInfoBuiltin(id);
 		} else if (id.equals("virtual")) {
 			// virtual [interface] interface_identifier
 		} else if (id.equals("type")) {
 			// type_reference ::=
 			//   type ( expression )
 			//   type ( data_type )
-			type = new SVDBTypeInfo(id, 0);
+			type = new SVDBTypeInfoBuiltin(id);
 			// TODO: skip paren expression
+			lexer().parseException("'type' expression unsupported");
 		} else if (SVKeywords.isSVKeyword(id)) {
 			// ERROR: 
-			throw new SVParseException("Invalid type name \"" + id + "\"");
+			lexer().parseException("Invalid type name \"" + id + "\"");
 		} else {
 			// Should be a user-defined type
 			if (lexer().peekOperator("::")) {
@@ -119,18 +126,24 @@ public class SVDataTypeParser extends SVParserBase {
 				// scoped type
 				// [class_scope | package_scope] type_identifier { packed_dimension }
 				String type_id = lexer().readId();
-				type = new SVDBTypeInfo(id + "::" + type_id, 0);
+				type = new SVDBTypeInfoUserDef(id + "::" + type_id, SVDBDataType.UserDefined);
 				
 				if (lexer().peekOperator("[")) {
 					// TODO: packed_dimension
 				}
 			} else {
-				type = new SVDBTypeInfo(id, 0);
+				type = new SVDBTypeInfoUserDef(id, SVDBDataType.UserDefined);
+			}
+			
+			System.out.println("token post-type \"" + id + "\" is: " + lexer().peek());
+			if (lexer().peekOperator("#")) {
+				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
+				((SVDBTypeInfoUserDef)type).setParameters(plist);
 			}
 		}
 		
 		if (type == null) {
-			throw new SVParseException("Unknown type starting with \"" + id + "\"");
+			lexer().parseException("Unknown type starting with \"" + id + "\"");
 		}
 		
 		return type;
@@ -138,7 +151,7 @@ public class SVDataTypeParser extends SVParserBase {
 	
 	public SVDBTypeInfo data_type_or_void(String id) throws SVParseException {
 		if (id.equals("void")) {
-			return new SVDBTypeInfo("void", 0);
+			return new SVDBTypeInfoBuiltin("void");
 		} else {
 			return data_type(id);
 		}

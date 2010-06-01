@@ -222,6 +222,51 @@ public class TestAutoIndent extends TestCase {
 		assertEquals("Expected indent result",
 				expected.trim(), result.trim());
 	}
+	
+	public void testPasteInsertOpeningComment() throws BadLocationException {
+		String input = 
+			"class foo;\n" +
+			"\n" +
+			"	function void foobar;\n" +
+			"		int var;\n" +
+			"		var = 5;\n" +
+			"		bar = 6;\n" +
+			"		*/\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n";
+		String expected =
+			"class foo;\n" +
+			"\n" +
+			"	function void foobar;\n" +
+			"		int var;\n" +
+			"/*\n" +
+			"		var = 5;\n" +
+			"		bar = 6;\n" +
+			"		*/\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n";
+			
+		AutoEditTester tester = createAutoEditTester();
+		tester.setContent(input);
+		
+		tester.setCaretOffset(0);
+		while (true) {
+			String line = tester.readLine();
+			System.out.println("line=\"" + line + "\"");
+			
+			if (line.trim().startsWith("int var")) {
+				break;
+			}
+		}
+		tester.paste("/*\n");
+		String result = tester.getContent();
+		System.out.println("expected:\n" + expected);
+		System.out.println("====");
+		System.out.println("result:\n" + result);
+		assertEquals(expected, result);
+	}
 
 	public void disabled_testCaseStatement() throws BadLocationException {
 		String input = 

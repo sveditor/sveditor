@@ -15,8 +15,10 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
+import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVLexer {
 	private ITextScanner				fScanner;
@@ -32,9 +34,14 @@ public class SVLexer {
 	private boolean						fIsIdentifier;
 	private boolean						fIsKeyword;
 	private boolean						fTokenConsumed;
+	private boolean						fNewlineAsOperator;
 	
 	private StringBuilder				fStringBuffer;
 	private boolean						fDebugEn;
+	private boolean						fEOF;
+	
+	private StringBuilder				fCaptureBuffer;
+	private boolean						fCapture;
 	
 	private ISVParser					fParser;
 	
@@ -45,11 +52,11 @@ public class SVLexer {
 		"%", "!", "*", "/",
 		"<", "<<", "<=",
 		">", ">>", ">=",
-		":", ":/", ":=",
+		":", "::", ":/", ":=",
 		",", ";", ".", ":",
 		"->",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
-		"-=", "<<=", ">>=", "&=", "^=", "|="
+		"-=", "<<=", ">>=", "&=", "^=", "|=", "#"
 	};
 	
 	public SVLexer() {
@@ -60,6 +67,8 @@ public class SVLexer {
 		fKeywordSet = new HashSet<String>();
 
 		fStringBuffer = new StringBuilder();
+		fCaptureBuffer = new StringBuilder();
+		fCapture = false;
 		
 		for (String op : operators) {
 			if (op.length() == 3) {
@@ -78,20 +87,40 @@ public class SVLexer {
 			fKeywordSet.add(kw);
 		}
 		fDebugEn = false;
+		fEOF = false;
 	}
 	
-	public void init(ISVParser parser) {
+	public void setNewlineAsOperator(boolean en) {
+		fNewlineAsOperator = en;
+	}
+	
+	public void init(ISVParser parser, ITextScanner scanner) {
 		fParser = parser;
 		fTokenConsumed = true;
-		fScanner = parser.scanner();
+		fScanner = scanner; // parser.scanner();
+	}
+	
+	public void parseException(String msg) throws SVParseException {
+		// TODO: get filename
+		ScanLocation loc = fScanner.getLocation();
+		msg = loc.getFileName() + ":" + loc.getLineNo() + " " + msg;
+		throw SVParseException.createParseException(msg);
 	}
 	
 	public String peek() {
 		if (fTokenConsumed) {
-			next_token();
+			if (!next_token()) {
+				fImage = null;
+			}
 			debug("peek() -- \"" + fImage + "\"");
 		}
 		return fImage;
+	}
+	
+	public void pushKeyword(String id) {
+		fIsKeyword = true;
+		fImage = id;
+		fTokenConsumed = false;
 	}
 	
 	public boolean isIdentifier() {
@@ -117,9 +146,13 @@ public class SVLexer {
 		peek();
 		
 		if (fIsOperator) {
-			for (String op : ops) {
-				if (fImage.equals(op)) {
-					return true;
+			if (ops.length == 0) {
+				return true;
+			} else {
+				for (String op : ops) {
+					if (fImage.equals(op)) {
+						return true;
+					}
 				}
 			}
 		}
@@ -141,9 +174,7 @@ public class SVLexer {
 	public String read() throws SVParseException {
 		peek();
 		
-		fTokenConsumed = true;
-		
-		return fImage;
+		return eatToken();
 	}
 	
 	public String readOperator(String ... ops) throws SVParseException {
@@ -173,12 +204,11 @@ public class SVLexer {
 				}
 			}
 			
-			throw new SVParseException("Expecting one of operator \"" + 
+			parseException("Expecting one of operator \"" + 
 					sb.toString() + "\" ; received \"" + fImage + "\"");
 		}
 		
-		fTokenConsumed = true;
-		return fImage;
+		return eatToken();
 	}
 
 	public boolean peekKeyword(String ... kw) throws SVParseException {
@@ -213,15 +243,20 @@ public class SVLexer {
 				}
 			}
 			
-			throw new SVParseException("Expecting one of keyword \"" + 
+			parseException("Expecting one of keyword \"" + 
 					sb.toString() + "\" ; received \"" + fImage + "\"");
 		}
 		
-		fTokenConsumed = true;
-		return fImage;
+		return eatToken();
 	}
 	
 	public String eatToken() {
+		if (fCapture) {
+			if (fCaptureBuffer.length() > 0) {
+				fCaptureBuffer.append(" ");
+			}
+			fCaptureBuffer.append(fImage);
+		}
 		fTokenConsumed = true;
 		return fImage;
 	}
@@ -230,12 +265,11 @@ public class SVLexer {
 		peek();
 		
 		if (!fIsString) {
-			throw new SVParseException("Expecting a string ; received \"" +
+			parseException("Expecting a string ; received \"" +
 					fImage + "\"");
 		}
-		fTokenConsumed = true;
 		
-		return fImage;
+		return eatToken();
 	}
 
 	public boolean peekString() throws SVParseException {
@@ -248,35 +282,70 @@ public class SVLexer {
 		peek();
 
 		if (!fIsIdentifier) {
-			throw new SVParseException("Expecting an identifier ; received \"" + 
+			parseException("Expecting an identifier ; received \"" + 
 					fImage + "\"");
 		}
-		fTokenConsumed = true;
-		return fImage;
+		
+		return eatToken();
 	}
 
 	public String readNumber() throws SVParseException {
 		peek();
 
 		if (!fIsNumber) {
-			throw new SVParseException("Expecting a number ; received \"" + 
+			parseException("Expecting a number ; received \"" + 
 					fImage + "\"");
 		}
 
-		fTokenConsumed = true;
-		return fImage;
+		return eatToken();
 	}
 	
 	public boolean next_token() {
+		if (fEOF) {
+			throw new EOFException();
+		}
 		try {
-			next_token_int();
+			return next_token_int();
 		} catch (SVParseException e) {
 			return false;
 		}
-		return true;
 	}
 	
-	private void next_token_int() throws SVParseException {
+	
+	public void skipPastMatch(String start, String end, String ... escape) {
+		int start_c=1, end_c=0;
+		
+		if (peek().equals(start)) {
+			eatToken();
+		}
+		
+		while (start_c != end_c) {
+			if (peek().equals(start)) {
+				start_c++;
+			} else if (peek().equals(end)) {
+				end_c++;
+			} else if (escape.length > 0) {
+				for (String e : escape) {
+					if (peek().equals(e)) {
+						return;
+					}
+				}
+			}
+			eatToken();
+		}
+	}
+
+	public void startCapture() {
+		fCaptureBuffer.setLength(0);
+		fCapture = true;
+	}
+	
+	public String endCapture() {
+		fCapture = false;
+		return fCaptureBuffer.toString();
+	}
+	
+	private boolean next_token_int() throws SVParseException {
 		int ch = get_ch();
 		int ch2 = -1;
 		
@@ -311,7 +380,8 @@ public class SVLexer {
 					break;
 				}
 			} else {
-				if (!Character.isWhitespace(ch)) {
+				if (!Character.isWhitespace(ch) ||
+						(ch == '\n' && fNewlineAsOperator)) {
 					break;
 				}
 			}
@@ -320,7 +390,10 @@ public class SVLexer {
 		fStringBuffer.setLength(0);
 		String tmp = "" + (char)ch;
 
-		if (ch == '\n') {
+		if (ch == -1) {
+			fEOF = true;
+			throw new EOFException();
+		} else if (fNewlineAsOperator && ch == '\n') {
 			fStringBuffer.append('\n');
 			fIsOperator = true;
 		} else if (ch == '"') {
@@ -330,7 +403,7 @@ public class SVLexer {
 			}
 			
 			if (ch != '"') {
-				throw new SVParseException("Unterminated string");
+				parseException("Unterminated string");
 			}
 			fIsString = true;
 
@@ -376,17 +449,22 @@ public class SVLexer {
 			}
 		
 			if (!fIsOperator) {
-				throw new SVParseException("Bad partial operator: " + tmp);
+				parseException("Bad partial operator: " + tmp);
 			}
 			
-		} else if (Character.isJavaIdentifierStart(ch)) {
+		} else if (SVCharacter.isSVIdentifierStart(ch)) {
 			// Identifier or keyword
 			fStringBuffer.append((char)ch);
-			while ((ch = get_ch()) != -1 && Character.isJavaIdentifierPart(ch)) {
+			while ((ch = get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
 				fStringBuffer.append((char)ch);
 			}
 			unget_ch(ch);
-			fIsIdentifier = true;
+			// Handle case where we received a single '$'
+			if (fStringBuffer.length() == 1 && fStringBuffer.charAt(0) == '$') {
+				fIsOperator = true;
+			} else {
+				fIsIdentifier = true;
+			}
 		} else if (ch == '\'' || (ch >= '0' && ch <= '9')) {
 			
 			if (ch == '\'') {
@@ -394,7 +472,7 @@ public class SVLexer {
 				ch = get_ch();
 				
 				if (ch == -1) {
-					throw new SVParseException("unexpected EOF after \"'\"");
+					parseException("unexpected EOF after \"'\"");
 				}
 				fStringBuffer.append((char)ch);
 				
@@ -439,7 +517,8 @@ public class SVLexer {
 		}
 		
 		if (fStringBuffer.length() == 0) {
-			// throw new EOFException();
+			fEOF = true;
+			throw new EOFException();
 		}
 		
 		fImage = fStringBuffer.toString();
@@ -450,35 +529,14 @@ public class SVLexer {
 			}
 		}
 		fTokenConsumed = false;
+		return true;
 	}
 	
 	private int get_ch() {
-		/*
-		int ret = -1;
-		
-		if (fUngetCh != -1) {
-			ret = fUngetCh;
-			fUngetCh = -1;
-		} else {
-			if (fBufferIdx >= fBufferMax) {
-				try {
-					fBufferMax = fInput.read(fBuffer, 0, fBuffer.length);
-					fBufferIdx = 0;
-				} catch (IOException e) { }
-			}
-			
-			if (fBufferIdx < fBufferMax) {
-				ret = fBuffer[fBufferIdx++];
-			}
-		}
-		
-		return ret;
-		 */
 		return fScanner.get_ch();
 	}
 	
 	private void unget_ch(int ch) {
-		// fUngetCh = ch;
 		fScanner.unget_ch(ch);
 	}
 	

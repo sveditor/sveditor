@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import javax.swing.text.StyledEditorKit.ForegroundAction;
-
 import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBAlwaysBlock;
@@ -27,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBCoverPoint;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBInitialBlock;
@@ -39,11 +38,15 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBParamValueAssign;
+import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.scanutils.ScanLocation;
@@ -232,7 +235,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		
 		for (SVTaskFuncParam p : params) {
 			// TODO: fixme. Parameters can be of array/queue type too
-			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+			SVDBTypeInfo type_info = new SVDBTypeInfoBuiltin(p.getTypeName());
 			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
 			task.addParam(svp);
 		}
@@ -250,12 +253,12 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 			List<SVTaskFuncParam> 		params)
 			throws HaltScanException {
 		SVDBTaskFuncScope func = new SVDBTaskFuncScope(
-				name, new SVDBTypeInfo(ret_type, 0));
+				name, new SVDBTypeInfoBuiltin(ret_type));
 		func.setAttr(attr);
 		
 		for (SVTaskFuncParam p : params) {
 			// TODO: fixme. Parameters can be of array/queue type too
-			SVDBTypeInfo type_info = new SVDBTypeInfo(p.getTypeName(), 0);
+			SVDBTypeInfo type_info = new SVDBTypeInfoBuiltin(p.getTypeName());
 			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
 			func.addParam(svp);
 		}
@@ -350,27 +353,25 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 			List<SvVarInfo>	variables) throws HaltScanException {
 		
 		if (type.fModIfc) {
-			SVDBTypeInfo type_info = new SVDBTypeInfo(
-					type.fTypeName, SVDBTypeInfo.TypeAttr_ModIfc);
+			SVDBTypeInfo type_info = new SVDBTypeInfoUserDef(
+					type.fTypeName, SVDBDataType.ModuleIfc);
 			SVDBModIfcInstItem item = new SVDBModIfcInstItem(
 					type_info, variables.get(0).fName);
 			setLocation(item);
 			fScopeStack.peek().addItem(item);
 		} else {
-			List<SVDBModIfcClassParam> parameters = null;
+			SVDBParamValueAssignList parameters = null;
 			
 			if (type.fParameters != null) {
-				parameters = new ArrayList<SVDBModIfcClassParam>();
+				parameters = new SVDBParamValueAssignList();
+
 				for (SVClassIfcModParam p : type.fParameters) {
-					parameters.add(new SVDBModIfcClassParam(p.getName()));
+					parameters.addParameter(
+							new SVDBParamValueAssign("", p.getName()));
 				}
 			}
 			
 			int type_attr = 0;
-			
-			if (type.fParameters != null && type.fParameters.size() > 0) {
-				type_attr  |= SVDBTypeInfo.TypeAttr_Parameterized;
-			}
 			
 			if (type.fVectorDim != null) {
 				type_attr |= SVDBTypeInfo.TypeAttr_Vectored;
@@ -380,12 +381,28 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 			
 			for (SvVarInfo var : variables) {
 				if (var != null) {
-					type_info = new SVDBTypeInfo(type.fTypeName, type_attr|var.fAttr);
-					type_info.setArrayDim(var.fArrayDim);
-					type_info.setVectorDim(type.fVectorDim);
-					SVDBVarDeclItem item = new SVDBVarDeclItem(type_info, var.fName);
+					String typename = type.fTypeName;
+					if (typename.indexOf('[') != -1) {
+						typename = typename.substring(0, typename.indexOf('[')).trim();
+					}
+					if (SVKeywords.isBuiltInType(typename)) {
+						SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin(
+								type.fTypeName);
+						bi_type.setVectorDim(type.fVectorDim);
+						type_info = bi_type;
+					} else {
+						SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(
+								type.fTypeName, SVDBDataType.UserDefined);
+						if (parameters != null) {
+							ud_type.setParameters(parameters);
+						}
+						type_info = ud_type;
+					}
+					
+					// type_info = new SVDBTypeInfo(type.fTypeName, type_attr|var.fAttr);
+					SVDBVarDeclItem item = new SVDBVarDeclItem(type_info, var.fName, var.fAttr);
+					item.setArrayDim(var.fArrayDim);
 					setLocation(item);
-					type_info.setParameters(parameters);
 				
 					if (item.getName() == null || item.getName().equals("")) {
 						System.out.println("    " + item.getLocation().getFile().getName() + ":" + item.getLocation().getLine());

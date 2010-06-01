@@ -69,6 +69,7 @@ public class TestVmmBasics extends TestCase {
 		
 		while (index_it.hasNext()) {
 			SVDBItem it = index_it.nextItem();
+			System.out.println("" + it.getType() + " " + it.getName());
 			
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);

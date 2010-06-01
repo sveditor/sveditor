@@ -6,6 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVBlockItemDeclParser extends SVParserBase {
 	
@@ -13,41 +14,63 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<SVDBItem> parse() throws SVParseException {
+	public List<SVDBItem> parse(String id) throws SVParseException {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
-		if (lexer().peekKeyword("const")) {
-			lexer().eatToken();
+		if (id.equals("const")) {
+			id = lexer().eatToken();
 		}
-		if (lexer().peekKeyword("var")) {
-			lexer().eatToken();
+		if (id.equals("var")) {
+			id = lexer().eatToken();
 		}
 
-		if (lexer().peekKeyword("static", "automatic")) {
-			lexer().eatToken();
+		if (id.equals("static") || id.equals("automatic")) {
+			id = lexer().eatToken();
 		}
 		
 		// Should be the data-type
-		SVDBTypeInfo type = parsers().dataTypeParser().data_type(lexer().eatToken());
-		
-		while (true) {
-			String name = lexer().readId();
+		// String id = lexer().eatToken();
+		if (SVKeywords.isBuiltInType(id) || !SVKeywords.isSVKeyword(id)) {
+			// Data declaration or statement
+			SVDBTypeInfo type = parsers().dataTypeParser().data_type(id);
+			System.out.println("type=" + type.getName());
 			
-			SVDBVarDeclItem var = new SVDBVarDeclItem(type, name);
+			while (true) {
+				String name = lexer().readId();
 			
-			ret.add(var);
+				SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, 0);
 			
-			if (lexer().peekOperator("=")) {
-				// TODO: eat tokens until ',' or ')'
+				ret.add(var);
+
+				// TODO: handle array, queue, etc
+				if (lexer().peekOperator("[")) {
+					lexer().eatToken();
+					
+					// array or queue
+					if (lexer().peekOperator("$")) {
+						// queue
+						lexer().eatToken();
+					} else if (!lexer().peekOperator("]")) {
+						// bounded array
+						
+					}
+					lexer().readOperator("]");
+				}
+
+				if (lexer().peekOperator("=")) {
+					// TODO: eat tokens until ',' or ')'
+				}
+			
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
 			}
-			
-			// TODO: handle array, queue, etc
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
-			} else {
-				break;
-			}
+		} else {
+			lexer().parseException("Unexpected ");
 		}
+		
 		
 		lexer().readOperator(";");
 		

@@ -15,8 +15,8 @@ public class TestParseClassBodyItems extends TestCase {
 			"    endfunction\n" + // endfunction without : <name>
 			"\n" +
 			"    function void foo_func_e();\n" +
-			"        a = 5;\n" +
-			"        b = 6;\n" +
+			"        c = 5;\n" +
+			"        d = 6;\n" +
 			"    endfunction:foo_func_e\n" + // endfunction without : <name>
 			"\n" +
 			"    task foo_task();\n" +

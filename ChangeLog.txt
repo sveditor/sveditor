@@ -1,4 +1,12 @@
 
+-- 0.2.1 Release --
+
+- Corrected a pretty severe auto-indent bug related to pasting the opening 
+(and not closing) portion of a multi-line comment. Now SVEditor does not
+attempt to auto-indent cases where newly-pasted content makes comment
+boundaries ambiguous
+
+
 -- 0.2.0 Release --
 
 - Add basic support for code templates. Currently, no built-in code templates

@@ -13,13 +13,16 @@
 package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.SVDBAlwaysBlock;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
@@ -51,18 +54,23 @@ public class SVTreeLabelProvider extends LabelProvider {
 				ret = ret + " : " + ((SVDBVarDeclItem)element).getTypeName();
 				SVDBTypeInfo type = var.getTypeInfo();
 				
-				if (type.getParameters() != null && type.getParameters().size() > 0) {
-					ret += "<";
-					
-					for (int i=0; i<type.getParameters().size(); i++) {
-						SVDBModIfcClassParam p = type.getParameters().get(i);
-						ret += p.getName();
-						if (i+1 < type.getParameters().size()) {
-							ret += ", ";
+				if (type.getDataType() == SVDBDataType.UserDefined) {
+					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
+					if (cls.getParameters() != null && 
+							cls.getParameters().getParameters().size() > 0) {
+						ret += "<";
+						
+						for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
+							SVDBParamValueAssign p = 
+								cls.getParameters().getParameters().get(i);
+							ret += p.getName();
+							if (i+1 < cls.getParameters().getParameters().size()) {
+								ret += ", ";
+							}
 						}
+						
+						ret += ">";
 					}
-					
-					ret += ">";
 				}
 			} else if (element instanceof SVDBTaskFuncScope) {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;

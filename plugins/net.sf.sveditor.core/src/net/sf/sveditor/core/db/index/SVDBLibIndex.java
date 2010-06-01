@@ -75,7 +75,9 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	protected void initPaths() {
 		// Add an include path for the base directory
 		fIncludePaths.clear();
-		fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
+		if (fFileSystemProvider.fileExists(getResolvedBaseLocation())) {
+			fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
+		}
 	}
 	
 	@Override

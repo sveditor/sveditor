@@ -31,6 +31,8 @@ public class SVDB {
 		SVDBTypedef.init();
 		SVDBTypeInfo.init();
 		SVDBVarDeclItem.init();
+		SVDBParamValueAssignList.init();
+		SVDBParamValueAssign.init();
 
 		fInit = true;
 	}

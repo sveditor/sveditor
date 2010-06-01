@@ -1,13 +1,8 @@
 package net.sf.sveditor.core.parser;
 
-import java.util.List;
-
-import sun.font.EAttribute;
-
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 
 public class SVClassDeclParser extends SVParserBase {
 	
@@ -61,14 +56,18 @@ public class SVClassDeclParser extends SVParserBase {
 				// scanner().unget_ch('#');
 				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 				// cls.getSuperParameters().addAll(params);
-				scanner().skipWhite(scanner().get_ch());
-				scanner().skipPastMatch("()");
+				lexer().eatToken();
+				if (lexer().peekOperator("(")) {
+					lexer().skipPastMatch("(", ")");
+				} else {
+					lexer().eatToken();
+				}
 			}
 		}
 		
 		lexer().readOperator(";");
 		
-		// TODO: need a better 
+		// TODO: need a better system here...
 		while ((id = parsers().SVParser().scan_statement()) != null) {
 			SVDBItem item;
 			if (id.equals("endclass")) {

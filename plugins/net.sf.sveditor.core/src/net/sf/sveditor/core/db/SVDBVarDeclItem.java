@@ -19,7 +19,15 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBVarDeclItem extends SVDBFieldItem {
-	protected SVDBTypeInfo					fTypeInfo;
+	public static final int				VarAttr_FixedArray			= (1 << 0);
+	public static final int				VarAttr_DynamicArray		= (1 << 1);
+	public static final int				VarAttr_Queue				= (1 << 2);
+	public static final int				VarAttr_AssocArray			= (1 << 3);
+	
+	protected SVDBTypeInfo				fTypeInfo;
+	protected int						fAttr;
+	protected String					fArrayDim;
+	
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -33,7 +41,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	}
 	
 	
-	public SVDBVarDeclItem(SVDBTypeInfo type, String name) {
+	public SVDBVarDeclItem(SVDBTypeInfo type, String name, int attr) {
 		super(name, SVDBItemType.VarDecl);
 		fTypeInfo = type;
 	}
@@ -53,12 +61,16 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 					ti.toString());
 		}
 		fTypeInfo = new SVDBTypeInfo(file, parent, SVDBItemType.TypeInfo, reader);
+		fAttr = reader.readInt();
+		fArrayDim   = reader.readString();
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		
 		fTypeInfo.dump(writer);
+		writer.writeInt(fAttr);
+		writer.writeString(fArrayDim);
 	}
 	
 	public String getTypeName() {
@@ -69,8 +81,28 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 		return fTypeInfo;
 	}
 	
+	public int getAttr() {
+		return fAttr;
+	}
+	
+	public void setAttr(int attr) {
+		fAttr |= attr;
+	}
+	
+	public void resetAttr(int attr) {
+		fAttr = attr;
+	}
+
+	public String getArrayDim() {
+		return fArrayDim;
+	}
+	
+	public void setArrayDim(String dim) {
+		fArrayDim = dim;
+	}
+	
 	public SVDBItem duplicate() {
-		SVDBVarDeclItem ret = new SVDBVarDeclItem(fTypeInfo, getName());
+		SVDBVarDeclItem ret = new SVDBVarDeclItem(fTypeInfo, getName(), fAttr);
 		
 		ret.init(this);
 		
@@ -81,6 +113,10 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 		super.init(other);
 
 		fTypeInfo.init(((SVDBVarDeclItem)other).fTypeInfo);
+		
+		SVDBVarDeclItem other_v = (SVDBVarDeclItem)other;
+		fAttr = other_v.fAttr;
+		fArrayDim    = other_v.fArrayDim;
 	}
 
 }

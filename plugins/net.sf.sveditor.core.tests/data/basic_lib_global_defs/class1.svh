@@ -2,6 +2,9 @@
 `ifndef INCLUDED_CLASS1_SVH
 `define INCLUDED_CLASS1_SVH
 
+class class_1_2;
+endclass
+
 `ifdef ENABLE_CLASS1
 class class1;
 

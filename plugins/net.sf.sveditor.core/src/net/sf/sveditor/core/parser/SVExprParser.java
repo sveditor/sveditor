@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.expr.parser.EOFException;
 import net.sf.sveditor.core.expr.parser.SVArrayAccessExpr;
 import net.sf.sveditor.core.expr.parser.SVAssignExpr;
 import net.sf.sveditor.core.expr.parser.SVBinaryExpr;
@@ -79,10 +78,6 @@ public class SVExprParser extends SVParserBase {
 			public void warning(String msg, int lineno) {
 			}
 			
-			public ITextScanner scanner() {
-				return scanner;
-			}
-			
 			public SVLexer lexer() {
 				// TODO Auto-generated method stub
 				return fLexer;
@@ -99,7 +94,7 @@ public class SVExprParser extends SVParserBase {
 				return null;
 			}
 			
-		}); 
+		}, scanner); 
 	}
 	
 
@@ -138,11 +133,8 @@ public class SVExprParser extends SVParserBase {
 				}
 			}
 		} catch (Exception e) {
-			if (!(e instanceof EOFException)) {
-				// Problem
-				System.out.println("[ERROR] " + e.getMessage());
-				throw new SVExprParseException(e);
-			}
+			System.out.println("[ERROR] " + e.getMessage());
+			throw new SVExprParseException(e);
 		}
 		
 		return ret;
@@ -164,11 +156,9 @@ public class SVExprParser extends SVParserBase {
 		try {
 			expr = expression();
 		} catch (Exception e) {
-			if (!(e instanceof EOFException)) {
-				// Problem
-				System.out.println("[ERROR] " + e.getMessage());
-				throw new SVExprParseException(e);
-			}
+			// Problem
+			System.out.println("[ERROR] " + e.getMessage());
+			throw new SVExprParseException(e);
 		}
 		
 		return expr;

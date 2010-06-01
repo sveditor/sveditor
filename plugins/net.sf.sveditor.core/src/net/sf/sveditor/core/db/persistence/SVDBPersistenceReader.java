@@ -434,7 +434,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 	
-	private SVDBItem readSVDBItem(
+	public SVDBItem readSVDBItem(
 			SVDBFile			file,
 			SVDBScopeItem		parent
 			) throws DBFormatException {

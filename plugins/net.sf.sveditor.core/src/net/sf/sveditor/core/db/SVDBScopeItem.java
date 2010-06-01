@@ -73,7 +73,13 @@ public class SVDBScopeItem extends SVDBItem {
 		item.setParent(this);
 		fItems.add(item);
 	}
-	
+
+	public void addItems(List<SVDBItem> items) {
+		for (SVDBItem item : items) {
+			addItem(item);
+		}
+	}
+
 	public List<SVDBItem> getItems() {
 		return fItems;
 	}

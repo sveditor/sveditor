@@ -6,7 +6,7 @@ public interface ISVParser {
 	
 	SVLexer lexer();
 	
-	ITextScanner scanner();
+	// ITextScanner scanner();
 	
 	void error(String msg, int lineno);
 	

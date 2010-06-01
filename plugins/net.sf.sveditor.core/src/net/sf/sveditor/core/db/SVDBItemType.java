@@ -40,5 +40,7 @@ public enum SVDBItemType {
 	InitialBlock,
 	AlwaysBlock,
 	Assign,
-	Marker
+	Marker,
+	ParamValue,
+	ParamValueList
 }

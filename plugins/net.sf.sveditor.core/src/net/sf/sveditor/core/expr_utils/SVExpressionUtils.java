@@ -16,16 +16,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBParamValueAssign;
+import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -1079,46 +1083,48 @@ public class SVExpressionUtils {
 
 								if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.VarDecl) {
 									SVDBVarDeclItem var_decl = (SVDBVarDeclItem)matches.get(0);
-									int attr = var_decl.getTypeInfo().getAttr();
+									int attr = var_decl.getAttr();
+									SVDBTypeInfo var_type = var_decl.getTypeInfo();
 									
-									if (var_decl.getTypeInfo().getParameters() != null) {
+									if (var_type.getDataType() == SVDBDataType.UserDefined &&
+											((SVDBTypeInfoUserDef)var_type).getParameters() != null) {
 										SVDBModIfcClassDecl cls_t = pclass_finder.find(
-												var_decl.getTypeInfo());
+												(SVDBTypeInfoUserDef)var_type);
 										
 										if (cls_t != null) {
 											matches.set(0, cls_t);
 										}
-									} else if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0 ||
-										(attr & SVDBTypeInfo.TypeAttr_DynamicArray) != 0) {
+									} else if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0 ||
+										(attr & SVDBVarDeclItem.VarAttr_DynamicArray) != 0) {
 										String base;
-										if ((attr & SVDBTypeInfo.TypeAttr_Queue) != 0) {
+										if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0) {
 											base = "__sv_builtin_queue";
 										} else {
 											base = "__sv_builtin_array";
 										}
-										List<SVDBModIfcClassParam> params = 
-											new ArrayList<SVDBModIfcClassParam>();
-										params.add(new SVDBModIfcClassParam(
-												var_decl.getTypeInfo().getName()));
-										SVDBTypeInfo type_info = new SVDBTypeInfo(
-												base, SVDBTypeInfo.TypeAttr_Parameterized);
+										SVDBParamValueAssignList params = 
+											new SVDBParamValueAssignList();
+										params.addParameter(
+												new SVDBParamValueAssign("", var_type.getName()));
+										SVDBTypeInfoUserDef type_info = new SVDBTypeInfoUserDef(
+												base, SVDBDataType.UserDefined);
 										type_info.setParameters(params);
 										SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
 										
 										if (cls_t != null) {
 											matches.set(0, cls_t);
 										}
-									} else if ((attr & SVDBTypeInfo.TypeAttr_AssocArray) != 0) {
+									} else if ((attr & SVDBVarDeclItem.VarAttr_AssocArray) != 0) {
 										String base = "__sv_builtin_assoc_array";
-										List<SVDBModIfcClassParam> params = 
-											new ArrayList<SVDBModIfcClassParam>();
-										params.add(new SVDBModIfcClassParam(
-												var_decl.getTypeInfo().getName()));
-										System.out.println("Array Dim: " + var_decl.getTypeInfo().getArrayDim());
-										params.add(new SVDBModIfcClassParam(
-												var_decl.getTypeInfo().getArrayDim()));
-										SVDBTypeInfo type_info = new SVDBTypeInfo(
-												base, SVDBTypeInfo.TypeAttr_Parameterized);
+										SVDBParamValueAssignList params = 
+											new SVDBParamValueAssignList();
+										params.addParameter(
+												new SVDBParamValueAssign("", var_type.getName()));
+										params.addParameter(
+												new SVDBParamValueAssign("", var_decl.getArrayDim()));
+												
+										SVDBTypeInfoUserDef type_info = 
+											new SVDBTypeInfoUserDef(base);
 										type_info.setParameters(params);
 										SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
 										

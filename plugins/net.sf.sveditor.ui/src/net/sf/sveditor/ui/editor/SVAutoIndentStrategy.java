@@ -49,7 +49,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
 		fLog.debug("    content=\"" + cmd.text + "\"");
-		
+
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
 			int target_lineno = lineno;
@@ -57,7 +57,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				// If this is a block copy
 				return;
 			}
-			int line_cnt = 0;
+			int line_cnt = 0, result_line_cnt = 0;
 			
 			for (int i=0; i<cmd.text.length(); i++) {
 				if (cmd.text.charAt(i) == '\n') {
@@ -103,10 +103,20 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
 			
-			
 			try {
 				String result = indenter.indent(lineno+1, (lineno+line_cnt));
-				cmd.text = result;
+				
+				for (int i=0; i<result.length(); i++) {
+					if (result.charAt(i) == '\n') {
+						result_line_cnt++;
+					}
+				}
+				
+				// If we changed the line count, then just
+				// go with what the user pasted
+				if (result_line_cnt == line_cnt) {
+					cmd.text = result;
+				}
 			} catch (Exception e) {
 			}
 

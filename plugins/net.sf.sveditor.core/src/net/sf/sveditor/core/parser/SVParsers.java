@@ -1,16 +1,24 @@
 package net.sf.sveditor.core.parser;
 
+/**
+ * Collects the various SVParser classes together to provide easy access
+ * 
+ * @author ballance
+ *
+ */
 public class SVParsers {
 	
-	private ParserSVDBFileFactory			fSVParser;
-	private SVClassDeclParser				fClassParser;
-	private SVParameterDeclParser			fParamDeclParser;
-	private SVParameterPortListParser		fParamPortParser;
-	private SVDataTypeParser				fDataTypeParser;
-	private SVFunctionParser				fFunctionParser;
-	private SVTaskFunctionPortListParser	fTFPortListParser;
-	private SVTaskFuncBodyParser			fTFBodyParser;
-	private SVBlockItemDeclParser			fBlockItemDeclParser;
+	private ParserSVDBFileFactory				fSVParser;
+	private SVClassDeclParser					fClassParser;
+	private SVParameterDeclParser				fParamDeclParser;
+	private SVParameterPortListParser			fParamPortParser;
+	private SVDataTypeParser					fDataTypeParser;
+	private SVTaskFunctionParser				fFunctionParser;
+	private SVTaskFunctionPortListParser		fTFPortListParser;
+	private SVTaskFuncBodyParser				fTFBodyParser;
+	private SVBlockItemDeclParser				fBlockItemDeclParser;
+	private SVParameterValueAssignmentParser	fParamValueAssignParser;
+	private SVBehavioralBlockParser				fBehavioralBlockParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -48,9 +56,9 @@ public class SVParsers {
 		return fDataTypeParser;
 	}
 	
-	public SVFunctionParser functionParser() {
+	public SVTaskFunctionParser functionParser() {
 		if (fFunctionParser == null) {
-			fFunctionParser = new SVFunctionParser(fSVParser);
+			fFunctionParser = new SVTaskFunctionParser(fSVParser);
 		}
 		return fFunctionParser;
 	}
@@ -74,6 +82,20 @@ public class SVParsers {
 			fBlockItemDeclParser = new SVBlockItemDeclParser(fSVParser);
 		}
 		return fBlockItemDeclParser;
+	}
+	
+	public SVParameterValueAssignmentParser paramValueAssignParser() {
+		if (fParamValueAssignParser == null) {
+			fParamValueAssignParser = new SVParameterValueAssignmentParser(fSVParser);
+		}
+		return fParamValueAssignParser;
+	}
+	
+	public SVBehavioralBlockParser behavioralBlockParser() {
+		if (fBehavioralBlockParser == null) {
+			fBehavioralBlockParser = new SVBehavioralBlockParser(fSVParser);
+		}
+		return fBehavioralBlockParser;
 	}
 
 }

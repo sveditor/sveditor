@@ -31,8 +31,13 @@ public class SVFileUtils {
 	
 	
 	public static String getPathParent(String path) {
-		path = new File(path).getParent();
-		return fWinPathPattern.matcher(path).replaceAll("/");
+		String parent = new File(path).getParent();
+		
+		if (parent == null) {
+			System.out.println("Failed to get parent of \"" + path + "\"");
+			parent = path;
+		}
+		return fWinPathPattern.matcher(parent).replaceAll("/");
 	}
 	
 	public static String normalize(String path) {

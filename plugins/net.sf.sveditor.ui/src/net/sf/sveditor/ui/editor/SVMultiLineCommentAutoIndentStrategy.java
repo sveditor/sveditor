@@ -155,7 +155,7 @@ public class SVMultiLineCommentAutoIndentStrategy extends
         // TODO Test for smart mode.
         if (cmd.text != null) {
             // No auto-indent if replacing existing characters.
-            if (cmd.length == 0) {
+            if (cmd.length == 0 && cmd.text.length() == 1) {
                 String[] lineDelimiters = doc.getLegalLineDelimiters();
                 int index = TextUtilities.endsWith(lineDelimiters, cmd.text);
                 if ((index >= 0) && lineDelimiters[index].equals(cmd.text)) {

@@ -2,6 +2,7 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
@@ -24,13 +25,19 @@ public class TestParseFunction extends TestCase {
 	public void testStaticFunction() throws SVParseException {
 		String content =
 			"function static void foobar();\n" +
-			"    a = 5;\n" +
+			"    int a;\n" +
+			// "    a = 5;\n" +
 			"endfunction\n";
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		parser.parsers().functionParser().parse(0);
+		SVDBTaskFuncScope func = 
+			parser.parsers().functionParser().parse(0);
+		
+		for (SVDBItem it : func.getItems()) {
+			System.out.println("it " + it.getType() + " " + it.getName());
+		}
 	}
 
 	public void testAutomaticFunction() throws SVParseException {
@@ -51,8 +58,9 @@ public class TestParseFunction extends TestCase {
 			"        input int foobar,\n" +
 			"        ref object bar,\n" +
 			"        int foo);\n" +
-			"    a foo, bar;\n" +
-			"    a foo_q[$];\n" +
+			"    a_type foo, bar;\n" +
+			"    b_type foo_q[$];\n" +
+			"    b_cls #(foobar, bar) elem;\n" +
 			"    int i, j, k;\n" +
 			"    for (int i=0; i<5; i++) begin\n" +
 			"        a = 5;\n" +

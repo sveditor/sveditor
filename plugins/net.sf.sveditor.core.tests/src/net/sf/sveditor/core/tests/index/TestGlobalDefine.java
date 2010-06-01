@@ -157,6 +157,7 @@ public class TestGlobalDefine extends TestCase {
 		SVDBItem class1_it = null;
 		while (index_it.hasNext()) {
 			SVDBItem it_tmp = index_it.nextItem();
+			System.out.println("it " + it_tmp.getType() + " " + it_tmp.getName());
 			if (it_tmp.getName().equals("class1")) {
 				class1_it = it_tmp;
 			}

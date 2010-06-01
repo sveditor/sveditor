@@ -24,10 +24,6 @@ public class SVParserBase implements ISVParser {
 		return fParser.lexer();
 	}
 
-	public ITextScanner scanner() {
-		return fParser.scanner();
-	}
-
 	public void warning(String msg, int lineno) {
 		fParser.warning(msg, lineno);
 	}

@@ -26,38 +26,36 @@ public class SVParameterPortListParser extends SVParserBase {
 		List<SVDBModIfcClassParam> params = new ArrayList<SVDBModIfcClassParam>();
 		
 		lexer().readOperator("#");
-		
 		lexer().readOperator("(");
-		scanner().startCapture('(');
-		int ch = scanner().skipPastMatch("()");
-		String param_s = scanner().endCapture();
+		
+		/*
+		lexer().startCapture();
+		lexer().skipPastMatch("(", ")");
+		String param_s = lexer().endCapture();
 		
 		ITextScanner in = new StringTextScanner(new StringBuilder(param_s));
+		 */
 		String id;
 		
+		/*
 		ch = in.skipWhite(in.get_ch());
 		if (ch != '(') {
 			in.unget_ch(ch);
 		}
+		 */
 
-		while (ch != -1) {
+		while (true) {
 			SVDBModIfcClassParam p;
-			ch = in.skipWhite(in.get_ch());
 
-			id = in.readIdentifier(ch);
-
-			if (id == null) {
-				break;
+			if (lexer().peekKeyword("type")) {
+				lexer().eatToken();
 			}
-
-			if (id.equals("type")) {
-				ch = in.skipWhite(in.get_ch());
-				id = in.readIdentifier(ch);
-			}
+			id = lexer().readId();
 
 			// id now holds the template identifier
 			p = new SVDBModIfcClassParam(id);
 
+			/* ??
 			ch = in.skipWhite(in.get_ch());
 
 			if (ch == '(') {
@@ -65,20 +63,25 @@ public class SVParameterPortListParser extends SVParserBase {
 			}
 
 			ch = in.skipWhite(ch);
+			 */
 			
-			if (ch == '=') {
-				ch = in.skipWhite(in.get_ch());
-				if ((id = in.readIdentifier(ch)) != null) {
-					p.setDefault(id);
-				}
+			if (lexer().peekOperator("=")) {
+				lexer().eatToken();
+				
+				id = parsers().SVParser().readExpression();
+				p.setDefault(id);
 			}
 
-			while (ch != -1 && ch != ',') {
-				ch = in.get_ch();
-			}
-			
 			params.add(p);
+
+			if (lexer().peekOperator(",")) {
+				lexer().eatToken();
+			} else {
+				break;
+			}
 		}
+		lexer().readOperator(")");
+		
 		
 		return params;
 	}

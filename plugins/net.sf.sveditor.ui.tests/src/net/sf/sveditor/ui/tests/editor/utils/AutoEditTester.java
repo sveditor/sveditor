@@ -163,6 +163,13 @@ public class AutoEditTester {
 	public String getLine() throws BadLocationException {
 		return getLine(0);
 	}
+	
+	public String readLine() throws BadLocationException {
+		IRegion region = fDoc.getLineInformation(getCaretLine());
+		String ret = fDoc.get(region.getOffset(), region.getLength());
+		fCaretOffset = region.getOffset() + region.getLength()+1;
+		return ret; 
+	}
 
 	public String getLine(int i) throws BadLocationException {
 		IRegion region = fDoc.getLineInformation(getCaretLine() + i);
