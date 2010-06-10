@@ -51,7 +51,7 @@ import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 
 public class SVExprParser extends SVParserBase {
 	private SVExprDump						fExprDump;
-	private boolean							fDebugEn = false;
+	private boolean							fDebugEn = true;
 	private SVLexer							fLexer;
 	
 	public SVExprParser() {
@@ -87,7 +87,7 @@ public class SVExprParser extends SVParserBase {
 				return true;
 			}
 			
-			public void error(String msg, int lineno) {
+			public void error(SVParseException e) {
 			}
 
 			public SVParsers parsers() {
@@ -115,8 +115,9 @@ public class SVExprParser extends SVParserBase {
 
 		try {
 			SVExpr expr;
+			fLexer.enableEOFException(false);
 			
-			while (!peek().equals("")) {
+			while (peek() != null && !peek().equals("")) {
 				debug("top of while: peek=" + peek());
 				expr = constraint_block_item();
 				
@@ -132,7 +133,10 @@ public class SVExprParser extends SVParserBase {
 					System.out.println("[FIXME] null expr");
 				}
 			}
+		} catch (EOFException e) {
+			// ignore
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("[ERROR] " + e.getMessage());
 			throw new SVExprParseException(e);
 		}
@@ -172,85 +176,94 @@ public class SVExprParser extends SVParserBase {
 	public void coverpoint_target(SVCoverpointExpr coverpoint) 
 		throws SVParseException, SVExprParseException {
 		
-		SVExpr target = expression();
-		
-		coverpoint.setTarget(target);
-		
-		if (peekKeyword("iff")) {
-			eatToken();
-			readOperator("(");
-			SVExpr iff_expr = expression();
-			readOperator(")");
-			
-			coverpoint.setIFFExpr(iff_expr);
+		try {
+			SVExpr target = expression();
+
+			coverpoint.setTarget(target);
+
+			if (peekKeyword("iff")) {
+				eatToken();
+				readOperator("(");
+				SVExpr iff_expr = expression();
+				readOperator(")");
+
+				coverpoint.setIFFExpr(iff_expr);
+			}
+		} catch (EOFException e) {
+			e.printStackTrace();
+			// Ignore
 		}
 	}
 	
 	public void coverpoint_body(SVCoverpointExpr coverpoint) 
 		throws SVExprParseException, SVParseException {
 		
-		while (peekKeyword("wildcard", "bins", "ignore_bins", "illegal_bins",
-				"option", "type_option")) {
-			
-			if (peekKeyword("option", "type_option")) {
-				String kw = eatToken();
-				
-				readOperator(".");
-				
-				String option = readIdentifier();
-				
-				if (!fLexer.peekString() && !fLexer.peekNumber()) {
-					throw new SVExprParseException("unknown option value type \"" +
-							peek() + "\"");
-				}
-				
-				if (kw.equals("option")) {
-					coverpoint.addOption(option, eatToken());
-				} else {
-					coverpoint.addTypeOption(option, eatToken());
-				}
-			} else {
-				if (peekKeyword("wildcard")) {
-					eatToken();
-				}
+		try {
+			while (peekKeyword("wildcard", "bins", "ignore_bins", "illegal_bins",
+					"option", "type_option")) {
 
-				String bins_kw = readKeyword("bins", "ignore_bins", "illegal_bins");
-				String bins_id = readIdentifier();
+				if (peekKeyword("option", "type_option")) {
+					String kw = eatToken();
 
-				SVCoverBinsExpr bins = new SVCoverBinsExpr(bins_id, bins_kw);
+					readOperator(".");
 
-				if (peekOperator("[")) {
-					eatToken();
+					String option = readIdentifier();
 
-					bins.setIsArray(true);
-
-					if (!peekOperator("]")) {
-						// read the inner expression
-						bins.setArrayExpr(expression());
+					if (!fLexer.peekString() && !fLexer.peekNumber()) {
+						throw new SVExprParseException("unknown option value type \"" +
+								peek() + "\"");
 					}
-					readOperator("]");
-				}
 
-				readOperator("=");
-
-				if (peekOperator("{")) {
-					open_range_list(bins.getRangeList());
-				} else if (peekKeyword("default")) {
-					eatToken();
-					bins.setIsDefault(true);
+					if (kw.equals("option")) {
+						coverpoint.addOption(option, eatToken());
+					} else {
+						coverpoint.addTypeOption(option, eatToken());
+					}
 				} else {
-					throw new SVExprParseException("Unsupported coverage expression: " + 
-							peek());
-					// 'default' or 'default sequence'
-					// ???
-				}
+					if (peekKeyword("wildcard")) {
+						eatToken();
+					}
 
-				coverpoint.getCoverBins().add(bins);
-				
-				if (peekOperator(";")) {
-					eatToken();
+					String bins_kw = readKeyword("bins", "ignore_bins", "illegal_bins");
+					String bins_id = readIdentifier();
+
+					SVCoverBinsExpr bins = new SVCoverBinsExpr(bins_id, bins_kw);
+
+					if (peekOperator("[")) {
+						eatToken();
+
+						bins.setIsArray(true);
+
+						if (!peekOperator("]")) {
+							// read the inner expression
+							bins.setArrayExpr(expression());
+						}
+						readOperator("]");
+					}
+
+					readOperator("=");
+
+					if (peekOperator("{")) {
+						open_range_list(bins.getRangeList());
+					} else if (peekKeyword("default")) {
+						eatToken();
+						bins.setIsDefault(true);
+					} else {
+						throw new SVExprParseException("Unsupported coverage expression: " + 
+								peek());
+						// 'default' or 'default sequence'
+						// ???
+					}
+
+					coverpoint.getCoverBins().add(bins);
+
+					if (peekOperator(";")) {
+						eatToken();
+					}
 				}
 			}
+		} catch (EOFException e ) {
+			// Ignore
 		}
 	}
 	
@@ -785,7 +798,7 @@ public class SVExprParser extends SVParserBase {
 		List<String> ret = new ArrayList<String>();
 		
 		ret.add(readIdentifier());
-		while (peekOperator(".") /* && peekNextButOne().isIdentifier() */) {
+		while (peek() != null && peekOperator(".") /* && peekNextButOne().isIdentifier() */) {
 			eatToken();
 			ret.add(readIdentifier());
 		}

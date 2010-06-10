@@ -1,7 +1,7 @@
 
 
 class __sv_builtin_covergroup_options;
-	int 	weight;
+//	int 	weight;
 	
 	real 	goal;
 	

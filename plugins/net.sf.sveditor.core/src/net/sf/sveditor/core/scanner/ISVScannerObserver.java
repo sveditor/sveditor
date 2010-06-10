@@ -28,7 +28,7 @@ public interface ISVScannerObserver extends ISVPreProcScannerObserver {
 	int FieldAttr_DPI				= (1 << 9);
 	int FieldAttr_Pure				= (1 << 10);
 	int FieldAttr_Context			= (1 << 11);
-	int FieldAttr_SvBuiltinGlobal	= (1 << 12);
+	int FieldAttr_SvBuiltin			= (1 << 12);
 	
 	int ParamAttr_Virtual           = (1 << 0);
 	int ParamAttr_Ref               = (1 << 1);

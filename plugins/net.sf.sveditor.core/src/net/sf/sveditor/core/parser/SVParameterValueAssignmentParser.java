@@ -31,20 +31,17 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			}
 			
 			v.setLength(0);
-			while (true) {
-				if (lexer().peekOperator("(")) {
-					int lb_cnt = 1, rb_cnt = 0;
-					v.append("(");
-					while (lb_cnt != rb_cnt) {
-						if (lexer().peekOperator("(")) {
-							lb_cnt++;
-						} else if (lexer().peekOperator(")")) {
-							rb_cnt++;
-						} else if (lexer().peekOperator(";")) {
-							break; // escape
-						}
-						v.append(lexer().eatToken());
-					}
+			while (lexer().peek() != null) {
+				if (lexer().peekOperator("#")) {
+					lexer().eatToken();
+					lexer().readOperator("(");
+					lexer().startCapture();
+					lexer().skipPastMatch("(", ")", ";");
+					v.append(lexer().endCapture());
+				} else if (lexer().peekOperator("(")) {
+					lexer().startCapture();
+					lexer().skipPastMatch("(", ")", ";");
+					v.append(lexer().endCapture());
 				} else if (lexer().peekOperator(",", ")")) {
 					break;
 				} else {

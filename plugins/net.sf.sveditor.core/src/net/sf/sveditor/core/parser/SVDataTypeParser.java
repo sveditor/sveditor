@@ -80,6 +80,7 @@ public class SVDataTypeParser extends SVParserBase {
 			
 			if (lexer().peekOperator("[")) {
 				// TODO: packed_dimension
+				lexer().skipPastMatch("[", "]");
 			}
 			type = builtin_type;
 		} else if (IntegerAtomType.contains(id)) {
@@ -135,7 +136,6 @@ public class SVDataTypeParser extends SVParserBase {
 				type = new SVDBTypeInfoUserDef(id, SVDBDataType.UserDefined);
 			}
 			
-			System.out.println("token post-type \"" + id + "\" is: " + lexer().peek());
 			if (lexer().peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
 				((SVDBTypeInfoUserDef)type).setParameters(plist);

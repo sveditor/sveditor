@@ -15,6 +15,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 	public List<SVDBTaskFuncParam> parse() throws SVParseException {
 		List<SVDBTaskFuncParam> params = new ArrayList<SVDBTaskFuncParam>();
 		int dir = SVDBTaskFuncParam.Direction_Input;
+		SVDBTypeInfo last_type = null;
 		
 		lexer().readOperator("(");
 		
@@ -49,8 +50,35 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			
 			SVDBTypeInfo type = 
 				parsers().dataTypeParser().data_type(lexer().eatToken());
-			
-			String id = lexer().readId();
+
+			// This could be a continuation of the same type: int a, b, c
+			if (lexer().peekOperator("[")) {
+				lexer().startCapture();
+				lexer().skipPastMatch("[", "]");
+				lexer().endCapture();
+			}
+
+			String id;
+
+			// Handle the case where a single type and a 
+			// list of parameters is declared
+			if (lexer().peekOperator(",", ")")) {
+				// use previous type
+				id = type.getName();
+				type = last_type;
+			} else {
+
+				id = lexer().readId();
+
+				if (lexer().peekOperator("[")) {
+					lexer().startCapture();
+					lexer().skipPastMatch("[", "]");
+					lexer().endCapture();
+				}
+				
+				last_type = type;
+			}
+
 			
 			SVDBTaskFuncParam param = new SVDBTaskFuncParam(type, id);
 			param.setDir(dir);

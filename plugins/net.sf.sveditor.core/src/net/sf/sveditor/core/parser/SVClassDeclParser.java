@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -36,7 +37,8 @@ public class SVClassDeclParser extends SVParserBase {
 		//
 		// Class ID
 		//
-		cls_type_name = lexer().readId();
+		cls_type_name = parsers().SVParser().scopedIdentifier(
+				((qualifiers & IFieldItemAttr.FieldAttr_SvBuiltin) != 0));
 		
 		cls = new SVDBModIfcClassDecl(cls_type_name, SVDBItemType.Class);
 		
@@ -66,6 +68,9 @@ public class SVClassDeclParser extends SVParserBase {
 		}
 		
 		lexer().readOperator(";");
+		
+		// Force new-statement
+		parsers().SVParser().setNewStatement();
 		
 		// TODO: need a better system here...
 		while ((id = parsers().SVParser().scan_statement()) != null) {

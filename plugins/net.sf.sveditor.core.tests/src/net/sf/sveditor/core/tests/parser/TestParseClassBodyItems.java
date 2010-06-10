@@ -28,5 +28,39 @@ public class TestParseClassBodyItems extends TestCase {
 		ParserTests.assertFileHasElements(file, 
 				"foobar", "foo_func", "foo_func_e", "foo_task");
 	}
+	
+	public void testClassFields() {
+		String content = 
+		"class __sv_builtin_covergroup_options;\n" +
+		"	int 	weight;\n" + 
+		"\n" +
+		"	real 	goal;\n" +
+		"\n" +
+		"	string 	name;\n" +
+		"\n" +
+		"	string 	comment;\n" +
+		"\n" +
+		"	int		at_least;\n" +
+		"\n" +
+		"	bit		detect_overlap;\n" +
+		"\n" +
+		"	int		auto_bin_max;\n" +
+		"\n" +
+		"	bit		per_instance;\n" +
+		"\n" +
+		"	bit		cross_num_print_missing;\n" +
+		"\n" +
+		"endclass\n";
+	
+		SVDBFile file = ParserTests.parse(content, "testClassFields");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file,
+				"__sv_builtin_covergroup_options",
+				"weight", "goal", "name", "comment",
+				"at_least", "detect_overlap", 
+				"auto_bin_max", "per_instance",
+				"cross_num_print_missing");
+	}
 
 }

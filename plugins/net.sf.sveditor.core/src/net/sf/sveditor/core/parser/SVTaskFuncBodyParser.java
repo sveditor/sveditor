@@ -5,7 +5,6 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVTaskFuncBodyParser extends SVParserBase {
@@ -26,38 +25,48 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 		String id = null;
 		while (true) {
 			id = null;
-			System.out.println("token: " + lexer().peek());
-			if (lexer().peekKeyword(decl_keywords) || 
-					SVKeywords.isBuiltInType(lexer().peek()) ||
-					lexer().isIdentifier()) {
-				// Variable declarations
-				id = lexer().eatToken(); // should be beginning of type declaration
-				
-				if ((lexer().peekKeyword() && !lexer().peekKeyword(decl_keywords_nonansi)) ||
-						(lexer().peekOperator() && !lexer().peekOperator("#"))) {
-					// likely a statement
-					System.out.println("leaving decl section");
+			try {
+				if (lexer().peekKeyword(decl_keywords) || 
+						(SVKeywords.isBuiltInType(lexer().peek()) && !lexer().peekKeyword("void")) ||
+						lexer().isIdentifier()) {
+					// Variable declarations
+					id = lexer().eatToken(); // should be beginning of type declaration
+
+					if ((lexer().peekKeyword() && !lexer().peekKeyword(decl_keywords_nonansi)) ||
+							(lexer().peekOperator() && !lexer().peekOperator("#"))) {
+						// likely a statement
+						System.out.println("leaving decl section");
+						break;
+					}
+
+					List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
+					for (SVDBItem it : vars) {
+						System.out.println("Add var: " + it.getName());
+					}
+					tf.addItems(vars);
+				} else if (lexer().peekKeyword("typedef")) {
+					// TODO: permit local type declaration
+					break;
+				} else {
+					// time to move on to the body
 					break;
 				}
-				
-				System.out.println("calling blockItemDeclParser with: \"" + id + "\"");
-				List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
-				for (SVDBItem it : vars) {
-					System.out.println("Add var: " + it.getName());
+			} catch (SVParseException e) {
+				error(e);
+				// Try to recover
+				while (lexer().peek() != null && 
+						!lexer().peekOperator(";") && !lexer().peekKeyword()) {
+					lexer().eatToken();
 				}
-				tf.addItems(vars);
-			} else if (lexer().peekKeyword("typedef")) {
-				// TODO: permit local type declaration
-				break;
-			} else {
-				// time to move on to the body
-				break;
+				if (lexer().peekOperator(";")) {
+					lexer().eatToken();
+				}
 			}
 		}
 
 		// now the task/function function body
 		// this is much
-		while (true) {
+		while (lexer().peek() != null) {
 			if (lexer().peekKeyword(end_keyword)) {
 				break;
 			} else if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0)) {
@@ -67,5 +76,4 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			}
 		}
 	}
-
 }

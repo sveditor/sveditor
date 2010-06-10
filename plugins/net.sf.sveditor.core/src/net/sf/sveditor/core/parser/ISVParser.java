@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.scanutils.ITextScanner;
 
 public interface ISVParser {
 	
@@ -8,7 +7,7 @@ public interface ISVParser {
 	
 	// ITextScanner scanner();
 	
-	void error(String msg, int lineno);
+	void error(SVParseException e) throws SVParseException;
 	
 	void warning(String msg, int lineno);
 	

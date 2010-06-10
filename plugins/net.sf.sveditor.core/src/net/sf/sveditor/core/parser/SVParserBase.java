@@ -1,11 +1,10 @@
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.scanutils.ITextScanner;
 
 
 public class SVParserBase implements ISVParser {
 	
-	protected static final boolean			fDebugEn = true;
+	protected static final boolean			fDebugEn = false;
 	protected ISVParser						fParser;
 	
 	protected SVParserBase(ISVParser parser) {
@@ -16,8 +15,8 @@ public class SVParserBase implements ISVParser {
 		return fParser.error_limit_reached();
 	}
 
-	public void error(String msg, int lineno) {
-		fParser.error(msg, lineno);
+	public void error(SVParseException e) throws SVParseException {
+		fParser.error(e);
 	}
 
 	public SVLexer lexer() {
@@ -33,6 +32,8 @@ public class SVParserBase implements ISVParser {
 	}
 
 	protected void debug(String msg) {
-		
+		if (fDebugEn) {
+			System.out.println("Parser: " + msg);
+		}
 	}
 }

@@ -23,8 +23,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		String tf_name;
 		
 		String type = lexer().readKeyword("task", "function");
-		
-		lexer().next_token();
+	
+		// ??
+		// lexer().eatToken();
 		
 		SVDBTypeInfo return_type = null;
 		if (type.equals("function")) {
@@ -45,14 +46,16 @@ public class SVTaskFunctionParser extends SVParserBase {
 				if (lexer().peekKeyword("void") || 
 						SVKeywords.isBuiltInType(lexer().peek())) {
 					data_type_or_implicit = lexer().eatToken();
+					System.out.println("    data_type_or_implicit: builtin " + data_type_or_implicit);
 				} else {
-					data_type_or_implicit = parsers().SVParser().scopedIdentifier();
+					data_type_or_implicit = parsers().SVParser().scopedIdentifier(true);
+					System.out.println("    data_type_or_implicit: scoped " + data_type_or_implicit);
 				}
 
 				if (!lexer().peekOperator(";", "(")) {
 					// probably data-type
 					return_type = parsers().dataTypeParser().data_type_or_void(data_type_or_implicit);
-					tf_name = parsers().SVParser().scopedIdentifier();
+					tf_name = parsers().SVParser().scopedIdentifier(false);
 				} else {
 					// function with no return type
 					tf_name = data_type_or_implicit;
@@ -68,7 +71,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 					qualifiers |= SVDBFieldItem.FieldAttr_Static;
 				}
 			}
-			tf_name = parsers().SVParser().scopedIdentifier();
+			tf_name = parsers().SVParser().scopedIdentifier(false);
 		}
 		
 		List<SVDBTaskFuncParam> params = null;
@@ -107,7 +110,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			
 			if (lexer().peekOperator(":")) {
 				lexer().eatToken();
-				String id = lexer().readId();
+				String id = lexer().readIdOrKeyword(); // could be :new
 				
 				if (!id.equals(func.getName())) {
 					// TODO: endfunction label must match function name

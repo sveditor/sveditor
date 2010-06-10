@@ -57,6 +57,10 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		fDefineProvider = p;
 	}
 	
+	public IDefineProvider getDefineProvider() {
+		return fDefineProvider;
+	}
+	
 	public void setEvalConditionals(boolean eval) {
 		fEvalConditionals = eval;
 	}
@@ -1056,7 +1060,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		fFieldQualifers.put("const", ISVScannerObserver.FieldAttr_Const);
 		fFieldQualifers.put("pure", ISVScannerObserver.FieldAttr_Pure);
 		fFieldQualifers.put("context", ISVScannerObserver.FieldAttr_Context);
-		fFieldQualifers.put("__sv_builtin_global", ISVScannerObserver.FieldAttr_SvBuiltinGlobal);
+		fFieldQualifers.put("__sv_builtin", ISVScannerObserver.FieldAttr_SvBuiltin);
 		
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO

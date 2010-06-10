@@ -493,7 +493,7 @@ public class SVEditor extends TextEditor
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
-			getSourceViewer().revealRange(offset, (offset_e-offset));
+			selectAndReveal(offset, (offset_e-offset));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

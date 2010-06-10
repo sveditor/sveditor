@@ -22,9 +22,12 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
@@ -128,26 +131,35 @@ public class ContentAssistBasics extends TestCase {
 
 	public void testScopedNonInheritanceAssist() {
 		String doc =
-			"class my_class1;\n" +
-			"    int           my_field1_class1;\n" +
-			"    int           my_field2_class1;\n" +
-			"endclass\n" +
-			"\n" +
-			"class my_class2;\n" +
-			"    int           my_field1_class2;\n" +
-			"    int           my_field2_class2;\n" +
-			"\n" +
-			"    function void foo();\n" +
-			"        int v = my_<<MARK>>\n" +
-			"    endfunction\n" +
-			"endclass\n";
+			"class my_class1;\n" +							// 1
+			"    int           my_field1_class1;\n" +		// 2
+			"    int           my_field2_class1;\n" +		// 3
+			"endclass\n" +									// 4
+			"\n" +											// 5
+			"class my_class2;\n" +							// 6
+			"    int           my_field1_class2;\n" +		// 7
+			"    int           my_field2_class2;\n" +		// 8
+			"\n" +											// 9
+			"    function void foo();\n" +					// 10
+			"        int v = my_<<MARK>>\n" +				// 11
+//			"        int v = my;\n" +				// 11
+			"    endfunction\n" +							// 12
+			"endclass\n";									// 13
+//			"my_<<MARK>>\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
+		
+		ISVDBIndexIterator index_it = cp.getIndexIterator();
+		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
+		
+		while (it.hasNext()) {
+			SVDBItem it_t = it.nextItem();
+			System.out.println("    " + it_t.getType() + " " + it_t.getName());
+		}
 		
 		
 		cp.computeProposals(scanner, ini.first(), 
@@ -156,8 +168,9 @@ public class ContentAssistBasics extends TestCase {
 		
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
-		validateResults(new String[] {"my_field1_class2", "my_field2_class2",
-				"my_class1", "my_class2"}, proposals);
+		validateResults(new String[] {"my_class1", "my_class2",
+				"my_field1_class2", "my_field2_class2"
+				}, proposals);
 	}
 
 	public void testScopedFieldContentAssist() {

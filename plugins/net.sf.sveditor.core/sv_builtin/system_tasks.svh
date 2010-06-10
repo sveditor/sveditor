@@ -184,7 +184,7 @@ extern task $monitoroff();
 /********************************************************************
  * $fopen()
  ********************************************************************/
-extern function int $fopen (string filename, string type);
+extern function int $fopen (string filename, string acc_type);
 
 /********************************************************************
  * $fclose()

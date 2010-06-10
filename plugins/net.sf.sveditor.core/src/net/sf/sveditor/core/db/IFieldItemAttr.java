@@ -25,9 +25,8 @@ public interface IFieldItemAttr {
 	int FieldAttr_DPI				= (1 << 9);
 	int FieldAttr_Pure				= (1 << 10);
 	int FieldAttr_Context			= (1 << 11);
-	// Flag for built-in fields that must be provided as content
-	// assist in all contexts (eg options field in covergroup) 
-	int FieldAttr_SvBuiltinGlobal	= (1 << 12);
+	// Flag for built-in objects. 
+	int FieldAttr_SvBuiltin			= (1 << 12);
 	
 	
 	void setAttr(int attr);

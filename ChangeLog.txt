@@ -6,6 +6,9 @@
 attempt to auto-indent cases where newly-pasted content makes comment
 boundaries ambiguous
 
+- Correct a bug with hierarchy-based navigation (ie Open Declaration) that
+caused navigation history to not be maintained properly
+
 
 -- 0.2.0 Release --
 

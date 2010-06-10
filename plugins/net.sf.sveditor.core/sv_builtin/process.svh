@@ -1,6 +1,6 @@
 
 
-class process;
+__sv_builtin class process;
 
 	enum state { FINISHED, RUNNING, WAITING, SUSPENDED, KILLED };
 	

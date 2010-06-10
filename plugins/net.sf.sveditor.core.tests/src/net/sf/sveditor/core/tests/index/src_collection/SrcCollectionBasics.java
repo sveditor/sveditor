@@ -210,7 +210,7 @@ public class SrcCollectionBasics extends TestCase {
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				class1 = tmp_it;

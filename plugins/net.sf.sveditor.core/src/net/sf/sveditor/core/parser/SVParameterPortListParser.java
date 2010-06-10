@@ -47,10 +47,14 @@ public class SVParameterPortListParser extends SVParserBase {
 		while (true) {
 			SVDBModIfcClassParam p;
 
-			if (lexer().peekKeyword("type")) {
-				lexer().eatToken();
+			// Parameter can be typed or untyped
+			// type T=int
+			// string Ts="foo"
+			id = lexer().readIdOrKeyword();
+			
+			if (!lexer().peekOperator(",", ")", "=")) {
+				id = lexer().readIdOrKeyword();
 			}
-			id = lexer().readId();
 
 			// id now holds the template identifier
 			p = new SVDBModIfcClassParam(id);

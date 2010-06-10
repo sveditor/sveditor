@@ -61,7 +61,11 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		fScanner.setObserver(this);
 		fScopeStack = new Stack<SVDBScopeItem>();
 		if (def_provider != null) {
+			System.out.println("[NOTE] define_provider not null. " + 
+					def_provider.isDefined("ENABLE_CLASS1", -1));
 			setDefineProvider(def_provider);
+		} else {
+			System.out.println("[NOTE] define_provider is null. "); 
 		}
 	}
 	
@@ -84,7 +88,8 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 	
 	public SVDBFile parse(InputStream in, String name) {
 		fScopeStack.clear();
-		
+
+
 		fFile = new SVDBFile(name);
 		fScopeStack.push(fFile);
 		fScanner.scan(in, name);

@@ -14,8 +14,10 @@ package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SVKeywords {
 	
@@ -260,7 +262,7 @@ public class SVKeywords {
 		"unsigned"
 	};
 	
-	private static final List<String>				fTypeNames;
+	private static final Set<String>				fTypeNames;
 	private static final Map<String, Boolean>		fKeywordMap;
 	
 	static {
@@ -274,7 +276,7 @@ public class SVKeywords {
 			fKeywordMap.put(str, is_sv);
 		}
 		
-		fTypeNames = new ArrayList<String>();
+		fTypeNames = new HashSet<String>();
 		for (String n : fTypeStrings) {
 			fTypeNames.add(n);
 		}

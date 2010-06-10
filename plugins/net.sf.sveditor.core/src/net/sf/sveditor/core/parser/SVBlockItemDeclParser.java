@@ -30,7 +30,8 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		
 		// Should be the data-type
 		// String id = lexer().eatToken();
-		if (SVKeywords.isBuiltInType(id) || !SVKeywords.isSVKeyword(id)) {
+		if ((SVKeywords.isBuiltInType(id) && !id.equals("void")) || 
+				!SVKeywords.isSVKeyword(id)) {
 			// Data declaration or statement
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(id);
 			System.out.println("type=" + type.getName());
@@ -50,15 +51,24 @@ public class SVBlockItemDeclParser extends SVParserBase {
 					if (lexer().peekOperator("$")) {
 						// queue
 						lexer().eatToken();
-					} else if (!lexer().peekOperator("]")) {
+						lexer().readOperator("]");
+					} else if (lexer().peekOperator("]")) {
+						lexer().readOperator("]");
+					} else {
 						// bounded array
-						
+						lexer().skipPastMatch("[", "]");
 					}
-					lexer().readOperator("]");
 				}
 
 				if (lexer().peekOperator("=")) {
-					// TODO: eat tokens until ',' or ')'
+					// TODO: eat tokens until ',' or ';'
+					lexer().eatToken();
+					parsers().SVParser().readExpression();
+					/*
+					while(lexer().peek() != null && !lexer().peekOperator(",", ";")) {
+						lexer().eatToken();
+					}
+					 */
 				}
 			
 				if (lexer().peekOperator(",")) {
@@ -76,5 +86,4 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		
 		return ret;
 	}
-
 }

@@ -37,11 +37,13 @@ public class SVLexer {
 	private boolean						fNewlineAsOperator;
 	
 	private StringBuilder				fStringBuffer;
-	private boolean						fDebugEn;
+	private boolean						fDebugEn = false;
 	private boolean						fEOF;
 	
 	private StringBuilder				fCaptureBuffer;
 	private boolean						fCapture;
+	
+	private boolean						fEnableEOFException = true;
 	
 	private ISVParser					fParser;
 	
@@ -49,7 +51,7 @@ public class SVLexer {
 		"(", ")", "{", "}", "[", "]",
 		"&", "&&", "|", "||", 
 		"-", "--", "+", "++",
-		"%", "!", "*", "/",
+		"%", "!", "*", "/", "^", "~", "?", "@",
 		"<", "<<", "<=",
 		">", ">>", ">=",
 		":", "::", ":/", ":=",
@@ -86,8 +88,11 @@ public class SVLexer {
 			}
 			fKeywordSet.add(kw);
 		}
-		fDebugEn = false;
 		fEOF = false;
+	}
+	
+	public void enableEOFException(boolean en) {
+		fEnableEOFException = en;
 	}
 	
 	public void setNewlineAsOperator(boolean en) {
@@ -98,21 +103,21 @@ public class SVLexer {
 		fParser = parser;
 		fTokenConsumed = true;
 		fScanner = scanner; // parser.scanner();
+		fEOF = false;
 	}
 	
 	public void parseException(String msg) throws SVParseException {
 		// TODO: get filename
 		ScanLocation loc = fScanner.getLocation();
-		msg = loc.getFileName() + ":" + loc.getLineNo() + " " + msg;
-		throw SVParseException.createParseException(msg);
+		throw SVParseException.createParseException(msg, loc.getFileName(), loc.getLineNo());
 	}
 	
 	public String peek() {
 		if (fTokenConsumed) {
-			if (!next_token()) {
+			if (fEOF || !next_token()) {
 				fImage = null;
 			}
-			debug("peek() -- \"" + fImage + "\"");
+			debug("peek() -- \"" + fImage + "\" " + fEOF);
 		}
 		return fImage;
 	}
@@ -251,6 +256,7 @@ public class SVLexer {
 	}
 	
 	public String eatToken() {
+		peek();
 		if (fCapture) {
 			if (fCaptureBuffer.length() > 0) {
 				fCaptureBuffer.append(" ");
@@ -288,6 +294,17 @@ public class SVLexer {
 		
 		return eatToken();
 	}
+	
+	public String readIdOrKeyword() throws SVParseException {
+		peek();
+
+		if (!fIsIdentifier && !fIsKeyword) {
+			parseException("Expecting an identifier or keyword ; received \"" + 
+					fImage + "\"");
+		}
+		
+		return eatToken();
+	}
 
 	public String readNumber() throws SVParseException {
 		peek();
@@ -300,9 +317,16 @@ public class SVLexer {
 		return eatToken();
 	}
 	
-	public boolean next_token() {
+	private boolean next_token() {
 		if (fEOF) {
-			throw new EOFException();
+			/*
+			if (fEnableEOFException) {
+				throw new EOFException();
+			} else {
+				return false;
+			}
+			 */
+			return false;
 		}
 		try {
 			return next_token_int();
@@ -319,7 +343,7 @@ public class SVLexer {
 			eatToken();
 		}
 		
-		while (start_c != end_c) {
+		while (peek() != null && start_c != end_c) {
 			if (peek().equals(start)) {
 				start_c++;
 			} else if (peek().equals(end)) {
@@ -392,19 +416,30 @@ public class SVLexer {
 
 		if (ch == -1) {
 			fEOF = true;
-			throw new EOFException();
+			/*
+			if (fEnableEOFException) {
+				throw new EOFException();
+			}
+			 */
 		} else if (fNewlineAsOperator && ch == '\n') {
 			fStringBuffer.append('\n');
 			fIsOperator = true;
 		} else if (ch == '"') {
+			int last_ch = -1;
 			// String
-			while ((ch = get_ch()) != -1 && ch != '"') {
+			fStringBuffer.append((char)ch);
+			while ((ch = get_ch()) != -1) {
+				if (ch == '"' && last_ch != '\\') {
+					break;
+				}
 				fStringBuffer.append((char)ch);
+				last_ch = ch;
 			}
 			
 			if (ch != '"') {
 				parseException("Unterminated string");
 			}
+			fStringBuffer.append((char)ch);
 			fIsString = true;
 
 		} else if (fOperatorSet.contains(tmp) || 
@@ -518,22 +553,32 @@ public class SVLexer {
 		
 		if (fStringBuffer.length() == 0) {
 			fEOF = true;
-			throw new EOFException();
-		}
-		
-		fImage = fStringBuffer.toString();
-		
-		if (fIsIdentifier) {
-			if ((fIsKeyword = fKeywordSet.contains(fImage))) {
-				fIsIdentifier = false;
+			/*
+			if (fEnableEOFException) {
+				throw new EOFException();
 			}
+			 */
+			debug("EOF");
+			return false;
+		} else {
+		
+			fImage = fStringBuffer.toString();
+
+			if (fIsIdentifier) {
+				if ((fIsKeyword = fKeywordSet.contains(fImage))) {
+					fIsIdentifier = false;
+				}
+			}
+			fTokenConsumed = false;
+			debug("next_token(): \"" + fImage + "\"");
+			return true;
 		}
-		fTokenConsumed = false;
-		return true;
 	}
 	
 	private int get_ch() {
-		return fScanner.get_ch();
+		int ch = fScanner.get_ch();
+		
+		return ch; 
 	}
 	
 	private void unget_ch(int ch) {
