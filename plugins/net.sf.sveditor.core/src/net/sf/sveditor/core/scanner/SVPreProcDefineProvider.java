@@ -300,8 +300,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		if (m.getDef() == null) {
-			System.out.println("Macro \"" + m.getName() + "\" @ " + 
-					m.getLocation().getFile().getFilePath() + ":" +
+			System.out.println("Macro \"" + m.getName() + "\" @ <<UNKNOWN>>:" + 
 					m.getLocation().getLine() + " is null");
 			// Replace the text with ""
 			scanner.replace(scanner.getOffset(), scanner.getLimit(), "");

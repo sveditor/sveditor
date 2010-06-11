@@ -3,6 +3,7 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 
 public class SVClassDeclParser extends SVParserBase {
@@ -28,6 +29,7 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		// Expect to enter on 'class'
 		lexer().readKeyword("class");
+		SVDBLocation start_loc = lexer().getStartLocation();
 		
 		if (lexer().peekKeyword("automatic", "static")) {
 			// TODO: set lifetime on class declaration
@@ -41,6 +43,7 @@ public class SVClassDeclParser extends SVParserBase {
 				((qualifiers & IFieldItemAttr.FieldAttr_SvBuiltin) != 0));
 		
 		cls = new SVDBModIfcClassDecl(cls_type_name, SVDBItemType.Class);
+		cls.setLocation(start_loc);
 		
 		// TODO: Should remove this later
 		parsers().SVParser().enter_scope("class", cls);
@@ -98,6 +101,7 @@ public class SVClassDeclParser extends SVParserBase {
 				lexer().readId();
 			}
 		}
+		cls.setEndLocation(lexer().getStartLocation());
 		
 		// TODO: remove this later
 		parsers().SVParser().handle_leave_scope();

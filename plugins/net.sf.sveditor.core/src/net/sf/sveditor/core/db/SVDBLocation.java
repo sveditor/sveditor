@@ -13,28 +13,19 @@
 package net.sf.sveditor.core.db;
 
 public class SVDBLocation {
-	private SVDBFile		fFile;
 	private int				fLine;
 	private int				fPos;
 	
-	public SVDBLocation(SVDBFile file, int line, int pos) {
-		fFile = file;
+	public SVDBLocation(int line, int pos) {
 		fLine = line;
 		fPos  = pos;
 	}
 
 	public SVDBLocation(SVDBLocation other) {
-		if (other != null) {
-			fFile = other.fFile;
-			fLine = other.fLine;
-			fPos  = other.fPos;
-		}
+		fLine = other.fLine;
+		fPos  = other.fPos;
 	}
 
-	public SVDBFile getFile() {
-		return fFile;
-	}
-	
 	public int getLine() {
 		return fLine;
 	}
@@ -44,7 +35,6 @@ public class SVDBLocation {
 	}
 	
 	public void init(SVDBLocation other) {
-		fFile = other.fFile;
 		fLine = other.fLine;
 		fPos  = other.fPos;
 	}
@@ -56,12 +46,6 @@ public class SVDBLocation {
 			
 			if (other == null) {
 				return false;
-			}
-			
-			if (o.fFile == null || fFile == null) {
-				ret &= o.fFile == fFile;
-			} else {
-				ret &= o.fFile.equals(fFile);
 			}
 			
 			ret &= (o.fLine == fLine &&	o.fPos == fPos);

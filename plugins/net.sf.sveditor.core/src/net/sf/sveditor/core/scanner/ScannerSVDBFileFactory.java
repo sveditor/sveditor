@@ -81,7 +81,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		SVDBMarkerItem marker = new SVDBMarkerItem(
 				SVDBMarkerItem.MARKER_ERR,
 				SVDBMarkerItem.KIND_GENERIC, msg);
-		marker.setLocation(new SVDBLocation(fFile, lineno, 0));
+		marker.setLocation(new SVDBLocation(lineno, 0));
 		
 		fFile.addItem(marker);
 	}
@@ -410,7 +410,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 					setLocation(item);
 				
 					if (item.getName() == null || item.getName().equals("")) {
-						System.out.println("    " + item.getLocation().getFile().getName() + ":" + item.getLocation().getLine());
+						System.out.println("    <<UNKNOWN>>:" + item.getLocation().getLine());
 					}
 					item.setAttr(attr);
 					fScopeStack.peek().addItem(item);
@@ -425,18 +425,18 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		ScanLocation loc = fScanner.getStartLocation();
 		
 		if (loc != null) {
-			item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
+			item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 		}
 	}
 	
 	private void setLocation(SVDBItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setLocation(new SVDBLocation(fFile, loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 	
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setEndLocation(new SVDBLocation(null, loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
 	
@@ -446,9 +446,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		setLocation(def);
 		
 		if (def.getName() == null || def.getName().equals("")) {
-			System.out.println("    " + 
-					def.getLocation().getFile().getName() + ":" + 
-					def.getLocation().getLine());
+			System.out.println("    :" + def.getLocation().getLine());
 		}
 		
 		fScopeStack.peek().addItem(def);

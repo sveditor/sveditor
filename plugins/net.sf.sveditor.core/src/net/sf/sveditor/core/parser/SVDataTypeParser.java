@@ -116,6 +116,25 @@ public class SVDataTypeParser extends SVParserBase {
 			type = new SVDBTypeInfoBuiltin(id);
 			// TODO: skip paren expression
 			lexer().parseException("'type' expression unsupported");
+		} else if (id.equals("class")) {
+			// Class type
+			SVDBTypeInfoUserDef type_ud = new SVDBTypeInfoUserDef(lexer().readId());
+
+			// TODO: this should be a real parse
+			if (lexer().peekOperator("#")) {
+				if (lexer().peekOperator("#")) {
+					// scanner().unget_ch('#');
+					// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
+					// cls.getSuperParameters().addAll(params);
+					lexer().eatToken();
+					if (lexer().peekOperator("(")) {
+						lexer().skipPastMatch("(", ")");
+					} else {
+						lexer().eatToken();
+					}
+				}
+			}
+			type = type_ud;
 		} else if (SVKeywords.isSVKeyword(id)) {
 			// ERROR: 
 			lexer().parseException("Invalid type name \"" + id + "\"");

@@ -50,7 +50,7 @@ public class SVDBScopeItem extends SVDBItem {
 		if (getType() == SVDBItemType.File) {
 			file   = (SVDBFile)this;
 		}
-		fEndLocation = new SVDBLocation(file, reader.readInt(), 0);
+		fEndLocation = new SVDBLocation(reader.readInt(), 0);
 		fItems = (List<SVDBItem>)reader.readItemList(file, this);
 	}
 	
@@ -101,8 +101,12 @@ public class SVDBScopeItem extends SVDBItem {
 		for (SVDBItem it : si.getItems()) {
 			fItems.add(it.duplicate());
 		}
-		fEndLocation = new SVDBLocation(
+		if (((SVDBScopeItem)other).fEndLocation != null) {
+			fEndLocation = new SVDBLocation(
 				((SVDBScopeItem)other).fEndLocation);
+		} else {
+			fEndLocation = null;
+		}
 	}
 	
 }

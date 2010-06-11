@@ -1,5 +1,9 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+
 
 
 public class SVParserBase implements ISVParser {
@@ -30,10 +34,22 @@ public class SVParserBase implements ISVParser {
 	public SVParsers parsers() {
 		return fParser.parsers();
 	}
+	
+	public SVDBLocation getLocation() {
+		return fParser.lexer().getStartLocation();
+	}
 
 	protected void debug(String msg) {
 		if (fDebugEn) {
 			System.out.println("Parser: " + msg);
 		}
+	}
+
+	protected void setStartLocation(SVDBItem item) {
+		item.setLocation(getLocation());
+	}
+	
+	protected void setEndLocation(SVDBScopeItem item) {
+		item.setEndLocation(getLocation());
 	}
 }

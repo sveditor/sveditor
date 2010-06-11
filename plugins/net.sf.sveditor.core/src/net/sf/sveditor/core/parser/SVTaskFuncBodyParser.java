@@ -35,14 +35,10 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 					if ((lexer().peekKeyword() && !lexer().peekKeyword(decl_keywords_nonansi)) ||
 							(lexer().peekOperator() && !lexer().peekOperator("#"))) {
 						// likely a statement
-						System.out.println("leaving decl section");
 						break;
 					}
 
 					List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
-					for (SVDBItem it : vars) {
-						System.out.println("Add var: " + it.getName());
-					}
 					tf.addItems(vars);
 				} else if (lexer().peekKeyword("typedef")) {
 					// TODO: permit local type declaration

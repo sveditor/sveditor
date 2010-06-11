@@ -37,7 +37,7 @@ public class SVDBItem {
 		fParent   = parent;
 		fType     = type;
 		fName     = reader.readString();
-		fLocation = new SVDBLocation(file, reader.readInt(), 0);
+		fLocation = new SVDBLocation(reader.readInt(), 0);
 	}
 	
 	public void dump(IDBWriter writer) {
@@ -85,7 +85,11 @@ public class SVDBItem {
 		fName     = other.fName;
 		fParent   = other.fParent;
 		fType     = other.fType;
-		fLocation = new SVDBLocation(other.fLocation);
+		if (other.fLocation != null) {
+			fLocation = new SVDBLocation(other.fLocation);
+		} else {
+			fLocation = null;
+		}
 	}
 	
 	public boolean equals(Object obj) {

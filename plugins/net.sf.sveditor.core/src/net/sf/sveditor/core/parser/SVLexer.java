@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -46,6 +47,7 @@ public class SVLexer {
 	private boolean						fEnableEOFException = true;
 	
 	private ISVParser					fParser;
+	private SVDBLocation				fStartLocation;
 	
 	private static String operators[] = {
 		"(", ")", "{", "}", "[", "]",
@@ -89,6 +91,15 @@ public class SVLexer {
 			fKeywordSet.add(kw);
 		}
 		fEOF = false;
+	}
+	
+	/**
+	 * Returns the start location of the active token
+	 * 
+	 * @return
+	 */
+	public SVDBLocation getStartLocation() {
+		return fStartLocation;
 	}
 	
 	public void enableEOFException(boolean en) {
@@ -413,6 +424,10 @@ public class SVLexer {
 		}
 		fStringBuffer.setLength(0);
 		String tmp = "" + (char)ch;
+		
+		// TODO: should fix
+		ScanLocation loc = fScanner.getLocation();
+		fStartLocation = new SVDBLocation(loc.getLineNo(), -1);
 
 		if (ch == -1) {
 			fEOF = true;

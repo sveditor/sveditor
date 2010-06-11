@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.tests.lexer;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.parser.ISVParser;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -49,7 +50,10 @@ public class TestClassItems extends TestCase {
 				return false;
 			}
 			
-			public void error(SVParseException e) {
+			public void error(SVParseException e) {}
+			
+			public SVDBLocation getLocation() {
+				return null;
 			}
 		};
 		lexer.init(parser, new StringTextScanner(content));

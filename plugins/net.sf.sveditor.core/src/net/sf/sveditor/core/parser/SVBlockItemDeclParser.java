@@ -34,7 +34,6 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				!SVKeywords.isSVKeyword(id)) {
 			// Data declaration or statement
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(id);
-			System.out.println("type=" + type.getName());
 			
 			while (true) {
 				String name = lexer().readId();

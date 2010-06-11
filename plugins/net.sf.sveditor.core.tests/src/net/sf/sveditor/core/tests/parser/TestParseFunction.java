@@ -3,6 +3,7 @@ package net.sf.sveditor.core.tests.parser;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
@@ -19,7 +20,8 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		parser.parsers().functionParser().parse(0);
+		SVDBLocation start = new SVDBLocation(1, 0);
+		parser.parsers().functionParser().parse(start, 0);
 	}
 
 	public void testStaticFunction() throws SVParseException {
@@ -32,8 +34,9 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
+		SVDBLocation start = new SVDBLocation(1, 0);
 		SVDBTaskFuncScope func = 
-			parser.parsers().functionParser().parse(0);
+			parser.parsers().functionParser().parse(start, 0);
 		
 		for (SVDBItem it : func.getItems()) {
 			System.out.println("it " + it.getType() + " " + it.getName());
@@ -49,7 +52,8 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		parser.parsers().functionParser().parse(0);
+		SVDBLocation start = new SVDBLocation(1, 0);
+		parser.parsers().functionParser().parse(start, 0);
 	}
 
 	public void testParamListFunction() throws SVParseException {
@@ -70,7 +74,8 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(0);
+		SVDBLocation start = new SVDBLocation(1, 0);
+		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(start, 0);
 		
 		assertEquals("bar", func.getParams().get(1).getName());
 		assertEquals(SVDBTaskFuncParam.Direction_Ref,

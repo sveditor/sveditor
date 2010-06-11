@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -18,9 +19,13 @@ public class SVTaskFunctionParser extends SVParserBase {
 	}
 	
 	// Enter on 'function'
-	public SVDBTaskFuncScope parse(int qualifiers) throws SVParseException {
+	public SVDBTaskFuncScope parse(SVDBLocation start, int qualifiers) throws SVParseException {
 		SVDBTaskFuncScope func = null;
 		String tf_name;
+		
+		if (start == null) {
+			start = lexer().getStartLocation();
+		}
 		
 		String type = lexer().readKeyword("task", "function");
 	
@@ -46,10 +51,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 				if (lexer().peekKeyword("void") || 
 						SVKeywords.isBuiltInType(lexer().peek())) {
 					data_type_or_implicit = lexer().eatToken();
-					System.out.println("    data_type_or_implicit: builtin " + data_type_or_implicit);
 				} else {
 					data_type_or_implicit = parsers().SVParser().scopedIdentifier(true);
-					System.out.println("    data_type_or_implicit: scoped " + data_type_or_implicit);
 				}
 
 				if (!lexer().peekOperator(";", "(")) {
@@ -94,6 +97,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		func.setParams(params);
 		func.setAttr(qualifiers);
+		func.setLocation(start);
 		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
@@ -118,7 +122,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		}
 		
-		System.out.println("End " + type + " \"" + func.getName() + "\"");
+		func.setEndLocation(lexer().getStartLocation());
 		
 		return func;
 	}

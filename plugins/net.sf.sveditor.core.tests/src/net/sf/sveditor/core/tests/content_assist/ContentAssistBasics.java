@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -142,10 +143,8 @@ public class ContentAssistBasics extends TestCase {
 			"\n" +											// 9
 			"    function void foo();\n" +					// 10
 			"        int v = my_<<MARK>>\n" +				// 11
-//			"        int v = my;\n" +				// 11
 			"    endfunction\n" +							// 12
 			"endclass\n";									// 13
-//			"my_<<MARK>>\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -156,10 +155,21 @@ public class ContentAssistBasics extends TestCase {
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
 		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
 		
+		SVDBModIfcClassDecl my_class2 = null;
+		
 		while (it.hasNext()) {
 			SVDBItem it_t = it.nextItem();
 			System.out.println("    " + it_t.getType() + " " + it_t.getName());
+			if (it_t.getName().equals("my_class2")) {
+				my_class2 = (SVDBModIfcClassDecl)it_t;
+			}
 		}
+		
+		System.out.println("[my_class2] " + my_class2.getItems().size() + " items");
+		for (SVDBItem it_t : my_class2.getItems()) {
+			System.out.println("    [my_class2] " + it_t.getType() + " " + it_t.getName());
+		}
+		
 		
 		
 		cp.computeProposals(scanner, ini.first(), 
@@ -191,6 +201,7 @@ public class ContentAssistBasics extends TestCase {
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
@@ -223,7 +234,7 @@ public class ContentAssistBasics extends TestCase {
 			"    endfunction\n" +
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
@@ -268,10 +279,16 @@ public class ContentAssistBasics extends TestCase {
 		
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
-		// TODO: Ideally 'my_' would not appear in the proposals list...
-		validateResults(new String[] {"my_field1_class2", "my_field2_class2", "my_",
-				"my_field1_class1", "my_field2_class1",
-				"my_class1", "my_class2"}, proposals);
+		if (SVCorePlugin.getDefault().fUseParserFactory) {
+			validateResults(new String[] {"my_field1_class2", "my_field2_class2",
+					"my_field1_class1", "my_field2_class1",
+					"my_class1", "my_class2"}, proposals);
+		} else {
+			// Scanner still produces "my_" as a proposal
+			validateResults(new String[] {"my_field1_class2", "my_field2_class2", "my_",
+					"my_field1_class1", "my_field2_class1",
+					"my_class1", "my_class2"}, proposals);
+		}
 	}
 
 	/**
@@ -300,8 +317,6 @@ public class ContentAssistBasics extends TestCase {
 			"    endfunction\n" +
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
-		SVCorePlugin.getDefault().enableDebug(true);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
