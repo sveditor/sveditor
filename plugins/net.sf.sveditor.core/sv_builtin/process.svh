@@ -2,7 +2,7 @@
 
 __sv_builtin class process;
 
-	enum state { FINISHED, RUNNING, WAITING, SUSPENDED, KILLED };
+	typedef enum { FINISHED, RUNNING, WAITING, SUSPENDED, KILLED } state;
 	
 	static extern function process self();
 	

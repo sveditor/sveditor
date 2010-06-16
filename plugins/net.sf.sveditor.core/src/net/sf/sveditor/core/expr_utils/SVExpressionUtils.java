@@ -467,6 +467,7 @@ public class SVExpressionUtils {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
 				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
 						tf.getName().contains("::")) {
+					System.out.println("Removing extern-function \"" + tf.getName() + "\"");
 					it_l.remove(i);
 					i--;
 				}
@@ -479,10 +480,11 @@ public class SVExpressionUtils {
 						scope_t.getType() != SVDBItemType.Module) {
 					scope_t = scope_t.getParent();
 				}
-				
+
 				if (scope_t != null && 
 						(scope_t.getType() == SVDBItemType.Class ||
 						scope_t.getType() == SVDBItemType.Module)) {
+					System.out.println("Removing \"" + tf.getName() + "\" from " + scope_t.getName());
 					it_l.remove(i);
 					i--;
 				}
@@ -1139,13 +1141,20 @@ public class SVExpressionUtils {
 										new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 									SVDBTypedef td = (SVDBTypedef)matches.get(0);
 									
-									fLog.debug("Lookup typename \"" + td.getTypeName() + "\"");
-									
-									List<SVDBModIfcClassDecl> cls_l = finder_c.find(td.getName());
-									
-									if (cls_l.size() > 0) {
-										matches.set(0, cls_l.get(0));
+									if (td.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
+										SVDBTypeInfoUserDef type = (SVDBTypeInfoUserDef)td.getTypeInfo();
+										fLog.debug("Lookup typename \"" + type.getName() + "\"");
+										
+										List<SVDBModIfcClassDecl> cls_l = finder_c.find(type.getName());
+										
+										if (cls_l.size() > 0) {
+											matches.set(0, cls_l.get(0));
+										}
+										
+									} else {
+										fLog.debug("Not looking up typename \"" + td.getTypeInfo().getDataType() + "\"");
 									}
+									
 								}
 
 								// If this is the first element and we didn't find a field,
@@ -1217,16 +1226,24 @@ public class SVExpressionUtils {
 						
 						List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
 						type = (cl_l.size() > 0)?cl_l.get(0):null;
-						
+
+						debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
+
 						// Didn't find anything. Try treating this as a typedef
 						if (cl_l.size() == 0) {
 							SVDBFindByName finder_n = new SVDBFindByName(index_it);
-							
+
 							List<SVDBItem> result = finder_n.find(
 									typename, SVDBItemType.Typedef);
+							debug("Searching for typedef \"" + typename + "\" -- " + result.size());
 							
-							if (result.size() > 0 && !((SVDBTypedef)result.get(0)).isEnumType()) {
-								cl_l = finder.find(((SVDBTypedef)result.get(0)).getTypeName());
+							if (result.size() > 0) {
+								SVDBTypedef td = (SVDBTypedef)result.get(0);
+								if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+									cl_l = finder.find(td.getTypeInfo().getName());
+								} else {
+									cl_l = finder.find(td.getTypeInfo().getName());
+								}
 							}
 							type = (cl_l.size() > 0)?cl_l.get(0):null;
 						}
@@ -1255,9 +1272,9 @@ public class SVExpressionUtils {
 						SVDBTypedef td = (SVDBTypedef)field;
 						SVDBFindNamedModIfcClassIfc finder = 
 							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-						debug("field is a typedef type=\"" + td.getName() + "\" typeName=\"" + td.getTypeName() + "\"");
+						debug("field is a typedef type=\"" + td.getName() + "\" typeName=\"" + td.getTypeInfo().getName() + "\"");
 						
-						List<SVDBModIfcClassDecl> cl_l = finder.find(td.getTypeName());
+						List<SVDBModIfcClassDecl> cl_l = finder.find(td.getName());
 						type = (cl_l.size() > 0)?cl_l.get(0):null;
 					} else {
 						fLog.error("Unknown scope type for \"" +

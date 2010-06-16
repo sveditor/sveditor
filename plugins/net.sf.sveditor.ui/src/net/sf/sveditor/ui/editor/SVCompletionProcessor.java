@@ -15,8 +15,10 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -25,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
@@ -136,9 +139,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					
 					// Check to see if the name matches any enum values
-					if (td.isEnumType()) {
-						for (String name : td.getEnumNames()) {
-							String name_lc = name.toLowerCase();
+					if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)td.getTypeInfo();
+						
+						for (Tuple<String, String> n : enum_t.getEnumValues()) {
+							String name = n.first();
+							String name_lc = n.first().toLowerCase();
 							if (prefix.equals("") || name_lc.startsWith(prefix_lc)) {
 								String label = td.getName() + "::" + name;
 								cp = new CompletionProposal(name,

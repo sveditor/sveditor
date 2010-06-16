@@ -94,5 +94,11 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 		
 		return ret;
 	}
+	
+	public void leaveScope() {
+		if (fScopeStack.size() > 0) {
+			fScopeStack.pop();
+		}
+	}
 
 }

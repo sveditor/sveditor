@@ -54,13 +54,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public SVDBVarDeclItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
 		
-		// The constructor doesn't load the type info 
-		SVDBItemType ti = reader.readItemType();
-		if (ti != SVDBItemType.TypeInfo) {
-			throw new DBFormatException("Expecting type TypeInfo, received " +
-					ti.toString());
-		}
-		fTypeInfo = new SVDBTypeInfo(file, parent, SVDBItemType.TypeInfo, reader);
+		fTypeInfo = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
 		fAttr = reader.readInt();
 		fArrayDim   = reader.readString();
 	}
@@ -68,7 +62,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		
-		fTypeInfo.dump(writer);
+		writer.writeSVDBItem(fTypeInfo);
 		writer.writeInt(fAttr);
 		writer.writeString(fArrayDim);
 	}

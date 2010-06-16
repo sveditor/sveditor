@@ -82,7 +82,7 @@ public class SVClassDeclParser extends SVParserBase {
 				break;
 			}
 			
-			item = parsers().SVParser().process_module_class_interface_body_item("class", id);
+			item = parsers().SVParser().process_module_class_interface_body_item("class");
 
 			// Check whether we aborted parsing the body because
 			// we found a 1st-level scope keyword

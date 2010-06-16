@@ -442,7 +442,6 @@ public class SVLexer {
 		} else if (ch == '"') {
 			int last_ch = -1;
 			// String
-			fStringBuffer.append((char)ch);
 			while ((ch = get_ch()) != -1) {
 				if (ch == '"' && last_ch != '\\') {
 					break;
@@ -454,7 +453,6 @@ public class SVLexer {
 			if (ch != '"') {
 				parseException("Unterminated string");
 			}
-			fStringBuffer.append((char)ch);
 			fIsString = true;
 
 		} else if (fOperatorSet.contains(tmp) || 
@@ -524,13 +522,15 @@ public class SVLexer {
 				if (ch == -1) {
 					parseException("unexpected EOF after \"'\"");
 				}
+				// Append the base
 				fStringBuffer.append((char)ch);
 				
 				// TODO: probably should be more selective here
 				while ((ch = get_ch()) != -1 && 
 						((ch >= '0' && ch <= '9') ||
 						 (ch >= 'a' && ch <= 'f') ||
-						 (ch >= 'A' && ch <= 'F'))) {
+						 (ch >= 'A' && ch <= 'F') ||
+						 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
 					fStringBuffer.append((char)ch);
 				}
 			} else {
@@ -552,12 +552,22 @@ public class SVLexer {
 					while ((ch = get_ch()) != -1 && 
 							((ch >= '0' && ch <= '9') ||
 							 (ch >= 'a' && ch <= 'f') ||
-							 (ch >= 'A' && ch <= 'F'))) {
+							 (ch >= 'A' && ch <= 'F') ||
+							 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
 						fStringBuffer.append((char)ch);
+					}
+				} else {
+					// Not a based number
+					while (ch != -1 && 
+							((ch >= '0' && ch <= '9') ||
+							 (ch >= 'a' && ch <= 'f') ||
+							 (ch >= 'A' && ch <= 'F') ||
+							 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
+						fStringBuffer.append((char)ch);
+						ch = get_ch();
 					}
 				}
 			}
-			
 			
 			if (ch != -1) {
 				unget_ch(ch);
@@ -566,7 +576,7 @@ public class SVLexer {
 			fIsNumber = true;
 		}
 		
-		if (fStringBuffer.length() == 0) {
+		if (fStringBuffer.length() == 0 && !fIsString) {
 			fEOF = true;
 			/*
 			if (fEnableEOFException) {

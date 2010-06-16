@@ -7,6 +7,7 @@ import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -103,7 +104,8 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			// TODO:
 		} else if (id.equals("enum")) {
-			lexer().parseException("enum type currently unsupported");
+			type = enum_type();
+			type.setName("<<ANONYMOUS>>");
 		} else if (BuiltInTypes.contains(id)) {
 			// string, chandle, etc
 			type = new SVDBTypeInfoBuiltin(id);
@@ -174,6 +176,41 @@ public class SVDataTypeParser extends SVParserBase {
 		} else {
 			return data_type(id);
 		}
+	}
+	
+	public SVDBTypeInfoEnum enum_type() throws SVParseException {
+		SVDBTypeInfoEnum type = new SVDBTypeInfoEnum("");
+		boolean vals_specified = false;
+		String val_str = null;
+		int index = 0;
+		
+		// TODO: scan base type
+		if (!lexer().peekOperator("{")) {
+			data_type(lexer().eatToken());
+		}
+		
+		lexer().readOperator("{");
+		while (lexer().peek() != null) {
+			String name = lexer().readId();
+			if (lexer().peekOperator("[")) {
+				lexer().skipPastMatch("[", "]");
+			}
+			if (lexer().peekOperator("=")) {
+				lexer().eatToken();
+				val_str = parsers().SVParser().readExpression();
+				vals_specified = true;
+			}
+			type.addEnumValue(name, ((vals_specified)?""+index:val_str));
+			
+			if (lexer().peekOperator(",")) {
+				lexer().eatToken();
+			} else {
+				break;
+			}
+		}
+		lexer().readOperator("}");
+		
+		return type;
 	}
 
 }

@@ -85,8 +85,8 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
-		assertNotNull("Check found vmm_xtor", vmm_xtor);
 		assertNotNull("Check found vmm_error", vmm_err);
+		assertNotNull("Check found vmm_xactor", vmm_xtor);
 	}
 
 }

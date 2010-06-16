@@ -21,6 +21,8 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -68,6 +70,21 @@ public class TestBuiltinIndex extends TestCase {
 		
 		while (index_it.hasNext()) {
 			SVDBItem it = index_it.nextItem();
+			
+			if (it.getType() != SVDBItemType.File) {
+				assertNotNull("Item " + it.getName() + " has null location",
+						it.getLocation());
+				if (it instanceof SVDBScopeItem) {
+					assertNotNull("Item " + it.getName() + " has null end location",
+							((SVDBScopeItem)it).getEndLocation());
+				}
+			}
+			
+			if (it.getType() == SVDBItemType.VarDecl) {
+				assertNotNull("Item " + it.getName() + " w/parent " + 
+						it.getParent().getName() + " has null type",
+					((SVDBVarDeclItem)it).getTypeInfo());
+			}
 			
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);

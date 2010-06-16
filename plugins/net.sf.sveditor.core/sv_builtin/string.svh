@@ -53,7 +53,6 @@ __sv_builtin class string;
     
 	/****************************************************************
 	 * icompare()
-	 
 	 * Compare string 's' to this string in a case-insensitive manner
 	 ****************************************************************/
 	extern function int icompare(string s);

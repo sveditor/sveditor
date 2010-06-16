@@ -14,8 +14,11 @@ package net.sf.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -36,11 +39,20 @@ public class SVDBIndexValueProvider implements IValueProvider {
 			
 			if (it.getType() == SVDBItemType.Typedef) {
 				SVDBTypedef typedef = (SVDBTypedef)it;
-				if (typedef.isEnumType() && 
-						typedef.getEnumNames().contains(name)) {
-					return BigInteger.valueOf(
-							typedef.getEnumVals().get(
-									typedef.getEnumNames().indexOf(name)).longValue());
+				if (typedef.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+					SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)typedef.getTypeInfo();
+				
+					for (Tuple<String, String> n : enum_t.getEnumValues()) {
+						if (n.first().equals(name)) {
+							long lv = -1;
+							// TODO: parse ? 
+							try {
+								lv = Long.parseLong(n.second());
+							} catch (NumberFormatException e) {}
+							
+							return BigInteger.valueOf(lv);
+						}
+					}
 				}
 			}
 		}

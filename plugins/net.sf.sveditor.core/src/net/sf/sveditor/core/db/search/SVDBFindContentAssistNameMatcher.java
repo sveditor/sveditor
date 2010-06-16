@@ -12,8 +12,12 @@
 
 package net.sf.sveditor.core.db.search;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 
 public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
@@ -25,11 +29,13 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 
 			if (name.equals("") || it_lower.startsWith(n_lower)) {
 				return true;
-			} else if (it.getType() == SVDBItemType.Typedef && ((SVDBTypedef)it).isEnumType()) {
+			} else if (it.getType() == SVDBItemType.Typedef && 
+					((SVDBTypedef)it).getTypeInfo().getDataType() == SVDBDataType.Enum) {
 				SVDBTypedef td = (SVDBTypedef)it;
+				SVDBTypeInfoEnum ti = (SVDBTypeInfoEnum)td.getTypeInfo();
 				
-				for (String n : td.getEnumNames()) {
-					it_lower = n.toLowerCase();
+				for (Tuple<String, String> n : ti.getEnumValues()) {
+					it_lower = n.first().toLowerCase();
 					if (name.equals("") || it_lower.startsWith(n_lower)) {
 						return true;
 					}

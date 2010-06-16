@@ -55,21 +55,20 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		super(file, parent, type, reader);
 		fParams     = (List<SVDBTaskFuncParam>)reader.readItemList(file, this);
 		fAttr       = reader.readInt();
-		SVDBItemType it = reader.readItemType();
-		
-		
-		if (it != SVDBItemType.TypeInfo) {
-			throw new DBFormatException("Bad item type \"" + it + "\": expecting TypeInfo");
+		if (getType() == SVDBItemType.Function) {
+			fRetType    = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
+		} else {
+			fRetType    = null;
 		}
-		
-		fRetType	= new SVDBTypeInfo(file, this, it, reader);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeItemList(fParams);
 		writer.writeInt(fAttr);
-		fRetType.dump(writer);
+		if (getType() == SVDBItemType.Function) {
+			writer.writeSVDBItem(fRetType);
+		}
 	}
 	
 	public void setAttr(int attr) {

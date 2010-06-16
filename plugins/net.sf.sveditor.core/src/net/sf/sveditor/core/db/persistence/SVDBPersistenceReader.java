@@ -442,7 +442,9 @@ public class SVDBPersistenceReader implements IDBReader {
 		
 		SVDBItemType type   = readItemType();
 		
-		if (fSVDBFactoryMap.containsKey(type)) {
+		if (type == SVDBItemType.NULL) {
+			return null;
+		} else if (fSVDBFactoryMap.containsKey(type)) {
 			ret = fSVDBFactoryMap.get(type).readSVDBItem(this, type, file, parent);
 		} else {
 			throw new DBFormatException("Unsupported SVDBItemType " + type);

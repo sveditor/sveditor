@@ -86,4 +86,11 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 		return ret;
 	}
 	
+	public void leaveScope() {
+		if (hasNext()) {
+			if (fIndexIterator != null) {
+				fIndexIterator.leaveScope();
+			}
+		}
+	}
 }

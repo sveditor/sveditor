@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db;
 
 public enum SVDBItemType {
+	NULL,
 	File,
 	Module,
 	Class,

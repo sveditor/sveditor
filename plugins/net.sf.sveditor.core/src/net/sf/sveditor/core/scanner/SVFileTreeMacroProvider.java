@@ -32,6 +32,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	private boolean							fFirstSearch;
 	private int								fLastLineno;
 	private LogHandle						fLog;
+	private static final boolean			fDebugEn = false;
 	
 	public SVFileTreeMacroProvider(SVDBFileTree context) {
 		fLog = LogFactory.getLogHandle("SVFileTreeMacroProvider");
@@ -80,7 +81,9 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	
 	private void collectParentFileMacros() {
 		List<SVDBFileTree> file_list = new ArrayList<SVDBFileTree>();
-		fLog.debug("collectParentFileMacros()");
+		if (fDebugEn) {
+			fLog.debug("collectParentFileMacros()");
+		}
 		
 		SVDBFileTree ib = fContext;
 		file_list.add(ib);
@@ -92,13 +95,17 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		for (int i=file_list.size()-1; i>0; i--) {
 			SVDBFile this_file = file_list.get(i).getSVDBFile();
 			SVDBFile next_file = file_list.get(i-1).getSVDBFile();
-			fLog.enter("--> Processing file \"" + this_file.getName() + 
-					"\" (next " + next_file.getName() + ")");
+			if (fDebugEn) {
+				fLog.enter("--> Processing file \"" + this_file.getName() + 
+						"\" (next " + next_file.getName() + ")");
+			}
 			
 			collectMacroDefs(file_list.get(i), this_file, next_file);
 			
-			fLog.leave("<-- Processing file \"" + this_file.getName() + 
-					"\" (next " + next_file.getName() + ")");
+			if (fDebugEn) {
+				fLog.leave("<-- Processing file \"" + this_file.getName() + 
+						"\" (next " + next_file.getName() + ")");
+			}
 		}
 	}
 	
@@ -135,8 +142,10 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 						}
 					} else {
 						fLog.error("Failed to find \"" + it.getName() + "\" in file-tree");
-						for (SVDBFileTree inc_t : file.getIncludedFiles()) {
-							fLog.debug("    " + inc_t.getFilePath());
+						if (fDebugEn) {
+							for (SVDBFileTree inc_t : file.getIncludedFiles()) {
+								fLog.debug("    " + inc_t.getFilePath());
+							}
 						}
 					}
 				}
@@ -167,14 +176,20 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					return false;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
-				fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName());
+				if (fDebugEn) {
+					fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName());
+				}
 				addMacro((SVDBMacroDef)it);
 			} else if (it.getType() == SVDBItemType.Include) {
 				// Look for the included file
-				fLog.debug("Looking for include \"" + it.getName() + "\" in FileTree " + context.getFilePath());
+				if (fDebugEn) {
+					fLog.debug("Looking for include \"" + it.getName() + "\" in FileTree " + context.getFilePath());
+				}
 				SVDBFileTree inc = null;
 				for (SVDBFileTree inc_t : context.getIncludedFiles()) {
-					fLog.debug("    Checking file \"" + inc_t.getFilePath() + "\"");
+					if (fDebugEn) {
+						fLog.debug("    Checking file \"" + inc_t.getFilePath() + "\"");
+					}
 					if (inc_t.getFilePath().endsWith(it.getName())) {
 						inc = inc_t;
 						break;
@@ -186,12 +201,16 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 						// Collect all macros
 						collectThisFileMacros(inc, inc.getSVDBFile(), -1);
 					} else {
-						fLog.debug("Include file \"" + inc.getFilePath() + "\" missing");
+						if (fDebugEn) {
+							fLog.debug("Include file \"" + inc.getFilePath() + "\" missing");
+						}
 					}
 				} else {
 					fLog.error("Failed to find \"" + it.getName() + "\" in this-file-tree");
-					for (SVDBFileTree inc_t : context.getIncludedFiles()) {
-						fLog.debug("    " + inc_t.getFilePath());
+					if (fDebugEn) {
+						for (SVDBFileTree inc_t : context.getIncludedFiles()) {
+							fLog.debug("    " + inc_t.getFilePath());
+						}
 					}
 				}
 			}

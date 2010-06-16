@@ -14,8 +14,23 @@ package net.sf.sveditor.core.db.index;
 
 public interface ISVDBItemIterator<T> {
 	
+	/**
+	 * Indicates whether more items exist
+	 * 
+	 * @return
+	 */
 	boolean hasNext();
 	
+	/**
+	 * Returns the next item from the iterator
+	 * 
+	 * @return
+	 */
 	T nextItem();
+	
+	/**
+	 * Leaves the active scope (File, Class, Module, etc)
+	 */
+	void leaveScope();
 
 }

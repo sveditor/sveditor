@@ -1,7 +1,7 @@
 
 
 class __sv_builtin_covergroup_options;
-//	int 	weight;
+	int 	weight;
 	
 	real 	goal;
 	
@@ -33,7 +33,7 @@ class __sv_builtin_covergroup;
 	
 	extern function real get_inst_coverage();
 	
-	extern function void set_inst_name(string);
+	extern function void set_inst_name(string name);
 
 	extern function void start();
 

@@ -316,6 +316,7 @@ public class ContentAssistBasics extends TestCase {
 			"        cl1 = new<<MARK>>\n" +
 			"    endfunction\n" +
 			"endclass\n";
+		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -344,6 +345,21 @@ public class ContentAssistBasics extends TestCase {
 			new_f = (SVDBTaskFuncScope)proposals.get(1).getItem();
 			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
 		}
+		
+		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + new_f.getParent().getName());
+
+		/*
+		ISVDBItemIterator<SVDBItem> index_it = fIndexCollectionOVMMgr.getItemIterator();
+		
+		SVDBItem myclass_1 = null;
+		while (index_it.hasNext()) {
+			SVDBItem it_t = index_it.nextItem();
+			if (it_t.getName().equals("myclass_1")) {
+				myclass_1 = it_t;
+			}
+		}
+		assertNotNull("Failed to find object for myclass_1", myclass_1);
+		 */
 		
 		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
 		assertEquals("Expect field name to be 'new_field'", "new_field", new_field.getName());

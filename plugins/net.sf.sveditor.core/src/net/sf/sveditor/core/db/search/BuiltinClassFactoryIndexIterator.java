@@ -79,6 +79,10 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 			
 			return it;
 		}
+		
+		public void leaveScope() {
+			fIterator.leaveScope();
+		}
 	}
 
 	public ISVDBItemIterator<SVDBItem> getItemIterator() {

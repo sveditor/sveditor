@@ -46,6 +46,7 @@ import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -569,14 +570,15 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		SVDBTypedef typedef;
 		
 		if (typeInfo.fEnumType) {
-			typedef = new SVDBTypedef(typeName);
+			SVDBTypeInfoEnum type = new SVDBTypeInfoEnum(typeName);
 			
 			for (SVEnumVal v : typeInfo.fEnumVals) {
-				typedef.getEnumNames().add(v.fName);
-				typedef.getEnumVals().add((int)v.fVal);
+				type.addEnumValue(v.fName, "" + v.fVal);
 			}
+			typedef = new SVDBTypedef(type, typeName);
 		} else {
-			typedef = new SVDBTypedef(typeInfo.fTypeName, typeName);
+			SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(typeInfo.fTypeName);
+			typedef = new SVDBTypedef(type, typeName);
 		}
 		
 		if (fScopeStack.size() > 0) {

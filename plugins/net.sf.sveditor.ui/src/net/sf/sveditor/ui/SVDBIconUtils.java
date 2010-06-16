@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypedef;
@@ -92,7 +93,7 @@ public class SVDBIconUtils implements ISVIcons {
 			} else if (it.getType() == SVDBItemType.Typedef) {
 				SVDBTypedef td = (SVDBTypedef)it;
 				
-				if (td.isEnumType()) {
+				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
 					return SVUiPlugin.getImage(ENUM_TYPE_OBJ);
 				} else {
 					return SVUiPlugin.getImage(TYPEDEF_TYPE_OBJ);

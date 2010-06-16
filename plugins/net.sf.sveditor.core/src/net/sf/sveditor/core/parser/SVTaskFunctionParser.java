@@ -102,7 +102,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
 				(qualifiers & (SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) !=
-					(SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) {
+					(SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual) &&
+				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
 			// Parse the body
 			parsers().tfBodyParser().parse(func, is_ansi);
 			

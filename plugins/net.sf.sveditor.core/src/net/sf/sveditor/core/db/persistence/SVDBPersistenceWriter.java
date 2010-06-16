@@ -73,6 +73,14 @@ public class SVDBPersistenceWriter implements IDBWriter {
 			}
 		}
 	}
+	
+	public void writeSVDBItem(SVDBItem item) {
+		if (item == null) {
+			writeItemType(SVDBItemType.NULL);
+		} else {
+			item.dump(this);
+		}
+	}
 
 	public void writeItemType(SVDBItemType type) {
 		writeRawString("IT<" + type.toString() + ">");
