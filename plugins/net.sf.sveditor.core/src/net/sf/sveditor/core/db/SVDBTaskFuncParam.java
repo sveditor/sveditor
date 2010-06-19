@@ -19,12 +19,12 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTaskFuncParam extends SVDBVarDeclItem {
-	public static final int			Direction_Input  = (1 << 0);
-	public static final int			Direction_Output = (1 << 1);
-	public static final int			Direction_Inout  = (1 << 2);
-	public static final int			Direction_Ref    = (1 << 4);
-	public static final int			Direction_Const  = (1 << 5);
-	public static final int			Direction_Var    = (1 << 6);
+	public static final int			Direction_Input  = (1 << 16);
+	public static final int			Direction_Output = (1 << 17);
+	public static final int			Direction_Inout  = (1 << 18);
+	public static final int			Direction_Ref    = (1 << 19);
+	public static final int			Direction_Const  = (1 << 20);
+	public static final int			Direction_Var    = (1 << 21);
 	private int						fDir;
 	
 	public static void init() {

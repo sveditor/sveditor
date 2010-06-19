@@ -18,13 +18,12 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.srcgen.MethodGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -127,6 +126,7 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 		
 		try {
 			StringBuilder new_tf = new StringBuilder();
+			MethodGenerator gen = new MethodGenerator();
 			
 			// Add a little white-space at the top
 			new_tf.append("\n\n");
@@ -135,41 +135,7 @@ public class OverrideTaskFuncAction extends TextEditorAction {
 				if (obj instanceof SVDBTaskFuncScope) {
 					SVDBTaskFuncScope tf = (SVDBTaskFuncScope)obj;
 					
-					if (tf.getType() == SVDBItemType.Function) {
-						new_tf.append("    function ");
-						new_tf.append(tf.getReturnType());
-						new_tf.append(" ");
-					} else {
-						new_tf.append("    task ");
-					}
-					
-					new_tf.append(tf.getName());
-					new_tf.append("(");
-					
-					for (int i=0; i<tf.getParams().size(); i++) {
-						SVDBTaskFuncParam p = tf.getParams().get(i);
-						SVDBTypeInfo ti = p.getTypeInfo();
-						
-						new_tf.append(p.getTypeName());
-						new_tf.append(" ");
-						new_tf.append(p.getName());
-						
-						if (i+1 < tf.getParams().size()) {
-							new_tf.append(", ");
-						}
-					}
-					
-					new_tf.append(");\n");
-					
-					new_tf.append("\n");
-					
-					if (tf.getType() == SVDBItemType.Function) {
-						new_tf.append("    endfunction\n");
-					} else {
-						new_tf.append("    endtask\n");
-					}
-					
-					new_tf.append("\n");
+					new_tf.append(gen.generate(tf));
 				}
 			}
 			

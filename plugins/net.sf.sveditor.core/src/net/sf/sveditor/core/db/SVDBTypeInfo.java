@@ -36,7 +36,6 @@ public class SVDBTypeInfo extends SVDBItem {
 	
 	public SVDBTypeInfo(String typename, SVDBDataType data_type) {
 		super(typename, SVDBItemType.TypeInfo);
-		fDataType = SVDBDataType.BuiltIn;
 		fDataType = data_type;
 	}
 
@@ -63,5 +62,5 @@ public class SVDBTypeInfo extends SVDBItem {
 		SVDBTypeInfo other_t = (SVDBTypeInfo)other;
 		fDataType = other_t.fDataType;
 	}
-
+	
 }

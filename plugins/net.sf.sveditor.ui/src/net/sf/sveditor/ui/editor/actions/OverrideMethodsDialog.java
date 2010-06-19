@@ -12,16 +12,11 @@
 
 package net.sf.sveditor.ui.editor.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -94,40 +89,23 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	 */
 	
 	private static class OverrideMethodsContentProvider implements ITreeContentProvider {
-		private SVDBModIfcClassDecl				fLeafClass;
-		private ISVDBIndexIterator				fIndexIterator;
 		private Object							fEmptyList[] = new Object[0];
+		OverrideMethodsFinder					fMethodsFinder;
 		
 		public OverrideMethodsContentProvider(
 				SVDBModIfcClassDecl			leaf_class,
 				ISVDBIndexIterator			index_it) {
-			fLeafClass 		= leaf_class;
-			fIndexIterator 	= index_it;
+			fMethodsFinder = new OverrideMethodsFinder(leaf_class, index_it);
 		}
 		
 		
 		public Object[] getElements(Object inputElement) {
-			List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
-
-			SVDBModIfcClassDecl cl = fLeafClass;
-			SVDBFindSuperClass  finder_super = new SVDBFindSuperClass(
-					fIndexIterator, SVDBFindDefaultNameMatcher.getDefault());
-
-			while (cl != null) {
-				
-				cl = finder_super.find(cl);
-				
-				if (cl != null && classHasOverrideTargets(cl)) {
-					ret.add(cl);
-				}
-			}
-
-			return ret.toArray();
+			return fMethodsFinder.getClassSet().toArray();
 		}
 
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof SVDBModIfcClassDecl) {
-				return getClassOverrideTargets(
+				return fMethodsFinder.getMethods(
 						(SVDBModIfcClassDecl)parentElement).toArray();
 			} else {
 				return fEmptyList;
@@ -141,40 +119,6 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		public boolean hasChildren(Object element) {
 			return (getChildren(element).length > 0);
 		}
-
-		private boolean classHasOverrideTargets(SVDBModIfcClassDecl cls) {
-			return getClassOverrideTargets(cls).size() > 0;
-		}
-		
-		private List<SVDBItem> getClassOverrideTargets(SVDBModIfcClassDecl cls) {
-			List<SVDBItem> ret = new ArrayList<SVDBItem>();
-			
-			for (SVDBItem it : cls.getItems()) {
-				if (it.getType() == SVDBItemType.Function ||
-						it.getType() == SVDBItemType.Task) {
-					SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
-					if ((tf.getAttr() & SVDBTaskFuncScope.FieldAttr_Local) == 0) {
-						if (!existsInClass(it, fLeafClass)) {
-							ret.add(it);
-						}
-					}
-				}
-			}
-			
-			return ret;
-		}
-		
-		private boolean existsInClass(SVDBItem it, SVDBModIfcClassDecl cls) {
-			
-			for (SVDBItem it_t : cls.getItems()) {
-				if (it_t.getName().equals(it.getName())) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-
 
 		public void dispose() {}
 

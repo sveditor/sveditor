@@ -72,6 +72,17 @@ public class Activator extends Plugin {
 		
 		return in;
 	}
+	
+	public static String readStream(InputStream in) throws IOException {
+		StringBuilder ret = new StringBuilder();
+		int ch;
+		
+		while ((ch = in.read()) != -1) {
+			ret.append((char)ch);
+		}
+		
+		return ret.toString();
+	}
 
 	/**
 	 * Returns the shared instance

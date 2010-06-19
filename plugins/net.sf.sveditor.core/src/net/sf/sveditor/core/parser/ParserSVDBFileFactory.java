@@ -1158,14 +1158,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO
 		fTaskFuncParamQualifiers.put("virtual",
-				ISVScannerObserver.ParamAttr_Virtual);
+				SVDBTaskFuncParam.FieldAttr_Virtual);
 		fTaskFuncParamQualifiers.put("input",
-				ISVScannerObserver.ParamAttr_Input);
+				SVDBTaskFuncParam.Direction_Input);
 		fTaskFuncParamQualifiers.put("output",
-				ISVScannerObserver.ParamAttr_Output);
+				SVDBTaskFuncParam.Direction_Output);
 		fTaskFuncParamQualifiers.put("inout",
-				ISVScannerObserver.ParamAttr_Inout);
-		fTaskFuncParamQualifiers.put("ref", ISVScannerObserver.ParamAttr_Ref);
+				SVDBTaskFuncParam.Direction_Inout);
+		fTaskFuncParamQualifiers.put("ref", SVDBTaskFuncParam.Direction_Ref);
+		fTaskFuncParamQualifiers.put("var", SVDBTaskFuncParam.Direction_Var);
 	}
 
 	private boolean isFieldQualifier(String id) {
@@ -1827,7 +1828,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void leave_class_decl() throws HaltScanException {
 		if (fScopeStack.size() > 0
 				&& fScopeStack.peek().getType() == SVDBItemType.Class) {
-			setEndLocation(fScopeStack.peek());
+//			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
 	}

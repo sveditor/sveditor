@@ -26,5 +26,15 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public void setVectorDim(String dim) {
 		fVectorDim = dim;
 	}
+	
+	public String toString() {
+		String ret = getName();
+		
+		if ((getAttr() & TypeAttr_Unsigned) != 0) {
+			ret += " unsigned";
+		}
+		
+		return ret;
+	}
 
 }

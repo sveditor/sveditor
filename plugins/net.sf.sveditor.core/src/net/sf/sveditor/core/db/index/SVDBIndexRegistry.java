@@ -70,10 +70,14 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	public void init(File state_location) {
 		fProjectIndexMap.clear();
 		fDatabaseDescMap.clear();
-		fDatabaseDir = new File(state_location, "db");
-		fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
-		
-		load_database_descriptors();
+		if (state_location != null) {
+			fDatabaseDir = new File(state_location, "db");
+			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+
+			load_database_descriptors();
+		} else {
+			fDatabaseDir = null;
+		}
 
 		/*
 		// Ensure the global index has access to the built-in types
@@ -237,7 +241,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	private void load_database_descriptors() {
-		if (fDatabaseDir.exists()) {
+		if (fDatabaseDir != null && fDatabaseDir.exists()) {
 			SVDBLoad loader = new SVDBLoad();
 			
 			for (File d : fDatabaseDir.listFiles()) {
@@ -303,6 +307,11 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	private void save_state(String proj_name, List<ISVDBIndex> index_list) {
 		SVDBDump dumper = new SVDBDump();
 		List<SVDBPersistenceDescriptor>		db_list = fDatabaseDescMap.get(proj_name);
+		
+		if (fDatabaseDir == null) {
+			fLog.debug("not saving state");
+			return;
+		}
 		
 		if (!fDatabaseDir.exists()) {
 			if (!fDatabaseDir.mkdirs()) {

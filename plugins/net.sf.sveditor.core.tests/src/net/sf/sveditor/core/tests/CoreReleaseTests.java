@@ -22,6 +22,7 @@ import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
+import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 
 public class CoreReleaseTests extends TestSuite {
 	
@@ -33,6 +34,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());
 		addTest(IndexTests.suite());
+		addTest(SrcGenTests.suite());
 	}
 	
 	@Override

@@ -93,15 +93,14 @@ public class SVClassDeclParser extends SVParserBase {
 			// TODO: normally we'd add this item to the class, but that's already being done
 		}
 
-		if (lexer().peekKeyword("endclass")) {
-			lexer().eatToken();
-			// endclass : classname
-			if (lexer().peekOperator(":")) { 
-				lexer().eatToken();
-				lexer().readId();
-			}
-		}
 		cls.setEndLocation(lexer().getStartLocation());
+		lexer().readKeyword("endclass");
+
+		// endclass : classname
+		if (lexer().peekOperator(":")) { 
+			lexer().eatToken();
+			lexer().readId();
+		}
 		
 		// TODO: remove this later
 		parsers().SVParser().handle_leave_scope();

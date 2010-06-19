@@ -68,7 +68,7 @@ public class NewClassGenerator {
 		if (superclass_decl != null) {
 			if (superclass_decl.getParameters() != null && 
 					superclass_decl.getParameters().size() > 0) {
-				template += "#(";
+				template += " #(";
 				List<SVDBModIfcClassParam> params = superclass_decl.getParameters(); 
 				for (int i=0; i<params.size(); i++) {
 					template += params.get(i).getName();

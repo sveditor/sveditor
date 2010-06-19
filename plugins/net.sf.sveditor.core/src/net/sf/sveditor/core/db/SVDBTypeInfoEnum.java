@@ -20,5 +20,9 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	public void addEnumValue(String name, String value) {
 		fEnumList.add(new Tuple<String, String>(name, value));
 	}
+	
+	public String toString() {
+		return getName();
+	}
 
 }
