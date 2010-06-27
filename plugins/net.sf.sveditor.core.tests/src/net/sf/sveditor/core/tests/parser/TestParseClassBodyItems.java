@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -201,5 +202,56 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)foobar_td.getTypeInfo();
 		assertEquals("foobar_t doesn't have correct number of elements",
 				2, enum_t.getEnumValues().size());
+	}
+	
+	public void testCovergroup() {
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"\n" +
+			"    int a, b, c;\n" +
+			"\n" +
+			"    covergroup cg;\n" +
+			"        a_cp : a;\n" +
+			"        b_cp : b {\n" +
+			"            bins b[] = {[2:10]};\n" +
+			"        }\n" +
+			"        a_b_cross : cross a_cp, b_cp;\n" +
+			"    endgroup\n" +
+			"\n" +
+			"    covergroup cg2;\n" +
+			"        a_cp : a;\n" +
+			"        b_cp : b {\n" +
+			"            bins b[] = {[2:10]};\n" +
+			"        }\n" +
+			"        a_b_cross : cross a_cp, b_cp;\n" +
+			"    endgroup\n" +
+			"\n" +
+			"endclass\n"
+			;
+
+		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		
+		SVDBModIfcClassDecl foobar = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("foobar")) {
+				foobar = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull(foobar);
+
+		SVDBCoverGroup cg = null, cg2 = null;
+		for (SVDBItem it : foobar.getItems()) {
+			if (it.getName().equals("cg")) {
+				cg = (SVDBCoverGroup)it;
+			} else if (it.getName().equals("cg2")) {
+				cg2 = (SVDBCoverGroup)it;
+			}
+		}
+		
+		assertNotNull(cg);
+		assertNotNull(cg2);
 	}
 }

@@ -85,6 +85,8 @@ public class SVDBFindVarsByNameInScopes {
 			context = context.getParent();
 		}
 		
+		// If the initial scope is in a class, then search the class
+		// hierarchy
 		if (ret.size() == 0 || !stop_on_first_match) {
 			context = context_save;
 			while (context != null && 

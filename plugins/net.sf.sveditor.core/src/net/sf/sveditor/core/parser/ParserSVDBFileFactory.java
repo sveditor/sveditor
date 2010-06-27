@@ -432,6 +432,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				}
 			}
 		}
+		
+		lexer().readKeyword("endgroup");
+		if (lexer().peekOperator(":")) {
+			lexer().readId(); // labeled group
+		}
 
 		handle_leave_scope();
 	}
@@ -1119,20 +1124,29 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		// typedef <type> <name>;
 
 		// SVTypeInfo type = readTypeName(false);
+		SVDBLocation start = lexer().getStartLocation();
 		lexer().readKeyword("typedef");
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(lexer().eatToken());
 		
-		if (lexer().peekId()) {
+		System.out.println("post-typedef: " + lexer().peek());
+
+		while (lexer().peek() != null) {
 			String id = lexer().readId();
 
-			// FIXME: SVDBTypedef should use SVDBTypeInfo object
 			SVDBTypedef typedef = new SVDBTypedef(type, id);
 
 			if (fScopeStack.size() > 0) {
-				setLocation(typedef);
+				typedef.setLocation(start);
 				fScopeStack.peek().addItem(typedef);
 			}
+			
+			if (lexer().peekOperator(",")) {
+				lexer().eatToken();
+			} else {
+				break;
+			}
 		}
+		lexer().readOperator(";");
 	}
 
 	static private final Map<String, Integer> fFieldQualifers;
@@ -1409,7 +1423,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				||
 				// virtual interface is a valid field
 				(id.equals("interface") && (modifiers & ISVScannerObserver.FieldAttr_Virtual) == 0)
-				|| id.equals("struct") || id.equals("module"));
+				|| id.equals("module"));
 	}
 
 	public static boolean isSecondLevelScope(String id) {

@@ -115,7 +115,6 @@ public class SVExprParser extends SVParserBase {
 
 		try {
 			SVExpr expr;
-			fLexer.enableEOFException(false);
 			
 			while (peek() != null && !peek().equals("")) {
 				debug("top of while: peek=" + peek());

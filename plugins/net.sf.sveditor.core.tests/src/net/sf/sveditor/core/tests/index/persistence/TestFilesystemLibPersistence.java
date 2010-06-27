@@ -95,6 +95,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		// Now, reset the registry
 		rgy.init(project_dir);
 		
+		System.out.println("*** SLEEPING");
 		// Sleep to ensure that the timestamp is different
 		try {
 			Thread.sleep(2000);

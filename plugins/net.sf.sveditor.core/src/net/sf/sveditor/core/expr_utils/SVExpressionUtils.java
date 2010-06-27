@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -45,6 +46,7 @@ import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBPackageItemFinder;
+import net.sf.sveditor.core.db.search.SVDBStructFieldFinder;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
@@ -385,6 +387,13 @@ public class SVExpressionUtils {
 				SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
 						index_it, fNameMatcher);
 				ret.addAll(finder_p.find((SVDBPackageDecl)it_t, leaf));
+			} else if (it_t.getType() == SVDBItemType.TypeInfo) {
+				SVDBTypeInfo ti = (SVDBTypeInfo)it_t;
+				if (ti.getDataType() == SVDBDataType.Struct) {
+					SVDBTypeInfoStruct struct = (SVDBTypeInfoStruct)ti;
+					SVDBStructFieldFinder finder = new SVDBStructFieldFinder(fNameMatcher);
+					ret.addAll(finder.find(struct, leaf));
+				}
 			} else {
 				fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
 			}
@@ -1080,8 +1089,8 @@ public class SVExpressionUtils {
 								
 								matches = finder.find(context, id, true);
 								
-								fLog.debug("FindVarsByNameInScope \"" + context.getName() + 
-										"\" returns " + matches.size() + " matches");
+								fLog.debug("FindVarsByNameInScope \"" + id + "\" in scope \"" + 
+										context.getName() + "\" returns " + matches.size() + " matches");
 
 								if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.VarDecl) {
 									SVDBVarDeclItem var_decl = (SVDBVarDeclItem)matches.get(0);
@@ -1217,65 +1226,81 @@ public class SVExpressionUtils {
 							(field instanceof SVDBTaskFuncParam)) {
 						SVDBFindNamedModIfcClassIfc finder = 
 							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-						String typename;
-						if (field instanceof SVDBVarDeclItem) {
-							typename = ((SVDBVarDeclItem)field).getTypeName();
+						if (((SVDBVarDeclItem)field).getTypeInfo().getDataType() == SVDBDataType.Struct) {
+							type = ((SVDBVarDeclItem)field).getTypeInfo();
 						} else {
-							typename = ((SVDBTaskFuncParam)field).getTypeName();
-						}
-						
-						List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
-						type = (cl_l.size() > 0)?cl_l.get(0):null;
-
-						debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
-
-						// Didn't find anything. Try treating this as a typedef
-						if (cl_l.size() == 0) {
-							SVDBFindByName finder_n = new SVDBFindByName(index_it);
-
-							List<SVDBItem> result = finder_n.find(
-									typename, SVDBItemType.Typedef);
-							debug("Searching for typedef \"" + typename + "\" -- " + result.size());
+							String typename;
+							List<SVDBModIfcClassDecl> cl_l = null;
+							if (field instanceof SVDBVarDeclItem) {
+								typename = ((SVDBVarDeclItem)field).getTypeName();
+							} else {
+								typename = ((SVDBTaskFuncParam)field).getTypeName();
+							}
 							
-							if (result.size() > 0) {
-								SVDBTypedef td = (SVDBTypedef)result.get(0);
-								if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
-									cl_l = finder.find(td.getTypeInfo().getName());
+							cl_l = finder.find(typename);
+							type = (cl_l.size() > 0)?cl_l.get(0):null;
+
+							debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
+
+							// Didn't find anything. Try treating this as a typedef
+							if (cl_l.size() == 0) {
+								SVDBFindByName finder_n = new SVDBFindByName(index_it);
+
+								List<SVDBItem> result = finder_n.find(
+										typename, SVDBItemType.Typedef);
+								debug("Searching for typedef \"" + typename + "\" -- " + result.size());
+								
+								if (result.size() > 0) {
+									SVDBTypedef td = (SVDBTypedef)result.get(0);
+									debug("    typedef DataType=" + td.getTypeInfo().getDataType());
+									if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+										cl_l = finder.find(td.getTypeInfo().getName());
+										type = (cl_l.size() > 0)?cl_l.get(0):null;
+									} else if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
+										type = td.getTypeInfo();
+									} else { // user-defined
+										cl_l = finder.find(td.getTypeInfo().getName());
+										type = (cl_l.size() > 0)?cl_l.get(0):null;
+									}
 								} else {
-									cl_l = finder.find(td.getTypeInfo().getName());
+									type = null;
 								}
 							}
-							type = (cl_l.size() > 0)?cl_l.get(0):null;
-						}
-						
-						// Didn't find anything. Look at parameters in the class
-						if (cl_l.size() == 0) {
-							SVDBItem field_p = field.getParent();
-							while (field_p != null && field_p.getType() != SVDBItemType.Class) {
-								field_p = field_p.getParent();
-							}
 							
-							if (field_p != null) {
-								SVDBModIfcClassDecl c_decl = (SVDBModIfcClassDecl)field_p;
-								for (SVDBModIfcClassParam p : c_decl.getParameters()) {
-									System.out.println("param \"" + p.getName() + "\" \"" + p.getDefault() + "\"");
-									
-									if (p.getName().equals(typename)) {
-										cl_l = finder.find(p.getDefault());										
+							// Didn't find anything. Look at parameters in the class
+							if (type == null && cl_l.size() == 0) {
+								SVDBItem field_p = field.getParent();
+								while (field_p != null && field_p.getType() != SVDBItemType.Class) {
+									field_p = field_p.getParent();
+								}
+								
+								if (field_p != null) {
+									SVDBModIfcClassDecl c_decl = (SVDBModIfcClassDecl)field_p;
+									for (SVDBModIfcClassParam p : c_decl.getParameters()) {
+										System.out.println("param \"" + p.getName() + "\" \"" + p.getDefault() + "\"");
+										
+										if (p.getName().equals(typename)) {
+											cl_l = finder.find(p.getDefault());										
+										}
 									}
 								}
+								
+								type = (cl_l.size() > 0)?cl_l.get(0):null;
 							}
-							
-							type = (cl_l.size() > 0)?cl_l.get(0):null;
 						}
+						
 					} else if (field instanceof SVDBTypedef) {
 						SVDBTypedef td = (SVDBTypedef)field;
-						SVDBFindNamedModIfcClassIfc finder = 
-							new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-						debug("field is a typedef type=\"" + td.getName() + "\" typeName=\"" + td.getTypeInfo().getName() + "\"");
-						
-						List<SVDBModIfcClassDecl> cl_l = finder.find(td.getName());
-						type = (cl_l.size() > 0)?cl_l.get(0):null;
+						if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
+							type = td.getTypeInfo();
+						} else if (td.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
+							SVDBFindNamedModIfcClassIfc finder = 
+								new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
+							debug("field is a user-defined type=\"" + td.getName() + "\" typeName=\"" + td.getTypeInfo().getName() + "\"");
+
+							List<SVDBModIfcClassDecl> cl_l = finder.find(td.getName());
+							type = (cl_l.size() > 0)?cl_l.get(0):null;
+						}
 					} else {
 						fLog.error("Unknown scope type for \"" +
 								field.getName() + "\" " + field.getClass().getName());

@@ -20,7 +20,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
 public class SVScannerTests extends TestCase {
 	

@@ -37,7 +37,7 @@ import net.sf.sveditor.core.tests.Activator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-public class ContentAssistBasics extends TestCase {
+public class TestContentAssistBasics extends TestCase {
 	private SVDBIndexCollectionMgr		fIndexCollectionOVMMgr;
 	private SVDBIndexCollectionMgr		fIndexCollectionVMMMgr;
 	private ContentAssistIndex			fIndex;

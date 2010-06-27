@@ -8,7 +8,9 @@ import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVDataTypeParser extends SVParserBase {
@@ -53,6 +55,9 @@ public class SVDataTypeParser extends SVParserBase {
 		NetType.add("wire");
 		NetType.add("wand");
 		NetType.add("wor");
+		NetType.add("input");
+		NetType.add("output");
+		NetType.add("inout");
 		
 		BuiltInTypes = new HashSet<String>();
 		BuiltInTypes.add("string");
@@ -84,6 +89,15 @@ public class SVDataTypeParser extends SVParserBase {
 				lexer().skipPastMatch("[", "]");
 			}
 			type = builtin_type;
+		} else if (NetType.contains(id)) {
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
+			
+			if (lexer().peekOperator("[")) {
+				lexer().startCapture();
+				lexer().skipPastMatch("[", "]");
+				builtin_type.setVectorDim(lexer().endCapture());
+			}
+			type = builtin_type;
 		} else if (IntegerAtomType.contains(id)) {
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
 			
@@ -101,6 +115,8 @@ public class SVDataTypeParser extends SVParserBase {
 				if (lexer().peekKeyword("tagged")) {
 					lexer().eatToken();
 				}
+			} else {
+				type = struct_body();
 			}
 			// TODO:
 		} else if (id.equals("enum")) {
@@ -213,4 +229,46 @@ public class SVDataTypeParser extends SVParserBase {
 		return type;
 	}
 
+	private SVDBTypeInfoStruct struct_body() throws SVParseException {
+		SVDBTypeInfoStruct struct = new SVDBTypeInfoStruct();
+
+		if (lexer().peekKeyword("packed")) {
+			lexer().eatToken();
+		}
+		
+		// TODO: signing
+		
+		lexer().readOperator("{");
+		
+		do {
+			SVDBTypeInfo type = parsers().dataTypeParser().data_type(
+					lexer().readIdOrKeyword());
+			
+			while (lexer().peek() != null) {
+				String name = lexer().readId();
+				int attr = 0;
+				
+				if (lexer().peekOperator("[")) {
+					// Read array data-type
+				}
+				
+				SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, attr);
+				
+				struct.getFields().add(var);
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+			lexer().readOperator(";");
+							
+		} while (lexer().peek() != null && !lexer().peekOperator("}"));
+		
+		lexer().readOperator("}");
+		
+		return struct;
+	}
 }
+

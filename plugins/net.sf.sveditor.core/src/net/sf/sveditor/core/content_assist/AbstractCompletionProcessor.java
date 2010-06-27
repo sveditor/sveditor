@@ -93,24 +93,6 @@ public abstract class AbstractCompletionProcessor {
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 		
-		/*
-		if (ctxt.fTrigger == null) {
-			findUntriggeredProposal(scanner, ctxt.fRoot, ctxt.fTrigger, 
-					ctxt.fLeaf, ctxt.fStart);
-		} else if (ctxt.fTrigger.equals("`")) {
-			// No need to scan backwards. The stem is all we have
-			findPreProcProposals(scanner, ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
-		} else {
-			// Now, look before the trigger to see what we have
-
-			if (src_scope != null) {
-				findTriggeredProposals(scanner, src_scope,
-						ctxt.fRoot, ctxt.fTrigger, ctxt.fLeaf, ctxt.fStart);
-			} else {
-				System.out.println("[WARN] src_scope is null");
-			}
-		}
-		*/
 		// If this is an include lookup, then use a different matching strategy
 		if (ctxt.fTrigger != null && ctxt.fRoot != null &&
 				ctxt.fTrigger.equals("`") && ctxt.fRoot.equals("include")) {

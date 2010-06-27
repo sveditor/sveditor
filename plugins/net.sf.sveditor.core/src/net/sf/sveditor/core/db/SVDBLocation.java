@@ -39,6 +39,10 @@ public class SVDBLocation {
 		fPos  = other.fPos;
 	}
 	
+	public SVDBLocation duplicate() {
+		return new SVDBLocation(this);
+	}
+	
 	public boolean equals(Object other) {
 		if (other instanceof SVDBLocation) {
 			boolean ret = true;

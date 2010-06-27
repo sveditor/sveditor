@@ -21,19 +21,13 @@ import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVLexer {
+public class SVLexer extends SVToken {
 	private ITextScanner				fScanner;
 	private Set<String>					f2SeqPrefixes;
 	private Set<String>					f3SeqPrefixes;
 	private Set<String>					fOperatorSet;
 	private Set<String>					fKeywordSet;
 	
-	private String						fImage;
-	private boolean						fIsString;
-	private boolean						fIsOperator;
-	private boolean						fIsNumber;
-	private boolean						fIsIdentifier;
-	private boolean						fIsKeyword;
 	private boolean						fTokenConsumed;
 	private boolean						fNewlineAsOperator;
 	
@@ -43,11 +37,7 @@ public class SVLexer {
 	
 	private StringBuilder				fCaptureBuffer;
 	private boolean						fCapture;
-	
-	private boolean						fEnableEOFException = true;
-	
-	private ISVParser					fParser;
-	private SVDBLocation				fStartLocation;
+	private SVToken						fCaptureLastToken;
 	
 	private static String operators[] = {
 		"(", ")", "{", "}", "[", "]",
@@ -93,25 +83,11 @@ public class SVLexer {
 		fEOF = false;
 	}
 	
-	/**
-	 * Returns the start location of the active token
-	 * 
-	 * @return
-	 */
-	public SVDBLocation getStartLocation() {
-		return fStartLocation;
-	}
-	
-	public void enableEOFException(boolean en) {
-		fEnableEOFException = en;
-	}
-	
 	public void setNewlineAsOperator(boolean en) {
 		fNewlineAsOperator = en;
 	}
 	
 	public void init(ISVParser parser, ITextScanner scanner) {
-		fParser = parser;
 		fTokenConsumed = true;
 		fScanner = scanner; // parser.scanner();
 		fEOF = false;
@@ -133,12 +109,6 @@ public class SVLexer {
 		return fImage;
 	}
 	
-	public void pushKeyword(String id) {
-		fIsKeyword = true;
-		fImage = id;
-		fTokenConsumed = false;
-	}
-	
 	public boolean isIdentifier() {
 		peek();
 		return fIsIdentifier;
@@ -152,10 +122,6 @@ public class SVLexer {
 	public boolean isKeyword() {
 		peek();
 		return fIsKeyword;
-	}
-	
-	public String getImage() {
-		return fImage;
 	}
 	
 	public boolean peekOperator(String ... ops) throws SVParseException {
@@ -269,10 +235,13 @@ public class SVLexer {
 	public String eatToken() {
 		peek();
 		if (fCapture) {
-			if (fCaptureBuffer.length() > 0) {
+			if (fCaptureBuffer.length() > 0 && 
+					((isIdentifier() && fCaptureLastToken.isIdentifier()) ||
+					 (isNumber() && fCaptureLastToken.isNumber()))) {
 				fCaptureBuffer.append(" ");
 			}
 			fCaptureBuffer.append(fImage);
+			fCaptureLastToken = duplicate(); // copy token
 		}
 		fTokenConsumed = true;
 		return fImage;
@@ -376,7 +345,9 @@ public class SVLexer {
 	}
 	
 	public String endCapture() {
-		fCapture = false;
+		fCapture          = false;
+		fCaptureLastToken = null;
+		
 		return fCaptureBuffer.toString();
 	}
 	
