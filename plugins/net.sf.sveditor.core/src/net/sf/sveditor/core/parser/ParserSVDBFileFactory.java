@@ -219,6 +219,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 						process_export(id);
 					} else if (id.equals("typedef")) {
 						process_typedef();
+						fNewStatement = true;
 					} else if (id.equals("function") || id.equals("task")) {
 						SVDBTaskFuncScope f = parsers().functionParser().parse(
 								start, modifiers);
@@ -1128,24 +1129,31 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		lexer().readKeyword("typedef");
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(lexer().eatToken());
 		
-		System.out.println("post-typedef: " + lexer().peek());
+		if (type.getDataType() != SVDBDataType.Class) {
+			while (lexer().peek() != null) {
+				String id = lexer().readId();
 
-		while (lexer().peek() != null) {
-			String id = lexer().readId();
+				SVDBTypedef typedef = new SVDBTypedef(type, id);
 
-			SVDBTypedef typedef = new SVDBTypedef(type, id);
-
+				if (fScopeStack.size() > 0) {
+					typedef.setLocation(start);
+					fScopeStack.peek().addItem(typedef);
+				}
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+		} else {
+			SVDBTypedef typedef = new SVDBTypedef(type, type.getName());
 			if (fScopeStack.size() > 0) {
 				typedef.setLocation(start);
 				fScopeStack.peek().addItem(typedef);
 			}
-			
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
-			} else {
-				break;
-			}
 		}
+
 		lexer().readOperator(";");
 	}
 
@@ -1265,6 +1273,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} else if (id.equals("typedef")) {
 			process_typedef();
 			ret = fSpecialNonNull;
+			fNewStatement = true;
 		} else if (id.equals("class") && scope.equals("module")) {
 			SVDBModIfcClassDecl cls = null;
 			try {

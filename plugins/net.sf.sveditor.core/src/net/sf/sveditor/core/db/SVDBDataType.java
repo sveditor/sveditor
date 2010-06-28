@@ -5,6 +5,7 @@ public enum SVDBDataType {
 	// ModuleIfc, UserDefined, or BuiltIn type 
 	ModuleIfc,
 	UserDefined,
+	Class, // Used for typedef class <class> <type>;
 	BuiltIn,
 
 	// Typedefs can be of Enum, Struct, 

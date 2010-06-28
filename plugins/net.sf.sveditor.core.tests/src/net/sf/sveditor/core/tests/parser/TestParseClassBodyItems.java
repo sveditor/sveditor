@@ -8,6 +8,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
@@ -203,7 +204,57 @@ public class TestParseClassBodyItems extends TestCase {
 		assertEquals("foobar_t doesn't have correct number of elements",
 				2, enum_t.getEnumValues().size());
 	}
-	
+
+	public void testTypedefClass() {
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"    typedef class other_foo_t;\n" +
+			"    typedef class other_foo_t1;\n" +
+			"    typedef class other_foo_t2;\n" +
+			"    typedef class other_foo_t3;\n" +
+			"    typedef class other_foo_t4;\n" +
+			"\n" +
+			"    other_foo_t	    foo_f;" +
+			"\n" +
+			"endclass\n"
+			;
+
+		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		
+		SVDBModIfcClassDecl foobar = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("foobar")) {
+				foobar = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+
+		SVDBTypedef foobar_td = null;
+		SVDBItem foobar_i = null;
+		SVDBItem foobar_i1 = null;
+		
+		for (SVDBItem it : foobar.getItems()) {
+			if (it.getName().equals("other_foo_t")) {
+				foobar_i = it;
+			} else if (it.getName().equals("other_foo_t1")) {
+				foobar_i1 = it;
+			}
+		}
+		
+		assertNotNull("Failed to find other_foo_t", foobar_i);
+		assertNotNull("Failed to find other_foo_t1", foobar_i1);
+		assertEquals("other_foo_t is of wrong type", 
+				foobar_i.getType(), SVDBItemType.Typedef);
+		
+		foobar_td = (SVDBTypedef)foobar_i;
+
+		assertEquals("other_foo_t type-info is of wrong type",
+				SVDBDataType.Class, foobar_td.getTypeInfo().getDataType());
+
+		SVDBTypeInfoUserDef ud_t = (SVDBTypeInfoUserDef)foobar_td.getTypeInfo();
+	}
+
 	public void testCovergroup() {
 		String content = 
 			"class foobar;\n" +

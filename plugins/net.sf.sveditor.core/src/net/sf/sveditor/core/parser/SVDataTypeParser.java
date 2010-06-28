@@ -136,7 +136,7 @@ public class SVDataTypeParser extends SVParserBase {
 			lexer().parseException("'type' expression unsupported");
 		} else if (id.equals("class")) {
 			// Class type
-			SVDBTypeInfoUserDef type_ud = new SVDBTypeInfoUserDef(lexer().readId());
+			SVDBTypeInfoUserDef type_ud = new SVDBTypeInfoUserDef(lexer().readId(), SVDBDataType.Class);
 
 			// TODO: this should be a real parse
 			if (lexer().peekOperator("#")) {
@@ -247,12 +247,35 @@ public class SVDataTypeParser extends SVParserBase {
 			while (lexer().peek() != null) {
 				String name = lexer().readId();
 				int attr = 0;
+				String bounds = null;
 				
 				if (lexer().peekOperator("[")) {
 					// Read array data-type
+					lexer().eatToken();
+					
+					// array or queue
+					if (lexer().peekOperator("$")) {
+						// queue
+						lexer().eatToken();
+						lexer().readOperator("]");
+						attr |= SVDBVarDeclItem.VarAttr_Queue;
+					} else if (lexer().peekOperator("]")) {
+						lexer().readOperator("]");
+						attr |= SVDBVarDeclItem.VarAttr_DynamicArray;
+					} else {
+						// bounded array
+						lexer().startCapture();
+						lexer().skipPastMatch("[", "]");
+						bounds = lexer().endCapture();
+						attr |= SVDBVarDeclItem.VarAttr_FixedArray;
+					}
 				}
 				
 				SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, attr);
+				
+				if (bounds != null) {
+					var.setArrayDim(bounds);
+				}
 				
 				struct.getFields().add(var);
 				

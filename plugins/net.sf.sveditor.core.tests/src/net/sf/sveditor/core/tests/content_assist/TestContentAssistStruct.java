@@ -126,6 +126,8 @@ public class TestContentAssistStruct extends TestCase {
 			"    struct {\n" +
 			"        int             my_int_field;\n" +
 			"        bit             my_bit_field;\n" +
+			"		 logic [1:0]     my_logic_field;\n" +
+			"        logic [2:0]     my_logic_queue[$];\n" +
 			"    } my_struct;\n" +
 			"\n" +
 			"    function void foo();\n" +
@@ -152,7 +154,8 @@ public class TestContentAssistStruct extends TestCase {
 		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
-		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field", 
+				"my_logic_field", "my_logic_queue"}, proposals);
 	}
 
 }
