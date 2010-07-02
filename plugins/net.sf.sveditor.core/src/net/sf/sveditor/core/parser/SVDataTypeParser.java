@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -69,7 +71,7 @@ public class SVDataTypeParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBTypeInfo data_type(String id) throws SVParseException {
+	public SVDBTypeInfo data_type(int qualifiers, String id) throws SVParseException {
 		SVDBTypeInfo type = null;
 		
 		if (IntegerVectorType.contains(id)) {
@@ -84,7 +86,7 @@ public class SVDataTypeParser extends SVParserBase {
 				lexer().eatToken();
 			}
 			
-			if (lexer().peekOperator("[")) {
+			while (lexer().peekOperator("[")) {
 				// TODO: packed_dimension
 				lexer().skipPastMatch("[", "]");
 			}
@@ -125,8 +127,14 @@ public class SVDataTypeParser extends SVParserBase {
 		} else if (BuiltInTypes.contains(id)) {
 			// string, chandle, etc
 			type = new SVDBTypeInfoBuiltin(id);
-		} else if (id.equals("virtual")) {
+		} else if (id.equals("virtual") || (qualifiers & SVDBFieldItem.FieldAttr_Virtual) != 0) {
 			// virtual [interface] interface_identifier
+			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(lexer().readId());
+			if (lexer().peekOperator("#")) {
+				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
+				ud_type.setParameters(plist);
+			}
+			type = ud_type;
 		} else if (id.equals("type")) {
 			// type_reference ::=
 			//   type ( expression )
@@ -136,7 +144,7 @@ public class SVDataTypeParser extends SVParserBase {
 			lexer().parseException("'type' expression unsupported");
 		} else if (id.equals("class")) {
 			// Class type
-			SVDBTypeInfoUserDef type_ud = new SVDBTypeInfoUserDef(lexer().readId(), SVDBDataType.Class);
+			SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", lexer().readId());
 
 			// TODO: this should be a real parse
 			if (lexer().peekOperator("#")) {
@@ -152,7 +160,7 @@ public class SVDataTypeParser extends SVParserBase {
 					}
 				}
 			}
-			type = type_ud;
+			type = type_fwd;
 		} else if (SVKeywords.isSVKeyword(id)) {
 			// ERROR: 
 			lexer().parseException("Invalid type name \"" + id + "\"");
@@ -186,11 +194,11 @@ public class SVDataTypeParser extends SVParserBase {
 		return type;
 	}
 	
-	public SVDBTypeInfo data_type_or_void(String id) throws SVParseException {
+	public SVDBTypeInfo data_type_or_void(int qualifiers, String id) throws SVParseException {
 		if (id.equals("void")) {
 			return new SVDBTypeInfoBuiltin("void");
 		} else {
-			return data_type(id);
+			return data_type(qualifiers, id);
 		}
 	}
 	
@@ -202,7 +210,7 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		// TODO: scan base type
 		if (!lexer().peekOperator("{")) {
-			data_type(lexer().eatToken());
+			data_type(0, lexer().eatToken());
 		}
 		
 		lexer().readOperator("{");
@@ -242,7 +250,7 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		do {
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(
-					lexer().readIdOrKeyword());
+					0, lexer().readIdOrKeyword());
 			
 			while (lexer().peek() != null) {
 				String name = lexer().readId();

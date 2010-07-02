@@ -216,6 +216,40 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"my_field1_class1", "my_field2_class1"}, proposals);
 	}
 
+	public void testExternScopedFieldContentAssist() {
+		String doc =
+			"class my_class1;\n" +
+			"    int           my_field1_class1;\n" +
+			"    int           my_field2_class1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class2;\n" +
+			"    int           my_field1_class2;\n" +
+			"    int           my_field2_class2;\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"function void my_class2::foo();\n" +
+			"    my_field<<MARK>>\n" +
+			"endfunction\n"
+			;
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+		
+		
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		validateResults(new String[] {"my_field1_class2", "my_field2_class2"}, proposals);
+	}
+
 	public void testScopedTypedefFieldContentAssist() {
 		String doc =
 			"class my_class1;\n" +

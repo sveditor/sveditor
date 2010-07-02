@@ -55,7 +55,7 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		if (lexer().peekKeyword("extends")) {
 			lexer().eatToken();
-			cls.setSuperClass(lexer().readId());
+			cls.setSuperClass(parsers().SVParser().scopedIdentifier(false));
 
 			if (lexer().peekOperator("#")) {
 				// scanner().unget_ch('#');

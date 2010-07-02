@@ -35,7 +35,6 @@ public class BundleUtils {
 		fBundle = bundle;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void copyBundleFileToFS(
 			String			bundle_file,
 			File			fs_path) {

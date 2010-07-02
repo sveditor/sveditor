@@ -17,7 +17,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
 public class EnumTypes extends TestCase {
 	

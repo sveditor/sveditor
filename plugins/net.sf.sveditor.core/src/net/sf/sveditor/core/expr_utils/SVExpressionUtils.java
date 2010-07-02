@@ -476,7 +476,6 @@ public class SVExpressionUtils {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
 				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
 						tf.getName().contains("::")) {
-					System.out.println("Removing extern-function \"" + tf.getName() + "\"");
 					it_l.remove(i);
 					i--;
 				}
@@ -493,7 +492,6 @@ public class SVExpressionUtils {
 				if (scope_t != null && 
 						(scope_t.getType() == SVDBItemType.Class ||
 						scope_t.getType() == SVDBItemType.Module)) {
-					System.out.println("Removing \"" + tf.getName() + "\" from " + scope_t.getName());
 					it_l.remove(i);
 					i--;
 				}

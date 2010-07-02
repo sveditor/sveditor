@@ -52,17 +52,30 @@ public class SVDBFindByNameInClassHierarchy {
 			fLog.debug("    TYPE " + t);
 		}
 		
-		while (scope != null && 
-				scope.getType() != SVDBItemType.Class &&
-				scope.getType() != SVDBItemType.Struct &&
-				scope.getType() != SVDBItemType.Covergroup &&
-				scope.getType() != SVDBItemType.Coverpoint) {
-			fLog.debug("Searching up-scope (current is " + scope.getType() + 
-					" " + scope.getName() + ")");
-			if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
-				findTFParamsLocals(ret, (SVDBTaskFuncScope)scope, id, types);
+		if (scope != null && scope.getName() != null && scope.getName().indexOf("::") != -1) {
+			// Looks like an extern function
+			String clsname = scope.getName().substring(0, scope.getName().indexOf("::"));
+			
+			SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndexIterator);
+			List<SVDBModIfcClassDecl> result = finder.find(clsname);
+			
+			if (result.size() > 0) {
+				scope = result.get(0);
 			}
-			scope = scope.getParent();
+		} else {
+			// Assume we're in a containing scope
+			while (scope != null && 
+					scope.getType() != SVDBItemType.Class &&
+					scope.getType() != SVDBItemType.Struct &&
+					scope.getType() != SVDBItemType.Covergroup &&
+					scope.getType() != SVDBItemType.Coverpoint) {
+				fLog.debug("Searching up-scope (current is " + scope.getType() + 
+						" " + scope.getName() + ")");
+				if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
+					findTFParamsLocals(ret, (SVDBTaskFuncScope)scope, id, types);
+				}
+				scope = scope.getParent();
+			}
 		}
 		
 		if (scope == null) {

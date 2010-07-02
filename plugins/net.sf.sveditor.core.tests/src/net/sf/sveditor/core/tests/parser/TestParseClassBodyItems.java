@@ -8,7 +8,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
@@ -181,7 +180,6 @@ public class TestParseClassBodyItems extends TestCase {
 			}
 		}
 
-		SVDBTypeInfoEnum foobar_t = null;
 		SVDBTypedef foobar_td = null;
 		SVDBItem foobar_i = null;
 		
@@ -250,9 +248,7 @@ public class TestParseClassBodyItems extends TestCase {
 		foobar_td = (SVDBTypedef)foobar_i;
 
 		assertEquals("other_foo_t type-info is of wrong type",
-				SVDBDataType.Class, foobar_td.getTypeInfo().getDataType());
-
-		SVDBTypeInfoUserDef ud_t = (SVDBTypeInfoUserDef)foobar_td.getTypeInfo();
+				SVDBDataType.FwdDecl, foobar_td.getTypeInfo().getDataType());
 	}
 
 	public void testCovergroup() {

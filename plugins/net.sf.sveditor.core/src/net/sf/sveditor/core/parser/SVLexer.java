@@ -43,14 +43,14 @@ public class SVLexer extends SVToken {
 		"(", ")", "{", "}", "[", "]",
 		"&", "&&", "|", "||", 
 		"-", "--", "+", "++",
-		"%", "!", "*", "/", "^", "~", "?", "@",
+		"%", "!", "*", "**", "/", "^", "~", "?", "@",
 		"<", "<<", "<=",
 		">", ">>", ">=",
 		":", "::", ":/", ":=",
 		",", ";", ".", ":",
 		"->",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
-		"-=", "<<=", ">>=", "&=", "^=", "|=", "#"
+		"-=", "<<=", ">>=", "&=", "^=", "|=", "#",
 	};
 	
 	public SVLexer() {
@@ -493,16 +493,24 @@ public class SVLexer extends SVToken {
 				if (ch == -1) {
 					parseException("unexpected EOF after \"'\"");
 				}
-				// Append the base
-				fStringBuffer.append((char)ch);
 				
-				// TODO: probably should be more selective here
-				while ((ch = get_ch()) != -1 && 
-						((ch >= '0' && ch <= '9') ||
-						 (ch >= 'a' && ch <= 'f') ||
-						 (ch >= 'A' && ch <= 'F') ||
-						 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
+				if (ch == 'b' || ch == 'B' || ch == 'd' || ch == 'D' ||
+						ch == 'h' || ch == 'H') {
+					// Append the base
 					fStringBuffer.append((char)ch);
+
+					// TODO: probably should be more selective here
+					while ((ch = get_ch()) != -1 && 
+							((ch >= '0' && ch <= '9') ||
+									(ch >= 'a' && ch <= 'f') ||
+									(ch >= 'A' && ch <= 'F') ||
+									(ch == '_') || (ch == 'x') || (ch == 'X'))) {
+						fStringBuffer.append((char)ch);
+					}
+					fIsNumber = true;
+				} else {
+					fImage = fStringBuffer.toString();
+					fIsOperator = true;
 				}
 			} else {
 				// Possibly a base...
@@ -538,13 +546,13 @@ public class SVLexer extends SVToken {
 						ch = get_ch();
 					}
 				}
+				fIsNumber = true;
 			}
 			
 			if (ch != -1) {
 				unget_ch(ch);
 			}
 
-			fIsNumber = true;
 		}
 		
 		if (fStringBuffer.length() == 0 && !fIsString) {

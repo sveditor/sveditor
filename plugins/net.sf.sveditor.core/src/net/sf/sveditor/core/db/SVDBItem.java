@@ -18,10 +18,10 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
 public class SVDBItem {
-	private SVDBScopeItem			fParent;
-	private String					fName;
-	private SVDBItemType			fType;
-	private SVDBLocation			fLocation;
+	protected SVDBScopeItem			fParent;
+	protected String					fName;
+	protected SVDBItemType			fType;
+	protected SVDBLocation			fLocation;
 	
 	public SVDBItem(String name, SVDBItemType type) {
 		if (name == null) {
@@ -68,6 +68,10 @@ public class SVDBItem {
 	
 	public void setName(String name) {
 		fName = name;
+	}
+	
+	public void setType(SVDBItemType type) {
+		fType = type;
 	}
 	
 	public SVDBItemType getType() {

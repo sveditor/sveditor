@@ -9,6 +9,15 @@ boundaries ambiguous
 - Correct a bug with hierarchy-based navigation (ie Open Declaration) that
 caused navigation history to not be maintained properly
 
+- Extensive changes to the parsing framework, which will example improvements
+  to the accuracy and extent of parsing.
+
+- Extended content assist to structs -- both typedef and inline-decl
+
+- Extended content assist to comprehend extern functions and search the
+  corresponding class scope
+
+? Ensure that indent parser ignores content inside comments
 
 -- 0.2.0 Release --
 

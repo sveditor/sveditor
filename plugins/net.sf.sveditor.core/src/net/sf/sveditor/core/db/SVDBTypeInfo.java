@@ -28,7 +28,22 @@ public class SVDBTypeInfo extends SVDBItem {
 			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type,
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				// First, read the sub-type
-				return new SVDBTypeInfo(file, parent, type, reader);
+				SVDBDataType dt = SVDBDataType.valueOf(reader.readString());
+				switch (dt) {
+					case BuiltIn:
+						return new SVDBTypeInfoBuiltin(file, parent, type, reader);
+					case Enum:
+						return new SVDBTypeInfoEnum(file, parent, type, reader);
+					case Struct:
+						return new SVDBTypeInfoStruct(file, parent, type, reader);
+					case UserDefined:
+						return new SVDBTypeInfoUserDef(file, parent, type, reader);
+					case FwdDecl:
+						return new SVDBTypeInfoFwdDecl(file, parent, type, reader);
+					default:
+						System.out.println("[ERROR] Unhandled DataType " + dt);
+						return new SVDBTypeInfo(dt, file, parent, type, reader);
+				}
 			}
 		};
 		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.TypeInfo);
@@ -39,16 +54,20 @@ public class SVDBTypeInfo extends SVDBItem {
 		fDataType = data_type;
 	}
 
-	public SVDBTypeInfo(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBTypeInfo(SVDBDataType dt, SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super("", SVDBItemType.TypeInfo);
 		
-		fDataType = SVDBDataType.valueOf(reader.readString());
+		fDataType = dt;
+		setType(type);
+		setName(reader.readString());
+		setLocation(new SVDBLocation(reader.readInt(), -1));
 	}
 	
 	public void dump(IDBWriter writer) {
-		super.dump(writer);
-
+		writer.writeItemType(getType());
 		writer.writeString(fDataType.toString());
+		writer.writeString(getName());
+		writer.writeInt((getLocation() != null)?getLocation().getLine():0);
 	}
 	
 	public SVDBDataType getDataType() {

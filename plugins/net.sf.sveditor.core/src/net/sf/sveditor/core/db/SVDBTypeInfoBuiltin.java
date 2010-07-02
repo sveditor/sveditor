@@ -1,5 +1,8 @@
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+
 public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public static final int				TypeAttr_Signed				= (1 << 7);
 	public static final int				TypeAttr_Unsigned			= (1 << 8);
@@ -11,6 +14,10 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		super(typename, SVDBDataType.BuiltIn);
 	}
 	
+	public SVDBTypeInfoBuiltin(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.BuiltIn, file, parent, type, reader);
+	}
+
 	public int getAttr() {
 		return fAttr;
 	}

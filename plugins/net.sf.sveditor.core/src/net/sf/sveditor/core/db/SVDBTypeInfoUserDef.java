@@ -1,5 +1,9 @@
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+
 
 public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
 	protected SVDBParamValueAssignList				fParamAssignList;
@@ -12,6 +16,17 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
 		super(typename, type);
 	}
 	
+	public SVDBTypeInfoUserDef(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.UserDefined, file, parent, type, reader);
+		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(file, parent);
+	}
+	
+	@Override
+	public void dump(IDBWriter writer) {
+		super.dump(writer);
+		writer.writeSVDBItem(fParamAssignList);
+	}
+
 	public SVDBParamValueAssignList getParameters() {
 		return fParamAssignList;
 	}

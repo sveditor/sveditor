@@ -218,7 +218,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					} else if (id.equals("export")) {
 						process_export(id);
 					} else if (id.equals("typedef")) {
-						process_typedef();
+						for (SVDBTypedef td : process_typedef(false)) {
+							if (fScopeStack.size() > 0) {
+								fScopeStack.peek().addItem(td);
+							}
+						}
+						
 						fNewStatement = true;
 					} else if (id.equals("function") || id.equals("task")) {
 						SVDBTaskFuncScope f = parsers().functionParser().parse(
@@ -1120,25 +1125,37 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	private void process_typedef() throws SVParseException {
+	public List<SVDBTypedef> process_typedef(boolean have_typedef_kw) throws SVParseException {
+		List<SVDBTypedef> typedef_list = new ArrayList<SVDBTypedef>();
 
 		// typedef <type> <name>;
 
 		// SVTypeInfo type = readTypeName(false);
 		SVDBLocation start = lexer().getStartLocation();
-		lexer().readKeyword("typedef");
-		SVDBTypeInfo type = parsers().dataTypeParser().data_type(lexer().eatToken());
+		// Don't try to read-ahead if we already know we've seen "typedef"
+		if (!have_typedef_kw) {
+			lexer().readKeyword("typedef");
+		}
+		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
 		
-		if (type.getDataType() != SVDBDataType.Class) {
+		if (type.getDataType() != SVDBDataType.FwdDecl) {
 			while (lexer().peek() != null) {
 				String id = lexer().readId();
+				
+				if (lexer().peekOperator("[")) {
+					// TODO: dimension
+					lexer().skipPastMatch("[", "]");
+				}
 
 				SVDBTypedef typedef = new SVDBTypedef(type, id);
 
+				typedef_list.add(typedef);
+				typedef.setLocation(start);
+				/*
 				if (fScopeStack.size() > 0) {
-					typedef.setLocation(start);
 					fScopeStack.peek().addItem(typedef);
 				}
+				 */
 				
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
@@ -1148,13 +1165,18 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			}
 		} else {
 			SVDBTypedef typedef = new SVDBTypedef(type, type.getName());
+			typedef_list.add(typedef);
+			typedef.setLocation(start);
+			/*
 			if (fScopeStack.size() > 0) {
-				typedef.setLocation(start);
 				fScopeStack.peek().addItem(typedef);
 			}
+			 */
 		}
 
 		lexer().readOperator(";");
+		
+		return typedef_list;
 	}
 
 	static private final Map<String, Integer> fFieldQualifers;
@@ -1271,7 +1293,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				}
 			}
 		} else if (id.equals("typedef")) {
-			process_typedef();
+			for (SVDBTypedef td : process_typedef(false)) {
+				if (fScopeStack.size() > 0) {
+					fScopeStack.peek().addItem(td);
+				}
+			}
+			
 			ret = fSpecialNonNull;
 			fNewStatement = true;
 		} else if (id.equals("class") && scope.equals("module")) {
@@ -1323,7 +1350,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVDBTypeInfo type;
 		boolean is_variable = true;
 
-		type = parsers().dataTypeParser().data_type(lexer().eatToken());
+		type = parsers().dataTypeParser().data_type(modifiers, lexer().eatToken());
 		
 		if (type == null) {
 			lexer().parseException("Failed to parse type @ " + getLocation().getLineNo());
@@ -1509,7 +1536,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	private static final String fRecognizedOps[] = {
-		"+", "-", "^", "|",  "&", "*", "?", ".", ":", "::", "#"
+		"+", "-", "^", "|",  "&", "*", "?", ".", ":", "::", "#", "'",
+		"%", "**", "<<", ">>", "<", ">"
 	};
 
 	public String readExpression() throws SVParseException {
@@ -1517,6 +1545,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		while (lexer().peek() != null) {
 			if (lexer().peekOperator("(")) {
 				lexer().skipPastMatch("(", ")");
+			} else if (lexer().peekOperator("{")) {
+				lexer().skipPastMatch("{", "}");
 			} else if (lexer().peekOperator("-")) {
 				lexer().eatToken();
 				if (lexer().peekOperator("(")) {
@@ -1529,7 +1559,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			} else {
 				break;
 			}
-			
+
 			if (lexer().peekOperator(fRecognizedOps)) {
 				lexer().eatToken();
 			} else if (lexer().peekOperator("(")) {

@@ -57,7 +57,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 
 				if (!lexer().peekOperator(";", "(")) {
 					// probably data-type
-					return_type = parsers().dataTypeParser().data_type_or_void(data_type_or_implicit);
+					return_type = parsers().dataTypeParser().data_type_or_void(0, data_type_or_implicit);
 					tf_name = parsers().SVParser().scopedIdentifier(false);
 				} else {
 					// function with no return type

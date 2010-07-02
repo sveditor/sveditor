@@ -49,7 +49,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			}
 			
 			SVDBTypeInfo type = 
-				parsers().dataTypeParser().data_type(lexer().eatToken());
+				parsers().dataTypeParser().data_type(0, lexer().eatToken());
 
 			// This could be a continuation of the same type: int a, b, c
 			if (lexer().peekOperator("[")) {
