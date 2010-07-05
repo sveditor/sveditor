@@ -23,4 +23,23 @@ public class SVDBTypeInfoFwdDecl extends SVDBTypeInfo {
 		super.dump(writer);
 		writer.writeString(fTypeClass);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTypeInfoFwdDecl) {
+			SVDBTypeInfoFwdDecl o = (SVDBTypeInfoFwdDecl)obj;
+			
+			return (fTypeClass.equals(o.fTypeClass) &&
+					super.equals(obj));
+		}
+		return false;
+	}
+
+	@Override
+	public SVDBItem duplicate() {
+		SVDBTypeInfoFwdDecl ret = new SVDBTypeInfoFwdDecl(fTypeClass, getName());
+		
+		return ret;
+	}
+	
 }

@@ -16,9 +16,9 @@ public class SVDBLocation {
 	private int				fLine;
 	private int				fPos;
 	
-	public SVDBLocation(int line, int pos) {
+	public SVDBLocation(int line) {
 		fLine = line;
-		fPos  = pos;
+		fPos  = -1;
 	}
 
 	public SVDBLocation(SVDBLocation other) {

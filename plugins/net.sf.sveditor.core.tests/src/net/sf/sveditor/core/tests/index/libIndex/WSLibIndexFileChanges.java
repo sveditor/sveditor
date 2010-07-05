@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -58,7 +58,7 @@ public class WSLibIndexFileChanges extends TestCase {
 	}
 	
 	private void int_testMissingIncludeAdded(File tmpdir) throws RuntimeException {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		

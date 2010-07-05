@@ -94,14 +94,70 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	public void init(SVDBItem other) {
 		super.init(other);
+		SVDBModIfcClassDecl o = (SVDBModIfcClassDecl)other;
 
-		if (((SVDBModIfcClassDecl)other).fParams != null) {
+		if (o.fParams != null) {
 			fParams.clear();
-			for (SVDBModIfcClassParam p : ((SVDBModIfcClassDecl)other).fParams) {
+			for (SVDBModIfcClassParam p : o.fParams) {
 				fParams.add((SVDBModIfcClassParam)p.duplicate());
 			}
 		} else {
 			fParams = null;
 		}
+		
+		setSuperClass(o.getSuperClass());
+		if (o.fSuperParams == null) {
+			fSuperParams = null;
+		} else {
+			fSuperParams.clear();
+			for (SVDBModIfcClassParam p : o.fSuperParams) {
+				fSuperParams.add((SVDBModIfcClassParam)p.duplicate());
+			}
+		}
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBModIfcClassDecl) {
+			SVDBModIfcClassDecl o = (SVDBModIfcClassDecl)obj;
+			
+			if (fParams.size() == o.fParams.size()) {
+				for (int i=0; i<fParams.size(); i++) {
+					if (!fParams.get(i).equals(o.fParams.get(i))) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			
+			if (fSuperClass == null || o.fSuperClass == null) {
+				if (fSuperClass != o.fSuperClass) {
+					return false;
+				}
+			} else if (!fSuperClass.equals(o.fSuperClass)) {
+				return false;
+			}
+			
+			if (fSuperParams == null || o.fSuperParams == null) {
+				if (fSuperParams != o.fSuperParams) {
+					return false;
+				}
+			} else {
+				if (fSuperParams.size() == o.fSuperParams.size()) {
+					for (int i=0; i<fSuperParams.size(); i++) {
+						if (!fSuperParams.get(i).equals(o.fSuperParams.get(i))) {
+							return false;
+						}
+					}
+				} else {
+					return false;
+				}
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
+	
 }

@@ -81,7 +81,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				ret.add(td);
 			}
 		} else {
-			lexer().parseException("Unexpected variable-declaration stem token \"" + id + "\"");
+			error("Unexpected variable-declaration stem token \"" + id + "\"");
 		}
 		
 		return ret;

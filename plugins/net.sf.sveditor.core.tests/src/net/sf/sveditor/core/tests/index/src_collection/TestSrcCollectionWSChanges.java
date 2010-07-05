@@ -18,7 +18,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -55,7 +55,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 	public void testFileAdded() {
 		fIndexRebuilt = 0;
 		
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		IProject project_dir = TestUtils.createProject("project");
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);
@@ -151,7 +151,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 	public void testFileRemoved() {
 		fIndexRebuilt = 0;
 		
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		IProject project_dir = TestUtils.createProject("project");
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);

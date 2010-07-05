@@ -42,6 +42,17 @@ public class LogHandle implements ILogHandle {
 				(fIndent > 0)?(indent(fIndent) + msg):msg);
 	}
 
+	public void debug(String msg, Exception e) {
+		int level = ILogListener.Type_Error+ILogListener.Type_Debug;
+		println(level, fDebugLevel, msg);
+		println(level, fDebugLevel, e.getMessage());
+		for (StackTraceElement s_e : e.getStackTrace()) {
+			println(level, fDebugLevel, "    at " + 
+					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
+					s_e.getFileName() + ":" + s_e.getLineNumber() + ")");
+		}
+	}
+
 	public void enter(String msg) {
 		debug(msg);
 		fIndent++;

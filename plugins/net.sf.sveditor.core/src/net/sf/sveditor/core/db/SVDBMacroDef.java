@@ -91,5 +91,30 @@ public class SVDBMacroDef extends SVDBItem {
 		fParams.addAll(m.fParams);
 		fDef = m.fDef;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBMacroDef) {
+			SVDBMacroDef o = (SVDBMacroDef)obj;
+			
+			if (fParams.size() == o.fParams.size()) {
+				 if (!o.fName.equals(fName)) {
+					 return false;
+				 }
+				 
+				 for (int i=0; i<fParams.size(); i++) {
+					 if (!fParams.get(i).equals(o.fParams.get(i))) {
+						 return false;
+					 }
+				 }
+
+				 return super.equals(obj);
+			} else {
+				return false;
+			}
+		}
+		
+		return false;
+	}
 	
 }

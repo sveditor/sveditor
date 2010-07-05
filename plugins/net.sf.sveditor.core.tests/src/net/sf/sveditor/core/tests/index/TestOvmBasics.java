@@ -28,7 +28,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-public class TestVmmBasics extends TestCase {
+public class TestOvmBasics extends TestCase {
 	
 	private File			fTmpDir;
 	
@@ -60,13 +60,13 @@ public class TestVmmBasics extends TestCase {
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
+				rgy.findCreateIndex("GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator<SVDBItem> index_it = index_mgr.getItemIterator();
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
-		SVDBItem vmm_xtor=null;
-		SVDBItem vmm_err=null;
+		SVDBItem ovm_component=null;
+		SVDBItem ovm_sequence=null;
 		
 		while (index_it.hasNext()) {
 			SVDBItem it = index_it.nextItem();
@@ -75,13 +75,12 @@ public class TestVmmBasics extends TestCase {
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);
 			} else if (it.getType() == SVDBItemType.Class) {
-				if (it.getName().equals("vmm_xactor")) {
-					vmm_xtor = it;
+				if (it.getName().equals("ovm_component")) {
+					ovm_component = it;
+				} else if (it.getName().equals("ovm_sequence")) {
+					ovm_sequence = it;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
-				if (it.getName().equals("vmm_error")) {
-					vmm_err = it;
-				}
 			} else if (it.getType() == SVDBItemType.VarDecl) {
 				SVDBVarDeclItem v = (SVDBVarDeclItem)it;
 				
@@ -91,8 +90,8 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
-		assertNotNull("Check found vmm_error", vmm_err);
-		assertNotNull("Check found vmm_xactor", vmm_xtor);
+		assertNotNull("Check found ovm_sequence", ovm_sequence);
+		assertNotNull("Check found ovm_component", ovm_component);
 	}
 
 }

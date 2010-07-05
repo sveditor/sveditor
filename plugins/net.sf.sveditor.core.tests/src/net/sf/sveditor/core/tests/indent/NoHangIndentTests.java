@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
 import org.osgi.framework.Bundle;
 
@@ -35,7 +35,7 @@ public class NoHangIndentTests extends TestCase {
 	 */
 	@SuppressWarnings("unchecked")
 	public void testIndentNoHang() {
-		Bundle bundle = Activator.getDefault().getBundle();
+		Bundle bundle = SVCoreTestsPlugin.getDefault().getBundle();
 		
 		Enumeration<URL> sv_entries = (Enumeration<URL>)bundle.findEntries("ovm", "*.sv", true);
 		Enumeration<URL> svh_entries = (Enumeration<URL>)bundle.findEntries("ovm", "*.svh", true);

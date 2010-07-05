@@ -131,6 +131,24 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			IDBReader index_data, 
 			List<SVDBFile> ppFiles, 
 			List<SVDBFile> dbFiles) throws DBFormatException {
+		fLoadUpToDate = true;
+		
+		// Read back the Global Defines. Project settings will already
+		// be set.  
+		int n_defines = index_data.readInt();
+		for (int i=0; i<n_defines; i++) {
+			String key = index_data.readString();
+			String val = index_data.readString();
+			
+			if (fGlobalDefines.containsKey(key) ||
+					!fGlobalDefines.get(key).equals(val)) {
+				fGlobalDefines.remove(key);
+				fGlobalDefines.put(key, val);
+				fLog.debug("Invalidating load, since key " + key + " changed value");
+				fLoadUpToDate = false;
+			}
+		}
+		
 		initPaths();
 		
 		load_base(index_data, ppFiles, dbFiles);
@@ -435,12 +453,16 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		fIndexFileMapValid = true;
 
-		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
-			l.index_rebuilt();
-		}
+		signalIndexRebuilt();
 		
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
+	}
+	
+	protected void signalIndexRebuilt() {
+		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
+			l.index_rebuilt();
+		}
 	}
 	
 	protected SVDBFile processPreProcFile(String path, boolean replace) {

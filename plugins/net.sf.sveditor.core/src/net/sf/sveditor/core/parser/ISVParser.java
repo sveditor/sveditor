@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 
 
 public interface ISVParser {
@@ -8,6 +7,8 @@ public interface ISVParser {
 	SVLexer lexer();
 	
 	// ITextScanner scanner();
+	
+	void error(String msg) throws SVParseException;
 	
 	void error(SVParseException e) throws SVParseException;
 	

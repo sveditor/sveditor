@@ -82,4 +82,22 @@ public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 		fCoverpointList.addAll(other_i.fCoverpointList);
 	}
 
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBCoverpointCross) {
+			SVDBCoverpointCross o = (SVDBCoverpointCross)obj;
+			if (o.fCoverpointList.size() == fCoverpointList.size()) {
+				for (int i=0; i<fCoverpointList.size(); i++) {
+					if (!o.fCoverpointList.get(i).equals(fCoverpointList.get(i))) {
+						return false;
+					}
+				}
+			}
+			return (o.fBody.equals(fBody) && super.equals(obj));
+		}
+		
+		return false;
+	}
+
 }

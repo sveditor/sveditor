@@ -52,6 +52,8 @@ public class TestClassItems extends TestCase {
 			
 			public void error(SVParseException e) {}
 			
+			public void error(String msg) {}
+			
 			public SVDBLocation getLocation() {
 				return null;
 			}

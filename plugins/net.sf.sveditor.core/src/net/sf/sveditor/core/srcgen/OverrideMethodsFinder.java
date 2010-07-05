@@ -1,7 +1,6 @@
 package net.sf.sveditor.core.srcgen;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,8 @@ public class OverrideMethodsFinder {
 	private SVDBModIfcClassDecl									fLeafClass;
 	private Map<SVDBModIfcClassDecl, List<SVDBTaskFuncScope>>	fClassMap;
 	private ISVDBIndexIterator									fIndexIt;
-	
+
+	/*
 	private class ClassComparator implements Comparator<SVDBModIfcClassDecl> {
 		public int compare(SVDBModIfcClassDecl c1, SVDBModIfcClassDecl c2) {
 			
@@ -31,8 +31,8 @@ public class OverrideMethodsFinder {
 				return -1;
 			}
 		}
-		
 	}
+	 */
 	
 	public OverrideMethodsFinder(SVDBModIfcClassDecl leaf_class, ISVDBIndexIterator index_it) {
 		fLeafClass = leaf_class;

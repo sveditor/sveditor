@@ -96,9 +96,9 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	}
 	
 	public SVDBItem duplicate() {
-		SVDBVarDeclItem ret = new SVDBVarDeclItem(fTypeInfo, getName(), fAttr);
-		
-		ret.init(this);
+		SVDBVarDeclItem ret = new SVDBVarDeclItem(
+				(SVDBTypeInfo)fTypeInfo.duplicate(), getName(), fAttr);
+		ret.setArrayDim(getArrayDim());
 		
 		return ret;
 	}
@@ -111,6 +111,29 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 		SVDBVarDeclItem other_v = (SVDBVarDeclItem)other;
 		fAttr = other_v.fAttr;
 		fArrayDim    = other_v.fArrayDim;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBVarDeclItem) {
+			SVDBVarDeclItem o = (SVDBVarDeclItem)obj;
+			if (fAttr != o.fAttr) {
+				return false;
+			}
+			
+			if (fArrayDim == null || o.fArrayDim == null) {
+				if (fArrayDim != o.fArrayDim) {
+					return false;
+				}
+			} else if (!fArrayDim.equals(o.fArrayDim)) {
+				return false;
+			}
+			
+			return (fTypeInfo.equals(o.fTypeInfo) &&
+					super.equals(obj));
+		}
+		return false;
 	}
 
 }

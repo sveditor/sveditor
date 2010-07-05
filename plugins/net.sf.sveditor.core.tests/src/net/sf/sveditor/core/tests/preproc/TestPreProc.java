@@ -29,7 +29,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -57,7 +57,7 @@ public class TestPreProc extends TestCase {
 	}
 
 	public void testPreProcVMM() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		

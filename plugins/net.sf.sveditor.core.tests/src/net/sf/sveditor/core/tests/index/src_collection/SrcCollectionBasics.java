@@ -25,7 +25,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -54,7 +54,7 @@ public class SrcCollectionBasics extends TestCase {
 	
 	
 	public void testFindSourceRecursePkg() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -111,7 +111,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 	
 	public void testFindSourceRecurseNoPkg() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -180,7 +180,7 @@ public class SrcCollectionBasics extends TestCase {
 	 * `celldefine directives are processed properly
 	 */
 	public void testFindSourceRecurseModule() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -245,7 +245,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testBasicClassIncludingModule() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -296,7 +296,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testBasicClassIncludingInterface() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -347,7 +347,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testBasicClassIncludingProgram() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		

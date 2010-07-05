@@ -15,24 +15,36 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 
-public class ArgFilePersistence extends TestCase {
+public class ArgFilePersistence extends TestCase 
+	implements ISVDBIndexChangeListener {
 	
 	private File					fTmpDir;
+	private int						fIndexRebuilt;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -54,7 +66,7 @@ public class ArgFilePersistence extends TestCase {
 	public void testWSArgFileTimestampChanged() {
 		ByteArrayOutputStream 	out;
 		PrintStream				ps;
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -77,8 +89,6 @@ public class ArgFilePersistence extends TestCase {
 		
 		while (it.hasNext()) {
 			SVDBItem tmp_it = it.nextItem();
-			
-			// System.out.println("tmp_it=" + tmp_it.getName());
 			
 			if (tmp_it.getName().equals("class1")) {
 				target_it = tmp_it;
@@ -143,11 +153,149 @@ public class ArgFilePersistence extends TestCase {
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", target_it.getName());
 	}
-	
+
+	public void testWSArgFileTimestampUnchanged() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		IProject project_dir = TestUtils.createProject("project");
+		
+		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(fTmpDir);
+		
+		fIndexRebuilt = 0;
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.addChangeListener(this);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBModIfcClassDecl target_it = null, target_orig = null;
+		List<SVDBItem> orig_list = new ArrayList<SVDBItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getName().equals("class1")) {
+				target_it = (SVDBModIfcClassDecl)tmp_it;
+				target_orig = (SVDBModIfcClassDecl)tmp_it.duplicate();
+			}
+			orig_list.add(tmp_it.duplicate());
+			if (tmp_it.getType() == SVDBItemType.Covergroup) {
+				SVDBCoverGroup cg = (SVDBCoverGroup)tmp_it;
+				SVDBCoverGroup cg2 = (SVDBCoverGroup)cg.duplicate();
+				assertEquals(cg, cg2);
+			}
+		}
+
+		for (int i=0; i<orig_list.size(); i++) {
+			if ((orig_list.get(i) instanceof SVDBScopeItem) &&
+					orig_list.get(i).getType() != SVDBItemType.File) {
+				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
+						" Not Equal " + orig_list.get(i).getType() + " " + orig_list.get(i).getName(),
+						orig_list.get(i).equals(orig_list.get(i)));
+			}
+		}
+
+		assertEquals("Index not initially rebuilt", 1, fIndexRebuilt);
+		assertNotNull("located class1", target_it);
+		assertEquals("class1", target_it.getName());
+		
+		rgy.save_state();
+
+		// Now, reset the registry
+		rgy.init(fTmpDir);
+		
+		// Sleep to ensure that the timestamp is different
+		System.out.println("[NOTE] pre-sleep");
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("[NOTE] post-sleep");
+
+
+		fIndexRebuilt = 0;
+		// Now, re-create the index
+		index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.addChangeListener(this);
+		it = index.getItemIterator();
+		
+		target_it = null;
+		List<SVDBItem> new_list = new ArrayList<SVDBItem>();
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			new_list.add(tmp_it);
+			
+			if (tmp_it.getName().equals("class1")) {
+				target_it = (SVDBModIfcClassDecl)tmp_it;
+			}
+		}
+		
+		target_it.equals(target_orig);
+		
+		assertEquals("item count changed", orig_list.size(), new_list.size());
+		// Compare individual items first
+		for (int i=0; i<orig_list.size(); i++) {
+			if (!(orig_list.get(i) instanceof SVDBScopeItem)) {
+				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
+						" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+						orig_list.get(i).equals(new_list.get(i)));
+			}
+		}
+
+		// Compare non-file scopes next
+		for (int i=0; i<orig_list.size(); i++) {
+			if ((orig_list.get(i) instanceof SVDBScopeItem) &&
+					orig_list.get(i).getType() != SVDBItemType.File &&
+					orig_list.get(i).getType() != SVDBItemType.Class) {
+				if (orig_list.get(i).getType() == SVDBItemType.Function &&
+						orig_list.get(i).getName().equals("new")) {
+					SVDBTaskFuncScope f1 = (SVDBTaskFuncScope)orig_list.get(i);
+					SVDBTaskFuncScope f2 = (SVDBTaskFuncScope)new_list.get(i);
+					f1.equals(f2);
+				} else {
+					assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
+							" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+							orig_list.get(i).equals(new_list.get(i)));
+				}
+			}
+		}
+
+		// Compare everything next
+		for (int i=0; i<orig_list.size(); i++) {
+			if (orig_list.get(i).getType() == SVDBItemType.File &&
+					orig_list.get(i).getName().equals("class1.svh")) {
+				SVDBFile c1 = (SVDBFile)orig_list.get(i);
+				SVDBFile c2 = (SVDBFile)new_list.get(i);
+				
+				c1.equals(c2);
+			}
+			assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
+					" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+					orig_list.get(i).equals(new_list.get(i)));
+		}
+
+		assertEquals("Index rebuilt without cause", 0, fIndexRebuilt);
+		assertNotNull("located class1", target_it);
+		assertEquals("class1", target_it.getName());
+	}
+
 	public void testFSArgFileTimestampChanged() {
 		ByteArrayOutputStream out;
 		PrintStream ps;
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -235,6 +383,12 @@ public class ArgFilePersistence extends TestCase {
 		
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", target_it.getName());
+	}
+
+	public void index_changed(int reason, SVDBFile file) {}
+
+	public void index_rebuilt() {
+		fIndexRebuilt++;
 	}
 	
 }

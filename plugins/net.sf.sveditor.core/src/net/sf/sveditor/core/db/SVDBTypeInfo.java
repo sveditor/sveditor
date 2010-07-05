@@ -60,14 +60,14 @@ public class SVDBTypeInfo extends SVDBItem {
 		fDataType = dt;
 		setType(type);
 		setName(reader.readString());
-		setLocation(new SVDBLocation(reader.readInt(), -1));
+		// TypeInfo doesn't have a location: setLocation(new SVDBLocation(reader.readInt(), -1));
 	}
 	
 	public void dump(IDBWriter writer) {
 		writer.writeItemType(getType());
 		writer.writeString(fDataType.toString());
 		writer.writeString(getName());
-		writer.writeInt((getLocation() != null)?getLocation().getLine():0);
+		// TypeInfo doesn't have a location: writer.writeInt((getLocation() != null)?getLocation().getLine():0);
 	}
 	
 	public SVDBDataType getDataType() {
@@ -81,5 +81,21 @@ public class SVDBTypeInfo extends SVDBItem {
 		SVDBTypeInfo other_t = (SVDBTypeInfo)other;
 		fDataType = other_t.fDataType;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTypeInfo) {
+			SVDBTypeInfo o = (SVDBTypeInfo)obj;
+			
+			if (o.fDataType != fDataType) {
+				return false;
+			}
+
+			return super.equals(obj);
+		}
+		return false;
+	}
+	
+	
 	
 }

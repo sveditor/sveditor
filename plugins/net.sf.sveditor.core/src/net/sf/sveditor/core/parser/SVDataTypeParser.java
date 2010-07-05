@@ -141,7 +141,7 @@ public class SVDataTypeParser extends SVParserBase {
 			//   type ( data_type )
 			type = new SVDBTypeInfoBuiltin(id);
 			// TODO: skip paren expression
-			lexer().parseException("'type' expression unsupported");
+			error("'type' expression unsupported");
 		} else if (id.equals("class")) {
 			// Class type
 			SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", lexer().readId());
@@ -163,7 +163,7 @@ public class SVDataTypeParser extends SVParserBase {
 			type = type_fwd;
 		} else if (SVKeywords.isSVKeyword(id)) {
 			// ERROR: 
-			lexer().parseException("Invalid type name \"" + id + "\"");
+			error("Invalid type name \"" + id + "\"");
 		} else {
 			// Should be a user-defined type
 			if (lexer().peekOperator("::")) {
@@ -188,7 +188,7 @@ public class SVDataTypeParser extends SVParserBase {
 		}
 		
 		if (type == null) {
-			lexer().parseException("Unknown type starting with \"" + id + "\"");
+			error("Unknown type starting with \"" + id + "\"");
 		}
 		
 		return type;

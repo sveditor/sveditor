@@ -50,5 +50,34 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	public String toString() {
 		return getName();
 	}
+	
+	public SVDBItem duplicate() {
+		SVDBTypeInfoEnum ret = new SVDBTypeInfoEnum(getName());
+		
+		for (Tuple<String, String> t : fEnumList) {
+			ret.addEnumValue(t.first(), t.second());
+		}
+		
+		return ret;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTypeInfoEnum) {
+			SVDBTypeInfoEnum o = (SVDBTypeInfoEnum)obj;
+			
+			if (o.fEnumList.size() == fEnumList.size()) {
+				for (int i=0; i<fEnumList.size(); i++) {
+					if (!fEnumList.get(i).equals(o.fEnumList.get(i))) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
 }

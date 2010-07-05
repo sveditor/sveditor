@@ -13,22 +13,14 @@
 package net.sf.sveditor.ui.wizards;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.methodology_templates.MethodologyTemplate;
-import net.sf.sveditor.core.methodology_templates.MethodologyTemplateRegistry;
-import net.sf.sveditor.core.scanner.SVCharacter;
-import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -39,7 +31,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;

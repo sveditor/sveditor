@@ -194,6 +194,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 					!fGlobalDefines.get(key).equals(val)) {
 				fGlobalDefines.remove(key);
 				fGlobalDefines.put(key, val);
+				fLog.debug("Invalidating load, since key " + key + " changed value");
 				fLoadUpToDate = false;
 			}
 		}

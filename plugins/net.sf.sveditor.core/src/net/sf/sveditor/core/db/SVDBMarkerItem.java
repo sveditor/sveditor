@@ -136,5 +136,21 @@ public class SVDBMarkerItem extends SVDBItem {
 		
 		fMessage = m.fMessage; 
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBMarkerItem) {
+			SVDBMarkerItem o = (SVDBMarkerItem)obj;
+			
+			if (!o.fMessage.equals(fMessage) ||
+					o.fKind != fKind || o.fAttr != fAttr) {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		
+		return false;
+	}
 	
 }

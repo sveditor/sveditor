@@ -56,4 +56,34 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
 		
 		return ret.toString();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTypeInfoUserDef) {
+			SVDBTypeInfoUserDef o = (SVDBTypeInfoUserDef)obj;
+			
+			if (fParamAssignList == null || o.fParamAssignList == null) {
+				if (fParamAssignList != o.fParamAssignList) {
+					return false;
+				}
+			} else if (fParamAssignList.equals(o.fParamAssignList)) {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
+
+	@Override
+	public SVDBItem duplicate() {
+		SVDBTypeInfoUserDef ret = new SVDBTypeInfoUserDef(getName(), getDataType());
+		
+		if (fParamAssignList != null) {
+			ret.setParameters((SVDBParamValueAssignList)getParameters().duplicate());
+		}
+		
+		return ret;
+	}
+	
 }

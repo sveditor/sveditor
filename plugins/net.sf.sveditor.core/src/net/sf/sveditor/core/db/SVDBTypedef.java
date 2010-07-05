@@ -72,5 +72,20 @@ public class SVDBTypedef extends SVDBItem {
 		SVDBTypedef ot = (SVDBTypedef)other;
 		fTypeInfo = ot.fTypeInfo;
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTypedef) {
+			SVDBTypedef o = (SVDBTypedef)obj;
+			
+			if (!o.fTypeInfo.equals(fTypeInfo)) {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
 	
 }

@@ -79,5 +79,29 @@ public class SVDBParamValueAssignList extends SVDBItem {
 		fParameters.clear();
 		fParameters.addAll(((SVDBParamValueAssignList)other).fParameters);
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBParamValueAssignList) {
+			SVDBParamValueAssignList o = (SVDBParamValueAssignList)obj;
+			
+			if (o.fNamedMapping != fNamedMapping) {
+				return false;
+			}
+			
+			if (o.fParameters.size() == fParameters.size()) {
+				for (int i=0; i<fParameters.size(); i++) {
+					if (!fParameters.get(i).equals(o.fParameters.get(i))) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
 	
 }

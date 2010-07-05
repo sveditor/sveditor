@@ -56,4 +56,14 @@ public class SVDBParamValueAssign extends SVDBItem {
 		fValue = ((SVDBParamValueAssign)other).fValue;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBParamValueAssign) {
+			return (fValue.equals(((SVDBParamValueAssign)obj).fValue) &&
+					super.equals(obj));
+		}
+		
+		return false;
+	}
+	
 }

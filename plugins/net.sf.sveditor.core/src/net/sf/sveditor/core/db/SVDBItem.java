@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBItem {
 	protected SVDBScopeItem			fParent;
-	protected String					fName;
+	protected String				fName;
 	protected SVDBItemType			fType;
 	protected SVDBLocation			fLocation;
 	
@@ -37,7 +37,7 @@ public class SVDBItem {
 		fParent   = parent;
 		fType     = type;
 		fName     = reader.readString();
-		fLocation = new SVDBLocation(reader.readInt(), 0);
+		fLocation = new SVDBLocation(reader.readInt());
 	}
 	
 	public void dump(IDBWriter writer) {
@@ -112,6 +112,12 @@ public class SVDBItem {
 				ret &= other.fType == fType;
 			} else {
 				ret &= other.fType.equals(fType);
+			}
+			
+			if (fLocation == null || other.fLocation == null) {
+				ret &= (fLocation == other.fLocation);
+			} else {
+				ret &= other.fLocation.equals(fLocation);
 			}
 			
 			return ret;

@@ -44,7 +44,7 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		fRetType = new SVDBTypeInfoBuiltin("void");
 	}
 
-	public SVDBTaskFuncScope(String name, SVDBTypeInfo	ret_type) {
+	public SVDBTaskFuncScope(String name, SVDBTypeInfo ret_type) {
 		super(name, SVDBItemType.Function);
 		fParams = new ArrayList<SVDBTaskFuncParam>();
 		fRetType = ret_type;
@@ -121,5 +121,38 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		
 		fRetType = ((SVDBTaskFuncScope)other).fRetType;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTaskFuncScope) {
+			SVDBTaskFuncScope o = (SVDBTaskFuncScope)obj;
+			
+			if (o.fAttr != fAttr) {
+				return false;
+			}
+			
+			if (fParams.size() == o.fParams.size()) {
+				for (int i=0; i<fParams.size(); i++) {
+					if (!fParams.get(i).equals(o.fParams.get(i))) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			
+			if (fRetType == null || o.fRetType == null) {
+				if (fRetType != o.fRetType) {
+					return false;
+				} 
+			} else if (!fRetType.equals(o.fRetType)) {
+				return false;
+			}
+
+			return super.equals(obj);
+		}
+		return false;
+	}
+
 	
 }

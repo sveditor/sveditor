@@ -22,6 +22,10 @@ public class SVParserBase implements ISVParser {
 	public void error(SVParseException e) throws SVParseException {
 		fParser.error(e);
 	}
+	
+	public void error(String msg) throws SVParseException {
+		fParser.error(msg);
+	}
 
 	public SVLexer lexer() {
 		return fParser.lexer();

@@ -50,7 +50,7 @@ public class SVDBScopeItem extends SVDBItem {
 		if (getType() == SVDBItemType.File) {
 			file   = (SVDBFile)this;
 		}
-		fEndLocation = new SVDBLocation(reader.readInt(), 0);
+		fEndLocation = new SVDBLocation(reader.readInt());
 		fItems = (List<SVDBItem>)reader.readItemList(file, this);
 	}
 	
@@ -107,6 +107,36 @@ public class SVDBScopeItem extends SVDBItem {
 		} else {
 			fEndLocation = null;
 		}
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBScopeItem) {
+			SVDBScopeItem o = (SVDBScopeItem)obj;
+			
+			if (fEndLocation == null || o.fEndLocation == null) {
+				if (fEndLocation != o.fEndLocation) {
+					return false;
+				}
+			} else if (!fEndLocation.equals(o.fEndLocation)) {
+				return false;
+			}
+					
+			if (fItems.size() == o.fItems.size()) {
+				for (int i=0; i<fItems.size(); i++) {
+					if (!fItems.get(i).equals(o.fItems.get(i))) {
+						return false;
+					}
+				}
+			} else {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		
+		return false;
 	}
 	
 }

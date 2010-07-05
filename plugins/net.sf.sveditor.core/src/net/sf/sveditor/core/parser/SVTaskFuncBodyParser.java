@@ -48,7 +48,6 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 					break;
 				}
 			} catch (SVParseException e) {
-				error(e);
 				// Try to recover
 				while (lexer().peek() != null && 
 						!lexer().peekOperator(";") && !lexer().peekKeyword()) {
@@ -66,7 +65,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			if (lexer().peekKeyword(end_keyword)) {
 				break;
 			} else if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0)) {
-				lexer().parseException("Missing function end");
+				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
 				id = lexer().eatToken();
 			}

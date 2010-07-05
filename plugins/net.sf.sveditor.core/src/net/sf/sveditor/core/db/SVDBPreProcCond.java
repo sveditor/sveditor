@@ -68,7 +68,8 @@ public class SVDBPreProcCond extends SVDBScopeItem {
 	
 	public boolean equals(Object obj) {
 		if (super.equals(obj) && obj instanceof SVDBPreProcCond) {
-			return fConditional.equals(((SVDBPreProcCond)obj).fConditional);
+			return fConditional.equals(((SVDBPreProcCond)obj).fConditional) &&
+				super.equals(obj);
 		}
 		return false;
 	}

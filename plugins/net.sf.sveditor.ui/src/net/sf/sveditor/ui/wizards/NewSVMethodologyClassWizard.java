@@ -13,7 +13,6 @@
 package net.sf.sveditor.ui.wizards;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
 
@@ -77,11 +76,13 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 		IContainer c = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
 		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
 		
+		/*
 		ISVDBIndexIterator index_it = null;
 		if (fBasicsPage.getProjectData() != null) {
 			index_it = fBasicsPage.getProjectData().getProjectIndexMgr();
 		}
 		final ISVDBIndexIterator index_it_f = index_it;
+		 */
 		
 		/*
 		IRunnableWithProgress op = new IRunnableWithProgress() {

@@ -10,7 +10,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
@@ -84,7 +84,7 @@ public class TestNewClassGen extends TestCase {
 
 			try {
 				InputStream in = file.getContents();
-				String content = Activator.readStream(in);
+				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
 				assertEquals("Wrong content created", expect.trim(), content.trim());
@@ -147,7 +147,7 @@ public class TestNewClassGen extends TestCase {
 
 			try {
 				InputStream in = file.getContents();
-				String content = Activator.readStream(in);
+				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
 				assertEquals("Wrong content created", expect.trim(), content.trim());
@@ -211,7 +211,7 @@ public class TestNewClassGen extends TestCase {
 
 			try {
 				InputStream in = file.getContents();
-				String content = Activator.readStream(in);
+				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
 				assertEquals("Wrong content created", expect.trim(), content.trim());

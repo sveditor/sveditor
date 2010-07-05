@@ -20,7 +20,7 @@ import junit.framework.TestSuite;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 
 public class IndentTests extends TestCase {
@@ -36,7 +36,7 @@ public class IndentTests extends TestCase {
 	}
 	
 	public void testClass() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
 		bos = utils.readBundleFile("/indent/class1.svh");
@@ -80,7 +80,7 @@ public class IndentTests extends TestCase {
 	}
 	
 	public void testModule() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
 		bos = utils.readBundleFile("/indent/module.svh");

@@ -42,4 +42,9 @@ public class SVDBProgramBlock extends SVDBScopeItem {
 		super(file, parent, type, reader);
 	}
 
+	@Override
+	public SVDBItem duplicate() {
+		return new SVDBProgramBlock(getName());
+	}
+
 }

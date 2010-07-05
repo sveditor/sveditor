@@ -80,6 +80,23 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			List<SVDBFile> 	pp_files,
 			List<SVDBFile> 	db_files) throws DBFormatException {
 		fArgFileLastModified = index_data.readLong();
+		fLoadUpToDate = true;
+		
+		// Read back the Global Defines. Project settings will already
+		// be set.  
+		int n_defines = index_data.readInt();
+		for (int i=0; i<n_defines; i++) {
+			String key = index_data.readString();
+			String val = index_data.readString();
+			
+			if (fGlobalDefines.containsKey(key) ||
+					!fGlobalDefines.get(key).equals(val)) {
+				fGlobalDefines.remove(key);
+				fGlobalDefines.put(key, val);
+				fLog.debug("Invalidating load, since key " + key + " changed value");
+				fLoadUpToDate = false;
+			}
+		}
 		
 		load_base(index_data, pp_files, db_files);
 		
@@ -105,6 +122,10 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 
 	@Override
 	protected boolean isLoadUpToDate() {
+		fLog.debug("BaseLocation Exists: " + 
+				fFileSystemProvider.fileExists(getResolvedBaseLocation()) + 
+				" ArgFileLastModified (saved): " + fArgFileLastModified + 
+				" ArgFileLastModified (current): " + fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation()));
 		if (fFileSystemProvider.fileExists(getResolvedBaseLocation()) &&
 				fArgFileLastModified >= fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation())) {
 			return super.isLoadUpToDate();
@@ -228,6 +249,8 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		}
 		
 		fIndexFileMapValid = true;
+		
+		signalIndexRebuilt();
 	}
 	
 	@Override

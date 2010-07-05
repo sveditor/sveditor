@@ -116,11 +116,15 @@ public class SVUiPlugin extends AbstractUIPlugin
 		if (type == ILogListener.Type_Error) {
 			out = getStderrStream();
 		} else if (SVCorePlugin.getDefault().getDebugEn()) {
-			out = getStdoutStream();
+			if ((type & ILogListener.Type_Error) != 0) {
+				out = getStderrStream();
+			} else {
+				out = getStdoutStream();
+			}
 		}
 		
 		if (out != null) {
-			out.println("[" + handle.getName() + "] " + message);			
+			out.println("[" + handle.getName() + "] " + message);
 		}
 	}
 	
@@ -129,8 +133,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public ResourceBundle getResources() {
 		if (fResources == null) {
 			try {
-				fResources = ResourceBundle.getBundle(
-						PLUGIN_ID + ".SVUIResources");
+				fResources = ResourceBundle.getBundle(PLUGIN_ID + ".SVUIResources");
 			} catch (MissingResourceException e) {
 				e.printStackTrace();
 			}

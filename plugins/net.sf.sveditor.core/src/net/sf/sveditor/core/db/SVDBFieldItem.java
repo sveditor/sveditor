@@ -51,11 +51,8 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 	}
 	
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
-			return false;
-		} else {
-			return (fFieldAttr == ((SVDBFieldItem)obj).fFieldAttr);
-		}
+		return (super.equals(obj) && 
+				(fFieldAttr == ((SVDBFieldItem)obj).fFieldAttr));
 	}
 
 	public void init(SVDBItem other) {

@@ -19,6 +19,7 @@ public class SVTemplatePrefsPage extends TemplatePreferencePage {
     }
 
 
+    @SuppressWarnings("deprecation")
     public boolean performOk() {
     	boolean ok= super.performOk();
 

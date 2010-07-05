@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends Plugin {
+public class SVCoreTestsPlugin extends Plugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core.tests";
@@ -31,12 +31,12 @@ public class Activator extends Plugin {
 	public static final String VMM_LIBRARY_ID = "org.vmmcentral.vmm";
 
 	// The shared instance
-	private static Activator    plugin;
+	private static SVCoreTestsPlugin    plugin;
 	
 	/**
 	 * The constructor
 	 */
-	public Activator() {
+	public SVCoreTestsPlugin() {
 	}
 
 	/*
@@ -58,7 +58,7 @@ public class Activator extends Plugin {
 	}
 	
 	public static InputStream openFile(String path) {
-		Activator p = getDefault();
+		SVCoreTestsPlugin p = getDefault();
 		URL url = p.getBundle().getEntry(path);
 		InputStream in = null;
 		
@@ -89,8 +89,9 @@ public class Activator extends Plugin {
 	 *
 	 * @return the shared instance
 	 */
-	public static Activator getDefault() {
+	public static SVCoreTestsPlugin getDefault() {
 		return plugin;
 	}
+	
 
 }

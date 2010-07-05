@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -53,7 +53,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 
 	
 	public void testWSLibMissingIncludeDefine() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -75,7 +75,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	}
 
 	public void testWSArgFileMissingIncludeDefine() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -97,7 +97,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	}
 
 	public void testWSSourceCollectionMissingIncludeDefine() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(true);
 		

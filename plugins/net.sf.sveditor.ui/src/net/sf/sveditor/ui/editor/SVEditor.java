@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Iterator;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -23,6 +24,8 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -50,6 +53,9 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewerExtension2;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
@@ -260,6 +266,8 @@ public class SVEditor extends TextEditor
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		
 		fSVDBFile.setFilePath(fSVDBFilePath);
+		
+		addErrorMarkers();
 		
 		if (fOutline != null) {
 			fOutline.refresh();
@@ -488,14 +496,71 @@ public class SVEditor extends TextEditor
 		}
 		try {
 			int offset   = doc.getLineOffset(start);
-			int offset_e = doc.getLineOffset(end); 
+			int last_line = doc.getLineOfOffset(doc.getLength()-1);
+			
+			if (end > last_line) {
+				end = last_line;
+			}
+			int offset_e = doc.getLineOffset(end);
 			setHighlightRange(offset, (offset_e-offset), false);
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
-			selectAndReveal(offset, (offset_e-offset));
+			selectAndReveal(0, 0, offset, (offset_e-offset));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Clears error annotations
+	 */
+	@SuppressWarnings("unchecked")
+	private void clearErrors() {
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			if (ann.getType().equals("org.eclipse.ui.workbench.texteditor.error")) {
+				ann_model.removeAnnotation(ann);
+			}
+		}
+	}
+
+	/**
+	 * Add error annotations from the 
+	 */
+	private void addErrorMarkers() {
+		clearErrors();
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		for (SVDBItem it : fSVDBFile.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Have marker \"" + it.getName() + "\"");
+				SVDBMarkerItem marker = (SVDBMarkerItem)it;
+				Annotation ann = null;
+				int line = -1;
+				
+				if (marker.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					ann = new Annotation(
+							"org.eclipse.ui.workbench.texteditor.error", 
+							false, marker.getMessage());
+					line = marker.getLocation().getLine();
+				}
+				
+				if (ann != null) {
+					IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+					try {
+						System.out.println("Get line offset of " + line);
+						Position pos = new Position(doc.getLineOffset(line-1));
+						ann_model.addAnnotation(ann, pos);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 	

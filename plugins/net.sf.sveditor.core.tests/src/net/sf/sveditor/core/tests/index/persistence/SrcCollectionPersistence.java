@@ -25,7 +25,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -57,7 +57,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 	public void testWSTimestampChanged() {
 		ByteArrayOutputStream 	out;
 		PrintStream				ps;
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		fIndexRebuildCnt = 0;
 		
@@ -144,7 +144,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 	}
 
 	public void testWSNoChange() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -221,7 +221,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 	public void testFSTimestampChanged() {
 		ByteArrayOutputStream out;
 		PrintStream ps;
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -309,7 +309,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 	}
 
 	public void testFSNoChange() {
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		fIndexRebuildCnt = 0;
 		

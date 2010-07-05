@@ -81,5 +81,17 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 		
 		fTarget = other_i.fTarget;
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBCoverPoint) {
+			return ((SVDBCoverPoint)obj).fTarget.equals(fTarget) &&
+				((SVDBCoverPoint)obj).fBody.equals(fBody) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	}
 	
 }

@@ -87,8 +87,9 @@ public class SVExprParser extends SVParserBase {
 				return true;
 			}
 			
-			public void error(SVParseException e) {
-			}
+			public void error(SVParseException e) {}
+			
+			public void error(String msg) {}
 
 			public SVParsers parsers() {
 				return null;

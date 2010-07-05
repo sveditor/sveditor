@@ -21,6 +21,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 	// Enter on 'function'
 	public SVDBTaskFuncScope parse(SVDBLocation start, int qualifiers) throws SVParseException {
 		SVDBTaskFuncScope func = null;
+		SVDBLocation end = null;
 		String tf_name;
 		
 		if (start == null) {
@@ -106,7 +107,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
 			// Parse the body
 			parsers().tfBodyParser().parse(func, is_ansi);
-			
+		
+			end = lexer().getStartLocation();
 			if  (type.equals("task")) {
 				lexer().readKeyword("endtask");
 			} else {
@@ -123,7 +125,11 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		}
 		
-		func.setEndLocation(lexer().getStartLocation());
+		if (end == null) {
+			end = lexer().getStartLocation();
+		}
+		
+		func.setEndLocation(end);
 		
 		return func;
 	}

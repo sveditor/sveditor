@@ -2,7 +2,7 @@ package net.sf.sveditor.core.parser;
 
 public class SVParseException extends Exception {
 	
-	private String						fMessage;
+//	private String						fMessage;
 	private String						fFilename;
 	private int							fLineno;
 	
@@ -12,8 +12,9 @@ public class SVParseException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	private SVParseException(String msg, String filename, int lineno) {
-		super(filename + ":" + lineno + " " + msg);
-		fMessage  = msg;
+		super(msg);
+//		super(filename + ":" + lineno + " " + msg);
+//		fMessage  = msg;
 		fFilename = filename;
 		fLineno = lineno;
 	}

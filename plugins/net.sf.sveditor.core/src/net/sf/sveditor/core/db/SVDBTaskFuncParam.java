@@ -75,6 +75,19 @@ public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 		super.dump(writer);
 		writer.writeInt(fDir);
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBTaskFuncParam) {
+			SVDBTaskFuncParam o = (SVDBTaskFuncParam)obj;
+
+			if (o.fDir != fDir) {
+				return false;
+			}
+			
+			return super.equals(obj);
+		}
+		return false;
+	}
 	
 }

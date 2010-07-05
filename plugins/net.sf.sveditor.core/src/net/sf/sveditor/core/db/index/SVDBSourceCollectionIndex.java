@@ -201,9 +201,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 
 		fIndexFileMapValid = true;
 		
-		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
-			l.index_rebuilt();
-		}
+		signalIndexRebuilt();
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
 	}

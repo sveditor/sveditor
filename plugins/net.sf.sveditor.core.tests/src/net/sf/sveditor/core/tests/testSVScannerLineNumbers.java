@@ -27,7 +27,7 @@ public class testSVScannerLineNumbers implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 		// InputStream in = Activator.openFile("data/ovm_tlm/ovm_ports.svh");
-		InputStream in = Activator.openFile("data/tlm_imps.svh");
+		InputStream in = SVCoreTestsPlugin.openFile("data/tlm_imps.svh");
 		
 		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
 		SVDBFile f =  factory.parse(in, "tlm_imps.svh");

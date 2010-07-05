@@ -67,6 +67,15 @@ public class SVDBConstraint extends SVDBItem {
 		
 		writer.writeString(fConstraintExpr);
 	}
-	
 
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBConstraint) {
+			return ((SVDBConstraint)obj).fConstraintExpr.equals(fConstraintExpr) &&
+				super.equals(obj);
+		}
+		return false;
+	}
+	
 }

@@ -38,12 +38,14 @@ public class SVDBFile extends SVDBScopeItem {
 	public SVDBFile(String file) {
 		super(new File(file).getName(), SVDBItemType.File);
 		fFile               = file;
+		setLocation(new SVDBLocation(0));
 	}
 
 	public SVDBFile(String file, long lastModified) {
 		this(file);
 		
 		fLastModified = lastModified;
+		setLocation(new SVDBLocation(0));
 	}
 
 	public SVDBFile(
@@ -92,5 +94,19 @@ public class SVDBFile extends SVDBScopeItem {
 		fFile               = ((SVDBFile)other).fFile;
 		fLastModified = ((SVDBFile)other).fLastModified;
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBFile) {
+			SVDBFile o = (SVDBFile)obj;
+
+			if (fLastModified != o.fLastModified) {
+				return false;
+			}
+			
+			return (fFile.equals(o.fFile) &&
+					super.equals(obj));
+		}
+		return false;
+	}
 }

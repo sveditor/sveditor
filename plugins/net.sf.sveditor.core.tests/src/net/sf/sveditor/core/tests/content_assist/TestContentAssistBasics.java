@@ -33,7 +33,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.Activator;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -46,7 +47,7 @@ public class TestContentAssistBasics extends TestCase {
 	@Override
 	public void setUp() {
 		fTmpDir = TestUtils.createTempDir();
-		BundleUtils utils = new BundleUtils(Activator.getDefault().getBundle());
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		utils.copyBundleDirToFS("/data/basic_content_assist_project", fTmpDir);
 
@@ -56,13 +57,13 @@ public class TestContentAssistBasics extends TestCase {
 		fIndex = new ContentAssistIndex();
 		fIndexCollectionOVMMgr.addLibraryPath(fIndex);
 		fIndexCollectionOVMMgr.addPluginLibrary(
-				rgy.findCreateIndex(pname, Activator.OVM_LIBRARY_ID, 
+				rgy.findCreateIndex(pname, SVCoreTestsPlugin.OVM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		fIndexCollectionVMMMgr = new SVDBIndexCollectionMgr(pname);
 		fIndexCollectionVMMMgr.addLibraryPath(fIndex);
 		fIndexCollectionVMMMgr.addPluginLibrary(
-				rgy.findCreateIndex(pname, Activator.VMM_LIBRARY_ID, 
+				rgy.findCreateIndex(pname, SVCoreTestsPlugin.VMM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
@@ -145,6 +146,7 @@ public class TestContentAssistBasics extends TestCase {
 			"        int v = my_<<MARK>>\n" +				// 11
 			"    endfunction\n" +							// 12
 			"endclass\n";									// 13
+		// SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -154,12 +156,15 @@ public class TestContentAssistBasics extends TestCase {
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
 		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
+		SVDBIndexValidator v = new SVDBIndexValidator();
+		
+		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBModIfcClassDecl my_class2 = null;
 		
 		while (it.hasNext()) {
 			SVDBItem it_t = it.nextItem();
-			System.out.println("    " + it_t.getType() + " " + it_t.getName());
+			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (it_t.getName().equals("my_class2")) {
 				my_class2 = (SVDBModIfcClassDecl)it_t;
 			}
