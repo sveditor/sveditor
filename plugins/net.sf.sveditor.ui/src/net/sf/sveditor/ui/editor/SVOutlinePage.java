@@ -38,6 +38,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
 	private boolean						fIgnoreSelection = false;
+	private SVDBItem					fLastSelection;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -121,7 +122,10 @@ public class SVOutlinePage extends ContentOutlinePage
 					if (sel.getFirstElement() instanceof SVDBItem) {
 						SVDBItem it = (SVDBItem)sel.getFirstElement();
 						
-						fEditor.setSelection(it, false);
+						if (fLastSelection == null || fLastSelection != it) {
+							fEditor.setSelection(it, false);
+							fLastSelection = it;
+						}
 					}
 				}
 				

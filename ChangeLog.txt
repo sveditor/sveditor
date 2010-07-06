@@ -22,7 +22,6 @@ caused navigation history to not be maintained properly
   As the parser adds features, this should be a useful tool for SystemVerilog
   developers.
 
-? Ensure that indent parser ignores content inside comments
 
 -- 0.2.0 Release --
 

@@ -1645,6 +1645,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fParseErrors.add(e);
 
 		
+		error(e.getMessage(), e.getFilename(), e.getLineno());
+		
+		// Send the full error forward
 		fLog.debug("Parse Error: " + e.getMessage() + " " + 
 				e.getFilename() + ":" + e.getLineno(), e);
 		
