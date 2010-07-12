@@ -1,4 +1,30 @@
 
+-- 0.2.2 Release --
+
+- Support content assist for SystemVerilog keywords
+
+- Fix bugs, introduced by the new parser, in support for covergroup 
+  content assist and added tests
+
+- Enhance the Project Explorer with a Project Paths entry that allows the
+  directory structure of indexes (workspace internal and external) to be 
+  browsed. This makes it significantly easier to open a file that is part
+  of an index that is outside the filesystem. It also makes it easier to
+  see what is present in the index paths of a project.
+
+- Enhanced Argument File index to support argument files that reference
+  paths outside the workspace. An example of this case is shown in the
+  OVM 'xbus' example. The example project is 'xbus', but the argument file
+  in the project references the OVM library several directory levels 
+  above -- outside the project directory.
+
+? Enhance support for content assist in 'module' context
+    - Ensure ports parsed
+    - Search ports (same as function parameters) when searching up
+    - 
+
+? Support parameter declaration in module bodies
+
 -- 0.2.1 Release --
 
 - Corrected a pretty severe auto-indent bug related to pasting the opening 

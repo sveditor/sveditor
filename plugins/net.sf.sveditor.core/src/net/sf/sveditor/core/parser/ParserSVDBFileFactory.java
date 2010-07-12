@@ -446,6 +446,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			}
 		}
 		
+		cg.setEndLocation(lexer().getStartLocation());
+		
 		lexer().readKeyword("endgroup");
 		if (lexer().peekOperator(":")) {
 			lexer().readId(); // labeled group
@@ -808,7 +810,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	private List<SVClassIfcModParam> parse_parameter_str(String p_str) {
+	List<SVClassIfcModParam> parse_parameter_str(String p_str) {
 		List<SVClassIfcModParam> ret = new ArrayList<SVClassIfcModParam>();
 		ITextScanner in = new StringTextScanner(new StringBuilder(p_str));
 		/*

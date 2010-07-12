@@ -16,11 +16,13 @@ import net.sf.sveditor.core.db.SVDBItem;
 
 public class SVCompletionProposal {
 	
-	private SVDBItem				fItem;
-	private String					fPrefix;
-	private String					fReplacement;
-	private int						fReplacementOffset;
-	private int						fReplacementLength;
+	private SVDBItem					fItem;
+	private String						fPrefix;
+	private String						fReplacement;
+	private int							fReplacementOffset;
+	private int							fReplacementLength;
+	private SVCompletionProposalType	fType;
+	
 	
 	public SVCompletionProposal(
 			SVDBItem 		item,
@@ -32,6 +34,7 @@ public class SVCompletionProposal {
 		fReplacement		= item.getName();
 		fReplacementOffset 	= replacementOffset;
 		fReplacementLength 	= replacementLength;
+		fType				= SVCompletionProposalType.SVObject;
 	}
 	
 	public String getPrefix() {
@@ -53,10 +56,26 @@ public class SVCompletionProposal {
 		fReplacement 		= replacement;
 		fReplacementOffset 	= startOffset;
 		fReplacementLength 	= replacementLength;
+		fType				= SVCompletionProposalType.Unknown;
 	}
-	
+
+	public SVCompletionProposal(
+			String 						replacement, 
+			int 						startOffset, 
+			int 						replacementLength,
+			SVCompletionProposalType	type) {
+		fReplacement 		= replacement;
+		fReplacementOffset 	= startOffset;
+		fReplacementLength 	= replacementLength;
+		fType				= type;
+	}
+
 	public SVDBItem getItem() {
 		return fItem;
+	}
+	
+	public SVCompletionProposalType getType() {
+		return fType;
 	}
 	
 	public int getReplacementOffset() {

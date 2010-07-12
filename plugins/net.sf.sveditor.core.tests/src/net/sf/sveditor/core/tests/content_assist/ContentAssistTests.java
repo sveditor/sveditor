@@ -25,6 +25,7 @@ public class ContentAssistTests extends TestCase {
 		TestSuite suite = new TestSuite("ContentAssistTests");
 		suite.addTest(new TestSuite(TestContentAssistBasics.class));
 		suite.addTest(new TestSuite(TestContentAssistStruct.class));
+		suite.addTest(new TestSuite(TestContentAssistBuiltins.class));
 		
 		return suite;
 	}

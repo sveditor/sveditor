@@ -82,12 +82,16 @@ public class SVClassDeclParser extends SVParserBase {
 				break;
 			}
 			
-			item = parsers().SVParser().process_module_class_interface_body_item("class");
+			try {
+				item = parsers().SVParser().process_module_class_interface_body_item("class");
 
-			// Check whether we aborted parsing the body because
-			// we found a 1st-level scope keyword
-			if (item == null) {
-				break;
+				// Check whether we aborted parsing the body because
+				// we found a 1st-level scope keyword
+				if (item == null) {
+					break;
+				}
+			} catch (SVParseException e) {
+				// Catch error
 			}
 			
 			// TODO: normally we'd add this item to the class, but that's already being done

@@ -12,10 +12,8 @@
 
 package net.sf.sveditor.core.scanner;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -296,7 +294,7 @@ public class SVKeywords {
 		return fTypeNames.contains(type);
 	}
 	
-	public static String[] getKeywords() {
-		return fKeywords;
+	public static Set<String> getKeywords() {
+		return fKeywordMap.keySet();
 	}
 }

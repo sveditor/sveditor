@@ -21,11 +21,20 @@ class __sv_builtin_covergroup_options;
 	
 endclass
 
+class __sv_builtin_covergroup_type_options 
+	extends __sv_builtin_covergroup_options;
+	
+	bit strobe ;
+	bit merge_instances ;
+endclass
+
 class __sv_builtin_covergroup;
 
 	extern function new();
 	
-	__sv_builtin_covergroup_options options;
+	__sv_builtin_covergroup_options      option;
+
+	__sv_builtin_covergroup_type_options type_option;
 
 	extern function real get_coverage();
 	

@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
@@ -420,7 +421,7 @@ public class TestContentAssistBasics extends TestCase {
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(
 				ini.second().getStrippedData());
-
+		
 		// We only look at the local index here (no OVM)
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
 		
@@ -429,6 +430,14 @@ public class TestContentAssistBasics extends TestCase {
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("FIELD1"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		// Remove any keyword proposals
+		for (int i=0; i<proposals.size(); i++) {
+			if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement())) {
+				proposals.remove(i);
+				i--;
+			}
+		}
 		
 		validateResults(new String[] {"my_class", "my_class1"}, proposals);
 	}
@@ -479,6 +488,36 @@ public class TestContentAssistBasics extends TestCase {
 		
 		validateResults(new String[] {"ovm_object_utils_begin", "ovm_object_utils", 
 				"ovm_object_utils_end"}, proposals);
+	}
+
+	public void testFunctionNonVoidReturn() {
+		String doc =
+			"class my_class extends ovm_component;\n" +
+			"\n" +
+			"    function void build();\n" +
+			"        if (get_config_ob<<MARK>>\n" +
+			"\n" +
+			"endclass\n";
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(
+				ini.second().getStrippedData());
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			System.out.println("Proposal: " + p.getReplacement());
+		}
+		
+		validateResults(new String[] {"get_config_object"}, proposals);
 	}
 
 	

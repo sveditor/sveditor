@@ -113,6 +113,10 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fSourceCollectionList.add(index);
 	}
 	
+	public List<ISVDBIndex> getSourceCollectionList() {
+		return fSourceCollectionList;
+	}
+	
 	public void addShadowIndex(String dir, ISVDBIndex index) {
 		fLog.debug("addShadowIndex: " + dir + "(" + index.getBaseLocation() + ")");
 		
@@ -145,6 +149,14 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		p.addSearchPath(fPluginLibraryList);
 		index.setIncludeFileProvider(p);
 		fLibraryPathList.add(index);
+	}
+	
+	public List<ISVDBIndex> getLibraryPathList() {
+		return fLibraryPathList;
+	}
+	
+	public List<ISVDBIndex> getPluginPathList() {
+		return fPluginLibraryList;
 	}
 	
 	public void addPluginLibrary(ISVDBIndex index) {

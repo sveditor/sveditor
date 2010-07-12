@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 
@@ -84,7 +85,7 @@ public abstract class AbstractCompletionProcessor {
 				active_file, lineno);
 
 		if (src_scope == null) {
-			debug("In global scope");
+			debug("In global scope -- failed to find scope position @ " + lineno);
 		} else {
 			debug("Source scope: " + src_scope.getName());
 		}
@@ -123,7 +124,20 @@ public abstract class AbstractCompletionProcessor {
 			for (SVDBItem it : items) {
 				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
+			
+			if (ctxt.fTrigger == null) {
+				// Finally, add any keyword proposals
+				String lc_leaf = ctxt.fLeaf.toLowerCase();
+				for (String kw : SVKeywords.getKeywords()) {
+					kw = kw.toLowerCase();
+					if (kw.startsWith(lc_leaf)) {
+						addProposal(new SVCompletionProposal(kw, ctxt.fStart, ctxt.fLeaf.length(),
+								SVCompletionProposalType.Keyword));
+					}
+				}
+			}
 		}
+		
 		
 		order_proposals(ctxt.fLeaf, fCompletionProposals);
 	}

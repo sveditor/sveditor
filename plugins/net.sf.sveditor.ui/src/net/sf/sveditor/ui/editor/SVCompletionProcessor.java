@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
+import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -33,6 +34,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -179,6 +181,10 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							null, null, null);
 					break;
 			}
+		} else if (p.getType() == SVCompletionProposalType.Keyword) {
+			cp = new CompletionProposal(p.getReplacement(), 
+					p.getReplacementOffset(), p.getReplacementLength(), 
+					p.getReplacement().length(), SVUiPlugin.getImage("/icons/edecl16/keyword_obj.gif"), null, null, null);
 		} else {
 			cp = new CompletionProposal(p.getReplacement(), 
 					p.getReplacementOffset(), p.getReplacementLength(), 

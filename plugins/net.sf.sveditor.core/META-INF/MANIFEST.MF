@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.filesystem,
  org.eclipse.ant.core,
  org.apache.ant,
- org.eclipse.core.variables
+ org.eclipse.core.variables,
+ org.eclipse.core.expressions;bundle-version="3.4.101"
 Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.content_assist,

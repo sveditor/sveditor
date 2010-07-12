@@ -538,7 +538,6 @@ public class SVEditor extends TextEditor
 		
 		for (SVDBItem it : fSVDBFile.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Have marker \"" + it.getName() + "\"");
 				SVDBMarkerItem marker = (SVDBMarkerItem)it;
 				Annotation ann = null;
 				int line = -1;
@@ -553,7 +552,6 @@ public class SVEditor extends TextEditor
 				if (ann != null) {
 					IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 					try {
-						System.out.println("Get line offset of " + line);
 						Position pos = new Position(doc.getLineOffset(line-1));
 						ann_model.addAnnotation(ann, pos);
 					} catch (BadLocationException e) {

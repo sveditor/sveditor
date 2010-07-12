@@ -72,6 +72,48 @@ public class TestContentAssistStruct extends TestCase {
 	/**
 	 * Test that basic macro content assist works
 	 */
+	public void testContentAssistStructModuleInput() {
+		String doc1 =
+			"class foobar;\n" +
+			"endclass\n" +
+			"\n" +
+			"typedef struct {\n" +
+			"    int             my_int_field;\n" +
+			"    bit             my_bit_field;\n" +
+			"} my_struct_t;\n" +
+			"\n" +
+			"module foo_m(input my_struct_t mm);\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        mm.my_<<MARK>>\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (SVDBItem it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + it.getName());
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+	}
+
+	/**
+	 * Test that basic macro content assist works
+	 */
 	public void testContentAssistStructInClassTypedef() {
 		String doc1 =
 			"class foobar;\n" +

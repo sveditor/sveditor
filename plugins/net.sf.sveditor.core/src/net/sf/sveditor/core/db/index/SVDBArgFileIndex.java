@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,12 @@ import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 public class SVDBArgFileIndex extends SVDBLibIndex {
 	private String						fBaseLocationDir;
@@ -276,11 +284,41 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		return ret;
 	}
 
-	protected String resolvePath(String path) {
-		
+	protected String resolvePath(String path_orig) {
+		String path = path_orig;
+		String norm_path = null;
+
 		// relative to the base location
 		if (path.startsWith("..")) {
 			path = getResolvedBaseLocationDir() + "/" + path;
+			norm_path = normalizePath(path);
+			
+			if (getBaseLocation().startsWith("${workspace_loc}") && 
+					!fFileSystemProvider.fileExists(norm_path)) {
+				// This could be a reference outside the workspace. Check
+				// whether we should reference this as a filesystem path 
+				// by computing the absolute path
+				String base_loc = getResolvedBaseLocationDir();
+				base_loc = base_loc.substring("${workspace_loc}".length());
+				
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				IFolder base_dir = root.getFolder(new Path(base_loc));
+				
+				if (base_dir.exists()) {
+					IPath base_dir_p = base_dir.getLocation();
+					if (base_dir_p != null) {
+						File path_f_t = new File(base_dir_p.toFile(), path_orig);
+						try {
+							if (path_f_t.exists()) {
+								fLog.debug("Path does exist outside the project: " + path_f_t.getCanonicalPath());
+								norm_path = SVFileUtils.normalize(path_f_t.getCanonicalPath());
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
 		} else if (path.startsWith(".") || Character.isJavaIdentifierStart(path.charAt(0))) {
 			if (path.equals(".")) {
 				path = getResolvedBaseLocationDir();
@@ -291,9 +329,8 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				// relative to the base directory
 				path = getResolvedBaseLocationDir() + "/" + path;
 			}
+			norm_path = normalizePath(path);
 		}
-		
-		String norm_path = normalizePath(path);
 		
 		return norm_path;
 	}

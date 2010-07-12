@@ -74,14 +74,14 @@
                </instanceof>
             </or>
          </triggerPoints>
+         <commonSorter
+               class="net.sf.sveditor.ui.explorer.SVFileSorter">
+         </commonSorter>
          <possibleChildren>
             <instanceof
                   value="net.sf.sveditor.core.db.SVDBItem">
             </instanceof>
          </possibleChildren>
-         <commonSorter
-               class="net.sf.sveditor.ui.explorer.SVFileSorter">
-         </commonSorter>
       </navigatorContent>
 <!--
       <actionProvider
@@ -132,6 +132,36 @@
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
+      <navigatorContent
+            activeByDefault="true"
+            contentProvider="net.sf.sveditor.ui.explorer.ProjectPathsContentProvider"
+            icon="icons/edecl16/package.gif"
+            id="net.sf.sveditor.ui.projectPathsContent"
+            labelProvider="net.sf.sveditor.ui.explorer.ProjectPathsLabelProvider"
+            name="Project Paths"
+            priority="high"
+            providesSaveables="false">
+         <triggerPoints>
+            <or>
+               <adapt
+                     type="net.sf.sveditor.core.db.project.SVDBProjectData">
+               </adapt>
+               <instanceof
+                     value="net.sf.sveditor.core.db.SVDBItem">
+               </instanceof>
+            </or>
+         </triggerPoints>
+         <override
+               policy="InvokeAlwaysRegardlessOfSuppressedExt"
+               suppressedExtensionId="net.sf.sveditor.ui.svFileNavigatorContent">
+         </override>
+         <!--
+         <override
+               policy="InvokeAlwaysRegardlessOfSuppressedExt"
+               suppressedExtensionId="org.eclipse.ui.navigator.resourceContent">
+         </override>
+          -->
+      </navigatorContent>
       <!--
       <commonWizard
             menuGroupId="net.sf.sveditor.ui.newSVWizards"
@@ -151,6 +181,10 @@
             <contentExtension
                   isRoot="false"
                   pattern="net.sf.sveditor.ui.svFileNavigatorContent">
+            </contentExtension>
+            <contentExtension
+                  isRoot="false"
+                  pattern="net.sf.sveditor.ui.projectPathsContent">
             </contentExtension>
          </includes>
       </viewerContentBinding>

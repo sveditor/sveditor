@@ -30,6 +30,7 @@ public class SVDBIconUtils implements ISVIcons {
 	static {
 		fImgDescMap = new HashMap<SVDBItemType, String>();
 
+		fImgDescMap.put(SVDBItemType.File, FILE_OBJ);
 		fImgDescMap.put(SVDBItemType.Module, MODULE_OBJ);
 		fImgDescMap.put(SVDBItemType.Interface, INT_OBJ);
 		fImgDescMap.put(SVDBItemType.Class, CLASS_OBJ);

@@ -97,5 +97,15 @@
          </description>
       </methodologyTemplate>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.core.resources.IProject"
+            class="net.sf.sveditor.core.SVProjectDataAdapter">
+         <adapter
+               type="net.sf.sveditor.core.db.project.SVDBProjectData">
+         </adapter>
+      </factory>
+   </extension>
 
 </plugin>

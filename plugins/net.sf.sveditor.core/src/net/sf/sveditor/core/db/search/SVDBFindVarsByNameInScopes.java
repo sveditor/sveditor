@@ -102,7 +102,7 @@ public class SVDBFindVarsByNameInScopes {
 						if (it.getType() == SVDBItemType.VarDecl ||
 								it.getType() == SVDBItemType.Covergroup ||
 								it.getType() == SVDBItemType.Coverpoint) {
-							if (it.getName().equals(name)) {
+							if (fMatcher.match(it, name)) {
 								ret.add(it);
 								
 								if (stop_on_first_match) {
