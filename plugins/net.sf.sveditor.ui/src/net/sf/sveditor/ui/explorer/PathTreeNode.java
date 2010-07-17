@@ -32,7 +32,6 @@ public class PathTreeNode implements IProjectPathsData {
 		fName = name;
 	}
 
-	@Override
 	public Object[] getChildren(Object parent) {
 		List<Object> ret = new ArrayList<Object>();
 		ret.addAll(fChildNodes);
@@ -41,7 +40,6 @@ public class PathTreeNode implements IProjectPathsData {
 		return ret.toArray();
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		// TODO Auto-generated method stub
 		return null;

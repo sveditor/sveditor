@@ -89,7 +89,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 			super.run();
 			
 			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {
-				System.out.println("Open " + it.getType() + " " + it.getName());
 				IEditorPart ed_f = openEditor(it);
 				if (ed_f != null) {
 					((SVEditor)ed_f).setSelection(it, true);
@@ -137,7 +136,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 							e.printStackTrace();
 						}
 						
-						System.out.println("Input instanceof " + in.getClass().getName());
 						if (in instanceof FileEditorInput) {
 							FileEditorInput in_f = (FileEditorInput)in;
 							if (in_f.getPath().equals(path)) {
@@ -161,7 +159,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 				if (ret == null) {
 					w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 					IEditorRegistry rgy = PlatformUI.getWorkbench().getEditorRegistry();
-					System.out.println("Target file: " + f);
 					IEditorDescriptor desc = rgy.getDefaultEditor(leaf);
 
 					try {
@@ -173,7 +170,6 @@ public class OpenSVDBItem extends CommonActionProvider {
 						} else {
 							// Use local filesystem
 							IFileStore fs = EFS.getLocalFileSystem().getStore(new Path(file));
-							System.out.println("Create FileStore from \"" + file + "\" " + fs);
 							ret = w.getActivePage().openEditor(
 									new FileStoreEditorInput(fs), desc.getId());
 						}

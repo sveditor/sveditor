@@ -35,17 +35,14 @@ public class LibIndexPath implements IProjectPathsData {
 		return fType;
 	}
 
-	@Override
 	public Object[] getChildren(Object parent) {
 		return fIndexList.toArray();
 	}
 
-	@Override
 	public String getName() {
 		return fName;
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		if (element == this) {
 			return fParent;

@@ -15,7 +15,6 @@ public class ProjectPathsFileWrapper implements IAdaptable {
 		return fFile;
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Class adapter) {
 		if (adapter.equals(SVDBFile.class)) {

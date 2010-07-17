@@ -39,23 +39,17 @@ public class ProjectPathsData implements IProjectPathsData {
 				this, "Argument Files", argFileIndexList));
 	}
 
-	@Override
 	public Object[] getChildren(Object parent) {
 		return fPaths.toArray();
 	}
 
-	@Override
 	public String getName() {
 		return "Project Paths";
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-
-	
 
 }

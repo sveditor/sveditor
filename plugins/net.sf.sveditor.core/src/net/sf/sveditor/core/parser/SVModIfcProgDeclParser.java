@@ -40,8 +40,13 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			// TODO: tag with lifetime
 			lexer().eatToken();
 		}
-
-		module_type_name = lexer().readId();
+		
+		if (type == SVDBItemType.Program && lexer().peekOperator(";")) {
+			// anonymous program block
+			module_type_name = "";
+		} else {
+			module_type_name = lexer().readId();
+		}
 
 		module = new SVDBModIfcClassDecl(module_type_name, type);
 		module.setLocation(start);

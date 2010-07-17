@@ -25,17 +25,14 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		return fType;
 	}
 
-	@Override
 	public Object[] getChildren(Object parent) {
 		return fRoots.toArray();
 	}
 
-	@Override
 	public String getName() {
 		return fIndex.getBaseLocation();
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		return null;
 	}

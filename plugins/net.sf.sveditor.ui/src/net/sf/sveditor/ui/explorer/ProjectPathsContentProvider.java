@@ -18,7 +18,6 @@ public class ProjectPathsContentProvider implements ITreeContentProvider {
 		fProjectDataMap = new WeakHashMap<Object, ProjectPathsData>();
 	}
 
-	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IProject &&
 				((IProject)parentElement).getFile(".svproject").exists()) {
@@ -34,28 +33,23 @@ public class ProjectPathsContentProvider implements ITreeContentProvider {
 		return NO_ELEMENTS;
 	}
 
-	@Override
 	public Object getParent(Object element) {
 		return null;
 	}
 
-	@Override
 	public boolean hasChildren(Object element) {
 		return (getChildren(element).length > 0);
 	}
 
-	@Override
 	public Object[] getElements(Object inputElement) {
 		return NO_ELEMENTS;
 	}
 
-	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
 
 }

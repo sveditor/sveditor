@@ -7,7 +7,6 @@ import org.eclipse.core.runtime.IAdapterFactory;
 
 public class SVProjectDataAdapter implements IAdapterFactory {
 
-	@Override
 	@SuppressWarnings("unchecked")
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof IProject) {
@@ -22,7 +21,6 @@ public class SVProjectDataAdapter implements IAdapterFactory {
 		return null;
 	}
 
-	@Override
 	@SuppressWarnings("unchecked")
 	public Class[] getAdapterList() {
 		System.out.println("getAdapterList");
