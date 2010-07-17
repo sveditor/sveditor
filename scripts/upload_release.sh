@@ -64,4 +64,35 @@ sftp -b /dev/stdin $SF_USERNAME,sveditor@frs.sourceforge.net << EOF
 EOF
 
 
+# Finally, update the release tag
+svnroot="https://sveditor.svn.sourceforge.net/svnroot/sveditor"
+svn_cmd="svn --username $SF_USERNAME"
+
+# Check, first to see if we can access
+$svn_cmd ls $svnroot/trunk > /dev/null
+
+if test $? -ne 0; then
+   echo "[ERROR] cannot access SVNROOT"
+   exit 1
+fi
+
+# Next, see if the release tag already exists
+$svn_cmd ls $svnroot/tags/release/${version} > /dev/null
+
+if test $? -eq 0; then
+  # already exists. Deletes
+  $svn_cmd rm -m "Cleanup for ${version} re-release" \
+    $svnroot/tags/release/${version}
+fi
+
+# Finally, create the release tag
+$svn_cmd cp -m "Release tag for ${version}" \
+    $svnroot/trunk $svnroot/tags/release/${version}
+
+if test $? -ne 0; then
+  echo "[ERROR] failed to create release tag"
+  exit 1
+fi
+
+
 
