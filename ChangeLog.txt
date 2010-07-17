@@ -18,12 +18,10 @@
   in the project references the OVM library several directory levels 
   above -- outside the project directory.
 
-? Enhance support for content assist in 'module' context
-    - Ensure ports parsed
-    - Search ports (same as function parameters) when searching up
-    - 
-
-? Support parameter declaration in module bodies
+- Enhance support for content assist in 'module' context
+    - Ensure ports are parsed
+    - Search ports (same as function parameters) when searching up for 
+      content-assist proposals
 
 -- 0.2.1 Release --
 

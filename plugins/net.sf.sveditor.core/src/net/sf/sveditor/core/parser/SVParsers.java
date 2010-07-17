@@ -19,6 +19,8 @@ public class SVParsers {
 	private SVBlockItemDeclParser				fBlockItemDeclParser;
 	private SVParameterValueAssignmentParser	fParamValueAssignParser;
 	private SVBehavioralBlockParser				fBehavioralBlockParser;
+	private SVModIfcProgDeclParser				fModIfcProgParser;
+	private SVPortListParser					fPortListParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -96,6 +98,20 @@ public class SVParsers {
 			fBehavioralBlockParser = new SVBehavioralBlockParser(fSVParser);
 		}
 		return fBehavioralBlockParser;
+	}
+	
+	public SVModIfcProgDeclParser modIfcProgParser() {
+		if (fModIfcProgParser == null) {
+			fModIfcProgParser = new SVModIfcProgDeclParser(fSVParser);
+		}
+		return fModIfcProgParser;
+	}
+	
+	public SVPortListParser portListParser() {
+		if (fPortListParser == null) {
+			fPortListParser = new SVPortListParser(fSVParser);
+		}
+		return fPortListParser;
 	}
 
 }

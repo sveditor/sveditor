@@ -48,7 +48,7 @@ public class SVLexer extends SVToken {
 		"<", "<<", "<=",
 		">", ">>", ">=",
 		":", "::", ":/", ":=",
-		",", ";", ".", ":",
+		",", ";", ".", ".*", ":", 
 		"->",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
 		"-=", "<<=", ">>=", "&=", "^=", "|=", "#",
@@ -126,6 +126,11 @@ public class SVLexer extends SVToken {
 	public boolean isKeyword() {
 		peek();
 		return fIsKeyword;
+	}
+	
+	public boolean isOperator() {
+		peek();
+		return fIsOperator;
 	}
 	
 	public boolean peekOperator(String ... ops) throws SVParseException {

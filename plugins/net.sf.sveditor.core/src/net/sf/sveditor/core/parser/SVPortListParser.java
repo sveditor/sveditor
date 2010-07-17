@@ -6,23 +6,29 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
-public class SVTaskFunctionPortListParser extends SVParserBase {
+public class SVPortListParser extends SVParserBase {
 	
-	public SVTaskFunctionPortListParser(ISVParser parser) {
+	public SVPortListParser(ISVParser parser) {
 		super(parser);
 	}
 	
 	public List<SVDBParamPort> parse() throws SVParseException {
-		List<SVDBParamPort> params = new ArrayList<SVDBParamPort>();
+		List<SVDBParamPort> ports = new ArrayList<SVDBParamPort>();
 		int dir = SVDBParamPort.Direction_Input;
 		SVDBTypeInfo last_type = null;
 		
 		lexer().readOperator("(");
 		
-		// Empty parameter list
-		if (lexer().peekOperator(")")) {
+		if (lexer().peekOperator(".*")) {
 			lexer().eatToken();
-			return params;
+			lexer().readOperator(")");
+			return ports;
+		}
+		
+		if (lexer().peekOperator(")")) {
+			// empty port list
+			lexer().eatToken();
+			return ports;
 		}
 		
 		while (true) {
@@ -41,11 +47,6 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				lexer().eatToken();
 				lexer().readKeyword("ref");
 				dir = (SVDBParamPort.Direction_Ref | SVDBParamPort.Direction_Const);
-			}
-			
-			if (lexer().peekKeyword("var")) {
-				lexer().eatToken();
-				dir |= SVDBParamPort.Direction_Var;
 			}
 			
 			SVDBTypeInfo type = 
@@ -67,7 +68,6 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				id = type.getName();
 				type = last_type;
 			} else {
-
 				id = lexer().readId();
 
 				if (lexer().peekOperator("[")) {
@@ -83,13 +83,15 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			SVDBParamPort param = new SVDBParamPort(type, id);
 			param.setDir(dir);
 			
-			params.add(param);
-			
+			ports.add(param);
+
+			/*
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
 				// TODO: read expression
 				parsers().SVParser().readExpression();
 			}
+			 */
 			
 			if (lexer().peekOperator(",")) {
 				lexer().eatToken();
@@ -100,7 +102,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		
 		lexer().readOperator(")");
 		
-		return params;
+		return ports;
 	}
 
 }

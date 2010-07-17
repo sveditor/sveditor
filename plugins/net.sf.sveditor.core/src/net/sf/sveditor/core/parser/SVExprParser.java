@@ -95,6 +95,8 @@ public class SVExprParser extends SVParserBase {
 				return null;
 			}
 			
+			public void debug(String msg) {}
+			
 		}, scanner); 
 	}
 	

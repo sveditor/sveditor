@@ -26,6 +26,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	private List<SVDBModIfcClassParam>			fParams;
 	private String								fSuperClass;
 	private List<SVDBModIfcClassParam>			fSuperParams;
+	private List<SVDBParamPort>					fPorts;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -37,7 +38,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		
 		SVDBPersistenceReader.registerPersistenceFactory(f,
 				SVDBItemType.Class, SVDBItemType.Module, SVDBItemType.Interface,
-				SVDBItemType.Struct); 
+				SVDBItemType.Struct, SVDBItemType.Program); 
 	}
 	
 	public SVDBModIfcClassDecl(String name, SVDBItemType type) {
@@ -45,6 +46,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		
 		fParams = new ArrayList<SVDBModIfcClassParam>();
 		fSuperParams = new ArrayList<SVDBModIfcClassParam>();
+		fPorts = new ArrayList<SVDBParamPort>();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -53,6 +55,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		fParams     = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
 		fSuperClass = reader.readString();
 		fSuperParams = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
+		fPorts = (List<SVDBParamPort>)reader.readItemList(file, this);
 	}
 	
 	public void dump(IDBWriter writer) {
@@ -60,6 +63,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		writer.writeItemList(fParams);
 		writer.writeString(fSuperClass);
 		writer.writeItemList(fSuperParams);
+		writer.writeItemList(fPorts);
 	}
 	
 	
@@ -69,6 +73,10 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	public List<SVDBModIfcClassParam> getSuperParameters() {
 		return fSuperParams;
+	}
+	
+	public List<SVDBParamPort> getPorts() {
+		return fPorts;
 	}
 	
 	public boolean isParameterized() {
@@ -114,6 +122,9 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 				fSuperParams.add((SVDBModIfcClassParam)p.duplicate());
 			}
 		}
+		
+		fPorts.clear();
+		fPorts.addAll(o.fPorts);
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -141,7 +141,7 @@ public class TestParseFunction extends TestCase {
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 		
 		assertEquals("bar", func.getParams().get(1).getName());
-		assertEquals(SVDBTaskFuncParam.Direction_Ref,
+		assertEquals(SVDBParamPort.Direction_Ref,
 				func.getParams().get(1).getDir());
 	}
 

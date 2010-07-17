@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
@@ -129,7 +129,7 @@ public class SVDBFindByNameInClassHierarchy {
 			SVDBItemType	...	types) {
 		boolean matches = (types.length == 0);
 
-		for (SVDBTaskFuncParam it : scope.getParams()) {
+		for (SVDBParamPort it : scope.getParams()) {
 			for (SVDBItemType type : types) {
 				if (it.getType() == type) {
 					matches = true;

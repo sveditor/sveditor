@@ -18,7 +18,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBTaskFuncParam extends SVDBVarDeclItem {
+public class SVDBParamPort extends SVDBVarDeclItem {
 	public static final int			Direction_Input  = (1 << 16);
 	public static final int			Direction_Output = (1 << 17);
 	public static final int			Direction_Inout  = (1 << 18);
@@ -31,14 +31,14 @@ public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
 			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBTaskFuncParam(file, parent, type, reader);
+				return new SVDBParamPort(file, parent, type, reader);
 			}
 		};
 		
 		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.TaskFuncParam); 
 	}
 	
-	public SVDBTaskFuncParam(SVDBTypeInfo type, String name) {
+	public SVDBParamPort(SVDBTypeInfo type, String name) {
 		super(type, name, SVDBItemType.TaskFuncParam);
 		fDir = Direction_Input;
 	}
@@ -52,7 +52,7 @@ public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 	}
 	
 	public SVDBItem duplicate() {
-		SVDBItem ret = new SVDBTaskFuncParam(fTypeInfo, getName());
+		SVDBItem ret = new SVDBParamPort(fTypeInfo, getName());
 		
 		init(ret);
 		
@@ -62,10 +62,10 @@ public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 	public void init(SVDBItem other) {
 		super.init(other);
 		
-		fDir = ((SVDBTaskFuncParam)other).fDir; 
+		fDir = ((SVDBParamPort)other).fDir; 
 	}
 	
-	public SVDBTaskFuncParam(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+	public SVDBParamPort(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
 		
 		fDir = reader.readInt();
@@ -78,8 +78,8 @@ public class SVDBTaskFuncParam extends SVDBVarDeclItem {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof SVDBTaskFuncParam) {
-			SVDBTaskFuncParam o = (SVDBTaskFuncParam)obj;
+		if (obj instanceof SVDBParamPort) {
+			SVDBParamPort o = (SVDBParamPort)obj;
 
 			if (o.fDir != fDir) {
 				return false;

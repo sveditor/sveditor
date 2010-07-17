@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
-	private List<SVDBTaskFuncParam>			fParams;
+	private List<SVDBParamPort>			fParams;
 	private int								fAttr;
 	private SVDBTypeInfo					fRetType;
 	
@@ -40,20 +40,20 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
-		fParams = new ArrayList<SVDBTaskFuncParam>();
+		fParams = new ArrayList<SVDBParamPort>();
 		fRetType = new SVDBTypeInfoBuiltin("void");
 	}
 
 	public SVDBTaskFuncScope(String name, SVDBTypeInfo ret_type) {
 		super(name, SVDBItemType.Function);
-		fParams = new ArrayList<SVDBTaskFuncParam>();
+		fParams = new ArrayList<SVDBParamPort>();
 		fRetType = ret_type;
 	}
 
 	@SuppressWarnings("unchecked")
 	public SVDBTaskFuncScope(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
-		fParams     = (List<SVDBTaskFuncParam>)reader.readItemList(file, this);
+		fParams     = (List<SVDBParamPort>)reader.readItemList(file, this);
 		fAttr       = reader.readInt();
 		if (getType() == SVDBItemType.Function) {
 			fRetType    = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
@@ -79,18 +79,18 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		return fAttr;
 	}
 	
-	public void addParam(SVDBTaskFuncParam p) {
+	public void addParam(SVDBParamPort p) {
 		p.setParent(this);
 		fParams.add(p);
 	}
 	
-	public List<SVDBTaskFuncParam> getParams() {
+	public List<SVDBParamPort> getParams() {
 		return fParams;
 	}
 	
-	public void setParams(List<SVDBTaskFuncParam> params) {
+	public void setParams(List<SVDBParamPort> params) {
 		fParams = params;
-		for (SVDBTaskFuncParam p : params) {
+		for (SVDBParamPort p : params) {
 			p.setParent(this);
 		}
 	}
@@ -115,8 +115,8 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 
 		fAttr = ((SVDBTaskFuncScope)other).fAttr;
 		fParams.clear();
-		for (SVDBTaskFuncParam p : ((SVDBTaskFuncScope)other).fParams) {
-			fParams.add((SVDBTaskFuncParam)p.duplicate());
+		for (SVDBParamPort p : ((SVDBTaskFuncScope)other).fParams) {
+			fParams.add((SVDBParamPort)p.duplicate());
 		}
 		
 		fRetType = ((SVDBTaskFuncScope)other).fRetType;

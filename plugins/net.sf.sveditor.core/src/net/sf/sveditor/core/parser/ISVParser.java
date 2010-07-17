@@ -18,4 +18,6 @@ public interface ISVParser {
 	
 	SVParsers parsers();
 	
+	void debug(String msg);
+	
 }

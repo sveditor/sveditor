@@ -1,7 +1,7 @@
 package net.sf.sveditor.core.srcgen;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
@@ -23,21 +23,21 @@ public class MethodGenerator {
 		new_tf.append("(");
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBTaskFuncParam p = tf.getParams().get(i);
+			SVDBParamPort p = tf.getParams().get(i);
 			SVDBTypeInfo ti = p.getTypeInfo();
 			
-			if ((p.getDir() & SVDBTaskFuncParam.Direction_Const) != 0) {
+			if ((p.getDir() & SVDBParamPort.Direction_Const) != 0) {
 				new_tf.append("const ");
 			}
-			if ((p.getDir() & SVDBTaskFuncParam.Direction_Ref) != 0) {
+			if ((p.getDir() & SVDBParamPort.Direction_Ref) != 0) {
 				new_tf.append("ref ");
-			} else if ((p.getDir() & SVDBTaskFuncParam.Direction_Var) != 0) {
+			} else if ((p.getDir() & SVDBParamPort.Direction_Var) != 0) {
 				new_tf.append("var ");
-			} else if ((p.getDir() & SVDBTaskFuncParam.Direction_Input) != 0) {
+			} else if ((p.getDir() & SVDBParamPort.Direction_Input) != 0) {
 				new_tf.append("input ");
-			} else if ((p.getDir() & SVDBTaskFuncParam.Direction_Output) != 0) {
+			} else if ((p.getDir() & SVDBParamPort.Direction_Output) != 0) {
 				new_tf.append("output ");
-			} else if ((p.getDir() & SVDBTaskFuncParam.Direction_Inout) != 0) {
+			} else if ((p.getDir() & SVDBParamPort.Direction_Inout) != 0) {
 				new_tf.append("inout ");
 			}
 			

@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
@@ -226,7 +226,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		r.append(escapeId(it.getName()) + "(");
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBTaskFuncParam param = tf.getParams().get(i);
+			SVDBParamPort param = tf.getParams().get(i);
 			
 			d.append(param.getTypeName() + " " + param.getName());
 			r.append("${");

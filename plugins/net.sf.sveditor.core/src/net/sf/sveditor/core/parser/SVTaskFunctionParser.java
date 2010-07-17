@@ -6,7 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -78,7 +78,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			tf_name = parsers().SVParser().scopedIdentifier(false);
 		}
 		
-		List<SVDBTaskFuncParam> params = null;
+		List<SVDBParamPort> params = null;
 		boolean is_ansi = true;
 		if (lexer().peekOperator("(")) {
 			// parameter list or empty
@@ -86,7 +86,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			is_ansi = true;
 		} else if (lexer().peekOperator(";")) {
 			// non-ANSI (?)
-			params = new ArrayList<SVDBTaskFuncParam>();
+			params = new ArrayList<SVDBParamPort>();
 			is_ansi = false;
 		}
 		lexer().readOperator(";");

@@ -176,7 +176,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	}
 
 	public void enter_program_decl(String name) throws HaltScanException {
-		SVDBProgramBlock p = new SVDBProgramBlock(name);
+		SVDBModIfcClassDecl p = new SVDBModIfcClassDecl(name, SVDBItemType.Program);
 		
 		fScopeStack.peek().addItem(p);
 		fScopeStack.push(p);

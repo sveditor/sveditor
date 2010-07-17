@@ -7,7 +7,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
@@ -97,12 +97,12 @@ public class NewClassGenerator {
 			if (new_func != null) {
 				if (new_func.getParams() != null && 
 						new_func.getParams().size() > 0) {
-					List<SVDBTaskFuncParam> params = new_func.getParams();
+					List<SVDBParamPort> params = new_func.getParams();
 					template += "\n";
 					template += "function new(";
 					
 					for (int i=0; i<params.size(); i++) {
-						SVDBTaskFuncParam p = params.get(i);
+						SVDBParamPort p = params.get(i);
 						template += p.getTypeName() + " " + p.getName();
 						
 						if (i+1 < params.size()) {
@@ -113,7 +113,7 @@ public class NewClassGenerator {
 
 					template += "super.new(";
 					for (int i=0; i<params.size(); i++) {
-						SVDBTaskFuncParam p = params.get(i);
+						SVDBParamPort p = params.get(i);
 						template += p.getName();
 						
 						if (i+1 < params.size()) {

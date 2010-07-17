@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
@@ -977,7 +977,7 @@ public class SVExpressionUtils {
 			List<SVDBItem>		item_list) {
 		// Read an identifier
 		SVDBFindParameterizedClass pclass_finder = new SVDBFindParameterizedClass(index_it);
-		int ch = preTrigger.charAt(idx);
+		int ch = (idx < preTrigger.length())?preTrigger.charAt(idx):-1;
 		
 		if (ch == '(' || ch == '\'') {
 			String type_name = null;
@@ -995,42 +995,9 @@ public class SVExpressionUtils {
 				// string, then we should use that information to lookup this 
 				// portion
 				
-				if (item_list.size() == 0) {
-					// This is the first item.
-					// - Search the class/module parent of the active scope
-
-					// Browse up the search context to reach the class scope
-					// TODO: Also want to support package-scope items (?)
-					
-					SVDBFindByNameInScopes finder_scopes =
-						new SVDBFindByNameInScopes(index_it);
-					
-					matches = finder_scopes.find(context, id, true,
-							SVDBItemType.Function, SVDBItemType.Task);
-
-					debug("first-item search for \"" + id + 
-							"\" returned " + matches.size() + " matches");
-					
-					if (matches.size() > 0) {
-						func = matches.get(0);
-					}
-				} else {
-					search_ctxt = item_list.get(item_list.size()-1);
-					
-					SVDBFindByNameInClassHierarchy finder_h =
-						new SVDBFindByNameInClassHierarchy(index_it, fDefaultMatcher);
-					
-					
-					matches = finder_h.find((SVDBScopeItem)search_ctxt, 
-							id, SVDBItemType.Function);
-						
-					debug("next-item search for \"" + id + 
-							"\" in \"" + search_ctxt.getName() + 
-							"\" returned " + matches.size() + " matches");
-					
-					func = filterByAttr(matches, preceeding_activator);
-
-				}
+				search_ctxt = (item_list.size() == 0)?null:item_list.get(item_list.size()-1);
+				func = findTaskFunc(index_it, context, 
+						search_ctxt, id, preceeding_activator);
 				
 				if (func == null) {
 					return -1;
@@ -1266,7 +1233,7 @@ public class SVExpressionUtils {
 					field instanceof SVDBPackageDecl) {
 				type = field;
 			} else if ((field instanceof SVDBVarDeclItem) ||
-					(field instanceof SVDBTaskFuncParam)) {
+					(field instanceof SVDBParamPort)) {
 				SVDBFindNamedModIfcClassIfc finder = 
 					new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 				if (((SVDBVarDeclItem)field).getTypeInfo().getDataType() == SVDBDataType.Struct) {
@@ -1277,7 +1244,7 @@ public class SVExpressionUtils {
 					if (field instanceof SVDBVarDeclItem) {
 						typename = ((SVDBVarDeclItem)field).getTypeName();
 					} else {
-						typename = ((SVDBTaskFuncParam)field).getTypeName();
+						typename = ((SVDBParamPort)field).getTypeName();
 					}
 					
 					cl_l = finder.find(typename);
@@ -1362,6 +1329,45 @@ public class SVExpressionUtils {
 		}
 
 		return idx;
+	}
+	
+	private SVDBTaskFuncScope findTaskFunc(
+			ISVDBIndexIterator		index_it,
+			SVDBScopeItem			context,
+			SVDBItem 				search_ctxt,
+			String					id,
+			String					preceeding_activator) {
+		SVDBTaskFuncScope func = null;
+		
+		if (search_ctxt == null) {
+			SVDBFindByNameInScopes finder_scopes =
+				new SVDBFindByNameInScopes(index_it);
+			
+			List<SVDBItem> matches = finder_scopes.find(
+					context, id, true,
+					SVDBItemType.Function, SVDBItemType.Task);
+
+			debug("first-item search for \"" + id + 
+					"\" returned " + matches.size() + " matches");
+			
+			if (matches.size() > 0) {
+				func = (SVDBTaskFuncScope)matches.get(0);
+			}
+		} else {
+			SVDBFindByNameInClassHierarchy finder_h =
+				new SVDBFindByNameInClassHierarchy(index_it, fDefaultMatcher);
+			
+			List<SVDBItem> matches = finder_h.find((SVDBScopeItem)search_ctxt, 
+					id, SVDBItemType.Function);
+				
+			debug("next-item search for \"" + id + 
+					"\" in \"" + search_ctxt.getName() + 
+					"\" returned " + matches.size() + " matches");
+			
+			func = (SVDBTaskFuncScope)filterByAttr(matches, preceeding_activator);
+		}
+		
+		return func;
 	}
 	
 	private SVDBItem filterByAttr(List<SVDBItem> items, String trigger) {

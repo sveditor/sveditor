@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -76,7 +76,7 @@ public class SVTreeLabelProvider extends LabelProvider {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
 				
 				ret = ret + "(";
-				for (SVDBTaskFuncParam p : tf.getParams()) {
+				for (SVDBParamPort p : tf.getParams()) {
 					ret = ret + p.getTypeName() + ", ";
 				}
 				

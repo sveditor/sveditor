@@ -24,9 +24,8 @@ public class SVDB {
 		SVDBModIfcInstItem.init();
 		SVDBPackageDecl.init();
 		SVDBPreProcCond.init();
-		SVDBProgramBlock.init();
 		SVDBScopeItem.init();
-		SVDBTaskFuncParam.init();
+		SVDBParamPort.init();
 		SVDBTaskFuncScope.init();
 		SVDBTypedef.init();
 		SVDBTypeInfo.init();

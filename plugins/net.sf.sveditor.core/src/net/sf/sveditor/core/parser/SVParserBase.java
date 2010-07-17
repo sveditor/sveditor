@@ -43,10 +43,8 @@ public class SVParserBase implements ISVParser {
 		return fParser.lexer().getStartLocation();
 	}
 
-	protected void debug(String msg) {
-		if (fDebugEn) {
-			System.out.println("Parser: " + msg);
-		}
+	public void debug(String msg) {
+		fParser.debug(msg);
 	}
 
 	protected void setStartLocation(SVDBItem item) {

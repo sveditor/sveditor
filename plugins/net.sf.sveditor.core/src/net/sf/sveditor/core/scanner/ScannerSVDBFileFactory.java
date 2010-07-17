@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.scanner;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -40,9 +39,8 @@ import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
-import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -140,7 +138,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 	
 	
 	public void enter_program_decl(String name) throws HaltScanException {
-		SVDBProgramBlock p = new SVDBProgramBlock(name);
+		SVDBModIfcClassDecl p = new SVDBModIfcClassDecl(name, SVDBItemType.Program);
 		
 		fScopeStack.peek().addItem(p);
 		fScopeStack.push(p);
@@ -238,7 +236,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		for (SVTaskFuncParam p : params) {
 			// TODO: fixme. Parameters can be of array/queue type too
 			SVDBTypeInfo type_info = new SVDBTypeInfoBuiltin(p.getTypeName());
-			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+			SVDBParamPort svp = new SVDBParamPort(type_info, p.getName());
 			task.addParam(svp);
 		}
 		
@@ -261,7 +259,7 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		for (SVTaskFuncParam p : params) {
 			// TODO: fixme. Parameters can be of array/queue type too
 			SVDBTypeInfo type_info = new SVDBTypeInfoBuiltin(p.getTypeName());
-			SVDBTaskFuncParam svp = new SVDBTaskFuncParam(type_info, p.getName());
+			SVDBParamPort svp = new SVDBParamPort(type_info, p.getName());
 			func.addParam(svp);
 		}
 		

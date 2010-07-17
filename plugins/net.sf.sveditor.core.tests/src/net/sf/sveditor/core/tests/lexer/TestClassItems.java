@@ -1,12 +1,11 @@
 package net.sf.sveditor.core.tests.lexer;
 
-import net.sf.sveditor.core.db.SVDBLocation;
+import junit.framework.TestCase;
 import net.sf.sveditor.core.parser.ISVParser;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.parser.SVParsers;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
-import junit.framework.TestCase;
 
 public class TestClassItems extends TestCase {
 	
@@ -46,17 +45,13 @@ public class TestClassItems extends TestCase {
 				return lexer;
 			}
 			
-			public boolean error_limit_reached() {
-				return false;
-			}
+			public boolean error_limit_reached() {return false;}
 			
 			public void error(SVParseException e) {}
 			
 			public void error(String msg) {}
 			
-			public SVDBLocation getLocation() {
-				return null;
-			}
+			public void debug(String msg) {}
 		};
 		lexer.init(parser, new StringTextScanner(content));
 		

@@ -1,11 +1,16 @@
 package net.sf.sveditor.core.tests.parser;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import junit.framework.TestCase;
 
@@ -26,7 +31,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "doc");
+		SVDBFile file = ParserTests.parse(doc, "testInitialBlock");
 		
 		SVDBModIfcClassDecl top = null;
 		for (SVDBItem it : file.getItems()) {
@@ -51,22 +56,29 @@ public class TestParseModuleBodyItems extends TestCase {
 	
 	public void testPortList() {
 		String doc =
-			"module top(a, b, c, d);\n" +
-			"    input a;\n" +
-			"    output b;\n" +
-			"    input [7:0] c;\n" +
-			"    output[11:0] d;\n" +
-			"\n" +
-			"    wire [12:0] bus;\n" +
-			"\n" +
-			"    always @ (a) begin\n" +
-			"        b = ~a;\n" +
-			"    end\n" +
-			"\n" +
-			"endmodule\n"
+			"module top(a, b, c, d);\n" +		// 1
+			"    input a;\n" +					// 2
+			"    output b;\n" +					// 3
+			"    input [7:0] c;\n" +			// 4
+			"    output[11:0] d;\n" +			// 5
+			"\n" +								// 6
+			"    wire [12:0] bus;\n" +			// 7
+			"\n" +								// 8
+			"    always @ (a) begin\n" +		// 9
+			"        b = ~a;\n" +				// 10
+			"    end\n" +						// 11
+			"\n" +								// 12
+			"endmodule\n"						// 13
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "doc");
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = ParserTests.parse(doc, "testPortList");
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+			}
+		}
 
 		SVDBModIfcClassDecl top = null;
 		for (SVDBItem it : file.getItems()) {
@@ -78,6 +90,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module top", top);
 		
+		for (SVDBParamPort p : top.getPorts()) {
+			System.out.println("Port: " + p.getName());
+		}
+
 		SVDBItem a=null, b=null, c=null, d=null, bus=null;
 		for (SVDBItem it : top.getItems()) {
 			if (it.getName().equals("a")) {
@@ -105,4 +121,65 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertTrue((((SVDBVarDeclItem)bus).getTypeInfo() instanceof SVDBTypeInfoBuiltin));
 		assertEquals("[12:0]", ((SVDBTypeInfoBuiltin)((SVDBVarDeclItem)bus).getTypeInfo()).getVectorDim());
 	}
+	
+	public void testTypedPortList() {
+		String doc =
+			"typedef struct {\n" +
+			"    int a;\n" +
+			"    int b;\n" +
+			"} foo_t;\n" +
+			"\n" +
+			"module top(\n" +
+			"    input int    a,\n" +
+			"    input foo_t  b,\n" +
+			"    input bar[13:0]\n" +
+			"    );\n" +
+			"\n" +
+			"    always @ (a) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+			}
+		}
+
+		SVDBModIfcClassDecl top = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("top")) {
+				top = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module top", top);
+
+		SVDBParamPort a=null, b=null, bar=null;
+		for (SVDBParamPort p : top.getPorts()) {
+			System.out.println("Port: " + p.getName());
+			if (p.getName().equals("a")) {
+				a = p;
+			} else if (p.getName().equals("b")) {
+				b = p;
+			} else if (p.getName().equals("bar")) {
+				bar = p;
+			}
+		}
+		
+		assertNotNull(a);
+		assertNotNull(b);
+		assertNotNull(bar);
+
+		assertEquals(SVDBDataType.UserDefined, b.getTypeInfo().getDataType());
+		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getTypeInfo()).getName());
+	}
+	
 }
+

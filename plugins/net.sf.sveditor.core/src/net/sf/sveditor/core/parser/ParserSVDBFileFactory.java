@@ -37,12 +37,10 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBProgramBlock;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -168,7 +166,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fLexer.init(this, fInput);
 
 		try {
-			process();
+			process_file();
 		} catch (SVParseException e) {
 			System.out.println("ParseException: post-process()");
 			e.printStackTrace();
@@ -187,7 +185,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	private void process() throws SVParseException {
+	private void process_file() throws SVParseException {
 		String id;
 
 		try {
@@ -206,10 +204,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 							e.printStackTrace();
 						}
 						fNewStatement = true;
-					} else if (id.equals("module") || id.equals("interface")
-							|| id.equals("program")) {
+					} else if (id.equals("module") || id.equals("macromodule") ||
+							id.equals("interface") || id.equals("program")) {
 						// enter module scope
-						process_interface_module_class();
+						// TODO: should probably add this item to the 
+						// File scope here
+						try {
+							parsers().modIfcProgParser().parse(modifiers);
+						} catch (SVParseException e) {
+							
+						}
 					} else if (id.equals("struct")) {
 						process_struct_decl(null);
 					} else if (id.equals("package") || id.equals("endpackage")) {
@@ -545,6 +549,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return id.toString();
 	}
 
+	/*
 	private SVDBItem process_interface_module_class()
 			throws SVParseException {
 		SVDBItem it = null;
@@ -612,7 +617,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			}
 		}
 
-		if (type.equals("module")) {
+		if (type.equals("module") || type.equals("macromodule") ||
+				type.equals("interface") || type.equals("program")) {
 			SVDBModIfcClassDecl cls = new SVDBModIfcClassDecl(module_type_name,
 					SVDBItemType.Module);
 			fScopeStack.peek().addItem(cls);
@@ -621,7 +627,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			setLocation(cls);
 			it = cls;
 		} else if (type.equals("program")) {
-			SVDBProgramBlock p = new SVDBProgramBlock(module_type_name);
+			SVDBModIfcClassDecl p = new SVDBModIfcClassDecl(
+					module_type_name, SVDBItemType.Program);
 
 			fScopeStack.peek().addItem(p);
 			fScopeStack.push(p);
@@ -696,6 +703,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		debug("<-- process_module()");
 		return it;
 	}
+	 */
 
 	private void process_struct_decl(SVTypeInfo type_info)
 			throws SVParseException {
@@ -988,15 +996,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO
 		fTaskFuncParamQualifiers.put("virtual",
-				SVDBTaskFuncParam.FieldAttr_Virtual);
+				SVDBParamPort.FieldAttr_Virtual);
 		fTaskFuncParamQualifiers.put("input",
-				SVDBTaskFuncParam.Direction_Input);
+				SVDBParamPort.Direction_Input);
 		fTaskFuncParamQualifiers.put("output",
-				SVDBTaskFuncParam.Direction_Output);
+				SVDBParamPort.Direction_Output);
 		fTaskFuncParamQualifiers.put("inout",
-				SVDBTaskFuncParam.Direction_Inout);
-		fTaskFuncParamQualifiers.put("ref", SVDBTaskFuncParam.Direction_Ref);
-		fTaskFuncParamQualifiers.put("var", SVDBTaskFuncParam.Direction_Var);
+				SVDBParamPort.Direction_Inout);
+		fTaskFuncParamQualifiers.put("ref", SVDBParamPort.Direction_Ref);
+		fTaskFuncParamQualifiers.put("var", SVDBParamPort.Direction_Var);
 	}
 
 	private static SVDBItem fSpecialNonNull = new SVDBItem("SPECIAL_NON_NULL",
@@ -1105,13 +1113,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 			debug("Likely VarDecl: " + id);
 
-			// unget_str(id + " ");
-
 			scanVariableDeclaration(modifiers);
 			ret = fSpecialNonNull;
 		}
 
-		debug("<-- process_module_class_interface_body_item");
+		debug("<-- process_module_class_interface_body_item - " + ret);
 
 		return ret;
 	}
@@ -1186,7 +1192,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 				// it's a module
 				debug("module instantation - " + inst_name_or_var);
-				lexer().skipPastMatch("(", "(");
+				lexer().skipPastMatch("(", ")");
 
 				/*
 				if (ch == ';') {
@@ -1362,8 +1368,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return fInput.getLocation();
 	}
 
-	private void debug(String msg) {
-		// System.out.println("Parser Debug: " + msg);
+	public void debug(String msg) {
+		fLog.debug(msg);
 	}
 
 	public void error(String msg, String filename, int lineno) {
