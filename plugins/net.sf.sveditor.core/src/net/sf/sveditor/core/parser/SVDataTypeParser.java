@@ -129,6 +129,10 @@ public class SVDataTypeParser extends SVParserBase {
 			type = new SVDBTypeInfoBuiltin(id);
 		} else if (id.equals("virtual") || (qualifiers & SVDBFieldItem.FieldAttr_Virtual) != 0) {
 			// virtual [interface] interface_identifier
+			if (lexer().peekKeyword("interface")) {
+				// TODO: use this somehow (?)
+				lexer().eatToken();
+			}
 			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(lexer().readId());
 			if (lexer().peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
@@ -200,6 +204,24 @@ public class SVDataTypeParser extends SVParserBase {
 		} else {
 			return data_type(qualifiers, id);
 		}
+	}
+	
+	/**
+	 * net_port_type ::= [net_type] data_type_or_implicit
+	 * 
+	 * @param qualifiers
+	 * @param id
+	 * @return
+	 * @throws SVParseException
+	 */
+	public SVDBTypeInfo net_port_type(int qualifiers, String id) throws SVParseException {
+		if (NetType.contains(id)) {
+			// TODO: should find a way to qualify the type (?)
+			lexer().eatToken();
+			id = lexer().peek();
+		}
+		
+		return data_type(qualifiers, id);
 	}
 	
 	public SVDBTypeInfoEnum enum_type() throws SVParseException {

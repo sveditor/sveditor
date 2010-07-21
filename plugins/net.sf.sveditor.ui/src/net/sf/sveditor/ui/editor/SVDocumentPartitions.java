@@ -15,7 +15,7 @@ package net.sf.sveditor.ui.editor;
 
 public interface SVDocumentPartitions {
 	String SV_MULTILINE_COMMENT  = "__sv_multiline_comment";
-	String SV_SINGLELINE_COMMENT = "__sv_multiline_comment";
+	String SV_SINGLELINE_COMMENT = "__sv_singleline_comment";
 	String SV_KEYWORD            = "__sv_keyword";
 	String SV_STRING             = "__sv_string";
 	String SV_CODE				 = "__sv_code";

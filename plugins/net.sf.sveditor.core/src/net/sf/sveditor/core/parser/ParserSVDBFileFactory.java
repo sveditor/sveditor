@@ -39,8 +39,8 @@ import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -254,6 +254,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		if (type.equals("always")) {
 			if (lexer().peekOperator("@")) {
+				lexer().eatToken();
+				
 				lexer().startCapture();
 
 				if (lexer().peekOperator("(")) {
@@ -261,6 +263,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				}
 				expr = lexer().endCapture();
 			} else if (lexer().peekOperator("#")) {
+				lexer().eatToken();
 				lexer().startCapture();
 
 				if (lexer().peekOperator("(")) {
@@ -327,7 +330,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			lexer().skipPastMatch("{", "}");
 			String expr = lexer().endCapture();
 
-			expr = expr.substring(1, expr.length() - 2);
+			expr = expr.substring(1, expr.length() - 1);
 
 			constraint(cname, expr);
 		}
@@ -454,6 +457,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		lexer().readKeyword("endgroup");
 		if (lexer().peekOperator(":")) {
+			lexer().eatToken();
 			lexer().readId(); // labeled group
 		}
 
@@ -723,9 +727,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fScopeStack.push(decl);
 		setLocation(decl);
 
-		String id;
-
-		while ((id = scan_statement()) != null) {
+		while (scan_statement() != null) {
 			SVDBItem item = 
 				process_module_class_interface_body_item("struct");
 
@@ -1049,6 +1051,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			process_initial_always();
 			ret = fSpecialNonNull;
 			fNewStatement = true;
+		} else if (id.equals("modport")) {
+			// TODO: shouldn't just skip
+			lexer().eatToken();
+			lexer().readId(); // modport name
+			
+			lexer().skipPastMatch("(", ")");
+			lexer().readOperator(";");
+			ret = fSpecialNonNull;
+			fNewStatement = true;
 		} else if (id.equals("assign")) {
 			process_assign();
 			ret = fSpecialNonNull;
@@ -1069,6 +1080,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			process_import();
 			ret = fSpecialNonNull;
 			fNewStatement = true;
+		} else if (id.equals("clocking")) {
+			// Ignore this
+			while ((id = scan_statement()) != null) {
+				if (id.equals("endclocking")) {
+					break;
+				}
+			}
+			lexer().readKeyword("endclocking");
+			ret = fSpecialNonNull;
+			fNewStatement = true;
 		} else if (id.startsWith("end") && SVKeywords.isSVKeyword(id)) {
 			// it's likely that we've encountered a parse error
 			// or incomplete text section.
@@ -1087,7 +1108,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			
 			ret = fSpecialNonNull;
 			fNewStatement = true;
-		} else if (id.equals("class") && scope.equals("module")) {
+		} else if (id.equals("class") && !scope.equals("class")) {
 			SVDBModIfcClassDecl cls = null;
 			try {
 				cls = parsers().classParser().parse(modifiers);
@@ -1095,6 +1116,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				System.out.println("ParseException: post-class-module()");
 				e.printStackTrace();
 			}
+			ret = cls;
 			fNewStatement = true;
 		} else if (isFirstLevelScope(id, modifiers)) {
 			// We've hit a first-level qualifier. This probably means that
@@ -1135,6 +1157,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVDBTypeInfo type;
 		boolean is_variable = true;
 
+		// TODO: need to modify this to be different for class and module/interface
+		// scopes
 		type = parsers().dataTypeParser().data_type(modifiers, lexer().eatToken());
 		
 		if (type == null) {

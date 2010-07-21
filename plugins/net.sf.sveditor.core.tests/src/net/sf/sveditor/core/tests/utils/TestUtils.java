@@ -19,9 +19,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -89,7 +91,16 @@ public class TestUtils {
 	}
 
 	public static IProject createProject(String name) {
+		return createProject(name, null);
+	}
+
+	public static IProject createProject(String name, File path) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		URI location = null;
+		
+		if (path != null) {
+			location = path.toURI();
+		}
 		
 		IProject project = root.getProject(name);
 		
@@ -99,7 +110,10 @@ public class TestUtils {
 				project.delete(true, true, new NullProgressMonitor());
 			}
 
-			project.create(new NullProgressMonitor());
+			IProjectDescription desc = project.getWorkspace().newProjectDescription(name);
+			desc.setLocationURI(location);
+			
+			project.create(desc, new NullProgressMonitor());
 			
 			if (!project.isOpen()) {
 				project.open(new NullProgressMonitor());
@@ -111,7 +125,7 @@ public class TestUtils {
 		
 		return project;
 	}
-	
+
 	public static void deleteProject(IProject project_dir) {
 		try {
 			project_dir.close(new NullProgressMonitor());

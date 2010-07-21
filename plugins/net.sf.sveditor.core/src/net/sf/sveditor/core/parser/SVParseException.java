@@ -12,8 +12,8 @@ public class SVParseException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	private SVParseException(String msg, String filename, int lineno) {
-		super(msg);
-//		super(filename + ":" + lineno + " " + msg);
+//		super(msg);
+		super(filename + ":" + lineno + " " + msg);
 //		fMessage  = msg;
 		fFilename = filename;
 		fLineno = lineno;

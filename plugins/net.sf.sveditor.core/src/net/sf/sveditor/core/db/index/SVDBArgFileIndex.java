@@ -33,7 +33,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
-import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -302,9 +302,16 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				base_loc = base_loc.substring("${workspace_loc}".length());
 				
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				IFolder base_dir = root.getFolder(new Path(base_loc));
+				IContainer base_dir = null;
+				try {
+					base_dir = root.getFolder(new Path(base_loc));
+				} catch (IllegalArgumentException e) {}
 				
-				if (base_dir.exists()) {
+				if (base_dir == null) {
+					base_dir = root.getProject(base_loc.substring(1));
+				}
+				
+				if (base_dir != null && base_dir.exists()) {
 					IPath base_dir_p = base_dir.getLocation();
 					if (base_dir_p != null) {
 						File path_f_t = new File(base_dir_p.toFile(), path_orig);
@@ -319,7 +326,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 					}
 				}
 			}
-		} else if (path.startsWith(".") || Character.isJavaIdentifierStart(path.charAt(0))) {
+		} else {
 			if (path.equals(".")) {
 				path = getResolvedBaseLocationDir();
 			} else if (path.startsWith(".")) { 
@@ -341,6 +348,11 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		int i=path.length()-1;
 		int end;
 		int skipCnt = 0;
+		
+		// First, skip any trailing '/'
+		while (i >=0 && (path.charAt(i) == '/' || path.charAt(i) == '\\')) {
+			i--;
+		}
 		
 		while (i >= 0) {
 			// scan backwards find the next path element
@@ -368,11 +380,12 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				}
 			}
 		}
-		
+
+		/*
 		if (skipCnt > 0) {
-			throw new RuntimeException("exceeded skipCnt");
-		}
-		
+			// throw new RuntimeException("exceeded skipCnt while normalizing \"" + path + "\"");
+		} 
+		 */
 		return ret.reverse().toString();
 	}
 

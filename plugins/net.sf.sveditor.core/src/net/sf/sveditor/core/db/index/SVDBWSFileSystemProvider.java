@@ -24,6 +24,7 @@ import net.sf.sveditor.core.SVFileUtils;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -177,8 +178,9 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			IFile file = root.getFile(new Path(path));
+			IFolder folder = root.getFolder(new Path(path));
 			
-			return file.exists();
+			return (file.exists() || folder.exists());
 		} else {
 			// Also look at the filesystem
 			return new File(path).exists();

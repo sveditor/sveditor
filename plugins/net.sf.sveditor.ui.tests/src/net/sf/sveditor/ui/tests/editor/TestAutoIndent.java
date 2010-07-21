@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.tests.editor;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
@@ -115,11 +116,14 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 		
 		
+		IndentComparator.compare("Covergroup indent failed", expected, result);
+		/*
 		if (!expected.equals(result)) {
 			System.out.println("result=\"" + result + "\"");
 			System.out.println("expected=\"" + expected + "\"");
 		}
 		assertEquals("Covergroup indent failed", expected, result);
+		 */
 	}
 
 	public void testVirtualFunction() throws BadLocationException {
@@ -137,11 +141,11 @@ public class TestAutoIndent extends TestCase {
 			"	\n" +
 			"	function new();\n" +
 			"	endfunction\n" +
-			"	\n" +
+			"\n" +
 			"	virtual function string foo();\n" +
 			"		a = 5;\n" +
 			"	endfunction\n" +
-			"	";
+			"";
 		
 		
 		AutoEditTester tester = createAutoEditTester();
@@ -155,7 +159,7 @@ public class TestAutoIndent extends TestCase {
 			System.out.println("result=\"" + result + "\"");
 			System.out.println("expected=\"" + expected + "\"");
 		}
-		assertEquals("Virtual Function indent failed", expected, result);
+		IndentComparator.compare("testVirtualFunction", expected, result);
 	}
 
 	public void testPastePostStringAdaptiveIndent() throws BadLocationException {
@@ -189,7 +193,8 @@ public class TestAutoIndent extends TestCase {
 		System.out.println(expected.trim());
 		System.out.println("Result:");
 		System.out.println(result.trim());
-		
+
+		IndentComparator.compare("testPastePostStringAdaptiveIndent", expected, result);
 		assertEquals("Expected indent result",
 				expected.trim(), result.trim());
 	}

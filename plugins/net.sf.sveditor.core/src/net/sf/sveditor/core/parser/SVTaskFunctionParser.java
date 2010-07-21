@@ -91,6 +91,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		lexer().readOperator(";");
 		
+		debug("Procesing " + type + " " + tf_name);
+		
 		if (type.equals("function")) {
 			func = new SVDBTaskFuncScope(tf_name, return_type);
 		} else {

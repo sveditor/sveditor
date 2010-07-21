@@ -7,6 +7,7 @@ public enum SVDBDataType {
 	UserDefined,
 	FwdDecl, // typedef <class|enum|union|struct>
 	BuiltIn,
+	WireBuiltin,
 
 	// Typedefs can be of Enum, Struct, 
 	// UserDefined, or BuiltIn type

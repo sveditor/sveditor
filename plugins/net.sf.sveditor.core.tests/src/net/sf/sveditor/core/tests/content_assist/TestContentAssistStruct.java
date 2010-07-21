@@ -70,7 +70,7 @@ public class TestContentAssistStruct extends TestCase {
 	}
 
 	/**
-	 * Test that basic macro content assist works
+	 * Test that content assist on struct module ports works
 	 */
 	public void testContentAssistStructModuleInput() {
 		String doc1 =
@@ -88,6 +88,49 @@ public class TestContentAssistStruct extends TestCase {
 			"        mm.my_<<MARK>>\n" +
 			"    endfunction\n" +
 			"\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (SVDBItem it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + it.getName());
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+	}
+
+	/**
+	 * Test that content assist on struct module ports works
+	 * In this case, ensure that a parse error from the missing
+	 * semicolon doesn't throw off content assist
+	 */
+	public void testContentAssistStructModuleInputModuleScope() {
+		String doc1 =
+			"class foobar;\n" +
+			"endclass\n" +
+			"\n" +
+			"typedef struct {\n" +
+			"    int             my_int_field;\n" +
+			"    bit             my_bit_field;\n" +
+			"} s;\n" +
+			"\n" +
+			"module foo_m(input s b);\n" +
+			"\n" +
+			"    b.<<MARK>>\n" +
 			"endmodule\n"
 			;
 		

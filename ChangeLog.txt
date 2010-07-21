@@ -1,4 +1,43 @@
 
+-- 0.2.3 Release --
+
+- Add additional tests for references to project-external paths from 
+  argument file project paths
+
+- Correct a bug with argument-file include paths having a trailing '/'. 
+  For example: +incdir+../../../
+
+- Correct bugs in project-external relative paths specified in an 
+  argument file project path
+
+- Correct a bug with module parsing that caused content assist to not be
+  triggered very near the end of the module, due to an expected parse error
+
+- Updated the content-assist scanner to be aware of comments within the
+  source. This prevents content in a comment from interfering with 
+  content assist.
+
+- Correct a reference to the 'expression' Eclipse plug-in that prevented
+  SVEditor from installing in some Eclipse versions. The 'expression' plug-in
+  reference is now un-versioned.
+
+- Add basic scanner support (ignore) for clocking blocks
+
+- Add basic scanner support (ignore) for modports
+
+- Fix bug with parsing of always expression. The new parser that markes
+  parse errors made it apparent that there was a problem
+
+- Correct parse bug with 'virtual interface' datatype
+
+- Correct bug with handling of empty constraint block (#3031558)
+
+- Correct bug with labeled covergroup
+
+- Correct parsing of [net_type] [type_or_implicit] [elem]
+
+? Add 'Open Declaration' support for package imports
+
 -- 0.2.2 Release --
 
 - Support content assist for SystemVerilog keywords

@@ -19,12 +19,27 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBParamPort extends SVDBVarDeclItem {
-	public static final int			Direction_Input  = (1 << 16);
-	public static final int			Direction_Output = (1 << 17);
-	public static final int			Direction_Inout  = (1 << 18);
-	public static final int			Direction_Ref    = (1 << 19);
-	public static final int			Direction_Const  = (1 << 20);
-	public static final int			Direction_Var    = (1 << 21);
+	public static final int			Direction_Ref     = (1 << 19);
+	public static final int			Direction_Const   = (1 << 20);
+	public static final int			Direction_Var     = (1 << 21);
+	public static final int			Direction_Input   = (1 << 16);
+	public static final int			Direction_Output  = (1 << 17);
+	public static final int			Direction_Inout   = (1 << 18);
+	public static final int			WireType_Shift    = 20;
+	public static final int			WireType_none     = (0 << WireType_Shift); 
+	public static final int			WireType_supply0  = (1 << WireType_Shift); 
+	public static final int			Direction_supply1 = (2 << WireType_Shift); 
+	public static final int			Direction_tri     = (3 << WireType_Shift); 
+	public static final int			Direction_triand  = (4 << WireType_Shift); 
+	public static final int			Direction_trior   = (5 << WireType_Shift); 
+	public static final int			Direction_trireg  = (6 << WireType_Shift); 
+	public static final int			Direction_tri0    = (7 << WireType_Shift); 
+	public static final int			Direction_tri1    = (8 << WireType_Shift); 
+	public static final int			Direction_uwire   = (9 << WireType_Shift); 
+	public static final int			Direction_wire    = (10 << WireType_Shift); 
+	public static final int			Direction_wand    = (11 << WireType_Shift);
+	public static final int			Direction_wor     = (12 << WireType_Shift);
+	
 	private int						fDir;
 	
 	public static void init() {
@@ -49,6 +64,10 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 	
 	public int getDir() {
 		return fDir;
+	}
+	
+	public int getWireType() {
+		return (fDir & (0xF << WireType_Shift));
 	}
 	
 	public SVDBItem duplicate() {

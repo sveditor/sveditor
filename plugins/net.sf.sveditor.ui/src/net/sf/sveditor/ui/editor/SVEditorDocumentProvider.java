@@ -20,6 +20,7 @@ public class SVEditorDocumentProvider extends TextFileDocumentProvider {
 	
 	protected FileInfo createFileInfo(Object elem) throws CoreException {
 		FileInfo result = super.createFileInfo(elem);
+		
 		setUpSynchronization(result);
 		
 		return result;

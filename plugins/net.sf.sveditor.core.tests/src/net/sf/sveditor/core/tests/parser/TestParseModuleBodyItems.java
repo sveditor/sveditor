@@ -1,5 +1,8 @@
 package net.sf.sveditor.core.tests.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -180,6 +183,44 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertEquals(SVDBDataType.UserDefined, b.getTypeInfo().getDataType());
 		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getTypeInfo()).getName());
 	}
-	
+
+	public void testAlwaysBlock() {
+		String doc =
+			"module top;\n" +
+			"\n" +
+			"    always @ (posedge a) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = ParserTests.parse(doc, "testAlwaysBlock");
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+		}
+
+		SVDBModIfcClassDecl top = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("top")) {
+				top = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module top", top);
+		
+		assertEquals("No Errors", 0, errors.size());
+	}
+
 }
 

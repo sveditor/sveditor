@@ -40,6 +40,8 @@ public class SVDBTypeInfo extends SVDBItem {
 						return new SVDBTypeInfoUserDef(file, parent, type, reader);
 					case FwdDecl:
 						return new SVDBTypeInfoFwdDecl(file, parent, type, reader);
+					case WireBuiltin:
+						return new SVDBTypeInfoBuiltinNet(file, parent, type, reader);
 					default:
 						System.out.println("[ERROR] Unhandled DataType " + dt);
 						return new SVDBTypeInfo(dt, file, parent, type, reader);

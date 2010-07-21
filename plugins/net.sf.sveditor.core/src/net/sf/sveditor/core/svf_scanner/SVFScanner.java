@@ -29,12 +29,25 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
  *
  */
 public class SVFScanner {
-	private LogHandle					fLog;
-	private ITextScanner				fScanner;
-	private List<String>				fIncludePaths;
-	private Map<String, String>			fDefineMap;
-	private List<String>				fFilePaths;
+	private LogHandle							fLog;
+	private ITextScanner						fScanner;
+	private List<String>						fIncludePaths;
+	private Map<String, String>					fDefineMap;
+	private List<String>						fFilePaths;
+	private static final Map<String, Boolean>	fIgnoredSwitches;
 	
+	static {
+		fIgnoredSwitches = new HashMap<String, Boolean>();
+		fIgnoredSwitches.put("-nowarn", true);
+		fIgnoredSwitches.put("-32", false);
+		fIgnoredSwitches.put("-64", false);
+		fIgnoredSwitches.put("-work", true);
+		fIgnoredSwitches.put("-error", true);
+		fIgnoredSwitches.put("-warning", true);
+		fIgnoredSwitches.put("-note", true);
+		fIgnoredSwitches.put("-suppress", true);
+		fIgnoredSwitches.put("-mfcu", false);
+	}
 	
 	public SVFScanner() {
 		fIncludePaths 	= new ArrayList<String>();
@@ -144,7 +157,17 @@ public class SVFScanner {
 				
 				key = tmp.toString();
 				
-				if (key.equals("-DEF") || key.toLowerCase().equals("-define")) {
+				if (fIgnoredSwitches.containsKey(key)) {
+					if (fIgnoredSwitches.get(key)) {
+						// ignore next argument
+						while ((ch = fScanner.get_ch()) != -1 &&
+								Character.isWhitespace(ch)) {}
+						fScanner.unget_ch(ch);
+						while ((ch = fScanner.get_ch()) != -1 &&
+								!Character.isWhitespace(ch)) {}
+						fScanner.unget_ch(ch);
+					}
+				} else if (key.equals("-DEF") || key.toLowerCase().equals("-define")) {
 					ch = fScanner.skipWhite(ch);
 					
 					key = fScanner.readIdentifier(ch);

@@ -19,7 +19,7 @@
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="net.sf.sveditor.ui.editor.SVDocumentSetupParticipant"
-            extensions="sv, svh, v, vl, vlog, vh">
+            contentTypeId="net.sf.sveditor.core.systemverilog">
       </participant>
    </extension>
    <extension

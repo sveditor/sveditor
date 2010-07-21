@@ -96,7 +96,7 @@ public class SVDefaultIndenter {
 		
 		fNLeftParen = fNRightParen = 1;
 		
-		while ((tok = next()) != null) {
+		while ((tok = next_i()) != null) {
 			
 			// Scan forward until the end of the token list or until we find
 			// a keyword
@@ -105,7 +105,7 @@ public class SVDefaultIndenter {
 					if (tok.getType() == SVIndentTokenType.Identifier &&
 							fQualifierMap.containsKey(tok.getImage())) {
 						fQualifiers |= fQualifierMap.get(tok.getImage());
-						tok = next();
+						tok = next_i();
 					} else if (tok.isId("class") || tok.isId("module") ||
 							tok.isId("interface") || tok.isId("program") ||
 							tok.isId("package")) {
@@ -121,9 +121,9 @@ public class SVDefaultIndenter {
 						fQualifiers = 0;
 					} else if (tok.isOp(";")) {
 						fQualifiers = 0;
-						tok = next();
+						tok = next_i();
 					} else {
-						tok = next();
+						tok = next_i();
 					} 
 				} while ((tok = current()) != null);
 			} catch (RuntimeException e) {
@@ -390,6 +390,7 @@ public class SVDefaultIndenter {
 		}
 
 		tok = next_s();
+		// push indent for the port list
 		push_indent(tok);
 		
 		// Reach the end of the declaration
@@ -397,9 +398,14 @@ public class SVDefaultIndenter {
 			tok = next_s();
 		}
 		pop_indent(null); // pop indent for the declaration
+
+		// Logic hole: Any comments scanned by next_s() will
+		// be indented at the pre-set indent level. This indent
+		// level is not what we desire
 		
-		tok = next_s();
-		push_indent(tok);
+		List<SVIndentToken> tok_l = next_l();
+		push_indent(tok_l);
+		tok = tok_l.get(tok_l.size()-1);
 		
 		fQualifiers = 0;
 		
@@ -606,9 +612,12 @@ public class SVDefaultIndenter {
 		
 		// If this is an extern function or task, we're done
 		if (!isQualifierSet("extern")) {
-			tok = next_s();
-			push_indent(tok);
-
+			// Ensure that any comments at the beginning of the
+			// task/function are indented correctly
+			List<SVIndentToken> tok_l = next_l();
+			push_indent(tok_l);
+			tok = tok_l.get(tok_l.size()-1);
+			
 			while (tok != null) {
 				if (tok.isId(end)) {
 					break;
@@ -643,8 +652,11 @@ public class SVDefaultIndenter {
 		if (tok.isId("begin")) {
 			parent = "begin";
 			
-			tok = next_s();
-			push_indent(tok);
+			// Ensure that any comments at the beginning of the
+			// block are indented correctly
+			List<SVIndentToken> tok_l = next_l();
+			push_indent(tok_l);
+			tok = tok_l.get(tok_l.size()-1);
 			
 			while (tok != null) {
 				if (fDebugEn) {
@@ -879,7 +891,35 @@ public class SVDefaultIndenter {
 	private void push_indent(SVIndentToken tok) {
 		push_indent(tok, false);
 	}
-	
+
+	private void push_indent(List<SVIndentToken> tok_l) {
+		if (fAdaptiveIndent && fAdaptiveIndentEnd >= 0 && tok_l.get(0).getLineno() <= fAdaptiveIndentEnd) {
+			// Still in the training period. We don't want to take any 
+			// indent hints from white-space only lines. So, we just set existing
+			// indent for these lines. Then, take our indent hints from the first non-WS line
+			int idx = 0;
+			while (idx < tok_l.size() && tok_l.get(idx).isBlankLine()) {
+				set_indent(tok_l.get(idx));
+				idx++;
+			}
+			if (idx < tok_l.size()) {
+				push_indent(tok_l.get(idx), false);
+				idx++;
+			}
+			while (idx < tok_l.size()) {
+				set_indent(tok_l.get(idx));
+				idx++;
+			}
+		} else {
+			// If not in adaptive training mode, we set the indent of the first
+			// line, then have subsequent lines follow that indent
+			push_indent(tok_l.get(0), false);
+			for (int i=1; i<tok_l.size(); i++) {
+				set_indent(tok_l.get(i));
+			}
+		}
+	}
+
 	private void push_indent(SVIndentToken tok, boolean just_sample) {
 		if (fAdaptiveIndent) {
 			if (fAdaptiveIndentEnd == -1 || tok.getLineno() > fAdaptiveIndentEnd) {
@@ -912,8 +952,14 @@ public class SVDefaultIndenter {
 			// If we're just sampling in non-adaptive mode, then just
 			// copy the previous level's indent
 			if (just_sample) {
+				if (fDebugEn) {
+					debug("push_indent: just_sample");
+				}
 				fIndentStack.push(fIndentStack.peek());
 			} else {
+				if (fDebugEn) {
+					debug("push_indent: indent");
+				}
 				fIndentStack.push(fIndentStack.peek() + "\t");
 			}
 			set_indent(tok);
@@ -921,6 +967,9 @@ public class SVDefaultIndenter {
 	}
 	
 	private void pop_indent(SVIndentToken tok) {
+		if (fDebugEn) {
+			debug("pop_indent");
+		}
 		if (fIndentStack.size() > 1) {
 			fIndentStack.pop();
 		}
@@ -981,7 +1030,8 @@ public class SVDefaultIndenter {
 		return tok;
 	}
 	
-	private SVIndentToken next() {
+	private List<SVIndentToken> next() {
+		List<SVIndentToken> ret = new ArrayList<SVIndentToken>();
 		SVIndentToken tok = null;
 		
 		while ((tok = fScanner.next()) != null &&
@@ -991,10 +1041,12 @@ public class SVDefaultIndenter {
 					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage())))) {
 			if (tok.getType() == SVIndentTokenType.SingleLineComment) {
 				set_indent(tok);
-				fTokenList.add(tok);
+				ret.add(tok);
+				// fTokenList.add(tok);
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
 				indent_multi_line_comment(tok);
-				fTokenList.add(tok);
+				// fTokenList.add(tok);
+				ret.add(tok);
 			} else if (tok.isPreProc()) {
 				// If this is a built-in directive, then place at the
 				// beginning of the line
@@ -1003,7 +1055,8 @@ public class SVDefaultIndenter {
 				fIndentStack.push("");
 				set_indent(tok);
 				while (tok != null && !tok.isEndLine()) {
-					fTokenList.add(tok);
+					//fTokenList.add(tok);
+					ret.add(tok);
 					tok = fScanner.next();
 					if (fDebugEn) {
 						debug("pre-proc line: " + ((tok != null)?tok.getImage():"null"));
@@ -1011,11 +1064,13 @@ public class SVDefaultIndenter {
 				}
 				
 				if (tok != null) {
-					fTokenList.add(tok);
+					//fTokenList.add(tok);
+					ret.add(tok);
 				}
 				fIndentStack = stack;
 			} else {
-				fTokenList.add(tok);
+				//fTokenList.add(tok);
+				ret.add(tok);
 			}
 		}
 		
@@ -1037,12 +1092,14 @@ public class SVDefaultIndenter {
 				fCurrentIndent = tok.getLeadingWS();
 				set_indent(tok);
 			}
-			fTokenList.add(tok);
+			// fTokenList.add(tok);
+			ret.add(tok);
 		}
 		
 		fCurrent = tok;
+		fTokenList.addAll(ret);
 		
-		return tok;
+		return (tok != null)?ret:null;
 	}
 	
 	private SVIndentToken current() {
@@ -1058,18 +1115,66 @@ public class SVDefaultIndenter {
 	}
 	
 	private SVIndentToken next_s() {
-		SVIndentToken ret = next();
+		List<SVIndentToken> ret = next();
 		
 		if (fDebugEn) {
-			debug("next_s: " + ((ret != null)?ret.getImage():"null"));
+			if (ret != null) {
+				for (SVIndentToken t : ret) {
+					debug("next_s: " + t.getImage());
+				}
+			} else {
+				debug("next_s: null");
+			}
 		}
 		
 		if (ret == null) {
 			throw new RuntimeException();
 		}
+		// Return the last
+		return ret.get(ret.size()-1);
+	}
+
+	private List<SVIndentToken> next_l() {
+		List<SVIndentToken> ret = next();
+		
+		if (fDebugEn) {
+			if (ret != null) {
+				for (SVIndentToken t : ret) {
+					debug("next_l: " + t.getImage());
+				}
+			} else {
+				debug("next_l: null");
+			}
+		}
+		
+		if (ret == null) {
+			throw new RuntimeException();
+		}
+		
+		// Return the last
 		return ret;
 	}
-	
+
+	private SVIndentToken next_i() {
+		List<SVIndentToken> ret = next();
+		
+		if (fDebugEn) {
+			if (ret != null) {
+				for (SVIndentToken t : ret) {
+					debug("next_l: " + t.getImage());
+				}
+			} else {
+				debug("next_l: null");
+			}
+		}
+		
+		if (ret == null) {
+			return null;
+		} else {
+			return ret.get(ret.size()-1);
+		}
+	}
+
 	private static String get_end_kw(String kw) {
 		if (kw.equals("covergroup")) {
 			return "endgroup";
@@ -1083,5 +1188,4 @@ public class SVDefaultIndenter {
 			fLog.debug(msg);
 		}
 	}
-	
 }

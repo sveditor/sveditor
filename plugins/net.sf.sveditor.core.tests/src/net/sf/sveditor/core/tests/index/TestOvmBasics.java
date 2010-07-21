@@ -21,11 +21,16 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestOvmBasics extends TestCase {
@@ -93,5 +98,212 @@ public class TestOvmBasics extends TestCase {
 		assertNotNull("Check found ovm_sequence", ovm_sequence);
 		assertNotNull("Check found ovm_component", ovm_component);
 	}
+	
+	public void testXbusExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testXbusExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/ovm/", test_dir);
+		File xbus = new File(test_dir, "ovm/examples/xbus");
+		
+		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+			
+			//System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+	}
+
+	public void testTrivialExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testTrivialExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/ovm/", test_dir);
+		File trivial = new File(test_dir, "ovm/examples/trivial");
+		
+		/* IProject project_dir = */ TestUtils.createProject("trivial", trivial);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/trivial/compile_questa_sv.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+			
+			//System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+	}
+	
+	public void testSequenceBasicReadWriteExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testSequenceBasicReadWriteExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/ovm/", test_dir);
+		File basic_read_write_sequence = new File(test_dir, "ovm/examples/sequence/basic_read_write_sequence");
+		
+		/* IProject project_dir = */ TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		SVDBModIfcClassDecl my_driver = null;
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			} else if (tmp_it.getType() == SVDBItemType.Class &&
+					tmp_it.getName().equals("my_driver")) {
+				my_driver = (SVDBModIfcClassDecl)tmp_it;
+			}
+			
+			//System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+		
+		assertNotNull(my_driver);
+	}
+
+	public void testSequenceSimpleExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testSequenceSimpleExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/ovm/", test_dir);
+		File simple = new File(test_dir, "ovm/examples/sequence/simple");
+		
+		/* IProject project_dir = */ TestUtils.createProject("simple", simple);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/simple/compile_questa_sv.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		SVDBModIfcClassDecl simple_driver = null;
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			} else if (tmp_it.getType() == SVDBItemType.Class &&
+					tmp_it.getName().equals("simple_driver")) {
+				simple_driver = (SVDBModIfcClassDecl)tmp_it;
+			}
+			
+			//System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+		
+		assertNotNull(simple_driver);
+	}
+
 
 }

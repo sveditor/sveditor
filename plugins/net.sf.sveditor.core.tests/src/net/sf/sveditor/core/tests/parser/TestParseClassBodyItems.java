@@ -1,12 +1,19 @@
 package net.sf.sveditor.core.tests.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -36,7 +43,55 @@ public class TestParseClassBodyItems extends TestCase {
 		ParserTests.assertFileHasElements(file, 
 				"foobar", "foo_func", "foo_func_e", "foo_task");
 	}
-	
+
+	public void testFunctionVirtualIfcParam() {
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"    function void foo_func(virtual interface vi p);\n" +
+			"        a = 5;\n" +
+			"        b = 6;\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"endclass\n";
+		SVDBFile file = ParserTests.parse(content, "testFunctionVirtualIfcParam");
+		
+		SVDBModIfcClassDecl foobar_c = null;
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		for (SVDBItem it_t : file.getItems()) {
+			if (it_t.getType() == SVDBItemType.Class &&
+					it_t.getName().equals("foobar")) {
+				foobar_c = (SVDBModIfcClassDecl)it_t;
+			} else if (it_t.getType() == SVDBItemType.Marker &&
+					it_t.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				errors.add((SVDBMarkerItem)it_t);
+				System.out.println("[ERROR] " + ((SVDBMarkerItem)it_t).getMessage());
+			}
+		}
+
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "foo_func");
+
+		assertEquals("Errors", 0, errors.size());
+		
+		assertNotNull(foobar_c);
+		
+		SVDBTaskFuncScope foo_func = null;
+		for (SVDBItem it_t : foobar_c.getItems()) {
+			if (it_t.getType() == SVDBItemType.Function &&
+					it_t.getName().equals("foo_func")) {
+				foo_func = (SVDBTaskFuncScope)it_t;
+			}
+		}
+		
+		assertNotNull(foo_func);
+		
+		for (SVDBParamPort p : foo_func.getParams()) {
+			
+		}
+	}
+
 	public void testClassFields() {
 		String content = 
 		"class __sv_builtin_covergroup_options;\n" +
@@ -301,4 +356,39 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(cg);
 		assertNotNull(cg2);
 	}
+
+	public void testEmptyConstraint() {
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"\n" +
+			"    int a, b, c;\n" +
+			"\n" +
+			"    constraint empty_c {}\n" +
+			"\n" +
+			"endclass\n"
+			;
+
+		SVDBFile file = ParserTests.parse(content, "testEmptyConstraint");
+		
+		SVDBModIfcClassDecl foobar = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("foobar")) {
+				foobar = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull(foobar);
+
+		SVDBConstraint empty_c = null;
+		for (SVDBItem it : foobar.getItems()) {
+			if (it.getName().equals("empty_c")) {
+				empty_c = (SVDBConstraint)it;
+			}
+		}
+		
+		assertNotNull(empty_c);
+	}
+
 }

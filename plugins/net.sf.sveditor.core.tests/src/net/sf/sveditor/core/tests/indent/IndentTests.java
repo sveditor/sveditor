@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -52,6 +53,7 @@ public class IndentTests extends TestCase {
 		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
 		StringBuilder reference = new StringBuilder(ref);
 		
+		/*
 		String ref_line, ind_line;
 		int err_cnt = 0;
 		int pass_cnt = 0;
@@ -77,6 +79,8 @@ public class IndentTests extends TestCase {
 		
 		assertEquals("Expect no errors", 0, err_cnt);
 		assertTrue("Check accomplished work", (pass_cnt != 0));
+		 */
+		IndentComparator.compare("testClass", ref, result.toString());
 	}
 	
 	public void testModule() {
@@ -127,12 +131,12 @@ public class IndentTests extends TestCase {
 		String ref = 
 		"class my_component1 extends ovm_component;\n" +
 		"	\n" +
-		"			\n" +
+		"	\n" +
 		"	function new(string name, ovm_component parent);\n" +
 		"		super.new(name, parent);\n" +
 		"	endfunction\n" +
 		"	\n"  +
-		"		\n" +
+		"	\n" +
 		"endclass\n";
 		
 		// Run the indenter over the reference source
@@ -149,9 +153,140 @@ public class IndentTests extends TestCase {
 		System.out.print(result);
 		System.out.println("====");
 		
-		assertEquals("Check for expected indent result", ref, result);
+		IndentComparator.compare("testMultiBlankLine", ref, result);
 	}
-	
+
+	public void testModuleFirstItemComment() {
+		String ref = 
+		"module foo;\n" +
+		"	// this is a comment\n" +
+		"	a = 5;\n" +
+		"endmodule\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		indenter.init(scanner);
+		
+		String result = indenter.indent(-1, -1);
+		
+		System.out.println("Ref:");
+		System.out.print(ref);
+		System.out.println("====");
+		System.out.println("Result:");
+		System.out.print(result);
+		System.out.println("====");
+		
+		IndentComparator.compare("testModuleFirstItemComment", ref, result);
+	}
+
+	public void testInitialFirstItemComment() {
+		String ref = 
+		"module foo;\n" +
+		"	\n" +
+		"	initial begin\n" +
+		"		// this is a comment\n" +
+		"	end\n" +
+		"	a = 5;\n" +
+		"endmodule\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		indenter.init(scanner);
+		
+		String result = indenter.indent(-1, -1);
+		
+		System.out.println("Ref:");
+		System.out.print(ref);
+		System.out.println("====");
+		System.out.println("Result:");
+		System.out.print(result);
+		System.out.println("====");
+		
+		IndentComparator.compare("testInitialFirstItemComment", ref, result);
+	}
+
+	public void testFunctionFirstItemComment() {
+		String ref = 
+		"module foo;\n" +
+		"	\n" +
+		"	function automatic void foobar_f();\n" +
+		"		// this is a comment\n" +
+		"	endfunction\n" +
+		"	a = 5;\n" +
+		"endmodule\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		indenter.init(scanner);
+		
+		String result = indenter.indent(-1, -1);
+		
+		System.out.println("Ref:");
+		System.out.print(ref);
+		System.out.println("====");
+		System.out.println("Result:");
+		System.out.print(result);
+		System.out.println("====");
+		
+		IndentComparator.compare("testFunctionFirstItemComment", ref, result);
+	}
+
+	public void testIfInFunction() {
+		String ref =
+		"class xbus_bus_monitor;\n" +							// 1
+		"\n" +													// 2
+		"	function void ignored();\n" +						// 3
+		"	endfunction\n" +									// 4
+		"\n" +													// 5
+		"	// perform_transfer_coverage\n" +					// 6
+		"	function void perform_transfer_coverage();\n" +
+		"		if (trans_collected.read_write != NOP) begin\n" +
+		"			-> cov_transaction;\n" +
+		"			for (int unsigned i = 0; i < trans_collected.size; i++) begin\n" +
+        "				addr = trans_collected.addr + i;\n" +
+        "				data = trans_collected.data[i];\n" +
+        "				wait_state = trans_collected.wait_state[i];\n" +
+        "				-> cov_transaction_beat;\n" +
+        "			end\n" +
+        "		end\n" +
+        "	endfunction : perform_transfer_coverage\n" +
+        "\n" +
+        "endclass : xbus_bus_monitor\n"
+        ;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		indenter.init(scanner);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(-1);
+		String result = indenter.indent(-1, -1);
+		
+		System.out.println("Ref:");
+		System.out.print(ref);
+		System.out.println("====");
+		System.out.println("Result:");
+		System.out.print(result);
+		System.out.println("====");
+		
+		IndentComparator.compare("testIfInFunction", ref, result);
+	}
+
 	private StringBuilder removeLeadingWS(String ref) {
 		StringBuilder sb = new StringBuilder();
 		int i=0;

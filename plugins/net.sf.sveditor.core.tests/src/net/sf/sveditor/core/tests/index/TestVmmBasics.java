@@ -22,10 +22,14 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestVmmBasics extends TestCase {
@@ -41,10 +45,11 @@ public class TestVmmBasics extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		
+		/*
 		if (fTmpDir != null) {
 			fTmpDir.delete();
 		}
+		 */
 	}
 
 	public void testBasicProcessing() {
@@ -93,6 +98,151 @@ public class TestVmmBasics extends TestCase {
 		assertEquals("Check that no errors were found", 0, markers.size());
 		assertNotNull("Check found vmm_error", vmm_err);
 		assertNotNull("Check found vmm_xactor", vmm_xtor);
+	}
+	
+	public void testEthernetExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testEthernetExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/vmm/", test_dir);
+		File ethernet = new File(test_dir, "vmm/sv/examples/std_lib/ethernet");
+		
+		/* IProject project_dir = */ TestUtils.createProject("ethernet", ethernet);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/ethernet/ethernet.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+			
+			System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+	}
+
+	public void testWishboneExample() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testWishboneExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/vmm/", test_dir);
+		File wishbone = new File(test_dir, "vmm/sv/examples/std_lib/wishbone");
+		
+		/* IProject project_dir = */ TestUtils.createProject("wishbone", wishbone);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/wishbone/wishbone.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+			
+			System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+	}
+
+	public void testScenariosExample() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, "testScenariosExample");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		utils.copyBundleDirToFS("/vmm/", test_dir);
+		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
+		
+		/* IProject project_dir = */ TestUtils.createProject("scenarios", scenarios);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/scenarios/scenarios.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+			
+//			System.out.println("tmp_it=" + tmp_it.getName());
+		}
+		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
 	}
 
 }

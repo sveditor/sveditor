@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.tests.indent;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -29,7 +30,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"`define INCLUDED_my_component1_svh\n" +												// 5
 			"\n" +																					// 6
 			"class my_component1 extends ovm_component;\n" +										// 7
-			"		\n" +																			// 8
+			"\n" +																					// 8
 			"function void foobar();\n" +															// 9
 			"	a = 5;\n" +
 			"endfunction\n" +
@@ -76,7 +77,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"`define INCLUDED_my_component1_svh\n" +												// 5
 			"\n" +																					// 6
 			"class my_component1 extends ovm_component;\n" +										// 7
-			"		\n" +																			// 8
+			"\n" +																					// 8
 			"function void foobar();\n" +															// 9
 			"	a = 6;\n" +
 			"		if (foobar) begin\n" +															// 11
@@ -129,6 +130,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"		endfunction\n" +
 			"\n";
 		
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
@@ -143,7 +145,7 @@ public class TestAdaptiveIndent extends TestCase {
 		
 		System.out.println("Result:");
 		System.out.println(result);
-		assertEquals("Expected indent", expected, result);
+		IndentComparator.compare("testAdaptiveFirstLevelScope", expected, result);
 	}
 
 }

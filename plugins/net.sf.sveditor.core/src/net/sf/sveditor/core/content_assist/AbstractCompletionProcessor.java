@@ -125,7 +125,7 @@ public abstract class AbstractCompletionProcessor {
 				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 			
-			if (ctxt.fTrigger == null) {
+			if (ctxt.fTrigger == null && !ctxt.fLeaf.trim().equals("")) {
 				// Finally, add any keyword proposals
 				String lc_leaf = ctxt.fLeaf.toLowerCase();
 				for (String kw : SVKeywords.getKeywords()) {

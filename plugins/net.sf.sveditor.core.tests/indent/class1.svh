@@ -1,6 +1,6 @@
 
 class class1 #(type T=int);
-
+	
 	function new();
 		if (foo)
 			foo = 5;
@@ -97,9 +97,9 @@ class class1 #(type T=int);
 endclass
 
 package foobar;
-
+	
 	class foo;
-
+		
 		function new();
 		endfunction
 
@@ -108,7 +108,7 @@ package foobar;
 endpackage
 
 module top();
-
+	
 	class cls1;
 		function new();
 		endfunction

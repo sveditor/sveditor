@@ -28,7 +28,6 @@ public interface IFieldItemAttr {
 	// Flag for built-in objects. 
 	int FieldAttr_SvBuiltin			= (1 << 12);
 	
-	
 	void setAttr(int attr);
 	
 	int getAttr();

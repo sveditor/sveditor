@@ -96,8 +96,8 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		}
 		
 		SVDBLocation end = lexer().getStartLocation();
-		lexer().readKeyword("end" + type_name);
 		module.setEndLocation(end);
+		lexer().readKeyword("end" + type_name);
 
 		// Pop the first-level scope
 		parsers().SVParser().handle_leave_scope();

@@ -47,9 +47,9 @@ public class TestNewClassGen extends TestCase {
 			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"class new_class;\n" +
-			"\n" +
+			"	\n" +
 			"	function new();\n" +
-			"\n" +
+			"		\n" +
 			"	endfunction\n" +
 			"\n" +
 			"\n" +
@@ -115,7 +115,7 @@ public class TestNewClassGen extends TestCase {
 			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"class new_class extends base;\n" +
-			"\n" +
+			"	\n" +
 			"	function new(int a, int b);\n" +
 			"		super.new(a, b);\n" +
 			"\n" +
@@ -179,7 +179,7 @@ public class TestNewClassGen extends TestCase {
 			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"class new_class extends base #(foo, bar);\n" +
-			"\n" +
+			"	\n" +
 			"	function new(int a, int b);\n" +
 			"		super.new(a, b);\n" +
 			"\n" +

@@ -4,7 +4,7 @@
 module top(
 		input			clk,
 		output			dat);
-
+	
 	function void foobar();
 		int a;
 		a = 5;

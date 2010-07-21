@@ -14,7 +14,11 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public SVDBTypeInfoBuiltin(String typename) {
 		super(typename, SVDBDataType.BuiltIn);
 	}
-	
+
+	public SVDBTypeInfoBuiltin(String typename, SVDBDataType type) {
+		super(typename, type);
+	}
+
 	public SVDBTypeInfoBuiltin(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(SVDBDataType.BuiltIn, file, parent, type, reader);
 		fAttr = reader.readInt();

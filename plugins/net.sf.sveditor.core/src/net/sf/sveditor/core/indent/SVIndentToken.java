@@ -121,5 +121,9 @@ public class SVIndentToken {
 	public void setDoIt(boolean doit) {
 		fDoIt = doit;
 	}
+	
+	public boolean isBlankLine() {
+		return (fStartLine && fEndLine && fImage.trim().equals(""));
+	}
 
 }

@@ -15,9 +15,13 @@ package net.sf.sveditor.ui.scanutils;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
+import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.ITypedRegion;
 
 public class SVDocumentTextScanner 
 	extends AbstractTextScanner implements IBIDITextScanner {
@@ -98,24 +102,59 @@ public class SVDocumentTextScanner
 	public int get_ch() {
 		int ch = -1;
 		
+		// end.
+		
+		
 		if (fUngetCh != -1) {
 			ch = fUngetCh;
 			fUngetCh = -1;
 		} else {
 			try {
+				IDocumentExtension3 ext3 = (IDocumentExtension3)fDoc;
 				if (fScanFwd) {
-					if ((fLimit == -1 && (fIdx < fDoc.getLength())) ||
+					while ((fLimit == -1 && (fIdx < fDoc.getLength())) ||
 						(fLimit != -1 && (fIdx <= fLimit))) {
-						ch = fDoc.getChar(fIdx);
-						fIdx++;
+						ITypedRegion r = ext3.getPartition(
+								SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
+						if (!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+							ch = fDoc.getChar(fIdx);
+							fIdx++;
+							break;
+						} else {
+							if (fIdx == r.getOffset()) {
+								// Interpret a comment as a single whitespace char to
+								// prevent cross-comment content assist
+								ch = ' ';
+								fIdx++;
+								break;
+							} else {
+								fIdx++;
+							}
+						}
 					}
 				} else {
-					if (fIdx >= fOffset) {
-						ch = fDoc.getChar(fIdx);
-						fIdx--;
+					while (fIdx >= fOffset) {
+						ITypedRegion r = ext3.getPartition(
+								SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
+						if (!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+							ch = fDoc.getChar(fIdx);
+							fIdx--;
+							break;
+						} else {
+							if (fIdx == (r.getOffset() + r.getLength()-1)) {
+								ch = ' ';
+								fIdx--;
+								break;
+							} else {
+								fIdx--;
+							}
+						}
 					}
 				}
-			} catch (BadLocationException e) { }
+			} catch (BadLocationException e) { 
+			} catch (BadPartitioningException e) {}
 		}
 		
 		return ch;

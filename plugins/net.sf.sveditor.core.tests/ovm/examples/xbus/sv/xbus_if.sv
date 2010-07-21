@@ -23,9 +23,7 @@
 
  ******************************************************************************/
 
-interface xbus_if (
-input clk
-output rst);
+interface xbus_if ();
 
   // Control flags
   bit                has_checks = 1;
