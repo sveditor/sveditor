@@ -8,6 +8,7 @@ public class SVToken {
 	protected boolean						fIsString;
 	protected boolean						fIsOperator;
 	protected boolean						fIsNumber;
+	protected boolean						fIsTime;
 	protected boolean						fIsIdentifier;
 	protected boolean						fIsKeyword;
 	protected SVDBLocation					fStartLocation;
@@ -18,6 +19,7 @@ public class SVToken {
 		ret.fIsString      = fIsString;
 		ret.fIsOperator    = fIsOperator;
 		ret.fIsNumber      = fIsNumber;
+		ret.fIsTime        = fIsTime;
 		ret.fIsIdentifier  = fIsIdentifier;
 		ret.fIsKeyword     = fIsKeyword;
 		ret.fStartLocation = fStartLocation.duplicate();
@@ -31,6 +33,16 @@ public class SVToken {
 	
 	public boolean isNumber() {
 		return fIsNumber;
+	}
+	
+	/**
+	 * Return is true when the number is
+	 * a time constant
+	 * 
+	 * @return
+	 */
+	public boolean isTime() {
+		return fIsTime;
 	}
 	
 	public boolean isKeyword() {

@@ -3,7 +3,6 @@ package net.sf.sveditor.core.tests.parser;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
@@ -41,6 +40,24 @@ public class TestParseFunction extends TestCase {
 		assertEquals(2, func.getItems().size());
 		assertEquals("a", func.getItems().get(0).getName());
 		assertEquals("b", func.getItems().get(1).getName());
+	}
+
+	// Tests that local variables are correctly recognized and that 
+	// cast expressions are skipped appropriately
+	public void testLocalTimeVar() throws SVParseException {
+		String content =
+			"function void foobar();\n" +
+			"    time t = 10ns;\n" +
+			"    t = 20ns;\n" +
+			"endfunction\n";
+		
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		parser.init(new StringInputStream(content), "test");
+		
+		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
+
+		assertEquals(1, func.getItems().size());
+		assertEquals("t", func.getItems().get(0).getName());
 	}
 
 	// Tests that local variables are correctly recognized and that 

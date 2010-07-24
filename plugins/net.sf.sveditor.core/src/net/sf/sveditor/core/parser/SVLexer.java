@@ -123,6 +123,11 @@ public class SVLexer extends SVToken {
 		return fIsNumber;
 	}
 	
+	public boolean isTime() {
+		peek();
+		return fIsTime;
+	}
+	
 	public boolean isKeyword() {
 		peek();
 		return fIsKeyword;
@@ -364,6 +369,7 @@ public class SVLexer extends SVToken {
 		
 		fIsOperator    = false;
 		fIsNumber      = false;
+		fIsTime        = false;
 		fIsIdentifier  = false;
 		fIsKeyword     = false;
 		fIsString      = false;
@@ -514,6 +520,7 @@ public class SVLexer extends SVToken {
 									(ch == '_') || (ch == 'x') || (ch == 'X'))) {
 						fStringBuffer.append((char)ch);
 					}
+					
 					fIsNumber = true;
 				} else {
 					fImage = fStringBuffer.toString();
@@ -551,6 +558,25 @@ public class SVLexer extends SVToken {
 							 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
 						fStringBuffer.append((char)ch);
 						ch = get_ch();
+					}
+					
+					// Probably a time
+					if (ch == 'f' || ch == 'p' || ch == 'n' || ch == 'u' || ch == 'm') {
+						fStringBuffer.append((char)ch);
+						ch = get_ch();
+						
+						if (ch == 's') {
+							fStringBuffer.append((char)ch);
+							ch = -1;
+						} else {
+							fParser.error("[ERROR] unknown base " + (char)ch);
+						}
+						fIsTime = true;
+						ch = -1;
+					} else if (ch == 's') {
+						fStringBuffer.append((char)ch);
+						fIsTime = true;
+						ch = -1;
 					}
 				}
 				fIsNumber = true;

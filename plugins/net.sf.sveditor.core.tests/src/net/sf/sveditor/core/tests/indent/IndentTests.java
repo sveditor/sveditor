@@ -51,35 +51,7 @@ public class IndentTests extends TestCase {
 		indenter.init(scanner);
 		
 		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
-		StringBuilder reference = new StringBuilder(ref);
 		
-		/*
-		String ref_line, ind_line;
-		int err_cnt = 0;
-		int pass_cnt = 0;
-		
-		do {
-			ref_line = readLine(reference);
-			ind_line = readLine(result);
-			
-			if (ref_line != null && ind_line != null) {
-				if (ref_line.equals(ind_line)) {
-					System.out.println("[OK ]:" + ref_line);
-					pass_cnt++;
-				} else {
-					System.out.println("[ERR]:" + ref_line);
-					System.out.println("[   ]:" + ind_line);
-					err_cnt++;
-				}
-			}
-		} while (ref_line != null && ind_line != null);
-		
-		assertNull("Checking that output not truncated", ref_line);
-		assertNull("Checking for no excess output", ind_line);
-		
-		assertEquals("Expect no errors", 0, err_cnt);
-		assertTrue("Check accomplished work", (pass_cnt != 0));
-		 */
 		IndentComparator.compare("testClass", ref, result.toString());
 	}
 	
@@ -247,21 +219,21 @@ public class IndentTests extends TestCase {
 		String ref =
 		"class xbus_bus_monitor;\n" +							// 1
 		"\n" +													// 2
-		"	function void ignored();\n" +						// 3
-		"	endfunction\n" +									// 4
+		"		function void ignored();\n" +					// 3
+		"		endfunction\n" +								// 4
 		"\n" +													// 5
-		"	// perform_transfer_coverage\n" +					// 6
-		"	function void perform_transfer_coverage();\n" +
-		"		if (trans_collected.read_write != NOP) begin\n" +
-		"			-> cov_transaction;\n" +
-		"			for (int unsigned i = 0; i < trans_collected.size; i++) begin\n" +
-        "				addr = trans_collected.addr + i;\n" +
-        "				data = trans_collected.data[i];\n" +
-        "				wait_state = trans_collected.wait_state[i];\n" +
-        "				-> cov_transaction_beat;\n" +
+		"		// perform_transfer_coverage\n" +				// 6
+		"		function void perform_transfer_coverage();\n" +
+		"			if (trans_collected.read_write != NOP) begin\n" +
+		"				-> cov_transaction;\n" +
+		"				for (int unsigned i = 0; i < trans_collected.size; i++) begin\n" +
+        "					addr = trans_collected.addr + i;\n" +
+        "					data = trans_collected.data[i];\n" +
+        "					wait_state = trans_collected.wait_state[i];\n" +
+        "					-> cov_transaction_beat;\n" +
+        "				end\n" +
         "			end\n" +
-        "		end\n" +
-        "	endfunction : perform_transfer_coverage\n" +
+        "		endfunction : perform_transfer_coverage\n" +
         "\n" +
         "endclass : xbus_bus_monitor\n"
         ;
@@ -274,7 +246,7 @@ public class IndentTests extends TestCase {
 		indenter.init(scanner);
 		
 		indenter.setAdaptiveIndent(true);
-		indenter.setAdaptiveIndentEnd(-1);
+		indenter.setAdaptiveIndentEnd(5);
 		String result = indenter.indent(-1, -1);
 		
 		System.out.println("Ref:");

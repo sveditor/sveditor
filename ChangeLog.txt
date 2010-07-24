@@ -36,7 +36,7 @@
 
 - Correct parsing of [net_type] [type_or_implicit] [elem]
 
-? Add 'Open Declaration' support for package imports
+- Update lexer to recognize time-unit constants
 
 -- 0.2.2 Release --
 

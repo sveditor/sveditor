@@ -94,6 +94,10 @@ public class TestOvmBasics extends TestCase {
 			}
 		}
 		
+		for (SVDBMarkerItem m : markers) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
+		
 		assertEquals("Check that no errors were found", 0, markers.size());
 		assertNotNull("Check found ovm_sequence", ovm_sequence);
 		assertNotNull("Check found ovm_component", ovm_component);

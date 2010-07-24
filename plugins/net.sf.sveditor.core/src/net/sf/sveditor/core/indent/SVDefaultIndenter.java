@@ -31,7 +31,7 @@ public class SVDefaultIndenter {
 	private String							fCurrentIndent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
-	private static final boolean			fDebugEn = true;
+	private static final boolean			fDebugEn = false;
 	private int								fNLeftParen, fNRightParen;
 	
 	private boolean							fAdaptiveIndent = false;
@@ -927,9 +927,24 @@ public class SVDefaultIndenter {
 					fLog.debug("push_indent: past training period (" + tok.getImage() + ")");
 				}
 				// Indent based on the previous
+				if (just_sample) {
+					if (fDebugEn) {
+						debug("push_indent: just_sample");
+					}
+					fIndentStack.push(fIndentStack.peek());
+				} else {
+					if (fDebugEn) {
+						debug("push_indent: indent");
+					}
+					fIndentStack.push(fIndentStack.peek() + "\t");
+				}
+				set_indent(tok);
+
+				/*
 				if (!just_sample) {
 					fIndentStack.push(fIndentStack.peek() + "\t");
 				}
+				 */
 			} else {
 				if (fDebugEn) {
 					fLog.debug("push_indent: training period isStart=" + tok.isStartLine() + " tok=" + tok.getImage());
