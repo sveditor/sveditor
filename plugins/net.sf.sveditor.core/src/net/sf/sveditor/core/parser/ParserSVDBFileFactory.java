@@ -756,6 +756,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	private void process_package(String id) throws SVParseException {
 		if (id.equals("package")) {
+			lexer().readKeyword("package");
 			String pkg = readQualifiedIdentifier();
 			enter_package(pkg);
 		} else {

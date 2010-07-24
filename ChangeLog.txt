@@ -38,6 +38,8 @@
 
 - Update lexer to recognize time-unit constants
 
+- Restored support for package Open Declaration from an import
+
 -- 0.2.2 Release --
 
 - Support content assist for SystemVerilog keywords
