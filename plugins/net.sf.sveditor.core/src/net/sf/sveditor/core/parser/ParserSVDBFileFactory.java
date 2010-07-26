@@ -1003,9 +1003,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					+ getLocation().getLineNo());
 			fNewStatement = true;
 			ret = null;
-		} else if (id.equals("parameter")) {
+		} else if (id.equals("parameter") || id.equals("localparam")) {
 			// local parameter
 			lexer().eatToken();
+			
+			if (lexer().peekKeyword("type")) {
+				lexer().eatToken();
+			}
 			SVDBTypeInfo data_type = parsers().dataTypeParser().data_type(
 					0, lexer().eatToken());
 			String param_name;
@@ -1336,6 +1340,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				lexer().skipPastMatch("(", ")");
 			} else if (lexer().peekOperator("{")) {
 				lexer().skipPastMatch("{", "}");
+			} else if (lexer().peekOperator("[")) {
+				lexer().skipPastMatch("[", "]");
 			} else if (lexer().peekOperator("-")) {
 				lexer().eatToken();
 				if (lexer().peekOperator("(")) {
@@ -1353,6 +1359,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				lexer().eatToken();
 			} else if (lexer().peekOperator("(")) {
 				lexer().skipPastMatch("(", ")");
+			} else if (lexer().peekOperator("[")) {
+				lexer().skipPastMatch("[", "]");
 			} else {
 				break;
 			}

@@ -449,6 +449,42 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t5", t5);
 	}
 
+	public void testGlobalParamRef() {
+		
+		String doc =
+			"parameter int c [0:1] = '{0, 1};\n" +
+			"	module t6\n" +
+			"	#(\n" +
+			"	parameter c2 = c[0]\n" +
+			"	);\n" +
+			"	endmodule\n"
+			;
+			
+		SVDBFile file = ParserTests.parse(doc, "testMappedParameterizedModule");
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+		}
+		
+		assertEquals("Encountered errors", 0, errors.size());
+
+		SVDBModIfcClassDecl t6 = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t6")) {
+				t6 = (SVDBModIfcClassDecl)it;
+			}
+		}
+		
+		assertNotNull("Failed to find module t6", t6);
+	}
+
 	
 }
 
