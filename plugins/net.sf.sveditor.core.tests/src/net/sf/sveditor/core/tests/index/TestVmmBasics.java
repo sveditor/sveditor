@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,17 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
+import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -197,7 +203,7 @@ public class TestVmmBasics extends TestCase {
 	}
 
 	public void testScenariosExample() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testScenariosExample");
@@ -222,6 +228,21 @@ public class TestVmmBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		
+		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
+		ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
+		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		
+		int ch, lineno=1;
+		System.out.print(lineno + ": ");
+		while ((ch = pp.get_ch()) != -1) {
+			System.out.print((char)ch);
+			if (ch == '\n') {
+				lineno++;
+				System.out.print(lineno + ": ");
+			}
+		}
+		
 		
 		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();

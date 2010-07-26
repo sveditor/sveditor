@@ -24,12 +24,15 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				lexer().readOperator("(");
 				is_mapped = true;
 			}
+			
+			String val = parsers().SVParser().readExpression();
 
 			if (is_mapped) {
 				// Read inside
 				lexer().readOperator(")");
 			}
-			
+
+			/*
 			v.setLength(0);
 			while (lexer().peek() != null) {
 				if (lexer().peekOperator("#")) {
@@ -48,7 +51,9 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 					v.append(lexer().eatToken());
 				}
 			}
-			ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
+			 */
+			//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
+			ret.addParameter(new SVDBParamValueAssign(name, val));
 			ret.setIsNamedMapping(is_mapped);
 			
 			if (lexer().peekOperator(",")) {

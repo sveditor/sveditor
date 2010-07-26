@@ -1,4 +1,18 @@
 
+-- 0.2.4 Release --
+
+- Correct parse bugs with module parameters
+    - empty parameter list
+    - parameter declaration inside module
+
+- Add parse support for locally-defined parameters
+
+- Add parse support for typed-net elements
+
+- Add basic parse support for nested interfaces and nested modules
+
+------------------------------------------------------------------------------
+
 -- 0.2.3 Release --
 
 - Add additional tests for references to project-external paths from 

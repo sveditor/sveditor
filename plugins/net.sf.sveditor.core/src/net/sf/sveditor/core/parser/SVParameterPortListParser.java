@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
@@ -28,47 +29,42 @@ public class SVParameterPortListParser extends SVParserBase {
 		lexer().readOperator("#");
 		lexer().readOperator("(");
 		
-		/*
-		lexer().startCapture();
-		lexer().skipPastMatch("(", ")");
-		String param_s = lexer().endCapture();
-		
-		ITextScanner in = new StringTextScanner(new StringBuilder(param_s));
-		 */
-		String id;
-		
-		/*
-		ch = in.skipWhite(in.get_ch());
-		if (ch != '(') {
-			in.unget_ch(ch);
-		}
-		 */
-
-		while (true) {
+		while (!lexer().peekOperator(")")) {
+			String id = null;
 			SVDBModIfcClassParam p;
 
 			// Parameter can be typed or untyped
 			// type T=int
 			// string Ts="foo"
-			id = lexer().readIdOrKeyword();
-			
-			if (!lexer().peekOperator(",", ")", "=")) {
+			// parameter int c[1:0]
+			if (lexer().peekKeyword("type")) {
+				lexer().eatToken();
 				id = lexer().readIdOrKeyword();
-			}
+			} else {
+				if (lexer().peekKeyword("parameter")) {
+					lexer().eatToken();
+				}
+				// This might be a type
+				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
 
+				// If the next element is an operator, then the 
+				// return from the type parser is the parameter name
+				if (lexer().peekOperator(",", ")", "=")) {
+					id = type.getName();
+				} else {
+					// Otherwise, we have a type and a parameter name
+					id = lexer().readIdOrKeyword();
+				}
+			}
+			
+			if (lexer().peekOperator("[")) {
+				// TODO: handle vectored
+				lexer().skipPastMatch("[", "]");
+			}
+			
 			// id now holds the template identifier
 			p = new SVDBModIfcClassParam(id);
 
-			/* ??
-			ch = in.skipWhite(in.get_ch());
-
-			if (ch == '(') {
-				ch = in.skipPastMatch("()");
-			}
-
-			ch = in.skipWhite(ch);
-			 */
-			
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
 				

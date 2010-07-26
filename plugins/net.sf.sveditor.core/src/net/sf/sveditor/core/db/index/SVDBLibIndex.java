@@ -499,6 +499,27 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		return file;
 	}
+	
+	public SVPreProcScanner createPreProcScanner(String path) {
+		InputStream in = getFileSystemProvider().openStream(path);
+		SVDBFileTree ft = getFileTreeMap().get(path);
+
+		IPreProcMacroProvider mp = createMacroProvider(ft);
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
+
+		SVPreProcScanner pp = new SVPreProcScanner();
+		pp.setDefineProvider(dp);
+		//pp.setScanner(this);
+		//pp.setObserver(this);
+
+		pp.init(in, path);
+		pp.setExpandMacros(true);
+		pp.setEvalConditionals(true);
+		
+		return pp;
+	}
+	
+	
 
 	protected void processFile(
 			SVDBFileTree				path,

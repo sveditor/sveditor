@@ -4,30 +4,35 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
-public class SVDBTypeInfoBuiltinNet extends SVDBTypeInfoBuiltin {
+public class SVDBTypeInfoBuiltinNet extends SVDBTypeInfo {
 	
 	private String					fWireType;
+	private SVDBTypeInfo			fType;
 	
-	public SVDBTypeInfoBuiltinNet(String wire_type, String typename) {
-		super(typename, SVDBDataType.WireBuiltin);
+	public SVDBTypeInfoBuiltinNet(String wire_type, SVDBTypeInfo type) {
+		super(wire_type, SVDBDataType.WireBuiltin);
 		fWireType = wire_type;
+		fType     = type;
 	}
 	
 	public SVDBTypeInfoBuiltinNet(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fDataType = SVDBDataType.WireBuiltin;
+		super(SVDBDataType.WireBuiltin, file, parent, type, reader);
 		fWireType = reader.readString();
+		fType     = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
 	}
 	
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeString(fWireType);
+		writer.writeSVDBItem(fType);
 	}
 
 	public String getWireType() {
 		return fWireType;
 	}
 	
-
+	public SVDBTypeInfo getTypeInfo() {
+		return fType;
+	}
 }

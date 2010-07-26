@@ -183,6 +183,10 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		return mp; 
 	}
 	
+	public IPreProcMacroProvider pub_createMacroProvider(SVDBFileTree ft) {
+		return createMacroProvider(ft);
+	}
+	
 	@Override
 	protected IPreProcMacroProvider createPreProcMacroProvider(SVDBFileTree file) {
 		IPreProcMacroProvider mp = super.createPreProcMacroProvider(file);
