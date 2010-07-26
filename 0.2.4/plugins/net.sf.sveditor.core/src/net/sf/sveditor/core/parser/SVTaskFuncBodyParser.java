@@ -1,0 +1,74 @@
+package net.sf.sveditor.core.parser;
+
+import java.util.List;
+
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.scanner.SVKeywords;
+
+public class SVTaskFuncBodyParser extends SVParserBase {
+	
+	public SVTaskFuncBodyParser(ISVParser parser) {
+		super(parser);
+	}
+	
+	public void parse(SVDBTaskFuncScope tf, boolean is_ansi) throws SVParseException {
+		String decl_keywords[];
+		String decl_keywords_ansi[] = {"const", "var", "automatic", "static", "typedef"};
+		String decl_keywords_nonansi[] = {"const", "var", "automatic", "static", "typedef", "input", "output", "inout", "ref"};
+		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
+		
+		decl_keywords = (is_ansi)?decl_keywords_ansi:decl_keywords_nonansi;
+		
+		// parse declarations first. If non-ansi, port declarations are okay too
+		String id = null;
+		while (true) {
+			id = null;
+			try {
+				if (lexer().peekKeyword(decl_keywords) || 
+						(SVKeywords.isBuiltInType(lexer().peek()) && !lexer().peekKeyword("void")) ||
+						lexer().isIdentifier()) {
+					// Variable declarations
+					id = lexer().eatToken(); // should be beginning of type declaration
+
+					if ((lexer().peekKeyword() && !lexer().peekKeyword(decl_keywords_nonansi)) ||
+							(lexer().peekOperator() && !lexer().peekOperator("#"))) {
+						// likely a statement
+						break;
+					}
+
+					List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
+					tf.addItems(vars);
+				} else if (lexer().peekKeyword("typedef")) {
+					// TODO: permit local type declaration
+					break;
+				} else {
+					// time to move on to the body
+					break;
+				}
+			} catch (SVParseException e) {
+				// Try to recover
+				while (lexer().peek() != null && 
+						!lexer().peekOperator(";") && !lexer().peekKeyword()) {
+					lexer().eatToken();
+				}
+				if (lexer().peekOperator(";")) {
+					lexer().eatToken();
+				}
+			}
+		}
+
+		// now the task/function function body
+		// this is much
+		while (lexer().peek() != null) {
+			if (lexer().peekKeyword(end_keyword)) {
+				break;
+			} else if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0)) {
+				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
+			} else {
+				id = lexer().eatToken();
+			}
+		}
+	}
+}
