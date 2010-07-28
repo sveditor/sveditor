@@ -1,4 +1,15 @@
 
+-- 0.2.5 Release --
+
+- Correct problem with setting cursor location of Open Declaration (#3034640)
+
+? Correct parse bugs with module ports
+    - Untyped ports with specified directions
+    ? Modports
+
+? Correct argument-file include-path resolution order
+------------------------------------------------------------------------------
+
 -- 0.2.4 Release --
 
 - Correct parse bugs with module parameters

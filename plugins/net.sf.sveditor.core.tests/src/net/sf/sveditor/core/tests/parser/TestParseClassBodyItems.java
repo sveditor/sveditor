@@ -12,7 +12,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
@@ -38,6 +37,35 @@ public class TestParseClassBodyItems extends TestCase {
 			"    endtask\n" +
 			"endclass\n";
 		SVDBFile file = ParserTests.parse(content, "testTaskFunction");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, 
+				"foobar", "foo_func", "foo_func_e", "foo_task");
+	}
+
+	public void testTypedClassParameters() {
+		String content = 
+			"`define PARAMS \\\n" +
+			"    #(int A=5, \\\n" +
+			"      bit[foo:0] B=pkg::func(a*7), \\\n" +
+			"      int C=7)\n" +
+			"\n" +
+			"class foobar `PARAMS;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"        a = 5;\n" +
+			"        b = 6;\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"    function void foo_func_e();\n" +
+			"        c = 5;\n" +
+			"        d = 6;\n" +
+			"    endfunction:foo_func_e\n" + // endfunction without : <name>
+			"\n" +
+			"    task foo_task();\n" +
+			"    endtask\n" +
+			"endclass\n";
+		SVDBFile file = ParserTests.parse(content, "testTypedClassParameters");
 		
 		ParserTests.assertNoErrWarn(file);
 		ParserTests.assertFileHasElements(file, 
@@ -86,10 +114,6 @@ public class TestParseClassBodyItems extends TestCase {
 		}
 		
 		assertNotNull(foo_func);
-		
-		for (SVDBParamPort p : foo_func.getParams()) {
-			
-		}
 	}
 
 	public void testClassFields() {

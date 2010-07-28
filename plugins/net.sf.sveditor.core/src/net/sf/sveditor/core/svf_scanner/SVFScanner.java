@@ -111,7 +111,12 @@ public class SVFScanner {
 						if (ch == '"') {
 							val = fScanner.readString(ch);
 						} else {
-							val = fScanner.readIdentifier(ch);
+							tmp.append((char)ch);
+							while ((ch = fScanner.get_ch()) != -1 && 
+									!Character.isWhitespace(ch)) {
+								tmp.append((char)ch);
+							}
+							val = tmp.toString();
 						}
 					} else {
 						val = "";

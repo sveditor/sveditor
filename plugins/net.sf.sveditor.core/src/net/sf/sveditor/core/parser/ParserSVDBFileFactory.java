@@ -1014,6 +1014,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					0, lexer().eatToken());
 			String param_name;
 			
+			SVDBLocation it_start = lexer().getStartLocation();
+			
 			if (lexer().peekId()) {
 				// likely a typed parameter
 				param_name = lexer().readId();
@@ -1031,6 +1033,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				}
 				
 				p = new SVDBParamPort(data_type, param_name);
+				p.setLocation(it_start);
 				
 				if (fScopeStack.size() > 0) {
 					fScopeStack.peek().addItem(p);
@@ -1038,6 +1041,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
+					it_start = lexer().getStartLocation();
 					param_name = lexer().readId();
 				} else {
 					break;

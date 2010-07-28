@@ -16,8 +16,13 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
 		super(typename, type);
 	}
 	
-	public SVDBTypeInfoUserDef(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.UserDefined, file, parent, type, reader);
+	public SVDBTypeInfoUserDef(
+			SVDBDataType 	dt, 
+			SVDBFile 		file, 
+			SVDBScopeItem 	parent, 
+			SVDBItemType 	type, 
+			IDBReader 		reader) throws DBFormatException {
+		super(dt, file, parent, type, reader);
 		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(file, parent);
 	}
 	

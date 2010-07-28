@@ -6,6 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -381,6 +382,57 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t4", t4);
 	}
 
+	public void testUntypedInputPort() {
+		
+		String doc =
+			"module t\n" +
+			"(\n" +
+			"output logic [3:0] out,\n" +
+			"input logic [1:0] in,\n" +
+			"input [1:0] in2\n" +
+			");\n" +
+			"endmodule\n"
+			;
+
+		SVDBFile file = ParserTests.parse(doc, "testUntypedInputPort");
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+		}
+		
+		assertEquals("Encountered errors", 0, errors.size());
+
+		SVDBModIfcClassDecl t = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t")) {
+				t = (SVDBModIfcClassDecl)it;
+			}
+		}
+		assertNotNull("Failed to find module t", t);
+		
+		SVDBParamPort out=null, in=null, in2=null;
+		
+		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t).getPorts()) {
+			if (p.getName().equals("out")) {
+				out = p;
+			} else if (p.getName().equals("in")) {
+				in = p;
+			} else if (p.getName().equals("in2")) {
+				in2 = p;
+			}
+		}
+		assertNotNull("Failed to find \"out\"", out);
+		assertNotNull("Failed to find \"in\"", in);
+		assertNotNull("Failed to find \"in2\"", in2);
+	}
+
 	public void testTypedInitializedParameterDecl() {
 		
 		String doc =
@@ -485,6 +537,62 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t6", t6);
 	}
 
-	
+
+	public void testVarCompare() {
+		String doc = 
+			"module HalfSeTable(sIdx, LutIndex);\n" +
+			"	// Optimize the table size by the sorting stage index.\n" +
+			"	parameter sortId = 0;\n" +
+			"	output logic [sortId*3-1:0] sIdx;\n" +
+			"	input [2:0] LutIndex;\n" +
+			"\n" +
+			"	// Half SE table. Symbols are 802.11 Gray-encoded.\n" +
+			"	always@(LutIndex) begin\n" +
+			"		case(LutIndex)\n" +
+			"    	// SE order:    (best)7   5   3   1  -1  -3  -5  -7\n" +
+			"		3'b000: sIdx = (24'b100_101_111_110_010_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b001: sIdx = (24'b100_101_111_110_010_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b010: sIdx = (24'b101_100_111_110_010_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b011: sIdx = (24'b101_111_100_110_010_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b100: sIdx = (24'b111_101_110_100_010_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b101: sIdx = (24'b111_110_101_010_100_011_001_000)>>((8-sortId)*3);\n" +
+			"		3'b110: sIdx = (24'b110_111_010_101_011_100_001_000)>>((8-sortId)*3);\n" +
+			"		3'b111: sIdx = (24'b110_010_111_011_101_001_100_000)>>((8-sortId)*3);\n" +
+			"		endcase\n" +
+			"	end\n" +
+			"endmodule\n";
+
+		SVDBFile target_file = new SVDBFile("testMappedParameterizedModule");
+		SVDBFile file = ParserTests.parse(doc, "testMappedParameterizedModule");
+		
+		SVDBFileMerger.merge(target_file, file, null, null, null);
+		
+		// Merge twice for good measure. The first time actually does something.
+		// The second time ensures maximum compares
+		SVDBFileMerger.merge(target_file, file, null, null, null);
+		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		
+		for (SVDBItem it : file.getItems()) {
+			if (it.getType() == SVDBItemType.Marker) {
+				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					errors.add(m);
+				}
+			}
+		}
+		
+		assertEquals("Encountered errors", 0, errors.size());
+
+		SVDBModIfcClassDecl HalfSeTable = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("HalfSeTable")) {
+				HalfSeTable = (SVDBModIfcClassDecl)it;
+			}
+		}
+		
+		assertNotNull("Failed to find module HalfSeTable", HalfSeTable);
+	}
+
 }
 

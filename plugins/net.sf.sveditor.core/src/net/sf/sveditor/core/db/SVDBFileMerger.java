@@ -20,19 +20,19 @@ public class SVDBFileMerger {
 	/**
 	 * Merges changes in file2 back to file1 and collects info
 	 * 
-	 * @param file1
-	 * @param file2
+	 * @param target
+	 * @param source
 	 * @param adds
 	 * @param removes
 	 * @param changes
 	 */
 	public static void merge(
-			SVDBFile			file1,
-			SVDBFile			file2,
+			SVDBFile			target,
+			SVDBFile			source,
 			List<SVDBItem>		adds,
 			List<SVDBItem>		removes,
 			List<SVDBItem>		changes) {
-		merge_scope(file1, file2, adds, removes, changes);
+		merge_scope(target, source, adds, removes, changes);
 	}
 	
 	private static int merge_scope(

@@ -37,14 +37,14 @@ public class SVDBTypeInfo extends SVDBItem {
 					case Struct:
 						return new SVDBTypeInfoStruct(file, parent, type, reader);
 					case UserDefined:
-						return new SVDBTypeInfoUserDef(file, parent, type, reader);
+					case ModuleIfc:
+						return new SVDBTypeInfoUserDef(dt, file, parent, type, reader);
 					case FwdDecl:
 						return new SVDBTypeInfoFwdDecl(file, parent, type, reader);
 					case WireBuiltin:
 						return new SVDBTypeInfoBuiltinNet(file, parent, type, reader);
 					default:
-						System.out.println("[ERROR] Unhandled DataType " + dt);
-						return new SVDBTypeInfo(dt, file, parent, type, reader);
+						throw new DBFormatException("[ERROR] Unhandled DataType " + dt);
 				}
 			}
 		};
@@ -54,6 +54,7 @@ public class SVDBTypeInfo extends SVDBItem {
 	public SVDBTypeInfo(String typename, SVDBDataType data_type) {
 		super(typename, SVDBItemType.TypeInfo);
 		fDataType = data_type;
+		fLocation = null;
 	}
 
 	public SVDBTypeInfo(SVDBDataType dt, SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
@@ -62,7 +63,7 @@ public class SVDBTypeInfo extends SVDBItem {
 		fDataType = dt;
 		setType(type);
 		setName(reader.readString());
-		// TypeInfo doesn't have a location: setLocation(new SVDBLocation(reader.readInt(), -1));
+		fLocation = null;
 	}
 	
 	public void dump(IDBWriter writer) {
@@ -97,7 +98,13 @@ public class SVDBTypeInfo extends SVDBItem {
 		}
 		return false;
 	}
-	
-	
+
+	@Override
+	public SVDBItem duplicate() {
+		SVDBTypeInfo ret = new SVDBTypeInfo(getName(), fDataType);
+		ret.init(this);
+
+		return ret;
+	}
 	
 }

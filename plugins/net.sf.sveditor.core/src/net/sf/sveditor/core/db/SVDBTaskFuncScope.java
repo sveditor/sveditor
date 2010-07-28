@@ -41,7 +41,11 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	public SVDBTaskFuncScope(String name, SVDBItemType type) {
 		super(name, type);
 		fParams = new ArrayList<SVDBParamPort>();
-		fRetType = new SVDBTypeInfoBuiltin("void");
+		if (type == SVDBItemType.Function) {
+			fRetType = new SVDBTypeInfoBuiltin("void");
+		} else {
+			fRetType = null;
+		}
 	}
 
 	public SVDBTaskFuncScope(String name, SVDBTypeInfo ret_type) {

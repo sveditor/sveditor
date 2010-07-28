@@ -79,6 +79,23 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		}
 		return false;
 	}
+
+	@Override
+	public SVDBItem duplicate() {
+		SVDBTypeInfoBuiltin ret = new SVDBTypeInfoBuiltin(getName());
+		ret.init(this);
+		
+		return ret;
+	}
+
+	@Override
+	public void init(SVDBItem other) {
+		super.init(other);
+		SVDBTypeInfoBuiltin o = (SVDBTypeInfoBuiltin)other;
+		
+		setAttr(o.getAttr());
+		setVectorDim(o.getVectorDim());
+	}
 	
 	
 

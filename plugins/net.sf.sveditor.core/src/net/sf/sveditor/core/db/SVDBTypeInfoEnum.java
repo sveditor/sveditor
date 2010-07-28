@@ -22,20 +22,22 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		fEnumList = new ArrayList<Tuple<String,String>>();
 		int size = reader.readInt();
 		for (int i=0; i<size; i++) {
-			fEnumList.add(new Tuple<String, String>(
-					reader.readString(), reader.readString()));
+			String k = reader.readString();
+			String v = reader.readString();
+			addEnumValue(k, v);
 		}
 	}
 	
 	@Override
 	public void dump(IDBWriter writer) {
-		// TODO Auto-generated method stub
 		super.dump(writer);
 		
 		writer.writeInt(fEnumList.size());
 		for (int i=0; i<fEnumList.size(); i++) {
-			writer.writeString(fEnumList.get(i).first());
-			writer.writeString(fEnumList.get(i).second());
+			String k = fEnumList.get(i).first();
+			String v = fEnumList.get(i).second();
+			writer.writeString(k);
+			writer.writeString(v);
 		}
 	}
 
@@ -43,8 +45,23 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		return fEnumList;
 	}
 	
-	public void addEnumValue(String name, String value) {
-		fEnumList.add(new Tuple<String, String>(name, value));
+	public void addEnumValue(String key, String val) {
+		if (val == null) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			val = "";
+		}
+		if (key == null) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		fEnumList.add(new Tuple<String, String>(key, val));
 	}
 	
 	public String toString() {
@@ -68,7 +85,15 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 			
 			if (o.fEnumList.size() == fEnumList.size()) {
 				for (int i=0; i<fEnumList.size(); i++) {
-					if (!fEnumList.get(i).equals(o.fEnumList.get(i))) {
+					String k1 = fEnumList.get(i).first();
+					String v1 = fEnumList.get(i).second();
+					String k2 = o.fEnumList.get(i).first();
+					String v2 = o.fEnumList.get(i).second();
+					
+					if (k1 == null || k2 == null || v1 == null || v2 == null) {
+						System.out.println("k1=" + k1 + " k2=" + k2 + " v1=" + v1 + " v2=" + v2);
+					}
+					if (!k1.equals(k2) || !v1.equals(v2)) {
 						return false;
 					}
 				}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
@@ -39,9 +40,11 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			// Ensure we don't misinterpret a static reference
 			if (!lexer().peekOperator("::")) {
 				while (true) {
+					SVDBLocation it_start = lexer().getStartLocation();
 					String name = lexer().readId();
 				
 					SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, 0);
+					var.setLocation(it_start);
 				
 					ret.add(var);
 

@@ -413,6 +413,7 @@
             name="SystemVerilog Class"
             project="false">
       </wizard>
+      <!--
       <wizard
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
@@ -421,6 +422,7 @@
             name="SystemVerilog Methodology Class"
             project="false">
       </wizard>
+       -->
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

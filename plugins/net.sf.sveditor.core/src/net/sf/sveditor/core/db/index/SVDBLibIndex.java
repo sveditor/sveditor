@@ -608,12 +608,16 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 					
 					// Create a marker for the missing include file
 					SVDBFile real_svdb = fPreProcFileMap.get(root.getFilePath());
-					SVDBMarkerItem err = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
-							SVDBMarkerItem.KIND_MISSING_INC,
-							"Failed to find include file \"" + it.getName() + "\"");
-					err.setAttr(SVDBMarkerItem.MISSING_INC_PATH, it.getName());
-					real_svdb.addItem(err);
-					err.setLocation(it.getLocation());
+					if (real_svdb != null) {
+						SVDBMarkerItem err = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
+								SVDBMarkerItem.KIND_MISSING_INC,
+								"Failed to find include file \"" + it.getName() + "\"");
+						err.setAttr(SVDBMarkerItem.MISSING_INC_PATH, it.getName());
+						real_svdb.addItem(err);
+						err.setLocation(it.getLocation());
+					} else {
+						fLog.error("Failed to find PreProc file for \"" + root.getFilePath() + "\"");
+					}
 					
 					/*
 					fLog.error("AbstractSVDBLibIndex: " +

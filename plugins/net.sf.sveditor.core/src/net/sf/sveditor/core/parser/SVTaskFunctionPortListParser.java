@@ -3,6 +3,7 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
@@ -26,6 +27,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		}
 		
 		while (true) {
+			SVDBLocation it_start = lexer().getStartLocation();
 			if (lexer().peekKeyword("input", "output", "inout", "ref")) {
 				String dir_s = lexer().eatToken();
 				if (dir_s.equals("input")) {
@@ -82,6 +84,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			
 			SVDBParamPort param = new SVDBParamPort(type, id);
 			param.setDir(dir);
+			param.setLocation(it_start);
 			
 			params.add(param);
 			

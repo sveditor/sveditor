@@ -3,8 +3,10 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 
 public class SVPortListParser extends SVParserBase {
 	
@@ -32,6 +34,7 @@ public class SVPortListParser extends SVParserBase {
 		}
 		
 		while (true) {
+			SVDBLocation it_start = lexer().getStartLocation();
 			if (lexer().peekKeyword("input", "output", "inout", "ref")) {
 				String dir_s = lexer().eatToken();
 				if (dir_s.equals("input")) {
@@ -49,39 +52,48 @@ public class SVPortListParser extends SVParserBase {
 				dir = (SVDBParamPort.Direction_Ref | SVDBParamPort.Direction_Const);
 			}
 			
-			SVDBTypeInfo type = 
-				parsers().dataTypeParser().data_type(0, lexer().eatToken());
-
-			// This could be a continuation of the same type: int a, b, c
+			// This may be an untyped vectored parameter
+			SVDBTypeInfo type = null; 
+			String id = null;
 			if (lexer().peekOperator("[")) {
 				lexer().startCapture();
 				lexer().skipPastMatch("[", "]");
-				lexer().endCapture();
-			}
-
-			String id;
-
-			// Handle the case where a single type and a 
-			// list of parameters is declared
-			if (lexer().peekOperator(",", ")")) {
-				// use previous type
-				id = type.getName();
-				type = last_type;
-			} else {
+				String vector_dim = lexer().endCapture();
+				SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin("untyped");
+				bi_type.setVectorDim(vector_dim);
+				type = bi_type;
 				id = lexer().readId();
+			} else {
+				type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
 
-				if (lexer().peekOperator("[")) {
-					lexer().startCapture();
-					lexer().skipPastMatch("[", "]");
-					lexer().endCapture();
+				// This could be a continuation of the same type: int a, b, c
+
+
+				// Handle the case where a single type and a 
+				// list of parameters is declared
+				if (lexer().peekOperator(",", ")", "=")) {
+					// use previous type
+					id = type.getName();
+					if (last_type == null) {
+						// this is an untyped parameter. 
+					}
+					type = last_type;
+				} else {
+					id = lexer().readId();
+
+					if (lexer().peekOperator("[")) {
+						lexer().startCapture();
+						lexer().skipPastMatch("[", "]");
+						lexer().endCapture();
+					}
+
+					last_type = type;
 				}
-				
-				last_type = type;
 			}
 
-			
 			SVDBParamPort param = new SVDBParamPort(type, id);
 			param.setDir(dir);
+			param.setLocation(it_start);
 			
 			ports.add(param);
 

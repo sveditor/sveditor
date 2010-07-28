@@ -130,8 +130,15 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 				return false;
 			}
 			
-			return (fTypeInfo.equals(o.fTypeInfo) &&
-					super.equals(obj));
+			if (fTypeInfo == null || o.fTypeInfo == null) {
+				if (fTypeInfo != o.fTypeInfo) {
+					return false;
+				}
+			} else if (!fTypeInfo.equals(o.fTypeInfo)) {
+				return false;
+			}
+			
+			return super.equals(obj);
 		}
 		return false;
 	}

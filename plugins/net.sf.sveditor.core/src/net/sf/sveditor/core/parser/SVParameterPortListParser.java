@@ -3,6 +3,7 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -32,6 +33,7 @@ public class SVParameterPortListParser extends SVParserBase {
 		while (!lexer().peekOperator(")")) {
 			String id = null;
 			SVDBModIfcClassParam p;
+			SVDBLocation it_start = lexer().getStartLocation();
 
 			// Parameter can be typed or untyped
 			// type T=int
@@ -64,6 +66,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			
 			// id now holds the template identifier
 			p = new SVDBModIfcClassParam(id);
+			p.setLocation(it_start);
 
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();

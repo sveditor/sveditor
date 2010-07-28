@@ -177,10 +177,14 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
-			IFile file = root.getFile(new Path(path));
-			IFolder folder = root.getFolder(new Path(path));
-			
-			return (file.exists() || folder.exists());
+			try {
+				IFile file = root.getFile(new Path(path));
+				IFolder folder = root.getFolder(new Path(path));
+
+				return (file.exists() || folder.exists());
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
 		} else {
 			// Also look at the filesystem
 			return new File(path).exists();

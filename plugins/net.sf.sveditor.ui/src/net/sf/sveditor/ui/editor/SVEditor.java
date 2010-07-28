@@ -495,7 +495,7 @@ public class SVEditor extends TextEditor
 			end = start;
 		}
 		try {
-			int offset   = doc.getLineOffset(start);
+			int offset    = doc.getLineOffset(start);
 			int last_line = doc.getLineOfOffset(doc.getLength()-1);
 			
 			if (end > last_line) {
@@ -506,7 +506,7 @@ public class SVEditor extends TextEditor
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
-			selectAndReveal(0, 0, offset, (offset_e-offset));
+			selectAndReveal(offset, 0, offset, (offset_e-offset));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}

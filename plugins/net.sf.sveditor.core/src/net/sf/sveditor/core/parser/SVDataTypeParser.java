@@ -5,6 +5,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -271,6 +272,7 @@ public class SVDataTypeParser extends SVParserBase {
 		lexer().readOperator("{");
 		
 		do {
+			SVDBLocation it_start = lexer().getStartLocation();
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(
 					0, lexer().readIdOrKeyword());
 			
@@ -302,6 +304,7 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 				
 				SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, attr);
+				var.setLocation(it_start);
 				
 				if (bounds != null) {
 					var.setArrayDim(bounds);
