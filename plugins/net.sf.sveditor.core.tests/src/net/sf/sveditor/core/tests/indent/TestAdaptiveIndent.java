@@ -130,7 +130,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"		endfunction\n" +
 			"\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
@@ -147,5 +147,7 @@ public class TestAdaptiveIndent extends TestCase {
 		System.out.println(result);
 		IndentComparator.compare("testAdaptiveFirstLevelScope", expected, result);
 	}
+	
+//	public void test
 
 }

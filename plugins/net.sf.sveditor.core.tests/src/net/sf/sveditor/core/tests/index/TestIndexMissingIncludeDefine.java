@@ -99,7 +99,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	public void testWSSourceCollectionMissingIncludeDefine() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject project_dir = TestUtils.createProject("ws_sc_project");
 		

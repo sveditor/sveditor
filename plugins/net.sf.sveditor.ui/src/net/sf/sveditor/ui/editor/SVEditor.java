@@ -52,6 +52,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -62,6 +63,7 @@ import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -82,7 +84,7 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
-	implements ISVDBProjectSettingsListener {
+	implements ISVDBProjectSettingsListener, ISVEditor {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -367,6 +369,21 @@ public class SVEditor extends TextEditor
 	
 	public ISVDBIndexIterator getIndexIterator() {
 		return SVEditorIndexIterator;
+	}
+	
+	public IDocument getDocument() {
+		return getDocumentProvider().getDocument(getEditorInput());
+	}
+	
+	public ITextSelection getTextSel() {
+		ITextSelection sel = null;
+		
+		ISelection sel_o = getSelectionProvider().getSelection();
+		if (sel != null && sel instanceof ITextSelection) {
+			sel = (ITextSelection)sel_o;
+		}
+		
+		return sel;
 	}
 
 	protected void editorContextMenuAboutToShow(IMenuManager menu) {

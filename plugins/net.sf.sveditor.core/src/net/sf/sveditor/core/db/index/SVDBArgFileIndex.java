@@ -282,6 +282,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				SVDBFile pp_file = processPreProcFile(inc, true);
 				
 				ret = new SVDBSearchResult<SVDBFile>(pp_file, this);
+				break;
 			}
 		}
 		

@@ -34,9 +34,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
@@ -117,6 +115,9 @@ public class ArgFilePersistence extends TestCase
 			}
 		}
 		
+		for (SVDBMarkerItem m : errors) {
+			System.out.println("[ERROR] " + m.getMessage());
+		}
 		assertEquals("Unexpected errors: ", 0, errors.size());
 		
 		SVDBDump dumper = new SVDBDump();
@@ -233,7 +234,7 @@ public class ArgFilePersistence extends TestCase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");

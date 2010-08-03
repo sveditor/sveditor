@@ -14,27 +14,15 @@ package net.sf.sveditor.ui.tests.editor;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
-import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import net.sf.sveditor.ui.tests.UiReleaseTests;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
 
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 
 public class TestAutoIndent extends TestCase {
 	
-	private AutoEditTester createAutoEditTester() {
-		IDocument doc = new Document();
-		AutoEditTester tester = new AutoEditTester(doc, SVDocumentPartitions.SV_PARTITIONING);
-		
-		tester.setAutoEditStrategy(IDocument.DEFAULT_CONTENT_TYPE, new SVAutoIndentStrategy(null, SVDocumentPartitions.SV_PARTITIONING));
-		
-		return tester;
-	}
-	
 	public void testBasicIndent() throws BadLocationException {
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		
 		tester.type("\n\n");
 		tester.type("class foobar;\n");
@@ -71,7 +59,7 @@ public class TestAutoIndent extends TestCase {
 			"\n" +
 			"`VMM_NOTIFY notify;\n";
 		
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
 		tester.paste(text);
 		
@@ -111,7 +99,7 @@ public class TestAutoIndent extends TestCase {
 			"\tendgroup\n" +
 			"\t";
 		
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input);
 		String result = tester.getContent();
 		
@@ -148,7 +136,7 @@ public class TestAutoIndent extends TestCase {
 			"";
 		
 		
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input1);
 		// SVCorePlugin.getDefault().enableDebug(true);
 		tester.type(input2);
@@ -163,7 +151,7 @@ public class TestAutoIndent extends TestCase {
 	}
 
 	public void testPastePostStringAdaptiveIndent() throws BadLocationException {
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		String content = 
 			"class foobar;\n" +
 			"\n" +
@@ -200,7 +188,7 @@ public class TestAutoIndent extends TestCase {
 	}
 
 	public void testPasteAdaptiveIndent() throws BadLocationException {
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		String content = 
 			"class foobar;\n" +
 			"\n" +
@@ -253,7 +241,7 @@ public class TestAutoIndent extends TestCase {
 			"\n" +
 			"endclass\n";
 			
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.setContent(input);
 		
 		tester.setCaretOffset(0);
@@ -306,7 +294,7 @@ public class TestAutoIndent extends TestCase {
 			"\tendgroup\n" +
 			"\t";
 		
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input);
 		String result = tester.getContent();
 		
@@ -320,7 +308,7 @@ public class TestAutoIndent extends TestCase {
 
 	public void disabled_testModifyIndent() throws BadLocationException {
 		int offset1, offset2;
-		AutoEditTester tester = createAutoEditTester();
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		
 		tester.type("\n\n");
 		tester.type("class foobar;\n");

@@ -47,19 +47,24 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	
 	public void addEnumValue(String key, String val) {
 		if (val == null) {
+			/*
 			try {
 				throw new Exception();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			 */
 			val = "";
 		}
 		if (key == null) {
+			/*
 			try {
 				throw new Exception();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			 */
+			key = "";
 		}
 		fEnumList.add(new Tuple<String, String>(key, val));
 	}

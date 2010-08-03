@@ -113,7 +113,7 @@ public class SrcCollectionBasics extends TestCase {
 	public void testFindSourceRecurseNoPkg() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -182,7 +182,7 @@ public class SrcCollectionBasics extends TestCase {
 	public void testFindSourceRecurseModule() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		

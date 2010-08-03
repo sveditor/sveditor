@@ -678,7 +678,12 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			SVDBFileMerger.merge(orig_file, pp_file, null, null, null);
 			orig_file.setLastModified(pp_file.getLastModified());
 			SVDBFileTree ft = fFileTreeMap.get(path);
-			ft.setSVDBFile(pp_file);
+			if (ft != null) {
+				ft.setSVDBFile(pp_file);
+			} else {
+				fLog.error("During fileChanged processing, file \"" + 
+						path + "\" not in FileTreeMap");
+			}
 			
 			// Update the pre-processor map
 			buildPreProcFileMap(null, ft);

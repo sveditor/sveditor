@@ -3,11 +3,28 @@
 
 - Correct problem with setting cursor location of Open Declaration (#3034640)
 
-? Correct parse bugs with module ports
-    - Untyped ports with specified directions
-    ? Modports
+- Correct problems with compare and dump methods in the new TypeInfo classes.
+  These caused problems with index loading (#3034574 and #3034577)
 
-? Correct argument-file include-path resolution order
+- Correct parse bugs with module ports
+    - Untyped ports with specified directions
+    - Modports: module foo(<interface>.<modport> mp);
+
+- Correct argument-file include-path resolution order. Now, if an 
+  identically-named file exists in multiple include directories, the correct
+  file (first found, traversing the include paths in order) will  
+  be included and used.
+
+- Removed a dangling reference to the 'SystemVerilog Methodology Class' 
+  wizard, which is a wizard for creating class templates that are specific
+  to a methodology, such as OVM or VMM. This wizard was still accessible
+  via the main menu 'New' menu, which should not be the case until this 
+  work is complete.
+
+- Add support for always variants (always_comb, always_iff, always_latch)
+
+- Fix some issues with 
+
 ------------------------------------------------------------------------------
 
 -- 0.2.4 Release --

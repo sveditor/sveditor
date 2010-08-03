@@ -199,13 +199,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 				if (id != null) {
 					if (id.equals("class")) {
-						SVDBModIfcClassDecl cls = null;
 						try {
-							cls = parsers().classParser().parse(modifiers);
-						} catch (SVParseException e) {
-							System.out.println("ParseException: post-class()");
-							e.printStackTrace();
-						}
+							parsers().classParser().parse(modifiers);
+						} catch (SVParseException e) {}
 						fNewStatement = true;
 					} else if (id.equals("module") || id.equals("macromodule") ||
 							id.equals("interface") || id.equals("program")) {
@@ -214,9 +210,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 						// File scope here
 						try {
 							parsers().modIfcProgParser().parse(modifiers);
-						} catch (SVParseException e) {
-							
-						}
+						} catch (SVParseException e) {}
 					} else if (id.equals("struct")) {
 						process_struct_decl(null);
 					} else if (id.equals("package") || id.equals("endpackage")) {
@@ -253,18 +247,24 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private void process_initial_always() throws SVParseException {
 		String expr = "", name = "";
 		
-		String type = lexer().readKeyword("initial", "always");
+		String type = lexer().readKeyword("initial", 
+				"always", "always_comb", "always_latch", "always_ff");
 
-		if (type.equals("always")) {
+		if (!type.equals("initial")) {
 			if (lexer().peekOperator("@")) {
 				lexer().eatToken();
 				
-				lexer().startCapture();
+				if (lexer().peekOperator("*")) {
+					lexer().eatToken();
+					expr = "*";
+				} else {
+					lexer().startCapture();
 
-				if (lexer().peekOperator("(")) {
-					lexer().skipPastMatch("(", ")");
+					if (lexer().peekOperator("(")) {
+						lexer().skipPastMatch("(", ")");
+					}
+					expr = lexer().endCapture();
 				}
-				expr = lexer().endCapture();
 			} else if (lexer().peekOperator("#")) {
 				lexer().eatToken();
 				lexer().startCapture();
@@ -907,7 +907,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} else if (id.equals("property")) {
 			ret = process_property();
 			fNewStatement = true;
-		} else if (id.equals("always") || id.equals("initial")) {
+		} else if (id.equals("always") || id.equals("always_comb") ||
+				id.equals("always_latch") || id.equals("always_ff") ||
+				id.equals("initial")) {
 			process_initial_always();
 			ret = fSpecialNonNull;
 			fNewStatement = true;
@@ -1325,11 +1327,30 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		return ret.toString();
 	}
+
+	private static final String RecognizedOps[];
 	
+	static {
+		String misc[] = {":", "::", ":/", ":=", ".", "#", "'"};
+		RecognizedOps = new String[SVLexer.RelationalOps.length + misc.length];
+		
+		int idx=0;
+		for (String o : SVLexer.RelationalOps) {
+			RecognizedOps[idx++] = o;
+		}
+		
+		for (String o : misc) {
+			RecognizedOps[idx++] = o;
+		}
+	}
+	/*
 	private static final String fRecognizedOps[] = {
-		"+", "-", "^", "|",  "&", "*", "?", ".", ":", "::", "#", "'",
+		"+", "-", "/", "*", "^", "|",  "&", "?", ".", ":", "::", "#", "'",
 		"%", "**", "<<", ">>", "<", ">"
+		+ | - | * | / | % | == | != | === | !== | ==? | !=? | && | || | **
+				| < | <= | > | >= | & | | | ^ | ^~ | ~^ | >> | << | >>> | <<<		
 	};
+	 */
 	private static final String fPrefixOps[] = {
 		"'"
 	};
@@ -1359,7 +1380,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				break;
 			}
 
-			if (lexer().peekOperator(fRecognizedOps)) {
+			if (lexer().peekOperator(RecognizedOps)) {
 				lexer().eatToken();
 			} else if (lexer().peekOperator("(")) {
 				lexer().skipPastMatch("(", ")");

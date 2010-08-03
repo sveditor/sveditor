@@ -6,8 +6,6 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVParameterPortListParser extends SVParserBase {
 	

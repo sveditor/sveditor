@@ -147,7 +147,7 @@ public class TestContentAssistBasics extends TestCase {
 			"        int v = my_<<MARK>>\n" +				// 11
 			"    endfunction\n" +							// 12
 			"endclass\n";									// 13
-		// SVCorePlugin.getDefault().enableDebug(true);
+		// SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -207,7 +207,7 @@ public class TestContentAssistBasics extends TestCase {
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
@@ -241,7 +241,7 @@ public class TestContentAssistBasics extends TestCase {
 			;
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
@@ -274,7 +274,7 @@ public class TestContentAssistBasics extends TestCase {
 			"    endfunction\n" +
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
 		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
@@ -356,7 +356,7 @@ public class TestContentAssistBasics extends TestCase {
 			"        cl1 = new<<MARK>>\n" +
 			"    endfunction\n" +
 			"endclass\n";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -442,6 +442,33 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"my_class", "my_class1"}, proposals);
 	}
 
+	public void testEmptyFileAssist() {
+		String doc = 
+			"<<FIELD1>>";
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(
+				ini.second().getStrippedData());
+		
+		// We only look at the local index here (no OVM)
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
+		
+		scanner.seek(ini.second().getPosMap().get("FIELD1"));
+
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("FIELD1"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		// Remove any keyword proposals
+		for (int i=0; i<proposals.size(); i++) {
+			if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement())) {
+				proposals.remove(i);
+				i--;
+			}
+		}
+		
+		validateResults(new String[] {}, proposals);
+	}
+
 	public void testUntriggeredPrefixClassAssist() {
 		String doc = 
 			"class my_class1;\n" +
@@ -499,7 +526,7 @@ public class TestContentAssistBasics extends TestCase {
 			"\n" +
 			"endclass\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(

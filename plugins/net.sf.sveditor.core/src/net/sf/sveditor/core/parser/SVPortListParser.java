@@ -71,7 +71,7 @@ public class SVPortListParser extends SVParserBase {
 
 				// Handle the case where a single type and a 
 				// list of parameters is declared
-				if (lexer().peekOperator(",", ")", "=")) {
+				if (lexer().peekOperator(",", ")", "=", "[")) {
 					// use previous type
 					id = type.getName();
 					if (last_type == null) {
@@ -81,20 +81,36 @@ public class SVPortListParser extends SVParserBase {
 				} else {
 					id = lexer().readId();
 
+					/* 
 					if (lexer().peekOperator("[")) {
 						lexer().startCapture();
 						lexer().skipPastMatch("[", "]");
 						lexer().endCapture();
 					}
+					 */
 
 					last_type = type;
 				}
 			}
+			
 
 			SVDBParamPort param = new SVDBParamPort(type, id);
 			param.setDir(dir);
 			param.setLocation(it_start);
-			
+
+			if (lexer().peekOperator("[")) {
+				// This port is an array port
+				lexer().startCapture();
+				lexer().skipPastMatch("[", "]");
+				String bounds = lexer().endCapture();
+				
+				if (bounds.length() > 2) {
+					bounds = bounds.substring(0, bounds.length()-1);
+				}
+
+				param.setArrayDim(bounds);
+			}
+
 			ports.add(param);
 
 			/*

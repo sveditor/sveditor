@@ -223,7 +223,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		PrintStream ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		fIndexRebuildCnt = 0;
 		

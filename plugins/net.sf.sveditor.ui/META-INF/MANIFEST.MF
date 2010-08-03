@@ -24,5 +24,6 @@ Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: net.sf.sveditor.ui,
  net.sf.sveditor.ui.editor,
+ net.sf.sveditor.ui.editor.actions,
  net.sf.sveditor.ui.explorer
 

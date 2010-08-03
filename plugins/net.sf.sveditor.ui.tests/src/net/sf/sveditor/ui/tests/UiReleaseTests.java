@@ -12,11 +12,17 @@
 
 package net.sf.sveditor.ui.tests;
 
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
+import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
+import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
 
 public class UiReleaseTests extends TestSuite {
 	
@@ -54,5 +60,15 @@ public class UiReleaseTests extends TestSuite {
 		 */
 		return new UiReleaseTests();
 	}
+	
+	public static AutoEditTester createAutoEditTester() {
+		IDocument doc = new Document();
+		AutoEditTester tester = new AutoEditTester(doc, SVDocumentPartitions.SV_PARTITIONING);
+		
+		tester.setAutoEditStrategy(IDocument.DEFAULT_CONTENT_TYPE, new SVAutoIndentStrategy(null, SVDocumentPartitions.SV_PARTITIONING));
+		
+		return tester;
+	}
+	
 	
 }

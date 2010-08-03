@@ -26,7 +26,7 @@ public class TestParseProgramBlocks extends TestCase {
 			"endprogram\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
 		
 		for (SVDBItem it : file.getItems()) {
@@ -62,7 +62,7 @@ public class TestParseProgramBlocks extends TestCase {
 			"endprogram\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
 		
 		for (SVDBItem it : file.getItems()) {

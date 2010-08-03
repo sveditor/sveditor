@@ -172,16 +172,32 @@ public class SVDataTypeParser extends SVParserBase {
 		} else {
 			// Should be a user-defined type
 			if (lexer().peekOperator("::")) {
-				lexer().eatToken();
+				StringBuilder type_id = new StringBuilder();
+				type_id.append(id);
 				
 				// scoped type
 				// [class_scope | package_scope] type_identifier { packed_dimension }
-				String type_id = lexer().readId();
-				type = new SVDBTypeInfoUserDef(id + "::" + type_id, SVDBDataType.UserDefined);
+				while (lexer().peekOperator("::")) {
+					type_id.append(lexer().eatToken()); // ::
+					type_id.append(lexer().readId());
+				}
+				
+				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
 				
 				if (lexer().peekOperator("[")) {
 					// TODO: packed_dimension
 				}
+			} else if (lexer().peekOperator(".")) {
+				// Interface type: interface.modport
+				StringBuilder type_id = new StringBuilder();
+				type_id.append(id);
+				
+				while (lexer().peekOperator(".")) {
+					type_id.append(lexer().eatToken()); // .
+					type_id.append(lexer().readId());
+				}
+				
+				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
 			} else {
 				type = new SVDBTypeInfoUserDef(id, SVDBDataType.UserDefined);
 			}

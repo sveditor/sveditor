@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.ui.editor.actions;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -91,6 +93,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	private static class OverrideMethodsContentProvider implements ITreeContentProvider {
 		private Object							fEmptyList[] = new Object[0];
 		OverrideMethodsFinder					fMethodsFinder;
+		private SVDBModIfcClassDecl				fLeafClass;
 		
 		public OverrideMethodsContentProvider(
 				SVDBModIfcClassDecl			leaf_class,
@@ -105,8 +108,18 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof SVDBModIfcClassDecl) {
-				return fMethodsFinder.getMethods(
-						(SVDBModIfcClassDecl)parentElement).toArray();
+				List<SVDBTaskFuncScope> methods = 
+					fMethodsFinder.getMethods((SVDBModIfcClassDecl)parentElement);
+				
+				if (methods == null) {
+					if (parentElement == fLeafClass) {
+						return fMethodsFinder.getClassSet().toArray();
+					}
+					System.out.println("Class \"" + ((SVDBModIfcClassDecl)parentElement).getName() + "\" not in MethodsFinder");
+					return fEmptyList;
+				} else {
+					return methods.toArray();
+				}
 			} else {
 				return fEmptyList;
 			}

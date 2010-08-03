@@ -39,20 +39,47 @@ public class SVLexer extends SVToken {
 	private boolean						fCapture;
 	private SVToken						fCaptureLastToken;
 	private ISVParser					fParser;
-	
-	private static String operators[] = {
-		"(", ")", "{", "}", "[", "]",
+		
+	public static final String RelationalOps[] = {
 		"&", "&&", "|", "||", 
 		"-", "--", "+", "++",
-		"%", "!", "*", "**", "/", "^", "~", "?", "@",
-		"<", "<<", "<=",
-		">", ">>", ">=",
-		":", "::", ":/", ":=",
-		",", ";", ".", ".*", ":", 
-		"->",
+		"%", "!", "*", "**", "/", 
+		"^", "^~", "~^", "~", "?", 
+		"<", "<<", "<=", "<<<",
+		">", ">>", ">=", ">>>",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
-		"-=", "<<=", ">>=", "&=", "^=", "|=", "#",
+		"-=", "<<=", ">>=", "&=", "^=", "|=",
+		"===", "!==", "==?", "!=?",
 	};
+	
+	public static final String GroupingOps[] = {
+		"(", ")", "{", "}", "[", "]",
+	};
+	
+	public static final String MiscOps[] = {
+		":", "::", ":/", ":=",
+		",", ";", ".", ".*", "'",
+		"->", "#", "@",
+	};
+	
+	private static final String AllOperators[];
+	
+	static {
+		AllOperators = new String[RelationalOps.length + GroupingOps.length + MiscOps.length];
+		int idx = 0;
+		
+		for (String o : RelationalOps) {
+			AllOperators[idx++] = o;
+		}
+		
+		for (String o : GroupingOps) {
+			AllOperators[idx++] = o;
+		}
+		
+		for (String o : MiscOps) {
+			AllOperators[idx++] = o;
+		}
+	}
 	
 	public SVLexer() {
 		f2SeqPrefixes = new HashSet<String>();
@@ -65,7 +92,7 @@ public class SVLexer extends SVToken {
 		fCaptureBuffer = new StringBuilder();
 		fCapture = false;
 		
-		for (String op : operators) {
+		for (String op : AllOperators) {
 			if (op.length() == 3) {
 				f3SeqPrefixes.add(op.substring(0, 1));
 				f3SeqPrefixes.add(op.substring(0, 2));
