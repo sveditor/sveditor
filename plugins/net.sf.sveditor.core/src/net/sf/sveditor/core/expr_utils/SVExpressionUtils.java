@@ -104,8 +104,10 @@ public class SVExpressionUtils {
 		// We'll start by scanning backwards. On entry, the
 		// cursor has been placed to read going forward
 		if (scanner.getScanFwd() && scanner.getPos() > 0) {
+			/*
 			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
 					scanner.get_str(scanner.getPos()-1, 1) + "\"");
+			 */
 			scanner.seek(scanner.getPos()-1);
 		}
 		

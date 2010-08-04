@@ -23,7 +23,7 @@
 
 - Add support for always variants (always_comb, always_iff, always_latch)
 
-- Fix some issues with 
+- Correct content-assist issue (#3038561) when document length is 0
 
 ------------------------------------------------------------------------------
 
