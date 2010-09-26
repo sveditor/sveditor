@@ -190,12 +190,15 @@ public class SVDBIndexUtil {
 			exp_path = sb.toString();
 		}
 	
-		IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
-		
-		try {
-			exp_path = mgr.performStringSubstitution(exp_path);
-		} catch (CoreException e) {
-			e.printStackTrace();
+		// Allow for outside-Eclipse run -- primarily for profiling
+		if (VariablesPlugin.getDefault() != null) {
+			IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();
+
+			try {
+				exp_path = mgr.performStringSubstitution(exp_path);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		

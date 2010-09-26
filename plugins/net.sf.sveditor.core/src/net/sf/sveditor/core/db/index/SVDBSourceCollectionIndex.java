@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -242,7 +242,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		return ret;
 	}
 
-	private boolean has_pkg_interface_module_program(SVDBScopeItem scope) {
+	private boolean has_pkg_interface_module_program(ISVDBScopeItem scope) {
 		if (scope.getType() == SVDBItemType.Module ||
 				scope.getType() == SVDBItemType.Interface ||
 				scope.getType() == SVDBItemType.Program ||
@@ -250,8 +250,8 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			return true;
 		} else {
 			for (SVDBItem it : scope.getItems()) {
-				if (it instanceof SVDBScopeItem) {
-					if (has_pkg_interface_module_program((SVDBScopeItem)it)) {
+				if (it instanceof ISVDBScopeItem) {
+					if (has_pkg_interface_module_program((ISVDBScopeItem)it)) {
 						return true;
 					}
 				}

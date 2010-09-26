@@ -13,10 +13,10 @@
 package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 
 import org.eclipse.jface.viewers.Viewer;
@@ -94,13 +94,13 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 		return true;
 	}
 	
-	private boolean isInScope(SVDBScopeItem scope, SVDBItem it) {
+	private boolean isInScope(ISVDBScopeItem scope, SVDBItem it) {
 		
 		for (SVDBItem it_t : scope.getItems()) {
 			if (it_t == it) {
 				return true;
-			} else if (it_t instanceof SVDBScopeItem) {
-				if (isInScope((SVDBScopeItem)it_t, it)) {
+			} else if (it_t instanceof ISVDBScopeItem) {
+				if (isInScope((ISVDBScopeItem)it_t, it)) {
 					return true;
 				}
 			}

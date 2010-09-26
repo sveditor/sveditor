@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui.svcp;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -22,9 +23,9 @@ import org.eclipse.jface.viewers.Viewer;
 public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	public Object[] getChildren(Object elem) {
-		if (elem instanceof SVDBScopeItem &&
+		if (elem instanceof ISVDBScopeItem &&
 				!(elem instanceof SVDBTaskFuncScope)) {
-			return ((SVDBScopeItem)elem).getItems().toArray();
+			return ((ISVDBScopeItem)elem).getItems().toArray();
 		} else {
 			return new Object[0];
 		}
@@ -41,15 +42,15 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 
 	
 	public boolean hasChildren(Object element) {
-		return (element instanceof SVDBScopeItem && 
+		return (element instanceof ISVDBScopeItem && 
 				!(element instanceof SVDBTaskFuncScope) &&
-				((SVDBScopeItem)element).getItems().size() > 0);
+				((ISVDBScopeItem)element).getItems().size() > 0);
 	}
 
 	
 	public Object[] getElements(Object element) {
-		if (element instanceof SVDBScopeItem) {
-			return ((SVDBScopeItem)element).getItems().toArray();
+		if (element instanceof ISVDBScopeItem) {
+			return ((ISVDBScopeItem)element).getItems().toArray();
 		} else {
 			return new Object[0];
 		}

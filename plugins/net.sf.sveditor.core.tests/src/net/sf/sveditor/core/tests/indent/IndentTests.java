@@ -18,7 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -47,28 +47,120 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
 		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
 		
 		IndentComparator.compare("testClass", ref, result.toString());
 	}
-	
+
+	public void testBasicClass() {
+		String content =
+			"\n" +
+			"class class1 #(type T=int);\n" +
+			"\n" +
+			"function new();\n" +
+			"if (foo)\n" +
+			"foo = 5;\n" +
+			"else if (foo2) begin\n" +
+			"foo = 6;\n" +
+			"end\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		String expected =
+			"\n" +
+			"class class1 #(type T=int);\n" +
+			"\n" +
+			"	function new();\n" +
+			"		if (foo)\n" +
+			"			foo = 5;\n" +
+			"		else if (foo2) begin\n" +
+			"			foo = 6;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicClass", expected, result);
+	}
+
+	public void testNewLineIf() {
+		String content =
+			"\n" +
+			"class class1 #(type T=int);\n" +
+			"\n" +
+			"function new();\n" +
+			"if (foo)\n" +
+			"foo = 5;\n" +
+			"else\n" +
+			"if (foo2) begin\n" +
+			"foo = 6;\n" +
+			"end\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		String expected =
+			"\n" +
+			"class class1 #(type T=int);\n" +
+			"\n" +
+			"	function new();\n" +
+			"		if (foo)\n" +
+			"			foo = 5;\n" +
+			"		else\n" +
+			"		if (foo2) begin\n" +
+			"			foo = 6;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicClass", expected, result);
+	}
+
 	public void testModule() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
 		bos = utils.readBundleFile("/indent/module.svh");
 		
-		String ref = bos.toString();
-		StringBuilder sb = removeLeadingWS(ref);
+		String expected = bos.toString();
+		StringBuilder sb = removeLeadingWS(expected);
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
+		String result = indenter.indent();
+		IndentComparator.compare("testModule", expected, result);
+		
+		/*
 		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
 		StringBuilder reference = new StringBuilder(ref);
 		
@@ -97,6 +189,7 @@ public class IndentTests extends TestCase {
 		
 		assertEquals("Expect no errors", 0, err_cnt);
 		assertTrue("Check accomplished work", (pass_cnt != 0));
+		 */
 	}
 
 	public void testMultiBlankLine() {
@@ -113,8 +206,9 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
 		String result = indenter.indent(-1, -1);
 		
@@ -126,6 +220,41 @@ public class IndentTests extends TestCase {
 		System.out.println("====");
 		
 		IndentComparator.compare("testMultiBlankLine", ref, result);
+	}
+	
+	public void testFunctionComment() {
+		String ref = 
+			"class my_class;\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * my_func\n" +
+			"	 *\n" +
+			"	 */\n" +
+			"	function void foobar;\n" +
+			"\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+			
+			SVCorePlugin.getDefault().enableDebug(true);
+			
+			// Run the indenter over the reference source
+			SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+			indenter.init(scanner);
+			indenter.setTestMode(true);
+			
+			String result = indenter.indent(-1, -1);
+			
+			System.out.println("Ref:");
+			System.out.print(ref);
+			System.out.println("====");
+			System.out.println("Result:");
+			System.out.print(result);
+			System.out.println("====");
+			
+			IndentComparator.compare("testFunctionComment", ref, result);
 	}
 
 	public void testModuleFirstItemComment() {
@@ -140,8 +269,9 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
 		String result = indenter.indent(-1, -1);
 		
@@ -170,9 +300,10 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
-		
+		indenter.setTestMode(true);
+
 		String result = indenter.indent(-1, -1);
 		
 		System.out.println("Ref:");
@@ -200,8 +331,9 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
 		String result = indenter.indent(-1, -1);
 		
@@ -242,8 +374,9 @@ public class IndentTests extends TestCase {
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
+		indenter.setTestMode(true);
 		
 		indenter.setAdaptiveIndent(true);
 		indenter.setAdaptiveIndentEnd(5);
@@ -294,6 +427,7 @@ public class IndentTests extends TestCase {
 		return sb;
 	}
 
+	/*
 	private String readLine(StringBuilder sb) {
 		int end = 0;
 		String ret = null;
@@ -314,6 +448,6 @@ public class IndentTests extends TestCase {
 		
 		return ret;
 	}
-	
+	 */
 
 }

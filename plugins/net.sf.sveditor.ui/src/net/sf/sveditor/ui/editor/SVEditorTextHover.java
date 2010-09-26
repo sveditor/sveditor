@@ -14,11 +14,12 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -42,15 +43,16 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 		SVDocumentTextScanner scanner = 
 			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset()+1);
 		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
+		SVExprScanner expr_scanner = new SVExprScanner();
 		
-		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
 		
 		int lineno = -1;
 		try {
 			lineno = textViewer.getDocument().getLineOfOffset(hoverRegion.getOffset()); 
 		} catch (BadLocationException e) { }
 		
-		SVDBScopeItem src_scope = null;
+		ISVDBScopeItem src_scope = null;
 		
 		if (lineno != -1) {
 			src_scope = SVDBSearchUtils.findActiveScope(fEditor.getSVDBFile(), lineno);

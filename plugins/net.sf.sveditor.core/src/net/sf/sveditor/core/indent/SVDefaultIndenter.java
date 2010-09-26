@@ -23,7 +23,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-public class SVDefaultIndenter {
+public class SVDefaultIndenter implements ISVIndenter {
 	private ISVIndentScanner				fScanner;
 	private Stack<String>					fIndentStack;
 	private List<SVIndentToken>				fTokenList;
@@ -77,6 +77,10 @@ public class SVDefaultIndenter {
 		fAdaptiveIndentEnd = lineno;
 	}
 	
+	@Override
+	public void setTestMode(boolean tm) {
+	}
+
 	public void init(ISVIndentScanner scanner) {
 		fScanner = scanner;
 		fIndentStack.push("");

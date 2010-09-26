@@ -10,6 +10,8 @@
  ****************************************************************************/
 package net.sf.sveditor.ui.editor;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.LogFactory;
@@ -91,7 +93,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
 			
-			SVDefaultIndenter indenter = new SVDefaultIndenter();
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
 			indenter.init(scanner);
@@ -158,7 +160,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
 			
-			SVDefaultIndenter indenter = new SVDefaultIndenter();
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
 			indenter.init(scanner);

@@ -16,15 +16,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBContentAssistIncludeNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -72,6 +73,7 @@ public abstract class AbstractCompletionProcessor {
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
+		SVExprScanner expr_scan = new SVExprScanner();
 		SVExpressionUtils expr_utils = new SVExpressionUtils(
 				new SVDBFindContentAssistNameMatcher());
 		
@@ -81,7 +83,7 @@ public abstract class AbstractCompletionProcessor {
 
 		debug("computeCompletionProposals: ");
 
-		SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
+		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
 
 		if (src_scope == null) {
@@ -90,7 +92,7 @@ public abstract class AbstractCompletionProcessor {
 			debug("Source scope: " + src_scope.getName());
 		}
 
-		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
+		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 		
@@ -333,9 +335,9 @@ public abstract class AbstractCompletionProcessor {
 						(pre.equals("") || isPrefix(pre, it))) {
 					addProposal(it, replacementOffset, pre.length());
 				}
-			} else if (it instanceof SVDBScopeItem) {
+			} else if (it instanceof ISVDBScopeItem) {
 				addMacroProposals(
-						pre, (SVDBScopeItem)it, replacementOffset);
+						pre, (ISVDBScopeItem)it, replacementOffset);
 			}
 		}
 	}

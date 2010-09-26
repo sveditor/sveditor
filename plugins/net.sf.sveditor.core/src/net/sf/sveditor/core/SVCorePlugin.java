@@ -29,6 +29,8 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.SVFileSet;
+import net.sf.sveditor.core.indent.ISVIndenter;
+import net.sf.sveditor.core.indent.SVDefaultIndenter2;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -64,7 +66,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private boolean							fDebugEn = false;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
-	public boolean							fUseParserFactory = true; // leave scanner enabled for now
+	public static boolean					fUseParserFactory = true; // leave scanner enabled for now
 	
 	/**
 	 * The constructor
@@ -104,12 +106,17 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fDebugEn;
 	}
 	
-	public ISVDBFileFactory createFileFactory(IDefineProvider dp) {
+	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
 		if (fUseParserFactory) {
 			return new ParserSVDBFileFactory(dp);
 		} else {
 			return new ScannerSVDBFileFactory(dp);
 		}
+	}
+	
+	public ISVIndenter createIndenter() {
+		// return new SVDefaultIndenter();
+		return new SVDefaultIndenter2();
 	}
 
 	/*

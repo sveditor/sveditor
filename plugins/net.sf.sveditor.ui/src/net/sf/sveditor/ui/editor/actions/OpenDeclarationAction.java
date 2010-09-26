@@ -15,14 +15,15 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBOpenDeclarationIncludeNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -77,8 +78,9 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
 		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
+		SVExprScanner			expr_scanner = new SVExprScanner();
 		
-		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
 		
 		fLog.debug("Expression Context: root=" + expr_ctxt.fRoot +
 				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
@@ -90,7 +92,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
 		
-		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
+		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, getTextSel().getStartLine());
 		
 		// If this is an include lookup, then use a different matching strategy

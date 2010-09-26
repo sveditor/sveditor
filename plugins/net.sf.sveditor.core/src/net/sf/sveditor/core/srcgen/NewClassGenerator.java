@@ -1,7 +1,20 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.srcgen;
 
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -11,7 +24,7 @@ import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -145,7 +158,7 @@ public class NewClassGenerator {
 		monitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		final StringInputStream in = new StringInputStream(indenter.indent());
 		

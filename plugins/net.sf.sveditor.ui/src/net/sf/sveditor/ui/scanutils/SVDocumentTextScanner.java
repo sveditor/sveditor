@@ -32,12 +32,14 @@ public class SVDocumentTextScanner
 	private int						fLimit;
 	private String					fName;
 	private int						fUngetCh;
+	private boolean					fSkipComments;
 	
 	public SVDocumentTextScanner(
 			IDocument 				doc,
 			String					name,
 			int						offset,
-			boolean 				scan_fwd) {
+			boolean 				scan_fwd,
+			boolean					skip_comments) {
 		fDoc     = doc;
 		fName    = name;
 		fOffset  = -1;
@@ -45,21 +47,26 @@ public class SVDocumentTextScanner
 		fScanFwd = scan_fwd;
 		fUngetCh = -1;
 		fLimit   = -1;
+		fSkipComments = skip_comments;
 	}
 	
 	public SVDocumentTextScanner(
 			IDocument 				doc,
 			int						offset) {
-		this(doc, "", offset, true);
+		this(doc, "", offset, true, false);
 	}
 
 	public SVDocumentTextScanner(
 			IDocument 				doc,
 			int						offset,
 			int						limit) {
-		this(doc, "", offset, true);
+		this(doc, "", offset, true, false);
 		fOffset = offset;
 		fLimit  = limit;
+	}
+	
+	public void setSkipComments(boolean skip_comments) {
+		fSkipComments = skip_comments;
 	}
 
 	public void setScanFwd(boolean scan_fwd) {
@@ -114,10 +121,15 @@ public class SVDocumentTextScanner
 				if (fScanFwd) {
 					while ((fLimit == -1 && (fIdx < fDoc.getLength())) ||
 						(fLimit != -1 && (fIdx <= fLimit))) {
-						ITypedRegion r = ext3.getPartition(
-								SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
-						if (!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
-								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+						ITypedRegion r = null;
+						try {
+							r = ext3.getPartition(SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
+						} catch (BadPartitioningException e) {}
+								
+						if (!fSkipComments ||
+								(r != null && 
+								!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT))) {
 							ch = fDoc.getChar(fIdx);
 							fIdx++;
 							break;
@@ -135,10 +147,15 @@ public class SVDocumentTextScanner
 					}
 				} else {
 					while (fIdx >= fOffset) {
-						ITypedRegion r = ext3.getPartition(
-								SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
-						if (!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
-								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+						ITypedRegion r = null;
+						try {
+							r = ext3.getPartition(SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
+						} catch (BadPartitioningException e) {}
+								
+						if (!fSkipComments ||
+								(r != null && 
+								!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT))) {
 							ch = fDoc.getChar(fIdx);
 							fIdx--;
 							break;
@@ -153,8 +170,8 @@ public class SVDocumentTextScanner
 						}
 					}
 				}
-			} catch (BadLocationException e) { 
-			} catch (BadPartitioningException e) {}
+			} catch (BadLocationException e) {
+			}
 		}
 		
 		return ch;

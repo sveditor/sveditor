@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -111,7 +112,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	
 	private boolean collectMacroDefs(
 			SVDBFileTree		file,
-			SVDBScopeItem 		scope, 
+			ISVDBScopeItem 		scope, 
 			SVDBFile 			stop_pt) {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Macro) {
@@ -149,8 +150,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 						}
 					}
 				}
-			} else if (it instanceof SVDBScopeItem) {
-				if (collectMacroDefs(file, (SVDBScopeItem)it, stop_pt)) {
+			} else if (it instanceof ISVDBScopeItem) {
+				if (collectMacroDefs(file, (ISVDBScopeItem)it, stop_pt)) {
 					return true;
 				}
 			}
@@ -165,14 +166,14 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	
 	private boolean collectThisFileMacros(
 			SVDBFileTree			context,
-			SVDBScopeItem 			scope, 
+			ISVDBScopeItem 			scope, 
 			int 					lineno) {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getLocation() != null && 
 					it.getLocation().getLine() > lineno && lineno != -1) {
 				return false;
-			} else if (it instanceof SVDBScopeItem) {
-				if (!collectThisFileMacros(context, (SVDBScopeItem)it, lineno)) {
+			} else if (it instanceof ISVDBScopeItem) {
+				if (!collectThisFileMacros(context, (ISVDBScopeItem)it, lineno)) {
 					return false;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {

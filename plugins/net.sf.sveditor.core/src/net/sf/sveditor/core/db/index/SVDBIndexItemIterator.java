@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -53,8 +54,8 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 				ret = fScopeIterator.next();
 				
 				// System.out.println("Item from scope iterator \"" + ret.getName() + "\"");
-				if (ret instanceof SVDBScopeItem) {
-					SVDBScopeItem it = (SVDBScopeItem)ret;
+				if (ret instanceof ISVDBScopeItem) {
+					ISVDBScopeItem it = (ISVDBScopeItem)ret;
 					if (it.getItems().size() > 0) {
 						// System.out.println("Push new scope \"" + ret.getName() + "\"");
 						if (fScopeIterator.hasNext()) {

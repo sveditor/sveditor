@@ -36,8 +36,8 @@ public class SVDBFileMerger {
 	}
 	
 	private static int merge_scope(
-			SVDBScopeItem		scope1,
-			SVDBScopeItem		scope2,
+			ISVDBScopeItem		scope1,
+			ISVDBScopeItem		scope2,
 			List<SVDBItem>		adds,
 			List<SVDBItem>		removes,
 			List<SVDBItem>		changes) {
@@ -56,9 +56,9 @@ public class SVDBFileMerger {
 				SVDBItem it_1 = scope1.getItems().get(
 						scope1.getItems().indexOf(it_2));
 				it_1.setLocation(it_2.getLocation());
-				if (it_1 instanceof SVDBScopeItem) {
-					((SVDBScopeItem)it_1).setEndLocation(
-							((SVDBScopeItem)it_2).getEndLocation());
+				if (it_1 instanceof ISVDBScopeItem) {
+					((ISVDBScopeItem)it_1).setEndLocation(
+							((ISVDBScopeItem)it_2).getEndLocation());
 				}
 				
 				if (it_1 instanceof SVDBTaskFuncScope) {
@@ -82,9 +82,9 @@ public class SVDBFileMerger {
 		
 		scope1.getItems().clear();
 		for (SVDBItem it : temp) {
-			if (it instanceof SVDBScopeItem && scope2.getItems().contains(it)) {
-				merge_scope((SVDBScopeItem)it, 
-						(SVDBScopeItem)scope2.getItems().get(
+			if (it instanceof ISVDBScopeItem && scope2.getItems().contains(it)) {
+				merge_scope((ISVDBScopeItem)it, 
+						(ISVDBScopeItem)scope2.getItems().get(
 								scope2.getItems().indexOf(it)),
 						adds, removes, changes);
 			}

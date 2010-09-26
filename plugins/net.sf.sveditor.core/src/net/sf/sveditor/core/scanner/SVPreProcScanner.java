@@ -276,44 +276,6 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 
-	/*
-	private String readString(int ci) {
-		
-		fTmpBuffer.setLength(0);
-		int last_ch = -1;
-		
-		if (ci != '"') {
-			return null;
-		}
-		
-		ci = get_ch();
-		while ((ci != '"' && ci != '\n') || last_ch == '\\') {
-			if (last_ch == '\\' && ci == '"') {
-				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
-					fTmpBuffer.setCharAt(fTmpBuffer.length()-1, '"');
-				}
-			} else if (last_ch == '\\' && ci == '\n') {
-				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\r') {
-					fTmpBuffer.setLength(fTmpBuffer.length()-1);
-				}
-				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
-					fTmpBuffer.setCharAt(fTmpBuffer.length()-1, ' ');
-				}
-			} else {
-				fTmpBuffer.append((char)ci);
-			}
-			
-			if (ci != '\r') {
-				last_ch = ci;
-			}
-			
-			ci = get_ch();
-		}
-		
-		return fTmpBuffer.toString();
-	}
-	 */
-
 	private String readString_ll(int ci) {
 		
 		fTmpBuffer.setLength(0);

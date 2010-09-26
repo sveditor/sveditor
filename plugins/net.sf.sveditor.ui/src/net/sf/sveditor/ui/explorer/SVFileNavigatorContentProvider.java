@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -115,9 +115,9 @@ public class SVFileNavigatorContentProvider
 			} else {
 				return new Object[0];
 			}
-		} else if (parentElement instanceof SVDBScopeItem &&
+		} else if (parentElement instanceof ISVDBScopeItem &&
 				!(parentElement instanceof SVDBTaskFuncScope)) {
-			return ((SVDBScopeItem)parentElement).getItems().toArray();
+			return ((ISVDBScopeItem)parentElement).getItems().toArray();
 		}
 		
 		return new Object[0];

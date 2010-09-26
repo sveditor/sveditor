@@ -14,6 +14,8 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -69,7 +71,7 @@ public class IndentAction extends TextEditorAction {
 			
 			SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
 			
-			SVDefaultIndenter indenter = new SVDefaultIndenter();
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
 			indenter.init(scanner);

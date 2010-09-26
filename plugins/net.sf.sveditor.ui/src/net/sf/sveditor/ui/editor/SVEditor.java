@@ -21,12 +21,12 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -379,7 +379,7 @@ public class SVEditor extends TextEditor
 		ITextSelection sel = null;
 		
 		ISelection sel_o = getSelectionProvider().getSelection();
-		if (sel != null && sel instanceof ITextSelection) {
+		if (sel_o != null && sel_o instanceof ITextSelection) {
 			sel = (ITextSelection)sel_o;
 		}
 		
@@ -492,9 +492,9 @@ public class SVEditor extends TextEditor
 		if (it.getLocation() != null) {
 			start = it.getLocation().getLine();
 			
-			if (it instanceof SVDBScopeItem &&
-					((SVDBScopeItem)it).getEndLocation() != null) {
-				end = ((SVDBScopeItem)it).getEndLocation().getLine();
+			if (it instanceof ISVDBScopeItem &&
+					((ISVDBScopeItem)it).getEndLocation() != null) {
+				end = ((ISVDBScopeItem)it).getEndLocation().getLine();
 			}
 			setSelection(start, end, set_cursor);
 		}

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -53,6 +55,8 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+import net.sf.sveditor.core.scanutils.ITextScanner;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 /**
  * SVExpressionUtils
@@ -68,7 +72,9 @@ public class SVExpressionUtils {
 	private LogHandle						fLog;
 	private ISVDBFindNameMatcher			fNameMatcher;
 	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
-	
+	private SVDBFindParameterizedClass 		fParamClassFinder;
+	private ISVDBIndexIterator				fIndexIt;
+
 	public SVExpressionUtils(ISVDBFindNameMatcher matcher) {
 		fLog = LogFactory.getLogHandle("SVExpressionUtils");
 		fNameMatcher = matcher;
@@ -79,195 +85,19 @@ public class SVExpressionUtils {
 		fNameMatcher = matcher;
 	}
 	
-	
-	/**
-	 * Extracts an expression surrounding the current scan position.
-	 * 
-	 * @param scanner
-	 * @param leaf_scan_fwd	- Scan forward from the start point for Leaf. 
-	 * @return
-	 */
-	public SVExprContext extractExprContext(
-			IBIDITextScanner 		scanner,
-			boolean					leaf_scan_fwd) {
-		SVExprContext ret = new SVExprContext();
-		debug("--> extractExprContext()");
-
-		int c = -1;
-		
-		boolean scan_fwd = scanner.getScanFwd();
-		scanner.setScanFwd(false);
-		debug("    First Ch (non-adjusted): \"" + (char)scanner.get_ch() + "\"");
-		scanner.unget_ch(-1);
-		scanner.setScanFwd(scan_fwd);
-
-		// We'll start by scanning backwards. On entry, the
-		// cursor has been placed to read going forward
-		if (scanner.getScanFwd() && scanner.getPos() > 0) {
-			/*
-			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
-					scanner.get_str(scanner.getPos()-1, 1) + "\"");
-			 */
-			scanner.seek(scanner.getPos()-1);
-		}
-		
-		scanner.setScanFwd(false);
-		
-		debug("    First Ch (adjusted): \"" + (char)scanner.get_ch() + "\"");
-		scanner.unget_ch(-1);
-
-		// Check whether we're currently in a string
-		if (isInString(scanner)) {
-			debug("isInString()");
-			// It's most likely that we're looking at an include
-			
-			ret.fType = ContextType.String;
-
-			ret.fLeaf = readString(scanner, leaf_scan_fwd);
-			
-			long seek = scanner.getPos();
-			scanner.setScanFwd(true);
-			while ((c = scanner.get_ch()) != -1 && c != '"') {
-			}
-			
-			if (c == '"') {
-				ret.fStart = (int)scanner.getPos();
-			} else {
-				ret.fStart = (int)seek;
-			}
-			scanner.seek(seek);
-			
-			if (ret.fLeaf == null) {
-				ret.fLeaf = "";
-			}
-			
-			// Now, continue scanning backwards to determine how to
-			// deal with this
-			scanner.setScanFwd(false);
-			c = scanner.skipWhite(scanner.get_ch());
-
-			debug("string=\"" + ret.fLeaf + "\" next=\"" + (char)c + "\"");
-
-			if (SVCharacter.isSVIdentifierPart(c)) {
-				String id = new StringBuilder(scanner.readIdentifier(c)).reverse().toString();
-				debug("id=\"" + id + "\"");
-				
-				c = scanner.skipWhite(scanner.get_ch());
-				
-				debug("next=\"" + (char)c + "\"");
-				
-				if (c == '`' && id.equals("include")) {
-					ret.fTrigger = "`";
-					ret.fRoot = "include";
-				}
-			}
-		} else {
-			if (SVCharacter.isSVIdentifierPart((c = scanner.get_ch()))) {
-				debug("notInString c=\"" + (char)c + "\"");
-				scanner.unget_ch(c);
-				String id = readIdentifier(scanner, leaf_scan_fwd);
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				ret.fLeaf = id;
-				
-				debug("id=\"" + id + "\"");
-
-				// See if we're working with a triggered expression
-				ret.fTrigger = readTriggerStr(scanner);
-				debug("trigger=\"" + ret.fTrigger + "\"");
-				
-				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
-					// Read an expression
-					ret.fType = ContextType.Triggered;
-					ret.fRoot = readExpression(scanner);
-				} else if (ret.fTrigger == null) {
-					ret.fType = ContextType.Untriggered;
-						
-					// Just process the identifier
-					c = scanner.skipWhite(scanner.get_ch());
-					
-					if (c == '=') {
-						int c2 = scanner.get_ch();
-						if (c2 != '=') {
-							c = scanner.skipWhite(c2);
-							ret.fTrigger = "=";
-						}
-					}
-					
-					if (SVCharacter.isSVIdentifierPart(c)) {
-						scanner.unget_ch(c);
-						ret.fRoot = readIdentifier(scanner, false);
-					}
-				}
-			} else {
-				// backup and try for a triggered identifier
-				debug("notInId: ch=\"" + (char)c + "\"");
-				
-				scanner.unget_ch(c);
-				
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				
-				if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
-					ret.fType = ContextType.Triggered;
-					
-					if (scan_fwd) {
-						scanner.setScanFwd(true);
-						c = scanner.get_ch();
-						fLog.debug("post-trigger c=\"" + (char)c + "\"");
-						ret.fLeaf = readIdentifier(scanner, true);
-						
-						// Now, back up to ensure that we get the pre-trigger portion
-						scanner.setScanFwd(false);
-						c = scanner.get_ch();
-						fLog.debug("post-leaf c=\"" + (char)c + "\"");
-					} else {
-						ret.fLeaf = "";
-					}
-					ret.fRoot = readExpression(scanner);
-				}
-			}
-		}
-		
-		if (ret.fType != ContextType.String) {
-			if (ret.fRoot != null && ret.fRoot.equals("import")) {
-				ret.fType = ContextType.Import;
-			} else {
-				// Read preceeding token. It's possible we need to change this type
-				c = scanner.skipWhite(scanner.get_ch());
-
-				if (SVCharacter.isSVIdentifierPart(c)) {
-					scanner.unget_ch(c);
-					String tmp = readIdentifier(scanner, false);
-					
-					fLog.debug("preceeding token: " + tmp.toString());
-						
-					if (tmp.equals("import")) {
-						ret.fType = ContextType.Import;
-					}
-				}
-			}
-		}
-		
-		debug("<-- extractExprContext()");
-		
-		if (ret.fRoot == null && ret.fTrigger == null && ret.fLeaf == null) {
-			ret.fLeaf = "";
-		}
-		
-		return ret;
-	}
-	
-	public List<SVDBItem> findItems(
+	public synchronized List<SVDBItem> findItems(
 			ISVDBIndexIterator	index_it,
-			SVDBScopeItem		active_scope,
+			ISVDBScopeItem		active_scope,
 			SVExprContext		expr_ctxt,
 			boolean				match_prefix) {
+		fIndexIt = index_it;
+		fParamClassFinder = new SVDBFindParameterizedClass(index_it);
 		return findItems(index_it, active_scope, expr_ctxt, match_prefix, 0);
-		
 	}
 	
-	public List<SVDBItem> findItems(
+	private List<SVDBItem> findItems(
 			ISVDBIndexIterator	index_it,
-			SVDBScopeItem		active_scope,
+			ISVDBScopeItem		active_scope,
 			SVExprContext		expr_ctxt,
 			boolean				match_prefix,
 			int					max_matches) {
@@ -352,7 +182,7 @@ public class SVExpressionUtils {
 			String					root,
 			String					trigger,
 			String					leaf,
-			SVDBScopeItem			active_scope,
+			ISVDBScopeItem			active_scope,
 			ISVDBIndexIterator		index_it,
 			int						max_matches,
 			boolean					match_prefix,
@@ -361,7 +191,7 @@ public class SVExpressionUtils {
 		List<SVDBItem> pre_trigger = processPreTriggerPortion(
 				index_it, active_scope, root, !match_prefix);
 		
-		if (pre_trigger != null && pre_trigger.size() != 0) {
+		if (pre_trigger != null && pre_trigger.size() > 0) {
 			SVDBItem it_t = pre_trigger.get(pre_trigger.size()-1);
 			
 			fLog.debug("Using " + it_t.getType() + " " + 
@@ -406,7 +236,7 @@ public class SVExpressionUtils {
 			String					root,
 			String					trigger,
 			String					leaf,
-			SVDBScopeItem			active_scope,
+			ISVDBScopeItem			active_scope,
 			ISVDBIndexIterator		index_it,
 			int						max_matches,
 			boolean					match_prefix,
@@ -484,7 +314,7 @@ public class SVExpressionUtils {
 				
 				// Do not include tasks/functions unless they are completely
 				// global or members of a package
-				SVDBScopeItem scope_t = tf;
+				ISVDBScopeItem scope_t = tf;
 				while (scope_t != null && 
 						scope_t.getType() != SVDBItemType.Class &&
 						scope_t.getType() != SVDBItemType.Module) {
@@ -524,191 +354,8 @@ public class SVExpressionUtils {
 		}
 	}
 	
-	/**
-	 * Read a string surrounding the current position. The scanner will
-	 * be left at the beginning of the string.
-	 * 
-	 * @param scanner
-	 * @param scan_fwd
-	 * @return
-	 */
-	private String readString(IBIDITextScanner scanner, boolean scan_fwd) {
-		int ch;
-		
-		long end_pos = scanner.getPos();
-		long start_pos = -1, seek;
-		
-		// First, scan back to the string beginning
-		scanner.setScanFwd(false);
-		while ((ch = scanner.get_ch()) != -1 && 
-				ch != '\n' && ch != '"') {
-			debug("readString: ch=\"" + (char)ch + "\"");
-		}
-		
-		start_pos = scanner.getPos();
-		
-		if (ch == '"') {
-			seek = start_pos-1;
-			start_pos += 2;
-		} else {
-			seek = start_pos;
-		}
-		
-		if (scan_fwd) {
-			scanner.setScanFwd(true);
-			scanner.seek(start_pos);
-			
-			while ((ch = scanner.get_ch()) != -1 &&
-					ch != '"' && ch != '\n') { 
-			}
-			
-			end_pos = (scanner.getPos()-1);
-			if (ch == '"') {
-				end_pos--;
-			}
-		}
-		
-		scanner.seek(seek);
-		
-		if (start_pos >= 0 && (end_pos-start_pos) > 0) {
-			return scanner.get_str(start_pos, (int)(end_pos-start_pos+1));
-		} else {
-			return "";
-		}
-	}
-
-	/**
-	 * readIdentifier()
-	 * 
-	 * Reads the identifier surrounding the current location. 
-	 * 
-	 * @param scanner
-	 * @param scan_fwd
-	 * @return
-	 */
-	private String readIdentifier(IBIDITextScanner scanner, boolean scan_fwd) {
-		int ch;
-		fLog.debug("--> readIdentifier(scan_fwd=" + scan_fwd + ")");
-		
-		long end_pos = (scanner.getScanFwd())?scanner.getPos():(scanner.getPos()+1);
-		long start_pos = -1, seek;
-		
-		// First, scan back to the string beginning
-		scanner.setScanFwd(false);
-		while ((ch = scanner.get_ch()) != -1 &&
-				SVCharacter.isSVIdentifierPart(ch)) { }
-		
-		start_pos = scanner.getPos() + 2;
-		seek = scanner.getPos() + 1;
-		
-		if (scan_fwd) {
-			scanner.setScanFwd(true);
-			scanner.seek(start_pos);
-			
-			while ((ch = scanner.get_ch()) != -1 &&
-					SVCharacter.isSVIdentifierPart(ch)) { }
-			
-			end_pos = scanner.getPos() - 1;
-		}
-		
-		scanner.seek(seek);
-
-		fLog.debug("<-- readIdentifier(scan_fwd=" + scan_fwd + ")");
-		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
-	}
 	
-	/**
-	 * 
-	 * @param scanner
-	 * @return
-	 */
-	private String readTriggerStr(IBIDITextScanner scanner) {
-		long start_pos = scanner.getPos();
-		scanner.setScanFwd(false);
-		int ch = scanner.skipWhite(scanner.get_ch());
-		
-		if (ch == '.' || ch == '`') {
-			return "" + (char)ch;
-		} else if (ch == ':') {
-			int ch2 = scanner.get_ch();
-			
-			if (ch2 == ':') {
-				return "::";
-			}
-		}
-		
-		// If we didn't identify a trigger, then restore the
-		// previous position
-		scanner.seek(start_pos);
-		return null;
-	}
 
-	private boolean isInString(IBIDITextScanner scanner) {
-		boolean ret = false;
-		long sav_pos = scanner.getPos();
-		boolean scan_fwd = scanner.getScanFwd();
-		int ch;
-		
-		// Continue scanning backwards
-		scanner.setScanFwd(false);
-		while ((ch = scanner.get_ch()) != -1 && 
-				ch != '"' && ch != '\n') {
-		}
-		
-		if (ch == '"') {
-			ret = true;
-			
-			// Just to be sure, continue scanning backwards to
-			// be sure we don't find another matching quite
-			while ((ch = scanner.get_ch()) != -1 &&
-					ch != '"' && ch != '\n') { }
-			
-			if (ch == '"') {
-				ret = false;
-			}
-		}
-		
-		scanner.seek(sav_pos);
-		scanner.setScanFwd(scan_fwd);
-		return ret;
-	}
-	
-	private String readExpression(IBIDITextScanner scanner) {
-		int ch;
-		String trigger = null;
-		
-		fLog.debug("--> readExpression");
-		// Continue moving backwards
-		scanner.setScanFwd(false);
-		
-		ch = scanner.skipWhite(scanner.get_ch());
-		scanner.unget_ch(ch);
-		long end_pos = scanner.getPos(), start_pos;
-		
-		do {
-			ch = scanner.skipWhite(scanner.get_ch());
-			fLog.debug("    trigger=\"" + trigger + "\" ch=\"" + (char)ch + "\"");
-			
-			if (ch == ')') {
-				scanner.skipPastMatch(")(");
-			} else if (ch == ']') {
-				// Skip what's in an array reference
-				ch = scanner.skipPastMatch("][");
-				if (SVCharacter.isSVIdentifierPart(ch)) {
-					scanner.readIdentifier(ch);
-				}
-			} else if (SVCharacter.isSVIdentifierPart(ch)) {
-				scanner.readIdentifier(ch);
-			} else {
-				fLog.error("unknown ch \"" + (char)ch + "\"");
-			}
-			start_pos = (scanner.getPos()+1);
-		} while ((trigger = readTriggerStr(scanner)) != null);
-		
-		fLog.debug("<-- readExpression");
-		
-		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
-	}
 	
 	/**
 	 * Scans backwards (from idx) in the text viewer 
@@ -816,15 +463,16 @@ public class SVExpressionUtils {
 	 * @param preTrigger
 	 * @return
 	 */
-	public List<SVDBItem> processPreTriggerPortion(
+	private List<SVDBItem> processPreTriggerPortion(
 			ISVDBIndexIterator			index_it,
-			SVDBScopeItem				context,
+			ISVDBScopeItem				context,
 			String						preTrigger,
 			boolean						allowNonClassLastElem) {
 		List<SVDBItem> item_list = new ArrayList<SVDBItem>();
+		ITextScanner scanner = new StringTextScanner(preTrigger);
 		
-		int ret = processPreTriggerPortion(0, null, item_list, 
-				index_it, context, preTrigger, allowNonClassLastElem);
+		int ret = processPreTriggerPortion(scanner, null, item_list, 
+				index_it, context, allowNonClassLastElem);
 		
 		if (ret == -1) {
 			return null;
@@ -857,45 +505,48 @@ public class SVExpressionUtils {
 	 * @return
 	 */
 	private int processPreTriggerPortion(
-			int							idx,
+			ITextScanner				scanner,
 			String						preceeding_activator,
 			List<SVDBItem>				item_list,
 			ISVDBIndexIterator			index_it,
-			SVDBScopeItem				context,
-			String						preTrigger,
+			ISVDBScopeItem				context,
 			boolean						resolveFinalReturnType) {
 		String id = null;
+		int ret = 0;
 		
-		debug("--> processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
+		debug("--> processPreTriggerPortion(preceeding_activator=" + preceeding_activator + ")");
 		// Need to make some changes to track the preceeding character, not the
 		// next. For example, if the preceeding character was '.', then we should
 		// look for id() within typeof(ret.item)
-		while (idx < preTrigger.length()) {
-			int ch = preTrigger.charAt(idx);
-			idx++;
+		int ch;
+		while ((ch = scanner.get_ch()) != -1) {
 
 			if (ch == '(') {
 				// recursively expand
-				idx = processPreTriggerPortion(
-						idx, preceeding_activator, item_list,
-						index_it, context, preTrigger, resolveFinalReturnType);
+				ret = processPreTriggerPortion(
+						scanner, preceeding_activator, item_list,
+						index_it, context, resolveFinalReturnType);
 				
 				// Give up because the lower-level parser did...
-				if (idx == -1) {
+				if (ret == -1) {
 					break;
 				}
 			} else if (ch == '[') {
-				idx = processPreTriggerArrayRef(
-						idx, preTrigger, index_it, item_list);
+				ret = processPreTriggerArrayRef(scanner, index_it, item_list);
 			} else if (ch == '.') {
 				// use the preceeding
 				preceeding_activator = ".";
-			} else if (ch == ':' && 
-					idx < preTrigger.length() && 
-					preTrigger.charAt(idx) == ':') {
-				idx++;
-				preceeding_activator = "::";
+			} else if (ch == ':') {
+				int ch2 = scanner.get_ch();
+				if (ch2 == ':') {
+					preceeding_activator= "::"; 
+				} else {
+					scanner.unget_ch(ch2);
+					// TODO: give up?
+					return -1;
+				}
 			} else if (SVCharacter.isSVIdentifierPart(ch)) {
+				/*
 				StringBuffer tmp = new StringBuffer();
 
 				tmp.append((char) ch);
@@ -905,14 +556,15 @@ public class SVExpressionUtils {
 					tmp.append((char) ch);
 					idx++;
 				}
-				id = tmp.toString();
+				 */
+				id = scanner.readIdentifier(ch); // tmp.toString();
 				
-				idx = processPreTriggerId(context, idx, preTrigger, id, 
+				ret = processPreTriggerId(context, scanner, id, 
 						preceeding_activator, resolveFinalReturnType, 
 						index_it, item_list);
 
 				// Lookup failed, so bail
-				if (idx == -1) {
+				if (ret == -1) {
 					break;
 				}
 			} else {
@@ -922,39 +574,31 @@ public class SVExpressionUtils {
 			}
 		}
 
-		debug("<-- processPreTriggerPortion(idx=" + idx + " preceeding_activator=" + preceeding_activator + ")");
+		debug("<-- processPreTriggerPortion(preceeding_activator=" + preceeding_activator + ")");
 		for (SVDBItem it : item_list) {
 			fLog.debug("    " + it.getType() + " " + it.getName());
 		}
-		return idx;
+		return 0;
 	}
 	
 	private int processPreTriggerArrayRef(
-			int					idx,
-			String				preTrigger,
+			ITextScanner		scanner,
 			ISVDBIndexIterator	index_it,
 			List<SVDBItem>		item_list) {
-		int ch;
-		// TODO: This is an array reference. Must find base type of preceeding variable
-		int l_match = 1, r_match = 0;
 		
-		while (idx < preTrigger.length() && l_match != r_match) {
-			ch = preTrigger.charAt(idx++);
-			if (ch == '[') {
-				l_match++;
-			} else if (ch == ']') {
-				r_match++;
-			}
-		}
+		// TODO: This is an array reference. Must find base type of preceeding variable
+		scanner.skipPastMatch("[]");
 		
 		if (item_list.size() > 0 && 
 				item_list.get(item_list.size()-1).getType() == SVDBItemType.Class) {
 			SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)
 				item_list.get(item_list.size()-1);
-			
-			if (cls_t.getParameters() != null) {
+
+			// cls_t should be the specialized array type. We use the template
+			// parameter to get the array-element type
+			if (cls_t.getParameters() != null && cls_t.getParameters().size() > 0) {
 				SVDBFindNamedModIfcClassIfc finder_c = 
-					new SVDBFindNamedModIfcClassIfc(index_it);						
+					new SVDBFindNamedModIfcClassIfc(index_it);
 				List<SVDBModIfcClassDecl> result =
 					finder_c.find(cls_t.getParameters().get(0).getName());
 				
@@ -962,16 +606,21 @@ public class SVExpressionUtils {
 					cls_t = result.get(0);
 					item_list.add(cls_t);
 				}
+			} else {
+				System.out.println("Class " + cls_t.getName() + " doesn't have parameters");
 			}
 		}
 		
-		return idx;
+		return 0;
 	}
 	
 	private int processPreTriggerId(
-			SVDBScopeItem		context,
+			ISVDBScopeItem		context,
+			/*
 			int					idx,
 			String				preTrigger,
+			 */
+			ITextScanner		scanner,
 			String				id,
 			String				preceeding_activator,
 			boolean				resolveFinalReturnType,
@@ -979,7 +628,7 @@ public class SVExpressionUtils {
 			List<SVDBItem>		item_list) {
 		// Read an identifier
 		SVDBFindParameterizedClass pclass_finder = new SVDBFindParameterizedClass(index_it);
-		int ch = (idx < preTrigger.length())?preTrigger.charAt(idx):-1;
+		int ch = scanner.get_ch(); // (idx < preTrigger.length())?preTrigger.charAt(idx):-1;
 		
 		if (ch == '(' || ch == '\'') {
 			String type_name = null;
@@ -1010,7 +659,7 @@ public class SVExpressionUtils {
 				// Now, compute the return type of this function
 				debug("return type is: " + ((SVDBTaskFuncScope)func).getReturnType());
 				type_name = ((SVDBTaskFuncScope)func).getReturnType().getName(); 
-			} else {
+			} else { // ch == '
 				// ' indicates this is a type name
 				type_name = id;
 			}
@@ -1018,24 +667,13 @@ public class SVExpressionUtils {
 			// Skip '()'
 			// In both the case of a function/task call or a cast, 
 			// we can ignore what's in the parens
-			int matchLevel = 1;
-
-			debug("pre-skip =" + (char)preTrigger.charAt(idx));
-			while (matchLevel > 0 && ++idx < preTrigger.length()) {
-				ch = preTrigger.charAt(idx);
-				if (ch == '(') {
-					matchLevel++;
-				} else if (ch == ')') {
-					matchLevel--;
-				}
-			}
-			idx++;
+			ch = scanner.skipPastMatch("()");
 
 
 			// Only resolve this function return type of
 			// it's not the last element in the string or
 			// we want the type resolved
-			if (idx < preTrigger.length() || resolveFinalReturnType) {
+			if (ch != -1 || resolveFinalReturnType) {
 				SVDBFindByName finder_name = 
 					new SVDBFindByName(index_it, fDefaultMatcher);
 				
@@ -1051,8 +689,6 @@ public class SVExpressionUtils {
 								+ " matches");
 					}
 				} else {
-					idx = -1;
-
 					// No point in continuing. We've failed to find a
 					// match
 					return -1;
@@ -1103,107 +739,39 @@ public class SVExpressionUtils {
 						
 						fLog.debug("FindVarsByNameInScope \"" + id + "\" in scope \"" + 
 								context.getName() + "\" returns " + matches.size() + " matches");
-
-						if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.VarDecl) {
-							SVDBVarDeclItem var_decl = (SVDBVarDeclItem)matches.get(0);
-							int attr = var_decl.getAttr();
-							SVDBTypeInfo var_type = var_decl.getTypeInfo();
-							
-							if (var_type.getDataType() == SVDBDataType.UserDefined &&
-									((SVDBTypeInfoUserDef)var_type).getParameters() != null) {
-								SVDBModIfcClassDecl cls_t = pclass_finder.find(
-										(SVDBTypeInfoUserDef)var_type);
-								
-								if (cls_t != null) {
-									matches.set(0, cls_t);
-								}
-							} else if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0 ||
-								(attr & SVDBVarDeclItem.VarAttr_DynamicArray) != 0) {
-								String base;
-								if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0) {
-									base = "__sv_builtin_queue";
-								} else {
-									base = "__sv_builtin_array";
-								}
-								SVDBParamValueAssignList params = 
-									new SVDBParamValueAssignList();
-								params.addParameter(
-										new SVDBParamValueAssign("", var_type.getName()));
-								SVDBTypeInfoUserDef type_info = new SVDBTypeInfoUserDef(
-										base, SVDBDataType.UserDefined);
-								type_info.setParameters(params);
-								SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
-								
-								if (cls_t != null) {
-									matches.set(0, cls_t);
-								}
-							} else if ((attr & SVDBVarDeclItem.VarAttr_AssocArray) != 0) {
-								String base = "__sv_builtin_assoc_array";
-								SVDBParamValueAssignList params = 
-									new SVDBParamValueAssignList();
-								params.addParameter(
-										new SVDBParamValueAssign("", var_type.getName()));
-								params.addParameter(
-										new SVDBParamValueAssign("", var_decl.getArrayDim()));
-										
-								SVDBTypeInfoUserDef type_info = 
-									new SVDBTypeInfoUserDef(base);
-								type_info.setParameters(params);
-								SVDBModIfcClassDecl cls_t = pclass_finder.find(type_info);
-								
-								if (cls_t != null) {
-									matches.set(0, cls_t);
-								}
-							}
-						}
 						
-						if (matches.size() > 0 && matches.get(0).getType() == SVDBItemType.Typedef) {
-							SVDBFindNamedModIfcClassIfc finder_c = 
-								new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-							SVDBTypedef td = (SVDBTypedef)matches.get(0);
-							
-							if (td.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
-								SVDBTypeInfoUserDef type = (SVDBTypeInfoUserDef)td.getTypeInfo();
-								fLog.debug("Lookup typename \"" + type.getName() + "\"");
+						if (matches != null && matches.size() > 0) {
+							SVDBModIfcClassDecl cls_t = findVarType(matches.get(0));
+							if (cls_t != null) {
+								matches.set(0, cls_t);
+							}
+						} else {
+							// If this is the first element and we didn't find a field,
+							// then this might be a static reference. Look for a type...
+							if (preceeding_activator == null) {
+								SVDBFindNamedModIfcClassIfc finder_c = 
+									new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 								
-								List<SVDBModIfcClassDecl> cls_l = finder_c.find(type.getName());
+								List<SVDBModIfcClassDecl> cls_l = finder_c.find(id);
 								
 								if (cls_l.size() > 0) {
-									matches.set(0, cls_l.get(0));
+									fLog.debug("Found \"" + id + "\" as a type");
+									matches = new ArrayList<SVDBItem>();
+									matches.add(cls_l.get(0));
+								} else {
+									fLog.debug("Did not find \"" + id + "\" as a type");
 								}
-								
-							} else {
-								fLog.debug("Not looking up typename \"" + td.getTypeInfo().getDataType() + "\"");
-							}
-							
-						}
+								/*
+								SVDBModIfcClassDecl class_type = 
+									SVDBSearchUtils.findClassScope(context);
 
-						// If this is the first element and we didn't find a field,
-						// then this might be a static reference. Look for a type...
-						if (preceeding_activator == null &&
-								(matches == null || matches.size() == 0)) {
-							SVDBFindNamedModIfcClassIfc finder_c = 
-								new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-							
-							List<SVDBModIfcClassDecl> cls_l = finder_c.find(id);
-							
-							if (cls_l.size() > 0) {
-								fLog.debug("Found \"" + id + "\" as a type");
-								matches = new ArrayList<SVDBItem>();
-								matches.add(cls_l.get(0));
-							} else {
-								fLog.debug("Did not find \"" + id + "\" as a type");
+								if (class_type != null) {
+									SVDBFindByNameInClassHierarchy finder_c = 
+										new SVDBFindByNameInClassHierarchy(index_it);
+									matches = finder_c.find((SVDBScopeItem)class_type, id);
+								}
+								 */
 							}
-							/*
-							SVDBModIfcClassDecl class_type = 
-								SVDBSearchUtils.findClassScope(context);
-
-							if (class_type != null) {
-								SVDBFindByNameInClassHierarchy finder_c = 
-									new SVDBFindByNameInClassHierarchy(index_it);
-								matches = finder_c.find((SVDBScopeItem)class_type, id);
-							}
-							 */
 						}
 					}
 				}
@@ -1281,7 +849,7 @@ public class SVExpressionUtils {
 					
 					// Didn't find anything. Look at parameters in the class
 					if (type == null && cl_l.size() == 0) {
-						SVDBItem field_p = field.getParent();
+						ISVDBLocatedItem field_p = field.getParent();
 						while (field_p != null && field_p.getType() != SVDBItemType.Class) {
 							field_p = field_p.getParent();
 						}
@@ -1329,13 +897,94 @@ public class SVExpressionUtils {
 			debug("Adding type \"" + type.getName() + "\" to proposal list");
 			item_list.add(type);
 		}
-
-		return idx;
+		
+		return 0;
+	}
+	
+	private SVDBModIfcClassDecl findVarType(SVDBItem item) {
+		SVDBModIfcClassDecl ret = null;
+		
+		if (item.getType() == SVDBItemType.VarDecl) {
+			SVDBVarDeclItem var_decl = (SVDBVarDeclItem)item;
+			int attr = var_decl.getAttr();
+			SVDBTypeInfo var_type = var_decl.getTypeInfo();
+			
+			
+			// TODO: This seems to be the problem with array content assist
+			// We search for
+			if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0 ||
+				(attr & SVDBVarDeclItem.VarAttr_DynamicArray) != 0) {
+				String base;
+				if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0) {
+					base = "__sv_builtin_queue";
+				} else {
+					base = "__sv_builtin_array";
+				}
+				SVDBParamValueAssignList params = 
+					new SVDBParamValueAssignList();
+				params.addParameter(
+						new SVDBParamValueAssign("", var_type.getName()));
+				SVDBTypeInfoUserDef type_info = new SVDBTypeInfoUserDef(
+						base, SVDBDataType.UserDefined);
+				type_info.setParameters(params);
+				SVDBModIfcClassDecl cls_t = fParamClassFinder.find(type_info);
+				
+				if (cls_t != null) {
+					ret = cls_t;
+				}
+			} else if ((attr & SVDBVarDeclItem.VarAttr_AssocArray) != 0) {
+				String base = "__sv_builtin_assoc_array";
+				SVDBParamValueAssignList params = 
+					new SVDBParamValueAssignList();
+				params.addParameter(
+						new SVDBParamValueAssign("", var_type.getName()));
+				params.addParameter(
+						new SVDBParamValueAssign("", var_decl.getArrayDim()));
+						
+				SVDBTypeInfoUserDef type_info = 
+					new SVDBTypeInfoUserDef(base);
+				type_info.setParameters(params);
+				SVDBModIfcClassDecl cls_t = fParamClassFinder.find(type_info);
+				
+				if (cls_t != null) {
+					ret = cls_t;
+				}
+			} else if (var_type.getDataType() == SVDBDataType.UserDefined &&
+					((SVDBTypeInfoUserDef)var_type).getParameters() != null) {
+				SVDBModIfcClassDecl cls_t = fParamClassFinder.find(
+						(SVDBTypeInfoUserDef)var_type);
+				
+				if (cls_t != null) {
+					ret = cls_t;
+				}
+			} 
+		} else if (item.getType() == SVDBItemType.Typedef) {
+			SVDBFindNamedModIfcClassIfc finder_c = 
+				new SVDBFindNamedModIfcClassIfc(fIndexIt, fDefaultMatcher);
+			SVDBTypedef td = (SVDBTypedef)item;
+			
+			if (td.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
+				SVDBTypeInfoUserDef type = (SVDBTypeInfoUserDef)td.getTypeInfo();
+				fLog.debug("Lookup typename \"" + type.getName() + "\"");
+				
+				List<SVDBModIfcClassDecl> cls_l = finder_c.find(type.getName());
+				
+				if (cls_l.size() > 0) {
+					ret = cls_l.get(0);
+				}
+				
+			} else {
+				fLog.debug("Not looking up typename \"" + td.getTypeInfo().getDataType() + "\"");
+			}
+			
+		}
+		
+		return ret;
 	}
 	
 	private SVDBTaskFuncScope findTaskFunc(
 			ISVDBIndexIterator		index_it,
-			SVDBScopeItem			context,
+			ISVDBScopeItem			context,
 			SVDBItem 				search_ctxt,
 			String					id,
 			String					preceeding_activator) {

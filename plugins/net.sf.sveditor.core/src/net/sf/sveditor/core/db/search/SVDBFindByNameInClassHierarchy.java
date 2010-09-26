@@ -15,10 +15,10 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -42,7 +42,7 @@ public class SVDBFindByNameInClassHierarchy {
 	}
 	
 	public List<SVDBItem> find(
-			SVDBScopeItem 		scope, 
+			ISVDBScopeItem 		scope, 
 			String 				id,
 			SVDBItemType	...	types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();

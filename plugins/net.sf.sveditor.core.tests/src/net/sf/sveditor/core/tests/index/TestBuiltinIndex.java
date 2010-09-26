@@ -18,10 +18,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -74,9 +74,9 @@ public class TestBuiltinIndex extends TestCase {
 			if (it.getType() != SVDBItemType.File) {
 				assertNotNull("Item " + it.getName() + " has null location",
 						it.getLocation());
-				if (it instanceof SVDBScopeItem) {
+				if (it instanceof ISVDBScopeItem) {
 					assertNotNull("Item " + it.getName() + " has null end location",
-							((SVDBScopeItem)it).getEndLocation());
+							((ISVDBScopeItem)it).getEndLocation());
 				}
 			}
 			

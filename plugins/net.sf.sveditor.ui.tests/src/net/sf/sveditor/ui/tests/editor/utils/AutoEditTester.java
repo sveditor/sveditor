@@ -34,6 +34,10 @@ public class AutoEditTester {
 		fDoc = doc;
 		fPartitioning = partitioning;
 	}
+	
+	public IDocument getDocument() {
+		return fDoc;
+	}
 
 	public void setAutoEditStrategy(String contentType, IAutoEditStrategy aes) {
 		fStrategyMap.put(contentType, aes);

@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.content_assist;
+package net.sf.sveditor.core.tests;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.sveditor.core.StringInputStream;
 
 public class TextTagPosUtils {
 	private ByteArrayOutputStream			fStrippedData;
@@ -37,6 +39,10 @@ public class TextTagPosUtils {
 		fStrippedData = new ByteArrayOutputStream();
 		
 		process();
+	}
+	
+	public TextTagPosUtils(String in) {
+		this(new StringInputStream(in));
 	}
 	
 	public Map<String, Integer> getPosMap() {

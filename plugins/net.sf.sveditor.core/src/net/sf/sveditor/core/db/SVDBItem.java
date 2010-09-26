@@ -17,8 +17,8 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
-public class SVDBItem {
-	protected SVDBScopeItem			fParent;
+public class SVDBItem implements ISVDBLocatedItem {
+	protected ISVDBScopeItem		fParent;
 	protected String				fName;
 	protected SVDBItemType			fType;
 	protected SVDBLocation			fLocation;
@@ -54,11 +54,11 @@ public class SVDBItem {
 		fLocation = loc;
 	}
 	
-	public void setParent(SVDBScopeItem parent) {
+	public void setParent(ISVDBScopeItem parent) {
 		fParent = parent;
 	}
 	
-	public SVDBScopeItem getParent() {
+	public ISVDBScopeItem getParent() {
 		return fParent;
 	}
 

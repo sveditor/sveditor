@@ -19,14 +19,15 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -138,8 +139,8 @@ public class SVDBFindParameterizedClass {
 				break;
 			
 			default:
-				if (item instanceof SVDBScopeItem) {
-					SVDBScopeItem scope = (SVDBScopeItem)item;
+				if (item instanceof ISVDBScopeItem) {
+					ISVDBScopeItem scope = (ISVDBScopeItem)item;
 					for (SVDBItem it : scope.getItems()) {
 						specialize_int(it, param_map);
 					}

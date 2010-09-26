@@ -1,8 +1,20 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.tests.indent;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
@@ -39,7 +51,7 @@ public class TestAdaptiveIndent extends TestCase {
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		
 		indenter.setAdaptiveIndent(true);
@@ -49,7 +61,94 @@ public class TestAdaptiveIndent extends TestCase {
 		
 		System.out.println("Result:");
 		System.out.println(result);
-		assertEquals("Expected indent", expected, result);
+		IndentComparator.compare("testAdaptiveSecondLevel", expected, result);
+	}
+
+	public void testBasicModule() {
+		String content =
+			"module foo(\n" +	// 1
+			" input a,\n" +	// 2
+			" int b)\n" +			// 3
+			"	;\n" +			// 4
+			"	\n" +			// 5
+			"  int a;\n" +		// 6
+			"	\n" +			// 7
+			"	// comment 2\n" +		// 8
+			"  initial begin\n" +		// 9
+			"a = 5;\n" +
+			"end\n" +
+			"\n" +
+			"endmodule\n";
+		
+		String expected =
+			"module foo(\n" +
+			" input a,\n" +
+			" int b)\n" +
+			"	;\n" +
+			"	\n" +
+			"  int a;\n" +
+			"	\n" +
+			"  // comment 2\n" +
+			"  initial begin\n" +
+			"  	a = 5;\n" +
+			"  end\n" +
+			"  \n" +
+			"endmodule\n";
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(9);
+
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicModule", expected, result);
+	}
+
+	public void testModuleContainingClass() {
+		String content =
+			"module foo(\n" +	// 1
+			" input a,\n" +		// 2
+			" int b)\n" +		// 3
+			"	;\n" +			// 4
+			"	\n" +			// 5
+			"  class foo;\n" +  // 6
+			"  int a;\n" +		// 7
+			"endclass\n" +		// 8
+			"	\n" +			// 9
+			"endmodule\n";
+		
+		String expected =
+			"module foo(\n" +	// 1
+			" input a,\n" +		// 2
+			" int b)\n" +		// 3
+			"	;\n" +			// 4
+			"	\n" +			// 5
+			"  class foo;\n" +  // 6
+			"  	int a;\n" +		// 7
+			"  endclass\n" +	// 8
+			"	\n" +			// 9
+			"endmodule\n";
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+
+		indenter.setAdaptiveIndentEnd(6);
+
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicModule", expected, result);
 	}
 
 	public void testAdaptiveIf() {
@@ -89,7 +188,7 @@ public class TestAdaptiveIndent extends TestCase {
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		
 		indenter.setAdaptiveIndent(true);
@@ -99,7 +198,7 @@ public class TestAdaptiveIndent extends TestCase {
 		
 		System.out.println("Result:");
 		System.out.println(result);
-		assertEquals("Expected indent", expected, result);
+		IndentComparator.compare("testAdaptiveIf", expected, result);
 	}
 
 	public void testAdaptiveFirstLevelScope() {
@@ -135,7 +234,7 @@ public class TestAdaptiveIndent extends TestCase {
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
-		SVDefaultIndenter indenter = new SVDefaultIndenter();
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		
 		indenter.setAdaptiveIndent(true);

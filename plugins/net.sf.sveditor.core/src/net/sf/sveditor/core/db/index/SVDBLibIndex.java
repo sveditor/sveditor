@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -306,7 +307,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	
 	public SVDBFile parse(InputStream in, String path) {
 		
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(fDefineProvider);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(fDefineProvider);
 
 		path = SVFileUtils.normalize(path);
 
@@ -526,7 +527,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			IPreProcMacroProvider 		mp) {
 		
 		fDefineProvider.setMacroProvider(mp);
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(fDefineProvider); 
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(fDefineProvider); 
 		
 		String path_s = path.getFilePath();
 
@@ -581,7 +582,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 
 	protected void addIncludeFiles(
 			SVDBFileTree 		root,
-			SVDBScopeItem 		scope) {
+			ISVDBScopeItem 		scope) {
 		for (int i=0; i<scope.getItems().size(); i++) {
 			SVDBItem it = scope.getItems().get(i);
 
@@ -625,8 +626,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 					 */
 				}
 				
-			} else if (it instanceof SVDBScopeItem) {
-				addIncludeFiles(root, (SVDBScopeItem)it);
+			} else if (it instanceof ISVDBScopeItem) {
+				addIncludeFiles(root, (ISVDBScopeItem)it);
 			}
 		}
 	}

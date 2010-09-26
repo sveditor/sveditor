@@ -21,7 +21,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBScopeItem extends SVDBItem {
+public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	protected List<SVDBItem>			fItems;
 	protected SVDBLocation				fEndLocation;
 	

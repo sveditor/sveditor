@@ -30,8 +30,8 @@ public class SVDBItemPrint {
 		}
 		System.out.println();
 		
-		if (item instanceof SVDBScopeItem) {
-			for (SVDBItem it : ((SVDBScopeItem)item).getItems()) {
+		if (item instanceof ISVDBScopeItem) {
+			for (SVDBItem it : ((ISVDBScopeItem)item).getItems()) {
 				printItem(indent+4, it);
 			}
 		}

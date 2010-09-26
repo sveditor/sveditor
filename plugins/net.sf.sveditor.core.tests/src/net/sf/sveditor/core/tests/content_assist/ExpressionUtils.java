@@ -16,8 +16,10 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.TextTagPosUtils;
 
 public class ExpressionUtils extends TestCase {
 	
@@ -87,17 +89,17 @@ public class ExpressionUtils extends TestCase {
 	    "\n";
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(content));
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
-		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindContentAssistNameMatcher());
+		SVExprScanner expr_scan = new SVExprScanner();
 		
 		scanner.seek(tt_utils.getTagPos("CA"));
-		SVExprContext ctxt = expr_utils.extractExprContext(scanner, false);
+		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
 		
 		System.out.println("ctxt: pre=\"" + ctxt.fLeaf + "\" start=" + 
 				ctxt.fStart + "\"");
 	}
 	
 	public void testExtractExprContext() {
-		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindContentAssistNameMatcher());
+		SVExprScanner expr_scan = new SVExprScanner();
 		
 		String doc1 = 
 			"class my_class;\n" +
@@ -113,23 +115,23 @@ public class ExpressionUtils extends TestCase {
 		SVExprContext ctxt;
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
-		ctxt = expr_utils.extractExprContext(scanner, false);
+		ctxt = expr_scan.extractExprContext(scanner, false);
 		
 		System.out.println("ctxt: pre=\"" + ctxt.fLeaf + "\" start=" +
 				ctxt.fStart + " trigger=\"" + ctxt.fTrigger + "\"");
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD2"));
-		ctxt = expr_utils.extractExprContext(scanner, false);
+		ctxt = expr_scan.extractExprContext(scanner, false);
 		System.out.println("ctxt: pre=\"" + ctxt.fLeaf + "\" start=" +
 				ctxt.fStart + " trigger=\"" + ctxt.fTrigger + "\"");
 
 		scanner.seek(tt_utils.getPosMap().get("FIELD2"));
-		ctxt = expr_utils.extractExprContext(scanner, true);
+		ctxt = expr_scan.extractExprContext(scanner, true);
 		System.out.println("ctxt: pre=\"" + ctxt.fLeaf + "\" start=" +
 				ctxt.fStart + " trigger=\"" + ctxt.fTrigger + "\"");
 
 		scanner.seek(tt_utils.getPosMap().get("FIELD3"));
-		ctxt = expr_utils.extractExprContext(scanner, false);
+		ctxt = expr_scan.extractExprContext(scanner, false);
 		System.out.println("ctxt: pre=\"" + ctxt.fLeaf +
 				"\" root=\"" + ctxt.fRoot + "\" start=" +
 				ctxt.fStart + " trigger=\"" + ctxt.fTrigger + "\"");

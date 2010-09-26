@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -48,7 +49,7 @@ public class SVDBSearchUtils {
 		return ret;
 	}
 	
-	public static SVDBModIfcClassDecl findClassScope(SVDBScopeItem scope) {
+	public static SVDBModIfcClassDecl findClassScope(ISVDBScopeItem scope) {
 		while (scope != null && scope.getType() != SVDBItemType.Class) {
 			scope = scope.getParent();
 		}
@@ -57,7 +58,7 @@ public class SVDBSearchUtils {
 	}
 
 	public static List<SVDBItem> findItemsByName(
-			SVDBScopeItem			scope,
+			ISVDBScopeItem			scope,
 			String					name,
 			SVDBItemType	...		types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
@@ -74,8 +75,8 @@ public class SVDBSearchUtils {
 			
 			if (type_match && it.getName() != null && it.getName().equals(name)) {
 				ret.add(it);
-			} else if (it instanceof SVDBScopeItem) {
-				ret.addAll(findItemsByName((SVDBScopeItem)it, name, types));
+			} else if (it instanceof ISVDBScopeItem) {
+				ret.addAll(findItemsByName((ISVDBScopeItem)it, name, types));
 			}
 		}
 		
@@ -90,19 +91,19 @@ public class SVDBSearchUtils {
 	 * @param lineno
 	 * @return
 	 */
-	public static SVDBScopeItem findActiveScope(SVDBScopeItem scope, int lineno) {
+	public static ISVDBScopeItem findActiveScope(ISVDBScopeItem scope, int lineno) {
 		debug("findActiveScope: " + scope.getName() + " " + lineno);
 		for (SVDBItem it : scope.getItems()) {
-			if (it instanceof SVDBScopeItem) {
-				SVDBLocation end_loc = ((SVDBScopeItem)it).getEndLocation(); 
-				SVDBScopeItem s_it = (SVDBScopeItem)it;
+			if (it instanceof ISVDBScopeItem) {
+				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
+				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
 				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
 					debug("    sub-scope " + it.getName() + " @ " + 
 							it.getLocation().getLine() + "-" + 
 							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 
 							lineno <= s_it.getEndLocation().getLine()) {
-						SVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
+						ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
 						
 						if (s_it_p != null) {
 							return s_it_p;

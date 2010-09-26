@@ -14,8 +14,8 @@ package net.sf.sveditor.ui.explorer;
 
 import java.text.Collator;
 
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
@@ -32,16 +32,16 @@ public class SVFileSorter extends ViewerSorter {
 
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if (e1 instanceof SVDBItem && e2 instanceof SVDBItem) {
-			SVDBItem p1 = ((SVDBItem)e1).getParent();
-			SVDBItem p2 = ((SVDBItem)e2).getParent();
+		if (e1 instanceof ISVDBLocatedItem && e2 instanceof ISVDBLocatedItem) {
+			ISVDBLocatedItem p1 = ((ISVDBLocatedItem)e1).getParent();
+			ISVDBLocatedItem p2 = ((ISVDBLocatedItem)e2).getParent();
 			
 			if (p1 != p2) {
 				System.out.println("parents are not equal");
 			}
 		
-			int i1 = ((SVDBScopeItem)p1).getItems().indexOf(e1);
-			int i2 = ((SVDBScopeItem)p2).getItems().indexOf(e2);
+			int i1 = ((ISVDBScopeItem)p1).getItems().indexOf(e1);
+			int i2 = ((ISVDBScopeItem)p2).getItems().indexOf(e2);
 			
 			return (i1 - i2);
 		}

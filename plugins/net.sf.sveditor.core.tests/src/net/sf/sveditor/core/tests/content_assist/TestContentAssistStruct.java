@@ -22,6 +22,8 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.FileIndexIterator;
+import net.sf.sveditor.core.tests.TextTagPosUtils;
 
 public class TestContentAssistStruct extends TestCase {
 	

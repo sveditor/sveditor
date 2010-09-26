@@ -1,15 +1,27 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.tests.parser;
 
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class ParserTests extends TestSuite {
 	
@@ -55,12 +67,12 @@ public class ParserTests extends TestSuite {
 		}
 	}
 	
-	private static boolean findElement(SVDBScopeItem scope, String e) {
+	private static boolean findElement(ISVDBScopeItem scope, String e) {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getName().equals(e)) {
 				return true;
-			} else if (it instanceof SVDBScopeItem) {
-				if (findElement((SVDBScopeItem)it, e)) {
+			} else if (it instanceof ISVDBScopeItem) {
+				if (findElement((ISVDBScopeItem)it, e)) {
 					return true;
 				}
 			}

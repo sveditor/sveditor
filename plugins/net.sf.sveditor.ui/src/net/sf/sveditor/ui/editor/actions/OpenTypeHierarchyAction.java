@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -53,9 +54,9 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 		int offset = sel.getOffset() + sel.getLength();
 
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
+		SVExprScanner			expr_scanner = new SVExprScanner();
 		
-		SVExprContext expr_ctxt = expr_utils.extractExprContext(scanner, true);
+		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
 		
 		if (expr_ctxt.fLeaf != null && 
 				(expr_ctxt.fTrigger == null || expr_ctxt.fTrigger.equals(""))) {

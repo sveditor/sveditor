@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -98,7 +99,7 @@ public class SVDBIndexSearcher {
 	 */
 	public List<SVDBItem> findVarsByNameInScopes(
 			String				name,
-			SVDBScopeItem		context,
+			ISVDBScopeItem		context,
 			boolean				stop_on_first_match) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 
@@ -157,7 +158,7 @@ public class SVDBIndexSearcher {
 	 */
 	public List<SVDBItem> findByNameInScopes(
 			String				name,
-			SVDBScopeItem		context,
+			ISVDBScopeItem		context,
 			boolean				stop_on_first_match,
 			SVDBItemType	... types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
@@ -310,7 +311,7 @@ public class SVDBIndexSearcher {
 	
 	public List<SVDBItem> findByNameInClassHierarchy(
 			String				name,
-			SVDBScopeItem		scope,
+			ISVDBScopeItem		scope,
 			SVDBItemType	...	types) {
 
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();

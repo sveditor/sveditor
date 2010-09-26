@@ -15,11 +15,11 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBParamPort;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
@@ -38,12 +38,12 @@ public class SVDBFindVarsByNameInScopes {
 	}
 	
 	public List<SVDBItem> find(
-			SVDBScopeItem 	context, 
+			ISVDBScopeItem 	context, 
 			String 			name,
 			boolean			stop_on_first_match) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
-		SVDBScopeItem context_save = context;
+		ISVDBScopeItem context_save = context;
 
 		// Search up the scope
 		while (context != null) {

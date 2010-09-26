@@ -21,6 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -275,7 +276,7 @@ public class ArgFilePersistence extends TestCase
 		}
 
 		for (int i=0; i<orig_list.size(); i++) {
-			if ((orig_list.get(i) instanceof SVDBScopeItem) &&
+			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
 					orig_list.get(i).getType() != SVDBItemType.File) {
 				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
 						" Not Equal " + orig_list.get(i).getType() + " " + orig_list.get(i).getName(),
@@ -327,7 +328,7 @@ public class ArgFilePersistence extends TestCase
 		assertEquals("item count changed", orig_list.size(), new_list.size());
 		// Compare individual items first
 		for (int i=0; i<orig_list.size(); i++) {
-			if (!(orig_list.get(i) instanceof SVDBScopeItem)) {
+			if (!(orig_list.get(i) instanceof ISVDBScopeItem)) {
 				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
 						" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
 						orig_list.get(i).equals(new_list.get(i)));
@@ -336,7 +337,7 @@ public class ArgFilePersistence extends TestCase
 
 		// Compare non-file scopes next
 		for (int i=0; i<orig_list.size(); i++) {
-			if ((orig_list.get(i) instanceof SVDBScopeItem) &&
+			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
 					orig_list.get(i).getType() != SVDBItemType.File &&
 					orig_list.get(i).getType() != SVDBItemType.Class) {
 				if (orig_list.get(i).getType() == SVDBItemType.Function &&

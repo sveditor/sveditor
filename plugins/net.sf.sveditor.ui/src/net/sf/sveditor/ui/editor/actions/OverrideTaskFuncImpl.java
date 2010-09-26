@@ -1,29 +1,47 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.ui.editor.actions;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
+import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.scanutils.IRandomAccessTextScanner;
 import net.sf.sveditor.core.srcgen.MethodGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.ISVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
+
 public class OverrideTaskFuncImpl {
-	private ISVEditor				fEditor;
+	private ISVEditor						fEditor;
+	private IOverrideMethodsTargetProvider	fTargetProvider;
 	
-	public OverrideTaskFuncImpl(ISVEditor editor) {
-		fEditor = editor;
+	public OverrideTaskFuncImpl(
+			ISVEditor editor,
+			IOverrideMethodsTargetProvider	target_provider) {
+		fEditor 		= editor;
+		fTargetProvider = target_provider;
 	}
 	
 	public void run() {
@@ -32,16 +50,14 @@ public class OverrideTaskFuncImpl {
 		
 		int offset = sel.getOffset() + sel.getLength();
 
-		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
-		
 		// Now, iterate through the items in the file and find something
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
-		
-		SVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
+
+		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, fEditor.getTextSel().getStartLine());
 		
-		SVDBScopeItem insert_point = active_scope;
+		ISVDBScopeItem insert_point = active_scope;
 		
 		// Make the default insert point the current cursor location
 		int insert_point_line = fEditor.getTextSel().getStartLine();
@@ -77,19 +93,13 @@ public class OverrideTaskFuncImpl {
 		if (active_scope == null) {
 			return;
 		}
-
-		OverrideMethodsDialog dlg = new OverrideMethodsDialog(
-				fEditor.getSite().getShell(), 
-				(SVDBModIfcClassDecl)active_scope, index_it);
-
-		dlg.setBlockOnOpen(true);
 		
-		dlg.open();
+		List<SVDBTaskFuncScope> targets = fTargetProvider.getTargets(active_scope);
 		
-		if (dlg.getResult() == null) {
+		if (targets == null) {
 			return;
 		}
-		
+
 		// Now, insert new code at the insertion point
 		
 		try {
@@ -99,12 +109,8 @@ public class OverrideTaskFuncImpl {
 			// Add a little white-space at the top
 			new_tf.append("\n\n");
 			
-			for (Object obj : dlg.getResult()) {
-				if (obj instanceof SVDBTaskFuncScope) {
-					SVDBTaskFuncScope tf = (SVDBTaskFuncScope)obj;
-					
-					new_tf.append(gen.generate(tf));
-				}
+			for (SVDBTaskFuncScope tf : targets) {
+				new_tf.append(gen.generate(tf));
 			}
 			
 			offset = doc.getLineOffset(insert_point_line);
@@ -122,10 +128,11 @@ public class OverrideTaskFuncImpl {
 						line_cnt++;
 					}
 				}
+				// re-partition document
+				doc.computePartitioning(0, doc.getLength());
+				IRandomAccessTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
 				
-				SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
-				
-				SVDefaultIndenter indenter = new SVDefaultIndenter();
+				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 				SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 				
 				indenter.init(scanner);

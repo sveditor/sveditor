@@ -43,6 +43,7 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	
 	public SVDBVarDeclItem(SVDBTypeInfo type, String name, int attr) {
 		super(name, SVDBItemType.VarDecl);
+		fAttr = attr;
 		fTypeInfo = type;
 	}
 

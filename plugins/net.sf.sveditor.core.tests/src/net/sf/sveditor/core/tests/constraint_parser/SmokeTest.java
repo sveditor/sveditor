@@ -21,11 +21,11 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.expr.parser.SVExpr;
 import net.sf.sveditor.core.expr.parser.SVExprDump;
 import net.sf.sveditor.core.expr.parser.SVExprParseException;
@@ -82,12 +82,12 @@ public class SmokeTest extends TestCase {
 		
 	}
 	
-	public static void find_constraints(SVDBScopeItem scope, List<SVDBConstraint> constraints) {
+	public static void find_constraints(ISVDBScopeItem scope, List<SVDBConstraint> constraints) {
 		for (SVDBItem it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Constraint) {
 				constraints.add((SVDBConstraint)it);
-			} else if (it instanceof SVDBScopeItem) {
-				find_constraints((SVDBScopeItem)it, constraints);
+			} else if (it instanceof ISVDBScopeItem) {
+				find_constraints((ISVDBScopeItem)it, constraints);
 			}
 		}
 	}

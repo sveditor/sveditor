@@ -15,9 +15,9 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
@@ -27,7 +27,7 @@ public class SVDBFindByNameInScopes {
 	}
 	
 	public List<SVDBItem> find(
-			SVDBScopeItem			context,
+			ISVDBScopeItem			context,
 			String					name,
 			boolean					stop_on_first_match,
 			SVDBItemType	...		types) {

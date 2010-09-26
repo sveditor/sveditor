@@ -208,7 +208,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 		if (id != null && id.equals("begin")) {
 			int begin_cnt = 1;
 			int end_cnt = 0;
-			boolean var_enabled = true;
+			// boolean var_enabled = true;
 
 			ch = skipWhite(next_ch());
 			

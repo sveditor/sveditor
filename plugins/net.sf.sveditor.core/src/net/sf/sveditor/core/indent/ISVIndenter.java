@@ -16,8 +16,22 @@ public interface ISVIndenter {
 	
 	void init(ISVIndentScanner scanner);
 	
-	void indent(SVIndentToken token);
+	String indent();
 	
-	void end();
-
+	String indent(int start, int end);
+	
+	String getLineIndent(int lineno);
+	
+	void setAdaptiveIndent(boolean en);
+	
+	void setAdaptiveIndentEnd(int lineno);
+	
+	/**
+	 * Enables testing mode, where internal errors throw
+	 * a runtime exception
+	 * 
+	 * @param tm
+	 */
+	void setTestMode(boolean tm);
+	
 }

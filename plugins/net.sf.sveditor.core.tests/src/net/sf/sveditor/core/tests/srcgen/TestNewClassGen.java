@@ -1,3 +1,15 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.tests.srcgen;
 
 import java.io.File;
@@ -11,6 +23,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
@@ -39,7 +52,7 @@ public class TestNewClassGen extends TestCase {
 	}
 
 	public void testNewClassBasics() {
-		String expect =
+		String expected =
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
@@ -87,7 +100,8 @@ public class TestNewClassGen extends TestCase {
 				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
-				assertEquals("Wrong content created", expect.trim(), content.trim());
+				IndentComparator.compare("testNewClassBasics", 
+						expected.trim(), content.trim());
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {
@@ -107,7 +121,7 @@ public class TestNewClassGen extends TestCase {
 			"endclass\n"
 			;
 		
-		String expect =
+		String expected =
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
@@ -150,7 +164,8 @@ public class TestNewClassGen extends TestCase {
 				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
-				assertEquals("Wrong content created", expect.trim(), content.trim());
+				IndentComparator.compare("testNewClassSuperCtor", 
+						expected.trim(), content.trim());
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {
@@ -171,7 +186,7 @@ public class TestNewClassGen extends TestCase {
 			"endclass\n"
 			;
 		
-		String expect =
+		String expected =
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
@@ -214,7 +229,8 @@ public class TestNewClassGen extends TestCase {
 				String content = SVCoreTestsPlugin.readStream(in);
 				System.out.println("content:\n" + content);
 				
-				assertEquals("Wrong content created", expect.trim(), content.trim());
+				IndentComparator.compare("testNewClassTemplateSuper", 
+						expected.trim(), content.trim());
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {

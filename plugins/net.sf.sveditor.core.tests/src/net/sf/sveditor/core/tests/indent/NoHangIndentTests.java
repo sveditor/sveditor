@@ -18,6 +18,8 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -92,7 +94,7 @@ public class NoHangIndentTests extends TestCase {
 				
 				SVIndentScanner scanner = new SVIndentScanner(
 						new StringBIDITextScanner(sb.toString()));
-				SVDefaultIndenter indenter = new SVDefaultIndenter();
+				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 				indenter.init(scanner);
 				
 				indenter.indent();

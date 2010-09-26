@@ -1,5 +1,18 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.srcgen;
 
+import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -9,14 +22,31 @@ public class MethodGenerator {
 	
 	public String generate(SVDBTaskFuncScope tf) {
 		StringBuilder new_tf = new StringBuilder();
+		String classname = "";
+		
+		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.Class) {
+			classname = tf.getParent().getName();
+		}
+		
+		new_tf.append("    /**\n" +
+					  "     * " + tf.getName() + "()\n" +
+					  "     *\n" +
+					  "     * Override from class " + classname + "\n" +
+					  "     */\n");
+		
+		new_tf.append("    ");
+		
+		if ((tf.getAttr() & SVDBFieldItem.FieldAttr_Virtual) != 0) {
+			new_tf.append("virtual ");
+		}
 		
 		if (tf.getType() == SVDBItemType.Function) {
 			SVDBTypeInfo ti = tf.getReturnType();
-			new_tf.append("    function ");
+			new_tf.append("function ");
 			new_tf.append(ti.toString());
 			new_tf.append(" ");
 		} else {
-			new_tf.append("    task ");
+			new_tf.append("task ");
 		}
 		
 		new_tf.append(tf.getName());

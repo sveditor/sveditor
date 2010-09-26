@@ -1053,6 +1053,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fNewStatement = true;
 			ret = fSpecialNonNull;
 		} else if (SVDataTypeParser.NetType.contains(id)) {
+			System.out.println("NetType field");
+			
 			// net type
 			String net_type = lexer().eatToken();
 			String vector_dim = null;
@@ -1101,12 +1103,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					lexer().skipPastMatch("[", "]");
 					String bounds = lexer().endCapture();
 
-					bounds = bounds.substring(0, bounds.length() - 1).trim();
+					bounds = bounds.substring(1, bounds.length() - 1).trim();
 
 					if (bounds != null) {
 						// remove ']'
 						bounds = bounds.substring(0, bounds.length() - 1);
 						bounds = bounds.trim();
+						
+						System.out.println("bounds=" + bounds);
 
 						if (bounds.startsWith("$")) {
 							var.setAttr(var.getAttr() | SVDBVarDeclItem.VarAttr_Queue);
@@ -1214,23 +1218,27 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				lexer().skipPastMatch("[", "]");
 				String bounds = lexer().endCapture();
 
-				bounds = bounds.substring(0, bounds.length() - 1).trim();
+				if (bounds.length() >= 2) {
+					bounds = bounds.substring(1, bounds.length() - 1).trim();
+				} else {
+					bounds = null;
+				}
 
 				if (bounds != null) {
 					// remove ']'
-					bounds = bounds.substring(0, bounds.length() - 1);
-					bounds = bounds.trim();
+					// bounds = bounds.substring(0, bounds.length() - 1);
+					// bounds = bounds.trim();
 
 					if (bounds.startsWith("$")) {
-						var_info.fAttr |= SvVarInfo.Attr_Queue;
+						var_info.fAttr |= SVDBVarDeclItem.VarAttr_Queue;
 					} else if (bounds.equals("")) {
-						var_info.fAttr |= SvVarInfo.Attr_DynamicArray;
+						var_info.fAttr |= SVDBVarDeclItem.VarAttr_DynamicArray;
 					} else {
 						// TODO: Don't really know. Could be a fixed-size array
 						// or
 						// a fixed-size array
 						if (bounds.equals("*")) {
-							var_info.fAttr |= SvVarInfo.Attr_AssocArray;
+							var_info.fAttr |= SVDBVarDeclItem.VarAttr_AssocArray;
 						} else {
 							var_info.fArrayDim = bounds;
 						}
