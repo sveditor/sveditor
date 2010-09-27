@@ -678,6 +678,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private SVIndentToken indent_stmt(String parent) {
 		SVIndentToken tok = current_s();
 		
+		if (fDebugEn) {
+			debug("--> indent_stmt parent=" + parent + " tok=" + tok.getImage());
+		}
+		
 		// Just indent the statement
 		if (tok.isId("if")) {
 			tok = indent_if(false);
@@ -699,7 +703,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok.isId("repeat") || tok.isId("forever") ||
 				tok.isId("for") || tok.isId("foreach")) {
 			tok = indent_loop_stmt();
-		} else if (tok.isPreProc()) {
+		}
+		/*
+		else if (tok.isPreProc()) {
 			boolean do_indent = true;
 			// For now, just read the line. This could be a problem in some cases
 			while (!tok.isOp(";") && !tok.isEndLine()) {
@@ -711,7 +717,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			leave_scope();
 			tok = next_s();
-		} else {
+		}  */
+		else {
 			boolean do_next = true;
 			while (!tok.isOp(";")) {
 				if (parent != null) {
@@ -725,11 +732,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						break;
 					}
 				}
+				if (tok.isOp("(")) {
+					start_of_scope(tok);
+				} else if (tok.isOp(")")) {
+					leave_scope();
+				}
 				tok = next_s();
 			}
 			if (do_next) {
 				tok = next_s();
 			}
+		}
+		
+		if (fDebugEn) {
+			debug("<-- indent_stmt parent=" + parent + " tok=" + tok.getImage());
 		}
 		
 		return tok;
@@ -1174,7 +1190,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private void debug(String msg) {
 		if (fDebugEn) {
 			fLog.debug(msg);
-			// System.out.println("[INDENT]" + msg);
+			System.out.println("[INDENT] " + msg);
 		}
 	}
 }

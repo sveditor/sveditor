@@ -201,6 +201,98 @@ public class TestAdaptiveIndent extends TestCase {
 		IndentComparator.compare("testAdaptiveIf", expected, result);
 	}
 
+	public void testPostSysTfIfPartial() {
+		String content =
+			"/****************************************************************************\n" +		// 1
+			" * my_component1.svh\n" +																// 2
+			" ****************************************************************************/\n" +	// 3
+			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
+			"`define INCLUDED_my_component1_svh\n" +												// 5
+			"\n" +																					// 6
+			"class my_component1 extends ovm_component;\n" +										// 7
+			"		\n" +																			// 8
+			"	function void foobar();\n" +														// 9
+			"		$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
+			"			a, b, c);\n" +																// 11
+			"if (foobar) begin\n" +																	// 12
+			"a = 6;\n" +																			// 13
+			"end\n" +																				// 14
+			"  endfunction\n" +
+			"\n";
+		String expected =
+			"		if (foobar) begin\n" +															// 12
+			"			a = 6;\n" +
+			"		end\n" +
+			"\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		
+		indenter.setAdaptiveIndentEnd(11);
+
+		String result = indenter.indent(12, 14);
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testPostSysTfIf", expected, result);
+	}
+	
+	public void testPostSysTfIfFull() {
+		String content =
+			"/****************************************************************************\n" +		// 1
+			" * my_component1.svh\n" +																// 2
+			" ****************************************************************************/\n" +	// 3
+			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
+			"`define INCLUDED_my_component1_svh\n" +												// 5
+			"\n" +																					// 6
+			"class my_component1 extends ovm_component;\n" +										// 7
+			"		\n" +																			// 8
+			"	function void foobar();\n" +														// 9
+			"		$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
+			"			a, b, c);\n" +																// 11
+			"if (foobar) begin\n" +																	// 12
+			"a = 6;\n" +																			// 13
+			"end\n" +																				// 14
+			"  endfunction\n" +
+			"\n";
+		String expected =
+			"/****************************************************************************\n" +		// 1
+			" * my_component1.svh\n" +																// 2
+			" ****************************************************************************/\n" +	// 3
+			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
+			"`define INCLUDED_my_component1_svh\n" +												// 5
+			"\n" +																					// 6
+			"class my_component1 extends ovm_component;\n" +										// 7
+			"		\n" +																			// 8
+			"	function void foobar();\n" +														// 9
+			"		$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
+			"			a, b, c);\n" +																// 11
+			"		if (foobar) begin\n" +															// 12
+			"			a = 6;\n" +																	// 13
+			"		end\n" +																		// 14
+			"	endfunction\n" +
+			"\n";
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		
+		// indenter.setAdaptiveIndentEnd(11);
+
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testPostSysTfIfFull", expected, result);
+	}
+	
+
 	public void testAdaptiveFirstLevelScope() {
 		String content =
 			"/****************************************************************************\n" +		// 1

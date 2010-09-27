@@ -1,4 +1,16 @@
+-- 0.2.6 Release --
 
+- Correct a content-assist bug related to array and queue data types (#3046751)
+  The cause was a parser bug that caused Array and Queue data types to not be 
+  tagged properly.
+
+- Correct a content-assist bug with method-containing expressions, such as
+  field.task_call().<<CONTENT_ASSIST>>.
+
+- Improved the Indenter to handle adaptive indent in a more-flexible and
+  more-reliable manner
+
+------------------------------------------------------------------------------
 -- 0.2.5 Release --
 
 - Correct problem with setting cursor location of Open Declaration (#3034640)
@@ -24,6 +36,14 @@
 - Add support for always variants (always_comb, always_iff, always_latch)
 
 - Correct content-assist issue (#3038561) when document length is 0
+
+- Update function-override logic to tag overridden virtual tasks/functions
+  with 'virtual'
+
+- Correct an indent problem with comment blocks. Comment lines following
+  the initial line were incorrectly indented
+  - Need to push a provisional indent when entering a scope. This provisional
+    indent can be altered later when a non-comment element is detected.
 
 ------------------------------------------------------------------------------
 
