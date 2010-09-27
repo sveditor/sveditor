@@ -77,7 +77,6 @@ public class SVDefaultIndenter implements ISVIndenter {
 		fAdaptiveIndentEnd = lineno;
 	}
 	
-	@Override
 	public void setTestMode(boolean tm) {
 	}
 
