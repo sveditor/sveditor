@@ -42,17 +42,14 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(file, parent);
 	}
 	
-	@Override
 	public SVDBLocation getEndLocation() {
 		return fEndLocation;
 	}
 
-	@Override
 	public List<SVDBItem> getItems() {
 		return fItems;
 	}
 
-	@Override
 	public void setEndLocation(SVDBLocation loc) {
 		// TODO Auto-generated method stub
 		
