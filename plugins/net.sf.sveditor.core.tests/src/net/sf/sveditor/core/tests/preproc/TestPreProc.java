@@ -19,14 +19,18 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.InputStreamCopier;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
+import net.sf.sveditor.core.scanner.ISVScannerObserver;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -184,6 +188,39 @@ public class TestPreProc extends TestCase {
 		System.out.println("path: " + ft.getFilePath());
 		// System.out.println("Orig is: \n" + orig.toString());
 		System.out.println("Result is: \n" + sb.toString());
+	}
+	
+	public void testMacroContainingIfdef() {
+		String content =
+			"int MARKER=1;\n" +
+			"`define macro \\\n" +
+			"    `ifdef ENABLE_1\\\n" +
+			"    int A1;\\\n" +
+			"    `else\\\n" +
+			"    int B1;\\\n" +
+			"    `endif\n" +
+			"\n" +
+			"`define ENABLE_1\n" +
+			"`macro\n" +
+			"int MARKER_end=2;\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		InputStream in = new StringInputStream(content);
+		SVPreProcScanner pp_scanner = new SVPreProcScanner();
+		pp_scanner.init(in, "content");
+		SVDBPreProcObserver observer = new SVDBPreProcObserver();
+		pp_scanner.setObserver(observer);
+		pp_scanner.scan();
+		
+		SVDBFileTree ft = new SVDBFileTree(observer.getFiles().get(0));
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		mp.setFileContext(ft);
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
+		
+		String out = dp.expandMacro("`macro", "content", 20);
+		System.out.println("Result:\n" + out);
+		assertEquals("int A1;", out.trim());
 	}
 
 //	public void test

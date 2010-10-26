@@ -18,9 +18,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -242,6 +245,87 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
 		assertEquals("class1", class1.getName());
+	}
+
+	/**
+	 * Tests that module hierarchies are correctly compiled and
+	 * defines from included files are located. Also ensures that
+	 * `celldefine directives are processed properly
+	 */
+	public void testMissingIncludeRecurseModule() {
+		System.out.println("--> testMissingIncludeRecurseModule()");
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			project_dir.delete();
+		}
+		
+		utils.copyBundleDirToFS("/project_dir_src_collection_module_missing_inc/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(project_dir);
+		
+		File path = new File(project_dir, "project_dir_src_collection_module_missing_inc");
+		ISVDBIndex index = rgy.findCreateIndex(
+				project_dir.getName(), path.getAbsolutePath(), 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBItem top=null, top_t=null, sub=null;
+		SVDBItem class1 = null;
+		SVDBItem class3 = null;
+		SVDBItem def_function = null;
+		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1 = tmp_it;
+			} else if (tmp_it.getName().equals("top")) {
+				top = tmp_it;
+			} else if (tmp_it.getName().equals("top_t")) {
+				top_t = tmp_it;
+			} else if (tmp_it.getName().equals("sub")) {
+				sub = tmp_it;
+			} else if (tmp_it.getName().equals("class3")) {
+				class3 = tmp_it;
+			} else if (tmp_it.getName().equals("def_function")) {
+				def_function = tmp_it;
+			} else if (tmp_it.getType() == SVDBItemType.Marker) {
+				markers.add(tmp_it);
+			}
+		}
+		
+		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
+		/*
+		SVDBFile file = index.parse(
+				fs.openStream("/project_dir_src_collection_module_missing_inc/class1.svh"), 
+				"/project_dir_src_collection_module_missing_inc/class1.svh");
+		 */
+		String file_path = new File(path, "class1.svh").getAbsolutePath();
+		SVDBFile file = index.parse(fs.openStream(file_path), file_path); 
+
+		for (SVDBItem warn : markers) {
+			System.out.println("SVDBMarkerItem: " + ((SVDBMarkerItem)warn).getMessage());
+		}
+		
+		assertNotNull("located class1", class1);
+		assertNotNull("located class3", class3);
+		assertNotNull("located top", top);
+		assertNotNull("located top_t", top_t);
+		assertNotNull("located sub", sub);
+		assertNotNull("located def_function", def_function);
+		assertEquals("class1", class1.getName());
+		// Expect two entries for missing include entry
+		assertEquals("Confirm no warnings", 2, markers.size());
+		System.out.println("<-- testMissingIncludeRecurseModule()");
 	}
 
 	public void testBasicClassIncludingModule() {

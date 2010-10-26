@@ -63,6 +63,29 @@ public class TestAdaptiveIndent extends TestCase {
 		System.out.println(result);
 		IndentComparator.compare("testAdaptiveSecondLevel", expected, result);
 	}
+	
+	public void testPostComment() {
+		String content =
+			"class foo;\n" +					// 1
+			"	function void my_func();\n" +		// 2
+			"		if (foobar) begin\n" +				// 3
+			"		end else begin\n" +				// 4
+			"			// comment block\n" +				// 5
+			"			a\n"
+			;
+		String expected =
+			"class foo;\n" +					// 1
+			"	function void my_func();\n" +		// 2
+			"		if (foobar) begin\n" +				// 3
+			"		end else begin\n" +				// 4
+			"			// comment block\n" +				// 5
+			"			a\n"
+			;
+			
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		coreAutoIndentTest("testPostComment", content, 5, expected);
+	}
 
 	public void testBasicModule() {
 		String content =
@@ -337,6 +360,26 @@ public class TestAdaptiveIndent extends TestCase {
 		System.out.println("Result:");
 		System.out.println(result);
 		IndentComparator.compare("testAdaptiveFirstLevelScope", expected, result);
+	}
+	
+	private void coreAutoIndentTest(
+			String testname, 
+			String content,
+			int adaptive_end,
+			String expected) {
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+
+		indenter.setAdaptiveIndentEnd(adaptive_end);
+
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare(testname, expected, result);
 	}
 	
 //	public void test

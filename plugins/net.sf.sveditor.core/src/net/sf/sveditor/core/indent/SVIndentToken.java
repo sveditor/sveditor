@@ -125,5 +125,9 @@ public class SVIndentToken {
 	public boolean isBlankLine() {
 		return (fStartLine && fEndLine && fImage.trim().equals(""));
 	}
+	
+	public boolean isComment() {
+		return (fType == SVIndentTokenType.SingleLineComment || fType == SVIndentTokenType.MultiLineComment);
+	}
 
 }

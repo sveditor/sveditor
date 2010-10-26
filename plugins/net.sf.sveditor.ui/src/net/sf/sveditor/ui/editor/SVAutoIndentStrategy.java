@@ -12,7 +12,6 @@ package net.sf.sveditor.ui.editor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -148,7 +147,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// If we're moving to a new line, put a dummy statement in place
 			// as a marker
 			if (indent_newline) {
-				doc_str.append("DUMMY STATEMENT;\n");
+				doc_str.append("DUMMY=5;\n");
 			}
 			
 			if (doc.getLength() > (cmd.offset+cmd.length)) {

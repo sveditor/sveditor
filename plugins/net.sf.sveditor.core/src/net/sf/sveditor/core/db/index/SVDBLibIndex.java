@@ -32,7 +32,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;

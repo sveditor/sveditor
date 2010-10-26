@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +30,6 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -214,7 +211,7 @@ public class TestVmmBasics extends TestCase {
 		
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
-		
+
 		/* IProject project_dir = */ TestUtils.createProject("scenarios", scenarios);
 		
 		File db = new File(fTmpDir, "db");
@@ -231,7 +228,7 @@ public class TestVmmBasics extends TestCase {
 		
 		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
 		ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_item.sv");
 		
 		int ch, lineno=1;
 		System.out.print(lineno + ": ");

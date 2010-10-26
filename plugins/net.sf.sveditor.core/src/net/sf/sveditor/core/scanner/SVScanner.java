@@ -781,8 +781,6 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 	private void process_struct_decl(SVTypeInfo type_info) throws EOFException {
 		int ch = skipWhite(get_ch());
 		
-		System.out.println("process_struct_decl");
-		
 		while (Character.isJavaIdentifierStart(ch)) {
 			/* String qual = */ readIdentifier(ch);
 			

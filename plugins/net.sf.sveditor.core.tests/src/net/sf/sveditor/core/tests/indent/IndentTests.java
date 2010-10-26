@@ -97,6 +97,104 @@ public class IndentTests extends TestCase {
 		System.out.println(result);
 		IndentComparator.compare("testBasicClass", expected, result);
 	}
+	
+	
+
+	public void testBasicModuleComment() {
+		String content =
+			"module t; // Comment.\n" +
+			"logic a;\n" +
+			"logic b;\n" +
+			"\n" +
+			"endmodule\n" 
+			;
+		String expected =
+			"module t; // Comment.\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"\n" +
+			"endmodule\n" 
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicModuleWire", expected, result);
+	}
+	
+	public void testIndentPostSingleComment() {
+		String content =
+			"class foo;\n" +					// 1
+			"function void my_func();\n" +		// 2
+			"if (foobar) begin\n" +				// 3
+			"end else begin\n" +				// 4
+			"// comment block\n" +				// 5
+			"a.b = 5;\n" +						// 6
+			"end\n" +							// 7
+			"endfunction\n" +					// 8
+			"endclass\n" 						// 9
+			;
+		String expected =
+			"class foo;\n" +
+			"	function void my_func();\n" +
+			"		if (foobar) begin\n" +
+			"		end else begin\n" +
+			"			// comment block\n" +
+			"			a.b = 5;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testIndentPostSingleComment", expected, result);
+	}
+
+	public void testBasicModuleWire() {
+		String content =
+			"module top;\n" +
+			"logic a;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module top;\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicModuleWire", expected, result);
+	}
 
 	public void testNewLineIf() {
 		String content =

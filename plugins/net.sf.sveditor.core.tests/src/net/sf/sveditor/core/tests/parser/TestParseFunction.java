@@ -34,6 +34,27 @@ public class TestParseFunction extends TestCase {
 		parser.parsers().functionParser().parse(null, 0);
 	}
 
+	public void testReturnOnlyFunction() throws SVParseException {
+		String content =
+			"class foobar;\n" +
+			"local virtual function string foobar();\n" +
+			"    return \"foobar\";\n" +
+			"endfunction\n" +
+			"endclass\n" 
+			;
+		
+		
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		parser.init(new StringInputStream(content), "test");
+		
+		try {
+			parser.parsers().classParser().parse(0);
+		} catch (SVParseException e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// Tests that local variables are correctly recognized and that 
 	// cast expressions are skipped appropriately
 	public void testLocalVarsWithCast() throws SVParseException {

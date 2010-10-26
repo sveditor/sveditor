@@ -17,6 +17,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBLocatedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 
@@ -49,6 +51,11 @@ import org.eclipse.ui.part.FileEditorInput;
 
 public class OpenSVDBItem extends CommonActionProvider {
 	private OpenItemAction			fOpenItem;
+	private static LogHandle		fLog;
+	
+	static {
+		fLog = LogFactory.getLogHandle("OpenSVDBItem");
+	}
 
 	@Override
 	public void init(ICommonActionExtensionSite site) {
@@ -92,7 +99,13 @@ public class OpenSVDBItem extends CommonActionProvider {
 			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {
 				IEditorPart ed_f = openEditor(it);
 				if (ed_f != null) {
-					((SVEditor)ed_f).setSelection(it, true);
+					if (ed_f instanceof SVEditor) {
+						((SVEditor)ed_f).setSelection(it, true);
+					} else {
+						fLog.enter("Editor for \"" + it.getName() + 
+								"\" is not an SVEditor: " + 
+						ed_f.getClass().getName());
+					}
 				}
 			}
 		}

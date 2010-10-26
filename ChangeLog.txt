@@ -1,3 +1,22 @@
+
+-- 0.2.7 Release --
+
+- Correct a problem when opening a declaration in a file that isn't currently
+  open in an instance of SVEditor. Now, an error is emited and a cast class
+  is avoided.
+
+- Correct bugs around auto-indent of pasted content
+
+- Correct bug with indent of if/else when begin is on a new line
+
+- Correct a problem with adaptive indent when the end point for adaptive 
+  training is a comment. 
+
+- Correct bug with pre-processor. Macro-embedded conditionals are now properly 
+  supported
+
+------------------------------------------------------------------------------
+
 -- 0.2.6 Release --
 
 - Correct a content-assist bug related to array and queue data types (#3046751)

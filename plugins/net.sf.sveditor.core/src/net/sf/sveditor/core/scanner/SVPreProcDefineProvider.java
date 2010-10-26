@@ -31,12 +31,14 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private String						fFilename;
 	private int							fLineno;
 	private Stack<String>				fExpandStack;
+	private Stack<Boolean>				fEnableOutputStack;
 	private LogHandle					fLog;
 	private IPreProcMacroProvider		fMacroProvider;
 	private List<IPreProcErrorListener>	fErrorListeners;
 
 	public SVPreProcDefineProvider(IPreProcMacroProvider macro_provider) {
 		fExpandStack = new Stack<String>();
+		fEnableOutputStack = new Stack<Boolean>();
 		fLog = LogFactory.getLogHandle("PreProcDefineProvider");
 
 		fMacroProvider  = macro_provider;
@@ -109,6 +111,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		fMacroProvider.setMacro("__FILE__", fFilename);
 		fMacroProvider.setMacro("__LINE__", "" + fLineno);
 		fExpandStack.clear();
+		fEnableOutputStack.clear();
+		fEnableOutputStack.push(true);
 
 		expandMacro(scanner);
 		
@@ -154,95 +158,96 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			ch = scanner.get_ch();
 			fLog.error("Failed to read macro name starting with " + (char)ch);
 			scanner.unget_ch(ch);
-		}
-		
-		fExpandStack.push(key);
-		
-		ch = scanner.skipWhite(scanner.get_ch());
-		
-		SVDBMacroDef m = fMacroProvider.findMacro(key, fLineno);
-		
-		if (m == null) {
-			error("macro \"" + key + "\" undefined");
-			if (fDebugUndefinedMacros) {
-				fLog.error("macro \"" + key + "\" undefined @ " +
-						fFilename + ":" + fLineno);
-			}
-			
-			/*
-			if (fDebugUndefinedMacros) {
-				fLog.debug("macro \"" + key + "\" undefined @ " +
-						fFilename + ":" + fLineno);
-				walkStack();
-				boolean tmp = fDebugEnS;
-				fDebugEnS = true;
-				fIndent = 0;
-				if (fContext != null) {
-					searchContext(fContext, key);
-				}
-				fDebugEnS = tmp;
-			}
-			 */
-
-			if (ch == '(') {
-				ch = scanner.skipPastMatch("()");
-				scanner.unget_ch(ch);
-			}
-			
-			// TODO: ?
-			return 0;
-		}
-		
-		List<String> params = null;
-		
-		// If the macro has parameters, scan them now
-		if (ch == '(') {
-			// Before parsing the parameters, make all macro substitutions
-			StringTextScanner scanner_s;
-
-			if (fDebugEn) {
-				debug("pre-expand: str=" + scanner.getStorage());
-			}
-			expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
-			if (fDebugEn) {
-				debug("post-expand: str=" + scanner.getStorage());
-			}
-			
-			params = parse_params(m, scanner);
-			
-			scanner_s = new StringTextScanner(scanner, 
-					macro_start, scanner.getOffset());
-			expandMacro(scanner_s, m, params);
-			
-			if (fDebugEn) {
-				debug("Expansion of " + m.getName() + " is: " +
-						scanner.getStorage().toString());
-			}
-			
-			ch = scanner.get_ch();
-
+		} else if (key.equals("ifdef") || key.equals("ifndef") || key.equals("else") || key.equals("endif")) {
+			// Don't expand
 		} else {
-			// Simple -- just replace the text range with the macro text
-			StringTextScanner scanner_s = new StringTextScanner(
-					scanner, macro_start, scanner.getOffset());
+			fExpandStack.push(key);
 			
-			expandMacro(scanner_s, m, null);
+			ch = scanner.skipWhite(scanner.get_ch());
 			
-			scanner.seek(scanner_s.getOffset()-1);
+			SVDBMacroDef m = fMacroProvider.findMacro(key, fLineno);
 			
-			if (fDebugEn) {
-				debug("Expansion Result: " + scanner_s.getStorage().toString());
+			if (m == null) {
+				error("macro \"" + key + "\" undefined");
+				if (fDebugUndefinedMacros) {
+					fLog.error("macro \"" + key + "\" undefined @ " +
+							fFilename + ":" + fLineno);
+				}
+				
+				/*
+				if (fDebugUndefinedMacros) {
+					fLog.debug("macro \"" + key + "\" undefined @ " +
+							fFilename + ":" + fLineno);
+					walkStack();
+					boolean tmp = fDebugEnS;
+					fDebugEnS = true;
+					fIndent = 0;
+					if (fContext != null) {
+						searchContext(fContext, key);
+					}
+					fDebugEnS = tmp;
+				}
+				 */
+
+				if (ch == '(') {
+					ch = scanner.skipPastMatch("()");
+					scanner.unget_ch(ch);
+				}
+				
+				// TODO: ?
+				return 0;
 			}
-			/*
-			scanner.replace(macro_start, scanner.getOffset(), 
-					scanner_s.getStorage().toString());
-			 */
+			List<String> params = null;
+			
+			// If the macro has parameters, scan them now
+			if (ch == '(') {
+				// Before parsing the parameters, make all macro substitutions
+				StringTextScanner scanner_s;
+
+				if (fDebugEn) {
+					debug("pre-expand: str=" + scanner.getStorage());
+				}
+				expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
+				if (fDebugEn) {
+					debug("post-expand: str=" + scanner.getStorage());
+				}
+				
+				params = parse_params(m, scanner);
+				
+				scanner_s = new StringTextScanner(scanner, 
+						macro_start, scanner.getOffset());
+				expandMacro(scanner_s, m, params);
+				
+				if (fDebugEn) {
+					debug("Expansion of " + m.getName() + " is: " +
+							scanner.getStorage().toString());
+				}
+				
+				ch = scanner.get_ch();
+
+			} else {
+				// Simple -- just replace the text range with the macro text
+				StringTextScanner scanner_s = new StringTextScanner(
+						scanner, macro_start, scanner.getOffset());
+				
+				expandMacro(scanner_s, m, null);
+				
+				scanner.seek(scanner_s.getOffset()-1);
+				
+				if (fDebugEn) {
+					debug("Expansion Result: " + scanner_s.getStorage().toString());
+				}
+				/*
+				scanner.replace(macro_start, scanner.getOffset(), 
+						scanner_s.getStorage().toString());
+				 */
+			}
+			fExpandStack.pop();
+			if (fDebugEn) {
+				debug("<-- expandMacro(scanner)");
+			}
 		}
 		
-		fExpandStack.pop();
-		if (fDebugEn) {
-			debug("<-- expandMacro(scanner)");
-		}
 		return 0;
 	}
 
@@ -481,6 +486,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private void expandMacroRefs(StringTextScanner scanner) {
 		int ch;
 		int iteration = 0;
+		int marker = -1;
 		
 		if (fDebugEn) {
 			debug("--> expandMacroRefs");
@@ -494,6 +500,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				debug("ch=\"" + (char)ch + "\"");
 			}
 			if (ch == '`') {
+				int macro_start = scanner.getOffset()-1;
 				int ch2 = scanner.get_ch();
 				if (fDebugEn) {
 					debug("    ch2=\"" + (char)ch2 + "\"");
@@ -522,84 +529,132 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					if (key == null) {
 						fLog.error("Failed to read macro name starting with " +	(char)ch);
 					}
+					
+					// Handle macro-embedded pre-processor directives
+					if (key.equals("ifdef") || key.equals("ifndef")) {
+						ch = scanner.skipWhite(scanner.get_ch());
+						String condition = scanner.readPreProcIdentifier(ch);
+						SVDBMacroDef cond_m = fMacroProvider.findMacro(condition, fLineno);
+						// delete the ifdef/ifndef statement
+						scanner.delete(macro_start, scanner.getOffset());
+						boolean en = (fEnableOutputStack.peek() &&
+								((key.equals("ifdef") && cond_m != null) ||
+										(key.equals("ifndef") && cond_m == null)));
 
-					SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
-					List<String> sub_p = null;
-					ch = scanner.get_ch();
-					
-					if (fDebugEn) {
-						debug("    ref=\"" + key + "\"");
-					}
-					
-					int m_end = scanner.getOffset();
-					
-					if (hasParameters(key, fLineno)) {
-						// TODO: Need to expand parameter references in this macro call
-						
-						if (fDebugEn) {
-							debug("    \"" + key + "\" has parameters");
+						// Mark the beginning of a section of text to delete
+						if (fEnableOutputStack.peek() && !en) {
+							marker = scanner.getOffset();
 						}
-						ch = scanner.skipWhite(ch);
-						
-						if (ch == '(') {
-							// expand macros in parameter list
-							if (fDebugEn) {
-								debug("    calling expandMacroRefs: \"" + scanner.getStorage().substring(scanner.getOffset()) + "\"");
+						fEnableOutputStack.push(en);
+					} else if (key.equals("undef")) {
+						ch = scanner.skipWhite(scanner.get_ch());
+						/*String macro = */scanner.readPreProcIdentifier(ch);
+
+						// delete the undef statement
+						scanner.delete(macro_start, scanner.getOffset());
+					} else if (key.equals("else")) {
+						scanner.delete(macro_start, scanner.getOffset());
+						if (fEnableOutputStack.size() > 1) {
+							boolean en = fEnableOutputStack.pop();
+							
+							// Delete the portion of text
+							if (marker != -1 && !en && fEnableOutputStack.peek()) {
+								scanner.delete(marker, scanner.getOffset());
+								marker = -1;
+							} else if (marker == -1 && en && fEnableOutputStack.peek()) {
+								// We're transitioning into a disabled portion
+								marker = scanner.getOffset();
 							}
-							expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
-							sub_p = parse_params(sub_m, scanner);
-//							scanner.get_ch();
+							fEnableOutputStack.push(!en);
 						}
-						m_end = scanner.getOffset();
-					} else {
-						debug("    \"" + key + "\" doesn't have parameters");
-					}
-					
-					// Now, expand this macro
-					if (ch != -1) {
-						// Back up if we didn't end by exhausing the buffer. 
-						// We don't want to replace the character following the macro
-						scanner.unget_ch(ch);
-						m_end--;
-					} 
-					
-					if ((m_end-1) >= scanner.getStorage().length()) {
-						System.out.println("m_end=" + m_end + " storage.length=" +
-								scanner.getStorage().length() + 
-								" scanner.offset=" + scanner.getOffset() +
-								" scanner.limit=" + scanner.getLimit());
-						System.out.println("storage=" + scanner.getStorage().toString());
-						System.out.println("iteration=" + iteration);
-					}
-					if (fDebugEn) {
-						debug("    text for expansion ends with \"" + 
-								scanner.getStorage().charAt(m_end-1) + "\"");
-					}
-					StringTextScanner scanner_s = new StringTextScanner(
-							scanner, m_start, m_end);
-					
-					if (sub_m != null) {
-						if (scanner.getOffset() > scanner.getLimit()) {
-							System.out.println("scanner offset > limit before sub-expand iteration "
-									+ iteration);
-							System.out.println("    sub-expand of " + sub_m.getName());
-						}
-						expandMacro(scanner_s, sub_m, sub_p);
-						
-						scanner.seek(scanner_s.getOffset()-1);
-						
-						if (scanner.getOffset() > scanner.getLimit()) {
-							System.out.println("scanner offset > limit after sub-expand iteration "
-									+ iteration);
-							System.out.println("    sub-expand of " + sub_m.getName());
+					} else if (key.equals("endif")) {
+						scanner.delete(macro_start, scanner.getOffset());
+						if (fEnableOutputStack.size() > 1) {
+							boolean en = fEnableOutputStack.pop();
+							if (marker != -1 && !en && fEnableOutputStack.peek()) {
+								scanner.delete(marker, scanner.getOffset());
+								marker = -1;
+							}
 						}
 					} else {
+						SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
+						List<String> sub_p = null;
+						ch = scanner.get_ch();
+						
 						if (fDebugEn) {
-							debug("Macro \"" + key + 
-								"\" undefined @ " + fFilename + ":" + fLineno);
+							debug("    ref=\"" + key + "\"");
 						}
-						scanner.delete(m_start, m_end-1);
-						walkStack();
+						
+						int m_end = scanner.getOffset();
+						
+						if (hasParameters(key, fLineno)) {
+							// TODO: Need to expand parameter references in this macro call
+							
+							if (fDebugEn) {
+								debug("    \"" + key + "\" has parameters");
+							}
+							ch = scanner.skipWhite(ch);
+							
+							if (ch == '(') {
+								// expand macros in parameter list
+								if (fDebugEn) {
+									debug("    calling expandMacroRefs: \"" + scanner.getStorage().substring(scanner.getOffset()) + "\"");
+								}
+								expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
+								sub_p = parse_params(sub_m, scanner);
+//								scanner.get_ch();
+							}
+							m_end = scanner.getOffset();
+						} else {
+							debug("    \"" + key + "\" doesn't have parameters");
+						}
+						
+						// Now, expand this macro
+						if (ch != -1) {
+							// Back up if we didn't end by exhausing the buffer. 
+							// We don't want to replace the character following the macro
+							scanner.unget_ch(ch);
+							m_end--;
+						} 
+						
+						if ((m_end-1) >= scanner.getStorage().length()) {
+							System.out.println("m_end=" + m_end + " storage.length=" +
+									scanner.getStorage().length() + 
+									" scanner.offset=" + scanner.getOffset() +
+									" scanner.limit=" + scanner.getLimit());
+							System.out.println("storage=" + scanner.getStorage().toString());
+							System.out.println("iteration=" + iteration);
+						}
+						if (fDebugEn) {
+							debug("    text for expansion ends with \"" + 
+									scanner.getStorage().charAt(m_end-1) + "\"");
+						}
+						StringTextScanner scanner_s = new StringTextScanner(
+								scanner, m_start, m_end);
+						
+						if (sub_m != null) {
+							if (scanner.getOffset() > scanner.getLimit()) {
+								System.out.println("scanner offset > limit before sub-expand iteration "
+										+ iteration);
+								System.out.println("    sub-expand of " + sub_m.getName());
+							}
+							expandMacro(scanner_s, sub_m, sub_p);
+							
+							scanner.seek(scanner_s.getOffset()-1);
+							
+							if (scanner.getOffset() > scanner.getLimit()) {
+								System.out.println("scanner offset > limit after sub-expand iteration "
+										+ iteration);
+								System.out.println("    sub-expand of " + sub_m.getName());
+							}
+						} else {
+							if (fDebugEn) {
+								debug("Macro \"" + key + 
+									"\" undefined @ " + fFilename + ":" + fLineno);
+							}
+							scanner.delete(m_start, m_end-1);
+							walkStack();
+						}
 					}
 				}
 			}

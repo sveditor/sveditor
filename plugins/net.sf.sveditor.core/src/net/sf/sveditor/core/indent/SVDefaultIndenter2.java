@@ -237,10 +237,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			
 			if (begin_is_start_line) {
 				enter_scope(tok);
+				start_of_scope(tok);
 			}
 			
 			tok = next_s();
 			if (!begin_is_start_line) {
+				enter_scope(tok);
+			} else {
 				enter_scope(tok);
 			}
 			
@@ -250,10 +253,18 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				if (tok.isId("end")) {
 					leave_scope(tok);
+					if (begin_is_start_line) {
+						leave_scope();
+					}
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
 					tok = next_s();
+					// TODO: Why does setting indent here cause 
+					// new-line positioning of 'begin' to work properly?
+					if (begin_is_start_line) {
+						set_indent(tok, false);
+					}
 					
 					tok = consume_labeled_block(tok);
 					break;
@@ -1022,14 +1033,14 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isStartLine()) {
 			if (isAdaptiveTraining(tok) && 
 					fIndentStack.peek().second() &&
-					!tok.isBlankLine()) {
+					!tok.isBlankLine() && !tok.isComment()) {
 				// If we are in the training period, the indent
 				// level is provisional, and this is not a blank
 				// line, then sample the indent
 				if (fDebugEn) {
 					debug("set_indent: convert implicit indent \"" + 
 							fIndentStack.peek().first() + "\" to \"" +
-							fCurrentIndent + "\"");
+							fCurrentIndent + "\" tok=\"" + tok.getImage() + "\"");
 				}
 				fIndentStack.peek().setFirst(fCurrentIndent);
 			}

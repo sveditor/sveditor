@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.tests.editor;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
@@ -43,11 +44,72 @@ public class TestAutoIndent extends TestCase {
 			"\t\n" +
 			"endclass\n";
 		
-		assertEquals("Check for expected indent", expected, content);
-		
-		System.out.println("content=\n" + content);
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare("testBasicIndent", expected, content);
 	}
 	
+	
+	public void testAutoIndentAlways() throws BadLocationException {
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		String content = 
+			"module foo;\n" +
+			"always @(posedge clk)\n" +
+			"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if"
+			;
+
+		tester.type(content);
+		
+		String result = tester.getContent();
+		
+		String expected = 
+			"module foo;\n" +
+			"	always @(posedge clk)\n" +
+			"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if"
+			;
+		
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testBasicIndent", expected, result);
+	}
+	
+	public void testAutoPostSingleComment() throws BadLocationException {
+		String content =
+			"class foo;\n" +
+			"function void my_func();\n" +
+			"if (foobar) begin\n" +
+			"end else begin\n" +
+			"// comment block\n" +
+			"a.b = 5;\n" +
+			"end\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		String expected =
+			"class foo;\n" +
+			"	function void my_func();\n" +
+			"		if (foobar) begin\n" +
+			"		end else begin\n" +
+			"			// comment block\n" +
+			"			a.b = 5;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		
+		String result = tester.getContent();
+		
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testBasicIndent", expected, result);
+	}
+
 	public void testPaste() throws BadLocationException {
 		String first =
 			"`ifndef INCLUDED_transport_packet_svh\n" +
@@ -59,8 +121,40 @@ public class TestAutoIndent extends TestCase {
 			"\n" +
 			"`VMM_NOTIFY notify;\n";
 		
+		String expected = 
+			"`ifndef INCLUDED_transport_packet_svh\n" +
+			"`define INCLUDED_transport_packet_svh\n" +
+			"\n" +
+			"class vmm_xactor;\n" +
+			"\n" +
+			"	`VMM_NOTIFY notify;\n"
+			;
+			
+		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
+		tester.paste(text);
+		
+		String content = tester.getContent();
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare("testPaste", expected, content);
+	}
+
+	public void testPasteModule() throws BadLocationException {
+		String first =
+			"module t();\n" +
+			"	logic a;\n" +
+			"endmodule\n";
+
+		String text =
+			"\n" +
+			"	logic a;\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(first);
+		tester.setCaretOffset(first.length());
 		tester.paste(text);
 		
 		String content = tester.getContent();
@@ -68,6 +162,156 @@ public class TestAutoIndent extends TestCase {
 		System.out.println("content=\"" + content + "\"");
 		
 	}
+
+	public void testModuleWires() throws BadLocationException {
+		String content =
+			"module t();\n" +
+			"logic a;\n" +
+			"logic b;\n" +
+			"endmodule\n";
+
+		String expected =
+			"module t();\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"endmodule\n";
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		
+		String result = tester.getContent();
+
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testModuleWires", expected, result);
+	}
+
+	public void testModuleWiresPastePost() throws BadLocationException {
+		String content =
+			"module t();\n" +
+			"logic a;\n" +
+			"logic b;\n" +
+			"endmodule\n";
+		
+		String expected =
+			"module t();\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"endmodule\n" +
+			"module b();\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"endmodule\n";
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		tester.paste(
+				"module b();\n" +
+				"logic a;\n" +
+				"logic b;\n" +
+				"endmodule\n");
+
+		
+		String result = tester.getContent();
+
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testModuleWires", expected, result);
+	}
+
+	public void testPasteInModule() throws BadLocationException {
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String first =
+			"module t();\n" +
+			"	logic a;\n" +
+			"endmodule\n";
+
+		String text =
+			"logic b;\n"
+			;
+		
+		String expected = 
+			"module t();\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.setContent(first);
+//		tester.type(first);
+		tester.setCaretOffset(
+				("module t();\n" +
+				 "	logic a;\n").length());
+		
+		tester.paste(text);
+		
+		String content = tester.getContent();
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare("", expected, content);
+	}
+
+	public void testAutoIndentIfThenElse() throws BadLocationException {
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String content = 
+			"module t();\n" +
+			"if (foo)\n" +
+			"a = 5;\n" +
+			"else if (bar)\n" +
+			"b = 6;\n" +
+			"\n" +
+			"if (foo) begin\n" +
+			"a = 5;\n" +
+			"end else if (bar) begin\n" +
+			"b = 6;\n" +
+			"end\n" +
+			"\n" +
+			"if (foo)\n" +
+			"begin\n" +
+			"a = 5;\n" +
+			"end\n" +
+			"else\n" +
+			"begin\n" +
+			"b = 6;\n" +
+			"end\n" +
+			"endmodule\n"
+			;
+		String expected = 
+			"module t();\n" +
+			"	if (foo)\n" +
+			"		a = 5;\n" +
+			"	else if (bar)\n" +
+			"		b = 6;\n" +
+			"\n" +
+			"	if (foo) begin\n" +
+			"		a = 5;\n" +
+			"	end else if (bar) begin\n" +
+			"		b = 6;\n" +
+			"	end\n" +
+			"\n" +
+			"	if (foo)\n" +
+			"		begin\n" +
+			"			a = 5;\n" +
+			"		end\n" +
+			"	else\n" +
+			"		begin\n" +
+			"			b = 6;\n" +
+			"		end\n" +
+			"endmodule\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		
+		String result = tester.getContent();
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare("", expected, result);
+	}
+
 	
 	public void testCovergroup() throws BadLocationException {
 		String input = 
@@ -103,15 +347,9 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 		
-		
+
+		System.out.println("Result:\n" + result);
 		IndentComparator.compare("Covergroup indent failed", expected, result);
-		/*
-		if (!expected.equals(result)) {
-			System.out.println("result=\"" + result + "\"");
-			System.out.println("expected=\"" + expected + "\"");
-		}
-		assertEquals("Covergroup indent failed", expected, result);
-		 */
 	}
 
 	public void testVirtualFunction() throws BadLocationException {
@@ -143,10 +381,7 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 		
 		
-		if (!expected.equals(result)) {
-			System.out.println("result=\"" + result + "\"");
-			System.out.println("expected=\"" + expected + "\"");
-		}
+		System.out.println("Result:\n" + result);
 		IndentComparator.compare("testVirtualFunction", expected, result);
 	}
 
@@ -177,14 +412,8 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Expected:");
-		System.out.println(expected.trim());
-		System.out.println("Result:");
-		System.out.println(result.trim());
-
+		System.out.println("Result:\n" + result);
 		IndentComparator.compare("testPastePostStringAdaptiveIndent", expected, result);
-		assertEquals("Expected indent result",
-				expected.trim(), result.trim());
 	}
 
 	public void testPasteAdaptiveIndent() throws BadLocationException {
@@ -209,11 +438,8 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		
-		assertEquals("Expected indent result",
-				expected.trim(), result.trim());
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testPasteAdaptiveIndent", expected, result);
 	}
 	
 	public void testPasteInsertOpeningComment() throws BadLocationException {
@@ -254,11 +480,10 @@ public class TestAutoIndent extends TestCase {
 			}
 		}
 		tester.paste("/*\n");
+		
 		String result = tester.getContent();
-		System.out.println("expected:\n" + expected);
-		System.out.println("====");
-		System.out.println("result:\n" + result);
-		assertEquals(expected, result);
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testPasteInsertOpeningComment", expected, result);
 	}
 
 	public void disabled_testCaseStatement() throws BadLocationException {
@@ -297,13 +522,8 @@ public class TestAutoIndent extends TestCase {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input);
 		String result = tester.getContent();
-		
-		
-		if (!expected.equals(result)) {
-			System.out.println("result=\"" + result + "\"");
-			System.out.println("expected=\"" + expected + "\"");
-		}
-		assertEquals("Covergroup indent failed", expected, result);
+
+		IndentComparator.compare("", expected, result);
 	}
 
 	public void disabled_testModifyIndent() throws BadLocationException {

@@ -38,7 +38,7 @@ public class ParserTests extends TestSuite {
 	
 	public static SVDBFile parse(String content, String filename) {
 		SVDBFile file = null;
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		file = factory.parse(new StringInputStream(content), filename);
 		
