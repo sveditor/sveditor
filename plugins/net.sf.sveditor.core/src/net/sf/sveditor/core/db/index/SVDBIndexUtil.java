@@ -175,11 +175,11 @@ public class SVDBIndexUtil {
 							tmp.append(sb.charAt(idx));
 							idx++;
 						}
-						end = (idx-1);
+						end = idx;
 					}
 	
 					key = tmp.toString();
-					if ((val = System.getenv(key)) != null) {
+					if ((val = SVCorePlugin.getenv(key)) != null) {
 						sb.replace(start, end, val);
 					}
 				} else {

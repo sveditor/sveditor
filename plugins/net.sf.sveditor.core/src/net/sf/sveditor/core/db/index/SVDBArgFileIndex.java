@@ -116,7 +116,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				SVDBFile pp_file = findPreProcFile(file);
 				
 				if (pp_file == null) {
-					fLog.error("Failed to find file \"" + file + "\"");
+					fLog.error("Failed to find pre-proc file \"" + file + "\"");
 					continue;
 				}
 				
@@ -222,8 +222,9 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			}
 			
 			for (String f : scanner.getFilePaths()) {
-				fLog.debug("[FILE PATH] " + f);
-				fFilePaths.add(SVDBIndexUtil.expandVars(f, true));
+				String exp_f = SVDBIndexUtil.expandVars(f, true);
+				fLog.debug("[FILE PATH] " + f + " (" + exp_f + ")");
+				fFilePaths.add(exp_f);
 			}
 			
 			for (String inc : scanner.getIncludePaths()) {
@@ -337,9 +338,15 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			} else if (path.startsWith(".")) { 
 				path = getResolvedBaseLocationDir() + "/" + path.substring(2);
 			} else {
-				// This path is an implicit relative path that is 
-				// relative to the base directory
-				path = getResolvedBaseLocationDir() + "/" + path;
+				if (!fFileSystemProvider.fileExists(path)) {
+					//  See if this is an implicit path
+					String imp_path = getResolvedBaseLocationDir() + "/" + path;
+					if (fFileSystemProvider.fileExists(imp_path)) {
+						// This path is an implicit relative path that is 
+						// relative to the base directory
+						path = imp_path;
+					}
+				}
 			}
 			norm_path = normalizePath(path);
 		}

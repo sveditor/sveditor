@@ -20,6 +20,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -206,11 +207,13 @@ public class SVDBFindParameterizedClass {
 			Map<String, String>		param_map) {
 		// Only specialize non-parameterized types. Parameterized types
 		// will be parameterized on-demand
-		SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)var_decl.getTypeInfo(); 
-		if (cls.getParameters() == null) {
-			if (param_map.containsKey(var_decl.getTypeInfo().getName())) {
-				var_decl.getTypeInfo().setName(param_map.get(
-						var_decl.getTypeInfo().getName()));
+		if (var_decl.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
+			SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)var_decl.getTypeInfo(); 
+			if (cls.getParameters() == null || cls.getParameters().getParameters().size() == 0) {
+				if (param_map.containsKey(var_decl.getTypeInfo().getName())) {
+					var_decl.getTypeInfo().setName(param_map.get(
+							var_decl.getTypeInfo().getName()));
+				}
 			}
 		}
 	}

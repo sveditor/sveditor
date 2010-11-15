@@ -50,9 +50,10 @@ public class TestContentAssistStruct extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(true);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -96,7 +97,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -139,7 +140,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -183,7 +184,7 @@ public class TestContentAssistStruct extends TestCase {
 			;
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -227,7 +228,7 @@ public class TestContentAssistStruct extends TestCase {
 			;
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());

@@ -28,6 +28,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
 import net.sf.sveditor.core.log.LogFactory;
@@ -64,7 +65,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
-		fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
 	
 	public void init(File state_location) {
@@ -72,22 +73,12 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fDatabaseDescMap.clear();
 		if (state_location != null) {
 			fDatabaseDir = new File(state_location, "db");
-			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+			fGlobalIndexMgr = getGlobalIndexMgr();
 
 			load_database_descriptors();
 		} else {
 			fDatabaseDir = null;
 		}
-
-		/*
-		// Ensure the global index has access to the built-in types
-		ISVDBIndex index = findCreateIndex(
-				SVDBIndexRegistry.GLOBAL_PROJECT, "net.sf.sveditor.sv_builtin", 
-				SVDBPluginLibIndexFactory.TYPE, null);
-		if (index != null) {
-			fGlobalIndexMgr.addPluginLibrary(index);
-		}
-		 */
 	}
 	
 	public List<ISVDBIndex> getProjectIndexList(String project) {
@@ -99,6 +90,18 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	public SVDBIndexCollectionMgr getGlobalIndexMgr() {
+		if (fGlobalIndexMgr == null) {
+			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+			
+			// Ensure the global index has access to the built-in types
+			ISVDBIndex index = findCreateIndex(
+					SVDBIndexRegistry.GLOBAL_PROJECT, 
+					SVCorePlugin.SV_BUILTIN_LIBRARY, 
+					SVDBPluginLibIndexFactory.TYPE, null);
+			if (index != null) {
+				fGlobalIndexMgr.addPluginLibrary(index);
+			}
+		}
 		return fGlobalIndexMgr;
 	}
 	

@@ -73,7 +73,6 @@ public class SVExpressionUtils {
 	private ISVDBFindNameMatcher			fNameMatcher;
 	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
 	private SVDBFindParameterizedClass 		fParamClassFinder;
-	private ISVDBIndexIterator				fIndexIt;
 
 	public SVExpressionUtils(ISVDBFindNameMatcher matcher) {
 		fLog = LogFactory.getLogHandle("SVExpressionUtils");
@@ -90,7 +89,6 @@ public class SVExpressionUtils {
 			ISVDBScopeItem		active_scope,
 			SVExprContext		expr_ctxt,
 			boolean				match_prefix) {
-		fIndexIt = index_it;
 		fParamClassFinder = new SVDBFindParameterizedClass(index_it);
 		return findItems(index_it, active_scope, expr_ctxt, match_prefix, 0);
 	}
@@ -187,6 +185,7 @@ public class SVExpressionUtils {
 			int						max_matches,
 			boolean					match_prefix,
 			List<SVDBItem> 			ret) {
+		debug("--> findTriggeredItems");
 		fLog.debug("Expression is triggered expression");
 		List<SVDBItem> pre_trigger = processPreTriggerPortion(
 				index_it, active_scope, root, !match_prefix);
@@ -471,6 +470,8 @@ public class SVExpressionUtils {
 		List<SVDBItem> item_list = new ArrayList<SVDBItem>();
 		ITextScanner scanner = new StringTextScanner(preTrigger);
 		
+		debug("--> processPreTriggerPortion() preTrigger=" + preTrigger);
+		
 		int ret = processPreTriggerPortion(scanner, null, item_list, 
 				index_it, context, allowNonClassLastElem);
 		
@@ -520,6 +521,7 @@ public class SVExpressionUtils {
 		// look for id() within typeof(ret.item)
 		int ch;
 		while ((ch = scanner.get_ch()) != -1) {
+			debug("    processPreTriggerPortion: ch=" + (char)ch);
 
 			if (ch == '(') {
 				// recursively expand
@@ -546,18 +548,11 @@ public class SVExpressionUtils {
 					return -1;
 				}
 			} else if (SVCharacter.isSVIdentifierPart(ch)) {
-				/*
-				StringBuffer tmp = new StringBuffer();
-
-				tmp.append((char) ch);
-				while (idx < preTrigger.length()
-						&& SVCharacter.isSVIdentifierPart(
-								(ch = preTrigger.charAt(idx)))) {
-					tmp.append((char) ch);
-					idx++;
+				id = scanner.readIdentifier(ch);
+				
+				if (id == null) {
+					debug("id==null ch==" + (char)ch);
 				}
-				 */
-				id = scanner.readIdentifier(ch); // tmp.toString();
 				
 				ret = processPreTriggerId(context, scanner, id, 
 						preceeding_activator, resolveFinalReturnType, 
@@ -565,6 +560,7 @@ public class SVExpressionUtils {
 
 				// Lookup failed, so bail
 				if (ret == -1) {
+					debug("    lookup failed -- end processing");
 					break;
 				}
 			} else {
@@ -585,29 +581,32 @@ public class SVExpressionUtils {
 			ITextScanner		scanner,
 			ISVDBIndexIterator	index_it,
 			List<SVDBItem>		item_list) {
+		debug("--> processPreTriggerArrayRef: ");
 		
 		// TODO: This is an array reference. Must find base type of preceeding variable
 		scanner.skipPastMatch("[]");
 		
-		if (item_list.size() > 0 && 
-				item_list.get(item_list.size()-1).getType() == SVDBItemType.Class) {
-			SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)
-				item_list.get(item_list.size()-1);
-
-			// cls_t should be the specialized array type. We use the template
-			// parameter to get the array-element type
-			if (cls_t.getParameters() != null && cls_t.getParameters().size() > 0) {
-				SVDBFindNamedModIfcClassIfc finder_c = 
-					new SVDBFindNamedModIfcClassIfc(index_it);
-				List<SVDBModIfcClassDecl> result =
-					finder_c.find(cls_t.getParameters().get(0).getName());
-				
-				if (result.size() > 0) {
-					cls_t = result.get(0);
-					item_list.add(cls_t);
+		if (item_list.size() > 0) {
+			SVDBItem it = item_list.get(item_list.size()-1);
+			debug("  last item type=" + it.getType());
+			
+			if (it.getType() == SVDBItemType.Class) {
+				SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)it;
+				// cls_t should be the specialized array type. We use the template
+				// parameter to get the array-element type
+				if (cls_t.getParameters() != null && cls_t.getParameters().size() > 0) {
+					SVDBFindNamedModIfcClassIfc finder_c = 
+						new SVDBFindNamedModIfcClassIfc(index_it);
+					List<SVDBModIfcClassDecl> result =
+						finder_c.find(cls_t.getParameters().get(0).getName());
+					
+					if (result.size() > 0) {
+						cls_t = result.get(0);
+						item_list.add(cls_t);
+					}
+				} else {
+					System.out.println("Class " + cls_t.getName() + " doesn't have parameters");
 				}
-			} else {
-				System.out.println("Class " + cls_t.getName() + " doesn't have parameters");
 			}
 		}
 		
@@ -616,10 +615,6 @@ public class SVExpressionUtils {
 	
 	private int processPreTriggerId(
 			ISVDBScopeItem		context,
-			/*
-			int					idx,
-			String				preTrigger,
-			 */
 			ITextScanner		scanner,
 			String				id,
 			String				preceeding_activator,
@@ -627,8 +622,17 @@ public class SVExpressionUtils {
 			ISVDBIndexIterator	index_it,
 			List<SVDBItem>		item_list) {
 		// Read an identifier
-		SVDBFindParameterizedClass pclass_finder = new SVDBFindParameterizedClass(index_it);
-		int ch = scanner.get_ch(); // (idx < preTrigger.length())?preTrigger.charAt(idx):-1;
+		int ch = scanner.get_ch();
+		
+		debug("--> processPreTriggerId: id=" + id + " preceeding_activator=" + preceeding_activator);
+		
+		if (id == null) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		
 		if (ch == '(' || ch == '\'') {
 			String type_name = null;
@@ -638,7 +642,6 @@ public class SVExpressionUtils {
 				debug("Look for function \"" + id + "\"");
 
 				// TODO: must use scoped lookup by whatever preceeded
-				List<SVDBItem> matches = null;
 				SVDBItem search_ctxt = null;
 				SVDBItem func = null;
 
@@ -695,7 +698,9 @@ public class SVExpressionUtils {
 				}
 			}
 		} else {
-			// 
+			// Unget 'ch', since we don't need it
+			scanner.unget_ch(ch);
+			
 			SVDBItem field = null;
 			List<SVDBItem> matches = null;
 			
@@ -740,8 +745,10 @@ public class SVExpressionUtils {
 						fLog.debug("FindVarsByNameInScope \"" + id + "\" in scope \"" + 
 								context.getName() + "\" returns " + matches.size() + " matches");
 						
-						if (matches != null && matches.size() > 0) {
-							SVDBModIfcClassDecl cls_t = findVarType(matches.get(0));
+						if (matches != null && matches.size() > 0 && 
+								matches.get(0) instanceof SVDBVarDeclItem) {
+							SVDBItem cls_t = findVarType(
+									index_it, (SVDBVarDeclItem)matches.get(0));
 							if (cls_t != null) {
 								matches.set(0, cls_t);
 							}
@@ -802,72 +809,8 @@ public class SVExpressionUtils {
 			if (field instanceof SVDBModIfcClassDecl ||
 					field instanceof SVDBPackageDecl) {
 				type = field;
-			} else if ((field instanceof SVDBVarDeclItem) ||
-					(field instanceof SVDBParamPort)) {
-				SVDBFindNamedModIfcClassIfc finder = 
-					new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
-				if (((SVDBVarDeclItem)field).getTypeInfo().getDataType() == SVDBDataType.Struct) {
-					type = ((SVDBVarDeclItem)field).getTypeInfo();
-				} else {
-					String typename;
-					List<SVDBModIfcClassDecl> cl_l = null;
-					if (field instanceof SVDBVarDeclItem) {
-						typename = ((SVDBVarDeclItem)field).getTypeName();
-					} else {
-						typename = ((SVDBParamPort)field).getTypeName();
-					}
-					
-					cl_l = finder.find(typename);
-					type = (cl_l.size() > 0)?cl_l.get(0):null;
-
-					debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
-
-					// Didn't find anything. Try treating this as a typedef
-					if (cl_l.size() == 0) {
-						SVDBFindByName finder_n = new SVDBFindByName(index_it);
-
-						List<SVDBItem> result = finder_n.find(
-								typename, SVDBItemType.Typedef);
-						debug("Searching for typedef \"" + typename + "\" -- " + result.size());
-						
-						if (result.size() > 0) {
-							SVDBTypedef td = (SVDBTypedef)result.get(0);
-							debug("    typedef DataType=" + td.getTypeInfo().getDataType());
-							if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
-								cl_l = finder.find(td.getTypeInfo().getName());
-								type = (cl_l.size() > 0)?cl_l.get(0):null;
-							} else if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
-								type = td.getTypeInfo();
-							} else { // user-defined
-								cl_l = finder.find(td.getTypeInfo().getName());
-								type = (cl_l.size() > 0)?cl_l.get(0):null;
-							}
-						} else {
-							type = null;
-						}
-					}
-					
-					// Didn't find anything. Look at parameters in the class
-					if (type == null && cl_l.size() == 0) {
-						ISVDBLocatedItem field_p = field.getParent();
-						while (field_p != null && field_p.getType() != SVDBItemType.Class) {
-							field_p = field_p.getParent();
-						}
-						
-						if (field_p != null) {
-							SVDBModIfcClassDecl c_decl = (SVDBModIfcClassDecl)field_p;
-							for (SVDBModIfcClassParam p : c_decl.getParameters()) {
-								
-								if (p.getName().equals(typename)) {
-									cl_l = finder.find(p.getDefault());										
-								}
-							}
-						}
-						
-						type = (cl_l.size() > 0)?cl_l.get(0):null;
-					}
-				}
-				
+			} else if (field instanceof SVDBVarDeclItem) {
+				type = findVarType(index_it, (SVDBVarDeclItem)field);
 			} else if (field instanceof SVDBTypedef) {
 				SVDBTypedef td = (SVDBTypedef)field;
 				if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
@@ -901,14 +844,162 @@ public class SVExpressionUtils {
 		return 0;
 	}
 	
-	private SVDBModIfcClassDecl findVarType(SVDBItem item) {
-		SVDBModIfcClassDecl ret = null;
+	private SVDBItem findVarType(
+			ISVDBIndexIterator 	index_it,
+			SVDBVarDeclItem 	field) {
+		SVDBItem type = null;
+		SVDBFindNamedModIfcClassIfc finder = 
+			new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 		
-		if (item.getType() == SVDBItemType.VarDecl) {
+		debug("findVarType: field=" + field.getName());
+		
+		// Determine pre-operations to resolve actual target type
+		if (field.getTypeInfo().getDataType() == SVDBDataType.Struct) {
+			type = field.getTypeInfo();
+			debug("    field is of type struct");
+		} else {
+			String typename;
+			List<SVDBModIfcClassDecl> cl_l = null;
+			if (field instanceof SVDBParamPort) {
+				typename = ((SVDBParamPort)field).getTypeName();
+			} else {
+				typename = ((SVDBVarDeclItem)field).getTypeName();
+			}
+			
+			type = resolveClassType(index_it, typename);
+			
+			debug("    result of resolveClassType(" + typename + ") =>" + type);
+
+			// Didn't find anything. Look at parameters in the class
+			if (type == null) {
+				cl_l = finder.find(typename);
+				
+				if (cl_l.size() == 0) {
+					ISVDBLocatedItem field_p = field.getParent();
+					while (field_p != null && field_p.getType() != SVDBItemType.Class) {
+						field_p = field_p.getParent();
+					}
+
+					if (field_p != null) {
+						SVDBModIfcClassDecl c_decl = (SVDBModIfcClassDecl)field_p;
+						for (SVDBModIfcClassParam p : c_decl.getParameters()) {
+
+							if (p.getName().equals(typename)) {
+								cl_l = finder.find(p.getDefault());										
+							}
+						}
+					}
+
+					type = (cl_l.size() > 0)?cl_l.get(0):null;
+				}
+			}
+		}
+		
+		// Now, handle special array and queue special cases
+		int attr = field.getAttr();
+		SVDBTypeInfo var_type = field.getTypeInfo();
+		// The method for obtaining the name may change
+		String var_type_name = var_type.getName();
+		
+		if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0 ||
+			(attr & SVDBVarDeclItem.VarAttr_DynamicArray) != 0) {
+			String base;
+			if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0) {
+				base = "__sv_builtin_queue";
+			} else {
+				base = "__sv_builtin_array";
+			}
+			SVDBParamValueAssignList params = 
+				new SVDBParamValueAssignList();
+			params.addParameter(
+					new SVDBParamValueAssign("", var_type_name));
+			SVDBTypeInfoUserDef type_info = new SVDBTypeInfoUserDef(
+					base, SVDBDataType.UserDefined);
+			type_info.setParameters(params);
+			SVDBModIfcClassDecl cls_t = fParamClassFinder.find(type_info);
+			
+			if (cls_t != null) {
+				type = cls_t;
+			}
+		} else if ((attr & SVDBVarDeclItem.VarAttr_AssocArray) != 0) {
+			String base = "__sv_builtin_assoc_array";
+			SVDBParamValueAssignList params = 
+				new SVDBParamValueAssignList();
+			params.addParameter(
+					new SVDBParamValueAssign("", var_type_name));
+			params.addParameter(
+					new SVDBParamValueAssign("", field.getArrayDim()));
+					
+			SVDBTypeInfoUserDef type_info = 
+				new SVDBTypeInfoUserDef(base);
+			type_info.setParameters(params);
+			SVDBModIfcClassDecl cls_t = fParamClassFinder.find(type_info);
+			
+			if (cls_t != null) {
+				type = cls_t;
+			}
+		} else if (var_type.getDataType() == SVDBDataType.UserDefined &&
+				((SVDBTypeInfoUserDef)var_type).getParameters() != null) {
+			SVDBModIfcClassDecl cls_t = fParamClassFinder.find(
+					(SVDBTypeInfoUserDef)var_type);
+			
+			if (cls_t != null) {
+				type = cls_t;
+			}
+		} 
+
+		return type;
+	}
+	
+	private SVDBItem resolveClassType(
+			ISVDBIndexIterator index_it, String typename) {
+		SVDBItem type = null;
+		SVDBFindNamedModIfcClassIfc finder = 
+			new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
+		
+		List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
+		type = (cl_l.size() > 0)?cl_l.get(0):null;
+
+		debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
+
+		// Didn't find anything. Try treating this as a typedef
+		if (cl_l.size() == 0) {
+			SVDBFindByName finder_n = new SVDBFindByName(index_it);
+
+			List<SVDBItem> result = finder_n.find(typename, SVDBItemType.Typedef);
+			debug("Searching for typedef \"" + typename + "\" -- " + result.size());
+			
+			if (result.size() > 0) {
+				SVDBTypedef td = (SVDBTypedef)result.get(0);
+				debug("    typedef DataType=" + td.getTypeInfo().getDataType());
+				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+					cl_l = finder.find(td.getTypeInfo().getName());
+					type = (cl_l.size() > 0)?cl_l.get(0):null;
+				} else if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
+					type = td.getTypeInfo();
+				} else { // user-defined type
+					cl_l = finder.find(td.getTypeInfo().getName());
+					type = (cl_l.size() > 0)?cl_l.get(0):null;
+				}
+			} else {
+				type = null;
+			}
+		}
+
+		return type;
+	}
+
+	/*
+	private SVDBModIfcClassDecl findVarType_2(SVDBItem item) {
+		SVDBModIfcClassDecl ret = null;
+		debug("--> findVarType: " + item.getType() + " " + item.getName());
+		
+		if (item instanceof SVDBVarDeclItem) {
 			SVDBVarDeclItem var_decl = (SVDBVarDeclItem)item;
 			int attr = var_decl.getAttr();
 			SVDBTypeInfo var_type = var_decl.getTypeInfo();
 			
+			debug("    VarDeclItem: attr=0x" + Integer.toHexString(attr));
 			
 			// TODO: This seems to be the problem with array content assist
 			// We search for
@@ -979,8 +1070,10 @@ public class SVExpressionUtils {
 			
 		}
 		
+		debug("<-- findVarType: " + item.getType() + " " + item.getName() + " " + ret);
 		return ret;
 	}
+	 */
 	
 	private SVDBTaskFuncScope findTaskFunc(
 			ISVDBIndexIterator		index_it,

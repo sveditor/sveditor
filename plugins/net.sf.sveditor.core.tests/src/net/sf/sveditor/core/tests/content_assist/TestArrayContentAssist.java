@@ -24,18 +24,31 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 
 public class TestArrayContentAssist extends TestCase {
 	private ContentAssistIndex			fIndex;
+	private SVDBIndexCollectionMgr		fIndexMgr;
 	
 	@Override
 	protected void setUp() throws Exception {
 		fIndex = new ContentAssistIndex();
+		fIndexMgr = new SVDBIndexCollectionMgr("GLOBAL");
+		fIndexMgr.addLibraryPath(fIndex);
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		ISVDBIndex index = rgy.findCreateIndex(
+				SVDBIndexRegistry.GLOBAL_PROJECT, 
+				SVCorePlugin.SV_BUILTIN_LIBRARY, 
+				SVDBPluginLibIndexFactory.TYPE, null);
+		fIndexMgr.addPluginLibrary(index);
 	}
 
 	public void testQueueFunctions() {
@@ -57,7 +70,7 @@ public class TestArrayContentAssist extends TestCase {
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexMgr);
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -71,9 +84,11 @@ public class TestArrayContentAssist extends TestCase {
 		
 		while (it.hasNext()) {
 			SVDBItem it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
+			System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (it_t.getName().equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
+			} else if (it_t.getName().startsWith("__sv_builtin")) {
+				System.out.println("Builtin: " + it_t.getName());
 			}
 		}
 		
@@ -110,11 +125,11 @@ public class TestArrayContentAssist extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexMgr);
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -128,7 +143,6 @@ public class TestArrayContentAssist extends TestCase {
 		
 		while (it.hasNext()) {
 			SVDBItem it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (it_t.getName().equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
@@ -177,9 +191,9 @@ public class TestArrayContentAssist extends TestCase {
 			;
 		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
+
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexMgr);
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -234,7 +248,7 @@ public class TestArrayContentAssist extends TestCase {
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndex);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexMgr);
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -309,5 +323,5 @@ public class TestArrayContentAssist extends TestCase {
 		}
 		assertEquals("Unexpected proposals", 0, proposals.size());
 	}
-
+	
 }

@@ -20,7 +20,9 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDB;
@@ -67,6 +69,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
 	public static boolean					fUseParserFactory = true; // leave scanner enabled for now
+	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	
 	/**
 	 * The constructor
@@ -270,6 +273,21 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			}       
 		}
 		return null;
+	}
+	
+	public static void setenv(String key, String val) {
+		if (fLocalEnvMap.containsKey(key)) {
+			fLocalEnvMap.remove(key);
+		}
+		fLocalEnvMap.put(key, val);
+	}
+	
+	public static String getenv(String key) {
+		if (fLocalEnvMap.containsKey(key)) {
+			return fLocalEnvMap.get(key);
+		} else {
+			return System.getenv(key);
+		}
 	}
 
 }

@@ -1,4 +1,12 @@
 
+-- 0.2.8 Release --
+
+- Correct problems with expansion of environment variables in argument-file
+  paths
+
+- Correct problem with content assist on indexed array/queue fields
+
+------------------------------------------------------------------------------
 -- 0.2.7 Release --
 
 - Correct a problem when opening a declaration in a file that isn't currently
