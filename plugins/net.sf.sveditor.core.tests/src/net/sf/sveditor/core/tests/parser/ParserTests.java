@@ -52,6 +52,8 @@ public class ParserTests extends TestSuite {
 				
 				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR) ||
 						m.getName().equals(SVDBMarkerItem.MARKER_WARN)) {
+					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
+							" @ " + file.getName() + ":" + m.getLocation().getLine());
 					TestCase.fail("Unexpected " + m.getName() + " @ " + 
 							file.getName() + ":" + m.getLocation().getLine());
 				}

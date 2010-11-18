@@ -44,6 +44,7 @@ public class SVDataTypeParser extends SVParserBase {
 		IntegerAtomType.add("longint");
 		IntegerAtomType.add("integer");
 		IntegerAtomType.add("time");
+		IntegerAtomType.add("genvar"); // Treat genvar as an integer
 		IntegerVectorType = new HashSet<String>();
 		IntegerVectorType.add("bit");
 		IntegerVectorType.add("logic");
@@ -109,11 +110,15 @@ public class SVDataTypeParser extends SVParserBase {
 			
 			if (lexer().peekOperator("[")) {
 				lexer().startCapture();
-				lexer().skipPastMatch("[", "]");
+				while (lexer().peekOperator("[")) {
+					lexer().skipPastMatch("[", "]");
+				}
 				builtin_type.setVectorDim(lexer().endCapture());
 			}
+			
 			type = builtin_type;
-		} else if (IntegerAtomType.contains(id)) {
+		} else if (IntegerAtomType.contains(id) ||
+				id.equals("signed") || id.equals("unsigned")) {
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
 			
 			if (lexer().peekKeyword("signed", "unsigned")) {
@@ -178,9 +183,22 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 			}
 			type = type_fwd;
-		} else if (SVKeywords.isSVKeyword(id)) {
+		} else if (SVKeywords.isSVKeyword(id) && !id.equals("interface")) {
 			// ERROR: 
 			error("Invalid type name \"" + id + "\"");
+		} else if (id.equals("[")) {
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin("bit");
+			
+			// Implicit sized item
+			
+			lexer().startCapture();
+			do {
+				lexer().skipPastMatch("[", "]");
+			} while (lexer().peekOperator("["));
+			
+			builtin_type.setVectorDim(lexer().endCapture());
+			type = builtin_type;
+			
 		} else {
 			// Should be a user-defined type
 			if (lexer().peekOperator("::")) {
@@ -198,6 +216,11 @@ public class SVDataTypeParser extends SVParserBase {
 				
 				if (lexer().peekOperator("[")) {
 					// TODO: packed_dimension
+					
+					// TODO: handle multi-dimensional vectors
+					while (lexer().peekOperator("[")) {
+						lexer().skipPastMatch("[", "]");
+					}
 				}
 			} else if (lexer().peekOperator(".")) {
 				// Interface type: interface.modport

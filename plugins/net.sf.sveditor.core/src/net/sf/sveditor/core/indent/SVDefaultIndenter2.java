@@ -1053,7 +1053,6 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		SVMultiLineIndentToken ml_comment = (SVMultiLineIndentToken)tok;
 		
 		if (tok.isStartLine()) {
-			System.out.println("comment indent: \"" + peek_indent() + "\"");
 			set_indent(tok, false);
 			for (SVIndentToken line : ml_comment.getCommentLines()) {
 				if (line.getImage().startsWith("*")) {

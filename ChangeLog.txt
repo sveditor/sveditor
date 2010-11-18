@@ -6,6 +6,13 @@
 
 - Correct problem with content assist on indexed array/queue fields
 
+- Correct module-port parse bugs
+    - sized un-typed ports (eg module foo([3:0] a); )
+    - interface ports (eg module foo(interface a); )
+    - interface ports with multi-dimension vectors
+    - sized parameters
+
+
 ------------------------------------------------------------------------------
 -- 0.2.7 Release --
 

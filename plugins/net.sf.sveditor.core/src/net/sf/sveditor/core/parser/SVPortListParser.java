@@ -69,11 +69,15 @@ public class SVPortListParser extends SVParserBase {
 			String id = null;
 			if (lexer().peekOperator("[")) {
 				lexer().startCapture();
-				lexer().skipPastMatch("[", "]");
+				// TODO: handle multi-dimensional vectors
+				while (lexer().peekOperator("[")) {
+					lexer().skipPastMatch("[", "]");
+				}
 				String vector_dim = lexer().endCapture();
 				SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin("untyped");
 				bi_type.setVectorDim(vector_dim);
 				type = bi_type;
+
 				id = lexer().readId();
 			} else {
 				type = parsers().dataTypeParser().data_type(0, lexer().eatToken());

@@ -34,6 +34,123 @@ import junit.framework.TestCase;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
+	public void testModuleSizedParameter() {
+		String content = 
+			"module t\n" +
+			"#(\n" +
+			"parameter [2:0] a = 2'b01\n" +
+			");\n" +
+			"endmodule\n";
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
+
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t")) {
+				t = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module t", t);
+	}
+
+	public void testModuleGenvarDecl() {
+		String content = 
+			"module t4;\n" +
+			"	genvar k;\n" +
+			"endmodule\n";
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
+
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t4 = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t4")) {
+				t4 = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module t4", t4);
+	}
+
+	
+	public void testModuleInterfacePort() {
+		String content = 
+			"module t2\n" +
+			"(\n" +
+			"interface a\n" +
+			");\n" +
+			"endmodule\n"
+			;
+		SVDBFile file = ParserTests.parse(content, "testModuleInterfacePort");
+
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t2")) {
+				t = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module t", t);
+	}
+	
+	public void testModuleBitArrayPort() {
+		String content =
+			"module t3\n" +
+			"(\n" +
+			"input [1:0][1:0] a\n" +
+			");\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+
+		SVDBFile file = ParserTests.parse(content, "testModuleInterfacePort");
+
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t3 = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t3")) {
+				t3 = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module t3", t3);
+	}
+	
+	public void testModuleSignedPort() {
+		String content =
+			"module t5\n" +
+			"(\n" +
+			"output signed a\n" +
+			");\n" +
+			"endmodule\n"
+			;
+
+		SVDBFile file = ParserTests.parse(content, "testModuleSignedPort");
+
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t5 = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t5")) {
+				t5 = (SVDBModIfcClassDecl)it;
+				break;
+			}
+		}
+		
+		assertNotNull("Failed to find module t5", t5);
+	}
+	
 	public void testInitialBlock() {
 		String doc =
 			"module top;\n" +
@@ -682,7 +799,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	public void testGlobalParamRef() {
 		
 		String doc =
-			"parameter int c [0:1] = '{0, 1};\n" +
+			"parameter int c [0:1] = '{0, 2};\n" +
 			"	module t6\n" +
 			"	#(\n" +
 			"	parameter c2 = c[0]\n" +

@@ -57,8 +57,9 @@ public class SVParameterPortListParser extends SVParserBase {
 					lexer().eatToken();
 				}
 				// This might be a type
-				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
-
+				SVDBTypeInfo type = parsers().dataTypeParser().data_type(
+						0, lexer().eatToken());
+				
 				// If the next element is an operator, then the 
 				// return from the type parser is the parameter name
 				if (lexer().peekOperator(",", ")", "=")) {

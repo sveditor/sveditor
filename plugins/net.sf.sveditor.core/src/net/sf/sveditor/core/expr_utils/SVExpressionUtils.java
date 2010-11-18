@@ -424,7 +424,6 @@ public class SVExpressionUtils {
 			}
 
 			last_nws_ch = ch;
-			// TODO: idx--;
 
 			String end = null;
 			for (int i = 0; i < end_match.length; i++) {
