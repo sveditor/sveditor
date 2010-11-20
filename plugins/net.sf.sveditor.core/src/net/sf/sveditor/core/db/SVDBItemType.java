@@ -44,5 +44,6 @@ public enum SVDBItemType {
 	Marker,
 	ParamValue,
 	ParamValueList,
-	GenerateBlock
+	GenerateBlock,
+	ClockingBlock
 }

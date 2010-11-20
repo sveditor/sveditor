@@ -918,15 +918,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fNewStatement = true;
 		} else if (id.equals("for")) {
 			ret = parsers().generateBlockParser().for_block();
-//			fScopeStack.peek().addItem(ret);
 			fNewStatement = true;
 		} else if (id.equals("if")) {
 			ret = parsers().generateBlockParser().if_block();
-//			fScopeStack.peek().addItem(ret);
 			fNewStatement = true;
 		} else if (id.equals("case")) {
 			ret = parsers().generateBlockParser().case_block();
-//			fScopeStack.peek().addItem(ret);
+			fNewStatement = true;
+		} else if (id.equals("default") || id.equals("global") || id.equals("clocking")) {
+			// Clocking block
+			ret = parsers().clockingBlockParser().parse();
 			fNewStatement = true;
 		} else if (id.equals(";")) {
 			// null statement

@@ -865,6 +865,36 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.assertNoErrWarn(file);
 		ParserTests.assertFileHasElements(file, "multiplier");
 	}
+	
+	public void testClocking_LRM_Ex1() {
+		String doc =
+			"module test;\n" +
+			"	clocking ck1 @(posedge clk);\n" +
+			"		default input #1step output negedge;\n" +
+			"	endclocking\n" +
+			"endmodule\n";
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testClocking_LRM_Ex1");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "test");
+	}
+	
+	public void testClocking_DR() {
+		String doc = 
+			"interface control_if;\n" +
+			"	clocking cb @(posedge clk);\n" +
+			"	endclocking : cb\n" +
+			"endinterface : control_if\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testClocking_DR");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "control_if");
+	}
 
 	public void testOutputPort() {
 		

@@ -45,6 +45,7 @@ public class SVDB {
 		SVDBParamValueAssignList.init();
 		SVDBParamValueAssign.init();
 		SVDBGenerateBlock.init();
+		SVDBClockingBlock.init();
 
 		fInit = true;
 	}

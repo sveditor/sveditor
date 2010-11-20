@@ -43,6 +43,7 @@ public interface ISVIcons {
 	String INITIAL_OBJ = OBJ_ICONS + "initial_obj.gif";
 	String ASSIGN_OBJ  = OBJ_ICONS + "assign_obj.gif";
 	String GENERATE_OBJ = OBJ_ICONS + "generate_obj.gif";
+	String CLOCKING_OBJ = OBJ_ICONS + "clocking_16_16.gif";
 
 	String TASK_PRIV_OBJ = DECL_ICONS + "private_co.gif";
 	String TASK_PROT_OBJ = DECL_ICONS + "protected_co.gif";
