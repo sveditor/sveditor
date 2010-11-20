@@ -90,7 +90,7 @@ public class TestArgFileIndex extends TestCase {
 	public void testEnvVarExpansion() throws IOException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject("project");
 		

@@ -54,6 +54,7 @@ public class TestOvmBasics extends TestCase {
 
 	public void testBasicProcessing() {
 		File tmpdir = new File(fTmpDir, "no_errors");
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		if (tmpdir.exists()) {
 			tmpdir.delete();
@@ -104,6 +105,7 @@ public class TestOvmBasics extends TestCase {
 	}
 	
 	public void testXbusExample() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testXbusExample");

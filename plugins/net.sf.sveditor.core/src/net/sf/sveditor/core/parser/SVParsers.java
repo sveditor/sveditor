@@ -33,6 +33,7 @@ public class SVParsers {
 	private SVBehavioralBlockParser				fBehavioralBlockParser;
 	private SVModIfcProgDeclParser				fModIfcProgParser;
 	private SVPortListParser					fPortListParser;
+	private SVGenerateBlockParser				fGenBlockParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -124,6 +125,13 @@ public class SVParsers {
 			fPortListParser = new SVPortListParser(fSVParser);
 		}
 		return fPortListParser;
+	}
+	
+	public SVGenerateBlockParser generateBlockParser() {
+		if (fGenBlockParser == null) {
+			fGenBlockParser = new SVGenerateBlockParser(fSVParser);
+		}
+		return fGenBlockParser;
 	}
 
 }

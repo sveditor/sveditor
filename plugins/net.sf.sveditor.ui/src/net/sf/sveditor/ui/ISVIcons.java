@@ -42,6 +42,7 @@ public interface ISVIcons {
 	String ALWAYS_BLOCK_OBJ = OBJ_ICONS + "always_obj.gif";
 	String INITIAL_OBJ = OBJ_ICONS + "initial_obj.gif";
 	String ASSIGN_OBJ  = OBJ_ICONS + "assign_obj.gif";
+	String GENERATE_OBJ = OBJ_ICONS + "generate_obj.gif";
 
 	String TASK_PRIV_OBJ = DECL_ICONS + "private_co.gif";
 	String TASK_PROT_OBJ = DECL_ICONS + "protected_co.gif";

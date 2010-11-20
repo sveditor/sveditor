@@ -43,5 +43,6 @@ public enum SVDBItemType {
 	Assign,
 	Marker,
 	ParamValue,
-	ParamValueList
+	ParamValueList,
+	GenerateBlock
 }

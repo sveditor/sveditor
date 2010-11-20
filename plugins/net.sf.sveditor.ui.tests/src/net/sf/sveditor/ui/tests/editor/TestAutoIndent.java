@@ -219,7 +219,7 @@ public class TestAutoIndent extends TestCase {
 
 	public void testPasteInModule() throws BadLocationException {
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String first =
 			"module t();\n" +
@@ -254,7 +254,7 @@ public class TestAutoIndent extends TestCase {
 
 	public void testAutoIndentIfThenElse() throws BadLocationException {
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String content = 
 			"module t();\n" +
@@ -376,7 +376,7 @@ public class TestAutoIndent extends TestCase {
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input1);
-		// SVCorePlugin.getDefault().enableDebug(true);
+		// SVCorePlugin.getDefault().enableDebug(false);
 		tester.type(input2);
 		String result = tester.getContent();
 		
@@ -404,7 +404,7 @@ public class TestAutoIndent extends TestCase {
 			"		a = 6;\n" +
 			"	end\n";
 		tester.setContent(content);
-		//SVCorePlugin.getDefault().enableDebug(true);
+		//SVCorePlugin.getDefault().enableDebug(false);
 		tester.paste(
 				"if (foobar) begin\n" +
 				"a = 6;\n" +

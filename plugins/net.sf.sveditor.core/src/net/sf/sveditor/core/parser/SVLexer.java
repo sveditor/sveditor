@@ -544,7 +544,9 @@ public class SVLexer extends SVToken {
 							((ch >= '0' && ch <= '9') ||
 									(ch >= 'a' && ch <= 'f') ||
 									(ch >= 'A' && ch <= 'F') ||
-									(ch == '_') || (ch == 'x') || (ch == 'X'))) {
+									(ch == '_') || 
+									(ch == 'x') || (ch == 'X') ||
+									(ch == 'z') || (ch == 'Z'))) {
 						fStringBuffer.append((char)ch);
 					}
 					
@@ -573,7 +575,9 @@ public class SVLexer extends SVToken {
 							((ch >= '0' && ch <= '9') ||
 							 (ch >= 'a' && ch <= 'f') ||
 							 (ch >= 'A' && ch <= 'F') ||
-							 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
+							 (ch == '_') || 
+							 (ch == 'x') || (ch == 'X') ||
+							 (ch == 'z') || (ch == 'Z'))) {
 						fStringBuffer.append((char)ch);
 					}
 				} else {

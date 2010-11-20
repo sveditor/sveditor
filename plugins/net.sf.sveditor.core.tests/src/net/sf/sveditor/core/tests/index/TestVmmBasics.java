@@ -56,6 +56,7 @@ public class TestVmmBasics extends TestCase {
 	}
 
 	public void testBasicProcessing() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		File tmpdir = new File(fTmpDir, "no_errors");
 		
 		if (tmpdir.exists()) {

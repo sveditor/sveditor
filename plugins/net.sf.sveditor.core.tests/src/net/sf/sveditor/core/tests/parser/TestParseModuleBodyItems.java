@@ -41,7 +41,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"parameter [2:0] a = 2'b01\n" +
 			");\n" +
 			"endmodule\n";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
 
 		ParserTests.assertNoErrWarn(file);
@@ -62,7 +62,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"module t4;\n" +
 			"	genvar k;\n" +
 			"endmodule\n";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
 
 		ParserTests.assertNoErrWarn(file);
@@ -110,7 +110,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		SVDBFile file = ParserTests.parse(content, "testModuleInterfacePort");
 
@@ -136,20 +136,30 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = ParserTests.parse(content, "testModuleSignedPort");
 
 		ParserTests.assertNoErrWarn(file);
-
-		SVDBModIfcClassDecl t5 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t5")) {
-				t5 = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module t5", t5);
+		ParserTests.assertFileHasElements(file, "t5");
 	}
+
+	public void testModuleSizedSignedPort() {
+		String content =
+			"module t2\n" +
+			"(\n" +
+			"       input signed [1:0] a\n" +
+			");\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(content, "testModuleSizedSignedPort");
+
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "t2");
+	}
+
+
 	
 	public void testInitialBlock() {
 		String doc =
@@ -599,6 +609,262 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module t4", t4);
 	}
+	
+	// Contains semantic error, in that both loops use the same index 
+	public void testGen_LRM_Ex1() {
+		String doc = 
+			"module mod_a;\n" +
+			"	genvar i;\n" +
+			"	for (i=0; i<5; i=i+1) begin : a\n" +
+			"		for (i=0; i<5; i=i+1) begin : b\n" +
+			"		end\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGenVars");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "mod_a");
+	}
+
+	// Contains semantic error, in that both loops use the same index 
+	public void testGen_LRM_Ex1_a() {
+		String doc = 
+			"module mod_a;\n" +
+			"	genvar i;\n" +
+			"	for (i=0; i<5; i=i+1) begin : a\n" +
+			"		for (i=0; i<5; i=i+1) begin : b\n" +
+			"		end\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGenVars");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "mod_a");
+	}
+
+	// Contains semantic error, in that logic 'a' and block 'a' conflict 
+	public void testGen_LRM_Ex1_b() {
+		String doc = 
+			"module mod_b;\n" +
+			"	genvar i;\n" +
+			"	logic a;\n" +
+			"	for (i=1; i<0; i=i+1) begin: a\n" +
+			"	end\n" +
+			"endmodule\n" 
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex1_b");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "mod_b");
+	}
+
+	// error -- "a" conflicts with name of previous
+	// loop even though indices are unique
+	public void testGen_LRM_Ex1_c() {
+		String doc = 
+			"module mod_c;\n" +
+			"	genvar i;\n" +
+			"	for (i=1; i<5; i=i+1) begin: a\n" +
+			"	end\n" +
+			"	for (i=10; i<15; i=i+1) begin: a\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex1_c");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "mod_c");
+	}
+
+	public void testGen_LRM_Ex2() {
+		String doc = 
+			"module gray2bin1 (bin, gray);\n" +
+			"	parameter SIZE = 8; // this module is parameterizable\n" +
+			"	output [SIZE-1:0] bin;\n" +
+			"	input [SIZE-1:0] gray;\n" +
+			"	genvar i;\n" +
+			"	generate\n" +
+			"	for (i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+			"		assign bin[i] = ^gray[SIZE-1:i];\n" +
+			"		// i refers to the implicitly defined localparam whose\n" +
+			"		// value in each instance of the generate block is\n" +
+			"		// the value of the genvar when it was elaborated.\n" +
+			"	end\n" + // 12
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex2");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "gray2bin1");
+	}
+	
+	public void testGen_LRM_Ex3() {
+		String doc = 
+		"module addergen1 (co, sum, a, b, ci);\n" +
+		"	parameter SIZE = 4;\n" +
+		"	output [SIZE-1:0] sum;\n" +
+		"	output co;\n" +
+		"	input [SIZE-1:0] a, b;\n" +
+		"	input ci;\n" +
+		"	wire [SIZE :0] c;\n" +
+		"	wire [SIZE-1:0] t [1:3];\n" +
+		"	genvar i;\n" +
+		"	assign c[0] = ci;\n" +
+		"		// Hierarchical gate instance names are:\n" +
+		"		// xor gates: bitnum[0].g1 bitnum[1].g1 bitnum[2].g1 bitnum[3].g1\n" +
+		"		// bitnum[0].g2 bitnum[1].g2 bitnum[2].g2 bitnum[3].g2\n" +
+		"		// and gates: bitnum[0].g3 bitnum[1].g3 bitnum[2].g3 bitnum[3].g3\n" +
+		"		// bitnum[0].g4 bitnum[1].g4 bitnum[2].g4 bitnum[3].g4\n" +
+		"		// or gates: bitnum[0].g5 bitnum[1].g5 bitnum[2].g5 bitnum[3].g5\n" +
+		"		// Generated instances are connected with\n" +
+		"		// multidimensional nets t[1][3:0] t[2][3:0] t[3][3:0]\n" +
+		"		// (12 nets total)\n" +
+		"	for(i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+		"		xor g1 ( t[1][i], a[i], b[i]);\n" +
+		"		xor g2 ( sum[i], t[1][i], c[i]);\n" +
+		"		and g3 ( t[2][i], a[i], b[i]);\n" +
+		"		and g4 ( t[3][i], t[1][i], c[i]);\n" +
+		"		or g5 ( c[i+1], t[2][i], t[3][i]);\n" +
+		"	end\n" +
+		"	assign co = c[SIZE];\n" +
+		"endmodule\n"
+		;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex3");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "addergen1");
+	}
+
+	public void testGen_LRM_Ex4() {
+		String doc = 
+			"module addergen1 (co, sum, a, b, ci);\n" +
+			"	parameter SIZE = 4;\n" +
+			"	output [SIZE-1:0] sum;\n" +
+			"	output co;\n" +
+			"	input [SIZE-1:0] a, b;\n" +
+			"	input ci;\n" +
+			"	wire [SIZE :0] c;\n" +
+			"	genvar i;\n" +
+			"	assign c[0] = ci;\n" +
+			"	for(i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+			"		wire t1, t2, t3;\n" +
+			"		xor g1 ( t1, a[i], b[i]);\n" +
+			"		xor g2 ( sum[i], t1, c[i]);\n" +
+			"		and g3 ( t2, a[i], b[i]);\n" +
+			"		and g4 ( t3, t1, c[i]);\n" +
+			"		or g5 ( c[i+1], t2, t3);\n" +
+			"	end\n" +
+			"	assign co = c[SIZE];\n" +
+			"endmodule\n"
+			;
+
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex4");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "addergen1");
+	}
+
+	public void testGen_LRM_Ex5() {
+		String doc =
+			"module ex5;\n" +
+			"	parameter SIZE = 2;\n" +
+			"	genvar i, j, k, m;\n" +
+			"	generate\n" +
+			"		for (i=0; i<SIZE; i=i+1) begin:B1 // scope B1[i]\n" +
+			"			M1 N1(); // instantiates B1[i].N1\n" +
+			"			for (j=0; j<SIZE; j=j+1) begin:B2 // scope B1[i].B2[j]\n" +
+			"				M2 N2(); // instantiates B1[i].B2[j].N2\n" +
+			"				for (k=0; k<SIZE; k=k+1) begin:B3 // scope B1[i].B2[j].B3[k]\n" +
+			"					M3 N3(); // instantiates\n" +
+			"				end // B1[i].B2[j].B3[k].N3\n" +
+			"			end\n" +
+			"			if (i>0) begin:B4 // scope B1[i].B4\n" +
+			"				for (m=0; m<SIZE; m=m+1) begin:B5 // scope B1[i].B4.B5[m]\n" +
+			"					M4 N4(); // instantiates\n" +
+			"				end // B1[i].B4.B5[m].N4\n" +
+			"			end\n" +
+			"		end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex5");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "ex5");
+	}
+
+	public void testGen_LRM_Ex_Cond_1() {
+		String doc =
+			"module test;\n" +
+			"	parameter p = 0, q = 0;\n" +
+			"	wire a, b, c;\n" +
+			"	if (p == 1)\n" +
+			"		if (q == 0)\n" +
+			"			begin : u1 // If p==1 and q==0, then instantiate\n" +
+			"				and g1(a, b, c); // AND with hierarchical name test.u1.g1\n" +
+			"			end\n" +
+			"		else if (q == 2)\n" +
+			"			begin : u1 // If p==1 and q==2, then instantiate\n" + // 10
+			"				or g1(a, b, c); // OR with hierarchical name test.u1.g1\n" +
+			"			end\n" +
+			"		else ; // If p==1 and q!=0 or 2, then no instantiation\n" +
+			"	else if (p == 2)\n" + // 14
+			"		case (q)\n" +
+			"			0, 1, 2:\n" +
+			"				begin : u1 // If p==2 and q==0,1, or 2, then instantiate\n" +
+			"					xor g1(a, b, c); // XOR with hierarchical name test.u1.g1\n" + // 18 
+			"				end\n" +
+			"			default:\n" +
+			"				begin : u1 // If p==2 and q!=0,1, or 2, then instantiate\n" +
+			"					xnor g1(a, b, c); // XNOR with hierarchical name test.u1.g1\n" +
+			"				end\n" +
+			"		endcase\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_ExCond_1");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "test");
+	}
+
+	public void testGen_LRM_Ex_Cond_2() {
+		String doc =
+			"module multiplier(a,b,product);\n" +
+			"	parameter a_width = 8, b_width = 8;\n" +
+			"	localparam product_width = a_width+b_width;\n" +
+			"	input [a_width-1:0] a;\n" +
+			"	input [b_width-1:0] b;\n" +
+			"	output [product_width-1:0] product;\n" +
+			"	generate\n" +
+			"		if((a_width < 8) || (b_width < 8)) begin: mult\n" +
+			"			CLA_multiplier #(a_width,b_width) u1(a, b, product);\n" +
+			"		end\n" +
+			"		else begin: mult\n" +
+			"			WALLACE_multiplier #(a_width,b_width) u1(a, b, product);\n" +
+			"		end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_ExCond_2");
+		
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "multiplier");
+	}
 
 	public void testOutputPort() {
 		
@@ -760,6 +1026,32 @@ public class TestParseModuleBodyItems extends TestCase {
 		}
 		
 		assertNotNull("Failed to find module t3", t2);
+	}
+
+	public void testParameterArrayRefExpr() {
+		
+		String doc =
+			"module t\n" +
+			"#(\n" +
+			"       parameter [1:0] a = 2'b10,\n" +
+			"       parameter b = a[1]+1\n" +
+			");\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testParameterArrayRefExpr");
+		
+		ParserTests.assertNoErrWarn(file);
+
+		SVDBModIfcClassDecl t = null;
+		for (SVDBItem it : file.getItems()) {
+			if (it.getName().equals("t")) {
+				t = (SVDBModIfcClassDecl)it;
+			}
+		}
+		
+		assertNotNull("Failed to find module t", t);
 	}
 
 	public void testMappedParameterizedModule() {

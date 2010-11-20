@@ -82,7 +82,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"			a\n"
 			;
 			
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		coreAutoIndentTest("testPostComment", content, 5, expected);
 	}

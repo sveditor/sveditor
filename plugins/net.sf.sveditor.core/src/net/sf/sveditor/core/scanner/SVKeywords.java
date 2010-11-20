@@ -262,6 +262,7 @@ public class SVKeywords {
 	
 	private static final Set<String>				fTypeNames;
 	private static final Map<String, Boolean>		fKeywordMap;
+	private static final Set<String>				fBuiltinGates;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -278,11 +279,28 @@ public class SVKeywords {
 		for (String n : fTypeStrings) {
 			fTypeNames.add(n);
 		}
+		
+		fBuiltinGates = new HashSet<String>();
+		fBuiltinGates.add("and");
+		fBuiltinGates.add("nand");
+		fBuiltinGates.add("nor");
+		fBuiltinGates.add("or");
+		fBuiltinGates.add("xor");
+		fBuiltinGates.add("xnor");
+		fBuiltinGates.add("buf"); 
+		fBuiltinGates.add("not");
+		fBuiltinGates.add("bufif0"); 
+		fBuiltinGates.add("bufif1");
+		fBuiltinGates.add("notif1");
+		fBuiltinGates.add("notif0");
 	};
 
 	public static boolean isSVKeyword(String kw) {
 		Boolean is_sv = fKeywordMap.get(kw);
 		return (is_sv != null);
+	}
+	public static boolean isBuiltinGate(String kw) {
+		return fBuiltinGates.contains(kw);
 	}
 	
 	public static boolean isVKeyword(String kw) {

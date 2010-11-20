@@ -102,11 +102,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_ENABLED_S)) {
-			if (((Boolean)event.getNewValue())) {
-				SVCorePlugin.getDefault().enableDebug(true);
-			} else {
-				SVCorePlugin.getDefault().enableDebug(false);
-			}
+			SVCorePlugin.getDefault().enableDebug(((Boolean)event.getNewValue()));
 		}
 	}
 	

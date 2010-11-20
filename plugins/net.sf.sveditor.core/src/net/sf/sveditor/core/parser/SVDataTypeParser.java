@@ -117,8 +117,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			type = builtin_type;
-		} else if (IntegerAtomType.contains(id) ||
-				id.equals("signed") || id.equals("unsigned")) {
+		} else if (IntegerAtomType.contains(id)) {
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(id);
 			
 			if (lexer().peekKeyword("signed", "unsigned")) {
@@ -183,22 +182,32 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 			}
 			type = type_fwd;
-		} else if (SVKeywords.isSVKeyword(id) && !id.equals("interface")) {
-			// ERROR: 
-			error("Invalid type name \"" + id + "\"");
-		} else if (id.equals("[")) {
-			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin("bit");
+		} else if (id.equals("[") || id.equals("signed") || id.equals("unsigned")) {
+			// Implicit items
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(
+					(id.equals("["))?"bit":id);
 			
 			// Implicit sized item
+
+			if (id.equals("[")) {
+				lexer().startCapture();
+				do {
+					lexer().skipPastMatch("[", "]");
+				} while (lexer().peekOperator("["));
+				builtin_type.setVectorDim(lexer().endCapture());
+			} else if (lexer().peekOperator("[")) {
+				lexer().startCapture();
+				do {
+					lexer().skipPastMatch("[", "]");
+				} while (lexer().peekOperator("["));
+				builtin_type.setVectorDim(lexer().endCapture());
+			}
 			
-			lexer().startCapture();
-			do {
-				lexer().skipPastMatch("[", "]");
-			} while (lexer().peekOperator("["));
-			
-			builtin_type.setVectorDim(lexer().endCapture());
 			type = builtin_type;
-			
+		} else if (SVKeywords.isSVKeyword(id) && 
+				!id.equals("interface") && !SVKeywords.isBuiltinGate(id)) {
+			// ERROR: 
+			error("Invalid type name \"" + id + "\"");
 		} else {
 			// Should be a user-defined type
 			if (lexer().peekOperator("::")) {
