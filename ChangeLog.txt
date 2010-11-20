@@ -3,6 +3,10 @@
 
 - Initial parse support for generate blocks (for, if, case)
 
+- Correct some issues with handling of clocking blocks. SVEditor is still
+  skipping over the clocking-block content, but should result in fewer 
+  parse mistakes.
+
 ------------------------------------------------------------------------------
 -- 0.2.8 Release --
 
