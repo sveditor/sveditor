@@ -35,7 +35,7 @@ public class ProgramBlockTests extends TestCase {
 				"class foo_c;\n" +
 				"endclass\n" +
 				"\n\n\n\n");
-		ISVDBFileFactory f = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory f = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = f.parse(in, "test");
 		

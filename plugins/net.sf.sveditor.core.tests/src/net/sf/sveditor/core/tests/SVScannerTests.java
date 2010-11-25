@@ -50,7 +50,7 @@ public class SVScannerTests extends TestCase {
 		};
 		int idx = 0;
 		
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists");
 
 		for (SVDBItem it : file.getItems()) {

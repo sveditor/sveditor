@@ -17,7 +17,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 public interface ISVEditor {
 	

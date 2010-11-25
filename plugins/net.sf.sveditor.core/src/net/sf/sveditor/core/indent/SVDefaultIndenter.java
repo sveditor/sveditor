@@ -69,6 +69,10 @@ public class SVDefaultIndenter implements ISVIndenter {
 		fLog = LogFactory.getLogHandle("SVDefaultIndenter");
 	}
 	
+	public void setIndentIncr(String incr) {
+		// Unimplemented in the old indenter
+	}
+	
 	public void setAdaptiveIndent(boolean adaptive) {
 		fAdaptiveIndent = adaptive;
 	}

@@ -18,7 +18,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -310,7 +309,7 @@ public class SrcCollectionBasics extends TestCase {
 				"/project_dir_src_collection_module_missing_inc/class1.svh");
 		 */
 		String file_path = new File(path, "class1.svh").getAbsolutePath();
-		SVDBFile file = index.parse(fs.openStream(file_path), file_path); 
+		/* SVDBFile file = */ index.parse(fs.openStream(file_path), file_path); 
 
 		for (SVDBItem warn : markers) {
 			System.out.println("SVDBMarkerItem: " + ((SVDBMarkerItem)warn).getMessage());

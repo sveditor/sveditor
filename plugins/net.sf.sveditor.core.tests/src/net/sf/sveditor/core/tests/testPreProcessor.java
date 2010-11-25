@@ -22,7 +22,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
-import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -53,8 +52,7 @@ public class testPreProcessor implements IApplication {
 
 		Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
 		
-		SVDBFile scen_gen = pp_map.get(new File(filename));
-		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+		/* SVDBFile scen_gen = */pp_map.get(new File(filename));
 		
 		System.out.println("--> createFileContext()");
 		// TODO: need to provide IncludeProvider

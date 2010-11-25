@@ -21,7 +21,7 @@ public class TestCompletionProcessor extends AbstractCompletionProcessor {
 	
 	private SVDBFile					fSVDBFile;
 	private ISVDBIndexIterator			fIndexIterator;
-	private boolean						fEnableKeywords;
+	//private boolean						fEnableKeywords;
 	
 	public TestCompletionProcessor(SVDBFile file, ISVDBIndexIterator iterator) {
 		fSVDBFile      = file;

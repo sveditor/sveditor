@@ -1268,7 +1268,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
-				String expr = parsers().SVParser().readExpression();
+				/*String expr = */parsers().SVParser().readExpression();
 			}
 
 		} while (lexer().peekOperator(","));
@@ -1381,7 +1381,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	private static final String fPrefixOps[] = {
-		"'", "^"
+		"'", "^", "~", "-"
 	};
 	
 	public String readExpression() throws SVParseException {
@@ -1409,6 +1409,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				}
 			} else if (!lexer().peekOperator()) {
 				lexer().eatToken();
+				// See if this is a task/function call
+				if (lexer().peekOperator("(")) {
+					lexer().skipPastMatch("(", ")");
+				} else if (lexer().peekOperator("[")) {
+					// See if this is subscripting
+					lexer().skipPastMatch("[", "]");
+				}
 			} else {
 				break;
 			}

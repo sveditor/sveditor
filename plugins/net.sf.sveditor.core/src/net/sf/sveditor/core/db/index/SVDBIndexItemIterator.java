@@ -19,7 +19,6 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 	private Stack<Iterator<SVDBItem>>	fScopeStack;

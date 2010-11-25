@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.scanner;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -129,4 +130,38 @@ public class PreProcMacroTests extends TestCase {
 		System.out.println("result: \"" + result + "\"");
 		assertEquals("class  foo_channel extends vmm_channel;", result.trim());
 	}
+	
+	public void testMacroContainingIfdef() {
+		String content =
+			"int MARKER=1;\n" +
+			"`define macro \\\n" +
+			"    `ifdef ENABLE_1\\\n" +
+			"    int A1;\\\n" +
+			"    `else\\\n" +
+			"    int B1;\\\n" +
+			"    `endif\n" +
+			"\n" +
+			"`define ENABLE_1\n" +
+			"`macro\n" +
+			"int MARKER_end=2;\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		InputStream in = new StringInputStream(content);
+		SVPreProcScanner pp_scanner = new SVPreProcScanner();
+		pp_scanner.init(in, "content");
+		SVDBPreProcObserver observer = new SVDBPreProcObserver();
+		pp_scanner.setObserver(observer);
+		pp_scanner.scan();
+		
+		SVDBFileTree ft = new SVDBFileTree(observer.getFiles().get(0));
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		mp.setFileContext(ft);
+		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
+		
+		String out = dp.expandMacro("`macro", "content", 20);
+		System.out.println("Result:\n" + out);
+		assertEquals("int A1;", out.trim());
+	}
+	
 }

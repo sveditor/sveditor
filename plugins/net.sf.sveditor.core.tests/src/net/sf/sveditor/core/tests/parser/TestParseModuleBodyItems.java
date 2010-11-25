@@ -15,8 +15,8 @@ package net.sf.sveditor.core.tests.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
@@ -30,7 +30,6 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import junit.framework.TestCase;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
@@ -159,6 +158,35 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.assertFileHasElements(file, "t2");
 	}
 
+	public void testAssignInvert() {
+		String doc = 
+			"module t;\n" +
+			"	logic a, b;\n" +
+			"	assign a = ~b; // Error!\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testAssignInvert");
+
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "t");
+	}
+	
+	public void testAssignSystemTask() {
+		String doc =
+			"module t2;\n" +
+			"	logic a, b;\n" +
+			"	assign a = $abs(1)+$abs(1); // Error!\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(doc, "testAssignSystemTask");
+
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "t2");
+	}
 
 	
 	public void testInitialBlock() {
@@ -569,7 +597,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module t3", t3);
 		
-		SVDBAlwaysBlock always_ff = null, always_comb = null;
+		// SVDBAlwaysBlock always_ff = null, always_comb = null;
 		for (SVDBItem it : t3.getItems()) {
 			System.out.println("it: " + it.getType() + " " + it.getName());
 		}

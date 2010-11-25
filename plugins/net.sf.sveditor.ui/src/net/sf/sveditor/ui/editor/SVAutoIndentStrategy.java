@@ -162,6 +162,10 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
+			
+			// Determine the appropriate indent increment
+			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
+			
 			indenter.init(scanner);
 			
 			indenter.setAdaptiveIndent(true);

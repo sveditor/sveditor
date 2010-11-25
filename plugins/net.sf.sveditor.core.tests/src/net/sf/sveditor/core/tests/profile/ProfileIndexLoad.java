@@ -14,7 +14,6 @@ package net.sf.sveditor.core.tests.profile;
 
 import java.io.File;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;

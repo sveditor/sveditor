@@ -38,9 +38,9 @@ import org.eclipse.swt.widgets.Text;
 
 public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 	private String					fSourceFolderStr;
-	private MethodologyTemplate		fTemplate;
+	// private MethodologyTemplate		fTemplate;
 	
-	private String					fNameStr;
+	// private String					fNameStr;
 
 	private Text					fSuperClass;
 	private String					fSuperClassStr;
@@ -56,7 +56,7 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 	}
 	
 	public void setTemplate(MethodologyTemplate template) {
-		fTemplate = template;
+		// fTemplate = template;
 	}
 	
 	public String getSuperClass() {
@@ -69,7 +69,7 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 	public void createControl(Composite parent) {
 		Label l;
 		
-		fNameStr = "";
+		// fNameStr = "";
 		
 		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
@@ -142,9 +142,11 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		 */
 	}
 	
+	/*
 	private void updateClassBrowseState() {
 		fSuperClassBrowse.setEnabled((findDestProject() != null));
 	}
+	 */
 	
 	private IProject findDestProject() {
 		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);

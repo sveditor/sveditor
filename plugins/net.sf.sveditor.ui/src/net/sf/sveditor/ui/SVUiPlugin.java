@@ -23,6 +23,7 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -34,9 +35,12 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -221,6 +225,43 @@ public class SVUiPlugin extends AbstractUIPlugin
 	 */
 	public static SVUiPlugin getDefault() {
 		return fPlugin;
+	}
+	
+	/** 
+	 * Get the chained preferences store from this plug-in and the Editor plug-in
+	 * 
+	 * @return
+	 */
+	public IPreferenceStore getChainedPrefs() {
+		ChainedPreferenceStore ret = new ChainedPreferenceStore(
+				new IPreferenceStore[] {
+						getPreferenceStore(),
+						EditorsUI.getPreferenceStore()
+				});
+		return ret;
+	}
+	
+	/**
+	 * Get the indent increment from the user's preferences
+	 * 
+	 * @return
+	 */
+	public String getIndentIncr() {
+		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
+		boolean spaces_for_tabs = chainedPrefs.getBoolean(
+				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS);
+		int tab_width = chainedPrefs.getInt(
+				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
+		
+		if (spaces_for_tabs) {
+			String ret = "";
+			for (int i=0; i<tab_width; i++) {
+				ret += " ";
+			}
+			return ret;
+		} else {
+			return "\t";
+		}
 	}
 	
 	

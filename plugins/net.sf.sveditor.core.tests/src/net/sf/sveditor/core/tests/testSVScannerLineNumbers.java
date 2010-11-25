@@ -18,7 +18,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -29,7 +28,7 @@ public class testSVScannerLineNumbers implements IApplication {
 		// InputStream in = Activator.openFile("data/ovm_tlm/ovm_ports.svh");
 		InputStream in = SVCoreTestsPlugin.openFile("data/tlm_imps.svh");
 		
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		SVDBFile f =  factory.parse(in, "tlm_imps.svh");
 		
 		for (SVDBItem it : f.getItems()) {

@@ -130,6 +130,44 @@ public class IndentTests extends TestCase {
 		IndentComparator.compare("testBasicModuleWire", expected, result);
 	}
 	
+	public void testNestedModule() {
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"logic b;\n" +
+			"\n" +
+			"module t1;\n" +
+			"wire a;\n" +
+			"wire b;\n" +
+			"endmodule\n" +
+			"endmodule\n" 
+			;
+		String expected =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	logic b;\n" +
+			"\n" +
+			"	module t1;\n" +
+			"		wire a;\n" +
+			"		wire b;\n" +
+			"	endmodule\n" +
+			"endmodule\n" 
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testNestedModule", expected, result);
+	}
+	
 	public void testIndentPostSingleComment() {
 		String content =
 			"class foo;\n" +					// 1

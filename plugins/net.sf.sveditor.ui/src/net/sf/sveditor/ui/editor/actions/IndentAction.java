@@ -16,8 +16,8 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVDefaultIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -75,6 +75,8 @@ public class IndentAction extends TextEditorAction {
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
 			indenter.init(scanner);
+			
+			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
 			
 			// Don't use adaptive indent if we're indenting the entire file
 			if (!full_file) {

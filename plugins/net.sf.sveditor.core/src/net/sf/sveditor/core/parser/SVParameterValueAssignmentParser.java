@@ -23,7 +23,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 	
 	public SVDBParamValueAssignList parse() throws SVParseException {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
-		StringBuilder v = new StringBuilder();
+		// StringBuilder v = new StringBuilder();
 		
 		lexer().readOperator("#");
 		lexer().readOperator("(");

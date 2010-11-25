@@ -29,7 +29,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parsers().SVParser().enter_scope("generate_if", if_blk);
 		lexer().readKeyword("if");
 		lexer().readOperator("(");
-		String cond = parsers().SVParser().readExpression();
+		/*String cond = */parsers().SVParser().readExpression();
 		lexer().readOperator(")");
 		
 		if (lexer().peekKeyword("begin")) {
@@ -90,11 +90,11 @@ public class SVGenerateBlockParser extends SVParserBase {
 		if (lexer().peekKeyword("genvar")) {
 			lexer().eatToken();
 		}
-		String init = parsers().SVParser().readExpression();
+		/*String init = */parsers().SVParser().readExpression();
 		lexer().readOperator(";");
-		String cond = parsers().SVParser().readExpression();
+		/*String cond = */parsers().SVParser().readExpression();
 		lexer().readOperator(";");
-		String incr = parsers().SVParser().readExpression();
+		/*String incr = */parsers().SVParser().readExpression();
 		lexer().readOperator(")");
 		
 		if (lexer().peekKeyword("begin")) {

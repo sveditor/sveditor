@@ -81,6 +81,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		// fAdaptiveIndent = adaptive;
 	}
 	
+	public void setIndentIncr(String incr) {
+		fIndentIncr = incr;
+	}
+	
 	public void setAdaptiveIndentEnd(int lineno) {
 		fAdaptiveIndentEnd = lineno;
 	}
@@ -432,7 +436,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("function") || tok.isId("task")) {
 				tok = indent_task_function(tok.getImage());
 				fQualifiers = 0;
-			} else if (tok.isId("class")) {
+			} else if (tok.isId("class") || tok.isId("module") || tok.isId("interface")) {
 				tok = indent_ifc_module_class(tok.getImage());
 				fQualifiers = 0;
 			} else if (tok.isId("initial") || tok.isId("always") || 

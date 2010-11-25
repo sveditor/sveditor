@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -49,8 +50,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 		fEditor = editor;
 		update();
 	}
-
-	private ITextSelection getTextSel() {
+	
+	protected ITextSelection getTextSel() {
 		ITextSelection sel = null;
 		
 		if (getTextEditor() != null) {
@@ -67,9 +68,30 @@ public class OpenDeclarationAction extends TextEditorAction {
 	@Override
 	public void run() {
 		debug("OpenDeclarationAction.run()");
-		
-		IDocument doc = fEditor.getDocumentProvider().getDocument(
-				fEditor.getEditorInput());
+
+		Tuple<SVDBItem, SVDBFile> target = findTarget();
+
+		if (target.first() != null) {
+			SVEditorUtil.openEditor(target.first());
+		} else if (target.second() != null) {
+			SVEditorUtil.openEditor(target.second().getFilePath());
+		}
+	}
+	
+	protected SVDBFile getTargetFile() {
+		return fEditor.getSVDBFile();
+	}
+	
+	protected ISVDBIndexIterator getIndexIt() {
+		return fEditor.getIndexIterator();
+	}
+	
+	protected IDocument getDocument() {
+		return fEditor.getDocumentProvider().getDocument(fEditor.getEditorInput());
+	}
+	
+	protected Tuple<SVDBItem, SVDBFile> findTarget() {
+		IDocument doc = getDocument();
 		ITextSelection sel = getTextSel();
 		
 		int offset = sel.getOffset() + sel.getLength();
@@ -85,12 +107,12 @@ public class OpenDeclarationAction extends TextEditorAction {
 		fLog.debug("Expression Context: root=" + expr_ctxt.fRoot +
 				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
 
-		ISVDBIndexIterator index_it = fEditor.getIndexIterator();
+		ISVDBIndexIterator index_it = getIndexIt();
 		
 		
 		// Now, iterate through the items in the file and find something
 		// with the same name
-		SVDBFile file = fEditor.getSVDBFile();
+		SVDBFile file = getTargetFile();
 		
 		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, getTextSel().getStartLine());
@@ -107,13 +129,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 			it = items.get(0);
 		}
 
-		if (it != null) {
-			SVEditorUtil.openEditor(it);
-		} else if (inc_file != null) {
-			SVEditorUtil.openEditor(inc_file.getFilePath());
-		}
+		return new Tuple<SVDBItem, SVDBFile>(it, inc_file);
 	}
-	
 	
 	private void debug(String msg) {
 		if (fDebugEn) {

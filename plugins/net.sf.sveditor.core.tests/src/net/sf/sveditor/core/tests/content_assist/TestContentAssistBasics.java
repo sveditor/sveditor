@@ -92,7 +92,7 @@ public class TestContentAssistBasics extends TestCase {
 			"endclass\n";
 		
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -118,7 +118,7 @@ public class TestContentAssistBasics extends TestCase {
 			"endclass\n";
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
@@ -320,7 +320,7 @@ public class TestContentAssistBasics extends TestCase {
 		
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
-		if (SVCorePlugin.getDefault().fUseParserFactory) {
+		if (SVCorePlugin.fUseParserFactory) {
 			validateResults(new String[] {"my_field1_class2", "my_field2_class2",
 					"my_field1_class1", "my_field2_class1",
 					"my_class1", "my_class2"}, proposals);
@@ -552,7 +552,7 @@ public class TestContentAssistBasics extends TestCase {
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
 		fIndex.setFile(file);

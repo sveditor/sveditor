@@ -14,6 +14,8 @@ package net.sf.sveditor.core.indent;
 
 public interface ISVIndenter {
 	
+	void setIndentIncr(String incr);
+	
 	void init(ISVIndentScanner scanner);
 	
 	String indent();

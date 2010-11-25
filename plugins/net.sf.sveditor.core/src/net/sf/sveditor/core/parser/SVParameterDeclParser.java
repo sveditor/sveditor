@@ -18,11 +18,11 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 
 public class SVParameterDeclParser extends SVParserBase {
-	private SVExprParser				fExprParser;
+	// private SVExprParser				fExprParser;
 	
 	public SVParameterDeclParser(ISVParser parser) {
 		super(parser);
-		fExprParser			= new SVExprParser(parser);
+		// fExprParser			= new SVExprParser(parser);
 	}
 	
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
@@ -34,7 +34,7 @@ public class SVParameterDeclParser extends SVParserBase {
 				// TODO: recognize parameters as typed
 				lexer().eatToken();
 			}
-			SVDBModIfcClassParam p = new SVDBModIfcClassParam(lexer().getImage());
+			// SVDBModIfcClassParam p = new SVDBModIfcClassParam(lexer().getImage());
 			
 			// TODO: {unpacked dimension}
 			

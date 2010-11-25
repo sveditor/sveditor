@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
@@ -228,7 +227,7 @@ public class TestVmmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
-		ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
+		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
 		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_item.sv");
 		
 		int ch, lineno=1;

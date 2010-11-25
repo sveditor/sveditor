@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBLocatedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBItemTestComparator {
 	private Stack<ISVDBScopeItem>			fScopeStack;

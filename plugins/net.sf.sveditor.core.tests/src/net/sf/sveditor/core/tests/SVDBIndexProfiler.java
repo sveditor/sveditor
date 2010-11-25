@@ -12,10 +12,7 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.File;
-
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 
@@ -23,11 +20,11 @@ public class SVDBIndexProfiler {
 	
 	
 	public static final void main(String args[]) {
-		File root = new File(args[0]);
+		// File root = new File(args[0]);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", args[0],
+		/* ISVDBIndex index = */ rgy.findCreateIndex("GENERIC", args[0],
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		try {

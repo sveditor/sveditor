@@ -87,7 +87,10 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	}
 
 	public void leave_preproc_conditional() {
-		fScopeStack.pop();
+		// Prevent the root scope from being removed
+		if (fScopeStack.size() > 0 && fScopeStack.peek() instanceof SVDBPreProcCond) {
+			fScopeStack.pop();
+		}
 	}
 
 	public void preproc_include(String path) {
