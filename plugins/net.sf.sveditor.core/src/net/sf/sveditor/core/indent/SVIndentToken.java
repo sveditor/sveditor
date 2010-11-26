@@ -44,9 +44,19 @@ public class SVIndentToken {
 				getImage().equals(s));
 	}
 	
-	public boolean isOp(String s) {
-		return (getType() == SVIndentTokenType.Operator &&
-				getImage().equals(s));
+	public boolean isOp(String ... s) {
+		if (getType() == SVIndentTokenType.Operator) {
+			if (s.length == 0) {
+				return true;
+			} else {
+				for (String s_i : s) {
+					if (getImage().equals(s_i)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	public boolean isPreProc() {

@@ -207,6 +207,10 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	}
 	
 	private void dump_file_tree(String type, SVDBFileTree ft) {
+		if (ft == null) {
+			fLog.debug("dump_file_tree: type=" + type + " ft=null");
+			return;
+		}
 		fLog.debug(type + ": " + ft.getFilePath());
 		
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {

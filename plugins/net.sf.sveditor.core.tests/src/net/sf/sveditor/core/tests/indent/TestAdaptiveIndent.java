@@ -245,8 +245,7 @@ public class TestAdaptiveIndent extends TestCase {
 		String expected =
 			"		if (foobar) begin\n" +															// 12
 			"			a = 6;\n" +
-			"		end\n" +
-			"\n"
+			"		end\n"
 			;
 		
 		SVIndentScanner scanner = new SVIndentScanner(

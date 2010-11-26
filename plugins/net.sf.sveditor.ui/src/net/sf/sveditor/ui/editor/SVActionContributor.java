@@ -34,6 +34,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
+	protected RetargetTextEditorAction fAddBlockCommentAction;
+	protected RetargetTextEditorAction fRemoveBlockCommentAction;
+	protected RetargetTextEditorAction fToggleCommentAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -58,6 +61,15 @@ public class SVActionContributor extends TextEditorActionContributor {
 
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
 		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
+		
+		fAddBlockCommentAction = new RetargetTextEditorAction(bundle, "AddBlockComment.");
+		fAddBlockCommentAction.setActionDefinitionId("net.sf.sveditor.ui.AddBlockComment");
+		
+		fRemoveBlockCommentAction = new RetargetTextEditorAction(bundle, "RemoveBlockComment.");
+		fRemoveBlockCommentAction.setActionDefinitionId("net.sf.sveditor.ui.RemoveBlockComment");
+		
+		fToggleCommentAction = new RetargetTextEditorAction(bundle, "ToggleComment.");
+		fToggleCommentAction.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -102,6 +114,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
 		fIndentAction.setAction(getAction(editor, "Indent"));
+		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));
+		fRemoveBlockCommentAction.setAction(getAction(editor, "RemoveBlockComment"));
+		fToggleCommentAction.setAction(getAction(editor, "ToggleComment"));
 	}
 
 	/*

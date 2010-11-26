@@ -26,6 +26,21 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+/**
+ * 
+ * @author ballance
+ *
+ * Implementation pattern:
+ * - <start_of_scope> should be called before the first token of a new scope
+ *   - provisionally sets the new indent level
+ *   - Any comments will use this indent level prior to the first real token
+ *     in the scope
+ * - <enter_scope> should be called on the first token of the new scope.
+ *   - In adaptive indent mode, synchronizes the provisional indent level
+ *     with the actual indent level
+ * - <leave_scope> should be called to exit a scope. It typically should
+ *     be called with the last token of the scope, provided that can be determined
+ */
 public class SVDefaultIndenter2 implements ISVIndenter {
 	private ISVIndentScanner				fScanner;
 	private Stack<Tuple<String, Boolean>>	fIndentStack;
@@ -353,7 +368,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private SVIndentToken indent_typedef() {
 		SVIndentToken tok = current();
 		
-		enter_scope(tok);
+		start_of_scope(tok);
 		
 		if (fDebugEn) {
 			debug("--> indent_typedef()");
@@ -362,15 +377,22 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		tok = next_s();
 		
 		if (tok.isId("enum") || tok.isId("struct")) {
-			while (!tok.isOp("{")) {
+			while (!tok.isOp("{", ";")) {
 				tok = next_s();
 			}
-
-			enter_scope(tok);
 			
-			while (!tok.isOp("}")) {
+			if (tok.isOp("{")) {
+				// Not a forward declaration
 				tok = next_s();
+				if (!tok.isOp("}")) {
+					enter_scope(tok);
+				}
+
+				while (!tok.isOp("}")) {
+					tok = next_s();
+				}
 			}
+			// Leave on the closing brace
 			leave_scope(tok);
 		}
 
@@ -439,8 +461,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("class") || tok.isId("module") || tok.isId("interface")) {
 				tok = indent_ifc_module_class(tok.getImage());
 				fQualifiers = 0;
-			} else if (tok.isId("initial") || tok.isId("always") || 
-					tok.isId("final")) {
+			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final")) {
 				enter_scope(tok);
 				tok = next_s();
 				
@@ -482,6 +503,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		
 		return tok;
+	}
+	
+	private static boolean is_always(SVIndentToken tok) {
+		return (tok.isId("always") || tok.isId("always_comb") ||
+				tok.isId("always_latch") || tok.isId("always_ff"));
 	}
 
 	private SVIndentToken indent_covergroup() {
@@ -703,7 +729,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_fork();
 		} else if (tok.isId("case")) {
 			tok = indent_case();
-		} else if (tok.isId("always")) {
+		} else if (is_always(tok) || tok.isId("initial") || tok.isId("final")) {
 			enter_scope(tok);
 			if ((tok = next_s()).isOp("@")) {
 				tok = next_s();

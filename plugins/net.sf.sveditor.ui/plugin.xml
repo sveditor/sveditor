@@ -263,6 +263,18 @@
             id="net.sf.sveditor.ui.editor.open.type.hierarchy"
             name="Open Type Hierarchy">
       </command>
+      <command
+            id="net.sf.sveditor.ui.AddBlockComment"
+            name="Add Block Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.ui.RemoveBlockComment"
+            name="Remove Block Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.ui.ToggleComment"
+            name="Toggle Comment">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -283,6 +295,30 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F4">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.indent"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+F">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.AddBlockComment"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+/">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.RemoveBlockComment"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+\">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.ToggleComment"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
       </key>
    </extension>
    <extension
@@ -313,6 +349,21 @@
                definitionId="net.sf.sveditor.ui.editor.open.type.hierarchy"
                id="net.sf.sveditor.ui.svOpenTypeHierarchyAction"
                label="Open Type Hierarchy"
+               retarget="true">
+         </action>
+         <action
+               id="net.sf.sveditor.ui.svAddBlockCommentAction"
+               label="Add Block Comment"
+               retarget="true">
+         </action>
+         <action
+               id="net.sf.sveditor.ui.svRemoveBlockCommentAction"
+               label="Remove Block Comment"
+               retarget="true">
+         </action>
+         <action
+               id="net.sf.sveditor.ui.svToggleCommentAction"
+               label="Toggle Comment"
                retarget="true">
          </action>
       </actionSet>

@@ -27,7 +27,8 @@ public class IndentComparator {
 		StringBuilder res_sb = new StringBuilder();
 		int failures = 0;
 		
-		for (int i=0; i<lines_expected.size() && i<lines_result.size(); i++) {
+		int i;
+		for (i=0; i<lines_expected.size() || i<lines_result.size(); i++) {
 			String e = (i<lines_expected.size())?lines_expected.get(i):null;
 			String r = (i<lines_result.size())?lines_result.get(i):null;
 			if (e != null && r != null) {
@@ -39,9 +40,15 @@ public class IndentComparator {
 					failures++;
 				}
 			} else {
-				System.out.println(lineno + " [ERR] expected: \"" + e + "\"");
-				System.out.println(lineno + " [ERR] result  : \"" + r + "\"");
-				failures++;
+				if (e == null && r.equals("")) {
+					System.out.println(lineno + " [OK]  \"" + r + "\" [Exp==null]");
+				} else if (r == null && e.equals("")) {
+					System.out.println(lineno + " [OK]  \"" + e + "\" [Res==null]");
+				} else {
+					System.out.println(lineno + " [ERR] expected: \"" + e + "\"");
+					System.out.println(lineno + " [ERR] result  : \"" + r + "\"");
+					failures++;
+				}
 			}
 			lineno++;
 		}

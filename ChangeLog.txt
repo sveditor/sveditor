@@ -1,3 +1,36 @@
+-- 0.3.1 Release --
+
+- (#2970554) Correct a crash due to a missing file when debug logging was
+  enabled.
+
+- (#3031087) Support CTRL+SHIFT+F binding for formatting file
+
+- Correct indenting of always_comb, always_latch, and always_ff blocks
+
+- (#3118081) Correct paste bug related to always_comb 
+
+- (#3118472) Correct outdent bug with empty enum declaration.
+
+- Correct a bug when pasting text that does not end with a newline. Previously,
+  the last token of the pasted text (eg endmodule) would often be dropped. 
+  Interestingly enough, this bug was being masked by a bug in the test
+  results comparison.
+
+- Support proper indent of forward typedef enum (eg typedef enum A;)
+
+- (#3118342) Added a workaround for interoperatbility of tabs and spaces in 
+  'insert-spaces' mode. It seems Eclipse tries to be 'smart' and insert
+  fewer spaces based on the number of preceeding tabs on the line. For example,
+  if the line starts with 1 tab, then a subsequent space-inserting tab will
+  only insert 3 spaces. If the line starts with 2 tabs, then only two
+  spaces will be inserted. 
+
+- (#3118464) Corrected a problem with content assist in an empty file
+
+- (#3115123) Initial implementation of Add/Remove Block Comment operations.
+   CTRL+SHIFT+/ comments selected block, while CTRL+SHIFT+\ uncomments block
+
+------------------------------------------------------------------------------
 
 -- 0.3.0 Release --
 

@@ -108,6 +108,11 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		int replacementOffset = p.getReplacementOffset();
 		int replacementLength = p.getReplacementLength();
 		
+		// Patch up to ensure the replacement offset doesn't extend beyond the document
+		if (replacementOffset > doc.getLength()) {
+			replacementOffset = doc.getLength();
+		}
+		
 		if (p.getItem() != null) {
 			SVDBItem it = p.getItem();
 			switch (p.getItem().getType()) {

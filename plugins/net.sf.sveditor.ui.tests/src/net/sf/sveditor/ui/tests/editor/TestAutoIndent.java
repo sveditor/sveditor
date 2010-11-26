@@ -144,12 +144,18 @@ public class TestAutoIndent extends TestCase {
 	public void testPasteModule() throws BadLocationException {
 		String first =
 			"module t();\n" +
-			"	logic a;\n" +
+			"logic a;\n" +
 			"endmodule\n";
 
 		String text =
 			"\n" +
 			"	logic a;\n"
+			;
+		String expected = 
+			"module t();\n" +
+			"	logic a;\n" +
+			"endmodule\n" +
+			"	logic a;\n" 
 			;
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
@@ -158,9 +164,60 @@ public class TestAutoIndent extends TestCase {
 		tester.paste(text);
 		
 		String content = tester.getContent();
-		
+
 		System.out.println("content=\"" + content + "\"");
+		IndentComparator.compare("testPasteModule", expected, content);
+	}
+	
+	public void testPasteAlwaysComb() throws BadLocationException {
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"\n" +
+			"always_comb begin\n" +
+			"a = 0;\n" +
+			"end\n" +
+			"endmodule\n"
+			;
+		String paste = 
+			"always_comb begin\n" +
+			"		a = 0;\n" +
+			"	end"
+			;
 		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		String result;
+		result = tester.getContent();
+		
+		// Check the initial result
+		IndentComparator.compare("testPasteAlwaysComb",
+				"module t;\n" +
+				"	logic a;\n" +
+				"\n" +
+				"	always_comb begin\n" +
+				"		a = 0;\n" +
+				"	end\n" +
+				"endmodule\n", result);
+		
+		tester.setCaretOffset(
+				("module t;\n" +
+				"	logic a;\n").length()+1);
+		
+		tester.paste(paste);
+		result = tester.getContent();
+		
+		System.out.println("result=\"" + result + "\"");
+		IndentComparator.compare("testPasteAlwaysComb",
+				"module t;\n" +
+				"	logic a;\n" +
+				"	always_comb begin\n" +
+				"		a = 0;\n" +
+				"	end\n" +
+				"	always_comb begin\n" +
+				"		a = 0;\n" +
+				"	end\n" +
+				"endmodule\n", result);
 	}
 
 	public void testModuleWires() throws BadLocationException {
@@ -250,6 +307,31 @@ public class TestAutoIndent extends TestCase {
 		
 		System.out.println("Result:\n" + content);
 		IndentComparator.compare("", expected, content);
+	}
+
+	public void testPasteModuleNoCR() throws BadLocationException {
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String first =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	always_comb begin\n" +
+			"		a = 0;\n" +
+			"	end\n" +
+			"endmodule"
+			;
+
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.paste(first);
+		
+		first += "\n";
+		
+		String content = tester.getContent();
+		
+		System.out.println("Result:\n" + content);
+		System.out.println("Expected:\n" + first);
+		IndentComparator.compare("testPasteModuleNoCR", first, content);
 	}
 
 	public void testAutoIndentIfThenElse() throws BadLocationException {
@@ -525,6 +607,85 @@ public class TestAutoIndent extends TestCase {
 
 		IndentComparator.compare("", expected, result);
 	}
+	
+	public void testBasedEmptyEnumIndent() throws BadLocationException {
+		String input =
+			"package p;\n" +
+			"typedef enum logic[1:0] {\n" +
+			"}\n"
+			;
+		String expected =
+			"package p;\n" +
+			"	typedef enum logic[1:0] {\n" +
+			"	}\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+
+		IndentComparator.compare("testBasedEnumIndent", expected, result);
+	}
+
+	public void testEnumForwardDeclIndent() throws BadLocationException {
+		String input =
+			"package p;\n" +
+			"typedef enum logic[1:0] a;\n" +
+			"logic a;\n"
+			;
+		String expected =
+			"package p;\n" +
+			"	typedef enum logic[1:0] a;\n" +
+			"	logic a;\n";
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+
+		IndentComparator.compare("testBasedEnumIndent", expected, result);
+	}
+
+	public void testBasedEnumIndent() throws BadLocationException {
+		String input =
+			"package p;\n" +
+			"typedef enum logic[1:0] {\n" +
+			"A,\n" +
+			"B,\n" +
+			"}\n"
+			;
+		String expected =
+			"package p;\n" +
+			"	typedef enum logic[1:0] {\n" +
+			"		A,\n" +
+			"		B,\n" +
+			"	}\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+
+		IndentComparator.compare("testBasedEnumIndent", expected, result);
+	}
+	
+	public void testProperIndentEndPackage() throws BadLocationException {
+		String input =
+			"package p;\r\n" +
+			"typedef enum logic[1:0] {\r\n" +
+			"e0, e1, e2, e3\r" +
+    		"} e;\r\n" +
+    		"endpackage\r\n" +
+    		"\r\n" +
+    		"module t1;\r\n" +
+    		"endmodule\r\n" +
+    		"\r\n";
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+		
+		System.out.println("Result:\n" + result);
+	}
 
 	public void disabled_testModifyIndent() throws BadLocationException {
 		int offset1, offset2;
@@ -561,5 +722,6 @@ public class TestAutoIndent extends TestCase {
 		assertEquals("Check for expected indent", expected, content);
 		
 	}
+	
 	
 }

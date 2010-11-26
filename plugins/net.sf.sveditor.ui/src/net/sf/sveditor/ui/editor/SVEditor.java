@@ -42,10 +42,13 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
+import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
@@ -348,6 +351,24 @@ public class SVEditor extends TextEditor
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
 		
+		AddBlockCommentAction add_block_comment = new AddBlockCommentAction(
+				bundle, "AddBlockComment.", this);
+		add_block_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".AddBlockComment");
+		add_block_comment.setEnabled(true);
+		setAction(SVUiPlugin.PLUGIN_ID + ".svAddBlockCommentAction", add_block_comment);
+		
+		RemoveBlockCommentAction remove_block_comment = new RemoveBlockCommentAction(
+				bundle, "RemoveBlockComment.", this);
+		remove_block_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".RemoveBlockComment");
+		remove_block_comment.setEnabled(true);
+		setAction(SVUiPlugin.PLUGIN_ID + ".svRemoveBlockCommentAction", remove_block_comment);
+		
+		ToggleCommentAction toggle_comment = new ToggleCommentAction(bundle, "ToggleComment.", this);
+		toggle_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
+		// TODO: Toggle requires more investigation on how to implement
+		toggle_comment.setEnabled(false);
+		toggle_comment.configure(getSourceViewer(), getSourceViewerConfiguration());
+		setAction(SVUiPlugin.PLUGIN_ID + ".svToggleCommentAction", toggle_comment);
 		
 		OverrideTaskFuncAction ov_tf_action = new OverrideTaskFuncAction(
 				bundle, "OverrideTaskFunc.", this);

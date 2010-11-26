@@ -70,7 +70,13 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			if (line_cnt == 0) {
 				return;
 			}
-			
+
+			// If the pasted text doesn't end with a CR, then dummy up
+			// an extra line
+			if (cmd.text.charAt(cmd.text.length()-1) != '\n') {
+				line_cnt++;
+			}
+
 			fLog.debug("Document line start=" + lineno);
 			
 			StringBuilder doc_str = new StringBuilder();
@@ -130,12 +136,31 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentOnKeypress(IDocument doc, DocumentCommand cmd) {
 		StringBuilder doc_str = new StringBuilder();
 		boolean indent_newline;
+		
+		System.out.println("indentOnKeypress: cmd.text=\"" + cmd.text + "\"");
+		
 
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
 		} else if (cmd.text.length() == 1) {
 			indent_newline = false;
 		} else {
+			// If the actual text is longer than 1, then it's pretty likely
+			// that the editor is trying (nicely) to expand tabs for us
+			if (cmd.text.length() > 1 && cmd.text.trim().equals("")) {
+				String incr = SVUiPlugin.getDefault().getIndentIncr();
+				if (!incr.equals("\t")) {
+					int indent_len = incr.length();
+					if ((cmd.text.length() % indent_len) != 0) {
+						int new_mul = (cmd.text.length() / indent_len) + 1;
+						String new_text = "";
+						for (int i=0; i<new_mul; i++) {
+							new_text += incr;
+						}
+						cmd.text = new_text;
+					}
+				}
+			}
 			return;
 		}
 
@@ -254,9 +279,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 
 	private boolean isLineDelimiter(IDocument document, String text) {
 		String[] delimiters= document.getLegalLineDelimiters();
-		if (delimiters != null)
+		if (delimiters != null) {
 			return TextUtilities.equals(delimiters, text) > -1;
-			return false;
+		}
+		return false;
 	}
-	
 }
