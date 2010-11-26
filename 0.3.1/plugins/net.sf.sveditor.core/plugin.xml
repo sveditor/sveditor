@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="SVLibraries" name="SystemVerilog Libraries" schema="schema/SVLibraries.exsd"/>
+   <extension-point id="SVDBIndexFactories" name="SVDB Index Factory extension point" schema="schema/SVDBIndexFactories.exsd"/>
+   <extension-point id="SVMethodologyTemplates" name="SVEditor Methodology Templates" schema="schema/SVMethodologyTemplates.exsd"/>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="v, vl, vlog, sv, svh, vh"
+            id="systemverilog"
+            name="SystemVerilog"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
+      </content-type>
+   </extension>
+   <extension
+         id="SVNature"
+         name="SystemVerilog Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="net.sf.sveditor.core.SVProjectNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVLibraries">
+      <SVLibrary
+            default="true"
+            id="net.sf.sveditor.sv_builtin"
+            name="SystemVerilog Builtin Types"
+            path="sv_builtin/sv_builtin.sv">
+         <description>
+            OVM 2.0.1 library from http://ovmworld.org
+         </description>
+      </SVLibrary>
+   </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="plugin">
+         <run
+               class="net.sf.sveditor.core.db.index.plugin_lib.PluginFilesystem">
+         </run>
+      </filesystem>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVDBIndexFactories">
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory"
+            id="net.sf.sveditor.pluginLibIndex">
+      </SVDBIndexFactory>
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory"
+            id="net.sf.sveditor.sourceCollectionIndex">
+      </SVDBIndexFactory>
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory"
+            id="net.sf.sveditor.libIndex">
+      </SVDBIndexFactory>
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory"
+            id="net.sf.sveditor.argFileIndex">
+      </SVDBIndexFactory>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVMethodologyTemplates">
+      <methodologyCategory
+            id="org.ovmworld.ovm"
+            name="Open Verification Methodology">
+      </methodologyCategory>
+      <methodologyTemplate
+            category="org.ovmworld.ovm"
+            id="net.sf.sveditor.core.ovmSequenceTemplate"
+            name="OVM Sequence"
+            superclass="ovm_sequence"
+            superclass_selectable="true"
+            templateFile="templates/OVM/ovm_sequence_template.svh">
+         <description>
+            OVM Sequence class template
+         </description>
+      </methodologyTemplate>
+      <methodologyTemplate
+            category="org.ovmworld.ovm"
+            id="net.sf.sveditor.core.ovm_component_template"
+            name="OVM Component"
+            superclass="ovm_component"
+            superclass_selectable="true"
+            templateFile="templates/OVM/ovm_component_template.svh">
+         <description>
+            OVM Component-based class
+         </description>
+      </methodologyTemplate>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.core.resources.IProject"
+            class="net.sf.sveditor.core.SVProjectDataAdapter">
+         <adapter
+               type="net.sf.sveditor.core.db.project.SVDBProjectData">
+         </adapter>
+      </factory>
+   </extension>
+
+</plugin>
