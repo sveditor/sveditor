@@ -37,7 +37,7 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 	public ScanLocation getLocation() {
 		return new ScanLocation(fFilename, fLineno, 0);
 	}
-
+	
 	public int get_ch() {
 		int ch = -1;
 		

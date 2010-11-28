@@ -319,22 +319,25 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		SVDBFileTree file_tree = fFileTreeMap.get(path);
 
 		if (file_tree == null) {
-			fLog.error("parse: File \"" + path + "\" not in FileTreeMap of " + getResolvedBaseLocation());
-			for (SVDBFileTree ft : fFileTreeMap.values()) {
-				fLog.error("    " + ft.getFilePath());
+			// First, see if the file actually exists
+			if (getFileSystemProvider().fileExists(path)) {
+				// invalidate the index
+				rebuildIndex();
+				
+				// Ensure database is built
+				getFileDB();
+				
+				file_tree = fFileTreeMap.get(path);
+			} else {
+				fLog.error("parse: File \"" + path + "\" not in FileTreeMap of " + getResolvedBaseLocation() + " and does not exist");
+				return null;
 			}
 			
-			// Create an entry if possible
-			SVDBFile svdb_f = findPreProcFile(path);
-			
-			if (svdb_f != null) {
-				file_tree = new SVDBFileTree((SVDBFile)svdb_f.duplicate());
-			} else {
-				debug("path \"" + path + "\" not in FileTree map");
+			if (file_tree == null) {
+				fLog.error("parse: File \"" + path + "\" not in FileTreeMap of " + getResolvedBaseLocation());
 				for (SVDBFileTree ft : fFileTreeMap.values()) {
-					debug("    " + ft.getFilePath());
+					fLog.error("    " + ft.getFilePath());
 				}
-				return null;
 			}
 		}
 

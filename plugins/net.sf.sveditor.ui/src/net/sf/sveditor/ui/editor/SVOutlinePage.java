@@ -92,7 +92,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (IShowInTarget.class.equals(adapter)) {
 			return this;

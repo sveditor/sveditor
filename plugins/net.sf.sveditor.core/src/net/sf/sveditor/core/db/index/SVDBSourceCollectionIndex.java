@@ -219,10 +219,12 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	}
 	
 	private void dump_down(SVDBFileTree ft, int indent) {
-		String indent_s = "";
+		String indent_s;
+		StringBuilder indent_sb = new StringBuilder();
 		for (int i=0; i<indent; i++) {
-			indent_s += "  ";
+			indent_sb.append("  ");
 		}
+		indent_s = indent_sb.toString();
 		
 		fLog.debug(indent_s + "IncFile: " + ft.getFilePath());
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {

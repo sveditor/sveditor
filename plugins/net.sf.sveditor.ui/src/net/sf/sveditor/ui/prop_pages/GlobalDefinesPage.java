@@ -157,7 +157,6 @@ public class GlobalDefinesPage implements ISVProjectPropsPage,
 	}
 
 	public Object[] getElements(Object inputElement) {
-		System.out.println("elements array is: " + fDefineList.size() + " long");
 		return fDefineList.toArray();
 	}
 

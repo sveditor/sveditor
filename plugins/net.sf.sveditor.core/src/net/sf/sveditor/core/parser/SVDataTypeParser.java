@@ -250,6 +250,11 @@ public class SVDataTypeParser extends SVParserBase {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
 				((SVDBTypeInfoUserDef)type).setParameters(plist);
 			}
+			
+			// A sized enum is allowed to have a duplicate bit-width assigned
+			if (lexer().peekOperator("[")) {
+				lexer().skipPastMatch("[", "]");
+			}
 		}
 		
 		if (type == null) {

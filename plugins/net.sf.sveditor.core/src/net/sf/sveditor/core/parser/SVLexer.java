@@ -646,6 +646,15 @@ public class SVLexer extends SVToken {
 	private int get_ch() {
 		int ch = fScanner.get_ch();
 		
+		// Convert all '\r' sequences to '\n'
+		if (ch == '\r') {
+			int ch2 = fScanner.get_ch();
+			if (ch2 != '\n') {
+				fScanner.unget_ch(ch2);
+			}
+			ch = '\n';
+		}
+		
 		return ch; 
 	}
 	

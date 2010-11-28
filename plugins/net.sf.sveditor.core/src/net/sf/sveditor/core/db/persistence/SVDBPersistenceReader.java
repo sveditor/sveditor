@@ -365,7 +365,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		
 		size = readRawInt();
 		
-		ch = getch(); // expect '>'
+		/* ch = */ getch(); // expect '>'
 		
 		if (size == -1) {
 			return null;

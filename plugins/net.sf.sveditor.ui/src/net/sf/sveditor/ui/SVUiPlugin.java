@@ -64,6 +64,10 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public static final String					CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
 	public static final String					SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
 	
+	// Preference override for testing. Sets the number of spaces a  
+	// tab is equivalent to
+	private String								fInsertSpaceTestOverride;
+	
 	
 	/**
 	 * The constructor
@@ -115,6 +119,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		if (type == ILogListener.Type_Error) {
 			out = getStderrStream();
+		} else if (type == ILogListener.Type_Info) {
+			out = getStdoutStream();
 		} else if (SVCorePlugin.getDefault().getDebugEn()) {
 			if ((type & ILogListener.Type_Error) != 0) {
 				out = getStderrStream();
@@ -253,14 +259,18 @@ public class SVUiPlugin extends AbstractUIPlugin
 		int tab_width = chainedPrefs.getInt(
 				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
 		
-		if (spaces_for_tabs) {
-			String ret = "";
-			for (int i=0; i<tab_width; i++) {
-				ret += " ";
-			}
-			return ret;
+		if (fInsertSpaceTestOverride != null) {
+			return fInsertSpaceTestOverride;
 		} else {
-			return "\t";
+			if (spaces_for_tabs) {
+				String ret = "";
+				for (int i=0; i<tab_width; i++) {
+					ret += " ";
+				}
+				return ret;
+			} else {
+				return "\t";
+			}
 		}
 	}
 	

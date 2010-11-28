@@ -33,9 +33,8 @@ public class SVProjectDataAdapter implements IAdapterFactory {
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class[] getAdapterList() {
-		System.out.println("getAdapterList");
 		return new Class[] {
 				IProject.class
 		};

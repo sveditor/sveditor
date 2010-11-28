@@ -1,3 +1,24 @@
+
+-- 0.3.2 Release --
+
+- (#3118954) Correct a parse error with sized references to an enum type
+
+- (#3118954) Correct a problem parsing content after a package declaration
+
+- (#3118945) Add a filter to the editor to gracefully deal with files that 
+  contain \r-delimited lines. Generally, this results when a file created on
+  the Windows OS is mangled in some form. \r-delimited lines will be 
+  automatically transformed to \r\n-delimited lines and a message will be 
+  displayed in the console.
+
+- Fix an issue with FileSystem indexing, where adding a new file to the 
+  FileSystem and attempting to open it causes the index to report that
+  the file "isn't in the FileTree Map". Solve by re-building the index
+  whenever a file is opened that exists on the FileSystem but isn't in the
+  FileTreeMap
+
+------------------------------------------------------------------------------
+
 -- 0.3.1 Release --
 
 - (#2970554) Correct a crash due to a missing file when debug logging was

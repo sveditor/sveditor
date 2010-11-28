@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -33,9 +34,12 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	public List<String> getMarkers() {
 		List<String> ret = new ArrayList<String>();
 		
-		for (List<String> t : fMarkersMap.values()) {
-			ret.addAll(t);
+		System.out.println("==> getMarkers()");
+		for (Entry<String, List<String>> e : fMarkersMap.entrySet()) {
+			System.out.println("Entry : " + e.getKey() + " " + e.getValue().size());
+			ret.addAll(e.getValue());
 		}
+		System.out.println("<== getMarkers()");
 		
 		return ret;
 	}
@@ -44,15 +48,17 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 		fFSProvider.addFileSystemChangeListener(l);
 	}
 
-	public void addMarker(String path, String type, int lineno, String msg) {
-		System.out.println("SaveMarkersFileSystemProvider.addMarker: " + msg);
+	public synchronized void addMarker(String path, String type, int lineno, String msg) {
+		System.out.println("SaveMarkersFileSystemProvider.addMarker: " + msg + "(" + path + ")");
 		if (!fMarkersMap.containsKey(path)) {
 			fMarkersMap.put(path, new ArrayList<String>());
 		}
 		fMarkersMap.get(path).add(msg);
 
 		fFSProvider.addMarker(path, type, lineno, msg);
+		System.out.println("==> Now " + fMarkersMap.size() + " markers");
 	}
+	
 
 	public void clearMarkers(String path) {
 		fFSProvider.clearMarkers(path);

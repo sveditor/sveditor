@@ -621,6 +621,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				fScopeStack.pop();
 			}
 			lexer().readKeyword("endpackage");
+			setNewStatement();
 			
 			// Handled named package end-block
 			if (lexer().peekOperator(":")) {

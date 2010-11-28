@@ -137,9 +137,6 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		StringBuilder doc_str = new StringBuilder();
 		boolean indent_newline;
 		
-		System.out.println("indentOnKeypress: cmd.text=\"" + cmd.text + "\"");
-		
-
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
 		} else if (cmd.text.length() == 1) {

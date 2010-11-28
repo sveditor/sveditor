@@ -55,7 +55,6 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 		fProjectWrapper = project_wrapper;
 		
 		fLibraryPaths.clear();
-		System.out.println("LibraryPathsPage: " + fProjectWrapper.getLibraryPaths().size());
 		for (SVDBPath p : fProjectWrapper.getLibraryPaths()) {
 			fLibraryPaths.add(p.duplicate());
 		}

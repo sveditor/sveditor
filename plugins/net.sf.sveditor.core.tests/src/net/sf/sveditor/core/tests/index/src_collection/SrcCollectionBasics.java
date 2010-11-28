@@ -13,11 +13,15 @@
 package net.sf.sveditor.core.tests.index.src_collection;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -53,7 +57,6 @@ public class SrcCollectionBasics extends TestCase {
 			fTmpDir = null;
 		}
 	}
-	
 	
 	public void testFindSourceRecursePkg() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -478,6 +481,87 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", class1.getName());
+	}
+
+	public void testFSNewFileAdded() throws IOException {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			project_dir.delete();
+		}
+		
+		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(project_dir);
+		
+		File path = new File(project_dir, "project_dir_src_collection_module");
+		ISVDBIndex index = rgy.findCreateIndex(
+				project_dir.getName(), path.getAbsolutePath(), 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		SVDBItem top=null, top_t=null, sub=null;
+		SVDBItem class1 = null;
+		SVDBItem class3 = null;
+		SVDBItem def_function = null;
+		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		
+		while (it.hasNext()) {
+			SVDBItem tmp_it = it.nextItem();
+			
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
+			
+			if (tmp_it.getName().equals("class1")) {
+				class1 = tmp_it;
+			} else if (tmp_it.getName().equals("top")) {
+				top = tmp_it;
+			} else if (tmp_it.getName().equals("top_t")) {
+				top_t = tmp_it;
+			} else if (tmp_it.getName().equals("sub")) {
+				sub = tmp_it;
+			} else if (tmp_it.getName().equals("class3")) {
+				class3 = tmp_it;
+			} else if (tmp_it.getName().equals("def_function")) {
+				def_function = tmp_it;
+			} else if (tmp_it.getType() == SVDBItemType.Marker) {
+				markers.add(tmp_it);
+			}
+		}
+
+		for (SVDBItem warn : markers) {
+			System.out.println("SVDBMarkerItem: " + 
+					((SVDBMarkerItem)warn).getMessage());
+		}
+		
+		assertEquals("Confirm no warnings", 0, markers.size());
+		assertNotNull("located class1", class1);
+		assertNotNull("located class3", class3);
+		assertNotNull("located top", top);
+		assertNotNull("located top_t", top_t);
+		assertNotNull("located sub", sub);
+		assertNotNull("located def_function", def_function);
+		assertEquals("class1", class1.getName());
+		
+		// Now, create a new file
+		PrintStream out = new PrintStream(new File(project_dir, "project_dir_src_collection_module/new_class.svh"));
+		out.println("class new_class;");
+		out.println("    int i;");
+		out.println("endclass");
+		out.close();
+		
+		// Now, try opening the new file
+		String new_class_path = new File(project_dir, 
+				"project_dir_src_collection_module/new_class.svh").getAbsolutePath();
+		FileInputStream in = new FileInputStream(
+				new File(project_dir, "project_dir_src_collection_module/new_class.svh"));				
+		SVDBFile new_class_file = index.parse(in, new_class_path);
+		
+		assertNotNull(new_class_file);
 	}
 
 }

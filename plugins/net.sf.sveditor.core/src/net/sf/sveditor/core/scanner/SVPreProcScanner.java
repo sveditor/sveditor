@@ -697,6 +697,20 @@ public class SVPreProcScanner implements ISVScanner {
 	}
 	
 	private int get_ch_ll() {
+		int ch = get_ch_ll_1();
+		
+		if (ch == '\r') {
+			int ch2 = get_ch_ll_1();
+			if (ch2 != '\n') {
+				unget_ch(ch2);
+			}
+			ch = '\n';
+		}
+		
+		return ch;
+	}
+	
+	private int get_ch_ll_1() {
 		int ch = -1;
 		
 		if (fUngetCh != -1) {

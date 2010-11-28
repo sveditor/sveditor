@@ -2,42 +2,6 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension
-         id="testSVScannerLineNumbers"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="singleton-global"
-            thread="main"
-            visible="true">
-         <run
-               class="net.sf.sveditor.core.tests.testSVScannerLineNumbers">
-         </run>
-      </application>
-   </extension>
-   <extension
-         id="testPreProcessor"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="singleton-global"
-            thread="main"
-            visible="true">
-         <run
-               class="net.sf.sveditor.core.tests.testPreProcessor">
-         </run>
-      </application>
-   </extension>
-   <extension
-         id="testPersistence"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="singleton-global"
-            thread="main"
-            visible="true">
-         <run
-               class="net.sf.sveditor.core.tests.SVDBPersistence">
-         </run>
-      </application>
-   </extension>
-   <extension
          point="net.sf.sveditor.core.SVLibraries">
       <SVLibrary
             default="false"
@@ -50,6 +14,12 @@
             id="org.vmmcentral.vmm"
             name="VMM Library"
             path="vmm/sv/vmm_lib.sv">
+      </SVLibrary>
+      <SVLibrary
+            default="false"
+            id="org.uvmworld.uvm"
+            name="OVM Library"
+            path="uvm/src/uvm_pkg.sv">
       </SVLibrary>
    </extension>
 

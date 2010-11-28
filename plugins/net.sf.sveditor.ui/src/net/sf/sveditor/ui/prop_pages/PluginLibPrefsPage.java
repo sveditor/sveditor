@@ -70,7 +70,6 @@ public class PluginLibPrefsPage implements ISVProjectPropsPage,
 				}
 			}
 			
-			System.out.println("lib=" + lib.getId() + " sel=" + sel);
 			if (!fPluginLibViewer.setChecked(lib, (sel != -1))) {
 				System.out.println("Failed to set checked state");
 			}
@@ -93,7 +92,6 @@ public class PluginLibPrefsPage implements ISVProjectPropsPage,
 		
 		for (int i=0; i<fPluginLibs.size(); i++) {
 			if (fPluginLibViewer.getChecked(fPluginLibs.get(i))) {
-				System.out.println("saving lib " + fPluginLibs.get(i).getId());
 				SVDBPath p = new SVDBPath(fPluginLibs.get(i).getId(), false);
 				fProjectWrapper.getPluginPaths().add(p);
 			}

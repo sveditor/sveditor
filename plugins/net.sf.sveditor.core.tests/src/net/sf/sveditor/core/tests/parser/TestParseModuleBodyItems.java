@@ -33,6 +33,26 @@ import net.sf.sveditor.core.db.SVDBVarDeclItem;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
+	public void testPackageModule() {
+		String content =
+			"package p;\r\n" +
+		    "typedef enum logic[1:0] {\r\n" +
+		    "    e0, e1, e2, e3\r    } e;" +
+			"endpackage\r\n" +
+			"\r\n" +
+			"module t1\r\n" +
+			"	(\r\n" +
+		    "    input e [1:0] eee // No parse error.\r    );\r\n" +
+		    "endmodule\r\n"
+		    ;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = ParserTests.parse(content, "testPackageModule");
+
+		ParserTests.assertNoErrWarn(file);
+		ParserTests.assertFileHasElements(file, "p", "t1");
+	}
+	
 	public void testModuleSizedParameter() {
 		String content = 
 			"module t\n" +

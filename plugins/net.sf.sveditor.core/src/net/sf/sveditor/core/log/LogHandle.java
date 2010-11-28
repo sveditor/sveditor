@@ -37,6 +37,10 @@ public class LogHandle implements ILogHandle {
 		fListener.message(this, type, level, msg);
 	}
 	
+	public void note(String msg) {
+		println(ILogListener.Type_Info, 0, msg);
+	}
+	
 	public void debug(String msg) {
 		println(ILogListener.Type_Debug, fDebugLevel, 
 				(fIndent > 0)?(indent(fIndent) + msg):msg);

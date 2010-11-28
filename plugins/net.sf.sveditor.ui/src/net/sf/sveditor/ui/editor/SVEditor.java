@@ -134,6 +134,30 @@ public class SVEditor extends TextEditor
 		
 		fSVDBFile = new SVDBFile(fFile);
 		
+		// Fixup documents that have \r and not \r\n
+		IDocument doc = getDocument();
+		int idx=0;
+		int replacements=0;
+		try {
+			while (idx < doc.getLength()) {
+				int ch = doc.getChar(idx);
+				if (ch == '\r') {
+					if (idx+1 < doc.getLength() && doc.getChar(idx+1) != '\n') {
+						doc.replace(idx, 1, "\r\n");
+						replacements++;
+					} else if (idx+1 >= doc.getLength()) {
+						// Insert a final '\n'
+						doc.replace(idx, 1, "\r\n");
+						replacements++;
+					}
+				}
+				idx++;
+			}
+		} catch (BadLocationException e) {}
+		if (replacements > 0) {
+			fLog.note("Replaced " + replacements + " occurrences of '\\r' without '\\n' in file " + fFile);
+		}
+		
 		// Hook into the SVDB management structure
 		initSVDBMgr();
 		
@@ -242,8 +266,10 @@ public class SVEditor extends TextEditor
 					
 					mgr.addProjectSettingsListener(this);
 				} else {
-					// Check whether another 
+					// Check whether another
+					fLog.debug("URI instance: " + uri_in.getClass().getName());
 					fSVDBFilePath = SVFileUtils.normalize(uri_in.getURI().getPath());
+					fLog.debug("Normalizing file \"" + uri_in.getURI().getPath() + "\" to \"" + fSVDBFilePath + "\"");
 					fLog.debug("File \"" + fSVDBFilePath + "\" is outside the workspace");
 					
 					fIndexMgr = null;
@@ -601,7 +627,7 @@ public class SVEditor extends TextEditor
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter.equals(IContentOutlinePage.class)) {
 			if (fOutline == null) {

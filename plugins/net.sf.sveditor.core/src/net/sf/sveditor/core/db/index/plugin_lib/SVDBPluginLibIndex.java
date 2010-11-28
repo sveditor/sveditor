@@ -66,9 +66,11 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 		fRootFile = root;
 		fPluginNS = plugin_ns;
 		
+		/*
 		if (!root.startsWith("/")) {
 			root = "/" + root;
 		}
+		 */
 		fBundle = Platform.getBundle(fPluginNS);
 	}
 	
