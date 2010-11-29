@@ -132,6 +132,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			List<SVDBFile> ppFiles, 
 			List<SVDBFile> dbFiles) throws DBFormatException {
 		fLoadUpToDate = true;
+		fLog.debug("load - ppFiles.size=" + ppFiles.size() + " dbFiles.size=" + dbFiles.size());
 		
 		// Read back the Global Defines. Project settings will already
 		// be set.  
@@ -154,11 +155,14 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		load_base(index_data, ppFiles, dbFiles);
 		
 		if (isLoaded()) {
+			fLog.debug("Index is loaded... Loading markers and FileTreeMap");
 			loadMarkers();
 			
 			SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());
 			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 			buildPreProcFileMap(null, ft_root);
+		} else {
+			fLog.debug("Index is not loaded...");
 		}
 	}
 	
@@ -326,6 +330,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 				
 				// Ensure database is built
 				getFileDB();
+				getFileTreeMap();
 				
 				file_tree = fFileTreeMap.get(path);
 			} else {
@@ -338,6 +343,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 				for (SVDBFileTree ft : fFileTreeMap.values()) {
 					fLog.error("    " + ft.getFilePath());
 				}
+				return null;
 			}
 		}
 

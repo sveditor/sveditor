@@ -281,7 +281,6 @@ public class SVEditor extends TextEditor
 					fLog.debug("File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
 				}
 			}
-			
 		} else {
 			fLog.error("SVEditor input is of type " + ed_in.getClass().getName());
 		}
@@ -581,6 +580,15 @@ public class SVEditor extends TextEditor
 	 */
 	@SuppressWarnings("unchecked")
 	private void clearErrors() {
+		/*
+		System.out.println("getDocumentProvider: " + getDocumentProvider());
+		System.out.println("getEditorInput: " + getEditorInput());
+		System.out.println("getAnnotationMode: " + getDocumentProvider().getAnnotationModel(getEditorInput()));
+		 */
+		if (getDocumentProvider() == null || getEditorInput() == null ||
+				getDocumentProvider().getAnnotationModel(getEditorInput()) == null) {
+			return;
+		}
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 		
 		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
@@ -597,6 +605,11 @@ public class SVEditor extends TextEditor
 	 * Add error annotations from the 
 	 */
 	private void addErrorMarkers() {
+		// Mostly used in testing mode
+		if (getDocumentProvider() == null || getEditorInput() == null ||
+				getDocumentProvider().getAnnotationModel(getEditorInput()) == null) {
+			return;
+		}
 		clearErrors();
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 		

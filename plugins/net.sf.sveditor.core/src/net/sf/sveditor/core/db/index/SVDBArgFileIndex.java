@@ -90,6 +90,8 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		fArgFileLastModified = index_data.readLong();
 		fLoadUpToDate = true;
 		
+		fLog.debug("load - pp_files.size=" + pp_files.size() + " db_files.size=" + db_files.size());
+		
 		// Read back the Global Defines. Project settings will already
 		// be set.  
 		int n_defines = index_data.readInt();
@@ -105,15 +107,21 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				fLoadUpToDate = false;
 			}
 		}
-		
+
+		// Load up file paths from the .f target 
+		initPaths();
+
 		load_base(index_data, pp_files, db_files);
 		
 		if (isLoaded()) {
+			fLog.debug("Index is loaded... Loading markers and FileTreeMap");
 
 			// re-build the FileTree structure
 			for (String file : fFilePaths) {
 				file = resolvePath(file);
 				SVDBFile pp_file = findPreProcFile(file);
+				
+				fLog.debug("    Building FileTree for \"" + file + "\"");
 				
 				if (pp_file == null) {
 					fLog.error("Failed to find pre-proc file \"" + file + "\"");
@@ -125,6 +133,8 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			}
 			
 			loadMarkers();
+		} else {
+			fLog.debug("Index is not loaded...");
 		}
 	}
 
@@ -237,6 +247,7 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 				fDefineMap.put(entry.getKey(), entry.getValue());
 			}
 			
+			fFileSystemProvider.closeStream(in);
 		} else {
 			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
 		}

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.tests.utils;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,6 +20,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -83,7 +88,7 @@ public class BundleUtils {
 		 */
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void copyBundleDirToFS(
 			String			bundle_dir,
 			File			fs_path) {
@@ -130,8 +135,56 @@ public class BundleUtils {
 			}
 		}
 	}
+	
+	public void unpackBundleZipToFS(
+			String			bundle_path,
+			File			fs_path) {
+		URL zip_url = fBundle.getEntry(bundle_path);
+		TestCase.assertNotNull(zip_url);
+		
+		if (!fs_path.isDirectory()) {
+			TestCase.assertTrue(fs_path.mkdirs());
+		}
+		
+		try {
+			InputStream in = zip_url.openStream();
+			TestCase.assertNotNull(in);
+			byte tmp[] = new byte[4*1024];
+			int cnt;
 
-	@SuppressWarnings("unchecked")
+			ZipInputStream zin = new ZipInputStream(in);
+			ZipEntry ze;
+
+			while ((ze = zin.getNextEntry()) != null) {
+				// System.out.println("Entry: \"" + ze.getName() + "\"");
+				File entry_f = new File(fs_path, ze.getName());
+				if (ze.getName().endsWith("/")) {
+					// Directory
+					continue;
+				}
+				if (!entry_f.getParentFile().exists()) {
+					TestCase.assertTrue(entry_f.getParentFile().mkdirs());
+				}
+				FileOutputStream fos = new FileOutputStream(entry_f);
+				BufferedOutputStream bos = new BufferedOutputStream(fos, tmp.length);
+				
+				while ((cnt = zin.read(tmp, 0, tmp.length)) > 0) {
+					bos.write(tmp, 0, cnt);
+				}
+				bos.flush();
+				bos.close();
+				fos.close();
+			
+				zin.closeEntry();
+			}
+			zin.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			TestCase.fail("Failed to unpack zip file: " + e.getMessage());
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
 	public void copyBundleDirToWS(
 			String			bundle_dir,
 			IContainer		ws_path) {

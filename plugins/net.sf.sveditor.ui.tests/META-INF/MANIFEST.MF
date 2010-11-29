@@ -11,6 +11,7 @@ Require-Bundle: org.junit;bundle-version="3.8.2",
  org.eclipse.ui.editors;bundle-version="3.5.0",
  net.sf.sveditor.ui;bundle-version="1.2.3",
  net.sf.sveditor.core;bundle-version="1.2.3",
- net.sf.sveditor.core.tests;bundle-version="1.2.3"
+ net.sf.sveditor.core.tests;bundle-version="1.2.3",
+ org.eclipse.core.resources;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

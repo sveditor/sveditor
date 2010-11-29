@@ -23,6 +23,7 @@ import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
 import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
+import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
 
 public class UiReleaseTests extends TestSuite {
@@ -30,6 +31,7 @@ public class UiReleaseTests extends TestSuite {
 	public UiReleaseTests() {
 		addTest(new TestSuite(TestAutoIndent.class));
 		addTest(new TestSuite(TestOverrideMethods.class));
+		addTest(new TestSuite(TestUserLevelOperations.class));
 	}
 	
 	@Override
@@ -37,8 +39,6 @@ public class UiReleaseTests extends TestSuite {
 		SVCorePlugin.getDefault().enableDebug(false);
 		super.run(result);
 	}
-
-
 
 	@Override
 	public void runTest(Test test, TestResult result) {

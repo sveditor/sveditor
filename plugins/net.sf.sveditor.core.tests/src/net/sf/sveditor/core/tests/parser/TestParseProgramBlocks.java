@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseProgramBlocks extends TestCase {
 	
@@ -39,7 +40,7 @@ public class TestParseProgramBlocks extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
 		for (SVDBItem it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
@@ -75,7 +76,7 @@ public class TestParseProgramBlocks extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
 		for (SVDBItem it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {

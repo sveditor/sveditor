@@ -114,7 +114,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		test_dir.mkdirs();
 		
-		utils.copyBundleDirToFS("/uvm/", test_dir);
+		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File xbus = new File(test_dir, "uvm/examples/xbus");
 		
 		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
@@ -162,7 +162,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		test_dir.mkdirs();
 		
-		utils.copyBundleDirToFS("/ovm/", test_dir);
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File trivial = new File(test_dir, "ovm/examples/trivial");
 		
 		/* IProject project_dir = */ TestUtils.createProject("trivial", trivial);
@@ -210,7 +210,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		test_dir.mkdirs();
 		
-		utils.copyBundleDirToFS("/ovm/", test_dir);
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File basic_read_write_sequence = new File(test_dir, "ovm/examples/sequence/basic_read_write_sequence");
 		
 		/* IProject project_dir = */ TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
@@ -265,7 +265,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		test_dir.mkdirs();
 		
-		utils.copyBundleDirToFS("/ovm/", test_dir);
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File simple = new File(test_dir, "ovm/examples/sequence/simple");
 		
 		/* IProject project_dir = */ TestUtils.createProject("simple", simple);

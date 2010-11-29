@@ -149,12 +149,14 @@ public class SVEditorUtil {
 						fs = EFS.getFileSystem("plugin");
 						store = fs.getStore(new URI(file));
 					} catch (Exception e) {
+						fLog.error("Failed to get plugin for " + file, e);
 						e.printStackTrace();
 					}
 
 					try {
 						ed_in = new PluginPathEditorInput((PluginFileStore)store);
 					} catch (CoreException e) {
+						fLog.error("Failed to create PluginPathEditorInput", e);
 						e.printStackTrace();
 					}
 				} else {
@@ -167,6 +169,7 @@ public class SVEditorUtil {
 				ret = w.getActivePage().openEditor(ed_in, desc.getId());
 
 			} catch (PartInitException e) {
+				fLog.error("Failed to initialize part", e);
 				e.printStackTrace();
 			}
 		} else {

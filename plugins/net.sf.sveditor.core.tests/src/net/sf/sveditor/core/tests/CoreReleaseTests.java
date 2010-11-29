@@ -12,10 +12,16 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogListener;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
@@ -25,7 +31,24 @@ import net.sf.sveditor.core.tests.preproc.TestPreProc;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 
-public class CoreReleaseTests extends TestSuite {
+public class CoreReleaseTests extends TestSuite implements ILogListener {
+	
+	private static List<Exception>		fErrors = new ArrayList<Exception>();
+	
+	static {
+		LogFactory.getDefault().addLogListener(new ILogListener() {
+			@Override
+			public void message(ILogHandle handle, int type, int level, String message) {
+				if (type == ILogListener.Type_Error) {
+					try {
+						throw new Exception("[" + handle.getName() + "] " + message);
+					} catch (Exception e) {
+						fErrors.add(e);
+					}
+				}
+			}
+		});
+	}
 	
 	public CoreReleaseTests() {
 		addTest(new TestSuite(SVScannerTests.class));
@@ -39,14 +62,25 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(SrcGenTests.suite());
 	}
 	
+	public static List<Exception> getErrors() {
+		return fErrors;
+	}
+	
+	public static void clearErrors() {
+		fErrors.clear();
+	}
+	
+	
 	@Override
 	public void run(TestResult result) {
 		SVCorePlugin.getDefault().enableDebug(false);
 		// TODO Auto-generated method stub
 		super.run(result);
 	}
-
-
+	
+	@Override
+	public void message(ILogHandle handle, int type, int level, String message) {
+	}
 
 	@Override
 	public void runTest(Test test, TestResult result) {

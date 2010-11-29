@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -56,6 +57,7 @@ public class TestGlobalDefine extends TestCase {
 
 	public void testLibIndexGlobalDefine() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		CoreReleaseTests.clearErrors();
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -81,10 +83,12 @@ public class TestGlobalDefine extends TestCase {
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 	public void testArgFileIndexGlobalDefine() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		CoreReleaseTests.clearErrors();
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -110,25 +114,28 @@ public class TestGlobalDefine extends TestCase {
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 	public void testSourceCollectionIndexGlobalDefine() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		CoreReleaseTests.clearErrors();
 		
-		IProject project_dir = TestUtils.createProject("project");
+		String pname = "project";
+		IProject project_dir = TestUtils.createProject(pname);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			assertTrue(db.delete());
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(db);
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(pname, 
 				"${workspace_loc}/project/basic_lib_global_defs",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
@@ -139,11 +146,15 @@ public class TestGlobalDefine extends TestCase {
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 	private void int_testGlobalDefine(
 			SVDBProjectData				project_data,
 			ISVDBIndex					index) {
+		CoreReleaseTests.clearErrors();
+		
 		// Add the definition that we'll check for
 		SVProjectFileWrapper p_wrap = project_data.getProjectFileWrapper().duplicate();
 		p_wrap.getGlobalDefines().add(new Tuple<String, String>("ENABLE_CLASS1", ""));
@@ -164,6 +175,6 @@ public class TestGlobalDefine extends TestCase {
 		}
 		
 		assertNotNull("Expect to find \"class1\"", class1_it);
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
-			
 }

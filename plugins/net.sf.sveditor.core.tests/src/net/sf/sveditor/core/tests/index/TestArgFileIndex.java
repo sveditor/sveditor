@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -88,11 +89,12 @@ public class TestArgFileIndex extends TestCase {
 	}
 	
 	public void testEnvVarExpansion() throws IOException {
+		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		final IProject project_dir = TestUtils.createProject("project");
+		final IProject project_dir = TestUtils.createProject("testEnvVarExpansion_project");
 		
 		utils.copyBundleDirToWS("/data/arg_file_env_var/", project_dir);
 		
@@ -105,7 +107,7 @@ public class TestArgFileIndex extends TestCase {
 		rgy.init(fTmpDir);
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
-				"${workspace_loc}/project/arg_file_env_var/arg_file_env_var.f", 
+				"${workspace_loc}/testEnvVarExpansion_project/arg_file_env_var/arg_file_env_var.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		SVCorePlugin.setenv("EXT_LIB", fTmpDir.getAbsolutePath() + "/ext_lib");
 		
@@ -151,6 +153,7 @@ public class TestArgFileIndex extends TestCase {
 		assertNotNull(class2);
 		assertNotNull(ext_pkg_1);
 		assertNotNull(ext_pkg_2);
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 }

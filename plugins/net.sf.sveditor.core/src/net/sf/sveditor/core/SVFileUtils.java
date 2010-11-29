@@ -41,7 +41,16 @@ public class SVFileUtils {
 	}
 	
 	public static String normalize(String path) {
-		return fWinPathPattern.matcher(path).replaceAll("/");
+		path = fWinPathPattern.matcher(path).replaceAll("/");
+		if (path.length() >= 3 && path.charAt(0) == '/' &&
+				Character.isLetter(path.charAt(1)) &&
+				path.charAt(2) == ':') {
+			// If this is a windows path prefixed with '/', 
+			// fix up:
+			// /C:/foo => C:/foo
+			path = path.substring(1);
+		}
+		return path;
 	}
 	
 	public static IContainer getWorkspaceFolder(String path) {

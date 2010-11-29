@@ -48,17 +48,23 @@ public class LogFactory implements ILogListener {
 	}
 
 	public void addLogListener(ILogListener l) {
-		fLogListeners.add(l);
+		synchronized (fLogListeners) {
+			fLogListeners.add(l);
+		}
 	}
 	
 	public void removeLogListener(ILogListener l) {
-		fLogListeners.remove(l);
+		synchronized (fLogListeners) {
+			fLogListeners.remove(l);
+		}
 	}
 
 
 	public void message(ILogHandle handle, int type, int level, String message) {
-		for (ILogListener l : fLogListeners) {
-			l.message(handle, type, level, message);
+		synchronized (fLogListeners) {
+			for (ILogListener l : fLogListeners) {
+				l.message(handle, type, level, message);
+			}
 		}
 	}
 	

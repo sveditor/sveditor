@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
 	
@@ -48,10 +49,10 @@ public class TestParseClassBodyItems extends TestCase {
 			"    task foo_task();\n" +
 			"    endtask\n" +
 			"endclass\n";
-		SVDBFile file = ParserTests.parse(content, "testTaskFunction");
+		SVDBFile file = SVDBTestUtils.parse(content, "testTaskFunction");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, 
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, 
 				"foobar", "foo_func", "foo_func_e", "foo_task");
 	}
 
@@ -77,10 +78,10 @@ public class TestParseClassBodyItems extends TestCase {
 			"    task foo_task();\n" +
 			"    endtask\n" +
 			"endclass\n";
-		SVDBFile file = ParserTests.parse(content, "testTypedClassParameters");
+		SVDBFile file = SVDBTestUtils.parse(content, "testTypedClassParameters");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, 
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, 
 				"foobar", "foo_func", "foo_func_e", "foo_task");
 	}
 
@@ -94,7 +95,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"    endfunction\n" + // endfunction without : <name>
 			"\n" +
 			"endclass\n";
-		SVDBFile file = ParserTests.parse(content, "testFunctionVirtualIfcParam");
+		SVDBFile file = SVDBTestUtils.parse(content, "testFunctionVirtualIfcParam");
 		
 		SVDBModIfcClassDecl foobar_c = null;
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
@@ -110,8 +111,8 @@ public class TestParseClassBodyItems extends TestCase {
 			}
 		}
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "foo_func");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo_func");
 
 		assertEquals("Errors", 0, errors.size());
 		
@@ -151,10 +152,10 @@ public class TestParseClassBodyItems extends TestCase {
 		"\n" +
 		"endclass\n";
 	
-		SVDBFile file = ParserTests.parse(content, "testClassFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassFields");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file,
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file,
 				"__sv_builtin_covergroup_options",
 				"weight", "goal", "name", "comment",
 				"at_least", "detect_overlap", 
@@ -183,7 +184,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"endclass\n"
 			;
 			
-		SVDBFile file = ParserTests.parse(content, "testBuiltinExternTasks");
+		SVDBFile file = SVDBTestUtils.parse(content, "testBuiltinExternTasks");
 		
 		SVDBModIfcClassDecl process = null;
 		for (SVDBItem it : file.getItems()) {
@@ -223,7 +224,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl cg_options = null;
 		for (SVDBItem it : file.getItems()) {
@@ -261,7 +262,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"endclass\n"
 			;
 
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
 		for (SVDBItem it : file.getItems()) {
@@ -309,7 +310,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"endclass\n"
 			;
 
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
 		for (SVDBItem it : file.getItems()) {
@@ -368,7 +369,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"endclass\n"
 			;
 
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
 		for (SVDBItem it : file.getItems()) {
@@ -405,7 +406,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"endclass\n"
 			;
 
-		SVDBFile file = ParserTests.parse(content, "testEmptyConstraint");
+		SVDBFile file = SVDBTestUtils.parse(content, "testEmptyConstraint");
 		
 		SVDBModIfcClassDecl foobar = null;
 		for (SVDBItem it : file.getItems()) {

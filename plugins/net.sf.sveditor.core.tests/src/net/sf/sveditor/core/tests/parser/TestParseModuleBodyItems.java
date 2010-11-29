@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
@@ -47,10 +48,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		    ;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(content, "testPackageModule");
+		SVDBFile file = SVDBTestUtils.parse(content, "testPackageModule");
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "p", "t1");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "p", "t1");
 	}
 	
 	public void testModuleSizedParameter() {
@@ -61,9 +62,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule\n";
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleSizedParameter");
 
-		ParserTests.assertNoErrWarn(file);
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t = null;
 		for (SVDBItem it : file.getItems()) {
@@ -82,9 +83,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	genvar k;\n" +
 			"endmodule\n";
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(content, "testModuleSizedParameter");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleSizedParameter");
 
-		ParserTests.assertNoErrWarn(file);
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t4 = null;
 		for (SVDBItem it : file.getItems()) {
@@ -106,9 +107,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule\n"
 			;
-		SVDBFile file = ParserTests.parse(content, "testModuleInterfacePort");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleInterfacePort");
 
-		ParserTests.assertNoErrWarn(file);
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t = null;
 		for (SVDBItem it : file.getItems()) {
@@ -131,9 +132,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
 
-		SVDBFile file = ParserTests.parse(content, "testModuleInterfacePort");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleInterfacePort");
 
-		ParserTests.assertNoErrWarn(file);
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t3 = null;
 		for (SVDBItem it : file.getItems()) {
@@ -156,10 +157,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(content, "testModuleSignedPort");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleSignedPort");
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "t5");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t5");
 	}
 
 	public void testModuleSizedSignedPort() {
@@ -172,10 +173,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(content, "testModuleSizedSignedPort");
+		SVDBFile file = SVDBTestUtils.parse(content, "testModuleSizedSignedPort");
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "t2");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t2");
 	}
 
 	public void testAssignInvert() {
@@ -187,10 +188,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testAssignInvert");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAssignInvert");
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "t");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 	
 	public void testAssignSystemTask() {
@@ -202,10 +203,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testAssignSystemTask");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAssignSystemTask");
 
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "t2");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t2");
 	}
 
 	
@@ -224,7 +225,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testInitialBlock");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testInitialBlock");
 		
 		SVDBModIfcClassDecl top = null;
 		for (SVDBItem it : file.getItems()) {
@@ -265,7 +266,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testPortList");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testPortList");
 		
 		for (SVDBItem it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
@@ -341,7 +342,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testTypedPortList");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
 		for (SVDBItem it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
@@ -391,7 +392,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testAlwaysBlock");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -431,7 +432,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testAlwaysBlock");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -471,7 +472,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule";
 
-		SVDBFile file = ParserTests.parse(doc, "testAlwaysBlock");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -504,7 +505,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testParameterDeclaration");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterDeclaration");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -546,7 +547,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testParameterExprInit");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterExprInit");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -593,7 +594,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testAlwaysVariants");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysVariants");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -633,7 +634,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testGenVars");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGenVars");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -670,10 +671,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGenVars");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGenVars");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "mod_a");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mod_a");
 	}
 
 	// Contains semantic error, in that both loops use the same index 
@@ -688,10 +689,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGenVars");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGenVars");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "mod_a");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mod_a");
 	}
 
 	// Contains semantic error, in that logic 'a' and block 'a' conflict 
@@ -705,10 +706,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n" 
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex1_b");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex1_b");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "mod_b");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mod_b");
 	}
 
 	// error -- "a" conflicts with name of previous
@@ -724,10 +725,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex1_c");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex1_c");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "mod_c");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mod_c");
 	}
 
 	public void testGen_LRM_Ex2() {
@@ -748,10 +749,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex2");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex2");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "gray2bin1");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "gray2bin1");
 	}
 	
 	public void testGen_LRM_Ex3() {
@@ -787,10 +788,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		;
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex3");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex3");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "addergen1");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "addergen1");
 	}
 
 	public void testGen_LRM_Ex4() {
@@ -816,10 +817,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex4");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex4");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "addergen1");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "addergen1");
 	}
 
 	public void testGen_LRM_Ex5() {
@@ -846,10 +847,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_Ex5");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex5");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "ex5");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "ex5");
 	}
 
 	public void testGen_LRM_Ex_Cond_1() {
@@ -882,10 +883,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_ExCond_1");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_ExCond_1");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "test");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "test");
 	}
 
 	public void testGen_LRM_Ex_Cond_2() {
@@ -908,10 +909,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testGen_LRM_ExCond_2");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_ExCond_2");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "multiplier");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "multiplier");
 	}
 	
 	public void testClocking_LRM_Ex1() {
@@ -923,10 +924,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testClocking_LRM_Ex1");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testClocking_LRM_Ex1");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "test");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "test");
 	}
 	
 	public void testClocking_DR() {
@@ -938,10 +939,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testClocking_DR");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testClocking_DR");
 		
-		ParserTests.assertNoErrWarn(file);
-		ParserTests.assertFileHasElements(file, "control_if");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "control_if");
 	}
 
 	public void testOutputPort() {
@@ -952,7 +953,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testTypedInitializedParameterDecl");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedInitializedParameterDecl");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -989,7 +990,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testUntypedInputPort");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testUntypedInputPort");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -1038,7 +1039,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	// Parsing incorrectly at the interface modport\n" +
 			"endmodule\n";	
 
-		SVDBFile file = ParserTests.parse(doc, "testModportPort");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testModportPort");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -1081,7 +1082,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule\n";			
 
-		SVDBFile file = ParserTests.parse(doc, "testTypedInitializedParameterDecl");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedInitializedParameterDecl");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -1118,9 +1119,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = ParserTests.parse(doc, "testParameterArrayRefExpr");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterArrayRefExpr");
 		
-		ParserTests.assertNoErrWarn(file);
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t = null;
 		for (SVDBItem it : file.getItems()) {
@@ -1141,7 +1142,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVDBFile file = ParserTests.parse(doc, "testMappedParameterizedModule");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -1177,7 +1178,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	endmodule\n"
 			;
 			
-		SVDBFile file = ParserTests.parse(doc, "testMappedParameterizedModule");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		for (SVDBItem it : file.getItems()) {
@@ -1228,7 +1229,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n";
 
 		SVDBFile target_file = new SVDBFile("testMappedParameterizedModule");
-		SVDBFile file = ParserTests.parse(doc, "testMappedParameterizedModule");
+		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
 		
 		SVDBFileMerger.merge(target_file, file, null, null, null);
 		

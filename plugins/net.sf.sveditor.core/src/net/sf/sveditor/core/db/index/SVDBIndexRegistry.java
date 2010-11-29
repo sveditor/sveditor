@@ -73,12 +73,11 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fDatabaseDescMap.clear();
 		if (state_location != null) {
 			fDatabaseDir = new File(state_location, "db");
-			fGlobalIndexMgr = getGlobalIndexMgr();
-
 			load_database_descriptors();
 		} else {
 			fDatabaseDir = null;
 		}
+		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
 	
 	public List<ISVDBIndex> getProjectIndexList(String project) {
@@ -181,12 +180,13 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	public boolean loadPersistedData(String project, ISVDBIndex index) {
-		fLog.debug("loadPersistedData: " + index.getBaseLocation());
+		fLog.debug("loadPersistedData: " + index.getBaseLocation() + "(project=" + project + ")");
 		
 		String base_location = index.getBaseLocation();
 		SVDBPersistenceDescriptor desc = null;
 		
 		if (!fDatabaseDescMap.containsKey(project)) {
+			fLog.debug("    Project isn't in the database");
 			return false;
 		}
 		
@@ -200,6 +200,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		}
 		
 		if (desc != null) {
+			fLog.debug("    Found persistence record");
 			SVDBLoad loader = new SVDBLoad();
 			InputStream in = null;
 			boolean loaded = false;
@@ -239,11 +240,13 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			
 			return loaded;
 		} else {
+			fLog.debug("    Failed to find persistence record");
 			return false;
 		}
 	}
 	
 	private void load_database_descriptors() {
+		fLog.debug("load_database_descriptors");
 		if (fDatabaseDir != null && fDatabaseDir.exists()) {
 			SVDBLoad loader = new SVDBLoad();
 			
@@ -288,6 +291,8 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					fDatabaseDescMap.put(project_name, db_desc);
 				}
 			}
+		} else {
+			fLog.debug("Database location does not exist");
 		}
 	}
 	

@@ -102,6 +102,7 @@ public class TestNewClassGen extends TestCase {
 				
 				IndentComparator.compare("testNewClassBasics", 
 						expected.trim(), content.trim());
+				in.close();
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {
@@ -151,9 +152,9 @@ public class TestNewClassGen extends TestCase {
 			File tmpdir = new File(fTmpDir, "no_errors");
 
 			if (tmpdir.exists()) {
-				tmpdir.delete();
+				assertTrue(tmpdir.delete());
 			}
-			tmpdir.mkdirs();
+			assertTrue(tmpdir.mkdirs());
 			
 			SVDBIndexCollectionMgr index_it = SrcGenTests.createIndex(doc);
 
@@ -166,6 +167,7 @@ public class TestNewClassGen extends TestCase {
 				
 				IndentComparator.compare("testNewClassSuperCtor", 
 						expected.trim(), content.trim());
+				in.close();
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {
@@ -231,6 +233,7 @@ public class TestNewClassGen extends TestCase {
 				
 				IndentComparator.compare("testNewClassTemplateSuper", 
 						expected.trim(), content.trim());
+				in.close();
 			} catch (CoreException e) {
 				fail("Caught exception: " + e.getMessage());
 			} catch (IOException e) {

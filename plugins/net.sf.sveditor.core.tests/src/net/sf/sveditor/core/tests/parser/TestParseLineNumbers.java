@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseLineNumbers extends TestCase {
 	
@@ -30,7 +31,7 @@ public class TestParseLineNumbers extends TestCase {
 			"\n" +					// 6
 			"\n"					// 7
 			;
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl cls = null;
 
@@ -65,7 +66,7 @@ public class TestParseLineNumbers extends TestCase {
 			"\n" +									// 16
 			"\n"									// 17
 			;
-		SVDBFile file = ParserTests.parse(content, "testClassStringFields");
+		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl cls = null;
 

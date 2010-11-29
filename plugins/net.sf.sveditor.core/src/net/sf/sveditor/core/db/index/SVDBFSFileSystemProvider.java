@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,7 +53,9 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		InputStream in = null;
 		
 		try {
-			in = new FileInputStream(path);
+			InputStream t_in = new FileInputStream(path);
+			// in = new BufferedInputStream(t_in, 4*1024);
+			in = t_in;
 		} catch (IOException e) { }
 		
 		return in;

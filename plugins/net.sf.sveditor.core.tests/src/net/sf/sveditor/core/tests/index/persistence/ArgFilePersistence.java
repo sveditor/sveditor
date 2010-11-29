@@ -77,7 +77,7 @@ public class ArgFilePersistence extends TestCase
 		}
 		test_dir.mkdirs();
 		
-		utils.copyBundleDirToFS("/ovm/", test_dir);
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
 		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
