@@ -31,13 +31,12 @@ import net.sf.sveditor.core.tests.preproc.TestPreProc;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 
-public class CoreReleaseTests extends TestSuite implements ILogListener {
+public class CoreReleaseTests extends TestSuite {
 	
 	private static List<Exception>		fErrors = new ArrayList<Exception>();
 	
 	static {
 		LogFactory.getDefault().addLogListener(new ILogListener() {
-			@Override
 			public void message(ILogHandle handle, int type, int level, String message) {
 				if (type == ILogListener.Type_Error) {
 					try {
@@ -78,10 +77,6 @@ public class CoreReleaseTests extends TestSuite implements ILogListener {
 		super.run(result);
 	}
 	
-	@Override
-	public void message(ILogHandle handle, int type, int level, String message) {
-	}
-
 	@Override
 	public void runTest(Test test, TestResult result) {
 		SVCorePlugin.getDefault().enableDebug(false);

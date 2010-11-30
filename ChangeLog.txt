@@ -17,6 +17,9 @@
   whenever a file is opened that exists on the FileSystem but isn't in the
   FileTreeMap
 
+- (#3121178) Correct a windows-path issue that caused an opened file to
+  be associated with the wrong index, and consequently an internal error.
+
 ------------------------------------------------------------------------------
 
 -- 0.3.1 Release --

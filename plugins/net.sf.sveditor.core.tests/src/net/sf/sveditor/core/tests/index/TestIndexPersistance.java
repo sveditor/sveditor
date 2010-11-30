@@ -38,11 +38,8 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		}
 	}
 
-	
-	@Override
 	public void index_changed(int reason, SVDBFile file) {}
 
-	@Override
 	public void index_rebuilt() {
 		fRebuildCount++;
 	}
