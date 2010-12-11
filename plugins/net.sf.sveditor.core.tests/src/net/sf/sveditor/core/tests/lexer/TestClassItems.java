@@ -63,7 +63,7 @@ public class TestClassItems extends TestCase {
 			
 			public void error(String msg) {}
 			
-			public void debug(String msg) {}
+			public void debug(String msg, Exception e) {}
 		};
 		lexer.init(parser, new StringTextScanner(content));
 		

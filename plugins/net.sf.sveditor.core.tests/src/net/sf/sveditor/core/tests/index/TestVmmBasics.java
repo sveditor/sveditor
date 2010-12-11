@@ -105,6 +105,7 @@ public class TestVmmBasics extends TestCase {
 	
 	public void testEthernetExample() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		File test_dir = new File(fTmpDir, "testEthernetExample");
 		if (test_dir.exists()) {

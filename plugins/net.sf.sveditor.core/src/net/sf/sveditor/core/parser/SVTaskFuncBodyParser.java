@@ -30,6 +30,9 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 		String decl_keywords_ansi[] = {"const", "var", "automatic", "static", "typedef"};
 		String decl_keywords_nonansi[] = {"const", "var", "automatic", "static", "typedef", "input", "output", "inout", "ref"};
 		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
+		debug("--> SVTaskFuncBodyParser: " + lexer().peek());
+		
+		debug("SVTaskFuncBodyParse: is_ansi=" + is_ansi);
 		
 		decl_keywords = (is_ansi)?decl_keywords_ansi:decl_keywords_nonansi;
 		
@@ -41,22 +44,26 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 				if (lexer().peekKeyword(decl_keywords) || 
 						(SVKeywords.isBuiltInType(lexer().peek()) && !lexer().peekKeyword("void")) ||
 						lexer().isIdentifier()) {
+					
 					// Variable declarations
 					id = lexer().eatToken(); // should be beginning of type declaration
-
+					
 					if ((lexer().peekKeyword() && !lexer().peekKeyword(decl_keywords_nonansi)) ||
 							(lexer().peekOperator() && !lexer().peekOperator("#"))) {
 						// likely a statement
 						break;
 					}
 
+					debug("Pre-var parse: " + id);
 					List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
+					debug("Result is " + vars.size() + " vars");
 					tf.addItems(vars);
 				} else if (lexer().peekKeyword("typedef")) {
 					// TODO: permit local type declaration
 					break;
 				} else {
 					// time to move on to the body
+					debug("time to move on: " + lexer().peek());
 					break;
 				}
 			} catch (SVParseException e) {
@@ -79,8 +86,11 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			} else if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
-				id = lexer().eatToken();
+				parsers().behavioralBlockParser().parse();
+				// id = lexer().eatToken();
 			}
 		}
+		
+		debug("<-- SVTaskFuncBodyParser: " + lexer().peek());
 	}
 }

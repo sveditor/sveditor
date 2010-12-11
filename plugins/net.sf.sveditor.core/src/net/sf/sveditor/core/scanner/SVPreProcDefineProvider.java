@@ -27,6 +27,7 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private static final boolean		fDebugEn				= false;
+	private static final boolean		fDebugChEn				= false;
 	private boolean						fDebugUndefinedMacros	= false;
 	private String						fFilename;
 	private int							fLineno;
@@ -360,6 +361,11 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					if (fDebugEn) {
 						debug("    post-skip (): ch=" + (char)ch);
 					}
+				} else if (ch == '{') {
+					ch = scanner.skipPastMatch("{}");
+					if (fDebugEn) {
+						debug("    post-skip {}: ch=" + (char)ch);
+					}
 				}
 			} while (ch != -1 && ch != ',' && ch != ')');
 			
@@ -413,16 +419,20 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			params.add(param.trim());
 			
 			// Skip over the parameter-separator or the closing paren
+			debug("    Try Skip: next ch=" + (char)ch);
 			if (ch == ',' || ch == ')') {
 				ch = scanner.get_ch();
 			}
 		}
 		
+		scanner.unget_ch(ch);
+		
 		if (fDebugEn) {
 			for (String s : params) {
 				debug("Param: \"" + s + "\"");
 			}
-			debug("<-- parse_params(" + m.getName() + ") => " + params.size());
+			debug("<-- parse_params(" + m.getName() + ") => " + params.size() +
+					" trailing ch=" + (char)ch);
 		}
 		
 		return params;
@@ -496,13 +506,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		while ((ch = scanner.get_ch()) != -1) {
 			iteration++;
 			
-			if (fDebugEn) {
+			if (fDebugChEn) {
 				debug("ch=\"" + (char)ch + "\"");
 			}
 			if (ch == '`') {
 				int macro_start = scanner.getOffset()-1;
 				int ch2 = scanner.get_ch();
-				if (fDebugEn) {
+				if (fDebugChEn) {
 					debug("    ch2=\"" + (char)ch2 + "\"");
 				}
 				if (ch2 == '`') {
@@ -602,7 +612,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								}
 								expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
 								sub_p = parse_params(sub_m, scanner);
-//								scanner.get_ch();
+								ch = scanner.get_ch();
 							}
 							m_end = scanner.getOffset();
 						} else {
@@ -610,6 +620,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						}
 						
 						// Now, expand this macro
+						if (fDebugEn) {
+							debug("post-param parse: ch=" + (char)ch);
+						}
 						if (ch != -1) {
 							// Back up if we didn't end by exhausing the buffer. 
 							// We don't want to replace the character following the macro

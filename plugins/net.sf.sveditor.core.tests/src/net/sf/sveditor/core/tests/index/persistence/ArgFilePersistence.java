@@ -70,6 +70,7 @@ public class ArgFilePersistence extends TestCase
 	
 	public void testOVMXbusDirectDumpLoad() throws DBFormatException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File test_dir = new File(fTmpDir, "testOVMXbusDirectDumpLoad");
 		if (test_dir.exists()) {

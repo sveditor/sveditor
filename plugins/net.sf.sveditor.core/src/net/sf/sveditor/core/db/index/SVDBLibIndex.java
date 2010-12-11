@@ -22,6 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
@@ -46,6 +52,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	protected String								fResolvedRoot;
 	protected SVPreProcDefineProvider				fDefineProvider;
 	protected List<String>							fIncludePaths;
+	private String									fBaseLocationDir;
 	
 	public SVDBLibIndex(
 			String 					project, 
@@ -70,6 +77,13 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	
 	public String getTypeName() {
 		return "LibraryIndex";
+	}
+	
+	private String getResolvedBaseLocationDir() {
+		if (fBaseLocationDir == null) {
+			fBaseLocationDir = SVFileUtils.getPathParent(getResolvedBaseLocation());
+		}
+		return fBaseLocationDir;
 	}
 	
 	protected void initPaths() {
@@ -249,7 +263,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		for (String inc_dir : fIncludePaths) {
 			String inc_path = inc_dir + "/" + path;
 
-			fLog.debug("inc_path=\"" + inc_path + "\"");
+			fLog.debug("Include Path: \"" + inc_path + "\"");
 
 			Map<String, SVDBFile> pp_map = fPreProcFileMap; // FileMap in progress
 
@@ -272,6 +286,16 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 				}
 			}
 		}
+		
+		String res_path = resolvePath(path);
+		
+		if (fFileSystemProvider.fileExists(res_path)) {
+			SVDBFile pp_file = null;
+			if ((pp_file = processPreProcFile(res_path, true)) != null) {
+				return new SVDBSearchResult<SVDBFile>(pp_file, this);
+			}
+		}
+		
 		
 		return null;
 	}
@@ -762,7 +786,124 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		debug("findPreProcFile \"" + path + "\"");
 		return getPreProcFileMap().get(path);
 	}
-	
+
+	protected String resolvePath(String path_orig) {
+		String path = path_orig;
+		String norm_path = null;
+
+		// relative to the base location
+		if (path.startsWith("..")) {
+			for (String inc_path : fIncludePaths) {
+				// path = getResolvedBaseLocationDir() + "/" + path;
+				path = inc_path + "/" + path;
+				norm_path = normalizePath(path);
+
+				if (fFileSystemProvider.fileExists(norm_path)) {
+					break;
+				} else if (getBaseLocation().startsWith("${workspace_loc}") && 
+						!fFileSystemProvider.fileExists(norm_path)) {
+					// This could be a reference outside the workspace. Check
+					// whether we should reference this as a filesystem path 
+					// by computing the absolute path
+					String base_loc = getResolvedBaseLocationDir();
+					base_loc = base_loc.substring("${workspace_loc}".length());
+
+					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+					IContainer base_dir = null;
+					try {
+						base_dir = root.getFolder(new Path(base_loc));
+					} catch (IllegalArgumentException e) {}
+
+					if (base_dir == null) {
+						base_dir = root.getProject(base_loc.substring(1));
+					}
+
+					if (base_dir != null && base_dir.exists()) {
+						IPath base_dir_p = base_dir.getLocation();
+						if (base_dir_p != null) {
+							File path_f_t = new File(base_dir_p.toFile(), path_orig);
+							try {
+								if (path_f_t.exists()) {
+									fLog.debug("Path does exist outside the project: " + path_f_t.getCanonicalPath());
+									norm_path = SVFileUtils.normalize(path_f_t.getCanonicalPath());
+									break;
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		} else {
+			if (path.equals(".")) {
+				path = getResolvedBaseLocationDir();
+			} else if (path.startsWith(".")) { 
+				path = getResolvedBaseLocationDir() + "/" + path.substring(2);
+			} else {
+				if (!fFileSystemProvider.fileExists(path)) {
+					//  See if this is an implicit path
+					String imp_path = getResolvedBaseLocationDir() + "/" + path;
+					if (fFileSystemProvider.fileExists(imp_path)) {
+						// This path is an implicit relative path that is 
+						// relative to the base directory
+						path = imp_path;
+					}
+				}
+			}
+			norm_path = normalizePath(path);
+		}
+		
+		return norm_path;
+	}
+
+	protected String normalizePath(String path) {
+		StringBuilder ret = new StringBuilder();
+		
+		int i=path.length()-1;
+		int end;
+		int skipCnt = 0;
+		
+		// First, skip any trailing '/'
+		while (i >=0 && (path.charAt(i) == '/' || path.charAt(i) == '\\')) {
+			i--;
+		}
+		
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+			
+			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+			
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length()-1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+
+		/*
+		if (skipCnt > 0) {
+			// throw new RuntimeException("exceeded skipCnt while normalizing \"" + path + "\"");
+		} 
+		 */
+		return ret.reverse().toString();
+	}
+
 	private void debug(String msg) {
 		fLog.debug(msg);
 	}

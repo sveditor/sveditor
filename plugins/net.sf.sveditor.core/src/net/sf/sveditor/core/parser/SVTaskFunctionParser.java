@@ -92,6 +92,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		List<SVDBParamPort> params = null;
 		boolean is_ansi = true;
+		debug("Function Terminator: " + lexer().peek());
 		if (lexer().peekOperator("(")) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
@@ -120,19 +121,23 @@ public class SVTaskFunctionParser extends SVParserBase {
 					(SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual) &&
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
 			// Parse the body
-			parsers().tfBodyParser().parse(func, is_ansi);
-		
+			try {
+				parsers().tfBodyParser().parse(func, is_ansi);
+			} catch (SVParseException e) {
+				debug("Failed to parse function body", e);
+			}
+
 			end = lexer().getStartLocation();
 			if  (type.equals("task")) {
 				lexer().readKeyword("endtask");
 			} else {
 				lexer().readKeyword("endfunction");
 			}
-			
+
 			if (lexer().peekOperator(":")) {
 				lexer().eatToken();
 				String id = lexer().readIdOrKeyword(); // could be :new
-				
+
 				if (!id.equals(func.getName())) {
 					// TODO: endfunction label must match function name
 				}

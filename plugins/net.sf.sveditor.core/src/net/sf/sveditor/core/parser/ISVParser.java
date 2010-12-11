@@ -30,6 +30,6 @@ public interface ISVParser {
 	
 	SVParsers parsers();
 	
-	void debug(String msg);
+	void debug(String msg, Exception e);
 	
 }

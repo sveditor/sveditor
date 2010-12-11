@@ -297,7 +297,8 @@ public class SVExpressionUtils {
 		SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
 
 		List<SVDBItem> it_l= finder_tf.find(leaf,
-				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef);
+				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef,
+				SVDBItemType.PackageDecl);
 		
 		// Remove any definitions of extern tasks/functions, 
 		// since the name prefix was incorrectly matched
@@ -352,9 +353,6 @@ public class SVExpressionUtils {
 					index_it, max_matches, false, ret);
 		}
 	}
-	
-	
-
 	
 	/**
 	 * Scans backwards (from idx) in the text viewer 

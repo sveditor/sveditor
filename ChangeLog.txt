@@ -1,4 +1,42 @@
 
+-- 0.3.3 Release --
+
+- (#3124078) Resolve parse error with delayed assign
+
+- Correct a bug with the Library Index related to relative include paths 
+  that extend outside the project directory. 
+
+- (#3115121) Enable 'Open Declaration' for updir-relative include paths 
+  (eg `include "../../../my_h.svh").
+
+- Parser/scanner now parses through more of the behavioral block statements. Since 
+  there are many SystemVerilog statements that don't end with a ';', this makes
+  parsing more reliable.
+
+- Correct parse errors discovered when adding tests based on OpenCores projects
+    - Correct a parse error with 'if' statements attached to an always.
+      Enhanced parser to begin parsing through behavioral statements
+    - Enhanced parser to allow initialized nets
+    - Correct parser bug with reduction operators in expressions
+    - Correct a parse error with concatenations in assigns
+    - Correct parse bug with non-ansi task/function parameter declarations
+    - Enable multiple comma-separated module instances
+    - Enable basic parsing of specify blocks
+    - Enable basic parsing of pullup/pulldown
+    - Correct a pre-processor problem with macro arguments that are 
+      concatenations
+    - Enhance the pre-processor to exclude single-line comments from
+      macro definitions, while including multi-line comments
+
+- Correct a problem with deeply-nested macro expansion where a trailing ')' was left
+  in the expansion text
+
+- (#3123564) Fix parse error with import statements prior to the module
+  port declaration
+
+
+------------------------------------------------------------------------------
+
 -- 0.3.2 Release --
 
 - (#3118954) Correct a parse error with sized references to an enum type

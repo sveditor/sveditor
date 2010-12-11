@@ -50,6 +50,10 @@ public class StringTextScanner extends AbstractTextScanner
 		this(new StringBuilder(str));
 	}
 
+	public StringTextScanner(String str, int idx) {
+		this(new StringBuilder(str), idx);
+	}
+
 	public StringTextScanner(StringBuilder str, int idx) {
 		init(str, idx);
 	}
@@ -67,7 +71,11 @@ public class StringTextScanner extends AbstractTextScanner
 	}
 	
 	public String get_str(long start, int length) {
-		return fStr.substring((int)start, (int)(start+length-1));
+		if (length == 0) {
+			return "";
+		} else {
+			return fStr.substring((int)start, (int)(start+length-1));
+		}
 	}
 
 	public long getPos() {

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.preproc;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -24,6 +25,8 @@ import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.InputStreamCopier;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
@@ -32,6 +35,7 @@ import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -53,7 +57,7 @@ public class TestPreProc extends TestCase {
 		super.tearDown();
 
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+//			fTmpDir.delete();
 			fTmpDir = null;
 		}
 	}
@@ -215,5 +219,79 @@ public class TestPreProc extends TestCase {
 		System.out.println("Result is: \n" + sb.toString());
 	}
 	
+	public void testVmmErrorMacro() {
+		String doc = 
+	        "`define vmm_error(log, msg)  \\\n" +
+	        "do \\\n" +
+	        "	/* synopsys translate_off */ \\\n" +
+	        "	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, `__FILE__, `__LINE__)) begin \\\n" +
+	        "		void'(log.text(msg)); \\\n" +
+	        "		log.end_msg(); \\\n" +
+	        "	end \\\n" +
+	        "	/* synopsys translate_on */ \\\n" +
+	        "while (0)\n" +
+	        "\n" +
+	        "				`vmm_error(log, {\"Self comparison failed: \", diff});\n"
+	        ;
+		String expected =
+			"do \n" + 
+			"	/* synopsys translate_off */ \n" + 
+			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 0)) begin \n" + 
+			"		void'(log.text({\"Self comparison failed: \", diff})); \n" + 
+			"		log.end_msg(); \n" + 
+			"	end \n" + 
+			"	/* synopsys translate_on */ \n" + 
+			"while (0); \n"
+			;
+			
+		String result = SVDBTestUtils.preprocess(doc, "testVmmErrorMacro");
+		
+		System.out.println("Result:\n" + result.trim());
+		System.out.println("====");
+		System.out.println("Expected:\n" + expected.trim());
+		System.out.println("====");
+		assertEquals(expected.trim(), result.trim());
+	}
 
+	public void testOvmSequenceUtilsExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			assertTrue(fTmpDir.delete());
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/ovm.zip", fTmpDir);
+		utils.copyBundleFileToFS("/data/ovm_sequence_utils_macro.svh", fTmpDir);
+		
+		PrintStream ps = new PrintStream(new File(fTmpDir, "test.f"));
+				
+		ps.println("+incdir+./ovm/src");
+		ps.println("./ovm/src/ovm_pkg.sv");
+		ps.println("./ovm_sequence_utils_macro.svh");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
+		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
+		
+		StringBuilder sb = new StringBuilder();
+		int ch;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			sb.append((char)ch);
+		}
+		System.out.println(sb.toString());
+		
+		assertTrue((sb.indexOf("end )") == -1));
+	}
 }

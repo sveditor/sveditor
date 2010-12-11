@@ -42,50 +42,28 @@ public class BundleUtils {
 	
 	public void copyBundleFileToFS(
 			String			bundle_file,
-			File			fs_path) {
-/*
-		File bundle_file_f = new File(bundle_file);
-		Enumeration	entries = fBundle.findEntries(
-				bundle_file_f.getParent(), bundle_file_f.getName(), false);
+			File			fs_path) throws IOException {
+		URL url = fBundle.getEntry(bundle_file);
 		byte tmp[] = new byte[1024*1024];
 		
-		while (entries.hasMoreElements()) {
-			URL url = (URL)entries.nextElement();
-			
-			if (url.getPath().endsWith("/")) {
-				// Directory
-				continue;
-			}
-			
-			String file_subpath = url.getPath().substring(bundle_dir.length());
-			File target = new File(fs_path, file_subpath);
-			
-			if (!target.getParentFile().exists()) {
-				if (!target.getParentFile().mkdirs()) {
-					System.out.println("[ERROR] Failed to create directory \"" + 
-							target.getParent() + "\"");
-				}
-			}
-			
-			try {
-				FileOutputStream out = new FileOutputStream(target);
-				InputStream in = url.openStream();
-				int len;
-
-				do {
-					len = in.read(tmp, 0, tmp.length);
-					if (len > 0) {
-						out.write(tmp, 0, len);
-					}
-				} while (len > 0);
-				
-				out.close();
-				in.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if (!fs_path.exists()) {
+			fs_path.mkdirs();
 		}
-		 */
+
+		FileOutputStream out = new FileOutputStream(
+				new File(fs_path, new File(bundle_file).getName()));
+		InputStream in = url.openStream();
+		int len;
+
+		do {
+			len = in.read(tmp, 0, tmp.length);
+			if (len > 0) {
+				out.write(tmp, 0, len);
+			}
+		} while (len > 0);
+
+		out.close();
+		in.close();
 	}
 	
 	@SuppressWarnings("rawtypes")

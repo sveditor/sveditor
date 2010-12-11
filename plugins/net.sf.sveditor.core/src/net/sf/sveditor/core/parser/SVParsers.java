@@ -35,6 +35,7 @@ public class SVParsers {
 	private SVPortListParser					fPortListParser;
 	private SVGenerateBlockParser				fGenBlockParser;
 	private SVClockingBlockParser				fClkBlockParser;
+	private SVSpecifyBlockParser				fSpecifyBlockParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -140,6 +141,13 @@ public class SVParsers {
 			fClkBlockParser = new SVClockingBlockParser(fSVParser);
 		}
 		return fClkBlockParser;
+	}
+	
+	public SVSpecifyBlockParser specifyBlockParser() {
+		if (fSpecifyBlockParser == null) {
+			fSpecifyBlockParser = new SVSpecifyBlockParser(fSVParser);
+		}
+		return fSpecifyBlockParser;
 	}
 
 }

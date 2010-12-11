@@ -299,6 +299,7 @@ public class SVKeywords {
 		Boolean is_sv = fKeywordMap.get(kw);
 		return (is_sv != null);
 	}
+	
 	public static boolean isBuiltinGate(String kw) {
 		return fBuiltinGates.contains(kw);
 	}
@@ -310,6 +311,12 @@ public class SVKeywords {
 	
 	public static boolean isBuiltInType(String type) {
 		return fTypeNames.contains(type);
+	}
+	
+	public static boolean isDir(String dir) {
+		return (dir.equals("input") ||
+				dir.equals("output") ||
+				dir.equals("inout"));
 	}
 	
 	public static Set<String> getKeywords() {

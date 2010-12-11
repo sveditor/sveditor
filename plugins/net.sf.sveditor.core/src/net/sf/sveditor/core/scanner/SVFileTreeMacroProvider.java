@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.scanner;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -177,7 +178,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
 				if (fDebugEn) {
-					fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName());
+					fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName() + 
+							" to " + fContext.getFilePath());
 				}
 				addMacro((SVDBMacroDef)it);
 			} else if (it.getType() == SVDBItemType.Include) {
@@ -186,11 +188,14 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					fLog.debug("Looking for include \"" + it.getName() + "\" in FileTree " + context.getFilePath());
 				}
 				SVDBFileTree inc = null;
+				String it_leaf = new File(it.getName()).getName(); 
 				for (SVDBFileTree inc_t : context.getIncludedFiles()) {
 					if (fDebugEn) {
 						fLog.debug("    Checking file \"" + inc_t.getFilePath() + "\"");
 					}
-					if (inc_t.getFilePath().endsWith(it.getName())) {
+					String inc_t_leaf = new File(inc_t.getFilePath()).getName();
+					if (inc_t_leaf.equals(it_leaf)) { // inc_t.getFilePath().endsWith("/" + it.getName())) {
+					// if (inc_t.getFilePath().endsWith(it.getName())) {
 						inc = inc_t;
 						break;
 					}

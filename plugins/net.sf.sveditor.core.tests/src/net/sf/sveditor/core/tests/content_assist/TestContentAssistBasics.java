@@ -191,6 +191,7 @@ public class TestContentAssistBasics extends TestCase {
 	}
 
 	public void testScopedFieldContentAssist() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class my_class1;\n" +
 			"    int           my_field1_class1;\n" +

@@ -44,7 +44,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		
 		// Should be the data-type
 		// String id = lexer().eatToken();
-		if ((SVKeywords.isBuiltInType(id) && !id.equals("void")) ||
+		if (((SVKeywords.isBuiltInType(id) || SVKeywords.isDir(id)) && !id.equals("void")) ||
 				!SVKeywords.isSVKeyword(id)) {
 			// Data declaration or statement
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, id);

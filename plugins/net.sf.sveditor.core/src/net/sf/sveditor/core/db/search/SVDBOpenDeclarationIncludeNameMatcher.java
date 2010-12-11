@@ -12,25 +12,23 @@
 
 package net.sf.sveditor.core.db.search;
 
-import java.util.regex.Pattern;
+import java.io.File;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBOpenDeclarationIncludeNameMatcher extends
 		SVDBFindDefaultNameMatcher {
-	private static Pattern					fWinPathPattern;
-	
-	static {
-		fWinPathPattern = Pattern.compile("\\\\");
-	}
 
 	@Override
 	public boolean match(SVDBItem it, String name) {
 		if (it.getType() == SVDBItemType.File) {
-			String norm_path = fWinPathPattern.matcher(it.getName()).replaceAll("/");
+			String norm_path = SVFileUtils.normalize(it.getName());
+			String basename = new File(name).getName();
+			System.out.println("norm_path=" + norm_path + " basename=" + basename);
 			
-			return norm_path.endsWith(name); 
+			return (norm_path.endsWith(name) || norm_path.endsWith(basename)); 
 		} else {
 			return super.match(it, name);
 		}

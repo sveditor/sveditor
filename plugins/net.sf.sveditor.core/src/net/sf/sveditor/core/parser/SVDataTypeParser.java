@@ -204,7 +204,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			type = builtin_type;
-		} else if (SVKeywords.isSVKeyword(id) && 
+		} else if (SVKeywords.isVKeyword(id) && 
 				!id.equals("interface") && !SVKeywords.isBuiltinGate(id)) {
 			// ERROR: 
 			error("Invalid type name \"" + id + "\"");

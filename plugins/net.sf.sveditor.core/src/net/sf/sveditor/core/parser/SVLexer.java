@@ -634,7 +634,9 @@ public class SVLexer extends SVToken {
 
 			if (fIsIdentifier) {
 				if ((fIsKeyword = fKeywordSet.contains(fImage))) {
-					fIsIdentifier = false;
+					if (SVKeywords.isSVKeyword(fImage)) {
+						fIsIdentifier = false;
+					}
 				}
 			}
 			fTokenConsumed = false;

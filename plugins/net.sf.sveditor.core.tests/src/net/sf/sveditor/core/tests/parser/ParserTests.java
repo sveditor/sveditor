@@ -13,10 +13,6 @@
 package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.SVDBFile;
 
 public class ParserTests extends TestSuite {
 	

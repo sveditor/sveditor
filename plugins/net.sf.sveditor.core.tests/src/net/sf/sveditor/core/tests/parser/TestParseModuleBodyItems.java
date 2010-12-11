@@ -53,6 +53,36 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "p", "t1");
 	}
+
+	public void testDelayedAssign() {
+		String content =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	assign #1 a = 1; // Error.\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testDelayedAssign");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
+	}
+
+	public void testDelayedExprAssign() {
+		String content =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	assign #(1+2ps) a = 1; // Error.\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testDelayedAssign");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
+	}
 	
 	public void testModuleSizedParameter() {
 		String content = 
@@ -1259,6 +1289,147 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module HalfSeTable", HalfSeTable);
 	}
+	
+	public void testAlwaysIfElse() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testAlwaysIfElse",
+				"module t;\n" +
+				"	always@(posedge clk or negedge rst)\n" +
+			    "	if(!rst)        state <= #1 grant0;\n" +
+			    "	else            state <= #1 next_state;\n" +
+				"endmodule\n",
+				new String[] {"t"});
+	}
+	
+	public void testAlwaysMultiLevelIf() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testAlwaysMultiLevelIf",
+				"module t;\n" +
+				"	always @(posedge clk)\n" +
+				"		if(pri_out_tmp[7])      pri_out2 <= #1 3'h7;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[6])      pri_out2 <= #1 3'h6;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[5])      pri_out2 <= #1 3'h5;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[4])      pri_out2 <= #1 3'h4;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[3])      pri_out2 <= #1 3'h3;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[2])      pri_out2 <= #1 3'h2;\n" +
+				"		else\n" +
+				"		if(pri_out_tmp[1])      pri_out2 <= #1 3'h1;\n" +
+				"		else                    pri_out2 <= #1 3'h0;\n" +
+				"endmodule\n",
+				new String[] {"t"});
+	}
+	
+	public void testAlwaysCase() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module t;\n" +
+			"	always @(pri_sel or pri_out0 or pri_out1 or  pri_out2)\n" +
+			"		case(pri_sel)           // synopsys parallel_case full_case\n" +
+			"			2'd0: pri_out = pri_out0;\n" +
+			"			2'd1: pri_out = pri_out1;\n" +
+			"			2'd2: pri_out = pri_out2;\n" +
+			"		endcase\n" +
+			"endmodule\n"
+			;
+		
+		runTest("testAlwaysCase", doc, new String[] {"t"});
+	}
+
+	public void testTaskNonAnsiInputParam() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module t;\n" +
+			"	task fill_mem;\n" +
+			"		input           mode;\n" +
+			"		integer         n, mode;\n" +
+			"		begin\n" +
+			"			for(n=0;n<(sz+1);n=n+1)\n" +
+			"				begin\n" +
+			"					case(mode)\n" +
+			"						0:   mem[n] = { ~n[15:0], n[15:0] };\n" +
+			"						1:   mem[n] = $random;\n" +
+			"					endcase\n" +
+			"				end\n" +
+			"		end\n" +
+			"	endtask\n" + 
+			"endmodule\n"
+			;
+
+		runTest("testTaskNonAnsiInputParam", doc, new String[] {"t"});
+	}
+	
+	public void testMultiModuleInstantiation() {
+		String doc = 
+			"module t;\n" +
+			"\n" +
+			"	mod inst_1();\n" +
+			"	mod inst_2();\n" +
+			"\n" +
+			"	mod inst_3(),\n" +
+			"	inst_4();\n" +
+			"\n" +
+			"	assign a = 5;\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		
+		runTest("testMultiModuleInstantiation", doc, new String[] {"t"});
+	}
+	
+	public void testVmmErrorBehaveBlock() {
+		String doc = 
+        "`define vmm_error(log, msg)  \\\n" +
+        "do \\\n" +
+        "	/* synopsys translate_off */ \\\n" +
+        "	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, `__FILE__, `__LINE__)) begin \\\n" +
+        "		void'(log.text(msg)); \\\n" +
+        "		log.end_msg(); \\\n" +
+        "	end \\\n" +
+        "	/* synopsys translate_on */ \\\n" +
+        "while (0)\n" +
+        "\n" +
+        "module t;\n" +
+        "	initial begin\n" +
+        "		repeat (10) begin\n" +
+        "			if (!d.compare(d, diff)) begin\n" +
+        "				`vmm_error(log, {\"Self comparison failed: \", diff});\n" +
+        "			end\n" +
+        "		end\n" +
+        "	end\n" +
+        "endmodule\n"
+        ;
+		
+		runTest("", doc, new String[] {"t"});
+	}
+	
+	public void testModulePreBodyImport() {
+		String doc = 
+			"package p;\n" +
+			"endpackage\n" +
+			"\n" +
+			"module t import p::*; // Error.\n" +
+			"	#()();\n" +
+			"endmodule\n"
+			;
+		
+		runTest("testModulePreBodyImport", doc, new String[] {"p", "t"});
+	}
+
+	private void runTest(
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
+	}
+
 
 }
 

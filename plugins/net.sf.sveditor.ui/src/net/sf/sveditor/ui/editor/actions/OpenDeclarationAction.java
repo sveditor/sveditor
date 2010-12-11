@@ -16,18 +16,12 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBOpenDeclarationIncludeNameMatcher;
-import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -93,43 +87,21 @@ public class OpenDeclarationAction extends TextEditorAction {
 	protected Tuple<SVDBItem, SVDBFile> findTarget() {
 		IDocument doc = getDocument();
 		ITextSelection sel = getTextSel();
-		
 		int offset = sel.getOffset() + sel.getLength();
-		SVDBFile    		inc_file = null;
-		SVDBItem			it = null;
 
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
-		SVExprScanner			expr_scanner = new SVExprScanner();
 		
-		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
-		
-		fLog.debug("Expression Context: root=" + expr_ctxt.fRoot +
-				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
+		List<Tuple<SVDBItem, SVDBFile>> items = OpenDeclUtils.openDecl(
+				getTargetFile(), 
+				getTextSel().getStartLine(),
+				scanner,
+				getIndexIt());
 
-		ISVDBIndexIterator index_it = getIndexIt();
-		
-		
-		// Now, iterate through the items in the file and find something
-		// with the same name
-		SVDBFile file = getTargetFile();
-		
-		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
-				file, getTextSel().getStartLine());
-		
-		// If this is an include lookup, then use a different matching strategy
-		if (expr_ctxt.fTrigger != null && expr_ctxt.fRoot != null &&
-				expr_ctxt.fTrigger.equals("`") && expr_ctxt.fRoot.equals("include")) {
-			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
-		}
-
-		List<SVDBItem> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
-		
 		if (items.size() > 0) {
-			it = items.get(0);
+			return items.get(0);
+		} else {
+			return new Tuple<SVDBItem, SVDBFile>(null, null);
 		}
-
-		return new Tuple<SVDBItem, SVDBFile>(it, inc_file);
 	}
 	
 	private void debug(String msg) {

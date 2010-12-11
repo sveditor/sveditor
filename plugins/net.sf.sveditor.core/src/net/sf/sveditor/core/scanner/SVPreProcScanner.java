@@ -415,6 +415,11 @@ public class SVPreProcScanner implements ISVScanner {
 			if (define == null) {
 				define = ""; // define this macro as existing
 			}
+
+			// 
+			if (define.indexOf("//") != -1) {
+				define = define.substring(0, define.indexOf("//"));
+			}
 			
 			if (ifdef_enabled()) {
 				if (fObserver != null) {

@@ -59,12 +59,21 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		} else {
 			module_type_name = lexer().readId();
 		}
+		
 
 		module = new SVDBModIfcClassDecl(module_type_name, type);
 		module.setLocation(start);
 		
 		// TODO: Should remove this later
 		parsers().SVParser().enter_scope(type_name, module);
+
+		if (type != SVDBItemType.Program) {
+			// May have imports prior to the port declaration
+			while (lexer().peekKeyword("import")) {
+				// Import statement
+				parsers().SVParser().process_import();
+			}
+		}
 
 		// Handle modules with parameters
 		if (lexer().peekOperator("#")) {

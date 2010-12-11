@@ -49,7 +49,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private String							fCurrentIndent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
-	private static final boolean			fDebugEn = false;
+	private static final boolean			fDebugEn = true;
 	private int								fNLeftParen, fNRightParen;
 	private String							fIndentIncr = "\t";
 	
@@ -908,13 +908,18 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken indent_case() {
 		SVIndentToken tok = current();
-		
+		// Synchronize the indent on 'case'
 		enter_scope(tok);
-		
+
+		// Push a new scope for the body of the case
+		start_of_scope(tok);
+
 		tok = next_s(); // should be expression
-		enter_scope(tok);
-		
+
 		tok = next_s();
+		
+		// Synchronize indent
+		enter_scope(tok);
 		
 		while (!tok.isId("endcase")) {
 			while (!tok.isOp(":") && !tok.isId("endcase")) {
@@ -934,7 +939,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		tok = next_s();
 		
-		leave_scope();
+//		leave_scope();
 		
 		return tok;
 	}
@@ -1010,7 +1015,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private void push_indent_stack(String indent, boolean provisional) {
 		if (fDebugEn) {
-			debug("push_indent_stack: \"" + indent + "\" provisional=" + provisional);
+			debug("[" + (fIndentStack.size() + 1) + 
+					"] push_indent_stack: \"" + indent + "\" provisional=" + provisional);
 		}
 		fIndentStack.push(new Tuple<String, Boolean>(indent, provisional));
 	}
@@ -1028,6 +1034,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 
 	private void pop_indent(SVIndentToken tok) {
+		if (fDebugEn) {
+			String img = (tok != null)?tok.getImage():"";
+			debug("[" + (fIndentStack.size()-1) + "] pop_indent (" + img + ")");
+		}
 		if (fIndentStack.size() > 1) {
 			fIndentStack.pop();
 		} else {
@@ -1229,7 +1239,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private void debug(String msg) {
 		if (fDebugEn) {
 			fLog.debug(msg);
-			System.out.println("[INDENT] " + msg);
+//			System.out.println("[INDENT] " + msg);
 		}
 	}
 }

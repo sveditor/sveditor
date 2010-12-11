@@ -98,7 +98,82 @@ public class IndentTests extends TestCase {
 		IndentComparator.compare("testBasicClass", expected, result);
 	}
 	
-	
+	public void testEmptyCaseStmt() throws Exception {
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"always @ (a) begin\n" +
+			"case(a)\n" + 
+			"endcase\n" +
+			"end\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	always @ (a) begin\n" +
+			"		case(a)\n" + 
+			"		endcase\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		System.out.println("--> testEmptyCaseStmt()");
+		SVCorePlugin.getDefault().enableDebug(true);
+		try {
+			SVIndentScanner scanner = new SVIndentScanner(
+					new StringTextScanner(content));
+
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+			indenter.init(scanner);
+			indenter.setTestMode(true);
+
+			String result = indenter.indent();
+
+			System.out.println("Result:");
+			System.out.println(result);
+			IndentComparator.compare("testBasicClass", expected, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			System.out.println("<-- testEmptyCaseStmt()");
+		}
+	}
+
+	public void testInitialBlock() {
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"initial begin\n" +
+			"a = 5;\n" +
+			"end\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	initial begin\n" +
+			"		a = 5;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		System.out.println("--> testInitialBlock");
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		System.out.println("Result:");
+		System.out.println(result);
+		IndentComparator.compare("testBasicClass", expected, result);
+		System.out.println("<-- testInitialBlock");
+	}
 
 	public void testBasicModuleComment() {
 		String content =
