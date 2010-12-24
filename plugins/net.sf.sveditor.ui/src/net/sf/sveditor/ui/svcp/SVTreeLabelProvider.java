@@ -51,25 +51,28 @@ public class SVTreeLabelProvider extends LabelProvider {
 			if (element instanceof SVDBVarDeclItem) {
 				SVDBVarDeclItem var = (SVDBVarDeclItem)element;
 				
-				ret = ret + " : " + ((SVDBVarDeclItem)element).getTypeName();
-				SVDBTypeInfo type = var.getTypeInfo();
-				
-				if (type.getDataType() == SVDBDataType.UserDefined) {
-					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
-					if (cls.getParameters() != null && 
-							cls.getParameters().getParameters().size() > 0) {
-						ret += "<";
-						
-						for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
-							SVDBParamValueAssign p = 
-								cls.getParameters().getParameters().get(i);
-							ret += p.getName();
-							if (i+1 < cls.getParameters().getParameters().size()) {
-								ret += ", ";
+				if (var.getTypeInfo() != null) {
+					ret = ret + " : " + var.getTypeName();
+					
+					SVDBTypeInfo type = var.getTypeInfo();
+					
+					if (type.getDataType() == SVDBDataType.UserDefined) {
+						SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
+						if (cls.getParameters() != null && 
+								cls.getParameters().getParameters().size() > 0) {
+							ret += "<";
+							
+							for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
+								SVDBParamValueAssign p = 
+									cls.getParameters().getParameters().get(i);
+								ret += p.getName();
+								if (i+1 < cls.getParameters().getParameters().size()) {
+									ret += ", ";
+								}
 							}
+							
+							ret += ">";
 						}
-						
-						ret += ">";
 					}
 				}
 			} else if (element instanceof SVDBTaskFuncScope) {

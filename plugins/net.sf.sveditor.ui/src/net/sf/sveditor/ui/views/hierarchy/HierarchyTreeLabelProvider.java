@@ -21,8 +21,12 @@ public class HierarchyTreeLabelProvider extends SVTreeLabelProvider {
 	@Override
 	public Image getImage(Object element) {
 		if (element instanceof HierarchyTreeNode) {
-			return super.getImage(
-					((HierarchyTreeNode)element).getClassDecl());
+			HierarchyTreeNode n = (HierarchyTreeNode)element;
+			if (n.getItemDecl() != null) {
+				return super.getImage(n.getItemDecl());
+			} else {
+				return null;
+			}
 		}
 		return super.getImage(element);
 	}
@@ -30,8 +34,12 @@ public class HierarchyTreeLabelProvider extends SVTreeLabelProvider {
 	@Override
 	public String getText(Object element) {
 		if (element instanceof HierarchyTreeNode) {
-			return super.getText(
-					((HierarchyTreeNode)element).getClassDecl());
+			HierarchyTreeNode n = (HierarchyTreeNode)element;
+			if (n.getItemDecl() != null) {
+				return super.getText(n.getItemDecl());
+			} else {
+				return n.getName();
+			}
 		}
 		return super.getText(element);
 	}

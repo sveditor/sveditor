@@ -1193,10 +1193,24 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			if (lexer().peekOperator("(")) {
 				lexer().skipPastMatch("(", ")");
 			}
-			while (lexer().peek() != null) {
+			while (lexer().peek() != null && !lexer().peekOperator(";")) {
 				lexer().readIdOrKeyword(); // pullup
 				lexer().readOperator("(");
 				lexer().skipPastMatch("(", ")");
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+			lexer().readOperator(";");
+			fNewStatement = true;
+			ret = fSpecialNonNull;
+		} else if (lexer().peekKeyword("defparam", "specparam")) {
+			// TODO: defparam doesn't appear in hierarchy
+			lexer().eatToken();
+			while (lexer().peek() != null && !lexer().peekOperator(";")) {
+				parsers().SVParser().readExpression();
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
 				} else {
@@ -1332,8 +1346,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public static boolean isFirstLevelScope(String id, int modifiers) {
-		return (id.equals("class")
-				||
+		return ((id == null) ||
+				id.equals("class") ||
 				// virtual interface is a valid field
 				(id.equals("interface") && (modifiers & ISVScannerObserver.FieldAttr_Virtual) == 0)
 				|| id.equals("module"));

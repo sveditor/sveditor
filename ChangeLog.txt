@@ -1,4 +1,19 @@
 
+-- 0.3.4 Release --
+
+- Add parse support for 'defparam'
+
+- (#3135411) Correct auto-indent bug in moving a non-whitespace line down.
+
+- Correct auto-indent bug involving leading whitespace when moving a
+  line down the page.
+
+- (#3127392,3141758) Add support for module hierarchy display via the 'F4' 
+  shortcut
+
+
+------------------------------------------------------------------------------
+
 -- 0.3.3 Release --
 
 - (#3124078) Resolve parse error with delayed assign

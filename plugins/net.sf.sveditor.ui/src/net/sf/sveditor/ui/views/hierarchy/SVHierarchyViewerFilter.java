@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 
 import org.eclipse.jface.viewers.Viewer;
@@ -59,8 +60,10 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 			SVDBItem it = (SVDBItem)element;
 			
 			if (!fShowInheritedMembers) {
-				if (!isInScope(fTarget.getClassDecl(), it)) {
-					return false;
+				if (fTarget.getItemDecl().getType() == SVDBItemType.Class) {
+					if (!isInScope((SVDBModIfcClassDecl)fTarget.getItemDecl(), it)) {
+						return false;
+					}
 				}
 			}
 			

@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
@@ -22,8 +23,9 @@ import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
-import net.sf.sveditor.ui.views.hierarchy.HierarchyTreeFactory;
+import net.sf.sveditor.ui.views.hierarchy.ClassHierarchyTreeFactory;
 import net.sf.sveditor.ui.views.hierarchy.HierarchyTreeNode;
+import net.sf.sveditor.ui.views.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.ui.views.hierarchy.SVHierarchyView;
 
 import org.eclipse.jface.text.IDocument;
@@ -65,39 +67,36 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 			SVDBModIfcClassDecl cls = (result != null && result.size() > 0)?result.get(0):null; 
 			
 			if (cls != null) {
-				HierarchyTreeFactory factory = new HierarchyTreeFactory(
-						((SVEditor)getTextEditor()).getIndexIterator());
+				HierarchyTreeNode n = null;
+				if (cls.getType() == SVDBItemType.Class) {
+					ClassHierarchyTreeFactory factory = new ClassHierarchyTreeFactory(
+							((SVEditor)getTextEditor()).getIndexIterator());
 
-				// Iterate up the inheritance tree and prune any 
-				// branches that are not related to the target class
-				HierarchyTreeNode n = factory.build(cls);
-				HierarchyTreeNode nt = n, p;
-				
-				while ((p = nt.getParent()) != null) {
-					for (int i=0; i<p.getChildren().size(); i++) {
-						if (p.getChildren().get(i) != nt) {
-							p.getChildren().remove(i);
-							i--;
-						}
-					}
-					nt = nt.getParent();
+					n = factory.build(cls);
+				} else if (cls.getType() == SVDBItemType.Module) {
+					ModuleHierarchyTreeFactory factory = new ModuleHierarchyTreeFactory(
+							((SVEditor)getTextEditor()).getIndexIterator());
+					
+					n = factory.build(cls);
 				}
 
-				try {
-					IWorkbench workbench = PlatformUI.getWorkbench();
-					IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-					IViewPart view;
-					if ((view = page.findView(SVUiPlugin.PLUGIN_ID + ".hierarchyView")) == null) {
-						// Create the view
-						view = page.showView(SVUiPlugin.PLUGIN_ID + ".hierarchyView");
+				if (n != null) {
+					try {
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+						IViewPart view;
+						if ((view = page.findView(SVUiPlugin.PLUGIN_ID + ".hierarchyView")) == null) {
+							// Create the view
+							view = page.showView(SVUiPlugin.PLUGIN_ID + ".hierarchyView");
+						}
+
+						page.activate(view);
+
+						((SVHierarchyView)view).setTarget(n);
+
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-					
-					page.activate(view);
-					
-					((SVHierarchyView)view).setTarget(n);
-						
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
 			}
 		}

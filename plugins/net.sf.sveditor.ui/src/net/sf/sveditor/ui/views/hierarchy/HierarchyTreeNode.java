@@ -15,13 +15,14 @@ package net.sf.sveditor.ui.views.hierarchy;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 
 public class HierarchyTreeNode {
 	
 	private String							fName;
 	private HierarchyTreeNode				fParent;
-	private SVDBModIfcClassDecl				fClassDecl;
+	private SVDBItem						fItemDecl;
 	private List<HierarchyTreeNode>			fChildren;
 	
 	public HierarchyTreeNode(
@@ -35,9 +36,9 @@ public class HierarchyTreeNode {
 	public HierarchyTreeNode(
 			HierarchyTreeNode		parent,
 			String					name,
-			SVDBModIfcClassDecl		cls) {
+			SVDBItem				item) {
 		this(parent, name);
-		fClassDecl = cls;
+		fItemDecl = item;
 	}
 	
 	public String getName() {
@@ -66,12 +67,12 @@ public class HierarchyTreeNode {
 		return fChildren;
 	}
 	
-	public SVDBModIfcClassDecl getClassDecl() {
-		return fClassDecl;
+	public SVDBItem getItemDecl() {
+		return fItemDecl;
 	}
 	
-	public void setClassDecl(SVDBModIfcClassDecl cls) {
-		fClassDecl = cls;
+	public void setItemDecl(SVDBItem cls) {
+		fItemDecl = cls;
 	}
 
 }

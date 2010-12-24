@@ -136,7 +136,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentOnKeypress(IDocument doc, DocumentCommand cmd) {
 		StringBuilder doc_str = new StringBuilder();
 		boolean indent_newline;
-		
+
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
 		} else if (cmd.text.length() == 1) {
@@ -210,6 +210,19 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     		if (indent != null) {
     			if (indent_newline) {
     				cmd.text += indent;
+    				// Increment the cmd.length by the amount of leading whitespace. This
+    				// causes the correct amount of leading whitespace (as determined by 
+    				// the indenter) to be added to the start of the line.
+    				// 
+    				// This case occurs when the user adds a new-line in the middle of
+    				// leading whitespace for the line.
+    				int idx = cmd.offset;
+    				while (idx < doc.getLength() && 
+    						(doc.getChar(idx) != '\r' && doc.getChar(idx) != '\n') &&
+    						Character.isWhitespace(doc.getChar(idx))) {
+    					cmd.length++;
+    					idx++;
+    				}
     			} else {
     				int n_ws_chars = 0;
     				// replace any leading whitespace with the new indent
@@ -264,12 +277,13 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     	if (!fAutoIndentEnabled) {
     		return;
     	}
-    	
-    	if (cmd.length == 0) {
+    	// Normally, cmd.text.length will be 1 (character typed). 
+    	// When tab==spaces, however, cmd.text will contain a 
+    	// series of spaces
+    	if (cmd.length == 0 && cmd.text.trim().length() <= 1) {
     		// adding text
     		indentOnKeypress(doc, cmd);
-    	}
-    	if (cmd.text.length() > 1) {
+    	} else if (cmd.text.length() > 1) {
     		indentPastedContent(doc, cmd);
     	}
     }

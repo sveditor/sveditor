@@ -1420,6 +1420,25 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest("testModulePreBodyImport", doc, new String[] {"p", "t"});
 	}
 
+	public void testModulePreBodyImport2() {
+		String doc = 
+			"package p;\n" +
+			"endpackage\n" +
+			"\n" +
+			"module t import p::*;\n" +
+			"	#(\n" +
+			"		parameter a = 0\n" +
+			"	) // Error.\n" +
+			"	();\n" +
+			"endmodule\n" +
+			"\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

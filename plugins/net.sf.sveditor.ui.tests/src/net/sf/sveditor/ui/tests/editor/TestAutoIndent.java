@@ -668,7 +668,28 @@ public class TestAutoIndent extends TestCase {
 
 		IndentComparator.compare("testBasedEnumIndent", expected, result);
 	}
-	
+
+	public void testBasicEnumDecl() throws BadLocationException {
+		String input =
+			"module t;\n" +
+			"typedef enum {\n" +
+			"e1, e2\n" +
+			"} a;\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef enum {\n" +
+			"		e1, e2\n" +
+			"	} a;\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String result = tester.getContent();
+
+		IndentComparator.compare("testBasedEnumIndent", expected, result);
+	}
+
 	public void testProperIndentEndPackage() throws BadLocationException {
 		String input =
 			"package p;\r\n" +
@@ -722,6 +743,40 @@ public class TestAutoIndent extends TestCase {
 		assertEquals("Check for expected indent", expected, content);
 		
 	}
-	
+
+	public void testMoveLineDown() throws BadLocationException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String input =
+			"module t;\n" +
+			"typedef enum {\n" +
+			"e1, e2\n" +
+			"} a;\n"
+			;
+		String expected =
+			"module t;\n" +
+			"\n" +
+			"	typedef enum {\n" +
+			"		e1, e2\n" +
+			"	} a;\n"
+			;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input);
+		String content = tester.getContent();
+		int idx = content.indexOf("typedef enum");
+		while (content.indexOf(idx) != '\n') {
+			idx--;
+		}
+
+		tester.setCaretOffset(idx+1);
+		System.out.println("--> type CR");
+		tester.type('\n');
+		System.out.println("<-- type CR");
+		String result = tester.getContent();
+
+		System.out.println("Result:\n" + result);
+		IndentComparator.compare("testBasedEnumIndent", expected, result);
+	}
+
 	
 }

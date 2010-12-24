@@ -49,7 +49,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private String							fCurrentIndent;
 	private LogHandle						fLog;
 	private int								fQualifiers;
-	private static final boolean			fDebugEn = true;
+	private static final boolean			fDebugEn = false;
 	private int								fNLeftParen, fNRightParen;
 	private String							fIndentIncr = "\t";
 	

@@ -69,6 +69,13 @@ public class TestOpencoresProjects extends TestCase {
 				new String[] {"${workspace_loc}/wb_dma/dut.f",
 							  "${workspace_loc}/wb_dma/bench.f"});
 	}
+	
+	public void testUSBHostSlave() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(true);
+
+		runTest("testDMA", "/usbhostslave.zip", "usbhostslave",
+				new String[] {"${workspace_loc}/usbhostslave/usb.f"});
+	}
 
 	private void runTest(
 			String				testname,

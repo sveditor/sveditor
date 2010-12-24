@@ -60,6 +60,9 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		fSourceCollections.addAll(fFileWrapper.getSourceCollections());
 	}
 
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public Control createContents(Composite parent) {
 		Composite frame = new Composite(parent, SWT.NONE);
 		frame.setLayout(new GridLayout(2, false));

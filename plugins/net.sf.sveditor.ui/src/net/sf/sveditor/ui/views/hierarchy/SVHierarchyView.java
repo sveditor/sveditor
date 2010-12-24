@@ -94,7 +94,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				if (elem instanceof HierarchyTreeNode) {
 					fViewerFilter.setTarget((HierarchyTreeNode)elem);
 					fSelectedClass.setText(((HierarchyTreeNode)elem).getName());
-					fMemberList.setInput(((HierarchyTreeNode)elem).getClassDecl());
+					fMemberList.setInput(((HierarchyTreeNode)elem).getItemDecl());
 				} else {
 					fMemberList.setInput(null);
 					fSelectedClass.setText("");
@@ -108,8 +108,8 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				if (sel.getFirstElement() instanceof HierarchyTreeNode) {
 					HierarchyTreeNode n = (HierarchyTreeNode)sel.getFirstElement();
-					if (n.getClassDecl() != null) {
-						SVEditorUtil.openEditor(n.getClassDecl());
+					if (n.getItemDecl() != null) {
+						SVEditorUtil.openEditor(n.getItemDecl());
 					}
 				}
 			}
