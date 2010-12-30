@@ -37,7 +37,7 @@ public class SVDBFindNamedModIfcClassIfc {
 	}
 
 	public List<SVDBModIfcClassDecl> find(String type_name) {
-		ISVDBItemIterator<SVDBItem> item_it = fIndexIt.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIt.getItemIterator();
 		List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
 		
 		while (item_it.hasNext()) {

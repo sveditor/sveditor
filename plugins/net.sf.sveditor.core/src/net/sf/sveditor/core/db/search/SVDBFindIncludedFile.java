@@ -38,7 +38,7 @@ public class SVDBFindIncludedFile {
 	}
 	
 	public List<SVDBFile> find(String name) {
-		ISVDBItemIterator<SVDBItem> item_it = fIndexIterator.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIterator.getItemIterator();
 		List<SVDBFile> ret = new ArrayList<SVDBFile>();
 		
 		while (item_it.hasNext()) {

@@ -78,7 +78,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		
 		while (it.hasNext()) {
@@ -164,7 +164,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 
 		while (it.hasNext()) {
@@ -243,7 +243,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		SVDBItem class1_2 = null;
 		
@@ -329,7 +329,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		SVDBItem class1_2 = null;
 		

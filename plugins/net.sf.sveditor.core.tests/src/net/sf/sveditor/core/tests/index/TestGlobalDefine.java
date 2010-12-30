@@ -163,7 +163,7 @@ public class TestGlobalDefine extends TestCase {
 		p_wrap = project_data.getProjectFileWrapper();
 		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
 		
-		ISVDBItemIterator<SVDBItem> index_it = index.getItemIterator();
+		ISVDBItemIterator index_it = index.getItemIterator();
 		
 		SVDBItem class1_it = null;
 		while (index_it.hasNext()) {

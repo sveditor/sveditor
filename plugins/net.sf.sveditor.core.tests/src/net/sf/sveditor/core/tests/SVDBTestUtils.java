@@ -67,12 +67,10 @@ public class SVDBTestUtils {
 		pp_scanner.scan();
 		final SVDBFile pp_file = pp_observer.getFiles().get(0);
 		IPreProcMacroProvider macro_provider = new IPreProcMacroProvider() {
-			@Override
+
 			public void setMacro(String key, String value) {}
-			@Override
 			public void addMacro(SVDBMacroDef macro) {}
 			
-			@Override
 			public SVDBMacroDef findMacro(String name, int lineno) {
 				for (SVDBItem it : pp_file.getItems()) {
 					if (it.getType() == SVDBItemType.Macro && 
@@ -101,12 +99,10 @@ public class SVDBTestUtils {
 		pp_scanner.scan();
 		final SVDBFile pp_file = pp_observer.getFiles().get(0);
 		IPreProcMacroProvider macro_provider = new IPreProcMacroProvider() {
-			@Override
+
 			public void setMacro(String key, String value) {}
-			@Override
 			public void addMacro(SVDBMacroDef macro) {}
 			
-			@Override
 			public SVDBMacroDef findMacro(String name, int lineno) {
 				if (name.equals("__FILE__")) {
 					return new SVDBMacroDef("__FILE__", new ArrayList<String>(), 

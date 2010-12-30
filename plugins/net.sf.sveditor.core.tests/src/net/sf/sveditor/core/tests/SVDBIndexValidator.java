@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 public class SVDBIndexValidator extends TestCase {
 	public static final int					ExpectErrors = (1 << 0);
 	
-	public void validateIndex(ISVDBItemIterator<SVDBItem> i_it, int flags) {
+	public void validateIndex(ISVDBItemIterator i_it, int flags) {
 		
 		while (i_it.hasNext()) {
 			SVDBItem it = i_it.nextItem();

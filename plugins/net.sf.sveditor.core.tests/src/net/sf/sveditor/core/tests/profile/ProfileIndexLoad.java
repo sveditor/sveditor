@@ -40,7 +40,7 @@ public class ProfileIndexLoad {
 		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null);
 		mgr.addLibraryPath(index);
 		
-		ISVDBItemIterator<SVDBItem> item_it = mgr.getItemIterator();
+		ISVDBItemIterator item_it = mgr.getItemIterator();
 		
 		int count = 0;
 		while (item_it.hasNext()) {

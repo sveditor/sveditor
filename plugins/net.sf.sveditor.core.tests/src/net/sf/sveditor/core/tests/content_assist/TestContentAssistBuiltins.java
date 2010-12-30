@@ -83,7 +83,7 @@ public class TestContentAssistBuiltins extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator();
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
 		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
@@ -135,7 +135,7 @@ public class TestContentAssistBuiltins extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator();
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
 		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);

@@ -19,12 +19,14 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
+public class SVDBIndexItemIterator implements ISVDBItemIterator {
 	private Stack<Iterator<SVDBItem>>	fScopeStack;
 	private Iterator<SVDBFile>			fFileIterator;
 	private Iterator<SVDBItem>			fScopeIterator;
 	private SVDBFile					fOverrideFile;
+	private SVDBItem					fCurrent;
 	
 	public SVDBIndexItemIterator(Map<String, SVDBFile> index_items) {
 		fFileIterator = index_items.values().iterator();
@@ -36,17 +38,42 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 	public void setOverride(SVDBFile file) {
 		fOverrideFile = file;
 	}
+	
+	/**
+	 * For now, we'll just filter out the un-interesting items.
+	 * TODO: Future would involve filtering more intelligently / efficiently
+	 * 
+	 * @param type_list
+	 * @return
+	 */
+	public SVDBItem peekNext(SVDBItemType ... type_list) {
+		while (true) {
+			if (fCurrent == null) {
+				fCurrent = nextItem_int();
+			}
 
-	public boolean hasNext() {
-		return (fFileIterator.hasNext() 
-				|| (!fScopeStack.empty() && fScopeStack.peek().hasNext())
-				|| (fScopeIterator != null && fScopeIterator.hasNext()));
+			if (fCurrent != null) {
+				if (fCurrent.getType().isElemOf(type_list)) {
+					break;
+				} else {
+					fCurrent = null;
+				}
+			} else {
+				break;
+			}
+		}
+		
+		return fCurrent;
 	}
-
-	public SVDBItem nextItem() {
+	
+	public boolean hasNext(SVDBItemType ... type_list) {
+		return (peekNext(type_list) != null);
+	}
+	
+	private SVDBItem nextItem_int() {
 		SVDBItem ret = null;
 		
-		boolean had_next = hasNext();
+//		boolean had_next = hasNext();
 
 		for (int i=0; i<16536 && ret == null; i++) {
 			if (fScopeIterator != null && fScopeIterator.hasNext()) {
@@ -82,7 +109,8 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 				}
 			}
 		}
-		
+
+		/*
 		if (ret == null && had_next) {
 			System.out.println("[ERROR] hasNext() returned true and ret == null");
 			try {
@@ -91,14 +119,15 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator<SVDBItem> {
 				e.printStackTrace();
 			}
 		}
+		 */
+
+		return ret;
+	}
+
+	public SVDBItem nextItem(SVDBItemType ... type_list) {
+		SVDBItem ret = peekNext(type_list);
+		fCurrent = null;
 		
 		return ret;
 	}
-	
-	public void leaveScope() {
-		if (fScopeStack.size() > 0) {
-			fScopeStack.pop();
-		}
-	}
-
 }

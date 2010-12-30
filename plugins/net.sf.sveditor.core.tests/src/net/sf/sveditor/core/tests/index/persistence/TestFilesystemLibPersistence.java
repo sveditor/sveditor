@@ -73,7 +73,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		
 		while (it.hasNext()) {
@@ -160,7 +160,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		SVDBMarkerItem missing_inc = null;
 		

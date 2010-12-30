@@ -403,7 +403,7 @@ public class SVEditor extends TextEditor
 	
 	private ISVDBIndexIterator SVEditorIndexIterator = new ISVDBIndexIterator() {
 		
-		public ISVDBItemIterator<SVDBItem> getItemIterator() {
+		public ISVDBItemIterator getItemIterator() {
 			SVDBIndexCollectionItemIterator it = 
 				(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator();
 			

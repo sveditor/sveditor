@@ -36,7 +36,7 @@ public class SVDBFindByName {
 	public List<SVDBItem> find(String name, SVDBItemType ... types) {
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
-		ISVDBItemIterator<SVDBItem> item_it = fIndexIterator.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIterator.getItemIterator();
 		
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();

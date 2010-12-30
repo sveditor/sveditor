@@ -30,7 +30,7 @@ public interface IDBWriter {
 	
 	void writeItemType(SVDBItemType type);
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	void writeItemList(Collection items);
 	
 	void writeSVDBItem(SVDBItem item);

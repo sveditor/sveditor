@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -137,7 +136,7 @@ public class PersistenceIndex implements ISVDBIndex {
 
 	}
 
-	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+	public ISVDBItemIterator getItemIterator() {
 		return fTargetIndex.getItemIterator();
 	}
 

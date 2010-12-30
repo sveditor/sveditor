@@ -26,12 +26,17 @@ import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 public class SVTreeLabelProvider extends LabelProvider {
+	private WorkbenchLabelProvider				fLabelProvider;
+	
 	
 	public SVTreeLabelProvider() {
+		fLabelProvider = new WorkbenchLabelProvider();
 	}
 
 	@Override
@@ -122,8 +127,24 @@ public class SVTreeLabelProvider extends LabelProvider {
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
+	public void addListener(ILabelProviderListener listener) {
+		fLabelProvider.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(ILabelProviderListener listener) {
+		fLabelProvider.removeListener(listener);
 	}
 	
+	@Override
+	public boolean isLabelProperty(Object element, String property) {
+		return fLabelProvider.isLabelProperty(element, property);
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		fLabelProvider.dispose();
+	}
+
 }

@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -29,7 +28,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 		fFileMap.put(file.getName(), file);
 	}
 
-	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+	public ISVDBItemIterator getItemIterator() {
 		return new SVDBIndexItemIterator(fFileMap);
 	}
 

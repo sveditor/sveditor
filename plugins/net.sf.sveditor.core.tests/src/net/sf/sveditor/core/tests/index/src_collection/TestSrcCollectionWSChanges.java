@@ -120,7 +120,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		assertEquals("Expecting index to be built twice", 1, fIndexRebuilt);
 
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -212,7 +212,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
 		}
 
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;

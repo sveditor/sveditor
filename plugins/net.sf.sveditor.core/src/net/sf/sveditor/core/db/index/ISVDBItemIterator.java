@@ -12,25 +12,23 @@
 
 package net.sf.sveditor.core.db.index;
 
-public interface ISVDBItemIterator<T> {
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+
+public interface ISVDBItemIterator {
 	
 	/**
-	 * Indicates whether more items exist
+	 * Indicates whether more items of the specified types exist
 	 * 
 	 * @return
 	 */
-	boolean hasNext();
+	boolean hasNext(SVDBItemType ... type_list);
 	
 	/**
 	 * Returns the next item from the iterator
 	 * 
 	 * @return
 	 */
-	T nextItem();
-	
-	/**
-	 * Leaves the active scope (File, Class, Module, etc)
-	 */
-	void leaveScope();
+	SVDBItem nextItem(SVDBItemType ... type_list);
 
 }

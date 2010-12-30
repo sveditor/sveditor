@@ -92,7 +92,7 @@ public class TestUserLevelOperations extends TestCase {
 		// Now, open xbus/examples/xbus_demo_tb.sv
 		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
 		// force index loading
-		ISVDBItemIterator<SVDBItem> it = project_index.getItemIterator();
+		ISVDBItemIterator it = project_index.getItemIterator();
 		it.nextItem();
 
 		IEditorPart xbus_demo_tb = SVEditorUtil.openEditor("${workspace_loc}/xbus/examples/xbus_demo_tb.sv");
@@ -114,7 +114,7 @@ public class TestUserLevelOperations extends TestCase {
 
 		ISVDBIndexIterator index_it = sveditor.getIndexIterator();
 		System.out.println("--> Dump index");
-		ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
+		ISVDBItemIterator item_it = index_it.getItemIterator();
 		while (item_it.hasNext()) {
 			SVDBItem it_t = item_it.nextItem();
 			// System.out.println("    it_t=" + it_t.getName());

@@ -148,7 +148,7 @@ public class SVExpressionUtils {
 			}
 		} else {
 			// most likely a macro call
-			ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
+			ISVDBItemIterator it_i = index_it.getItemIterator();
 			while (it_i.hasNext()) {
 				SVDBItem it_t = it_i.nextItem();
 

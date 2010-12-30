@@ -63,7 +63,7 @@ public class TestBuiltinIndex extends TestCase {
 				rgy.findCreateIndex("GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator<SVDBItem> index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator();
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
 		SVDBItem string_cls=null, process_cls=null, covergrp_cls=null;
 		SVDBItem finish_task=null;

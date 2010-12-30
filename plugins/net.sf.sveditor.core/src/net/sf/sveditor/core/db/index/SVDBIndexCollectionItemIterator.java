@@ -17,11 +17,12 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBItem> {
+public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 	List<ISVDBIndex>			fIndexList;
 	int							fIndexListIdx = 0;
-	ISVDBItemIterator<SVDBItem>	fIndexIterator;
+	ISVDBItemIterator			fIndexIterator;
 	ISVDBIndex					fOverrideIndex;
 	SVDBFile					fOverrideFile;
 	
@@ -38,25 +39,25 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 		fIndexList.add(index);
 	}
 
-	public boolean hasNext() {
+	public boolean hasNext(SVDBItemType ... type_list) {
 		if (fIndexIterator != null && !fIndexIterator.hasNext()) {
 			fIndexIterator = null;
 		}
 		
-		while ((fIndexIterator == null || !fIndexIterator.hasNext()) &&
+		while ((fIndexIterator == null || !fIndexIterator.hasNext(type_list)) &&
 				fIndexListIdx < fIndexList.size()) {
 			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator();
 			fIndexListIdx++;
 		}
 		
-		return ((fIndexIterator != null && fIndexIterator.hasNext())
+		return ((fIndexIterator != null && fIndexIterator.hasNext(type_list))
 				|| fIndexListIdx < fIndexList.size());
 	}
 
-	public SVDBItem nextItem() {
+	public SVDBItem nextItem(SVDBItemType ... type_list) {
 		boolean had_next = hasNext();
 		
-		if (fIndexIterator != null && !fIndexIterator.hasNext()) {
+		if (fIndexIterator != null && !fIndexIterator.hasNext(type_list)) {
 			fIndexIterator = null;
 		}
 
@@ -71,7 +72,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 
 		SVDBItem ret = null;
 		if (fIndexIterator != null) {
-			ret = fIndexIterator.nextItem();
+			ret = fIndexIterator.nextItem(type_list);
 		}
 		
 		if (ret == null && had_next) {
@@ -84,13 +85,5 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator<SVDBIt
 		}
 		
 		return ret;
-	}
-	
-	public void leaveScope() {
-		if (hasNext()) {
-			if (fIndexIterator != null) {
-				fIndexIterator.leaveScope();
-			}
-		}
 	}
 }

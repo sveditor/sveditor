@@ -71,7 +71,7 @@ public class TestVmmBasics extends TestCase {
 				rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator<SVDBItem> index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator();
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
 		SVDBItem vmm_xtor=null;
 		SVDBItem vmm_err=null;
@@ -130,7 +130,7 @@ public class TestVmmBasics extends TestCase {
 				"${workspace_loc}/ethernet/ethernet.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
@@ -178,7 +178,7 @@ public class TestVmmBasics extends TestCase {
 				"${workspace_loc}/wishbone/wishbone.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
@@ -242,7 +242,7 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {

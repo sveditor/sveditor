@@ -495,10 +495,13 @@
    <extension
          point="org.eclipse.search.searchPages">
       <page
+            canSearchEnclosingProjects="true"
             class="net.sf.sveditor.ui.search.SVSearchPage"
+            enabled="true"
             icon="icons/eview16/svperspective.gif"
             id="net.sf.sveditor.ui.searchPage"
-            label="SystemVerilog Search">
+            label="SystemVerilog Search"
+            showScopeSection="true">
       </page>
    </extension>
    <extension
@@ -540,6 +543,14 @@ endclass
          </pattern>
       </template>
        -->
+   </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="net.sf.sveditor.ui.search.SVSearchResultsPage"
+            id="net.sf.sveditor.ui.searchResultsPage"
+            searchResultClass="net.sf.sveditor.ui.search.SVSearchResult">
+      </viewPage>
    </extension>
    
 

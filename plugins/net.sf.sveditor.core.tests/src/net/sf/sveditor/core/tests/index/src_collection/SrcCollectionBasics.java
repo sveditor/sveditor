@@ -77,7 +77,7 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -137,7 +137,7 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -206,7 +206,7 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem top=null, top_t=null, sub=null;
 		SVDBItem class1 = null;
 		SVDBItem class3 = null;
@@ -277,7 +277,7 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem top=null, top_t=null, sub=null;
 		SVDBItem class1 = null;
 		SVDBItem class3 = null;
@@ -350,7 +350,7 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -401,7 +401,7 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -452,7 +452,7 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null;
 		SVDBItem class2 = null;
 		SVDBItem class3 = null;
@@ -505,7 +505,7 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem top=null, top_t=null, sub=null;
 		SVDBItem class1 = null;
 		SVDBItem class3 = null;

@@ -23,6 +23,7 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
@@ -231,6 +232,21 @@ public class SVUiPlugin extends AbstractUIPlugin
 	 */
 	public static SVUiPlugin getDefault() {
 		return fPlugin;
+	}
+	
+	/**
+	 * Return the named preferences section 
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public IDialogSettings getDialogSettingsSection(String name) {
+		IDialogSettings dialogSettings= getDialogSettings();
+		IDialogSettings section= dialogSettings.getSection(name);
+		if (section == null) {
+			section= dialogSettings.addNewSection(name);
+		}
+		return section;
 	}
 	
 	/** 

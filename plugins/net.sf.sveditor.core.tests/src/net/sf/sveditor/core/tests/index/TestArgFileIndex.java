@@ -69,7 +69,7 @@ public class TestArgFileIndex extends TestCase {
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1_dir1 = null, class1_dir2 = null;
 		
 		while (it.hasNext()) {
@@ -129,7 +129,7 @@ public class TestArgFileIndex extends TestCase {
 		ps.println("endpackage");
 		ps.close();
 
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1 = null, class2 = null;
 		SVDBItem ext_pkg_1 = null, ext_pkg_2 = null;
 		

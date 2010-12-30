@@ -48,7 +48,7 @@ public class IndexTests extends TestSuite {
 	}
 	
 	public static List<SVDBMarkerItem> getErrorsWarnings(ISVDBIndexIterator index_it) {
-		ISVDBItemIterator<SVDBItem> it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator();
 		List<SVDBMarkerItem> ret = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {

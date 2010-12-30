@@ -63,7 +63,7 @@ public class WSArgFileIndexChanges extends TestCase {
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1_it = null, class1_2_it = null;
 		
 		while (it.hasNext()) {

@@ -69,7 +69,7 @@ public class TestUvmBasics extends TestCase {
 				rgy.findCreateIndex("GLOBAL", "org.uvmworld.uvm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator<SVDBItem> index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator();
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
 		SVDBItem ovm_component=null;
 		SVDBItem ovm_sequence=null;
@@ -131,7 +131,7 @@ public class TestUvmBasics extends TestCase {
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
@@ -179,7 +179,7 @@ public class TestUvmBasics extends TestCase {
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
@@ -227,7 +227,7 @@ public class TestUvmBasics extends TestCase {
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		SVDBModIfcClassDecl my_driver = null;
@@ -282,7 +282,7 @@ public class TestUvmBasics extends TestCase {
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		SVDBModIfcClassDecl simple_driver = null;

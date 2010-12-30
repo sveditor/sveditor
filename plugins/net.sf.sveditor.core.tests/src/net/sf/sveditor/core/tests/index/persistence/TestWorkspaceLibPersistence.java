@@ -81,7 +81,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		
 		while (it.hasNext()) {
@@ -169,7 +169,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		
 		while (it.hasNext()) {

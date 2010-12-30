@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
@@ -257,7 +256,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	protected abstract void buildPreProcFileMap();
 
-	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+	public ISVDBItemIterator getItemIterator() {
 		return new SVDBIndexItemIterator(getFileDB());
 	}
 	

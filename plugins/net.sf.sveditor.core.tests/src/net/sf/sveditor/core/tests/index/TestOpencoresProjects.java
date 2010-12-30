@@ -124,7 +124,7 @@ public class TestOpencoresProjects extends TestCase {
 		assertNoErrors(project_index);
 		
 		// force index loading
-		ISVDBItemIterator<SVDBItem> it = project_index.getItemIterator();
+		ISVDBItemIterator it = project_index.getItemIterator();
 		while (it.hasNext()) {
 			it.nextItem();
 		}
@@ -133,7 +133,7 @@ public class TestOpencoresProjects extends TestCase {
 	}
 
 	private void assertNoErrors(ISVDBIndexIterator index_it) {
-		ISVDBItemIterator<SVDBItem> it_i = index_it.getItemIterator();
+		ISVDBItemIterator it_i = index_it.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it_i.hasNext()) {

@@ -40,19 +40,19 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 		fItemMap = new HashMap<SVDBItem, SVDBItem>();
 	}
 	
-	private class BuiltinClassIterator implements ISVDBItemIterator<SVDBItem> {
-		private ISVDBItemIterator<SVDBItem> 	fIterator;
+	private class BuiltinClassIterator implements ISVDBItemIterator {
+		private ISVDBItemIterator 		fIterator;
 		
 		public BuiltinClassIterator() {
 			fIterator = fBaseIterator.getItemIterator();
 		}
 
-		public boolean hasNext() {
-			return fIterator.hasNext();
+		public boolean hasNext(SVDBItemType ... type_list) {
+			return fIterator.hasNext(type_list);
 		}
 
-		public SVDBItem nextItem() {
-			SVDBItem it = fIterator.nextItem();
+		public SVDBItem nextItem(SVDBItemType ... type_list) {
+			SVDBItem it = fIterator.nextItem(type_list);
 			if (it != null) {
 				if (fItemMap.containsKey(it)) {
 					it = fItemMap.get(it);
@@ -70,22 +70,13 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 					fItemMap.put(it, cls);
 					it = cls;
 				}
-				
-				if (it.getType() == SVDBItemType.Covergroup) {
-					fLog.debug("Covergroup base class=" + 
-							((SVDBModIfcClassDecl)it).getSuperClass());
-				}
 			}
 			
 			return it;
 		}
-		
-		public void leaveScope() {
-			fIterator.leaveScope();
-		}
 	}
 
-	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+	public ISVDBItemIterator getItemIterator() {
 		return new BuiltinClassIterator();
 	}
 

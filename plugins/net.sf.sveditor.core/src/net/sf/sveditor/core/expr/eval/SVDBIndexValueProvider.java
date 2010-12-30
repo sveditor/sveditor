@@ -32,7 +32,7 @@ public class SVDBIndexValueProvider implements IValueProvider {
 	}
 
 	public BigInteger get_value(String name) throws Exception {
-		ISVDBItemIterator<SVDBItem> item_it = fIndexIt.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIt.getItemIterator();
 		
 		while (item_it.hasNext()) {
 			SVDBItem it = item_it.nextItem();

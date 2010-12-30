@@ -144,7 +144,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public List readItemList(SVDBFile file, SVDBScopeItem parent)
 			throws DBFormatException {
 		String type = readTypeString();
@@ -170,7 +170,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		if (size == -1) {
 			return null;
 		} else {
-			List ret = new ArrayList();
+			List<SVDBItem> ret = new ArrayList<SVDBItem>();
 			while (size-- > 0) {
 				ret.add(readSVDBItem(file, parent));
 			}

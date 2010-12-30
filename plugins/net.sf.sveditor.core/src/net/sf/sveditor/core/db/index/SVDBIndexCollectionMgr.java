@@ -21,7 +21,6 @@ import java.util.Map;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
@@ -84,7 +83,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.clear();
 	}
 	
-	public ISVDBItemIterator<SVDBItem> getItemIterator() {
+	public ISVDBItemIterator getItemIterator() {
 		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator();
 		
 		for (List<ISVDBIndex> i_l : fFileSearchOrder) {

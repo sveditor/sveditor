@@ -98,7 +98,7 @@ public class ArgFilePersistence extends TestCase
 		PersistenceIndex index = new PersistenceIndex(target_index);
 		
 		// Force loading
-		ISVDBItemIterator<SVDBItem> item_it = index.getItemIterator();
+		ISVDBItemIterator item_it = index.getItemIterator();
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (item_it.hasNext()) {
@@ -164,7 +164,7 @@ public class ArgFilePersistence extends TestCase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		
 		while (it.hasNext()) {
@@ -256,7 +256,7 @@ public class ArgFilePersistence extends TestCase
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBModIfcClassDecl target_it = null, target_orig = null;
 		List<SVDBItem> orig_list = new ArrayList<SVDBItem>();
 		
@@ -392,7 +392,7 @@ public class ArgFilePersistence extends TestCase
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem target_it = null;
 		SVDBItem class1_2 = null;
 		

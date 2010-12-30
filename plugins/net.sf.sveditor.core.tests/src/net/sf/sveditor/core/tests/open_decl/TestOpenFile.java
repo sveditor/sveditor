@@ -45,7 +45,7 @@ public class TestOpenFile extends TestCase {
 					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
-			ISVDBItemIterator<SVDBItem> it = target_index.getItemIterator();
+			ISVDBItemIterator it = target_index.getItemIterator();
 			ISVDBFileSystemProvider fs_provider = 
 				((SVDBLibIndex)target_index).getFileSystemProvider();
 			

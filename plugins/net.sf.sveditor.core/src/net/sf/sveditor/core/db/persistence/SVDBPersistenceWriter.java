@@ -61,7 +61,7 @@ public class SVDBPersistenceWriter implements IDBWriter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public void writeItemList(Collection items) {
 		if (items == null) {
 			writeRawString("SIL<-1>");

@@ -76,7 +76,7 @@ public class WSLibIndexFileChanges extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator<SVDBItem> it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator();
 		SVDBItem class1_it = null, class1_2_it = null;
 		
 		while (it.hasNext()) {

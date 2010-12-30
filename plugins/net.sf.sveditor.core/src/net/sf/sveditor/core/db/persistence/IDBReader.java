@@ -31,7 +31,7 @@ public interface IDBReader {
 	
 	SVDBItemType readItemType() throws DBFormatException;
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	List readItemList(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;
 	
 	SVDBItem readSVDBItem(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;

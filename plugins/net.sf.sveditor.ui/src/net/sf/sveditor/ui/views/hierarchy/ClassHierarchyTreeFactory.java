@@ -38,7 +38,7 @@ public class ClassHierarchyTreeFactory {
 		
 		// Now, iterate through all classes in the index and build
 		// the extension hierarchy
-		ISVDBItemIterator<SVDBItem> it = fIndexIt.getItemIterator();
+		ISVDBItemIterator it = fIndexIt.getItemIterator();
 		while (it.hasNext()) {
 			SVDBItem it_t = it.nextItem();
 			if (it_t.getType() == SVDBItemType.Class) {
