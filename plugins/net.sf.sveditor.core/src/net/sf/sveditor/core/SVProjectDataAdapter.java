@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 
 public class SVProjectDataAdapter implements IAdapterFactory {
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (adaptableObject instanceof IProject) {
 			IProject p = (IProject)adaptableObject;
@@ -33,7 +33,7 @@ public class SVProjectDataAdapter implements IAdapterFactory {
 		return null;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public Class[] getAdapterList() {
 		return new Class[] {
 				IProject.class

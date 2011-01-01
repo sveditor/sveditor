@@ -19,12 +19,14 @@ public class SVSearchQuery implements ISearchQuery {
 	private SVSearchResult				fSearchResult;
 	private SVDBSearchSpecification		fSearchSpec;
 	private ISVDBIndexIterator			fSearchContext;
+	private String						fLabel;
 	
 	public SVSearchQuery(
 			ISVDBIndexIterator			search_ctxt,
 			SVDBSearchSpecification		search_spec) {
 		fSearchContext 	= search_ctxt;
 		fSearchSpec 	= search_spec;
+		updateLabel();
 	}
 
 	public IStatus run(IProgressMonitor monitor) throws OperationCanceledException {
@@ -44,6 +46,21 @@ public class SVSearchQuery implements ISearchQuery {
 		return Status.OK_STATUS;
 	}
 	
+	private void updateLabel() {
+		String type = "";
+		switch (fSearchSpec.getSearchType()) {
+			case Field: type = "Field "; break;
+			case Method: type = "Method "; break;
+			case Package: type = "Package "; break;
+			case Type: type = "Type "; break;
+		}
+		
+		fLabel = type + fSearchSpec.getExpr();
+		if (fSearchResult != null) {
+			fLabel += " - " + fSearchResult.getMatchCount() + " matches";
+		}
+	}
+	
 	private void search(IProgressMonitor monitor) throws OperationCanceledException {
 		AbstractTextSearchResult result = (AbstractTextSearchResult) getSearchResult();
 		SVDBSearchEngine engine = new SVDBSearchEngine(fSearchContext);
@@ -55,7 +72,7 @@ public class SVSearchQuery implements ISearchQuery {
 	}
 
 	public String getLabel() {
-		return "SystemVerilog Search";
+		return fLabel;
 	}
 
 	public boolean canRerun() {

@@ -46,6 +46,7 @@ public class SVDB {
 		SVDBParamValueAssign.init();
 		SVDBGenerateBlock.init();
 		SVDBClockingBlock.init();
+		SVDBImport.init();
 
 		fInit = true;
 	}

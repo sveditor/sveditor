@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
+import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -41,8 +42,9 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 			Shell						parent,
 			SVDBModIfcClassDecl			leaf_class,
 			ISVDBIndexIterator			index_it) {
-		super(parent, new SVTreeLabelProvider(), 
-		new OverrideMethodsContentProvider(leaf_class, index_it));
+		super(parent, 
+				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()), 
+				new OverrideMethodsContentProvider(leaf_class, index_it));
 
 		fLeafClass     = leaf_class;
 		setInput(fLeafClass);

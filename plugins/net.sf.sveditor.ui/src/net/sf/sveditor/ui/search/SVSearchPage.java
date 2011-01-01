@@ -23,16 +23,22 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchSpecification;
 import net.sf.sveditor.core.db.search.SVDBSearchType;
 import net.sf.sveditor.core.db.search.SVDBSearchUsage;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.ISearchQuery;
@@ -48,7 +54,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IWorkingSet;
 
 public class SVSearchPage extends DialogPage implements ISearchPage {
 	
@@ -62,6 +68,7 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 	private Button 					fLimitToDeclarationsButton;
 	private Button 					fLimitToReferencesButton;
 	private Button 					fLimitToAllButton;
+	private LogHandle				fLog;
 	
 	private List<SearchSettings>	fSearchHistory;
 	private SearchSettings			fCurrentSearch;
@@ -180,6 +187,7 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 		super();
 		fSearchHistory = new ArrayList<SVSearchPage.SearchSettings>();
 		fCurrentSearch = new SearchSettings();
+		fLog = LogFactory.getLogHandle("SVSearchPage");
 	}
 
 	public SVSearchPage(String title) {
@@ -211,7 +219,6 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 				
 				for (String pn : fContainer.getSelectedProjectNames()) {
 					IProject p = ws.getRoot().getProject(pn);
-					System.out.println("Selected Project: " + pn);
 					SVDBProjectData p_data = mgr.getProjectData(p);
 					if (p_data != null) {
 						ISVDBIndexIterator it = p_data.getProjectIndexMgr();
@@ -236,7 +243,38 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 				} break;
 				
 			case ISearchPageContainer.WORKING_SET_SCOPE: {
+				for (IWorkingSet set : fContainer.getSelectedWorkingSets()) {
+					SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
+					for (IAdaptable adapter : set.getElements()) {
+						Object project_o = adapter.getAdapter(IProject.class);
+						if (project_o != null) {
+							IProject project = (IProject)project_o;
+							
+							SVDBProjectData p_data = mgr.getProjectData(project);
+							if (p_data != null) {
+								ISVDBIndexIterator it = p_data.getProjectIndexMgr();
+								// TODO: handle filtering external vs internal paths
+								search_ctxt.addIndexIterator(it);
+							}
+						}
+					}
+				}
+				} break;
 				
+			case ISearchPageContainer.SELECTION_SCOPE: {
+				// TODO: Selection scope not supported
+				fLog.error("Searching the selected resource is not supported");
+				ISelection sel = fContainer.getSelection();
+				if (sel instanceof IStructuredSelection) {
+					IStructuredSelection ss = (IStructuredSelection)sel;
+					for (Object sel_o : ss.toList()) {
+						if (sel_o instanceof IProject) {
+							
+						} else if (sel_o instanceof IFile) {
+							
+						}
+					}
+				}
 				} break;
 		}
 		
@@ -263,6 +301,8 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 
 	public void setContainer(ISearchPageContainer container) {
 		fContainer = container;
+		// enable initially
+		fContainer.setPerformActionEnabled(true);
 	}
 	
 	public void createControl(Composite parent) {
@@ -342,13 +382,16 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 		fLimitToReferencesButton = new Button(grpLimitTo, SWT.RADIO);
 		fLimitToReferencesButton.setText("References");
 		fLimitToReferencesButton.addSelectionListener(prvButtonSelectionListener);
+		fLimitToReferencesButton.setEnabled(false); // TODO: just for now
 		
 		fLimitToAllButton = new Button(grpLimitTo, SWT.RADIO);
 		fLimitToAllButton.setText("All");
 		fLimitToAllButton.addSelectionListener(prvButtonSelectionListener);
+		fLimitToAllButton.setEnabled(false); // TODO: just for now
 		
 		setControl(c);
-		
+
+		/*
 		Group grpSearchIn = new Group(c, SWT.NONE);
 		grpSearchIn.setText("Search In");
 		grpSearchIn.setLayout(new GridLayout(2, false));
@@ -359,6 +402,7 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 		
 		Button btnReferencedLibraries = new Button(grpSearchIn, SWT.CHECK);
 		btnReferencedLibraries.setText("Referenced Libraries");
+		 */
 
 		// Load the stored preferences
 		loadSettings();

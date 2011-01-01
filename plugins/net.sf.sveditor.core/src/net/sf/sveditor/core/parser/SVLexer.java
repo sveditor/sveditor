@@ -227,7 +227,7 @@ public class SVLexer extends SVToken {
 				}
 			}
 			
-			fParser.error("Expecting one of operator \"" + 
+			error("Expecting one of operator \"" + 
 					sb.toString() + "\" ; received \"" + fImage + "\"");
 		}
 		
@@ -266,7 +266,7 @@ public class SVLexer extends SVToken {
 				}
 			}
 			
-			fParser.error("Expecting one of keyword \"" + 
+			error("Expecting one of keyword \"" + 
 					sb.toString() + "\" ; received \"" + fImage + "\"");
 		}
 		
@@ -292,7 +292,7 @@ public class SVLexer extends SVToken {
 		peek();
 		
 		if (!fIsString) {
-			fParser.error("Expecting a string ; received \"" + fImage + "\"");
+			error("Expecting a string ; received \"" + fImage + "\"");
 		}
 		
 		return eatToken();
@@ -308,7 +308,7 @@ public class SVLexer extends SVToken {
 		peek();
 
 		if (!fIsIdentifier) {
-			fParser.error("Expecting an identifier ; received \"" + fImage + "\"");
+			error("Expecting an identifier ; received \"" + fImage + "\"");
 		}
 		
 		return eatToken();
@@ -318,7 +318,7 @@ public class SVLexer extends SVToken {
 		peek();
 
 		if (!fIsIdentifier && !fIsKeyword) {
-			fParser.error("Expecting an identifier or keyword ; received \"" + 
+			error("Expecting an identifier or keyword ; received \"" + 
 					fImage + "\"");
 		}
 		
@@ -329,7 +329,7 @@ public class SVLexer extends SVToken {
 		peek();
 
 		if (!fIsNumber) {
-			fParser.error("Expecting a number ; received \"" + 
+			error("Expecting a number ; received \"" + 
 					fImage + "\"");
 		}
 
@@ -438,7 +438,7 @@ public class SVLexer extends SVToken {
 		
 		// TODO: should fix
 		ScanLocation loc = fScanner.getLocation();
-		fStartLocation = new SVDBLocation(loc.getLineNo());
+		fStartLocation = new SVDBLocation(loc.getLineNo(), loc.getLinePos());
 
 		if (ch == -1) {
 			fEOF = true;
@@ -462,7 +462,7 @@ public class SVLexer extends SVToken {
 			}
 			
 			if (ch != '"') {
-				fParser.error("Unterminated string");
+				error("Unterminated string");
 			}
 			fIsString = true;
 
@@ -508,7 +508,7 @@ public class SVLexer extends SVToken {
 			}
 		
 			if (!fIsOperator) {
-				fParser.error("Bad partial operator: " + tmp);
+				error("Bad partial operator: " + tmp);
 			}
 			
 		} else if (SVCharacter.isSVIdentifierStart(ch)) {
@@ -531,7 +531,7 @@ public class SVLexer extends SVToken {
 				ch = get_ch();
 				
 				if (ch == -1) {
-					fParser.error("unexpected EOF after \"'\"");
+					error("unexpected EOF after \"'\"");
 				}
 				
 				if (ch == 'b' || ch == 'B' || ch == 'd' || ch == 'D' ||
@@ -600,7 +600,7 @@ public class SVLexer extends SVToken {
 							fStringBuffer.append((char)ch);
 							ch = -1;
 						} else {
-							fParser.error("[ERROR] unknown base " + (char)ch);
+							error("[ERROR] unknown base " + (char)ch);
 						}
 						fIsTime = true;
 						ch = -1;
@@ -670,4 +670,8 @@ public class SVLexer extends SVToken {
 		}
 	}
 
+	private void error(String msg) throws SVParseException {
+		endCapture();
+		fParser.error(msg);
+	}
 }

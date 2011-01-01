@@ -37,13 +37,13 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 	private SVEditor							fEditor;
 	private SVCompletionProcessor				fSubProcessor;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private static final class ProposalComparator implements Comparator {
 		public int compare(Object o1, Object o2) {
 			return ((SVIndentingTemplateProposal) o2).getRelevance() - ((SVIndentingTemplateProposal) o1).getRelevance();
 		}
 	}
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private static final Comparator fgProposalComparator= new ProposalComparator();
 	
 
@@ -87,7 +87,7 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
 		Template[] templates= getTemplates(context.getContextType().getId());
 
-		List matches= new ArrayList();
+		List<Object> matches = new ArrayList<Object>();
 		for (int i= 0; i < templates.length; i++) {
 			Template template= templates[i];
 			try {

@@ -29,6 +29,8 @@ import java.util.zip.ZipOutputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBVersionException;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
 import net.sf.sveditor.core.log.LogFactory;
@@ -201,7 +203,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		if (desc != null) {
 			fLog.debug("    Found persistence record");
-			SVDBLoad loader = new SVDBLoad();
+			SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
 			InputStream in = null;
 			boolean loaded = false;
 			try {
@@ -218,8 +220,24 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				loaded = true;
 				
 				in.close();
+			} catch (DBFormatException e) {
+				if (e instanceof DBVersionException) {
+					fLog.note("Rebuilding index for project \"" + project + 
+							"\" due to version mismatch: " + e.getMessage());
+				} else {
+					fLog.error("Failed to load index for project \"" + project + 
+							"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
+							"\"", e);
+				}
+				// Remove the DB file, since it's bad... 
+				File db_file = desc.getDBFile();
+				db_file.delete();
+				
+				// Remove this location so we don't get follow-on errors
+				db_desc.remove(desc);
 			} catch (Exception e) {
 				e.printStackTrace();
+
 				fLog.error("Failed to load index for project \"" + project + 
 						"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
 						"\"", e);
@@ -248,7 +266,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	private void load_database_descriptors() {
 		fLog.debug("load_database_descriptors");
 		if (fDatabaseDir != null && fDatabaseDir.exists()) {
-			SVDBLoad loader = new SVDBLoad();
+			SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
 			
 			for (File d : fDatabaseDir.listFiles()) {
 				if (d.isDirectory()) {
@@ -313,7 +331,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	private void save_state(String proj_name, List<ISVDBIndex> index_list) {
-		SVDBDump dumper = new SVDBDump();
+		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
 		List<SVDBPersistenceDescriptor>		db_list = fDatabaseDescMap.get(proj_name);
 		
 		if (fDatabaseDir == null) {

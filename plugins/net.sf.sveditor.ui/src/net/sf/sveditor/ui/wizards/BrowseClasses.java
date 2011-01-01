@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IStatus;
@@ -114,7 +115,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		gd.horizontalSpan = 2;
 		fClassList.getControl().setLayoutData(gd);
 		fClassList.setContentProvider(this);
-		fClassList.setLabelProvider(new SVTreeLabelProvider());
+		fClassList.setLabelProvider(new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
 		fClassList.setInput(fProposals);
 		fClassList.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {

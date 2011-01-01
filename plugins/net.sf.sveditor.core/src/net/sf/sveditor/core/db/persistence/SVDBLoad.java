@@ -25,10 +25,12 @@ public class SVDBLoad {
 	private StringBuilder			fTmpBuffer = new StringBuilder();
 	private LogHandle				fLog;
 	private SVDBPersistenceReader	fReader;
+	private String					fVersion;
 	
-	public SVDBLoad() {
+	public SVDBLoad(String version) {
 		fReader = new SVDBPersistenceReader(null);
 		fLog = LogFactory.getLogHandle("SVDBLoad");
+		fVersion = version;
 	}
 	
 	public String readBaseLocation(InputStream in) throws DBFormatException {
@@ -63,6 +65,19 @@ public class SVDBLoad {
 		
 		if (ch != '>') {
 			throw new DBFormatException("Unterminated SDB record");
+		}
+		
+		int version_idx = fTmpBuffer.indexOf("::");
+		String version = "";
+		if (version_idx != -1) {
+			version = fTmpBuffer.substring(version_idx+2);
+			fTmpBuffer.setLength(version_idx+1);
+		}
+
+		// Bail if the database version is wrong
+		if (!fVersion.equals(version)) {
+			throw new DBVersionException("Database version is \"" + version + 
+					"\" SVEditor version is \"" + fVersion + "\"");
 		}
 		
 		byte [] index_data_arr = fReader.readByteArray();

@@ -28,15 +28,20 @@ import net.sf.sveditor.ui.SVDBIconUtils;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
-public class SVTreeLabelProvider extends LabelProvider {
+public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelProvider {
+	protected boolean							fShowFunctionRetType;
+	
 	private WorkbenchLabelProvider				fLabelProvider;
 	
 	
 	public SVTreeLabelProvider() {
 		fLabelProvider = new WorkbenchLabelProvider();
+		fShowFunctionRetType = true;
 	}
 
 	@Override
@@ -48,16 +53,15 @@ public class SVTreeLabelProvider extends LabelProvider {
 		}
 	}
 	
-	@Override
-	public String getText(Object element) {
+	public StyledString getStyledText(Object element) {
 		if (element instanceof SVDBItem) {
-			String ret = ((SVDBItem)element).getName();
+			StyledString ret = new StyledString(((SVDBItem)element).getName());
 			
 			if (element instanceof SVDBVarDeclItem) {
 				SVDBVarDeclItem var = (SVDBVarDeclItem)element;
 				
 				if (var.getTypeInfo() != null) {
-					ret = ret + " : " + var.getTypeName();
+					ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);
 					
 					SVDBTypeInfo type = var.getTypeInfo();
 					
@@ -65,65 +69,74 @@ public class SVTreeLabelProvider extends LabelProvider {
 						SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
 						if (cls.getParameters() != null && 
 								cls.getParameters().getParameters().size() > 0) {
-							ret += "<";
+							ret.append("<", StyledString.QUALIFIER_STYLER);
 							
 							for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
 								SVDBParamValueAssign p = 
 									cls.getParameters().getParameters().get(i);
-								ret += p.getName();
+								ret.append(p.getName(), StyledString.QUALIFIER_STYLER);
 								if (i+1 < cls.getParameters().getParameters().size()) {
-									ret += ", ";
+									ret.append(", ", StyledString.QUALIFIER_STYLER);
 								}
 							}
 							
-							ret += ">";
+							ret.append(">", StyledString.QUALIFIER_STYLER);
 						}
 					}
 				}
 			} else if (element instanceof SVDBTaskFuncScope) {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
 				
-				ret = ret + "(";
-				for (SVDBParamPort p : tf.getParams()) {
-					ret = ret + p.getTypeName() + ", ";
+				ret.append("(");
+				for (int i=0; i<tf.getParams().size(); i++) {
+					SVDBParamPort p = tf.getParams().get(i);
+					ret.append(p.getTypeName());
+					if (i+1 < tf.getParams().size()) {
+						ret.append(", ");
+					}
 				}
 				
-				if (ret.endsWith(", ")) {
-					ret = ret.substring(0, ret.length()-2);
-				}
-				ret += ")";
+				ret.append(")");
 				
 				if (tf.getType() == SVDBItemType.Function && 
 						tf.getReturnType() != null && 
-						!tf.getReturnType().equals("void")) {
-					ret += ": " + tf.getReturnType();
+						!tf.getReturnType().equals("void") &&
+						fShowFunctionRetType) {
+					ret.append(": " + tf.getReturnType(), StyledString.QUALIFIER_STYLER);
 				}
 			} else if (element instanceof SVDBModIfcClassDecl) {
 				SVDBModIfcClassDecl decl = (SVDBModIfcClassDecl)element;
 
 				if (decl.getParameters().size() > 0) {
-					ret += "<";
-					
-					for (SVDBModIfcClassParam p : decl.getParameters()) {
-						ret = ret + p.getName() + ", ";
+					ret.append("<", StyledString.QUALIFIER_STYLER);
+
+					for (int i=0; i<decl.getParameters().size(); i++) {
+						SVDBModIfcClassParam p = decl.getParameters().get(i);
+						ret.append(p.getName(), StyledString.QUALIFIER_STYLER);
+
+						if (i+1 < decl.getParameters().size()) {
+							ret.append(", ", StyledString.QUALIFIER_STYLER);
+						}
 					}
 					
-					if (ret.endsWith(", ")) {
-						ret = ret.substring(0, ret.length()-2);
-					}
-					
-					ret += ">";
+					ret.append(">", StyledString.QUALIFIER_STYLER);
 				}
-			} if (element instanceof SVDBAlwaysBlock) {
+			} 
+			if (element instanceof SVDBAlwaysBlock) {
 				if (ret.equals("")) {
-					ret = ((SVDBAlwaysBlock)element).getExpr().trim();
+					ret = new StyledString(((SVDBAlwaysBlock)element).getExpr().trim());
 				}
 			}
 			
 			return ret; 
 		} else {
-			return element.toString();
+			return new StyledString(element.toString());
 		}
+	}
+
+	@Override
+	public String getText(Object element) {
+		return getStyledText(element).toString();
 	}
 
 	@Override

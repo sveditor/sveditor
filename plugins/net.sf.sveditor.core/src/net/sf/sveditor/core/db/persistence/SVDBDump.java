@@ -22,10 +22,12 @@ import net.sf.sveditor.core.log.LogHandle;
 public class SVDBDump {
 	private LogHandle						fLog;
 	private SVDBPersistenceWriter			fWriter;
+	private String							fVersion;
 	
-	public SVDBDump() {
+	public SVDBDump(String version) {
 		fLog = LogFactory.getLogHandle("SVDBDump");
 		fWriter = new SVDBPersistenceWriter(null);
+		fVersion = version;
 	}
 	
 	public void dump(ISVDBIndex index, OutputStream out) {
@@ -43,7 +45,7 @@ public class SVDBDump {
 		}
 		
 		// TODO: Write DB header
-		fWriter.writeRawString("SDB<" + index.getBaseLocation() + ">");
+		fWriter.writeRawString("SDB<" + index.getBaseLocation() + "::" + fVersion + ">");
 		
 		// Write back the index-specific data
 		fWriter.writeByteArray(index_data_bos.toByteArray());

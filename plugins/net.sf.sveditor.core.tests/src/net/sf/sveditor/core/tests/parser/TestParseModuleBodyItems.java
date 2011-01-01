@@ -1434,11 +1434,31 @@ public class TestParseModuleBodyItems extends TestCase {
 			"\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
-		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t"});
+		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t", "p::*"});
 	}
-	
+
+	public void testModulePreBodyImport3() {
+		String doc = 
+			"package p;\n" +
+			"endpackage\n" +
+			"\n" +
+			"module t import p::*, p1::*, p2::*;\n" +
+			"	#(\n" +
+			"		parameter a = 0\n" +
+			"	) // Error.\n" +
+			"	();\n" +
+			"endmodule\n" +
+			"\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testModulePreBodyImport3", doc, new String[] {
+				"p", "t", "p::*", "p1::*", "p2::*"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

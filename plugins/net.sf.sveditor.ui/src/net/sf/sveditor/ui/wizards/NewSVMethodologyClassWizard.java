@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
@@ -101,7 +102,11 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 		}
 		 */
 		
-		SVEditorUtil.openEditor("${workspace_loc}/" + file_path.getFullPath());
+		try {
+			SVEditorUtil.openEditor("${workspace_loc}/" + file_path.getFullPath());
+		} catch (PartInitException e) {
+			e.printStackTrace();
+		}
 
 		return true;
 	}

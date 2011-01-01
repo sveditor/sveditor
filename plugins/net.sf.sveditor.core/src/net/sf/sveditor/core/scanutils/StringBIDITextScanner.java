@@ -69,16 +69,18 @@ public class StringBIDITextScanner
 
 	public ScanLocation getLocation() {
 		int lineno = -1;
+		int linepos = -1;
 		
 		for (int i=0; i<fLineOffsets.size(); i++) {
 			int pos = fLineOffsets.get(i);
 			if (fIdx <= pos) {
 				lineno = i;
+				linepos = pos; // 
 				break;
 			}
 		}
 		
-		return new ScanLocation("", lineno, 0);
+		return new ScanLocation("", lineno, linepos);
 	}
 
 	public void unget_ch(int ch) {

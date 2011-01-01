@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 
 public class HierarchyTreeLabelProvider extends SVTreeLabelProvider {
@@ -32,16 +33,15 @@ public class HierarchyTreeLabelProvider extends SVTreeLabelProvider {
 	}
 
 	@Override
-	public String getText(Object element) {
+	public StyledString getStyledText(Object element) {
 		if (element instanceof HierarchyTreeNode) {
 			HierarchyTreeNode n = (HierarchyTreeNode)element;
 			if (n.getItemDecl() != null) {
-				return super.getText(n.getItemDecl());
+				return super.getStyledText(n.getItemDecl());
 			} else {
-				return n.getName();
+				return new StyledString(n.getName());
 			}
 		}
-		return super.getText(element);
+		return super.getStyledText(element);
 	}
-
 }

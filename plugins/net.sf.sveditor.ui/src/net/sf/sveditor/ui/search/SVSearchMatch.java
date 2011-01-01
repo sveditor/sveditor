@@ -26,6 +26,4 @@ public class SVSearchMatch extends Match {
 		}
 		return fFile;
 	}
-	
-
 }

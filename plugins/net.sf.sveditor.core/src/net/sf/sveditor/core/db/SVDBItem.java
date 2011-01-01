@@ -37,13 +37,14 @@ public class SVDBItem implements ISVDBLocatedItem {
 		fParent   = parent;
 		fType     = type;
 		fName     = reader.readString();
-		fLocation = new SVDBLocation(reader.readInt());
+		fLocation = new SVDBLocation(reader.readInt(), reader.readInt());
 	}
 	
 	public void dump(IDBWriter writer) {
 		writer.writeItemType(fType);
 		writer.writeString(fName);
 		writer.writeInt((fLocation != null)?fLocation.getLine():0);
+		writer.writeInt((fLocation != null)?fLocation.getPos():0);
 	}
 	
 	public SVDBLocation getLocation() {

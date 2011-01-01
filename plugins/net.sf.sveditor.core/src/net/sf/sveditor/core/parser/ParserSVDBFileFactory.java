@@ -140,7 +140,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void preProcError(String msg, String filename, int lineno) {
-		error(msg, filename, lineno);
+		error(msg, filename, lineno, -1);
 	}
 
 	/**
@@ -216,7 +216,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					} else if (id.equals("package") || id.equals("endpackage")) {
 						process_package(id);
 					} else if (id.equals("import")) {
-						process_import();
+						List<SVDBItem> items = parsers().importParser().parse();
+						
+						if (fScopeStack.size() > 0) {
+							for (SVDBItem item : items) {
+								fScopeStack.peek().addItem(item);
+							}
+						}
 						fNewStatement = true;
 					} else if (id.equals("export")) {
 						process_export(id);
@@ -530,7 +536,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return it;
 	}
 
-	private int scan_qualifiers(boolean param)
+	public int scan_qualifiers(boolean param)
 			throws EOFException {
 		int modifiers = 0;
 		Map<String, Integer> qmap = (param) ? fTaskFuncParamQualifiers
@@ -763,39 +769,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return ret;
 	}
 
-	public void process_import() throws SVParseException {
-		SVDBLocation start = lexer().getStartLocation();
-		lexer().readKeyword("import");
-		
-		if (lexer().peekString()) {
-			// likely DPI import/export. Double-check
-			String qualifier = lexer().readString();
-
-			if (qualifier != null && qualifier.equals("DPI")
-					|| qualifier.equals("DPI-C")) {
-				int modifiers = IFieldItemAttr.FieldAttr_DPI;
-
-				modifiers |= scan_qualifiers(false);
-
-				// id = lexer().readId();
-
-				// Read tf extern declaration
-				SVDBTaskFuncScope tf = parsers().functionParser().parse(start, modifiers);
-				fScopeStack.peek().addItem(tf);
-				fNewStatement = true;
-			}
-		} else { // if (type.equals("import")) {
-			// skip to end-of-statement
-			lexer().startCapture();
-			while (lexer().peek() != null && !lexer().peekOperator(";")) {
-				lexer().eatToken();
-			}
-			String imp_str = lexer().endCapture();
-
-			import_statment(imp_str);
-		}
-	}
-
 	private void process_export(String type) throws SVParseException {
 		String qualifier = lexer().read();
 
@@ -988,7 +961,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			ret = fSpecialNonNull;
 			fNewStatement = true;
 		} else if (id.equals("import")) {
-			process_import();
+			List<SVDBItem> items = parsers().importParser().parse();
+			
+			if (fScopeStack.size() > 0) {
+				for (SVDBItem item : items) {
+					fScopeStack.peek().addItem(item);
+				}
+			}
 			ret = fSpecialNonNull;
 			fNewStatement = true;
 		} else if (id.equals("clocking")) {
@@ -1551,10 +1530,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public void error(String msg, String filename, int lineno) {
+	public void error(String msg, String filename, int lineno, int linepos) {
 		SVDBMarkerItem marker = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
 				SVDBMarkerItem.KIND_GENERIC, msg);
-		marker.setLocation(new SVDBLocation(lineno));
+		marker.setLocation(new SVDBLocation(lineno, linepos));
 
 		fFile.addItem(marker);
 	}
@@ -1601,10 +1580,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void leave_package() {
 	}
 
-	public void import_statment(String imp) throws HaltScanException {
-		// TODO Auto-generated method stub
-
-	}
+	public void import_statment(String imp) throws HaltScanException {}
 
 	public void leave_interface_decl() {
 		if (fScopeStack.size() > 0
@@ -1742,18 +1718,18 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		ScanLocation loc = getStartLocation();
 
 		if (loc != null) {
-			item.setLocation(new SVDBLocation(loc.getLineNo()));
+			item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 		}
 	}
 
 	private void setLocation(SVDBItem item) {
 		ScanLocation loc = getStmtLocation();
-		item.setLocation(new SVDBLocation(loc.getLineNo()));
+		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(new SVDBLocation(loc.getLineNo()));
+		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
 	public void preproc_define(String key, List<String> params, String value) {
@@ -1820,7 +1796,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fParseErrors.add(e);
 
 		
-		error(e.getMessage(), e.getFilename(), e.getLineno());
+		error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
 		
 		// Send the full error forward
 		fLog.debug("Parse Error: " + e.getMessage() + " " + 
@@ -1831,7 +1807,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	
 	public void error(String msg) throws SVParseException {
 		error(SVParseException.createParseException(msg, 
-				fFile.getFilePath(), getLocation().getLineNo()));
+				fFile.getFilePath(), getLocation().getLineNo(), getLocation().getLinePos()));
 	}
 
 	public SVParsers parsers() {

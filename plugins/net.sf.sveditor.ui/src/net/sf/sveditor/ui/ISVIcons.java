@@ -48,6 +48,7 @@ public interface ISVIcons {
 	String TASK_PRIV_OBJ = DECL_ICONS + "private_co.gif";
 	String TASK_PROT_OBJ = DECL_ICONS + "protected_co.gif";
 	String TASK_PUB_OBJ = DECL_ICONS + "public_co.gif";
+	String IMPORT_OBJ = DECL_ICONS + "impc_obj.gif";
 	
 	
 }

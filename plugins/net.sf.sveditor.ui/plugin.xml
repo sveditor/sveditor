@@ -383,6 +383,18 @@
             </separator>
          </menu>
       </actionSet>
+      <actionSet
+            id="net.sf.sveditor.ui.svSearchActionSet"
+            label="SystemVerilog Search"
+            visible="false">
+         <action
+               class="net.sf.sveditor.ui.search.OpenSVSearchAction"
+               id="net.sf.sveditor.ui.svOpenSearchPage"
+               label="SystemVerilog..."
+               menubarPath="org.eclipse.search.menu/dialogGroup"
+               style="push">
+         </action>
+      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
@@ -551,6 +563,15 @@ endclass
             id="net.sf.sveditor.ui.searchResultsPage"
             searchResultClass="net.sf.sveditor.ui.search.SVSearchResult">
       </viewPage>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <actionSet
+               id="net.sf.sveditor.ui.svSearchActionSet">
+         </actionSet>
+      </perspectiveExtension>
    </extension>
    
 

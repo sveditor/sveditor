@@ -69,6 +69,17 @@ public class SVDBSearchEngine {
 					find_type_refs(ret);
 				}
 				break;
+				
+			case Field:
+				if (spec.getSearchUsage() == SVDBSearchUsage.Declaration ||
+						spec.getSearchUsage() == SVDBSearchUsage.All) {
+					find_field_decl(ret);
+				}
+				if (spec.getSearchUsage() == SVDBSearchUsage.Reference ||
+						spec.getSearchUsage() == SVDBSearchUsage.All) {
+					find_field_refs(ret);
+				}
+				break;
 		}
 
 		return ret;
@@ -137,13 +148,37 @@ public class SVDBSearchEngine {
 		
 		while (iterator.hasNext(types)) {
 			SVDBItem item = iterator.nextItem();
-			if (fSearchSpec.match(item.getName())) {
+			String name = item.getName();
+			
+			// Trim away the scope
+			if (name.indexOf("::") != -1) {
+				name = name.substring(name.lastIndexOf("::")+2);
+			}
+			if (fSearchSpec.match(name)) {
 				items.add(item);
 			}
 		}
 	}
 	
 	private void find_method_refs(List<SVDBItem> items) {
+		
+	}
+	
+	private void find_field_decl(List<SVDBItem> items) {
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDecl, SVDBItemType.ModIfcInst};
+
+		while (iterator.hasNext(types)) {
+			SVDBItem item = iterator.nextItem();
+			String name = item.getName();
+			
+			if (fSearchSpec.match(name)) {
+				items.add(item);
+			}
+		}
+	}
+	
+	private void find_field_refs(List<SVDBItem> items) {
 		
 	}
 }

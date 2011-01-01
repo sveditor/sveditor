@@ -10,7 +10,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.search.internal.ui.text.LineElement;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 
 public class SVSearchTreeContentProvider implements ITreeContentProvider {
@@ -36,7 +35,7 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 	private void initialize(AbstractTextSearchResult result) {
 		fResult = result;
 		fChildrenMap= new HashMap<Object, Set<Object>>();
-		boolean showLineMatches= true; // !((FileSearchQuery) fResult.getQuery()).isFileNameSearch();
+		// boolean showLineMatches= true; // !((FileSearchQuery) fResult.getQuery()).isFileNameSearch();
 		
 		if (result != null) {
 			Object[] elements = result.getElements();
@@ -59,11 +58,11 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 		Object parent = getParent(child);
 		while (parent != null) {
 			if (insertChild(parent, child)) {
-				if (refreshViewer) {
+				if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 					fTreeViewer.add(parent, child);
 				}
 			} else {
-				if (refreshViewer) {
+				if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 					fTreeViewer.refresh(parent);
 				}
 				return;
@@ -72,8 +71,9 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 			parent = getParent(child);
 		}
 		if (insertChild(fResult, child)) {
-			if (refreshViewer)
+			if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 				fTreeViewer.add(fResult, child);
+			}
 		}
 	}
 	
@@ -81,8 +81,9 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 		// precondition here:  fResult.getMatchCount(child) <= 0
 	
 		if (hasChildren(element)) {
-			if (refreshViewer)
+			if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 				fTreeViewer.refresh(element);
+			}
 		} else {
 			if (!hasMatches(element)) {
 				fChildrenMap.remove(element);
@@ -92,11 +93,12 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 					remove(parent, refreshViewer);
 				} else {
 					removeFromSiblings(element, fResult);
-					if (refreshViewer)
+					if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 						fTreeViewer.refresh();
+					}
 				}
 			} else {
-				if (refreshViewer) {
+				if (refreshViewer && !fTreeViewer.getControl().isDisposed()) {
 					fTreeViewer.refresh(element);
 				}
 			}
@@ -195,7 +197,9 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 	
 	public void clear() {
 		initialize(fResult);
-		fTreeViewer.refresh();
+		if (!fTreeViewer.getControl().isDisposed()) {
+			fTreeViewer.refresh();
+		}
 	}
 
 }

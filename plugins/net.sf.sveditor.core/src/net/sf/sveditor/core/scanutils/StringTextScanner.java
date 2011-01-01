@@ -103,8 +103,10 @@ public class StringTextScanner extends AbstractTextScanner
 			fCaptureBuffer.append((char)ch);
 		}
 		
+		fLinepos++;
 		if (fLastCh == '\n') {
 			fLineno++;
+			fLinepos = 0;
 		}
 		fLastCh = ch;
 		
@@ -195,6 +197,6 @@ public class StringTextScanner extends AbstractTextScanner
 	}
 	
 	public ScanLocation getLocation() {
-		return new ScanLocation("UNKNOWN", fLineno, 0);
+		return new ScanLocation("UNKNOWN", fLineno, fLinepos);
 	}
 }

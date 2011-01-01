@@ -50,6 +50,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -127,7 +128,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
-		fPlugin = null;
 		
 		if (fTodoScanner != null) {
 			fTodoScanner.dispose();
@@ -149,7 +149,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 				fLogStream.close();
 			} catch (IOException e) {}
 		}
-		
+
+		// Don't null out the plugin until we're sure we don't need it
+		fPlugin = null;
+
 		super.stop(context);
 	}
 
@@ -250,6 +253,12 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			}
 		}
 	}
+
+	public String getVersion() {
+		Version v = getBundle().getVersion();
+		return v.getMajor() + "." + v.getMinor() + "." + v.getMicro();
+	}
+
 	
 	public static StringBuilder readResourceFile(IConfigurationElement element, String attr) {
 		Bundle bundle = Platform.getBundle(element.getContributor().getName());
@@ -289,6 +298,5 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			return System.getenv(key);
 		}
 	}
-
 }
 

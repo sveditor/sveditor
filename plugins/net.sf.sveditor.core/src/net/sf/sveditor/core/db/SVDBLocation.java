@@ -15,10 +15,17 @@ package net.sf.sveditor.core.db;
 public class SVDBLocation {
 	private int				fLine;
 	private int				fPos;
-	
+
+	/*
 	public SVDBLocation(int line) {
 		fLine = line;
 		fPos  = -1;
+	}
+	 */
+
+	public SVDBLocation(int line, int pos) {
+		fLine = line;
+		fPos  = pos;
 	}
 
 	public SVDBLocation(SVDBLocation other) {
@@ -47,10 +54,6 @@ public class SVDBLocation {
 		if (other instanceof SVDBLocation) {
 			boolean ret = true;
 			SVDBLocation o = (SVDBLocation)other;
-			
-			if (other == null) {
-				return false;
-			}
 			
 			ret &= (o.fLine == fLine &&	o.fPos == fPos);
 			

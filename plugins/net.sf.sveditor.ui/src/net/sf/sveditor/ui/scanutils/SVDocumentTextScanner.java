@@ -97,13 +97,15 @@ public class SVDocumentTextScanner
 
 	public ScanLocation getLocation() {
 		int lineno = -1;
+		int linepos = -1;
 		
 		try {
 			int off = fIdx < (fDoc.getLength())?fIdx:fDoc.getLength()-1;
 			lineno = fDoc.getLineOfOffset(off);
+			linepos = off-fDoc.getLineOffset(off);
 		} catch (BadLocationException e) {}
 		
-		return new ScanLocation(fName, lineno, 0);
+		return new ScanLocation(fName, lineno, linepos);
 	}
 
 	public int get_ch() {

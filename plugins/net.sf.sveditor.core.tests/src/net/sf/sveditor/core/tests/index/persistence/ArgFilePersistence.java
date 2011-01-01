@@ -121,12 +121,12 @@ public class ArgFilePersistence extends TestCase
 		}
 		assertEquals("Unexpected errors: ", 0, errors.size());
 		
-		SVDBDump dumper = new SVDBDump();
+		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		dumper.dump(index, out);
 
-		SVDBLoad loader = new SVDBLoad();
+		SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
 		
 		// May throw exception
 		loader.load(index, new ByteArrayInputStream(out.toByteArray()));

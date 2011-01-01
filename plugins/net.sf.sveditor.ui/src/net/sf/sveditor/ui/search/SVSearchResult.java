@@ -13,14 +13,10 @@ public class SVSearchResult extends AbstractTextSearchResult implements IEditorM
 	
 	public SVSearchResult(SVSearchQuery query) {
 		fQuery = query;
-		/*
-		fLabel = label;
-		fTooltip = tooltip;
-		 */
 	}
 
 	public String getLabel() {
-		return "SystemVerilog Search";
+		return fQuery.getLabel();
 	}
 
 	public String getTooltip() {
@@ -38,23 +34,28 @@ public class SVSearchResult extends AbstractTextSearchResult implements IEditorM
 
 	@Override
 	public IEditorMatchAdapter getEditorMatchAdapter() {
+//		System.out.println("getEditorMatchAdapter()");
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IFileMatchAdapter getFileMatchAdapter() {
+		
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public boolean isShownInEditor(Match match, IEditorPart editor) {
+		System.out.println("isShownInEditor: " + match.getElement() + " " + editor.getTitle());
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	public Match[] computeContainedMatches(AbstractTextSearchResult result,
+	public Match[] computeContainedMatches(
+			AbstractTextSearchResult result,
 			IEditorPart editor) {
+		System.out.println("computeContainedMatches: " + editor.getTitle());
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -44,7 +44,7 @@ public class PluginPathEditorInput extends FileStoreEditorInput {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (IFile.class.equals(adapter) || IResource.class.equals(adapter)) {
 			return null;

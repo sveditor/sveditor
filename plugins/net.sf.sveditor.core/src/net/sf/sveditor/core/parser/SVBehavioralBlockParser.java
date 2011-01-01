@@ -20,7 +20,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	private static SVDBItem				fSpecialNonNull;
 	static {
 		fSpecialNonNull = new SVDBItem("BehavioralSpecialNonNull", SVDBItemType.VarDecl);
-		fSpecialNonNull.setLocation(new SVDBLocation(-1));
+		fSpecialNonNull.setLocation(new SVDBLocation(-1, -1));
 	}
 	
 	public SVBehavioralBlockParser(ISVParser parser) {

@@ -1,13 +1,32 @@
 
 -- 0.3.5 Release --
 
-? Improve support for parsing and preserving import statements
+- Improve support for parsing and preserving import statements. Imports are
+  parsed and represented in the AST, as well as being shown in the Outline view.
+  This improved support also resolves issue #3135375.
+  
 
-? Add Search support to 
+- Add Initial Eclipse Search support. Search can now be accessed via the
+  Search->SystemVerilog menu item (or, alternatively, the SystemVerilog tab
+  on the Search dialog). 
+  - Searching for declarations is supported (reference search unsupported)
+  - Searching for Types, Methods, Packages, and Fields supported
+  - The 'List' format for search results has reasonable support, while the
+    'Tree' format is mostly unimplemented
+
+- Change SVDBLocation to track line position in addition to line number. 
+
+- Implement styled text for label providers. The effect of this change can be
+  observed in the Outline view. Field types and function return types are now
+  displayed with different styling than the name of the function/field.
 
 - [Internal API] Update the ISVDBItemIterator interface to support contextual 
   scanning. This allows the client to, for example, scan to the next package 
-  declaration.
+  declaration without seeing all elements in between.
+
+- Add a version to the saved parse database. This enables a better message to
+  the user when a new SVEditor version chooses to rebuild a database due to
+  a format difference. 
 
 ------------------------------------------------------------------------------
 

@@ -38,14 +38,14 @@ public class SVDBFile extends SVDBScopeItem {
 	public SVDBFile(String file) {
 		super(new File(file).getName(), SVDBItemType.File);
 		fFile               = file;
-		setLocation(new SVDBLocation(0));
+		setLocation(new SVDBLocation(-1, -1));
 	}
 
 	public SVDBFile(String file, long lastModified) {
 		this(file);
 		
 		fLastModified = lastModified;
-		setLocation(new SVDBLocation(0));
+		setLocation(new SVDBLocation(-1, -1));
 	}
 
 	public SVDBFile(

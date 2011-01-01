@@ -20,6 +20,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 	protected StringBuilder				fCaptureBuffer;
 	protected boolean					fCaptureEnabled;
 	protected int						fLineno;
+	protected int						fLinepos;
 	protected int						fLastCh;
 	protected boolean					fScanFwd;
 	
@@ -31,6 +32,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		fScanFwd = true;
 		fLastCh  = -1;
 		fLineno  = 1;
+		fLinepos = 0;
 	}
 	
 	public void init() {

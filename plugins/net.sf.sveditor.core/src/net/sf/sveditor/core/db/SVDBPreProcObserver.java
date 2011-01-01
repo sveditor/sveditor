@@ -107,17 +107,15 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	private void setLocation(SVDBItem it) {
 		ScanLocation loc = fScanner.getStmtLocation();
 		
-		it.setLocation(new SVDBLocation(loc.getLineNo()));
+		it.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 	
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setEndLocation(new SVDBLocation(loc.getLineNo()));
+		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 	
-	
-	
-	public void error(String msg, String filename, int lineno) {
+	public void error(String msg, String filename, int lineno, int linepos) {
 		// Ignore errors in the pre-processor stage
 		// System.out.println("[ERROR] " + msg);
 	}

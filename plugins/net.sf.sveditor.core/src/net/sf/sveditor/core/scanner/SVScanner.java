@@ -87,7 +87,7 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 	
 	public void preProcError(String msg, String filename, int lineno) {
 		if (fObserver != null) {
-			fObserver.error(msg, filename, lineno);
+			fObserver.error(msg, filename, lineno, -1);
 		}
 	}
 
@@ -622,7 +622,8 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 				if (fObserver != null) {
 					fObserver.error("missing \"" + exp_end + "\"",
 							getLocation().getFileName(),
-							getLocation().getLineNo());
+							getLocation().getLineNo(),
+							getLocation().getLinePos());
 					System.out.println("second-level scope \"" + id + "\"");
 				}
 
@@ -635,7 +636,8 @@ public class SVScanner implements ISVScanner, IPreProcErrorListener {
 				if (fObserver != null) {
 					fObserver.error("missing \"" + exp_end + "\"",
 							getLocation().getFileName(),
-							getLocation().getLineNo());
+							getLocation().getLineNo(),
+							getLocation().getLinePos());
 				}
 
 				// System.out.println("first-level scope \"" + id + "\" " + tf_name);

@@ -16,6 +16,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 
 public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
@@ -42,18 +43,16 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 		}
 		return super.getImage(element);
 	}
-
+	
 	@Override
-	public String getText(Object element) {
+	public StyledString getStyledText(Object element) {
 		if (element instanceof IProjectPathsData) {
-			return ((IProjectPathsData)element).getName();
+			return new StyledString(((IProjectPathsData)element).getName());
 		} else if (element instanceof SVDBFile) {
-			return ((SVDBFile)element).getName();
+			return new StyledString(((SVDBFile)element).getName());
 		} else {
-			return super.getText(element);
+			return super.getStyledText(element);
 		}
 	}
-	
-	
 
 }

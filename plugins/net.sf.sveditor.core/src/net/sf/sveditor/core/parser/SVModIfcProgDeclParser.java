@@ -71,7 +71,10 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			// May have imports prior to the port declaration
 			while (lexer().peekKeyword("import")) {
 				// Import statement
-				parsers().SVParser().process_import();
+				List<SVDBItem> items = parsers().importParser().parse();
+				for (SVDBItem item : items) {
+					module.addItem(item);
+				}
 			}
 		}
 

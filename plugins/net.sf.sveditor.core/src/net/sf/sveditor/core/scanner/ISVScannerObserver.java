@@ -36,7 +36,7 @@ public interface ISVScannerObserver extends ISVPreProcScannerObserver {
 	int ParamAttr_Output			= (1 << 3);
 	int ParamAttr_Inout				= (1 << 4);
 	
-	void error(String msg, String filename, int lineno);
+	void error(String msg, String filename, int lineno, int linepos);
 	
 	void import_statment(String imp) throws HaltScanException;
 	

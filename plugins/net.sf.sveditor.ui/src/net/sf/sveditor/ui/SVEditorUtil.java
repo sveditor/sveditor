@@ -50,7 +50,7 @@ public class SVEditorUtil {
 	
 	private static LogHandle				fLog = LogFactory.getLogHandle("SVEditorUtil");
 	
-	public static IEditorPart openEditor(SVDBItem it) {
+	public static IEditorPart openEditor(SVDBItem it) throws PartInitException {
 		ISVDBLocatedItem p = it;
 		// Find the file that this item belongs to
 		
@@ -68,7 +68,7 @@ public class SVEditorUtil {
 		return ed;
 	}
 	
-	public static IEditorPart openEditor(String file) {
+	public static IEditorPart openEditor(String file) throws PartInitException {
 		IFile f = null;
 		String name = "";
 		IEditorPart ret = null;
@@ -104,11 +104,7 @@ public class SVEditorUtil {
 					}
 					IEditorInput in = null;
 
-					try {
-						in = ed_r.getEditorInput();
-					} catch (PartInitException e) {
-						e.printStackTrace();
-					}
+					in = ed_r.getEditorInput();
 
 					if (in instanceof IURIEditorInput) {
 						IURIEditorInput in_uri = (IURIEditorInput)in;
@@ -138,40 +134,34 @@ public class SVEditorUtil {
 			
 			debug("file=" + file);
 			
-			try {
-				if (f != null) {
-					ed_in = new FileEditorInput(f);
-				} else if (file.startsWith("plugin:/")) {
-					debug("plugin: " + file);
-					IFileSystem fs = null;
-					IFileStore store = null;
-					try {
-						fs = EFS.getFileSystem("plugin");
-						store = fs.getStore(new URI(file));
-					} catch (Exception e) {
-						fLog.error("Failed to get plugin for " + file, e);
-						e.printStackTrace();
-					}
-
-					try {
-						ed_in = new PluginPathEditorInput((PluginFileStore)store);
-					} catch (CoreException e) {
-						fLog.error("Failed to create PluginPathEditorInput", e);
-						e.printStackTrace();
-					}
-				} else {
-					File file_path = new File(file);
-					IFileStore fs = EFS.getLocalFileSystem().getStore(file_path.toURI());
-					ed_in = new FileStoreEditorInput(fs);
-					
-					// TODO: need to connect up index to filesystem
+			if (f != null) {
+				ed_in = new FileEditorInput(f);
+			} else if (file.startsWith("plugin:/")) {
+				debug("plugin: " + file);
+				IFileSystem fs = null;
+				IFileStore store = null;
+				try {
+					fs = EFS.getFileSystem("plugin");
+					store = fs.getStore(new URI(file));
+				} catch (Exception e) {
+					fLog.error("Failed to get plugin for " + file, e);
+					e.printStackTrace();
 				}
-				ret = w.getActivePage().openEditor(ed_in, desc.getId());
 
-			} catch (PartInitException e) {
-				fLog.error("Failed to initialize part", e);
-				e.printStackTrace();
+				try {
+					ed_in = new PluginPathEditorInput((PluginFileStore)store);
+				} catch (CoreException e) {
+					fLog.error("Failed to create PluginPathEditorInput", e);
+					e.printStackTrace();
+				}
+			} else {
+				File file_path = new File(file);
+				IFileStore fs = EFS.getLocalFileSystem().getStore(file_path.toURI());
+				ed_in = new FileStoreEditorInput(fs);
+
+				// TODO: need to connect up index to filesystem
 			}
+			ret = w.getActivePage().openEditor(ed_in, desc.getId());
 		} else {
 			IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			w.getActivePage().activate(ret);

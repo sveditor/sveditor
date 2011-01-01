@@ -35,7 +35,7 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 	}
 
 	public ScanLocation getLocation() {
-		return new ScanLocation(fFilename, fLineno, 0);
+		return new ScanLocation(fFilename, fLineno, fLinepos);
 	}
 	
 	public int get_ch() {
@@ -58,9 +58,11 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 		if (fBufferIdx < fBufferMax) {
 			ch = fBuffer[fBufferIdx++];
 		}
-		
+
+		fLinepos++;
 		if (fLastCh == '\n') {
 			fLineno++;
+			fLinepos = 0;
 		}
 		fLastCh = ch;
 		

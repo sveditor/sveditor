@@ -45,7 +45,8 @@ public enum SVDBItemType {
 	ParamValue,
 	ParamValueList,
 	GenerateBlock,
-	ClockingBlock;
+	ClockingBlock,
+	Import;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {
 		if (type_list.length == 0) {

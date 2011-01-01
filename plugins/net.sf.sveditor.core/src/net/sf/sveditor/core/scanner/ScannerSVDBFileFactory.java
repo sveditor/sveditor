@@ -72,11 +72,11 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		return fScanner;
 	}
 	
-	public void error(String msg, String filename, int lineno) {
+	public void error(String msg, String filename, int lineno, int linepos) {
 		SVDBMarkerItem marker = new SVDBMarkerItem(
 				SVDBMarkerItem.MARKER_ERR,
 				SVDBMarkerItem.KIND_GENERIC, msg);
-		marker.setLocation(new SVDBLocation(lineno));
+		marker.setLocation(new SVDBLocation(lineno, linepos));
 		
 		fFile.addItem(marker);
 	}
@@ -420,18 +420,18 @@ public class ScannerSVDBFileFactory implements ISVScannerObserver, ISVDBFileFact
 		ScanLocation loc = fScanner.getStartLocation();
 		
 		if (loc != null) {
-			item.setLocation(new SVDBLocation(loc.getLineNo()));
+			item.setLocation(new SVDBLocation(loc.getLineNo(), 0));
 		}
 	}
 	
 	private void setLocation(SVDBItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setLocation(new SVDBLocation(loc.getLineNo()));
+		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 	
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = fScanner.getStmtLocation();
-		item.setEndLocation(new SVDBLocation(loc.getLineNo()));
+		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
 	

@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -35,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 
 public class SVHierarchyView extends ViewPart implements SelectionListener {
@@ -109,7 +111,11 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				if (sel.getFirstElement() instanceof HierarchyTreeNode) {
 					HierarchyTreeNode n = (HierarchyTreeNode)sel.getFirstElement();
 					if (n.getItemDecl() != null) {
-						SVEditorUtil.openEditor(n.getItemDecl());
+						try {
+							SVEditorUtil.openEditor(n.getItemDecl());
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -160,13 +166,17 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 		fMemberList.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		fMemberList.setContentProvider(fMemberContentProvider);
-		fMemberList.setLabelProvider(new SVTreeLabelProvider());
+		fMemberList.setLabelProvider(new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
 		fMemberList.addDoubleClickListener(new IDoubleClickListener() {
 			
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				if (sel.getFirstElement() instanceof SVDBItem) {
-					SVEditorUtil.openEditor((SVDBItem)sel.getFirstElement());
+					try {
+						SVEditorUtil.openEditor((SVDBItem)sel.getFirstElement());
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});

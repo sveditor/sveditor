@@ -29,6 +29,7 @@ import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
@@ -65,10 +66,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 		Tuple<SVDBItem, SVDBFile> target = findTarget();
 
-		if (target.first() != null) {
-			SVEditorUtil.openEditor(target.first());
-		} else if (target.second() != null) {
-			SVEditorUtil.openEditor(target.second().getFilePath());
+		try {
+			if (target.first() != null) {
+				SVEditorUtil.openEditor(target.first());
+			} else if (target.second() != null) {
+				SVEditorUtil.openEditor(target.second().getFilePath());
+			}
+		} catch (PartInitException e) {
+			fLog.error("Failed to open declaration in editor", e);
 		}
 	}
 	

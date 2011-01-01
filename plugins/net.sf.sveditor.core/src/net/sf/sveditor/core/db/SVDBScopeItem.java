@@ -50,13 +50,14 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		if (getType() == SVDBItemType.File) {
 			file   = (SVDBFile)this;
 		}
-		fEndLocation = new SVDBLocation(reader.readInt());
+		fEndLocation = new SVDBLocation(reader.readInt(), reader.readInt());
 		fItems = (List<SVDBItem>)reader.readItemList(file, this);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeInt((fEndLocation!=null)?fEndLocation.getLine():0);
+		writer.writeInt((fEndLocation!=null)?fEndLocation.getPos():0);
 		writer.writeItemList(fItems);
 	}
 	
