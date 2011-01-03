@@ -53,8 +53,12 @@ public class SVImportStmtParser extends SVParserBase {
 						lexer().readId();
 					}
 				}
-				String imp_item = lexer().endCapture();
-				imports.add(new SVDBImport(imp_item));
+				
+				String imp_expr = lexer().endCapture();
+				SVDBImport imp_item = new SVDBImport(imp_expr);
+				imp_item.setLocation(start);
+				imports.add(imp_item);
+				
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
 				} else {

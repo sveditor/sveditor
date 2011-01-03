@@ -55,6 +55,9 @@ public class SVDBItemTestComparator {
 				
 				if (!i1_t.equals(i2_t)) {
 					i1_t.equals(i2_t);
+					System.out.println("Element i1: " + i1_t.getType() + ":" + i1_t.getName() + 
+							" ; Element i2: " + i2_t.getType() + ":" + i2_t.getName());
+					System.out.println("    i1: " + i1_t.getLocation() + " i2: " + i2_t.getLocation());
 					TestCase.assertTrue("Element " + (i1.getItems().get(i).getType()) + 
 							" is different @ " + getScope(i1.getItems().get(i)),
 							i1_t.equals(i2_t));

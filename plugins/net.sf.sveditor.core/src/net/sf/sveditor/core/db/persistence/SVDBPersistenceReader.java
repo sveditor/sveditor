@@ -90,9 +90,9 @@ public class SVDBPersistenceReader implements IDBReader {
 		// Trim off the version number, if present
 		int base_end = fTmpBuffer.indexOf("::");
 		if (base_end != -1) {
-			fTmpBuffer.setLength(base_end+1);
+			fTmpBuffer.setLength(base_end);
 		}
-
+		
 		return fTmpBuffer.toString();
 	}
 	

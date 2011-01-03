@@ -235,7 +235,7 @@ public class ArgFilePersistence extends TestCase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
