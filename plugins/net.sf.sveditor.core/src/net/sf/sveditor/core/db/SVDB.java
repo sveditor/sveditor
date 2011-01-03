@@ -10,6 +10,10 @@
  ****************************************************************************/
 
 
+/**
+ * @author ballance
+ * The DB package contains classes that represent the SystemVerilog AST
+ */
 package net.sf.sveditor.core.db;
 
 public class SVDB {
