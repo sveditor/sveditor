@@ -1,3 +1,0 @@
--ovmhome ../../..
-
-fifo.sv
