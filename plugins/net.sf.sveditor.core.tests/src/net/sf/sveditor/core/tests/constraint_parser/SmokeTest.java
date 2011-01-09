@@ -12,29 +12,17 @@
 
 package net.sf.sveditor.core.tests.constraint_parser;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.expr.parser.SVExpr;
-import net.sf.sveditor.core.expr.parser.SVExprDump;
-import net.sf.sveditor.core.expr.parser.SVExprParseException;
-import net.sf.sveditor.core.parser.SVExprParser;
-import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SmokeTest extends TestCase {
 	
+	/*
 	public void testBasics() {
 		SVExprParser p = new SVExprParser();
 		String constraint = "if (a == 5) {b inside {6, 7, [8:10]}; c == 7;} else if (b == 6) { c == 8 ; d == 10;}";
@@ -81,6 +69,7 @@ public class SmokeTest extends TestCase {
 		
 		
 	}
+	 */
 	
 	public static void find_constraints(ISVDBScopeItem scope, List<SVDBConstraint> constraints) {
 		for (SVDBItem it : scope.getItems()) {

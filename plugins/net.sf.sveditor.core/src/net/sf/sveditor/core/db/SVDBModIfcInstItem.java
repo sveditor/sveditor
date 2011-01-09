@@ -22,7 +22,7 @@ public class SVDBModIfcInstItem extends SVDBVarDeclItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBModIfcInstItem(file, parent, type, reader);
 			}
@@ -43,7 +43,7 @@ public class SVDBModIfcInstItem extends SVDBVarDeclItem {
 		super.dump(writer);
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBItem ret = new SVDBModIfcInstItem(fTypeInfo, getName());
 		
 		init(ret);

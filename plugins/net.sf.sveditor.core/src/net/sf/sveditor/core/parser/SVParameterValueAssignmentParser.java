@@ -37,7 +37,9 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				is_mapped = true;
 			}
 			
-			String val = parsers().SVParser().readExpression();
+			// TODO:
+			// String val = parsers().exprParser().expression().toString();
+			String val = parsers().SVParser().readExpression(true);
 
 			if (is_mapped) {
 				// Read inside
@@ -79,5 +81,5 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		
 		return ret;
 	}
-
+	
 }

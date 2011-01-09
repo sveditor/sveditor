@@ -16,71 +16,108 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.expr.parser.SVArrayAccessExpr;
-import net.sf.sveditor.core.expr.parser.SVAssignExpr;
-import net.sf.sveditor.core.expr.parser.SVBinaryExpr;
-import net.sf.sveditor.core.expr.parser.SVCastExpr;
-import net.sf.sveditor.core.expr.parser.SVConcatenationExpr;
-import net.sf.sveditor.core.expr.parser.SVCondExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintIfExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintSetExpr;
-import net.sf.sveditor.core.expr.parser.SVCoverBinsExpr;
-import net.sf.sveditor.core.expr.parser.SVCoverageExpr;
-import net.sf.sveditor.core.expr.parser.SVCoverpointExpr;
-import net.sf.sveditor.core.expr.parser.SVDistItemExpr;
-import net.sf.sveditor.core.expr.parser.SVDistListExpr;
-import net.sf.sveditor.core.expr.parser.SVExpr;
-import net.sf.sveditor.core.expr.parser.SVExprDump;
-import net.sf.sveditor.core.expr.parser.SVExprParseException;
-import net.sf.sveditor.core.expr.parser.SVExprUtils;
-import net.sf.sveditor.core.expr.parser.SVFieldAccessExpr;
-import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
-import net.sf.sveditor.core.expr.parser.SVImplicationExpr;
-import net.sf.sveditor.core.expr.parser.SVIncDecExpr;
-import net.sf.sveditor.core.expr.parser.SVInsideExpr;
-import net.sf.sveditor.core.expr.parser.SVLiteralExpr;
-import net.sf.sveditor.core.expr.parser.SVParenExpr;
-import net.sf.sveditor.core.expr.parser.SVQualifiedSuperFieldRefExpr;
-import net.sf.sveditor.core.expr.parser.SVQualifiedThisRefExpr;
-import net.sf.sveditor.core.expr.parser.SVRangeExpr;
-import net.sf.sveditor.core.expr.parser.SVSolveBeforeExpr;
-import net.sf.sveditor.core.expr.parser.SVTFCallExpr;
-import net.sf.sveditor.core.expr.parser.SVUnaryExpr;
+import net.sf.sveditor.core.db.expr.SVArrayAccessExpr;
+import net.sf.sveditor.core.db.expr.SVAssignExpr;
+import net.sf.sveditor.core.db.expr.SVAssignmentPatternExpr;
+import net.sf.sveditor.core.db.expr.SVAssignmentPatternRepeatExpr;
+import net.sf.sveditor.core.db.expr.SVBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVCastExpr;
+import net.sf.sveditor.core.db.expr.SVConcatenationExpr;
+import net.sf.sveditor.core.db.expr.SVCondExpr;
+import net.sf.sveditor.core.db.expr.SVConstraintIfExpr;
+import net.sf.sveditor.core.db.expr.SVConstraintSetExpr;
+import net.sf.sveditor.core.db.expr.SVCoverBinsExpr;
+import net.sf.sveditor.core.db.expr.SVCoverageExpr;
+import net.sf.sveditor.core.db.expr.SVCoverpointExpr;
+import net.sf.sveditor.core.db.expr.SVDistItemExpr;
+import net.sf.sveditor.core.db.expr.SVDistListExpr;
+import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVExprParseException;
+import net.sf.sveditor.core.db.expr.SVExprString;
+import net.sf.sveditor.core.db.expr.SVExprUtils;
+import net.sf.sveditor.core.db.expr.SVFieldAccessExpr;
+import net.sf.sveditor.core.db.expr.SVIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVImplicationExpr;
+import net.sf.sveditor.core.db.expr.SVIncDecExpr;
+import net.sf.sveditor.core.db.expr.SVInsideExpr;
+import net.sf.sveditor.core.db.expr.SVLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVNullLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVParenExpr;
+import net.sf.sveditor.core.db.expr.SVQualifiedSuperFieldRefExpr;
+import net.sf.sveditor.core.db.expr.SVQualifiedThisRefExpr;
+import net.sf.sveditor.core.db.expr.SVRandomizeCallExpr;
+import net.sf.sveditor.core.db.expr.SVRangeExpr;
+import net.sf.sveditor.core.db.expr.SVSolveBeforeExpr;
+import net.sf.sveditor.core.db.expr.SVStringExpr;
+import net.sf.sveditor.core.db.expr.SVSuperExpr;
+import net.sf.sveditor.core.db.expr.SVTFCallExpr;
+import net.sf.sveditor.core.db.expr.SVThisExpr;
+import net.sf.sveditor.core.db.expr.SVUnaryExpr;
+import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 
 public class SVExprParser extends SVParserBase {
-	private SVExprDump						fExprDump;
-	private boolean							fDebugEn = true;
-	private SVLexer							fLexer;
-	
-	public SVExprParser() {
-		super(null);
-		fLexer = new SVLexer();
-		fExprDump = new SVExprDump(System.out);
-	}
+//	private SVExprDump						fExprDump;
+//	private boolean							fDebugEn = false;
+	public static boolean					fUseFullExprParser = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
-		fLexer = parser.lexer();
-		fExprDump = new SVExprDump(System.out);
+//		fExprDump = new SVExprDump(System.out);
 	}
-	
+
+	/**
+	 * Expression := AssignmentExpression
+	 * @param tok
+	 * @return
+	 * @throws SVParseException
+	 */
+	public SVExpr expression() throws SVParseException {
+		SVExpr expr = null;
+		if (fUseFullExprParser) {
+			debug("--> expression()");
+			expr = assignmentExpression();
+			debug("<-- expression() " + expr);
+		} else {
+			expr = new SVExprString(parsers().SVParser().readExpression(true));
+		}
+		
+		return expr; 
+	}
+
+	/**
+	 * This method exists to support the old 'readExpression' method
+	 * that scans expressions textually
+	 * 
+	 * @param accept_colon
+	 * @return
+	 * @throws SVParseException
+	 */
 	@Deprecated
-	public void init(InputStream in) {
-		init(new InputStreamTextScanner(in, ""));
+	public SVExpr expression(boolean accept_colon) throws SVParseException {
+		SVExpr expr = null;
+		if (fUseFullExprParser) {
+			debug("--> expression()");
+			expr = assignmentExpression();
+			debug("<-- expression() " + expr);
+		} else {
+			expr = new SVExprString(parsers().SVParser().readExpression(accept_colon));
+		}
+		
+		return expr; 
 	}
-	
+
+	/*
 	@Deprecated
 	public void init(final ITextScanner scanner) {
-		fLexer.init(new ISVParser() {
+		lexer().init(new ISVParser() {
 			
 			public void warning(String msg, int lineno) {
 			}
 			
 			public SVLexer lexer() {
 				// TODO Auto-generated method stub
-				return fLexer;
+				return lexer();
 			}
 			
 			public boolean error_limit_reached() {
@@ -99,6 +136,7 @@ public class SVExprParser extends SVParserBase {
 			
 		}, scanner); 
 	}
+	 */
 	
 
 	/**
@@ -111,8 +149,9 @@ public class SVExprParser extends SVParserBase {
 	 * @return
 	 * @throws SVExprParseException
 	 */
+	@Deprecated
 	public List<SVExpr> parse_constraint(ITextScanner in) throws SVExprParseException {
-		init(in);
+// TODO:		init(in);
 		
 		List<SVExpr> ret = new ArrayList<SVExpr>();
 
@@ -155,8 +194,9 @@ public class SVExprParser extends SVParserBase {
 	 * @return
 	 * @throws SVExprParseException
 	 */
+	@Deprecated
 	public SVExpr parse_expression(ITextScanner in) throws SVExprParseException {
-		init(in);
+//		init(in);
 		SVExpr expr = null;
 		
 		try {
@@ -175,8 +215,7 @@ public class SVExprParser extends SVParserBase {
 	 * 
 	 * @param coverpoint
 	 */
-	public void coverpoint_target(SVCoverpointExpr coverpoint) 
-		throws SVParseException, SVExprParseException {
+	public void coverpoint_target(SVCoverpointExpr coverpoint) throws SVParseException {
 		
 		try {
 			SVExpr target = expression();
@@ -197,8 +236,7 @@ public class SVExprParser extends SVParserBase {
 		}
 	}
 	
-	public void coverpoint_body(SVCoverpointExpr coverpoint) 
-		throws SVExprParseException, SVParseException {
+	public void coverpoint_body(SVCoverpointExpr coverpoint) throws SVParseException {
 		
 		try {
 			while (peekKeyword("wildcard", "bins", "ignore_bins", "illegal_bins",
@@ -211,9 +249,8 @@ public class SVExprParser extends SVParserBase {
 
 					String option = readIdentifier();
 
-					if (!fLexer.peekString() && !fLexer.peekNumber()) {
-						throw new SVExprParseException("unknown option value type \"" +
-								peek() + "\"");
+					if (!lexer().peekString() && !lexer().peekNumber()) {
+						error("unknown option value type \"" + peek() + "\"");
 					}
 
 					if (kw.equals("option")) {
@@ -251,8 +288,7 @@ public class SVExprParser extends SVParserBase {
 						eatToken();
 						bins.setIsDefault(true);
 					} else {
-						throw new SVExprParseException("Unsupported coverage expression: " + 
-								peek());
+						error("Unsupported coverage expression: " + peek());
 						// 'default' or 'default sequence'
 						// ???
 					}
@@ -269,7 +305,7 @@ public class SVExprParser extends SVParserBase {
 		}
 	}
 	
-	public List<SVCoverageExpr> parse_covercross(InputStream in) throws SVExprParseException {
+	public List<SVCoverageExpr> parse_covercross(InputStream in) throws SVParseException {
 		return null;
 	}
 	
@@ -281,7 +317,7 @@ public class SVExprParser extends SVParserBase {
 	 * @throws SVParseException
 	 */
 	
-	public SVExpr constraint_block_item() throws SVExprParseException, SVParseException {
+	public SVExpr constraint_block_item() throws SVParseException {
 		SVExpr ret = null;
 		
 		if (peekKeyword("solve")) {
@@ -295,7 +331,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	
-	public SVExpr constraint_expression() throws SVExprParseException, SVParseException {
+	public SVExpr constraint_expression() throws SVParseException {
 		SVExpr ret = null;
 		
 		debug("--> constraint_expression()");
@@ -304,7 +340,7 @@ public class SVExprParser extends SVParserBase {
 			ret = constraint_if_expression();
 		} else if (peekKeyword("foreach")) {
 			// TODO:
-			throw new SVExprParseException("foreach unhandled");
+			error("foreach unhandled");
 		} else {
 			// Not sure. Possibly one of:
 			// - expression_or_dist
@@ -314,13 +350,15 @@ public class SVExprParser extends SVParserBase {
 			// tok = expression(tok);
 			SVExpr expr = expression();
 			
-			fLexer.peek();
+			lexer().peek();
 			
+			/*
 			if (fDebugEn) {
 				System.out.print("expr=");
 				fExprDump.dump(expr);
 				System.out.println();
 			}
+			 */
 			
 			if (peekKeyword("dist")) {
 				eatToken();
@@ -340,7 +378,7 @@ public class SVExprParser extends SVParserBase {
 				
 				ret = new SVImplicationExpr(expr, constraint_set());
 			} else {
-				throw new SVExprParseException("Unknown suffix for expression: " + fLexer.getImage());
+				error("Unknown suffix for expression: " + lexer().getImage());
 			}
 		}
 		
@@ -349,7 +387,7 @@ public class SVExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	public SVDistListExpr dist_list() throws SVExprParseException, SVParseException {
+	public SVDistListExpr dist_list() throws SVParseException {
 		SVDistListExpr ret = new SVDistListExpr();
 		SVDistItemExpr item = dist_item();
 		ret.addDistItem(item);
@@ -365,7 +403,7 @@ public class SVExprParser extends SVParserBase {
 	
 	// constraint sc_mode_dist_c {sc_mode dist { 0 := 6, [1:2] := 2, [3:5] :/ 2};}
 	
-	public SVDistItemExpr dist_item() throws SVExprParseException, SVParseException {
+	public SVDistItemExpr dist_item() throws SVParseException {
 		SVDistItemExpr ret = new SVDistItemExpr();
 	
 		if (peekOperator("[")) {
@@ -390,10 +428,9 @@ public class SVExprParser extends SVParserBase {
 	 * ConstraintIfExpression ::=
 	 *     if ( expression ) ConstraintSet [else ConstraintSet]
 	 * @return
-	 * @throws SVExprParseException
 	 * @throws SVParseException
 	 */
-	public SVConstraintIfExpr constraint_if_expression() throws SVExprParseException, SVParseException {
+	public SVConstraintIfExpr constraint_if_expression() throws SVParseException {
 		SVConstraintIfExpr ret;
 		debug("--> constraint_if_expression");
 		
@@ -422,7 +459,7 @@ public class SVExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	public SVConstraintSetExpr constraint_set() throws SVExprParseException, SVParseException {
+	public SVConstraintSetExpr constraint_set() throws SVParseException {
 		SVConstraintSetExpr ret = new SVConstraintSetExpr(); 
 		debug("--> constraint_set()");
 		
@@ -446,7 +483,7 @@ public class SVExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	public SVExpr solve_expression() throws SVExprParseException, SVParseException {
+	public SVExpr solve_expression() throws SVParseException {
 		SVSolveBeforeExpr ret = new SVSolveBeforeExpr();
 		eatToken();
 		
@@ -474,28 +511,15 @@ public class SVExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	/**
-	 * Expression := AssignmentExpression
-	 * @param tok
-	 * @return
-	 * @throws ConstraintException
-	 */
-	public SVExpr expression() throws SVExprParseException, SVParseException {
-		debug("--> expression()");
-		SVExpr expr = assignmentExpression();
-		debug("<-- expression() " + expr);
-		return expr; 
-	}
 	
 	/**
 	 * AssignmentExpression :=
 	 * 		ConditionalExpression [ AssignmentOperator AssignmentExpression]
 	 * 
 	 * @return
-	 * @throws SVExprParseException
 	 * @throws SVParseException
 	 */
-	public SVExpr assignmentExpression() throws SVExprParseException, SVParseException {
+	public SVExpr assignmentExpression() throws SVParseException {
 		debug("--> assignmentExpression()");
 		SVExpr a = conditionalExpression();
 		
@@ -516,7 +540,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public void open_range_list(List<SVExpr> list) throws SVExprParseException, SVParseException {
+	public void open_range_list(List<SVExpr> list) throws SVParseException {
 		readOperator("{");
 		do {
 			if (peekOperator(",")) {
@@ -531,7 +555,7 @@ public class SVExprParser extends SVParserBase {
 		readOperator("}");
 	}
 	
-	public SVRangeExpr parse_range() throws SVExprParseException, SVParseException {
+	public SVRangeExpr parse_range() throws SVParseException {
 		readOperator("[");
 		SVExpr left = expression();
 		readOperator(":");
@@ -545,10 +569,9 @@ public class SVExprParser extends SVParserBase {
 	 * conditionalExpression ::=
 	 *     conditionalOrExpression [ '?' Expression ':' ConditionalExpression]
 	 * @return
-	 * @throws SVExprParseException
 	 * @throws SVParseException
 	 */
-	public SVExpr conditionalExpression() throws SVExprParseException, SVParseException {
+	public SVExpr conditionalExpression() throws SVParseException {
 		debug("--> conditionalExpression()");
 		SVExpr a = conditionalOrExpression();
 		
@@ -569,10 +592,9 @@ public class SVExprParser extends SVParserBase {
 	 * conditionalOrExpression ::=
 	 * 		conditionalAndExpression { '||' conditionalAndExpression }
 	 * @return
-	 * @throws SVExprParseException
 	 * @throws SVParseException
 	 */
-	public SVExpr conditionalOrExpression() throws SVExprParseException, SVParseException {
+	public SVExpr conditionalOrExpression() throws SVParseException {
 		debug("--> conditionalOrExpression()");
 		SVExpr a = conditionalAndExpression();
 		
@@ -589,10 +611,9 @@ public class SVExprParser extends SVParserBase {
 	 * conditionalAndExpression ::=
 	 * 	inclusiveOrExpression { '&&' inclusiveOrExpression }
 	 * @return
-	 * @throws SVExprParseException
 	 * @throws SVParseException
 	 */
-	public SVExpr conditionalAndExpression() throws SVExprParseException, SVParseException {
+	public SVExpr conditionalAndExpression() throws SVParseException {
 		SVExpr a = inclusiveOrExpression();
 		
 		while (peekOperator("&&")) {
@@ -602,7 +623,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr inclusiveOrExpression() throws SVExprParseException, SVParseException {
+	public SVExpr inclusiveOrExpression() throws SVParseException {
 		SVExpr a = exclusiveOrExpression();
 		
 		while (peekOperator("|")) {
@@ -613,7 +634,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr exclusiveOrExpression() throws SVExprParseException, SVParseException {
+	public SVExpr exclusiveOrExpression() throws SVParseException {
 		SVExpr a = andExpression();
 		
 		while (peekOperator("^")) {
@@ -624,7 +645,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr andExpression() throws SVExprParseException, SVParseException {
+	public SVExpr andExpression() throws SVParseException {
 		SVExpr a = equalityExpression();
 		
 		while (peekOperator("&")) {
@@ -635,17 +656,17 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr equalityExpression() throws SVExprParseException, SVParseException {
+	public SVExpr equalityExpression() throws SVParseException {
 		SVExpr a = relationalExpression();
 		
-		while (peekOperator("==", "!=")) {
+		while (peekOperator("==", "!=", "===", "!==", "==?", "!=?")) {
 			a = new SVBinaryExpr(a, readOperator(), relationalExpression());
 		}
 		
 		return a;
 	}
 	
-	public SVExpr relationalExpression() throws SVExprParseException, SVParseException {
+	public SVExpr relationalExpression() throws SVParseException {
 		SVExpr a = shiftExpression();
 		
 		while (peekOperator("<", ">", "<=", ">=")) {
@@ -655,7 +676,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr shiftExpression() throws SVExprParseException, SVParseException {
+	public SVExpr shiftExpression() throws SVParseException {
 		SVExpr a = additiveExpression();
 		
 		while (peekOperator("<<", ">>", ">>>")) {
@@ -665,7 +686,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr additiveExpression() throws SVExprParseException, SVParseException {
+	public SVExpr additiveExpression() throws SVParseException {
 		SVExpr a = multiplicativeExpression();
 		
 		while (peekOperator("+", "-")) {
@@ -674,7 +695,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr multiplicativeExpression() throws SVExprParseException, SVParseException {
+	public SVExpr multiplicativeExpression() throws SVParseException {
 		SVExpr a = unaryExpression();
 		
 		while (peekOperator("*", "/", "%")) {
@@ -683,18 +704,62 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr unaryExpression() throws SVExprParseException, SVParseException {
+	public SVExpr unaryExpression() throws SVParseException {
 		if (peekOperator("++", "--")) {
 			return new SVIncDecExpr(readOperator(), unaryExpression());
 		}
-		
-		if (peekOperator("+", "-", "~", "!", "|")) {
+		if (peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~")) {
 			return new SVUnaryExpr(readOperator(), unaryExpression());
+		} else if (peekOperator("'")) {
+			SVAssignmentPatternExpr ret_top = null;
+			lexer().eatToken();
+			lexer().readOperator("{");
+			SVExpr expr1 = expression();
+			
+			if (lexer().peekOperator("{")) {
+				// repetition
+				SVAssignmentPatternRepeatExpr ret = new SVAssignmentPatternRepeatExpr(expr1);
+				
+				lexer().eatToken(); // {
+				while (true) {
+					SVExpr expr = expression();
+					
+					ret.getPatternList().add(expr);
+					
+					if (lexer().peekOperator(",")) {
+						lexer().eatToken();
+					} else {
+						break;
+					}
+				}
+				lexer().readOperator("}");
+				ret_top = ret;
+			} else {
+				SVAssignmentPatternExpr ret = new SVAssignmentPatternExpr();
+				ret.getPatternList().add(expr1);
+				
+				while (lexer().peekOperator(",")) {
+					lexer().eatToken();
+					SVExpr expr = expression();
+
+					ret.getPatternList().add(expr);
+				}
+				ret_top = ret;
+			}
+			lexer().readOperator("}");
+			
+			return ret_top;
 		}
 		
 		SVExpr a = primary();
 		
-		while (peekOperator(".", "[")) {
+		if (lexer().peekOperator("'")) {
+			lexer().eatToken();
+			// MSB: new cast expression
+			a = new SVCastExpr(a, expression());
+		}
+		
+		while (peekOperator("::", ".", "[")) {
 			a = selector(a);
 		}
 		
@@ -705,7 +770,7 @@ public class SVExprParser extends SVParserBase {
 		return a;
 	}
 	
-	public SVExpr primary() throws SVExprParseException, SVParseException {
+	public SVExpr primary() throws SVParseException {
 		debug("--> primary()");
 		SVExpr ret = null;
 		
@@ -722,7 +787,7 @@ public class SVExprParser extends SVParserBase {
 			// cast
 			// '(' expression() ')' unaryExpression
 			peek();
-			if (fLexer.isNumber() || fLexer.isIdentifier() ||
+			if (lexer().isNumber() || lexer().isIdentifier() ||
 					peekOperator("(", "~", "!") ||
 					peekKeyword("this", "super", "new")) {
 				ret = new SVCastExpr(a, unaryExpression());
@@ -731,42 +796,55 @@ public class SVExprParser extends SVParserBase {
 			}
 		} else {
 			// TODO: must finish and figure out what's going on
-			fLexer.peek();
-			if (fLexer.isNumber()) {
+			lexer().peek();
+			if (lexer().isNumber()) {
 				ret = new SVLiteralExpr(readNumber());
-			} else if (fLexer.isIdentifier()) {
-				debug("  primary \"" + fLexer.getImage() + "\" is identifier");
-				String qi[] = qualifiedIdentifier();
+			} else if (lexer().peekString()) {
+				ret = new SVStringExpr(lexer().eatToken());
+			} else if (lexer().peekKeyword("null")) {
+				lexer().eatToken();
+				ret = new SVNullLiteralExpr();
+			} else if (lexer().isIdentifier() || 
+					SVKeywords.isBuiltInType(lexer().peek()) ||
+					lexer().peekKeyword("new")) {
+				debug("  primary \"" + lexer().getImage() + "\" is identifier or built-in type");
+				String id = lexer().eatToken();
 				
 				if (peekOperator("(")) {
-					// Name arguments
-					throw new SVExprParseException("Unhandled primary");
-				} else if (false && peekOperator("[") /* && peekNextButOne().isOperator("]") */) {
-					// Name '[]' { '[]' }
-					System.out.println("primary [] returns null");
+					if (id.equals("randomize")) {
+						return randomize_call(null);
+					} else {
+						// Task/Function call
+						return new SVTFCallExpr(null, id, arguments());
+					}
+				} else if (id.equals("new")) {
+					return new SVTFCallExpr(null, id, new SVExpr[0]);
 				} else {
-					ret = new SVIdentifierExpr(qi);
+					ret = new SVIdentifierExpr(id);
 					debug("  after id-read: " + peek());
-					debug("  qi.length=" + qi.length);
 				}
-			} else if (fLexer.peekOperator("{")) {
+			} else if (lexer().peekOperator("{")) {
 				// concatenation
-				ret = concatenation();
+				ret = concatenation_or_repetition();
 			} else if (peekKeyword("this")) {
 				eatToken();
-				
+				return new SVThisExpr();
+				/*
 				if (peekOperator("(")) {
 					// 'this' Arguments
 					// Alternate constructor invocation
 					// TODO: N/A??
 				}
-				throw new SVExprParseException("Unhandled primary 'this'");
+				error("Unhandled primary 'this'");
+				 */
 			} else if (peekKeyword("super")) {
-				throw new SVExprParseException("Unhandled primary 'super'");
+				eatToken();
+				return new SVSuperExpr();
+				// error("Unhandled primary 'super'");
 			} else if (peekKeyword("void")) {
 				eatToken();
 			} else {
-				throw new SVExprParseException("Unexpected token in primary: \"" + fLexer.getImage() + "\"");
+				error("Unexpected token in primary: \"" + lexer().getImage() + "\"");
 			}
 		}
 		
@@ -774,41 +852,40 @@ public class SVExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	private SVExpr concatenation() throws SVParseException, SVExprParseException {
+	private SVExpr concatenation_or_repetition() throws SVParseException {
 		readOperator("{");
-		SVConcatenationExpr ret = new SVConcatenationExpr();
+		SVExpr expr = expression();
 		
-		do {
-			ret.getElements().add(expression());
+		if (lexer().peekOperator("{")) {
+			lexer().eatToken();
+			// repetition
+			SVAssignmentPatternRepeatExpr ret = new SVAssignmentPatternRepeatExpr(expr);
 			
-			if (peekOperator(",")) {
-				eatToken();
-			} else {
-				break;
+			ret.getPatternList().add(expression());
+			
+			while (lexer().peekOperator(",")) {
+				lexer().eatToken();
+				ret.getPatternList().add(expression());
 			}
-		} while (true);
-		
-		readOperator("}");
-		
-		return ret;
+			lexer().readOperator("}"); // end of inner expression
+			lexer().readOperator("}");
+			return ret;
+		} else {
+			SVConcatenationExpr ret = new SVConcatenationExpr();
+			ret.getElements().add(expr);
+			
+			while (lexer().peekOperator(",")) {
+				lexer().eatToken();
+				ret.getElements().add(expression());
+			}
+
+			lexer().readOperator("}");
+
+			return ret;
+		}
 	}
 	
-	public String [] qualifiedIdentifier() throws SVExprParseException, SVParseException {
-		if (!fLexer.isIdentifier()) {
-			throw new SVExprParseException("Identifier Expected");
-		}
-		List<String> ret = new ArrayList<String>();
-		
-		ret.add(readIdentifier());
-		while (peek() != null && peekOperator(".") /* && peekNextButOne().isIdentifier() */) {
-			eatToken();
-			ret.add(readIdentifier());
-		}
-		
-		return ret.toArray(new String[ret.size()]);
-	}
-	
-	public SVExpr [] arguments() throws SVExprParseException, SVParseException {
+	public SVExpr [] arguments() throws SVParseException {
 		readOperator("(");
 		
 		if (peekOperator(")")) {
@@ -822,7 +899,7 @@ public class SVExprParser extends SVParserBase {
 		return arguments;
 	}
 	
-	public SVExpr [] argumentList() throws SVExprParseException, SVParseException {
+	public SVExpr [] argumentList() throws SVParseException {
 		List<SVExpr> arguments = new ArrayList<SVExpr>();
 		
 		for (;;) {
@@ -835,19 +912,23 @@ public class SVExprParser extends SVParserBase {
 		return arguments.toArray(new SVExpr[arguments.size()]);
 	}
 	
-	public SVExpr selector(SVExpr expr) throws SVExprParseException, SVParseException {
-		if (peekOperator(".")) {
-			eatToken();
+	public SVExpr selector(SVExpr expr) throws SVParseException {
+		if (peekOperator(".", "::")) {
+			String q = eatToken();
 			
-			fLexer.peek();
-			if (fLexer.isIdentifier()) {
-				String id = fLexer.readId();
+			lexer().peek();
+			if (lexer().isIdentifier()) {
+				String id = lexer().readId();
 				
 				if (peekOperator("(")) {
-					return new SVTFCallExpr(expr, id, arguments());
+					if (id.equals("randomize")) {
+						return randomize_call(expr);
+					} else {
+						return new SVTFCallExpr(expr, id, arguments());
+					}
 				}
 				// '.' identifier
-				return new SVFieldAccessExpr(expr, id);
+				return new SVFieldAccessExpr(expr, (q.equals("::")), id);
 			}
 		}
 		
@@ -880,50 +961,63 @@ public class SVExprParser extends SVParserBase {
 			SVExpr low = expression();
 			SVExpr high = null;
 			
-			if (peekOperator(":")) {
+			// TODO: should probably preserve array-bounds method
+			if (peekOperator(":", "+:", "-:")) {
 				eatToken();
 				high = expression();
 			}
 			
 			readOperator("]");
 			if (expr == null) {
-				System.out.println("array expr == null");
+				error("array expr == null");
 			}
 			return new SVArrayAccessExpr(expr, low, high);
 		}
 		
-		throw new SVExprParseException("Unexpected token \"" + fLexer.getImage() + "\"");
+		error("Unexpected token \"" + lexer().getImage() + "\"");
+		return null; // unreachable, since error always throws an exception
+	}
+	
+	private SVRandomizeCallExpr randomize_call(SVExpr target) throws SVParseException {
+		SVRandomizeCallExpr rand_call = new SVRandomizeCallExpr(target, "randomize", arguments());
+		
+		if (lexer().peekKeyword("with")) {
+			lexer().eatToken();
+			// constraint block
+			rand_call.setWithBlock(constraint_set());
+		}
+		return rand_call;
 	}
 	
 	private String peek() throws SVParseException {
-		return fLexer.peek();
+		return lexer().peek();
 	}
 
 	private boolean peekOperator(String ... ops) throws SVParseException {
-		return fLexer.peekOperator(ops);
+		return lexer().peekOperator(ops);
 	}
 	
 	private String readOperator(String ... ops) throws SVParseException {
-		return fLexer.readOperator(ops);
+		return lexer().readOperator(ops);
 	}
 	
 	private boolean peekKeyword(String ... kw) throws SVParseException {
-		return fLexer.peekKeyword(kw);
+		return lexer().peekKeyword(kw);
 	}
 	
 	private String readKeyword(String ... kw) throws SVParseException {
-		return fLexer.readKeyword(kw);
+		return lexer().readKeyword(kw);
 	}
 	
 	private String readIdentifier() throws SVParseException {
-		return fLexer.readId();
+		return lexer().readId();
 	}
 	
 	private String readNumber() throws SVParseException {
-		return fLexer.readNumber();
+		return lexer().readNumber();
 	}
 	
 	private String eatToken() {
-		return fLexer.eatToken();
+		return lexer().eatToken();
 	}
 }

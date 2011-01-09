@@ -28,7 +28,7 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBTaskFuncScope(file, parent, type, reader);
 			}
@@ -106,7 +106,7 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	public void setReturnType(SVDBTypeInfo ret) {
 		fRetType = ret;
 	}
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBTaskFuncScope ret = new SVDBTaskFuncScope(getName(), getType());
 		
 		ret.init(this);
@@ -114,7 +114,7 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 
 		fAttr = ((SVDBTaskFuncScope)other).fAttr;

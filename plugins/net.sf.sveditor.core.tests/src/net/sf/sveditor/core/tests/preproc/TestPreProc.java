@@ -254,7 +254,7 @@ public class TestPreProc extends TestCase {
 	}
 
 	public void testOvmSequenceUtilsExpansion() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		if (fTmpDir.exists()) {

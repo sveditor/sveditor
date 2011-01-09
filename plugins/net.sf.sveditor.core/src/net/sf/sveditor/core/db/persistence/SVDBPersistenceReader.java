@@ -21,6 +21,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
@@ -178,7 +179,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		} else {
 			List<SVDBItem> ret = new ArrayList<SVDBItem>();
 			while (size-- > 0) {
-				ret.add(readSVDBItem(file, parent));
+				ret.add((SVDBItem)readSVDBItem(file, parent));
 			}
 			
 			return ret;
@@ -440,11 +441,11 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 	
-	public SVDBItem readSVDBItem(
+	public SVDBItemBase readSVDBItem(
 			SVDBFile			file,
 			SVDBScopeItem		parent
 			) throws DBFormatException {
-		SVDBItem ret = null;
+		SVDBItemBase ret = null;
 		
 		SVDBItemType type   = readItemType();
 		

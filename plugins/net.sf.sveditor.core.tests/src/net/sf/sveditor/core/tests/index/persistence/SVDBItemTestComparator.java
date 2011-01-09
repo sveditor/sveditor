@@ -15,7 +15,7 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.util.Stack;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 
@@ -81,7 +81,7 @@ public class SVDBItemTestComparator {
 		}
 	}
 	
-	private String getScope(ISVDBLocatedItem leaf) {
+	private String getScope(ISVDBNamedItem leaf) {
 		StringBuilder ret = new StringBuilder();
 		
 		for (ISVDBScopeItem it : fScopeStack) {

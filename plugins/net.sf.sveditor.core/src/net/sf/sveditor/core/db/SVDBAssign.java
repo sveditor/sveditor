@@ -21,7 +21,7 @@ public class SVDBAssign extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBAssign(file, parent, type, reader);
 			}
@@ -38,7 +38,7 @@ public class SVDBAssign extends SVDBItem {
 		super(file, parent, type, reader);
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBAssign ret = new SVDBAssign(getName());
 		
 		ret.init(this);
@@ -46,7 +46,7 @@ public class SVDBAssign extends SVDBItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 	}
 

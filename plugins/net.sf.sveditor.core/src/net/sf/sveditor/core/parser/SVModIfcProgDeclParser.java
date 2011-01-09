@@ -111,7 +111,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					}
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
-					e.printStackTrace();
+					debug("Module body item parse failed", e);
 				}
 
 				// TODO: Should have already been added ?

@@ -47,7 +47,7 @@ public class TestOpencoresProjects extends TestCase {
 	}
 	
 	public void testEthernetMac() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testEthernetMac", "/wb_ethmac.zip", "wb_ethmac",
 				new String[] {"${workspace_loc}/wb_ethmac/dut.f",
@@ -71,7 +71,7 @@ public class TestOpencoresProjects extends TestCase {
 	}
 	
 	public void testUSBHostSlave() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testDMA", "/usbhostslave.zip", "usbhostslave",
 				new String[] {"${workspace_loc}/usbhostslave/usb.f"});

@@ -44,7 +44,7 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBParamPort(file, parent, type, reader);
 			}
@@ -70,7 +70,7 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 		return (fDir & (0xF << WireType_Shift));
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBItem ret = new SVDBParamPort(fTypeInfo, getName());
 		
 		init(ret);
@@ -78,7 +78,7 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		fDir = ((SVDBParamPort)other).fDir; 

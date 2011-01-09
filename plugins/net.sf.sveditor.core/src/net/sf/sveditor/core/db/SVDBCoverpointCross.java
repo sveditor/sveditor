@@ -27,7 +27,7 @@ public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBCoverpointCross(file, parent, type, reader);
 			}
@@ -64,7 +64,7 @@ public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBCoverpointCross ret = new SVDBCoverpointCross(getName(), fBody);
 		
 		ret.init(this);
@@ -73,7 +73,7 @@ public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 	}
 
 	@Override
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		SVDBCoverpointCross other_i = (SVDBCoverpointCross)other;
 		
 		super.init(other);

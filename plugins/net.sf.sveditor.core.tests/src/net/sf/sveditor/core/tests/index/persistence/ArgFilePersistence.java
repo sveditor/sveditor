@@ -235,7 +235,7 @@ public class ArgFilePersistence extends TestCase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -267,7 +267,7 @@ public class ArgFilePersistence extends TestCase
 				target_it = (SVDBModIfcClassDecl)tmp_it;
 				target_orig = (SVDBModIfcClassDecl)tmp_it.duplicate();
 			}
-			orig_list.add(tmp_it.duplicate());
+			orig_list.add((SVDBItem)tmp_it.duplicate());
 			if (tmp_it.getType() == SVDBItemType.Covergroup) {
 				SVDBCoverGroup cg = (SVDBCoverGroup)tmp_it;
 				SVDBCoverGroup cg2 = (SVDBCoverGroup)cg.duplicate();

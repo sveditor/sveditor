@@ -85,7 +85,7 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		return getName();
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBTypeInfoEnum ret = new SVDBTypeInfoEnum(getName());
 		
 		for (Tuple<String, String> t : fEnumList) {

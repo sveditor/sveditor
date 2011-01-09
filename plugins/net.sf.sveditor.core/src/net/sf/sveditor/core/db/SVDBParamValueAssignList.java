@@ -41,7 +41,7 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBParamValueAssignList(file, parent, type, reader);
 			}
@@ -75,7 +75,7 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
 		
 		ret.init(this);
@@ -84,7 +84,7 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	}
 
 	@Override
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		fNamedMapping = ((SVDBParamValueAssignList)other).fNamedMapping;

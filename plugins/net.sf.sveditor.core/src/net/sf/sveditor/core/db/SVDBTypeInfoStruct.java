@@ -67,7 +67,7 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBTypeInfoStruct ret = new SVDBTypeInfoStruct();
 		ret.setName(getName());
 		

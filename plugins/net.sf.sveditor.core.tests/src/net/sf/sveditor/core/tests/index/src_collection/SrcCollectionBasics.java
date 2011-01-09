@@ -59,7 +59,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 	
 	public void testFindSourceRecursePkg() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");

@@ -14,7 +14,7 @@ package net.sf.sveditor.ui.explorer;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.log.LogFactory;
@@ -112,7 +112,7 @@ public class OpenSVDBItem extends CommonActionProvider {
 		
 		private IEditorPart openEditor(SVDBItem it) {
 			IEditorPart ret = null;
-			ISVDBLocatedItem p = it;
+			ISVDBNamedItem p = it;
 			IFile f = null;
 			// Find the file that this item belongs to
 			

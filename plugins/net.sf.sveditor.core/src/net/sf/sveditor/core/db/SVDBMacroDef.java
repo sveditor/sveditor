@@ -27,7 +27,7 @@ public class SVDBMacroDef extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBMacroDef(file, parent, type, reader);
 			}
@@ -73,7 +73,7 @@ public class SVDBMacroDef extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBMacroDef ret = new SVDBMacroDef(
 				getName(), fParams, fDef);
 		
@@ -83,7 +83,7 @@ public class SVDBMacroDef extends SVDBItem {
 	}
 
 	@Override
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		SVDBMacroDef m = (SVDBMacroDef)other;

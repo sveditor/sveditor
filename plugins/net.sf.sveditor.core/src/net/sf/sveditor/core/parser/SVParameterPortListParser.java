@@ -82,7 +82,10 @@ public class SVParameterPortListParser extends SVParserBase {
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
 				
-				id = parsers().SVParser().readExpression();
+				// TODO:
+				// id = parsers().exprParser().expression().toString();
+				id = parsers().SVParser().readExpression(true);
+				debug("parameter default: " + id);
 				p.setDefault(id);
 			}
 

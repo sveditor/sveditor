@@ -42,7 +42,7 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 		fFieldAttr = attr;
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBFieldItem ret = new SVDBFieldItem(getName(), getType());
 		
 		ret.init(this);
@@ -55,7 +55,7 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 				(fFieldAttr == ((SVDBFieldItem)obj).fFieldAttr));
 	}
 
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		fFieldAttr = ((SVDBFieldItem)other).fFieldAttr;

@@ -22,7 +22,7 @@ public class SVDBPackageDecl extends SVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBPackageDecl(file, parent, type, reader);
 			}
@@ -43,7 +43,7 @@ public class SVDBPackageDecl extends SVDBScopeItem {
 		super.dump(writer);
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBPackageDecl ret = new SVDBPackageDecl(getName());
 		
 		ret.init(this);

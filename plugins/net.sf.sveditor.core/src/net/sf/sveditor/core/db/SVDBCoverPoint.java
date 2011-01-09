@@ -24,7 +24,7 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBCoverPoint(file, parent, type, reader);
 			}
@@ -65,7 +65,7 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBCoverPoint ret = new SVDBCoverPoint(getName(), fTarget, fBody);
 		
 		ret.init(this);
@@ -74,7 +74,7 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 	}
 
 	@Override
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		SVDBCoverPoint other_i = (SVDBCoverPoint)other;
 		
 		super.init(other);

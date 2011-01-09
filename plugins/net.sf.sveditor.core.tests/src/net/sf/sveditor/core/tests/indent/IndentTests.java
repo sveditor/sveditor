@@ -119,7 +119,7 @@ public class IndentTests extends TestCase {
 			;
 
 		System.out.println("--> testEmptyCaseStmt()");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		try {
 			SVIndentScanner scanner = new SVIndentScanner(
 					new StringTextScanner(content));

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 public class SVBehavioralBlockParser extends SVParserBase {
 	private static SVDBItem				fSpecialNonNull;
@@ -55,7 +56,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			lexer().eatToken();
 			
 			lexer().readOperator("(");
-			parsers().SVParser().readExpression();
+			parsers().exprParser().expression();
 			lexer().readOperator(")");
 			
 			statement("if", level);
@@ -70,7 +71,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		} else if (lexer().peekKeyword("while")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
-			parsers().SVParser().readExpression();
+			parsers().exprParser().expression();
 			lexer().readOperator(")");
 			
 			statement("while", level);
@@ -79,14 +80,14 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			statement("do", level);
 			lexer().readKeyword("while");
 			lexer().readOperator("(");
-			String expr = parsers().SVParser().readExpression();
-			debug("While expression: " + expr);
+			SVExpr expr = parsers().exprParser().expression();
+			debug("While expression: " + expr.toString());
 			lexer().readOperator(")");
 			lexer().readOperator(";");
 		} else if (lexer().peekKeyword("repeat")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
-			parsers().SVParser().readExpression(false);
+			parsers().exprParser().expression(false);
 			lexer().readOperator(")");
 			statement("repeat", level);
 		} else if (lexer().peekKeyword("forever")) {
@@ -122,17 +123,21 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		} else if (lexer().peekKeyword("case", "casex", "casez")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
-			parsers().SVParser().readExpression();
+			parsers().exprParser().expression();
 			lexer().readOperator(")");
 			
 			while (lexer().peek() != null && !lexer().peekKeyword("endcase")) {
 				// Read a series of comma-separated expressions
-				while (lexer().peek() != null) {
-					parsers().SVParser().readExpression(false);
-					if (!lexer().peekOperator(",")) {
-						break;
-					} else {
-						lexer().eatToken();
+				if (lexer().peekKeyword("default")) {
+					lexer().eatToken();
+				} else {
+					while (lexer().peek() != null) {
+						parsers().exprParser().expression(false);
+						if (!lexer().peekOperator(",")) {
+							break;
+						} else {
+							lexer().eatToken();
+						}
 					}
 				}
 				lexer().readOperator(":");
@@ -147,7 +152,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				lexer().readOperator(";");
 			} else {
 				lexer().readOperator("(");
-				parsers().SVParser().readExpression();
+				parsers().exprParser().expression();
 				lexer().readOperator(")");
 				if (!lexer().peekOperator(";")) {
 					statement("wait", level);

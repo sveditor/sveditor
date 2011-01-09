@@ -779,6 +779,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex2");
 		
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -1112,6 +1113,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			");\n" +
 			"endmodule\n";			
 
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedInitializedParameterDecl");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
@@ -1325,7 +1327,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testAlwaysCase() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module t;\n" +
 			"	always @(pri_sel or pri_out0 or pri_out1 or  pri_out2)\n" +
@@ -1341,7 +1343,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testTaskNonAnsiInputParam() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module t;\n" +
 			"	task fill_mem;\n" +

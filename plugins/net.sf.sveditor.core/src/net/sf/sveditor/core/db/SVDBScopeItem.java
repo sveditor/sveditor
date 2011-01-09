@@ -27,7 +27,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBScopeItem(file, parent, type, reader);
 			}
@@ -85,7 +85,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		return fItems;
 	}
 
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBScopeItem ret = new SVDBScopeItem(getName(), getType());
 
 		ret.init(this);
@@ -93,14 +93,14 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		SVDBScopeItem si = (SVDBScopeItem)other;
 		
 		fItems.clear();
 		for (SVDBItem it : si.getItems()) {
-			fItems.add(it.duplicate());
+			fItems.add((SVDBItem)it.duplicate());
 		}
 		if (((SVDBScopeItem)other).fEndLocation != null) {
 			fEndLocation = new SVDBLocation(

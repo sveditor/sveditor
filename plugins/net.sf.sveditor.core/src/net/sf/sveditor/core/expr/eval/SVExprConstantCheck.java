@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.core.expr.eval;
 
-import net.sf.sveditor.core.expr.parser.SVCondExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintIfExpr;
-import net.sf.sveditor.core.expr.parser.SVExpr;
-import net.sf.sveditor.core.expr.parser.SVExprIterator;
-import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
-import net.sf.sveditor.core.expr.parser.SVImplicationExpr;
-import net.sf.sveditor.core.expr.parser.SVInsideExpr;
+import net.sf.sveditor.core.db.expr.SVCondExpr;
+import net.sf.sveditor.core.db.expr.SVConstraintIfExpr;
+import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVExprIterator;
+import net.sf.sveditor.core.db.expr.SVIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVImplicationExpr;
+import net.sf.sveditor.core.db.expr.SVInsideExpr;
 
 public class SVExprConstantCheck extends SVExprIterator {
 	private IValueProvider			fValueProvider;

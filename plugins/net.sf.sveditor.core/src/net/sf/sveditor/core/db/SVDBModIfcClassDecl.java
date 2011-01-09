@@ -30,7 +30,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBModIfcClassDecl(file, parent, type, reader);
 			}
@@ -92,7 +92,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		fSuperClass = super_class;
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBModIfcClassDecl ret = new SVDBModIfcClassDecl(getName(), getType());
 		
 		ret.init(this);
@@ -100,7 +100,7 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		SVDBModIfcClassDecl o = (SVDBModIfcClassDecl)other;
 

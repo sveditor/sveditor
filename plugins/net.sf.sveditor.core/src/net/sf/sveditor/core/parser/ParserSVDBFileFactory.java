@@ -320,13 +320,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (lexer().peekOperator("#")) {
 			// Time expression
 			lexer().eatToken();
-			parsers().SVParser().readExpression(); // delay expression
+			parsers().exprParser().expression(); // delay expression
 		}
 		
 		// Allow LHS to be a SV keyword (fits Verilog)
 		if (lexer().peekId() || lexer().peekOperator("(") ||
 				(lexer().peekKeyword() && !SVKeywords.isVKeyword(lexer().peek()))) {
-			target = readExpression();
+			target = parsers().exprParser().expression().toString();
 		} else if (lexer().peekOperator("{")) {
 			lexer().startCapture();
 			lexer().skipPastMatch("{", "}");
@@ -337,7 +337,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		if (lexer().peekOperator("=")) {
 			lexer().eatToken();
-			readExpression();
+			parsers().exprParser().expression();
 		}
 		
 		setLocation(assign);
@@ -1059,7 +1059,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			while (true) {
 				if (lexer().peekOperator("=")) {
 					lexer().eatToken();
-					parsers().SVParser().readExpression();
+					parsers().exprParser().expression();
 				}
 				
 				p = new SVDBParamPort(data_type, param_name);
@@ -1158,7 +1158,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				} else if (lexer().peekOperator("=")) {
 					// Initialized wire
 					lexer().eatToken();
-					readExpression();
+					parsers().exprParser().expression();
 				} else {
 					break;
 				}
@@ -1189,7 +1189,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			// TODO: defparam doesn't appear in hierarchy
 			lexer().eatToken();
 			while (lexer().peek() != null && !lexer().peekOperator(";")) {
-				parsers().SVParser().readExpression();
+				parsers().exprParser().expression();
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
 				} else {
@@ -1310,7 +1310,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
-				/*String expr = */parsers().SVParser().readExpression();
+				/*String expr = */parsers().exprParser().expression();
 			}
 
 		} while (lexer().peekOperator(","));
@@ -1431,10 +1431,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private static final String fPrefixOps[] = {
 		"'", "^", "~", "-", "!", "|", "&"
 	};
-	
-	public String readExpression() throws SVParseException {
-		return readExpression(true);
-	}
 	
 	public String readExpression(boolean accept_colon) throws SVParseException {
 		lexer().startCapture();

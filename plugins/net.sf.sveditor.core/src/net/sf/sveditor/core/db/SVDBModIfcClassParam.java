@@ -24,7 +24,7 @@ public class SVDBModIfcClassParam extends SVDBItem {
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBModIfcClassParam(file, parent, type, reader);
 			}
@@ -58,7 +58,7 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		fDefault = dflt;
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBItem ret = new SVDBModIfcClassParam(getName());
 		
 		init(ret);
@@ -66,7 +66,7 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		fDefault = ((SVDBModIfcClassParam)other).fDefault;

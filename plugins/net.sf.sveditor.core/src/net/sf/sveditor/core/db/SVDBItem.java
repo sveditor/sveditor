@@ -17,42 +17,31 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
-public class SVDBItem implements ISVDBLocatedItem {
+public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 	protected ISVDBScopeItem		fParent;
 	protected String				fName;
-	protected SVDBItemType			fType;
-	protected SVDBLocation			fLocation;
 	
 	public SVDBItem(String name, SVDBItemType type) {
+		super(type);
 		if (name == null) {
 			fName = "";
 		} else {
 			fName = name;
 		}
-		fType = type;
-		fLocation = null;
 	}
 	
 	public SVDBItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(type);
 		fParent   = parent;
-		fType     = type;
 		fName     = reader.readString();
 		fLocation = new SVDBLocation(reader.readInt(), reader.readInt());
 	}
 	
 	public void dump(IDBWriter writer) {
-		writer.writeItemType(fType);
+		super.dump(writer);
 		writer.writeString(fName);
 		writer.writeInt((fLocation != null)?fLocation.getLine():0);
 		writer.writeInt((fLocation != null)?fLocation.getPos():0);
-	}
-	
-	public SVDBLocation getLocation() {
-		return fLocation;
-	}
-	
-	public void setLocation(SVDBLocation loc) {
-		fLocation = loc;
 	}
 	
 	public void setParent(ISVDBScopeItem parent) {
@@ -79,22 +68,18 @@ public class SVDBItem implements ISVDBLocatedItem {
 		return fType;
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBItem ret = new SVDBItem(fName, fType);
 		ret.init(this);
 		
 		return ret;
 	}
 	
-	public void init(SVDBItem other) {
-		fName     = other.fName;
-		fParent   = other.fParent;
-		fType     = other.fType;
-		if (other.fLocation != null) {
-			fLocation = new SVDBLocation(other.fLocation);
-		} else {
-			fLocation = null;
-		}
+	public void init(SVDBItemBase other) {
+		SVDBItem o = (SVDBItem)other;
+		fName     = o.fName;
+		fParent   = o.fParent;
+		super.init(o);
 	}
 	
 	public boolean equals(Object obj) {
@@ -109,17 +94,8 @@ public class SVDBItem implements ISVDBLocatedItem {
 			} else {
 				ret &= other.fName.equals(fName);
 			}
-			if (other.fType == null || fType == null) {
-				ret &= other.fType == fType;
-			} else {
-				ret &= other.fType.equals(fType);
-			}
 			
-			if (fLocation == null || other.fLocation == null) {
-				ret &= (fLocation == other.fLocation);
-			} else {
-				ret &= other.fLocation.equals(fLocation);
-			}
+			ret &= super.equals(obj);
 			
 			return ret;
 		} else {

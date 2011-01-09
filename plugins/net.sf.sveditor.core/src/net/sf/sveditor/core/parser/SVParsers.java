@@ -37,6 +37,7 @@ public class SVParsers {
 	private SVClockingBlockParser				fClkBlockParser;
 	private SVSpecifyBlockParser				fSpecifyBlockParser;
 	private SVImportStmtParser					fImportParser;
+	private SVExprParser						fExprParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -156,6 +157,13 @@ public class SVParsers {
 			fImportParser = new SVImportStmtParser(fSVParser);
 		}
 		return fImportParser;
+	}
+	
+	public SVExprParser exprParser() {
+		if (fExprParser == null) {
+			fExprParser = new SVExprParser(fSVParser);
+		}
+		return fExprParser;
 	}
 
 }

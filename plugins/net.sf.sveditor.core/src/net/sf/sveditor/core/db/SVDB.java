@@ -16,6 +16,8 @@
  */
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVExpr;
+
 public class SVDB {
 	private static boolean			fInit;
 	
@@ -51,6 +53,7 @@ public class SVDB {
 		SVDBGenerateBlock.init();
 		SVDBClockingBlock.init();
 		SVDBImport.init();
+		SVExpr.init();
 
 		fInit = true;
 	}

@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.expr.eval;
 
-import net.sf.sveditor.core.expr.parser.SVExpr;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 public class SVExprComparator {
 	

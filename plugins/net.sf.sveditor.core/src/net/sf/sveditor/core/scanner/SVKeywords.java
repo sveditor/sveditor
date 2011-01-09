@@ -257,7 +257,12 @@ public class SVKeywords {
 		"signed",
 		"string",
 		"time",
-		"unsigned"
+		"unsigned",
+		"longint"
+	};
+	
+	private static final String						fTypeQualifiers[] = {
+
 	};
 	
 	private static final Set<String>				fTypeNames;

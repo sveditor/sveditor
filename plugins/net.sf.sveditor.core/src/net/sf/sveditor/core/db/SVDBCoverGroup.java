@@ -22,7 +22,7 @@ public class SVDBCoverGroup extends SVDBModIfcClassDecl {
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type, 
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBCoverGroup(file, parent, type, reader);
 			}
@@ -43,7 +43,7 @@ public class SVDBCoverGroup extends SVDBModIfcClassDecl {
 		super.dump(writer);
 	}
 	
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBCoverGroup cg = new SVDBCoverGroup(getName());
 		
 		cg.init(this);
@@ -51,7 +51,7 @@ public class SVDBCoverGroup extends SVDBModIfcClassDecl {
 		return cg;
 	}
 	
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 	}
 	

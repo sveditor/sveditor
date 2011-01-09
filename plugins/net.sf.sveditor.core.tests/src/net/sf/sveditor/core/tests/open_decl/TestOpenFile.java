@@ -27,7 +27,7 @@ public class TestOpenFile extends TestCase {
 	
 	public void testRelPathOpenDecl() throws IOException {
 		File tmpdir = TestUtils.createTempDir();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		try {
 			BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

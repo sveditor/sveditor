@@ -58,6 +58,7 @@ public class SVLexer extends SVToken {
 	
 	public static final String MiscOps[] = {
 		":", "::", ":/", ":=",
+		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
 		"->", "#", "@",
 	};
@@ -465,6 +466,13 @@ public class SVLexer extends SVToken {
 				error("Unterminated string");
 			}
 			fIsString = true;
+		} else if (ch == '\'' || (ch >= '0' && ch <= '9')) {
+			if (readNumber(ch)) {
+				fIsNumber = true;
+			} else {
+				fIsOperator = true;
+			}
+			fImage = fStringBuffer.toString();
 
 		} else if (fOperatorSet.contains(tmp) || 
 				// Operators that can have up to two elements
@@ -524,99 +532,6 @@ public class SVLexer extends SVToken {
 			} else {
 				fIsIdentifier = true;
 			}
-		} else if (ch == '\'' || (ch >= '0' && ch <= '9')) {
-			
-			if (ch == '\'') {
-				fStringBuffer.append((char)ch);
-				ch = get_ch();
-				
-				if (ch == -1) {
-					error("unexpected EOF after \"'\"");
-				}
-				
-				if (ch == 'b' || ch == 'B' || ch == 'd' || ch == 'D' ||
-						ch == 'h' || ch == 'H') {
-					// Append the base
-					fStringBuffer.append((char)ch);
-
-					// TODO: probably should be more selective here
-					while ((ch = get_ch()) != -1 && 
-							((ch >= '0' && ch <= '9') ||
-									(ch >= 'a' && ch <= 'f') ||
-									(ch >= 'A' && ch <= 'F') ||
-									(ch == '_') || 
-									(ch == 'x') || (ch == 'X') ||
-									(ch == 'z') || (ch == 'Z'))) {
-						fStringBuffer.append((char)ch);
-					}
-					
-					fIsNumber = true;
-				} else {
-					fImage = fStringBuffer.toString();
-					fIsOperator = true;
-				}
-			} else {
-				// Possibly a base...
-				fStringBuffer.append((char)ch);
-				
-				while ((ch = get_ch()) != -1 && 
-						(ch >= '0' && ch <= '9')) {
-					fStringBuffer.append((char)ch);
-				}
-				
-				if (ch == '\'') {
-					fStringBuffer.append((char)ch);
-					
-					// read the format character
-					fStringBuffer.append((char)get_ch());
-					
-					// read balance of the number
-					while ((ch = get_ch()) != -1 && 
-							((ch >= '0' && ch <= '9') ||
-							 (ch >= 'a' && ch <= 'f') ||
-							 (ch >= 'A' && ch <= 'F') ||
-							 (ch == '_') || 
-							 (ch == 'x') || (ch == 'X') ||
-							 (ch == 'z') || (ch == 'Z'))) {
-						fStringBuffer.append((char)ch);
-					}
-				} else {
-					// Not a based number
-					while (ch != -1 && 
-							((ch >= '0' && ch <= '9') ||
-							 (ch >= 'a' && ch <= 'f') ||
-							 (ch >= 'A' && ch <= 'F') ||
-							 (ch == '_') || (ch == 'x') || (ch == 'X'))) {
-						fStringBuffer.append((char)ch);
-						ch = get_ch();
-					}
-					
-					// Probably a time
-					if (ch == 'f' || ch == 'p' || ch == 'n' || ch == 'u' || ch == 'm') {
-						fStringBuffer.append((char)ch);
-						ch = get_ch();
-						
-						if (ch == 's') {
-							fStringBuffer.append((char)ch);
-							ch = -1;
-						} else {
-							error("[ERROR] unknown base " + (char)ch);
-						}
-						fIsTime = true;
-						ch = -1;
-					} else if (ch == 's') {
-						fStringBuffer.append((char)ch);
-						fIsTime = true;
-						ch = -1;
-					}
-				}
-				fIsNumber = true;
-			}
-			
-			if (ch != -1) {
-				unget_ch(ch);
-			}
-
 		}
 		
 		if (fStringBuffer.length() == 0 && !fIsString) {
@@ -643,6 +558,108 @@ public class SVLexer extends SVToken {
 			debug("next_token(): \"" + fImage + "\"");
 			return true;
 		}
+	}
+	
+	private boolean readNumber(int ch) throws SVParseException {
+		boolean ret = true;
+		if (ch == '\'') {
+			fStringBuffer.append((char)ch);
+			
+			if ((ch = get_ch()) == -1) {
+				error("unexpected EOF after \"'\"");
+			}
+
+			if (isBaseDigit(ch)) {
+				// Append the base
+				fStringBuffer.append((char)ch);
+				
+				// TODO: probably should be more selective here
+				ch = readHexNumber(get_ch());
+			} else {
+				ret = false;
+			}
+		} else if (isHexDigit(ch)) {
+			// Possibly a base...
+			fStringBuffer.append((char)ch);
+
+			ch = readDecNumber(get_ch());
+			
+			if (ch == '\'') {
+				fStringBuffer.append((char)ch);
+				
+				// read the format character
+				fStringBuffer.append((char)get_ch());
+				
+				// read balance of the number
+				ch = readHexNumber(get_ch());
+			} else {
+				// Not a based number
+				ch = readHexNumber(ch);
+				
+				// Probably a time
+				if (ch == 'f' || ch == 'p' || ch == 'n' || ch == 'u' || ch == 'm') {
+					fStringBuffer.append((char)ch);
+					ch = get_ch();
+					
+					if (ch == 's') {
+						fStringBuffer.append((char)ch);
+						ch = -1;
+					} else {
+						error("[ERROR] unknown base " + (char)ch);
+					}
+					fIsTime = true;
+					ch = -1;
+				} else if (ch == 's') {
+					fStringBuffer.append((char)ch);
+					fIsTime = true;
+					ch = -1;
+				}
+			}
+		} else {
+			ret = false;
+		}
+		
+		if (ch != -1) {
+			unget_ch(ch);
+		}
+		
+		return ret;
+	}
+	
+	private static boolean isHexDigit(int ch) {
+		return ((ch >= '0' && ch <= '9') ||
+				(ch >= 'a' && ch <= 'f') ||
+				(ch >= 'A' && ch <= 'F') ||
+				(ch == 'z' || ch == 'Z') ||
+				(ch == 'x' || ch == 'X'));
+	}
+	
+	private static boolean isBaseDigit(int ch) {
+		return (ch == 'b' || ch == 'B' || ch == 'd' || ch == 'D' ||
+				ch == 'h' || ch == 'H');
+	}
+	
+	private int readDecNumber(int ch) throws SVParseException {
+		while (ch >= '0' && ch <= '9') {
+			fStringBuffer.append((char)ch);
+			ch = get_ch();
+		}
+		return ch;
+	}
+	
+	private int readHexNumber(int ch) throws SVParseException {
+		while (ch != -1 && 
+				((ch >= '0' && ch <= '9') ||
+				 (ch >= 'a' && ch <= 'f') ||
+				 (ch >= 'A' && ch <= 'F') ||
+				 (ch == '_') || 
+				 (ch == 'x') || (ch == 'X') ||
+				 (ch == 'z') || (ch == 'Z'))) {
+			fStringBuffer.append((char)ch);
+			ch = get_ch();
+		}
+		
+		return ch;
 	}
 	
 	private int get_ch() {

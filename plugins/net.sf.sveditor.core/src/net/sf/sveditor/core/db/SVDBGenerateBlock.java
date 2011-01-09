@@ -22,7 +22,7 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type,
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				return new SVDBGenerateBlock(file, parent, type, reader);
 			}
@@ -46,7 +46,7 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBGenerateBlock item = new SVDBGenerateBlock(getName());
 		item.init(this);
 		
@@ -54,7 +54,7 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 	}
 
 	@Override
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		// TODO Auto-generated method stub
 		super.init(other);
 	}

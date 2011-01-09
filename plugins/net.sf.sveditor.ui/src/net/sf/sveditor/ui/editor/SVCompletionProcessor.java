@@ -19,7 +19,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
-import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -257,7 +257,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 		
 		// Find the class that this function belongs to (if any)
-		ISVDBLocatedItem class_it = it;
+		ISVDBNamedItem class_it = it;
 		
 		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
 			class_it = class_it.getParent();

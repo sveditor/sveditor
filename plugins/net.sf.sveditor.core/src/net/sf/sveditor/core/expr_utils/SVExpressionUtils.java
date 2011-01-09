@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBLocatedItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -872,7 +872,7 @@ public class SVExpressionUtils {
 				cl_l = finder.find(typename);
 				
 				if (cl_l.size() == 0) {
-					ISVDBLocatedItem field_p = field.getParent();
+					ISVDBNamedItem field_p = field.getParent();
 					while (field_p != null && field_p.getType() != SVDBItemType.Class) {
 						field_p = field_p.getParent();
 					}

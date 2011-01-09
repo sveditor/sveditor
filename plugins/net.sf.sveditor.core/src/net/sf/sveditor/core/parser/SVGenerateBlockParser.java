@@ -41,7 +41,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parsers().SVParser().enter_scope("generate_if", if_blk);
 		lexer().readKeyword("if");
 		lexer().readOperator("(");
-		/*String cond = */parsers().SVParser().readExpression();
+		/*String cond = */parsers().exprParser().expression();
 		lexer().readOperator(")");
 		
 		if (lexer().peekKeyword("begin")) {
@@ -102,11 +102,17 @@ public class SVGenerateBlockParser extends SVParserBase {
 		if (lexer().peekKeyword("genvar")) {
 			lexer().eatToken();
 		}
-		/*String init = */parsers().SVParser().readExpression();
+		if (!lexer().peekOperator(";")) {
+			/*String init = */parsers().exprParser().expression();
+		}
 		lexer().readOperator(";");
-		/*String cond = */parsers().SVParser().readExpression();
+		if (!lexer().peekOperator(";")) {
+			/*String cond = */parsers().exprParser().expression();
+		}
 		lexer().readOperator(";");
-		/*String incr = */parsers().SVParser().readExpression();
+		if (!lexer().peekOperator(")")) {
+			/*String incr = */parsers().exprParser().expression();
+		}
 		lexer().readOperator(")");
 		
 		if (lexer().peekKeyword("begin")) {
@@ -140,7 +146,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 		
 		lexer().readKeyword("case");
 		lexer().readOperator("(");
-		parsers().SVParser().readExpression();
+		parsers().exprParser().expression();
 		lexer().readOperator(")");
 		
 		while (lexer().peek() != null && !lexer().peekKeyword("endcase")) {
@@ -152,7 +158,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 					if (lexer().peekOperator(",")) {
 						lexer().eatToken();
 					}
-					parsers().SVParser().readExpression(false);
+					parsers().exprParser().expression(false);
 				} while (lexer().peekOperator(","));
 			}
 			lexer().readOperator(":");

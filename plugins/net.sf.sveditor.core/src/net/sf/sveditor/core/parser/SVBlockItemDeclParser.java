@@ -80,7 +80,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 					if (lexer().peekOperator("=")) {
 						// TODO: eat tokens until ',' or ';'
 						lexer().eatToken();
-						parsers().SVParser().readExpression();
+						parsers().exprParser().expression();
 					}
 				
 					if (lexer().peekOperator(",")) {

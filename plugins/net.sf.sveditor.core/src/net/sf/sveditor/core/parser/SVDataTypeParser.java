@@ -309,7 +309,8 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
-				val_str = parsers().SVParser().readExpression();
+				// TODO: 
+				val_str = parsers().exprParser().expression().toString();
 				vals_specified = true;
 			}
 			type.addEnumValue(name, ((vals_specified)?""+index:val_str));

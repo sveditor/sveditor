@@ -25,7 +25,7 @@ public class SVDBTypeInfo extends SVDBItem {
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItem readSVDBItem(IDBReader reader, SVDBItemType type,
+			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
 					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
 				// First, read the sub-type
 				SVDBDataType dt = SVDBDataType.valueOf(reader.readString());
@@ -78,7 +78,7 @@ public class SVDBTypeInfo extends SVDBItem {
 	}
 	
 
-	public void init(SVDBItem other) {
+	public void init(SVDBItemBase other) {
 		super.init(other);
 		
 		SVDBTypeInfo other_t = (SVDBTypeInfo)other;
@@ -100,7 +100,7 @@ public class SVDBTypeInfo extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItem duplicate() {
+	public SVDBItemBase duplicate() {
 		SVDBTypeInfo ret = new SVDBTypeInfo(getName(), fDataType);
 		ret.init(this);
 

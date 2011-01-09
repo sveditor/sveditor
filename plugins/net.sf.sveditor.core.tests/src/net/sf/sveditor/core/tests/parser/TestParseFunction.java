@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBParamPort;
@@ -65,6 +66,7 @@ public class TestParseFunction extends TestCase {
 			"    a = 5;\n" +
 			"endfunction\n";
 		
+		SVCorePlugin.getDefault().enableDebug(false);
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
@@ -147,6 +149,7 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n"
 			;
 
+		SVCorePlugin.getDefault().enableDebug(false);
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		

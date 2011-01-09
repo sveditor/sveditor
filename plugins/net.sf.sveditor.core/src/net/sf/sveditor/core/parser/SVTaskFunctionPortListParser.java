@@ -119,7 +119,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			if (lexer().peekOperator("=")) {
 				lexer().eatToken();
 				// TODO: read expression
-				parsers().SVParser().readExpression();
+				parsers().exprParser().expression();
 			}
 			
 			if (lexer().peekOperator(",")) {

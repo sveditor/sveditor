@@ -14,10 +14,10 @@ package net.sf.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
-import net.sf.sveditor.core.expr.parser.SVBinaryExpr;
-import net.sf.sveditor.core.expr.parser.SVExpr;
-import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
-import net.sf.sveditor.core.expr.parser.SVLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVLiteralExpr;
 
 public class SVIntegerExprEvaluator {
 	private IValueProvider			fValueProvider;
@@ -27,7 +27,7 @@ public class SVIntegerExprEvaluator {
 	}
 	
 	public BigInteger evaluate(SVExpr expr) throws Exception {
-		switch (expr.getType()) {
+		switch (expr.getExprType()) {
 			case Literal: {
 				SVLiteralExpr literal = (SVLiteralExpr)expr;
 				return parse_literal(literal);
@@ -53,7 +53,7 @@ public class SVIntegerExprEvaluator {
 			}
 				
 			default:
-				throw new Exception("Unhandled expression type: " + expr.getType());
+				throw new Exception("Unhandled expression type: " + expr.getExprType());
 		}
 	}
 	

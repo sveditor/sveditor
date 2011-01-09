@@ -12,35 +12,35 @@
 
 package net.sf.sveditor.core.expr.eval;
 
-import net.sf.sveditor.core.expr.parser.SVArrayAccessExpr;
-import net.sf.sveditor.core.expr.parser.SVAssignExpr;
-import net.sf.sveditor.core.expr.parser.SVBinaryExpr;
-import net.sf.sveditor.core.expr.parser.SVCastExpr;
-import net.sf.sveditor.core.expr.parser.SVCondExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintIfExpr;
-import net.sf.sveditor.core.expr.parser.SVConstraintSetExpr;
-import net.sf.sveditor.core.expr.parser.SVDistItemExpr;
-import net.sf.sveditor.core.expr.parser.SVDistListExpr;
-import net.sf.sveditor.core.expr.parser.SVExpr;
-import net.sf.sveditor.core.expr.parser.SVFieldAccessExpr;
-import net.sf.sveditor.core.expr.parser.SVIdentifierExpr;
-import net.sf.sveditor.core.expr.parser.SVImplicationExpr;
-import net.sf.sveditor.core.expr.parser.SVIncDecExpr;
-import net.sf.sveditor.core.expr.parser.SVInsideExpr;
-import net.sf.sveditor.core.expr.parser.SVLiteralExpr;
-import net.sf.sveditor.core.expr.parser.SVParenExpr;
-import net.sf.sveditor.core.expr.parser.SVQualifiedSuperFieldRefExpr;
-import net.sf.sveditor.core.expr.parser.SVQualifiedThisRefExpr;
-import net.sf.sveditor.core.expr.parser.SVRangeExpr;
-import net.sf.sveditor.core.expr.parser.SVSolveBeforeExpr;
-import net.sf.sveditor.core.expr.parser.SVTFCallExpr;
-import net.sf.sveditor.core.expr.parser.SVUnaryExpr;
+import net.sf.sveditor.core.db.expr.SVArrayAccessExpr;
+import net.sf.sveditor.core.db.expr.SVAssignExpr;
+import net.sf.sveditor.core.db.expr.SVBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVCastExpr;
+import net.sf.sveditor.core.db.expr.SVCondExpr;
+import net.sf.sveditor.core.db.expr.SVConstraintIfExpr;
+import net.sf.sveditor.core.db.expr.SVConstraintSetExpr;
+import net.sf.sveditor.core.db.expr.SVDistItemExpr;
+import net.sf.sveditor.core.db.expr.SVDistListExpr;
+import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVFieldAccessExpr;
+import net.sf.sveditor.core.db.expr.SVIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVImplicationExpr;
+import net.sf.sveditor.core.db.expr.SVIncDecExpr;
+import net.sf.sveditor.core.db.expr.SVInsideExpr;
+import net.sf.sveditor.core.db.expr.SVLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVParenExpr;
+import net.sf.sveditor.core.db.expr.SVQualifiedSuperFieldRefExpr;
+import net.sf.sveditor.core.db.expr.SVQualifiedThisRefExpr;
+import net.sf.sveditor.core.db.expr.SVRangeExpr;
+import net.sf.sveditor.core.db.expr.SVSolveBeforeExpr;
+import net.sf.sveditor.core.db.expr.SVTFCallExpr;
+import net.sf.sveditor.core.db.expr.SVUnaryExpr;
 
 public class SVExprMinimizer {
 	
 	
 	public SVExpr minimize(SVExpr expr) {
-		SVExpr ret = expr.duplicate();
+		SVExpr ret = (SVExpr)expr.duplicate();
 		
 		
 		
@@ -48,7 +48,7 @@ public class SVExprMinimizer {
 	}
 	
 	private SVExpr minimize_i(SVExpr expr) {
-		switch (expr.getType()) {
+		switch (expr.getExprType()) {
 		// Ignored expression elements
 		case ArrayAccess: expr = array_access((SVArrayAccessExpr)expr); break;
 		case Assign: expr = assign((SVAssignExpr)expr); break;
@@ -74,7 +74,7 @@ public class SVExprMinimizer {
 		case Range: expr = range((SVRangeExpr)expr); break;
 	
 		default:
-			System.out.println("unhandled expression: " + expr.getType());
+			System.out.println("unhandled expression: " + expr.getExprType());
 			break;
 		}
 		
