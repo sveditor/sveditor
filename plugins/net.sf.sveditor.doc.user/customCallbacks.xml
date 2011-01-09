@@ -10,8 +10,9 @@
 	</target>
 
 	<target name="docs">
-		<taskdef name="assemble_toc" classpath="${basedir}/bin" 
-			classname="net.sf.sveditor.doc.user.tasks.AssembleTocTask">
+		<taskdef name="assemble_toc" classname="net.sf.sveditor.doc.user.tasks.AssembleTocTask">
+			<classpath path="${basedir}/bin"/>
+			<classpath path="${basedir}/@dot"/>
 		</taskdef>
 		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
 					multipleOutputFiles="true"
@@ -32,6 +33,18 @@
 		</assemble_toc>
 	</target>
 	
+	<target name="clean_docs">
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="toc.xml"/>
+				<include name="editing_sv_files/*.html"/>
+				<include name="editing_sv_files/*-toc.xml"/>
+				<include name="preparing_sv_project/*.html"/>
+				<include name="preparing_sv_project/*-toc.xml"/>
+			</fileset>
+		</delete>
+	</target>
+	
 	<target name="pre.build.sources"/>
 	<target name="post.build.sources"/>
 	<target name="pre.name"/>
@@ -47,5 +60,8 @@
 	<target name="pre.gather.logs"/>
 	<target name="post.gather.logs"/>
 	<target name="pre.clean"/>
-	<target name="post.clean"/>
+	
+	<target name="post.clean">
+		<antcall target="clean_docs"/>
+	</target>
 </project> 

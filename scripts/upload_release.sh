@@ -53,6 +53,8 @@ sftp -b /dev/stdin $SF_USERNAME,sveditor@frs.sourceforge.net << EOF
     cd ../plugins
     put $update_site/plugins/net.sf.sveditor.core_${version}.jar
     put $update_site/plugins/net.sf.sveditor.ui_${version}.jar
+    put $update_site/plugins/net.sf.sveditor.doc.user_${version}.jar
+    put $update_site/plugins/net.sf.sveditor.doc.dev_${version}.jar
 
     cd ../../..
 

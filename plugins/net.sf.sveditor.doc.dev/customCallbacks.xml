@@ -10,11 +10,16 @@
 	</target>
 
 	<target name="docs">
-		<echo message="Hello World"/>
-		<taskdef name="assemble_toc" classpath="${basedir}/bin" 
-			classname="net.sf.sveditor.doc.dev.AssembleTocTask"/>
-		<taskdef name="build-javadoc-toc" classpath="${basedir}/bin"
-			classname="net.sf.sveditor.doc.dev.BuildJavaDocTocTask"/>
+		<taskdef name="assemble_toc" 
+			classname="net.sf.sveditor.doc.dev.AssembleTocTask">
+			<classpath path="${basedir}/bin"/>
+			<classpath path="${basedir}/@dot"/>
+		</taskdef>
+		<taskdef name="build-javadoc-toc"
+			classname="net.sf.sveditor.doc.dev.BuildJavaDocTocTask">
+			<classpath path="${basedir}/bin"/>
+			<classpath path="${basedir}/@dot"/>
+		</taskdef>
 		<javadoc
 			destdir="api_docs">
 			<packageset dir="${basedir}/../net.sf.sveditor.core/src">
@@ -53,7 +58,26 @@
 		</assemble_toc>
 		-->
 	</target>
-	
+
+	<target name="clean_docs">
+		<delete dir="api_docs"/>
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="toc.xml"/>
+				<include name="api_toc.xml"/>
+				
+				<include name="indexing/*.html"/>
+				<include name="indexing/*-toc.xml"/>
+				
+				<include name="parser/*.html"/>
+				<include name="parser/*-toc.xml"/>
+				
+				<include name="svdb/*.html"/>
+				<include name="svdb/*-toc.xml"/>
+			</fileset>
+		</delete>
+	</target>
+
 	<target name="pre.build.sources"/>
 	<target name="post.build.sources"/>
 	<target name="pre.name"/>
@@ -69,5 +93,7 @@
 	<target name="pre.gather.logs"/>
 	<target name="post.gather.logs"/>
 	<target name="pre.clean"/>
-	<target name="post.clean"/>
+	<target name="post.clean">
+		<antcall target="clean_docs"/>
+	</target>
 </project> 

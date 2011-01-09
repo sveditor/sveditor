@@ -1,4 +1,8 @@
 
+-- 0.3.7 Release --
+
+------------------------------------------------------------------------------
+
 -- 0.3.6 Release --
 
 - Integrate the current 'Getting Started' guide into the Eclipse help system.
