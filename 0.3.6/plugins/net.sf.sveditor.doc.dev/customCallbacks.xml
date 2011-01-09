@@ -1,0 +1,73 @@
+<project name="customCallbacks" default="post.compile">
+	<target name="post.compile">
+		<antcall target="docs"/>
+	</target>
+		
+	<target name="pre.build.jars"/>
+	
+	<target name="post.build.jars">
+		<antcall target="docs"/>
+	</target>
+
+	<target name="docs">
+		<echo message="Hello World"/>
+		<taskdef name="assemble_toc" classpath="${basedir}/bin" 
+			classname="net.sf.sveditor.doc.dev.AssembleTocTask"/>
+		<taskdef name="build-javadoc-toc" classpath="${basedir}/bin"
+			classname="net.sf.sveditor.doc.dev.BuildJavaDocTocTask"/>
+		<javadoc
+			destdir="api_docs">
+			<packageset dir="${basedir}/../net.sf.sveditor.core/src">
+				<include name="net/sf/sveditor/core/**"/>
+			</packageset>
+			<packageset dir="${basedir}/../net.sf.sveditor.ui/src">
+				<include name="net/sf/sveditor/ui/**"/>
+			</packageset>
+		</javadoc>
+		<build-javadoc-toc output="${basedir}/api_toc.xml"
+			label="API Reference" base="${basedir}/">
+			<fileset dir="${basedir}/api_docs">
+				<include name="**/package-summary.html"/>
+			</fileset>
+		</build-javadoc-toc>
+		<assemble_toc files="${basedir}/api_toc.xml"
+			label="SVEditor Internals Guide"
+			output="${basedir}/toc.xml"/>
+		<!--
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
+					multipleOutputFiles="true"
+					navigationImages="true"
+					overwrite="true"
+					helpPrefix="preparing_sv_project"
+					file="${basedir}/preparing_sv_project/preparing_sv_project.mediawiki"/>
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
+					multipleOutputFiles="true"
+					navigationImages="true"
+					overwrite="true"
+					helpPrefix="editing_sv_files"
+					file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
+		
+		<assemble_toc files="${basedir}/preparing_sv_project/preparing_sv_project-toc.xml,
+							${basedir}/editing_sv_files/editing_sv_files-toc.xml"
+			output="${basedir}/toc.xml" label="SVEditor User Guide">
+		</assemble_toc>
+		-->
+	</target>
+	
+	<target name="pre.build.sources"/>
+	<target name="post.build.sources"/>
+	<target name="pre.name"/>
+	<target name="pre.@dot"/>
+	<target name="post.compile.name"/>
+	<target name="post.compile.@dot"/>
+	<target name="post.name"/>
+	<target name="post.@dot"/>
+	<target name="pre.gather.bin.parts"/>
+	<target name="post.gather.bin.parts"/>
+	<target name="pre.gather.sources"/>
+	<target name="post.gather.sources"/>
+	<target name="pre.gather.logs"/>
+	<target name="post.gather.logs"/>
+	<target name="pre.clean"/>
+	<target name="post.clean"/>
+</project> 
