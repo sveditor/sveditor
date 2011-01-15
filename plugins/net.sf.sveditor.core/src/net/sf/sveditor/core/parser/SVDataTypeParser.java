@@ -17,6 +17,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -298,7 +299,13 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		// TODO: scan base type
 		if (!lexer().peekOperator("{")) {
-			data_type(0, lexer().eatToken());
+			/* SVDBTypeInfo base_type = */ data_type(0, lexer().eatToken());
+			
+			// Forward declaration
+			if (lexer().peekOperator(";")) {
+				type.setDataType(SVDBDataType.FwdDecl);
+				return type;
+			}
 		}
 		
 		lexer().readOperator("{");

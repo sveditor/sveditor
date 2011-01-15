@@ -77,6 +77,10 @@ public class SVDBTypeInfo extends SVDBItem {
 		return fDataType;
 	}
 	
+	public void setDataType(SVDBDataType type) {
+		fDataType = type;
+	}
+	
 
 	public void init(SVDBItemBase other) {
 		super.init(other);

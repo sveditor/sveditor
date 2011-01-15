@@ -1,6 +1,22 @@
 
 -- 0.3.7 Release --
 
+- Fix bugs in build of 'Developer Docs' plugin-in
+
+- Enable handling of enum forward-declaration in the parser
+
+- (#3153829) Change 'shadow' SourceCollection index, which is created when a file outside
+  an existing index is opened, to only index sources in the top-level directory.
+
+- Update the file-finding code (used by SourceCollection) to identify and
+  skip excluded directories. This makes search more efficient.
+  Should resolve (#3152333)
+
+- Change the marker-propagation mechanism to work properly when triggered via
+  a file-change event. This should result in more-reliable error propagation.
+  This appears to resolve (#3154474)
+
+
 ------------------------------------------------------------------------------
 
 -- 0.3.6 Release --

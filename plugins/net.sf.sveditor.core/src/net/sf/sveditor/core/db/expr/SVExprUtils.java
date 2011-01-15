@@ -317,6 +317,13 @@ public class SVExprUtils {
 		return true;
 	}
 	
+	protected boolean incdec(PrintStream ps, SVIncDecExpr expr) {
+		// TODO: need to know if this is pre- or post-dec
+		expr_to_string(ps, expr.getExpr());
+		ps.print(expr.getOp());
+		return true;
+	}
+	
 	protected boolean expr_to_string(PrintStream ps, SVExpr expr) {
 		boolean ret = false;
 		switch (expr.getExprType()) {
@@ -339,6 +346,7 @@ public class SVExprUtils {
 			case FieldAccess: ret = field_access(ps, (SVFieldAccessExpr)expr); break;
 			case RandomizeCall: ret = randomize_call(ps, (SVRandomizeCallExpr)expr); break;
 			case AssignmentPattern: ret = assignment_pattern(ps, (SVAssignmentPatternExpr)expr); break;
+			case IncDec: ret = incdec(ps, (SVIncDecExpr)expr); break;
 			case Null: 
 				ret = true;
 				ps.print("null");

@@ -40,6 +40,8 @@ import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ScannerSVDBFileFactory;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -71,6 +73,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private PrintStream						fLogPS;
 	public static boolean					fUseParserFactory = true; // leave scanner enabled for now
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
+	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	
 	/**
 	 * The constructor
@@ -236,6 +239,13 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		}
 		
 		return ret;
+	}
+	
+	public void propagateMarker(IFile file, int severity, int lineno, String msg) {
+		if (fMarkerPropagationJob == null) {
+			fMarkerPropagationJob = new SVMarkerPropagationJob();
+		}
+		fMarkerPropagationJob.addMarker(file, severity, lineno, msg);
 	}
 
 	public void message(ILogHandle handle, int type, int level, String message) {

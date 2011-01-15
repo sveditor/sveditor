@@ -14,10 +14,12 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseDataTypes extends TestCase {
 	
@@ -36,6 +38,28 @@ public class TestParseDataTypes extends TestCase {
 		for (SVDBItem it : cls.getItems()) {
 			System.out.println("it " + it.getType() + " " + it.getName());
 		}
+	}
+	
+	public void testTypedefEnumFwdDecl() throws SVParseException {
+		String content =
+			"class foo;\n" +
+			"    typedef enum foo_enum_t;\n" +
+			"    foo_enum_t        my_var;\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTypedefEnumFwdDecl", content,
+				new String [] {"foo", "my_var"});
+	}
+
+	private void runTest(
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
 
 }

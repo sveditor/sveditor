@@ -16,9 +16,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.log.LogFactory;
+
 public class SVFilesystemFileMatcher extends AbstractSVFileMatcher {
 	
 	public SVFilesystemFileMatcher() {
+		fLog = LogFactory.getLogHandle("SVFilesystemFileMatcher");
 	}
 
 	@Override
@@ -37,20 +40,21 @@ public class SVFilesystemFileMatcher extends AbstractSVFileMatcher {
 	private void findIncludedPaths(String base, List<String> paths, File parent) {
 		if (parent.isFile()) {
 			if (include_file(parent.getAbsolutePath())) {
-				paths.add(parent.getAbsolutePath());
+				if (!paths.contains(parent.getAbsolutePath())) {
+					paths.add(parent.getAbsolutePath());
+				}
 			}
 		} else {
-			if (parent == null) {
-				System.out.println("parent is null");
-			} else if (parent.listFiles() == null) {
-				System.out.println("parent \"" + parent.getPath() + "\" returns null");
-			}
 			for (File file : parent.listFiles()) {
 				if (file.isDirectory()) {
-					findIncludedPaths(base, paths, file);
+					if (include_dir(file.getAbsolutePath())) {
+						findIncludedPaths(base, paths, file);
+					}
 				} else {
 					if (include_file(file.getAbsolutePath())) {
-						paths.add(file.getAbsolutePath());
+						if (!paths.contains(file.getAbsolutePath())) {
+							paths.add(file.getAbsolutePath());
+						}
 					}
 				}
 			}

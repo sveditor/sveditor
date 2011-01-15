@@ -15,9 +15,10 @@ package net.sf.sveditor.core.fileset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
+import net.sf.sveditor.core.log.LogFactory;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -25,8 +26,9 @@ import org.eclipse.core.runtime.CoreException;
 public class SVWorkspaceFileMatcher extends AbstractSVFileMatcher {
 	
 	public SVWorkspaceFileMatcher() {
+		fLog = LogFactory.getLogHandle("SVWorkspaceFileMatcher");
 	}
-
+	
 	@Override
 	public List<String> findIncludedPaths() {
 		final List<String> ret = new ArrayList<String>();
@@ -44,28 +46,43 @@ public class SVWorkspaceFileMatcher extends AbstractSVFileMatcher {
 				IResource base = root.findMember(base_location);
 				
 				if (base == null) {
-					System.out.println("base \"" + base_location + "\" is null");
+					fLog.error("Base Location \"" + base_location + "\" does not exist");
+					continue;
+				}
+				if (!(base instanceof IContainer)) {
+					fLog.error("Base Location \"" + base_location + "\" is not a folder");
+					continue;
 				}
 				
 				base.refreshLocal(IResource.DEPTH_INFINITE, null);
-				final String base_loc = base.getFullPath().toOSString();
-				base.accept(new IResourceVisitor(){
-
-					public boolean visit(IResource resource) throws CoreException {
-						if (resource instanceof IFile) {
-							String full_path = ((IFile)resource).getFullPath().toOSString();
-							String leaf = full_path.substring(base_loc.length());
-
-							if (include_file(leaf)) {
-								ret.add("${workspace_loc}" + full_path);
-							}
-						}
-						return true;
-					}
-				});
+				IContainer c = (IContainer)base;
+				
+				recurse(c, ret);
 			} catch (CoreException e) { }
 		}
 		
 		return ret;
+	}
+	
+	private void recurse(IContainer parent, List<String> paths) throws CoreException {
+		IResource member_l[] = parent.members();
+		
+		if (member_l != null) {
+			for (IResource m : member_l) {
+				String full_path = m.getFullPath().toPortableString();
+				if (m instanceof IContainer) {
+					if (include_dir(full_path)) {
+						recurse((IContainer)m, paths);
+					}
+				} else {
+					if (include_file(full_path)) {
+						String path = "${workspace_loc}" + full_path; 
+						if (!paths.contains(path)) {
+							paths.add(path);
+						}
+					}
+				}
+			}
+		}
 	}
 }

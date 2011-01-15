@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
@@ -21,7 +23,9 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -122,9 +126,23 @@ public class SVDBIndexUtil {
 				project = SVDBIndexRegistry.GLOBAL_PROJECT;
 			}
 			
+			SVFileSet fs = new SVFileSet(SVFileUtils.getPathParent(path));
+
+			// Remove the depth-searching portion from all patterns
+			String dflt_include = SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes();
+			dflt_include = dflt_include.replace("**/", "");
+			String dflt_exclude = SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes();
+			dflt_exclude = dflt_exclude.replace("**/", "");
+			fs.getIncludes().addAll(SVDBSourceCollection.parsePatternList(dflt_include));
+			fs.getExcludes().addAll(SVDBSourceCollection.parsePatternList(dflt_exclude));
+			
+			Map<String, Object> config = new HashMap<String, Object>();
+			config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
+			
+			
 			index = rgy.findCreateIndex(project,
 					SVFileUtils.getPathParent(path),
-					SVDBSourceCollectionIndexFactory.TYPE, null);
+					SVDBSourceCollectionIndexFactory.TYPE, config);
 			index_mgr.addShadowIndex(index.getBaseLocation(), index);
 		}
 		

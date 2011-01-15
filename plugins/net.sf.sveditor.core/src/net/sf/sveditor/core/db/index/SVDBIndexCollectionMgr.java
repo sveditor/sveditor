@@ -21,8 +21,10 @@ import java.util.Map;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -244,9 +246,21 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				
 				if (fProject != null) {
 					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+					SVFileSet fs = new SVFileSet(dir);
+					
+					// Remove the depth-searching portion from all patterns
+					String dflt_include = SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes();
+					dflt_include = dflt_include.replace("**/", "");
+					String dflt_exclude = SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes();
+					dflt_exclude = dflt_exclude.replace("**/", "");
+					fs.getIncludes().addAll(SVDBSourceCollection.parsePatternList(dflt_include));
+					fs.getExcludes().addAll(SVDBSourceCollection.parsePatternList(dflt_exclude));
+					
+					Map<String, Object> config = new HashMap<String, Object>();
+					config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
+					
 					index = rgy.findCreateIndex(
-						fProject, dir, SVDBSourceCollectionIndexFactory.TYPE,
-						null);
+						fProject, dir, SVDBSourceCollectionIndexFactory.TYPE, config);
 				} else {
 					System.out.println("[TODO] create shadow index for " +
 							"non-project file");

@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 
 import org.eclipse.core.resources.IContainer;
@@ -99,7 +100,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	}
 
 	public void addMarker(
-			String 			path,
+			String 					path,
 			final String			type,
 			final int				lineno,
 			final String			msg) {
@@ -109,38 +110,16 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			final IFile file = root.getFile(new Path(path));
-
-			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
-				
-				@Override
-				protected void execute(IProgressMonitor monitor) throws CoreException,
-						InvocationTargetException, InterruptedException {
-					IMarker marker = null;
-					
-					try {
-						marker = file.createMarker(IMarker.PROBLEM);
-						if (type.equals(MARKER_TYPE_ERROR)) {
-							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-						} else if (type.equals(MARKER_TYPE_WARNING)) {
-							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-						} else {
-							marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-						}
-						marker.setAttribute(IMarker.LINE_NUMBER, lineno);
-						marker.setAttribute(IMarker.MESSAGE, msg);
-					} catch (CoreException e) {
-						if (marker != null) {
-							marker.delete();
-						}
-					}
-				}
-			};
-
-			try {
-				op.run(new NullProgressMonitor());
-			} catch (Exception e) {
-				e.printStackTrace();
+			int severity;
+			if (type.equals(MARKER_TYPE_ERROR)) {
+				severity = IMarker.SEVERITY_ERROR;
+			} else if (type.equals(MARKER_TYPE_WARNING)) {
+				severity = IMarker.SEVERITY_WARNING;
+			} else {
+				severity = IMarker.SEVERITY_INFO;
 			}
+			
+			SVCorePlugin.getDefault().propagateMarker(file, severity, lineno, msg);
 		}
 	}
 
