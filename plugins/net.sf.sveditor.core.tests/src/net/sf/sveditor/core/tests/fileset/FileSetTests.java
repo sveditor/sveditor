@@ -13,15 +13,19 @@
 package net.sf.sveditor.core.tests.fileset;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
+import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -141,6 +145,45 @@ public class FileSetTests extends TestCase {
 		}
 		
 		assertEquals(0, match_set.size());
+	}
+	
+	public void testWindowsPathPattern() {
+		String root = "F:\\soft\\OVM-UVM\\ovm-2.1.1\\src";
+		final String input[] = {
+				root + "/foo.svh",
+				root + "\\foo.sv"
+		};
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		SVFileSet fs = SVCorePlugin.getDefault().getDefaultFileSet(root);
+		fs.addInclude("**/*.v");
+		fs.addInclude("**/*.svh");
+		
+		AbstractSVFileMatcher matcher = new AbstractSVFileMatcher() {
+			
+			@Override
+			public List<String> findIncludedPaths() {
+				fLog = LogFactory.getLogHandle("AbstractSVFileMatcher");
+				List<String> ret = new ArrayList<String>();
+				
+				for (String in : input) {
+					if (include_file(in)) {
+						ret.add(SVFileUtils.normalize(in));
+					}
+				}
+				
+				return ret;
+			}
+		};
+		
+		matcher.addFileSet(fs);
+		List<String> result = matcher.findIncludedPaths();
+		
+		for (String exp : input) {
+			exp = SVFileUtils.normalize(exp);
+			assertTrue(result.contains(exp));
+		}
 	}
 
 }

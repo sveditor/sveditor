@@ -1,4 +1,9 @@
 
+-- 0.3.8 Release --
+
+- (#3159790) Correct critical bug in windows file-pattern matching
+
+------------------------------------------------------------------------------
 -- 0.3.7 Release --
 
 - Fix bugs in build of 'Developer Docs' plugin-in

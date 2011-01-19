@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.log.LogHandle;
 
 
@@ -156,12 +158,20 @@ public abstract class AbstractSVFileMatcher {
 
 		for (SVFileSet fs : fFileSets) {
 			for (String inc : fs.getIncludes()) {
-				fIncludePatterns.add(create_pattern(fs.getBase(), inc));
+				try {
+					fIncludePatterns.add(create_pattern(fs.getBase(), inc));
+				} catch (PatternSyntaxException e) {
+					fLog.error("Failed to compile base=" + fs.getBase() + " incl=" + inc, e);
+				}
 			}
 
 			for (String exc : fs.getExcludes()) {
-				FilePattern p = create_pattern(fs.getBase(), exc);
-				fExcludePatterns.add(p);
+				try {
+					FilePattern p = create_pattern(fs.getBase(), exc);
+					fExcludePatterns.add(p);
+				} catch (PatternSyntaxException e) {
+					fLog.error("Failed to compile base=" + fs.getBase() + " excl=" + exc, e);
+				}
 			}
 		}
 	}
@@ -174,6 +184,7 @@ public abstract class AbstractSVFileMatcher {
 		if (base.startsWith("${workspace_loc}")) {
 			base = base.substring("${workspace_loc}".length());
 		}
+		base = SVFileUtils.normalize(base);
 		
 		// The actual pattern is:
 		// <base> + <ext_dir_path> + <leaf>
