@@ -15,9 +15,11 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 	List<ISVDBIndex>			fIndexList;
@@ -25,9 +27,11 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 	ISVDBItemIterator			fIndexIterator;
 	ISVDBIndex					fOverrideIndex;
 	SVDBFile					fOverrideFile;
+	IProgressMonitor			fProgressMonitor;
 	
-	public SVDBIndexCollectionItemIterator() {
+	public SVDBIndexCollectionItemIterator(IProgressMonitor monitor) {
 		fIndexList = new ArrayList<ISVDBIndex>();
+		fProgressMonitor = monitor;
 	}
 	
 	public void setOverride(ISVDBIndex index, SVDBFile file) {
@@ -46,7 +50,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 		
 		while ((fIndexIterator == null || !fIndexIterator.hasNext(type_list)) &&
 				fIndexListIdx < fIndexList.size()) {
-			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator();
+			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator(fProgressMonitor);
 			fIndexListIdx++;
 		}
 		
@@ -54,7 +58,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 				|| fIndexListIdx < fIndexList.size());
 	}
 
-	public SVDBItem nextItem(SVDBItemType ... type_list) {
+	public ISVDBItemBase nextItem(SVDBItemType ... type_list) {
 		boolean had_next = hasNext();
 		
 		if (fIndexIterator != null && !fIndexIterator.hasNext(type_list)) {
@@ -62,7 +66,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 		}
 
 		if (fIndexIterator == null && fIndexListIdx < fIndexList.size()) {
-			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator();
+			fIndexIterator = fIndexList.get(fIndexListIdx).getItemIterator(fProgressMonitor);
 			fIndexListIdx++;
 		}
 
@@ -70,7 +74,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 			((SVDBIndexItemIterator)fIndexIterator).setOverride(fOverrideFile);
 		}
 
-		SVDBItem ret = null;
+		ISVDBItemBase ret = null;
 		if (fIndexIterator != null) {
 			ret = fIndexIterator.nextItem(type_list);
 		}

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.constraint_parser;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -72,7 +73,7 @@ public class SmokeTest extends TestCase {
 	 */
 	
 	public static void find_constraints(ISVDBScopeItem scope, List<SVDBConstraint> constraints) {
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Constraint) {
 				constraints.add((SVDBConstraint)it);
 			} else if (it instanceof ISVDBScopeItem) {

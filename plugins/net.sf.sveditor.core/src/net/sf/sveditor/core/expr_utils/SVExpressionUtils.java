@@ -15,7 +15,11 @@ package net.sf.sveditor.core.expr_utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDataType;
@@ -84,7 +88,7 @@ public class SVExpressionUtils {
 		fNameMatcher = matcher;
 	}
 	
-	public synchronized List<SVDBItem> findItems(
+	public synchronized List<ISVDBItemBase> findItems(
 			ISVDBIndexIterator	index_it,
 			ISVDBScopeItem		active_scope,
 			SVExprContext		expr_ctxt,
@@ -93,15 +97,15 @@ public class SVExpressionUtils {
 		return findItems(index_it, active_scope, expr_ctxt, match_prefix, 0);
 	}
 	
-	private List<SVDBItem> findItems(
+	private List<ISVDBItemBase> findItems(
 			ISVDBIndexIterator	index_it,
 			ISVDBScopeItem		active_scope,
 			SVExprContext		expr_ctxt,
 			boolean				match_prefix,
 			int					max_matches) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		fLog.debug("--> findItems(active_scope=\"" + 
-				((active_scope != null)?active_scope.getName():null) + "\" " +
+				((active_scope != null)?((ISVDBNamedItem)active_scope).getName():null) + "\" " +
 				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
 				"\" leaf=\"" + expr_ctxt.fLeaf + "\" match_prefix=" + match_prefix + ")");
 
@@ -136,7 +140,7 @@ public class SVExpressionUtils {
 			ISVDBIndexIterator		index_it,
 			int						max_matches,
 			boolean					match_prefix,
-			List<SVDBItem> 			ret) {
+			List<ISVDBItemBase> 	ret) {
 		
 		if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
 			SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
@@ -148,14 +152,14 @@ public class SVExpressionUtils {
 			}
 		} else {
 			// most likely a macro call
-			ISVDBItemIterator it_i = index_it.getItemIterator();
+			ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
 			while (it_i.hasNext()) {
-				SVDBItem it_t = it_i.nextItem();
+				ISVDBItemBase it_t = it_i.nextItem();
 
 				if (it_t.getType() == SVDBItemType.Macro) {
 					if (match_prefix) {
 						if (expr_ctxt.fLeaf.equals("") || 
-								it_t.getName().startsWith(expr_ctxt.fLeaf)) {
+								((ISVDBNamedItem)it_t).getName().startsWith(expr_ctxt.fLeaf)) {
 							if (max_matches == 0 || (ret.size() < max_matches)) {
 								ret.add(it_t);
 							} else {
@@ -163,7 +167,7 @@ public class SVExpressionUtils {
 							}
 						}
 					} else {
-						if (it_t.getName().equals(expr_ctxt.fLeaf)) {
+						if (((ISVDBNamedItem)it_t).getName().equals(expr_ctxt.fLeaf)) {
 							if (max_matches == 0 || (ret.size() < max_matches)) {
 								ret.add(it_t);
 							} else {
@@ -184,7 +188,7 @@ public class SVExpressionUtils {
 			ISVDBIndexIterator		index_it,
 			int						max_matches,
 			boolean					match_prefix,
-			List<SVDBItem> 			ret) {
+			List<ISVDBItemBase> 	ret) {
 		debug("--> findTriggeredItems");
 		fLog.debug("Expression is triggered expression");
 		List<SVDBItem> pre_trigger = processPreTriggerPortion(
@@ -202,11 +206,11 @@ public class SVExpressionUtils {
 					it_t.getType() == SVDBItemType.Coverpoint) {
 				SVDBFindByNameInClassHierarchy finder_h = 
 					new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
-				List<SVDBItem> fields = finder_h.find((SVDBScopeItem)it_t, leaf);
+				List<ISVDBItemBase> fields = finder_h.find((SVDBScopeItem)it_t, leaf);
 				
 				fLog.debug("Find Named Field returns " + fields.size() + " results");
-				for (SVDBItem it : fields) {
-					fLog.debug("    " + it.getType() + " " + it.getName());
+				for (ISVDBItemBase it : fields) {
+					fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
 				}
 
 				if (fields.size() > 0) {
@@ -239,10 +243,10 @@ public class SVExpressionUtils {
 			ISVDBIndexIterator		index_it,
 			int						max_matches,
 			boolean					match_prefix,
-			List<SVDBItem> 			ret) {
+			List<ISVDBItemBase> 	ret) {
 
 		fLog.debug("Looking for un-triggered identifier \"" + leaf + "\"");
-		List<SVDBItem> result = null;
+		List<ISVDBItemBase> result = null;
 
 		SVDBFindByNameInClassHierarchy finder_h =
 			new SVDBFindByNameInClassHierarchy(index_it, fNameMatcher);
@@ -258,7 +262,7 @@ public class SVExpressionUtils {
 					// This is possibly a call to 'new'. We'll add
 					// a proposal for this later based on the base type
 					if (result.get(i).getType() == SVDBItemType.Function &&
-							result.get(i).getName().equals("new")) {
+							((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
 						add = false;
 					}
 				}
@@ -296,7 +300,7 @@ public class SVExpressionUtils {
 		// Try global task/function
 		SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
 
-		List<SVDBItem> it_l= finder_tf.find(leaf,
+		List<ISVDBItemBase> it_l = finder_tf.find(leaf,
 				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef,
 				SVDBItemType.PackageDecl);
 		
@@ -332,8 +336,8 @@ public class SVExpressionUtils {
 		
 		if (it_l != null && it_l.size() > 0) {
 			fLog.debug("Global find-by-name \"" + leaf + "\" returned:");
-			for (SVDBItem it : it_l) {
-				fLog.debug("    " + it.getType() + " " + it.getName());
+			for (ISVDBItemBase it : it_l) {
+				fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
 			}
 
 			if (max_matches == 0 || (ret.size() < max_matches)) {
@@ -677,11 +681,11 @@ public class SVExpressionUtils {
 				SVDBFindByName finder_name = 
 					new SVDBFindByName(index_it, fDefaultMatcher);
 				
-				List<SVDBItem> result = finder_name.find(type_name,
+				List<ISVDBItemBase> result = finder_name.find(type_name,
 						SVDBItemType.Struct, SVDBItemType.Class);
 
 				if (result.size() > 0) {
-					item_list.add(result.get(0));
+					item_list.add((SVDBItem)result.get(0));
 
 					if (result.size() > 1) {
 						System.out.println("[WARN] Lookup of \"" + type_name
@@ -699,7 +703,7 @@ public class SVExpressionUtils {
 			scanner.unget_ch(ch);
 			
 			SVDBItem field = null;
-			List<SVDBItem> matches = null;
+			List<ISVDBItemBase> matches = null;
 			
 			if (item_list.size() == 0) {
 				// First element, so we need to lookup the item
@@ -710,7 +714,7 @@ public class SVExpressionUtils {
 						SVDBSearchUtils.findClassScope(context);
 					
 					if (class_type != null) {
-						matches = new ArrayList<SVDBItem>();
+						matches = new ArrayList<ISVDBItemBase>();
 					
 						if (id.equals("this")) {
 							matches.add(class_type);
@@ -740,7 +744,7 @@ public class SVExpressionUtils {
 						matches = finder.find(context, id, true);
 						
 						fLog.debug("FindVarsByNameInScope \"" + id + "\" in scope \"" + 
-								context.getName() + "\" returns " + matches.size() + " matches");
+								((ISVDBNamedItem)context).getName() + "\" returns " + matches.size() + " matches");
 						
 						if (matches != null && matches.size() > 0 && 
 								matches.get(0) instanceof SVDBVarDeclItem) {
@@ -760,7 +764,7 @@ public class SVExpressionUtils {
 								
 								if (cls_l.size() > 0) {
 									fLog.debug("Found \"" + id + "\" as a type");
-									matches = new ArrayList<SVDBItem>();
+									matches = new ArrayList<ISVDBItemBase>();
 									matches.add(cls_l.get(0));
 								} else {
 									fLog.debug("Did not find \"" + id + "\" as a type");
@@ -797,7 +801,7 @@ public class SVExpressionUtils {
 				return -1;
 			}
 			
-			field = matches.get(0);
+			field = (SVDBItem)matches.get(0);
 			item_list.add(field);
 			
 			SVDBItem type = null;
@@ -872,7 +876,7 @@ public class SVExpressionUtils {
 				cl_l = finder.find(typename);
 				
 				if (cl_l.size() == 0) {
-					ISVDBNamedItem field_p = field.getParent();
+					ISVDBChildItem field_p = field.getParent();
 					while (field_p != null && field_p.getType() != SVDBItemType.Class) {
 						field_p = field_p.getParent();
 					}
@@ -963,7 +967,7 @@ public class SVExpressionUtils {
 		if (cl_l.size() == 0) {
 			SVDBFindByName finder_n = new SVDBFindByName(index_it);
 
-			List<SVDBItem> result = finder_n.find(typename, SVDBItemType.Typedef);
+			List<ISVDBItemBase> result = finder_n.find(typename, SVDBItemType.Typedef);
 			debug("Searching for typedef \"" + typename + "\" -- " + result.size());
 			
 			if (result.size() > 0) {
@@ -1098,7 +1102,7 @@ public class SVExpressionUtils {
 			SVDBFindByNameInClassHierarchy finder_h =
 				new SVDBFindByNameInClassHierarchy(index_it, fDefaultMatcher);
 			
-			List<SVDBItem> matches = finder_h.find((SVDBScopeItem)search_ctxt, 
+			List<ISVDBItemBase> matches = finder_h.find((SVDBScopeItem)search_ctxt, 
 					id, SVDBItemType.Function);
 				
 			debug("next-item search for \"" + id + 
@@ -1111,10 +1115,10 @@ public class SVExpressionUtils {
 		return func;
 	}
 	
-	private SVDBItem filterByAttr(List<SVDBItem> items, String trigger) {
+	private SVDBItem filterByAttr(List<ISVDBItemBase> items, String trigger) {
 		SVDBItem ret = null;
 		
-		for (SVDBItem it : items) {
+		for (ISVDBItemBase it : items) {
 			int attr = 0;
 			
 			if (it.getType() == SVDBItemType.Task || it.getType() == SVDBItemType.Function) {
@@ -1125,11 +1129,11 @@ public class SVExpressionUtils {
 			
 			if (trigger != null && trigger.equals("::")) {
 				if ((attr & IFieldItemAttr.FieldAttr_Static) != 0) {
-					ret = it;
+					ret = (SVDBItem)it;
 					break;
 				}
 			} else {
-				ret = it;
+				ret = (SVDBItem)it;
 				break;
 			}
 		}

@@ -18,6 +18,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -33,6 +34,8 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends TestCase {
 	
@@ -71,30 +74,31 @@ public class TestVmmBasics extends TestCase {
 				rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
-		SVDBItem vmm_xtor=null;
-		SVDBItem vmm_err=null;
+		ISVDBItemBase vmm_xtor=null;
+		ISVDBItemBase vmm_err=null;
 		
 		while (index_it.hasNext()) {
-			SVDBItem it = index_it.nextItem();
-			System.out.println("" + it.getType() + " " + it.getName());
+			ISVDBItemBase it = index_it.nextItem();
+			String name = SVDBItem.getName(it);
+			System.out.println("" + it.getType() + " " + name);
 			
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);
 			} else if (it.getType() == SVDBItemType.Class) {
-				if (it.getName().equals("vmm_xactor")) {
+				if (name.equals("vmm_xactor")) {
 					vmm_xtor = it;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
-				if (it.getName().equals("vmm_error")) {
+				if (name.equals("vmm_error")) {
 					vmm_err = it;
 				}
 			} else if (it.getType() == SVDBItemType.VarDecl) {
 				SVDBVarDeclItem v = (SVDBVarDeclItem)it;
 				
-				assertNotNull("Variable " + it.getParent().getName() + "." +
-						it.getName() + " has a null TypeInfo", v.getTypeInfo());
+				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
+						v.getName() + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
 		
@@ -130,11 +134,11 @@ public class TestVmmBasics extends TestCase {
 				"${workspace_loc}/ethernet/ethernet.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -143,7 +147,7 @@ public class TestVmmBasics extends TestCase {
 				}
 			}
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 		}
 		
 		for (SVDBMarkerItem m : errors) {
@@ -178,11 +182,11 @@ public class TestVmmBasics extends TestCase {
 				"${workspace_loc}/wishbone/wishbone.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -191,7 +195,7 @@ public class TestVmmBasics extends TestCase {
 				}
 			}
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 		}
 		
 		for (SVDBMarkerItem m : errors) {
@@ -242,11 +246,11 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;

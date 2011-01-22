@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -30,6 +31,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChangeListener {
@@ -78,22 +80,22 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			// System.out.println("tmp_it=" + tmp_it.getName());
+			// System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -125,14 +127,14 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/project/basic_lib_project",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -140,7 +142,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		
 		assertEquals("index not rebuilt", 1, fIndexRebuildCnt);
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 	public void testWSNoChange() {
@@ -164,22 +166,22 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			// System.out.println("tmp_it=" + tmp_it.getName());
+			// System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 
 		rgy.save_state();
 
@@ -200,14 +202,14 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/project/basic_lib_project",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
 
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -215,7 +217,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 
 		assertEquals("index rebuilt", 0, fIndexRebuildCnt);
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 	}
 
 	public void testFSTimestampChanged() {
@@ -243,22 +245,22 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
-		SVDBItem class1_2 = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
+		ISVDBItemBase class1_2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
-			} else if (tmp_it.getName().equals("class1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				class1_2 = tmp_it;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
 		rgy.save_state();
@@ -290,14 +292,14 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		// Now, re-create the index
 		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -305,7 +307,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		
 		assertEquals("index not rebuilt (target_it=" + target_it + ")", 1, fIndexRebuildCnt);
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 	public void testFSNoChange() {
@@ -329,22 +331,22 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
-		SVDBItem class1_2 = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
+		ISVDBItemBase class1_2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
-			} else if (tmp_it.getName().equals("class1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				class1_2 = tmp_it;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
 		rgy.save_state();
@@ -365,14 +367,14 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		// Now, re-create the index
 		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -380,7 +382,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		
 		assertEquals("index rebuilt", 0, fIndexRebuildCnt);
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 	}
 
 	public void index_changed(int reason, SVDBFile file) {}

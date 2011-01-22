@@ -16,6 +16,7 @@ import java.io.InputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 
@@ -31,8 +32,8 @@ public class testSVScannerLineNumbers implements IApplication {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		SVDBFile f =  factory.parse(in, "tlm_imps.svh");
 		
-		for (SVDBItem it : f.getItems()) {
-			System.out.println("item \"" + it.getName() + "\" @ line " + it.getLocation().getLine());
+		for (ISVDBItemBase it : f.getItems()) {
+			System.out.println("item \"" + SVDBItem.getName(it) + "\" @ line " + it.getLocation().getLine());
 		}
 		
 		return 0;

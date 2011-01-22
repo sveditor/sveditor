@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -292,7 +292,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		if (m.getDef() == null) {
 			System.out.println("[ERROR] macro definition for key \"" + 
 					m.getName() + "\" is null");
-			ISVDBNamedItem top = m;
+			ISVDBChildItem top = m;
 			
 			while (top.getParent() != null) {
 				top = top.getParent();

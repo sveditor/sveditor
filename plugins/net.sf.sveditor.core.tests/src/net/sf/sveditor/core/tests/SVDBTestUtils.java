@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -32,7 +33,7 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
 public class SVDBTestUtils {
 
 	public static void assertNoErrWarn(SVDBFile file) {
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)it;
 				
@@ -56,8 +57,8 @@ public class SVDBTestUtils {
 	}
 	
 	private static boolean findElement(ISVDBScopeItem scope, String e) {
-		for (SVDBItem it : scope.getItems()) {
-			if (it.getName().equals(e)) {
+		for (ISVDBItemBase it : scope.getItems()) {
+			if (SVDBItem.getName(it).equals(e)) {
 				return true;
 			} else if (it instanceof ISVDBScopeItem) {
 				if (findElement((ISVDBScopeItem)it, e)) {
@@ -84,9 +85,9 @@ public class SVDBTestUtils {
 			public void addMacro(SVDBMacroDef macro) {}
 			
 			public SVDBMacroDef findMacro(String name, int lineno) {
-				for (SVDBItem it : pp_file.getItems()) {
+				for (ISVDBItemBase it : pp_file.getItems()) {
 					if (it.getType() == SVDBItemType.Macro && 
-							it.getName().equals(name)) {
+							SVDBItem.getName(it).equals(name)) {
 						return (SVDBMacroDef)it;
 					}
 				}
@@ -122,9 +123,9 @@ public class SVDBTestUtils {
 				} else if (name.equals("__LINE__")) {
 					return new SVDBMacroDef("__LINE__", new ArrayList<String>(), "0");
 				} else {
-					for (SVDBItem it : pp_file.getItems()) {
+					for (ISVDBItemBase it : pp_file.getItems()) {
 						if (it.getType() == SVDBItemType.Macro && 
-								it.getName().equals(name)) {
+								SVDBItem.getName(it).equals(name)) {
 							return (SVDBMacroDef)it;
 						}
 					}

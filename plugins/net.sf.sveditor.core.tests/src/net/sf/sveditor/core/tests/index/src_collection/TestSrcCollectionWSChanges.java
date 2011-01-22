@@ -19,6 +19,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -89,7 +90,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
 		
 		// Force the index to be rebuilt
-		p_data.getProjectIndexMgr().getItemIterator();
+		p_data.getProjectIndexMgr().getItemIterator(new NullProgressMonitor());
 		
 //		assertEquals("Expecting index to be built once", 1, fIndexRebuilt);
 		
@@ -112,7 +113,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		try {
 			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath());
+					"${workspace_loc}" + class_1_2_file.getFullPath(),
+					new NullProgressMonitor());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -120,33 +122,33 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		assertEquals("Expecting index to be built twice", 1, fIndexRebuilt);
 
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		SVDBItem class_1_2 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase class_1_2 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (SVDBItem.getName(tmp_it).equals("def_function")) {
 				def_function = tmp_it;
-			} else if (tmp_it.getName().equals("class_1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class_1_2")) {
 				class_1_2 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -157,7 +159,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		assertNotNull("located class3", class3);
 		assertNotNull("located class_1_2", class_1_2);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 	}
 
 	public void testFileRemoved() {
@@ -202,43 +204,44 @@ public class TestSrcCollectionWSChanges extends TestCase
 		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
 		
 		// Force the index to be rebuilt
-		p_data.getProjectIndexMgr().getItemIterator();
+		p_data.getProjectIndexMgr().getItemIterator(new NullProgressMonitor());
 		
 		try {
 			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath());
+					"${workspace_loc}" + class_1_2_file.getFullPath(),
+					new NullProgressMonitor());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
 		}
 
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		SVDBItem class_1_2 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase class_1_2 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (SVDBItem.getName(tmp_it).equals("def_function")) {
 				def_function = tmp_it;
-			} else if (tmp_it.getName().equals("class_1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class_1_2")) {
 				class_1_2 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -249,7 +252,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		assertNotNull("located class3", class3);
 		assertNotNull("located class_1_2", class_1_2);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// Now, remove the file
 		try {
@@ -264,7 +267,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		SVDBFile class_1_2_db = null;
 		try {
 			class_1_2_db = index.parse(new StringInputStream(class_str), 
-					"${workspace_loc}" + class_1_2_file.getFullPath());
+					"${workspace_loc}" + class_1_2_file.getFullPath(),
+					new NullProgressMonitor());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -274,33 +278,33 @@ public class TestSrcCollectionWSChanges extends TestCase
 		assertNull("class_1_2_db is not null", class_1_2_db);
 
 
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		class1 = null;
 		class2 = null;
 		class3 = null;
 		class_1_2 = null;
 		def_function = null;
-		markers = new ArrayList<SVDBItem>();
+		markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (SVDBItem.getName(tmp_it).equals("def_function")) {
 				def_function = tmp_it;
-			} else if (tmp_it.getName().equals("class_1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class_1_2")) {
 				class_1_2 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -311,7 +315,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		assertNotNull("located class3", class3);
 		assertNull("located class_1_2", class_1_2);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 
 	}
 

@@ -20,6 +20,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -33,6 +34,8 @@ import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOpenFile extends TestCase {
 	
@@ -57,14 +60,14 @@ public class TestOpenFile extends TestCase {
 					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
-			ISVDBItemIterator it = target_index.getItemIterator();
+			ISVDBItemIterator it = target_index.getItemIterator(new NullProgressMonitor());
 			ISVDBFileSystemProvider fs_provider = 
 				((SVDBLibIndex)target_index).getFileSystemProvider();
 			
 			SVDBFile file = null;
 			while (it.hasNext()) {
-				SVDBItem it_t = it.nextItem();
-				if (it_t.getName().endsWith("pkg_rel_path_include.sv")) {
+				ISVDBItemBase it_t = it.nextItem();
+				if (SVDBItem.getName(it_t).endsWith("pkg_rel_path_include.sv")) {
 					file = (SVDBFile)it_t;
 				}
 			}

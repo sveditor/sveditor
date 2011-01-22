@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -29,6 +30,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestArgFileIndex extends TestCase {
 	
@@ -69,17 +71,18 @@ public class TestArgFileIndex extends TestCase {
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1_dir1 = null, class1_dir2 = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1_dir1 = null, class1_dir2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("Item: " + tmp_it.getType() + " " + tmp_it.getName());
+			System.out.println("Item: " + tmp_it.getType() + " " + name);
 			
-			if (tmp_it.getName().equals("class1_dir1")) {
+			if (name.equals("class1_dir1")) {
 				class1_dir1 = tmp_it;
-			} else if (tmp_it.getName().equals("class1_dir2")) {
+			} else if (name.equals("class1_dir2")) {
 				class1_dir2 = tmp_it;
 			}
 		}
@@ -129,22 +132,23 @@ public class TestArgFileIndex extends TestCase {
 		ps.println("endpackage");
 		ps.close();
 
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null, class2 = null;
-		SVDBItem ext_pkg_1 = null, ext_pkg_2 = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null, class2 = null;
+		ISVDBItemBase ext_pkg_1 = null, ext_pkg_2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("Item: " + tmp_it.getType() + " " + tmp_it.getName());
+			System.out.println("Item: " + tmp_it.getType() + " " + name);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("ext_pkg_1")) {
+			} else if (name.equals("ext_pkg_1")) {
 				ext_pkg_1 = tmp_it;
-			} else if (tmp_it.getName().equals("ext_pkg_2")) {
+			} else if (name.equals("ext_pkg_2")) {
 				ext_pkg_2 = tmp_it;
 			}
 		}

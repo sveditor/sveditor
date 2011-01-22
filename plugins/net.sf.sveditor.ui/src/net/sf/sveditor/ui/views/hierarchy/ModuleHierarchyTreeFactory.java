@@ -14,7 +14,8 @@ package net.sf.sveditor.ui.views.hierarchy;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
@@ -37,22 +38,22 @@ public class ModuleHierarchyTreeFactory {
 	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcClassDecl mod) {
 		HierarchyTreeNode ret = new HierarchyTreeNode(parent, mod.getName(), mod);
 		
-		for (SVDBItem it : mod.getItems()) {
+		for (ISVDBItemBase it : mod.getItems()) {
 			if (it.getType() == SVDBItemType.ModIfcInst) {
 				SVDBModIfcInstItem inst = (SVDBModIfcInstItem)it;
 				if (inst.getTypeInfo() == null) {
 					System.out.println("module instance \"" + inst.getName() + "\" has null type");
 				}
-				List<SVDBItem> it_l = fFinder.find(inst.getTypeInfo().getName(), 
+				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
 						SVDBItemType.Module, SVDBItemType.Interface);
 				
 				if (it_l.size() > 0) {
 					HierarchyTreeNode n = build_s(ret, (SVDBModIfcClassDecl)it_l.get(0));
 					n.setItemDecl(inst);
 					ret.addChild(n);
-				} else {
+				} else if (it instanceof ISVDBNamedItem) {
 					// ERROR: Unknown module
-					ret.addChild(new HierarchyTreeNode(ret, it.getName()));
+					ret.addChild(new HierarchyTreeNode(ret, ((ISVDBNamedItem)it).getName()));
 				}
 			}
 		}

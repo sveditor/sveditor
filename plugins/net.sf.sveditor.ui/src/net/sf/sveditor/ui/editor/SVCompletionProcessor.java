@@ -19,6 +19,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -257,15 +258,15 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 		
 		// Find the class that this function belongs to (if any)
-		ISVDBNamedItem class_it = it;
+		ISVDBChildItem class_it = it;
 		
 		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
 			class_it = class_it.getParent();
 		}
 		
 		String cls_name = null;
-		if (class_it != null) {
-			cls_name = class_it.getName();
+		if (class_it != null && class_it instanceof ISVDBNamedItem) {
+			cls_name = ((ISVDBNamedItem)class_it).getName();
 			if (cls_name.equals("__sv_builtin_queue")) {
 				cls_name = "[$]";
 			} else if (cls_name.equals("__sv_builtin_array")) {

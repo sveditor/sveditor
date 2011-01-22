@@ -14,16 +14,19 @@ package net.sf.sveditor.core.db;
 
 public class SVDBItemPrint {
 	
-	public static void printItem(SVDBItem item) {
+	public static void printItem(ISVDBItemBase item) {
 		printItem(0, item);
 	}
 	
-	private static void printItem(int indent, SVDBItem item) {
+	private static void printItem(int indent, ISVDBItemBase item) {
 		for (int i=0; i<indent; i++) {
 			System.out.print(" ");
 		}
 		
-		System.out.print("" + item.getType() + " " + item.getName());
+		System.out.print("" + item.getType());
+		if (item instanceof ISVDBNamedItem) {
+			System.out.print(" " + ((ISVDBNamedItem)item).getName());
+		}
 		
 		if (item instanceof SVDBPreProcCond) {
 			System.out.print(" " + ((SVDBPreProcCond)item).getConditional());
@@ -31,7 +34,7 @@ public class SVDBItemPrint {
 		System.out.println();
 		
 		if (item instanceof ISVDBScopeItem) {
-			for (SVDBItem it : ((ISVDBScopeItem)item).getItems()) {
+			for (ISVDBItemBase it : ((ISVDBScopeItem)item).getItems()) {
 				printItem(indent+4, it);
 			}
 		}

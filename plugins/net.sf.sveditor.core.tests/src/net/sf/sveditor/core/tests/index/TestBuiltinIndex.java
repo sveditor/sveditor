@@ -18,16 +18,20 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestBuiltinIndex extends TestCase {
 	File					fTmpDir;
@@ -63,41 +67,42 @@ public class TestBuiltinIndex extends TestCase {
 				rgy.findCreateIndex("GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
-		SVDBItem string_cls=null, process_cls=null, covergrp_cls=null;
-		SVDBItem finish_task=null;
+		ISVDBItemBase string_cls=null, process_cls=null, covergrp_cls=null;
+		ISVDBItemBase finish_task=null;
 		
 		while (index_it.hasNext()) {
-			SVDBItem it = index_it.nextItem();
+			ISVDBItemBase it = index_it.nextItem();
 			
 			if (it.getType() != SVDBItemType.File) {
-				assertNotNull("Item " + it.getName() + " has null location",
+				assertNotNull("Item " + SVDBItem.getName(it) + " has null location",
 						it.getLocation());
 				if (it instanceof ISVDBScopeItem) {
-					assertNotNull("Item " + it.getName() + " has null end location",
+					assertNotNull("Item " + SVDBItem.getName(it) + " has null end location",
 							((ISVDBScopeItem)it).getEndLocation());
 				}
 			}
 			
 			if (it.getType() == SVDBItemType.VarDecl) {
-				assertNotNull("Item " + it.getName() + " w/parent " + 
-						it.getParent().getName() + " has null type",
+				assertNotNull("Item " + SVDBItem.getName(it) + " w/parent " + 
+						SVDBItem.getName(((SVDBVarDeclItem)it).getParent()) + " has null type",
 					((SVDBVarDeclItem)it).getTypeInfo());
 			}
 			
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);
 			} else if (it.getType() == SVDBItemType.Class) {
-				if (it.getName().equals("string")) {
+				String name = ((SVDBModIfcClassDecl)it).getName();
+				if (name.equals("string")) {
 					string_cls = it;
-				} else if (it.getName().equals("process")) {
+				} else if (name.equals("process")) {
 					process_cls = it;
-				} else if (it.getName().equals("__sv_builtin_covergroup")) {
+				} else if (name.equals("__sv_builtin_covergroup")) {
 					covergrp_cls = it;
 				}
 			} else if (it.getType() == SVDBItemType.Task) {
-				if (it.getName().equals("$finish")) {
+				if (SVDBItem.getName(it).equals("$finish")) {
 					finish_task = it;
 				}
 			}

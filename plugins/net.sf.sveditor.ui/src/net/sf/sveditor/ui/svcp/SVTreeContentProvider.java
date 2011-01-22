@@ -29,7 +29,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			return new Object[0];
 		}
 	}
-
 	
 	public Object getParent(Object element) {
 		if (element instanceof SVDBItem) {
@@ -38,7 +37,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			return null;
 		}
 	}
-
 	
 	public boolean hasChildren(Object element) {
 		return (element instanceof ISVDBScopeItem && 
@@ -46,7 +44,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 				((ISVDBScopeItem)element).getItems().size() > 0);
 	}
 
-	
 	public Object[] getElements(Object element) {
 		if (element instanceof ISVDBScopeItem) {
 			return ((ISVDBScopeItem)element).getItems().toArray();
@@ -55,13 +52,11 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		}
 	}
 
-	
 	public void dispose() {
 		// TODO Auto-generated method stub
 
 	}
 
-	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 	}
 }

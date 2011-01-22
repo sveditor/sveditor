@@ -15,8 +15,9 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBParamPort;
@@ -41,20 +42,24 @@ public class SVDBFindByNameInClassHierarchy {
 		fLog = LogFactory.getLogHandle("FindByNameInClassHierarchy");
 	}
 	
-	public List<SVDBItem> find(
+	public List<ISVDBItemBase> find(
 			ISVDBScopeItem 		scope, 
 			String 				id,
 			SVDBItemType	...	types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		fLog.debug("--> find(" + ((scope != null)?scope.getName():null) + " \"" + id + "\")");
+		fLog.debug("--> find(" + ((scope != null)?
+				((ISVDBNamedItem)scope).getName():null) + " \"" + id + "\")");
 		for (SVDBItemType t : types) {
 			fLog.debug("    TYPE " + t);
 		}
 		
-		if (scope != null && scope.getName() != null && scope.getName().indexOf("::") != -1) {
+		if (scope != null && 
+				((ISVDBNamedItem)scope).getName() != null && 
+				((ISVDBNamedItem)scope).getName().indexOf("::") != -1) {
 			// Looks like an extern function
-			String clsname = scope.getName().substring(0, scope.getName().indexOf("::"));
+			String clsname = ((ISVDBNamedItem)scope).getName().substring(0, 
+					((ISVDBNamedItem)scope).getName().indexOf("::"));
 			
 			SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndexIterator);
 			List<SVDBModIfcClassDecl> result = finder.find(clsname);
@@ -70,7 +75,7 @@ public class SVDBFindByNameInClassHierarchy {
 					scope.getType() != SVDBItemType.Covergroup &&
 					scope.getType() != SVDBItemType.Coverpoint) {
 				fLog.debug("Searching up-scope (current is " + scope.getType() + 
-						" " + scope.getName() + ")");
+						" " + ((ISVDBNamedItem)scope).getName() + ")");
 				if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
 					findTFParamsLocals(ret, (SVDBTaskFuncScope)scope, id, types);
 				}
@@ -86,8 +91,8 @@ public class SVDBFindByNameInClassHierarchy {
 		
 		// Now, search through the scope and the class hierarchy
 		while (scope != null) {
-			fLog.debug("Searching scope \"" + scope.getName() + "\"");
-			for (SVDBItem it : scope.getItems()) {
+			fLog.debug("Searching scope \"" + ((ISVDBNamedItem)scope).getName() + "\"");
+			for (ISVDBItemBase it : scope.getItems()) {
 				boolean matches = (types.length == 0);
 				
 				for (SVDBItemType type : types) {
@@ -98,7 +103,7 @@ public class SVDBFindByNameInClassHierarchy {
 				}
 
 				if (matches) {
-					if (fMatcher.match(it, id)) {
+					if (fMatcher.match((ISVDBNamedItem)it, id)) {
 						ret.add(it);
 					}
 				}
@@ -123,7 +128,7 @@ public class SVDBFindByNameInClassHierarchy {
 	}
 	
 	private void findTFParamsLocals(
-			List<SVDBItem>		items,
+			List<ISVDBItemBase>	items,
 			SVDBTaskFuncScope 	scope, 
 			String 				id,
 			SVDBItemType	...	types) {
@@ -144,7 +149,7 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 		}
 		
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			for (SVDBItemType type : types) {
 				if (it.getType() == type) {
 					matches = true;
@@ -153,7 +158,7 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 			
 			if (matches) {
-				if (fMatcher.match(it, id)) {
+				if (fMatcher.match((ISVDBNamedItem)it, id)) {
 					items.add(it);
 				}
 			}

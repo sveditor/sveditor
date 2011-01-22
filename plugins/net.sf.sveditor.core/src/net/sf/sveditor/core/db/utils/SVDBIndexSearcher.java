@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassHierarchy;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -33,11 +37,11 @@ public class SVDBIndexSearcher {
 	}
 	
 	public SVDBIndexSearcher(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB().values());
+		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
 	}
 
 	public void addIndex(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB().values());
+		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
 	}
 	
 	public void addFile(SVDBFile file) {
@@ -63,11 +67,12 @@ public class SVDBIndexSearcher {
 	}
 	
 	private SVDBModIfcClassDecl findNamedModClass(String name, SVDBScopeItem parent) {
-		for (SVDBItem it : parent.getItems()) {
+		for (ISVDBItemBase it : parent.getItems()) {
 			if ((it.getType() == SVDBItemType.Class ||
 					it.getType() == SVDBItemType.Module ||
 					it.getType() == SVDBItemType.Interface) && 
-					it.getName() != null &&	it.getName().equals(name)) {
+					((ISVDBNamedItem)it).getName() != null &&
+					((ISVDBNamedItem)it).getName().equals(name)) {
 				return (SVDBModIfcClassDecl)it;
 			} else if (it.getType() == SVDBItemType.PackageDecl) {
 				SVDBModIfcClassDecl c;
@@ -97,20 +102,20 @@ public class SVDBIndexSearcher {
 	 * @param context
 	 * @return
 	 */
-	public List<SVDBItem> findVarsByNameInScopes(
+	public List<ISVDBItemBase> findVarsByNameInScopes(
 			String				name,
 			ISVDBScopeItem		context,
 			boolean				stop_on_first_match) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 
 
 		// Search up the scope
 		while (context != null) {
 			
 			// First, search the local variables
-			for (SVDBItem it : context.getItems()) {
+			for (ISVDBItemBase it : context.getItems()) {
 				if (it.getType() == SVDBItemType.VarDecl) {
-					if (it.getName().equals(name)) {
+					if (((ISVDBNamedItem)it).getName().equals(name)) {
 						ret.add(it);
 						
 						if (stop_on_first_match) {
@@ -156,20 +161,21 @@ public class SVDBIndexSearcher {
 	 * @param context
 	 * @return
 	 */
-	public List<SVDBItem> findByNameInScopes(
+	public List<ISVDBItemBase> findByNameInScopes(
 			String				name,
 			ISVDBScopeItem		context,
 			boolean				stop_on_first_match,
 			SVDBItemType	... types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 
 
 		// Search up the scope
 		while (context != null) {
 			
 			// First, search the local variables
-			for (SVDBItem it : context.getItems()) {
-				if (it.getName().equals(name)) {
+			for (ISVDBItemBase it : context.getItems()) {
+				if (it instanceof ISVDBNamedItem && 
+						((ISVDBNamedItem)it).getName().equals(name)) {
 					boolean match = (types.length == 0);
 
 					for (SVDBItemType t : types) {
@@ -257,28 +263,28 @@ public class SVDBIndexSearcher {
 		return null;
 	}
 	
-	public List<SVDBItem> findByName(
+	public List<ISVDBItemBase> findByName(
 			String				name,
 			SVDBItemType	...	types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		for (SVDBFile f : fFiles) {
-			List<SVDBItem> r = SVDBSearchUtils.findItemsByName(f, name, types);
+			List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);
 			ret.addAll(r);
 		}
 		
 		return ret;
 	}
 
-	public List<SVDBItem> findByPrefixInTypeHierarchy(
+	public List<ISVDBItemBase> findByPrefixInTypeHierarchy(
 			String						prefix,
 			SVDBScopeItem				ref_type,
 			Comparator<String>			comparator,
 			SVDBItemType		... 	types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		while (ref_type != null) {
-			for (SVDBItem it : ref_type.getItems()) {
+			for (ISVDBItemBase it : ref_type.getItems()) {
 				boolean type_match = (types.length == 0);
 				
 				for (SVDBItemType type : types) {
@@ -288,7 +294,8 @@ public class SVDBIndexSearcher {
 					}
 				}
 				
-				if (type_match && it.getName().toLowerCase().startsWith(prefix)) {
+				if (type_match && (it instanceof ISVDBNamedItem) &&
+						((ISVDBNamedItem)it).getName().toLowerCase().startsWith(prefix)) {
 					ret.add(it);
 				}
 			}
@@ -309,12 +316,12 @@ public class SVDBIndexSearcher {
 	// public List<SVDBItem> findByNameInScopeHierarchy(
 			
 	
-	public List<SVDBItem> findByNameInClassHierarchy(
+	public List<ISVDBItemBase> findByNameInClassHierarchy(
 			String				name,
 			ISVDBScopeItem		scope,
 			SVDBItemType	...	types) {
 
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		while (scope != null && scope.getType() != SVDBItemType.Class) {
 			scope = scope.getParent();
@@ -326,7 +333,7 @@ public class SVDBIndexSearcher {
 		
 		// Now, search through the scope and the class hierarchy
 		while (scope != null) {
-			for (SVDBItem it : scope.getItems()) {
+			for (ISVDBItemBase it : scope.getItems()) {
 				boolean match_type = (types.length == 0);
 				
 				for (SVDBItemType t : types) {
@@ -335,7 +342,8 @@ public class SVDBIndexSearcher {
 						break;
 					}
 				}
-				if (match_type && it.getName().equals(name)) {
+				if (match_type && it instanceof ISVDBNamedItem &&
+						((ISVDBNamedItem)it).getName().equals(name)) {
 					ret.add(it);
 				}
 			}

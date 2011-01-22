@@ -15,6 +15,8 @@ package net.sf.sveditor.core.tests;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -28,7 +30,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 		fFileMap.put(file.getName(), file);
 	}
 
-	public ISVDBItemIterator getItemIterator() {
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		return new SVDBIndexItemIterator(fFileMap);
 	}
 

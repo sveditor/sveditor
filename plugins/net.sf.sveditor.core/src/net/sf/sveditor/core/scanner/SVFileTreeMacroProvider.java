@@ -18,9 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -114,7 +115,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			SVDBFileTree		file,
 			ISVDBScopeItem 		scope, 
 			SVDBFile 			stop_pt) {
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			if (it.getType() == SVDBItemType.Macro) {
 				/*
 				fLog.debug("Adding macro \"" + it.getName() + "\"" +
@@ -122,7 +123,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				 */
 				addMacro((SVDBMacroDef)it);
 			} else if (it.getType() == SVDBItemType.Include) {
-				if (stop_pt != null && stop_pt.getName().endsWith(it.getName())) {
+				if (stop_pt != null && stop_pt.getName().endsWith(
+						((ISVDBNamedItem)it).getName())) {
 					/*
 					fLog.debug("Found stop point");
 					 */
@@ -131,7 +133,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					// Look for the included file
 					SVDBFileTree inc = null;
 					for (SVDBFileTree inc_t : file.getIncludedFiles()) {
-						if (inc_t.getFilePath().endsWith(it.getName())) {
+						if (inc_t.getFilePath().endsWith(((ISVDBNamedItem)it).getName())) {
 							inc = inc_t;
 							break;
 						}
@@ -142,7 +144,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 							collectMacroDefs(inc, inc.getSVDBFile(), null);
 						}
 					} else {
-						fLog.error("Failed to find \"" + it.getName() + "\" in file-tree");
+						fLog.error("Failed to find \"" + ((ISVDBNamedItem)it).getName() + "\" in file-tree");
 						if (fDebugEn) {
 							for (SVDBFileTree inc_t : file.getIncludedFiles()) {
 								fLog.debug("    " + inc_t.getFilePath());
@@ -168,7 +170,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			SVDBFileTree			context,
 			ISVDBScopeItem 			scope, 
 			int 					lineno) {
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			if (it.getLocation() != null && 
 					it.getLocation().getLine() > lineno && lineno != -1) {
 				return false;
@@ -178,17 +180,18 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
 				if (fDebugEn) {
-					fLog.debug("Add macro \"" + it.getName() + "\" from scope " + scope.getName() + 
+					fLog.debug("Add macro \"" + ((ISVDBNamedItem)it).getName() + "\" from scope " + 
+							((ISVDBNamedItem)scope).getName() + 
 							" to " + fContext.getFilePath());
 				}
 				addMacro((SVDBMacroDef)it);
 			} else if (it.getType() == SVDBItemType.Include) {
 				// Look for the included file
 				if (fDebugEn) {
-					fLog.debug("Looking for include \"" + it.getName() + "\" in FileTree " + context.getFilePath());
+					fLog.debug("Looking for include \"" + ((ISVDBNamedItem)it).getName() + "\" in FileTree " + context.getFilePath());
 				}
 				SVDBFileTree inc = null;
-				String it_leaf = new File(it.getName()).getName(); 
+				String it_leaf = new File(((ISVDBNamedItem)it).getName()).getName(); 
 				for (SVDBFileTree inc_t : context.getIncludedFiles()) {
 					if (fDebugEn) {
 						fLog.debug("    Checking file \"" + inc_t.getFilePath() + "\"");
@@ -211,7 +214,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 						}
 					}
 				} else {
-					fLog.error("Failed to find \"" + it.getName() + "\" in this-file-tree");
+					fLog.error("Failed to find \"" + 
+							((ISVDBNamedItem)it).getName() + "\" in this-file-tree");
 					if (fDebugEn) {
 						for (SVDBFileTree inc_t : context.getIncludedFiles()) {
 							fLog.debug("    " + inc_t.getFilePath());

@@ -30,6 +30,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 /**
@@ -157,7 +158,7 @@ public class TestIndexParse extends TestCase {
 		
 		assertNotNull("Failed to open path \"" + path + "\"", in);
 		
-		SVDBFile file = index.parse(in, path);
+		SVDBFile file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull("Failed to parse path \"" + path + "\"", file);
 		
@@ -170,7 +171,7 @@ public class TestIndexParse extends TestCase {
 			
 			assertNotNull("Failed to open path \"" + path_n + "\"", in);
 			
-			file = index.parse(in, path_n);
+			file = index.parse(in, path_n, new NullProgressMonitor());
 			
 			assertNotNull("Failed to parse path \"" + path_n + "\"", file);
 			

@@ -21,6 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -34,6 +35,8 @@ import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SrcCollectionBasics extends TestCase {
 	
@@ -77,30 +80,31 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -110,7 +114,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// rgy.save_state();
 
@@ -137,33 +141,34 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		SVDBItem def_function = null;
-		SVDBItem def_task = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase def_function = null;
+		ISVDBItemBase def_task = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
-			} else if (tmp_it.getName().equals("def_task")) {
+			} else if (name.equals("def_task")) {
 				def_task = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -174,7 +179,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class3", class3);
 		assertNotNull("located def_function", def_function);
 		assertNotNull("located def_task", def_task);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// rgy.save_state();
 
@@ -206,36 +211,37 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem top=null, top_t=null, sub=null;
-		SVDBItem class1 = null;
-		SVDBItem class3 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase top=null, top_t=null, sub=null;
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("top")) {
+			} else if (name.equals("top")) {
 				top = tmp_it;
-			} else if (tmp_it.getName().equals("top_t")) {
+			} else if (name.equals("top_t")) {
 				top_t = tmp_it;
-			} else if (tmp_it.getName().equals("sub")) {
+			} else if (name.equals("sub")) {
 				sub = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -247,7 +253,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located top_t", top_t);
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 	}
 
 	/**
@@ -277,29 +283,30 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem top=null, top_t=null, sub=null;
-		SVDBItem class1 = null;
-		SVDBItem class3 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase top=null, top_t=null, sub=null;
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("top")) {
+			} else if (name.equals("top")) {
 				top = tmp_it;
-			} else if (tmp_it.getName().equals("top_t")) {
+			} else if (name.equals("top_t")) {
 				top_t = tmp_it;
-			} else if (tmp_it.getName().equals("sub")) {
+			} else if (name.equals("sub")) {
 				sub = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
@@ -313,9 +320,9 @@ public class SrcCollectionBasics extends TestCase {
 				"/project_dir_src_collection_module_missing_inc/class1.svh");
 		 */
 		String file_path = new File(path, "class1.svh").getAbsolutePath();
-		/* SVDBFile file = */ index.parse(fs.openStream(file_path), file_path); 
+		/* SVDBFile file = */ index.parse(fs.openStream(file_path), file_path, new NullProgressMonitor()); 
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + ((SVDBMarkerItem)warn).getMessage());
 		}
 		
@@ -325,7 +332,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located top_t", top_t);
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 		// Expect two entries for missing include entry
 		assertEquals("Confirm no warnings", 2, markers.size());
 		System.out.println("<-- testMissingIncludeRecurseModule()");
@@ -350,27 +357,28 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -379,7 +387,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class1", class1);
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 	}
 
 	public void testBasicClassIncludingInterface() {
@@ -401,27 +409,28 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -430,7 +439,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class1", class1);
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 	}
 
 	public void testBasicClassIncludingProgram() {
@@ -452,27 +461,28 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1 = null;
-		SVDBItem class2 = null;
-		SVDBItem class3 = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("class2")) {
+			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -481,7 +491,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class1", class1);
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 	}
 
 	public void testFSNewFileAdded() throws IOException {
@@ -505,36 +515,37 @@ public class SrcCollectionBasics extends TestCase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem top=null, top_t=null, sub=null;
-		SVDBItem class1 = null;
-		SVDBItem class3 = null;
-		SVDBItem def_function = null;
-		List<SVDBItem> markers = new ArrayList<SVDBItem>();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase top=null, top_t=null, sub=null;
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class3 = null;
+		ISVDBItemBase def_function = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + tmp_it.getName());
+			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (name.equals("class1")) {
 				class1 = tmp_it;
-			} else if (tmp_it.getName().equals("top")) {
+			} else if (name.equals("top")) {
 				top = tmp_it;
-			} else if (tmp_it.getName().equals("top_t")) {
+			} else if (name.equals("top_t")) {
 				top_t = tmp_it;
-			} else if (tmp_it.getName().equals("sub")) {
+			} else if (name.equals("sub")) {
 				sub = tmp_it;
-			} else if (tmp_it.getName().equals("class3")) {
+			} else if (name.equals("class3")) {
 				class3 = tmp_it;
-			} else if (tmp_it.getName().equals("def_function")) {
+			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				markers.add(tmp_it);
 			}
 		}
 
-		for (SVDBItem warn : markers) {
+		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
 					((SVDBMarkerItem)warn).getMessage());
 		}
@@ -546,7 +557,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located top_t", top_t);
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
-		assertEquals("class1", class1.getName());
+		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// Now, create a new file
 		PrintStream out = new PrintStream(new File(project_dir, "project_dir_src_collection_module/new_class.svh"));
@@ -560,7 +571,7 @@ public class SrcCollectionBasics extends TestCase {
 				"project_dir_src_collection_module/new_class.svh").getAbsolutePath();
 		FileInputStream in = new FileInputStream(
 				new File(project_dir, "project_dir_src_collection_module/new_class.svh"));				
-		SVDBFile new_class_file = index.parse(in, new_class_path);
+		SVDBFile new_class_file = index.parse(in, new_class_path, new NullProgressMonitor());
 		
 		assertNotNull(new_class_file);
 	}

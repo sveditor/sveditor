@@ -17,6 +17,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -33,6 +34,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestGlobalDefine extends TestCase {
 
@@ -163,13 +165,13 @@ public class TestGlobalDefine extends TestCase {
 		p_wrap = project_data.getProjectFileWrapper();
 		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
 		
-		ISVDBItemIterator index_it = index.getItemIterator();
+		ISVDBItemIterator index_it = index.getItemIterator(new NullProgressMonitor());
 		
-		SVDBItem class1_it = null;
+		ISVDBItemBase class1_it = null;
 		while (index_it.hasNext()) {
-			SVDBItem it_tmp = index_it.nextItem();
-			System.out.println("it " + it_tmp.getType() + " " + it_tmp.getName());
-			if (it_tmp.getName().equals("class1")) {
+			ISVDBItemBase it_tmp = index_it.nextItem();
+			System.out.println("it " + it_tmp.getType() + " " + SVDBItem.getName(it_tmp));
+			if (SVDBItem.getName(it_tmp).equals("class1")) {
 				class1_it = it_tmp;
 			}
 		}

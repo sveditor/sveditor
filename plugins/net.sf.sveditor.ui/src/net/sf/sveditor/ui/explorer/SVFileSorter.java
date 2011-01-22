@@ -14,7 +14,7 @@ package net.sf.sveditor.ui.explorer;
 
 import java.text.Collator;
 
-import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 
 import org.eclipse.jface.viewers.Viewer;
@@ -32,9 +32,9 @@ public class SVFileSorter extends ViewerSorter {
 
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		if (e1 instanceof ISVDBNamedItem && e2 instanceof ISVDBNamedItem) {
-			ISVDBNamedItem p1 = ((ISVDBNamedItem)e1).getParent();
-			ISVDBNamedItem p2 = ((ISVDBNamedItem)e2).getParent();
+		if (e1 instanceof ISVDBChildItem && e2 instanceof ISVDBChildItem) {
+			ISVDBChildItem p1 = ((ISVDBChildItem)e1).getParent();
+			ISVDBChildItem p2 = ((ISVDBChildItem)e2).getParent();
 			
 			if (p1 != p2) {
 				System.out.println("parents are not equal");

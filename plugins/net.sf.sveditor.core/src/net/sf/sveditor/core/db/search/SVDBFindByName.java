@@ -15,10 +15,13 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFindByName {
 	private ISVDBIndexIterator			fIndexIterator;
@@ -33,13 +36,13 @@ public class SVDBFindByName {
 		fMatcher = matcher;
 	}
 	
-	public List<SVDBItem> find(String name, SVDBItemType ... types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+	public List<ISVDBItemBase> find(String name, SVDBItemType ... types) {
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		ISVDBItemIterator item_it = fIndexIterator.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIterator.getItemIterator(new NullProgressMonitor());
 		
 		while (item_it.hasNext()) {
-			SVDBItem it = item_it.nextItem();
+			ISVDBItemBase it = item_it.nextItem();
 			
 			boolean type_match = (types.length == 0);
 			
@@ -51,7 +54,7 @@ public class SVDBFindByName {
 			}
 			
 			if (type_match) {
-				if (fMatcher.match(it, name)) {
+				if (fMatcher.match((ISVDBNamedItem)it, name)) {
 					ret.add(it);
 				}
 			}

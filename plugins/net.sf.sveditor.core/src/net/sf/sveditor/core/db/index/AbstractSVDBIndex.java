@@ -19,6 +19,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -228,21 +231,21 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	protected abstract boolean isLoadUpToDate();
 
-	public synchronized Map<String, SVDBFile> getFileDB() {
+	public synchronized Map<String, SVDBFile> getFileDB(IProgressMonitor monitor) {
 		if (!fIndexFileMapValid && fIndexRegistry != null) {
 			fIndexRegistry.loadPersistedData(fProjectName, this);
 		}
 		
 		if (!fIndexFileMapValid) {
-			buildIndex();
+			buildIndex(monitor);
 		}
 		
 		return fIndexFileMap;
 	}
 
-	protected abstract void buildIndex();
+	protected abstract void buildIndex(IProgressMonitor monitor);
 
-	public synchronized Map<String, SVDBFile> getPreProcFileMap() {
+	public synchronized Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor) {
 		if (!fPreProcFileMapValid && fIndexRegistry != null) {
 			fIndexRegistry.loadPersistedData(fProjectName, this);
 		}
@@ -256,18 +259,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 
 	protected abstract void buildPreProcFileMap();
 
-	public ISVDBItemIterator getItemIterator() {
-		return new SVDBIndexItemIterator(getFileDB());
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		return new SVDBIndexItemIterator(getFileDB(monitor));
 	}
 	
 	public SVDBFile findFile(String path) {
-		Map<String, SVDBFile> map = getFileDB();
+		Map<String, SVDBFile> map = getFileDB(new NullProgressMonitor());
 		
 		return map.get(path);
 	}
 
 	public SVDBFile findPreProcFile(String path) {
-		Map<String, SVDBFile> map = getPreProcFileMap();
+		Map<String, SVDBFile> map = getPreProcFileMap(new NullProgressMonitor());
 		return map.get(path);
 	}
 	

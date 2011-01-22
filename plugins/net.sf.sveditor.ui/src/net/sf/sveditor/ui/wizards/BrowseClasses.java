@@ -15,6 +15,8 @@ package net.sf.sveditor.ui.wizards;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -146,12 +148,12 @@ public class BrowseClasses extends SelectionStatusDialog
 		SVDBFindByName finder = new SVDBFindByName(fIndexIt, 
 				new SVDBFindContentAssistNameMatcher() {
 					@Override
-					public boolean match(SVDBItem it, String name) {
+					public boolean match(ISVDBNamedItem it, String name) {
 						return (!it.getName().startsWith("__sv_builtin") &&
 								super.match(it, name));
 					}
 			});
-		List<SVDBItem> proposals = null;
+		List<ISVDBItemBase> proposals = null;
 		
 		fProposals.clear();
 		IStructuredSelection sel = (IStructuredSelection)fClassList.getSelection();
@@ -159,7 +161,9 @@ public class BrowseClasses extends SelectionStatusDialog
 			fClassNameStr = "";
 		}
 		proposals = finder.find(fClassNameStr, SVDBItemType.Class);
-		fProposals.addAll(proposals);
+		for (ISVDBItemBase p : proposals) {
+			fProposals.add((SVDBItem)p);
+		}
 		
 		if (fSuperClass != null) {
 			filter_by_superclass();

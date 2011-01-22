@@ -21,6 +21,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -43,6 +44,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class ArgFilePersistence extends TestCase 
@@ -98,19 +100,19 @@ public class ArgFilePersistence extends TestCase
 		PersistenceIndex index = new PersistenceIndex(target_index);
 		
 		// Force loading
-		ISVDBItemIterator item_it = index.getItemIterator();
+		ISVDBItemIterator item_it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (item_it.hasNext()) {
-			SVDBItem it = item_it.nextItem();
+			ISVDBItemBase it = item_it.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
 				errors.add((SVDBMarkerItem)it);
 			}
-			assertNotNull("Item " + it.getName() + " has null location");
+			assertNotNull("Item " + SVDBItem.getName(it) + " has null location");
 			if (it instanceof SVDBTaskFuncScope) {
 				for (SVDBParamPort p : ((SVDBTaskFuncScope)it).getParams()) {
 					assertNotNull("Parameter " + p.getName() + 
-							" of " + it.getName() + " has null location",
+							" of " + SVDBItem.getName(it) + " has null location",
 							p.getLocation());
 				}
 			}
@@ -164,20 +166,20 @@ public class ArgFilePersistence extends TestCase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -218,20 +220,20 @@ public class ArgFilePersistence extends TestCase
 		index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 		
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
@@ -256,14 +258,14 @@ public class ArgFilePersistence extends TestCase
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		SVDBModIfcClassDecl target_it = null, target_orig = null;
-		List<SVDBItem> orig_list = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> orig_list = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = (SVDBModIfcClassDecl)tmp_it;
 				target_orig = (SVDBModIfcClassDecl)tmp_it.duplicate();
 			}
@@ -278,15 +280,15 @@ public class ArgFilePersistence extends TestCase
 		for (int i=0; i<orig_list.size(); i++) {
 			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
 					orig_list.get(i).getType() != SVDBItemType.File) {
-				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
-						" Not Equal " + orig_list.get(i).getType() + " " + orig_list.get(i).getName(),
+				assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
+						" Not Equal " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)),
 						orig_list.get(i).equals(orig_list.get(i)));
 			}
 		}
 
 		assertEquals("Index not initially rebuilt", 1, fIndexRebuilt);
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -309,16 +311,16 @@ public class ArgFilePersistence extends TestCase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
-		List<SVDBItem> new_list = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> new_list = new ArrayList<ISVDBItemBase>();
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			new_list.add(tmp_it);
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = (SVDBModIfcClassDecl)tmp_it;
 			}
 		}
@@ -329,8 +331,8 @@ public class ArgFilePersistence extends TestCase
 		// Compare individual items first
 		for (int i=0; i<orig_list.size(); i++) {
 			if (!(orig_list.get(i) instanceof ISVDBScopeItem)) {
-				assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
-						" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+				assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
+						" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
 						orig_list.get(i).equals(new_list.get(i)));
 			}
 		}
@@ -341,13 +343,13 @@ public class ArgFilePersistence extends TestCase
 					orig_list.get(i).getType() != SVDBItemType.File &&
 					orig_list.get(i).getType() != SVDBItemType.Class) {
 				if (orig_list.get(i).getType() == SVDBItemType.Function &&
-						orig_list.get(i).getName().equals("new")) {
+						SVDBItem.getName(orig_list.get(i)).equals("new")) {
 					SVDBTaskFuncScope f1 = (SVDBTaskFuncScope)orig_list.get(i);
 					SVDBTaskFuncScope f2 = (SVDBTaskFuncScope)new_list.get(i);
 					f1.equals(f2);
 				} else {
-					assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
-							" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+					assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
+							" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
 							orig_list.get(i).equals(new_list.get(i)));
 				}
 			}
@@ -356,20 +358,20 @@ public class ArgFilePersistence extends TestCase
 		// Compare everything next
 		for (int i=0; i<orig_list.size(); i++) {
 			if (orig_list.get(i).getType() == SVDBItemType.File &&
-					orig_list.get(i).getName().equals("class1.svh")) {
+					SVDBItem.getName(orig_list.get(i)).equals("class1.svh")) {
 				SVDBFile c1 = (SVDBFile)orig_list.get(i);
 				SVDBFile c2 = (SVDBFile)new_list.get(i);
 				
 				c1.equals(c2);
 			}
-			assertTrue("Item " + orig_list.get(i).getType() + " " + orig_list.get(i).getName() + 
-					" Not Equal " + new_list.get(i).getType() + " " + new_list.get(i).getName(),
+			assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
+					" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
 					orig_list.get(i).equals(new_list.get(i)));
 		}
 
 		assertEquals("Index rebuilt without cause", 0, fIndexRebuilt);
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 	}
 
 	public void testFSArgFileTimestampChanged() {
@@ -392,22 +394,22 @@ public class ArgFilePersistence extends TestCase
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
-		SVDBItem class1_2 = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
+		ISVDBItemBase class1_2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
-			} else if (tmp_it.getName().equals("class1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				class1_2 = tmp_it;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
 		rgy.save_state();
@@ -449,20 +451,20 @@ public class ArgFilePersistence extends TestCase
 		// Now, re-create the index
 		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBArgFileIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 		
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 	public void index_changed(int reason, SVDBFile file) {}

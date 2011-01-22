@@ -15,8 +15,9 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -26,12 +27,12 @@ public class SVDBSearchUtils {
 	
 	private static boolean			fDebugEn = false;
 	
-	public static List<SVDBItem> findItemsByType(
+	public static List<ISVDBItemBase> findItemsByType(
 			SVDBScopeItem			scope,
 			SVDBItemType	...		types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			boolean match = (types.length == 0);
 			
 			for (SVDBItemType t : types) {
@@ -57,13 +58,13 @@ public class SVDBSearchUtils {
 		return (SVDBModIfcClassDecl)scope;
 	}
 
-	public static List<SVDBItem> findItemsByName(
+	public static List<ISVDBItemBase> findItemsByName(
 			ISVDBScopeItem			scope,
 			String					name,
 			SVDBItemType	...		types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (SVDBItem it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getItems()) {
 			boolean type_match = (types.length == 0);
 			
 			for (SVDBItemType t : types) {
@@ -73,7 +74,9 @@ public class SVDBSearchUtils {
 				}
 			}
 			
-			if (type_match && it.getName() != null && it.getName().equals(name)) {
+			if (type_match && (it instanceof ISVDBNamedItem) &&
+					((ISVDBNamedItem)it).getName() != null && 
+					((ISVDBNamedItem)it).getName().equals(name)) {
 				ret.add(it);
 			} else if (it instanceof ISVDBScopeItem) {
 				ret.addAll(findItemsByName((ISVDBScopeItem)it, name, types));
@@ -92,13 +95,13 @@ public class SVDBSearchUtils {
 	 * @return
 	 */
 	public static ISVDBScopeItem findActiveScope(ISVDBScopeItem scope, int lineno) {
-		debug("findActiveScope: " + scope.getName() + " " + lineno);
-		for (SVDBItem it : scope.getItems()) {
+		debug("findActiveScope: " + ((ISVDBNamedItem)scope).getName() + " " + lineno);
+		for (ISVDBItemBase it : scope.getItems()) {
 			if (it instanceof ISVDBScopeItem) {
 				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
 				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
-					debug("    sub-scope " + it.getName() + " @ " + 
+					debug("    sub-scope " + ((ISVDBNamedItem)it).getName() + " @ " + 
 							it.getLocation().getLine() + "-" + 
 							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 

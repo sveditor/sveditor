@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -26,6 +26,8 @@ import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	
@@ -168,10 +170,10 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	}
 	
 	@Override
-	protected void buildIndex() {
+	protected void buildIndex(IProgressMonitor monitor) {
 		fLog.debug("--> buildIndex()");
 		long start = System.currentTimeMillis();
-		getPreProcFileMap(); // force pre-proc info to be built
+		getPreProcFileMap(monitor); // force pre-proc info to be built
 		
 		for (SVDBFile pp_file : fModIfcClsFiles) {
 			if (fFileTreeMap.get(pp_file.getFilePath()) != null) {
@@ -255,7 +257,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 				scope.getType() == SVDBItemType.PackageDecl) {
 			return true;
 		} else {
-			for (SVDBItem it : scope.getItems()) {
+			for (ISVDBItemBase it : scope.getItems()) {
 				if (it instanceof ISVDBScopeItem) {
 					if (has_pkg_interface_module_program((ISVDBScopeItem)it)) {
 						return true;

@@ -15,6 +15,8 @@ package net.sf.sveditor.ui.tests.explorer;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -48,7 +50,7 @@ public class TestExplorer extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
-		fIndexCollectionOVMMgr.getItemIterator();
+		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
 	}
 	
 	@Override
@@ -64,7 +66,7 @@ public class TestExplorer extends TestCase {
 		List<ISVDBIndex> l = fIndexCollectionOVMMgr.getPluginPathList();
 		
 		for (ISVDBIndex i : l) {
-			List<PathTreeNode> roots = f.build(i.getPreProcFileMap().values());
+			List<PathTreeNode> roots = f.build(i.getPreProcFileMap(new NullProgressMonitor()).values());
 			
 			for (PathTreeNode n : roots) {
 				System.out.println("root: " + n.getName());

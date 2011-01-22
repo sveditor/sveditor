@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.tests.editor;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -210,15 +211,15 @@ public class TestOverrideMethods extends TestCase {
 		
 		SVDBModIfcClassDecl extension = null;
 		SVDBModIfcClassDecl	base = null;
-		for (SVDBItem it : sve_tester.getSVDBFile().getItems()) {
-			if (it.getName().equals(extension_class_name)) {
+		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
+			if (SVDBItem.getName(it).equals(extension_class_name)) {
 				extension = (SVDBModIfcClassDecl)it;
 			}
 		}
 		assertNotNull(extension);
 		
-		for (SVDBItem it : sve_tester.getSVDBFile().getItems()) {
-			if (it.getName().equals(extension.getSuperClass())) {
+		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
+			if (SVDBItem.getName(it).equals(extension.getSuperClass())) {
 				base = (SVDBModIfcClassDecl)it;
 			}
 		}

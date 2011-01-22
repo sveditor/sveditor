@@ -17,7 +17,6 @@ import java.io.File;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -104,7 +103,7 @@ public class TestUserLevelOperations extends TestCase {
 		// Now, open xbus/examples/xbus_demo_tb.sv
 		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
 		// force index loading
-		ISVDBItemIterator it = project_index.getItemIterator();
+		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
 		it.nextItem();
 
 		IEditorPart xbus_demo_tb = SVEditorUtil.openEditor("${workspace_loc}/xbus/examples/xbus_demo_tb.sv");
@@ -126,9 +125,9 @@ public class TestUserLevelOperations extends TestCase {
 
 		ISVDBIndexIterator index_it = sveditor.getIndexIterator();
 		System.out.println("--> Dump index");
-		ISVDBItemIterator item_it = index_it.getItemIterator();
+		ISVDBItemIterator item_it = index_it.getItemIterator(new NullProgressMonitor());
 		while (item_it.hasNext()) {
-			SVDBItem it_t = item_it.nextItem();
+			/*ISVDBItemBase it_t = */ item_it.nextItem();
 			// System.out.println("    it_t=" + it_t.getName());
 		}
 		System.out.println("<-- Dump index");

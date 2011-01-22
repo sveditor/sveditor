@@ -73,8 +73,8 @@ public class TestParseFunction extends TestCase {
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 
 		assertEquals(2, func.getItems().size());
-		assertEquals("a", func.getItems().get(0).getName());
-		assertEquals("b", func.getItems().get(1).getName());
+		assertEquals("a", SVDBItem.getName(func.getItems().get(0)));
+		assertEquals("b", SVDBItem.getName(func.getItems().get(1)));
 	}
 
 	// Tests that local variables are correctly recognized and that 
@@ -92,7 +92,7 @@ public class TestParseFunction extends TestCase {
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 
 		assertEquals(1, func.getItems().size());
-		assertEquals("t", func.getItems().get(0).getName());
+		assertEquals("t", SVDBItem.getName(func.getItems().get(0)));
 	}
 
 	// Tests that local variables are correctly recognized and that 
@@ -111,8 +111,8 @@ public class TestParseFunction extends TestCase {
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 
 		assertEquals(2, func.getItems().size());
-		assertEquals("foo_t", func.getItems().get(0).getName());
-		assertEquals("a", func.getItems().get(1).getName());
+		assertEquals("foo_t", SVDBItem.getName(func.getItems().get(0)));
+		assertEquals("a", SVDBItem.getName(func.getItems().get(1)));
 	}
 
 	public void testStaticFunction() throws SVParseException {
@@ -125,12 +125,8 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = 
+//		SVDBTaskFuncScope func = 
 			parser.parsers().functionParser().parse(null, 0);
-		
-		for (SVDBItem it : func.getItems()) {
-			System.out.println("it " + it.getType() + " " + it.getName());
-		}
 	}
 	
 	public void testIfElseBody() throws SVParseException {
@@ -153,12 +149,8 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = 
+//		SVDBTaskFuncScope func = 
 			parser.parsers().functionParser().parse(null, 0);
-		
-		for (SVDBItem it : func.getItems()) {
-			System.out.println("it " + it.getType() + " " + it.getName());
-		}
 	}
 
 	public void testAutomaticFunction() throws SVParseException {

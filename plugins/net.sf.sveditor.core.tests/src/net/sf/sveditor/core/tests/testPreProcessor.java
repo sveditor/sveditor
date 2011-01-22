@@ -28,6 +28,7 @@ import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 
@@ -50,7 +51,7 @@ public class testPreProcessor implements IApplication {
 		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
-		Map<String, SVDBFile> pp_map = index.getPreProcFileMap();
+		Map<String, SVDBFile> pp_map = index.getPreProcFileMap(new NullProgressMonitor());
 		
 		/* SVDBFile scen_gen = */pp_map.get(new File(filename));
 		

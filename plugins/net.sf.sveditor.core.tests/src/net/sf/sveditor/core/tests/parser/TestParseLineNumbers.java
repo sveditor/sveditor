@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -82,11 +83,11 @@ public class TestParseLineNumbers extends TestCase {
 		
 		SVDBTaskFuncScope f1=null, f2=null;
 		
-		for (SVDBItem it : cls.getItems()) {
-			if (it.getName().equals("foobar_f")) {
+		for (ISVDBItemBase it : cls.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar_f")) {
 				f1 = (SVDBTaskFuncScope)it;
 			}
-			if (it.getName().equals("foobar_f2")) {
+			if (SVDBItem.getName(it).equals("foobar_f2")) {
 				f2 = (SVDBTaskFuncScope)it;
 			}
 		}

@@ -14,6 +14,7 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -35,8 +36,8 @@ public class TestParseDataTypes extends TestCase {
 		SVDBModIfcClassDecl cls =
 			parser.parsers().classParser().parse(0);
 		
-		for (SVDBItem it : cls.getItems()) {
-			System.out.println("it " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : cls.getItems()) {
+			System.out.println("it " + it.getType() + " " + SVDBItem.getName(it));
 		}
 	}
 	

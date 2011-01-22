@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -28,7 +30,6 @@ import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.parser.ParserTests;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -96,7 +97,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 		
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path);
+		file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
@@ -123,7 +124,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path);
+		file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);
@@ -172,7 +173,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 		
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path);
+		file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
@@ -199,7 +200,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path);
+		file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);

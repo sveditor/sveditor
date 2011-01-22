@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
@@ -107,7 +109,7 @@ public class TestPreProc extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 					SVDBPluginLibIndexFactory.TYPE, null);
 
-		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap();
+		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
 		SVDBFileTree ft = null;
@@ -170,7 +172,7 @@ public class TestPreProc extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 					SVDBPluginLibIndexFactory.TYPE, null);
 
-		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap();
+		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
 		SVDBFileTree ft = null;

@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -25,7 +27,7 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	
 	void init(ISVDBIndexRegistry registry);
 	
-	SVDBFile parse(InputStream in, String path);
+	SVDBFile parse(InputStream in, String path, IProgressMonitor monitor);
 	
 	/**
 	 * Cleans up this entry
@@ -89,14 +91,14 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	 * NOTE: this method is non-functional if the index is an Include Path
 	 * @return
 	 */
-	Map<String, SVDBFile> getFileDB();
+	Map<String, SVDBFile> getFileDB(IProgressMonitor monitor);
 	
 	/**
 	 * Returns list of SVDBFile with pre-proc info
 	 * 
 	 * @return
 	 */
-	Map<String, SVDBFile> getPreProcFileMap();
+	Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor);
 
 	/**
 	 * Finds the specified file within this index. Returns 'null' if

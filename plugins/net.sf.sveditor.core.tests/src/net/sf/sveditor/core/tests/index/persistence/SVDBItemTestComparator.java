@@ -15,7 +15,7 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.util.Stack;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 
@@ -31,7 +31,7 @@ public class SVDBItemTestComparator {
 		TestCase.assertEquals("Failed to compare scope type @ " + 
 				getScope(i1), i1.getType(), i2.getType());
 		TestCase.assertEquals("Failed to compare scope name @ " + 
-				getScope(i1), i1.getName(), i2.getName());
+				getScope(i1), SVDBItem.getName(i1), SVDBItem.getName(i2));
 		TestCase.assertEquals("Sub-Elements are different @ " +
 				getScope(i1), i1.getItems().size(), i2.getItems().size());
 		
@@ -50,13 +50,13 @@ public class SVDBItemTestComparator {
 		// Next, compare the non-scope elements at this level
 		for (int i=0; i<i1.getItems().size(); i++) {
 			if (!(i1.getItems().get(i) instanceof ISVDBScopeItem)) {
-				SVDBItem i1_t = i1.getItems().get(i);
-				SVDBItem i2_t = i2.getItems().get(i);
+				ISVDBItemBase i1_t = i1.getItems().get(i);
+				ISVDBItemBase i2_t = i2.getItems().get(i);
 				
 				if (!i1_t.equals(i2_t)) {
 					i1_t.equals(i2_t);
-					System.out.println("Element i1: " + i1_t.getType() + ":" + i1_t.getName() + 
-							" ; Element i2: " + i2_t.getType() + ":" + i2_t.getName());
+					System.out.println("Element i1: " + i1_t.getType() + ":" + SVDBItem.getName(i1_t) + 
+							" ; Element i2: " + i2_t.getType() + ":" + SVDBItem.getName(i2_t));
 					System.out.println("    i1: " + i1_t.getLocation() + " i2: " + i2_t.getLocation());
 					TestCase.assertTrue("Element " + (i1.getItems().get(i).getType()) + 
 							" is different @ " + getScope(i1.getItems().get(i)),
@@ -68,8 +68,8 @@ public class SVDBItemTestComparator {
 		// Finally, compare scopes
 		for (int i=0; i<i1.getItems().size(); i++) {
 			if ((i1.getItems().get(i) instanceof ISVDBScopeItem)) {
-				SVDBItem i1_t = i1.getItems().get(i);
-				SVDBItem i2_t = i2.getItems().get(i);
+				ISVDBItemBase i1_t = i1.getItems().get(i);
+				ISVDBItemBase i2_t = i2.getItems().get(i);
 				if (!i1_t.equals(i2_t)) {
 					i1_t.equals(i2_t);
 					
@@ -81,14 +81,14 @@ public class SVDBItemTestComparator {
 		}
 	}
 	
-	private String getScope(ISVDBNamedItem leaf) {
+	private String getScope(ISVDBItemBase leaf) {
 		StringBuilder ret = new StringBuilder();
 		
 		for (ISVDBScopeItem it : fScopeStack) {
-			ret.append(it.getName());
+			ret.append(SVDBItem.getName(it));
 			ret.append(".");
 		}
-		ret.append(leaf.getName());
+		ret.append(SVDBItem.getName(leaf));
 		
 		return ret.toString();
 	}

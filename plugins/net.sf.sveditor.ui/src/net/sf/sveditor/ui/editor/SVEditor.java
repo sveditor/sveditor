@@ -21,6 +21,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
@@ -292,7 +293,7 @@ public class SVEditor extends TextEditor
 		
 		StringInputStream sin = new StringInputStream(doc.get());
 
-		SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath);
+		SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath, getProgressMonitor());
 		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
 		
 		fSVDBFile.setFilePath(fSVDBFilePath);
@@ -403,9 +404,9 @@ public class SVEditor extends TextEditor
 	
 	private ISVDBIndexIterator SVEditorIndexIterator = new ISVDBIndexIterator() {
 		
-		public ISVDBItemIterator getItemIterator() {
+		public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 			SVDBIndexCollectionItemIterator it = 
-				(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator();
+				(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator(monitor);
 			
 			it.setOverride(fSVDBIndex, fSVDBFile);
 			
@@ -613,7 +614,7 @@ public class SVEditor extends TextEditor
 		clearErrors();
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 		
-		for (SVDBItem it : fSVDBFile.getItems()) {
+		for (ISVDBItemBase it : fSVDBFile.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem marker = (SVDBMarkerItem)it;
 				Annotation ann = null;

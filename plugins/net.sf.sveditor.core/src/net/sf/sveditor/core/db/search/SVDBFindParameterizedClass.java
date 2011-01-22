@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDataType;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
@@ -122,7 +122,7 @@ public class SVDBFindParameterizedClass {
 	}
 	
 	private void specialize_int(
-			SVDBItem 				item,
+			ISVDBItemBase 				item,
 			Map<String, String>		param_map) {
 		switch (item.getType()) {
 			case Class:
@@ -141,7 +141,7 @@ public class SVDBFindParameterizedClass {
 			default:
 				if (item instanceof ISVDBScopeItem) {
 					ISVDBScopeItem scope = (ISVDBScopeItem)item;
-					for (SVDBItem it : scope.getItems()) {
+					for (ISVDBItemBase it : scope.getItems()) {
 						specialize_int(it, param_map);
 					}
 				}
@@ -195,7 +195,7 @@ public class SVDBFindParameterizedClass {
 			}
 		}
 		
-		for (SVDBItem it : cls.getItems()) {
+		for (ISVDBItemBase it : cls.getItems()) {
 			specialize_int(it, param_map);
 		}
 	}

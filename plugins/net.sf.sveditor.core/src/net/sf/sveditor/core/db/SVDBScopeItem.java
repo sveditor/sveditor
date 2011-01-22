@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
-	protected List<SVDBItem>			fItems;
+	protected List<ISVDBItemBase>		fItems;
 	protected SVDBLocation				fEndLocation;
 	
 	public static void init() {
@@ -41,7 +41,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	public SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);
 		
-		fItems = new ArrayList<SVDBItem>();
+		fItems = new ArrayList<ISVDBItemBase>();
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -51,7 +51,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 			file   = (SVDBFile)this;
 		}
 		fEndLocation = new SVDBLocation(reader.readInt(), reader.readInt());
-		fItems = (List<SVDBItem>)reader.readItemList(file, this);
+		fItems = (List<ISVDBItemBase>)reader.readItemList(file, this);
 	}
 	
 	public void dump(IDBWriter writer) {
@@ -70,7 +70,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		return fEndLocation;
 	}
 	
-	public void addItem(SVDBItem item) {
+	public void addItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fItems.add(item);
 	}
@@ -81,7 +81,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		}
 	}
 
-	public List<SVDBItem> getItems() {
+	public List<ISVDBItemBase> getItems() {
 		return fItems;
 	}
 
@@ -99,7 +99,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		SVDBScopeItem si = (SVDBScopeItem)other;
 		
 		fItems.clear();
-		for (SVDBItem it : si.getItems()) {
+		for (ISVDBItemBase it : si.getItems()) {
 			fItems.add((SVDBItem)it.duplicate());
 		}
 		if (((SVDBScopeItem)other).fEndLocation != null) {

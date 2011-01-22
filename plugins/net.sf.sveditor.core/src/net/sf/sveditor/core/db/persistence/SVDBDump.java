@@ -15,6 +15,8 @@ package net.sf.sveditor.core.db.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -33,6 +35,7 @@ public class SVDBDump {
 	public void dump(ISVDBIndex index, OutputStream out) {
 		ByteArrayOutputStream	index_data_bos = new ByteArrayOutputStream();
 		SVDBPersistenceWriter	index_data = new SVDBPersistenceWriter(index_data_bos);
+		NullProgressMonitor monitor = new NullProgressMonitor();
 		
 		fWriter.init(out);
 		
@@ -51,13 +54,13 @@ public class SVDBDump {
 		fWriter.writeByteArray(index_data_bos.toByteArray());
 		
 		fLog.debug("dump " + index.getBaseLocation() + 
-				": list.size=" + index.getPreProcFileMap().values().size() +
-				" ; db.size=" + index.getFileDB().values().size());
+				": list.size=" + index.getPreProcFileMap(monitor).values().size() +
+				" ; db.size=" + index.getFileDB(monitor).values().size());
 		fLog.debug("--> write pre-proc map");
-		fWriter.writeItemList(index.getPreProcFileMap().values());
+		fWriter.writeItemList(index.getPreProcFileMap(monitor).values());
 		fLog.debug("<-- write pre-proc map");
 		fLog.debug("--> write index map");
-		fWriter.writeItemList(index.getFileDB().values());
+		fWriter.writeItemList(index.getFileDB(monitor).values());
 		fLog.debug("<-- write index map");
 		
 		// Ensure any cached data is written back

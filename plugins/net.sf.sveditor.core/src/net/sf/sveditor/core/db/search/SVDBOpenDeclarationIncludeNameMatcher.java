@@ -15,14 +15,14 @@ package net.sf.sveditor.core.db.search;
 import java.io.File;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBOpenDeclarationIncludeNameMatcher extends
 		SVDBFindDefaultNameMatcher {
 
 	@Override
-	public boolean match(SVDBItem it, String name) {
+	public boolean match(ISVDBNamedItem it, String name) {
 		if (it.getType() == SVDBItemType.File) {
 			String norm_path = SVFileUtils.normalize(it.getName());
 			String basename = new File(name).getName();

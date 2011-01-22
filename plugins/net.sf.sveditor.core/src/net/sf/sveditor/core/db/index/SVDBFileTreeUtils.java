@@ -15,8 +15,10 @@ package net.sf.sveditor.core.db.index;
 import java.io.File;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -110,11 +112,11 @@ public class SVDBFileTreeUtils {
 			IDefineProvider			dp,
 			SVDBFileTree 			file, 
 			List<SVDBFileTree> 		file_l) {
-		List<SVDBItem> it_l = scope.getItems(); 
+		List<ISVDBItemBase> it_l = scope.getItems(); 
 		debug("processScope: " + scope.getName());
 		
 		for (int i=0; i<it_l.size(); i++) {
-			SVDBItem it = it_l.get(i);
+			ISVDBItemBase it = it_l.get(i);
 			
 			if (it.getType() == SVDBItemType.PreProcCond) {
 				SVDBPreProcCond c = (SVDBPreProcCond)it;
@@ -129,9 +131,9 @@ public class SVDBFileTreeUtils {
 						(!defined && c.getName().equals("ifndef"))) {
 					// Remove any 'else' section
 					if (i+1 < it_l.size()) {
-						SVDBItem it_t = it_l.get(i+1);
+						ISVDBItemBase it_t = it_l.get(i+1);
 						if (it_t.getType() == SVDBItemType.PreProcCond &&
-								it_t.getName().equals("else")) {
+								((ISVDBNamedItem)it_t).getName().equals("else")) {
 							debug("        removing else section");
 							it_l.remove(i+1);
 						}
@@ -141,8 +143,10 @@ public class SVDBFileTreeUtils {
 					it_l.remove(i);
 					if (fDebugEn) {
 						debug("        adding enabled items (" + c.getName() + ")");
-						for (SVDBItem it_t : c.getItems()) {
-							debug("            " + it_t.getType() + " " + it_t.getName());
+						for (ISVDBItemBase it_t : c.getItems()) {
+							debug("            " + it_t.getType() + " " + 
+									(((it_t instanceof ISVDBNamedItem))?
+											((ISVDBNamedItem)it_t).getName():"UNNAMED"));
 						}
 					}
 					it_l.addAll(i, c.getItems());
@@ -154,15 +158,17 @@ public class SVDBFileTreeUtils {
 					
 					// If the following section is 'else', pull up contents
 					if (i < it_l.size()) {
-						SVDBItem it_t = it_l.get(i);
-						debug("    following disabled section: " + it_t.getName());
+						ISVDBItemBase it_t = it_l.get(i);
+						debug("    following disabled section: " + 
+							((it_t instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_t).getName():"UNNAMED"));
 						if (it_t.getType() == SVDBItemType.PreProcCond &&
-								it_t.getName().equals("else")) {
+								((ISVDBNamedItem)it_t).getName().equals("else")) {
 							it_l.remove(i);
 							if (fDebugEn) {
 								debug("    adding enabled items from 'else'");
-								for (SVDBItem it_tt : ((SVDBPreProcCond)it_t).getItems()) {
-									debug("            " + it_tt.getType() + " " + it_tt.getName());
+								for (ISVDBItemBase it_tt : ((SVDBPreProcCond)it_t).getItems()) {
+									debug("            " + it_tt.getType() + " " + 
+											((it_tt instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_tt).getName():"UNNAMED"));
 								}
 							}
 							it_l.addAll(i, ((SVDBPreProcCond)it_t).getItems());
@@ -171,14 +177,15 @@ public class SVDBFileTreeUtils {
 					i--;
 				}
 			} else if (it.getType() == SVDBItemType.Include) {
+				SVDBInclude inc = (SVDBInclude)it;
 				if (file_l != null) {
 					// TODO: opportunity for caching here
 
 					// Find the include in the file list and process
-					SVDBFileTree inc_file = findIncludedFile(file, it.getName(), file_l);
+					SVDBFileTree inc_file = findIncludedFile(file, inc.getName(), file_l);
 					
 					if (inc_file == null && fIndex != null) {
-						SVDBFile f = new SVDBIncludeSearch(fIndex).findIncludedFile(it.getName());
+						SVDBFile f = new SVDBIncludeSearch(fIndex).findIncludedFile(inc.getName());
 						
 						if (f != null) {
 							inc_file = new SVDBFileTree((SVDBFile)f.duplicate());
@@ -187,7 +194,7 @@ public class SVDBFileTreeUtils {
 
 					if (inc_file == null) {
 						System.out.println("[ERROR] cannot resolve inclusion \"" + 
-								it.getName() + "\"");
+								inc.getName() + "\"");
 						
 						try {
 							throw new Exception();
@@ -195,7 +202,7 @@ public class SVDBFileTreeUtils {
 							e.printStackTrace();
 						}
 					} else if (!file.getIncludedFiles().contains(inc_file)) {
-						debug("    include file \"" + it.getName() + "\"");
+						debug("    include file \"" + inc.getName() + "\"");
 						file.getIncludedFiles().add(inc_file);
 
 						if (!inc_file.getFileProcessed()) {

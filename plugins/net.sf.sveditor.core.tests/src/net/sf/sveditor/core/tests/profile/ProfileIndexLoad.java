@@ -14,13 +14,14 @@ package net.sf.sveditor.core.tests.profile;
 
 import java.io.File;
 
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ProfileIndexLoad {
 	
@@ -40,7 +41,7 @@ public class ProfileIndexLoad {
 		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null);
 		mgr.addLibraryPath(index);
 		
-		ISVDBItemIterator item_it = mgr.getItemIterator();
+		ISVDBItemIterator item_it = mgr.getItemIterator(new NullProgressMonitor());
 		
 		int count = 0;
 		while (item_it.hasNext()) {

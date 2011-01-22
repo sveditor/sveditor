@@ -21,6 +21,7 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -35,6 +36,8 @@ import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestContentAssistBuiltins extends TestCase {
 	private ContentAssistIndex			fIndex;
@@ -83,23 +86,23 @@ public class TestContentAssistBuiltins extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBCoverGroup cg = null;
 		SVDBModIfcClassDecl my_class1 = null;
-		it = index_it.getItemIterator();
+		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			
 			if (it_t.getType() == SVDBItemType.Covergroup && 
-					it_t.getName().equals("foo")) {
+					SVDBItem.getName(it_t).equals("foo")) {
 				cg = (SVDBCoverGroup)it_t;
 			} else if (it_t.getType() == SVDBItemType.Class &&
-					it_t.getName().equals("my_class1")) {
+					SVDBItem.getName(it_t).equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
 		}
@@ -135,23 +138,23 @@ public class TestContentAssistBuiltins extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBCoverGroup cg = null;
 		SVDBModIfcClassDecl my_class1 = null;
-		it = index_it.getItemIterator();
+		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			
 			if (it_t.getType() == SVDBItemType.Covergroup && 
-					it_t.getName().equals("foo")) {
+					SVDBItem.getName(it_t).equals("foo")) {
 				cg = (SVDBCoverGroup)it_t;
 			} else if (it_t.getType() == SVDBItemType.Class &&
-					it_t.getName().equals("my_class1")) {
+					SVDBItem.getName(it_t).equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
 		}

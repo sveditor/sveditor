@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -85,8 +87,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.clear();
 	}
 	
-	public ISVDBItemIterator getItemIterator() {
-		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator();
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator(monitor);
 		
 		for (List<ISVDBIndex> i_l : fFileSearchOrder) {
 			for (ISVDBIndex index : i_l){
@@ -221,7 +223,11 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		return ret;
 	}
 	
-	public SVDBFile parse(InputStream in, String path) {
+	/**
+	 * Parse content from the input stream in the context 
+	 * of this index.
+	 */
+	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
 		SVDBFile ret = null;
 		
 		path = SVFileUtils.normalize(path);
@@ -236,7 +242,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		
 		if (result.size() > 0) {
 			// Use the parser from the associated index
-			ret = result.get(0).getIndex().parse(in, path);
+			ret = result.get(0).getIndex().parse(in, path, monitor);
 		} else {
 			// Create a shadow index using the current directory
 			String dir = SVFileUtils.getPathParent(path);
@@ -269,7 +275,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				addShadowIndex(dir, index);
 			}
 			
-			ret = fShadowIndexMap.get(dir).parse(in, path);
+			ret = fShadowIndexMap.get(dir).parse(in, path, monitor);
 		}
 		
 		return ret;

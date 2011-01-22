@@ -1,9 +1,17 @@
 
+-- 0.3.9 Release --
+
+- Correct a problem with the SVEditor Outline view that prevented the viewer
+  from updating in response to on-the-fly changes in the editor. 
+
+------------------------------------------------------------------------------
+
 -- 0.3.8 Release --
 
 - (#3159790) Correct critical bug in windows file-pattern matching
 
 ------------------------------------------------------------------------------
+
 -- 0.3.7 Release --
 
 - Fix bugs in build of 'Developer Docs' plugin-in

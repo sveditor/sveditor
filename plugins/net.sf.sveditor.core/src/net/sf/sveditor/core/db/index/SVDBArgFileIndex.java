@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -239,9 +242,11 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 	}
 	
 	@Override
-	protected void buildIndex() {
-		getPreProcFileMap(); // force pre-proc info to be built
+	protected void buildIndex(IProgressMonitor monitor) {
+		getPreProcFileMap(monitor); // force pre-proc info to be built
 
+		SubProgressMonitor sub_monitor = new SubProgressMonitor(monitor, 1);
+		sub_monitor.beginTask("Processing Top-Level Files", fFilePaths.size());
 		for (String file : fFilePaths) {
 			file = resolvePath(file);
 			SVDBFile pp_file = findPreProcFile(file);
@@ -254,7 +259,9 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 			SVDBFileTree ft_root = fFileTreeMap.get(file);
 			IPreProcMacroProvider mp = createMacroProvider(ft_root);
 			
+			sub_monitor.subTask("Processing " + file);
 			processFile(ft_root, mp);
+			sub_monitor.worked(1);
 		}
 		
 		fIndexFileMapValid = true;

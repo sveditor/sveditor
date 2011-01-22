@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -60,8 +63,8 @@ public class PersistenceIndex implements ISVDBIndex {
 	}
 
 	public void dump(IDBWriter indexData) {
-		fDumpPPFileList.addAll(getPreProcFileMap().values());
-		fDumpDBFileList.addAll(getFileDB().values());
+		fDumpPPFileList.addAll(getPreProcFileMap(new NullProgressMonitor()).values());
+		fDumpDBFileList.addAll(getFileDB(new NullProgressMonitor()).values());
 		fTargetIndex.dump(indexData);
 	}
 
@@ -88,12 +91,12 @@ public class PersistenceIndex implements ISVDBIndex {
 		return fTargetIndex.getBaseLocation();
 	}
 
-	public Map<String, SVDBFile> getFileDB() {
-		return fTargetIndex.getFileDB();
+	public Map<String, SVDBFile> getFileDB(IProgressMonitor monitor) {
+		return fTargetIndex.getFileDB(monitor);
 	}
 
-	public Map<String, SVDBFile> getPreProcFileMap() {
-		return fTargetIndex.getPreProcFileMap();
+	public Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor) {
+		return fTargetIndex.getPreProcFileMap(monitor);
 	}
 
 	public String getTypeID() {
@@ -111,7 +114,7 @@ public class PersistenceIndex implements ISVDBIndex {
 	}
 
 
-	public SVDBFile parse(InputStream in, String path) {
+	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -136,8 +139,8 @@ public class PersistenceIndex implements ISVDBIndex {
 
 	}
 
-	public ISVDBItemIterator getItemIterator() {
-		return fTargetIndex.getItemIterator();
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		return fTargetIndex.getItemIterator(monitor);
 	}
 
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {

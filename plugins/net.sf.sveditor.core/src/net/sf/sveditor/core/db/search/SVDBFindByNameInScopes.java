@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -38,8 +39,8 @@ public class SVDBFindByNameInScopes {
 		while (context != null) {
 			
 			// First, search the local variables
-			for (SVDBItem it : context.getItems()) {
-				if (it.getName().equals(name)) {
+			for (ISVDBItemBase it : context.getItems()) {
+				if (SVDBItem.getName(it).equals(name)) {
 					boolean match = (types.length == 0);
 
 					for (SVDBItemType t : types) {
@@ -50,7 +51,7 @@ public class SVDBFindByNameInScopes {
 					}
 					
 					if (match) {
-						ret.add(it);
+						ret.add((SVDBItem)it);
 						
 						if (stop_on_first_match) {
 							break;

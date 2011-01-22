@@ -14,6 +14,8 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.InputStream;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -31,7 +33,7 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 
 	@Override
-	protected void buildIndex() {
+	protected void buildIndex(IProgressMonitor monitor) {
 		fIndexFileMapValid = true;
 	}
 
@@ -63,7 +65,7 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 
 	public void removeChangeListener(ISVDBIndexChangeListener l) {}
 
-	public SVDBFile parse(InputStream in, String path) {
+	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
 		return null;
 	}
 

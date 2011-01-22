@@ -15,11 +15,13 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFindIncludedFile {
 	
@@ -38,15 +40,15 @@ public class SVDBFindIncludedFile {
 	}
 	
 	public List<SVDBFile> find(String name) {
-		ISVDBItemIterator item_it = fIndexIterator.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIterator.getItemIterator(new NullProgressMonitor());
 		List<SVDBFile> ret = new ArrayList<SVDBFile>();
 		
 		while (item_it.hasNext()) {
-			SVDBItem it = item_it.nextItem();
+			ISVDBItemBase it = item_it.nextItem();
 			
 			if (it.getType() == SVDBItemType.File) {
 				
-				if (fMatcher.match(it, name)) {
+				if (fMatcher.match((SVDBFile)it, name)) {
 					ret.add((SVDBFile)it);
 				}
 			}

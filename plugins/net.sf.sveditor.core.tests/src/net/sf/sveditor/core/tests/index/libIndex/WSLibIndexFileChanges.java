@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -28,6 +29,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class WSLibIndexFileChanges extends TestCase {
@@ -76,15 +78,15 @@ public class WSLibIndexFileChanges extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem class1_it = null, class1_2_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1_it = null, class1_2_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
-			} else if (tmp_it.getName().equals("class1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				class1_2_it = tmp_it;
 			}
 		}
@@ -109,16 +111,16 @@ public class WSLibIndexFileChanges extends TestCase {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) { }
 
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		class1_it = null;
 		class1_2_it = null;
 
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
-			} else if (tmp_it.getName().equals("class1_2")) {
+			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				class1_2_it = tmp_it;
 			}
 		}

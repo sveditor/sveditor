@@ -17,6 +17,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class ProgramBlockTests extends TestCase {
 	
@@ -39,9 +40,7 @@ public class ProgramBlockTests extends TestCase {
 		
 		SVDBFile file = f.parse(in, "test");
 		
-		assertEquals("foo", file.getItems().get(0).getName());
-		assertEquals("foobar", file.getItems().get(1).getName());
-		assertEquals("foo_c", file.getItems().get(2).getName());
+		SVDBTestUtils.assertFileHasElements(file, "foo", "foobar", "foo_c");
 	}
 
 	protected void tearDown() throws Exception {

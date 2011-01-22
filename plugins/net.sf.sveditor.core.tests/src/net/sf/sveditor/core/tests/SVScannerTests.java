@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -53,8 +54,8 @@ public class SVScannerTests extends TestCase {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists");
 
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("[Item] " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("[Item] " + it.getType() + " " + SVDBItem.getName(it));
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)it;
 				System.out.println("[ERROR] " + m.getMessage());
@@ -66,7 +67,7 @@ public class SVScannerTests extends TestCase {
 		SVDBModIfcClassDecl m = (SVDBModIfcClassDecl)file.getItems().get(0);
 		assertEquals("foo", m.getName());
 		
-		for (SVDBItem it : m.getItems()) {
+		for (ISVDBItemBase it : m.getItems()) {
 			assertTrue(it instanceof SVDBVarDeclItem);
 			SVDBVarDeclItem v = (SVDBVarDeclItem)it;
 			System.out.println("Variable " + v.getTypeName() + " " + v.getName());

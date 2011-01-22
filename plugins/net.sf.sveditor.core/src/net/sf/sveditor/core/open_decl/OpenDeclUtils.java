@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -40,7 +41,7 @@ public class OpenDeclUtils {
 		LogHandle log = LogFactory.getLogHandle("OpenDeclaration");
 		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		SVExprScanner			expr_scanner = new SVExprScanner();
-		SVDBItem it = null;
+		ISVDBItemBase it = null;
 		SVDBFile inc_file = null;
 		
 		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
@@ -59,13 +60,13 @@ public class OpenDeclUtils {
 
 		List<Tuple<SVDBItem, SVDBFile>> ret = new ArrayList<Tuple<SVDBItem,SVDBFile>>();
 		
-		List<SVDBItem> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
+		List<ISVDBItemBase> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
 		
 		if (items.size() > 0) {
 			it = items.get(0);
 			
 			// Confused here...
-			ret.add(new Tuple<SVDBItem, SVDBFile>(it, inc_file));
+			ret.add(new Tuple<SVDBItem, SVDBFile>((SVDBItem)it, inc_file));
 		}
 		
 		return ret;

@@ -16,7 +16,8 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
@@ -70,7 +71,7 @@ public class NewClassGenerator {
 		
 			if (index_it != null) {
 				SVDBFindByName finder = new SVDBFindByName(index_it);
-				List<SVDBItem> result = finder.find(superclass, SVDBItemType.Class);
+				List<ISVDBItemBase> result = finder.find(superclass, SVDBItemType.Class);
 				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.Class) {
 					superclass_decl = (SVDBModIfcClassDecl)result.get(0);
 				}
@@ -98,9 +99,10 @@ public class NewClassGenerator {
 			monitor.subTask("Setting up constructor");
 			SVDBTaskFuncScope new_func = null;
 			if (superclass_decl != null) {
-				for (SVDBItem it : superclass_decl.getItems()) {
+				for (ISVDBItemBase it : superclass_decl.getItems()) {
 					if (it.getType() == SVDBItemType.Function && 
-							it.getName().equals("new")) {
+							it instanceof ISVDBNamedItem &&
+							((ISVDBNamedItem)it).getName().equals("new")) {
 						new_func = (SVDBTaskFuncScope)it;
 						break;
 					}

@@ -43,4 +43,19 @@ public class SVDBInclude extends SVDBItem {
 		super.dump(writer);
 	}
 
+	@Override
+	public SVDBInclude duplicate() {
+		SVDBInclude ret = new SVDBInclude(getName());
+		
+		ret.init(this);
+		
+		return ret;
+	}
+
+	@Override
+	public void init(SVDBItemBase other) {
+		super.init(other);
+	}
+	
+
 }

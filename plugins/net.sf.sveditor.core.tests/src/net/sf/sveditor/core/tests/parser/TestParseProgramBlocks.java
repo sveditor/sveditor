@@ -14,11 +14,10 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseProgramBlocks extends TestCase {
@@ -42,21 +41,13 @@ public class TestParseProgramBlocks extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl foo_p = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("foo_p")) {
-				foo_p = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find program foo_p", foo_p);
+		SVDBTestUtils.assertFileHasElements(file, "foo_p");
 	}
 
 	public void testAnonProgramBlock() {
@@ -78,21 +69,13 @@ public class TestParseProgramBlocks extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl foo_p = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Program) {
-				foo_p = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find program foo_p", foo_p);
+		SVDBTestUtils.assertFileHasElements(file, "foo_t");
 	}
 
 

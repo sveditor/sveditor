@@ -17,6 +17,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBDataType;
@@ -29,7 +30,6 @@ import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
@@ -103,12 +103,12 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBModIfcClassDecl foobar_c = null;
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it_t : file.getItems()) {
+		for (ISVDBItemBase it_t : file.getItems()) {
 			if (it_t.getType() == SVDBItemType.Class &&
-					it_t.getName().equals("foobar")) {
+					SVDBItem.getName(it_t).equals("foobar")) {
 				foobar_c = (SVDBModIfcClassDecl)it_t;
 			} else if (it_t.getType() == SVDBItemType.Marker &&
-					it_t.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+					SVDBItem.getName(it_t).equals(SVDBMarkerItem.MARKER_ERR)) {
 				errors.add((SVDBMarkerItem)it_t);
 				System.out.println("[ERROR] " + ((SVDBMarkerItem)it_t).getMessage());
 			}
@@ -122,9 +122,9 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(foobar_c);
 		
 		SVDBTaskFuncScope foo_func = null;
-		for (SVDBItem it_t : foobar_c.getItems()) {
+		for (ISVDBItemBase it_t : foobar_c.getItems()) {
 			if (it_t.getType() == SVDBItemType.Function &&
-					it_t.getName().equals("foo_func")) {
+					SVDBItem.getName(it_t).equals("foo_func")) {
 				foo_func = (SVDBTaskFuncScope)it_t;
 			}
 		}
@@ -190,18 +190,14 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testBuiltinExternTasks");
 		
 		SVDBModIfcClassDecl process = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("process")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("process")) {
 				process = (SVDBModIfcClassDecl)it;
 			}
-			System.out.println("Item: " + it.getType() + " " + it.getName());
+			System.out.println("Item: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 		
 		assertNotNull("Failed to find class process", process);
-		
-		for (SVDBItem it : process.getItems()) {
-			System.out.println("    Item: " + it.getType() + " " + it.getName());
-		}
 	}
 	
 	public void testClassStringFields() {
@@ -230,21 +226,21 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl cg_options = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("__sv_builtin_covergroup_options")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("__sv_builtin_covergroup_options")) {
 				cg_options = (SVDBModIfcClassDecl)it;
 			}
-			System.out.println("Item: " + it.getType() + " " + it.getName());
+//			System.out.println("Item: " + it.getType() + " " + it.getName());
 		}
 		
 		assertNotNull("Failed to find class __sv_builtin_covergroup_options", cg_options);
 		
-		for (SVDBItem it : cg_options.getItems()) {
-			System.out.println("    Item: " + it.getType() + " " + it.getName());
-			assertNotNull("Item " + it.getName() + " does not have a location",
+		for (ISVDBItemBase it : cg_options.getItems()) {
+//			System.out.println("    Item: " + it.getType() + " " + SVDBItem.getName(it));
+			assertNotNull("Item " + SVDBItem.getName(it) + " does not have a location",
 					it.getLocation());
 			if (it.getType() == SVDBItemType.VarDecl) {
-				assertNotNull("Field " + it.getName() + " does not have a type", 
+				assertNotNull("Field " + SVDBItem.getName(it) + " does not have a type", 
 						((SVDBVarDeclItem)it).getTypeInfo());
 			}
 		}
@@ -268,18 +264,18 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("foobar")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBModIfcClassDecl)it;
 				break;
 			}
 		}
 
 		SVDBTypedef foobar_td = null;
-		SVDBItem foobar_i = null;
+		ISVDBItemBase foobar_i = null;
 		
-		for (SVDBItem it : foobar.getItems()) {
-			if (it.getName().equals("foobar_t")) {
+		for (ISVDBItemBase it : foobar.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar_t")) {
 				foobar_i = it;
 			}
 		}
@@ -316,21 +312,21 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("foobar")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBModIfcClassDecl)it;
 				break;
 			}
 		}
 
 		SVDBTypedef foobar_td = null;
-		SVDBItem foobar_i = null;
-		SVDBItem foobar_i1 = null;
+		ISVDBItemBase foobar_i = null;
+		ISVDBItemBase foobar_i1 = null;
 		
-		for (SVDBItem it : foobar.getItems()) {
-			if (it.getName().equals("other_foo_t")) {
+		for (ISVDBItemBase it : foobar.getItems()) {
+			if (SVDBItem.getName(it).equals("other_foo_t")) {
 				foobar_i = it;
-			} else if (it.getName().equals("other_foo_t1")) {
+			} else if (SVDBItem.getName(it).equals("other_foo_t1")) {
 				foobar_i1 = it;
 			}
 		}
@@ -375,8 +371,8 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBModIfcClassDecl foobar = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("foobar")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBModIfcClassDecl)it;
 				break;
 			}
@@ -385,10 +381,10 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(foobar);
 
 		SVDBCoverGroup cg = null, cg2 = null;
-		for (SVDBItem it : foobar.getItems()) {
-			if (it.getName().equals("cg")) {
+		for (ISVDBItemBase it : foobar.getItems()) {
+			if (SVDBItem.getName(it).equals("cg")) {
 				cg = (SVDBCoverGroup)it;
-			} else if (it.getName().equals("cg2")) {
+			} else if (SVDBItem.getName(it).equals("cg2")) {
 				cg2 = (SVDBCoverGroup)it;
 			}
 		}
@@ -412,8 +408,8 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testEmptyConstraint");
 		
 		SVDBModIfcClassDecl foobar = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("foobar")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBModIfcClassDecl)it;
 				break;
 			}
@@ -422,8 +418,8 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(foobar);
 
 		SVDBConstraint empty_c = null;
-		for (SVDBItem it : foobar.getItems()) {
-			if (it.getName().equals("empty_c")) {
+		for (ISVDBItemBase it : foobar.getItems()) {
+			if (SVDBItem.getName(it).equals("empty_c")) {
 				empty_c = (SVDBConstraint)it;
 			}
 		}

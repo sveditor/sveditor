@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.srcgen;
 
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamPort;
@@ -25,7 +26,7 @@ public class MethodGenerator {
 		String classname = "";
 		
 		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.Class) {
-			classname = tf.getParent().getName();
+			classname = ((ISVDBNamedItem)tf.getParent()).getName();
 		}
 		
 		new_tf.append("    /**\n" +

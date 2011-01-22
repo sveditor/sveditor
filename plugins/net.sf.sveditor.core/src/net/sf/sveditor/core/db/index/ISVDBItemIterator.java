@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface ISVDBItemIterator {
@@ -29,6 +29,6 @@ public interface ISVDBItemIterator {
 	 * 
 	 * @return
 	 */
-	SVDBItem nextItem(SVDBItemType ... type_list);
+	ISVDBItemBase nextItem(SVDBItemType ... type_list);
 
 }

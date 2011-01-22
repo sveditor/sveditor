@@ -17,7 +17,7 @@ import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -25,6 +25,8 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.tests.index.libIndex.WSArgFileIndexChanges;
 import net.sf.sveditor.core.tests.index.libIndex.WSLibIndexFileChanges;
 import net.sf.sveditor.core.tests.index.src_collection.SrcCollectionBasics;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class IndexTests extends TestSuite {
 	
@@ -48,11 +50,11 @@ public class IndexTests extends TestSuite {
 	}
 	
 	public static List<SVDBMarkerItem> getErrorsWarnings(ISVDBIndexIterator index_it) {
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> ret = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			if (it_t.getType() == SVDBItemType.Marker) {
 				ret.add((SVDBMarkerItem)it_t);
 			}

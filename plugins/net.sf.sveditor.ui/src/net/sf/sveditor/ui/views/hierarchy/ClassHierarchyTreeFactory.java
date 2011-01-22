@@ -15,11 +15,13 @@ package net.sf.sveditor.ui.views.hierarchy;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ClassHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;
@@ -38,9 +40,9 @@ public class ClassHierarchyTreeFactory {
 		
 		// Now, iterate through all classes in the index and build
 		// the extension hierarchy
-		ISVDBItemIterator it = fIndexIt.getItemIterator();
+		ISVDBItemIterator it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			if (it_t.getType() == SVDBItemType.Class) {
 				SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)it_t;
 				

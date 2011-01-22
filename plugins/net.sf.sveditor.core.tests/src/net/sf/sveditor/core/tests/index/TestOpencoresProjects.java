@@ -18,6 +18,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -136,7 +137,7 @@ public class TestOpencoresProjects extends TestCase {
 		assertNoErrors(project_index);
 		
 		// force index loading
-		ISVDBItemIterator it = project_index.getItemIterator();
+		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			it.nextItem();
 		}
@@ -145,11 +146,11 @@ public class TestOpencoresProjects extends TestCase {
 	}
 
 	private void assertNoErrors(ISVDBIndexIterator index_it) {
-		ISVDBItemIterator it_i = index_it.getItemIterator();
+		ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it_i.hasNext()) {
-			SVDBItem it = it_i.nextItem();
+			ISVDBItemBase it = it_i.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem marker = (SVDBMarkerItem)it;
 				if (marker.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
@@ -160,7 +161,7 @@ public class TestOpencoresProjects extends TestCase {
 		
 		for (SVDBMarkerItem m : errors) {
 			System.out.println("[ERROR] " + m.getMessage() + " @ " + 
-					m.getParent().getName() + ":" + m.getLocation().getLine());
+					SVDBItem.getName(m.getParent()) + ":" + m.getLocation().getLine());
 		}
 		
 		assertEquals(0, errors.size());

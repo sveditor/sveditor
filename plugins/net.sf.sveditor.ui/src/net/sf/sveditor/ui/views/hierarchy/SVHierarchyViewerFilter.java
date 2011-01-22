@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -99,7 +100,7 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 	
 	private boolean isInScope(ISVDBScopeItem scope, SVDBItem it) {
 		
-		for (SVDBItem it_t : scope.getItems()) {
+		for (ISVDBItemBase it_t : scope.getItems()) {
 			if (it_t == it) {
 				return true;
 			} else if (it_t instanceof ISVDBScopeItem) {

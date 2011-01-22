@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.core.db.search;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 
 public class SVDBFindDefaultNameMatcher implements ISVDBFindNameMatcher {
 	
 	static SVDBFindDefaultNameMatcher 		fDefault;
 
-	public boolean match(SVDBItem it, String name) {
+	public boolean match(ISVDBNamedItem it, String name) {
 		return (it.getName() != null && it.getName().equals(name));
 	}
 	

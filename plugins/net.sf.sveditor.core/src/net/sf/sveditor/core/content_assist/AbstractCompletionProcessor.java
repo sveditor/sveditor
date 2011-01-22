@@ -16,6 +16,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -86,11 +88,13 @@ public abstract class AbstractCompletionProcessor {
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
 
+		/*
 		if (src_scope == null) {
 			debug("In global scope -- failed to find scope position @ " + lineno);
 		} else {
 			debug("Source scope: " + src_scope.getName());
 		}
+		 */
 
 		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
@@ -102,15 +106,18 @@ public abstract class AbstractCompletionProcessor {
 			expr_utils.setMatcher(new SVDBContentAssistIncludeNameMatcher());
 		}
 		
-		List<SVDBItem> items = expr_utils.findItems(
+		List<ISVDBItemBase> items = expr_utils.findItems(
 				getIndexIterator(), src_scope, ctxt, true);
 		
 		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
 				ctxt.fRoot != null && ctxt.fRoot.startsWith("include")) {
 			String replacement = "";
 
-			for (SVDBItem it : items) {
-				File file = new File(it.getName());
+			for (ISVDBItemBase it : items) {
+				if (!(it instanceof ISVDBNamedItem)) {
+					continue;
+				}
+				File file = new File(((ISVDBNamedItem)it).getName());
 				replacement = file.getName();
 				
 				// Add quotes in if not present already...
@@ -123,8 +130,8 @@ public abstract class AbstractCompletionProcessor {
 						replacement, ctxt.fStart, ctxt.fLeaf.length()));
 			}
 		} else {
-			for (SVDBItem it : items) {
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			for (ISVDBItemBase it : items) {
+				addProposal((SVDBItem)it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 			
 			if (ctxt.fTrigger == null && !ctxt.fLeaf.trim().equals("")) {

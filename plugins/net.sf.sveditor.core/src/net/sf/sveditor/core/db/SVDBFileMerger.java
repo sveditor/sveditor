@@ -29,31 +29,31 @@ public class SVDBFileMerger {
 	public static void merge(
 			SVDBFile			file_ex,
 			SVDBFile			file_new,
-			List<SVDBItem>		adds,
-			List<SVDBItem>		removes,
-			List<SVDBItem>		changes) {
+			List<ISVDBItemBase>		adds,
+			List<ISVDBItemBase>		removes,
+			List<ISVDBItemBase>		changes) {
 		merge_scope(file_ex, file_new, adds, removes, changes);
 	}
 	
 	private static int merge_scope(
 			ISVDBScopeItem		scope_ex,
 			ISVDBScopeItem		scope_new,
-			List<SVDBItem>		adds,
-			List<SVDBItem>		removes,
-			List<SVDBItem>		changes) {
-		List<SVDBItem> temp = new ArrayList<SVDBItem>();
+			List<ISVDBItemBase>	adds,
+			List<ISVDBItemBase>	removes,
+			List<ISVDBItemBase>	changes) {
+		List<ISVDBItemBase> temp = new ArrayList<ISVDBItemBase>();
 		int ret = 0;
 
 		temp.clear();
 		// Look for things that were added to scope_new
-		for (SVDBItem it_2 : scope_new.getItems()) {
+		for (ISVDBItemBase it_2 : scope_new.getItems()) {
 			if (!scope_ex.getItems().contains(it_2)) {
 				if (adds != null) {
 					adds.add(it_2);
 				}
 				temp.add(it_2);
 			} else {
-				SVDBItem it_1 = scope_ex.getItems().get(
+				ISVDBItemBase it_1 = scope_ex.getItems().get(
 						scope_ex.getItems().indexOf(it_2));
 				it_1.setLocation(it_2.getLocation());
 				if (it_1 instanceof ISVDBScopeItem) {
@@ -73,7 +73,7 @@ public class SVDBFileMerger {
 		}
 		
 		if (removes != null) {
-			for (SVDBItem it_1 : scope_ex.getItems()) {
+			for (ISVDBItemBase it_1 : scope_ex.getItems()) {
 				if (!scope_new.getItems().contains(it_1)) {
 					removes.add(it_1);
 				}
@@ -81,14 +81,14 @@ public class SVDBFileMerger {
 		}
 		
 		scope_ex.getItems().clear();
-		for (SVDBItem it : temp) {
+		for (ISVDBItemBase it : temp) {
 			if (it instanceof ISVDBScopeItem && scope_new.getItems().contains(it)) {
 				merge_scope((ISVDBScopeItem)it, 
 						(ISVDBScopeItem)scope_new.getItems().get(
 								scope_new.getItems().indexOf(it)),
 						adds, removes, changes);
 			}
-			it.setParent(scope_ex);
+			((ISVDBChildItem)it).setParent(scope_ex);
 			scope_ex.getItems().add(it);
 		}
 		

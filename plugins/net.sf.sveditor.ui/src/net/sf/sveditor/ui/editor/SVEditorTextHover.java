@@ -14,8 +14,9 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
@@ -64,12 +65,15 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 			List<SVDBItem> info = expr_utils.processPreTriggerPortion(
 					fEditor.getIndexIterator(), src_scope, expr_ctxt.fRoot, true);
 			 */
-			List<SVDBItem> info = expr_utils.findItems(
+			List<ISVDBItemBase> info = expr_utils.findItems(
 					fEditor.getIndexIterator(), src_scope, expr_ctxt, false);
 			
 			if (info != null && info.size() > 0) {
-				SVDBItem it = info.get(0);
-				str = it.getType() + " : " + it.getName();
+				ISVDBItemBase it = info.get(0);
+				str = it.getType() + " : ";
+				if (it instanceof ISVDBNamedItem) {
+					str += ((ISVDBNamedItem)it).getName();
+				}
 			}
 		}
 		

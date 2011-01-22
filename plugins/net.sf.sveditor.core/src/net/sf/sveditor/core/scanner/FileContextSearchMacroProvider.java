@@ -16,8 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -113,9 +114,10 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		SVDBMacroDef m = null;
 		debug_s(indent(fIndent++) + "--> searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
 
-		for (SVDBItem it : context.getItems()) {
-			debug_s("    it=" + it.getName());
-			if (it.getType() == SVDBItemType.Macro && it.getName().equals(key)) {
+		for (ISVDBItemBase it : context.getItems()) {
+			debug_s("    it=" + ((ISVDBNamedItem)it).getName());
+			if (it.getType() == SVDBItemType.Macro && 
+					((ISVDBNamedItem)it).getName().equals(key)) {
 				m = (SVDBMacroDef)it;
 			} else if (it instanceof ISVDBScopeItem) {
 				m = searchLocal(file, (ISVDBScopeItem)it, key);

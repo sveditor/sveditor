@@ -30,6 +30,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexMissingIncludeDefine extends TestCase {
 	
@@ -130,7 +131,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
 		
 		// Force the file database to be built
-		index.getFileDB();
+		index.getFileDB(new NullProgressMonitor());
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
 
@@ -138,7 +139,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		fs_provider_m.getMarkers().clear();
 		// String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
 		InputStream in = fs_provider_m.openStream(path);
-		SVDBFile file = index.parse(in, path);
+		SVDBFile file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull("Failed to parse target file", file);
 		

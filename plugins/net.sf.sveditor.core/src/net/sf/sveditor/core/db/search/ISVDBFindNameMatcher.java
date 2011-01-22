@@ -12,10 +12,10 @@
 
 package net.sf.sveditor.core.db.search;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 
 public interface ISVDBFindNameMatcher {
 	
-	boolean match(SVDBItem it, String name);
+	boolean match(ISVDBNamedItem it, String name);
 
 }

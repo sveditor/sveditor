@@ -17,6 +17,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
@@ -96,15 +97,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module t", t);
+		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 
 	public void testModuleGenvarDecl() {
@@ -117,15 +110,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t4 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t4")) {
-				t4 = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module t4", t4);
+		SVDBTestUtils.assertFileHasElements(file, "t4");
 	}
 
 	
@@ -141,15 +126,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t2")) {
-				t = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module t", t);
+		SVDBTestUtils.assertFileHasElements(file, "t2");
 	}
 	
 	public void testModuleBitArrayPort() {
@@ -166,15 +143,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t3 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t3")) {
-				t3 = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module t3", t3);
+		SVDBTestUtils.assertFileHasElements(file, "t3");
 	}
 	
 	public void testModuleSignedPort() {
@@ -258,8 +227,8 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testInitialBlock");
 		
 		SVDBModIfcClassDecl top = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("top")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("top")) {
 				top = (SVDBModIfcClassDecl)it;
 				break;
 			}
@@ -268,7 +237,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module top", top);
 		
 		SVDBScopeItem initial = null;
-		for (SVDBItem it : top.getItems()) {
+		for (ISVDBItemBase it : top.getItems()) {
 			if (it.getType() == SVDBItemType.InitialBlock) {
 				initial = (SVDBScopeItem)it;
 				break;
@@ -298,15 +267,15 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testPortList");
 		
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
 			}
 		}
 
 		SVDBModIfcClassDecl top = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("top")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("top")) {
 				top = (SVDBModIfcClassDecl)it;
 				break;
 			}
@@ -318,18 +287,19 @@ public class TestParseModuleBodyItems extends TestCase {
 			System.out.println("Port: " + p.getName());
 		}
 
-		SVDBItem a=null, b=null, c=null, d=null, bus=null;
-		for (SVDBItem it : top.getItems()) {
-			System.out.println("[Item] " + it.getType() + " " + it.getName());
-			if (it.getName().equals("a")) {
+		ISVDBItemBase a=null, b=null, c=null, d=null, bus=null;
+		for (ISVDBItemBase it : top.getItems()) {
+			String name = SVDBItem.getName(it);
+			System.out.println("[Item] " + it.getType() + " " + name);
+			if (name.equals("a")) {
 				a = it;
-			} else if (it.getName().equals("b")) {
+			} else if (name.equals("b")) {
 				b = it;
-			} else if (it.getName().equals("c")) {
+			} else if (name.equals("c")) {
 				c = it;
-			} else if (it.getName().equals("d")) {
+			} else if (name.equals("d")) {
 				d = it;
-			} else if (it.getName().equals("bus")) {
+			} else if (name.equals("bus")) {
 				bus = it;
 			}
 		}
@@ -374,15 +344,15 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
 			}
 		}
 
 		SVDBModIfcClassDecl top = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("top")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("top")) {
 				top = (SVDBModIfcClassDecl)it;
 				break;
 			}
@@ -425,7 +395,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
+		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
 				SVDBMarkerItem m = (SVDBMarkerItem)it;
@@ -435,15 +405,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			}
 		}
 
-		SVDBModIfcClassDecl top = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
-				break;
-			}
-		}
-		
-		assertNotNull("Failed to find module top", top);
+		SVDBTestUtils.assertFileHasElements(file, "top");
 		
 		assertEquals("No Errors", 0, errors.size());
 	}
@@ -463,21 +425,12 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl top = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("top")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("top")) {
 				top = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -485,14 +438,13 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module top", top);
 		
 		SVDBModIfcClassDecl inner = null;
-		for (SVDBItem it : top.getItems()) {
-			if (it.getName().equals("inner")) {
+		for (ISVDBItemBase it : top.getItems()) {
+			if (SVDBItem.getName(it).equals("inner")) {
 				inner = (SVDBModIfcClassDecl)it;
 			}
 		}
 
 		assertNotNull("Failed to find module inner", inner);
-		assertEquals("No Errors", 0, errors.size());
 	}
 	
 	public void testEmptyParamList() {
@@ -503,28 +455,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule";
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
-		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
 
-		SVDBModIfcClassDecl t2 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t2")) {
-				t2 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module top", t2);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t2");
 	}
 	
 	public void testParameterDeclaration() {
@@ -536,23 +469,11 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterDeclaration");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
-		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t1 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t1")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("t1")) {
 				t1 = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -560,8 +481,8 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t1", t1);
 		
 		SVDBParamPort c = null;
-		for (SVDBItem it : t1.getItems()) {
-			if (it.getName().equals("c")) {
+		for (ISVDBItemBase it : t1.getItems()) {
+			if (SVDBItem.getName(it).equals("c")) {
 				c = (SVDBParamPort)it;
 			}
 		}
@@ -578,23 +499,12 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterExprInit");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
+		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBModIfcClassDecl t = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("t")) {
 				t = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -602,10 +512,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t", t);
 		
 		SVDBParamPort a = null, b = null;
-		for (SVDBItem it : t.getItems()) {
-			if (it.getName().equals("a")) {
+		for (ISVDBItemBase it : t.getItems()) {
+			if (SVDBItem.getName(it).equals("a")) {
 				a = (SVDBParamPort)it;
-			} else if (it.getName().equals("b")) {
+			} else if (SVDBItem.getName(it).equals("b")) {
 				b = (SVDBParamPort)it;
 			}
 		}
@@ -625,23 +535,11 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysVariants");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
-
 		SVDBModIfcClassDecl t3 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t3")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("t3")) {
 				t3 = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -649,8 +547,8 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module t3", t3);
 		
 		// SVDBAlwaysBlock always_ff = null, always_comb = null;
-		for (SVDBItem it : t3.getItems()) {
-			System.out.println("it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : t3.getItems()) {
+			System.out.println("it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 	}
 
@@ -665,28 +563,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testGenVars");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
-		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
+		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t4 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t4")) {
-				t4 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t4", t4);
+		SVDBTestUtils.assertFileHasElements(file, "t4");
 	}
 	
 	// Contains semantic error, in that both loops use the same index 
@@ -985,28 +864,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedInitializedParameterDecl");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
-
-		SVDBModIfcClassDecl t4 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t4")) {
-				t4 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t4", t4);
+		SVDBTestUtils.assertFileHasElements(file, "t4");
 	}
 
 	public void testUntypedInputPort() {
@@ -1022,23 +882,12 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testUntypedInputPort");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		assertEquals("Encountered errors", 0, errors.size());
-
 		SVDBModIfcClassDecl t = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("t")) {
 				t = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -1071,23 +920,12 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n";	
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testModportPort");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		assertEquals("Encountered errors", 0, errors.size());
-
 		SVDBModIfcClassDecl t2 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t2")) {
+		for (ISVDBItemBase it : file.getItems()) {
+			if (SVDBItem.getName(it).equals("t2")) {
 				t2 = (SVDBModIfcClassDecl)it;
 			}
 		}
@@ -1115,28 +953,10 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedInitializedParameterDecl");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
+		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t2 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t3")) {
-				t2 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t3", t2);
+		SVDBTestUtils.assertFileHasElements(file, "t3");
 	}
 
 	public void testParameterArrayRefExpr() {
@@ -1155,14 +975,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t", t);
+		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 
 	public void testMappedParameterizedModule() {
@@ -1175,28 +988,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 
 		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		assertEquals("Encountered errors", 0, errors.size());
+		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t5 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t5")) {
-				t5 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t5", t5);
+		SVDBTestUtils.assertFileHasElements(file, "t5");
 	}
 
 	public void testGlobalParamRef() {
@@ -1211,28 +1006,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			;
 			
 		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		assertEquals("Encountered errors", 0, errors.size());
-
-		SVDBModIfcClassDecl t6 = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("t6")) {
-				t6 = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module t6", t6);
+		SVDBTestUtils.assertFileHasElements(file, "t6");
 	}
 
 
@@ -1268,28 +1045,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		// Merge twice for good measure. The first time actually does something.
 		// The second time ensures maximum compares
 		SVDBFileMerger.merge(target_file, file, null, null, null);
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
-		for (SVDBItem it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
-					errors.add(m);
-				}
-			}
-		}
+		SVDBTestUtils.assertNoErrWarn(file);
 		
-		assertEquals("Encountered errors", 0, errors.size());
-
-		SVDBModIfcClassDecl HalfSeTable = null;
-		for (SVDBItem it : file.getItems()) {
-			if (it.getName().equals("HalfSeTable")) {
-				HalfSeTable = (SVDBModIfcClassDecl)it;
-			}
-		}
-		
-		assertNotNull("Failed to find module HalfSeTable", HalfSeTable);
+		SVDBTestUtils.assertFileHasElements(file, "HalfSeTable");
 	}
 	
 	public void testAlwaysIfElse() {

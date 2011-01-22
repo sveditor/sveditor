@@ -18,6 +18,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -32,6 +33,8 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOvmBasics extends TestCase {
 	
@@ -69,29 +72,29 @@ public class TestOvmBasics extends TestCase {
 				rgy.findCreateIndex("GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator index_it = index_mgr.getItemIterator();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
-		SVDBItem ovm_component=null;
-		SVDBItem ovm_sequence=null;
+		ISVDBItemBase ovm_component=null, ovm_sequence=null;
 		
 		while (index_it.hasNext()) {
-			SVDBItem it = index_it.nextItem();
-			System.out.println("" + it.getType() + " " + it.getName());
+			ISVDBItemBase it = index_it.nextItem();
+			String name = SVDBItem.getName(it);
+			System.out.println("" + it.getType() + " " + name);
 			
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);
 			} else if (it.getType() == SVDBItemType.Class) {
-				if (it.getName().equals("ovm_component")) {
+				if (name.equals("ovm_component")) {
 					ovm_component = it;
-				} else if (it.getName().equals("ovm_sequence")) {
+				} else if (name.equals("ovm_sequence")) {
 					ovm_sequence = it;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
 			} else if (it.getType() == SVDBItemType.VarDecl) {
 				SVDBVarDeclItem v = (SVDBVarDeclItem)it;
 				
-				assertNotNull("Variable " + it.getParent().getName() + "." +
-						it.getName() + " has a null TypeInfo", v.getTypeInfo());
+				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
+						name + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
 		
@@ -131,11 +134,11 @@ public class TestOvmBasics extends TestCase {
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -179,11 +182,11 @@ public class TestOvmBasics extends TestCase {
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -227,13 +230,13 @@ public class TestOvmBasics extends TestCase {
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		SVDBModIfcClassDecl my_driver = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -241,7 +244,7 @@ public class TestOvmBasics extends TestCase {
 					errors.add(m);
 				}
 			} else if (tmp_it.getType() == SVDBItemType.Class &&
-					tmp_it.getName().equals("my_driver")) {
+					SVDBItem.getName(tmp_it).equals("my_driver")) {
 				my_driver = (SVDBModIfcClassDecl)tmp_it;
 			}
 			
@@ -282,13 +285,13 @@ public class TestOvmBasics extends TestCase {
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
 		
 		SVDBModIfcClassDecl simple_driver = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
@@ -296,7 +299,7 @@ public class TestOvmBasics extends TestCase {
 					errors.add(m);
 				}
 			} else if (tmp_it.getType() == SVDBItemType.Class &&
-					tmp_it.getName().equals("simple_driver")) {
+					SVDBItem.getName(tmp_it).equals("simple_driver")) {
 				simple_driver = (SVDBModIfcClassDecl)tmp_it;
 			}
 			

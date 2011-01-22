@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -105,9 +106,9 @@ public class SVFileNavigatorContentProvider
 			if (svdb_file != null) {
 				List<SVDBItem> ret = new ArrayList<SVDBItem>();
 				
-				for (SVDBItem it : svdb_file.getItems()) {
+				for (ISVDBItemBase it : svdb_file.getItems()) {
 					if (it.getType() != SVDBItemType.Marker) {
-						ret.add(it);
+						ret.add((SVDBItem)it);
 					}
 				}
 				

@@ -15,12 +15,15 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindVarsByNameInScopes {
@@ -37,11 +40,11 @@ public class SVDBFindVarsByNameInScopes {
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
 	}
 	
-	public List<SVDBItem> find(
+	public List<ISVDBItemBase> find(
 			ISVDBScopeItem 	context, 
 			String 			name,
 			boolean			stop_on_first_match) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		ISVDBScopeItem context_save = context;
 
@@ -49,10 +52,10 @@ public class SVDBFindVarsByNameInScopes {
 		while (context != null) {
 			
 			// First, search the local variables
-			for (SVDBItem it : context.getItems()) {
+			for (ISVDBItemBase it : context.getItems()) {
 				if (it.getType() == SVDBItemType.VarDecl) {
-					if (it.getName().equals(name)) {
-						ret.add(it);
+					if (((SVDBVarDeclItem)it).getName().equals(name)) {
+						ret.add((SVDBVarDeclItem)it);
 						
 						if (stop_on_first_match) {
 							break;
@@ -109,12 +112,12 @@ public class SVDBFindVarsByNameInScopes {
 				SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)context;
 				
 				while (cls != null) {
-					for (SVDBItem it : cls.getItems()) {
+					for (ISVDBItemBase it : cls.getItems()) {
 						if (it.getType() == SVDBItemType.VarDecl ||
 								it.getType() == SVDBItemType.Covergroup ||
 								it.getType() == SVDBItemType.Coverpoint) {
-							if (fMatcher.match(it, name)) {
-								ret.add(it);
+							if (fMatcher.match((ISVDBNamedItem)it, name)) {
+								ret.add((SVDBItem)it);
 								
 								if (stop_on_first_match) {
 									break;

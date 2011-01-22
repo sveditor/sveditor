@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * Implements an item iterator that operates on a list of index iterators
@@ -33,16 +35,18 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		
 		private Iterator<ISVDBIndexIterator>		fIterator;
 		private ISVDBItemIterator					fCurrent;
+		private IProgressMonitor					fMonitor;
 		
-		public IteratorListItemIterator(Iterator<ISVDBIndexIterator> it) {
+		public IteratorListItemIterator(Iterator<ISVDBIndexIterator> it, IProgressMonitor monitor) {
 			fIterator = it;
+			fMonitor = monitor;
 		}
 
 		public boolean hasNext(SVDBItemType... type_list) {
 			while (fCurrent != null || fIterator.hasNext()) {
 				
 				if (fCurrent == null) {
-					fCurrent = fIterator.next().getItemIterator();
+					fCurrent = fIterator.next().getItemIterator(fMonitor);
 				}
 				
 				if (!fCurrent.hasNext(type_list)) {
@@ -56,13 +60,13 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			return (fCurrent != null && fCurrent.hasNext(type_list));
 		}
 
-		public SVDBItem nextItem(SVDBItemType... type_list) {
-			SVDBItem ret = null;
+		public ISVDBItemBase nextItem(SVDBItemType... type_list) {
+			ISVDBItemBase ret = null;
 			
 			while (fCurrent != null || fIterator.hasNext()) {
 				
 				if (fCurrent == null) {
-					fCurrent = fIterator.next().getItemIterator();
+					fCurrent = fIterator.next().getItemIterator(fMonitor);
 				}
 				
 				if ((ret = fCurrent.nextItem(type_list)) == null) {
@@ -85,8 +89,8 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		fIndexIteratorList.add(it);
 	}
 
-	public ISVDBItemIterator getItemIterator() {
-		return new IteratorListItemIterator(fIndexIteratorList.iterator());
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		return new IteratorListItemIterator(fIndexIteratorList.iterator(), monitor);
 	}
 
 }

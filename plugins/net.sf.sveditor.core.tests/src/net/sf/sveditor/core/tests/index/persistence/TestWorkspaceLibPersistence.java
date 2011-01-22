@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -28,6 +29,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class TestWorkspaceLibPersistence extends TestCase {
@@ -81,22 +83,22 @@ public class TestWorkspaceLibPersistence extends TestCase {
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-//			System.out.println("tmp_it=" + tmp_it.getName());
+//			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -128,13 +130,13 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_1")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -143,7 +145,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		System.out.println("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
-		assertEquals("class1_1", target_it.getName());
+		assertEquals("class1_1", SVDBItem.getName(target_it));
 	}
 
 	/**
@@ -169,22 +171,22 @@ public class TestWorkspaceLibPersistence extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			// System.out.println("tmp_it=" + tmp_it.getName());
+			// System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -217,20 +219,20 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 		
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 }

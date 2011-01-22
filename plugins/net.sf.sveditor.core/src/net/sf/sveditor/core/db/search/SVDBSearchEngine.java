@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -98,10 +99,10 @@ public class SVDBSearchEngine {
 	}
 
 	private void find_package_decl(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		
 		while (iterator.hasNext(SVDBItemType.PackageDecl)) {
-			SVDBItem pkg = iterator.nextItem(SVDBItemType.PackageDecl);
+			SVDBItem pkg = (SVDBPackageDecl)iterator.nextItem(SVDBItemType.PackageDecl);
 			if (fSearchSpec.match(pkg.getName())) {
 				items.add(pkg);
 			}
@@ -109,18 +110,18 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_package_refs(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 
 		System.out.println("[ERROR] find_package_refs not supported");
 	}
 	
 	private void find_type_decl(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Class, SVDBItemType.Struct, 
 				SVDBItemType.Typedef, SVDBItemType.Module};
 		
 		while (iterator.hasNext(types)) {
-			SVDBItem item = iterator.nextItem(types);
+			SVDBItem item = (SVDBItem)iterator.nextItem(types);
 			if (item.getType() == SVDBItemType.Typedef) {
 				SVDBTypedef td = (SVDBTypedef)item;
 				if (td.getTypeInfo().getDataType() != SVDBDataType.Struct) {
@@ -134,11 +135,11 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_type_refs(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDecl, SVDBItemType.ModIfcInst}; 
 		
 		while (iterator.hasNext(types)) {
-			SVDBItem item = iterator.nextItem(types);
+			SVDBItem item = (SVDBItem)iterator.nextItem(types);
 			String match_name = "";
 			if (item.getType() == SVDBItemType.VarDecl) {
 				SVDBVarDeclItem decl = (SVDBVarDeclItem)item;
@@ -155,11 +156,11 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_method_decl(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Function, SVDBItemType.Task};
 		
 		while (iterator.hasNext(types)) {
-			SVDBItem item = iterator.nextItem();
+			SVDBItem item = (SVDBItem)iterator.nextItem();
 			String name = item.getName();
 			
 			// Trim away the scope
@@ -177,11 +178,11 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_field_decl(List<SVDBItem> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator();
+		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDecl, SVDBItemType.ModIfcInst};
 
 		while (iterator.hasNext(types)) {
-			SVDBItem item = iterator.nextItem();
+			SVDBItem item = (SVDBItem)iterator.nextItem();
 			String name = item.getName();
 			
 			if (fSearchSpec.match(name)) {

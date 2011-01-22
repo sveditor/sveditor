@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem {
 	protected SVDBParamValueAssignList				fParamAssignList;
 	protected SVDBLocation							fEndLocation;
-	protected List<SVDBItem>						fItems;
+	protected List<ISVDBItemBase>					fItems;
 	
 	public SVDBTypeInfoUserDef(String typename) {
 		this(typename, SVDBDataType.UserDefined);
@@ -46,7 +46,7 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 		return fEndLocation;
 	}
 
-	public List<SVDBItem> getItems() {
+	public List<ISVDBItemBase> getItems() {
 		return fItems;
 	}
 

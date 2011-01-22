@@ -20,6 +20,7 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -28,6 +29,8 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestParamClassContentAssist extends TestCase {
 	private ContentAssistIndex			fIndex;
@@ -65,17 +68,17 @@ public class TestParamClassContentAssist extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBModIfcClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (it_t.getName().equals("my_class1")) {
+			if (SVDBItem.getName(it_t).equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
 		}
@@ -83,8 +86,8 @@ public class TestParamClassContentAssist extends TestCase {
 		assertNotNull(my_class1);
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
-		for (SVDBItem it_t : my_class1.getItems()) {
-			System.out.println("    [my_class1] " + it_t.getType() + " " + it_t.getName());
+		for (ISVDBItemBase it_t : my_class1.getItems()) {
+			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		cp.computeProposals(scanner, ini.first(), 
@@ -127,17 +130,17 @@ public class TestParamClassContentAssist extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBModIfcClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (it_t.getName().equals("my_class1")) {
+			if (SVDBItem.getName(it_t).equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
 		}
@@ -145,8 +148,8 @@ public class TestParamClassContentAssist extends TestCase {
 		assertNotNull(my_class1);
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
-		for (SVDBItem it_t : my_class1.getItems()) {
-			System.out.println("    [my_class1] " + it_t.getType() + " " + it_t.getName());
+		for (ISVDBItemBase it_t : my_class1.getItems()) {
+			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		cp.computeProposals(scanner, ini.first(), 

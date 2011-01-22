@@ -12,9 +12,11 @@
 
 package net.sf.sveditor.core.db.index;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 
 public interface ISVDBIndexIterator {
 	
-	ISVDBItemIterator 		getItemIterator();
+	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
 	
 }

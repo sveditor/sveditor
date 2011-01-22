@@ -14,7 +14,7 @@ package net.sf.sveditor.core.db.search;
 
 import java.util.regex.Pattern;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBContentAssistIncludeNameMatcher extends SVDBFindContentAssistNameMatcher {
@@ -25,7 +25,7 @@ public class SVDBContentAssistIncludeNameMatcher extends SVDBFindContentAssistNa
 	}
 
 	@Override
-	public boolean match(SVDBItem it, String name) {
+	public boolean match(ISVDBNamedItem it, String name) {
 		if (it.getType() == SVDBItemType.File) {
 			String norm_path = fWinPathPattern.matcher(it.getName()).replaceAll("/");
 			String last_elem = norm_path;

@@ -159,5 +159,4 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 		super.dispose();
 		fLabelProvider.dispose();
 	}
-
 }

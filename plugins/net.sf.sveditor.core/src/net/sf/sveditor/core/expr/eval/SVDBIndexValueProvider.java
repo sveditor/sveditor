@@ -15,13 +15,15 @@ package net.sf.sveditor.core.expr.eval;
 import java.math.BigInteger;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDataType;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBIndexValueProvider implements IValueProvider {
 	
@@ -32,10 +34,10 @@ public class SVDBIndexValueProvider implements IValueProvider {
 	}
 
 	public BigInteger get_value(String name) throws Exception {
-		ISVDBItemIterator item_it = fIndexIt.getItemIterator();
+		ISVDBItemIterator item_it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		
 		while (item_it.hasNext()) {
-			SVDBItem it = item_it.nextItem();
+			ISVDBItemBase it = item_it.nextItem();
 			
 			if (it.getType() == SVDBItemType.Typedef) {
 				SVDBTypedef typedef = (SVDBTypedef)it;

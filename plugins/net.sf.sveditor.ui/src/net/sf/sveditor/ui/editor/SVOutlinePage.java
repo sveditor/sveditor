@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
@@ -23,6 +24,7 @@ import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -55,6 +57,19 @@ public class SVOutlinePage extends ContentOutlinePage
 		getTreeViewer().addFilter(new SVDBDefaultContentFilter());
 		getTreeViewer().setLabelProvider(
 				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
+		getTreeViewer().setComparer(new IElementComparer() {
+			public int hashCode(Object element) {
+				return element.hashCode();
+			}
+			
+			public boolean equals(Object a, Object b) {
+				if (a instanceof ISVDBItemBase && b instanceof ISVDBItemBase) {
+					return ((ISVDBItemBase)a).equals((ISVDBItemBase)b, false);
+				} else {
+					return a.equals(b);
+				}
+			}
+		});
 		
 		getTreeViewer().setInput(fEditor.getSVDBFile());
 		
@@ -70,8 +85,6 @@ public class SVOutlinePage extends ContentOutlinePage
 		if (file.getFilePath().equals(fEditor.getFilePath())) {
 			if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
 				Display.getDefault().asyncExec(this);
-				// Display.getDefault().timerExec(1000, this);
-				// getTreeViewer().getControl().getDisplay().
 			}
 		}
 	}

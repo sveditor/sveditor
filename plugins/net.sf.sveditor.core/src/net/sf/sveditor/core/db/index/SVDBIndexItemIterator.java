@@ -16,21 +16,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBIndexItemIterator implements ISVDBItemIterator {
-	private Stack<Iterator<SVDBItem>>	fScopeStack;
-	private Iterator<SVDBFile>			fFileIterator;
-	private Iterator<SVDBItem>			fScopeIterator;
-	private SVDBFile					fOverrideFile;
-	private SVDBItem					fCurrent;
+	private Stack<Iterator<ISVDBItemBase>>	fScopeStack;
+	private Iterator<SVDBFile>				fFileIterator;
+	private Iterator<ISVDBItemBase>			fScopeIterator;
+	private SVDBFile						fOverrideFile;
+	private ISVDBItemBase					fCurrent;
 	
 	public SVDBIndexItemIterator(Map<String, SVDBFile> index_items) {
 		fFileIterator = index_items.values().iterator();
-		fScopeStack = new Stack<Iterator<SVDBItem>>();
+		fScopeStack = new Stack<Iterator<ISVDBItemBase>>();
 		
 		fFileIterator = index_items.values().iterator();
 	}
@@ -46,7 +46,7 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 	 * @param type_list
 	 * @return
 	 */
-	public SVDBItem peekNext(SVDBItemType ... type_list) {
+	public ISVDBItemBase peekNext(SVDBItemType ... type_list) {
 		while (true) {
 			if (fCurrent == null) {
 				fCurrent = nextItem_int();
@@ -70,8 +70,8 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 		return (peekNext(type_list) != null);
 	}
 	
-	private SVDBItem nextItem_int() {
-		SVDBItem ret = null;
+	private ISVDBItemBase nextItem_int() {
+		ISVDBItemBase ret = null;
 		
 //		boolean had_next = hasNext();
 
@@ -124,8 +124,8 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 		return ret;
 	}
 
-	public SVDBItem nextItem(SVDBItemType ... type_list) {
-		SVDBItem ret = peekNext(type_list);
+	public ISVDBItemBase nextItem(SVDBItemType ... type_list) {
+		ISVDBItemBase ret = peekNext(type_list);
 		fCurrent = null;
 		
 		return ret;

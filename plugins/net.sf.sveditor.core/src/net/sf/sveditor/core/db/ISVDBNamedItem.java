@@ -12,11 +12,7 @@
 
 package net.sf.sveditor.core.db;
 
-public interface ISVDBNamedItem extends ISVDBItemBase {
-	
-	ISVDBScopeItem getParent();
-	
-	void setParent(ISVDBScopeItem parent);
+public interface ISVDBNamedItem extends ISVDBChildItem {
 	
 	String getName();
 	

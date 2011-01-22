@@ -21,6 +21,7 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -39,6 +40,8 @@ import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestContentAssistBasics extends TestCase {
 	private SVDBIndexCollectionMgr		fIndexCollectionOVMMgr;
@@ -69,8 +72,8 @@ public class TestContentAssistBasics extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
-		fIndexCollectionOVMMgr.getItemIterator();
-		fIndexCollectionVMMMgr.getItemIterator();
+		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
+		fIndexCollectionVMMMgr.getItemIterator(new NullProgressMonitor());
 				
 	}
 	
@@ -157,24 +160,24 @@ public class TestContentAssistBasics extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator();
+		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBModIfcClassDecl my_class2 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = it.nextItem();
+			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (it_t.getName().equals("my_class2")) {
+			if (SVDBItem.getName(it_t).equals("my_class2")) {
 				my_class2 = (SVDBModIfcClassDecl)it_t;
 			}
 		}
 		
 		System.out.println("[my_class2] " + my_class2.getItems().size() + " items");
-		for (SVDBItem it_t : my_class2.getItems()) {
-			System.out.println("    [my_class2] " + it_t.getType() + " " + it_t.getName());
+		for (ISVDBItemBase it_t : my_class2.getItems()) {
+			System.out.println("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		
@@ -388,10 +391,11 @@ public class TestContentAssistBasics extends TestCase {
 			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
 		}
 		
-		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + new_f.getParent().getName());
+		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + 
+				SVDBItem.getName(new_f.getParent()));
 
 		/*
-		ISVDBItemIterator<SVDBItem> index_it = fIndexCollectionOVMMgr.getItemIterator();
+		ISVDBItemIterator<SVDBItem> index_it = fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
 		
 		SVDBItem myclass_1 = null;
 		while (index_it.hasNext()) {
@@ -407,9 +411,9 @@ public class TestContentAssistBasics extends TestCase {
 		assertEquals("Expect field name to be 'new_field'", "new_field", new_field.getName());
 		
 		assertEquals("Expect to get 'new' from class1", 
-				"my_class1", new_f.getParent().getName());
+				"my_class1", SVDBItem.getName(new_f.getParent()));
 		assertEquals("Expect to get 'new_field' from class2", 
-				"my_class2", new_field.getParent().getName());
+				"my_class2", SVDBItem.getName(new_field.getParent()));
 	}
 
 	public void testUntriggeredClassAssist() {

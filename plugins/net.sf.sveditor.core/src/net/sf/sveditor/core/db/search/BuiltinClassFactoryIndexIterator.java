@@ -14,7 +14,10 @@ package net.sf.sveditor.core.db.search;
 
 import java.util.HashMap;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import net.sf.sveditor.core.BuiltinClassConstants;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -31,28 +34,28 @@ import net.sf.sveditor.core.log.LogHandle;
  *
  */
 public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
-	private static final LogHandle				fLog = LogFactory.getLogHandle("BuiltinClassFactoryIndexIterator");
-	private ISVDBIndexIterator					fBaseIterator;
-	private HashMap<SVDBItem, SVDBItem>			fItemMap;
+	private static final LogHandle					fLog = LogFactory.getLogHandle("BuiltinClassFactoryIndexIterator");
+	private ISVDBIndexIterator						fBaseIterator;
+	private HashMap<ISVDBItemBase, ISVDBItemBase>	fItemMap;
 	
 	public BuiltinClassFactoryIndexIterator(ISVDBIndexIterator it) {
 		fBaseIterator = it;
-		fItemMap = new HashMap<SVDBItem, SVDBItem>();
+		fItemMap = new HashMap<ISVDBItemBase, ISVDBItemBase>();
 	}
 	
 	private class BuiltinClassIterator implements ISVDBItemIterator {
 		private ISVDBItemIterator 		fIterator;
 		
-		public BuiltinClassIterator() {
-			fIterator = fBaseIterator.getItemIterator();
+		public BuiltinClassIterator(IProgressMonitor monitor) {
+			fIterator = fBaseIterator.getItemIterator(monitor);
 		}
 
 		public boolean hasNext(SVDBItemType ... type_list) {
 			return fIterator.hasNext(type_list);
 		}
 
-		public SVDBItem nextItem(SVDBItemType ... type_list) {
-			SVDBItem it = fIterator.nextItem(type_list);
+		public ISVDBItemBase nextItem(SVDBItemType ... type_list) {
+			ISVDBItemBase it = fIterator.nextItem(type_list);
 			if (it != null) {
 				if (fItemMap.containsKey(it)) {
 					it = fItemMap.get(it);
@@ -63,7 +66,7 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 					cls.setSuperClass(
 							BuiltinClassConstants.getBuiltinClass(it.getType()));
 					fLog.debug("Create modified type for " + 
-							it.getType() + " " + it.getName() + 
+							it.getType() + " " + SVDBItem.getName(it) + 
 							" super-class=" + BuiltinClassConstants.getBuiltinClass(it.getType()));
 					
 					// Cache for future efficiency
@@ -76,8 +79,8 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 		}
 	}
 
-	public ISVDBItemIterator getItemIterator() {
-		return new BuiltinClassIterator();
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		return new BuiltinClassIterator(monitor);
 	}
 
 }

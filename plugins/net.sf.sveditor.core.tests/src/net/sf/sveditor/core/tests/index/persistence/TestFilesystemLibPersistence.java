@@ -18,6 +18,7 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
@@ -28,6 +29,8 @@ import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestFilesystemLibPersistence extends TestCase {
 	
@@ -73,22 +76,22 @@ public class TestFilesystemLibPersistence extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + tmp_it.getName());
+			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.save_state();
 
@@ -120,13 +123,13 @@ public class TestFilesystemLibPersistence extends TestCase {
 		// Now, re-create the index
 		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_1")) {
 				target_it = tmp_it;
 				break;
 			}
@@ -135,7 +138,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		System.out.println("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
-		assertEquals("class1_1", target_it.getName());
+		assertEquals("class1_1", SVDBItem.getName(target_it));
 	}
 
 	/**
@@ -160,14 +163,14 @@ public class TestFilesystemLibPersistence extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator();
-		SVDBItem target_it = null;
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase target_it = null;
 		SVDBMarkerItem missing_inc = null;
 		
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1")) {
+			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				missing_inc = (SVDBMarkerItem)tmp_it;
@@ -175,7 +178,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		}
 
 		assertNotNull("located class1", target_it);
-		assertEquals("class1", target_it.getName());
+		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNotNull("Assert have missing include marker", missing_inc);
 		
 		rgy.save_state();
@@ -209,20 +212,20 @@ public class TestFilesystemLibPersistence extends TestCase {
 		// Now, re-create the index
 		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator();
+		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
-			SVDBItem tmp_it = it.nextItem();
+			ISVDBItemBase tmp_it = it.nextItem();
 			
-			if (tmp_it.getName().equals("class1_2")) {
+			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
 				break;
 			}
 		}
 		
 		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", target_it.getName());
+		assertEquals("class1_2", SVDBItem.getName(target_it));
 	}
 
 	

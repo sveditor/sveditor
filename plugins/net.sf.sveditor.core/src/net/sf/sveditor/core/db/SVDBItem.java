@@ -86,20 +86,33 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		if (obj == this) {
 			return true;
 		} else if (obj instanceof SVDBItem) {
-			SVDBItem other = (SVDBItem)obj;
-			boolean ret = true;
-			
-			if (other.fName == null || fName == null) {
-				ret &= other.fName == fName;
-			} else {
-				ret &= other.fName.equals(fName);
-			}
-			
-			ret &= super.equals(obj);
-			
-			return ret;
+			return equals((SVDBItem)obj, true);
 		} else {
 			return super.equals(obj);
+		}
+	}
+
+	@Override
+	public boolean equals(ISVDBItemBase obj, boolean full) {
+		SVDBItem other = (SVDBItem)obj;
+		boolean ret = true;
+		
+		if (other.fName == null || fName == null) {
+			ret &= other.fName == fName;
+		} else {
+			ret &= other.fName.equals(fName);
+		}
+		
+		ret &= super.equals(obj, full);
+		
+		return ret;
+	}
+	
+	public static String getName(ISVDBItemBase item) {
+		if (item instanceof ISVDBNamedItem) {
+			return ((ISVDBNamedItem)item).getName();
+		} else {
+			return "UNKNOWN " + item.getType();
 		}
 	}
 	

@@ -19,6 +19,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -58,8 +59,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
@@ -102,8 +103,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
@@ -145,8 +146,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
@@ -189,8 +190,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
@@ -233,8 +234,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (SVDBItem it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + it.getName());
+		for (ISVDBItemBase it : file.getItems()) {
+			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
