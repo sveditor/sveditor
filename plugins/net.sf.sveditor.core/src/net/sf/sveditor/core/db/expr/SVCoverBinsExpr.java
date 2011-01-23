@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVCoverBinsExpr extends SVCoverageExpr {
 	private String				fName;
 	private String				fBinsType;
@@ -68,7 +66,7 @@ public class SVCoverBinsExpr extends SVCoverageExpr {
 		return fRangeList;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVCoverBinsExpr duplicate() {
 		SVCoverBinsExpr ret = new SVCoverBinsExpr(fName, fBinsType);
 		ret.fIsArray = fIsArray;
 		ret.fArrayExpr = (SVExpr)((fArrayExpr != null)?fArrayExpr.duplicate():null);

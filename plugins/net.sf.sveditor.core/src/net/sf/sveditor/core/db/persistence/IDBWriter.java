@@ -31,6 +31,9 @@ public interface IDBWriter {
 	void writeItemType(SVDBItemType type);
 	
 	@SuppressWarnings("rawtypes")
+	void writeEnumType(Class enum_type, Enum value);
+	
+	@SuppressWarnings("rawtypes")
 	void writeItemList(Collection items);
 	
 	void writeSVDBItem(SVDBItem item);

@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVTFCallExpr extends SVExpr {
 	private SVExpr				fTarget;
@@ -39,7 +38,7 @@ public class SVTFCallExpr extends SVExpr {
 		return fArgs;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVTFCallExpr duplicate() {
 		SVExpr args[] = new SVExpr[fArgs.length];
 		
 		for (int i=0; i<fArgs.length; i++) {

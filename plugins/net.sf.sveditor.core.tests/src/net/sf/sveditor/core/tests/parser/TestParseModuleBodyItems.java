@@ -1123,7 +1123,52 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		runTest("testTaskNonAnsiInputParam", doc, new String[] {"t"});
 	}
-	
+
+	public void testPreIncDec() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module t;\n" +
+			"	int v;\n" +
+			"\n" +
+			"initial begin\n" +
+			"	if (++v > 5) begin\n" +
+			"		v = 2;\n" +
+			"	end\n" +
+			"\n" +
+			"	if (--v < 2) begin\n" +
+			"		v = 1;\n" +
+			"	end\n" +
+			"end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+
+		runTest("testPreIncDec", doc, new String[] {"t"});
+	}
+
+	public void testPostIncDec() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module t;\n" +
+			"	int v;\n" +
+			"\n" +
+			"initial begin\n" +
+			"\n" +
+			"	if (v++ > 1) begin\n" +
+			"		v = 0;\n" +
+			"	end\n" +
+			"\n" +
+			"	if (v-- == 0) begin\n" +
+			"		v = 5;\n" +
+			"	end\n" +
+			"end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+
+		runTest("testPostIncDec", doc, new String[] {"t"});
+	}
+
 	public void testMultiModuleInstantiation() {
 		String doc = 
 			"module t;\n" +

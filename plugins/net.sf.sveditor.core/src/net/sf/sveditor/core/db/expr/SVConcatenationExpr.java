@@ -29,7 +29,7 @@ public class SVConcatenationExpr extends SVExpr {
 		return fElems;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVConcatenationExpr duplicate() {
 		SVConcatenationExpr ret = new SVConcatenationExpr();
 		
 		ret.init(this);

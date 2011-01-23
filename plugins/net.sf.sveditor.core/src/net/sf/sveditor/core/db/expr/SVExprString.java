@@ -28,7 +28,7 @@ public class SVExprString extends SVExpr {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
+	public SVExprString duplicate() {
 		SVExprString ret = new SVExprString(fExprStr);
 		
 		ret.init(this);

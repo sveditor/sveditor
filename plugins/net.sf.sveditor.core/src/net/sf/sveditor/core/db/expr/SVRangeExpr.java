@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVRangeExpr extends SVExpr {
 	
@@ -33,7 +32,7 @@ public class SVRangeExpr extends SVExpr {
 		return fRight;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVRangeExpr duplicate() {
 		return new SVRangeExpr((SVExpr)fLeft.duplicate(), (SVExpr)fRight.duplicate());
 	}
 

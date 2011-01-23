@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVDistListExpr extends SVExpr {
 	private SVExpr							fLHS;
 	private List<SVDistItemExpr>			fDistItems;
@@ -42,7 +40,7 @@ public class SVDistListExpr extends SVExpr {
 		fDistItems.add(item);
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVDistListExpr duplicate() {
 		SVDistListExpr ret = new SVDistListExpr();
 		ret.getDistItems().addAll(fDistItems);
 		ret.setLHS((SVExpr)fLHS.duplicate());

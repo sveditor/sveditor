@@ -39,7 +39,7 @@ public class SVBinaryExpr extends SVExpr {
 		return fRhs;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVBinaryExpr duplicate() {
 		SVBinaryExpr ret = new SVBinaryExpr(
 				(SVExpr)fLhs.duplicate(), fOp, 
 				(SVExpr)fRhs.duplicate());

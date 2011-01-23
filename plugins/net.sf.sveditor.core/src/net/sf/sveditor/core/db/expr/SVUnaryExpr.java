@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVUnaryExpr extends SVExpr {
 	private SVExpr					fExpr;
@@ -33,7 +32,7 @@ public class SVUnaryExpr extends SVExpr {
 		return fOp;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVUnaryExpr duplicate() {
 		return new SVUnaryExpr(fOp, (SVExpr)fExpr.duplicate());
 	}
 

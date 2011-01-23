@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVIdentifierExpr extends SVExpr {
 	private String				fId[];
@@ -43,7 +42,7 @@ public class SVIdentifierExpr extends SVExpr {
 		return fIdStr;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVIdentifierExpr duplicate() {
 		return new SVIdentifierExpr(fId);
 	}
 	

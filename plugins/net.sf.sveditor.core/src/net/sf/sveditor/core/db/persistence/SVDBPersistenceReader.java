@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
+@SuppressWarnings("rawtypes")
 public class SVDBPersistenceReader implements IDBReader {
 	private InputStream			fIn;
 	private byte				fBuf[];
@@ -32,10 +33,13 @@ public class SVDBPersistenceReader implements IDBReader {
 	private int					fBufSize;
 	private int					fUngetCh;
 	private StringBuilder		fTmpBuffer;
+	private static Map<Class, List<Enum>>		fEnumMap;
 	private static final Map<SVDBItemType, ISVDBPersistenceFactory>	fSVDBFactoryMap;
 	
 	static {
 		fSVDBFactoryMap = new HashMap<SVDBItemType, ISVDBPersistenceFactory>();
+		
+		fEnumMap = new HashMap<Class, List<Enum>>();
 	}
 
 	public SVDBPersistenceReader(InputStream in) {
@@ -64,7 +68,21 @@ public class SVDBPersistenceReader implements IDBReader {
 			fSVDBFactoryMap.put(type, factory);
 		}
 	}
+
+	public static void registerEnumType(Class enum_type, Enum values[]) {
+		List<Enum> enum_list = new ArrayList<Enum>();
+		for (Enum e : values) {
+			enum_list.add(e);
+		}
+		
+		fEnumMap.put(enum_type, enum_list);
+	}
 	
+	public static int getEnumIndex(Class enum_type, Enum value) {
+		List<Enum> enum_list = fEnumMap.get(enum_type);
+		return enum_list.indexOf(value);
+	}
+
 	public String readBaseLocation() throws DBFormatException {
 		String SDB = readTypeString();
 		
@@ -95,6 +113,31 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 		
 		return fTmpBuffer.toString();
+	}
+	
+	public Enum readEnumType(Class enum_type) throws DBFormatException {
+		List<Enum> enum_vals = fEnumMap.get(enum_type);
+		String type = readTypeString();
+		
+		if (!"ET".equals(type)) {
+			throw new DBFormatException(
+					"Bad format for enum type: \"" + type + "\"");
+		}
+		
+		int ch;
+		int idx;
+		
+		if ((ch = getch()) != '<') { // expect '<'
+			throw new DBFormatException("Missing '<' on item-list size (" + (char)ch + ")"); 
+		}
+
+		idx = readRawInt();
+		
+		if ((ch = getch()) != '>') {
+			throw new DBFormatException("Missing '>' on item-list size");
+		}
+
+		return enum_vals.get(idx);
 	}
 	
 	public int readInt() throws DBFormatException {
@@ -151,7 +194,6 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	public List readItemList(SVDBFile file, SVDBScopeItem parent)
 			throws DBFormatException {
 		String type = readTypeString();
@@ -187,6 +229,8 @@ public class SVDBPersistenceReader implements IDBReader {
 	}
 
 	public SVDBItemType readItemType() throws DBFormatException {
+		return (SVDBItemType)readEnumType(SVDBItemType.class);
+/*
 		String type = readTypeString();
 		
 		if (!"IT".equals(type)) {
@@ -216,6 +260,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 		
 		return ret;
+ */		
 	}
 
 	public long readLong() throws DBFormatException {

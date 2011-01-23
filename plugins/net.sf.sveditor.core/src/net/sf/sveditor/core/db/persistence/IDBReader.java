@@ -31,6 +31,10 @@ public interface IDBReader {
 	
 	SVDBItemType readItemType() throws DBFormatException;
 	
+	
+	@SuppressWarnings("rawtypes")
+	Enum readEnumType(Class enum_type) throws DBFormatException;
+	
 	@SuppressWarnings("rawtypes")
 	List readItemList(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;
 	

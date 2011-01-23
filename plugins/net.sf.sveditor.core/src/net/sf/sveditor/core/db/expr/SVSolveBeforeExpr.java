@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVSolveBeforeExpr extends SVConstraintExpr {
 	private List<String>				fSolveBeforeList;
 	private List<String>				fSolveAfterList;
@@ -35,7 +33,7 @@ public class SVSolveBeforeExpr extends SVConstraintExpr {
 		return fSolveAfterList;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVSolveBeforeExpr duplicate() {
 		SVSolveBeforeExpr ret = new SVSolveBeforeExpr();
 		
 		ret.fSolveBeforeList.addAll(fSolveAfterList);

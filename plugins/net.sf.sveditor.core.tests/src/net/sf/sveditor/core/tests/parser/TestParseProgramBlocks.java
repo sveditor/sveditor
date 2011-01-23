@@ -65,7 +65,7 @@ public class TestParseProgramBlocks extends TestCase {
 			"\n" +
 			"endprogram\n"
 			;
-
+		
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		

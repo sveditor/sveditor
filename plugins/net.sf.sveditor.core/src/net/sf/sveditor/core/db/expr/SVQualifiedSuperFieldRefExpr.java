@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVQualifiedSuperFieldRefExpr extends SVExpr {
 	
@@ -34,7 +33,7 @@ public class SVQualifiedSuperFieldRefExpr extends SVExpr {
 		return fId;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVQualifiedSuperFieldRefExpr duplicate() {
 		return new SVQualifiedSuperFieldRefExpr((SVExpr)fLhs.duplicate(), fId);
 	}
 

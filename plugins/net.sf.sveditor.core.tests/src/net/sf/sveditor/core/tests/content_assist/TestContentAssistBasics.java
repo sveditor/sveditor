@@ -324,16 +324,9 @@ public class TestContentAssistBasics extends TestCase {
 		
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
-		if (SVCorePlugin.fUseParserFactory) {
-			validateResults(new String[] {"my_field1_class2", "my_field2_class2",
-					"my_field1_class1", "my_field2_class1",
-					"my_class1", "my_class2"}, proposals);
-		} else {
-			// Scanner still produces "my_" as a proposal
-			validateResults(new String[] {"my_field1_class2", "my_field2_class2", "my_",
-					"my_field1_class1", "my_field2_class1",
-					"my_class1", "my_class2"}, proposals);
-		}
+		validateResults(new String[] {"my_field1_class2", "my_field2_class2",
+				"my_field1_class1", "my_field2_class1",
+				"my_class1", "my_class2"}, proposals);
 	}
 
 	/**

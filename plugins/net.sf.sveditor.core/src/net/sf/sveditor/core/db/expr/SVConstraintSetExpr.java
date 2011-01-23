@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVConstraintSetExpr extends SVExpr {
 	private List<SVExpr>				fConstraintList;
 	
@@ -29,7 +27,7 @@ public class SVConstraintSetExpr extends SVExpr {
 		return fConstraintList;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVConstraintSetExpr duplicate() {
 		SVConstraintSetExpr ret = new SVConstraintSetExpr();
 		
 		for (SVExpr e : fConstraintList) {

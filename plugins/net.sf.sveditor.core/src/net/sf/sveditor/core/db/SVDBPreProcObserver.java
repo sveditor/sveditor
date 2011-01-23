@@ -16,16 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import net.sf.sveditor.core.scanner.HaltScanException;
+import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
-import net.sf.sveditor.core.scanner.ISVScannerObserver;
-import net.sf.sveditor.core.scanner.SVClassIfcModParam;
-import net.sf.sveditor.core.scanner.SVTaskFuncParam;
-import net.sf.sveditor.core.scanner.SVTypeInfo;
-import net.sf.sveditor.core.scanner.SvVarInfo;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVDBPreProcObserver implements ISVScannerObserver {
+public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 	private List<SVDBFile>              fFileList;
 	private Stack<SVDBScopeItem>		fScopeStack;
 	private ISVScanner					fScanner;
@@ -69,7 +64,6 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 			fScopeStack.pop();
 		}
 	}
-	
 	
 	public void preproc_define(String key, List<String> params, String value) {
 		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
@@ -124,24 +118,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 	
 	public void comment(String comment) {}
 
-	
-	public void covergroup_item(String name, String type, String target, String body) {}
-
-	
-	public void enter_class_decl(String name, List<SVClassIfcModParam> params,
-			String super_name, List<SVClassIfcModParam> super_params)
-			throws HaltScanException {}
-
-	
-	public void enter_covergroup(String name) {}
-
-	
-	public void enter_func_decl(String name, int attr, String ret_type,
-			List<SVTaskFuncParam> params) throws HaltScanException {}
-
-	
-	public void enter_interface_decl(String name, String ports)
-			throws HaltScanException {
+	public void enter_interface_decl(String name, String ports) {
 		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
 				name, SVDBItemType.Interface);
 		fScopeStack.peek().addItem(id);
@@ -158,8 +135,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		}
 	}
 	
-	public void enter_module_decl(String name, String ports)
-			throws HaltScanException {
+	public void enter_module_decl(String name, String ports) {
 		SVDBModIfcClassDecl md = new SVDBModIfcClassDecl(
 				name, SVDBItemType.Module);
 		fScopeStack.peek().addItem(md);
@@ -168,7 +144,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		setLocation(md);
 	}
 
-	public void leave_module_decl() throws HaltScanException {
+	public void leave_module_decl() {
 		if (fScopeStack.size() > 0 && 
 				fScopeStack.peek().getType() == SVDBItemType.Module) {
 			setEndLocation(fScopeStack.peek());
@@ -176,7 +152,7 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		}
 	}
 
-	public void enter_program_decl(String name) throws HaltScanException {
+	public void enter_program_decl(String name) {
 		SVDBModIfcClassDecl p = new SVDBModIfcClassDecl(name, SVDBItemType.Program);
 		
 		fScopeStack.peek().addItem(p);
@@ -185,61 +161,12 @@ public class SVDBPreProcObserver implements ISVScannerObserver {
 		setLocation(p);
 	}
 
-	public void leave_program_decl() throws HaltScanException {
+	public void leave_program_decl() {
 		if (fScopeStack.size() > 0 && 
 				fScopeStack.peek().getType() == SVDBItemType.Program) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
 	}
-
-	public void enter_property(String name) {}
-
-	
-	public void enter_sequence(String name) {}
-
-	
-	public void enter_struct_decl(String name, List<SVClassIfcModParam> params)
-			throws HaltScanException {}
-
-	
-	public void enter_task_decl(String name, int attr,
-			List<SVTaskFuncParam> params) throws HaltScanException {}
-
-	
-	public void import_statment(String imp) throws HaltScanException {}
-
-	
-	public void leave_class_decl() throws HaltScanException {}
-
-	
-	public void leave_covergroup() {}
-	
-	public void constraint(String name, String expr) {}
-
-	public void leave_func_decl() {}
-	
-	public void enter_initial_always_block(String id, String expr) {}
-
-	public void leave_initial_always_block(String name) {}
-	
-	public void assign_stmt(String target) {}
-
-
-	public void leave_property() {}
-
-	
-	public void leave_sequence() {}
-
-	
-	public void leave_struct_decl(String name) {}
-
-	
-	public void leave_task_decl() {}
-	
-	public void typedef(String typeName, SVTypeInfo typeInfo) {}
-
-	public void variable_decl(SVTypeInfo type, int attr, List<SvVarInfo> variables)
-			throws HaltScanException {}
 
 }

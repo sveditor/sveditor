@@ -50,7 +50,7 @@ public class SVExpr extends SVDBItemBase {
 		return SVExprUtils.getDefault().exprToString(this);
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVExpr duplicate() {
 		SVExpr ret = new SVExpr(fExprType);
 		
 		ret.init(this);

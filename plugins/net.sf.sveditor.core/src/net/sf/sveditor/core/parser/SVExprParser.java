@@ -59,7 +59,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 public class SVExprParser extends SVParserBase {
 //	private SVExprDump						fExprDump;
 //	private boolean							fDebugEn = false;
-	public static boolean					fUseFullExprParser = false;
+	public static boolean					fUseFullExprParser = true;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);

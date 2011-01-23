@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVDistItemExpr extends SVExpr {
 	private SVExpr				fLHS;
@@ -47,7 +46,7 @@ public class SVDistItemExpr extends SVExpr {
 		fIsDist = is_dist;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVDistItemExpr duplicate() {
 		SVDistItemExpr ret = new SVDistItemExpr();
 		ret.setLHS((SVExpr)fLHS.duplicate());
 		ret.setRHS((SVExpr)fRHS.duplicate());

@@ -54,7 +54,7 @@ public class SVAssignExpr extends SVExpr {
 		fRhs = rhs;
 	}
 
-	public SVDBItemBase duplicate() {
+	public SVAssignExpr duplicate() {
 		SVAssignExpr ret = new SVAssignExpr(fLhs, fOp, fRhs);
 		
 		ret.init(this);

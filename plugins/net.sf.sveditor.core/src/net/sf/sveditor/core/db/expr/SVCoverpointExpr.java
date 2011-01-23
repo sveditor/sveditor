@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVCoverpointExpr extends SVCoverageExpr {
 	private Map<String, String>		fOptionMap;
 	private Map<String, String>		fTypeOptionMap;
@@ -76,7 +74,7 @@ public class SVCoverpointExpr extends SVCoverageExpr {
 		return fTypeOptionMap;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVCoverpointExpr duplicate() {
 		SVCoverpointExpr ret = new SVCoverpointExpr();
 		
 		ret.fOptionMap.putAll(fOptionMap);

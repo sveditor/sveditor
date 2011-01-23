@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVLiteralExpr extends SVExpr {
 	
@@ -28,7 +27,7 @@ public class SVLiteralExpr extends SVExpr {
 		return fLiteral;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVLiteralExpr duplicate() {
 		return new SVLiteralExpr(fLiteral);
 	}
 

@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVQualifiedThisRefExpr extends SVExpr {
 	private SVExpr 				fExpr;
@@ -27,7 +26,7 @@ public class SVQualifiedThisRefExpr extends SVExpr {
 		return fExpr;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVQualifiedThisRefExpr duplicate() {
 		return new SVQualifiedThisRefExpr((SVExpr)fExpr.duplicate());
 	}
 

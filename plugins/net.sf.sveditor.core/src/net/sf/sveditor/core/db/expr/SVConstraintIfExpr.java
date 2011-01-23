@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVConstraintIfExpr extends SVConstraintExpr {
 	private SVExpr					fIfExpr;
@@ -48,7 +47,7 @@ public class SVConstraintIfExpr extends SVConstraintExpr {
 		return fElseIf;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVConstraintIfExpr duplicate() {
 		return new SVConstraintIfExpr(
 				(SVExpr)fIfExpr.duplicate(),
 				(SVConstraintSetExpr)fConstraint.duplicate(),

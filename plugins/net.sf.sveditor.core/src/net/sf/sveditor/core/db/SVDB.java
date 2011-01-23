@@ -17,6 +17,7 @@
 package net.sf.sveditor.core.db;
 
 import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDB {
 	private static boolean			fInit;
@@ -25,6 +26,8 @@ public class SVDB {
 		if (fInit) {
 			return;
 		}
+		
+		SVDBPersistenceReader.registerEnumType(SVDBItemType.class, SVDBItemType.values());
 		
 		SVDBAlwaysBlock.init();
 		SVDBAssign.init();

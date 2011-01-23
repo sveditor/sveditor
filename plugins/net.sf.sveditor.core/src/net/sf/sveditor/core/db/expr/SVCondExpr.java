@@ -39,7 +39,7 @@ public class SVCondExpr extends SVExpr {
 		return fRhs;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVCondExpr duplicate() {
 		SVCondExpr ret = new SVCondExpr(
 				(SVExpr)fLhs.duplicate(), 
 				(SVExpr)fMhs.duplicate(), 

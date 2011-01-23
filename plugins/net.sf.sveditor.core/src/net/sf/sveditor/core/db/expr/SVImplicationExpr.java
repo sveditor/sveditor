@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVImplicationExpr extends SVConstraintExpr {
 	
@@ -34,7 +33,7 @@ public class SVImplicationExpr extends SVConstraintExpr {
 		return fConstraint;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVImplicationExpr duplicate() {
 		return new SVImplicationExpr(
 				(SVExpr)fExpr.duplicate(), 
 				(SVConstraintSetExpr)fConstraint.duplicate());

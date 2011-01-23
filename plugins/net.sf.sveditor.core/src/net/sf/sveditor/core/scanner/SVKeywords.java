@@ -261,10 +261,6 @@ public class SVKeywords {
 		"longint"
 	};
 	
-	private static final String						fTypeQualifiers[] = {
-
-	};
-	
 	private static final Set<String>				fTypeNames;
 	private static final Map<String, Boolean>		fKeywordMap;
 	private static final Set<String>				fBuiltinGates;

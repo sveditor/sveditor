@@ -4,6 +4,8 @@
 - Correct a problem with the SVEditor Outline view that prevented the viewer
   from updating in response to on-the-fly changes in the editor. 
 
+- Correct parse bug related to pre- and post- increment/decrement expressions
+
 ------------------------------------------------------------------------------
 
 -- 0.3.8 Release --

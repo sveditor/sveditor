@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
 
 public class SVFieldAccessExpr extends SVExpr {
 	private SVExpr 					fExpr;
@@ -39,7 +38,7 @@ public class SVFieldAccessExpr extends SVExpr {
 		return fId;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVFieldAccessExpr duplicate() {
 		return new SVFieldAccessExpr((SVExpr)fExpr.duplicate(), fStaticRef, fId);
 	}
 }

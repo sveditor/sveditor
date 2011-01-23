@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemBase;
-
 public class SVInsideExpr extends SVExpr {
 	private SVExpr					fLhs;
 	private List<SVExpr>			fValueRangeList;
@@ -35,7 +33,7 @@ public class SVInsideExpr extends SVExpr {
 		return fValueRangeList;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVInsideExpr duplicate() {
 		SVInsideExpr ret = new SVInsideExpr((SVExpr)fLhs.duplicate());
 		
 		for (SVExpr e : fValueRangeList) {

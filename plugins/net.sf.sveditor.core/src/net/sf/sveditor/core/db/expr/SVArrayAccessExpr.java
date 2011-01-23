@@ -39,7 +39,7 @@ public class SVArrayAccessExpr extends SVExpr {
 		return fHigh;
 	}
 	
-	public SVDBItemBase duplicate() {
+	public SVArrayAccessExpr duplicate() {
 		SVArrayAccessExpr ret = new SVArrayAccessExpr(fLhs, fLow, fHigh);
 		
 		ret.init(this);

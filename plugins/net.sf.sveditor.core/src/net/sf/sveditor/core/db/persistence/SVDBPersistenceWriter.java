@@ -83,7 +83,15 @@ public class SVDBPersistenceWriter implements IDBWriter {
 	}
 
 	public void writeItemType(SVDBItemType type) {
-		writeRawString("IT<" + type.toString() + ">");
+		writeEnumType(SVDBItemType.class, type);
+//		writeRawString("IT<" + type.toString() + ">");
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public void writeEnumType(Class enum_type, Enum value) {
+		int idx = SVDBPersistenceReader.getEnumIndex(enum_type, value);
+		
+		writeRawString("ET<" + idx + ">");
 	}
 
 	public void writeLong(long val) {
