@@ -7,6 +7,7 @@ public class DBTests extends TestSuite {
 	public static TestSuite suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTest(new TestSuite(TestMerge.class));
+		suite.addTest(new TestSuite(TestInitDuplicate.class));
 		return suite;
 	}
 

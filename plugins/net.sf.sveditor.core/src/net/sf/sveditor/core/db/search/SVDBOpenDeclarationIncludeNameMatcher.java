@@ -26,7 +26,6 @@ public class SVDBOpenDeclarationIncludeNameMatcher extends
 		if (it.getType() == SVDBItemType.File) {
 			String norm_path = SVFileUtils.normalize(it.getName());
 			String basename = new File(name).getName();
-			System.out.println("norm_path=" + norm_path + " basename=" + basename);
 			
 			return (norm_path.endsWith(name) || norm_path.endsWith(basename)); 
 		} else {

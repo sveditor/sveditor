@@ -1,10 +1,9 @@
 package net.sf.sveditor.core.tests.db;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.parser.ParserTests;
-import junit.framework.TestCase;
 
 public class TestMerge extends TestCase {
 	

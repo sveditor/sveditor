@@ -52,6 +52,9 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		fFileMatcher = matcher;
 		fModIfcClsFiles = new HashSet<SVDBFile>();
 		fUnincludedFiles = new HashSet<SVDBFile>();
+		
+		// We've supplied a directory for the base location
+		fBaseLocationAndDirAreSame = true;
 	}
 	
 	@Override

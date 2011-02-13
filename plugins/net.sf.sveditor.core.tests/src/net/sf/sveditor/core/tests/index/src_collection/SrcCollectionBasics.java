@@ -32,10 +32,13 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SrcCollectionBasics extends TestCase {
@@ -574,6 +577,58 @@ public class SrcCollectionBasics extends TestCase {
 		SVDBFile new_class_file = index.parse(in, new_class_path, new NullProgressMonitor());
 		
 		assertNotNull(new_class_file);
+	}
+
+	/**
+	 * Tests that relative include paths that extend above the workspace
+	 * are correctly resolved
+	 */
+	public void testOutsideWsRelativeIncPaths() throws IOException {
+		System.out.println("--> testOutsideWsRelativeIncPaths()");
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		File testdir = new File(fTmpDir, "testdir");
+		File sub1 = new File(testdir, "sub1");
+		File sub2 = new File(sub1, "sub2");
+		File sub3 = new File(sub2, "sub3");
+		
+		if (sub2.exists()) {
+			sub2.delete();
+		}
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		final IProject project_dir = TestUtils.createProject("a", new File(sub3, "a"));
+
+		String data_dir = "/project_dir_src_collection_ws_ext_inc";
+		utils.copyBundleFileToWS(data_dir + "/top.v", project_dir);
+		utils.copyBundleFileToFS(data_dir + "/xx.svh", sub3);
+		utils.copyBundleFileToFS(data_dir + "/xxx.svh", sub2);
+		utils.copyBundleFileToFS(data_dir + "/xxxx.svh", sub1);
+		utils.copyBundleFileToFS(data_dir + "/xxxxx.svh", testdir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(null);
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				project_dir.getName(), "${workspace_loc}/a", 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		index.setGlobalDefine("TEST_MODE", "1");
+		
+		IndexTestUtils.assertNoErrWarn(index);
+		
+		IndexTestUtils.assertFileHasElements(index, "top", "xx", "xxx", "xxxx", "xxxxx");
+		
+		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
+		String file_path = "${workspace_loc}/a/top.v";
+		SVDBFile file = index.parse(fs.openStream(file_path), file_path, new NullProgressMonitor());
+		
+		SVDBTestUtils.assertFileHasElements(file, "top");
+		ISVDBItemBase top = SVDBTestUtils.findInFile(file, "top");
+
+		assertNotNull("located top", top);
+		
+		// Expect one entry for missing include entry
+		System.out.println("<-- testOutsideWsRelativeIncPaths()");
 	}
 
 }

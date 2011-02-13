@@ -38,6 +38,7 @@ public class SVParsers {
 	private SVSpecifyBlockParser				fSpecifyBlockParser;
 	private SVImportStmtParser					fImportParser;
 	private SVExprParser						fExprParser;
+	private SVGateInstantiationParser			fGateInstanceParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -164,6 +165,13 @@ public class SVParsers {
 			fExprParser = new SVExprParser(fSVParser);
 		}
 		return fExprParser;
+	}
+	
+	public SVGateInstantiationParser gateInstanceParser() {
+		if (fGateInstanceParser == null) {
+			fGateInstanceParser = new SVGateInstantiationParser(fSVParser);
+		}
+		return fGateInstanceParser;
 	}
 
 }

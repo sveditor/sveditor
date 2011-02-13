@@ -162,6 +162,37 @@ public class BundleUtils {
 		}
 	}
 
+	public void copyBundleFileToWS(
+			String			bundle_path,
+			IContainer		ws_path) {
+		URL url = fBundle.getEntry(bundle_path);
+		
+		String bundle_filename = new File(bundle_path).getName();
+		IFile target = ws_path.getFile(new Path(bundle_filename));
+
+		IContainer parent = target.getParent();
+			
+			
+		try {
+			if (!parent.exists()) {
+				createDirTree(parent);
+			}
+				
+			InputStream in = url.openStream();
+				
+			if (target.exists()) {
+				target.setContents(in, true, false, new NullProgressMonitor());
+			} else {
+				target.create(in, true, new NullProgressMonitor());
+			}
+				
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
 	@SuppressWarnings("rawtypes")
 	public void copyBundleDirToWS(
 			String			bundle_dir,

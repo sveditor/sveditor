@@ -14,8 +14,10 @@ package net.sf.sveditor.core.parser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.BuiltinClassConstants;
@@ -1055,22 +1057,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			lexer().readOperator(";");
 			fNewStatement = true;
 			ret = fSpecialNonNull;
-		} else if (lexer().peekKeyword("pullup", "pulldown")) {
-			lexer().eatToken();
-			if (lexer().peekOperator("(")) {
-				lexer().skipPastMatch("(", ")");
-			}
-			while (lexer().peek() != null && !lexer().peekOperator(";")) {
-				lexer().readIdOrKeyword(); // pullup
-				lexer().readOperator("(");
-				lexer().skipPastMatch("(", ")");
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
-				} else {
-					break;
-				}
-			}
-			lexer().readOperator(";");
+		} else if (lexer().peekKeyword(SVKeywords.fBuiltinGates)) {
+			List<SVDBModIfcInstItem> insts = parsers().gateInstanceParser().parse();
+			// TODO: add to hierarchy (?)
 			fNewStatement = true;
 			ret = fSpecialNonNull;
 		} else if (lexer().peekKeyword("defparam", "specparam")) {
@@ -1425,6 +1414,27 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} else {
 			fLog.debug(msg);
 		}
+	}
+	
+	public String delay3() throws SVParseException {
+		lexer().readOperator("#");
+		
+		if (lexer().peekOperator("(")) {
+			lexer().eatToken();
+			/* min / base */ parsers().exprParser().expression();
+			if (lexer().peekOperator(",")) {
+				lexer().eatToken();
+				/* typ */ parsers().exprParser().expression();
+
+				lexer().readOperator(",");
+				/* max */ parsers().exprParser().expression();
+			}
+			lexer().readOperator(")");
+		} else {
+			parsers().exprParser().expression();
+		}
+		
+		return lexer().endCapture();
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {

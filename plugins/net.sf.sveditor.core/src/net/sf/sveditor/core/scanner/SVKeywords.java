@@ -263,7 +263,7 @@ public class SVKeywords {
 	
 	private static final Set<String>				fTypeNames;
 	private static final Map<String, Boolean>		fKeywordMap;
-	private static final Set<String>				fBuiltinGates;
+	public static final Set<String>					fBuiltinGates;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -282,18 +282,32 @@ public class SVKeywords {
 		}
 		
 		fBuiltinGates = new HashSet<String>();
+		fBuiltinGates.add("cmos");
+		fBuiltinGates.add("rcmos");
+		fBuiltinGates.add("bufif0");
+		fBuiltinGates.add("bufif1");
+		fBuiltinGates.add("notif0");
+		fBuiltinGates.add("notif1");
+		fBuiltinGates.add("nmos");
+		fBuiltinGates.add("pmos");
+		fBuiltinGates.add("rnmos");
+		fBuiltinGates.add("rpmos");
 		fBuiltinGates.add("and");
 		fBuiltinGates.add("nand");
-		fBuiltinGates.add("nor");
 		fBuiltinGates.add("or");
+		fBuiltinGates.add("nor");
 		fBuiltinGates.add("xor");
 		fBuiltinGates.add("xnor");
-		fBuiltinGates.add("buf"); 
+		fBuiltinGates.add("buf");
 		fBuiltinGates.add("not");
-		fBuiltinGates.add("bufif0"); 
-		fBuiltinGates.add("bufif1");
-		fBuiltinGates.add("notif1");
-		fBuiltinGates.add("notif0");
+		fBuiltinGates.add("tranif0");
+		fBuiltinGates.add("tranif1");
+		fBuiltinGates.add("rtranif1");
+		fBuiltinGates.add("rtranif0");
+		fBuiltinGates.add("tran");
+		fBuiltinGates.add("rtran");
+		fBuiltinGates.add("pullup");
+		fBuiltinGates.add("pulldown");
 	};
 
 	public static boolean isSVKeyword(String kw) {

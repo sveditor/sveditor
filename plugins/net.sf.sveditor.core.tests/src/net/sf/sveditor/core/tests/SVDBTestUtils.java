@@ -50,24 +50,29 @@ public class SVDBTestUtils {
 	
 	public static void assertFileHasElements(SVDBFile file, String ... elems) {
 		for (String e : elems) {
-			if (!findElement(file, e)) {
+			if (findElement(file, e) == null) {
 				TestCase.fail("Failed to find element \"" + e + "\" in file " + file.getName());
 			}
 		}
 	}
 	
-	private static boolean findElement(ISVDBScopeItem scope, String e) {
+	public static ISVDBItemBase findInFile(SVDBFile file, String name) {
+		return findElement(file, name);
+	}
+	
+	private static ISVDBItemBase findElement(ISVDBScopeItem scope, String e) {
 		for (ISVDBItemBase it : scope.getItems()) {
 			if (SVDBItem.getName(it).equals(e)) {
-				return true;
+				return it;
 			} else if (it instanceof ISVDBScopeItem) {
-				if (findElement((ISVDBScopeItem)it, e)) {
-					return true;
+				ISVDBItemBase t;
+				if ((t = findElement((ISVDBScopeItem)it, e)) != null) {
+					return t;
 				}
 			}
 		}
 		
-		return false;
+		return null;
 	}
 
 	public static SVDBFile parse(String content, String filename) {

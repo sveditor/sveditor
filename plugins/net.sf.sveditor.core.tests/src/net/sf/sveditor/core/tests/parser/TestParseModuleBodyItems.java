@@ -1264,6 +1264,57 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest("testModulePreBodyImport3", doc, new String[] {
 				"p", "t", "p::*", "p1::*", "p2::*"});
 	}
+	
+	public void testGatePrimitives1() {
+		String doc = 
+			"module gates();\n" +
+			"	wire out0;\n" +
+			"	wire out1;\n" +
+			"	wire out2;\n" +
+			"	reg  in1,in2,in3,in4;\n" +
+			"\n" +
+			"	not U1(out0,in1);\n" +
+			"	and U2(out1,in1,in2,in3,in4);\n" +
+			"	xor U3(out2,in1,in2,in3);\n" +
+
+			"	initial begin\n" +
+			"	$monitor(\n" +
+			"	\"in1=%b in2=%b in3=%b in4=%b out0=%b out1=%b out2=%b\",\n" +
+			"	in1,in2,in3,in4,out0,out1,out2);\n" + 
+			"	in1 = 0;\n" +
+			"	in2 = 0;\n" +
+			"	in3 = 0;\n" +
+			"	in4 = 0;\n" +
+			"	#1 in1 = 1;\n" +
+			"	#1 in2 = 1;\n" +
+			"	#1 in3 = 1;\n" +
+			"	#1 in4 = 1;\n" +
+			"	#1 $finish;\n" + 
+			"	end\n" +	
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testGatePrimitives1", doc, new String[] {"gates"});
+	}
+	
+	public void testGatePrimitives2() {
+		String doc =
+			"module switch_primitives();\n" +
+			"\n" +
+			"	wire  net1, net2, net3;\n" +
+			"	wire  net4, net5, net6;\n" +
+			"\n" +
+			"	tranif0 my_gate1 (net1, net2, net3);\n" +
+			"	rtranif1 my_gate2 (net4, net5, net6);\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest("testGatePrimitives2", doc, new String[] {"switch_primitives"});
+	}
 
 	private void runTest(
 			String			testname,

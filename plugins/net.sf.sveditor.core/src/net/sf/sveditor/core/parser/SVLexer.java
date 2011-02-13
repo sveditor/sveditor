@@ -297,7 +297,18 @@ public class SVLexer extends SVToken {
 
 		return found;
 	}
-	
+
+	public boolean peekKeyword(Set<String> kw) throws SVParseException {
+		peek();
+		
+		boolean found = false;
+		if (fIsKeyword) {
+			found = kw.contains(fImage);
+		}
+
+		return found;
+	}
+
 	public String readKeyword(String ... kw) throws SVParseException {
 		
 		if (!peekKeyword(kw)) {

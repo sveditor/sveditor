@@ -15,8 +15,6 @@ package net.sf.sveditor.core.tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tools.ant.types.FileSet;
-
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
@@ -25,6 +23,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
+import net.sf.sveditor.core.tests.db.DBTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
@@ -65,6 +64,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(SrcGenTests.suite());
 		addTest(OpenDeclTests.suite());
 		addTest(new TestSuite(FileSetTests.class));
+		addTest(DBTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {

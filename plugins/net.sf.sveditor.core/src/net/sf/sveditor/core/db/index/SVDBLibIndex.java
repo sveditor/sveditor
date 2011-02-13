@@ -56,6 +56,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	protected String								fResolvedRoot;
 	protected SVPreProcDefineProvider				fDefineProvider;
 	protected List<String>							fIncludePaths;
+	protected boolean								fBaseLocationAndDirAreSame;
 	private String									fBaseLocationDir;
 	
 	public SVDBLibIndex(
@@ -73,6 +74,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fIncludePaths = new ArrayList<String>();
 		
 		setFileSystemProvider(fs_provider);
+		fBaseLocationAndDirAreSame = false;		
 	}
 	
 	public String getTypeID() {
@@ -83,9 +85,13 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		return "LibraryIndex";
 	}
 	
-	private String getResolvedBaseLocationDir() {
+	protected String getResolvedBaseLocationDir() {
 		if (fBaseLocationDir == null) {
-			fBaseLocationDir = SVFileUtils.getPathParent(getResolvedBaseLocation());
+			if (fBaseLocationAndDirAreSame) {
+				fBaseLocationDir = getResolvedBaseLocation();
+			} else {
+				fBaseLocationDir = SVFileUtils.getPathParent(getResolvedBaseLocation());
+			}
 		}
 		return fBaseLocationDir;
 	}
@@ -793,47 +799,12 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		String path = path_orig;
 		String norm_path = null;
 
-		// relative to the base location
+		// relative to the base location or one of the include paths
 		if (path.startsWith("..")) {
-			for (String inc_path : fIncludePaths) {
-				// path = getResolvedBaseLocationDir() + "/" + path;
-				path = inc_path + "/" + path;
-				norm_path = normalizePath(path);
-
-				if (fFileSystemProvider.fileExists(norm_path)) {
-					break;
-				} else if (getBaseLocation().startsWith("${workspace_loc}") && 
-						!fFileSystemProvider.fileExists(norm_path)) {
-					// This could be a reference outside the workspace. Check
-					// whether we should reference this as a filesystem path 
-					// by computing the absolute path
-					String base_loc = getResolvedBaseLocationDir();
-					base_loc = base_loc.substring("${workspace_loc}".length());
-
-					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-					IContainer base_dir = null;
-					try {
-						base_dir = root.getFolder(new Path(base_loc));
-					} catch (IllegalArgumentException e) {}
-
-					if (base_dir == null) {
-						base_dir = root.getProject(base_loc.substring(1));
-					}
-
-					if (base_dir != null && base_dir.exists()) {
-						IPath base_dir_p = base_dir.getLocation();
-						if (base_dir_p != null) {
-							File path_f_t = new File(base_dir_p.toFile(), path_orig);
-							try {
-								if (path_f_t.exists()) {
-									fLog.debug("Path does exist outside the project: " + path_f_t.getCanonicalPath());
-									norm_path = SVFileUtils.normalize(path_f_t.getCanonicalPath());
-									break;
-								}
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-						}
+			if ((norm_path = resolveRelativePath(getResolvedBaseLocationDir(), path)) == null) {
+				for (String inc_path : fIncludePaths) {
+					if ((norm_path = resolveRelativePath(inc_path, path)) != null) {
+						break; 
 					}
 				}
 			}
@@ -856,7 +827,52 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 			norm_path = normalizePath(path);
 		}
 		
-		return norm_path;
+		return (norm_path != null)?norm_path:path_orig;
+	}
+	
+	private String resolveRelativePath(String base, String path) {
+		// path = getResolvedBaseLocationDir() + "/" + path;
+		String norm_path = normalizePath(base + "/" + path);
+
+		if (fFileSystemProvider.fileExists(norm_path)) {
+			return norm_path;
+		} else if (getBaseLocation().startsWith("${workspace_loc}")) {
+			// This could be a reference outside the workspace. Check
+			// whether we should reference this as a filesystem path 
+			// by computing the absolute path
+			String base_loc = getResolvedBaseLocationDir();
+			base_loc = base_loc.substring("${workspace_loc}".length());
+
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer base_dir = null;
+			try {
+				base_dir = root.getFolder(new Path(base_loc));
+			} catch (IllegalArgumentException e) {}
+
+			if (base_dir == null) {
+				if (base_loc.length() > 0) {
+					base_dir = root.getProject(base_loc.substring(1));
+				}
+			}
+
+			if (base_dir != null && base_dir.exists()) {
+				IPath base_dir_p = base_dir.getLocation();
+				if (base_dir_p != null) {
+					File path_f_t = new File(base_dir_p.toFile(), path);
+					try {
+						if (path_f_t.exists()) {
+							fLog.debug("Path does exist outside the project: " + path_f_t.getCanonicalPath());
+							norm_path = SVFileUtils.normalize(path_f_t.getCanonicalPath());
+							return norm_path;
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 
 	protected String normalizePath(String path) {
