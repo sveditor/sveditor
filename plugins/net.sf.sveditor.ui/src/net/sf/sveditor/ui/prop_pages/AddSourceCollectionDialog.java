@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.prop_pages;
 
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -120,6 +121,15 @@ public class AddSourceCollectionDialog extends Dialog {
 		
 			public void widgetSelected(SelectionEvent e) {
 				fUseDefaults = ((Button)e.getSource()).getSelection();
+				
+				if (fUseDefaults) {
+					fIncludes.setEnabled(true);
+					fExcludes.setEnabled(true);
+					// Ensure the defaults lists have default content
+					fIncludes.setText(SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes());
+					fExcludes.setText(SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes());
+				}
+				
 				fIncludes.setEditable(!fUseDefaults);
 				fIncludes.setEnabled(!fUseDefaults);
 				fExcludes.setEditable(!fUseDefaults);

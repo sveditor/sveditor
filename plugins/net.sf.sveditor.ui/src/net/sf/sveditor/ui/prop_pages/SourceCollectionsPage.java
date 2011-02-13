@@ -146,18 +146,46 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 		
 		if (dlg.open() == Window.OK) {
 			// Add a new source collection
-			SVDBSourceCollection sc = new SVDBSourceCollection(dlg.getBase());
-			sc.getIncludes().addAll(
-					SVDBSourceCollection.parsePatternList(dlg.getIncludes()));
-			sc.getExcludes().addAll(
-					SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
+			SVDBSourceCollection sc = new SVDBSourceCollection(dlg.getBase(), dlg.getUseDefaultPattern());
+			if (!dlg.getUseDefaultPattern()) {
+				sc.getIncludes().addAll(
+						SVDBSourceCollection.parsePatternList(dlg.getIncludes()));
+				sc.getExcludes().addAll(
+						SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
+			}
 			fSourceCollections.add(sc);
 			fSourceCollectionsTree.refresh();
 		}
 	}
 	
 	private void edit() {
+		IStructuredSelection sel = 
+			(IStructuredSelection)fSourceCollectionsTree.getSelection();
 		
+		if (sel != null && sel.size() == 1) {
+			AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fEditButton.getShell());
+			SVDBSourceCollection sc = (SVDBSourceCollection)sel.getFirstElement();
+			
+			dlg.setBase(sc.getBaseLocation());
+			dlg.setIncludes(sc.getIncludesStr());
+			dlg.setExcludes(sc.getExcludesStr());
+			
+			if (dlg.open() == Window.OK) {
+				// Add a new source collection
+				int sc_idx = fSourceCollections.indexOf(sc);
+				sc = new SVDBSourceCollection(dlg.getBase(), dlg.getUseDefaultPattern());
+				
+				if (!dlg.getUseDefaultPattern()) {
+					sc.getIncludes().addAll(
+							SVDBSourceCollection.parsePatternList(dlg.getIncludes()));
+					sc.getExcludes().addAll(
+							SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
+				}
+				
+				fSourceCollections.set(sc_idx, sc);
+				fSourceCollectionsTree.refresh();
+			}
+		}
 	}
 	
 	private void remove() {

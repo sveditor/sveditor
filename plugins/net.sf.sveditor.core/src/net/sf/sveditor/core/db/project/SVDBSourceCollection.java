@@ -15,19 +15,42 @@ package net.sf.sveditor.core.db.project;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
+
 public class SVDBSourceCollection {
 	private String					fBaseLocation;
 	private List<String>			fIncludes;
 	private List<String>			fExcludes;
+	private boolean					fDefaultIncExcl;
 	
-	public SVDBSourceCollection(String base_location) {
+	public SVDBSourceCollection(String base_location, boolean dflt_inc_excl) {
 		fBaseLocation = base_location;
 		fIncludes = new ArrayList<String>();
 		fExcludes = new ArrayList<String>();
+		setDefaultIncExcl(dflt_inc_excl);
 	}
 	
 	public String getBaseLocation() {
 		return fBaseLocation;
+	}
+	
+	public boolean getDefaultIncExcl() {
+		return fDefaultIncExcl;
+	}
+	
+	public void setDefaultIncExcl(boolean dflt_inc_excl) {
+		if (fDefaultIncExcl != dflt_inc_excl) {
+			if (dflt_inc_excl) {
+				fIncludes.clear();
+				fExcludes.clear();
+				
+				fIncludes.addAll(SVDBSourceCollection.parsePatternList(
+						SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes()));
+				fExcludes.addAll(SVDBSourceCollection.parsePatternList(
+						SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes()));
+			}
+		}
+		fDefaultIncExcl = dflt_inc_excl;
 	}
 	
 	public void setBaseLocation(String base) {
@@ -69,10 +92,12 @@ public class SVDBSourceCollection {
 	}
 
 	public SVDBSourceCollection duplicate() {
-		SVDBSourceCollection ret = new SVDBSourceCollection(fBaseLocation);
-		
-		ret.getIncludes().addAll(fIncludes);
-		ret.getExcludes().addAll(fExcludes);
+		SVDBSourceCollection ret = new SVDBSourceCollection(fBaseLocation, getDefaultIncExcl());
+
+		if (!getDefaultIncExcl()) {
+			ret.getIncludes().addAll(fIncludes);
+			ret.getExcludes().addAll(fExcludes);
+		}
 		
 		return ret;
 	}

@@ -6,6 +6,14 @@
 
 - Correct parse bug related to pre- and post- increment/decrement expressions
 
+- (#3176354) Update parser to correctly support all gate-level primitives
+
+- (#3177127) Correct a problem with relative include paths that extend above 
+  the workspace location.
+
+- (#3176424) Corrected the functionality of the Edit button on the  
+  Source Collections project properties tab.
+
 ------------------------------------------------------------------------------
 
 -- 0.3.8 Release --

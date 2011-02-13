@@ -210,26 +210,56 @@ public class SVProjectFileWrapper {
 				// invalid entry
 				continue;
 			}
-			SVDBSourceCollection c = new SVDBSourceCollection(baseLocation);
 			
-			// Now, look at include and exclude elements
-			NodeList includeList = sourceCollection.getElementsByTagName("include");
-			for (int j=0; j<includeList.getLength(); j++) {
-				Element inc = (Element)includeList.item(j);
+			SVDBSourceCollection c;
+			if (sourceCollection.hasAttribute("defaultIncExcl")) {
+				boolean dflt_inc_excl = (sourceCollection.getAttribute("defaultIncExcl").equals("true"));
+				c = new SVDBSourceCollection(baseLocation, dflt_inc_excl);
 				
-				String expr = inc.getAttribute("expr");
-				if (expr != null && !expr.equals("")) {
-					c.getIncludes().add(expr);
-				}
-			}
+				if (!dflt_inc_excl) {
+					// Now, look at include and exclude elements
+					NodeList includeList = sourceCollection.getElementsByTagName("include");
+					for (int j=0; j<includeList.getLength(); j++) {
+						Element inc = (Element)includeList.item(j);
 
-			NodeList excludeList = sourceCollection.getElementsByTagName("exclude");
-			for (int j=0; j<excludeList.getLength(); j++) {
-				Element excl = (Element)excludeList.item(j);
+						String expr = inc.getAttribute("expr");
+						if (expr != null && !expr.equals("")) {
+							c.getIncludes().add(expr);
+						}
+					}
+
+					NodeList excludeList = sourceCollection.getElementsByTagName("exclude");
+					for (int j=0; j<excludeList.getLength(); j++) {
+						Element excl = (Element)excludeList.item(j);
+
+						String expr = excl.getAttribute("expr");
+						if (expr != null && !expr.equals("")) {
+							c.getExcludes().add(expr);
+						}
+					}
+				}
+			} else {
+				c = new SVDBSourceCollection(baseLocation, false);
 				
-				String expr = excl.getAttribute("expr");
-				if (expr != null && !expr.equals("")) {
-					c.getExcludes().add(expr);
+				// Now, look at include and exclude elements
+				NodeList includeList = sourceCollection.getElementsByTagName("include");
+				for (int j=0; j<includeList.getLength(); j++) {
+					Element inc = (Element)includeList.item(j);
+					
+					String expr = inc.getAttribute("expr");
+					if (expr != null && !expr.equals("")) {
+						c.getIncludes().add(expr);
+					}
+				}
+
+				NodeList excludeList = sourceCollection.getElementsByTagName("exclude");
+				for (int j=0; j<excludeList.getLength(); j++) {
+					Element excl = (Element)excludeList.item(j);
+					
+					String expr = excl.getAttribute("expr");
+					if (expr != null && !expr.equals("")) {
+						c.getExcludes().add(expr);
+					}
 				}
 			}
 
@@ -346,17 +376,20 @@ public class SVProjectFileWrapper {
 			Element path = fDocument.createElement("sourceCollection");
 			
 			path.setAttribute("baseLocation", c.getBaseLocation());
+			path.setAttribute("defaultIncExcl", (c.getDefaultIncExcl())?"true":"false");
 			
-			for (String inc : c.getIncludes()) {
-				Element inc_e = fDocument.createElement("include");
-				inc_e.setAttribute("expr", inc);
-				path.appendChild(inc_e);
-			}
+			if (!c.getDefaultIncExcl()) {
+				for (String inc : c.getIncludes()) {
+					Element inc_e = fDocument.createElement("include");
+					inc_e.setAttribute("expr", inc);
+					path.appendChild(inc_e);
+				}
 
-			for (String excl : c.getExcludes()) {
-				Element excl_e = fDocument.createElement("exclude");
-				excl_e.setAttribute("expr", excl);
-				path.appendChild(excl_e);
+				for (String excl : c.getExcludes()) {
+					Element excl_e = fDocument.createElement("exclude");
+					excl_e.setAttribute("expr", excl);
+					path.appendChild(excl_e);
+				}
 			}
 			
 			paths.appendChild(path);
