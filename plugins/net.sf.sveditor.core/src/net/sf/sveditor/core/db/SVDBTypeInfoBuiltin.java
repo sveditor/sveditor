@@ -93,7 +93,7 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
+	public SVDBTypeInfoBuiltin duplicate() {
 		SVDBTypeInfoBuiltin ret = new SVDBTypeInfoBuiltin(getName());
 		ret.init(this);
 		

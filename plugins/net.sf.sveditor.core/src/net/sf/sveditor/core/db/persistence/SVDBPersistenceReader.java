@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -219,9 +219,9 @@ public class SVDBPersistenceReader implements IDBReader {
 		if (size == -1) {
 			return null;
 		} else {
-			List<SVDBItem> ret = new ArrayList<SVDBItem>();
+			List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 			while (size-- > 0) {
-				ret.add((SVDBItem)readSVDBItem(file, parent));
+				ret.add(readSVDBItem(file, parent));
 			}
 			
 			return ret;

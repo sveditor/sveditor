@@ -16,10 +16,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.swt.graphics.Image;
 
@@ -56,15 +60,16 @@ public class SVDBIconUtils implements ISVIcons {
 		return SVUiPlugin.getImage(key);
 	}
 	
-	public static Image getIcon(SVDBItem it) {
+	public static Image getIcon(ISVDBItemBase it) {
 		if (it instanceof IFieldItemAttr) {
 			int            attr = ((IFieldItemAttr)it).getAttr();
 			SVDBItemType   type = ((SVDBItem)it).getType();
 			
-			if (type == SVDBItemType.VarDecl) {
-				if (it.getParent() != null && 
-						(it.getParent().getType() == SVDBItemType.Task ||
-								it.getParent().getType() == SVDBItemType.Function)) {
+			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)it;
+				if (decl.getParent() != null && 
+						(decl.getParent().getType() == SVDBItemType.Task ||
+								decl.getParent().getType() == SVDBItemType.Function)) {
 					return SVUiPlugin.getImage(LOCAL_OBJ);
 				} else {
 					if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
@@ -86,7 +91,7 @@ public class SVDBIconUtils implements ISVIcons {
 				} else {
 					return SVUiPlugin.getImage(TASK_PUB_OBJ);
 				}
-			} else if (type == SVDBItemType.TaskFuncParam) {
+			} else if (SVDBStmt.isType(it, SVDBStmtType.ParamPortDecl)) {
 				return SVUiPlugin.getImage(LOCAL_OBJ);
 			}
 		} else if (it instanceof SVDBItem) {

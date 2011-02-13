@@ -33,8 +33,27 @@
 
     <target name="build" depends="compile, mkarchive"/>
 
+    <target name="mkupdate" depends="build">
+        <mkdir dir="${basedir}/release/update_site"/>
 
-    <target name="release" depends="compile, mksrc, mkarchive">
+        <unzip src="${basedir}/sveditor-${feature.version}.jar"
+               dest="${basedir}/release/update_site"/>
+
+        <!--
+java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
+ -application org.eclipse.equinox.p2.publisher.UpdateSitePublisher
+ -metadataRepository file:/<some location>/repository
+ -artifactRepository file:/<some location>/repository
+ -source /<location with a site.xml>
+ -configs gtk.linux.x86
+ -compress 
+ -publishArtifacts
+          -->
+
+    </target>
+
+
+    <target name="release" depends="mkupdate, mksrc">
         <mkdir dir="${basedir}/release"/>
        
         <!-- Create the release fragment file -->
@@ -45,11 +64,6 @@
                 <filter token=".2." value="${feature.version}"/>
             </filterset>
         </copy>
-
-        <mkdir dir="${basedir}/release/update_site"/>
-  
-        <unzip src="${basedir}/sveditor-${feature.version}.jar"
-               dest="${basedir}/release/update_site"/>
 
         <exec executable="/bin/sh">
             <arg value="scripts/upload_release.sh"/>

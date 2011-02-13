@@ -47,10 +47,10 @@ public class SVDBItemBase implements ISVDBItemBase {
 		return ret;
 	}
 
-	public void init(SVDBItemBase other) {
-		fType = other.fType;
-		if (other.fLocation != null) {
-			fLocation = other.fLocation.duplicate();
+	public void init(ISVDBItemBase other) {
+		fType = other.getType();
+		if (other.getLocation() != null) {
+			fLocation = other.getLocation().duplicate();
 		} else {
 			fLocation = null;
 		}

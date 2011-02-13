@@ -24,9 +24,9 @@ public interface ISVDBItemBase {
 	
 	void dump(IDBWriter writer);
 	
-	SVDBItemBase duplicate();
+	ISVDBItemBase duplicate();
 	
-	void init(SVDBItemBase other);
+	void init(ISVDBItemBase other);
 	
 	boolean equals(ISVDBItemBase other, boolean recurse);
 

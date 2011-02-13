@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui.search;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -21,7 +22,7 @@ import org.eclipse.search.ui.text.Match;
 public class SVSearchMatch extends Match {
 	private SVDBFile				fFile;
 	
-	public SVSearchMatch(SVDBItem item) {
+	public SVSearchMatch(ISVDBItemBase item) {
 		super(item, 0, 0);
 	}
 	

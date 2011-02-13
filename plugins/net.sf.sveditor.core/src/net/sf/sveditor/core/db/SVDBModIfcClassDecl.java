@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 
 public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
@@ -134,7 +135,10 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 			
 			if (fParams.size() == o.fParams.size()) {
 				for (int i=0; i<fParams.size(); i++) {
-					if (!fParams.get(i).equals(o.fParams.get(i))) {
+					SVDBModIfcClassParam p1 = fParams.get(i);
+					SVDBModIfcClassParam p2 = o.fParams.get(i);
+					
+					if (!p1.equals(p2)) {
 						return false;
 					}
 				}

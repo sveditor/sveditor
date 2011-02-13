@@ -15,8 +15,9 @@ package net.sf.sveditor.ui;
 import java.io.File;
 import java.net.URI;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
 import net.sf.sveditor.core.log.LogFactory;
@@ -49,14 +50,15 @@ public class SVEditorUtil {
 	
 	private static LogHandle				fLog = LogFactory.getLogHandle("SVEditorUtil");
 	
-	public static IEditorPart openEditor(SVDBItem it) throws PartInitException {
-		SVDBItem p = it;
+	public static IEditorPart openEditor(ISVDBItemBase it) throws PartInitException {
+		ISVDBItemBase p = it;
 		// Find the file that this item belongs to
 		
 		while (p != null && p.getType() != SVDBItemType.File) {
-			if (p.getParent() instanceof SVDBItem) {
-				p = (SVDBItem)p.getParent();
+			if (p instanceof ISVDBChildItem) {
+				p = ((ISVDBChildItem)p).getParent();
 			} else {
+				p = null;
 				break;
 			}
 		}

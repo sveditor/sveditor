@@ -25,7 +25,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -532,7 +531,7 @@ public class SVEditor extends TextEditor
 		return ret;
 	}
 	
-	public void setSelection(SVDBItem it, boolean set_cursor) {
+	public void setSelection(ISVDBItemBase it, boolean set_cursor) {
 		int start = -1;
 		int end   = -1;
 		

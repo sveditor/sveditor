@@ -110,7 +110,7 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
+	public SVDBTypeInfoUserDef duplicate() {
 		SVDBTypeInfoUserDef ret = new SVDBTypeInfoUserDef(getName(), getDataType());
 		
 		if (fParamAssignList != null) {

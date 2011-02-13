@@ -25,7 +25,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVDataTypeParser extends SVParserBase {
@@ -362,20 +362,20 @@ public class SVDataTypeParser extends SVParserBase {
 						// queue
 						lexer().eatToken();
 						lexer().readOperator("]");
-						attr |= SVDBVarDeclItem.VarAttr_Queue;
+						attr |= SVDBVarDeclStmt.VarAttr_Queue;
 					} else if (lexer().peekOperator("]")) {
 						lexer().readOperator("]");
-						attr |= SVDBVarDeclItem.VarAttr_DynamicArray;
+						attr |= SVDBVarDeclStmt.VarAttr_DynamicArray;
 					} else {
 						// bounded array
 						lexer().startCapture();
 						lexer().skipPastMatch("[", "]");
 						bounds = lexer().endCapture();
-						attr |= SVDBVarDeclItem.VarAttr_FixedArray;
+						attr |= SVDBVarDeclStmt.VarAttr_FixedArray;
 					}
 				}
 				
-				SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, attr);
+				SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, name, attr);
 				var.setLocation(it_start);
 				
 				if (bounds != null) {

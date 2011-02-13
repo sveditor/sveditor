@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVScannerTests extends TestCase {
 	
@@ -68,8 +68,8 @@ public class SVScannerTests extends TestCase {
 		assertEquals("foo", m.getName());
 		
 		for (ISVDBItemBase it : m.getItems()) {
-			assertTrue(it instanceof SVDBVarDeclItem);
-			SVDBVarDeclItem v = (SVDBVarDeclItem)it;
+			assertTrue(it instanceof SVDBVarDeclStmt);
+			SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 			System.out.println("Variable " + v.getTypeName() + " " + v.getName());
 			assertEquals(exp[idx++], v.getTypeName());
 			assertEquals(exp[idx++], v.getName());

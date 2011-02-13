@@ -15,11 +15,11 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypedef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVBlockItemDeclParser extends SVParserBase {
@@ -28,8 +28,8 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<SVDBItem> parse(String id) throws SVParseException {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+	public List<ISVDBChildItem> parse(String id) throws SVParseException {
+		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
 		
 		if (id.equals("const")) {
 			id = lexer().eatToken();
@@ -55,7 +55,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 					SVDBLocation it_start = lexer().getStartLocation();
 					String name = lexer().readId();
 				
-					SVDBVarDeclItem var = new SVDBVarDeclItem(type, name, 0);
+					SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, name, 0);
 					var.setLocation(it_start);
 				
 					ret.add(var);

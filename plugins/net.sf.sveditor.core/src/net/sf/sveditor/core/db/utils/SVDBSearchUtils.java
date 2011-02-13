@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -50,7 +51,7 @@ public class SVDBSearchUtils {
 		return ret;
 	}
 	
-	public static SVDBModIfcClassDecl findClassScope(ISVDBScopeItem scope) {
+	public static SVDBModIfcClassDecl findClassScope(ISVDBChildItem scope) {
 		while (scope != null && scope.getType() != SVDBItemType.Class) {
 			scope = scope.getParent();
 		}

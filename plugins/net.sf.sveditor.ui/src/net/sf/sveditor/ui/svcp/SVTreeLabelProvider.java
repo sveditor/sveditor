@@ -19,11 +19,11 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -57,8 +57,8 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 		if (element instanceof SVDBItem) {
 			StyledString ret = new StyledString(((SVDBItem)element).getName());
 			
-			if (element instanceof SVDBVarDeclItem) {
-				SVDBVarDeclItem var = (SVDBVarDeclItem)element;
+			if (element instanceof SVDBVarDeclStmt) {
+				SVDBVarDeclStmt var = (SVDBVarDeclStmt)element;
 				
 				if (var.getTypeInfo() != null) {
 					ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);

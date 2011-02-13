@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -69,7 +70,7 @@ public class SVDBPersistenceWriter implements IDBWriter {
 			writeRawString("SIL<" + items.size() + ">");
 		
 			for (Object it : items) {
-				((SVDBItem)it).dump(this);
+				((ISVDBItemBase)it).dump(this);
 			}
 		}
 	}

@@ -12,11 +12,12 @@
 
 package net.sf.sveditor.core.content_assist;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 
 public class SVCompletionProposal {
 	
-	private SVDBItem					fItem;
+	private ISVDBItemBase				fItem;
 	private String						fPrefix;
 	private String						fReplacement;
 	private int							fReplacementOffset;
@@ -25,13 +26,13 @@ public class SVCompletionProposal {
 	
 	
 	public SVCompletionProposal(
-			SVDBItem 		item,
+			ISVDBItemBase 	item,
 			String			prefix,
 			int				replacementOffset,
 			int				replacementLength) {
 		fItem 				= item;
 		fPrefix 			= prefix;
-		fReplacement		= item.getName();
+		fReplacement		= SVDBItem.getName(item);
 		fReplacementOffset 	= replacementOffset;
 		fReplacementLength 	= replacementLength;
 		fType				= SVCompletionProposalType.SVObject;
@@ -70,7 +71,7 @@ public class SVCompletionProposal {
 		fType				= type;
 	}
 
-	public SVDBItem getItem() {
+	public ISVDBItemBase getItem() {
 		return fItem;
 	}
 	

@@ -15,14 +15,14 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -43,7 +43,7 @@ public class SVDBFindByNameInClassHierarchy {
 	}
 	
 	public List<ISVDBItemBase> find(
-			ISVDBScopeItem 		scope, 
+			ISVDBChildItem 		scope, 
 			String 				id,
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
@@ -92,7 +92,7 @@ public class SVDBFindByNameInClassHierarchy {
 		// Now, search through the scope and the class hierarchy
 		while (scope != null) {
 			fLog.debug("Searching scope \"" + ((ISVDBNamedItem)scope).getName() + "\"");
-			for (ISVDBItemBase it : scope.getItems()) {
+			for (ISVDBItemBase it : scope.getChildren()) {
 				boolean matches = (types.length == 0);
 				
 				for (SVDBItemType type : types) {

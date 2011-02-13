@@ -25,14 +25,16 @@ import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 /**
@@ -134,9 +136,12 @@ public class SVDBFindParameterizedClass {
 				specialize_tf((SVDBTaskFuncScope)item, param_map);
 				break;
 				
-			case VarDecl:
-				specialize_var_decl((SVDBVarDeclItem)item, param_map);
-				break;
+			case Stmt: {
+				SVDBStmt stmt = (SVDBStmt)item;
+				if (stmt.getStmtType() == SVDBStmtType.VarDecl) {
+					specialize_var_decl((SVDBVarDeclStmt)item, param_map);
+				}
+				} break;
 			
 			default:
 				if (item instanceof ISVDBScopeItem) {
@@ -202,7 +207,7 @@ public class SVDBFindParameterizedClass {
 			
 	
 	private void specialize_var_decl(
-			SVDBVarDeclItem			var_decl,
+			SVDBVarDeclStmt			var_decl,
 			Map<String, String>		param_map) {
 		// Only specialize non-parameterized types. Parameterized types
 		// will be parameterized on-demand

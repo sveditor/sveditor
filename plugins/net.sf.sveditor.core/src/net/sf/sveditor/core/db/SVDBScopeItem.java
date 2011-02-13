@@ -75,13 +75,21 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		fItems.add(item);
 	}
 
-	public void addItems(List<SVDBItem> items) {
-		for (SVDBItem item : items) {
+	public void addItems(List<ISVDBChildItem> items) {
+		for (ISVDBChildItem item : items) {
 			addItem(item);
 		}
 	}
 
+	/**
+	 * getItems() is replaced by getChildren()
+	 */
+	@Deprecated
 	public List<ISVDBItemBase> getItems() {
+		return fItems;
+	}
+	
+	public Iterable<ISVDBItemBase> getChildren() {
 		return fItems;
 	}
 
@@ -100,7 +108,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		
 		fItems.clear();
 		for (ISVDBItemBase it : si.getItems()) {
-			fItems.add((SVDBItem)it.duplicate());
+			fItems.add(it.duplicate());
 		}
 		if (((SVDBScopeItem)other).fEndLocation != null) {
 			fEndLocation = new SVDBLocation(

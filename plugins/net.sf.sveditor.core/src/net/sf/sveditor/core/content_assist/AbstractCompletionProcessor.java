@@ -131,7 +131,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		} else {
 			for (ISVDBItemBase it : items) {
-				addProposal((SVDBItem)it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 			
 			if (ctxt.fTrigger == null && !ctxt.fLeaf.trim().equals("")) {
@@ -509,7 +509,7 @@ public abstract class AbstractCompletionProcessor {
 				
 				for (SVCompletionProposal p_t : proposals) {
 					if (p_t != p && p_t.getItem() != null && 
-							p_t.getItem().getName().equals(p.getItem().getName())) {
+							SVDBItem.getName(p_t.getItem()).equals(SVDBItem.getName(p.getItem()))) {
 						found = true;
 						break;
 					}
@@ -528,13 +528,13 @@ public abstract class AbstractCompletionProcessor {
 				String s_i, s_j;
 				
 				if (p_i.getItem() != null) {
-					s_i = p_i.getItem().getName();
+					s_i = SVDBItem.getName(p_i.getItem());
 				} else {
 					s_i = p_i.getReplacement();
 				}
 				
 				if (p_j.getItem() != null) {
-					s_j = p_j.getItem().getName();
+					s_j = SVDBItem.getName(p_j.getItem());
 				} else {
 					s_j = p_j.getReplacement();
 				}
@@ -555,13 +555,13 @@ public abstract class AbstractCompletionProcessor {
 				String s_i, s_j;
 				
 				if (p_i.getItem() != null) {
-					s_i = p_i.getItem().getName();
+					s_i = SVDBItem.getName(p_i.getItem());
 				} else {
 					s_i = p_i.getReplacement();
 				}
 				
 				if (p_j.getItem() != null) {
-					s_j = p_j.getItem().getName();
+					s_j = SVDBItem.getName(p_j.getItem());
 				} else {
 					s_j = p_j.getReplacement();
 				}
@@ -576,7 +576,7 @@ public abstract class AbstractCompletionProcessor {
 	}
 
 	protected void addProposal(
-			SVDBItem 		it,
+			ISVDBItemBase 	it,
 			String			prefix,
 			int 			replacementOffset, 
 			int 			replacementLength) {
@@ -590,7 +590,7 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		if (!found) {
-			debug("addProposal: " + it.getName() + " " + it.getType());
+			debug("addProposal: " + SVDBItem.getName(it) + " " + it.getType());
 			addProposal(new SVCompletionProposal(it, prefix, 
 					replacementOffset, replacementLength));
 		}

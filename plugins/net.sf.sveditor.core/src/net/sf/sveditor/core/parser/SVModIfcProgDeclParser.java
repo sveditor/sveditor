@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 
 public class SVModIfcProgDeclParser extends SVParserBase {
 	

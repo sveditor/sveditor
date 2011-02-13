@@ -10,15 +10,16 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db;
+package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBParamPort extends SVDBVarDeclItem {
+public class SVDBParamPort extends SVDBVarDeclStmt {
 	public static final int			Direction_Ref     = (1 << 19);
 	public static final int			Direction_Const   = (1 << 20);
 	public static final int			Direction_Var     = (1 << 21);
@@ -43,18 +44,17 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 	private int						fDir;
 	
 	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBParamPort(file, parent, type, reader);
+		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
+			
+			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
+					IDBReader reader) throws DBFormatException {
+				return new SVDBParamPort(parent, stmt_type, reader);
 			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.TaskFuncParam); 
+		}, SVDBStmtType.ParamPortDecl);
 	}
 	
 	public SVDBParamPort(SVDBTypeInfo type, String name) {
-		super(type, name, SVDBItemType.TaskFuncParam);
+		super(SVDBStmtType.ParamPortDecl, type, name, 0);
 		fDir = Direction_Input;
 	}
 	
@@ -70,8 +70,8 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 		return (fDir & (0xF << WireType_Shift));
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBParamPort(fTypeInfo, getName());
+	public SVDBParamPort duplicate() {
+		SVDBParamPort ret = new SVDBParamPort(fTypeInfo, getName());
 		
 		init(ret);
 		
@@ -84,8 +84,8 @@ public class SVDBParamPort extends SVDBVarDeclItem {
 		fDir = ((SVDBParamPort)other).fDir; 
 	}
 	
-	public SVDBParamPort(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBParamPort(ISVDBChildItem parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
+		super(parent, stmt_type, reader);
 		
 		fDir = reader.readInt();
 	}

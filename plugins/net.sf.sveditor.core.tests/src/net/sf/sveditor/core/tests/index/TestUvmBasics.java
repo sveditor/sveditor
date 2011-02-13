@@ -23,13 +23,15 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -89,8 +91,8 @@ public class TestUvmBasics extends TestCase {
 					ovm_sequence = it;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
-			} else if (it.getType() == SVDBItemType.VarDecl) {
-				SVDBVarDeclItem v = (SVDBVarDeclItem)it;
+			} else if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
 				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
 						v.getName() + " has a null TypeInfo", v.getTypeInfo());

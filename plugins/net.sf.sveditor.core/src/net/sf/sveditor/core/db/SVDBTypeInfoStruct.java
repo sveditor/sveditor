@@ -18,26 +18,27 @@ import java.util.List;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBTypeInfoStruct extends SVDBTypeInfo {
-	private List<SVDBVarDeclItem>			fFields;
+	private List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
 		super("<<ANONYMOUS>>", SVDBDataType.Struct);
-		fFields = new ArrayList<SVDBVarDeclItem>();
+		fFields = new ArrayList<SVDBVarDeclStmt>();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public SVDBTypeInfoStruct(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(SVDBDataType.Struct, file, parent, type, reader);
-		fFields = (List<SVDBVarDeclItem>)reader.readItemList(file, parent);
+		fFields = (List<SVDBVarDeclStmt>)reader.readItemList(file, parent);
 	}
 	
-	public List<SVDBVarDeclItem> getFields() {
+	public List<SVDBVarDeclStmt> getFields() {
 		return fFields;
 	}
 	
-	public void addField(SVDBVarDeclItem f) {
+	public void addField(SVDBVarDeclStmt f) {
 		fFields.add(f);
 	}
 
@@ -67,12 +68,12 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
+	public SVDBTypeInfoStruct duplicate() {
 		SVDBTypeInfoStruct ret = new SVDBTypeInfoStruct();
 		ret.setName(getName());
 		
-		for (SVDBVarDeclItem f : fFields) {
-			ret.addField((SVDBVarDeclItem)f.duplicate());
+		for (SVDBVarDeclStmt f : fFields) {
+			ret.addField((SVDBVarDeclStmt)f.duplicate());
 		}
 		
 		return ret;

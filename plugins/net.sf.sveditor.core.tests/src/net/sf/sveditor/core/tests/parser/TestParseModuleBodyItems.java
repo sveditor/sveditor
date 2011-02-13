@@ -25,12 +25,12 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {
@@ -310,13 +310,13 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(d);
 		assertNotNull(bus);
 		
-		assertEquals("input", ((SVDBVarDeclItem)a).getTypeName());
-		assertEquals("input", ((SVDBVarDeclItem)a).getTypeName());
-		assertTrue((bus instanceof SVDBVarDeclItem));
-		SVDBVarDeclItem v = (SVDBVarDeclItem)bus;
+		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
+		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
+		assertTrue((bus instanceof SVDBVarDeclStmt));
+		SVDBVarDeclStmt v = (SVDBVarDeclStmt)bus;
 		System.out.println("bus.type.class=" + v.getTypeInfo().getClass().getName());
-		assertTrue((((SVDBVarDeclItem)bus).getTypeInfo() instanceof SVDBTypeInfoBuiltinNet));
-		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)((SVDBVarDeclItem)bus).getTypeInfo();
+		assertTrue((((SVDBVarDeclStmt)bus).getTypeInfo() instanceof SVDBTypeInfoBuiltinNet));
+		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)((SVDBVarDeclStmt)bus).getTypeInfo();
 		assertEquals("[12:0]", 
 				((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
 	}
@@ -1147,7 +1147,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testPostIncDec() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module t;\n" +
 			"	int v;\n" +

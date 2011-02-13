@@ -29,7 +29,9 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypedef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
@@ -239,9 +241,9 @@ public class TestParseClassBodyItems extends TestCase {
 //			System.out.println("    Item: " + it.getType() + " " + SVDBItem.getName(it));
 			assertNotNull("Item " + SVDBItem.getName(it) + " does not have a location",
 					it.getLocation());
-			if (it.getType() == SVDBItemType.VarDecl) {
+			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
 				assertNotNull("Field " + SVDBItem.getName(it) + " does not have a type", 
-						((SVDBVarDeclItem)it).getTypeInfo());
+						((SVDBVarDeclStmt)it).getTypeInfo());
 			}
 		}
 	}

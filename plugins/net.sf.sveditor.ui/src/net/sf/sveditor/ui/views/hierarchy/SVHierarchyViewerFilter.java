@@ -20,6 +20,8 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -68,7 +70,7 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 				}
 			}
 			
-			if (fHideFields && it.getType() == SVDBItemType.VarDecl) {
+			if (fHideFields && SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
 				return false;
 			}
 

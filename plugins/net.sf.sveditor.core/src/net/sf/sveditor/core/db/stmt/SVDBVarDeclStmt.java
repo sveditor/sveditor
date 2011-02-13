@@ -10,52 +10,56 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db;
+package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBVarDeclItem extends SVDBFieldItem {
+public class SVDBVarDeclStmt extends SVDBStmt implements ISVDBNamedItem, IFieldItemAttr {
 	public static final int				VarAttr_FixedArray			= (1 << 0);
 	public static final int				VarAttr_DynamicArray		= (1 << 1);
 	public static final int				VarAttr_Queue				= (1 << 2);
 	public static final int				VarAttr_AssocArray			= (1 << 3);
 	
+	protected String					fName;
 	protected SVDBTypeInfo				fTypeInfo;
 	protected int						fAttr;
 	protected String					fArrayDim;
 	
 	
 	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBVarDeclItem(file, parent, type, reader);
+		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
+			
+			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
+					IDBReader reader) throws DBFormatException {
+				return new SVDBVarDeclStmt(parent, stmt_type, reader);
 			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.VarDecl); 
+		}, SVDBStmtType.VarDecl);
 	}
 	
 	
-	public SVDBVarDeclItem(SVDBTypeInfo type, String name, int attr) {
-		super(name, SVDBItemType.VarDecl);
+	public SVDBVarDeclStmt(SVDBTypeInfo type, String name, int attr) {
+		this(SVDBStmtType.VarDecl, type, name, attr);
+	}
+
+	public SVDBVarDeclStmt(SVDBStmtType stmt_type, SVDBTypeInfo type, String name, int attr) {
+		super(stmt_type);
+		fName = name;
 		fAttr = attr;
 		fTypeInfo = type;
 	}
 
-	public SVDBVarDeclItem(SVDBTypeInfo type, String name, SVDBItemType itype) {
-		super(name, itype);
-		fTypeInfo = type;
-	}
-	
-	public SVDBVarDeclItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		
-		fTypeInfo = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
+	public SVDBVarDeclStmt(ISVDBChildItem parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
+		super(parent, stmt_type, reader);
+
+		fName = reader.readString();
+		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
 		fAttr = reader.readInt();
 		fArrayDim   = reader.readString();
 	}
@@ -63,11 +67,16 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		
+		writer.writeString(fName);
 		writer.writeSVDBItem(fTypeInfo);
 		writer.writeInt(fAttr);
 		writer.writeString(fArrayDim);
 	}
 	
+	public String getName() {
+		return fName;
+	}
+
 	public String getTypeName() {
 		return fTypeInfo.getName();
 	}
@@ -96,8 +105,8 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 		fArrayDim = dim;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBVarDeclItem ret = new SVDBVarDeclItem(
+	public SVDBVarDeclStmt duplicate() {
+		SVDBVarDeclStmt ret = new SVDBVarDeclStmt(
 				(SVDBTypeInfo)fTypeInfo.duplicate(), getName(), fAttr);
 		ret.setArrayDim(getArrayDim());
 		
@@ -107,9 +116,9 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 	public void init(SVDBItemBase other) {
 		super.init(other);
 
-		fTypeInfo.init(((SVDBVarDeclItem)other).fTypeInfo);
+		fTypeInfo.init(((SVDBVarDeclStmt)other).fTypeInfo);
 		
-		SVDBVarDeclItem other_v = (SVDBVarDeclItem)other;
+		SVDBVarDeclStmt other_v = (SVDBVarDeclStmt)other;
 		fAttr = other_v.fAttr;
 		fArrayDim    = other_v.fArrayDim;
 	}
@@ -117,8 +126,8 @@ public class SVDBVarDeclItem extends SVDBFieldItem {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof SVDBVarDeclItem) {
-			SVDBVarDeclItem o = (SVDBVarDeclItem)obj;
+		if (obj instanceof SVDBVarDeclStmt) {
+			SVDBVarDeclStmt o = (SVDBVarDeclStmt)obj;
 			if (fAttr != o.fAttr) {
 				return false;
 			}

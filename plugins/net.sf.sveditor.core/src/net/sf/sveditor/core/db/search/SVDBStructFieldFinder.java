@@ -15,7 +15,8 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 
 public class SVDBStructFieldFinder {
@@ -25,12 +26,14 @@ public class SVDBStructFieldFinder {
 		fMatcher = matcher;
 	}
 	
-	public List<SVDBItem> find(SVDBTypeInfoStruct struct, String name) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+	public List<ISVDBItemBase> find(SVDBTypeInfoStruct struct, String name) {
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (SVDBItem it : struct.getFields()) {
-			if (fMatcher.match(it, name)) {
-				ret.add(it);
+		for (ISVDBItemBase it : struct.getFields()) {
+			if (it instanceof ISVDBNamedItem) {
+				if (fMatcher.match((ISVDBNamedItem)it, name)) {
+					ret.add(it);
+				}
 			}
 		}
 		

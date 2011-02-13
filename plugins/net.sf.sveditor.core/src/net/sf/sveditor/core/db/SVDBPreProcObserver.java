@@ -90,7 +90,7 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 	public void preproc_include(String path) {
 		SVDBInclude inc = new SVDBInclude(path);
 		setLocation(inc);
-		fScopeStack.peek().getItems().add(inc);
+		fScopeStack.peek().addItem(inc);
 	}
 	
 	

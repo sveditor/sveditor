@@ -14,16 +14,16 @@ package net.sf.sveditor.core.tests.open_decl;
 
 import java.util.List;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import junit.framework.TestCase;
 
 public class TestOpenClass extends TestCase {
 	
@@ -51,7 +51,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"foo::fo".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<SVDBItem, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
 				file, 4, scanner, target_index);
 		
 		System.out.println(ret.size() + " items");

@@ -15,9 +15,11 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.indent.ISVIndenter;
@@ -54,10 +56,10 @@ public class OverrideTaskFuncImpl {
 		// with the same name
 		SVDBFile file = fEditor.getSVDBFile();
 
-		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(
+		ISVDBChildItem active_scope = SVDBSearchUtils.findActiveScope(
 				file, fEditor.getTextSel().getStartLine());
 		
-		ISVDBScopeItem insert_point = active_scope;
+		ISVDBChildItem insert_point = active_scope;
 		
 		// Make the default insert point the current cursor location
 		int insert_point_line = fEditor.getTextSel().getStartLine();
@@ -77,7 +79,7 @@ public class OverrideTaskFuncImpl {
 			if (insert_point.getParent() != null && 
 					insert_point.getParent().getType() == SVDBItemType.Class) {
 				// insert the new code after the element
-				insert_point_line = insert_point.getEndLocation().getLine();
+				insert_point_line = ((SVDBModIfcClassDecl)insert_point).getEndLocation().getLine();
 			} else {
 				// Odd... Not quite sure what to do here
 				System.out.println("[ERROR] problem finding correct insert point");
@@ -94,7 +96,11 @@ public class OverrideTaskFuncImpl {
 			return;
 		}
 		
-		List<SVDBTaskFuncScope> targets = fTargetProvider.getTargets(active_scope);
+		List<SVDBTaskFuncScope> targets = null;
+		
+		if (active_scope instanceof ISVDBScopeItem) {
+			targets = fTargetProvider.getTargets((ISVDBScopeItem)active_scope);
+		}
 		
 		if (targets == null) {
 			return;

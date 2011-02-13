@@ -21,6 +21,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBConstraint;
@@ -40,7 +41,6 @@ import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -48,7 +48,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.SVDBTypedef;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -755,8 +756,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fTaskFuncParamQualifiers.put("var", SVDBParamPort.Direction_Var);
 	}
 
-	private static SVDBItem fSpecialNonNull = new SVDBItem("SPECIAL_NON_NULL",
-			SVDBItemType.VarDecl);
+	private static SVDBItem fSpecialNonNull = new SVDBItem("SPECIAL_NON_NULL", SVDBItemType.Stmt);
 
 	public SVDBItem process_module_class_interface_body_item(String scope) throws SVParseException {
 		int ch = -1, modifiers = 0;
@@ -972,7 +972,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			// net type
 			String net_type = lexer().eatToken();
 			String vector_dim = null;
-			SVDBVarDeclItem var = null;
+			SVDBVarDeclStmt var = null;
 			String net_name = null;
 			SVDBTypeInfoBuiltinNet type_info = null;
 			SVDBTypeInfo data_type = null;
@@ -1007,7 +1007,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
 			
 			while (true) {
-				var = new SVDBVarDeclItem(type_info, net_name, 0);
+				var = new SVDBVarDeclStmt(type_info, net_name, 0);
 				var.setLocation(start);
 				
 				if (fScopeStack.size() > 0) {
@@ -1028,12 +1028,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 						bounds = bounds.trim();
 						
 						if (bounds.startsWith("$")) {
-							var.setAttr(var.getAttr() | SVDBVarDeclItem.VarAttr_Queue);
+							var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_Queue);
 						} else if (bounds.equals("")) {
-							var.setAttr(var.getAttr() | SVDBVarDeclItem.VarAttr_DynamicArray);
+							var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_DynamicArray);
 						} else {
 							if (bounds.equals("*")) {
-								var.setAttr(var.getAttr() | SVDBVarDeclItem.VarAttr_AssocArray);
+								var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_AssocArray);
 							}
 						}
 						var.setArrayDim(bounds);
@@ -1177,21 +1177,21 @@ public class ParserSVDBFileFactory implements ISVScanner,
 						// bounds = bounds.trim();
 
 						if (bounds.startsWith("$")) {
-							attr |= SVDBVarDeclItem.VarAttr_Queue;
+							attr |= SVDBVarDeclStmt.VarAttr_Queue;
 						} else if (bounds.equals("")) {
-							attr |= SVDBVarDeclItem.VarAttr_DynamicArray;
+							attr |= SVDBVarDeclStmt.VarAttr_DynamicArray;
 						} else {
 							// TODO: Don't really know. Could be a fixed-size array
 							// or
 							// a fixed-size array
 							if (bounds.equals("*")) {
-								attr |= SVDBVarDeclItem.VarAttr_AssocArray;
+								attr |= SVDBVarDeclStmt.VarAttr_AssocArray;
 							}
 						}
 					}
 				}
 				
-				SVDBVarDeclItem item = new SVDBVarDeclItem(type, inst_name_or_var, attr);
+				SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, inst_name_or_var, attr);
 				item.setArrayDim(bounds);
 				setLocation(item);
 
@@ -1545,7 +1545,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	private void setLocation(SVDBItem item) {
+	private void setLocation(ISVDBItemBase item) {
 		ScanLocation loc = getStmtLocation();
 		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}

@@ -78,14 +78,14 @@ public class TestOpenFile extends TestCase {
 			scanner.seek(content.indexOf("target_inc_file.svh")+1);
 			fs_provider.closeStream(in);
 			
-			List<Tuple<SVDBItem, SVDBFile>> ret = OpenDeclUtils.openDecl(
+			List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
 					file, 4, scanner, target_index);
 			
 			assertEquals(1, ret.size());
 			
 			System.out.println("ret.size=" + ret.size());
 			
-			System.out.println("File Path: " + ret.get(0).first().getName());
+			System.out.println("File Path: " + SVDBItem.getName(ret.get(0).first()));
 			
 			
 		} finally {

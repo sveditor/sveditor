@@ -18,7 +18,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
 public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
-	protected ISVDBScopeItem		fParent;
+	protected ISVDBChildItem		fParent;
 	protected String				fName;
 	
 	public SVDBItem(String name, SVDBItemType type) {
@@ -44,12 +44,16 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		writer.writeInt((fLocation != null)?fLocation.getPos():0);
 	}
 	
-	public void setParent(ISVDBScopeItem parent) {
+	public void setParent(ISVDBChildItem parent) {
 		fParent = parent;
 	}
 	
-	public ISVDBScopeItem getParent() {
+	public ISVDBChildItem getParent() {
 		return fParent;
+	}
+	
+	public Iterable<ISVDBItemBase> getChildren() {
+		return EmptySVDBItemIterable.iterable;
 	}
 
 	public String getName() {

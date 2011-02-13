@@ -44,7 +44,7 @@ public class FileSetTests extends TestCase {
 	}
 
 	public void testDefaultRecurse() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
 		utils.copyBundleDirToFS("/project_dir_src_collection_module", t_dir);
@@ -81,7 +81,7 @@ public class FileSetTests extends TestCase {
 	}
 
 	public void testExcludeRecurse() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
 		utils.copyBundleDirToFS("/project_dir_src_collection_module", t_dir);
@@ -118,7 +118,7 @@ public class FileSetTests extends TestCase {
 	}
 
 	public void testNonRecurseVlog() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
 		utils.copyBundleDirToFS("/project_dir_src_collection_module", t_dir);
@@ -154,7 +154,7 @@ public class FileSetTests extends TestCase {
 				root + "\\foo.sv"
 		};
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVFileSet fs = SVCorePlugin.getDefault().getDefaultFileSet(root);
 		fs.addInclude("**/*.v");

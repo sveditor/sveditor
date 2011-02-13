@@ -74,8 +74,11 @@ public class SVDBAlwaysBlock extends SVDBScopeItem {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBAlwaysBlock) {
-			return ((SVDBAlwaysBlock)obj).fExpr.equals(fExpr) &&
-					super.equals(obj);
+			boolean ret = true;
+			ret &= ((SVDBAlwaysBlock)obj).fExpr.equals(fExpr);
+			ret &= super.equals(obj);
+			
+			return ret;
 		}
 		return false;
 	}

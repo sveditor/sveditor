@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -27,19 +27,19 @@ public class SVDBFindByNameInScopes {
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it) {
 	}
 	
-	public List<SVDBItem> find(
-			ISVDBScopeItem			context,
+	public List<ISVDBItemBase> find(
+			ISVDBChildItem			context,
 			String					name,
 			boolean					stop_on_first_match,
 			SVDBItemType	...		types) {
-		List<SVDBItem> ret = new ArrayList<SVDBItem>();
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 
 
 		// Search up the scope
 		while (context != null) {
 			
 			// First, search the local variables
-			for (ISVDBItemBase it : context.getItems()) {
+			for (ISVDBItemBase it : context.getChildren()) {
 				if (SVDBItem.getName(it).equals(name)) {
 					boolean match = (types.length == 0);
 
@@ -51,7 +51,7 @@ public class SVDBFindByNameInScopes {
 					}
 					
 					if (match) {
-						ret.add((SVDBItem)it);
+						ret.add(it);
 						
 						if (stop_on_first_match) {
 							break;
@@ -67,9 +67,9 @@ public class SVDBFindByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
-					System.out.println("check param \"" + it.getName() + "\"");
-					if (it.getName().equals(name)) {
+				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+//					System.out.println("check param \"" + it.getName() + "\"");
+					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
 						if (stop_on_first_match) {

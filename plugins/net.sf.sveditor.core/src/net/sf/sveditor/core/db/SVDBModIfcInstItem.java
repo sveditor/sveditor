@@ -18,7 +18,9 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBModIfcInstItem extends SVDBVarDeclItem {
+public class SVDBModIfcInstItem extends SVDBFieldItem {
+	
+	private SVDBTypeInfo				fTypeInfo;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -32,23 +34,48 @@ public class SVDBModIfcInstItem extends SVDBVarDeclItem {
 	}
 	
 	public SVDBModIfcInstItem(SVDBTypeInfo type, String name) {
-		super(type, name, SVDBItemType.ModIfcInst);
+		super(name, SVDBItemType.ModIfcInst);
+		fTypeInfo = type;
 	}
 	
 	public SVDBModIfcInstItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(file, parent, type, reader);
+		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
+	}
+	
+	public SVDBTypeInfo getTypeInfo() {
+		return fTypeInfo;
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
+		SVDBTypeInfo.writeTypeInfo(fTypeInfo, writer);
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBModIfcInstItem(fTypeInfo, getName());
+	public String getTypeName() {
+		if (fTypeInfo == null) {
+			return "NULL";
+		} else {
+			return fTypeInfo.getName();
+		}
+	}
+	
+	public SVDBModIfcInstItem duplicate() {
+		SVDBModIfcInstItem ret = new SVDBModIfcInstItem(fTypeInfo, getName());
 		
 		init(ret);
 		
 		return ret;
 	}
 	
+	public void init(ISVDBItemBase other) {
+		super.init(other);
+		
+		SVDBModIfcInstItem o = (SVDBModIfcInstItem)other;
+		if (o.fTypeInfo == null) {
+			fTypeInfo = null; 
+		} else {
+			fTypeInfo = o.fTypeInfo.duplicate();
+		}
+	}
 }

@@ -18,6 +18,8 @@ package net.sf.sveditor.core.db;
 
 import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDB {
 	private static boolean			fInit;
@@ -46,17 +48,18 @@ public class SVDB {
 		SVDBPackageDecl.init();
 		SVDBPreProcCond.init();
 		SVDBScopeItem.init();
-		SVDBParamPort.init();
 		SVDBTaskFuncScope.init();
 		SVDBTypedef.init();
 		SVDBTypeInfo.init();
-		SVDBVarDeclItem.init();
+		SVDBVarDeclStmt.init();
 		SVDBParamValueAssignList.init();
 		SVDBParamValueAssign.init();
 		SVDBGenerateBlock.init();
 		SVDBClockingBlock.init();
 		SVDBImport.init();
 		SVExpr.init();
+		
+		SVDBStmt.init();
 
 		fInit = true;
 	}

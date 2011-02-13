@@ -24,13 +24,13 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -145,26 +145,25 @@ public class TestArrayContentAssist extends TestCase {
 		SVDBModIfcClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
-			SVDBItem it_t = (SVDBItem)it.nextItem();
-			if (it_t.getName().equals("my_class1")) {
+			ISVDBItemBase it_t = it.nextItem();
+			if (SVDBItem.getName(it_t).equals("my_class1")) {
 				my_class1 = (SVDBModIfcClassDecl)it_t;
 			}
 		}
 		
 		assertNotNull(my_class1);
 		
-		SVDBVarDeclItem m_queue_item = null;
+		SVDBVarDeclStmt m_queue_item = null;
 		for (ISVDBItemBase it_tt : my_class1.getItems()) {
-			SVDBItem it_t = (SVDBItem)it_tt;
-			if (it_t.getName().equals("m_queue_item")) {
-				m_queue_item = (SVDBVarDeclItem)it_t;
+			if (SVDBItem.getName(it_tt).equals("m_queue_item")) {
+				m_queue_item = (SVDBVarDeclStmt)it_tt;
 			}
 		}
 		
 		assertNotNull(m_queue_item);
 		System.out.println("    type=" + m_queue_item.getAttr());
-		System.out.println("    queue=" + SVDBVarDeclItem.VarAttr_Queue);
-		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclItem.VarAttr_Queue) != 0));
+		System.out.println("    queue=" + SVDBVarDeclStmt.VarAttr_Queue);
+		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclStmt.VarAttr_Queue) != 0));
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class1.getItems()) {
@@ -275,15 +274,15 @@ public class TestArrayContentAssist extends TestCase {
 		
 		assertNotNull(my_class1);
 		
-		SVDBVarDeclItem m_queue_item = null;
+		SVDBVarDeclStmt m_queue_item = null;
 		for (ISVDBItemBase it_t : my_class1.getItems()) {
 			if (SVDBItem.getName(it_t).equals("m_queue_item")) {
-				m_queue_item = (SVDBVarDeclItem)it_t;
+				m_queue_item = (SVDBVarDeclStmt)it_t;
 			}
 		}
 		
 		assertNotNull(m_queue_item);
-		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclItem.VarAttr_DynamicArray) != 0));
+		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclStmt.VarAttr_DynamicArray) != 0));
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class1.getItems()) {

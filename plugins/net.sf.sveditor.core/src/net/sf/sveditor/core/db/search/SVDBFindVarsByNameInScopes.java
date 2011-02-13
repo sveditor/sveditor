@@ -15,16 +15,18 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBFindVarsByNameInScopes {
 	
@@ -41,21 +43,21 @@ public class SVDBFindVarsByNameInScopes {
 	}
 	
 	public List<ISVDBItemBase> find(
-			ISVDBScopeItem 	context, 
+			ISVDBChildItem 	context, 
 			String 			name,
 			boolean			stop_on_first_match) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		ISVDBScopeItem context_save = context;
+		ISVDBChildItem context_save = context;
 
 		// Search up the scope
 		while (context != null) {
 			
 			// First, search the local variables
-			for (ISVDBItemBase it : context.getItems()) {
-				if (it.getType() == SVDBItemType.VarDecl) {
-					if (((SVDBVarDeclItem)it).getName().equals(name)) {
-						ret.add((SVDBVarDeclItem)it);
+			for (ISVDBItemBase it : context.getChildren()) {
+				if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+					if (((SVDBVarDeclStmt)it).getName().equals(name)) {
+						ret.add((SVDBVarDeclStmt)it);
 						
 						if (stop_on_first_match) {
 							break;
@@ -71,7 +73,7 @@ public class SVDBFindVarsByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (SVDBItem it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBNamedItem it : ((SVDBTaskFuncScope)context).getParams()) {
 					if (fMatcher.match(it, name)) {
 						ret.add(it);
 						
@@ -113,11 +115,11 @@ public class SVDBFindVarsByNameInScopes {
 				
 				while (cls != null) {
 					for (ISVDBItemBase it : cls.getItems()) {
-						if (it.getType() == SVDBItemType.VarDecl ||
+						if (SVDBStmt.isType(it, SVDBStmtType.VarDecl) ||
 								it.getType() == SVDBItemType.Covergroup ||
 								it.getType() == SVDBItemType.Coverpoint) {
 							if (fMatcher.match((ISVDBNamedItem)it, name)) {
-								ret.add((SVDBItem)it);
+								ret.add(it);
 								
 								if (stop_on_first_match) {
 									break;

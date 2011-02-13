@@ -14,7 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -55,7 +55,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 					}
 
 					debug("Pre-var parse: " + id);
-					List<SVDBItem> vars = parsers().blockItemDeclParser().parse(id);
+					List<ISVDBChildItem> vars = parsers().blockItemDeclParser().parse(id);
 					debug("Result is " + vars.size() + " vars");
 					tf.addItems(vars);
 				} else if (lexer().peekKeyword("typedef")) {

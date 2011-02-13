@@ -21,14 +21,18 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class ModuleHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;
 	private SVDBFindByName					fFinder;
+	private LogHandle						fLog;
 	
 	public ModuleHierarchyTreeFactory(ISVDBIndexIterator index_it) {
 		fIndexIt = index_it;
 		fFinder = new SVDBFindByName(fIndexIt);
+		fLog = LogFactory.getLogHandle("ModuleHierarchyTreeFactory");
 	}
 	
 	public HierarchyTreeNode build(SVDBModIfcClassDecl mod) {
@@ -42,7 +46,7 @@ public class ModuleHierarchyTreeFactory {
 			if (it.getType() == SVDBItemType.ModIfcInst) {
 				SVDBModIfcInstItem inst = (SVDBModIfcInstItem)it;
 				if (inst.getTypeInfo() == null) {
-					System.out.println("module instance \"" + inst.getName() + "\" has null type");
+					fLog.error("module instance \"" + inst.getName() + "\" has null type");
 				}
 				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
 						SVDBItemType.Module, SVDBItemType.Interface);

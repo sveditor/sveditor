@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +30,21 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBParamPort;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -142,7 +147,63 @@ public class ArgFilePersistence extends TestCase
 			SVDBItemTestComparator c = new SVDBItemTestComparator();
 			c.compare(fd, fl);
 		}
+	}
+
+	public void testXbusTransferFileParse() throws DBFormatException {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(false);
 		
+		File test_dir = new File(fTmpDir, "testOVMXbusDirectDumpLoad");
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
+		File xbus = new File(test_dir, "ovm/examples/xbus");
+
+		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
+
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+
+		ISVDBIndex target_index = rgy.findCreateIndex("GENERIC",
+				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
+		ISVDBFileSystemProvider fs = ((SVDBLibIndex)target_index).getFileSystemProvider();
+		SVPreProcScanner scanner = ((SVDBLibIndex)target_index).createPreProcScanner(path);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		InputStream in = fs.openStream(path);
+
+		System.out.println("--> Parse 1");
+		SVDBFile file = target_index.parse(in, path, new NullProgressMonitor());
+		System.out.println("<-- Parse 1");
+
+		// Display the 
+		int line=1, ch;
+		System.out.print("" + line + ": ");
+		while ((ch = scanner.get_ch()) != -1) {
+			System.out.print((char)ch);
+			bos.write((char)ch);
+			if (ch == '\n') {
+				line++;
+				System.out.print("" + line + ": ");
+			}
+		}
+		
+		in = new ByteArrayInputStream(bos.toByteArray());
+		System.out.println("--> parse()");
+		file = target_index.parse(in, path, new NullProgressMonitor());
+		System.out.println("<-- parse()");
+		
+		SVDBTestUtils.assertNoErrWarn(file); 
 	}
 
 	public void testWSArgFileTimestampChanged() {
@@ -269,7 +330,7 @@ public class ArgFilePersistence extends TestCase
 				target_it = (SVDBModIfcClassDecl)tmp_it;
 				target_orig = (SVDBModIfcClassDecl)tmp_it.duplicate();
 			}
-			orig_list.add((SVDBItem)tmp_it.duplicate());
+			orig_list.add(tmp_it.duplicate());
 			if (tmp_it.getType() == SVDBItemType.Covergroup) {
 				SVDBCoverGroup cg = (SVDBCoverGroup)tmp_it;
 				SVDBCoverGroup cg2 = (SVDBCoverGroup)cg.duplicate();

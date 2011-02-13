@@ -75,8 +75,10 @@ public class SVDBModIfcClassParam extends SVDBItem {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBModIfcClassParam) {
-			return (fDefault.equals(((SVDBModIfcClassParam)obj).fDefault) &&
-					super.equals(obj));
+			boolean ret = fDefault.equals(((SVDBModIfcClassParam)obj).fDefault);
+			ret &= super.equals(obj);
+			
+			return ret;
 		}
 		
 		return false;

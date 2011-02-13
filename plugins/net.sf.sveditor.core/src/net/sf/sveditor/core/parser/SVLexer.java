@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -39,6 +40,7 @@ public class SVLexer extends SVToken {
 	private boolean						fCapture;
 	private SVToken						fCaptureLastToken;
 	private ISVParser					fParser;
+	private Stack<SVToken>				fUngetStack;
 		
 	public static final String RelationalOps[] = {
 		"&", "&&", "|", "||", 
@@ -93,6 +95,8 @@ public class SVLexer extends SVToken {
 		fCaptureBuffer = new StringBuilder();
 		fCapture = false;
 		
+		fUngetStack = new Stack<SVToken>();
+		
 		for (String op : AllOperators) {
 			if (op.length() == 3) {
 				f3SeqPrefixes.add(op.substring(0, 1));
@@ -123,13 +127,52 @@ public class SVLexer extends SVToken {
 		fParser 		= parser;
 	}
 	
-	/*
-	public void parseException(String msg) throws SVParseException {
-		// TODO: get filename
-		ScanLocation loc = fScanner.getLocation();
-		throw SVParseException.createParseException(msg, loc.getFileName(), loc.getLineNo());
+	public void init(SVToken tok) {
+		fImage = tok.fImage;
+		fIsIdentifier = tok.fIsIdentifier;
+		fIsKeyword = tok.fIsKeyword;
+		fIsNumber = tok.fIsNumber;
+		fIsOperator = tok.fIsOperator;
+		fIsString = tok.fIsString;
+		fIsTime = tok.fIsTime;
+		fStartLocation = tok.fStartLocation.duplicate();
 	}
-	 */
+	
+	public SVToken peekToken() {
+		peek();
+		
+		return this.duplicate();
+	}
+	
+	// Returns a token 
+	public SVToken consumeToken() {
+		peek();
+		SVToken tok = this.duplicate();
+		eatToken();
+		
+		return tok;
+	}
+	
+	public void ungetToken(SVToken tok) {
+		// If the current token is valid, then push it back
+		if (!fTokenConsumed) {
+			fUngetStack.push(this.duplicate());
+		}
+		fTokenConsumed = true; // ensure we move to the next
+		
+		if (fCapture) {
+			if (fCaptureBuffer.length() >= tok.getImage().length()) {
+				fCaptureBuffer.setLength(fCaptureBuffer.length() - tok.getImage().length());
+			}
+			// Remove separator
+			if (fCaptureBuffer.length() > 0 && fCaptureBuffer.charAt(fCaptureBuffer.length()-1) == ' ') {
+				fCaptureBuffer.setLength(fCaptureBuffer.length()-1);
+			}
+			fCaptureLastToken = tok.duplicate();
+		}
+		
+		fUngetStack.push(tok);
+	}
 	
 	public String peek() {
 		if (fTokenConsumed) {
@@ -338,7 +381,7 @@ public class SVLexer extends SVToken {
 	}
 	
 	private boolean next_token() {
-		if (fEOF) {
+		if (fEOF && fUngetStack.size() == 0) {
 			/*
 			if (fEnableEOFException) {
 				throw new EOFException();
@@ -349,7 +392,12 @@ public class SVLexer extends SVToken {
 			return false;
 		}
 		try {
-			return next_token_int();
+			if (fUngetStack.size() > 0) {
+				init(fUngetStack.pop());
+				return true;
+			} else {
+				return next_token_int();
+			}
 		} catch (SVParseException e) {
 			return false;
 		}

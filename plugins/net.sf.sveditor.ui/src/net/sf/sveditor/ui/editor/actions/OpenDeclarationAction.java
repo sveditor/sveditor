@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -64,7 +65,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 	public void run() {
 		debug("OpenDeclarationAction.run()");
 
-		Tuple<SVDBItem, SVDBFile> target = findTarget();
+		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();
 
 		try {
 			if (target.first() != null) {
@@ -89,14 +90,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 		return fEditor.getDocumentProvider().getDocument(fEditor.getEditorInput());
 	}
 	
-	protected Tuple<SVDBItem, SVDBFile> findTarget() {
+	protected Tuple<ISVDBItemBase, SVDBFile> findTarget() {
 		IDocument doc = getDocument();
 		ITextSelection sel = getTextSel();
 		int offset = sel.getOffset() + sel.getLength();
 
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
 		
-		List<Tuple<SVDBItem, SVDBFile>> items = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl(
 				getTargetFile(), 
 				getTextSel().getStartLine(),
 				scanner,
@@ -105,7 +106,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		if (items.size() > 0) {
 			return items.get(0);
 		} else {
-			return new Tuple<SVDBItem, SVDBFile>(null, null);
+			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
 		}
 	}
 	

@@ -1,18 +1,22 @@
 package net.sf.sveditor.core.db;
 
 public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
-	private ISVDBScopeItem 			fParent;
+	private ISVDBChildItem 			fParent;
 	
 	public SVDBChildItem(SVDBItemType type) {
 		super(type);
 	}
 
-	public ISVDBScopeItem getParent() {
+	public ISVDBChildItem getParent() {
 		return fParent;
 	}
 
-	public void setParent(ISVDBScopeItem parent) {
+	public void setParent(ISVDBChildItem parent) {
 		fParent = parent;
+	}
+	
+	public Iterable<ISVDBItemBase> getChildren() {
+		return EmptySVDBItemIterable.iterable;
 	}
 	
 }

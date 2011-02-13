@@ -298,7 +298,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				top = top.getParent();
 			}
 			System.out.println("Dumping null-macro provider");
-			SVDBItemPrint.printItem((SVDBItem)top);
+			SVDBItemPrint.printItem(top);
 			walkStack();
 		}
 		

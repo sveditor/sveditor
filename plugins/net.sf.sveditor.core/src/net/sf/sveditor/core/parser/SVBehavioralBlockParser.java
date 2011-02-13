@@ -15,12 +15,16 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.stmt.SVDBForStmt;
+import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVBehavioralBlockParser extends SVParserBase {
 	private static SVDBItem				fSpecialNonNull;
 	static {
-		fSpecialNonNull = new SVDBItem("BehavioralSpecialNonNull", SVDBItemType.VarDecl);
+		fSpecialNonNull = new SVDBItem("BehavioralSpecialNonNull", SVDBItemType.Stmt);
 		fSpecialNonNull.setLocation(new SVDBLocation(-1, -1));
 	}
 	
@@ -94,10 +98,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			lexer().eatToken();
 			statement("forever", level);
 		} else if (lexer().peekKeyword("for")) {
-			lexer().eatToken();
-			lexer().readOperator("(");
-			lexer().skipPastMatch("(", ")");
-			statement("for", level);
+			SVDBForStmt stmt = for_stmt(level);
 		} else if (lexer().peekKeyword("foreach")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
@@ -204,6 +205,67 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 		debug("<-- [" + level + "] statement " + lexer().peek() + 
 				" @ " + lexer().getStartLocation().getLine() + " parent=" + parent);
+	}
+	
+	private SVDBForStmt for_stmt(int level) throws SVParseException {
+		SVDBLocation start = lexer().getStartLocation();
+		lexer().eatToken();
+		lexer().readOperator("(");
+		SVDBForStmt stmt = new SVDBForStmt();
+		stmt.setLocation(start);
+		if (!lexer().peekOperator(";")) {
+			SVToken first = lexer().peekToken();
+			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
+			
+			if (lexer().peekOperator()) {
+				// If an operator, then likely not a declaration
+				lexer().ungetToken(first);
+				type = null;
+			}
+			
+			while (true) {
+				SVExpr expr = parsers().exprParser().expression();
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+		}
+		lexer().readOperator(";");
+		
+		if (!lexer().peekOperator(";")) {
+			
+			while (true) {
+				SVExpr expr = parsers().exprParser().expression();
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+		}
+		lexer().readOperator(";");
+		
+		if (!lexer().peekOperator(")")) {
+			while (true) {
+				SVExpr expr = parsers().exprParser().expression();
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+				} else {
+					break;
+				}
+			}
+		}
+		
+		lexer().readOperator(")");
+		
+		statement("for", level);
+		
+		return stmt;
 	}
 
 	private void assertion_stmt(int level) throws SVParseException {

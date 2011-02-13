@@ -27,12 +27,12 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -374,14 +374,14 @@ public class TestContentAssistBasics extends TestCase {
 		assertEquals("Expecting two proposals", 2, proposals.size());
 
 		SVDBTaskFuncScope 	new_f;
-		SVDBVarDeclItem		new_field;
+		SVDBVarDeclStmt		new_field;
 
 		if (proposals.get(0).getItem().getType() == SVDBItemType.Function) {
 			new_f = (SVDBTaskFuncScope)proposals.get(0).getItem();
-			new_field = (SVDBVarDeclItem)proposals.get(1).getItem();
+			new_field = (SVDBVarDeclStmt)proposals.get(1).getItem();
 		} else {
 			new_f = (SVDBTaskFuncScope)proposals.get(1).getItem();
-			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
+			new_field = (SVDBVarDeclStmt)proposals.get(0).getItem();
 		}
 		
 		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + 

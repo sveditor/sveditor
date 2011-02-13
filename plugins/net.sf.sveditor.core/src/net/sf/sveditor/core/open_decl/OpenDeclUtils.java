@@ -19,7 +19,6 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBOpenDeclarationIncludeNameMatcher;
@@ -33,7 +32,7 @@ import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 public class OpenDeclUtils {
 	
-	public static List<Tuple<SVDBItem, SVDBFile>> openDecl(
+	public static List<Tuple<ISVDBItemBase, SVDBFile>> openDecl(
 			SVDBFile			file,
 			int					line,
 			IBIDITextScanner	scanner,
@@ -58,7 +57,7 @@ public class OpenDeclUtils {
 			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
 		}
 
-		List<Tuple<SVDBItem, SVDBFile>> ret = new ArrayList<Tuple<SVDBItem,SVDBFile>>();
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
 		
 		List<ISVDBItemBase> items = expr_utils.findItems(index_it, active_scope, expr_ctxt, false);
 		
@@ -66,7 +65,7 @@ public class OpenDeclUtils {
 			it = items.get(0);
 			
 			// Confused here...
-			ret.add(new Tuple<SVDBItem, SVDBFile>((SVDBItem)it, inc_file));
+			ret.add(new Tuple<ISVDBItemBase, SVDBFile>(it, inc_file));
 		}
 		
 		return ret;
