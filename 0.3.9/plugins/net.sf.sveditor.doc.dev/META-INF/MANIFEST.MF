@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: SVEditor Developer Docs
-Bundle-SymbolicName: net.sf.sveditor.doc.dev;singleton:=true
-Bundle-Version: 1.2.3
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.apache.ant;resolution:=optional,
- org.eclipse.help,
- org.eclipse.core.runtime
