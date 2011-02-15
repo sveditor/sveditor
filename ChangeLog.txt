@@ -1,4 +1,12 @@
 
+-- 0.4.0 Release --
+
+- (#3181880) Critical bug related to restructuring of the SVDB
+
+- Corrected a bug with the Outline view, also due to SVDB restructuring 
+
+------------------------------------------------------------------------------
+
 -- 0.3.9 Release --
 
 - Correct a problem with the SVEditor Outline view that prevented the viewer
