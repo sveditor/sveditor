@@ -63,7 +63,7 @@ public class SVDBIconUtils implements ISVIcons {
 	public static Image getIcon(ISVDBItemBase it) {
 		if (it instanceof IFieldItemAttr) {
 			int            attr = ((IFieldItemAttr)it).getAttr();
-			SVDBItemType   type = ((SVDBItem)it).getType();
+			SVDBItemType   type = it.getType();
 			
 			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)it;

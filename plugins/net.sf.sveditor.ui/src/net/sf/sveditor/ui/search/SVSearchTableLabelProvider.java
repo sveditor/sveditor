@@ -14,6 +14,9 @@ package net.sf.sveditor.ui.search;
 
 import java.io.File;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBChildItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -29,9 +32,9 @@ public class SVSearchTableLabelProvider extends SVTreeLabelProvider implements I
 	}
 	
 	public StyledString getStyledText(Object element) {
-		if (element instanceof SVDBItem) {
+		if (element instanceof ISVDBItemBase) {
 			StyledString ret = super.getStyledText(element);
-			SVDBItem item = (SVDBItem)element;
+			ISVDBItemBase item = (ISVDBItemBase)element;
 			SVDBFile file = getFile(item);
 			if (file != null) {
 				String filename = new File(file.getFilePath()).getName();
@@ -47,15 +50,18 @@ public class SVSearchTableLabelProvider extends SVTreeLabelProvider implements I
 		}
 	}
 
-	private static SVDBFile getFile(SVDBItem item) {
+	private static SVDBFile getFile(ISVDBItemBase item) {
 		SVDBFile ret = null;
 		
-		while (item != null) {
-			if (item.getType() == SVDBItemType.File) {
-				ret = (SVDBFile)item;
-				break;
-			} else {
-				item = (SVDBItem)item.getParent();
+		if (item instanceof ISVDBChildItem) {
+			ISVDBChildItem it = (ISVDBChildItem)item;
+			while (it != null) {
+				if (it.getType() == SVDBItemType.File) {
+					ret = (SVDBFile)it;
+					break;
+				} else {
+					it = it.getParent();
+				}
 			}
 		}
 		return ret;

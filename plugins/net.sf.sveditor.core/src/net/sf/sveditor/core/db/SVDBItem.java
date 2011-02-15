@@ -98,16 +98,20 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 
 	@Override
 	public boolean equals(ISVDBItemBase obj, boolean full) {
-		SVDBItem other = (SVDBItem)obj;
-		boolean ret = true;
+		boolean ret = false;
 		
-		if (other.fName == null || fName == null) {
-			ret &= other.fName == fName;
-		} else {
-			ret &= other.fName.equals(fName);
+		if (obj instanceof SVDBItem) {
+			ret = true;
+			SVDBItem other = (SVDBItem)obj;
+
+			if (other.fName == null || fName == null) {
+				ret &= other.fName == fName;
+			} else {
+				ret &= other.fName.equals(fName);
+			}
+
+			ret &= super.equals(obj, full);
 		}
-		
-		ret &= super.equals(obj, full);
 		
 		return ret;
 	}

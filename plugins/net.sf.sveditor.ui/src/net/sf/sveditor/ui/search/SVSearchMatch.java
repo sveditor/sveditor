@@ -12,9 +12,9 @@
 
 package net.sf.sveditor.ui.search;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 import org.eclipse.search.ui.text.Match;
@@ -28,13 +28,15 @@ public class SVSearchMatch extends Match {
 	
 	public SVDBFile getFile() {
 		if (fFile == null) {
-			SVDBItem it = (SVDBItem)getElement();
-			while (it != null) {
-				if (it.getType() == SVDBItemType.File) {
-					fFile = (SVDBFile)it;
-					break;
+			if (getElement() instanceof ISVDBChildItem) {
+				ISVDBChildItem it = (ISVDBChildItem)getElement();
+				while (it != null) {
+					if (it.getType() == SVDBItemType.File) {
+						fFile = (SVDBFile)it;
+						break;
+					}
+					it = it.getParent();
 				}
-				it = (SVDBItem)it.getParent();
 			}
 		}
 		return fFile;

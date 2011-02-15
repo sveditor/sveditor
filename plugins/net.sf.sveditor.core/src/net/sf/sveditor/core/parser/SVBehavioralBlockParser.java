@@ -17,9 +17,12 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.stmt.SVDBForStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBDoWhileStmt;
+import net.sf.sveditor.core.db.stmt.SVDBForStmt;
+import net.sf.sveditor.core.db.stmt.SVDBIfStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 
 public class SVBehavioralBlockParser extends SVParserBase {
 	private static SVDBItem				fSpecialNonNull;
@@ -39,35 +42,38 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		return ret;
 	}
 	
-	private void statement(String parent, int level) throws SVParseException {
+	private SVDBStmt statement(String parent, int level) throws SVParseException {
 		debug("--> [" + level + "] parent=" + parent + " statement " + 
 				lexer().peek() + " @ " + lexer().getStartLocation().getLine());
+		SVDBStmt stmt = null;
 		if (lexer().peekKeyword("begin")) {
+			SVDBBlockStmt block = new SVDBBlockStmt();
 			lexer().eatToken();
 			if (lexer().peekOperator(":")) {
 				lexer().eatToken();
 				lexer().readId();
 			}
 			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-				statement(parent, level+1);
+				block.addStmt(statement(parent, level+1));
 			}
 			lexer().readKeyword("end");
 			if (lexer().peekOperator(":")) {
 				lexer().eatToken();
 				lexer().readId();
 			}
+			stmt = block;
 		} else if (lexer().peekKeyword("if")) {
 			lexer().eatToken();
 			
 			lexer().readOperator("(");
-			parsers().exprParser().expression();
+			SVDBIfStmt if_stmt = new SVDBIfStmt(parsers().exprParser().expression()); 
 			lexer().readOperator(")");
 			
-			statement("if", level);
+			if_stmt.setIfStmt(statement("if", level));
 			
 			if (lexer().peekKeyword("else")) {
 				lexer().eatToken();
-				statement("else", level);
+				if_stmt.setElseStmt(statement("else", level));
 			}
 		} else if (lexer().peekKeyword("else")) {
 			lexer().eatToken();
@@ -75,19 +81,21 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		} else if (lexer().peekKeyword("while")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
-			parsers().exprParser().expression();
+			SVDBWhileStmt while_stmt = new SVDBWhileStmt(parsers().exprParser().expression());
 			lexer().readOperator(")");
 			
-			statement("while", level);
+			while_stmt.setBody(statement("while", level));
+			stmt = while_stmt;
 		} else if (lexer().peekKeyword("do")) {
+			SVDBDoWhileStmt do_while = new SVDBDoWhileStmt();
 			lexer().eatToken();
-			statement("do", level);
+			do_while.setBody(statement("do", level));
 			lexer().readKeyword("while");
 			lexer().readOperator("(");
-			SVExpr expr = parsers().exprParser().expression();
-			debug("While expression: " + expr.toString());
+			do_while.setCond(parsers().exprParser().expression());
 			lexer().readOperator(")");
 			lexer().readOperator(";");
+			stmt = do_while;
 		} else if (lexer().peekKeyword("repeat")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
@@ -98,7 +106,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			lexer().eatToken();
 			statement("forever", level);
 		} else if (lexer().peekKeyword("for")) {
-			SVDBForStmt stmt = for_stmt(level);
+			SVDBForStmt for_stmt = for_stmt(level);
 		} else if (lexer().peekKeyword("foreach")) {
 			lexer().eatToken();
 			lexer().readOperator("(");
@@ -205,6 +213,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 		debug("<-- [" + level + "] statement " + lexer().peek() + 
 				" @ " + lexer().getStartLocation().getLine() + " parent=" + parent);
+		
+		return stmt;
 	}
 	
 	private SVDBForStmt for_stmt(int level) throws SVParseException {

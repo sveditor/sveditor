@@ -65,20 +65,23 @@ public class SVDBItemBase implements ISVDBItemBase {
 	}
 
 	public boolean equals(ISVDBItemBase obj, boolean full) {
-		boolean ret = true;
-		SVDBItemBase other = (SVDBItemBase)obj;
-		
-		if (other.fType == null || fType == null) {
-			ret &= other.fType == fType;
-		} else {
-			ret &= other.fType.equals(fType);
-		}
+		boolean ret = false;
+		if (obj instanceof SVDBItemBase) {
+			ret = true;
+			SVDBItemBase other = (SVDBItemBase)obj;
 
-		if (full) {
-			if (fLocation == null || other.fLocation == null) {
-				ret &= (fLocation == other.fLocation);
+			if (other.fType == null || fType == null) {
+				ret &= other.fType == fType;
 			} else {
-				ret &= other.fLocation.equals(fLocation);
+				ret &= other.fType.equals(fType);
+			}
+
+			if (full) {
+				if (fLocation == null || other.fLocation == null) {
+					ret &= (fLocation == other.fLocation);
+				} else {
+					ret &= other.fLocation.equals(fLocation);
+				}
 			}
 		}
 		

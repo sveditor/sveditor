@@ -15,8 +15,8 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
@@ -68,7 +68,7 @@ public class SVClassHierarchyCP implements ITreeContentProvider {
 	
 
 	public Object getParent(Object element) {
-		return ((SVDBItem)element).getParent();
+		return ((ISVDBChildItem)element).getParent();
 	}
 
 	public boolean hasChildren(Object element) {

@@ -132,7 +132,6 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 
 
 	public void perfomOk() {
-		System.out.println("performOk: " + fLibraryPaths.size());
 		fProjectWrapper.getLibraryPaths().clear();
 		
 		for (SVDBPath p : fLibraryPaths) {

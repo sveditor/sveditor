@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
@@ -173,7 +174,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				if (sel.getFirstElement() instanceof SVDBItem) {
 					try {
-						SVEditorUtil.openEditor((SVDBItem)sel.getFirstElement());
+						SVEditorUtil.openEditor((ISVDBItemBase)sel.getFirstElement());
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}

@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.stmt;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -26,6 +27,8 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 	
 	public SVDBBlockStmt() {
 		super(SVDBStmtType.Block);
+		fBlockName = "";
+		fItems = new ArrayList<ISVDBItemBase>();
 	}
 	
 	public SVDBBlockStmt(ISVDBChildItem parent, SVDBStmtType type, IDBReader reader) 
@@ -35,6 +38,8 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 		
 		fBlockName = reader.readString();
 		fEndLocation = SVDBLocation.readLocation(reader);
+		// TODO: 
+		fItems = new ArrayList<ISVDBItemBase>();
 	}
 	
 	@Override
@@ -43,6 +48,10 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 		
 		writer.writeString(fBlockName);
 		SVDBLocation.writeLocation(fEndLocation, writer);
+	}
+	
+	public void addStmt(SVDBStmt stmt) {
+		fItems.add(stmt);
 	}
 	
 	public String getBlockName() {

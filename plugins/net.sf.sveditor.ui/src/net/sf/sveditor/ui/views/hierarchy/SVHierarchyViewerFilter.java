@@ -16,7 +16,6 @@ import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -59,8 +58,8 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 			return true;
 		}
 		
-		if (element instanceof SVDBItem) {
-			SVDBItem it = (SVDBItem)element;
+		if (element instanceof ISVDBItemBase) {
+			ISVDBItemBase it = (ISVDBItemBase)element;
 			
 			if (!fShowInheritedMembers) {
 				if (fTarget.getItemDecl().getType() == SVDBItemType.Class) {
@@ -100,7 +99,7 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 		return true;
 	}
 	
-	private boolean isInScope(ISVDBScopeItem scope, SVDBItem it) {
+	private boolean isInScope(ISVDBScopeItem scope, ISVDBItemBase it) {
 		
 		for (ISVDBItemBase it_t : scope.getItems()) {
 			if (it_t == it) {

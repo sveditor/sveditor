@@ -12,9 +12,10 @@
 
 package net.sf.sveditor.ui.svcp;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBDataType;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
@@ -26,9 +27,9 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -46,45 +47,47 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 
 	@Override
 	public Image getImage(Object element) {
-		if (element instanceof SVDBItem) {
-			return SVDBIconUtils.getIcon((SVDBItem)element);
+		if (element instanceof ISVDBItemBase) {
+			return SVDBIconUtils.getIcon((ISVDBItemBase)element);
 		} else {
 			return super.getImage(element);
 		}
 	}
 	
 	public StyledString getStyledText(Object element) {
-		if (element instanceof SVDBItem) {
-			StyledString ret = new StyledString(((SVDBItem)element).getName());
+		if (element instanceof SVDBVarDeclStmt) {
+			SVDBVarDeclStmt var = (SVDBVarDeclStmt)element;
+			StyledString ret = new StyledString(((SVDBVarDeclStmt)element).getName());
 			
-			if (element instanceof SVDBVarDeclStmt) {
-				SVDBVarDeclStmt var = (SVDBVarDeclStmt)element;
+			if (var.getTypeInfo() != null) {
+				ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);
 				
-				if (var.getTypeInfo() != null) {
-					ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);
-					
-					SVDBTypeInfo type = var.getTypeInfo();
-					
-					if (type.getDataType() == SVDBDataType.UserDefined) {
-						SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
-						if (cls.getParameters() != null && 
-								cls.getParameters().getParameters().size() > 0) {
-							ret.append("<", StyledString.QUALIFIER_STYLER);
-							
-							for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
-								SVDBParamValueAssign p = 
-									cls.getParameters().getParameters().get(i);
-								ret.append(p.getName(), StyledString.QUALIFIER_STYLER);
-								if (i+1 < cls.getParameters().getParameters().size()) {
-									ret.append(", ", StyledString.QUALIFIER_STYLER);
-								}
+				SVDBTypeInfo type = var.getTypeInfo();
+				
+				if (type.getDataType() == SVDBDataType.UserDefined) {
+					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
+					if (cls.getParameters() != null && 
+							cls.getParameters().getParameters().size() > 0) {
+						ret.append("<", StyledString.QUALIFIER_STYLER);
+						
+						for (int i=0; i<cls.getParameters().getParameters().size(); i++) {
+							SVDBParamValueAssign p = 
+								cls.getParameters().getParameters().get(i);
+							ret.append(p.getName(), StyledString.QUALIFIER_STYLER);
+							if (i+1 < cls.getParameters().getParameters().size()) {
+								ret.append(", ", StyledString.QUALIFIER_STYLER);
 							}
-							
-							ret.append(">", StyledString.QUALIFIER_STYLER);
 						}
+						
+						ret.append(">", StyledString.QUALIFIER_STYLER);
 					}
 				}
-			} else if (element instanceof SVDBTaskFuncScope) {
+			}
+			return ret; 
+		} else if (element instanceof ISVDBNamedItem) {
+			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
+			
+			if (element instanceof SVDBTaskFuncScope) {
 				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
 				
 				ret.append("(");
