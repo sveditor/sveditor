@@ -24,8 +24,8 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 		super(name, type);
 	}
 	
-	public SVDBFieldItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBFieldItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fFieldAttr = reader.readInt();
 	}
 	

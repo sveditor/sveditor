@@ -17,16 +17,17 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 	public static final int				TypeAttr_Vectored			= (1 << 6);
 
 	protected SVDBDataType				fDataType;
+	protected SVDBVarDimItem			fArrayDim;
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 				return readTypeInfo(type, reader);
 			}
 		};
@@ -38,18 +39,18 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 		SVDBDataType dt = SVDBDataType.valueOf(reader.readString());
 		switch (dt) {
 			case BuiltIn:
-				return new SVDBTypeInfoBuiltin(null, null, type, reader);
+				return new SVDBTypeInfoBuiltin(null, type, reader);
 			case Enum:
-				return new SVDBTypeInfoEnum(null, null, type, reader);
+				return new SVDBTypeInfoEnum(null, type, reader);
 			case Struct:
-				return new SVDBTypeInfoStruct(null, null, type, reader);
+				return new SVDBTypeInfoStruct(null, type, reader);
 			case UserDefined:
 			case ModuleIfc:
-				return new SVDBTypeInfoUserDef(dt, null, null, type, reader);
+				return new SVDBTypeInfoUserDef(dt, null, type, reader);
 			case FwdDecl:
-				return new SVDBTypeInfoFwdDecl(null, null, type, reader);
+				return new SVDBTypeInfoFwdDecl(null, type, reader);
 			case WireBuiltin:
-				return new SVDBTypeInfoBuiltinNet(null, null, type, reader);
+				return new SVDBTypeInfoBuiltinNet(null, type, reader);
 			default:
 				throw new DBFormatException("[ERROR] Unhandled DataType " + dt);
 		}
@@ -83,19 +84,23 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 		fLocation = null;
 	}
 
-	public SVDBTypeInfo(SVDBDataType dt, SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+	public SVDBTypeInfo(SVDBDataType dt, ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super("", SVDBItemType.TypeInfo);
 		
 		fDataType = dt;
 		setType(type);
 		setName(reader.readString());
 		fLocation = null;
+		
+		fArrayDim = (SVDBVarDimItem)reader.readSVDBItem(this);
 	}
 	
 	public void dump(IDBWriter writer) {
 		writer.writeItemType(getType());
 		writer.writeString(fDataType.toString());
 		writer.writeString(getName());
+		
+		writer.writeSVDBItem(fArrayDim);
 		// TypeInfo doesn't have a location: writer.writeInt((getLocation() != null)?getLocation().getLine():0);
 	}
 	
@@ -107,7 +112,14 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 		fDataType = type;
 	}
 	
-
+	public SVDBVarDimItem getArrayDim() {
+		return fArrayDim;
+	}
+	
+	public void setArrayDim(SVDBVarDimItem dim) {
+		fArrayDim = dim;
+	}
+	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		

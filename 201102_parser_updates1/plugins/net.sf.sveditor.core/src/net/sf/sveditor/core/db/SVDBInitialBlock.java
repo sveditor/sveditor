@@ -21,9 +21,8 @@ public class SVDBInitialBlock extends SVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBInitialBlock(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBInitialBlock(parent, type, reader);
 			}
 		};
 		
@@ -34,8 +33,8 @@ public class SVDBInitialBlock extends SVDBScopeItem {
 		super("", SVDBItemType.InitialBlock);
 	}
 
-	public SVDBInitialBlock(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBInitialBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 	}
 
 	@Override

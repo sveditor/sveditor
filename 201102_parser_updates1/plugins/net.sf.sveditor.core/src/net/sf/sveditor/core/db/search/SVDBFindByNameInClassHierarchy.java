@@ -23,8 +23,10 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class SVDBFindByNameInClassHierarchy {
 	private ISVDBIndexIterator				fIndexIterator;
@@ -71,7 +73,6 @@ public class SVDBFindByNameInClassHierarchy {
 			// Assume we're in a containing scope
 			while (scope != null && 
 					scope.getType() != SVDBItemType.Class &&
-					scope.getType() != SVDBItemType.Struct &&
 					scope.getType() != SVDBItemType.Covergroup &&
 					scope.getType() != SVDBItemType.Coverpoint) {
 				fLog.debug("Searching up-scope (current is " + scope.getType() + 
@@ -111,11 +112,11 @@ public class SVDBFindByNameInClassHierarchy {
 
 			// Always match exact
 			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
-			if (((SVDBModIfcClassDecl)scope).getSuperClass() != null) {
-				scope = finder.find((SVDBModIfcClassDecl)scope);
+			if (((SVDBClassDecl)scope).getSuperClass() != null) {
+				scope = finder.find((SVDBClassDecl)scope);
 				if (scope != null) {
 					fLog.debug("Find super-class \"" + 
-						((SVDBModIfcClassDecl)scope).getSuperClass() + "\" returns " + scope);
+						((SVDBClassDecl)scope).getSuperClass() + "\" returns " + scope);
 				}
 			} else {
 				fLog.debug("No super-class");
@@ -143,8 +144,10 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 			
 			if (matches) {
-				if (fMatcher.match(it, id)) {
-					items.add(it);
+				for (SVDBVarDeclItem vi : it.getVarList()) {
+					if (fMatcher.match(vi, id)) {
+						items.add(vi);
+					}
 				}
 			}
 		}

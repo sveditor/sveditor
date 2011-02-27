@@ -30,7 +30,6 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -91,11 +90,11 @@ public class TestUvmBasics extends TestCase {
 					ovm_sequence = it;
 				}
 			} else if (it.getType() == SVDBItemType.Macro) {
-			} else if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
 				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
-						v.getName() + " has a null TypeInfo", v.getTypeInfo());
+						v.getVarList().get(0).getName() + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
 		

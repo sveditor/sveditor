@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
@@ -191,13 +192,13 @@ public class BrowseClasses extends SelectionStatusDialog
 		SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIt);
 		
 		for (int i=0; i<fProposals.size(); i++) {
-			SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)fProposals.get(i);
+			SVDBClassDecl cls = (SVDBClassDecl)fProposals.get(i);
 			boolean found = false;
 			
 			// Search each class' super-class hierarchy looking for
 			// the desired super-class
 			while (cls != null) {
-				SVDBModIfcClassDecl super_cls = finder.find(cls);
+				SVDBClassDecl super_cls = finder.find(cls);
 				if (super_cls != null && super_cls.getName().equals(fSuperClass)) {
 					found = true;
 					break;

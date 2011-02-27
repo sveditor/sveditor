@@ -12,71 +12,83 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBVarDeclStmt extends SVDBStmt implements ISVDBNamedItem, IFieldItemAttr {
-	public static final int				VarAttr_FixedArray			= (1 << 0);
-	public static final int				VarAttr_DynamicArray		= (1 << 1);
-	public static final int				VarAttr_Queue				= (1 << 2);
-	public static final int				VarAttr_AssocArray			= (1 << 3);
+public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 	
-	protected String					fName;
 	protected SVDBTypeInfo				fTypeInfo;
-	protected int						fAttr;
-	protected String					fArrayDim;
-	
+	protected int						fFieldAttr;
+	protected List<SVDBVarDeclItem>		fVarList;
 	
 	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
+		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
 					IDBReader reader) throws DBFormatException {
-				return new SVDBVarDeclStmt(parent, stmt_type, reader);
+				return new SVDBVarDeclStmt(parent, type, reader);
 			}
-		}, SVDBStmtType.VarDecl);
+		}, SVDBItemType.VarDeclStmt);
 	}
 	
 	
-	public SVDBVarDeclStmt(SVDBTypeInfo type, String name, int attr) {
-		this(SVDBStmtType.VarDecl, type, name, attr);
+	public SVDBVarDeclStmt(SVDBTypeInfo type, int attr) {
+		this(SVDBItemType.VarDeclStmt, type, attr);
 	}
 
-	public SVDBVarDeclStmt(SVDBStmtType stmt_type, SVDBTypeInfo type, String name, int attr) {
+	public SVDBVarDeclStmt(SVDBItemType stmt_type, SVDBTypeInfo type, int attr) {
 		super(stmt_type);
-		fName = name;
-		fAttr = attr;
 		fTypeInfo = type;
+		
+		fVarList = new ArrayList<SVDBVarDeclItem>();
 	}
-
-	public SVDBVarDeclStmt(ISVDBChildItem parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
+	
+	@SuppressWarnings("unchecked")
+	public SVDBVarDeclStmt(ISVDBChildItem parent, SVDBItemType stmt_type, IDBReader reader) throws DBFormatException {
 		super(parent, stmt_type, reader);
 
-		fName = reader.readString();
 		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
-		fAttr = reader.readInt();
-		fArrayDim   = reader.readString();
+		
+		fVarList = (List<SVDBVarDeclItem>)reader.readItemList(this);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		
-		writer.writeString(fName);
 		writer.writeSVDBItem(fTypeInfo);
-		writer.writeInt(fAttr);
-		writer.writeString(fArrayDim);
+		writer.writeItemList(fVarList);
 	}
 	
-	public String getName() {
-		return fName;
+	/**
+	 * Convenience method to retrieve the name of all variables declared
+	 * 
+	 * @param stmt
+	 * @return
+	 */
+	public static String getName(SVDBVarDeclStmt stmt) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (SVDBVarDeclItem vi : stmt.getVarList()) {
+			sb.append(vi.getName());
+			sb.append(", ");
+		}
+		if (sb.length() > 2) {
+			sb.setLength(sb.length()-2);
+		}
+		
+		return sb.toString();
 	}
-
+	
 	public String getTypeName() {
 		return fTypeInfo.getName();
 	}
@@ -86,29 +98,28 @@ public class SVDBVarDeclStmt extends SVDBStmt implements ISVDBNamedItem, IFieldI
 	}
 	
 	public int getAttr() {
-		return fAttr;
+		return fFieldAttr;
 	}
 	
 	public void setAttr(int attr) {
-		fAttr |= attr;
+		fFieldAttr |= attr;
 	}
 	
 	public void resetAttr(int attr) {
-		fAttr = attr;
-	}
-
-	public String getArrayDim() {
-		return fArrayDim;
+		fFieldAttr = attr;
 	}
 	
-	public void setArrayDim(String dim) {
-		fArrayDim = dim;
+	public List<SVDBVarDeclItem> getVarList() {
+		return fVarList;
+	}
+	
+	public void addVar(SVDBVarDeclItem item) {
+		item.setParent(this);
+		fVarList.add(item);
 	}
 	
 	public SVDBVarDeclStmt duplicate() {
-		SVDBVarDeclStmt ret = new SVDBVarDeclStmt(
-				(SVDBTypeInfo)fTypeInfo.duplicate(), getName(), fAttr);
-		ret.setArrayDim(getArrayDim());
+		SVDBVarDeclStmt ret = new SVDBVarDeclStmt((SVDBTypeInfo)fTypeInfo.duplicate(), fFieldAttr);
 		
 		return ret;
 	}
@@ -119,8 +130,12 @@ public class SVDBVarDeclStmt extends SVDBStmt implements ISVDBNamedItem, IFieldI
 		fTypeInfo.init(((SVDBVarDeclStmt)other).fTypeInfo);
 		
 		SVDBVarDeclStmt other_v = (SVDBVarDeclStmt)other;
-		fAttr = other_v.fAttr;
-		fArrayDim    = other_v.fArrayDim;
+		fFieldAttr = other_v.fFieldAttr;
+		
+		fVarList.clear();
+		for (SVDBVarDeclItem v : other_v.getVarList()) {
+			fVarList.add(v.duplicate());
+		}
 	}
 
 
@@ -128,15 +143,7 @@ public class SVDBVarDeclStmt extends SVDBStmt implements ISVDBNamedItem, IFieldI
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBVarDeclStmt) {
 			SVDBVarDeclStmt o = (SVDBVarDeclStmt)obj;
-			if (fAttr != o.fAttr) {
-				return false;
-			}
-			
-			if (fArrayDim == null || o.fArrayDim == null) {
-				if (fArrayDim != o.fArrayDim) {
-					return false;
-				}
-			} else if (!fArrayDim.equals(o.fArrayDim)) {
+			if (fFieldAttr != o.fFieldAttr) {
 				return false;
 			}
 			

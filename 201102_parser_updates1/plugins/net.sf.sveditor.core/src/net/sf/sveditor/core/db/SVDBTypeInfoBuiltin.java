@@ -31,8 +31,8 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		super(typename, type);
 	}
 
-	public SVDBTypeInfoBuiltin(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.BuiltIn, file, parent, type, reader);
+	public SVDBTypeInfoBuiltin(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.BuiltIn, parent, type, reader);
 		fAttr = reader.readInt();
 		fVectorDim = reader.readString();
 	}

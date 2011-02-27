@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.ui.texteditor.TextEditorAction;
@@ -50,7 +50,8 @@ public class OverrideTaskFuncAction extends TextEditorAction
 		try {
 			dlg = new OverrideMethodsDialog(
 					fEditor.getSite().getShell(),
-					(SVDBModIfcClassDecl)active_scope, fEditor.getIndexIterator());
+					(SVDBClassDecl)active_scope, 
+					fEditor.getIndexIterator());
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

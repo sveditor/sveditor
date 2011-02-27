@@ -24,9 +24,8 @@ public class SVDBPreProcCond extends SVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBPreProcCond(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBPreProcCond(parent, type, reader);
 			}
 		};
 		
@@ -39,8 +38,8 @@ public class SVDBPreProcCond extends SVDBScopeItem {
 		fConditional = conditional;
 	}
 	
-	public SVDBPreProcCond(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBPreProcCond(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fConditional = reader.readString();
 	}
 	

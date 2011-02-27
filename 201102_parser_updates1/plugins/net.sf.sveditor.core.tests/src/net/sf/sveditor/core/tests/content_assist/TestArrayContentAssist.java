@@ -30,7 +30,9 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -162,8 +164,9 @@ public class TestArrayContentAssist extends TestCase {
 		
 		assertNotNull(m_queue_item);
 		System.out.println("    type=" + m_queue_item.getAttr());
-		System.out.println("    queue=" + SVDBVarDeclStmt.VarAttr_Queue);
-		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclStmt.VarAttr_Queue) != 0));
+		SVDBVarDeclItem var_item = m_queue_item.getVarList().get(0);
+		assertNotNull(var_item.getArrayDim());
+		assertTrue((var_item.getArrayDim().getDimType() == SVDBVarDimItem.DimType.Queue));
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class1.getItems()) {
@@ -282,7 +285,9 @@ public class TestArrayContentAssist extends TestCase {
 		}
 		
 		assertNotNull(m_queue_item);
-		assertTrue(((m_queue_item.getAttr() & SVDBVarDeclStmt.VarAttr_DynamicArray) != 0));
+		SVDBVarDeclItem var_item = m_queue_item.getVarList().get(0);
+		assertNotNull(var_item.getArrayDim());
+		assertTrue((var_item.getArrayDim().getDimType() == SVDBVarDimItem.DimType.Unsized));
 		
 		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class1.getItems()) {

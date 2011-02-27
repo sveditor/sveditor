@@ -25,8 +25,8 @@ public class SVDBTypeInfoFwdDecl extends SVDBTypeInfo {
 		fTypeClass = type_class;
 	}
 	
-	public SVDBTypeInfoFwdDecl(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.FwdDecl, file, parent, type, reader);
+	public SVDBTypeInfoFwdDecl(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.FwdDecl, parent, type, reader);
 		fTypeClass = reader.readString();
 	}
 

@@ -22,6 +22,7 @@ public class SVParsers {
 	
 	private ParserSVDBFileFactory				fSVParser;
 	private SVClassDeclParser					fClassParser;
+	private SVCovergroupParser					fCovergroupParser;
 	private SVParameterDeclParser				fParamDeclParser;
 	private SVParameterPortListParser			fParamPortParser;
 	private SVDataTypeParser					fDataTypeParser;
@@ -39,6 +40,7 @@ public class SVParsers {
 	private SVImportStmtParser					fImportParser;
 	private SVExprParser						fExprParser;
 	private SVGateInstantiationParser			fGateInstanceParser;
+	private SVAssertionParser					fAssertionParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -172,6 +174,20 @@ public class SVParsers {
 			fGateInstanceParser = new SVGateInstantiationParser(fSVParser);
 		}
 		return fGateInstanceParser;
+	}
+	
+	public SVAssertionParser assertionParser() {
+		if (fAssertionParser == null) {
+			fAssertionParser = new SVAssertionParser(fSVParser);
+		}
+		return fAssertionParser;
+	}
+	
+	public SVCovergroupParser covergroupParser() {
+		if (fCovergroupParser == null) {
+			fCovergroupParser = new SVCovergroupParser(fSVParser);
+		}
+		return fCovergroupParser;
 	}
 
 }

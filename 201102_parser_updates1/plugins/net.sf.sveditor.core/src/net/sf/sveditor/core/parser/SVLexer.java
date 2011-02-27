@@ -33,7 +33,7 @@ public class SVLexer extends SVToken {
 	private boolean						fNewlineAsOperator;
 	
 	private StringBuilder				fStringBuffer;
-	private boolean						fDebugEn = false;
+	private boolean						fDebugEn = true;
 	private boolean						fEOF;
 	
 	private StringBuilder				fCaptureBuffer;
@@ -62,7 +62,7 @@ public class SVLexer extends SVToken {
 		":", "::", ":/", ":=",
 		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
-		"->", "#", "@",
+		"->", "#", "@", "@@"
 	};
 	
 	private static final String AllOperators[];
@@ -172,6 +172,8 @@ public class SVLexer extends SVToken {
 		}
 		
 		fUngetStack.push(tok);
+		peek();
+		debug("After un-get of token \"" + tok.getImage() + "\" next token is \"" + peek() + "\"");
 	}
 	
 	public String peek() {
@@ -251,6 +253,10 @@ public class SVLexer extends SVToken {
 		if (fIsOperator) {
 			if (ops.length == 0) {
 				found = true;
+			} else if (ops.length == 1) {
+				found = fImage.equals(ops[0]);
+			} else if (ops.length == 2) {
+				found = fImage.equals(ops[0]) || fImage.equals(ops[1]);
 			} else {
 				for (String op : ops) {
 					if (fImage.equals(op)) {
@@ -282,9 +288,20 @@ public class SVLexer extends SVToken {
 		peek();
 		
 		boolean found = false;
+		if (kw.length == 1 && kw[0].equals("return") && fImage.equals("return")) {
+			debug("RETURN: " + fIsKeyword);
+		}
 		if (fIsKeyword) {
 			if (kw.length == 0) {
 				found = true;
+			} else if (kw.length == 1) {
+				found = fImage.equals(kw[0]);
+			} else if (kw.length == 2) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]);
+			} else if (kw.length == 3) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]);
+			} else if (kw.length == 4) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) || fImage.equals(kw[3]);
 			} else {
 				for (String k : kw) {
 					if (fImage.equals(k)) {
@@ -309,6 +326,23 @@ public class SVLexer extends SVToken {
 		return found;
 	}
 
+	public String readKeyword(Set<String> kw) throws SVParseException {
+		if (!peekKeyword(kw)) {
+			StringBuilder sb = new StringBuilder();
+			
+			for (String k : kw) {
+				sb.append(k);
+			}
+			if (sb.length() > 2) {
+				sb.setLength(sb.length()-2);
+			}
+			
+			error("Expecting one of keyword \"" + 
+					sb.toString() + "\" ; received \"" + fImage + "\"");
+		}
+		return eatToken();
+	}
+	
 	public String readKeyword(String ... kw) throws SVParseException {
 		
 		if (!peekKeyword(kw)) {
@@ -404,7 +438,9 @@ public class SVLexer extends SVToken {
 		}
 		try {
 			if (fUngetStack.size() > 0) {
+				debug("next_token: unget_stack top=" + fUngetStack.peek().getImage());
 				init(fUngetStack.pop());
+				fTokenConsumed = false;
 				return true;
 			} else {
 				return next_token_int();

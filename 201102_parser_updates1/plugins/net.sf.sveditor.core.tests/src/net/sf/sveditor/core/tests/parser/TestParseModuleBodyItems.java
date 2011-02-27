@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
@@ -284,23 +285,27 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module top", top);
 		
 		for (SVDBParamPort p : top.getPorts()) {
-			System.out.println("Port: " + p.getName());
+			System.out.println("Port: " + p.getVarList().get(0).getName());
 		}
 
 		ISVDBItemBase a=null, b=null, c=null, d=null, bus=null;
 		for (ISVDBItemBase it : top.getItems()) {
 			String name = SVDBItem.getName(it);
 			System.out.println("[Item] " + it.getType() + " " + name);
-			if (name.equals("a")) {
-				a = it;
-			} else if (name.equals("b")) {
-				b = it;
-			} else if (name.equals("c")) {
-				c = it;
-			} else if (name.equals("d")) {
-				d = it;
-			} else if (name.equals("bus")) {
-				bus = it;
+			if (it.getType() == SVDBItemType.VarDeclStmt) {
+				for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
+					if (name.equals("a")) {
+						a = vi;
+					} else if (name.equals("b")) {
+						b = vi;
+					} else if (name.equals("c")) {
+						c = vi;
+					} else if (name.equals("d")) {
+						d = vi;
+					} else if (name.equals("bus")) {
+						bus = vi;
+					}
+				}
 			}
 		}
 		
@@ -360,15 +365,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module top", top);
 
-		SVDBParamPort a=null, b=null, bar=null;
+		SVDBVarDeclItem a=null, b=null, bar=null;
 		for (SVDBParamPort p : top.getPorts()) {
-			System.out.println("Port: " + p.getName());
-			if (p.getName().equals("a")) {
-				a = p;
-			} else if (p.getName().equals("b")) {
-				b = p;
-			} else if (p.getName().equals("bar")) {
-				bar = p;
+			for (SVDBVarDeclItem pi : p.getVarList()) {
+				System.out.println("Port: " + pi.getName());
+				if (pi.getName().equals("a")) {
+					a = pi;
+				} else if (pi.getName().equals("b")) {
+					b = pi;
+				} else if (pi.getName().equals("bar")) {
+					bar = pi;
+				}
 			}
 		}
 		
@@ -376,8 +383,8 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(b);
 		assertNotNull(bar);
 
-		assertEquals(SVDBDataType.UserDefined, b.getTypeInfo().getDataType());
-		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getTypeInfo()).getName());
+		assertEquals(SVDBDataType.UserDefined, b.getParent().getTypeInfo().getDataType());
+		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getParent().getTypeInfo()).getName());
 	}
 
 	public void testAlwaysBlock() {
@@ -893,15 +900,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		}
 		assertNotNull("Failed to find module t", t);
 		
-		SVDBParamPort out=null, in=null, in2=null;
+		SVDBVarDeclItem out=null, in=null, in2=null;
 		
 		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t).getPorts()) {
-			if (p.getName().equals("out")) {
-				out = p;
-			} else if (p.getName().equals("in")) {
-				in = p;
-			} else if (p.getName().equals("in2")) {
-				in2 = p;
+			for (SVDBVarDeclItem pi : p.getVarList()) {
+				if (pi.getName().equals("out")) {
+					out = pi;
+				} else if (pi.getName().equals("in")) {
+					in = pi;
+				} else if (pi.getName().equals("in2")) {
+					in2 = pi;
+				}
 			}
 		}
 		assertNotNull("Failed to find \"out\"", out);
@@ -931,11 +940,13 @@ public class TestParseModuleBodyItems extends TestCase {
 		}
 		assertNotNull("Failed to find module t2", t2);
 		
-		SVDBParamPort mp=null;
+		SVDBVarDeclItem mp=null;
 		
 		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t2).getPorts()) {
-			if (p.getName().equals("mp")) {
-				mp = p;
+			for (SVDBVarDeclItem pi : p.getVarList()) {
+				if (pi.getName().equals("mp")) {
+					mp = pi;
+				}
 			}
 		}
 		assertNotNull("Failed to find \"mp\"", mp);

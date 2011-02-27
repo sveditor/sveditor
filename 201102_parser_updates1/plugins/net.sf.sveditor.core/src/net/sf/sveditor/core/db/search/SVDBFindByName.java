@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -54,8 +55,10 @@ public class SVDBFindByName {
 			}
 			
 			if (type_match) {
-				if (fMatcher.match((ISVDBNamedItem)it, name)) {
-					ret.add(it);
+				if (it instanceof ISVDBNamedItem) {
+					if (fMatcher.match((ISVDBNamedItem)it, name)) {
+						ret.add(it);
+					}
 				}
 			}
 		}

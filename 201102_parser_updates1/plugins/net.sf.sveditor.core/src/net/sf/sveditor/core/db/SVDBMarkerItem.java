@@ -45,9 +45,8 @@ public class SVDBMarkerItem extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBMarkerItem(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBMarkerItem(parent, type, reader);
 			}
 		};
 		
@@ -64,8 +63,8 @@ public class SVDBMarkerItem extends SVDBItem {
 		fAttr		= new HashMap<String, String>();
 	}
 	
-	public SVDBMarkerItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBMarkerItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fMessage = reader.readString();
 		fKind    = reader.readString();
 

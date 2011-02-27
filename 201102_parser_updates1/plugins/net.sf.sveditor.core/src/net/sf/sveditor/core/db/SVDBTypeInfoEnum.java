@@ -28,8 +28,8 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		fEnumList = new ArrayList<Tuple<String,String>>();
 	}
 
-	public SVDBTypeInfoEnum(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.Enum, file, parent, type, reader);
+	public SVDBTypeInfoEnum(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.Enum, parent, type, reader);
 		
 		fEnumList = new ArrayList<Tuple<String,String>>();
 		int size = reader.readInt();

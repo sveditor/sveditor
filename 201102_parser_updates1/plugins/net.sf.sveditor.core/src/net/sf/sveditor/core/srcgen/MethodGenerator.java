@@ -18,6 +18,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class MethodGenerator {
 	
@@ -74,11 +75,16 @@ public class MethodGenerator {
 			
 			new_tf.append(ti.toString());
 			new_tf.append(" ");
-			new_tf.append(p.getName());
-			
-			if (i+1 < tf.getParams().size()) {
+			for (SVDBVarDeclItem vi : p.getVarList()) {
+				new_tf.append(vi.getName());
+				
 				new_tf.append(", ");
 			}
+			new_tf.setLength(new_tf.length()-2);
+		}
+		
+		if (new_tf.toString().endsWith(", ")) {
+			new_tf.setLength(new_tf.length()-2);
 		}
 		
 		new_tf.append(");\n");

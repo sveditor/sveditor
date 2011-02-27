@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 public class SVParameterPortListParser extends SVParserBase {
 	
@@ -57,8 +58,7 @@ public class SVParameterPortListParser extends SVParserBase {
 					lexer().eatToken();
 				}
 				// This might be a type
-				SVDBTypeInfo type = parsers().dataTypeParser().data_type(
-						0, lexer().eatToken());
+				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 				
 				// If the next element is an operator, then the 
 				// return from the type parser is the parameter name
@@ -84,9 +84,10 @@ public class SVParameterPortListParser extends SVParserBase {
 				
 				// TODO:
 				// id = parsers().exprParser().expression().toString();
-				id = parsers().SVParser().readExpression(true);
+				// id = parsers().SVParser().readExpression(true);
+				SVExpr dflt = parsers().exprParser().expression();
 				debug("parameter default: " + id);
-				p.setDefault(id);
+				p.setDefault(dflt);
 			}
 
 			params.add(p);

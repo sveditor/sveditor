@@ -19,11 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceReader implements IDBReader {
@@ -194,8 +193,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		}
 	}
 
-	public List readItemList(SVDBFile file, SVDBScopeItem parent)
-			throws DBFormatException {
+	public List readItemList(ISVDBChildItem parent) throws DBFormatException {
 		String type = readTypeString();
 		
 		if (!"SIL".equals(type)) {
@@ -221,7 +219,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		} else {
 			List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 			while (size-- > 0) {
-				ret.add(readSVDBItem(file, parent));
+				ret.add(readSVDBItem(parent));
 			}
 			
 			return ret;
@@ -487,8 +485,7 @@ public class SVDBPersistenceReader implements IDBReader {
 	}
 	
 	public SVDBItemBase readSVDBItem(
-			SVDBFile			file,
-			SVDBScopeItem		parent
+			ISVDBChildItem		parent
 			) throws DBFormatException {
 		SVDBItemBase ret = null;
 		
@@ -497,7 +494,7 @@ public class SVDBPersistenceReader implements IDBReader {
 		if (type == SVDBItemType.NULL) {
 			return null;
 		} else if (fSVDBFactoryMap.containsKey(type)) {
-			ret = fSVDBFactoryMap.get(type).readSVDBItem(this, type, file, parent);
+			ret = fSVDBFactoryMap.get(type).readSVDBItem(parent, type, this);
 		} else {
 			throw new DBFormatException("Unsupported SVDBItemType " + type);
 		}

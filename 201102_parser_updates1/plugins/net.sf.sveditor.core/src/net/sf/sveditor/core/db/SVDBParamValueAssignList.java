@@ -33,17 +33,16 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	}
 
 	@SuppressWarnings("unchecked")
-	public SVDBParamValueAssignList(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBParamValueAssignList(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fNamedMapping = (reader.readInt() != 0)?true:false;
-		fParameters = (List<SVDBParamValueAssign>)reader.readItemList(file, null);
+		fParameters = (List<SVDBParamValueAssign>)reader.readItemList(this);
 	}
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBParamValueAssignList(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBParamValueAssignList(parent, type, reader);
 			}
 		};
 		
@@ -75,7 +74,7 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
+	public SVDBParamValueAssignList duplicate() {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
 		
 		ret.init(this);

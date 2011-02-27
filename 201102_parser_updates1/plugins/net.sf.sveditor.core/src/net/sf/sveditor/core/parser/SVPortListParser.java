@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class SVPortListParser extends SVParserBase {
 	
@@ -81,7 +82,7 @@ public class SVPortListParser extends SVParserBase {
 				// Relax to allow use of SV keywords for Verilog ports
 				id = lexer().readIdOrKeyword();
 			} else {
-				type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
+				type = parsers().dataTypeParser().data_type(0);
 
 				// This could be a continuation of the same type: int a, b, c
 
@@ -112,24 +113,18 @@ public class SVPortListParser extends SVParserBase {
 			}
 			
 
-			SVDBParamPort param = new SVDBParamPort(type, id);
-			param.setDir(dir);
-			param.setLocation(it_start);
+			SVDBParamPort param_r = new SVDBParamPort(type);
+			param_r.setDir(dir);
+			param_r.setLocation(it_start);
+			SVDBVarDeclItem param = new SVDBVarDeclItem(id);
+			param_r.addVar(param);
 
 			if (lexer().peekOperator("[")) {
 				// This port is an array port
-				lexer().startCapture();
-				lexer().skipPastMatch("[", "]");
-				String bounds = lexer().endCapture();
-				
-				if (bounds.length() > 2) {
-					bounds = bounds.substring(0, bounds.length()-1);
-				}
-
-				param.setArrayDim(bounds);
+				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
-			ports.add(param);
+			ports.add(param_r);
 
 			/*
 			if (lexer().peekOperator("=")) {

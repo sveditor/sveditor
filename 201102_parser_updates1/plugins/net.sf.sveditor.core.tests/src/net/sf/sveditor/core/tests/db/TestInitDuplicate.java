@@ -35,6 +35,7 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
@@ -48,8 +49,8 @@ public class TestInitDuplicate extends TestCase {
 		int_testDumpLoad(new SVDBClockingBlock("clocking"));
 		int_testDumpLoad(new SVDBConstraint("c"));
 		int_testDumpLoad(new SVDBCoverGroup("cg"));
-		int_testDumpLoad(new SVDBCoverPoint("cp", "target", "body"));
-		int_testDumpLoad(new SVDBCoverpointCross("cross", "body"));
+		int_testDumpLoad(new SVDBCoverPoint("cp"));
+		int_testDumpLoad(new SVDBCoverpointCross("cross"));
 		
 		int_testDumpLoad(new SVDBGenerateBlock("generate"));
 		int_testDumpLoad(new SVDBImport("import"));
@@ -81,7 +82,8 @@ public class TestInitDuplicate extends TestCase {
 			SVDBParamPort p;
 			SVDBTaskFuncScope tf = new SVDBTaskFuncScope("func", SVDBItemType.Function);
 			tf.setReturnType(new SVDBTypeInfoBuiltin("int"));
-			p = new SVDBParamPort(new SVDBTypeInfoBuiltin("int"), "p1");
+			p = new SVDBParamPort(new SVDBTypeInfoBuiltin("int"));
+			p.addVar(new SVDBVarDeclItem("p1"));
 			p.setLocation(new SVDBLocation(1, 1));
 			tf.getParams().add(p);
 			
@@ -109,7 +111,7 @@ public class TestInitDuplicate extends TestCase {
 		SVDBFile file = new SVDBFile("foo");
 		SVDBScopeItem parent = null;
 		
-		ISVDBItemBase load = reader.readSVDBItem(file, parent);
+		ISVDBItemBase load = reader.readSVDBItem(parent);
 		
 		boolean eq = item.equals(load);
 		if (!eq) {

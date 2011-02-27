@@ -60,10 +60,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 				}
 			
 				// data-type or implicit
-				String data_type_or_implicit;
+				SVToken data_type_or_implicit;
 				if (lexer().peekKeyword("void") || 
 						SVKeywords.isBuiltInType(lexer().peek())) {
-					data_type_or_implicit = lexer().eatToken();
+					data_type_or_implicit = lexer().consumeToken();
 				} else {
 					data_type_or_implicit = parsers().SVParser().scopedIdentifier(true);
 				}

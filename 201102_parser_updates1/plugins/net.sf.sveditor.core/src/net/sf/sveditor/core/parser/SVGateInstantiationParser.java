@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVGateInstantiationParser extends SVParserBase {
 	
@@ -221,14 +222,26 @@ public class SVGateInstantiationParser extends SVParserBase {
 		} else if (lexer().peekKeyword("pullup", "pulldown")) {
 			SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(lexer().eatToken());
 			
-			// TODO: still handling pull-ups lexically
 			if (lexer().peekOperator("(")) {
-				lexer().skipPastMatch("(", ")");
-			}
-			while (lexer().peek() != null && !lexer().peekOperator(";")) {
-				lexer().readIdOrKeyword(); // pullup
 				lexer().readOperator("(");
-				lexer().skipPastMatch("(", ")");
+				lexer().readKeyword(SVKeywords.fStrength);
+				
+				if (lexer().peekOperator(",")) {
+					lexer().eatToken();
+					lexer().readKeyword(SVKeywords.fStrength);
+				}
+				
+				lexer().readOperator(")");
+			}
+
+			while (lexer().peek() != null) {
+				item = new SVDBModIfcInstItem(type, lexer().readId());
+				ret.add(item);
+				
+				lexer().readOperator("(");
+				parsers().exprParser().expression();
+				lexer().readOperator(")");
+				
 				if (lexer().peekOperator(",")) {
 					lexer().eatToken();
 				} else {

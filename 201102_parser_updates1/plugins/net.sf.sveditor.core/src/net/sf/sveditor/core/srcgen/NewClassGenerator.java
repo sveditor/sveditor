@@ -118,18 +118,33 @@ public class NewClassGenerator {
 					
 					for (int i=0; i<params.size(); i++) {
 						SVDBParamPort p = params.get(i);
-						template += p.getTypeName() + " " + p.getName();
+						template += p.getTypeName() + " ";
+						for (int j=0; j<p.getVarList().size(); j++) {
+							template += p.getVarList().get(j).getName();
+							if (j+1 < p.getVarList().size()) {
+								template += ", ";
+							}
+						}
 						
 						if (i+1 < params.size()) {
 							template += ", ";
 						}
+					}
+					if (template.endsWith(", ")) {
+						template = template.substring(0, template.length()-2);
 					}
 					template += ");\n";
 
 					template += "super.new(";
 					for (int i=0; i<params.size(); i++) {
 						SVDBParamPort p = params.get(i);
-						template += p.getName();
+						for (int j=0; j<p.getVarList().size(); j++) {
+							template += p.getVarList().get(j).getName();
+							
+							if (j+1 < p.getVarList().size()) {
+								template += ", ";
+							}
+						}
 						
 						if (i+1 < params.size()) {
 							template += ", ";

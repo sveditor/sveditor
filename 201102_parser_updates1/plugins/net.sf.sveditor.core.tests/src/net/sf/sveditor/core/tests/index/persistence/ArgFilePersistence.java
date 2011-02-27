@@ -116,7 +116,7 @@ public class ArgFilePersistence extends TestCase
 			assertNotNull("Item " + SVDBItem.getName(it) + " has null location");
 			if (it instanceof SVDBTaskFuncScope) {
 				for (SVDBParamPort p : ((SVDBTaskFuncScope)it).getParams()) {
-					assertNotNull("Parameter " + p.getName() + 
+					assertNotNull("Parameter " + p.getVarList().get(0).getName() + 
 							" of " + SVDBItem.getName(it) + " has null location",
 							p.getLocation());
 				}

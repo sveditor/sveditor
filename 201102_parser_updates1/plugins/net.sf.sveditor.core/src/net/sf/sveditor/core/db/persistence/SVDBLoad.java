@@ -88,8 +88,8 @@ public class SVDBLoad {
 		}
 		
 		// TODO: Check base location against index being loaded
-		List<SVDBFile> pp_list = (List<SVDBFile>)fReader.readItemList(null, null);
-		List<SVDBFile> db_list = (List<SVDBFile>)fReader.readItemList(null, null);
+		List<SVDBFile> pp_list = (List<SVDBFile>)fReader.readItemList(null);
+		List<SVDBFile> db_list = (List<SVDBFile>)fReader.readItemList(null);
 		
 		fLog.debug("pp_list.size=" + pp_list.size() + 
 				" db_list.size=" + db_list.size());

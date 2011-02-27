@@ -24,5 +24,7 @@ public enum SVDBDataType {
 	// Typedefs can be of Enum, Struct, 
 	// UserDefined, or BuiltIn type
 	Enum,
-	Struct
+	Struct,
+	Class,
+	ClassItem
 }

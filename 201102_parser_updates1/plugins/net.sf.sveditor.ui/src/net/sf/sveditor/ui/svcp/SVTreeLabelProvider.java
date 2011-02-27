@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
@@ -55,14 +56,15 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 	}
 	
 	public StyledString getStyledText(Object element) {
-		if (element instanceof SVDBVarDeclStmt) {
-			SVDBVarDeclStmt var = (SVDBVarDeclStmt)element;
-			StyledString ret = new StyledString(((SVDBVarDeclStmt)element).getName());
+		if (element instanceof SVDBVarDeclItem) {
+			SVDBVarDeclItem var = (SVDBVarDeclItem)element;
+			SVDBVarDeclStmt var_r = var.getParent();
+			StyledString ret = new StyledString(var.getName());
 			
-			if (var.getTypeInfo() != null) {
-				ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);
+			if (var_r.getTypeInfo() != null) {
+				ret.append(" : " + var_r.getTypeName(), StyledString.QUALIFIER_STYLER);
 				
-				SVDBTypeInfo type = var.getTypeInfo();
+				SVDBTypeInfo type = var_r.getTypeInfo();
 				
 				if (type.getDataType() == SVDBDataType.UserDefined) {
 					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;

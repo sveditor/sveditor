@@ -12,19 +12,30 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.List;
+
+import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 
 public class SVDBCoverGroup extends SVDBModIfcClassDecl {
+	public enum BinsKW {
+		Bins,
+		IllegalBins,
+		IgnoreBins
+	};
+	
+	private SVExpr				fCoverageEventExpr;
+	private List<SVDBParamPort>	fParamPort;
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBCoverGroup(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBCoverGroup(parent, type, reader);
 			}
 		};
 		
@@ -35,15 +46,31 @@ public class SVDBCoverGroup extends SVDBModIfcClassDecl {
 		super(name, SVDBItemType.Covergroup);
 	}
 	
-	public SVDBCoverGroup(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBCoverGroup(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 	}
 	
-	public SVDBItemBase duplicate() {
+	public void setParamPort(List<SVDBParamPort> params) {
+		fParamPort = params;
+	}
+	
+	public List<SVDBParamPort> getParamPort() {
+		return fParamPort;
+	}
+	
+	public void setCoverageEvent(SVExpr expr) {
+		fCoverageEventExpr = expr;
+	}
+	
+	public SVExpr getCoverageEvent() {
+		return fCoverageEventExpr;
+	}
+	
+	public SVDBCoverGroup duplicate() {
 		SVDBCoverGroup cg = new SVDBCoverGroup(getName());
 		
 		cg.init(this);

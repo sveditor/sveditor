@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -86,7 +85,7 @@ public class TestBuiltinIndex extends TestCase {
 				}
 			}
 			
-			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+			if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				assertNotNull("Item " + SVDBItem.getName(it) + " w/parent " + 
 						SVDBItem.getName(((SVDBVarDeclStmt)it).getParent()) + " has null type",
 					((SVDBVarDeclStmt)it).getTypeInfo());

@@ -26,9 +26,8 @@ public class SVDBFile extends SVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBFile(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBFile(parent, type, reader);
 			}
 		};
 		
@@ -48,12 +47,8 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	public SVDBFile(
-			SVDBFile file, 
-			SVDBScopeItem parent, 
-			SVDBItemType type, 
-			IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBFile(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fFile               = reader.readString();
 		fLastModified 		= reader.readLong();
 	}

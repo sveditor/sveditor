@@ -29,9 +29,9 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public SVDBTypeInfoStruct(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.Struct, file, parent, type, reader);
-		fFields = (List<SVDBVarDeclStmt>)reader.readItemList(file, parent);
+	public SVDBTypeInfoStruct(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.Struct, parent, type, reader);
+		fFields = (List<SVDBVarDeclStmt>)reader.readItemList(parent);
 	}
 	
 	public List<SVDBVarDeclStmt> getFields() {

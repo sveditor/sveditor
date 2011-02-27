@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.expr.SVAssignmentPatternExpr;
 import net.sf.sveditor.core.db.expr.SVAssignmentPatternRepeatExpr;
 import net.sf.sveditor.core.db.expr.SVBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVCastExpr;
+import net.sf.sveditor.core.db.expr.SVClockingEventExpr;
 import net.sf.sveditor.core.db.expr.SVConcatenationExpr;
 import net.sf.sveditor.core.db.expr.SVCondExpr;
 import net.sf.sveditor.core.db.expr.SVConstraintIfExpr;
@@ -59,11 +60,51 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 public class SVExprParser extends SVParserBase {
 //	private SVExprDump						fExprDump;
 //	private boolean							fDebugEn = false;
-	public static boolean					fUseFullExprParser = false;
+	public static boolean					fUseFullExprParser = true;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
 //		fExprDump = new SVExprDump(System.out);
+	}
+	
+	public SVClockingEventExpr clocking_event() throws SVParseException {
+		SVClockingEventExpr expr = new SVClockingEventExpr();
+		lexer().readOperator("@");
+		if (lexer().peekOperator("(")) {
+			expr.setExpr(event_expression());
+		} else {
+			expr.setExpr(new SVIdentifierExpr(lexer().readId()));
+		}
+		
+		return expr;
+	}
+	
+	public SVExpr event_expression() throws SVParseException {
+		if (lexer().peekOperator("(")) {
+			SVParenExpr expr = new SVParenExpr(event_expression());
+			return expr;
+		} else {
+			SVExpr ret = null;
+			if (lexer().peekKeyword("posedge", "negedge", "edge")) {
+				ret = new SVUnaryExpr(lexer().eatToken(), expression());
+				if (lexer().peekKeyword("iff")) {
+					ret = new SVBinaryExpr(ret, "iff", expression());
+				}
+			} else {
+				ret = expression();
+				if (lexer().peekOperator("iff")) {
+					ret = new SVBinaryExpr(ret, "iff", expression());
+				}
+			}
+			
+			if (lexer().peekKeyword("or")) {
+				ret = new SVBinaryExpr(ret, "or", event_expression());
+			} else if (lexer().peekOperator(",")) {
+				ret = new SVBinaryExpr(ret, ",", event_expression());
+			}
+			
+			return ret;
+		}
 	}
 
 	/**
@@ -614,12 +655,14 @@ public class SVExprParser extends SVParserBase {
 	 * @throws SVParseException
 	 */
 	public SVExpr conditionalAndExpression() throws SVParseException {
+		debug("--> conditionalAndExpression()");
 		SVExpr a = inclusiveOrExpression();
 		
 		while (peekOperator("&&")) {
 			eatToken();
 			a = new SVBinaryExpr(a, "&&", inclusiveOrExpression());
 		}
+		debug("<-- conditionalAndExpression()");
 		return a;
 	}
 	

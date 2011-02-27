@@ -86,6 +86,7 @@ public class TestParseFunction extends TestCase {
 			"    t = 20ns;\n" +
 			"endfunction\n";
 		
+		SVCorePlugin.getDefault().enableDebug(true);
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
@@ -186,7 +187,7 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 		
-		assertEquals("bar", func.getParams().get(1).getName());
+		assertEquals("bar", func.getParams().get(1).getVarList().get(0).getName());
 		assertEquals(SVDBParamPort.Direction_Ref,
 				func.getParams().get(1).getDir());
 	}

@@ -14,10 +14,13 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBParamPort extends SVDBVarDeclStmt {
 	public static final int			Direction_Ref     = (1 << 19);
@@ -44,17 +47,16 @@ public class SVDBParamPort extends SVDBVarDeclStmt {
 	private int						fDir;
 	
 	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
+		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
 					IDBReader reader) throws DBFormatException {
-				return new SVDBParamPort(parent, stmt_type, reader);
+				return new SVDBParamPort(parent, type, reader);
 			}
-		}, SVDBStmtType.ParamPortDecl);
+		}, SVDBItemType.ParamPortDecl);
 	}
 	
-	public SVDBParamPort(SVDBTypeInfo type, String name) {
-		super(SVDBStmtType.ParamPortDecl, type, name, 0);
+	public SVDBParamPort(SVDBTypeInfo type) {
+		super(type, 0);
 		fDir = Direction_Input;
 	}
 	
@@ -71,7 +73,7 @@ public class SVDBParamPort extends SVDBVarDeclStmt {
 	}
 	
 	public SVDBParamPort duplicate() {
-		SVDBParamPort ret = new SVDBParamPort(fTypeInfo, getName());
+		SVDBParamPort ret = new SVDBParamPort(fTypeInfo);
 		
 		init(ret);
 		
@@ -84,7 +86,7 @@ public class SVDBParamPort extends SVDBVarDeclStmt {
 		fDir = ((SVDBParamPort)other).fDir; 
 	}
 	
-	public SVDBParamPort(ISVDBChildItem parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
+	public SVDBParamPort(ISVDBChildItem parent, SVDBItemType stmt_type, IDBReader reader) throws DBFormatException {
 		super(parent, stmt_type, reader);
 		
 		fDir = reader.readInt();

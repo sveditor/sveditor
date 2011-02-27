@@ -27,9 +27,8 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBScopeItem(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBScopeItem(parent, type, reader);
 			}
 		};
 		
@@ -45,13 +44,10 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public SVDBScopeItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		if (getType() == SVDBItemType.File) {
-			file   = (SVDBFile)this;
-		}
+	public SVDBScopeItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fEndLocation = new SVDBLocation(reader.readInt(), reader.readInt());
-		fItems = (List<ISVDBItemBase>)reader.readItemList(file, this);
+		fItems = (List<ISVDBItemBase>)reader.readItemList(this);
 	}
 	
 	public void dump(IDBWriter writer) {

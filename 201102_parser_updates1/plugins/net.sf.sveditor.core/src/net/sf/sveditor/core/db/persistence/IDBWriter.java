@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.persistence;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface IDBWriter {
@@ -36,7 +36,7 @@ public interface IDBWriter {
 	@SuppressWarnings("rawtypes")
 	void writeItemList(Collection items);
 	
-	void writeSVDBItem(SVDBItem item);
+	void writeSVDBItem(ISVDBItemBase item);
 	
 	void writeStringList(List<String> items);
 	

@@ -12,10 +12,15 @@
 
 package net.sf.sveditor.ui.svcp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -25,7 +30,15 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(Object elem) {
 		if (elem instanceof ISVDBScopeItem &&
 				!(elem instanceof SVDBTaskFuncScope)) {
-			return ((ISVDBScopeItem)elem).getItems().toArray();
+			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
+			for (ISVDBItemBase it : ((ISVDBScopeItem)elem).getItems()) {
+				if (it.getType() == SVDBItemType.VarDeclStmt) {
+					c.addAll(((SVDBVarDeclStmt)it).getVarList());
+				} else {
+					c.add(it);
+				}
+			}
+			return c.toArray();
 		} else {
 			return new Object[0];
 		}

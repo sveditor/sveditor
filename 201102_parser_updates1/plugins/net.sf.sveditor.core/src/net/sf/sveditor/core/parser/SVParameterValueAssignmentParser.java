@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
 	
@@ -39,7 +40,8 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			
 			// TODO:
 			// String val = parsers().exprParser().expression().toString();
-			String val = parsers().SVParser().readExpression(true);
+			// String val = parsers().SVParser().readExpression(true);
+			SVExpr val = parsers().exprParser().expression();
 
 			if (is_mapped) {
 				// Read inside

@@ -31,9 +31,11 @@ import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefItem;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -134,8 +136,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							it, doc, replacementOffset, replacementLength);
 					break;
 					
-				case Typedef: {
-					SVDBTypedef td = (SVDBTypedef)it;
+				case TypedefItem: {
+					SVDBTypedefItem td = (SVDBTypedefItem)it;
+					SVDBTypedefStmt tds = (SVDBTypedefStmt)td.getParent();
 					String td_name_lc = td.getName().toLowerCase();
 					String prefix_lc  = prefix.toLowerCase();
 					
@@ -150,8 +153,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					
 					// Check to see if the name matches any enum values
-					if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
-						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)td.getTypeInfo();
+					if (tds.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)tds.getTypeInfo();
 						
 						for (Tuple<String, String> n : enum_t.getEnumValues()) {
 							String name = n.first();
@@ -236,15 +239,17 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
 			SVDBParamPort param = tf.getParams().get(i);
-			
-			d.append(param.getTypeName() + " " + param.getName());
-			r.append("${");
-			r.append(param.getName());
-			r.append("}");
-			
-			if (i+1 < tf.getParams().size()) {
-				d.append(", ");
-				r.append(", ");
+			for (int j=0; j<param.getVarList().size(); j++) {
+				SVDBVarDeclItem vi = param.getVarList().get(j);
+				d.append(param.getTypeName() + " " + vi.getName());
+				r.append("${");
+				r.append(vi.getName());
+				r.append("}");
+				
+				if (i+1 < tf.getParams().size()) {
+					d.append(", ");
+					r.append(", ");
+				}
 			}
 		}
 		d.append(")");

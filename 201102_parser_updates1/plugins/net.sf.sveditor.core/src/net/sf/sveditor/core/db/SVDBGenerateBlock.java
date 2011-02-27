@@ -22,9 +22,8 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBGenerateBlock(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBGenerateBlock(parent, type, reader);
 			}
 		};
 		SVDBPersistenceReader.registerPersistenceFactory(
@@ -35,9 +34,8 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 		super(name, SVDBItemType.GenerateBlock);
 	}
 	
-	public SVDBGenerateBlock(SVDBFile file, SVDBScopeItem parent, 
-			SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBGenerateBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 	}
 
 	@Override

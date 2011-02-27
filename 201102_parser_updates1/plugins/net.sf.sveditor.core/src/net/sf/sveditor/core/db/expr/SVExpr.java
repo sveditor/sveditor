@@ -15,10 +15,9 @@ package net.sf.sveditor.core.db.expr;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
@@ -39,8 +38,7 @@ public class SVExpr extends SVDBItemBase {
 		
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
 			
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 				SVExprType expr_type = (SVExprType)reader.readEnumType(SVExprType.class);
 				
 				return readExpr(expr_type, reader);

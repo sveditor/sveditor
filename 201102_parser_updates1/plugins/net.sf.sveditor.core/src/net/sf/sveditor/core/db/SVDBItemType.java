@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db;
 
 public enum SVDBItemType {
 	NULL,
+	Id,
 	File,
 	Module,
 	Class,
@@ -29,12 +30,13 @@ public enum SVDBItemType {
 	PackageDecl,
 	Covergroup,
 	Coverpoint,
-	CoverpointCross,
+	CoverpointBins,
+	CoverCross,
+	CoverCrossBinsSel,
 	Sequence,
 	Property,
 	ModIfcClassParam,
 	Constraint,
-	Typedef,
 	TypeInfo,
 	InitialBlock,
 	AlwaysBlock,
@@ -46,7 +48,44 @@ public enum SVDBItemType {
 	ClockingBlock,
 	Import,
 	Expr,
-	Stmt;
+
+	// Statement items
+	ActionBlockStmt,
+	BlockStmt,
+	DisableStmt,
+	DisableForkStmt,
+	EventControlStmt,
+	NullStmt,
+	WhileStmt,
+	DoWhileStmt,
+	ForStmt,
+	ForeachStmt,
+	RepeatStmt,
+	ForeverStmt,
+	IfStmt,
+	ForkStmt,
+	CaseStmt,
+	CaseItem,
+	AssertStmt,
+	WaitStmt,
+	WaitForkStmt,
+	WaitOrderStmt,
+	ReturnStmt,
+	BreakStmt,
+	ContinueStmt,
+	EventTriggerStmt,
+	
+	VarDeclStmt,
+	VarDeclItem,
+	VarDimItem,	
+	ParamPortDecl,
+	
+	TypedefStmt,
+	TypedefItem,
+	
+	CoverageOptionStmt,
+
+	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {
 		if (type_list.length == 0) {

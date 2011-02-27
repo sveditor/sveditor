@@ -20,9 +20,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.swt.graphics.Image;
@@ -44,7 +44,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Struct, STRUCT_OBJ);
 		fImgDescMap.put(SVDBItemType.Covergroup, COVERGROUP_OBJ);
 		fImgDescMap.put(SVDBItemType.Coverpoint, COVERPOINT_OBJ);
-		fImgDescMap.put(SVDBItemType.CoverpointCross, COVERPOINT_CROSS_OBJ);
+		fImgDescMap.put(SVDBItemType.CoverCross, COVERPOINT_CROSS_OBJ);
 		fImgDescMap.put(SVDBItemType.Sequence, SEQUENCE_OBJ);
 		fImgDescMap.put(SVDBItemType.Property, PROPERTY_OBJ);
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
@@ -61,26 +61,28 @@ public class SVDBIconUtils implements ISVIcons {
 	}
 	
 	public static Image getIcon(ISVDBItemBase it) {
-		if (it instanceof IFieldItemAttr) {
+		if (it.getType() == SVDBItemType.VarDeclItem) {
+			SVDBVarDeclItem decl = (SVDBVarDeclItem)it;
+			SVDBVarDeclStmt decl_p = decl.getParent();
+			int attr = decl_p.getAttr();
+			if (decl_p.getParent() != null && 
+					(decl_p.getParent().getType() == SVDBItemType.Task ||
+							decl_p.getParent().getType() == SVDBItemType.Function)) {
+				return SVUiPlugin.getImage(LOCAL_OBJ);
+			} else {
+				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
+					return SVUiPlugin.getImage(FIELD_PRIV_OBJ);
+				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
+					return SVUiPlugin.getImage(FIELD_PROT_OBJ);
+				} else {
+					return SVUiPlugin.getImage(FIELD_PUB_OBJ);
+				}
+			}
+		} else if (it instanceof IFieldItemAttr) {
 			int            attr = ((IFieldItemAttr)it).getAttr();
 			SVDBItemType   type = it.getType();
 			
-			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
-				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)it;
-				if (decl.getParent() != null && 
-						(decl.getParent().getType() == SVDBItemType.Task ||
-								decl.getParent().getType() == SVDBItemType.Function)) {
-					return SVUiPlugin.getImage(LOCAL_OBJ);
-				} else {
-					if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-						return SVUiPlugin.getImage(FIELD_PRIV_OBJ);
-					} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-						return SVUiPlugin.getImage(FIELD_PROT_OBJ);
-					} else {
-						return SVUiPlugin.getImage(FIELD_PUB_OBJ);
-					}
-				}
-			} else if (type == SVDBItemType.ModIfcInst) {
+			if (type == SVDBItemType.ModIfcInst) {
 				return SVUiPlugin.getImage(MOD_IFC_INST_OBJ);
 			} else if (type == SVDBItemType.Task || 
 					type == SVDBItemType.Function) {
@@ -91,7 +93,7 @@ public class SVDBIconUtils implements ISVIcons {
 				} else {
 					return SVUiPlugin.getImage(TASK_PUB_OBJ);
 				}
-			} else if (SVDBStmt.isType(it, SVDBStmtType.ParamPortDecl)) {
+			} else if (SVDBStmt.isType(it, SVDBItemType.ParamPortDecl)) {
 				return SVUiPlugin.getImage(LOCAL_OBJ);
 			}
 		} else if (it instanceof SVDBItem) {
@@ -99,8 +101,8 @@ public class SVDBIconUtils implements ISVIcons {
 			
 			if (fImgDescMap.containsKey(type)) {
 				return SVUiPlugin.getImage(fImgDescMap.get(type));
-			} else if (it.getType() == SVDBItemType.Typedef) {
-				SVDBTypedef td = (SVDBTypedef)it;
+			} else if (it.getType() == SVDBItemType.TypedefStmt) {
+				SVDBTypedefStmt td = (SVDBTypedefStmt)it;
 				
 				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
 					return SVUiPlugin.getImage(ENUM_TYPE_OBJ);

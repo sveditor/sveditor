@@ -17,9 +17,9 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -30,7 +30,7 @@ public class ClassHierarchyTreeFactory {
 		fIndexIt = index_it;
 	}
 	
-	public HierarchyTreeNode build(SVDBModIfcClassDecl cls) {
+	public HierarchyTreeNode build(SVDBClassDecl cls) {
 		Map<String, HierarchyTreeNode> class_map = 
 			new HashMap<String, HierarchyTreeNode>();
 		
@@ -44,7 +44,7 @@ public class ClassHierarchyTreeFactory {
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			if (it_t.getType() == SVDBItemType.Class) {
-				SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)it_t;
+				SVDBClassDecl cls_t = (SVDBClassDecl)it_t;
 				
 				// Check for an empty super-node
 				HierarchyTreeNode cls_n = null;
@@ -61,8 +61,8 @@ public class ClassHierarchyTreeFactory {
 					// Create a speculative hierarchy node
 					if (!class_map.containsKey(cls_t.getSuperClass())) {
 						// Create a new node
-						class_map.put(cls_t.getSuperClass(),
-								new HierarchyTreeNode(null, cls_t.getSuperClass()));
+						class_map.put(cls_t.getSuperClass().getName(),
+								new HierarchyTreeNode(null, cls_t.getSuperClass().getName()));
 					}
 					
 					cls_n.setParent(class_map.get(cls_t.getSuperClass()));

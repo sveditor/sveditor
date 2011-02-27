@@ -18,6 +18,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
@@ -34,13 +35,13 @@ import org.eclipse.ui.dialogs.CheckedTreeSelectionDialog;
 
 public class OverrideMethodsDialog extends CheckedTreeSelectionDialog { 
 	
-	private SVDBModIfcClassDecl				fLeafClass;
+	private SVDBClassDecl					fLeafClass;
 	private CheckboxTreeViewer				fCheckboxTree;
 	
 	
 	public OverrideMethodsDialog(
 			Shell						parent,
-			SVDBModIfcClassDecl			leaf_class,
+			SVDBClassDecl				leaf_class,
 			ISVDBIndexIterator			index_it) {
 		super(parent, 
 				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()), 
@@ -98,8 +99,8 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		private SVDBModIfcClassDecl				fLeafClass;
 		
 		public OverrideMethodsContentProvider(
-				SVDBModIfcClassDecl			leaf_class,
-				ISVDBIndexIterator			index_it) {
+				SVDBClassDecl			leaf_class,
+				ISVDBIndexIterator		index_it) {
 			fMethodsFinder = new OverrideMethodsFinder(leaf_class, index_it);
 		}
 		
@@ -109,9 +110,9 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		}
 
 		public Object[] getChildren(Object parentElement) {
-			if (parentElement instanceof SVDBModIfcClassDecl) {
+			if (parentElement instanceof SVDBClassDecl) {
 				List<SVDBTaskFuncScope> methods = 
-					fMethodsFinder.getMethods((SVDBModIfcClassDecl)parentElement);
+					fMethodsFinder.getMethods((SVDBClassDecl)parentElement);
 				
 				if (methods == null) {
 					if (parentElement == fLeafClass) {
@@ -145,8 +146,8 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			if (e1 instanceof SVDBModIfcClassDecl) {
-				SVDBModIfcClassDecl c1 = (SVDBModIfcClassDecl)e1;
-				SVDBModIfcClassDecl c2 = (SVDBModIfcClassDecl)e2;
+				SVDBClassDecl c1 = (SVDBClassDecl)e1;
+				SVDBClassDecl c2 = (SVDBClassDecl)e2;
 				
 				if (c1.getSuperClass() != null && 
 						c1.getSuperClass().equals(c2.getSuperClass())) {

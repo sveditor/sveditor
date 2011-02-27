@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
@@ -23,9 +25,18 @@ public class SVDBItemBase implements ISVDBItemBase {
 		fType = type;
 		fLocation = null;
 	}
+	
+	public SVDBItemBase(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		fType = type;
+		fLocation = SVDBLocation.readLocation(reader);
+	}
 
 	public SVDBItemType getType() {
 		return fType;
+	}
+	
+	public void setType(SVDBItemType type) {
+		fType = type;
 	}
 
 	public SVDBLocation getLocation() {

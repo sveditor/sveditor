@@ -19,6 +19,7 @@ package net.sf.sveditor.core.db;
 import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDB {
@@ -31,6 +32,7 @@ public class SVDB {
 		
 		SVDBPersistenceReader.registerEnumType(SVDBItemType.class, SVDBItemType.values());
 		
+		SVDBIdentifier.init();
 		SVDBAlwaysBlock.init();
 		SVDBAssign.init();
 		SVDBConstraint.init();
@@ -49,7 +51,7 @@ public class SVDB {
 		SVDBPreProcCond.init();
 		SVDBScopeItem.init();
 		SVDBTaskFuncScope.init();
-		SVDBTypedef.init();
+		SVDBTypedefStmt.init();
 		SVDBTypeInfo.init();
 		SVDBVarDeclStmt.init();
 		SVDBParamValueAssignList.init();

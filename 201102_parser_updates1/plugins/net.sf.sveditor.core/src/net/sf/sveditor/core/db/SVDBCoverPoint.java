@@ -12,21 +12,21 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBCoverPoint extends SVDBModIfcClassDecl {
-	private String				fTarget;
-	private String				fBody;
+public class SVDBCoverPoint extends SVDBScopeItem {
+	private SVExpr				fTarget;
+	private SVExpr				fIFF;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBCoverPoint(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBCoverPoint(parent, type, reader);
 			}
 		};
 		
@@ -34,39 +34,45 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 	}
 	
 	
-	public SVDBCoverPoint(String name, String target, String body) {
+	public SVDBCoverPoint(String name) {
 		super(name, SVDBItemType.Coverpoint);
-		fTarget = target;
-		fBody = body;
 	}
 	
-	public String getTarget() {
+	public SVExpr getTarget() {
 		return fTarget;
 	}
 	
-	public String getBody() {
-		return fBody;
+	public void setTarget(SVExpr expr) {
+		fTarget = expr;
 	}
 	
-	public SVDBCoverPoint(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) 
+	public SVExpr getIFF() {
+		return fIFF;
+	}
+	
+	public void setIFF(SVExpr expr) {
+		fIFF = expr;
+	}
+	
+	public SVDBCoverPoint(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) 
 		throws DBFormatException {
-		super(file, parent, type, reader);
+		super(parent, type, reader);
 		
-		fTarget = reader.readString();
-		fBody = reader.readString();
+		fTarget = SVExpr.readExpr(reader);
+		fIFF = SVExpr.readExpr(reader); 
 	}
 
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		
-		writer.writeString(fTarget);
-		writer.writeString(fBody);
+		SVExpr.writeExpr(fTarget, writer);
+		SVExpr.writeExpr(fIFF, writer);
 	}
 
 	@Override
 	public SVDBItemBase duplicate() {
-		SVDBCoverPoint ret = new SVDBCoverPoint(getName(), fTarget, fBody);
+		SVDBCoverPoint ret = new SVDBCoverPoint(getName());
 		
 		ret.init(this);
 		
@@ -86,9 +92,8 @@ public class SVDBCoverPoint extends SVDBModIfcClassDecl {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBCoverPoint) {
-			return ((SVDBCoverPoint)obj).fTarget.equals(fTarget) &&
-				((SVDBCoverPoint)obj).fBody.equals(fBody) &&
-				super.equals(obj);
+			// TODO:
+			return true;
 		} else {
 			return false;
 		}

@@ -27,10 +27,10 @@ public class SVDBTypeInfoBuiltinNet extends SVDBTypeInfo {
 		fType     = type;
 	}
 	
-	public SVDBTypeInfoBuiltinNet(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.WireBuiltin, file, parent, type, reader);
+	public SVDBTypeInfoBuiltinNet(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(SVDBDataType.WireBuiltin, parent, type, reader);
 		fWireType = reader.readString();
-		fType     = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
+		fType     = (SVDBTypeInfo)reader.readSVDBItem(parent);
 	}
 	
 	@Override

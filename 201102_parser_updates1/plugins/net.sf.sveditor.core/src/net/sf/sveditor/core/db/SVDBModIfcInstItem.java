@@ -24,9 +24,8 @@ public class SVDBModIfcInstItem extends SVDBFieldItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBModIfcInstItem(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBModIfcInstItem(parent, type, reader);
 			}
 		};
 		
@@ -38,8 +37,8 @@ public class SVDBModIfcInstItem extends SVDBFieldItem {
 		fTypeInfo = type;
 	}
 	
-	public SVDBModIfcInstItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBModIfcInstItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
 	}
 	

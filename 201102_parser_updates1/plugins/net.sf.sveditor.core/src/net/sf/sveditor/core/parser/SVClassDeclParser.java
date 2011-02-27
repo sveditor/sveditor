@@ -13,10 +13,9 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 
 public class SVClassDeclParser extends SVParserBase {
 	
@@ -32,8 +31,9 @@ public class SVClassDeclParser extends SVParserBase {
 	 * @return
 	 * @throws SVParseException
 	 */
-	public SVDBModIfcClassDecl parse(int qualifiers) throws SVParseException {
-		SVDBModIfcClassDecl cls = null;
+	public SVDBClassDecl parse(int qualifiers) throws SVParseException {
+		SVDBClassDecl cls = null;
+		SVDBTypeInfoClassType cls_type;
 		String id;
 		String cls_type_name = null;
 		
@@ -54,20 +54,23 @@ public class SVClassDeclParser extends SVParserBase {
 		cls_type_name = parsers().SVParser().scopedIdentifier(
 				((qualifiers & IFieldItemAttr.FieldAttr_SvBuiltin) != 0));
 		
-		cls = new SVDBModIfcClassDecl(cls_type_name, SVDBItemType.Class);
+		cls = new SVDBClassDecl(cls_type_name);
 		cls.setLocation(start_loc);
+		
+		cls_type = new SVDBTypeInfoClassType(cls_type_name);
+		cls.setClassType(cls_type);
 		
 		// TODO: Should remove this later
 		parsers().SVParser().enter_scope("class", cls);
 		
 		if (lexer().peekOperator("#")) {
 			// Handle classes with parameters
-			cls.getParameters().addAll(parsers().paramPortListParser().parse());
+			cls.addParameters(parsers().paramPortListParser().parse());
 		}
 		
 		if (lexer().peekKeyword("extends")) {
 			lexer().eatToken();
-			cls.setSuperClass(parsers().SVParser().scopedIdentifier(false));
+			cls.setSuperClass(parsers().dataTypeParser().class_type());
 
 			if (lexer().peekOperator("#")) {
 				// scanner().unget_ch('#');
@@ -89,7 +92,7 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		// TODO: need a better system here...
 		while ((id = parsers().SVParser().scan_statement()) != null) {
-			SVDBItem item;
+			ISVDBItemBase item;
 			if (id.equals("endclass")) {
 				break;
 			}

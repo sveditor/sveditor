@@ -12,13 +12,10 @@
 
 package net.sf.sveditor.core.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -28,77 +25,67 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<ISVDBChildItem> parse(String id) throws SVParseException {
-		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+	public SVDBStmt parse() throws SVParseException {
+		SVDBStmt decl = null;
 		
-		if (id.equals("const")) {
-			id = lexer().eatToken();
-		}
-		if (id.equals("var")) {
-			id = lexer().eatToken();
-		}
+		if (lexer().peekKeyword("typedef")) {
+			decl = parsers().dataTypeParser().typedef();
+		} else {		
+			// TODO: add qualifiers to variable
+			if (lexer().peekKeyword("const")) {
+				lexer().eatToken();
+			}
+			if (lexer().peekKeyword("var")) {
+				lexer().eatToken();
+			}
 
-		if (id.equals("static") || id.equals("automatic")) {
-			id = lexer().eatToken();
-		}
-		
-		// Should be the data-type
-		// String id = lexer().eatToken();
-		if (((SVKeywords.isBuiltInType(id) || SVKeywords.isDir(id)) && !id.equals("void")) ||
-				!SVKeywords.isSVKeyword(id)) {
-			// Data declaration or statement
-			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, id);
+			if (lexer().peekKeyword("static", "automatic")) {
+				lexer().eatToken();
+			}
 
-			// Ensure we don't misinterpret a static reference
-			if (!lexer().peekOperator("::")) {
-				while (true) {
-					SVDBLocation it_start = lexer().getStartLocation();
-					String name = lexer().readId();
-				
-					SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, name, 0);
-					var.setLocation(it_start);
-				
-					ret.add(var);
+			// Should be the data-type
+			// String id = lexer().eatToken();
+			if (((lexer().peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(lexer().peek())) && !lexer().peekKeyword("void")) ||
+					!SVKeywords.isSVKeyword(lexer().peek())) {
+				// Data declaration or statement
+				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
 
-					// TODO: handle array, queue, etc
-					if (lexer().peekOperator("[")) {
-						lexer().eatToken();
-						
-						// array or queue
-						if (lexer().peekOperator("$")) {
-							// queue
+				// Ensure we don't misinterpret a static reference
+				if (!lexer().peekOperator("::")) {
+					while (true) {
+						SVDBLocation it_start = lexer().getStartLocation();
+						String name = lexer().readId();
+
+						SVDBVarDeclItem var = new SVDBVarDeclItem(name);
+						var.setLocation(it_start);
+
+						var_decl.addVar(var);
+
+						// TODO: handle array, queue, etc
+						if (lexer().peekOperator("[")) {
+							var.setArrayDim(parsers().dataTypeParser().var_dim());
+						}
+
+						if (lexer().peekOperator("=")) {
 							lexer().eatToken();
-							lexer().readOperator("]");
-						} else if (lexer().peekOperator("]")) {
-							lexer().readOperator("]");
+							var.setInitExpr(parsers().exprParser().expression());
+						}
+
+						if (lexer().peekOperator(",")) {
+							lexer().eatToken();
 						} else {
-							// bounded array
-							lexer().skipPastMatch("[", "]");
+							break;
 						}
 					}
-
-					if (lexer().peekOperator("=")) {
-						// TODO: eat tokens until ',' or ';'
-						lexer().eatToken();
-						parsers().exprParser().expression();
-					}
-				
-					if (lexer().peekOperator(",")) {
-						lexer().eatToken();
-					} else {
-						break;
-					}
+					lexer().readOperator(";");
 				}
-				lexer().readOperator(";");
+				decl = var_decl;
+			} else {
+				error("Unexpected variable-declaration stem token \"" + lexer().peek() + "\"");
 			}
-		} else if (id.equals("typedef")) {
-			for (SVDBTypedef td : parsers().SVParser().process_typedef(true)) {
-				ret.add(td);
-			}
-		} else {
-			error("Unexpected variable-declaration stem token \"" + id + "\"");
 		}
 		
-		return ret;
+		return decl;
 	}
 }

@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPersistenceWriter implements IDBWriter {
@@ -75,7 +74,7 @@ public class SVDBPersistenceWriter implements IDBWriter {
 		}
 	}
 	
-	public void writeSVDBItem(SVDBItem item) {
+	public void writeSVDBItem(ISVDBItemBase item) {
 		if (item == null) {
 			writeItemType(SVDBItemType.NULL);
 		} else {

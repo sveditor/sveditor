@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBContentAssistIncludeNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
@@ -504,7 +505,7 @@ public abstract class AbstractCompletionProcessor {
 		// First eliminate any class typedefs for which the actual class is available
 		for (int i=0; i<proposals.size(); i++) {
 			SVCompletionProposal p = proposals.get(i);
-			if (p.getItem() != null && p.getItem().getType() == SVDBItemType.Typedef) {
+			if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
 				boolean found = false;
 				
 				for (SVCompletionProposal p_t : proposals) {

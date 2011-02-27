@@ -29,9 +29,8 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBTaskFuncScope(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBTaskFuncScope(parent, type, reader);
 			}
 		};
 		
@@ -56,12 +55,12 @@ public class SVDBTaskFuncScope extends SVDBScopeItem implements IFieldItemAttr {
 	}
 
 	@SuppressWarnings("unchecked")
-	public SVDBTaskFuncScope(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fParams     = (List<SVDBParamPort>)reader.readItemList(file, this);
+	public SVDBTaskFuncScope(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
+		fParams     = (List<SVDBParamPort>)reader.readItemList(this);
 		fAttr       = reader.readInt();
 		if (getType() == SVDBItemType.Function) {
-			fRetType    = (SVDBTypeInfo)reader.readSVDBItem(file, parent);
+			fRetType    = (SVDBTypeInfo)reader.readSVDBItem(parent);
 		} else {
 			fRetType    = null;
 		}

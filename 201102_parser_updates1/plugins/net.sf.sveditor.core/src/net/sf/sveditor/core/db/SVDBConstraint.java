@@ -23,9 +23,8 @@ public class SVDBConstraint extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBConstraint(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBConstraint(parent, type, reader);
 			}
 		};
 		
@@ -51,12 +50,8 @@ public class SVDBConstraint extends SVDBItem {
 		fConstraintExpr = expr;
 	}
 	
-	public SVDBConstraint(
-			SVDBFile 		file, 
-			SVDBScopeItem 	parent,
-			SVDBItemType	type,
-			IDBReader		reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBConstraint(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 		
 		fConstraintExpr = reader.readString();
 	}

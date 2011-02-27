@@ -1,60 +1,57 @@
 package net.sf.sveditor.core.db.stmt;
 
-import java.util.List;
-
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBForStmt extends SVDBStmt {
-	private SVExpr			fInitExpr;
+public class SVDBForStmt extends SVDBBodyStmt {
+	private SVDBStmt		fInitExpr;
 	private SVExpr			fTestExpr;
 	private SVExpr			fIncrExpr;
-	private SVDBStmt		fBodyStmt;
 	
 	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
+		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
 					IDBReader reader) throws DBFormatException {
-				return new SVDBForStmt(parent, stmt_type, reader);
+				return new SVDBForStmt(parent, type, reader);
 			}
-		}, SVDBStmtType.ForStmt);
+		}, SVDBItemType.ForStmt);
 	}
 	
 	public SVDBForStmt() {
-		super(SVDBStmtType.ForStmt);
+		super(SVDBItemType.ForStmt);
 	}
 	
-	public SVDBForStmt(ISVDBItemBase parent, SVDBStmtType stmt_type, IDBReader reader)
+	public SVDBForStmt(ISVDBChildItem parent, SVDBItemType stmt_type, IDBReader reader)
 		throws DBFormatException {
-		super(SVDBStmtType.ForStmt);
+		super(SVDBItemType.ForStmt);
 		
-		fInitExpr = SVExpr.readExpr(reader);
-		fTestExpr = SVExpr.readExpr(reader);
-		fIncrExpr = SVExpr.readExpr(reader);
-		
-		fBodyStmt = SVDBStmt.readStmt(this, reader);
+		fInitExpr 	= SVDBStmt.readStmt(parent, reader);
+		fTestExpr 	= SVExpr.readExpr(reader);
+		fIncrExpr 	= SVExpr.readExpr(reader);
 	}
 	
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		SVExpr.writeExpr(fInitExpr, writer);
+		SVDBStmt.writeStmt(fInitExpr, writer);
 		SVExpr.writeExpr(fTestExpr, writer);
 		SVExpr.writeExpr(fIncrExpr, writer);
-		
-		SVDBStmt.writeStmt(fBodyStmt, writer);
 	}
 	
-	public SVExpr getInitExpr() {
+	public SVDBStmt getInitExpr() {
 		return fInitExpr;
 	}
 	
-	public void setInitExpr(SVExpr expr) {
-		fInitExpr = expr;
+	public void setInitStmt(SVDBStmt stmt) {
+		fInitExpr = stmt;
 	}
 	
 	public SVExpr getTestExpr() {
@@ -73,14 +70,6 @@ public class SVDBForStmt extends SVDBStmt {
 		fIncrExpr = expr;
 	}
 	
-	public SVDBStmt getBodyStmt() {
-		return fBodyStmt;
-	}
-	
-	public void setBodyStmt(SVDBStmt body) {
-		fBodyStmt = body;
-	}
-
 	public SVDBForStmt duplicate() {
 		SVDBForStmt ret = new SVDBForStmt();
 		ret.init(this);
@@ -103,17 +92,11 @@ public class SVDBForStmt extends SVDBStmt {
 		} else {
 			fTestExpr = null;
 		}
-		
+
 		if (o.fInitExpr != null) {
 			fInitExpr = o.fInitExpr.duplicate();
 		} else {
 			fInitExpr = null;
-		}
-		
-		if (o.fBodyStmt == null) {
-			fBodyStmt = null;
-		} else {
-			fBodyStmt = o.fBodyStmt.duplicate();
 		}
 	}
 
@@ -132,10 +115,10 @@ public class SVDBForStmt extends SVDBStmt {
 		boolean ret = true;
 		
 		if (full) {
-			if (fInitExpr == null || o.getInitExpr() == null) {
-				ret &= (fInitExpr == o.getInitExpr());
+			if (fInitExpr == null || o.fInitExpr == null) {
+				ret &= (fInitExpr == o.fInitExpr);
 			} else {
-				ret &= fInitExpr.equals(o.getInitExpr());
+				ret &= fInitExpr.equals(o.fInitExpr);
 			}
 			
 			if (fTestExpr == null || o.getTestExpr() == null) {

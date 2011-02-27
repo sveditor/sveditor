@@ -5,10 +5,14 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 	private ISVDBChildItem			fParent;
@@ -17,21 +21,21 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 	private String					fBlockName;
 	
 	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType type,
+		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
 					IDBReader reader) throws DBFormatException {
 				return new SVDBBlockStmt(parent, type, reader);
 			}
-		}, SVDBStmtType.Block);
+		}, SVDBItemType.BlockStmt);
 	}
 	
 	public SVDBBlockStmt() {
-		super(SVDBStmtType.Block);
+		super(SVDBItemType.BlockStmt);
 		fBlockName = "";
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
 	
-	public SVDBBlockStmt(ISVDBChildItem parent, SVDBStmtType type, IDBReader reader) 
+	public SVDBBlockStmt(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) 
 		throws DBFormatException {
 		super(parent, type, reader);
 		fParent = parent;

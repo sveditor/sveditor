@@ -18,15 +18,15 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class SVDBFindVarsByNameInScopes {
 	
@@ -55,11 +55,18 @@ public class SVDBFindVarsByNameInScopes {
 			
 			// First, search the local variables
 			for (ISVDBItemBase it : context.getChildren()) {
-				if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
-					if (((SVDBVarDeclStmt)it).getName().equals(name)) {
-						ret.add((SVDBVarDeclStmt)it);
-						
-						if (stop_on_first_match) {
+				if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
+					boolean stop = false;
+					for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
+						if (vi.getName().equals(name)) {
+							ret.add(vi);
+							
+							if (stop_on_first_match) {
+								stop = true;
+								break;
+							}
+						}
+						if (stop) {
 							break;
 						}
 					}
@@ -73,23 +80,37 @@ public class SVDBFindVarsByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBNamedItem it : ((SVDBTaskFuncScope)context).getParams()) {
-					if (fMatcher.match(it, name)) {
-						ret.add(it);
-						
-						if (stop_on_first_match) {
-							break;
+				for (SVDBParamPort it : ((SVDBTaskFuncScope)context).getParams()) {
+					boolean stop = false;
+					for (SVDBVarDeclItem vi : it.getVarList()) {
+						if (fMatcher.match(vi, name)) {
+							ret.add(vi);
+							
+							if (stop_on_first_match) {
+								stop = true;
+								break;
+							}
 						}
+					}
+					if (stop) {
+						break;
 					}
 				}
 			} else if (context.getType() == SVDBItemType.Module) {
 				SVDBModIfcClassDecl m = (SVDBModIfcClassDecl)context;
 				for (SVDBParamPort p : m.getPorts()) {
-					if (fMatcher.match(p, name)) {
-						ret.add(p);
-						if (stop_on_first_match) {
-							break;
+					boolean stop = false;
+					for (SVDBVarDeclItem vi : p.getVarList()) {
+						if (fMatcher.match(vi, name)) {
+							ret.add(vi);
+							if (stop_on_first_match) {
+								stop = true;
+								break;
+							}
 						}
+					}
+					if (stop) {
+						break;
 					}
 				}
 			}
@@ -105,17 +126,16 @@ public class SVDBFindVarsByNameInScopes {
 		// hierarchy
 		if (ret.size() == 0 || !stop_on_first_match) {
 			context = context_save;
-			while (context != null && 
-					!(context instanceof SVDBModIfcClassDecl)) {
+			while (context != null && context.getType() != SVDBItemType.Class) {
 				context = context.getParent();
 			}
 			
 			if (context != null) {
-				SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)context;
+				SVDBClassDecl cls = (SVDBClassDecl)context;
 				
 				while (cls != null) {
 					for (ISVDBItemBase it : cls.getItems()) {
-						if (SVDBStmt.isType(it, SVDBStmtType.VarDecl) ||
+						if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt) ||
 								it.getType() == SVDBItemType.Covergroup ||
 								it.getType() == SVDBItemType.Coverpoint) {
 							if (fMatcher.match((ISVDBNamedItem)it, name)) {

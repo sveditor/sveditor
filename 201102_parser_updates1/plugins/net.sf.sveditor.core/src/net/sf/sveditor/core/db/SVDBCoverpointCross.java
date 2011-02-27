@@ -15,57 +15,64 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
-	private List<String>		fCoverpointList;
-	private String				fBody;
+public class SVDBCoverpointCross extends SVDBScopeItem {
+	private List<SVDBIdentifier>	fCoverpointList;
+	private SVExpr					fIFF;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBCoverpointCross(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBCoverpointCross(parent, type, reader);
 			}
 		};
 		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.CoverpointCross); 
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.CoverCross); 
 	}
 	
 
-	public SVDBCoverpointCross(String name, String body) {
-		super(name, SVDBItemType.CoverpointCross);
-		fBody = body;
-		fCoverpointList = new ArrayList<String>();
+	public SVDBCoverpointCross(String name) {
+		super(name, SVDBItemType.CoverCross);
+		fCoverpointList = new ArrayList<SVDBIdentifier>();
+	}
+	
+	public SVExpr getIFF() {
+		return fIFF;
+	}
+	
+	public void setIFF(SVExpr expr) {
+		fIFF = expr;
 	}
 
-	public List<String> getCoverpointList() {
+	public List<SVDBIdentifier> getCoverpointList() {
 		return fCoverpointList;
 	}
 	
-	public SVDBCoverpointCross(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) 
+	
+	@SuppressWarnings("unchecked")
+	public SVDBCoverpointCross(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) 
 		throws DBFormatException {
-		super(file, parent, type, reader);
+		super(parent, type, reader);
 
-		fBody = reader.readString();
-		fCoverpointList = reader.readStringList();
+		fCoverpointList = (List<SVDBIdentifier>)reader.readItemList(this);
 	}
 
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 
-		writer.writeString(fBody);
-		writer.writeStringList(fCoverpointList);
+		writer.writeItemList(fCoverpointList);
 	}
 
 	@Override
 	public SVDBItemBase duplicate() {
-		SVDBCoverpointCross ret = new SVDBCoverpointCross(getName(), fBody);
+		SVDBCoverpointCross ret = new SVDBCoverpointCross(getName());
 		
 		ret.init(this);
 		
@@ -94,7 +101,7 @@ public class SVDBCoverpointCross extends SVDBModIfcClassDecl {
 					}
 				}
 			}
-			return (o.fBody.equals(fBody) && super.equals(obj));
+			return super.equals(obj);
 		}
 		
 		return false;

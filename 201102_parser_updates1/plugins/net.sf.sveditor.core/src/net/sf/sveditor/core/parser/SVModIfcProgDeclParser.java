@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -102,7 +103,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					break;
 				}
 				try {
-					SVDBItem item = parsers().SVParser().process_module_class_interface_body_item(type_name);
+					ISVDBItemBase item = parsers().SVParser().process_module_class_interface_body_item(type_name);
 
 					// Check whether we aborted parsing the body because
 					// we found a 1st-level scope keyword

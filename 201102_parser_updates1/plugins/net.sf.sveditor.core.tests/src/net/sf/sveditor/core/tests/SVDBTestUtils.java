@@ -26,6 +26,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -64,6 +66,12 @@ public class SVDBTestUtils {
 		for (ISVDBItemBase it : scope.getItems()) {
 			if (SVDBItem.getName(it).equals(e)) {
 				return it;
+			} else if (it.getType() == SVDBItemType.VarDeclStmt) {
+				for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
+					if (vi.getName().equals(e)) {
+						return vi;
+					}
+				}
 			} else if (it instanceof ISVDBScopeItem) {
 				ISVDBItemBase t;
 				if ((t = findElement((ISVDBScopeItem)it, e)) != null) {

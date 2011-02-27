@@ -17,8 +17,8 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
@@ -33,8 +33,7 @@ public class TestParseDataTypes extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBModIfcClassDecl cls =
-			parser.parsers().classParser().parse(0);
+		SVDBClassDecl cls = parser.parsers().classParser().parse(0);
 		
 		for (ISVDBItemBase it : cls.getItems()) {
 			System.out.println("it " + it.getType() + " " + SVDBItem.getName(it));

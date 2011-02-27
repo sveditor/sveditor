@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
@@ -19,23 +20,12 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBParamValueAssign extends SVDBItem {
-	private String						fValue;
-	
-	public SVDBParamValueAssign(String name, String value) {
-		super(name, SVDBItemType.ParamValue);
-		fValue = value;
-	}
-	
-	public SVDBParamValueAssign(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fValue = reader.readString();
-	}
-	
+	private SVExpr						fValue;
+
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBParamValueAssign(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBParamValueAssign(parent, type, reader);
 			}
 		};
 		
@@ -43,13 +33,24 @@ public class SVDBParamValueAssign extends SVDBItem {
 				f, SVDBItemType.ParamValue); 
 	}
 
+	public SVDBParamValueAssign(String name, SVExpr value) {
+		super(name, SVDBItemType.ParamValue);
+		fValue = value;
+	}
+	
+	public SVDBParamValueAssign(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
+		fValue = SVExpr.readExpr(reader);
+	}
+	
+
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		writer.writeString(fValue);
+		SVExpr.writeExpr(fValue, writer);
 	}
 	
-	public String getValue() {
+	public SVExpr getValue() {
 		return fValue;
 	}
 

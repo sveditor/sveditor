@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.SVDBIdentifier;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -41,6 +42,10 @@ public class SVParserBase implements ISVParser {
 
 	public SVLexer lexer() {
 		return fParser.lexer();
+	}
+	
+	protected SVDBIdentifier readId() throws SVParseException {
+		return SVDBIdentifier.readId(lexer());
 	}
 
 	public void warning(String msg, int lineno) {

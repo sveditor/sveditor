@@ -17,7 +17,8 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 
 public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 
@@ -28,9 +29,9 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 
 			if (name.equals("") || it_lower.startsWith(n_lower)) {
 				return true;
-			} else if (it.getType() == SVDBItemType.Typedef && 
-					((SVDBTypedef)it).getTypeInfo().getDataType() == SVDBDataType.Enum) {
-				SVDBTypedef td = (SVDBTypedef)it;
+			} else if (SVDBStmt.isType(it, SVDBItemType.TypedefStmt) && 
+					((SVDBTypedefStmt)it).getTypeInfo().getDataType() == SVDBDataType.Enum) {
+				SVDBTypedefStmt td = (SVDBTypedefStmt)it;
 				SVDBTypeInfoEnum ti = (SVDBTypeInfoEnum)td.getTypeInfo();
 
 				for (Tuple<String, String> n : ti.getEnumValues()) {

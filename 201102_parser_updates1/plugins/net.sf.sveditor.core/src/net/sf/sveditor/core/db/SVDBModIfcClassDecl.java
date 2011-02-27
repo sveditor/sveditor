@@ -25,20 +25,17 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	
 	private List<SVDBModIfcClassParam>			fParams;
-	private String								fSuperClass;
-	private List<SVDBModIfcClassParam>			fSuperParams;
 	private List<SVDBParamPort>					fPorts;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBModIfcClassDecl(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBModIfcClassDecl(parent, type, reader);
 			}
 		};
 		
 		SVDBPersistenceReader.registerPersistenceFactory(f,
-				SVDBItemType.Class, SVDBItemType.Module, SVDBItemType.Interface,
+				SVDBItemType.Module, SVDBItemType.Interface,
 				SVDBItemType.Struct, SVDBItemType.Program); 
 	}
 	
@@ -46,34 +43,24 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 		super(name, type);
 		
 		fParams = new ArrayList<SVDBModIfcClassParam>();
-		fSuperParams = new ArrayList<SVDBModIfcClassParam>();
 		fPorts = new ArrayList<SVDBParamPort>();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public SVDBModIfcClassDecl(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fParams     = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
-		fSuperClass = reader.readString();
-		fSuperParams = (List<SVDBModIfcClassParam>)reader.readItemList(file, this);
-		fPorts = (List<SVDBParamPort>)reader.readItemList(file, this);
+	public SVDBModIfcClassDecl(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
+		fParams     = (List<SVDBModIfcClassParam>)reader.readItemList(this);
+		fPorts = (List<SVDBParamPort>)reader.readItemList(this);
 	}
 	
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
 		writer.writeItemList(fParams);
-		writer.writeString(fSuperClass);
-		writer.writeItemList(fSuperParams);
 		writer.writeItemList(fPorts);
 	}
 	
-	
 	public List<SVDBModIfcClassParam> getParameters() {
 		return fParams;
-	}
-	
-	public List<SVDBModIfcClassParam> getSuperParameters() {
-		return fSuperParams;
 	}
 	
 	public List<SVDBParamPort> getPorts() {
@@ -81,19 +68,11 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 	}
 	
 	public boolean isParameterized() {
-		return ((fParams != null && fParams.size() > 0) ||
-				(fSuperParams != null && fSuperParams.size() > 0));
+		// TODO: should consider super-class parameterization?
+		return (fParams != null && fParams.size() > 0);
 	}
 	
-	public String getSuperClass() {
-		return fSuperClass;
-	}
-	
-	public void setSuperClass(String super_class) {
-		fSuperClass = super_class;
-	}
-	
-	public SVDBItemBase duplicate() {
+	public SVDBModIfcClassDecl duplicate() {
 		SVDBModIfcClassDecl ret = new SVDBModIfcClassDecl(getName(), getType());
 		
 		ret.init(this);
@@ -112,16 +91,6 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 			}
 		} else {
 			fParams = null;
-		}
-		
-		setSuperClass(o.getSuperClass());
-		if (o.fSuperParams == null) {
-			fSuperParams = null;
-		} else {
-			fSuperParams.clear();
-			for (SVDBModIfcClassParam p : o.fSuperParams) {
-				fSuperParams.add((SVDBModIfcClassParam)p.duplicate());
-			}
 		}
 		
 		fPorts.clear();
@@ -144,30 +113,6 @@ public class SVDBModIfcClassDecl extends SVDBScopeItem {
 				}
 			} else {
 				return false;
-			}
-			
-			if (fSuperClass == null || o.fSuperClass == null) {
-				if (fSuperClass != o.fSuperClass) {
-					return false;
-				}
-			} else if (!fSuperClass.equals(o.fSuperClass)) {
-				return false;
-			}
-			
-			if (fSuperParams == null || o.fSuperParams == null) {
-				if (fSuperParams != o.fSuperParams) {
-					return false;
-				}
-			} else {
-				if (fSuperParams.size() == o.fSuperParams.size()) {
-					for (int i=0; i<fSuperParams.size(); i++) {
-						if (!fSuperParams.get(i).equals(o.fSuperParams.get(i))) {
-							return false;
-						}
-					}
-				} else {
-					return false;
-				}
 			}
 			
 			return super.equals(obj);

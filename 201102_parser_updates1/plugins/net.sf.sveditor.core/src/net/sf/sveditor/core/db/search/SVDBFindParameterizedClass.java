@@ -24,7 +24,6 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
@@ -32,9 +31,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 /**
@@ -114,7 +112,8 @@ public class SVDBFindParameterizedClass {
 		SVDBParamValueAssignList param_list = type_info.getParameters();
 		for (int i=0; i<decl.getParameters().size(); i++) {
 			String p_name = decl.getParameters().get(i).getName();
-			String p_val  = param_list.getParameters().get(i).getValue();
+			// TODO:
+			String p_val  = param_list.getParameters().get(i).getValue().toString();
 			param_map.put(p_name, p_val);
 		}
 		
@@ -128,7 +127,7 @@ public class SVDBFindParameterizedClass {
 			Map<String, String>		param_map) {
 		switch (item.getType()) {
 			case Class:
-				specialize_cls((SVDBModIfcClassDecl)item, param_map);
+				specialize_cls((SVDBClassDecl)item, param_map);
 				break;
 				
 			case Task:
@@ -136,11 +135,8 @@ public class SVDBFindParameterizedClass {
 				specialize_tf((SVDBTaskFuncScope)item, param_map);
 				break;
 				
-			case Stmt: {
-				SVDBStmt stmt = (SVDBStmt)item;
-				if (stmt.getStmtType() == SVDBStmtType.VarDecl) {
-					specialize_var_decl((SVDBVarDeclStmt)item, param_map);
-				}
+			case VarDeclStmt: {
+				specialize_var_decl((SVDBVarDeclStmt)item, param_map);
 				} break;
 			
 			default:
@@ -182,16 +178,17 @@ public class SVDBFindParameterizedClass {
 	}
 	
 	private void specialize_cls(
-			SVDBModIfcClassDecl			cls,
-			Map<String, String>			param_map) {
-		if (cls.getSuperParameters() != null) {
-			for (SVDBModIfcClassParam p : cls.getSuperParameters()) {
+			SVDBClassDecl			cls,
+			Map<String, String>		param_map) {
+		if (cls.getSuperClass() != null && cls.getSuperClass().getParamAssignList() != null) {
+			for (SVDBParamValueAssign p : cls.getSuperClass().getParamAssignList().getParameters()) {
 				if (param_map.containsKey(p.getName())) {
 					p.setName(param_map.get(p.getName()));
 				}
 			}
 		}
 
+		/** TODO:
 		if (cls.isParameterized()) {
 			for (SVDBModIfcClassParam p : cls.getParameters()) {
 				if (param_map.containsKey(p.getName())) {
@@ -199,6 +196,7 @@ public class SVDBFindParameterizedClass {
 				}
 			}
 		}
+		 */
 		
 		for (ISVDBItemBase it : cls.getItems()) {
 			specialize_int(it, param_map);

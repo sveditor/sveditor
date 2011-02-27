@@ -19,9 +19,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -39,8 +39,8 @@ public class SVDBIndexValueProvider implements IValueProvider {
 		while (item_it.hasNext()) {
 			ISVDBItemBase it = item_it.nextItem();
 			
-			if (it.getType() == SVDBItemType.Typedef) {
-				SVDBTypedef typedef = (SVDBTypedef)it;
+			if (it.getType() == SVDBItemType.TypedefStmt) {
+				SVDBTypedefStmt typedef = (SVDBTypedefStmt)it;
 				if (typedef.getTypeInfo().getDataType() == SVDBDataType.Enum) {
 					SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)typedef.getTypeInfo();
 				

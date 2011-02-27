@@ -23,9 +23,8 @@ public class SVDBClockingBlock extends SVDBScopeItem {
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
 			
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type,
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBClockingBlock(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBClockingBlock(parent, type, reader);
 			}
 		};
 		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ClockingBlock);
@@ -35,8 +34,8 @@ public class SVDBClockingBlock extends SVDBScopeItem {
 		super(name, SVDBItemType.ClockingBlock);
 	}
 	
-	public SVDBClockingBlock(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBClockingBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 	}
 
 	@Override

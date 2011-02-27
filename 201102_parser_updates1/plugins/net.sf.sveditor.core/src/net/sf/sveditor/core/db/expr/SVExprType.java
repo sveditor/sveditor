@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.db.expr;
 
 public enum SVExprType {
+	EdgeExpr,
+	ClockingEventExpr,
 	ArrayAccess,
 	Assign,
 	Binary,

@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVExpr;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -12,11 +13,11 @@ public class SVDBIfStmt extends SVDBStmt {
 	private SVDBStmt		fElseStmt;
 	
 	public SVDBIfStmt(SVExpr expr) {
-		super(SVDBStmtType.IfStmt);
+		super(SVDBItemType.IfStmt);
 		fCondExpr = expr;
 	}
 	
-	public SVDBIfStmt(ISVDBItemBase parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
+	public SVDBIfStmt(ISVDBItemBase parent, SVDBItemType stmt_type, IDBReader reader) throws DBFormatException {
 		super(parent, stmt_type, reader);
 		
 		fCondExpr = SVExpr.readExpr(reader);

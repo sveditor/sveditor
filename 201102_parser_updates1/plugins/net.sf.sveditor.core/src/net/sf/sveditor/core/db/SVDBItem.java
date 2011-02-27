@@ -30,7 +30,7 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		}
 	}
 	
-	public SVDBItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+	public SVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(type);
 		fParent   = parent;
 		fName     = reader.readString();

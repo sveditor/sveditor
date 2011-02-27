@@ -22,9 +22,8 @@ public class SVDBInclude extends SVDBItem {
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBInclude(file, parent, type, reader);
+			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+				return new SVDBInclude(parent, type, reader);
 			}
 		};
 		
@@ -35,8 +34,8 @@ public class SVDBInclude extends SVDBItem {
 		super(name, SVDBItemType.Include);
 	}
 	
-	public SVDBInclude(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBInclude(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+		super(parent, type, reader);
 	}
 	
 	public void dump(IDBWriter writer) {

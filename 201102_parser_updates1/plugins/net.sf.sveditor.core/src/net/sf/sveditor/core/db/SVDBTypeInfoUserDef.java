@@ -34,12 +34,11 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 	
 	public SVDBTypeInfoUserDef(
 			SVDBDataType 	dt, 
-			SVDBFile 		file, 
 			SVDBScopeItem 	parent, 
 			SVDBItemType 	type, 
 			IDBReader 		reader) throws DBFormatException {
-		super(dt, file, parent, type, reader);
-		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(file, parent);
+		super(dt, parent, type, reader);
+		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(parent);
 	}
 	
 	public SVDBLocation getEndLocation() {

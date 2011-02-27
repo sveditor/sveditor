@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -28,20 +29,20 @@ import org.eclipse.jface.viewers.Viewer;
 public class SVClassHierarchyCP implements ITreeContentProvider {
 	
 	private SVDBIndexSearcher				fIndexSearcher;
-	private SVDBModIfcClassDecl				fLeafClass;
+	private SVDBClassDecl					fLeafClass;
 	private Object							fEmptyList[] = new Object[0];
 	
 	public SVClassHierarchyCP(
-			SVDBModIfcClassDecl		leaf_class,
+			SVDBClassDecl			leaf_class,
 			SVDBIndexSearcher		index_searcher) {
 		fLeafClass = leaf_class;
 		fIndexSearcher = index_searcher;
 	}
 
 	public Object[] getElements(Object inputElement) {
-		List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
+		List<SVDBClassDecl> ret = new ArrayList<SVDBClassDecl>();
 
-		SVDBModIfcClassDecl cl = fLeafClass;
+		SVDBClassDecl cl = fLeafClass;
 
 		while (cl != null) {
 			cl = fIndexSearcher.findSuperClass(cl);
