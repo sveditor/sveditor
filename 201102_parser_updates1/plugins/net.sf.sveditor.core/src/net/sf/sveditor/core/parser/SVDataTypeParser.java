@@ -176,6 +176,7 @@ public class SVDataTypeParser extends SVParserBase {
 			error("'type' expression unsupported");
 		} else if (lexer().peekKeyword("class")) {
 			// Class type
+			lexer().eatToken();
 			SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", lexer().readId());
 
 			// TODO: this should be a real parse
@@ -305,6 +306,7 @@ public class SVDataTypeParser extends SVParserBase {
 	}
 	
 	public SVDBTypeInfoEnum enum_type() throws SVParseException {
+		lexer().readKeyword("enum");
 		SVDBTypeInfoEnum type = new SVDBTypeInfoEnum("");
 		boolean vals_specified = false;
 		String val_str = null;
@@ -389,6 +391,7 @@ public class SVDataTypeParser extends SVParserBase {
 		if (lexer().peekOperator("]")) {
 			ret.setDimType(DimType.Unsized);
 		} else if (lexer().peekOperator("$")) {
+			lexer().eatToken();
 			ret.setDimType(DimType.Queue);
 			if (lexer().peekOperator(":")) {
 				lexer().eatToken();
@@ -398,7 +401,22 @@ public class SVDataTypeParser extends SVParserBase {
 			lexer().eatToken();
 			ret.setDimType(DimType.Associative);
 		} else {
-//			parsers().dataTypeParser().d
+			SVToken first = lexer().consumeToken();
+			// TODO: seems ambiguous
+			if (first.isNumber() || first.isOperator() || 
+					(lexer().peekOperator() && !lexer().peekOperator("#"))) {
+				// most likely a constant expression
+				lexer().ungetToken(first);
+				ret.setDimType(DimType.Sized);
+				
+				// TODO: should be constant expression
+				ret.setExpr(parsers().exprParser().expression());
+			} else {
+				// Assume this is a data-type
+				lexer().ungetToken(first);
+				ret.setDimType(DimType.Associative);
+				ret.setTypeInfo(parsers().dataTypeParser().data_type(0));
+			}
 		}
 		
 		lexer().readOperator("]");

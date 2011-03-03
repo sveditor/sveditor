@@ -1,5 +1,8 @@
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBCoverGroup;
 import net.sf.sveditor.core.db.SVDBCoverGroup.BinsKW;
@@ -10,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBIdentifier;
 import net.sf.sveditor.core.db.SVDBCoverpointBins.BinsType;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 public class SVCovergroupParser extends SVParserBase {
 	
@@ -45,7 +49,7 @@ public class SVCovergroupParser extends SVParserBase {
 		while (lexer().peek() != null && !lexer().peekKeyword("endgroup")) {
 			ISVDBChildItem cov_item;
 			
-			if (lexer().peekKeyword("option", "type_option")) {
+			if (isOption()) {
 				cov_item = coverage_option();
 			} else {
 				cov_item = coverage_spec();
@@ -65,13 +69,16 @@ public class SVCovergroupParser extends SVParserBase {
 	}
 	
 	private SVDBCoverageOption coverage_option() throws SVParseException {
-		String type = lexer().readKeyword("option", "type_option");
+		// option or type_option
+		String type = lexer().eatToken();
 		lexer().readOperator(".");
 		String name = lexer().readId();
 		
 		SVDBCoverageOption opt = new SVDBCoverageOption(name, type.equals("type_option"));
 		lexer().readOperator("=");
 		opt.setExpr(parsers().exprParser().expression());
+		
+		lexer().readOperator(";");
 		
 		return opt;
 	}
@@ -114,7 +121,7 @@ public class SVCovergroupParser extends SVParserBase {
 		if (lexer().peekOperator("{")) {
 			lexer().eatToken();
 			while (lexer().peek() != null && !lexer().peekOperator("}")) {
-				if (lexer().peekKeyword("option", "type_option")) {
+				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
 					boolean wildcard = lexer().peekKeyword("wildcard");
@@ -153,11 +160,15 @@ public class SVCovergroupParser extends SVParserBase {
 							bins.setBinsType(BinsType.Default);
 						}
 					} else {
-						String op = lexer().readOperator("{", "(");
-						if (op.equals("{")) {
+						if (lexer().peekOperator("{")) {
+							List<SVExpr> l = new ArrayList<SVExpr>();
 							bins.setBinsType(BinsType.OpenRangeList);
-						} else {
+							// TODO:
+							parsers().exprParser().open_range_list(l);
+						} else if (lexer().peekOperator("(")) {
 							bins.setBinsType(BinsType.TransList);
+						} else {
+							lexer().readOperator("{", "(");
 						}
 					}
 					
@@ -168,8 +179,8 @@ public class SVCovergroupParser extends SVParserBase {
 						lexer().readOperator(")");
 					}
 					cp.addItem(bins);
+					lexer().readOperator(";");
 				}
-				lexer().readOperator(";");
 			}
 			lexer().readOperator("}");
 		} else {
@@ -197,17 +208,26 @@ public class SVCovergroupParser extends SVParserBase {
 		
 		if (lexer().peekOperator("{")) {
 			while (lexer().peek() != null && !lexer().peekOperator("}")) {
-				if (lexer().peekKeyword("option", "type_option")) {
+				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
 					String type = lexer().readKeyword("bins", "illegal_bins", "ignore_bins");
 					SVDBIdentifier id = readId();
-					
+					// TODO:
 				}
 			}
 		} else {
 			lexer().readOperator(";");
 		}
 		
+	}
+	
+	private boolean isOption() throws SVParseException {
+		if (lexer().peekId()) {
+			String id = lexer().peek();
+			return (id.equals("option") || id.equals("type_option"));
+		} else {
+			return false;
+		}
 	}
 }

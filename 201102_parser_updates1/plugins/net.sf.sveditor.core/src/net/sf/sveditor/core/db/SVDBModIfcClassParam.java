@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 public class SVDBModIfcClassParam extends SVDBItem {
 	
 	private SVExpr					fDefault;
+	private SVDBTypeInfo			fDefaultType;
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -55,6 +56,14 @@ public class SVDBModIfcClassParam extends SVDBItem {
 	
 	public void setDefault(SVExpr dflt) {
 		fDefault = dflt;
+	}
+	
+	public SVDBTypeInfo getDefaultType() {
+		return fDefaultType;
+	}
+	
+	public void setDefaultType(SVDBTypeInfo type) {
+		fDefaultType = type;
 	}
 	
 	public SVDBItemBase duplicate() {

@@ -20,7 +20,8 @@ import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBParamValueAssign extends SVDBItem {
-	private SVExpr						fValue;
+	private SVExpr					fValue;
+	private SVDBTypeInfo			fType;
 
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
@@ -37,7 +38,12 @@ public class SVDBParamValueAssign extends SVDBItem {
 		super(name, SVDBItemType.ParamValue);
 		fValue = value;
 	}
-	
+
+	public SVDBParamValueAssign(String name, SVDBTypeInfo type) {
+		super(name, SVDBItemType.ParamValue);
+		fType = type;
+	}
+
 	public SVDBParamValueAssign(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(parent, type, reader);
 		fValue = SVExpr.readExpr(reader);

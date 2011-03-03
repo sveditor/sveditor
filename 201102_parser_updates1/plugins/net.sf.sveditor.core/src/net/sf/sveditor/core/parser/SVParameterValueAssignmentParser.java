@@ -12,9 +12,13 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
 	
@@ -39,37 +43,26 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			}
 			
 			// TODO:
-			// String val = parsers().exprParser().expression().toString();
-			// String val = parsers().SVParser().readExpression(true);
-			SVExpr val = parsers().exprParser().expression();
+			// Skip forward to see if we have a scoped identifier
+			List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
+			
+			if (lexer().peekOperator("#") || lexer().peekKeyword(SVKeywords.fBuiltinTypes)) {
+				// This is actually a type reference
+				lexer().ungetToken(id_list);
+				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+				ret.addParameter(new SVDBParamValueAssign(name, type));
+			} else {
+				lexer().ungetToken(id_list);
+				SVExpr val = parsers().exprParser().expression();
+				ret.addParameter(new SVDBParamValueAssign(name, val));
+			}
 
 			if (is_mapped) {
 				// Read inside
 				lexer().readOperator(")");
 			}
 
-			/*
-			v.setLength(0);
-			while (lexer().peek() != null) {
-				if (lexer().peekOperator("#")) {
-					lexer().eatToken();
-					lexer().readOperator("(");
-					lexer().startCapture();
-					lexer().skipPastMatch("(", ")", ";");
-					v.append(lexer().endCapture());
-				} else if (lexer().peekOperator("(")) {
-					lexer().startCapture();
-					lexer().skipPastMatch("(", ")", ";");
-					v.append(lexer().endCapture());
-				} else if (lexer().peekOperator(",", ")")) {
-					break;
-				} else {
-					v.append(lexer().eatToken());
-				}
-			}
-			 */
 			//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
-			ret.addParameter(new SVDBParamValueAssign(name, val));
 			ret.setIsNamedMapping(is_mapped);
 			
 			if (lexer().peekOperator(",")) {

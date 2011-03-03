@@ -544,6 +544,16 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	public SVPreProcScanner createPreProcScanner(String path) {
 		InputStream in = getFileSystemProvider().openStream(path);
 		SVDBFileTree ft = getFileTreeMap(new NullProgressMonitor()).get(path);
+		
+		if (ft == null) {
+			Map<String, SVDBFileTree> m = getFileTreeMap(new NullProgressMonitor());
+			fLog.error("Failed to find pre-proc file for \"" + path + "\"");
+			fLog.debug("map.size=" + m.size());
+			for (String p : m.keySet()) {
+				fLog.debug("    " + p);
+			}
+			return null;
+		}
 
 		IPreProcMacroProvider mp = createMacroProvider(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);

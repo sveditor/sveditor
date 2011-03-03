@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -176,6 +177,12 @@ public class SVLexer extends SVToken {
 		debug("After un-get of token \"" + tok.getImage() + "\" next token is \"" + peek() + "\"");
 	}
 	
+	public void ungetToken(List<SVToken> tok_l) {
+		for (int i=tok_l.size()-1; i>=0; i--) {
+			ungetToken(tok_l.get(i));
+		}
+	}
+	
 	public String peek() {
 		if (fTokenConsumed) {
 			if (fEOF || !next_token()) {
@@ -233,7 +240,7 @@ public class SVLexer extends SVToken {
 		
 		return fIsIdentifier;
 	}
-	
+
 	public boolean peekNumber() throws SVParseException {
 		peek();
 		
@@ -403,6 +410,16 @@ public class SVLexer extends SVToken {
 		return eatToken();
 	}
 	
+	public SVToken readIdTok() throws SVParseException {
+		peek();
+		
+		if (!fIsIdentifier) {
+			error("Expecting an identifier ; received \"" + fImage + "\"");
+		}
+		
+		return consumeToken();
+	}
+	
 	public String readIdOrKeyword() throws SVParseException {
 		peek();
 
@@ -567,6 +584,7 @@ public class SVLexer extends SVToken {
 			} else {
 				fIsOperator = true;
 			}
+			
 			fImage = fStringBuffer.toString();
 
 		} else if (fOperatorSet.contains(tmp) || 

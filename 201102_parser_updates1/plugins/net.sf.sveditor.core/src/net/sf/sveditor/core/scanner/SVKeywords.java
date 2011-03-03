@@ -240,7 +240,10 @@ public class SVKeywords {
 		"within*",
 		"wor",
 		"xnor",
-		"xor"		
+		"xor",
+		
+		// defacto-reserved words
+		"1step"
 	};
 	
 	private static final String 					fTypeStrings[] = {

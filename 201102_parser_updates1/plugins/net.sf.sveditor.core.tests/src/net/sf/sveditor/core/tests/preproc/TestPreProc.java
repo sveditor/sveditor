@@ -18,11 +18,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -40,6 +39,8 @@ import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestPreProc extends TestCase {
 
@@ -296,4 +297,67 @@ public class TestPreProc extends TestCase {
 		
 		assertTrue((sb.indexOf("end )") == -1));
 	}
+
+	public void testOvmComponentParamUtilsExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			assertTrue(fTmpDir.delete());
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/ovm.zip", fTmpDir);
+		utils.copyBundleFileToFS("/data/ovm_component_param_utils_macro.svh", fTmpDir);
+		
+		PrintStream ps = new PrintStream(new File(fTmpDir, "test.f"));
+				
+		ps.println("+incdir+./ovm/src");
+		ps.println("+incdir+./ovm/examples/xbus/sv");
+		ps.println("+incdir+./ovm/examples/xbus/examples");
+		ps.println("./ovm/src/ovm_pkg.sv");
+		ps.println("./ovm/examples/xbus/examples/xbus_tb_top.sv");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		SVPreProcScanner scanner = index.createPreProcScanner("./ovm/examples/xbus/sv/xbus_master_monitor.sv");
+		
+		StringBuilder sb = new StringBuilder();
+		StringBuilder sb2 = new StringBuilder();
+		int ch;
+		int last_ch=-1;
+		int lineno=1;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (last_ch == -1 || last_ch == '\n') {
+				sb2.append("" + lineno + ": ");
+				lineno++;
+			}
+			sb.append((char)ch);
+			sb2.append((char)ch);
+			last_ch=ch;
+		}
+		System.out.println(sb2.toString());
+		
+		/*
+		index.parse(new StringInputStream(sb.toString()), 
+				"ovm_component_utils_macro.svh",
+				new NullProgressMonitor());
+		 */
+		SVDBFile file = SVDBTestUtils.parse(sb.toString(), "ovm_in_order_comparator.svh");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		
+		
+		assertTrue((sb.indexOf("end )") == -1));
+	}
+
 }

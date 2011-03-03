@@ -51,13 +51,16 @@ public enum SVDBItemType {
 
 	// Statement items
 	ActionBlockStmt,
+	LabeledStmt,
 	BlockStmt,
 	DisableStmt,
 	DisableForkStmt,
 	EventControlStmt,
 	NullStmt,
 	WhileStmt,
+	DelayControlStmt,
 	DoWhileStmt,
+	ExprStmt,
 	ForStmt,
 	ForeachStmt,
 	RepeatStmt,

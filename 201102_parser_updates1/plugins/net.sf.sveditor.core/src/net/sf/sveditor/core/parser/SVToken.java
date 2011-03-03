@@ -47,6 +47,10 @@ public class SVToken {
 		return fIsNumber;
 	}
 	
+	public boolean isOperator() {
+		return fIsOperator;
+	}
+	
 	/**
 	 * Return is true when the number is
 	 * a time constant

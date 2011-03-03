@@ -17,6 +17,7 @@ public class SVTFCallExpr extends SVExpr {
 	private SVExpr				fTarget;
 	private String				fName;
 	private SVExpr				fArgs[];
+	private SVExpr				fWithExpr;
 
 	public SVTFCallExpr(SVExpr target, String name, SVExpr args[]) {
 		super(SVExprType.TFCall);
@@ -36,6 +37,14 @@ public class SVTFCallExpr extends SVExpr {
 	
 	public SVExpr [] getArgs() {
 		return fArgs;
+	}
+	
+	public SVExpr getWithExpr() {
+		return fWithExpr;
+	}
+	
+	public void setWithExpr(SVExpr with) {
+		fWithExpr = with;
 	}
 	
 	public SVTFCallExpr duplicate() {

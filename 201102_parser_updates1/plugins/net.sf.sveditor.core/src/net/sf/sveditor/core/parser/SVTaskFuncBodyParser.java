@@ -40,6 +40,8 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 				SVDBStmt stmt = parsers().behavioralBlockParser().statement(decl_allowed, is_ansi);
 				
 				decl_allowed = SVBehavioralBlockParser.isDeclAllowed(stmt);
+				
+				tf.addItem(stmt);
 			}
 		}
 		

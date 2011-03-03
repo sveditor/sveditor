@@ -16,8 +16,10 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
 
@@ -92,8 +94,10 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTaskFuncScope func = parser.parsers().functionParser().parse(null, 0);
 
-		assertEquals(1, func.getItems().size());
-		assertEquals("t", SVDBItem.getName(func.getItems().get(0)));
+		assertEquals(2, func.getItems().size());
+		assertTrue(func.getItems().get(0).getType() == SVDBItemType.VarDeclStmt);
+		SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)func.getItems().get(0);
+		assertEquals("t", stmt.getVarList().get(0).getName());
 	}
 
 	// Tests that local variables are correctly recognized and that 
@@ -168,12 +172,12 @@ public class TestParseFunction extends TestCase {
 
 	public void testParamListFunction() throws SVParseException {
 		String content =
-			"function automatic void foobar(\n" +
-			"        input int foobar,\n" +
-			"        ref object bar,\n" +
-			"        int foo);\n" +
-			"    a_type foo, bar;\n" +
-			"    b_type foo_q[$];\n" +
+			"function automatic void foobar(\n" +			// 1
+			"        input int foobar,\n" +					// 2
+			"        ref object bar,\n" +					// 3
+			"        int foo);\n" +							// 4
+			"    a_type foo, bar;\n" +						// 5
+			"    b_type foo_q[$];\n" +						// 6
 			"    b_cls #(foobar, bar) elem;\n" +
 			"    int i, j, k;\n" +
 			"    for (int i=0; i<5; i++) begin\n" +

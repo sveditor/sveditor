@@ -58,23 +58,28 @@ public class SVTaskFunctionParser extends SVParserBase {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
 					}
 				}
-			
+				
 				// data-type or implicit
-				SVToken data_type_or_implicit;
+				List<SVToken> data_type_or_implicit = null;
 				if (lexer().peekKeyword("void") || 
 						SVKeywords.isBuiltInType(lexer().peek())) {
-					data_type_or_implicit = lexer().consumeToken();
+					data_type_or_implicit = new ArrayList<SVToken>();
+					data_type_or_implicit.add(lexer().consumeToken());
 				} else {
-					data_type_or_implicit = parsers().SVParser().scopedIdentifier(true);
+					data_type_or_implicit = parsers().SVParser().scopedIdentifier_l(true);
 				}
 
 				if (!lexer().peekOperator(";", "(")) {
 					// probably data-type
-					return_type = parsers().dataTypeParser().data_type_or_void(0, data_type_or_implicit);
+					// Un-get the tokens we have
+					for (int i=data_type_or_implicit.size()-1; i>=0; i--) {
+						lexer().ungetToken(data_type_or_implicit.get(i));
+					}
+					return_type = parsers().dataTypeParser().data_type_or_void(0);
 					tf_name = parsers().SVParser().scopedIdentifier(false);
 				} else {
 					// function with no return type
-					tf_name = data_type_or_implicit;
+					tf_name = parsers().SVParser().scopedIdentifierList2Str(data_type_or_implicit);
 
 					// TODO: This is a SystemVerilog warning
 				}

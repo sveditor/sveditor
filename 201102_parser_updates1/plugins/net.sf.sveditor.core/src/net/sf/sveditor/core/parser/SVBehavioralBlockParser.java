@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -24,32 +25,30 @@ import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBCaseItem;
 import net.sf.sveditor.core.db.stmt.SVDBCaseStmt;
+import net.sf.sveditor.core.db.stmt.SVDBDelayControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDisableStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDoWhileStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventTriggerStmt;
+import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBForStmt;
 import net.sf.sveditor.core.db.stmt.SVDBForeachStmt;
 import net.sf.sveditor.core.db.stmt.SVDBForeverStmt;
 import net.sf.sveditor.core.db.stmt.SVDBForkStmt;
 import net.sf.sveditor.core.db.stmt.SVDBForkStmt.JoinType;
 import net.sf.sveditor.core.db.stmt.SVDBIfStmt;
+import net.sf.sveditor.core.db.stmt.SVDBLabeledStmt;
 import net.sf.sveditor.core.db.stmt.SVDBRepeatStmt;
 import net.sf.sveditor.core.db.stmt.SVDBReturnStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVBehavioralBlockParser extends SVParserBase {
-	private static SVDBStmt				fSpecialNonNull;
 	private static final Set<String>	fIfStems;
 	
 	static {
-		fSpecialNonNull = new SVDBVarDeclStmt(null, 0);
-		fSpecialNonNull.setLocation(new SVDBLocation(-1, -1));
-		
 		fIfStems = new HashSet<String>();
 		fIfStems.add("if");
 		fIfStems.add("unique");
@@ -100,47 +99,61 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	private SVDBStmt statement(boolean decl_allowed, boolean ansi_decl, String parent, int level) throws SVParseException {
 		debug("--> [" + level + "] parent=" + parent + " statement " + 
-				lexer().peek() + " @ " + lexer().getStartLocation().getLine());
+				lexer().peek() + " @ " + lexer().getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		SVDBStmt stmt = null;
 		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
-		
-		if (decl_allowed) {
-			SVToken id = null;
+
+		// Try for a declaration here
+		if (lexer().peekKeyword(decl_keywords) || 
+				(lexer().peekKeyword(SVKeywords.fBuiltinTypes) && !lexer().peekKeyword("void")) ||
+				lexer().isIdentifier() || lexer().peekKeyword("typedef")) {
+			boolean builtin_type = (lexer().peekKeyword(SVKeywords.fBuiltinTypes) && !lexer().peekKeyword("void"));
 			
-			// Try for a declaration here
 			if (lexer().peekKeyword(decl_keywords) || 
 					(lexer().peekKeyword(SVKeywords.fBuiltinTypes) && !lexer().peekKeyword("void")) ||
-					lexer().isIdentifier()) {
+					lexer().peekKeyword("typedef")) {
+				// Definitely a declaration
+				if (!decl_allowed) {
+					error("declaration in a post-declaration location");
+				}
+				SVDBStmt decl = parsers().blockItemDeclParser().parse();
+				return decl;
+			} else {
+				// May be a declaration. Let's see
 				
 				// Variable declarations
-				id = lexer().consumeToken(); // should be beginning of type declaration
-				
-				if ((lexer().peekKeyword() && !lexer().peekKeyword(fDeclKeywordsNonANSI)) ||
-						(lexer().peekOperator() && !lexer().peekOperator("#", "["))) {
+				List<SVToken> id_list = parsers().SVParser().scopedStaticIdentifier_l(true);
+			
+				if (!builtin_type && 
+					((lexer().peekKeyword() && !lexer().peekKeyword(fDeclKeywordsNonANSI)) ||
+							(lexer().peekOperator() && !lexer().peekOperator("#")))) {
 					// likely a statement
-					lexer().ungetToken(id);
+					for (int i=id_list.size()-1; i>=0; i--) {
+						lexer().ungetToken(id_list.get(i));
+					}
+					debug("non-declaration statement: " + lexer().peek());
 				} else {
-					debug("Pre-var parse: " + id.getImage());
-					SVDBStmt decl = parsers().blockItemDeclParser().parse();
-					if (decl.getType() == SVDBItemType.VarDeclStmt) {
-						debug("Result is " + ((SVDBVarDeclStmt)decl).getVarList().size() + " vars");
-					} else if (decl.getType() == SVDBItemType.TypedefStmt) {
-//						debug("Result is " + ((SVDBTypedefStmt)decl).getgetVarList().size() + " vars");
+					for (int i=id_list.size()-1; i>=0; i--) {
+						lexer().ungetToken(id_list.get(i));
+					}
+					debug("Pre-var parse: " + lexer().peek());
+					if (!decl_allowed) {
+						error("declaration in a non-declaration location");
 					}
 					
+					SVDBStmt decl = parsers().blockItemDeclParser().parse();
+					
+				
 					// Bail for now
 					return decl; 
 				}
-			} else if (lexer().peekKeyword("typedef")) {
-				// TODO: permit local type declaration
-//				break;
-			} else {
-				
-				// time to move on to the body
-				debug("non-declaration statement: " + lexer().peek());
 			}
+		} else {
+			
+			// time to move on to the body
+			debug("non-declaration statement: " + lexer().peek());
 		}
-		
+
 		if (lexer().peekKeyword("begin")) {
 			SVDBBlockStmt block = new SVDBBlockStmt();
 			// Declarations are permitted at block-start
@@ -152,7 +165,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			}
 			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
 				SVDBStmt tmp = statement(decl_allowed, true, parent, level+1);
-				decl_allowed = (tmp.getType() == SVDBItemType.VarDeclStmt);
+				decl_allowed = isDeclAllowed(tmp);
 				block.addStmt(tmp);
 			}
 			lexer().readKeyword("end");
@@ -228,6 +241,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			stmt = foreach;
 		} else if (lexer().peekKeyword("fork")) {
 			SVDBForkStmt fork = new SVDBForkStmt();
+			decl_allowed = true;
 			lexer().eatToken();
 			
 			// Read block identifier
@@ -239,7 +253,10 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			while (lexer().peek() != null && 
 					!lexer().peekKeyword("join", "join_none", "join_any")) {
 				debug("--> Fork Statement");
-				fork.addStmt(statement("fork", level));
+				// Allow declarations at the root of the fork
+				SVDBStmt tmp = statement(decl_allowed, true, "fork", level);
+				decl_allowed = isDeclAllowed(tmp);
+				fork.addStmt(tmp);
 				debug("<-- Fork Statement");
 			}
 			// Read join
@@ -314,8 +331,33 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			SVDBEventControlStmt event_stmt = new SVDBEventControlStmt();
 			lexer().eatToken();
 			event_stmt.setExpr(parsers().exprParser().event_expression());
-			
+
+			// statement_or_null
+			event_stmt.setStmt(statement(decl_allowed, ansi_decl));
 			stmt = event_stmt;
+		} else if (lexer().peekOperator("#")) {
+			SVDBLocation start = lexer().getStartLocation();
+			lexer().eatToken();
+			SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
+			delay_stmt.setLocation(start);
+			
+			if (lexer().peekOperator("(")) {
+				lexer().eatToken();
+				delay_stmt.setExpr(parsers().exprParser().expression());
+				lexer().readOperator(")");
+			} else {
+				if (lexer().peekNumber()) {
+					delay_stmt.setExpr(new SVLiteralExpr(lexer().eatToken()));
+				} else if (lexer().peekOperator("1step")) {
+					delay_stmt.setExpr(new SVLiteralExpr(lexer().eatToken()));
+				} else if (lexer().peekId()) {
+					delay_stmt.setExpr(new SVLiteralExpr(lexer().eatToken()));
+				} else {
+					error("Expect number, '1step', or identifier ; receive " + lexer().peek());
+				}
+			}
+			delay_stmt.setStmt(statement(false, true));
+			stmt = delay_stmt;
 		} else if (lexer().peekKeyword("disable")) {
 			SVDBDisableStmt disable_stmt = new SVDBDisableStmt();
 			lexer().eatToken();
@@ -365,50 +407,23 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				lexer().peekKeyword(SVKeywords.fBuiltinTypes) ||
 				lexer().peekKeyword("this", "super") || 
 				lexer().peekOperator()) {
-			boolean taken = false;
 			SVToken id = lexer().consumeToken();
 			
-			// TODO: Careful. We should never be entering on ':' as far as I know
 			if (lexer().peekOperator(":")) {
-				if (lexer().peekOperator(":")) {
-					debug("  likely assertion @ " + lexer().getStartLocation().getLine());
-					lexer().eatToken();
-					if (lexer().peekKeyword("assert")) {
-						taken = true;
-						stmt = parsers().assertionParser().parse();
-					}
-					// likely an assertion
-				}
+				// Labeled statement
+				String label = id.getImage();
+				lexer().eatToken();
+				stmt = new SVDBLabeledStmt(label, statement(decl_allowed, ansi_decl));
 			} else {
 				lexer().ungetToken(id);
 				
-				
 				// Assume this is an expression of some sort
 				debug("  Parsing expression statement starting with \"" + lexer().peek() + "\"");
-				parsers().exprParser().expression();
+				SVDBExprStmt expr_stmt = new SVDBExprStmt(parsers().exprParser().expression());
 				lexer().readOperator(";");
-				stmt = fSpecialNonNull;
+				stmt = expr_stmt;
 			}
 			
-			/*
-			if (!taken) {
-				if (lexer().peekOperator()) {
-					error("Unknown operator \"" + lexer().peek() + "\"");
-				}
-				
-				// Scan to a semi-colon boundary
-				while (lexer().peek() != null && !lexer().peekOperator(";")) {
-					// Since we're scanning, keep a look out for upper-level scope
-					// 
-					if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0) ||
-							ParserSVDBFileFactory.isSecondLevelScope(lexer().peek())) {
-							error("Unexpected non-behavioral statement keyword " + lexer().peek());
-					}
-					lexer().eatToken();
-				}
-				lexer().readOperator(";");
-			}
-			 */
 		} else {
 			error("Unknown statement stem: " + lexer().peek());
 		}

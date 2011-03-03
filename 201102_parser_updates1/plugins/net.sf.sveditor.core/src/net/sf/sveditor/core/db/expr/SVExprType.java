@@ -21,6 +21,7 @@ public enum SVExprType {
 	Cast,
 	Cond,
 	Constraint,
+	CtorExpr,
 	FieldAccess,
 	Identifier,
 	IncDec,
@@ -43,6 +44,8 @@ public enum SVExprType {
 	DistItem,
 	Implication,
 	SolveBefore,
+	
+	NamedArgExpr, // .ARG(value)
 	
 	Coverpoint,
 	CoverBins,

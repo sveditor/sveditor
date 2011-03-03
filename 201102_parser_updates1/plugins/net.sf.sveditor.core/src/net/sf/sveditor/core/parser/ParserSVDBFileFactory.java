@@ -436,6 +436,95 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return id.toString();
 	}
 
+	public List<SVToken> scopedIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
+
+		if (!allow_keywords) {
+			ret.add(lexer().readIdTok());
+		} else if (lexer().peekKeyword() || lexer().peekId()) {
+			ret.add(lexer().consumeToken());
+		} else {
+			error("scopedIdentifier: starts with " + lexer().peek());
+		}
+
+		while (lexer().peekOperator("::",".")) {
+			ret.add(lexer().consumeToken());
+			if (lexer().peekKeyword("new") ||
+					(allow_keywords && lexer().peekKeyword())) {
+				ret.add(lexer().consumeToken());
+			} else {
+				ret.add(lexer().readIdTok());
+			}
+		}
+
+		return ret;
+	}
+
+	public List<SVToken> scopedStaticIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
+
+		if (!allow_keywords) {
+			ret.add(lexer().readIdTok());
+		} else if (lexer().peekKeyword() || lexer().peekId()) {
+			ret.add(lexer().consumeToken());
+		} else {
+			error("scopedIdentifier: starts with " + lexer().peek());
+		}
+
+		while (lexer().peekOperator("::")) {
+			ret.add(lexer().consumeToken());
+			if (allow_keywords && lexer().peekKeyword()) {
+				ret.add(lexer().consumeToken());
+			} else {
+				ret.add(lexer().readIdTok());
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Tries to read a scoped static identifier list
+	 * 
+	 * @param allow_keywords
+	 * @return
+	 * @throws SVParseException
+	 */
+	public List<SVToken> peekScopedStaticIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
+
+		if (!allow_keywords) {
+			if (lexer().peekId()) {
+				ret.add(lexer().readIdTok());
+			} else {
+				return ret;
+			}
+		} else if (lexer().peekKeyword() || lexer().peekId()) {
+			ret.add(lexer().consumeToken());
+		} else {
+			return ret;
+		}
+
+		while (lexer().peekOperator("::")) {
+			ret.add(lexer().consumeToken());
+			if (allow_keywords && lexer().peekKeyword()) {
+				ret.add(lexer().consumeToken());
+			} else {
+				ret.add(lexer().readIdTok());
+			}
+		}
+
+		return ret;
+	}
+
+	public String scopedIdentifierList2Str(List<SVToken> scoped_id) {
+		StringBuilder sb = new StringBuilder();
+		for (SVToken tok : scoped_id) {
+			sb.append(tok.getImage());
+		}
+		return sb.toString();
+	}
+
 	private void process_package(String id) throws SVParseException {
 		if (id.equals("package")) {
 			SVDBLocation start = lexer().getStartLocation();

@@ -45,6 +45,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			String id = null;
 			SVDBModIfcClassParam p;
 			SVDBLocation it_start = lexer().getStartLocation();
+			boolean is_type = false;
 
 			// Parameter can be typed or untyped
 			// type T=int
@@ -53,6 +54,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			if (lexer().peekKeyword("type")) {
 				lexer().eatToken();
 				id = lexer().readIdOrKeyword();
+				is_type = true;
 			} else {
 				if (lexer().peekKeyword("parameter")) {
 					lexer().eatToken();
@@ -85,9 +87,14 @@ public class SVParameterPortListParser extends SVParserBase {
 				// TODO:
 				// id = parsers().exprParser().expression().toString();
 				// id = parsers().SVParser().readExpression(true);
-				SVExpr dflt = parsers().exprParser().expression();
-				debug("parameter default: " + id);
-				p.setDefault(dflt);
+				if (is_type) {
+					SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+					p.setDefaultType(type);
+				} else {
+					SVExpr dflt = parsers().exprParser().expression();
+					debug("parameter default: " + id);
+					p.setDefault(dflt);
+				}
 			}
 
 			params.add(p);

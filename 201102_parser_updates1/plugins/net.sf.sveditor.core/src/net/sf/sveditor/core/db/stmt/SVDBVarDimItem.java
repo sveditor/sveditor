@@ -21,7 +21,7 @@ public class SVDBVarDimItem extends SVDBStmt {
 	
 	public enum DimType {
 		Unsized,
-		Unpacked,
+		Sized,
 		Associative,
 		Queue
 	};

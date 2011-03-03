@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
@@ -10,7 +11,7 @@ public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
 	}
 	
 	public boolean isScoped() {
-		return fTypeInfo.size() > 0;
+		return (fTypeInfo != null && fTypeInfo.size() > 0);
 	}
 	
 	public void addClassItem(SVDBTypeInfoClassItem item) {
@@ -19,6 +20,9 @@ public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
 		SVDBTypeInfoClassItem this_i = new SVDBTypeInfoClassItem(getName());
 		this_i.init(this);
 		
+		if (fTypeInfo == null) {
+			fTypeInfo = new ArrayList<SVDBTypeInfoClassItem>();
+		}
 		fTypeInfo.add(this_i);
 
 		// Set the leaf information to the new class-item info

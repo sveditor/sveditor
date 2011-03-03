@@ -87,6 +87,11 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			fLog.debug("collectParentFileMacros()");
 		}
 		
+		if (fContext == null) {
+			// Nothing useful to do here
+			return;
+		}
+		
 		SVDBFileTree ib = fContext;
 		file_list.add(ib);
 		while (ib.getIncludedByFiles().size() > 0) {
