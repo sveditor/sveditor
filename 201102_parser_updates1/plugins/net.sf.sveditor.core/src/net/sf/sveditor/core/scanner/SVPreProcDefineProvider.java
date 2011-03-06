@@ -109,7 +109,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			return "";
 		}
 
-		fMacroProvider.setMacro("__FILE__", fFilename);
+		fMacroProvider.setMacro("__FILE__", "\"" + fFilename + "\"");
 		fMacroProvider.setMacro("__LINE__", "" + fLineno);
 		fExpandStack.clear();
 		fEnableOutputStack.clear();

@@ -12,6 +12,10 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.stmt.SVDBConstraintDistItemStmt;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
+
 
 public class SVExprIterator {
 	
@@ -21,22 +25,17 @@ public class SVExprIterator {
 			case ArrayAccess: array_access((SVArrayAccessExpr)expr); break;
 			case Assign: assign((SVAssignExpr)expr); break;
 			case Cast: cast((SVCastExpr)expr); break;
-			case DistList: dist_list((SVDistListExpr)expr); break;
 			case Binary: binary_expr((SVBinaryExpr)expr); break;
 			case Cond: cond((SVCondExpr)expr); break;
 			
-			case ConstraintIf: constraint_if((SVConstraintIfExpr)expr); break;
-			case ConstraintSet: constraint_set((SVConstraintSetExpr)expr); break;
 			case FieldAccess: field_access((SVFieldAccessExpr)expr); break;
 			case Identifier: identifier((SVIdentifierExpr)expr); break;
-			case Implication: implication((SVImplicationExpr)expr); break;
 			case IncDec: inc_dec((SVIncDecExpr)expr); break;
 			case Inside: inside((SVInsideExpr)expr); break;
 			case Literal: literal((SVLiteralExpr)expr); break;
 			case Paren: paren((SVParenExpr)expr); break;
 			case QualifiedSuperFieldRef: qualified_super_field_ref((SVQualifiedSuperFieldRefExpr)expr); break;
 			case QualifiedThisRef: qualified_this_ref((SVQualifiedThisRefExpr)expr); break;
-			case SolveBefore: solve_before((SVSolveBeforeExpr)expr); break;
 			case TFCall: tf_call((SVTFCallExpr)expr); break;
 			case Unary: unary((SVUnaryExpr)expr); break;
 			case Range: range((SVRangeExpr)expr); break;
@@ -71,24 +70,10 @@ public class SVExprIterator {
 		visit(expr.getRhs());
 	}
 	
-	protected void dist_item(SVDistItemExpr expr) {
+	protected void dist_item(SVDBConstraintDistItemStmt expr) {
 	}
 	
-	protected void dist_list(SVDistListExpr expr) {
-	}
-	
-	protected void constraint_if(SVConstraintIfExpr expr) {
-		visit(expr.getExpr());
-		visit(expr.getConstraint());
-		if (expr.getElseClause() != null) {
-			visit(expr.getElseClause());
-		}
-	}
-	
-	protected void constraint_set(SVConstraintSetExpr expr) {
-		for (SVExpr e : expr.getConstraintList()) {
-			visit(e);
-		}
+	protected void dist_list(SVDBConstraintDistListStmt expr) {
 	}
 	
 	protected void field_access(SVFieldAccessExpr expr) {
@@ -96,11 +81,6 @@ public class SVExprIterator {
 	}
 	
 	protected void identifier(SVIdentifierExpr expr) {
-	}
-	
-	protected void implication(SVImplicationExpr expr) {
-		visit(expr.getExpr());
-		visit(expr.getConstraintSet());
 	}
 	
 	protected void inc_dec(SVIncDecExpr expr) {
@@ -129,7 +109,7 @@ public class SVExprIterator {
 		visit(expr.getExpr());
 	}
 	
-	protected void solve_before(SVSolveBeforeExpr expr) {
+	protected void solve_before(SVDBConstraintSolveBeforeStmt expr) {
 	}
 	
 	protected void tf_call(SVTFCallExpr expr) {

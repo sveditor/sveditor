@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -28,6 +27,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVRangeExpr;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -95,165 +96,165 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
 		SVDBTypeInfo type = null;
 		
-		if (lexer().peekKeyword(IntegerVectorType)) {
+		if (fLexer.peekKeyword(IntegerVectorType)) {
 			// integer_vector_type [signing] { packed_dimension }
-			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(lexer().eatToken());
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			
 			// signing
-			if (lexer().peekKeyword("signed", "unsigned")) {
-				builtin_type.setAttr(lexer().peekKeyword("signed")?
+			if (fLexer.peekKeyword("signed", "unsigned")) {
+				builtin_type.setAttr(fLexer.peekKeyword("signed")?
 						SVDBTypeInfoBuiltin.TypeAttr_Signed:
 							SVDBTypeInfoBuiltin.TypeAttr_Unsigned);
-				lexer().eatToken();
+				fLexer.eatToken();
 			}
 			
-			while (lexer().peekOperator("[")) {
+			while (fLexer.peekOperator("[")) {
 				// TODO: packed_dimension
-				lexer().skipPastMatch("[", "]");
+				fLexer.skipPastMatch("[", "]");
 			}
 			type = builtin_type;
-		} else if (lexer().peekKeyword(NetType)) {
-			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(lexer().eatToken());
+		} else if (fLexer.peekKeyword(NetType)) {
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			
-			if (lexer().peekOperator("[")) {
-				lexer().startCapture();
-				while (lexer().peekOperator("[")) {
-					lexer().skipPastMatch("[", "]");
+			if (fLexer.peekOperator("[")) {
+				fLexer.startCapture();
+				while (fLexer.peekOperator("[")) {
+					fLexer.skipPastMatch("[", "]");
 				}
-				builtin_type.setVectorDim(lexer().endCapture());
+				builtin_type.setVectorDim(fLexer.endCapture());
 			}
 			
 			type = builtin_type;
-		} else if (lexer().peekKeyword(IntegerAtomType)) {
-			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(lexer().eatToken());
+		} else if (fLexer.peekKeyword(IntegerAtomType)) {
+			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			
-			if (lexer().peekKeyword("signed", "unsigned")) {
-				builtin_type.setAttr(lexer().peekKeyword("signed")?
+			if (fLexer.peekKeyword("signed", "unsigned")) {
+				builtin_type.setAttr(fLexer.peekKeyword("signed")?
 						SVDBTypeInfoBuiltin.TypeAttr_Signed:
 							SVDBTypeInfoBuiltin.TypeAttr_Unsigned);
-				lexer().eatToken();
+				fLexer.eatToken();
 			}
 			type = builtin_type;
-		} else if (lexer().peekKeyword(NonIntegerType)) {
-			type = new SVDBTypeInfoBuiltin(lexer().eatToken());
-		} else if (lexer().peekKeyword("struct", "union")) {
-			String id = lexer().readKeyword("struct", "union");
+		} else if (fLexer.peekKeyword(NonIntegerType)) {
+			type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+		} else if (fLexer.peekKeyword("struct", "union")) {
+			String id = fLexer.readKeyword("struct", "union");
 			if (id.equals("union")) {
-				if (lexer().peekKeyword("tagged")) {
-					lexer().eatToken();
+				if (fLexer.peekKeyword("tagged")) {
+					fLexer.eatToken();
 				}
 			} else {
 				type = struct_body();
 			}
 			// TODO:
-		} else if (lexer().peekKeyword("enum")) {
+		} else if (fLexer.peekKeyword("enum")) {
 			type = enum_type();
 			type.setName("<<ANONYMOUS>>");
-		} else if (lexer().peekKeyword(BuiltInTypes)) {
+		} else if (fLexer.peekKeyword(BuiltInTypes)) {
 			// string, chandle, etc
-			type = new SVDBTypeInfoBuiltin(lexer().eatToken());
-		} else if (lexer().peekKeyword("virtual") || (qualifiers & SVDBFieldItem.FieldAttr_Virtual) != 0) {
-			if (lexer().peekKeyword("virtual")) {
-				lexer().eatToken();
+			type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+		} else if (fLexer.peekKeyword("virtual") || (qualifiers & SVDBFieldItem.FieldAttr_Virtual) != 0) {
+			if (fLexer.peekKeyword("virtual")) {
+				fLexer.eatToken();
 			}
 			// virtual [interface] interface_identifier
-			if (lexer().peekKeyword("interface")) {
+			if (fLexer.peekKeyword("interface")) {
 				// TODO: use this somehow (?)
-				lexer().eatToken();
+				fLexer.eatToken();
 			}
-			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(lexer().readId());
-			if (lexer().peekOperator("#")) {
+			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(fLexer.readId());
+			if (fLexer.peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
 				ud_type.setParameters(plist);
 			}
 			type = ud_type;
-		} else if (lexer().peekKeyword("type")) {
+		} else if (fLexer.peekKeyword("type")) {
 			// type_reference ::=
 			//   type ( expression )
 			//   type ( data_type )
-			type = new SVDBTypeInfoBuiltin(lexer().eatToken());
+			type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			// TODO: skip paren expression
 			error("'type' expression unsupported");
-		} else if (lexer().peekKeyword("class")) {
+		} else if (fLexer.peekKeyword("class")) {
 			// Class type
-			lexer().eatToken();
-			SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", lexer().readId());
+			fLexer.eatToken();
+			SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", fLexer.readId());
 
 			// TODO: this should be a real parse
-			if (lexer().peekOperator("#")) {
-				if (lexer().peekOperator("#")) {
+			if (fLexer.peekOperator("#")) {
+				if (fLexer.peekOperator("#")) {
 					// scanner().unget_ch('#');
 					// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 					// cls.getSuperParameters().addAll(params);
-					lexer().eatToken();
-					if (lexer().peekOperator("(")) {
-						lexer().skipPastMatch("(", ")");
+					fLexer.eatToken();
+					if (fLexer.peekOperator("(")) {
+						fLexer.skipPastMatch("(", ")");
 					} else {
-						lexer().eatToken();
+						fLexer.eatToken();
 					}
 				}
 			}
 			type = type_fwd;
-		} else if (lexer().peekOperator("[") || lexer().peekKeyword("signed", "unsigned")) {
+		} else if (fLexer.peekOperator("[") || fLexer.peekKeyword("signed", "unsigned")) {
 			// Implicit items
-			String id = lexer().eatToken();
+			String id = fLexer.eatToken();
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(
 					(id.equals("["))?"bit":id);
 			
 			// Implicit sized item
 
 			if (id.equals("[")) {
-				lexer().startCapture();
+				fLexer.startCapture();
 				do {
-					lexer().skipPastMatch("[", "]");
-				} while (lexer().peekOperator("["));
-				builtin_type.setVectorDim(lexer().endCapture());
-			} else if (lexer().peekOperator("[")) {
-				lexer().startCapture();
+					fLexer.skipPastMatch("[", "]");
+				} while (fLexer.peekOperator("["));
+				builtin_type.setVectorDim(fLexer.endCapture());
+			} else if (fLexer.peekOperator("[")) {
+				fLexer.startCapture();
 				do {
-					lexer().skipPastMatch("[", "]");
-				} while (lexer().peekOperator("["));
-				builtin_type.setVectorDim(lexer().endCapture());
+					fLexer.skipPastMatch("[", "]");
+				} while (fLexer.peekOperator("["));
+				builtin_type.setVectorDim(fLexer.endCapture());
 			}
 			
 			type = builtin_type;
-		} else if (SVKeywords.isVKeyword(lexer().peek()) && 
-				!lexer().peekKeyword("interface") && 
-				!lexer().peekKeyword(SVKeywords.fBuiltinGates)) {
+		} else if (SVKeywords.isVKeyword(fLexer.peek()) && 
+				!fLexer.peekKeyword("interface") && 
+				!fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
 			// ERROR: 
-			error("Invalid type name \"" + lexer().peek() + "\"");
+			error("Invalid type name \"" + fLexer.peek() + "\"");
 		} else {
-			String id = lexer().eatToken();
+			String id = fLexer.eatToken();
 			// Should be a user-defined type
-			if (lexer().peekOperator("::")) {
+			if (fLexer.peekOperator("::")) {
 				StringBuilder type_id = new StringBuilder();
 				type_id.append(id);
 				
 				// scoped type
 				// [class_scope | package_scope] type_identifier { packed_dimension }
-				while (lexer().peekOperator("::")) {
-					type_id.append(lexer().eatToken()); // ::
-					type_id.append(lexer().readId());
+				while (fLexer.peekOperator("::")) {
+					type_id.append(fLexer.eatToken()); // ::
+					type_id.append(fLexer.readId());
 				}
 				
 				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
 				
-				if (lexer().peekOperator("[")) {
+				if (fLexer.peekOperator("[")) {
 					// TODO: packed_dimension
 					
 					// TODO: handle multi-dimensional vectors
-					while (lexer().peekOperator("[")) {
-						lexer().skipPastMatch("[", "]");
+					while (fLexer.peekOperator("[")) {
+						fLexer.skipPastMatch("[", "]");
 					}
 				}
-			} else if (lexer().peekOperator(".")) {
+			} else if (fLexer.peekOperator(".")) {
 				// Interface type: interface.modport
 				StringBuilder type_id = new StringBuilder();
 				type_id.append(id);
 				
-				while (lexer().peekOperator(".")) {
-					type_id.append(lexer().eatToken()); // .
-					type_id.append(lexer().readId());
+				while (fLexer.peekOperator(".")) {
+					type_id.append(fLexer.eatToken()); // .
+					type_id.append(fLexer.readId());
 				}
 				
 				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
@@ -261,27 +262,27 @@ public class SVDataTypeParser extends SVParserBase {
 				type = new SVDBTypeInfoUserDef(id, SVDBDataType.UserDefined);
 			}
 			
-			if (lexer().peekOperator("#")) {
+			if (fLexer.peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
 				((SVDBTypeInfoUserDef)type).setParameters(plist);
 			}
 			
 			// A sized enum is allowed to have a duplicate bit-width assigned
-			if (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
+			if (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
 			}
 		}
 		
 		if (type == null) {
-			error("Unknown type starting with \"" + lexer().peek() + "\"");
+			error("Unknown type starting with \"" + fLexer.peek() + "\"");
 		}
 		
 		return type;
 	}
 	
 	public SVDBTypeInfo data_type_or_void(int qualifiers) throws SVParseException {
-		if (lexer().peekOperator("void")) {
-			lexer().eatToken();
+		if (fLexer.peekOperator("void")) {
+			fLexer.eatToken();
 			return new SVDBTypeInfoBuiltin("void");
 		} else {
 			return data_type(qualifiers);
@@ -297,53 +298,53 @@ public class SVDataTypeParser extends SVParserBase {
 	 * @throws SVParseException
 	 */
 	public SVDBTypeInfo net_port_type(int qualifiers) throws SVParseException {
-		if (lexer().peekKeyword(NetType)) {
+		if (fLexer.peekKeyword(NetType)) {
 			// TODO: should find a way to qualify the type (?)
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 		
 		return data_type(qualifiers);
 	}
 	
 	public SVDBTypeInfoEnum enum_type() throws SVParseException {
-		lexer().readKeyword("enum");
+		fLexer.readKeyword("enum");
 		SVDBTypeInfoEnum type = new SVDBTypeInfoEnum("");
 		boolean vals_specified = false;
 		String val_str = null;
 		int index = 0;
 		
 		// TODO: scan base type
-		if (!lexer().peekOperator("{")) {
+		if (!fLexer.peekOperator("{")) {
 			/* SVDBTypeInfo base_type = */ data_type(0);
 			
 			// Forward declaration
-			if (lexer().peekOperator(";")) {
+			if (fLexer.peekOperator(";")) {
 				type.setDataType(SVDBDataType.FwdDecl);
 				return type;
 			}
 		}
 		
-		lexer().readOperator("{");
-		while (lexer().peek() != null) {
-			String name = lexer().readId();
-			if (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
+		fLexer.readOperator("{");
+		while (fLexer.peek() != null) {
+			String name = fLexer.readId();
+			if (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
 			}
-			if (lexer().peekOperator("=")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator("=")) {
+				fLexer.eatToken();
 				// TODO: 
 				val_str = parsers().exprParser().expression().toString();
 				vals_specified = true;
 			}
 			type.addEnumValue(name, ((vals_specified)?""+index:val_str));
 			
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
-		lexer().readOperator("}");
+		fLexer.readOperator("}");
 		
 		return type;
 	}
@@ -353,16 +354,16 @@ public class SVDataTypeParser extends SVParserBase {
 
 		// typedef <type> <name>;
 
-		SVDBLocation start = lexer().getStartLocation();
-		lexer().readKeyword("typedef");
+		SVDBLocation start = fLexer.getStartLocation();
+		fLexer.readKeyword("typedef");
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
 		if (type.getDataType() != SVDBDataType.FwdDecl) {
-			String id = lexer().readId();
+			String id = fLexer.readId();
 
 			// TODO: dimension
-			if (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
+			if (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
 			}
 
 			typedef = new SVDBTypedefStmt(type, id);
@@ -378,7 +379,7 @@ public class SVDataTypeParser extends SVParserBase {
 			typedef.setLocation(start);
 		}
 
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
 		return typedef;
 	}
@@ -386,40 +387,48 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBVarDimItem var_dim() throws SVParseException {
 		SVDBVarDimItem ret = new SVDBVarDimItem();
 		
-		lexer().readOperator("[");
+		fLexer.readOperator("[");
 		
-		if (lexer().peekOperator("]")) {
+		if (fLexer.peekOperator("]")) {
 			ret.setDimType(DimType.Unsized);
-		} else if (lexer().peekOperator("$")) {
-			lexer().eatToken();
+		} else if (fLexer.peekOperator("$")) {
+			fLexer.eatToken();
 			ret.setDimType(DimType.Queue);
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
 				ret.setExpr(parsers().exprParser().expression());
 			}
-		} else if (lexer().peekOperator("*")) {
-			lexer().eatToken();
+		} else if (fLexer.peekOperator("*")) {
+			fLexer.eatToken();
 			ret.setDimType(DimType.Associative);
 		} else {
-			SVToken first = lexer().consumeToken();
+			SVToken first = fLexer.consumeToken();
 			// TODO: seems ambiguous
 			if (first.isNumber() || first.isOperator() || 
-					(lexer().peekOperator() && !lexer().peekOperator("#"))) {
+					(fLexer.peekOperator() && !fLexer.peekOperator("#"))) {
 				// most likely a constant expression
-				lexer().ungetToken(first);
+				fLexer.ungetToken(first);
 				ret.setDimType(DimType.Sized);
 				
 				// TODO: should be constant expression
-				ret.setExpr(parsers().exprParser().expression());
+				SVExpr expr = parsers().exprParser().expression();
+				if (fLexer.peekOperator(":")) {
+					// range
+					fLexer.eatToken();
+					ret.setExpr(new SVRangeExpr(expr, fParsers.exprParser().expression()));
+				} else {
+					// single value
+					ret.setExpr(expr);
+				}
 			} else {
 				// Assume this is a data-type
-				lexer().ungetToken(first);
+				fLexer.ungetToken(first);
 				ret.setDimType(DimType.Associative);
 				ret.setTypeInfo(parsers().dataTypeParser().data_type(0));
 			}
 		}
 		
-		lexer().readOperator("]");
+		fLexer.readOperator("]");
 		
 		return ret;
 	}
@@ -427,46 +436,46 @@ public class SVDataTypeParser extends SVParserBase {
 	private SVDBTypeInfoStruct struct_body() throws SVParseException {
 		SVDBTypeInfoStruct struct = new SVDBTypeInfoStruct();
 
-		if (lexer().peekKeyword("packed")) {
-			lexer().eatToken();
+		if (fLexer.peekKeyword("packed")) {
+			fLexer.eatToken();
 		}
 		
 		// TODO: signing
 		
-		lexer().readOperator("{");
+		fLexer.readOperator("{");
 		
 		do {
-			SVDBLocation it_start = lexer().getStartLocation();
+			SVDBLocation it_start = fLexer.getStartLocation();
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 			
 			SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, 0);
 			var.setLocation(it_start);
 			
-			while (lexer().peek() != null) {
-				it_start = lexer().getStartLocation();
-				String name = lexer().readId();
+			while (fLexer.peek() != null) {
+				it_start = fLexer.getStartLocation();
+				String name = fLexer.readId();
 				
 				SVDBVarDeclItem vi = new SVDBVarDeclItem(name);
 				vi.setLocation(it_start);
 
-				if (lexer().peekOperator("[")) {
+				if (fLexer.peekOperator("[")) {
 					vi.setArrayDim(var_dim());
 				}
 				var.addVar(vi);
 				
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
+				if (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
 				} else {
 					break;
 				}
 			}
 			
 			struct.getFields().add(var);
-			lexer().readOperator(";");
+			fLexer.readOperator(";");
 							
-		} while (lexer().peek() != null && !lexer().peekOperator("}"));
+		} while (fLexer.peek() != null && !fLexer.peekOperator("}"));
 		
-		lexer().readOperator("}");
+		fLexer.readOperator("}");
 		
 		return struct;
 	}
@@ -474,18 +483,18 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBTypeInfoClassType class_type() throws SVParseException {
 		SVDBTypeInfoClassType class_type = new SVDBTypeInfoClassType("");
 		
-		while (lexer().peek() != null) {
-			String id = lexer().readId();
+		while (fLexer.peek() != null) {
+			String id = fLexer.readId();
 			SVDBTypeInfoClassItem class_item = new SVDBTypeInfoClassItem(id);
 			class_type.addClassItem(class_item);
 			
-			if (lexer().peekOperator("#")) {
+			if (fLexer.peekOperator("#")) {
 				SVDBParamValueAssignList param_assign = parsers().paramValueAssignParser().parse();
 				class_item.setParamAssignList(param_assign);
 			}
 			
-			if (lexer().peekOperator("::")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator("::")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}

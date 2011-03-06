@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -65,7 +66,7 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 			SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
 					((SVEditor)getTextEditor()).getIndexIterator());
 			
-			List<SVDBModIfcClassDecl> result = finder_c.find(expr_ctxt.fLeaf); 
+			List<ISVDBChildItem> result = finder_c.find(expr_ctxt.fLeaf); 
 			ISVDBItemBase cls = (result != null && result.size() > 0)?result.get(0):null; 
 			
 			if (cls != null) {

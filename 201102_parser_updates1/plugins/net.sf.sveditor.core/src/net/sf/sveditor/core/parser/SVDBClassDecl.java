@@ -93,18 +93,24 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBClassDecl) {
 			SVDBClassDecl o = (SVDBClassDecl)obj;
-			
-			if (fParams.size() == o.fParams.size()) {
-				for (int i=0; i<fParams.size(); i++) {
-					SVDBModIfcClassParam p1 = fParams.get(i);
-					SVDBModIfcClassParam p2 = o.fParams.get(i);
-					
-					if (!p1.equals(p2)) {
-						return false;
-					}
+
+			if (fParams == null || o.fParams == null) {
+				if (fParams != o.fParams) {
+					return false;
 				}
 			} else {
-				return false;
+				if (fParams.size() == o.fParams.size()) {
+					for (int i=0; i<fParams.size(); i++) {
+						SVDBModIfcClassParam p1 = fParams.get(i);
+						SVDBModIfcClassParam p2 = o.fParams.get(i);
+
+						if (!p1.equals(p2)) {
+							return false;
+						}
+					}
+				} else {
+					return false;
+				}
 			}
 			
 			if (fSuperClass == null || o.fSuperClass == null) {

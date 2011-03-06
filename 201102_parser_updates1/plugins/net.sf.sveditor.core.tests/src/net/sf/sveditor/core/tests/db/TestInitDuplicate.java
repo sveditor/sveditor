@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDB;
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBClockingBlock;
 import net.sf.sveditor.core.db.SVDBConstraint;
@@ -17,9 +16,7 @@ import net.sf.sveditor.core.db.SVDBCoverPoint;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
-import net.sf.sveditor.core.db.SVDBImport;
 import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBInitialBlock;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -34,6 +31,9 @@ import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
+import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
@@ -44,18 +44,17 @@ public class TestInitDuplicate extends TestCase {
 	public void testSVDBDumpLoad() throws DBFormatException {
 		SVDB.init();
 		
-		int_testDumpLoad(new SVDBAlwaysBlock("expr"));
-		int_testDumpLoad(new SVDBAssign("target"));
+		int_testDumpLoad(new SVDBAlwaysStmt(AlwaysType.Always));
+		int_testDumpLoad(new SVDBAssign());
 		int_testDumpLoad(new SVDBClockingBlock("clocking"));
-		int_testDumpLoad(new SVDBConstraint("c"));
+		int_testDumpLoad(new SVDBConstraint());
 		int_testDumpLoad(new SVDBCoverGroup("cg"));
 		int_testDumpLoad(new SVDBCoverPoint("cp"));
 		int_testDumpLoad(new SVDBCoverpointCross("cross"));
 		
 		int_testDumpLoad(new SVDBGenerateBlock("generate"));
-		int_testDumpLoad(new SVDBImport("import"));
+		int_testDumpLoad(new SVDBImportStmt());
 		int_testDumpLoad(new SVDBInclude("include"));
-		int_testDumpLoad(new SVDBInitialBlock());
 		
 		{
 			List<String> params = new ArrayList<String>();

@@ -32,24 +32,24 @@ public class SVPortListParser extends SVParserBase {
 		int dir = SVDBParamPort.Direction_Input;
 		SVDBTypeInfo last_type = null;
 		
-		lexer().readOperator("(");
+		fLexer.readOperator("(");
 		
-		if (lexer().peekOperator(".*")) {
-			lexer().eatToken();
-			lexer().readOperator(")");
+		if (fLexer.peekOperator(".*")) {
+			fLexer.eatToken();
+			fLexer.readOperator(")");
 			return ports;
 		}
 		
-		if (lexer().peekOperator(")")) {
+		if (fLexer.peekOperator(")")) {
 			// empty port list
-			lexer().eatToken();
+			fLexer.eatToken();
 			return ports;
 		}
 		
 		while (true) {
-			SVDBLocation it_start = lexer().getStartLocation();
-			if (lexer().peekKeyword("input", "output", "inout", "ref")) {
-				String dir_s = lexer().eatToken();
+			SVDBLocation it_start = fLexer.getStartLocation();
+			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
+				String dir_s = fLexer.eatToken();
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPort.Direction_Input;
 				} else if (dir_s.equals("output")) {
@@ -59,28 +59,28 @@ public class SVPortListParser extends SVParserBase {
 				} else if (dir_s.equals("ref")) {
 					dir = SVDBParamPort.Direction_Ref;
 				}
-			} else if (lexer().peekKeyword("const")) {
-				lexer().eatToken();
-				lexer().readKeyword("ref");
+			} else if (fLexer.peekKeyword("const")) {
+				fLexer.eatToken();
+				fLexer.readKeyword("ref");
 				dir = (SVDBParamPort.Direction_Ref | SVDBParamPort.Direction_Const);
 			}
 			
 			// This may be an untyped vectored parameter
 			SVDBTypeInfo type = null; 
 			String id = null;
-			if (lexer().peekOperator("[")) {
-				lexer().startCapture();
+			if (fLexer.peekOperator("[")) {
+				fLexer.startCapture();
 				// TODO: handle multi-dimensional vectors
-				while (lexer().peekOperator("[")) {
-					lexer().skipPastMatch("[", "]");
+				while (fLexer.peekOperator("[")) {
+					fLexer.skipPastMatch("[", "]");
 				}
-				String vector_dim = lexer().endCapture();
+				String vector_dim = fLexer.endCapture();
 				SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin("untyped");
 				bi_type.setVectorDim(vector_dim);
 				type = bi_type;
 
 				// Relax to allow use of SV keywords for Verilog ports
-				id = lexer().readIdOrKeyword();
+				id = fLexer.readIdOrKeyword();
 			} else {
 				type = parsers().dataTypeParser().data_type(0);
 
@@ -89,7 +89,7 @@ public class SVPortListParser extends SVParserBase {
 
 				// Handle the case where a single type and a 
 				// list of parameters is declared
-				if (lexer().peekOperator(",", ")", "=", "[")) {
+				if (fLexer.peekOperator(",", ")", "=", "[")) {
 					// use previous type
 					id = type.getName();
 					if (last_type == null) {
@@ -98,13 +98,13 @@ public class SVPortListParser extends SVParserBase {
 					type = last_type;
 				} else {
 					// Relax to allow use of SV keywords
-					id = lexer().readIdOrKeyword();
+					id = fLexer.readIdOrKeyword();
 
 					/* 
-					if (lexer().peekOperator("[")) {
-						lexer().startCapture();
-						lexer().skipPastMatch("[", "]");
-						lexer().endCapture();
+					if (fLexer.peekOperator("[")) {
+						fLexer.startCapture();
+						fLexer.skipPastMatch("[", "]");
+						fLexer.endCapture();
 					}
 					 */
 
@@ -119,7 +119,7 @@ public class SVPortListParser extends SVParserBase {
 			SVDBVarDeclItem param = new SVDBVarDeclItem(id);
 			param_r.addVar(param);
 
-			if (lexer().peekOperator("[")) {
+			if (fLexer.peekOperator("[")) {
 				// This port is an array port
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
@@ -127,21 +127,21 @@ public class SVPortListParser extends SVParserBase {
 			ports.add(param_r);
 
 			/*
-			if (lexer().peekOperator("=")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator("=")) {
+				fLexer.eatToken();
 				// TODO: read expression
 				parsers().SVParser().readExpression();
 			}
 			 */
 			
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
 		return ports;
 	}

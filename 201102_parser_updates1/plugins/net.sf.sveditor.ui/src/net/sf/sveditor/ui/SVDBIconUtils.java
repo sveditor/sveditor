@@ -48,12 +48,12 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Sequence, SEQUENCE_OBJ);
 		fImgDescMap.put(SVDBItemType.Property, PROPERTY_OBJ);
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
-		fImgDescMap.put(SVDBItemType.AlwaysBlock, ALWAYS_BLOCK_OBJ);
-		fImgDescMap.put(SVDBItemType.InitialBlock, INITIAL_OBJ);
+		fImgDescMap.put(SVDBItemType.AlwaysStmt, ALWAYS_BLOCK_OBJ);
+		fImgDescMap.put(SVDBItemType.InitialStmt, INITIAL_OBJ);
 		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.ClockingBlock, CLOCKING_OBJ);
-		fImgDescMap.put(SVDBItemType.Import, IMPORT_OBJ);
+		fImgDescMap.put(SVDBItemType.ImportStmt, IMPORT_OBJ);
 	}
 	
 	public static Image getIcon(String key) {

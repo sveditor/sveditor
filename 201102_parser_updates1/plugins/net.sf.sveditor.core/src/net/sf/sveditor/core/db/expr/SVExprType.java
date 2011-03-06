@@ -20,7 +20,6 @@ public enum SVExprType {
 	Binary,
 	Cast,
 	Cond,
-	Constraint,
 	CtorExpr,
 	FieldAccess,
 	Identifier,
@@ -32,18 +31,13 @@ public enum SVExprType {
 	Paren,
 	Inside,
 	Range,
+	RangeDollarBoundExpr,
 	QualifiedSuperFieldRef,
 	QualifiedThisRef,
 	QualifiedId,
 	TFCall,
 	RandomizeCall,
 	Unary,
-	ConstraintIf,
-	ConstraintSet,
-	DistList,
-	DistItem,
-	Implication,
-	SolveBefore,
 	
 	NamedArgExpr, // .ARG(value)
 	

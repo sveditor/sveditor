@@ -279,8 +279,8 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 		
 		// Otherwise, search through each include path
 		for (String inc : fIncludePaths) {
-			inc = resolvePath(inc);
 			inc = inc + "/" + path;
+			inc = resolvePath(inc);
 			
 			if (fFileSystemProvider.fileExists(inc)) {
 				SVDBFile pp_file = processPreProcFile(inc, true);

@@ -10,17 +10,20 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.expr;
+package net.sf.sveditor.core.db.stmt;
+
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 
-public class SVImplicationExpr extends SVConstraintExpr {
+public class SVDBConstraintImplStmt extends SVDBStmt {
 	
 	private SVExpr					fExpr;
-	private SVConstraintSetExpr		fConstraint;
+	private SVDBStmt				fConstraint;
 	
 	
-	public SVImplicationExpr(SVExpr expr, SVConstraintSetExpr constraint) {
-		super(SVExprType.Implication);
+	public SVDBConstraintImplStmt(SVExpr expr, SVDBStmt constraint) {
+		super(SVDBItemType.ConstraintImplStmt);
 		fExpr 		= expr;
 		fConstraint = constraint;
 	}
@@ -29,14 +32,14 @@ public class SVImplicationExpr extends SVConstraintExpr {
 		return fExpr;
 	}
 	
-	public SVConstraintSetExpr getConstraintSet() {
+	public SVDBStmt getConstraintSet() {
 		return fConstraint;
 	}
 	
-	public SVImplicationExpr duplicate() {
-		return new SVImplicationExpr(
+	public SVDBConstraintImplStmt duplicate() {
+		return new SVDBConstraintImplStmt(
 				(SVExpr)fExpr.duplicate(), 
-				(SVConstraintSetExpr)fConstraint.duplicate());
+				(SVDBConstraintSetStmt)fConstraint.duplicate());
 	}
 
 }

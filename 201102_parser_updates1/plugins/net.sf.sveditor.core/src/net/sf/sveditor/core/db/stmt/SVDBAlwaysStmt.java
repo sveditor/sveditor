@@ -10,54 +10,63 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db;
+package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
-public class SVDBAlwaysBlock extends SVDBScopeItem {
-	private String				fExpr;
+public class SVDBAlwaysStmt extends SVDBBodyStmt {
+	
+	public enum AlwaysType {
+		Always,
+		AlwaysComb,
+		AlwaysLatch,
+		AlwaysFF
+	};
+	
+	private AlwaysType		fAlwaysType;
 	
 	public static void init() {
 		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
 			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBAlwaysBlock(parent, type, reader);
+				return new SVDBAlwaysStmt(parent, type, reader);
 			}
 		};
 		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.AlwaysBlock); 
+		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.AlwaysStmt);
+		SVDBPersistenceReader.registerEnumType(AlwaysType.class, AlwaysType.values());
 	}
 	
-	public SVDBAlwaysBlock(String expr) {
-		super("", SVDBItemType.AlwaysBlock);
-		fExpr = expr;
+	public SVDBAlwaysStmt(AlwaysType type) {
+		super(SVDBItemType.AlwaysStmt);
+		fAlwaysType = type;
 	}
 	
-	public SVDBAlwaysBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+	public SVDBAlwaysStmt(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
 		super(parent, type, reader);
-		fExpr = reader.readString();
+		fAlwaysType = (AlwaysType)reader.readEnumType(AlwaysType.class);
 	}
 	
-	public String getExpr() {
-		return fExpr;
+	public AlwaysType getAlwaysType() {
+		return fAlwaysType;
 	}
 	
-	public void setExpr(String expr) {
-		fExpr = expr;
-	}
-
 	@Override
 	public void dump(IDBWriter writer) {
 		super.dump(writer);
-		writer.writeString(fExpr);
+		writer.writeEnumType(AlwaysType.class, fAlwaysType);
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBAlwaysBlock ret = new SVDBAlwaysBlock(fExpr);
+	public SVDBAlwaysStmt duplicate() {
+		SVDBAlwaysStmt ret = new SVDBAlwaysStmt(fAlwaysType);
 		
 		ret.init(this);
 		
@@ -65,16 +74,16 @@ public class SVDBAlwaysBlock extends SVDBScopeItem {
 	}
 
 	@Override
-	public void init(SVDBItemBase other) {
+	public void init(ISVDBItemBase other) {
 		super.init(other);
-		fExpr = ((SVDBAlwaysBlock)other).fExpr;
+		fAlwaysType = ((SVDBAlwaysStmt)other).fAlwaysType;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof SVDBAlwaysBlock) {
+		if (obj instanceof SVDBAlwaysStmt) {
 			boolean ret = true;
-			ret &= ((SVDBAlwaysBlock)obj).fExpr.equals(fExpr);
+			ret &= ((SVDBAlwaysStmt)obj).fAlwaysType.equals(fAlwaysType);
 			ret &= super.equals(obj);
 			
 			return ret;

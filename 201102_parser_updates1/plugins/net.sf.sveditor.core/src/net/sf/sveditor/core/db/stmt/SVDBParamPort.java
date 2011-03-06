@@ -56,7 +56,7 @@ public class SVDBParamPort extends SVDBVarDeclStmt {
 	}
 	
 	public SVDBParamPort(SVDBTypeInfo type) {
-		super(type, 0);
+		super(SVDBItemType.ParamPortDecl, type, 0);
 		fDir = Direction_Input;
 	}
 	

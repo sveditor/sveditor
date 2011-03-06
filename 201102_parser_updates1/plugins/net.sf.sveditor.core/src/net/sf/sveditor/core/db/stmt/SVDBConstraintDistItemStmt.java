@@ -10,16 +10,19 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.expr;
+package net.sf.sveditor.core.db.stmt;
+
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 
-public class SVDistItemExpr extends SVExpr {
+public class SVDBConstraintDistItemStmt extends SVDBStmt {
 	private SVExpr				fLHS;
 	private SVExpr				fRHS;
 	private boolean				fIsDist;
 	
-	public SVDistItemExpr() {
-		super(SVExprType.DistList);
+	public SVDBConstraintDistItemStmt() {
+		super(SVDBItemType.ConstraintDistListItem);
 	}
 	
 	public void setLHS(SVExpr lhs) {
@@ -46,8 +49,8 @@ public class SVDistItemExpr extends SVExpr {
 		fIsDist = is_dist;
 	}
 	
-	public SVDistItemExpr duplicate() {
-		SVDistItemExpr ret = new SVDistItemExpr();
+	public SVDBConstraintDistItemStmt duplicate() {
+		SVDBConstraintDistItemStmt ret = new SVDBConstraintDistItemStmt();
 		ret.setLHS((SVExpr)fLHS.duplicate());
 		ret.setRHS((SVExpr)fRHS.duplicate());
 		ret.setIsDist(fIsDist);

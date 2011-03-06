@@ -64,7 +64,7 @@ public class SVDBFindByNameInClassHierarchy {
 					((ISVDBNamedItem)scope).getName().indexOf("::"));
 			
 			SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndexIterator);
-			List<SVDBModIfcClassDecl> result = finder.find(clsname);
+			List<ISVDBChildItem> result = finder.find(clsname);
 			
 			if (result.size() > 0) {
 				scope = result.get(0);

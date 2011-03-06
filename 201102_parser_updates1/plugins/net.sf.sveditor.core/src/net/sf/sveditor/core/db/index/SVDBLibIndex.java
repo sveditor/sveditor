@@ -808,6 +808,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 	protected String resolvePath(String path_orig) {
 		String path = path_orig;
 		String norm_path = null;
+		
+		fLog.debug("resolvePath: " + path_orig);
 
 		// relative to the base location or one of the include paths
 		if (path.startsWith("..")) {

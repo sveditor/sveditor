@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
 
 public class SVGenerateBlockParser extends SVParserBase {
@@ -20,18 +22,33 @@ public class SVGenerateBlockParser extends SVParserBase {
 		super(parser);
 	}
 	
+	public ISVDBChildItem parse() throws SVParseException {
+		if (fLexer.peekKeyword("generate")) {
+			return generate_block();
+		} else if (fLexer.peekKeyword("if")) {
+			return if_block();
+		} else if (fLexer.peekKeyword("for")) {
+			return for_block();
+		} else if (fLexer.peekKeyword("case")) {
+			return case_block();
+		} else {
+			fLexer.readKeyword("generate", "if", "for", "case");
+			return null;
+		}
+	}
+	
 	public SVDBGenerateBlock generate_block() throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("");
-		gen_blk.setLocation(lexer().getStartLocation());
+		gen_blk.setLocation(fLexer.getStartLocation());
 		
-		lexer().readKeyword("generate");
-		while (lexer().peek() != null && 
-				!lexer().peekKeyword("endgenerate") && !lexer().peekKeyword("endmodule")) {
-			parsers().SVParser().process_module_class_interface_body_item("generate");
+		fLexer.readKeyword("generate");
+		while (fLexer.peek() != null && 
+				!fLexer.peekKeyword("endgenerate") && !fLexer.peekKeyword("endmodule")) {
+			fParsers.modIfcBodyItemParser().parse("generate");
 		}
 		
-		gen_blk.setEndLocation(lexer().getStartLocation());
-		lexer().readKeyword("endgenerate");
+		gen_blk.setEndLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("endgenerate");
 		
 		return gen_blk;
 	}
@@ -39,52 +56,52 @@ public class SVGenerateBlockParser extends SVParserBase {
 	public SVDBGenerateBlock if_block() throws SVParseException {
 		SVDBGenerateBlock if_blk = new SVDBGenerateBlock("if");
 		parsers().SVParser().enter_scope("generate_if", if_blk);
-		lexer().readKeyword("if");
-		lexer().readOperator("(");
+		fLexer.readKeyword("if");
+		fLexer.readOperator("(");
 		/*String cond = */parsers().exprParser().expression();
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
-		if (lexer().peekKeyword("begin")) {
-			lexer().eatToken();
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+		if (fLexer.peekKeyword("begin")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
-			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-				if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+				if (fParsers.modIfcBodyItemParser().parse("generate") == null) {
 					break;
 				}
 			}
-			lexer().readKeyword("end");
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+			fLexer.readKeyword("end");
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
 		} else {
-			parsers().SVParser().process_module_class_interface_body_item("generate");
+			fParsers.modIfcBodyItemParser().parse("generate");
 		}
 		
-		if (lexer().peekKeyword("else")) {
-			lexer().eatToken();
-			if (lexer().peekKeyword("begin")) {
-				lexer().eatToken();
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+		if (fLexer.peekKeyword("else")) {
+			fLexer.eatToken();
+			if (fLexer.peekKeyword("begin")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
-				while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-					if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
+				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+					if (fParsers.modIfcBodyItemParser().parse("generate") == null) {
 						break;
 					}
 				}
-				lexer().readKeyword("end");
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+				fLexer.readKeyword("end");
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 			} else {
-				parsers().SVParser().process_module_class_interface_body_item("generate");
-				System.out.println("post-else token: " + lexer().peek());
+				fParsers.modIfcBodyItemParser().parse("generate");
+				System.out.println("post-else token: " + fLexer.peek());
 			}
 		}
 		
@@ -97,42 +114,42 @@ public class SVGenerateBlockParser extends SVParserBase {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("for");
 		parsers().SVParser().enter_scope("for", gen_blk);
 		
-		lexer().readKeyword("for");
-		lexer().readOperator("(");
-		if (lexer().peekKeyword("genvar")) {
-			lexer().eatToken();
+		fLexer.readKeyword("for");
+		fLexer.readOperator("(");
+		if (fLexer.peekKeyword("genvar")) {
+			fLexer.eatToken();
 		}
-		if (!lexer().peekOperator(";")) {
+		if (!fLexer.peekOperator(";")) {
 			/*String init = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(";");
-		if (!lexer().peekOperator(";")) {
+		fLexer.readOperator(";");
+		if (!fLexer.peekOperator(";")) {
 			/*String cond = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(";");
-		if (!lexer().peekOperator(")")) {
+		fLexer.readOperator(";");
+		if (!fLexer.peekOperator(")")) {
 			/*String incr = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
-		if (lexer().peekKeyword("begin")) {
-			lexer().eatToken();
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+		if (fLexer.peekKeyword("begin")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
-			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-				if (parsers().SVParser().process_module_class_interface_body_item("for") == null) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+				if (fParsers.modIfcBodyItemParser().parse("for") == null) {
 					break;
 				}
 			}
-			lexer().readKeyword("end");
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+			fLexer.readKeyword("end");
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
 		} else {
-			parsers().SVParser().process_module_class_interface_body_item("for");
+			fParsers.modIfcBodyItemParser().parse("for");
 		}
 		
 		parsers().SVParser().handle_leave_scope();
@@ -144,51 +161,51 @@ public class SVGenerateBlockParser extends SVParserBase {
 		SVDBGenerateBlock case_blk = new SVDBGenerateBlock("case");
 		parsers().SVParser().enter_scope("generate_case", case_blk);
 		
-		lexer().readKeyword("case");
-		lexer().readOperator("(");
+		fLexer.readKeyword("case");
+		fLexer.readOperator("(");
 		parsers().exprParser().expression();
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
-		while (lexer().peek() != null && !lexer().peekKeyword("endcase")) {
-			if (lexer().peekKeyword("default")) {
-				lexer().eatToken();
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endcase")) {
+			if (fLexer.peekKeyword("default")) {
+				fLexer.eatToken();
 			} else {
 				// Read list of expressions
 				do {
-					if (lexer().peekOperator(",")) {
-						lexer().eatToken();
+					if (fLexer.peekOperator(",")) {
+						fLexer.eatToken();
 					}
 					parsers().exprParser().expression(false);
-				} while (lexer().peekOperator(","));
+				} while (fLexer.peekOperator(","));
 			}
-			lexer().readOperator(":");
+			fLexer.readOperator(":");
 			
-			if (lexer().peekKeyword("begin")) {
-				lexer().eatToken();
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+			if (fLexer.peekKeyword("begin")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 				
-				while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-					if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
+				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+					if (fParsers.modIfcBodyItemParser().parse("generate") == null) {
 						break;
 					}
 				}
 				
-				lexer().readKeyword("end");
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+				fLexer.readKeyword("end");
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 			} else {
-				if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
+				if (fParsers.modIfcBodyItemParser().parse("generate") == null) {
 					break;
 				}
 			}
 		}
 
-		lexer().readKeyword("endcase");
+		fLexer.readKeyword("endcase");
 		
 		parsers().SVParser().handle_leave_scope();
 

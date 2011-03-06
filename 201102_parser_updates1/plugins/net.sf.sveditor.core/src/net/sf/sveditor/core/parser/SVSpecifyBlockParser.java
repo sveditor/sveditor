@@ -21,13 +21,13 @@ public class SVSpecifyBlockParser extends SVParserBase {
 	}
 	
 	public SVDBItem parse() throws SVParseException {
-		lexer().readKeyword("specify");
+		fLexer.readKeyword("specify");
 		
-		while (lexer().peek() != null && !lexer().peekKeyword("endspecify")) {
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endspecify")) {
 			parsers().SVParser().scan_statement();
 		}
 		
-		lexer().readKeyword("endspecify");
+		fLexer.readKeyword("endspecify");
 		
 		return null;
 	}

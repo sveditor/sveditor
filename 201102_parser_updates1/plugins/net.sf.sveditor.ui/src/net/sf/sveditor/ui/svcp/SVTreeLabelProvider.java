@@ -14,7 +14,6 @@ package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
 import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
@@ -23,6 +22,8 @@ import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBTaskFuncScope;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -127,9 +128,11 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 					ret.append(">", StyledString.QUALIFIER_STYLER);
 				}
 			} 
-			if (element instanceof SVDBAlwaysBlock) {
-				if (ret.equals("")) {
-					ret = new StyledString(((SVDBAlwaysBlock)element).getExpr().trim());
+			if (element instanceof SVDBAlwaysStmt) {
+				SVDBAlwaysStmt always = (SVDBAlwaysStmt)element;
+				if (always.getBody() != null && always.getBody().getType() == SVDBItemType.EventControlStmt) {
+					SVDBEventControlStmt stmt = (SVDBEventControlStmt)always.getBody();
+					ret = new StyledString(stmt.getExpr().toString().trim());
 				}
 			}
 			

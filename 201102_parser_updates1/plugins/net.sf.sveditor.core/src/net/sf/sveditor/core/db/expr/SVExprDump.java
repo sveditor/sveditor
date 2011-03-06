@@ -65,10 +65,6 @@ public class SVExprDump {
 				
 			} break;
 			
-			case Constraint: {
-				
-			} break;
-			
 			case FieldAccess: {
 				
 			} break;

@@ -12,7 +12,7 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 public class SVDBStmt extends SVDBChildItem {
 	
 	public static void init() {
-		
+		SVDBAlwaysStmt.init();
 		SVDBForStmt.init();
 		SVDBVarDeclStmt.init();
 		SVDBParamPort.init();
@@ -85,10 +85,9 @@ public class SVDBStmt extends SVDBChildItem {
 		boolean ret = true;
 		
 		if (ret) {
-			SVDBStmt stmt = (SVDBStmt)item;
 			ret = false;
 			for (SVDBItemType t : types) {
-				if (t == stmt.getType()) {
+				if (t == item.getType()) {
 					ret = true;
 					break;
 				}

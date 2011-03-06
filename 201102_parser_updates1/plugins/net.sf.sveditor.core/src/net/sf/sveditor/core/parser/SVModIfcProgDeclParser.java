@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -35,8 +36,8 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		debug("--> process_mod_ifc_prog()");
 		
-		SVDBLocation start = lexer().getStartLocation();
-		String type_name = lexer().readKeyword("module", "macromodule",
+		SVDBLocation start = fLexer.getStartLocation();
+		String type_name = fLexer.readKeyword("module", "macromodule",
 				"interface", "program");
 		SVDBItemType type = null;
 		if (type_name.equals("module") || type_name.equals("macromodule")) {
@@ -49,16 +50,16 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			error("Unsupported module/interface/program type-name " + type_name);
 		}
 		
-		if (lexer().peekKeyword("static", "automatic")) {
+		if (fLexer.peekKeyword("static", "automatic")) {
 			// TODO: tag with lifetime
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 		
-		if (type == SVDBItemType.Program && lexer().peekOperator(";")) {
+		if (type == SVDBItemType.Program && fLexer.peekOperator(";")) {
 			// anonymous program block
 			module_type_name = "";
 		} else {
-			module_type_name = lexer().readId();
+			module_type_name = fLexer.readId();
 		}
 		
 
@@ -70,46 +71,43 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		if (type != SVDBItemType.Program) {
 			// May have imports prior to the port declaration
-			while (lexer().peekKeyword("import")) {
+			while (fLexer.peekKeyword("import")) {
 				// Import statement
-				List<SVDBItem> items = parsers().importParser().parse();
-				for (SVDBItem item : items) {
-					module.addItem(item);
-				}
+				ISVDBChildItem imp = parsers().impExpParser().parse_import();
+				module.addItem(imp);
 			}
 		}
 
 		// Handle modules with parameters
-		if (lexer().peekOperator("#")) {
+		if (fLexer.peekOperator("#")) {
 			// Handle in-line parameter declarations
 			module.getParameters().addAll(parsers().paramPortListParser().parse());
 		}
 
-		if (lexer().peekOperator("(")) {
+		if (fLexer.peekOperator("(")) {
 			// port-list
 			List<SVDBParamPort> ports = parsers().portListParser().parse();
 			module.getPorts().addAll(ports);
 		}
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
 		// TODO: should be cleaned up
 		parsers().SVParser().setNewStatement();
 
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
-			while ((id = parsers().SVParser().scan_statement()) != null) {
-				debug("id=" + id);
-				if (id.equals("end" + type_name)) {
-					break;
-				}
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end" + type_name)) {
 				try {
-					ISVDBItemBase item = parsers().SVParser().process_module_class_interface_body_item(type_name);
-
+					ISVDBChildItem item = fParsers.modIfcBodyItemParser().parse(type_name);
+					
 					// Check whether we aborted parsing the body because
 					// we found a 1st-level scope keyword
 					if (item == null) {
 						break;
 					}
+
+					module.addItem(item);
+
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
@@ -118,11 +116,14 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				// TODO: Should have already been added ?
 				// fScopeStack.peek().addItem(item);
 			}
+			
+			SVDBLocation end = fLexer.getStartLocation();
+			module.setEndLocation(end);
+			fLexer.readKeyword("end" + type_name);
+		} else {
+			SVDBLocation end = fLexer.getStartLocation();
+			module.setEndLocation(end);
 		}
-		
-		SVDBLocation end = lexer().getStartLocation();
-		module.setEndLocation(end);
-		lexer().readKeyword("end" + type_name);
 
 		// Pop the first-level scope
 		parsers().SVParser().handle_leave_scope();

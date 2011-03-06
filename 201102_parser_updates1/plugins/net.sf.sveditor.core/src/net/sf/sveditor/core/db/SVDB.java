@@ -33,7 +33,6 @@ public class SVDB {
 		SVDBPersistenceReader.registerEnumType(SVDBItemType.class, SVDBItemType.values());
 		
 		SVDBIdentifier.init();
-		SVDBAlwaysBlock.init();
 		SVDBAssign.init();
 		SVDBConstraint.init();
 		SVDBCoverGroup.init();
@@ -41,7 +40,6 @@ public class SVDB {
 		SVDBCoverpointCross.init();
 		SVDBFile.init();
 		SVDBInclude.init();
-		SVDBInitialBlock.init();
 		SVDBMacroDef.init();
 		SVDBMarkerItem.init();
 		SVDBModIfcClassDecl.init();
@@ -58,7 +56,6 @@ public class SVDB {
 		SVDBParamValueAssign.init();
 		SVDBGenerateBlock.init();
 		SVDBClockingBlock.init();
-		SVDBImport.init();
 		SVExpr.init();
 		
 		SVDBStmt.init();

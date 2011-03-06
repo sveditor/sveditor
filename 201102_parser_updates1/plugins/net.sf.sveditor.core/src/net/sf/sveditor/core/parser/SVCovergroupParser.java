@@ -22,31 +22,31 @@ public class SVCovergroupParser extends SVParserBase {
 	}
 	
 	public SVDBCoverGroup parse() throws SVParseException {
-		SVDBLocation start = lexer().getStartLocation();
-		lexer().readKeyword("covergroup");
-		String cg_name = lexer().readId();
+		SVDBLocation start = fLexer.getStartLocation();
+		fLexer.readKeyword("covergroup");
+		String cg_name = fLexer.readId();
 
 		SVDBCoverGroup cg = new SVDBCoverGroup(cg_name);
 		cg.setLocation(start);
 
-		while (lexer().peekOperator("(")) {
+		while (fLexer.peekOperator("(")) {
 			cg.setParamPort(parsers().tfPortListParser().parse());
 		}
 
-		if (lexer().peekOperator("@@")) {
+		if (fLexer.peekOperator("@@")) {
 			// block_event_expression
 			error("block_event_expression not supported for covergroup sampling");
-		} else if (lexer().peekOperator("@")) {
+		} else if (fLexer.peekOperator("@")) {
 			cg.setCoverageEvent(parsers().exprParser().clocking_event());
-		} else if (lexer().peekKeyword("with")) {
+		} else if (fLexer.peekKeyword("with")) {
 			// with function sample
 			error("with_function_sample not supported for covergroup sampling");
 		}
 		
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 
 		// Skip statements
-		while (lexer().peek() != null && !lexer().peekKeyword("endgroup")) {
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
 			ISVDBChildItem cov_item;
 			
 			if (isOption()) {
@@ -57,12 +57,12 @@ public class SVCovergroupParser extends SVParserBase {
 			cg.addItem(cov_item);
 		}
 		
-		cg.setEndLocation(lexer().getStartLocation());
-		lexer().readKeyword("endgroup");
+		cg.setEndLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("endgroup");
 		
-		if (lexer().peekOperator(":")) {
-			lexer().eatToken();
-			lexer().readId(); // labeled group
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			fLexer.readId(); // labeled group
 		}
 
 		return cg;
@@ -70,15 +70,15 @@ public class SVCovergroupParser extends SVParserBase {
 	
 	private SVDBCoverageOption coverage_option() throws SVParseException {
 		// option or type_option
-		String type = lexer().eatToken();
-		lexer().readOperator(".");
-		String name = lexer().readId();
+		String type = fLexer.eatToken();
+		fLexer.readOperator(".");
+		String name = fLexer.readId();
 		
 		SVDBCoverageOption opt = new SVDBCoverageOption(name, type.equals("type_option"));
-		lexer().readOperator("=");
+		fLexer.readOperator("=");
 		opt.setExpr(parsers().exprParser().expression());
 		
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
 		return opt;
 	}
@@ -86,13 +86,13 @@ public class SVCovergroupParser extends SVParserBase {
 	private ISVDBChildItem coverage_spec() throws SVParseException {
 		ISVDBChildItem ret = null;
 		String name = "";
-		SVDBLocation start = lexer().getStartLocation();
-		if (lexer().peekId()) {
-			name = lexer().readId();
-			lexer().readOperator(":");
+		SVDBLocation start = fLexer.getStartLocation();
+		if (fLexer.peekId()) {
+			name = fLexer.readId();
+			fLexer.readOperator(":");
 		}
 		
-		String type = lexer().readKeyword("coverpoint", "cross");
+		String type = fLexer.readKeyword("coverpoint", "cross");
 		if (type.equals("coverpoint")) {
 			SVDBCoverPoint cp = new SVDBCoverPoint(name);
 			cp.setLocation(start);
@@ -111,120 +111,120 @@ public class SVCovergroupParser extends SVParserBase {
 	private void cover_point(SVDBCoverPoint cp) throws SVParseException {
 		cp.setTarget(parsers().exprParser().expression());
 		
-		if (lexer().peekKeyword("iff")) {
-			lexer().eatToken();
-			lexer().readOperator("(");
+		if (fLexer.peekKeyword("iff")) {
+			fLexer.eatToken();
+			fLexer.readOperator("(");
 			cp.setIFF(parsers().exprParser().expression());
-			lexer().readOperator(")");
+			fLexer.readOperator(")");
 		}
 		
-		if (lexer().peekOperator("{")) {
-			lexer().eatToken();
-			while (lexer().peek() != null && !lexer().peekOperator("}")) {
+		if (fLexer.peekOperator("{")) {
+			fLexer.eatToken();
+			while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
 				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
-					boolean wildcard = lexer().peekKeyword("wildcard");
+					boolean wildcard = fLexer.peekKeyword("wildcard");
 					if (wildcard) {
-						lexer().eatToken();
+						fLexer.eatToken();
 					}
 					
-					String type = lexer().readKeyword("bins", "illegal_bins", "ignore_bins");
+					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
 					BinsKW kw = (type.equals("bins"))?BinsKW.Bins:
 						(type.equals("illegal_bins"))?BinsKW.IllegalBins:BinsKW.IgnoreBins;
-					String id = lexer().readId();
+					String id = fLexer.readId();
 
 					SVDBCoverpointBins bins = new SVDBCoverpointBins(wildcard, id, kw);
 
-					boolean is_array = lexer().peekOperator("[");
+					boolean is_array = fLexer.peekOperator("[");
 					bins.setIsArray(is_array);
 					if (is_array) {
-						lexer().eatToken();
-						if (lexer().peekOperator("]")) {
-							lexer().eatToken();
+						fLexer.eatToken();
+						if (fLexer.peekOperator("]")) {
+							fLexer.eatToken();
 						} else {
 							bins.setArrayExpr(parsers().exprParser().expression());
 						}
 					}
 					
-					lexer().readOperator("=");
+					fLexer.readOperator("=");
 					
-					if (lexer().peekKeyword("default")) {
+					if (fLexer.peekKeyword("default")) {
 						// Some sort of default bin
-						lexer().eatToken();
-						boolean is_sequence = lexer().peekKeyword("sequence");
+						fLexer.eatToken();
+						boolean is_sequence = fLexer.peekKeyword("sequence");
 						if (is_sequence) {
-							lexer().eatToken();
+							fLexer.eatToken();
 							bins.setBinsType(BinsType.DefaultSeq);
 						} else {
 							bins.setBinsType(BinsType.Default);
 						}
 					} else {
-						if (lexer().peekOperator("{")) {
+						if (fLexer.peekOperator("{")) {
 							List<SVExpr> l = new ArrayList<SVExpr>();
 							bins.setBinsType(BinsType.OpenRangeList);
 							// TODO:
 							parsers().exprParser().open_range_list(l);
-						} else if (lexer().peekOperator("(")) {
+						} else if (fLexer.peekOperator("(")) {
 							bins.setBinsType(BinsType.TransList);
 						} else {
-							lexer().readOperator("{", "(");
+							fLexer.readOperator("{", "(");
 						}
 					}
 					
-					if (lexer().peekKeyword("iff")) {
-						lexer().eatToken();
-						lexer().readOperator("(");
+					if (fLexer.peekKeyword("iff")) {
+						fLexer.eatToken();
+						fLexer.readOperator("(");
 						bins.setIFF(parsers().exprParser().expression());
-						lexer().readOperator(")");
+						fLexer.readOperator(")");
 					}
 					cp.addItem(bins);
-					lexer().readOperator(";");
+					fLexer.readOperator(";");
 				}
 			}
-			lexer().readOperator("}");
+			fLexer.readOperator("}");
 		} else {
-			lexer().readOperator(";");
+			fLexer.readOperator(";");
 		}
 	}
 	
 	private void cover_cross(SVDBCoverpointCross cp) throws SVParseException {
-		while (lexer().peek() != null) {
+		while (fLexer.peek() != null) {
 			SVDBIdentifier id = SVDBIdentifier.readId(lexer());
 			cp.getCoverpointList().add(id);
 		
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		if (lexer().peekKeyword("iff")) {
-			lexer().readOperator("(");
+		if (fLexer.peekKeyword("iff")) {
+			fLexer.readOperator("(");
 			cp.setIFF(parsers().exprParser().expression());
-			lexer().readOperator(")");
+			fLexer.readOperator(")");
 		}
 		
-		if (lexer().peekOperator("{")) {
-			while (lexer().peek() != null && !lexer().peekOperator("}")) {
+		if (fLexer.peekOperator("{")) {
+			while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
 				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
-					String type = lexer().readKeyword("bins", "illegal_bins", "ignore_bins");
+					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
 					SVDBIdentifier id = readId();
 					// TODO:
 				}
 			}
 		} else {
-			lexer().readOperator(";");
+			fLexer.readOperator(";");
 		}
 		
 	}
 	
 	private boolean isOption() throws SVParseException {
-		if (lexer().peekId()) {
-			String id = lexer().peek();
+		if (fLexer.peekId()) {
+			String id = fLexer.peek();
 			return (id.equals("option") || id.equals("type_option"));
 		} else {
 			return false;

@@ -11,18 +11,18 @@ public class SVAssertionParser extends SVParserBase {
 	public SVDBAssertStmt parse() throws SVParseException {
 		SVDBAssertStmt assert_stmt = new SVDBAssertStmt();
 		
-		lexer().readKeyword("assert");
-		debug("assertion_stmt - " + lexer().peek());
+		fLexer.readKeyword("assert");
+		debug("assertion_stmt - " + fLexer.peek());
 
-		if (lexer().peekKeyword("property")) {
-			lexer().eatToken();
+		if (fLexer.peekKeyword("property")) {
+			fLexer.eatToken();
 			// TODO: properly implement property expressions 
-			lexer().readOperator("(");
-			lexer().skipPastMatch("(", ")");
+			fLexer.readOperator("(");
+			fLexer.skipPastMatch("(", ")");
 		} else {
-			lexer().readOperator("(");
+			fLexer.readOperator("(");
 			assert_stmt.setExpr(parsers().exprParser().expression());
-			lexer().readOperator(")");
+			fLexer.readOperator(")");
 		}
 
 		assert_stmt.setActionBlock(parsers().behavioralBlockParser().action_block());

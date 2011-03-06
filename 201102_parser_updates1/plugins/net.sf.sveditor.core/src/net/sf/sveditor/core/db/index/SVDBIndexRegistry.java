@@ -64,10 +64,18 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 * @param state_location
 	 */
 	public SVDBIndexRegistry() {
+		this(false);
+	}
+	
+	public SVDBIndexRegistry(boolean standalone_test_mode) {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
-		fGlobalIndexMgr = getGlobalIndexMgr();
+		if (standalone_test_mode) {
+			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+		} else {
+			fGlobalIndexMgr = getGlobalIndexMgr();
+		}
 	}
 	
 	public void init(File state_location) {
@@ -153,7 +161,54 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		return ret;
 	}
-	
+
+	/**
+	 * Finds or creates an index
+	 * 
+	 * @param project        project this index is associated with
+	 * @param base_location  base location for the index
+	 * @param type           index type
+	 * @return
+	 */
+	public ISVDBIndex findCreateIndex(
+			String 					project, 
+			String 					base_location, 
+			String 					type,
+			ISVDBIndexFactory		factory,
+			Map<String, Object>		config) {
+		ISVDBIndex ret = null;
+		
+		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
+		
+		if (!fProjectIndexMap.containsKey(project)) {
+			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
+		}
+		
+		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
+		
+		for (ISVDBIndex index : project_index) {
+			if (index.getBaseLocation().equals(base_location) &&
+					index.getTypeID().equals(type)) {
+				ret = index;
+				break;
+			}
+		}
+		
+		if (ret == null) {
+			fLog.debug("    Index does not exist -- creating");
+			// See about creating a new index
+			ret = factory.createSVDBIndex(project, base_location, config);
+			
+			ret.init(this);
+			
+			project_index.add(ret);
+		} else {
+			fLog.debug("    Index already exists");
+		}
+		
+		return ret;
+	}
+
 	public void rebuildIndex(String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
 		if (!fProjectIndexMap.containsKey(project)) {

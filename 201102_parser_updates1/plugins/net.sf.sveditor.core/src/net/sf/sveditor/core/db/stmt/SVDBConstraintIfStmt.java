@@ -10,21 +10,24 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.expr;
+package net.sf.sveditor.core.db.stmt;
+
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVExpr;
 
 
-public class SVConstraintIfExpr extends SVConstraintExpr {
+public class SVDBConstraintIfStmt extends SVDBStmt {
 	private SVExpr					fIfExpr;
-	private SVConstraintSetExpr		fConstraint;
-	private SVExpr					fElse;
+	private SVDBStmt				fConstraint;
+	private SVDBStmt				fElse;
 	private boolean					fElseIf;
 	
-	public SVConstraintIfExpr(
+	public SVDBConstraintIfStmt(
 			SVExpr 					expr,
-			SVConstraintSetExpr		constraint,
-			SVExpr					else_expr,
+			SVDBStmt				constraint,
+			SVDBStmt				else_expr,
 			boolean					else_if) {
-		super(SVExprType.ConstraintIf);
+		super(SVDBItemType.ConstraintIfStmt);
 		fIfExpr 	= expr;
 		fConstraint = constraint;
 		fElse		= else_expr;
@@ -35,11 +38,11 @@ public class SVConstraintIfExpr extends SVConstraintExpr {
 		return fIfExpr;
 	}
 	
-	public SVConstraintSetExpr getConstraint() {
+	public SVDBStmt getConstraint() {
 		return fConstraint;
 	}
 	
-	public SVExpr getElseClause() {
+	public SVDBStmt getElseClause() {
 		return fElse;
 	}
 	
@@ -47,12 +50,14 @@ public class SVConstraintIfExpr extends SVConstraintExpr {
 		return fElseIf;
 	}
 	
-	public SVConstraintIfExpr duplicate() {
-		return new SVConstraintIfExpr(
+	/*
+	public SVDBConstraintIfStmt duplicate() {
+		return new SVDBConstraintIfStmt(
 				(SVExpr)fIfExpr.duplicate(),
-				(SVConstraintSetExpr)fConstraint.duplicate(),
+				(SVDBConstraintSetStmt)fConstraint.duplicate(),
 				(SVExpr)((fElse != null)?fElse.duplicate():null), 
 				fElseIf);
 	}
+	 */
 
 }

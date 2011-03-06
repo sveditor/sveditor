@@ -13,7 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 
@@ -40,12 +40,12 @@ public class SVClassDeclParser extends SVParserBase {
 		debug("--> process_class()");
 		
 		// Expect to enter on 'class'
-		lexer().readKeyword("class");
-		SVDBLocation start_loc = lexer().getStartLocation();
+		fLexer.readKeyword("class");
+		SVDBLocation start_loc = fLexer.getStartLocation();
 		
-		if (lexer().peekKeyword("automatic", "static")) {
+		if (fLexer.peekKeyword("automatic", "static")) {
 			// TODO: set lifetime on class declaration
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 
 		//
@@ -63,48 +63,47 @@ public class SVClassDeclParser extends SVParserBase {
 		// TODO: Should remove this later
 		parsers().SVParser().enter_scope("class", cls);
 		
-		if (lexer().peekOperator("#")) {
+		if (fLexer.peekOperator("#")) {
 			// Handle classes with parameters
 			cls.addParameters(parsers().paramPortListParser().parse());
 		}
 		
-		if (lexer().peekKeyword("extends")) {
-			lexer().eatToken();
+		if (fLexer.peekKeyword("extends")) {
+			fLexer.eatToken();
 			cls.setSuperClass(parsers().dataTypeParser().class_type());
 
-			if (lexer().peekOperator("#")) {
+			if (fLexer.peekOperator("#")) {
 				// scanner().unget_ch('#');
 				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 				// cls.getSuperParameters().addAll(params);
-				lexer().eatToken();
-				if (lexer().peekOperator("(")) {
-					lexer().skipPastMatch("(", ")");
+				fLexer.eatToken();
+				if (fLexer.peekOperator("(")) {
+					fLexer.skipPastMatch("(", ")");
 				} else {
-					lexer().eatToken();
+					fLexer.eatToken();
 				}
 			}
 		}
 		
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
 		// Force new-statement
 		parsers().SVParser().setNewStatement();
 		
 		// TODO: need a better system here...
-		while ((id = parsers().SVParser().scan_statement()) != null) {
-			ISVDBItemBase item;
-			if (id.equals("endclass")) {
-				break;
-			}
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endclass")) {
+			ISVDBChildItem item;
 			
 			try {
-				item = parsers().SVParser().process_module_class_interface_body_item("class");
+				item = fParsers.modIfcBodyItemParser().parse("class");
 
 				// Check whether we aborted parsing the body because
 				// we found a 1st-level scope keyword
 				if (item == null) {
 					break;
 				}
+				
+				cls.addItem(item);
 			} catch (SVParseException e) {
 				// Catch error
 			}
@@ -112,13 +111,13 @@ public class SVClassDeclParser extends SVParserBase {
 			// TODO: normally we'd add this item to the class, but that's already being done
 		}
 
-		cls.setEndLocation(lexer().getStartLocation());
-		lexer().readKeyword("endclass");
+		cls.setEndLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("endclass");
 
 		// endclass : classname
-		if (lexer().peekOperator(":")) { 
-			lexer().eatToken();
-			lexer().readId();
+		if (fLexer.peekOperator(":")) { 
+			fLexer.eatToken();
+			fLexer.readId();
 		}
 		
 		// TODO: remove this later

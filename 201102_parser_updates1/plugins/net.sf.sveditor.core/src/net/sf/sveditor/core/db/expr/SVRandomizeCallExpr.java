@@ -12,19 +12,21 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+
 public class SVRandomizeCallExpr extends SVTFCallExpr {
-	private SVConstraintSetExpr				fWithBlock;
+	private SVDBStmt				fWithBlock;
 	
 	public SVRandomizeCallExpr(SVExpr target, String name, SVExpr args[]) {
 		super(target, name, args);
 		fExprType = SVExprType.RandomizeCall;
 	}
 	
-	public void setWithBlock(SVConstraintSetExpr with) {
+	public void setWithBlock(SVDBStmt with) {
 		fWithBlock = with;
 	}
 	
-	public SVConstraintSetExpr getWithBlock() {
+	public SVDBStmt getWithBlock() {
 		return fWithBlock;
 	}
 	

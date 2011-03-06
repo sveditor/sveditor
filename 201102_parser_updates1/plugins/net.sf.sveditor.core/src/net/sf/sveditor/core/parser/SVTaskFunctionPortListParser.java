@@ -31,18 +31,18 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		int dir = SVDBParamPort.Direction_Input;
 		SVDBTypeInfo last_type = null;
 		
-		lexer().readOperator("(");
+		fLexer.readOperator("(");
 		
 		// Empty parameter list
-		if (lexer().peekOperator(")")) {
-			lexer().eatToken();
+		if (fLexer.peekOperator(")")) {
+			fLexer.eatToken();
 			return params;
 		}
 		
 		while (true) {
-			SVDBLocation it_start = lexer().getStartLocation();
-			if (lexer().peekKeyword("input", "output", "inout", "ref")) {
-				String dir_s = lexer().eatToken();
+			SVDBLocation it_start = fLexer.getStartLocation();
+			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
+				String dir_s = fLexer.eatToken();
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPort.Direction_Input;
 				} else if (dir_s.equals("output")) {
@@ -52,14 +52,14 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				} else if (dir_s.equals("ref")) {
 					dir = SVDBParamPort.Direction_Ref;
 				}
-			} else if (lexer().peekKeyword("const")) {
-				lexer().eatToken();
-				lexer().readKeyword("ref");
+			} else if (fLexer.peekKeyword("const")) {
+				fLexer.eatToken();
+				fLexer.readKeyword("ref");
 				dir = (SVDBParamPort.Direction_Ref | SVDBParamPort.Direction_Const);
 			}
 			
-			if (lexer().peekKeyword("var")) {
-				lexer().eatToken();
+			if (fLexer.peekKeyword("var")) {
+				fLexer.eatToken();
 				dir |= SVDBParamPort.Direction_Var;
 			}
 			
@@ -67,29 +67,29 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				parsers().dataTypeParser().data_type(0);
 
 			// This could be a continuation of the same type: int a, b, c
-			if (lexer().peekOperator("[")) {
-				lexer().startCapture();
-				lexer().skipPastMatch("[", "]");
-				lexer().endCapture();
+			if (fLexer.peekOperator("[")) {
+				fLexer.startCapture();
+				fLexer.skipPastMatch("[", "]");
+				fLexer.endCapture();
 			}
 
 			String id;
 
 			// Handle the case where a single type and a 
 			// list of parameters is declared
-			if (lexer().peekOperator(",", ")", "=", "[")) {
+			if (fLexer.peekOperator(",", ")", "=", "[")) {
 				// use previous type
 				id = type.getName();
 				type = last_type;
 			} else {
 
-				id = lexer().readId();
+				id = fLexer.readId();
 
 				/**
-				if (lexer().peekOperator("[")) {
-					lexer().startCapture();
-					lexer().skipPastMatch("[", "]");
-					lexer().endCapture();
+				if (fLexer.peekOperator("[")) {
+					fLexer.startCapture();
+					fLexer.skipPastMatch("[", "]");
+					fLexer.endCapture();
 				}
 				 */
 				
@@ -104,26 +104,26 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			SVDBVarDeclItem param = new SVDBVarDeclItem(id);
 			param_r.addVar(param);
 			
-			if (lexer().peekOperator("[")) {
+			if (fLexer.peekOperator("[")) {
 				// This port is an array port
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
 			params.add(param_r);
 			
-			if (lexer().peekOperator("=")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator("=")) {
+				fLexer.eatToken();
 				param.setInitExpr(parsers().exprParser().expression());
 			}
 			
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
 		return params;
 	}

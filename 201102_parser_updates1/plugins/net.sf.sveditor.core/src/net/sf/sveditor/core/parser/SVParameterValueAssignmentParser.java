@@ -30,15 +30,15 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
 		// StringBuilder v = new StringBuilder();
 		
-		lexer().readOperator("#");
-		lexer().readOperator("(");
+		fLexer.readOperator("#");
+		fLexer.readOperator("(");
 		while (true) {
 			boolean is_mapped = false;
 			String name = null;
-			if (lexer().peekOperator(".")) {
-				lexer().eatToken();
-				name = lexer().readId();
-				lexer().readOperator("(");
+			if (fLexer.peekOperator(".")) {
+				fLexer.eatToken();
+				name = fLexer.readId();
+				fLexer.readOperator("(");
 				is_mapped = true;
 			}
 			
@@ -46,33 +46,33 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			// Skip forward to see if we have a scoped identifier
 			List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
 			
-			if (lexer().peekOperator("#") || lexer().peekKeyword(SVKeywords.fBuiltinTypes)) {
+			if (fLexer.peekOperator("#") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
 				// This is actually a type reference
-				lexer().ungetToken(id_list);
+				fLexer.ungetToken(id_list);
 				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 				ret.addParameter(new SVDBParamValueAssign(name, type));
 			} else {
-				lexer().ungetToken(id_list);
+				fLexer.ungetToken(id_list);
 				SVExpr val = parsers().exprParser().expression();
 				ret.addParameter(new SVDBParamValueAssign(name, val));
 			}
 
 			if (is_mapped) {
 				// Read inside
-				lexer().readOperator(")");
+				fLexer.readOperator(")");
 			}
 
 			//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
 			ret.setIsNamedMapping(is_mapped);
 			
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
 		return ret;
 	}

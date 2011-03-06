@@ -40,7 +40,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -69,7 +69,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -98,7 +98,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -127,7 +127,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -156,7 +156,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -185,7 +185,7 @@ public class TestMethodGenerator extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope tf = parser.parsers().functionParser().parse(null, 0);
+		SVDBTaskFuncScope tf = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		MethodGenerator gen = new MethodGenerator();
 		

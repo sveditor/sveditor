@@ -37,43 +37,43 @@ public class SVTaskFunctionParser extends SVParserBase {
 		String tf_name;
 		
 		if (start == null) {
-			start = lexer().getStartLocation();
+			start = fLexer.getStartLocation();
 		}
 		
-		String type = lexer().readKeyword("task", "function");
+		String type = fLexer.readKeyword("task", "function");
 	
 		// ??
-		// lexer().eatToken();
+		// fLexer.eatToken();
 		
 		SVDBTypeInfo return_type = null;
 		if (type.equals("function")) {
-			if (lexer().peekKeyword("new")) {
+			if (fLexer.peekKeyword("new")) {
 				// constructor, so no return type
-				tf_name = lexer().eatToken();
+				tf_name = fLexer.eatToken();
 				return_type = new SVDBTypeInfoBuiltin("");
 			} else {
-				if (lexer().peekKeyword("static", "automatic")) {
+				if (fLexer.peekKeyword("static", "automatic")) {
 				// 	TODO: should add this as a qualifier
-					if (lexer().eatToken().equals("static")) {
+					if (fLexer.eatToken().equals("static")) {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
 					}
 				}
 				
 				// data-type or implicit
 				List<SVToken> data_type_or_implicit = null;
-				if (lexer().peekKeyword("void") || 
-						SVKeywords.isBuiltInType(lexer().peek())) {
+				if (fLexer.peekKeyword("void") || 
+						SVKeywords.isBuiltInType(fLexer.peek())) {
 					data_type_or_implicit = new ArrayList<SVToken>();
-					data_type_or_implicit.add(lexer().consumeToken());
+					data_type_or_implicit.add(fLexer.consumeToken());
 				} else {
 					data_type_or_implicit = parsers().SVParser().scopedIdentifier_l(true);
 				}
 
-				if (!lexer().peekOperator(";", "(")) {
+				if (!fLexer.peekOperator(";", "(")) {
 					// probably data-type
 					// Un-get the tokens we have
 					for (int i=data_type_or_implicit.size()-1; i>=0; i--) {
-						lexer().ungetToken(data_type_or_implicit.get(i));
+						fLexer.ungetToken(data_type_or_implicit.get(i));
 					}
 					return_type = parsers().dataTypeParser().data_type_or_void(0);
 					tf_name = parsers().SVParser().scopedIdentifier(false);
@@ -86,9 +86,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		} else {
 			// task
-			if (lexer().peekKeyword("static", "automatic")) {
+			if (fLexer.peekKeyword("static", "automatic")) {
 				// 	TODO: should add this as a qualifier
-				if (lexer().eatToken().equals("static")) {
+				if (fLexer.eatToken().equals("static")) {
 					qualifiers |= SVDBFieldItem.FieldAttr_Static;
 				}
 			}
@@ -97,17 +97,17 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		List<SVDBParamPort> params = null;
 		boolean is_ansi = true;
-		debug("Function Terminator: " + lexer().peek());
-		if (lexer().peekOperator("(")) {
+		debug("Function Terminator: " + fLexer.peek());
+		if (fLexer.peekOperator("(")) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
 			is_ansi = true;
-		} else if (lexer().peekOperator(";")) {
+		} else if (fLexer.peekOperator(";")) {
 			// non-ANSI (?)
 			params = new ArrayList<SVDBParamPort>();
 			is_ansi = false;
 		}
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
 		debug("Procesing " + type + " " + tf_name);
 		
@@ -132,16 +132,16 @@ public class SVTaskFunctionParser extends SVParserBase {
 				debug("Failed to parse function body", e);
 			}
 
-			end = lexer().getStartLocation();
+			end = fLexer.getStartLocation();
 			if  (type.equals("task")) {
-				lexer().readKeyword("endtask");
+				fLexer.readKeyword("endtask");
 			} else {
-				lexer().readKeyword("endfunction");
+				fLexer.readKeyword("endfunction");
 			}
 
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				String id = lexer().readIdOrKeyword(); // could be :new
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				String id = fLexer.readIdOrKeyword(); // could be :new
 
 				if (!id.equals(func.getName())) {
 					// TODO: endfunction label must match function name
@@ -150,7 +150,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		
 		if (end == null) {
-			end = lexer().getStartLocation();
+			end = fLexer.getStartLocation();
 		}
 		
 		func.setEndLocation(end);

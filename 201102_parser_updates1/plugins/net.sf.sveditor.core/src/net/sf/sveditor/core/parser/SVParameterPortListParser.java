@@ -38,51 +38,51 @@ public class SVParameterPortListParser extends SVParserBase {
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
 		List<SVDBModIfcClassParam> params = new ArrayList<SVDBModIfcClassParam>();
 		
-		lexer().readOperator("#");
-		lexer().readOperator("(");
+		fLexer.readOperator("#");
+		fLexer.readOperator("(");
 		
-		while (!lexer().peekOperator(")")) {
+		while (!fLexer.peekOperator(")")) {
 			String id = null;
 			SVDBModIfcClassParam p;
-			SVDBLocation it_start = lexer().getStartLocation();
+			SVDBLocation it_start = fLexer.getStartLocation();
 			boolean is_type = false;
 
 			// Parameter can be typed or untyped
 			// type T=int
 			// string Ts="foo"
 			// parameter int c[1:0]
-			if (lexer().peekKeyword("type")) {
-				lexer().eatToken();
-				id = lexer().readIdOrKeyword();
+			if (fLexer.peekKeyword("type")) {
+				fLexer.eatToken();
+				id = fLexer.readIdOrKeyword();
 				is_type = true;
 			} else {
-				if (lexer().peekKeyword("parameter")) {
-					lexer().eatToken();
+				if (fLexer.peekKeyword("parameter")) {
+					fLexer.eatToken();
 				}
 				// This might be a type
 				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 				
 				// If the next element is an operator, then the 
 				// return from the type parser is the parameter name
-				if (lexer().peekOperator(",", ")", "=")) {
+				if (fLexer.peekOperator(",", ")", "=")) {
 					id = type.getName();
 				} else {
 					// Otherwise, we have a type and a parameter name
-					id = lexer().readIdOrKeyword();
+					id = fLexer.readIdOrKeyword();
 				}
 			}
 			
-			if (lexer().peekOperator("[")) {
+			if (fLexer.peekOperator("[")) {
 				// TODO: handle vectored
-				lexer().skipPastMatch("[", "]");
+				fLexer.skipPastMatch("[", "]");
 			}
 			
 			// id now holds the template identifier
 			p = new SVDBModIfcClassParam(id);
 			p.setLocation(it_start);
 
-			if (lexer().peekOperator("=")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator("=")) {
+				fLexer.eatToken();
 				
 				// TODO:
 				// id = parsers().exprParser().expression().toString();
@@ -99,13 +99,13 @@ public class SVParameterPortListParser extends SVParserBase {
 
 			params.add(p);
 
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
 		
 		return params;

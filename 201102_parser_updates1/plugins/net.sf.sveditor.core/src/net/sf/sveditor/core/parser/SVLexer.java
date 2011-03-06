@@ -34,7 +34,7 @@ public class SVLexer extends SVToken {
 	private boolean						fNewlineAsOperator;
 	
 	private StringBuilder				fStringBuffer;
-	private boolean						fDebugEn = true;
+	private boolean						fDebugEn = false;
 	private boolean						fEOF;
 	
 	private StringBuilder				fCaptureBuffer;
@@ -51,7 +51,7 @@ public class SVLexer extends SVToken {
 		"<", "<<", "<=", "<<<",
 		">", ">>", ">=", ">>>",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
-		"-=", "<<=", ">>=", "&=", "^=", "|=",
+		"-=", "<<=", ">>=", "<<<=", ">>>=", "&=", "^=", "|=",
 		"===", "!==", "==?", "!=?",
 	};
 	
@@ -234,7 +234,16 @@ public class SVLexer extends SVToken {
 		}
 		return false;
 	}
-	
+
+	public boolean peekOperator(Set<String> ops) throws SVParseException {
+		peek();
+		
+		if (fIsOperator) {
+			return ops.contains(fImage);
+		}
+		return false;
+	}
+
 	public boolean peekId() throws SVParseException {
 		peek();
 		

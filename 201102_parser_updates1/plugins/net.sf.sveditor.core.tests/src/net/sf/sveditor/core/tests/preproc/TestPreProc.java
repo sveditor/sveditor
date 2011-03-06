@@ -298,6 +298,7 @@ public class TestPreProc extends TestCase {
 		assertTrue((sb.indexOf("end )") == -1));
 	}
 
+	/*
 	public void testOvmComponentParamUtilsExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -347,11 +348,6 @@ public class TestPreProc extends TestCase {
 		}
 		System.out.println(sb2.toString());
 		
-		/*
-		index.parse(new StringInputStream(sb.toString()), 
-				"ovm_component_utils_macro.svh",
-				new NullProgressMonitor());
-		 */
 		SVDBFile file = SVDBTestUtils.parse(sb.toString(), "ovm_in_order_comparator.svh");
 		
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -359,5 +355,6 @@ public class TestPreProc extends TestCase {
 		
 		assertTrue((sb.indexOf("end )") == -1));
 	}
+	*/
 
 }

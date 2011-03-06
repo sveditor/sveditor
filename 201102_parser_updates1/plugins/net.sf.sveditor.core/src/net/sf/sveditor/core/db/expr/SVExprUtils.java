@@ -126,53 +126,6 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean constraint_if(PrintStream ps, SVConstraintIfExpr expr) {
-		SVConstraintIfExpr c_if = (SVConstraintIfExpr)expr;
-		ps.print("if (");
-		expr_to_string(ps, c_if.getExpr());
-		ps.println(") {");
-		push_indent();
-		SVConstraintSetExpr if_case = (SVConstraintSetExpr)c_if.getConstraint();
-		for (SVExpr c : if_case.getConstraintList()) {
-			ps.print(get_indent());
-			if (expr_to_string(ps, c)) {
-				if (c.getExprType() != SVExprType.ConstraintIf) {
-					ps.println(";");
-				} else {
-					ps.println();
-				}
-			} else {
-				ps.println();
-			}
-		}
-		pop_indent();
-		ps.print(get_indent() + "}");
-		
-		if (c_if.getElseClause() != null) {
-			ps.print(" else ");
-			expr_to_string(ps, c_if.getElseClause());
-		} else {
-			ps.println();
-		}
-		return true;
-	}
-	
-	protected boolean constraint_set(PrintStream ps, SVConstraintSetExpr expr) {
-		ps.println("{");
-		push_indent();
-		for (SVExpr e : expr.getConstraintList()) {
-			ps.print(get_indent());
-			if (expr_to_string(ps, e)) {
-				if (e.getExprType() != SVExprType.ConstraintIf) {
-					ps.println(";");
-				}
-			}
-		}
-		pop_indent();
-		ps.println(get_indent() + "} ");
-		return true;
-	}
-	
 	protected boolean inside(PrintStream ps, SVInsideExpr expr) {
 		expr_to_string(ps, expr.getLhs());
 		ps.print(" inside {");
@@ -200,15 +153,6 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean implication(PrintStream ps, SVImplicationExpr expr) {
-		expr_to_string(ps, expr.getExpr());
-		
-		ps.print(" -> ");
-		
-		expr_to_string(ps, expr.getConstraintSet());
-		return true;
-	}
-	
 	protected boolean concatenation(PrintStream ps, SVConcatenationExpr expr) {
 		ps.print("{");
 		
@@ -220,20 +164,6 @@ public class SVExprUtils {
 		}
 		
 		ps.print("}");
-		return true;
-	}
-	
-	protected boolean dist_list(PrintStream ps, SVDistListExpr expr) {
-		expr_to_string(ps, expr.getLHS());
-		ps.print(" dist {");
-		for (int i=0; i<expr.getDistItems().size(); i++) {
-			SVDistItemExpr item = expr.getDistItems().get(i);
-			expr_to_string(ps, item.getLHS());
-			ps.print(" " + (item.isDist()?":/":":=") + " ");
-			expr_to_string(ps, item.getRHS());
-		}
-		ps.print("}");
-		
 		return true;
 	}
 	
@@ -295,11 +225,13 @@ public class SVExprUtils {
 	
 	protected boolean randomize_call(PrintStream ps, SVRandomizeCallExpr expr) {
 		tf_call(ps, expr);
-		
+	
+		/*
 		if (expr.getWithBlock() != null) {
 			ps.print(" with ");
 			expr_to_string(ps, expr.getWithBlock());
 		}
+		 */
 		
 		return true;
 	}
@@ -333,12 +265,8 @@ public class SVExprUtils {
 			case Literal: ret = literal(ps, (SVLiteralExpr)expr); break;
 			case ArrayAccess: ret = array_access(ps, (SVArrayAccessExpr)expr); break;
 			case Unary: ret = unary(ps, (SVUnaryExpr)expr); break;
-			case ConstraintIf: ret = constraint_if(ps, (SVConstraintIfExpr)expr); break;
-			case ConstraintSet: ret = constraint_set(ps, (SVConstraintSetExpr)expr); break;
 			case Inside: ret = inside(ps, (SVInsideExpr)expr); break;
-			case Implication: ret = implication(ps, (SVImplicationExpr)expr); break;
 			case Concatenation: ret = concatenation(ps, (SVConcatenationExpr)expr); break;
-			case DistList: ret = dist_list(ps, (SVDistListExpr)expr); break;
 			case Assign: ret = assign(ps, (SVAssignExpr)expr); break;
 			case Cast: ret = cast(ps, (SVCastExpr)expr); break;
 			case Cond: ret = cond(ps, (SVCondExpr)expr); break;

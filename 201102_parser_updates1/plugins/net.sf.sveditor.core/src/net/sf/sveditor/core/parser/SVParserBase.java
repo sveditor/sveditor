@@ -23,9 +23,13 @@ public class SVParserBase implements ISVParser {
 	
 	protected static final boolean			fDebugEn = false;
 	protected ISVParser						fParser;
+	protected SVLexer						fLexer;
+	protected SVParsers						fParsers;
 	
 	protected SVParserBase(ISVParser parser) {
 		fParser = parser;
+		fLexer = parser.lexer();
+		fParsers = parser.parsers();
 	}
 	
 	public boolean error_limit_reached() {
@@ -57,7 +61,7 @@ public class SVParserBase implements ISVParser {
 	}
 	
 	public SVDBLocation getLocation() {
-		return fParser.lexer().getStartLocation();
+		return fLexer.getStartLocation();
 	}
 
 	public void debug(String msg) {

@@ -277,6 +277,7 @@ public class SVKeywords {
 	public static final Set<String>					fStrength0;
 	public static final Set<String>					fStrength1;
 	public static final Set<String>					fStrength;
+	public static final Set<String>					fAssignmentOps;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -337,6 +338,22 @@ public class SVKeywords {
 		fStrength = new HashSet<String>();
 		fStrength.addAll(fStrength0);
 		fStrength.addAll(fStrength1);
+		
+		fAssignmentOps = new HashSet<String>();
+		fAssignmentOps.add("=");
+		fAssignmentOps.add("+=");
+		fAssignmentOps.add("-=");
+		fAssignmentOps.add("*=");
+		fAssignmentOps.add("/=");
+		fAssignmentOps.add("&=");
+		fAssignmentOps.add("|=");
+		fAssignmentOps.add("^=");
+		fAssignmentOps.add("%=");
+		fAssignmentOps.add("<<=");
+		fAssignmentOps.add(">>=");
+		fAssignmentOps.add("<<<=");
+		fAssignmentOps.add(">>>=");
+		fAssignmentOps.add("<=");
 	};
 
 	public static boolean isSVKeyword(String kw) {

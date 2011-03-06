@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -94,7 +95,7 @@ public class TestBuiltinIndex extends TestCase {
 			if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarkerItem)it);
 			} else if (it.getType() == SVDBItemType.Class) {
-				String name = ((SVDBModIfcClassDecl)it).getName();
+				String name = ((SVDBClassDecl)it).getName();
 				if (name.equals("string")) {
 					string_cls = it;
 				} else if (name.equals("process")) {

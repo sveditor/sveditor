@@ -24,17 +24,17 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 	
 	public void parse(SVDBTaskFuncScope tf, boolean is_ansi) throws SVParseException {
 		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
-		debug("--> SVTaskFuncBodyParser: " + lexer().peek());
+		debug("--> SVTaskFuncBodyParser: " + fLexer.peek());
 		
 		debug("SVTaskFuncBodyParse: is_ansi=" + is_ansi);
 		
 		// Parse the task/function body, including declarations
 		// decl_allowed tracks the 
 		boolean decl_allowed = true;
-		while (lexer().peek() != null) {
-			if (lexer().peekKeyword(end_keyword)) {
+		while (fLexer.peek() != null) {
+			if (fLexer.peekKeyword(end_keyword)) {
 				break;
-			} else if (ParserSVDBFileFactory.isFirstLevelScope(lexer().peek(), 0)) {
+			} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
 				SVDBStmt stmt = parsers().behavioralBlockParser().statement(decl_allowed, is_ansi);
@@ -45,6 +45,6 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			}
 		}
 		
-		debug("<-- SVTaskFuncBodyParser: " + lexer().peek());
+		debug("<-- SVTaskFuncBodyParser: " + fLexer.peek());
 	}
 }

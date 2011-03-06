@@ -25,7 +25,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarkerItem;
 import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -64,7 +63,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		SVDBFile file = SVDBTestUtils.parse(content, "testDelayedAssign");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -237,10 +236,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module top", top);
 		
-		SVDBScopeItem initial = null;
+		ISVDBItemBase initial = null;
 		for (ISVDBItemBase it : top.getItems()) {
-			if (it.getType() == SVDBItemType.InitialBlock) {
-				initial = (SVDBScopeItem)it;
+			if (it.getType() == SVDBItemType.InitialStmt) {
+				initial = it;
 				break;
 			}
 		}
@@ -288,21 +287,22 @@ public class TestParseModuleBodyItems extends TestCase {
 			System.out.println("Port: " + p.getVarList().get(0).getName());
 		}
 
-		ISVDBItemBase a=null, b=null, c=null, d=null, bus=null;
+		SVDBVarDeclItem a=null, b=null, c=null, d=null, bus=null;
 		for (ISVDBItemBase it : top.getItems()) {
 			String name = SVDBItem.getName(it);
 			System.out.println("[Item] " + it.getType() + " " + name);
 			if (it.getType() == SVDBItemType.VarDeclStmt) {
 				for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
-					if (name.equals("a")) {
+					System.out.println("    vi=" + vi.getName());
+					if (vi.getName().equals("a")) {
 						a = vi;
-					} else if (name.equals("b")) {
+					} else if (vi.getName().equals("b")) {
 						b = vi;
-					} else if (name.equals("c")) {
+					} else if (vi.getName().equals("c")) {
 						c = vi;
-					} else if (name.equals("d")) {
+					} else if (vi.getName().equals("d")) {
 						d = vi;
-					} else if (name.equals("bus")) {
+					} else if (vi.getName().equals("bus")) {
 						bus = vi;
 					}
 				}
@@ -315,15 +315,11 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(d);
 		assertNotNull(bus);
 		
-		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
-		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
-		assertTrue((bus instanceof SVDBVarDeclStmt));
-		SVDBVarDeclStmt v = (SVDBVarDeclStmt)bus;
-		System.out.println("bus.type.class=" + v.getTypeInfo().getClass().getName());
-		assertTrue((((SVDBVarDeclStmt)bus).getTypeInfo() instanceof SVDBTypeInfoBuiltinNet));
-		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)((SVDBVarDeclStmt)bus).getTypeInfo();
-		assertEquals("[12:0]", 
-				((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		assertEquals("input", a.getParent().getTypeName());
+		assertEquals("input", a.getParent().getTypeName());
+		assertTrue(bus.getParent().getTypeInfo() instanceof SVDBTypeInfoBuiltinNet);
+		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)bus.getParent().getTypeInfo();
+		assertEquals("[12:0]", ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
 	}
 	
 	public void testTypedPortList() {
@@ -487,10 +483,14 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module t1", t1);
 		
-		SVDBParamPort c = null;
+		SVDBVarDeclItem c = null;
 		for (ISVDBItemBase it : t1.getItems()) {
-			if (SVDBItem.getName(it).equals("c")) {
-				c = (SVDBParamPort)it;
+			if (it.getType() == SVDBItemType.ParamPortDecl) {
+				for (SVDBVarDeclItem vi : ((SVDBParamPort)it).getVarList()) {
+					if (vi.getName().equals("c")) {
+						c = vi;
+					}
+				}
 			}
 		}
 		assertNotNull(c);
@@ -518,12 +518,16 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find module t", t);
 		
-		SVDBParamPort a = null, b = null;
+		SVDBVarDeclItem a = null, b = null;
 		for (ISVDBItemBase it : t.getItems()) {
-			if (SVDBItem.getName(it).equals("a")) {
-				a = (SVDBParamPort)it;
-			} else if (SVDBItem.getName(it).equals("b")) {
-				b = (SVDBParamPort)it;
+			if (it.getType() == SVDBItemType.ParamPortDecl) {
+				for (SVDBVarDeclItem vi : ((SVDBParamPort)it).getVarList()) {
+					if (vi.getName().equals("a")) {
+						a = vi;
+					} else if (vi.getName().equals("b")) {
+						b = vi;
+					}
+				}
 			}
 		}
 		assertNotNull(a);
@@ -703,7 +707,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		"	assign co = c[SIZE];\n" +
 		"endmodule\n"
 		;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex3");
 		
@@ -1253,7 +1257,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t", "p::*"});
+		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t"});
 	}
 
 	public void testModulePreBodyImport3() {
@@ -1272,8 +1276,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		runTest("testModulePreBodyImport3", doc, new String[] {
-				"p", "t", "p::*", "p1::*", "p2::*"});
+		runTest("testModulePreBodyImport3", doc, new String[] {"p", "t"});
 	}
 	
 	public void testGatePrimitives1() {

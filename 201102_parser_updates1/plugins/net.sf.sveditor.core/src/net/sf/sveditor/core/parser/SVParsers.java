@@ -37,10 +37,12 @@ public class SVParsers {
 	private SVGenerateBlockParser				fGenBlockParser;
 	private SVClockingBlockParser				fClkBlockParser;
 	private SVSpecifyBlockParser				fSpecifyBlockParser;
-	private SVImportStmtParser					fImportParser;
+	private SVImpExpStmtParser					fImportParser;
 	private SVExprParser						fExprParser;
 	private SVGateInstantiationParser			fGateInstanceParser;
 	private SVAssertionParser					fAssertionParser;
+	private SVModIfcBodyItemParser				fModIfcBodyItemParser;
+	private SVConstraintParser					fConstraintParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -78,7 +80,7 @@ public class SVParsers {
 		return fDataTypeParser;
 	}
 	
-	public SVTaskFunctionParser functionParser() {
+	public SVTaskFunctionParser taskFuncParser() {
 		if (fFunctionParser == null) {
 			fFunctionParser = new SVTaskFunctionParser(fSVParser);
 		}
@@ -155,9 +157,9 @@ public class SVParsers {
 		return fSpecifyBlockParser;
 	}
 	
-	public SVImportStmtParser importParser() {
+	public SVImpExpStmtParser impExpParser() {
 		if (fImportParser == null) {
-			fImportParser = new SVImportStmtParser(fSVParser);
+			fImportParser = new SVImpExpStmtParser(fSVParser);
 		}
 		return fImportParser;
 	}
@@ -188,6 +190,20 @@ public class SVParsers {
 			fCovergroupParser = new SVCovergroupParser(fSVParser);
 		}
 		return fCovergroupParser;
+	}
+	
+	public SVModIfcBodyItemParser modIfcBodyItemParser() {
+		if (fModIfcBodyItemParser == null) {
+			fModIfcBodyItemParser = new SVModIfcBodyItemParser(fSVParser);
+		}
+		return fModIfcBodyItemParser;
+	}
+	
+	public SVConstraintParser constraintParser() {
+		if (fConstraintParser == null) {
+			fConstraintParser = new SVConstraintParser(fSVParser);
+		}
+		return fConstraintParser;
 	}
 
 }

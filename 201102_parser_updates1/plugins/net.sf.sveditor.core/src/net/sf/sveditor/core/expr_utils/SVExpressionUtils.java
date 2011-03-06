@@ -58,6 +58,7 @@ import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -284,13 +285,13 @@ public class SVExpressionUtils {
 		SVDBFindNamedModIfcClassIfc finder_cls =
 			new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
 
-		List<SVDBModIfcClassDecl> cl_l = finder_cls.find(leaf);
+		List<ISVDBChildItem> cl_l = finder_cls.find(leaf);
 
 		if (cl_l.size() > 0) {
 			fLog.debug("Global type search for \"" + leaf + 
 					"\" returned " + cl_l.size());
-			for (SVDBModIfcClassDecl cl : cl_l) {
-				fLog.debug("    " + cl.getType() + " " + cl.getName());
+			for (ISVDBChildItem cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
 			}
 			if (max_matches == 0 || ret.size() < max_matches) {
 				ret.addAll(cl_l);
@@ -595,17 +596,17 @@ public class SVExpressionUtils {
 			debug("  last item type=" + it.getType());
 			
 			if (it.getType() == SVDBItemType.Class) {
-				SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)it;
+				SVDBClassDecl cls_t = (SVDBClassDecl)it;
 				// cls_t should be the specialized array type. We use the template
 				// parameter to get the array-element type
 				if (cls_t.getParameters() != null && cls_t.getParameters().size() > 0) {
 					SVDBFindNamedModIfcClassIfc finder_c = 
 						new SVDBFindNamedModIfcClassIfc(index_it);
-					List<SVDBModIfcClassDecl> result =
+					List<ISVDBChildItem> result =
 						finder_c.find(cls_t.getParameters().get(0).getName());
 					
-					if (result.size() > 0) {
-						cls_t = result.get(0);
+					if (result.size() > 0 && result.get(0).getType() == SVDBItemType.Class) {
+						cls_t = (SVDBClassDecl)result.get(0);
 						item_list.add(cls_t);
 					}
 				} else {
@@ -969,7 +970,7 @@ public class SVExpressionUtils {
 		SVDBFindNamedModIfcClassIfc finder = 
 			new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 		
-		List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
+		List<ISVDBChildItem> cl_l = finder.find(typename);
 		type = (cl_l.size() > 0)?cl_l.get(0):null;
 
 		debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
@@ -980,8 +981,8 @@ public class SVExpressionUtils {
 
 			List<ISVDBItemBase> result = finder_n.find(typename, SVDBItemType.TypedefStmt);
 			debug("Searching for typedef \"" + typename + "\" -- " + result.size());
-			
 			if (result.size() > 0) {
+				/*			
 				SVDBTypedefStmt td = (SVDBTypedefStmt)result.get(0);
 				debug("    typedef DataType=" + td.getTypeInfo().getDataType());
 				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
@@ -993,6 +994,8 @@ public class SVExpressionUtils {
 					cl_l = finder.find(td.getTypeInfo().getName());
 					type = (cl_l.size() > 0)?cl_l.get(0):null;
 				}
+				 */
+				type = null;
 			} else {
 				type = null;
 			}

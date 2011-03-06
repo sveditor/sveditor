@@ -28,34 +28,34 @@ public class SVBlockItemDeclParser extends SVParserBase {
 	public SVDBStmt parse() throws SVParseException {
 		SVDBStmt decl = null;
 		
-		if (lexer().peekKeyword("typedef")) {
+		if (fLexer.peekKeyword("typedef")) {
 			decl = parsers().dataTypeParser().typedef();
 		} else {		
 			// TODO: add qualifiers to variable
-			if (lexer().peekKeyword("const")) {
-				lexer().eatToken();
+			if (fLexer.peekKeyword("const")) {
+				fLexer.eatToken();
 			}
-			if (lexer().peekKeyword("var")) {
-				lexer().eatToken();
+			if (fLexer.peekKeyword("var")) {
+				fLexer.eatToken();
 			}
 
-			if (lexer().peekKeyword("static", "automatic")) {
-				lexer().eatToken();
+			if (fLexer.peekKeyword("static", "automatic")) {
+				fLexer.eatToken();
 			}
 
 			// Should be the data-type
-			// String id = lexer().eatToken();
-			if (((lexer().peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(lexer().peek())) && !lexer().peekKeyword("void")) ||
-					!SVKeywords.isSVKeyword(lexer().peek())) {
+			// String id = fLexer.eatToken();
+			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(fLexer.peek())) && !fLexer.peekKeyword("void")) ||
+					!SVKeywords.isSVKeyword(fLexer.peek())) {
 				// Data declaration or statement
 				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
 
 				// Ensure we don't misinterpret a static reference
-				if (!lexer().peekOperator("::")) {
+				if (!fLexer.peekOperator("::")) {
 					while (true) {
-						SVDBLocation it_start = lexer().getStartLocation();
-						String name = lexer().readId();
+						SVDBLocation it_start = fLexer.getStartLocation();
+						String name = fLexer.readId();
 
 						SVDBVarDeclItem var = new SVDBVarDeclItem(name);
 						var.setLocation(it_start);
@@ -63,26 +63,26 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						var_decl.addVar(var);
 
 						// TODO: handle array, queue, etc
-						if (lexer().peekOperator("[")) {
+						if (fLexer.peekOperator("[")) {
 							var.setArrayDim(parsers().dataTypeParser().var_dim());
 						}
 
-						if (lexer().peekOperator("=")) {
-							lexer().eatToken();
+						if (fLexer.peekOperator("=")) {
+							fLexer.eatToken();
 							var.setInitExpr(parsers().exprParser().expression());
 						}
 
-						if (lexer().peekOperator(",")) {
-							lexer().eatToken();
+						if (fLexer.peekOperator(",")) {
+							fLexer.eatToken();
 						} else {
 							break;
 						}
 					}
-					lexer().readOperator(";");
+					fLexer.readOperator(";");
 				}
 				decl = var_decl;
 			} else {
-				error("Unexpected variable-declaration stem token \"" + lexer().peek() + "\"");
+				error("Unexpected variable-declaration stem token \"" + fLexer.peek() + "\"");
 			}
 		}
 		

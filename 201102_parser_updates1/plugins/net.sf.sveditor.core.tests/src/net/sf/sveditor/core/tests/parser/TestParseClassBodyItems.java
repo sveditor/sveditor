@@ -352,16 +352,16 @@ public class TestParseClassBodyItems extends TestCase {
 			"    int a, b, c;\n" +
 			"\n" +
 			"    covergroup cg;\n" +
-			"        a_cp : a;\n" +
-			"        b_cp : b {\n" +
+			"        a_cp : coverpoint a;\n" +
+			"        b_cp : coverpoint b {\n" +
 			"            bins b[] = {[2:10]};\n" +
 			"        }\n" +
 			"        a_b_cross : cross a_cp, b_cp;\n" +
 			"    endgroup\n" +
 			"\n" +
 			"    covergroup cg2;\n" +
-			"        a_cp : a;\n" +
-			"        b_cp : b {\n" +
+			"        a_cp : coverpoint a;\n" +
+			"        b_cp : coverpoint b {\n" +
 			"            bins b[] = {[2:10]};\n" +
 			"        }\n" +
 			"        a_b_cross : cross a_cp, b_cp;\n" +
@@ -369,6 +369,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(true);
 
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
