@@ -14,8 +14,8 @@ package net.sf.sveditor.core.db.search;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class SVDBFindSuperClass {
 	

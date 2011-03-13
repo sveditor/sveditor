@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
@@ -52,10 +52,9 @@ public class SVDBFindNamedModIfcClassIfc {
 				System.out.println("it == null ; hasNext=" + had_next);
 			}
 			
-			if ((it.getType() == SVDBItemType.Class ||
-					it.getType() == SVDBItemType.Module ||
-					it.getType() == SVDBItemType.Interface ||
-					it.getType() == SVDBItemType.Struct)) {
+			if ((it.getType() == SVDBItemType.ClassDecl ||
+					it.getType() == SVDBItemType.ModuleDecl ||
+					it.getType() == SVDBItemType.InterfaceDecl)) {
 				if (fMatcher.match((ISVDBNamedItem)it, type_name)) {
 					ret.add((ISVDBChildItem)it);
 				}

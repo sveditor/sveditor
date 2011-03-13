@@ -16,31 +16,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintSolveBeforeStmt extends SVDBStmt {
-	private List<SVExpr>				fSolveBeforeList;
-	private List<SVExpr>				fSolveAfterList;
+	private List<SVDBExpr>				fSolveBeforeList;
+	private List<SVDBExpr>				fSolveAfterList;
 	
 	public SVDBConstraintSolveBeforeStmt() {
 		super(SVDBItemType.ConstraintSolveBeforeStmt);
-		fSolveBeforeList = new ArrayList<SVExpr>();
-		fSolveAfterList = new ArrayList<SVExpr>();
+		fSolveBeforeList = new ArrayList<SVDBExpr>();
+		fSolveAfterList = new ArrayList<SVDBExpr>();
 	}
 	
-	public List<SVExpr> getSolveBeforeList() {
+	public List<SVDBExpr> getSolveBeforeList() {
 		return fSolveBeforeList;
 	}
 	
-	public void addSolveBefore(SVExpr expr) {
+	public void addSolveBefore(SVDBExpr expr) {
 		fSolveBeforeList.add(expr);
 	}
 	
-	public List<SVExpr> getSolveAfterList() {
+	public List<SVDBExpr> getSolveAfterList() {
 		return fSolveAfterList;
 	}
 	
-	public void addSolveAfter(SVExpr expr) {
+	public void addSolveAfter(SVDBExpr expr) {
 		fSolveAfterList.add(expr);
 	}
 	

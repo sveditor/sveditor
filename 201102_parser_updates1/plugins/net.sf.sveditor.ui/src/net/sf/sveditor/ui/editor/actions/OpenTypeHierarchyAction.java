@@ -17,12 +17,12 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -71,16 +71,16 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 			
 			if (cls != null) {
 				HierarchyTreeNode n = null;
-				if (cls.getType() == SVDBItemType.Class) {
+				if (cls.getType() == SVDBItemType.ClassDecl) {
 					ClassHierarchyTreeFactory factory = new ClassHierarchyTreeFactory(
 							((SVEditor)getTextEditor()).getIndexIterator());
 
 					n = factory.build((SVDBClassDecl)cls);
-				} else if (cls.getType() == SVDBItemType.Module) {
+				} else if (cls.getType() == SVDBItemType.ModuleDecl) {
 					ModuleHierarchyTreeFactory factory = new ModuleHierarchyTreeFactory(
 							((SVEditor)getTextEditor()).getIndexIterator());
 					
-					n = factory.build((SVDBModIfcClassDecl)cls);
+					n = factory.build((SVDBModIfcDecl)cls);
 				}
 
 				if (n != null) {

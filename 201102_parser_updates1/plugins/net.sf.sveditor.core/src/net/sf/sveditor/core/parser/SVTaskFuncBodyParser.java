@@ -13,7 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVTaskFuncBodyParser extends SVParserBase {
@@ -22,7 +22,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(SVDBTaskFuncScope tf, boolean is_ansi) throws SVParseException {
+	public void parse(SVDBTask tf, boolean is_ansi) throws SVParseException {
 		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
 		debug("--> SVTaskFuncBodyParser: " + fLexer.peek());
 		

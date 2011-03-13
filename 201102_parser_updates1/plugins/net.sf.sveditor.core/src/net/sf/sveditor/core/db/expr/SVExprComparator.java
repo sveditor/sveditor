@@ -12,31 +12,33 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.SVDBItemType;
+
 public class SVExprComparator {
 	
-	public boolean equal(SVExpr a, SVExpr b) {
+	public boolean equal(SVDBExpr a, SVDBExpr b) {
 		return equal_int(a, b);
 	}
 	
-	private boolean equal_int(SVExpr a, SVExpr b) {
+	private boolean equal_int(SVDBExpr a, SVDBExpr b) {
 		boolean equal = true;
 		
-		if (a.getExprType() == SVExprType.Paren) {
-			return equal_int(((SVParenExpr)a).getExpr(), b);
+		if (a.getType() == SVDBItemType.ParenExpr) {
+			return equal_int(((SVDBParenExpr)a).getExpr(), b);
 		}
 		
-		if (b.getExprType() == SVExprType.Paren) {
-			return equal_int(a, ((SVParenExpr)b).getExpr());
+		if (b.getType() == SVDBItemType.ParenExpr) {
+			return equal_int(a, ((SVDBParenExpr)b).getExpr());
 		}
 		
-		if (a.getExprType() != b.getExprType()) {
+		if (a.getType() != b.getType()) {
 			return false;
 		}
 		
-		switch (a.getExprType()) {
-			case ArrayAccess: {
-				SVArrayAccessExpr aa_a = (SVArrayAccessExpr)a;
-				SVArrayAccessExpr aa_b = (SVArrayAccessExpr)b;
+		switch (a.getType()) {
+			case ArrayAccessExpr: {
+				SVDBArrayAccessExpr aa_a = (SVDBArrayAccessExpr)a;
+				SVDBArrayAccessExpr aa_b = (SVDBArrayAccessExpr)b;
 				
 				equal &= (aa_a.getLow() == null || aa_b.getLow() == null &&
 						aa_a.getLow() != aa_b.getLow());
@@ -55,9 +57,9 @@ public class SVExprComparator {
 				equal &= equal_int(aa_a.getLhs(), aa_b.getLhs());
 			} break;
 				
-			case Assign: {
-				SVAssignExpr ae_a = (SVAssignExpr)a;
-				SVAssignExpr ae_b = (SVAssignExpr)b;
+			case AssignExpr: {
+				SVDBAssignExpr ae_a = (SVDBAssignExpr)a;
+				SVDBAssignExpr ae_b = (SVDBAssignExpr)b;
 				
 				equal &= ae_a.getOp().equals(ae_b.getOp());
 				
@@ -65,9 +67,9 @@ public class SVExprComparator {
 				equal &= equal_int(ae_a.getRhs(), ae_b.getRhs());
 			} break;
 				
-			case Binary: {
-				SVBinaryExpr be_a = (SVBinaryExpr)a;
-				SVBinaryExpr be_b = (SVBinaryExpr)b;
+			case BinaryExpr: {
+				SVDBBinaryExpr be_a = (SVDBBinaryExpr)a;
+				SVDBBinaryExpr be_b = (SVDBBinaryExpr)b;
 				
 				equal &= be_a.getOp().equals(be_b.getOp());
 				
@@ -76,31 +78,31 @@ public class SVExprComparator {
 				equal &= equal_int(be_a.getRhs(), be_b.getRhs());
 			} break;
 			
-			case Identifier: {
-				SVIdentifierExpr id_a = (SVIdentifierExpr)a;
-				SVIdentifierExpr id_b = (SVIdentifierExpr)b;
+			case IdentifierExpr: {
+				SVDBIdentifierExpr id_a = (SVDBIdentifierExpr)a;
+				SVDBIdentifierExpr id_b = (SVDBIdentifierExpr)b;
 				
 				equal &= id_a.getIdStr().equals(id_b.getIdStr());
 			} break;
 			
-			case Unary: {
-				SVUnaryExpr un_a = (SVUnaryExpr)a;
-				SVUnaryExpr un_b = (SVUnaryExpr)b;
+			case UnaryExpr: {
+				SVDBUnaryExpr un_a = (SVDBUnaryExpr)a;
+				SVDBUnaryExpr un_b = (SVDBUnaryExpr)b;
 				
 				equal &= (un_a.getOp().equals(un_b.getOp()));
 				equal &= (equal_int(un_a.getExpr(), un_b.getExpr()));
 			} break;
 			
-			case Literal: {
-				SVLiteralExpr lit_a = (SVLiteralExpr)a;
-				SVLiteralExpr lit_b = (SVLiteralExpr)b;
+			case LiteralExpr: {
+				SVDBLiteralExpr lit_a = (SVDBLiteralExpr)a;
+				SVDBLiteralExpr lit_b = (SVDBLiteralExpr)b;
 				
 				equal &= (lit_a.getValue().equals(lit_b.getValue()));
 			} break;
 				
 			
 			default:
-				System.out.println("[ERROR] expression type \"" + a.getExprType() + "\" not handled in comparison");
+				System.out.println("[ERROR] expression type \"" + a.getType() + "\" not handled in comparison");
 				equal = false;
 				break;
 		}

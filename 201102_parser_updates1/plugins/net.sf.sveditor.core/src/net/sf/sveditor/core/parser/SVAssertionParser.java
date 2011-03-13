@@ -1,6 +1,8 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAssumeStmt;
 
 public class SVAssertionParser extends SVParserBase {
 	
@@ -9,9 +11,15 @@ public class SVAssertionParser extends SVParserBase {
 	}
 	
 	public SVDBAssertStmt parse() throws SVParseException {
-		SVDBAssertStmt assert_stmt = new SVDBAssertStmt();
+		SVDBLocation start = fLexer.getStartLocation();
 		
-		fLexer.readKeyword("assert");
+		String assert_type = fLexer.readKeyword("assert", "assume");
+		SVDBAssertStmt assert_stmt;
+		if (assert_type.equals("assert")) {
+			assert_stmt = new SVDBAssertStmt();
+		} else {
+			assert_stmt = new SVDBAssumeStmt();
+		}
 		debug("assertion_stmt - " + fLexer.peek());
 
 		if (fLexer.peekKeyword("property")) {

@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -63,9 +64,13 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 
 	@Override
 	public void dump(IDBWriter index_data) {
-		// Save the last-modified time for the arg file
-		long last_modified = fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation());
-		index_data.writeLong(last_modified);
+		try {
+			// Save the last-modified time for the arg file
+			long last_modified = fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation());
+			index_data.writeLong(last_modified);
+		} catch (DBWriteException e) {
+			fLog.error("Problem while writing", e);
+		}
 		
 		super.dump(index_data);
 	}

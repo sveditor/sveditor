@@ -42,41 +42,21 @@ public class SVDBLoad {
 	@SuppressWarnings("unchecked")
 	public void load(ISVDBIndex index, InputStream in) throws DBFormatException {
 		IDBReader		index_data = null;
+		DBHeader		hdr = new DBHeader();
 		
 		fReader.init(in);
-
-		String SDB = fReader.readTypeString();
 		
-		if (!"SDB".equals(SDB)) {
+		fReader.readObject(null, DBHeader.class, hdr);
+
+		if (hdr.magic == null || !hdr.magic.equals("SDB")) {
 			throw new DBFormatException("Database not prefixed with SDB");
 		}
 		
 		int ch;
 		
-		if ((ch = fReader.getch()) != '<') {
-			throw new DBFormatException("Missing '<'");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = fReader.getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-		
-		if (ch != '>') {
-			throw new DBFormatException("Unterminated SDB record");
-		}
-		
-		int version_idx = fTmpBuffer.indexOf("::");
-		String version = "";
-		if (version_idx != -1) {
-			version = fTmpBuffer.substring(version_idx+2);
-			fTmpBuffer.setLength(version_idx+1);
-		}
-
 		// Bail if the database version is wrong
-		if (!fVersion.equals(version)) {
-			throw new DBVersionException("Database version is \"" + version + 
+		if (!fVersion.equals(hdr.version)) {
+			throw new DBVersionException("Database version is \"" + hdr.version + 
 					"\" SVEditor version is \"" + fVersion + "\"");
 		}
 		

@@ -15,8 +15,8 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.expr.SVStringExpr;
+import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 
@@ -49,7 +49,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 				fLexer.readOperator("*");
 				fLexer.readOperator("::");
 				fLexer.readOperator("*");
-				exp.addExport(new SVStringExpr(fLexer.endCapture()));
+				exp.addExport(new SVDBStringExpr(fLexer.endCapture()));
 			} else {
 				
 				while (fLexer.peek() != null) {
@@ -69,7 +69,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		return ret;
 	}
 	
-	private SVDBTaskFuncScope parse_dpi_tf(SVDBLocation start) throws SVParseException {
+	private SVDBTask parse_dpi_tf(SVDBLocation start) throws SVParseException {
 		int modifiers = IFieldItemAttr.FieldAttr_DPI;
 
 		modifiers |= parsers().SVParser().scan_qualifiers(false);
@@ -82,7 +82,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		}
 
 		// Read tf extern declaration
-		SVDBTaskFuncScope tf = parsers().taskFuncParser().parse(start, modifiers);
+		SVDBTask tf = parsers().taskFuncParser().parse(start, modifiers);
 		
 		return tf;
 	}
@@ -123,7 +123,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		return ret;
 	}
 	
-	private SVStringExpr package_import_item() throws SVParseException {
+	private SVDBStringExpr package_import_item() throws SVParseException {
 		fLexer.startCapture();
 		fLexer.readId();
 		while (fLexer.peekOperator("::")) {
@@ -135,6 +135,6 @@ public class SVImpExpStmtParser extends SVParserBase {
 			}
 		}
 		
-		return new SVStringExpr(fLexer.endCapture());
+		return new SVDBStringExpr(fLexer.endCapture());
 	}
 }

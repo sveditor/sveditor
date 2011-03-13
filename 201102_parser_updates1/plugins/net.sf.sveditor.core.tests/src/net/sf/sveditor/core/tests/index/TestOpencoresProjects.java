@@ -21,7 +21,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -147,19 +147,19 @@ public class TestOpencoresProjects extends TestCase {
 
 	private void assertNoErrors(ISVDBIndexIterator index_it) {
 		ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it_i.hasNext()) {
 			ISVDBItemBase it = it_i.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem marker = (SVDBMarkerItem)it;
-				if (marker.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker marker = (SVDBMarker)it;
+				if (marker.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(marker);
 				}
 			}
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage() + " @ " + 
 					SVDBItem.getName(m.getParent()) + ":" + m.getLocation().getLine());
 		}

@@ -24,13 +24,13 @@ public class SVExprDump {
 		fPS = ps;
 	}
 	
-	public void dump(SVExpr expr) {
+	public void dump(SVDBExpr expr) {
 		dump_i(expr);
 		
 		fPS.flush();
 	}
 	
-	public String toString(SVExpr expr) {
+	public String toString(SVDBExpr expr) {
 		ByteOutputStream bos = new ByteOutputStream();
 		PrintStream tmp = fPS;
 		fPS = new PrintStream(bos);
@@ -40,42 +40,42 @@ public class SVExprDump {
 		return bos.toString();
 	}
 	
-	private void dump_i(SVExpr expr) {
-		switch (expr.getExprType()) {
-			case ArrayAccess: {
+	private void dump_i(SVDBExpr expr) {
+		switch (expr.getType()) {
+			case ArrayAccessExpr: {
 				
 			} break;
 			
-			case Assign: {
+			case AssignExpr: {
 				
 			} break;
 			
-			case Binary: {
-				SVBinaryExpr bin = (SVBinaryExpr)expr;
+			case BinaryExpr: {
+				SVDBBinaryExpr bin = (SVDBBinaryExpr)expr;
 				dump_i(bin.getLhs());
 				fPS.print(" " + bin.getOp() + " ");
 				dump_i(bin.getRhs());
 			} break;
 			
-			case Cast: {
+			case CastExpr: {
 				
 			} break;
 			
-			case Cond: {
+			case CondExpr: {
 				
 			} break;
 			
-			case FieldAccess: {
+			case FieldAccessExpr: {
 				
 			} break;
 			
-			case Identifier: {
-				SVIdentifierExpr id = (SVIdentifierExpr)expr;
+			case IdentifierExpr: {
+				SVDBIdentifierExpr id = (SVDBIdentifierExpr)expr;
 				StringBuilder id_s = new StringBuilder();
 				
-				for (int i=0; i<id.getId().length; i++) {
-					id_s.append(id.getId()[i]);
-					if (i+1 < id.getId().length) {
+				for (int i=0; i<id.getId().size(); i++) {
+					id_s.append(id.getId().get(i));
+					if (i+1 < id.getId().size()) {
 						id_s.append(".");
 					}
 				}
@@ -83,38 +83,38 @@ public class SVExprDump {
 				fPS.print(id_s.toString());
 			} break;
 			
-			case IncDec: {
-				SVIncDecExpr incdec = (SVIncDecExpr)expr;
+			case IncDecExpr: {
+				SVDBIncDecExpr incdec = (SVDBIncDecExpr)expr;
 				dump_i(incdec.getExpr());
 				fPS.print(incdec.getOp());
 			} break;
 		
-			case Literal: {
-				SVLiteralExpr lit = (SVLiteralExpr)expr;
+			case LiteralExpr: {
+				SVDBLiteralExpr lit = (SVDBLiteralExpr)expr;
 				fPS.print(lit.getValue());
 			} break;
 			
-			case Paren: {
-				SVParenExpr p = (SVParenExpr)expr;
+			case ParenExpr: {
+				SVDBParenExpr p = (SVDBParenExpr)expr;
 				
 				fPS.print("(");
 				dump_i(p.getExpr());
 				fPS.print(")");
 			} break;
 			
-			case QualifiedSuperFieldRef: {
+			case QualifiedSuperFieldRefExpr: {
 				
 			} break;
 			
-			case QualifiedThisRef: {
+			case QualifiedThisRefExpr: {
 			} break;
 		
-			case TFCall: {
+			case TFCallExpr: {
 				
 			} break;
 			
-			case Unary: {
-				SVUnaryExpr u = (SVUnaryExpr)expr;
+			case UnaryExpr: {
+				SVDBUnaryExpr u = (SVDBUnaryExpr)expr;
 				
 				fPS.print(u.getOp());
 				dump_i(u.getExpr());

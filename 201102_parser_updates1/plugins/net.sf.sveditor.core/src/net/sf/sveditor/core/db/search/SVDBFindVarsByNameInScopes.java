@@ -18,15 +18,15 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class SVDBFindVarsByNameInScopes {
 	
@@ -80,7 +80,7 @@ public class SVDBFindVarsByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (SVDBParamPort it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (SVDBParamPortDecl it : ((SVDBTask)context).getParams()) {
 					boolean stop = false;
 					for (SVDBVarDeclItem vi : it.getVarList()) {
 						if (fMatcher.match(vi, name)) {
@@ -96,9 +96,9 @@ public class SVDBFindVarsByNameInScopes {
 						break;
 					}
 				}
-			} else if (context.getType() == SVDBItemType.Module) {
-				SVDBModIfcClassDecl m = (SVDBModIfcClassDecl)context;
-				for (SVDBParamPort p : m.getPorts()) {
+			} else if (context.getType() == SVDBItemType.ModuleDecl) {
+				SVDBModIfcDecl m = (SVDBModIfcDecl)context;
+				for (SVDBParamPortDecl p : m.getPorts()) {
 					boolean stop = false;
 					for (SVDBVarDeclItem vi : p.getVarList()) {
 						if (fMatcher.match(vi, name)) {
@@ -126,7 +126,7 @@ public class SVDBFindVarsByNameInScopes {
 		// hierarchy
 		if (ret.size() == 0 || !stop_on_first_match) {
 			context = context_save;
-			while (context != null && context.getType() != SVDBItemType.Class) {
+			while (context != null && context.getType() != SVDBItemType.ClassDecl) {
 				context = context.getParent();
 			}
 			

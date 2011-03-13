@@ -15,10 +15,10 @@ package net.sf.sveditor.core.tests.parser;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 

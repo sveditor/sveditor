@@ -17,7 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
@@ -53,7 +53,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				ret.addParameter(new SVDBParamValueAssign(name, type));
 			} else {
 				fLexer.ungetToken(id_list);
-				SVExpr val = parsers().exprParser().expression();
+				SVDBExpr val = parsers().exprParser().expression();
 				ret.addParameter(new SVDBParamValueAssign(name, val));
 			}
 

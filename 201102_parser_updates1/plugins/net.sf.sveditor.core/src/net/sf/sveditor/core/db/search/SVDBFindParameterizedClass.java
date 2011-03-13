@@ -22,17 +22,17 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 /**
@@ -93,7 +93,7 @@ public class SVDBFindParameterizedClass {
 		if (ret == null) {
 			List<ISVDBChildItem> result = fFinder.find(type_info.getName());
 			
-			if (result.size() > 0 && result.get(0).getType() == SVDBItemType.Class) {
+			if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
 				ret = specialize((SVDBClassDecl)result.get(0), type_info);
 				fParamClassCache.add(
 						new Tuple<SVDBClassDecl, SVDBTypeInfoUserDef>(ret, type_info));
@@ -126,13 +126,13 @@ public class SVDBFindParameterizedClass {
 			ISVDBItemBase 				item,
 			Map<String, String>		param_map) {
 		switch (item.getType()) {
-			case Class:
+			case ClassDecl:
 				specialize_cls((SVDBClassDecl)item, param_map);
 				break;
 				
 			case Task:
 			case Function:
-				specialize_tf((SVDBTaskFuncScope)item, param_map);
+				specialize_tf((SVDBTask)item, param_map);
 				break;
 				
 			case VarDeclStmt: {
@@ -151,25 +151,26 @@ public class SVDBFindParameterizedClass {
 	}
 	
 	private void specialize_tf(
-			SVDBTaskFuncScope 		tf, 
+			SVDBTask 		tf, 
 			Map<String, String>		param_map) {
 		if (tf.getType() == SVDBItemType.Function) {
-			if (param_map.containsKey(tf.getReturnType())) {
-				String type = param_map.get(tf.getReturnType().getName());
+			SVDBFunction func = (SVDBFunction)tf;
+			if (param_map.containsKey(((SVDBFunction)tf).getReturnType())) {
+				String type = param_map.get(func.getReturnType().getName());
 				
 				if (SVKeywords.isBuiltInType(type)) {
 					SVDBTypeInfoBuiltin ret_type = 
 						new SVDBTypeInfoBuiltin(type);
-					tf.setReturnType(ret_type);
+					func.setReturnType(ret_type);
 				} else {
 					SVDBTypeInfoUserDef ret_type = 
 						new SVDBTypeInfoUserDef(type);
-					tf.setReturnType(ret_type);
+					func.setReturnType(ret_type);
 				}
 			}
 		}
 		
-		for (SVDBParamPort p : tf.getParams()) {
+		for (SVDBParamPortDecl p : tf.getParams()) {
 			if (param_map.containsKey(p.getTypeInfo().getName())) {
 				p.getTypeInfo().setName(
 						param_map.get(p.getTypeInfo().getName()));
@@ -209,7 +210,7 @@ public class SVDBFindParameterizedClass {
 			Map<String, String>		param_map) {
 		// Only specialize non-parameterized types. Parameterized types
 		// will be parameterized on-demand
-		if (var_decl.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
+		if (var_decl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
 			SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)var_decl.getTypeInfo(); 
 			if (cls.getParameters() == null || cls.getParameters().getParameters().size() == 0) {
 				if (param_map.containsKey(var_decl.getTypeInfo().getName())) {

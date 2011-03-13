@@ -20,29 +20,14 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBGenerateBlock extends SVDBScopeItem {
 
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBGenerateBlock(parent, type, reader);
-			}
-		};
-		SVDBPersistenceReader.registerPersistenceFactory(
-				f, SVDBItemType.GenerateBlock);
+	public SVDBGenerateBlock() {
+		super("", SVDBItemType.GenerateBlock);
 	}
 	
 	public SVDBGenerateBlock(String name) {
 		super(name, SVDBItemType.GenerateBlock);
 	}
 	
-	public SVDBGenerateBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-	}
-
 	@Override
 	public SVDBItemBase duplicate() {
 		SVDBGenerateBlock item = new SVDBGenerateBlock(getName());

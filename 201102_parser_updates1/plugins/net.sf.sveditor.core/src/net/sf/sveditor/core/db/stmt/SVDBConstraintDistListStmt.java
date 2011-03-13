@@ -16,32 +16,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.expr.SVExprType;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintDistListStmt extends SVDBStmt {
-	private List<SVExpr>						fLHS;
-	private List<SVDBConstraintDistItemStmt>	fDistItems;
+	private List<SVDBExpr>						fLHS;
+	private List<SVDBConstraintDistListItem>	fDistItems;
 	
 	public SVDBConstraintDistListStmt() {
 		super(SVDBItemType.ConstraintDistListStmt);
-		fLHS = new ArrayList<SVExpr>();
-		fDistItems = new ArrayList<SVDBConstraintDistItemStmt>();
+		fLHS = new ArrayList<SVDBExpr>();
+		fDistItems = new ArrayList<SVDBConstraintDistListItem>();
 	}
 	
-	public void addLHS(SVExpr lhs) {
+	public void addLHS(SVDBExpr lhs) {
 		fLHS.add(lhs);
 	}
 	
-	public List<SVExpr> getLHS() {
+	public List<SVDBExpr> getLHS() {
 		return fLHS;
 	}
 	
-	public List<SVDBConstraintDistItemStmt> getDistItems() {
+	public List<SVDBConstraintDistListItem> getDistItems() {
 		return fDistItems;
 	}
 	
-	public void addDistItem(SVDBConstraintDistItemStmt item) {
+	public void addDistItem(SVDBConstraintDistListItem item) {
 		fDistItems.add(item);
 	}
 	

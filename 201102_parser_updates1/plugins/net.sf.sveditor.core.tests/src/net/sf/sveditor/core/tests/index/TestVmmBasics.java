@@ -21,7 +21,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
@@ -76,7 +76,7 @@ public class TestVmmBasics extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase vmm_xtor=null;
 		ISVDBItemBase vmm_err=null;
 		
@@ -86,12 +86,12 @@ public class TestVmmBasics extends TestCase {
 			System.out.println("" + it.getType() + " " + name);
 			
 			if (it.getType() == SVDBItemType.Marker) {
-				markers.add((SVDBMarkerItem)it);
-			} else if (it.getType() == SVDBItemType.Class) {
+				markers.add((SVDBMarker)it);
+			} else if (it.getType() == SVDBItemType.ClassDecl) {
 				if (name.equals("vmm_xactor")) {
 					vmm_xtor = it;
 				}
-			} else if (it.getType() == SVDBItemType.Macro) {
+			} else if (it.getType() == SVDBItemType.MacroDef) {
 				if (name.equals("vmm_error")) {
 					vmm_err = it;
 				}
@@ -136,14 +136,14 @@ public class TestVmmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -151,7 +151,7 @@ public class TestVmmBasics extends TestCase {
 			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -184,14 +184,14 @@ public class TestVmmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -199,7 +199,7 @@ public class TestVmmBasics extends TestCase {
 			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -248,14 +248,14 @@ public class TestVmmBasics extends TestCase {
 		
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -263,7 +263,7 @@ public class TestVmmBasics extends TestCase {
 //			System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());

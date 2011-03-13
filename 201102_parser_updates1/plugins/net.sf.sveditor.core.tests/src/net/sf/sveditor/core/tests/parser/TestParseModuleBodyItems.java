@@ -18,17 +18,16 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -226,10 +225,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBFile file = SVDBTestUtils.parse(doc, "testInitialBlock");
 		
-		SVDBModIfcClassDecl top = null;
+		SVDBModIfcDecl top = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
@@ -269,21 +268,21 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl top = null;
+		SVDBModIfcDecl top = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 		
-		for (SVDBParamPort p : top.getPorts()) {
+		for (SVDBParamPortDecl p : top.getPorts()) {
 			System.out.println("Port: " + p.getVarList().get(0).getName());
 		}
 
@@ -347,14 +346,14 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl top = null;
+		SVDBModIfcDecl top = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
@@ -362,7 +361,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull("Failed to find module top", top);
 
 		SVDBVarDeclItem a=null, b=null, bar=null;
-		for (SVDBParamPort p : top.getPorts()) {
+		for (SVDBParamPortDecl p : top.getPorts()) {
 			for (SVDBVarDeclItem pi : p.getVarList()) {
 				System.out.println("Port: " + pi.getName());
 				if (pi.getName().equals("a")) {
@@ -379,7 +378,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(b);
 		assertNotNull(bar);
 
-		assertEquals(SVDBDataType.UserDefined, b.getParent().getTypeInfo().getDataType());
+		assertEquals(SVDBItemType.TypeInfoUserDef, b.getParent().getTypeInfo().getType());
 		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getParent().getTypeInfo()).getName());
 	}
 
@@ -396,13 +395,13 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
+				SVDBMarker m = (SVDBMarker)it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -431,19 +430,19 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl top = null;
+		SVDBModIfcDecl top = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 		
-		SVDBModIfcClassDecl inner = null;
+		SVDBModIfcDecl inner = null;
 		for (ISVDBItemBase it : top.getItems()) {
 			if (SVDBItem.getName(it).equals("inner")) {
-				inner = (SVDBModIfcClassDecl)it;
+				inner = (SVDBModIfcDecl)it;
 			}
 		}
 
@@ -474,10 +473,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterDeclaration");
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t1 = null;
+		SVDBModIfcDecl t1 = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("t1")) {
-				t1 = (SVDBModIfcClassDecl)it;
+				t1 = (SVDBModIfcDecl)it;
 			}
 		}
 		
@@ -486,7 +485,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBVarDeclItem c = null;
 		for (ISVDBItemBase it : t1.getItems()) {
 			if (it.getType() == SVDBItemType.ParamPortDecl) {
-				for (SVDBVarDeclItem vi : ((SVDBParamPort)it).getVarList()) {
+				for (SVDBVarDeclItem vi : ((SVDBParamPortDecl)it).getVarList()) {
 					if (vi.getName().equals("c")) {
 						c = vi;
 					}
@@ -509,10 +508,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t = null;
+		SVDBModIfcDecl t = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
+				t = (SVDBModIfcDecl)it;
 			}
 		}
 		
@@ -521,7 +520,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBVarDeclItem a = null, b = null;
 		for (ISVDBItemBase it : t.getItems()) {
 			if (it.getType() == SVDBItemType.ParamPortDecl) {
-				for (SVDBVarDeclItem vi : ((SVDBParamPort)it).getVarList()) {
+				for (SVDBVarDeclItem vi : ((SVDBParamPortDecl)it).getVarList()) {
 					if (vi.getName().equals("a")) {
 						a = vi;
 					} else if (vi.getName().equals("b")) {
@@ -548,10 +547,10 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysVariants");
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t3 = null;
+		SVDBModIfcDecl t3 = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("t3")) {
-				t3 = (SVDBModIfcClassDecl)it;
+				t3 = (SVDBModIfcDecl)it;
 			}
 		}
 		
@@ -896,17 +895,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t = null;
+		SVDBModIfcDecl t = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
+				t = (SVDBModIfcDecl)it;
 			}
 		}
 		assertNotNull("Failed to find module t", t);
 		
 		SVDBVarDeclItem out=null, in=null, in2=null;
 		
-		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t).getPorts()) {
+		for (SVDBParamPortDecl p : ((SVDBModIfcDecl)t).getPorts()) {
 			for (SVDBVarDeclItem pi : p.getVarList()) {
 				if (pi.getName().equals("out")) {
 					out = pi;
@@ -936,17 +935,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t2 = null;
+		SVDBModIfcDecl t2 = null;
 		for (ISVDBItemBase it : file.getItems()) {
 			if (SVDBItem.getName(it).equals("t2")) {
-				t2 = (SVDBModIfcClassDecl)it;
+				t2 = (SVDBModIfcDecl)it;
 			}
 		}
 		assertNotNull("Failed to find module t2", t2);
 		
 		SVDBVarDeclItem mp=null;
 		
-		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t2).getPorts()) {
+		for (SVDBParamPortDecl p : ((SVDBModIfcDecl)t2).getPorts()) {
 			for (SVDBVarDeclItem pi : p.getVarList()) {
 				if (pi.getName().equals("mp")) {
 					mp = pi;

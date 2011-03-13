@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.ui.texteditor.TextEditorAction;
@@ -44,7 +44,7 @@ public class OverrideTaskFuncAction extends TextEditorAction
 		fImpl.run();
 	}
 
-	public List<SVDBTaskFuncScope> getTargets(ISVDBScopeItem active_scope) {
+	public List<SVDBTask> getTargets(ISVDBScopeItem active_scope) {
 		OverrideMethodsDialog dlg = null;
 		
 		try {
@@ -65,10 +65,10 @@ public class OverrideTaskFuncAction extends TextEditorAction
 			return null;
 		}
 		
-		List<SVDBTaskFuncScope> ret = new ArrayList<SVDBTaskFuncScope>();
+		List<SVDBTask> ret = new ArrayList<SVDBTask>();
 		for (Object o : dlg.getResult()) {
-			if (o instanceof SVDBTaskFuncScope) {
-				ret.add((SVDBTaskFuncScope)o);
+			if (o instanceof SVDBTask) {
+				ret.add((SVDBTask)o);
 			}
 		}
 		

@@ -15,13 +15,14 @@ package net.sf.sveditor.core.parser;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFieldItem;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
+import net.sf.sveditor.core.db.SVDBProgramDecl;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVModIfcProgDeclParser extends SVParserBase {
 	
@@ -29,10 +30,10 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBModIfcClassDecl parse(int qualifiers) throws SVParseException {
+	public SVDBModIfcDecl parse(int qualifiers) throws SVParseException {
 		String id;
 		String module_type_name = null;
-		SVDBModIfcClassDecl module = null;
+		SVDBModIfcDecl module = null;
 
 		debug("--> process_mod_ifc_prog()");
 		
@@ -41,11 +42,11 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				"interface", "program");
 		SVDBItemType type = null;
 		if (type_name.equals("module") || type_name.equals("macromodule")) {
-			type = SVDBItemType.Module;
+			type = SVDBItemType.ModuleDecl;
 		} else if (type_name.equals("interface")) {
-			type = SVDBItemType.Interface;
+			type = SVDBItemType.InterfaceDecl;
 		} else if (type_name.equals("program")) {
-			type = SVDBItemType.Program;
+			type = SVDBItemType.ProgramDecl;
 		} else {
 			error("Unsupported module/interface/program type-name " + type_name);
 		}
@@ -55,21 +56,31 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			fLexer.eatToken();
 		}
 		
-		if (type == SVDBItemType.Program && fLexer.peekOperator(";")) {
+		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(";")) {
 			// anonymous program block
 			module_type_name = "";
 		} else {
 			module_type_name = fLexer.readId();
 		}
-		
 
-		module = new SVDBModIfcClassDecl(module_type_name, type);
+		switch (type) {
+			case ModuleDecl:
+				module = new SVDBModuleDecl(module_type_name);
+				break;
+			case InterfaceDecl:
+				module = new SVDBInterfaceDecl(module_type_name);
+				break;
+			case ProgramDecl:
+				module = new SVDBProgramDecl(module_type_name);
+				break;
+		}
+
 		module.setLocation(start);
 		
 		// TODO: Should remove this later
 		parsers().SVParser().enter_scope(type_name, module);
 
-		if (type != SVDBItemType.Program) {
+		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
 			while (fLexer.peekKeyword("import")) {
 				// Import statement
@@ -86,7 +97,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		if (fLexer.peekOperator("(")) {
 			// port-list
-			List<SVDBParamPort> ports = parsers().portListParser().parse();
+			List<SVDBParamPortDecl> ports = parsers().portListParser().parse();
 			module.getPorts().addAll(ports);
 		}
 		fLexer.readOperator(";");

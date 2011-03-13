@@ -21,7 +21,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -165,7 +165,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
-		SVDBMarkerItem missing_inc = null;
+		SVDBMarker missing_inc = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -173,7 +173,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
-				missing_inc = (SVDBMarkerItem)tmp_it;
+				missing_inc = (SVDBMarker)tmp_it;
 			}
 		}
 

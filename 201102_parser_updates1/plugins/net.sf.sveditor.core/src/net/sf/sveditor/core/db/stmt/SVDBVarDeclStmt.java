@@ -16,31 +16,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 	
 	protected SVDBTypeInfo				fTypeInfo;
 	protected int						fFieldAttr;
 	protected List<SVDBVarDeclItem>		fVarList;
-	
-	public static void init() {
-		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
-					IDBReader reader) throws DBFormatException {
-				return new SVDBVarDeclStmt(parent, type, reader);
-			}
-		}, SVDBItemType.VarDeclStmt);
+
+	public SVDBVarDeclStmt() {
+		super(SVDBItemType.VarDeclStmt);
 	}
-	
 	
 	public SVDBVarDeclStmt(SVDBTypeInfo type, int attr) {
 		this(SVDBItemType.VarDeclStmt, type, attr);
@@ -51,22 +39,6 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 		fTypeInfo = type;
 		
 		fVarList = new ArrayList<SVDBVarDeclItem>();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public SVDBVarDeclStmt(ISVDBChildItem parent, SVDBItemType stmt_type, IDBReader reader) throws DBFormatException {
-		super(parent, stmt_type, reader);
-
-		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
-		
-		fVarList = (List<SVDBVarDeclItem>)reader.readItemList(this);
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		writer.writeSVDBItem(fTypeInfo);
-		writer.writeItemList(fVarList);
 	}
 	
 	/**

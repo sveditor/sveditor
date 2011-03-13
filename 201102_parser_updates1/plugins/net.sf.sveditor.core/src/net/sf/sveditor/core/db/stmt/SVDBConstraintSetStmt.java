@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.expr.SVExprType;
 
 public class SVDBConstraintSetStmt extends SVDBStmt {
 	private List<SVDBStmt>				fConstraintList;

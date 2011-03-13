@@ -12,42 +12,19 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 
 public class SVDBPreProcCond extends SVDBScopeItem {
 	private String						fConditional;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBPreProcCond(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.PreProcCond); 
+	public SVDBPreProcCond() {
+		super("", SVDBItemType.PreProcCond);
 	}
-	
 	
 	public SVDBPreProcCond(String name, String conditional) {
 		super(name, SVDBItemType.PreProcCond);
 		fConditional = conditional;
 	}
-	
-	public SVDBPreProcCond(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fConditional = reader.readString();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fConditional);
-	}
-	
 	
 	public String getConditional() {
 		return fConditional;

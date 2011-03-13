@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -102,9 +102,9 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
 		
-		List<SVDBMarkerItem> errors = IndexTests.getErrorsWarnings(index);
+		List<SVDBMarker> errors = IndexTests.getErrorsWarnings(index);
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -178,9 +178,9 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
 		
-		List<SVDBMarkerItem> errors = IndexTests.getErrorsWarnings(index);
+		List<SVDBMarker> errors = IndexTests.getErrorsWarnings(index);
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());

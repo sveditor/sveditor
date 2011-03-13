@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -171,11 +172,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 	
 	public void dump(IDBWriter index_data) {
-		// Dump Global Defines, so we can check for changes on restart
-		index_data.writeInt(fGlobalDefines.size());
-		for (Entry<String, String> def : fGlobalDefines.entrySet()) {
-			index_data.writeString(def.getKey());
-			index_data.writeString(def.getValue());
+		try {
+			// Dump Global Defines, so we can check for changes on restart
+			index_data.writeInt(fGlobalDefines.size());
+			for (Entry<String, String> def : fGlobalDefines.entrySet()) {
+				index_data.writeString(def.getKey());
+				index_data.writeString(def.getValue());
+			}
+		} catch (DBWriteException e) {
+			fLog.error("Problem writing ", e);
 		}
 	}
 

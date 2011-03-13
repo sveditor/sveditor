@@ -2,15 +2,19 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssertStmt extends SVDBStmt implements ISVDBNamedItem {
 	private String					fName;
-	private SVExpr					fExpr;
+	private SVDBExpr					fExpr;
 	private SVDBActionBlockStmt		fActionBlock;
 	
 	public SVDBAssertStmt() {
-		super(SVDBItemType.AssertStmt);
+		this(SVDBItemType.AssertStmt);
+	}
+	
+	protected SVDBAssertStmt(SVDBItemType type) {
+		super(type);
 	}
 	
 	public void setName(String name) {
@@ -21,11 +25,11 @@ public class SVDBAssertStmt extends SVDBStmt implements ISVDBNamedItem {
 		return fName;
 	}
 	
-	public void setExpr(SVExpr expr) {
+	public void setExpr(SVDBExpr expr) {
 		fExpr = expr;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fExpr;
 	}
 	

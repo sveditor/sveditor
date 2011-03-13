@@ -1,11 +1,11 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBEventTriggerStmt extends SVDBStmt {
 	private SVDBStmt			fDelayOrEventControl;
-	private SVExpr				fHierarchicalEventIdentifier;
+	private SVDBExpr				fHierarchicalEventIdentifier;
 	
 	public SVDBEventTriggerStmt() {
 		super(SVDBItemType.EventTriggerStmt);
@@ -19,11 +19,11 @@ public class SVDBEventTriggerStmt extends SVDBStmt {
 		fDelayOrEventControl = stmt;
 	}
 	
-	public SVExpr getHierarchicalEventIdentifier() {
+	public SVDBExpr getHierarchicalEventIdentifier() {
 		return fHierarchicalEventIdentifier;
 	}
 	
-	public void setHierarchicalEventIdentifier(SVExpr expr) {
+	public void setHierarchicalEventIdentifier(SVDBExpr expr) {
 		fHierarchicalEventIdentifier = expr;
 	}
 

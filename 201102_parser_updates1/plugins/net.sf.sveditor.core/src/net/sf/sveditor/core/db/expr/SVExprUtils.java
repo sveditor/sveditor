@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Stack;
 
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -44,7 +45,7 @@ public class SVExprUtils {
 		return fDefault;
 	}
 	
-	public String exprToString(SVExpr expr) {
+	public String exprToString(SVDBExpr expr) {
 		PrintStream ps;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ps = new PrintStream(bos);
@@ -55,7 +56,7 @@ public class SVExprUtils {
 		return bos.toString();
 	}
 
-	public void exprToStream(SVExpr expr, OutputStream out) {
+	public void exprToStream(SVDBExpr expr, OutputStream out) {
 		PrintStream ps;
 		ps = new PrintStream(out);
 		
@@ -81,33 +82,33 @@ public class SVExprUtils {
 		return fIndentStack.peek();
 	}
 	
-	protected boolean binary(PrintStream ps, SVBinaryExpr expr) {
+	protected boolean binary(PrintStream ps, SVDBBinaryExpr expr) {
 		expr_to_string(ps, expr.getLhs());
 		ps.print(expr.getOp());
 		expr_to_string(ps, expr.getRhs());
 		return true;
 	}
 	
-	protected boolean paren(PrintStream ps, SVParenExpr expr) {
+	protected boolean paren(PrintStream ps, SVDBParenExpr expr) {
 		ps.print("(");
 		expr_to_string(ps, expr.getExpr());
 		ps.print(")");
 		return true;
 	}
 	
-	protected boolean identifier(PrintStream ps, SVIdentifierExpr expr) {
+	protected boolean identifier(PrintStream ps, SVDBIdentifierExpr expr) {
 		String id_path = getAccess(expr.getIdStr());
 		ps.print(id_path);
 		return true;
 	}
 	
-	protected boolean literal(PrintStream ps, SVLiteralExpr expr) {
-		SVLiteralExpr lit = (SVLiteralExpr)expr;
+	protected boolean literal(PrintStream ps, SVDBLiteralExpr expr) {
+		SVDBLiteralExpr lit = (SVDBLiteralExpr)expr;
 		ps.print(lit.getValue());
 		return true;
 	}
 	
-	protected boolean array_access(PrintStream ps, SVArrayAccessExpr expr) {
+	protected boolean array_access(PrintStream ps, SVDBArrayAccessExpr expr) {
 		expr_to_string(ps, expr.getLhs());
 
 		ps.print("[");
@@ -120,29 +121,29 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean unary(PrintStream ps, SVUnaryExpr expr) {
+	protected boolean unary(PrintStream ps, SVDBUnaryExpr expr) {
 		ps.print(expr.getOp());
 		expr_to_string(ps, expr.getExpr());
 		return true;
 	}
 	
-	protected boolean inside(PrintStream ps, SVInsideExpr expr) {
+	protected boolean inside(PrintStream ps, SVDBInsideExpr expr) {
 		expr_to_string(ps, expr.getLhs());
 		ps.print(" inside {");
 		
 		for (int i=0; i<expr.getValueRangeList().size(); i++) {
-			SVExpr r_i = expr.getValueRangeList().get(i);
-			if (r_i.getExprType() == SVExprType.Literal) {
-				literal(ps, (SVLiteralExpr)r_i);
-			} else if (r_i.getExprType() == SVExprType.Range) {
-				SVRangeExpr r = (SVRangeExpr)r_i;
+			SVDBExpr r_i = expr.getValueRangeList().get(i);
+			if (r_i.getType() == SVDBItemType.LiteralExpr) {
+				literal(ps, (SVDBLiteralExpr)r_i);
+			} else if (r_i.getType() == SVDBItemType.RangeExpr) {
+				SVDBRangeExpr r = (SVDBRangeExpr)r_i;
 				ps.print("[");
 				expr_to_string(ps, r.getLeft());
 				ps.print(":");
 				expr_to_string(ps, r.getRight());
 				ps.print("]");
-			} else if (r_i.getExprType() == SVExprType.Identifier) {
-				identifier(ps, (SVIdentifierExpr)r_i);
+			} else if (r_i.getType() == SVDBItemType.IdentifierExpr) {
+				identifier(ps, (SVDBIdentifierExpr)r_i);
 			}
 			if (i+1 < expr.getValueRangeList().size()) {
 				ps.print(", ");
@@ -153,7 +154,7 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean concatenation(PrintStream ps, SVConcatenationExpr expr) {
+	protected boolean concatenation(PrintStream ps, SVDBConcatenationExpr expr) {
 		ps.print("{");
 		
 		for (int i=0; i<expr.getElements().size(); i++) {
@@ -167,7 +168,7 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean assign(PrintStream ps, SVAssignExpr expr) {
+	protected boolean assign(PrintStream ps, SVDBAssignExpr expr) {
 		expr_to_string(ps, expr.getLhs());
 		ps.print(" " + expr.getOp() + " ");
 		expr_to_string(ps, expr.getRhs());
@@ -175,7 +176,7 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean cast(PrintStream ps, SVCastExpr expr) {
+	protected boolean cast(PrintStream ps, SVDBCastExpr expr) {
 		expr_to_string(ps, expr.getCastType());
 		ps.print("'(");
 		expr_to_string(ps, expr.getExpr());
@@ -184,7 +185,7 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean cond(PrintStream ps, SVCondExpr expr) {
+	protected boolean cond(PrintStream ps, SVDBCondExpr expr) {
 		ps.print("(");
 		expr_to_string(ps, expr.getLhs());
 		ps.print(")");
@@ -196,7 +197,7 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean tf_call(PrintStream ps, SVTFCallExpr expr) {
+	protected boolean tf_call(PrintStream ps, SVDBTFCallExpr expr) {
 		if (expr.getTarget() != null) {
 			expr_to_string(ps, expr.getTarget());
 			// TODO: may be a static reference
@@ -205,9 +206,9 @@ public class SVExprUtils {
 		ps.print(expr.getName());
 		ps.print("(");
 		if (expr.getArgs() != null) {
-			for (int i=0; i<expr.getArgs().length; i++) {
-				expr_to_string(ps, expr.getArgs()[i]);
-				if (i+1 < expr.getArgs().length) {
+			for (int i=0; i<expr.getArgs().size(); i++) {
+				expr_to_string(ps, expr.getArgs().get(i));
+				if (i+1 < expr.getArgs().size()) {
 					ps.print(", ");
 				}
 			}
@@ -217,13 +218,13 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean field_access(PrintStream ps, SVFieldAccessExpr expr) {
+	protected boolean field_access(PrintStream ps, SVDBFieldAccessExpr expr) {
 		expr_to_string(ps, expr.getExpr());
 		ps.print("." + expr.getId());
 		return true;
 	}
 	
-	protected boolean randomize_call(PrintStream ps, SVRandomizeCallExpr expr) {
+	protected boolean randomize_call(PrintStream ps, SVDBRandomizeCallExpr expr) {
 		tf_call(ps, expr);
 	
 		/*
@@ -236,7 +237,7 @@ public class SVExprUtils {
 		return true;
 	}
 
-	protected boolean assignment_pattern(PrintStream ps, SVAssignmentPatternExpr expr) {
+	protected boolean assignment_pattern(PrintStream ps, SVDBAssignmentPatternExpr expr) {
 		ps.print("'{");
 		for (int i=0; i<expr.getPatternList().size(); i++) {
 			expr_to_string(ps, expr.getPatternList().get(i));
@@ -249,51 +250,51 @@ public class SVExprUtils {
 		return true;
 	}
 	
-	protected boolean incdec(PrintStream ps, SVIncDecExpr expr) {
+	protected boolean incdec(PrintStream ps, SVDBIncDecExpr expr) {
 		// TODO: need to know if this is pre- or post-dec
 		expr_to_string(ps, expr.getExpr());
 		ps.print(expr.getOp());
 		return true;
 	}
 	
-	protected boolean expr_to_string(PrintStream ps, SVExpr expr) {
+	protected boolean expr_to_string(PrintStream ps, SVDBExpr expr) {
 		boolean ret = false;
-		switch (expr.getExprType()) {
-			case Binary: ret = binary(ps, (SVBinaryExpr)expr); break;
-			case Paren: ret = paren(ps, (SVParenExpr)expr); break;
-			case Identifier: ret = identifier(ps, (SVIdentifierExpr)expr); break;
-			case Literal: ret = literal(ps, (SVLiteralExpr)expr); break;
-			case ArrayAccess: ret = array_access(ps, (SVArrayAccessExpr)expr); break;
-			case Unary: ret = unary(ps, (SVUnaryExpr)expr); break;
-			case Inside: ret = inside(ps, (SVInsideExpr)expr); break;
-			case Concatenation: ret = concatenation(ps, (SVConcatenationExpr)expr); break;
-			case Assign: ret = assign(ps, (SVAssignExpr)expr); break;
-			case Cast: ret = cast(ps, (SVCastExpr)expr); break;
-			case Cond: ret = cond(ps, (SVCondExpr)expr); break;
-			case TFCall: ret = tf_call(ps, (SVTFCallExpr)expr); break;
-			case FieldAccess: ret = field_access(ps, (SVFieldAccessExpr)expr); break;
-			case RandomizeCall: ret = randomize_call(ps, (SVRandomizeCallExpr)expr); break;
-			case AssignmentPattern: ret = assignment_pattern(ps, (SVAssignmentPatternExpr)expr); break;
-			case IncDec: ret = incdec(ps, (SVIncDecExpr)expr); break;
-			case Null: 
+		switch (expr.getType()) {
+			case BinaryExpr: ret = binary(ps, (SVDBBinaryExpr)expr); break;
+			case ParenExpr: ret = paren(ps, (SVDBParenExpr)expr); break;
+			case IdentifierExpr: ret = identifier(ps, (SVDBIdentifierExpr)expr); break;
+			case LiteralExpr: ret = literal(ps, (SVDBLiteralExpr)expr); break;
+			case ArrayAccessExpr: ret = array_access(ps, (SVDBArrayAccessExpr)expr); break;
+			case UnaryExpr: ret = unary(ps, (SVDBUnaryExpr)expr); break;
+			case InsideExpr: ret = inside(ps, (SVDBInsideExpr)expr); break;
+			case ConcatenationExpr: ret = concatenation(ps, (SVDBConcatenationExpr)expr); break;
+			case AssignExpr: ret = assign(ps, (SVDBAssignExpr)expr); break;
+			case CastExpr: ret = cast(ps, (SVDBCastExpr)expr); break;
+			case CondExpr: ret = cond(ps, (SVDBCondExpr)expr); break;
+			case TFCallExpr: ret = tf_call(ps, (SVDBTFCallExpr)expr); break;
+			case FieldAccessExpr: ret = field_access(ps, (SVDBFieldAccessExpr)expr); break;
+			case RandomizeCallExpr: ret = randomize_call(ps, (SVDBRandomizeCallExpr)expr); break;
+			case AssignmentPatternExpr: ret = assignment_pattern(ps, (SVDBAssignmentPatternExpr)expr); break;
+			case IncDecExpr: ret = incdec(ps, (SVDBIncDecExpr)expr); break;
+			case NullExpr: 
 				ret = true;
 				ps.print("null");
 				break;
-			case String:
+			case StringExpr:
 				ret = true;
-				ps.print("\"" + ((SVStringExpr)expr).getContent() + "\"");
+				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
 				break;
-			case This:
+			case ThisExpr:
 				ret = true;
 				ps.print("this");
 				break;
-			case Super:
+			case SuperExpr:
 				ret = true;
 				ps.print("super");
 				break;
 			
 			default:
-				fLog.error("Unhandled expr in expr_to_string: " + expr.getExprType());
+				fLog.error("Unhandled expr in expr_to_string: " + expr.getType());
 				break;
 		}
 		return ret;

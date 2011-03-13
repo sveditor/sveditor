@@ -22,11 +22,11 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -91,8 +91,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBCoverGroup cg = null;
-		SVDBModIfcClassDecl my_class1 = null;
+		SVDBCovergroup cg = null;
+		SVDBModIfcDecl my_class1 = null;
 		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
@@ -100,10 +100,10 @@ public class TestContentAssistBuiltins extends TestCase {
 			
 			if (it_t.getType() == SVDBItemType.Covergroup && 
 					SVDBItem.getName(it_t).equals("foo")) {
-				cg = (SVDBCoverGroup)it_t;
-			} else if (it_t.getType() == SVDBItemType.Class &&
+				cg = (SVDBCovergroup)it_t;
+			} else if (it_t.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcClassDecl)it_t;
+				my_class1 = (SVDBModIfcDecl)it_t;
 			}
 		}
 		
@@ -143,8 +143,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBCoverGroup cg = null;
-		SVDBModIfcClassDecl my_class1 = null;
+		SVDBCovergroup cg = null;
+		SVDBModIfcDecl my_class1 = null;
 		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
@@ -152,10 +152,10 @@ public class TestContentAssistBuiltins extends TestCase {
 			
 			if (it_t.getType() == SVDBItemType.Covergroup && 
 					SVDBItem.getName(it_t).equals("foo")) {
-				cg = (SVDBCoverGroup)it_t;
-			} else if (it_t.getType() == SVDBItemType.Class &&
+				cg = (SVDBCovergroup)it_t;
+			} else if (it_t.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcClassDecl)it_t;
+				my_class1 = (SVDBModIfcDecl)it_t;
 			}
 		}
 		

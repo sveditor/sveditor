@@ -32,7 +32,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -195,14 +195,14 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		// Add in the markers
 		for (SVDBFile f : fIndexFileMap.values()) {
-			List<SVDBMarkerItem> marker_list = null;
+			List<SVDBMarker> marker_list = null;
 			
 			for (ISVDBItemBase it : f.getItems()) {
 				if (it.getType() == SVDBItemType.Marker) {
 					if (marker_list == null) {
-						marker_list = new ArrayList<SVDBMarkerItem>();
+						marker_list = new ArrayList<SVDBMarker>();
 					}
-					marker_list.add((SVDBMarkerItem)it);
+					marker_list.add((SVDBMarker)it);
 				}
 			}
 		}
@@ -219,8 +219,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		fLog.debug("addMarkers: " + path);
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				String type = (m.getName().equals(SVDBMarkerItem.MARKER_ERR))?
+				SVDBMarker m = (SVDBMarker)it;
+				String type = (m.getName().equals(SVDBMarker.MARKER_ERR))?
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR:
 						ISVDBFileSystemProvider.MARKER_TYPE_WARNING;
 				String msg = m.getMessage();
@@ -244,7 +244,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		for (ISVDBItemBase it : svdb_pp.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				fLog.debug("Propagate marker: " + ((SVDBMarkerItem)it).getMessage());
+				fLog.debug("Propagate marker: " + ((SVDBMarker)it).getMessage());
 				if (it instanceof ISVDBChildItem) {
 					db_file.addItem((ISVDBChildItem)it);
 				}
@@ -253,8 +253,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		
 		for (ISVDBItemBase it : ft.getSVDBFile().getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				String type = (m.getName().equals(SVDBMarkerItem.MARKER_ERR))?
+				SVDBMarker m = (SVDBMarker)it;
+				String type = (m.getName().equals(SVDBMarker.MARKER_ERR))?
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR:
 						ISVDBFileSystemProvider.MARKER_TYPE_WARNING;
 				String msg = m.getMessage() + " in " +
@@ -660,10 +660,10 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 					// Create a marker for the missing include file
 					SVDBFile real_svdb = fPreProcFileMap.get(root.getFilePath());
 					if (real_svdb != null) {
-						SVDBMarkerItem err = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
-								SVDBMarkerItem.KIND_MISSING_INC,
+						SVDBMarker err = new SVDBMarker(SVDBMarker.MARKER_ERR,
+								SVDBMarker.KIND_MISSING_INC,
 								"Failed to find include file \"" + ((ISVDBNamedItem)it).getName() + "\"");
-						err.setAttr(SVDBMarkerItem.MISSING_INC_PATH, ((ISVDBNamedItem)it).getName());
+						err.setAttr(SVDBMarker.MISSING_INC_PATH, ((ISVDBNamedItem)it).getName());
 						real_svdb.addItem(err);
 						err.setLocation(it.getLocation());
 					} else {
@@ -773,13 +773,13 @@ public class SVDBLibIndex extends AbstractSVDBIndex implements ISVDBFileSystemCh
 		for (SVDBFile ft : fPreProcFileMap.values()) {
 			for (ISVDBItemBase it : ft.getItems()) {
 				if (it.getType() == SVDBItemType.Marker) {
-					SVDBMarkerItem m = (SVDBMarkerItem)it;
+					SVDBMarker m = (SVDBMarker)it;
 					
-					if (m.getKind().equals(SVDBMarkerItem.KIND_MISSING_INC)) {
+					if (m.getKind().equals(SVDBMarker.KIND_MISSING_INC)) {
 						if (!ret.containsKey(ft)) {
 							ret.put(ft, new ArrayList<String>());
 						}
-						ret.get(ft).add(m.getAttr(SVDBMarkerItem.MISSING_INC_PATH));
+						ret.get(ft).add(m.getAttr(SVDBMarker.MISSING_INC_PATH));
 					}
 				}
 			}

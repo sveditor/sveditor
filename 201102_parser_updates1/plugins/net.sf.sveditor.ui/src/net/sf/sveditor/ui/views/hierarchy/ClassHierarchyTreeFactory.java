@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -43,7 +43,7 @@ public class ClassHierarchyTreeFactory {
 		ISVDBItemIterator it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
-			if (it_t.getType() == SVDBItemType.Class) {
+			if (it_t.getType() == SVDBItemType.ClassDecl) {
 				SVDBClassDecl cls_t = (SVDBClassDecl)it_t;
 				
 				// Check for an empty super-node

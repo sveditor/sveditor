@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.persistence;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface IDBReader {
@@ -37,7 +37,7 @@ public interface IDBReader {
 	@SuppressWarnings("rawtypes")
 	List readItemList(ISVDBChildItem parent) throws DBFormatException;
 	
-	SVDBItemBase readSVDBItem(ISVDBChildItem parent) throws DBFormatException;
+	ISVDBItemBase readSVDBItem(ISVDBChildItem parent) throws DBFormatException;
 	
 	List<String> readStringList() throws DBFormatException;
 	

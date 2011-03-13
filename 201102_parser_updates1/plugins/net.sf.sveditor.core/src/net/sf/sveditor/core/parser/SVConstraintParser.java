@@ -1,9 +1,9 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.expr.SVLiteralExpr;
-import net.sf.sveditor.core.db.stmt.SVDBConstraintDistItemStmt;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListItem;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintForeachStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintIfStmt;
@@ -73,7 +73,7 @@ public class SVConstraintParser extends SVParserBase {
 			// - expression -> constraint_set
 
 			// tok = expression(tok);
-			SVExpr expr = fParsers.exprParser().expression();
+			SVDBExpr expr = fParsers.exprParser().expression();
 			
 			if (fLexer.peekKeyword("dist")) {
 				SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
@@ -100,7 +100,7 @@ public class SVConstraintParser extends SVParserBase {
 
 	private void dist_list(SVDBConstraintDistListStmt dist_stmt) throws SVParseException {
 		fLexer.readOperator("{");
-		SVDBConstraintDistItemStmt item = dist_item();
+		SVDBConstraintDistListItem item = dist_item();
 		dist_stmt.addDistItem(item);
 
 		while (fLexer.peekOperator(",")) {
@@ -111,8 +111,8 @@ public class SVConstraintParser extends SVParserBase {
 		fLexer.readOperator("}");
 	}
 
-	private SVDBConstraintDistItemStmt dist_item() throws SVParseException {
-		SVDBConstraintDistItemStmt ret = new SVDBConstraintDistItemStmt();
+	private SVDBConstraintDistListItem dist_item() throws SVParseException {
+		SVDBConstraintDistListItem ret = new SVDBConstraintDistListItem();
 	
 		if (fLexer.peekOperator("[")) {
 			ret.setLHS(fParsers.exprParser().parse_range());
@@ -122,7 +122,7 @@ public class SVConstraintParser extends SVParserBase {
 
 		if (fLexer.peekOperator(",", "}")) {
 			ret.setIsDist(false);
-			ret.setRHS(new SVLiteralExpr("1"));
+			ret.setRHS(new SVDBLiteralExpr("1"));
 		} else {
 			String type = fLexer.readOperator(":=", ":/");
 			ret.setIsDist(type.equals(":/"));
@@ -139,7 +139,7 @@ public class SVConstraintParser extends SVParserBase {
 		fLexer.eatToken(); // 'if'
 		
 		fLexer.readOperator("(");
-		SVExpr if_expr = fParsers.exprParser().expression();
+		SVDBExpr if_expr = fParsers.exprParser().expression();
 		fLexer.readOperator(")");
 		
 		SVDBStmt constraint = constraint_set(false);
@@ -180,7 +180,7 @@ public class SVConstraintParser extends SVParserBase {
 		fLexer.eatToken();
 		
 		// solve <var> {, <var>} ...
-		SVExpr expr = fParsers.exprParser().variable_lvalue();
+		SVDBExpr expr = fParsers.exprParser().variable_lvalue();
 		ret.addSolveBefore(expr);
 		
 		while (fLexer.peekOperator(",")) {

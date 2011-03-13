@@ -9,11 +9,15 @@ package net.sf.sveditor.core.db;
 public class SVDBTypeInfoClassItem extends SVDBTypeInfo {
 	private SVDBParamValueAssignList			fParamAssign;
 	
+	public SVDBTypeInfoClassItem() {
+		this("");
+	}
+	
 	public SVDBTypeInfoClassItem(String name) {
-		super(name, SVDBDataType.ClassItem);
+		super(name, SVDBItemType.TypeInfoClassItem);
 	}
 
-	public SVDBTypeInfoClassItem(String name, SVDBDataType type) {
+	public SVDBTypeInfoClassItem(String name, SVDBItemType type) {
 		super(name, type);
 	}
 

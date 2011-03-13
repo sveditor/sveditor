@@ -1,21 +1,25 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBWaitStmt extends SVDBStmt {
-	private SVExpr			fExpr;
+	private SVDBExpr			fExpr;
 	private SVDBStmt		fStmt;
 	
 	public SVDBWaitStmt() {
-		super(SVDBItemType.WaitStmt);
+		this(SVDBItemType.WaitStmt);
 	}
 	
-	public void setExpr(SVExpr expr) {
+	protected SVDBWaitStmt(SVDBItemType type) {
+		super(type);
+	}
+	
+	public void setExpr(SVDBExpr expr) {
 		fExpr = expr;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fExpr;
 	}
 	

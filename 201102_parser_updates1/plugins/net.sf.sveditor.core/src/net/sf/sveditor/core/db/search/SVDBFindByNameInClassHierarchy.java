@@ -18,15 +18,15 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class SVDBFindByNameInClassHierarchy {
 	private ISVDBIndexIterator				fIndexIterator;
@@ -72,13 +72,13 @@ public class SVDBFindByNameInClassHierarchy {
 		} else {
 			// Assume we're in a containing scope
 			while (scope != null && 
-					scope.getType() != SVDBItemType.Class &&
+					scope.getType() != SVDBItemType.ClassDecl &&
 					scope.getType() != SVDBItemType.Covergroup &&
 					scope.getType() != SVDBItemType.Coverpoint) {
 				fLog.debug("Searching up-scope (current is " + scope.getType() + 
 						" " + ((ISVDBNamedItem)scope).getName() + ")");
 				if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
-					findTFParamsLocals(ret, (SVDBTaskFuncScope)scope, id, types);
+					findTFParamsLocals(ret, (SVDBTask)scope, id, types);
 				}
 				scope = scope.getParent();
 			}
@@ -130,12 +130,12 @@ public class SVDBFindByNameInClassHierarchy {
 	
 	private void findTFParamsLocals(
 			List<ISVDBItemBase>	items,
-			SVDBTaskFuncScope 	scope, 
+			SVDBTask 	scope, 
 			String 				id,
 			SVDBItemType	...	types) {
 		boolean matches = (types.length == 0);
 
-		for (SVDBParamPort it : scope.getParams()) {
+		for (SVDBParamPortDecl it : scope.getParams()) {
 			for (SVDBItemType type : types) {
 				if (it.getType() == type) {
 					matches = true;

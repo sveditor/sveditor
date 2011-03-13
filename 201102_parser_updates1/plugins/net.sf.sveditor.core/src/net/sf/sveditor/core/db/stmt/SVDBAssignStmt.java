@@ -1,23 +1,23 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssignStmt extends SVDBStmt {
-	private SVExpr			fLHS;
+	private SVDBExpr			fLHS;
 	private String			fOp;
-	private SVExpr			fDelayExpr;
-	private SVExpr			fRHS;
+	private SVDBExpr			fDelayExpr;
+	private SVDBExpr			fRHS;
 	
 	public SVDBAssignStmt() {
 		super(SVDBItemType.AssignStmt);
 	}
 	
-	public void setLHS(SVExpr lhs) {
+	public void setLHS(SVDBExpr lhs) {
 		fLHS = lhs;
 	}
 	
-	public SVExpr getLHS() {
+	public SVDBExpr getLHS() {
 		return fLHS;
 	}
 	
@@ -29,19 +29,19 @@ public class SVDBAssignStmt extends SVDBStmt {
 		return fOp;
 	}
 	
-	public void setRHS(SVExpr expr) {
+	public void setRHS(SVDBExpr expr) {
 		fRHS = expr;
 	}
 	
-	public SVExpr getRHS() {
+	public SVDBExpr getRHS() {
 		return fRHS;
 	}
 	
-	public void setDelayExpr(SVExpr expr) {
+	public void setDelayExpr(SVDBExpr expr) {
 		fDelayExpr = expr;
 	}
 	
-	public SVExpr getDelayExpr() {
+	public SVDBExpr getDelayExpr() {
 		return fDelayExpr;
 	}
 

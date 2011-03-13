@@ -17,10 +17,10 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
@@ -228,13 +228,13 @@ public class TestOverrideMethods extends TestCase {
 		
 		OverrideMethodsFinder finder = new OverrideMethodsFinder(
 				extension, sve_tester.getIndexIterator());
-		final List<SVDBTaskFuncScope> targets = finder.getMethods(base);
+		final List<SVDBTask> targets = finder.getMethods(base);
 		
 		OverrideTaskFuncImpl override = new OverrideTaskFuncImpl(
 				sve_tester, new IOverrideMethodsTargetProvider() {
 					
 					@Override
-					public List<SVDBTaskFuncScope> getTargets(ISVDBScopeItem activeScope) {
+					public List<SVDBTask> getTargets(ISVDBScopeItem activeScope) {
 						return targets;
 					}
 				});

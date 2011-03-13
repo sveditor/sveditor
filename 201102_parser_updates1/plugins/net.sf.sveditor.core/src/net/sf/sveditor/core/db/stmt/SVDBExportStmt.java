@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVStringExpr;
+import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 
 public class SVDBExportStmt extends SVDBStmt {
-	private List<SVStringExpr>			fExportList;
+	private List<SVDBStringExpr>			fExportList;
 	
 	public SVDBExportStmt() {
 		super(SVDBItemType.ExportStmt);
-		fExportList = new ArrayList<SVStringExpr>();
+		fExportList = new ArrayList<SVDBStringExpr>();
 	}
 	
-	public List<SVStringExpr> getExportList() {
+	public List<SVDBStringExpr> getExportList() {
 		return fExportList;
 	}
 	
-	public void addExport(SVStringExpr exp) {
+	public void addExport(SVDBStringExpr exp) {
 		fExportList.add(exp);
 	}
 

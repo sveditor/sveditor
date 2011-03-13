@@ -24,13 +24,13 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
+import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -39,9 +39,10 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -75,7 +76,7 @@ public class ArgFilePersistence extends TestCase
 		}
 	}
 	
-	public void testOVMXbusDirectDumpLoad() throws DBFormatException {
+	public void testOVMXbusDirectDumpLoad() throws DBFormatException, DBWriteException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -106,16 +107,16 @@ public class ArgFilePersistence extends TestCase
 		
 		// Force loading
 		ISVDBItemIterator item_it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (item_it.hasNext()) {
 			ISVDBItemBase it = item_it.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
-				errors.add((SVDBMarkerItem)it);
+				errors.add((SVDBMarker)it);
 			}
 			assertNotNull("Item " + SVDBItem.getName(it) + " has null location");
-			if (it instanceof SVDBTaskFuncScope) {
-				for (SVDBParamPort p : ((SVDBTaskFuncScope)it).getParams()) {
+			if (it instanceof SVDBTask) {
+				for (SVDBParamPortDecl p : ((SVDBTask)it).getParams()) {
 					assertNotNull("Parameter " + p.getVarList().get(0).getName() + 
 							" of " + SVDBItem.getName(it) + " has null location",
 							p.getLocation());
@@ -123,7 +124,7 @@ public class ArgFilePersistence extends TestCase
 			}
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("Unexpected errors: ", 0, errors.size());
@@ -320,20 +321,20 @@ public class ArgFilePersistence extends TestCase
 		index.addChangeListener(this);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		SVDBModIfcClassDecl target_it = null, target_orig = null;
+		SVDBModIfcDecl target_it = null, target_orig = null;
 		List<ISVDBItemBase> orig_list = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBModIfcClassDecl)tmp_it;
-				target_orig = (SVDBModIfcClassDecl)tmp_it.duplicate();
+				target_it = (SVDBModIfcDecl)tmp_it;
+				target_orig = (SVDBModIfcDecl)tmp_it.duplicate();
 			}
 			orig_list.add(tmp_it.duplicate());
 			if (tmp_it.getType() == SVDBItemType.Covergroup) {
-				SVDBCoverGroup cg = (SVDBCoverGroup)tmp_it;
-				SVDBCoverGroup cg2 = (SVDBCoverGroup)cg.duplicate();
+				SVDBCovergroup cg = (SVDBCovergroup)tmp_it;
+				SVDBCovergroup cg2 = (SVDBCovergroup)cg.duplicate();
 				assertEquals(cg, cg2);
 			}
 		}
@@ -382,7 +383,7 @@ public class ArgFilePersistence extends TestCase
 			new_list.add(tmp_it);
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBModIfcClassDecl)tmp_it;
+				target_it = (SVDBModIfcDecl)tmp_it;
 			}
 		}
 		
@@ -402,11 +403,11 @@ public class ArgFilePersistence extends TestCase
 		for (int i=0; i<orig_list.size(); i++) {
 			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
 					orig_list.get(i).getType() != SVDBItemType.File &&
-					orig_list.get(i).getType() != SVDBItemType.Class) {
+					orig_list.get(i).getType() != SVDBItemType.ClassDecl) {
 				if (orig_list.get(i).getType() == SVDBItemType.Function &&
 						SVDBItem.getName(orig_list.get(i)).equals("new")) {
-					SVDBTaskFuncScope f1 = (SVDBTaskFuncScope)orig_list.get(i);
-					SVDBTaskFuncScope f2 = (SVDBTaskFuncScope)new_list.get(i);
+					SVDBTask f1 = (SVDBTask)orig_list.get(i);
+					SVDBTask f2 = (SVDBTask)new_list.get(i);
 					f1.equals(f2);
 				} else {
 					assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 

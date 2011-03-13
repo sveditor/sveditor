@@ -21,8 +21,8 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -74,7 +74,7 @@ public class TestUvmBasics extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase ovm_component=null, ovm_sequence=null;
 		
 		while (index_it.hasNext()) {
@@ -82,14 +82,14 @@ public class TestUvmBasics extends TestCase {
 			//System.out.println("" + it.getType() + " " + it.getName());
 			
 			if (it.getType() == SVDBItemType.Marker) {
-				markers.add((SVDBMarkerItem)it);
-			} else if (it.getType() == SVDBItemType.Class) {
+				markers.add((SVDBMarker)it);
+			} else if (it.getType() == SVDBItemType.ClassDecl) {
 				if (SVDBItem.getName(it).equals("uvm_component")) {
 					ovm_component = it;
 				} else if (SVDBItem.getName(it).equals("uvm_sequence")) {
 					ovm_sequence = it;
 				}
-			} else if (it.getType() == SVDBItemType.Macro) {
+			} else if (it.getType() == SVDBItemType.MacroDef) {
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
@@ -98,7 +98,7 @@ public class TestUvmBasics extends TestCase {
 			}
 		}
 		
-		for (SVDBMarkerItem m : markers) {
+		for (SVDBMarker m : markers) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		
@@ -135,14 +135,14 @@ public class TestUvmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -150,7 +150,7 @@ public class TestUvmBasics extends TestCase {
 			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -183,14 +183,14 @@ public class TestUvmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
 			}
@@ -198,7 +198,7 @@ public class TestUvmBasics extends TestCase {
 			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -231,27 +231,27 @@ public class TestUvmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		SVDBModIfcClassDecl my_driver = null;
+		SVDBModIfcDecl my_driver = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
-			} else if (tmp_it.getType() == SVDBItemType.Class &&
+			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(tmp_it).equals("my_driver")) {
-				my_driver = (SVDBModIfcClassDecl)tmp_it;
+				my_driver = (SVDBModIfcDecl)tmp_it;
 			}
 			
 			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
@@ -286,27 +286,27 @@ public class TestUvmBasics extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		SVDBModIfcClassDecl simple_driver = null;
+		SVDBModIfcDecl simple_driver = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)tmp_it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
 					errors.add(m);
 				}
-			} else if (tmp_it.getType() == SVDBItemType.Class &&
+			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(tmp_it).equals("simple_driver")) {
-				simple_driver = (SVDBModIfcClassDecl)tmp_it;
+				simple_driver = (SVDBModIfcDecl)tmp_it;
 			}
 			
 			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
-		for (SVDBMarkerItem m : errors) {
+		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());

@@ -14,11 +14,11 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
@@ -59,7 +59,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		fCheckboxTree.addCheckStateListener(new ICheckStateListener() {
 
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (event.getElement() instanceof SVDBModIfcClassDecl) {
+				if (event.getElement() instanceof SVDBModIfcDecl) {
 					ITreeContentProvider cp = (ITreeContentProvider)
 						fCheckboxTree.getContentProvider();
 
@@ -96,7 +96,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	private static class OverrideMethodsContentProvider implements ITreeContentProvider {
 		private Object							fEmptyList[] = new Object[0];
 		OverrideMethodsFinder					fMethodsFinder;
-		private SVDBModIfcClassDecl				fLeafClass;
+		private SVDBModIfcDecl				fLeafClass;
 		
 		public OverrideMethodsContentProvider(
 				SVDBClassDecl			leaf_class,
@@ -111,14 +111,14 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 
 		public Object[] getChildren(Object parentElement) {
 			if (parentElement instanceof SVDBClassDecl) {
-				List<SVDBTaskFuncScope> methods = 
+				List<SVDBTask> methods = 
 					fMethodsFinder.getMethods((SVDBClassDecl)parentElement);
 				
 				if (methods == null) {
 					if (parentElement == fLeafClass) {
 						return fMethodsFinder.getClassSet().toArray();
 					}
-					System.out.println("Class \"" + ((SVDBModIfcClassDecl)parentElement).getName() + "\" not in MethodsFinder");
+					System.out.println("Class \"" + ((SVDBModIfcDecl)parentElement).getName() + "\" not in MethodsFinder");
 					return fEmptyList;
 				} else {
 					return methods.toArray();
@@ -145,7 +145,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof SVDBModIfcClassDecl) {
+			if (e1 instanceof SVDBModIfcDecl) {
 				SVDBClassDecl c1 = (SVDBClassDecl)e1;
 				SVDBClassDecl c2 = (SVDBClassDecl)e2;
 				
@@ -155,18 +155,18 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 				} else {
 					return -1;
 				}
-			} else if (e1 instanceof SVDBTaskFuncScope) {
-				SVDBTaskFuncScope f1 = (SVDBTaskFuncScope)e1;
-				SVDBTaskFuncScope f2 = (SVDBTaskFuncScope)e2;
+			} else if (e1 instanceof SVDBTask) {
+				SVDBTask f1 = (SVDBTask)e1;
+				SVDBTask f2 = (SVDBTask)e2;
 				int a1=0, a2=0, ret;
 				
-				if ((f1.getAttr() & SVDBTaskFuncScope.FieldAttr_Protected) != 0) {
+				if ((f1.getAttr() & SVDBTask.FieldAttr_Protected) != 0) {
 					a1 += 10; 
 				} else {
 					a1 -= 10;
 				}
 				
-				if ((f2.getAttr() & SVDBTaskFuncScope.FieldAttr_Protected) != 0) {
+				if ((f2.getAttr() & SVDBTask.FieldAttr_Protected) != 0) {
 					a2 += 10;
 				} else {
 					a2 -= 10;

@@ -18,7 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVParameterPortListParser extends SVParserBase {
 	
@@ -91,7 +91,7 @@ public class SVParameterPortListParser extends SVParserBase {
 					SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 					p.setDefaultType(type);
 				} else {
-					SVExpr dflt = parsers().exprParser().expression();
+					SVDBExpr dflt = parsers().exprParser().expression();
 					debug("parameter default: " + id);
 					p.setDefault(dflt);
 				}

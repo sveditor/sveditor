@@ -12,15 +12,8 @@
 
 package net.sf.sveditor.core.db.stmt;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
@@ -33,15 +26,8 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
 	private AlwaysType		fAlwaysType;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBAlwaysStmt(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.AlwaysStmt);
-		SVDBPersistenceReader.registerEnumType(AlwaysType.class, AlwaysType.values());
+	public SVDBAlwaysStmt() {
+		this(AlwaysType.Always);
 	}
 	
 	public SVDBAlwaysStmt(AlwaysType type) {
@@ -49,21 +35,10 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 		fAlwaysType = type;
 	}
 	
-	public SVDBAlwaysStmt(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fAlwaysType = (AlwaysType)reader.readEnumType(AlwaysType.class);
-	}
-	
 	public AlwaysType getAlwaysType() {
 		return fAlwaysType;
 	}
 	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeEnumType(AlwaysType.class, fAlwaysType);
-	}
-
 	@Override
 	public SVDBAlwaysStmt duplicate() {
 		SVDBAlwaysStmt ret = new SVDBAlwaysStmt(fAlwaysType);

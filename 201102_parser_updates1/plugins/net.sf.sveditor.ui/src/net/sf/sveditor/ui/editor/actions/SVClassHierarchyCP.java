@@ -17,11 +17,11 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -56,9 +56,9 @@ public class SVClassHierarchyCP implements ITreeContentProvider {
 	}
 
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof SVDBModIfcClassDecl) {
+		if (parentElement instanceof SVDBModIfcDecl) {
 			List<ISVDBItemBase> ret = SVDBSearchUtils.findItemsByType(
-					(SVDBModIfcClassDecl)parentElement,
+					(SVDBModIfcDecl)parentElement,
 					SVDBItemType.Function, SVDBItemType.Task);
 			
 			return ret.toArray();

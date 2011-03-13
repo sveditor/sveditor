@@ -12,17 +12,10 @@
 
 package net.sf.sveditor.core.db.stmt;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
 	private SVDBTypeInfo					fTypeInfo;
@@ -30,15 +23,10 @@ public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
 	
 	private String							fName;
 	
-	public static void init() {
-		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
-					IDBReader reader) throws DBFormatException {
-				return new SVDBTypedefStmt(parent, type, reader);
-			}
-		}, SVDBItemType.TypedefStmt);
+	public SVDBTypedefStmt() {
+		super(SVDBItemType.TypedefStmt);
 	}
-
+	
 	public SVDBTypedefStmt(SVDBTypeInfo type) {
 		super(SVDBItemType.TypedefStmt);
 		fTypeInfo = type;
@@ -49,25 +37,12 @@ public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
 		fName = name;
 	}
 	
-	public SVDBTypedefStmt(ISVDBItemBase parent, SVDBItemType stmt_type, IDBReader reader) throws DBFormatException {
-		super(parent, stmt_type, reader);
-
-		fTypeInfo = (SVDBTypeInfo)reader.readSVDBItem(this);
-	}
-	
 	public String getName() {
 		return fName;
 	}
 	
 	public void setName(String name) {
 		fName = name;
-	}
-	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-
-		writer.writeSVDBItem(fTypeInfo);
 	}
 	
 	public SVDBTypeInfo getTypeInfo() {

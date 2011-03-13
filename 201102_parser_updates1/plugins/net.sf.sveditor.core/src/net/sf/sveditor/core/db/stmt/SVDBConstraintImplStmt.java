@@ -13,22 +13,25 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 
 public class SVDBConstraintImplStmt extends SVDBStmt {
 	
-	private SVExpr					fExpr;
+	private SVDBExpr					fExpr;
 	private SVDBStmt				fConstraint;
 	
+	public SVDBConstraintImplStmt() {
+		super(SVDBItemType.ConstraintImplStmt);
+	}
 	
-	public SVDBConstraintImplStmt(SVExpr expr, SVDBStmt constraint) {
+	public SVDBConstraintImplStmt(SVDBExpr expr, SVDBStmt constraint) {
 		super(SVDBItemType.ConstraintImplStmt);
 		fExpr 		= expr;
 		fConstraint = constraint;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fExpr;
 	}
 	
@@ -38,7 +41,7 @@ public class SVDBConstraintImplStmt extends SVDBStmt {
 	
 	public SVDBConstraintImplStmt duplicate() {
 		return new SVDBConstraintImplStmt(
-				(SVExpr)fExpr.duplicate(), 
+				(SVDBExpr)fExpr.duplicate(), 
 				(SVDBConstraintSetStmt)fConstraint.duplicate());
 	}
 

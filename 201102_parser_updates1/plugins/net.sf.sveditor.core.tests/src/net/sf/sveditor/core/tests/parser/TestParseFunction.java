@@ -18,8 +18,8 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
@@ -74,7 +74,7 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
 
 		assertEquals(3, func.getItems().size());
 		SVDBVarDeclItem a=null, b=null;
@@ -107,7 +107,7 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
 
 		assertEquals(2, func.getItems().size());
 		assertTrue(func.getItems().get(0).getType() == SVDBItemType.VarDeclStmt);
@@ -128,7 +128,7 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		SVDBVarDeclItem a=null;
 		for (ISVDBItemBase it : func.getItems()) {
@@ -215,10 +215,10 @@ public class TestParseFunction extends TestCase {
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTaskFuncScope func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
 		
 		assertEquals("bar", func.getParams().get(1).getVarList().get(0).getName());
-		assertEquals(SVDBParamPort.Direction_Ref,
+		assertEquals(SVDBParamPortDecl.Direction_Ref,
 				func.getParams().get(1).getDir());
 	}
 

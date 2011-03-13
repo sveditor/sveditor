@@ -15,23 +15,14 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	private List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
-		super("<<ANONYMOUS>>", SVDBDataType.Struct);
+		super("<<ANONYMOUS>>", SVDBItemType.TypeInfoStruct);
 		fFields = new ArrayList<SVDBVarDeclStmt>();
-	}
-	
-	@SuppressWarnings("unchecked")
-	public SVDBTypeInfoStruct(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.Struct, parent, type, reader);
-		fFields = (List<SVDBVarDeclStmt>)reader.readItemList(parent);
 	}
 	
 	public List<SVDBVarDeclStmt> getFields() {
@@ -40,12 +31,6 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	
 	public void addField(SVDBVarDeclStmt f) {
 		fFields.add(f);
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeItemList(fFields);
 	}
 
 	@Override

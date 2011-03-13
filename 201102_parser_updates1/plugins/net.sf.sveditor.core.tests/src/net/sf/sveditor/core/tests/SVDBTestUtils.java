@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -37,10 +37,10 @@ public class SVDBTestUtils {
 	public static void assertNoErrWarn(SVDBFile file) {
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				SVDBMarker m = (SVDBMarker)it;
 				
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR) ||
-						m.getName().equals(SVDBMarkerItem.MARKER_WARN)) {
+				if (m.getName().equals(SVDBMarker.MARKER_ERR) ||
+						m.getName().equals(SVDBMarker.MARKER_WARN)) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
 							" @ " + file.getName() + ":" + m.getLocation().getLine());
 					TestCase.fail("Unexpected " + m.getName() + " @ " + 
@@ -99,7 +99,7 @@ public class SVDBTestUtils {
 			
 			public SVDBMacroDef findMacro(String name, int lineno) {
 				for (ISVDBItemBase it : pp_file.getItems()) {
-					if (it.getType() == SVDBItemType.Macro && 
+					if (it.getType() == SVDBItemType.MacroDef && 
 							SVDBItem.getName(it).equals(name)) {
 						return (SVDBMacroDef)it;
 					}
@@ -137,7 +137,7 @@ public class SVDBTestUtils {
 					return new SVDBMacroDef("__LINE__", new ArrayList<String>(), "0");
 				} else {
 					for (ISVDBItemBase it : pp_file.getItems()) {
-						if (it.getType() == SVDBItemType.Macro && 
+						if (it.getType() == SVDBItemType.MacroDef && 
 								SVDBItem.getName(it).equals(name)) {
 							return (SVDBMacroDef)it;
 						}

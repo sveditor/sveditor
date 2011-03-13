@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
-import net.sf.sveditor.core.db.SVDBCoverGroup.BinsKW;
-import net.sf.sveditor.core.db.SVDBCoverPoint;
-import net.sf.sveditor.core.db.SVDBCoverageOption;
+import net.sf.sveditor.core.db.SVDBCovergroup;
+import net.sf.sveditor.core.db.SVDBCovergroup.BinsKW;
+import net.sf.sveditor.core.db.SVDBCoverpoint;
 import net.sf.sveditor.core.db.SVDBCoverpointBins;
-import net.sf.sveditor.core.db.SVDBIdentifier;
 import net.sf.sveditor.core.db.SVDBCoverpointBins.BinsType;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
+import net.sf.sveditor.core.db.SVDBIdentifier;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
 
 public class SVCovergroupParser extends SVParserBase {
 	
@@ -21,12 +21,12 @@ public class SVCovergroupParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBCoverGroup parse() throws SVParseException {
+	public SVDBCovergroup parse() throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("covergroup");
 		String cg_name = fLexer.readId();
 
-		SVDBCoverGroup cg = new SVDBCoverGroup(cg_name);
+		SVDBCovergroup cg = new SVDBCovergroup(cg_name);
 		cg.setLocation(start);
 
 		while (fLexer.peekOperator("(")) {
@@ -68,13 +68,13 @@ public class SVCovergroupParser extends SVParserBase {
 		return cg;
 	}
 	
-	private SVDBCoverageOption coverage_option() throws SVParseException {
+	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {
 		// option or type_option
 		String type = fLexer.eatToken();
 		fLexer.readOperator(".");
 		String name = fLexer.readId();
 		
-		SVDBCoverageOption opt = new SVDBCoverageOption(name, type.equals("type_option"));
+		SVDBCoverageOptionStmt opt = new SVDBCoverageOptionStmt(name, type.equals("type_option"));
 		fLexer.readOperator("=");
 		opt.setExpr(parsers().exprParser().expression());
 		
@@ -94,7 +94,7 @@ public class SVCovergroupParser extends SVParserBase {
 		
 		String type = fLexer.readKeyword("coverpoint", "cross");
 		if (type.equals("coverpoint")) {
-			SVDBCoverPoint cp = new SVDBCoverPoint(name);
+			SVDBCoverpoint cp = new SVDBCoverpoint(name);
 			cp.setLocation(start);
 			cover_point(cp);
 			ret = cp;
@@ -108,7 +108,7 @@ public class SVCovergroupParser extends SVParserBase {
 		return ret;
 	}
 	
-	private void cover_point(SVDBCoverPoint cp) throws SVParseException {
+	private void cover_point(SVDBCoverpoint cp) throws SVParseException {
 		cp.setTarget(parsers().exprParser().expression());
 		
 		if (fLexer.peekKeyword("iff")) {
@@ -161,7 +161,7 @@ public class SVCovergroupParser extends SVParserBase {
 						}
 					} else {
 						if (fLexer.peekOperator("{")) {
-							List<SVExpr> l = new ArrayList<SVExpr>();
+							List<SVDBExpr> l = new ArrayList<SVDBExpr>();
 							bins.setBinsType(BinsType.OpenRangeList);
 							// TODO:
 							parsers().exprParser().open_range_list(l);

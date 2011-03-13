@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindByNameInScopes {
@@ -67,7 +67,7 @@ public class SVDBFindByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
 //					System.out.println("check param \"" + it.getName() + "\"");
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);

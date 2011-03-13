@@ -6,6 +6,10 @@ public class SVDBLabeledStmt extends SVDBStmt {
 	private String					fLabel;
 	private SVDBStmt				fStmt;
 	
+	public SVDBLabeledStmt() {
+		super(SVDBItemType.LabeledStmt);
+	}
+	
 	public SVDBLabeledStmt(String label, SVDBStmt stmt) {
 		super(SVDBItemType.LabeledStmt);
 		fLabel = label;

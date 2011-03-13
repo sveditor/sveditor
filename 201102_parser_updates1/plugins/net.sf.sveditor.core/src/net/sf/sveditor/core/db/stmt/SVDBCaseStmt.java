@@ -4,22 +4,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCaseStmt extends SVDBStmt {
-	private SVExpr						fExpr;
+	
+	public enum CaseType {
+		Case,
+		Casex,
+		Casez,
+		Randcase
+	};
+	
+	private CaseType					fCaseType;
+	private SVDBExpr						fExpr;
 	private List<SVDBCaseItem>			fCaseItemList;
 	
 	public SVDBCaseStmt() {
-		super(SVDBItemType.CaseStmt);
-		fCaseItemList = new ArrayList<SVDBCaseItem>();
+		this(CaseType.Case);
 	}
 	
-	public void setExpr(SVExpr expr) {
+	public SVDBCaseStmt(CaseType type) {
+		super(SVDBItemType.CaseStmt);
+		fCaseItemList = new ArrayList<SVDBCaseItem>();
+		fCaseType = type;
+	}
+	
+	public CaseType getCaseType() {
+		return fCaseType;
+	}
+	
+	public void setExpr(SVDBExpr expr) {
 		fExpr = expr;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fExpr;
 	}
 	

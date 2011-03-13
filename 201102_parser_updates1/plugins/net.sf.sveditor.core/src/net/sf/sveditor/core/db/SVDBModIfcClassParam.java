@@ -12,49 +12,26 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBModIfcClassParam extends SVDBItem {
 	
-	private SVExpr					fDefault;
+	private SVDBExpr					fDefault;
 	private SVDBTypeInfo			fDefaultType;
-
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBModIfcClassParam(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ModIfcClassParam); 
+	
+	public SVDBModIfcClassParam() {
+		super("", SVDBItemType.ModIfcClassParam);
 	}
 
 	public SVDBModIfcClassParam(String name) {
 		super(name, SVDBItemType.ModIfcClassParam);
 	}
 	
-	public SVDBModIfcClassParam(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		
-		fDefault = SVExpr.readExpr(reader);
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		SVExpr.writeExpr(fDefault, writer);
-	}
-	
-	public SVExpr getDefault() {
+	public SVDBExpr getDefault() {
 		return fDefault;
 	}
 	
-	public void setDefault(SVExpr dflt) {
+	public void setDefault(SVDBExpr dflt) {
 		fDefault = dflt;
 	}
 	

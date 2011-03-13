@@ -12,51 +12,27 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBParamValueAssign extends SVDBItem {
-	private SVExpr					fValue;
+	private SVDBExpr					fValue;
 	private SVDBTypeInfo			fType;
 
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBParamValueAssign(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(
-				f, SVDBItemType.ParamValue); 
+	public SVDBParamValueAssign() {
+		super("", SVDBItemType.ParamValueAssign);
 	}
-
-	public SVDBParamValueAssign(String name, SVExpr value) {
-		super(name, SVDBItemType.ParamValue);
+	
+	public SVDBParamValueAssign(String name, SVDBExpr value) {
+		super(name, SVDBItemType.ParamValueAssign);
 		fValue = value;
 	}
 
 	public SVDBParamValueAssign(String name, SVDBTypeInfo type) {
-		super(name, SVDBItemType.ParamValue);
+		super(name, SVDBItemType.ParamValueAssign);
 		fType = type;
 	}
 
-	public SVDBParamValueAssign(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fValue = SVExpr.readExpr(reader);
-	}
-	
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		SVExpr.writeExpr(fValue, writer);
-	}
-	
-	public SVExpr getValue() {
+	public SVDBExpr getValue() {
 		return fValue;
 	}
 

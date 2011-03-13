@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
@@ -48,9 +48,9 @@ public class SVDBPackageItemFinder {
 				if (file.size() > 0) {
 					find(file.get(0), ret, name);
 				}
-			} else if (it.getType() == SVDBItemType.Class) {
-				if (fMatcher.match((SVDBModIfcClassDecl)it, name)) {
-					ret.add((SVDBModIfcClassDecl)it);
+			} else if (it.getType() == SVDBItemType.ClassDecl) {
+				if (fMatcher.match((SVDBModIfcDecl)it, name)) {
+					ret.add((SVDBModIfcDecl)it);
 				}
 			}
 		}
@@ -61,9 +61,9 @@ public class SVDBPackageItemFinder {
 	
 	private void find(SVDBFile file, List<SVDBItem> items, String name) {
 		for (ISVDBItemBase it : file.getItems()) {
-			if (it.getType() == SVDBItemType.Class) {
-				if (fMatcher.match((SVDBModIfcClassDecl)it, name)) {
-					items.add((SVDBModIfcClassDecl)it);
+			if (it.getType() == SVDBItemType.ClassDecl) {
+				if (fMatcher.match((SVDBModIfcDecl)it, name)) {
+					items.add((SVDBModIfcDecl)it);
 				}
 			}
 		}

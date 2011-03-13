@@ -12,9 +12,11 @@
 
 package net.sf.sveditor.core.db.expr;
 
-public class SVCoverageExpr extends SVExpr {
+import net.sf.sveditor.core.db.SVDBItemType;
+
+public class SVCoverageExpr extends SVDBExpr {
 	
-	public SVCoverageExpr(SVExprType type) {
+	public SVCoverageExpr(SVDBItemType type) {
 		super(type);
 	}
 

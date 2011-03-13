@@ -63,7 +63,7 @@ public class SVLexer extends SVToken {
 		":", "::", ":/", ":=",
 		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
-		"->", "#", "@", "@@"
+		"->", "#", "##", "@", "@@"
 	};
 	
 	private static final String AllOperators[];

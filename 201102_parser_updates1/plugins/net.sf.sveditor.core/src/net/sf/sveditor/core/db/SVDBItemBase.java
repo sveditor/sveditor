@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 
 public class SVDBItemBase implements ISVDBItemBase {
+	
+	@SVDBDoNotSaveAttr
 	protected SVDBItemType			fType;
+	
 	protected SVDBLocation			fLocation;
 	
 	public SVDBItemBase(SVDBItemType type) {
@@ -26,11 +26,6 @@ public class SVDBItemBase implements ISVDBItemBase {
 		fLocation = null;
 	}
 	
-	public SVDBItemBase(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		fType = type;
-		fLocation = SVDBLocation.readLocation(reader);
-	}
-
 	public SVDBItemType getType() {
 		return fType;
 	}
@@ -45,10 +40,6 @@ public class SVDBItemBase implements ISVDBItemBase {
 
 	public void setLocation(SVDBLocation location) {
 		fLocation = location;
-	}
-
-	public void dump(IDBWriter writer) {
-		writer.writeItemType(fType);
 	}
 
 	public SVDBItemBase duplicate() {

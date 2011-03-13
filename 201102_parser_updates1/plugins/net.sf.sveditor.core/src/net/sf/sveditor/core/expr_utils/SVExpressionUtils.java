@@ -20,20 +20,14 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -44,21 +38,13 @@ import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
-import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBPackageItemFinder;
 import net.sf.sveditor.core.db.search.SVDBStructFieldFinder;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefItem;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -160,7 +146,7 @@ public class SVExpressionUtils {
 			while (it_i.hasNext()) {
 				ISVDBItemBase it_t = it_i.nextItem();
 
-				if (it_t.getType() == SVDBItemType.Macro) {
+				if (it_t.getType() == SVDBItemType.MacroDef) {
 					if (match_prefix) {
 						if (expr_ctxt.fLeaf.equals("") || 
 								((ISVDBNamedItem)it_t).getName().startsWith(expr_ctxt.fLeaf)) {
@@ -204,8 +190,7 @@ public class SVExpressionUtils {
 			fLog.debug("Using " + it_t.getType() + " " + 
 					SVDBItem.getName(it_t) + " as search base");
 
-			if (it_t.getType() == SVDBItemType.Class || 
-					it_t.getType() == SVDBItemType.Struct ||
+			if (it_t.getType() == SVDBItemType.ClassDecl || 
 					it_t.getType() == SVDBItemType.Covergroup ||
 					it_t.getType() == SVDBItemType.Coverpoint) {
 				SVDBFindByNameInClassHierarchy finder_h = 
@@ -226,13 +211,10 @@ public class SVExpressionUtils {
 				SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
 						index_it, fNameMatcher);
 				ret.addAll(finder_p.find((SVDBPackageDecl)it_t, leaf));
-			} else if (it_t.getType() == SVDBItemType.TypeInfo) {
-				SVDBTypeInfo ti = (SVDBTypeInfo)it_t;
-				if (ti.getDataType() == SVDBDataType.Struct) {
-					SVDBTypeInfoStruct struct = (SVDBTypeInfoStruct)ti;
-					SVDBStructFieldFinder finder = new SVDBStructFieldFinder(fNameMatcher);
-					ret.addAll(finder.find(struct, leaf));
-				}
+			} else if (it_t.getType() == SVDBItemType.TypeInfoStruct) {
+				SVDBTypeInfoStruct struct = (SVDBTypeInfoStruct)it_t;
+				SVDBStructFieldFinder finder = new SVDBStructFieldFinder(fNameMatcher);
+				ret.addAll(finder.find(struct, leaf));
 			} else {
 				fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
 			}
@@ -313,7 +295,7 @@ public class SVExpressionUtils {
 		for (int i=0; i<it_l.size(); i++) {
 			if (it_l.get(i).getType() == SVDBItemType.Function || 
 					it_l.get(i).getType() == SVDBItemType.Task) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
+				SVDBTask tf = (SVDBTask)it_l.get(i);
 				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
 						tf.getName().contains("::")) {
 					it_l.remove(i);
@@ -324,14 +306,14 @@ public class SVExpressionUtils {
 				// global or members of a package
 				ISVDBItemBase scope_t = tf;
 				while (scope_t != null && 
-						scope_t.getType() != SVDBItemType.Class &&
-						scope_t.getType() != SVDBItemType.Module) {
+						scope_t.getType() != SVDBItemType.ClassDecl &&
+						scope_t.getType() != SVDBItemType.ModuleDecl) {
 					scope_t = ((ISVDBChildItem)scope_t).getParent();
 				}
 
 				if (scope_t != null && 
-						(scope_t.getType() == SVDBItemType.Class ||
-						scope_t.getType() == SVDBItemType.Module)) {
+						(scope_t.getType() == SVDBItemType.ClassDecl ||
+						scope_t.getType() == SVDBItemType.ModuleDecl)) {
 					it_l.remove(i);
 					i--;
 				}
@@ -595,7 +577,7 @@ public class SVExpressionUtils {
 			ISVDBItemBase it = item_list.get(item_list.size()-1);
 			debug("  last item type=" + it.getType());
 			
-			if (it.getType() == SVDBItemType.Class) {
+			if (it.getType() == SVDBItemType.ClassDecl) {
 				SVDBClassDecl cls_t = (SVDBClassDecl)it;
 				// cls_t should be the specialized array type. We use the template
 				// parameter to get the array-element type
@@ -605,7 +587,7 @@ public class SVExpressionUtils {
 					List<ISVDBChildItem> result =
 						finder_c.find(cls_t.getParameters().get(0).getName());
 					
-					if (result.size() > 0 && result.get(0).getType() == SVDBItemType.Class) {
+					if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
 						cls_t = (SVDBClassDecl)result.get(0);
 						item_list.add(cls_t);
 					}
@@ -1090,13 +1072,13 @@ public class SVExpressionUtils {
 	}
 	 */
 	
-	private SVDBTaskFuncScope findTaskFunc(
+	private SVDBTask findTaskFunc(
 			ISVDBIndexIterator		index_it,
 			ISVDBScopeItem			context,
 			ISVDBItemBase 				search_ctxt,
 			String					id,
 			String					preceeding_activator) {
-		SVDBTaskFuncScope func = null;
+		SVDBTask func = null;
 		
 		if (search_ctxt == null) {
 			SVDBFindByNameInScopes finder_scopes =
@@ -1110,7 +1092,7 @@ public class SVExpressionUtils {
 					"\" returned " + matches.size() + " matches");
 			
 			if (matches.size() > 0) {
-				func = (SVDBTaskFuncScope)matches.get(0);
+				func = (SVDBTask)matches.get(0);
 			}
 		} else {
 			SVDBFindByNameInClassHierarchy finder_h =
@@ -1123,7 +1105,7 @@ public class SVExpressionUtils {
 					"\" in \"" + SVDBItem.getName(search_ctxt) + 
 					"\" returned " + matches.size() + " matches");
 			
-			func = (SVDBTaskFuncScope)filterByAttr(matches, preceeding_activator);
+			func = (SVDBTask)filterByAttr(matches, preceeding_activator);
 		}
 		
 		return func;
@@ -1136,7 +1118,7 @@ public class SVExpressionUtils {
 			int attr = 0;
 			
 			if (it.getType() == SVDBItemType.Task || it.getType() == SVDBItemType.Function) {
-				attr = ((SVDBTaskFuncScope)it).getAttr();
+				attr = ((SVDBTask)it).getAttr();
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				attr = ((SVDBVarDeclStmt)it).getAttr();
 			}

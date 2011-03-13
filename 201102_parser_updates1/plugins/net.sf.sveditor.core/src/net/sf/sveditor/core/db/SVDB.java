@@ -16,11 +16,6 @@
  */
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDB {
 	private static boolean			fInit;
@@ -30,36 +25,6 @@ public class SVDB {
 			return;
 		}
 		
-		SVDBPersistenceReader.registerEnumType(SVDBItemType.class, SVDBItemType.values());
-		
-		SVDBIdentifier.init();
-		SVDBAssign.init();
-		SVDBConstraint.init();
-		SVDBCoverGroup.init();
-		SVDBCoverPoint.init();
-		SVDBCoverpointCross.init();
-		SVDBFile.init();
-		SVDBInclude.init();
-		SVDBMacroDef.init();
-		SVDBMarkerItem.init();
-		SVDBModIfcClassDecl.init();
-		SVDBModIfcClassParam.init();
-		SVDBModIfcInstItem.init();
-		SVDBPackageDecl.init();
-		SVDBPreProcCond.init();
-		SVDBScopeItem.init();
-		SVDBTaskFuncScope.init();
-		SVDBTypedefStmt.init();
-		SVDBTypeInfo.init();
-		SVDBVarDeclStmt.init();
-		SVDBParamValueAssignList.init();
-		SVDBParamValueAssign.init();
-		SVDBGenerateBlock.init();
-		SVDBClockingBlock.init();
-		SVExpr.init();
-		
-		SVDBStmt.init();
-
 		fInit = true;
 	}
 

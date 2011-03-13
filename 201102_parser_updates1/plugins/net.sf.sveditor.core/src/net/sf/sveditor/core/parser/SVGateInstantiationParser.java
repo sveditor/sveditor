@@ -3,7 +3,7 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -13,9 +13,9 @@ public class SVGateInstantiationParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<SVDBModIfcInstItem> parse() throws SVParseException {
-		List<SVDBModIfcInstItem> ret = new ArrayList<SVDBModIfcInstItem>();
-		SVDBModIfcInstItem item;
+	public List<SVDBModIfcInst> parse() throws SVParseException {
+		List<SVDBModIfcInst> ret = new ArrayList<SVDBModIfcInst>();
+		SVDBModIfcInst item;
 		
 		if (fLexer.peekKeyword("cmos", "rcmos")) {
 			// cmos gates have 4 terminals
@@ -32,7 +32,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInstItem(type, name);
+				item = new SVDBModIfcInst(type, name);
 				ret.add(item);
 				
 				fLexer.readOperator("(");
@@ -79,7 +79,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInstItem(type, name);
+				item = new SVDBModIfcInst(type, name);
 				ret.add(item);
 				
 				fLexer.readOperator("(");
@@ -119,7 +119,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInstItem(type, name);
+				item = new SVDBModIfcInst(type, name);
 				ret.add(item);
 				
 				fLexer.readOperator("(");
@@ -161,7 +161,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInstItem(type, name);
+				item = new SVDBModIfcInst(type, name);
 				ret.add(item);
 				
 				fLexer.readOperator("(");
@@ -196,7 +196,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInstItem(type, name);
+				item = new SVDBModIfcInst(type, name);
 				ret.add(item);
 				
 				fLexer.readOperator("(");
@@ -235,7 +235,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 			}
 
 			while (fLexer.peek() != null) {
-				item = new SVDBModIfcInstItem(type, fLexer.readId());
+				item = new SVDBModIfcInst(type, fLexer.readId());
 				ret.add(item);
 				
 				fLexer.readOperator("(");

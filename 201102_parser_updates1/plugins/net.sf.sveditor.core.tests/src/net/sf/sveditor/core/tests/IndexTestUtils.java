@@ -9,7 +9,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
@@ -23,7 +23,7 @@ public class IndexTestUtils {
 		while (item_it.hasNext()) {
 			ISVDBItemBase it = item_it.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				SVDBMarker m = (SVDBMarker)it;
 				ISVDBChildItem ci = (ISVDBChildItem)it;
 				while (ci != null && ci.getType() != SVDBItemType.File) {
 					ci = ci.getParent();
@@ -33,8 +33,8 @@ public class IndexTestUtils {
 						m.getMessage(), ci);
 				SVDBFile file = (SVDBFile)ci;
 				
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR) ||
-						m.getName().equals(SVDBMarkerItem.MARKER_WARN)) {
+				if (m.getName().equals(SVDBMarker.MARKER_ERR) ||
+						m.getName().equals(SVDBMarker.MARKER_WARN)) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
 							" @ " + file.getName() + ":" + m.getLocation().getLine());
 					TestCase.fail("Unexpected " + m.getName() + " @ " + 

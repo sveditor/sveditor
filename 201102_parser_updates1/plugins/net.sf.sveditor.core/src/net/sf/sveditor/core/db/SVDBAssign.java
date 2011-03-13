@@ -12,58 +12,40 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBAssign extends SVDBStmt {
 	
-	private SVExpr				fLHS;
-	private SVExpr				fDelay;
-	private SVExpr				fRHS;
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBAssign(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Assign); 
-	}
+	private SVDBExpr				fLHS;
+	private SVDBExpr				fDelay;
+	private SVDBExpr				fRHS;
 	
 	public SVDBAssign() {
 		super(SVDBItemType.Assign);
 	}
 	
-	public SVDBAssign(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-	}
-	
-	public void setLHS(SVExpr lhs) {
+	public void setLHS(SVDBExpr lhs) {
 		fLHS = lhs;
 	}
 	
-	public SVExpr getLHS() {
+	public SVDBExpr getLHS() {
 		return fLHS;
 	}
 	
-	public void setDelay(SVExpr delay) {
+	public void setDelay(SVDBExpr delay) {
 		fDelay = delay;
 	}
 	
-	public SVExpr getDelay() {
+	public SVDBExpr getDelay() {
 		return fDelay;
 	}
 	
-	public void setRHS(SVExpr rhs) {
+	public void setRHS(SVDBExpr rhs) {
 		fRHS = rhs;
 	}
 	
-	public SVExpr getRHS() {
+	public SVDBExpr getRHS() {
 		return fRHS;
 	}
 	

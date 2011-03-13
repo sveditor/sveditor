@@ -16,69 +16,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBTypeInfoEnum extends SVDBTypeInfo {
-	private List<Tuple<String, String>>			fEnumList;
+	private List<String>						fKeyList;
+	private List<String>						fValList;
+	
+	public SVDBTypeInfoEnum() {
+		this("");
+		fKeyList = new ArrayList<String>();
+		fValList = new ArrayList<String>();
+	}
 	
 	public SVDBTypeInfoEnum(String typename) {
-		super(typename, SVDBDataType.Enum);
-		fEnumList = new ArrayList<Tuple<String,String>>();
+		super(typename, SVDBItemType.TypeInfoEnum);
+		fKeyList = new ArrayList<String>();
+		fValList = new ArrayList<String>();
 	}
 
-	public SVDBTypeInfoEnum(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.Enum, parent, type, reader);
-		
-		fEnumList = new ArrayList<Tuple<String,String>>();
-		int size = reader.readInt();
-		for (int i=0; i<size; i++) {
-			String k = reader.readString();
-			String v = reader.readString();
-			addEnumValue(k, v);
-		}
-	}
-	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		writer.writeInt(fEnumList.size());
-		for (int i=0; i<fEnumList.size(); i++) {
-			String k = fEnumList.get(i).first();
-			String v = fEnumList.get(i).second();
-			writer.writeString(k);
-			writer.writeString(v);
-		}
-	}
-
-	public List<Tuple<String, String>> getEnumValues() {
-		return fEnumList;
+	public Tuple<List<String>, List<String>> getEnumValues() {
+		return new Tuple<List<String>, List<String>>(fKeyList, fValList);
 	}
 	
 	public void addEnumValue(String key, String val) {
 		if (val == null) {
-			/*
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			 */
 			val = "";
 		}
 		if (key == null) {
-			/*
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			 */
 			key = "";
 		}
-		fEnumList.add(new Tuple<String, String>(key, val));
+		fKeyList.add(key);
+		fValList.add(val);
 	}
 	
 	public String toString() {
@@ -88,8 +55,11 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	public SVDBTypeInfoEnum duplicate() {
 		SVDBTypeInfoEnum ret = new SVDBTypeInfoEnum(getName());
 		
-		for (Tuple<String, String> t : fEnumList) {
-			ret.addEnumValue(t.first(), t.second());
+		for (String k : fKeyList) {
+			ret.fKeyList.add(k);
+		}
+		for (String v : fValList) {
+			ret.fValList.add(v);
 		}
 		
 		return ret;
@@ -100,6 +70,7 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		if (obj instanceof SVDBTypeInfoEnum) {
 			SVDBTypeInfoEnum o = (SVDBTypeInfoEnum)obj;
 			
+			/*
 			if (o.fEnumList.size() == fEnumList.size()) {
 				for (int i=0; i<fEnumList.size(); i++) {
 					String k1 = fEnumList.get(i).first();
@@ -117,6 +88,7 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 			} else {
 				return false;
 			}
+			 */
 			
 			return super.equals(obj);
 		}

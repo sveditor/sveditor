@@ -14,17 +14,17 @@ package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -67,7 +67,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				
 				SVDBTypeInfo type = var_r.getTypeInfo();
 				
-				if (type.getDataType() == SVDBDataType.UserDefined) {
+				if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
 					if (cls.getParameters() != null && 
 							cls.getParameters().getParameters().size() > 0) {
@@ -90,12 +90,12 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 		} else if (element instanceof ISVDBNamedItem) {
 			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
 			
-			if (element instanceof SVDBTaskFuncScope) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
+			if (element instanceof SVDBTask) {
+				SVDBTask tf = (SVDBTask)element;
 				
 				ret.append("(");
 				for (int i=0; i<tf.getParams().size(); i++) {
-					SVDBParamPort p = tf.getParams().get(i);
+					SVDBParamPortDecl p = tf.getParams().get(i);
 					ret.append(p.getTypeName());
 					if (i+1 < tf.getParams().size()) {
 						ret.append(", ");
@@ -104,14 +104,16 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				
 				ret.append(")");
 				
-				if (tf.getType() == SVDBItemType.Function && 
-						tf.getReturnType() != null && 
-						!tf.getReturnType().equals("void") &&
-						fShowFunctionRetType) {
-					ret.append(": " + tf.getReturnType(), StyledString.QUALIFIER_STYLER);
+				if (tf.getType() == SVDBItemType.Function) {
+					SVDBFunction f = (SVDBFunction)tf;
+					if (f.getReturnType() != null && 
+							!f.getReturnType().equals("void") &&
+							fShowFunctionRetType) {
+						ret.append(": " + f.getReturnType(), StyledString.QUALIFIER_STYLER);
+					}
 				}
-			} else if (element instanceof SVDBModIfcClassDecl) {
-				SVDBModIfcClassDecl decl = (SVDBModIfcClassDecl)element;
+			} else if (element instanceof SVDBModIfcDecl) {
+				SVDBModIfcDecl decl = (SVDBModIfcDecl)element;
 
 				if (decl.getParameters().size() > 0) {
 					ret.append("<", StyledString.QUALIFIER_STYLER);

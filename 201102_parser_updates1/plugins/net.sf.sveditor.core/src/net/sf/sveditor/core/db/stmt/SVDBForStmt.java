@@ -1,49 +1,16 @@
 package net.sf.sveditor.core.db.stmt;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBForStmt extends SVDBBodyStmt {
 	private SVDBStmt		fInitExpr;
-	private SVExpr			fTestExpr;
-	private SVExpr			fIncrExpr;
-	
-	public static void init() {
-		SVDBPersistenceReader.registerPersistenceFactory(new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type,
-					IDBReader reader) throws DBFormatException {
-				return new SVDBForStmt(parent, type, reader);
-			}
-		}, SVDBItemType.ForStmt);
-	}
+	private SVDBExpr			fTestExpr;
+	private SVDBExpr			fIncrExpr;
 	
 	public SVDBForStmt() {
 		super(SVDBItemType.ForStmt);
-	}
-	
-	public SVDBForStmt(ISVDBChildItem parent, SVDBItemType stmt_type, IDBReader reader)
-		throws DBFormatException {
-		super(SVDBItemType.ForStmt);
-		
-		fInitExpr 	= SVDBStmt.readStmt(parent, reader);
-		fTestExpr 	= SVExpr.readExpr(reader);
-		fIncrExpr 	= SVExpr.readExpr(reader);
-	}
-	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		SVDBStmt.writeStmt(fInitExpr, writer);
-		SVExpr.writeExpr(fTestExpr, writer);
-		SVExpr.writeExpr(fIncrExpr, writer);
 	}
 	
 	public SVDBStmt getInitExpr() {
@@ -54,19 +21,19 @@ public class SVDBForStmt extends SVDBBodyStmt {
 		fInitExpr = stmt;
 	}
 	
-	public SVExpr getTestExpr() {
+	public SVDBExpr getTestExpr() {
 		return fTestExpr;
 	}
 	
-	public void setTestExpr(SVExpr expr) {
+	public void setTestExpr(SVDBExpr expr) {
 		fTestExpr = expr;
 	}
 	
-	public SVExpr getIncrExpr() {
+	public SVDBExpr getIncrExpr() {
 		return fIncrExpr;
 	}
 	
-	public void setIncrExpr(SVExpr expr) {
+	public void setIncrExpr(SVDBExpr expr) {
 		fIncrExpr = expr;
 	}
 	

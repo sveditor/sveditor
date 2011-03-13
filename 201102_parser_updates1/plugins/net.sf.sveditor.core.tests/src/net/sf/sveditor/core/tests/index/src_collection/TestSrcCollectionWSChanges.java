@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -150,7 +150,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -243,7 +243,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -306,7 +306,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());

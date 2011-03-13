@@ -20,18 +20,18 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 public class OverrideMethodsFinder {
 	
 	private SVDBClassDecl									fLeafClass;
-	private Map<SVDBClassDecl, List<SVDBTaskFuncScope>>		fClassMap;
+	private Map<SVDBClassDecl, List<SVDBTask>>		fClassMap;
 	private ISVDBIndexIterator								fIndexIt;
 
 	/*
@@ -50,7 +50,7 @@ public class OverrideMethodsFinder {
 	
 	public OverrideMethodsFinder(SVDBClassDecl leaf_class, ISVDBIndexIterator index_it) {
 		fLeafClass = leaf_class;
-		fClassMap = new HashMap<SVDBClassDecl, List<SVDBTaskFuncScope>>();
+		fClassMap = new HashMap<SVDBClassDecl, List<SVDBTask>>();
 		fIndexIt = index_it;
 		
 		findClasses();
@@ -60,7 +60,7 @@ public class OverrideMethodsFinder {
 		return fClassMap.keySet();
 	}
 	
-	public List<SVDBTaskFuncScope> getMethods(SVDBClassDecl cls) {
+	public List<SVDBTask> getMethods(SVDBClassDecl cls) {
 		return fClassMap.get(cls);
 	}
 	
@@ -75,7 +75,7 @@ public class OverrideMethodsFinder {
 			cl = finder_super.find(cl);
 			
 			if (cl != null) {
-				List<SVDBTaskFuncScope> overrides = getClassOverrideTargets(cl);
+				List<SVDBTask> overrides = getClassOverrideTargets(cl);
 				if (overrides.size() > 0) {
 					fClassMap.put(cl, getClassOverrideTargets(cl));
 				}
@@ -83,14 +83,14 @@ public class OverrideMethodsFinder {
 		}
 	}
 
-	private List<SVDBTaskFuncScope> getClassOverrideTargets(SVDBClassDecl cls) {
-		List<SVDBTaskFuncScope> ret = new ArrayList<SVDBTaskFuncScope>();
+	private List<SVDBTask> getClassOverrideTargets(SVDBClassDecl cls) {
+		List<SVDBTask> ret = new ArrayList<SVDBTask>();
 		
 		for (ISVDBItemBase it : cls.getItems()) {
 			if (it.getType() == SVDBItemType.Function ||
 					it.getType() == SVDBItemType.Task) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
-				if ((tf.getAttr() & SVDBTaskFuncScope.FieldAttr_Local) == 0) {
+				SVDBTask tf = (SVDBTask)it;
+				if ((tf.getAttr() & SVDBTask.FieldAttr_Local) == 0) {
 					if (!existsInClass(it, fLeafClass)) {
 						ret.add(tf);
 					}

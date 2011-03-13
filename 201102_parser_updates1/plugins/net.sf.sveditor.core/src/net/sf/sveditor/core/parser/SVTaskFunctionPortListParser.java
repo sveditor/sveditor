@@ -17,7 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class SVTaskFunctionPortListParser extends SVParserBase {
@@ -26,9 +26,9 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<SVDBParamPort> parse() throws SVParseException {
-		List<SVDBParamPort> params = new ArrayList<SVDBParamPort>();
-		int dir = SVDBParamPort.Direction_Input;
+	public List<SVDBParamPortDecl> parse() throws SVParseException {
+		List<SVDBParamPortDecl> params = new ArrayList<SVDBParamPortDecl>();
+		int dir = SVDBParamPortDecl.Direction_Input;
 		SVDBTypeInfo last_type = null;
 		
 		fLexer.readOperator("(");
@@ -44,23 +44,23 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
 				String dir_s = fLexer.eatToken();
 				if (dir_s.equals("input")) {
-					dir = SVDBParamPort.Direction_Input;
+					dir = SVDBParamPortDecl.Direction_Input;
 				} else if (dir_s.equals("output")) {
-					dir = SVDBParamPort.Direction_Output;
+					dir = SVDBParamPortDecl.Direction_Output;
 				} else if (dir_s.equals("inout")) {
-					dir = SVDBParamPort.Direction_Inout;
+					dir = SVDBParamPortDecl.Direction_Inout;
 				} else if (dir_s.equals("ref")) {
-					dir = SVDBParamPort.Direction_Ref;
+					dir = SVDBParamPortDecl.Direction_Ref;
 				}
 			} else if (fLexer.peekKeyword("const")) {
 				fLexer.eatToken();
 				fLexer.readKeyword("ref");
-				dir = (SVDBParamPort.Direction_Ref | SVDBParamPort.Direction_Const);
+				dir = (SVDBParamPortDecl.Direction_Ref | SVDBParamPortDecl.Direction_Const);
 			}
 			
 			if (fLexer.peekKeyword("var")) {
 				fLexer.eatToken();
-				dir |= SVDBParamPort.Direction_Var;
+				dir |= SVDBParamPortDecl.Direction_Var;
 			}
 			
 			SVDBTypeInfo type = 
@@ -97,7 +97,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			}
 
 			
-			SVDBParamPort param_r = new SVDBParamPort(type);
+			SVDBParamPortDecl param_r = new SVDBParamPortDecl(type);
 			param_r.setDir(dir);
 			param_r.setLocation(it_start);
 			

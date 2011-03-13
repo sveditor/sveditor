@@ -12,41 +12,10 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBLocation {
 	private int				fLine;
 	private int				fPos;
-
-	/*
-	public SVDBLocation(int line) {
-		fLine = line;
-		fPos  = -1;
-	}
-	 */
-	
-	public static SVDBLocation readLocation(IDBReader reader) throws DBFormatException {
-		int line = reader.readInt();
-		int pos = reader.readInt();
-		
-		if (line == -1 && pos == -1) {
-			return null;
-		} else {
-			return new SVDBLocation(line, pos);
-		}
-	}
-	
-	public static void writeLocation(SVDBLocation loc, IDBWriter writer) {
-		if (loc == null) {
-			writer.writeInt(-1);
-			writer.writeInt(-1);
-		} else {
-			writer.writeInt(loc.getLine());
-			writer.writeInt(loc.getPos());
-		}
-	}
 
 	public SVDBLocation(int line, int pos) {
 		fLine = line;

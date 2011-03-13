@@ -15,41 +15,17 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-
 public class SVDBParamValueAssignList extends SVDBItem {
 	
 	private boolean							fNamedMapping;
 	private List<SVDBParamValueAssign>		fParameters;
 	
 	public SVDBParamValueAssignList() {
-		super("", SVDBItemType.ParamValueList);
+		super("", SVDBItemType.ParamValueAssignList);
 		fNamedMapping = false;
 		fParameters = new ArrayList<SVDBParamValueAssign>();
 	}
 
-	@SuppressWarnings("unchecked")
-	public SVDBParamValueAssignList(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fNamedMapping = (reader.readInt() != 0)?true:false;
-		fParameters = (List<SVDBParamValueAssign>)reader.readItemList(this);
-	}
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBParamValueAssignList(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(
-				f, SVDBItemType.ParamValueList); 
-	}
-	
 	public List<SVDBParamValueAssign> getParameters() {
 		return fParameters;
 	}
@@ -66,13 +42,6 @@ public class SVDBParamValueAssignList extends SVDBItem {
 		fNamedMapping = m;
 	}
 	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeInt((fNamedMapping)?1:0);
-		writer.writeItemList(fParameters);
-	}
-
 	@Override
 	public SVDBParamValueAssignList duplicate() {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();

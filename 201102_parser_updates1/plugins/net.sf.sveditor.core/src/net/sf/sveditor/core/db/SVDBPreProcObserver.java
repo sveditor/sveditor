@@ -119,8 +119,8 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 	public void comment(String comment) {}
 
 	public void enter_interface_decl(String name, String ports) {
-		SVDBModIfcClassDecl id = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Interface);
+		SVDBModIfcDecl id = new SVDBModIfcDecl(
+				name, SVDBItemType.InterfaceDecl);
 		fScopeStack.peek().addItem(id);
 		fScopeStack.push(id);
 		
@@ -129,15 +129,15 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 
 	public void leave_interface_decl() {
 		if (fScopeStack.size() > 0 && 
-				fScopeStack.peek().getType() == SVDBItemType.Interface) {
+				fScopeStack.peek().getType() == SVDBItemType.InterfaceDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
 	}
 	
 	public void enter_module_decl(String name, String ports) {
-		SVDBModIfcClassDecl md = new SVDBModIfcClassDecl(
-				name, SVDBItemType.Module);
+		SVDBModIfcDecl md = new SVDBModIfcDecl(
+				name, SVDBItemType.ModuleDecl);
 		fScopeStack.peek().addItem(md);
 		fScopeStack.push(md);
 
@@ -146,14 +146,14 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 
 	public void leave_module_decl() {
 		if (fScopeStack.size() > 0 && 
-				fScopeStack.peek().getType() == SVDBItemType.Module) {
+				fScopeStack.peek().getType() == SVDBItemType.ModuleDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
 	}
 
 	public void enter_program_decl(String name) {
-		SVDBModIfcClassDecl p = new SVDBModIfcClassDecl(name, SVDBItemType.Program);
+		SVDBModIfcDecl p = new SVDBModIfcDecl(name, SVDBItemType.ProgramDecl);
 		
 		fScopeStack.peek().addItem(p);
 		fScopeStack.push(p);
@@ -163,7 +163,7 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 
 	public void leave_program_decl() {
 		if (fScopeStack.size() > 0 && 
-				fScopeStack.peek().getType() == SVDBItemType.Program) {
+				fScopeStack.peek().getType() == SVDBItemType.ProgramDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}

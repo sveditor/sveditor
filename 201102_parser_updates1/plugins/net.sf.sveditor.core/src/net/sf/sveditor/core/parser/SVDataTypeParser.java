@@ -15,8 +15,8 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -27,8 +27,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.expr.SVRangeExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -237,7 +237,7 @@ public class SVDataTypeParser extends SVParserBase {
 					type_id.append(fLexer.readId());
 				}
 				
-				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
+				type = new SVDBTypeInfoUserDef(type_id.toString());
 				
 				if (fLexer.peekOperator("[")) {
 					// TODO: packed_dimension
@@ -257,9 +257,9 @@ public class SVDataTypeParser extends SVParserBase {
 					type_id.append(fLexer.readId());
 				}
 				
-				type = new SVDBTypeInfoUserDef(type_id.toString(), SVDBDataType.UserDefined);
+				type = new SVDBTypeInfoUserDef(type_id.toString());
 			} else {
-				type = new SVDBTypeInfoUserDef(id, SVDBDataType.UserDefined);
+				type = new SVDBTypeInfoUserDef(id);
 			}
 			
 			if (fLexer.peekOperator("#")) {
@@ -306,9 +306,9 @@ public class SVDataTypeParser extends SVParserBase {
 		return data_type(qualifiers);
 	}
 	
-	public SVDBTypeInfoEnum enum_type() throws SVParseException {
+	public SVDBTypeInfo enum_type() throws SVParseException {
 		fLexer.readKeyword("enum");
-		SVDBTypeInfoEnum type = new SVDBTypeInfoEnum("");
+		SVDBTypeInfoEnum type = null;
 		boolean vals_specified = false;
 		String val_str = null;
 		int index = 0;
@@ -319,9 +319,12 @@ public class SVDataTypeParser extends SVParserBase {
 			
 			// Forward declaration
 			if (fLexer.peekOperator(";")) {
-				type.setDataType(SVDBDataType.FwdDecl);
-				return type;
+				return new SVDBTypeInfoFwdDecl();
+			} else {
+				type = new SVDBTypeInfoEnum();
 			}
+		} else {
+			type = new SVDBTypeInfoEnum();
 		}
 		
 		fLexer.readOperator("{");
@@ -358,7 +361,7 @@ public class SVDataTypeParser extends SVParserBase {
 		fLexer.readKeyword("typedef");
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
-		if (type.getDataType() != SVDBDataType.FwdDecl) {
+		if (type.getType() != SVDBItemType.TypeInfoFwdDecl) {
 			String id = fLexer.readId();
 
 			// TODO: dimension
@@ -411,11 +414,11 @@ public class SVDataTypeParser extends SVParserBase {
 				ret.setDimType(DimType.Sized);
 				
 				// TODO: should be constant expression
-				SVExpr expr = parsers().exprParser().expression();
+				SVDBExpr expr = parsers().exprParser().expression();
 				if (fLexer.peekOperator(":")) {
 					// range
 					fLexer.eatToken();
-					ret.setExpr(new SVRangeExpr(expr, fParsers.exprParser().expression()));
+					ret.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
 				} else {
 					// single value
 					ret.setExpr(expr);

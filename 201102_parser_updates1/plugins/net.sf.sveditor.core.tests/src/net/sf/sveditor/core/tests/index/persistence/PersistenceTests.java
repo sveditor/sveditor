@@ -26,5 +26,6 @@ public class PersistenceTests {
 		
 		return suite;
 	}
+	
 
 }

@@ -121,7 +121,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			ISVDBScopeItem 		scope, 
 			SVDBFile 			stop_pt) {
 		for (ISVDBItemBase it : scope.getItems()) {
-			if (it.getType() == SVDBItemType.Macro) {
+			if (it.getType() == SVDBItemType.MacroDef) {
 				/*
 				fLog.debug("Adding macro \"" + it.getName() + "\"" +
 						" (" + fContext.getFilePath() + ")");
@@ -183,7 +183,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				if (!collectThisFileMacros(context, (ISVDBScopeItem)it, lineno)) {
 					return false;
 				}
-			} else if (it.getType() == SVDBItemType.Macro) {
+			} else if (it.getType() == SVDBItemType.MacroDef) {
 				if (fDebugEn) {
 					fLog.debug("Add macro \"" + ((ISVDBNamedItem)it).getName() + "\" from scope " + 
 							((ISVDBNamedItem)scope).getName() + 

@@ -20,8 +20,8 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
@@ -58,14 +58,14 @@ public class SVScannerTests extends TestCase {
 		for (ISVDBItemBase it : file.getItems()) {
 			System.out.println("[Item] " + it.getType() + " " + SVDBItem.getName(it));
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				SVDBMarker m = (SVDBMarker)it;
 				System.out.println("[ERROR] " + m.getMessage());
 			}
 		}
 		assertEquals(1, file.getItems().size());
-		assertTrue(file.getItems().get(0) instanceof SVDBModIfcClassDecl);
+		assertTrue(file.getItems().get(0) instanceof SVDBModIfcDecl);
 		
-		SVDBModIfcClassDecl m = (SVDBModIfcClassDecl)file.getItems().get(0);
+		SVDBModIfcDecl m = (SVDBModIfcDecl)file.getItems().get(0);
 		assertEquals("foo", m.getName());
 		
 		for (ISVDBItemBase it : m.getItems()) {

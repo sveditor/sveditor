@@ -1,20 +1,20 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBForeachStmt extends SVDBBodyStmt {
-	private SVExpr 			fCond;
+	private SVDBExpr 			fCond;
 	
 	public SVDBForeachStmt() {
 		super(SVDBItemType.ForeachStmt);
 	}
 	
-	public void setCond(SVExpr cond) {
+	public void setCond(SVDBExpr cond) {
 		fCond = cond;
 	}
 	
-	public SVExpr getCond() {
+	public SVDBExpr getCond() {
 		return fCond;
 	}
 	

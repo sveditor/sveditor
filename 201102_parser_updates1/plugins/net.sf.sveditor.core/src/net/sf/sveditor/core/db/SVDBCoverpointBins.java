@@ -2,8 +2,8 @@ package net.sf.sveditor.core.db;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBCoverGroup.BinsKW;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.SVDBCovergroup.BinsKW;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCoverpointBins extends SVDBItem {
 	public enum BinsType {
@@ -18,10 +18,14 @@ public class SVDBCoverpointBins extends SVDBItem {
 	private BinsKW					fBinsKW;
 	private BinsType				fBinsType;
 	private boolean					fIsArray;
-	private SVExpr					fArrayExpr;
-	private SVExpr					fIFF;
+	private SVDBExpr					fArrayExpr;
+	private SVDBExpr					fIFF;
 	
-	private List<SVExpr>			fRangeList;
+	private List<SVDBExpr>			fRangeList;
+	
+	public SVDBCoverpointBins() {
+		super("", SVDBItemType.CoverpointBins);
+	}
 	
 	public SVDBCoverpointBins(boolean wildcard, String name, BinsKW kw) {
 		super(name, SVDBItemType.CoverpointBins);
@@ -53,11 +57,11 @@ public class SVDBCoverpointBins extends SVDBItem {
 		return fIsArray;
 	}
 	
-	public SVExpr getArrayExpr() {
+	public SVDBExpr getArrayExpr() {
 		return fArrayExpr;
 	}
 	
-	public void setArrayExpr(SVExpr expr) {
+	public void setArrayExpr(SVDBExpr expr) {
 		fArrayExpr = expr;
 	}
 	
@@ -69,11 +73,11 @@ public class SVDBCoverpointBins extends SVDBItem {
 		return fBinsType;
 	}
 	
-	public SVExpr getIFF() {
+	public SVDBExpr getIFF() {
 		return fIFF;
 	}
 	
-	public void setIFF(SVExpr expr) {
+	public void setIFF(SVDBExpr expr) {
 		fIFF = expr;
 	}
 	

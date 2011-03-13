@@ -17,7 +17,6 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
@@ -35,16 +34,16 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap = new HashMap<SVDBItemType, String>();
 
 		fImgDescMap.put(SVDBItemType.File, FILE_OBJ);
-		fImgDescMap.put(SVDBItemType.Module, MODULE_OBJ);
-		fImgDescMap.put(SVDBItemType.Interface, INT_OBJ);
-		fImgDescMap.put(SVDBItemType.Class, CLASS_OBJ);
-		fImgDescMap.put(SVDBItemType.Macro, DEFINE_OBJ);
+		fImgDescMap.put(SVDBItemType.ModuleDecl, MODULE_OBJ);
+		fImgDescMap.put(SVDBItemType.InterfaceDecl, INT_OBJ);
+		fImgDescMap.put(SVDBItemType.ClassDecl, CLASS_OBJ);
+		fImgDescMap.put(SVDBItemType.MacroDef, DEFINE_OBJ);
 		fImgDescMap.put(SVDBItemType.Include, INCLUDE_OBJ);
 		fImgDescMap.put(SVDBItemType.PackageDecl, PACKAGE_OBJ);
-		fImgDescMap.put(SVDBItemType.Struct, STRUCT_OBJ);
+		fImgDescMap.put(SVDBItemType.TypeInfoStruct, STRUCT_OBJ);
 		fImgDescMap.put(SVDBItemType.Covergroup, COVERGROUP_OBJ);
 		fImgDescMap.put(SVDBItemType.Coverpoint, COVERPOINT_OBJ);
-		fImgDescMap.put(SVDBItemType.CoverCross, COVERPOINT_CROSS_OBJ);
+		fImgDescMap.put(SVDBItemType.CoverpointCross, COVERPOINT_CROSS_OBJ);
 		fImgDescMap.put(SVDBItemType.Sequence, SEQUENCE_OBJ);
 		fImgDescMap.put(SVDBItemType.Property, PROPERTY_OBJ);
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
@@ -104,7 +103,7 @@ public class SVDBIconUtils implements ISVIcons {
 			} else if (it.getType() == SVDBItemType.TypedefStmt) {
 				SVDBTypedefStmt td = (SVDBTypedefStmt)it;
 				
-				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 					return SVUiPlugin.getImage(ENUM_TYPE_OBJ);
 				} else {
 					return SVUiPlugin.getImage(TYPEDEF_TYPE_OBJ);

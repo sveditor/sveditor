@@ -21,7 +21,7 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBSearchUtils {
@@ -51,12 +51,12 @@ public class SVDBSearchUtils {
 		return ret;
 	}
 	
-	public static SVDBModIfcClassDecl findClassScope(ISVDBChildItem scope) {
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+	public static SVDBModIfcDecl findClassScope(ISVDBChildItem scope) {
+		while (scope != null && scope.getType() != SVDBItemType.ClassDecl) {
 			scope = scope.getParent();
 		}
 		
-		return (SVDBModIfcClassDecl)scope;
+		return (SVDBModIfcDecl)scope;
 	}
 
 	public static List<ISVDBItemBase> findItemsByName(

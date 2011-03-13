@@ -15,26 +15,10 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBConstraint extends SVDBItem {
 	private List<SVDBStmt>		fConstraintList;
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBConstraint(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Constraint); 
-	}
-	
 	
 	public SVDBConstraint() {
 		super("", SVDBItemType.Constraint);
@@ -49,21 +33,6 @@ public class SVDBConstraint extends SVDBItem {
 		fConstraintList.add(stmt);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public SVDBConstraint(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		
-		fConstraintList = (List<SVDBStmt>)reader.readItemList(this);
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-
-		writer.writeItemList(fConstraintList);
-	}
-
-
 	/*
 	@Override
 	public boolean equals(Object obj) {

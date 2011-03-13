@@ -1,20 +1,20 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBReturnStmt extends SVDBStmt {
-	private SVExpr				fReturnExpr;
+	private SVDBExpr				fReturnExpr;
 	
 	public SVDBReturnStmt() {
 		super(SVDBItemType.ReturnStmt);
 	}
 	
-	public void setExpr(SVExpr expr) {
+	public void setExpr(SVDBExpr expr) {
 		fReturnExpr = expr;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fReturnExpr;
 	}
 

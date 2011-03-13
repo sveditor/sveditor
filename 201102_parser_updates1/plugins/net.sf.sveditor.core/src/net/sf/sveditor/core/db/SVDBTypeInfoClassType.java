@@ -6,8 +6,12 @@ import java.util.List;
 public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
 	List<SVDBTypeInfoClassItem>		fTypeInfo;
 	
+	public SVDBTypeInfoClassType() {
+		this("");
+	}
+	
 	public SVDBTypeInfoClassType(String name) {
-		super(name, SVDBDataType.Class);
+		super(name, SVDBItemType.TypeInfoClassType);
 	}
 	
 	public boolean isScoped() {

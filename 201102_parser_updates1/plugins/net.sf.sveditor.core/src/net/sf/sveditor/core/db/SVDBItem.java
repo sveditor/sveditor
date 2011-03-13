@@ -12,13 +12,15 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.SVDBParentAttr;
+
 
 
 public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
+	
+	@SVDBParentAttr
 	protected ISVDBChildItem		fParent;
+	
 	protected String				fName;
 	
 	public SVDBItem(String name, SVDBItemType type) {
@@ -28,20 +30,6 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		} else {
 			fName = name;
 		}
-	}
-	
-	public SVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(type);
-		fParent   = parent;
-		fName     = reader.readString();
-		fLocation = new SVDBLocation(reader.readInt(), reader.readInt());
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fName);
-		writer.writeInt((fLocation != null)?fLocation.getLine():0);
-		writer.writeInt((fLocation != null)?fLocation.getPos():0);
 	}
 	
 	public void setParent(ISVDBChildItem parent) {

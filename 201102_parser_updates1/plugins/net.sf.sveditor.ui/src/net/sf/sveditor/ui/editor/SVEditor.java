@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -615,11 +615,11 @@ public class SVEditor extends TextEditor
 		
 		for (ISVDBItemBase it : fSVDBFile.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem marker = (SVDBMarkerItem)it;
+				SVDBMarker marker = (SVDBMarker)it;
 				Annotation ann = null;
 				int line = -1;
 				
-				if (marker.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				if (marker.getName().equals(SVDBMarker.MARKER_ERR)) {
 					ann = new Annotation(
 							"org.eclipse.ui.workbench.texteditor.error", 
 							false, marker.getMessage());

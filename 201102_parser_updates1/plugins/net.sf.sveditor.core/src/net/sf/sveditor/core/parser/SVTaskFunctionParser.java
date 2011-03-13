@@ -16,12 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVTaskFunctionParser extends SVParserBase {
@@ -31,8 +32,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 	}
 	
 	// Enter on 'function'
-	public SVDBTaskFuncScope parse(SVDBLocation start, int qualifiers) throws SVParseException {
-		SVDBTaskFuncScope func = null;
+	public SVDBTask parse(SVDBLocation start, int qualifiers) throws SVParseException {
+		SVDBTask func = null;
 		SVDBLocation end = null;
 		String tf_name;
 		
@@ -95,7 +96,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			tf_name = parsers().SVParser().scopedIdentifier(false);
 		}
 		
-		List<SVDBParamPort> params = null;
+		List<SVDBParamPortDecl> params = null;
 		boolean is_ansi = true;
 		debug("Function Terminator: " + fLexer.peek());
 		if (fLexer.peekOperator("(")) {
@@ -104,7 +105,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			is_ansi = true;
 		} else if (fLexer.peekOperator(";")) {
 			// non-ANSI (?)
-			params = new ArrayList<SVDBParamPort>();
+			params = new ArrayList<SVDBParamPortDecl>();
 			is_ansi = false;
 		}
 		fLexer.readOperator(";");
@@ -112,9 +113,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		debug("Procesing " + type + " " + tf_name);
 		
 		if (type.equals("function")) {
-			func = new SVDBTaskFuncScope(tf_name, return_type);
+			func = new SVDBFunction(tf_name, return_type);
 		} else {
-			func = new SVDBTaskFuncScope(tf_name, SVDBItemType.Task);
+			func = new SVDBTask(tf_name, SVDBItemType.Task);
 		}
 		func.setParams(params);
 		func.setAttr(qualifiers);

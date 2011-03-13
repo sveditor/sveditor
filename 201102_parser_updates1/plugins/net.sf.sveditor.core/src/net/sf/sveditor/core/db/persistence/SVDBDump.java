@@ -32,10 +32,14 @@ public class SVDBDump {
 		fVersion = version;
 	}
 	
-	public void dump(ISVDBIndex index, OutputStream out) {
+	public void dump(ISVDBIndex index, OutputStream out) throws DBWriteException {
 		ByteArrayOutputStream	index_data_bos = new ByteArrayOutputStream();
 		SVDBPersistenceWriter	index_data = new SVDBPersistenceWriter(index_data_bos);
 		NullProgressMonitor monitor = new NullProgressMonitor();
+		DBHeader hdr = new DBHeader();
+		
+		hdr.version = fVersion;
+		hdr.base_location = index.getBaseLocation();
 		
 		fWriter.init(out);
 		
@@ -47,8 +51,11 @@ public class SVDBDump {
 			fLog.error("Problem while dumping index-specific data", e);
 		}
 		
-		// TODO: Write DB header
-		fWriter.writeRawString("SDB<" + index.getBaseLocation() + "::" + fVersion + ">");
+		try {
+			fWriter.writeObject(DBHeader.class, hdr);
+		} catch (Exception e) {
+			fLog.error("Failed to write header: " + e);
+		}
 		
 		// Write back the index-specific data
 		fWriter.writeByteArray(index_data_bos.toByteArray());

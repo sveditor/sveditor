@@ -254,9 +254,9 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	}
 
 	private boolean has_pkg_interface_module_program(ISVDBScopeItem scope) {
-		if (scope.getType() == SVDBItemType.Module ||
-				scope.getType() == SVDBItemType.Interface ||
-				scope.getType() == SVDBItemType.Program ||
+		if (scope.getType() == SVDBItemType.ModuleDecl ||
+				scope.getType() == SVDBItemType.InterfaceDecl ||
+				scope.getType() == SVDBItemType.ProgramDecl ||
 				scope.getType() == SVDBItemType.PackageDecl) {
 			return true;
 		} else {

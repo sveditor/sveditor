@@ -25,8 +25,8 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -166,13 +166,13 @@ public class TestContentAssistBasics extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBModIfcClassDecl my_class2 = null;
+		SVDBModIfcDecl my_class2 = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (SVDBItem.getName(it_t).equals("my_class2")) {
-				my_class2 = (SVDBModIfcClassDecl)it_t;
+				my_class2 = (SVDBModIfcDecl)it_t;
 			}
 		}
 		
@@ -374,14 +374,14 @@ public class TestContentAssistBasics extends TestCase {
 		
 		assertEquals("Expecting two proposals", 2, proposals.size());
 
-		SVDBTaskFuncScope 	new_f;
+		SVDBTask 	new_f;
 		SVDBVarDeclItem		new_field;
 
 		if (proposals.get(0).getItem().getType() == SVDBItemType.Function) {
-			new_f = (SVDBTaskFuncScope)proposals.get(0).getItem();
+			new_f = (SVDBTask)proposals.get(0).getItem();
 			new_field = (SVDBVarDeclItem)proposals.get(1).getItem();
 		} else {
-			new_f = (SVDBTaskFuncScope)proposals.get(1).getItem();
+			new_f = (SVDBTask)proposals.get(1).getItem();
 			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
 		}
 		

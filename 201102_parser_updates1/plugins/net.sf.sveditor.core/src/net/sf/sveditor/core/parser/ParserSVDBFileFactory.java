@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
@@ -30,14 +29,16 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBSequence;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -219,7 +220,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 						
 						fNewStatement = true;
 					} else if (id.equals("function") || id.equals("task")) {
-						SVDBTaskFuncScope f = parsers().taskFuncParser().parse(
+						SVDBTask f = parsers().taskFuncParser().parse(
 								start, modifiers);
 						fScopeStack.peek().addItem(f);
 						fNewStatement = true;
@@ -242,7 +243,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		String name = fLexer.readId();
 		fSemanticScopeStack.push("sequence");
 
-		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Sequence);
+		SVDBScopeItem it = new SVDBSequence(name);
 
 		setLocation(it);
 		fScopeStack.peek().addItem(it);
@@ -264,7 +265,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		String name = fLexer.readId();
 		fSemanticScopeStack.push("property");
 
-		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Property);
+		SVDBScopeItem it = new SVDBProperty(name);
 
 		setLocation(it);
 
@@ -475,8 +476,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					leave_interface_decl();
 				} else if (type.equals("class")) {
 					leave_class_decl();
-				} else if (type.equals("struct")) {
-					leave_struct_decl("");
 				} else if (type.equals("task")) {
 					leave_task_decl();
 				} else if (type.equals("function")) {
@@ -525,15 +524,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO
 		fTaskFuncParamQualifiers.put("virtual",
-				SVDBParamPort.FieldAttr_Virtual);
+				SVDBParamPortDecl.FieldAttr_Virtual);
 		fTaskFuncParamQualifiers.put("input",
-				SVDBParamPort.Direction_Input);
+				SVDBParamPortDecl.Direction_Input);
 		fTaskFuncParamQualifiers.put("output",
-				SVDBParamPort.Direction_Output);
+				SVDBParamPortDecl.Direction_Output);
 		fTaskFuncParamQualifiers.put("inout",
-				SVDBParamPort.Direction_Inout);
-		fTaskFuncParamQualifiers.put("ref", SVDBParamPort.Direction_Ref);
-		fTaskFuncParamQualifiers.put("var", SVDBParamPort.Direction_Var);
+				SVDBParamPortDecl.Direction_Inout);
+		fTaskFuncParamQualifiers.put("ref", SVDBParamPortDecl.Direction_Ref);
+		fTaskFuncParamQualifiers.put("var", SVDBParamPortDecl.Direction_Var);
 	}
 
 	/**
@@ -578,13 +577,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			debug("inst name or var: " + inst_name_or_var);
 
 			if (fLexer.peekOperator("(")) {
-				type = new SVDBTypeInfoUserDef(type.getName(), SVDBDataType.ModuleIfc);
+				type = new SVDBTypeInfoModuleIfc(type.getName());
 				
 				// it's a module
 				debug("module instantiation - " + inst_name_or_var);
 				fLexer.skipPastMatch("(", ")");
 				
-				SVDBModIfcInstItem item = new SVDBModIfcInstItem(
+				SVDBModIfcInst item = new SVDBModIfcInst(
 						type, inst_name_or_var);
 				setLocation(item);
 				fScopeStack.peek().addItem(item);
@@ -858,8 +857,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {
-		SVDBMarkerItem marker = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
-				SVDBMarkerItem.KIND_GENERIC, msg);
+		SVDBMarker marker = new SVDBMarker(SVDBMarker.MARKER_ERR,
+				SVDBMarker.KIND_GENERIC, msg);
 		marker.setLocation(new SVDBLocation(lineno, linepos));
 
 		fFile.addItem(marker);
@@ -909,7 +908,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_interface_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Interface) {
+				&& fScopeStack.peek().getType() == SVDBItemType.InterfaceDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
@@ -917,17 +916,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_class_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Class) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ClassDecl) {
 //			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
-		}
-	}
-
-	private void leave_struct_decl(String name) {
-		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Struct) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop().setName(name);
 		}
 	}
 
@@ -951,7 +942,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_module_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Module) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ModuleDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
@@ -959,7 +950,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_program_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Program) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ProgramDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}

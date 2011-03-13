@@ -12,37 +12,17 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBClockingBlock extends SVDBScopeItem {
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBClockingBlock(parent, type, reader);
-			}
-		};
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ClockingBlock);
+
+	public SVDBClockingBlock() {
+		super("", SVDBItemType.ClockingBlock);
 	}
 	
 	public SVDBClockingBlock(String name) {
 		super(name, SVDBItemType.ClockingBlock);
 	}
 	
-	public SVDBClockingBlock(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-	}
-
 	@Override
 	public SVDBItemBase duplicate() {
 		SVDBClockingBlock ret = new SVDBClockingBlock(getName());

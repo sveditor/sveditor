@@ -4,22 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVStringExpr;
+import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 
 public class SVDBImportStmt extends SVDBStmt {
 	
-	private List<SVStringExpr>			fImportList;
+	private List<SVDBStringExpr>			fImportList;
 	
 	public SVDBImportStmt() {
 		super(SVDBItemType.ImportStmt);
-		fImportList = new ArrayList<SVStringExpr>();
+		fImportList = new ArrayList<SVDBStringExpr>();
 	}
 	
-	public List<SVStringExpr> getImportList() {
+	public List<SVDBStringExpr> getImportList() {
 		return fImportList;
 	}
 	
-	public void addImport(SVStringExpr imp) {
+	public void addImport(SVDBStringExpr imp) {
 		fImportList.add(imp);
 	}
 

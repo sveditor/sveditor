@@ -17,10 +17,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -51,7 +51,7 @@ public class SVDBFindNamedClass {
 				System.out.println("it == null ; hasNext=" + had_next);
 			}
 			
-			if (it.getType() == SVDBItemType.Class) {
+			if (it.getType() == SVDBItemType.ClassDecl) {
 				if (fMatcher.match((ISVDBNamedItem)it, type_name)) {
 					ret.add((SVDBClassDecl)it);
 				}

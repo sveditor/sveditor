@@ -13,17 +13,21 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 
 public class SVDBConstraintIfStmt extends SVDBStmt {
-	private SVExpr					fIfExpr;
+	private SVDBExpr					fIfExpr;
 	private SVDBStmt				fConstraint;
 	private SVDBStmt				fElse;
 	private boolean					fElseIf;
 	
+	public SVDBConstraintIfStmt() {
+		super(SVDBItemType.ConstraintIfStmt);
+	}
+	
 	public SVDBConstraintIfStmt(
-			SVExpr 					expr,
+			SVDBExpr 					expr,
 			SVDBStmt				constraint,
 			SVDBStmt				else_expr,
 			boolean					else_if) {
@@ -34,7 +38,7 @@ public class SVDBConstraintIfStmt extends SVDBStmt {
 		fElseIf 	= else_if;
 	}
 	
-	public SVExpr getExpr() {
+	public SVDBExpr getExpr() {
 		return fIfExpr;
 	}
 	

@@ -16,10 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -118,14 +117,14 @@ public class SVDBSearchEngine {
 	
 	private void find_type_decl(List<ISVDBItemBase> items) {
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
-		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Class, SVDBItemType.Struct, 
-				SVDBItemType.TypedefStmt, SVDBItemType.Module};
+		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.ClassDecl, 
+				SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl};
 		
 		while (iterator.hasNext(types)) {
 			ISVDBItemBase item = iterator.nextItem(types);
 			if (item.getType() == SVDBItemType.TypedefStmt) {
 				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
-				if (td.getTypeInfo().getDataType() != SVDBDataType.Struct) {
+				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
 					continue;
 				}
 			}
@@ -146,7 +145,7 @@ public class SVDBSearchEngine {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)item;
 				match_name = decl.getTypeInfo().getName();
 			} else if (item.getType() == SVDBItemType.ModIfcInst) {
-				SVDBModIfcInstItem inst = (SVDBModIfcInstItem)item;
+				SVDBModIfcInst inst = (SVDBModIfcInst)item;
 				
 				match_name = inst.getTypeName(); 
 			}

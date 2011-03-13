@@ -18,20 +18,18 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
@@ -103,16 +101,16 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testFunctionVirtualIfcParam");
 		
 		SVDBClassDecl foobar_c = null;
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		for (ISVDBItemBase it_t : file.getItems()) {
-			if (it_t.getType() == SVDBItemType.Class &&
+			if (it_t.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(it_t).equals("foobar")) {
 				foobar_c = (SVDBClassDecl)it_t;
 			} else if (it_t.getType() == SVDBItemType.Marker &&
-					SVDBItem.getName(it_t).equals(SVDBMarkerItem.MARKER_ERR)) {
-				errors.add((SVDBMarkerItem)it_t);
-				System.out.println("[ERROR] " + ((SVDBMarkerItem)it_t).getMessage());
+					SVDBItem.getName(it_t).equals(SVDBMarker.MARKER_ERR)) {
+				errors.add((SVDBMarker)it_t);
+				System.out.println("[ERROR] " + ((SVDBMarker)it_t).getMessage());
 			}
 		}
 
@@ -123,11 +121,11 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		assertNotNull(foobar_c);
 		
-		SVDBTaskFuncScope foo_func = null;
+		SVDBTask foo_func = null;
 		for (ISVDBItemBase it_t : foobar_c.getItems()) {
 			if (it_t.getType() == SVDBItemType.Function &&
 					SVDBItem.getName(it_t).equals("foo_func")) {
-				foo_func = (SVDBTaskFuncScope)it_t;
+				foo_func = (SVDBTask)it_t;
 			}
 		}
 		
@@ -289,11 +287,11 @@ public class TestParseClassBodyItems extends TestCase {
 		foobar_td = (SVDBTypedefStmt)foobar_i;
 
 		assertEquals("foobar_t type-info is of wrong type",
-				SVDBDataType.Enum, foobar_td.getTypeInfo().getDataType());
+				SVDBItemType.TypeInfoEnum, foobar_td.getTypeInfo().getType());
 		
 		SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)foobar_td.getTypeInfo();
 		assertEquals("foobar_t doesn't have correct number of elements",
-				2, enum_t.getEnumValues().size());
+				2, enum_t.getEnumValues().first().size());
 	}
 
 	public void testTypedefClass() {
@@ -341,7 +339,7 @@ public class TestParseClassBodyItems extends TestCase {
 		foobar_td = (SVDBTypedefStmt)foobar_i;
 
 		assertEquals("other_foo_t type-info is of wrong type",
-				SVDBDataType.FwdDecl, foobar_td.getTypeInfo().getDataType());
+				SVDBItemType.TypeInfoFwdDecl, foobar_td.getTypeInfo().getType());
 	}
 
 	public void testCovergroup() {
@@ -383,12 +381,12 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		assertNotNull(foobar);
 
-		SVDBCoverGroup cg = null, cg2 = null;
+		SVDBCovergroup cg = null, cg2 = null;
 		for (ISVDBItemBase it : foobar.getItems()) {
 			if (SVDBItem.getName(it).equals("cg")) {
-				cg = (SVDBCoverGroup)it;
+				cg = (SVDBCovergroup)it;
 			} else if (SVDBItem.getName(it).equals("cg2")) {
-				cg2 = (SVDBCoverGroup)it;
+				cg2 = (SVDBCovergroup)it;
 			}
 		}
 		

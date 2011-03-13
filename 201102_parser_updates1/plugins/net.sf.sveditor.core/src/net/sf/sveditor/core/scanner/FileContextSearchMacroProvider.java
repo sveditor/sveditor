@@ -116,7 +116,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 
 		for (ISVDBItemBase it : context.getItems()) {
 			debug_s("    it=" + ((ISVDBNamedItem)it).getName());
-			if (it.getType() == SVDBItemType.Macro && 
+			if (it.getType() == SVDBItemType.MacroDef && 
 					((ISVDBNamedItem)it).getName().equals(key)) {
 				m = (SVDBMacroDef)it;
 			} else if (it instanceof ISVDBScopeItem) {

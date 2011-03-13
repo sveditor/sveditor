@@ -16,22 +16,13 @@ import java.io.File;
 
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBFile extends SVDBScopeItem {
-	private long						fLastModified;
 	private String						fFile;
+	private long						fLastModified;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBFile(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.File); 
+	public SVDBFile() {
+		super("", SVDBItemType.File);
 	}
 	
 	public SVDBFile(String file) {
@@ -47,18 +38,6 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	public SVDBFile(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fFile               = reader.readString();
-		fLastModified 		= reader.readLong();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fFile);
-		writer.writeLong(fLastModified);
-	}
-	
 	public long getLastModified() {
 		return fLastModified;
 	}

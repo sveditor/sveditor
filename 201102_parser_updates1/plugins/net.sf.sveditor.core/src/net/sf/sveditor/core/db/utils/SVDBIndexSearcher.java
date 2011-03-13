@@ -20,14 +20,14 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.parser.SVDBClassDecl;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -69,7 +69,7 @@ public class SVDBIndexSearcher {
 	
 	private SVDBClassDecl findNamedClass(String name, SVDBScopeItem parent) {
 		for (ISVDBItemBase it : parent.getItems()) {
-			if (it.getType() == SVDBItemType.Class && 
+			if (it.getType() == SVDBItemType.ClassDecl && 
 					((ISVDBNamedItem)it).getName() != null &&
 					((ISVDBNamedItem)it).getName().equals(name)) {
 				return (SVDBClassDecl)it;
@@ -133,7 +133,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
@@ -205,7 +205,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
@@ -264,7 +264,7 @@ public class SVDBIndexSearcher {
 			}
 			
 			// Continue traversing the type hierarchy
-			if (ref_type.getType() == SVDBItemType.Class &&
+			if (ref_type.getType() == SVDBItemType.ClassDecl &&
 					((SVDBClassDecl)ref_type).getSuperClass() != null) {
 				ref_type = findNamedClass(
 						((SVDBClassDecl)ref_type).getSuperClass().getName());
@@ -286,7 +286,7 @@ public class SVDBIndexSearcher {
 
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+		while (scope != null && scope.getType() != SVDBItemType.ClassDecl) {
 			scope = scope.getParent();
 		}
 		

@@ -22,17 +22,17 @@ import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefItem;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -126,12 +126,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							it, doc, replacementOffset, replacementLength);
 					break;
 		
-				case Macro:
+				case MacroDef:
 					cp = createMacroProposal(
 							it, doc, replacementOffset, replacementLength);
 					break;
 		
-				case Class:
+				case ClassDecl:
 					cp = createClassProposal(
 							it, doc, replacementOffset, replacementLength);
 					break;
@@ -153,12 +153,13 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					
 					// Check to see if the name matches any enum values
-					if (tds.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+					if (tds.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)tds.getTypeInfo();
 						
-						for (Tuple<String, String> n : enum_t.getEnumValues()) {
-							String name = n.first();
-							String name_lc = n.first().toLowerCase();
+						Tuple<List<String>, List<String>> enums = enum_t.getEnumValues(); 
+
+						for (String name : enums.first()) {
+							String name_lc = name.toLowerCase();
 							if (prefix.equals("") || name_lc.startsWith(prefix_lc)) {
 								String label = td.getName() + "::" + name;
 								cp = new CompletionProposal(name,
@@ -232,13 +233,13 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
-		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
+		SVDBTask tf = (SVDBTask)it;
 		
 		d.append(SVDBItem.getName(it) + "(");
 		r.append(escapeId(SVDBItem.getName(it)) + "(");
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPort param = tf.getParams().get(i);
+			SVDBParamPortDecl param = tf.getParams().get(i);
 			for (int j=0; j<param.getVarList().size(); j++) {
 				SVDBVarDeclItem vi = param.getVarList().get(j);
 				d.append(param.getTypeName() + " " + vi.getName());
@@ -255,18 +256,20 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		d.append(")");
 		r.append(")");
 		
-		if (it.getType() == SVDBItemType.Function &&
-				tf.getReturnType() != null &&
-				!tf.getReturnType().equals("void") &&
+		if (it.getType() == SVDBItemType.Function) {
+			SVDBFunction f = (SVDBFunction)tf;
+			if (f.getReturnType() != null &&
+				!f.getReturnType().equals("void") &&
 				!SVDBItem.getName(it).equals("new")) {
-			d.append(" : ");
-			d.append(tf.getReturnType());
+				d.append(" : ");
+				d.append(f.getReturnType());
+			}
 		}
 		
 		// Find the class that this function belongs to (if any)
 		ISVDBChildItem class_it = (ISVDBChildItem)it;
 		
-		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
+		while (class_it != null && class_it.getType() != SVDBItemType.ClassDecl) {
 			class_it = class_it.getParent();
 		}
 		
@@ -353,7 +356,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
-		SVDBModIfcClassDecl cl = (SVDBModIfcClassDecl)it;
+		SVDBModIfcDecl cl = (SVDBModIfcDecl)it;
 		
 		r.append(SVDBItem.getName(it));
 		d.append(SVDBItem.getName(it));

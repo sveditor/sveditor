@@ -4,27 +4,29 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
+import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
+import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVModIfcBodyItemParser extends SVParserBase {
-	private final ISVDBChildItem fSpecialNonNull = new SVDBStmt(SVDBItemType.NullStmt);
+	private final ISVDBChildItem fSpecialNonNull = new SVDBNullStmt();
 	
 	public SVModIfcBodyItemParser(ISVParser parser) {
 		super(parser);
@@ -61,7 +63,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		} else if (id.equals(";")) {
 			// null statement
 			fLexer.eatToken();
-			ret = new SVDBStmt(SVDBItemType.NullStmt);
+			ret = new SVDBNullStmt();
 		} else if (fLexer.peekKeyword("always","always_comb","always_latch","always_ff","initial")) {
 			ret = parse_initial_always();
 		} else if (fLexer.peekKeyword("final")) {
@@ -102,7 +104,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			ret = cls;
 		} else if (id.equals("module") || id.equals("program") ||
 				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
-			SVDBModIfcClassDecl m = null;
+			SVDBModIfcDecl m = null;
 			// enter module scope
 			// TODO: should probably add this item to the 
 			// File scope here
@@ -133,7 +135,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				data_type = null;
 			}
 			
-			SVDBParamPort p = new SVDBParamPort(data_type);
+			SVDBParamPortDecl p = new SVDBParamPortDecl(data_type);
 			SVDBVarDeclItem pi;
 			while (true) {
 				if (fLexer.peekOperator("=")) {
@@ -218,7 +220,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fLexer.readOperator(";");
 			ret = fSpecialNonNull;
 		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
-			List<SVDBModIfcInstItem> insts = parsers().gateInstanceParser().parse();
+			List<SVDBModIfcInst> insts = parsers().gateInstanceParser().parse();
 			// TODO: add to hierarchy (?)
 			ret = fSpecialNonNull;
 		} else if (fLexer.peekKeyword("defparam", "specparam")) {
@@ -274,7 +276,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("final");
 		
-		SVDBBodyStmt ret = new SVDBBodyStmt(SVDBItemType.FinalStmt);
+		SVDBBodyStmt ret = new SVDBFinalStmt();
 		ret.setLocation(start);
 		
 		ret.setBody(fParsers.behavioralBlockParser().statement());
@@ -302,7 +304,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 			ret = new SVDBAlwaysStmt(always_type);
 		} else {
-			ret = new SVDBBodyStmt(SVDBItemType.InitialStmt);
+			ret = new SVDBInitialStmt();
 		}
 		ret.setLocation(start);
 		

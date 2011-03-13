@@ -175,7 +175,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 					if (fLexer.peekOperator(",")) {
 						fLexer.eatToken();
 					}
-					parsers().exprParser().expression(false);
+					parsers().exprParser().expression();
 				} while (fLexer.peekOperator(","));
 			}
 			fLexer.readOperator(":");

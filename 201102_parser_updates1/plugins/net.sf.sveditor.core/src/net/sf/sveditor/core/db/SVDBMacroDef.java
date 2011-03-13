@@ -15,49 +15,23 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-
 public class SVDBMacroDef extends SVDBItem {
 	private List<String>			fParams;
 	private String					fDef;
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBMacroDef(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Macro); 
+
+	public SVDBMacroDef() {
+		super("", SVDBItemType.MacroDef);
 	}
-	
 	
 	public SVDBMacroDef(
 			String 				name, 
 			List<String>		params,
 			String				def) {
-		super(name, SVDBItemType.Macro);
+		super(name, SVDBItemType.MacroDef);
 		fParams = new ArrayList<String>();
 		fParams.addAll(params);
 		fDef = def;
 	}
-	
-	public SVDBMacroDef(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fParams = reader.readStringList();
-		fDef    = reader.readString();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeStringList(fParams);
-		writer.writeString(fDef);
-	}
-	
 	
 	public String getDef() {
 		return fDef;

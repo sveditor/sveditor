@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCaseItem extends SVDBBodyStmt {
-	private List<SVExpr>		fCaseExprList;
+	private List<SVDBExpr>		fCaseExprList;
 	
 	public SVDBCaseItem() {
 		super(SVDBItemType.CaseItem);
-		fCaseExprList = new ArrayList<SVExpr>();
+		fCaseExprList = new ArrayList<SVDBExpr>();
 	}
 	
-	public List<SVExpr> getExprList() {
+	public List<SVDBExpr> getExprList() {
 		return fCaseExprList;
 	}
 	
-	public void addExpr(SVExpr expr) {
+	public void addExpr(SVDBExpr expr) {
 		fCaseExprList.add(expr);
 	}
 	

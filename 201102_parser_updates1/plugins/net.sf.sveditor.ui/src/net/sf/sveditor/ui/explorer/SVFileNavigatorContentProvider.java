@@ -21,7 +21,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
@@ -117,7 +117,7 @@ public class SVFileNavigatorContentProvider
 				return new Object[0];
 			}
 		} else if (parentElement instanceof ISVDBScopeItem &&
-				!(parentElement instanceof SVDBTaskFuncScope)) {
+				!(parentElement instanceof SVDBTask)) {
 			return ((ISVDBScopeItem)parentElement).getItems().toArray();
 		}
 		

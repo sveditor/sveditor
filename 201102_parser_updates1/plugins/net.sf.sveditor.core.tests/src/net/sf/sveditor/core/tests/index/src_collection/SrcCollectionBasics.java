@@ -25,7 +25,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -109,7 +109,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -173,7 +173,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -246,7 +246,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -326,7 +326,7 @@ public class SrcCollectionBasics extends TestCase {
 		/* SVDBFile file = */ index.parse(fs.openStream(file_path), file_path, new NullProgressMonitor()); 
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + ((SVDBMarkerItem)warn).getMessage());
+			System.out.println("SVDBMarkerItem: " + ((SVDBMarker)warn).getMessage());
 		}
 		
 		assertNotNull("located class1", class1);
@@ -383,7 +383,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -435,7 +435,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -487,7 +487,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -550,7 +550,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());

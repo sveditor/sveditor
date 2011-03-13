@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -29,7 +29,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	public Object[] getChildren(Object elem) {
 		if (elem instanceof ISVDBScopeItem &&
-				!(elem instanceof SVDBTaskFuncScope)) {
+				!(elem instanceof SVDBTask)) {
 			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
 			for (ISVDBItemBase it : ((ISVDBScopeItem)elem).getItems()) {
 				if (it.getType() == SVDBItemType.VarDeclStmt) {
@@ -54,7 +54,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	public boolean hasChildren(Object element) {
 		return (element instanceof ISVDBScopeItem && 
-				!(element instanceof SVDBTaskFuncScope) &&
+				!(element instanceof SVDBTask) &&
 				((ISVDBScopeItem)element).getItems().size() > 0);
 	}
 

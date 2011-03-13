@@ -15,48 +15,15 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-
 public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	protected List<ISVDBItemBase>		fItems;
 	protected SVDBLocation				fEndLocation;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-				return new SVDBScopeItem(parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, 
-				SVDBItemType.Property, SVDBItemType.Sequence); 
-	}
-	
-	
-	public SVDBScopeItem(String name, SVDBItemType type) {
+	protected SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);
 		
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
-	
-	@SuppressWarnings("unchecked")
-	public SVDBScopeItem(ISVDBChildItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(parent, type, reader);
-		fEndLocation = new SVDBLocation(reader.readInt(), reader.readInt());
-		fItems = (List<ISVDBItemBase>)reader.readItemList(this);
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeInt((fEndLocation!=null)?fEndLocation.getLine():0);
-		writer.writeInt((fEndLocation!=null)?fEndLocation.getPos():0);
-		writer.writeItemList(fItems);
-	}
-	
 	
 	public void setEndLocation(SVDBLocation loc) {
 		fEndLocation = loc;
