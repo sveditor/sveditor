@@ -18,9 +18,12 @@ if test ! -f release/site_ex.xml; then
 fi
 
 # Add the new release
-./scripts/add_release.pl \
-    release/site_ex.xml \
-    release/new_release_fragment.xml $version > release/site.xml
+# ./scripts/add_release.pl \
+#    release/site_ex.xml ./etc \
+#    release/new_release_fragment.xml $version > release/site.xml
+
+# Only save the last version
+cat ./etc/site_head.xml release/new_release_fragment.xml ./etc/site_tail.xml > release/site.xml
 
 scp release/site.xml \
     $SF_USERNAME,sveditor@web.sourceforge.net:htdocs/update/site.xml \

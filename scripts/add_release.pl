@@ -10,10 +10,34 @@
 
 
 open(FH, $ARGV[0]) || die "Cannot open file $ARGV[0]";
-open(FR, $ARGV[1]) || die "Cannot open fragment file $ARGV[1]";
-$version=$ARGV[2];
+$etc_dir=$ARGV[1];
+$new_release_fragment=$ARGV[2];
+$version=$ARGV[3];
+open(FR, $new_release_fragment) || die "Cannot open new_release_fragment.xml file $new_release_fragment";
+
+$site_head="$etc_dir/site_head.xml";
+$site_tail="$etc_dir/site_tail.xml";
 
 $do_output=1;
+
+@sections = ("", "", "");
+
+$section="";
+while (<FH>) {
+    $line = $_;
+    chomp $line;
+
+    if ($line =~ m/BEGIN: Release $version/) {
+        # site file already contains this release
+        # skip lines until the END token
+        $do_output=0;
+    }
+
+    if ($line =~ m/END: Release $version/) {
+        # Reached the end of the existing release
+        $do_output=1;
+    }
+}
 
 while (<FH>) {
     $line = $_;

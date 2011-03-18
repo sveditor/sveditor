@@ -195,13 +195,13 @@ public abstract class AbstractSVFileMatcher {
 			String leaf = pattern.substring(last_slash+1);
 			String ext_dir_path = pattern.substring(0, last_slash);
 			p.fDirMatchPattern = Pattern.compile(create_regexp(
-					base + "/" + ext_dir_path));
+					base + "/" + ext_dir_path), Pattern.CASE_INSENSITIVE);
 			p.fFileMatchPattern = Pattern.compile(create_regexp(
-					base + "/" + ext_dir_path + leaf));
+					base + "/" + ext_dir_path + leaf), Pattern.CASE_INSENSITIVE);
 		} else {
 			// Non-pathed pattern. Only search base+leaf
-			p.fDirMatchPattern  = Pattern.compile(create_regexp(base));
-			p.fFileMatchPattern = Pattern.compile(create_regexp(base + "/" + pattern)); 
+			p.fDirMatchPattern  = Pattern.compile(create_regexp(base), Pattern.CASE_INSENSITIVE);
+			p.fFileMatchPattern = Pattern.compile(create_regexp(base + "/" + pattern), Pattern.CASE_INSENSITIVE); 
 		}
 		
 		return p;

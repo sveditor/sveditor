@@ -1315,6 +1315,18 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		runTest("testGatePrimitives2", doc, new String[] {"switch_primitives"});
 	}
+	
+	public void testEscapedIdentifiers() {
+		String doc = 
+			"module a(\n" +
+			"	input \\escaped_port ,\n" +
+			"	output \\**foo_bar**+n\n" +
+			"	);\n" +
+			"endmodule"
+			;
+		
+		runTest("testEscapedIdentifiers", doc, new String[] {"a"});
+	}
 
 	private void runTest(
 			String			testname,

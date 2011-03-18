@@ -591,6 +591,13 @@ public class SVLexer extends SVToken {
 			} else {
 				fIsIdentifier = true;
 			}
+		} else if (ch == '\\') {
+			// Escaped identifier
+			fStringBuffer.append((char)ch);
+			while ((ch = get_ch()) != -1 && !Character.isWhitespace(ch)) {
+				fStringBuffer.append((char)ch);
+			}
+			unget_ch(ch);
 		}
 		
 		if (fStringBuffer.length() == 0 && !fIsString) {

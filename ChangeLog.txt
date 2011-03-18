@@ -1,4 +1,14 @@
 
+-- 0.4.1 Release --
+
+- (#3219052) Implement support for escaped identifiers.
+
+- (#3211077) Correct bug with files with upper-case filename extensions (eg file.SV)
+
+- (#3199251) Trim update site to only carry the latest release
+
+------------------------------------------------------------------------------
+
 -- 0.4.0 Release --
 
 - (#3181880) Critical bug related to restructuring of the SVDB

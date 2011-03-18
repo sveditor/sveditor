@@ -631,4 +631,56 @@ public class SrcCollectionBasics extends TestCase {
 		System.out.println("<-- testOutsideWsRelativeIncPaths()");
 	}
 
+	public void testCapsExtensionFiles() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			project_dir.delete();
+		}
+		
+		utils.copyBundleDirToFS("/data/caps_extension_files/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(project_dir);
+		SVCorePlugin.getDefault().getProjMgr().init();
+		
+		File path = new File(project_dir, "caps_extension_files");
+		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null;
+		ISVDBItemBase class2 = null;
+		ISVDBItemBase class3 = null;
+		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
+		
+		while (it.hasNext()) {
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
+			
+			if (name.equals("class1")) {
+				class1 = tmp_it;
+			} else if (name.equals("class2")) {
+				class2 = tmp_it;
+			} else if (name.equals("class3")) {
+				class3 = tmp_it;
+			} else if (tmp_it.getType() == SVDBItemType.Marker) {
+				markers.add(tmp_it);
+			}
+		}
+
+		for (ISVDBItemBase warn : markers) {
+			System.out.println("SVDBMarkerItem: " + 
+					((SVDBMarkerItem)warn).getMessage());
+		}
+		
+		assertEquals("Confirm no warnings", 0, markers.size());
+		assertNotNull("located class1", class1);
+		assertNotNull("located class2", class2);
+		assertNotNull("located class3", class3);
+		assertEquals("class1", SVDBItem.getName(class1));
+	}
+
 }
