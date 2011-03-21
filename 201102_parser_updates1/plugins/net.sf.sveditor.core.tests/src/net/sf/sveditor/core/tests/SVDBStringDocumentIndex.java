@@ -33,6 +33,10 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			public boolean fileExists(String path) {
 				return path.equals("ROOT");
 			}
+			public boolean isDir(String path) {
+				// Unsure
+				return false;
+			}
 			
 			public void init(String root) {}
 			public long getLastModifiedTime(String path) {return 0;}
@@ -43,6 +47,6 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			public void clearMarkers(String path) {}
 			public void addMarker(String path, String type, int lineno, String msg) {}
 			public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
-		});
+		}, null);
 	}
 }

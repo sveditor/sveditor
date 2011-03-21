@@ -1,11 +1,11 @@
 package net.sf.sveditor.core.tests.parser.perf;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -13,11 +13,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.ILogListener;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -49,7 +44,7 @@ public class TestParserPerf extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.init(null);
+		rgy.init((File)null);
 		
 		String compile_questa_sv = xbus + "/examples/compile_questa_sv.f";
 		System.out.println("compile_questa_sv=" + compile_questa_sv);

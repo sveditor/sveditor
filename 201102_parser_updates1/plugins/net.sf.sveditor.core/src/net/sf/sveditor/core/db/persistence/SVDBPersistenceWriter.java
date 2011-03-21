@@ -36,6 +36,8 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 	private byte								fBuf[];
 	private int									fBufIdx;
 	private Map<Class, Map<Object, Integer>>	fEnumMap;
+	private static final boolean				fDebugEn = false;
+	private int									fLevel;
 	
 	public SVDBPersistenceWriter(OutputStream out) {
 		fOutputStream = out;
@@ -183,15 +185,15 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 	
 	@SuppressWarnings("unchecked")
 	public void writeObject(Class cls, Object item) throws DBWriteException {
-//		System.out.println("dumpObject: " + cls.getName());
+		if (fDebugEn) {
+			debug("--> " + (++fLevel) + " writeObject: " + cls.getName());
+		}
+		
 		if (cls.getSuperclass() != null &&
 				cls.getSuperclass() != Object.class) {
 			writeObject(cls.getSuperclass(), item);
 		}
 
-//		System.out.println("  write object: " + cls.getName());
-
-//		System.out.println("  Fields of: " + cls.getName());
 		Field fields[] = cls.getDeclaredFields();
 
 		for (Field f : fields) {
@@ -208,7 +210,9 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 				
 				try {
 					Class field_class = f.getType();
-//					System.out.println("  write field: " + field_class.getName());
+					if (fDebugEn) {
+						debug("  write field " + f.getName() + " in " + cls.getName() + ": " + field_class.getName());
+					}
 					Object field_value = f.get(item);
 					
 					if (field_value == null) {
@@ -221,6 +225,9 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 							ParameterizedType pt = (ParameterizedType)t;
 							Type args[] = pt.getActualTypeArguments();
 							Class c = (Class)args[0];
+							if (fDebugEn) {
+								debug("  write list field " + f.getName() + " w/item type " + c.getName());
+							}
 							if (c == String.class) {
 								writeStringList((List)field_value);
 							} else if (c == Integer.class) {
@@ -243,6 +250,9 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 						writeBool(((Boolean)field_value).booleanValue());
 					} else if (field_value instanceof SVDBLocation) {
 						SVDBLocation loc = (SVDBLocation)field_value;
+						if (fDebugEn) {
+							debug("    writeLocation: " + loc.getLine() + ":" + loc.getPos());
+						}
 						writeRawType(TYPE_SVDB_LOCATION);
 						writeInt(loc.getLine());
 						writeInt(loc.getPos());
@@ -260,17 +270,6 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 							} else {
 								throw new DBWriteException("Map<" + key_c.getName() + ", " + val_c.getName() + ">: Class " + cls.getName());
 							}
-							/*
-							if (c == String.class) {
-								writeStringList((List)field_value);
-							} else if (c == Integer.class) {
-								writeIntList((List)field_value);
-							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
-								writeItemList((List)field_value);
-							} else {
-								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
-							}
-							  */
 						} else {
 							throw new DBWriteException("Non-parameterized list is unsupported");
 						}
@@ -283,12 +282,18 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 				}
 			}
 		}
+		if (fDebugEn) {
+			debug("<-- " + (fLevel--) + " writeObject: " + cls.getName());
+		}
 	}
 	
 	public void writeSVDBItem(ISVDBItemBase item) throws DBWriteException {
 		if (item == null) {
 			writeRawType(TYPE_NULL);
 		} else {
+			if (fDebugEn) {
+				debug("  writeSVDBItem: " + item.getType());
+			}
 			writeRawType(TYPE_ITEM);
 			writeItemType(item.getType());
 			
@@ -297,7 +302,6 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-//			item.dump(this);
 		}
 	}
 
@@ -405,28 +409,66 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 				tmp[8] = (byte)(val >> 56);
 			}
 		} else {
-			if (val <= 0x0000007F) {
+			if (val <= 0x000000000000007FL) {
 				type = TYPE_INT_8;
 				tmp[0] = TYPE_INT_8;
 				tmp[1] = (byte)val;
-			} else if (val <= 0x00007FFF) {
+			} else if (val <= 0x0000000000007FFFL) {
 				type = TYPE_INT_16;
 				tmp[0] = TYPE_INT_16;
 				tmp[1] = (byte)val;
 				tmp[2] = (byte)(val >> 8);
-			} else if (val <= 0x007FFFFF) {
+			} else if (val <= 0x00000000007FFFFFL) {
 				type = TYPE_INT_24;
 				tmp[0] = TYPE_INT_24;
 				tmp[1] = (byte)val;
 				tmp[2] = (byte)(val >> 8);
 				tmp[3] = (byte)(val >> 16);
-			} else {
+			} else if (val <= 0x000000007FFFFFFFL) {
 				type = TYPE_INT_32;
 				tmp[0] = TYPE_INT_32;
 				tmp[1] = (byte)val;
 				tmp[2] = (byte)(val >> 8);
 				tmp[3] = (byte)(val >> 16);
 				tmp[4] = (byte)(val >> 24);
+			} else if (val <= 0x0000007FFFFFFFFFL) {
+				type = TYPE_INT_40;
+				tmp[0] = TYPE_INT_40;
+				tmp[1] = (byte)val;
+				tmp[2] = (byte)(val >> 8);
+				tmp[3] = (byte)(val >> 16);
+				tmp[4] = (byte)(val >> 24);
+				tmp[5] = (byte)(val >> 32);
+			} else if (val <= 0x00007FFFFFFFFFFFL) {
+				type = TYPE_INT_48;
+				tmp[0] = TYPE_INT_48;
+				tmp[1] = (byte)val;
+				tmp[2] = (byte)(val >> 8);
+				tmp[3] = (byte)(val >> 16);
+				tmp[4] = (byte)(val >> 24);
+				tmp[5] = (byte)(val >> 32);
+				tmp[6] = (byte)(val >> 40);
+			} else if (val <= 0x007FFFFFFFFFFFFFL) {
+				type = TYPE_INT_56;
+				tmp[0] = TYPE_INT_56;
+				tmp[1] = (byte)val;
+				tmp[2] = (byte)(val >> 8);
+				tmp[3] = (byte)(val >> 16);
+				tmp[4] = (byte)(val >> 24);
+				tmp[5] = (byte)(val >> 32);
+				tmp[6] = (byte)(val >> 40);
+				tmp[7] = (byte)(val >> 48);
+			} else {
+				type = TYPE_INT_64;
+				tmp[0] = TYPE_INT_64;
+				tmp[1] = (byte)val;
+				tmp[2] = (byte)(val >> 8);
+				tmp[3] = (byte)(val >> 16);
+				tmp[4] = (byte)(val >> 24);
+				tmp[5] = (byte)(val >> 32);
+				tmp[6] = (byte)(val >> 40);
+				tmp[7] = (byte)(val >> 48);
+				tmp[8] = (byte)(val >> 56);
 			}
 		}
 		writeRawBytes(tmp, 0, (type-TYPE_INT_8)+2);
@@ -436,6 +478,9 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 		if (val == null) {
 			writeRawType(TYPE_NULL);
 		} else {
+			if (fDebugEn) {
+				debug("    writeString: " + val);
+			}
 			byte b[] = val.getBytes();
 			writeRawType(TYPE_STRING);
 			writeInt(b.length);
@@ -463,6 +508,25 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 			for (String s: items) {
 				writeString(s);
 			}
+		}
+	}
+
+	public void writeLongList(List<Long> items) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_LONG_LIST);
+			writeInt(items.size());
+		
+			for (Long v : items) {
+				writeLong(v.longValue());
+			}
+		}
+	}
+
+	private void debug(String msg) {
+		if (fDebugEn) {
+			System.out.println(msg);
 		}
 	}
 }

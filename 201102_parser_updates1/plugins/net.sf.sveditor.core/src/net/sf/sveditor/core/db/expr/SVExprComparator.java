@@ -82,7 +82,7 @@ public class SVExprComparator {
 				SVDBIdentifierExpr id_a = (SVDBIdentifierExpr)a;
 				SVDBIdentifierExpr id_b = (SVDBIdentifierExpr)b;
 				
-				equal &= id_a.getIdStr().equals(id_b.getIdStr());
+				equal &= id_a.getId().equals(id_b.getId());
 			} break;
 			
 			case UnaryExpr: {

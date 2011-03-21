@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.core.tests.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -24,8 +21,6 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -51,11 +46,28 @@ public class TestParseClassBodyItems extends TestCase {
 			"    task foo_task();\n" +
 			"    endtask\n" +
 			"endclass\n";
-		SVDBFile file = SVDBTestUtils.parse(content, "testTaskFunction");
+		runTest("testTaskFunction", content, 
+				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
+	}
+	
+	public void testSingleParameterClass() {
+		String content =
+			"class ovm_random_stimulus #(type T=ovm_transaction) extends ovm_component;\n" +
+			"endclass\n"
+			;
 		
-		SVDBTestUtils.assertNoErrWarn(file);
-		SVDBTestUtils.assertFileHasElements(file, 
-				"foobar", "foo_func", "foo_func_e", "foo_task");
+		runTest("testSingleParameterClass", content, 
+				new String[] {"ovm_random_stimulus"});
+	}
+
+	public void testSimpleExtensionClass() {
+		String content =
+			"class ovm_random_stimulus extends ovm_component;\n" +
+			"endclass\n"
+			;
+		
+		runTest("testSingleParameterClass", content, 
+				new String[] {"ovm_random_stimulus"});
 	}
 
 	public void testTypedClassParameters() {
@@ -80,12 +92,11 @@ public class TestParseClassBodyItems extends TestCase {
 			"    task foo_task();\n" +
 			"    endtask\n" +
 			"endclass\n";
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testTypedClassParameters");
 		
-		SVDBTestUtils.assertNoErrWarn(file);
-		SVDBTestUtils.assertFileHasElements(file, 
-				"foobar", "foo_func", "foo_func_e", "foo_task");
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testTypedClassParameters", content, 
+				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
 	public void testFunctionVirtualIfcParam() {
@@ -98,6 +109,9 @@ public class TestParseClassBodyItems extends TestCase {
 			"    endfunction\n" + // endfunction without : <name>
 			"\n" +
 			"endclass\n";
+		runTest("testFunctionVirtualIfcParam", content, 
+				new String[] {"foo_func"});
+		/*
 		SVDBFile file = SVDBTestUtils.parse(content, "testFunctionVirtualIfcParam");
 		
 		SVDBClassDecl foobar_c = null;
@@ -130,6 +144,7 @@ public class TestParseClassBodyItems extends TestCase {
 		}
 		
 		assertNotNull(foo_func);
+		 */
 	}
 
 	public void testClassFields() {
@@ -155,15 +170,12 @@ public class TestParseClassBodyItems extends TestCase {
 		"\n" +
 		"endclass\n";
 	
-		SVDBFile file = SVDBTestUtils.parse(content, "testClassFields");
-		
-		SVDBTestUtils.assertNoErrWarn(file);
-		SVDBTestUtils.assertFileHasElements(file,
+		runTest("testClassFields", content, new String[] {
 				"__sv_builtin_covergroup_options",
 				"weight", "goal", "name", "comment",
 				"at_least", "detect_overlap", 
 				"auto_bin_max", "per_instance",
-				"cross_num_print_missing");
+				"cross_num_print_missing"});
 	}
 	
 	public void testBuiltinExternTasks() {
@@ -186,18 +198,8 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-			
-		SVDBFile file = SVDBTestUtils.parse(content, "testBuiltinExternTasks");
-		
-		SVDBClassDecl process = null;
-		for (ISVDBItemBase it : file.getItems()) {
-			if (SVDBItem.getName(it).equals("process")) {
-				process = (SVDBClassDecl)it;
-			}
-			System.out.println("Item: " + it.getType() + " " + SVDBItem.getName(it));
-		}
-		
-		assertNotNull("Failed to find class process", process);
+
+		runTest("testBuiltinExternTasks", content, new String[] {"process"});
 	}
 	
 	public void testClassStringFields() {
@@ -236,7 +238,7 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull("Failed to find class __sv_builtin_covergroup_options", cg_options);
 		
 		for (ISVDBItemBase it : cg_options.getItems()) {
-//			System.out.println("    Item: " + it.getType() + " " + SVDBItem.getName(it));
+			System.out.println("    Item: " + it.getType() + " " + SVDBItem.getName(it));
 			assertNotNull("Item " + SVDBItem.getName(it) + " does not have a location",
 					it.getLocation());
 			if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
@@ -426,6 +428,16 @@ public class TestParseClassBodyItems extends TestCase {
 		}
 		
 		assertNotNull(empty_c);
+	}
+
+	private void runTest(
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
 
 }

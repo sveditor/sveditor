@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBParamValueAssign extends SVDBItem {
 	private SVDBExpr					fValue;
-	private SVDBTypeInfo			fType;
+	private SVDBTypeInfo				fType;
 
 	public SVDBParamValueAssign() {
 		super("", SVDBItemType.ParamValueAssign);

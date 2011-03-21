@@ -97,7 +97,7 @@ public class SVExprUtils {
 	}
 	
 	protected boolean identifier(PrintStream ps, SVDBIdentifierExpr expr) {
-		String id_path = getAccess(expr.getIdStr());
+		String id_path = getAccess(expr.getId());
 		ps.print(id_path);
 		return true;
 	}
@@ -294,7 +294,11 @@ public class SVExprUtils {
 				break;
 			
 			default:
-				fLog.error("Unhandled expr in expr_to_string: " + expr.getType());
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					fLog.error("Unhandled expr in expr_to_string: " + expr.getType(), e);
+				}
 				break;
 		}
 		return ret;

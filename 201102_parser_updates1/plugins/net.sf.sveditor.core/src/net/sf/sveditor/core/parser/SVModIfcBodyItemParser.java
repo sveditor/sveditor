@@ -158,67 +158,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fLexer.readOperator(";");
 			ret = fSpecialNonNull;
 		} else if (SVDataTypeParser.NetType.contains(id)) {
-			// net type
-			String net_type = fLexer.eatToken();
-			String vector_dim = null;
-			SVDBVarDeclStmt var = null;
-			String net_name = null;
-			SVDBTypeInfoBuiltinNet type_info = null;
-			SVDBTypeInfo data_type = null;
-			
-			debug("Net Type: " + net_type + " @ " + 
-					fLexer.getStartLocation().getLine());
-			
-			// vectored untyped net
-			if (fLexer.peekOperator("[")) {
-				// TODO:
-				data_type = new SVDBTypeInfoBuiltin(net_type);
-				fLexer.startCapture();
-				fLexer.skipPastMatch("[", "]");
-				vector_dim = fLexer.endCapture();
-				((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
-				net_name = fLexer.readId();
-			} else {
-				data_type = parsers().dataTypeParser().data_type(0);
-
-				// Now, based on what we see next, we determine whether the
-				// net is typed or untyped
-
-				if (fLexer.peekOperator(",", ";", "=")) {
-					// The net was untyped
-					net_name = data_type.getName();
-					data_type = new SVDBTypeInfoBuiltin(net_type);
-				} else {
-					// Assume the net to be typed
-					net_name = fLexer.readId();
-				}
-			}
-			type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
-			
-			var = new SVDBVarDeclStmt(type_info, 0);
-			var.setLocation(start);
-			while (true) {
-				SVDBVarDeclItem vi = new SVDBVarDeclItem(net_name);
-				var.addVar(vi);
-				
-				if (fLexer.peekOperator("[")) {
-					vi.setArrayDim(parsers().dataTypeParser().var_dim());
-				}
-				
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-					net_name = fLexer.readId();
-				} else if (fLexer.peekOperator("=")) {
-					// Initialized wire
-					fLexer.eatToken();
-					parsers().exprParser().expression();
-				} else {
-					break;
-				}
-			}
-			
-			fLexer.readOperator(";");
-			ret = fSpecialNonNull;
+			ret = parse_var_decl();
 		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
 			List<SVDBModIfcInst> insts = parsers().gateInstanceParser().parse();
 			// TODO: add to hierarchy (?)
@@ -247,6 +187,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		debug("<-- process_module_class_interface_body_item - " + 
 				((ret != null)?SVDBItem.getName(ret):"NULL"));
 
+		if (ret != null) {
+			ret.setLocation(start);
+		}
 		return ret;
 	}
 	
@@ -270,6 +213,76 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		fLexer.readOperator(";");
 		
 		return assign;
+	}
+	
+	private SVDBVarDeclStmt parse_var_decl() throws SVParseException {
+		// net type
+		String net_type = fLexer.eatToken();
+		String vector_dim = null;
+		SVDBVarDeclStmt var = null;
+		String net_name = null;
+		SVDBLocation start = null;
+		SVDBTypeInfoBuiltinNet type_info = null;
+		SVDBTypeInfo data_type = null;
+		
+		debug("Net Type: " + net_type + " @ " + 
+				fLexer.getStartLocation().getLine());
+		
+		// vectored untyped net
+		if (fLexer.peekOperator("[")) {
+			// TODO:
+			data_type = new SVDBTypeInfoBuiltin(net_type);
+			fLexer.startCapture();
+			fLexer.skipPastMatch("[", "]");
+			vector_dim = fLexer.endCapture();
+			((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
+			start = fLexer.getStartLocation();
+			net_name = fLexer.readId();
+		} else {
+			data_type = parsers().dataTypeParser().data_type(0);
+
+			// Now, based on what we see next, we determine whether the
+			// net is typed or untyped
+
+			if (fLexer.peekOperator(",", ";", "=")) {
+				// The net was untyped
+				start = fLexer.getStartLocation();
+				net_name = data_type.getName();
+				data_type = new SVDBTypeInfoBuiltin(net_type);
+			} else {
+				// Assume the net to be typed
+				start = fLexer.getStartLocation();
+				net_name = fLexer.readId();
+			}
+		}
+		type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
+		
+		var = new SVDBVarDeclStmt(type_info, 0);
+		while (true) {
+			
+			SVDBVarDeclItem vi = new SVDBVarDeclItem(net_name);
+			vi.setLocation(start);
+			var.addVar(vi);
+			
+			if (fLexer.peekOperator("[")) {
+				vi.setArrayDim(parsers().dataTypeParser().var_dim());
+			}
+			
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+				start = fLexer.getStartLocation();
+				net_name = fLexer.readId();
+			} else if (fLexer.peekOperator("=")) {
+				// Initialized wire
+				fLexer.eatToken();
+				parsers().exprParser().expression();
+			} else {
+				break;
+			}
+		}
+		
+		fLexer.readOperator(";");
+		return var;
 	}
 	
 	private ISVDBChildItem parse_final() throws SVParseException {

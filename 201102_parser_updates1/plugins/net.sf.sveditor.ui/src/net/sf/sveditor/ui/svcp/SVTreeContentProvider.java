@@ -35,7 +35,9 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 				if (it.getType() == SVDBItemType.VarDeclStmt) {
 					c.addAll(((SVDBVarDeclStmt)it).getVarList());
 				} else {
-					c.add(it);
+					if (it.getType() != SVDBItemType.NullStmt) {
+						c.add(it);
+					}
 				}
 			}
 			return c.toArray();

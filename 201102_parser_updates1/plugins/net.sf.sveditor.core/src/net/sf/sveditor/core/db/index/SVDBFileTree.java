@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,16 +23,42 @@ public class SVDBFileTree {
 	boolean					fProcessed;
 	String					fFilePath;
 	SVDBFile				fSVDBFile;
-	List<SVDBFileTree>      fIncludedFiles   = new ArrayList<SVDBFileTree>();
-	List<SVDBFileTree>		fIncludedByFiles = new ArrayList<SVDBFileTree>();
+	List<String>			fIncludedFiles;
+	List<String>			fIncludedByFiles;
+
+	public SVDBFileTree() {
+		fFilePath = null;
+		fIncludedFiles = new ArrayList<String>();
+		fIncludedByFiles = new ArrayList<String>();
+	}
 
 	public SVDBFileTree(String path) {
 		fFilePath = path;
+		
+		if (fFilePath == null) {
+			try {
+				throw new Exception("fFilePath == null");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		fIncludedFiles = new ArrayList<String>();
+		fIncludedByFiles = new ArrayList<String>();
 	}
 
 	public SVDBFileTree(SVDBFile file) {
 		fFilePath = file.getFilePath();
 		fSVDBFile = file;
+		fIncludedFiles = new ArrayList<String>();
+		fIncludedByFiles = new ArrayList<String>();
+		
+		if (fFilePath == null) {
+			try {
+				throw new Exception("fFilePath == null");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public boolean getFileProcessed() {
@@ -58,11 +85,11 @@ public class SVDBFileTree {
 		fSVDBFile = file;
 	}
 	
-	public List<SVDBFileTree> getIncludedFiles() {
+	public List<String> getIncludedFiles() {
 		return fIncludedFiles;
 	}
 	
-	public List<SVDBFileTree> getIncludedByFiles() {
+	public List<String> getIncludedByFiles() {
 		return fIncludedByFiles;
 	}
 

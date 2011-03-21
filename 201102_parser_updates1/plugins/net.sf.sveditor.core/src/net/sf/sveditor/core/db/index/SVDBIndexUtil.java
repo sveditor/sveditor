@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
@@ -140,7 +141,7 @@ public class SVDBIndexUtil {
 			config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 			
 			
-			index = rgy.findCreateIndex(project,
+			index = rgy.findCreateIndex(new NullProgressMonitor(), project,
 					SVFileUtils.getPathParent(path),
 					SVDBSourceCollectionIndexFactory.TYPE, config);
 			index_mgr.addShadowIndex(index.getBaseLocation(), index);

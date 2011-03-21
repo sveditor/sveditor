@@ -12,15 +12,25 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 public class FileIndexIterator implements ISVDBIndexIterator {
 	Map<String, SVDBFile>			fFileMap;
@@ -31,7 +41,54 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		return new SVDBIndexItemIterator(fFileMap);
+		List<String> path = new ArrayList<String>();
+		for (String elem : fFileMap.keySet()) {
+			path.add(elem);
+		}
+		return new SVDBIndexItemIterator(path,
+				new ISVDBIndex() {
+					
+					public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {return null;}
+					public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {return null;}
+					public void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider) {}
+					public void setGlobalDefine(String key, String val) {}
+					public void removeChangeListener(ISVDBIndexChangeListener l) {}
+					public void rebuildIndex() {}
+					public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
+						return null;
+					}
+					public void load(IDBReader index_data, List<SVDBFile> pp_files,
+							List<SVDBFile> db_files) throws DBFormatException {}
+					public boolean isLoaded() {
+						return false;
+					}
+					public void init(IProgressMonitor monitor) {}
+					public String getTypeID() {
+						return null;
+					}
+					public Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor) {
+						return null;
+					}
+					public List<String> getFileList(IProgressMonitor monitor) {
+						return null;
+					}
+					public Map<String, SVDBFile> getFileDB(IProgressMonitor monitor) {
+						return null;
+					}
+					public String getBaseLocation() {
+						return null;
+					}
+					public SVDBFile findPreProcFile(String path) {
+						return null;
+					}
+					public SVDBFile findFile(String path) {
+						return fFileMap.get(path);
+					}
+					public void dump(IDBWriter index_data) {}
+					public void dispose() {}
+					public void clearGlobalDefines() {}
+					public void addChangeListener(ISVDBIndexChangeListener l) {}
+				});
 	}
 
 }

@@ -14,6 +14,10 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.Map;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+
 public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String			TYPE = "net.sf.sveditor.libIndex";
@@ -21,6 +25,7 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 	public ISVDBIndex createSVDBIndex(
 			String 					project_name, 
 			String 					base_location,
+			ISVDBIndexCache			cache,
 			Map<String, Object>		config) {
 		ISVDBFileSystemProvider fs_provider;
 		
@@ -31,7 +36,7 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 		}
 		
 		ISVDBIndex index = new SVDBLibIndex(
-				project_name, base_location, fs_provider);
+				project_name, base_location, fs_provider, cache);
 		
 		SVDBIndexFactoryUtils.setBaseProperties(config, index);
 		

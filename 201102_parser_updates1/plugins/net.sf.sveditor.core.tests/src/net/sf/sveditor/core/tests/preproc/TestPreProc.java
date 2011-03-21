@@ -121,7 +121,7 @@ public class TestPreProc extends TestCase {
 			}
 		}
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		
@@ -184,7 +184,7 @@ public class TestPreProc extends TestCase {
 			}
 		}
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		

@@ -25,7 +25,8 @@ import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider {
 	
-	void init(ISVDBIndexRegistry registry);
+	public void init(IProgressMonitor monitor);
+
 	
 	SVDBFile parse(InputStream in, String path, IProgressMonitor monitor);
 	
@@ -51,13 +52,6 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	String getTypeID();
 	
 	/**
-	 * Returns a human-readable name for this index type
-	 * 
-	 * @return
-	 */
-	String getTypeName();
-	
-	/**
 	 * Returns whether this database has loaded information from all its files
 	 */
 	boolean isLoaded();
@@ -65,11 +59,13 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	/**
 	 * Dump index-specific data
 	 */
-	void dump(IDBWriter			index_data);
+	@Deprecated
+	void dump(IDBWriter	index_data);
 	
 	/**
 	 * Load this index from the specified lists
 	 */
+	@Deprecated
 	void load(
 			IDBReader			index_data,
 			List<SVDBFile> 		pp_files, 
@@ -91,6 +87,7 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	 * NOTE: this method is non-functional if the index is an Include Path
 	 * @return
 	 */
+	@Deprecated
 	Map<String, SVDBFile> getFileDB(IProgressMonitor monitor);
 	
 	/**
@@ -98,7 +95,10 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor);
+	
+	List<String> getFileList(IProgressMonitor monitor);
 
 	/**
 	 * Finds the specified file within this index. Returns 'null' if
@@ -116,8 +116,6 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	 * @return
 	 */
 	SVDBFile findPreProcFile(String path);
-	
-	
 
 	/**
 	 * Forces a rebuild of the index

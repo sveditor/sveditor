@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+import junit.framework.TestCase;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -54,6 +56,17 @@ public class TestUtils {
 		}
 		
 		return ret;
+	}
+	
+	public static void delete(File item) {
+		if (item.isDirectory()) {
+			for (File i : item.listFiles()) {
+				delete(i);
+			}
+		}
+		if (!item.delete()) {
+			TestCase.fail("Failed to delete \"" + item.getAbsolutePath() + "\"");
+		}
 	}
 	
 	public static void copy(ByteArrayOutputStream in, File out) {

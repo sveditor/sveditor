@@ -35,14 +35,13 @@ public class SVClassDeclParser extends SVParserBase {
 	public SVDBClassDecl parse(int qualifiers) throws SVParseException {
 		SVDBClassDecl cls = null;
 		SVDBTypeInfoClassType cls_type;
-		String id;
 		String cls_type_name = null;
 		
 		debug("--> process_class()");
 		
 		// Expect to enter on 'class'
-		fLexer.readKeyword("class");
 		SVDBLocation start_loc = fLexer.getStartLocation();
+		fLexer.readKeyword("class");
 		
 		if (fLexer.peekKeyword("automatic", "static")) {
 			// TODO: set lifetime on class declaration

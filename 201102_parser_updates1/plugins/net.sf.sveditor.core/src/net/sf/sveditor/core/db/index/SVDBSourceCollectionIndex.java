@@ -20,14 +20,12 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	
@@ -44,8 +42,9 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			String					project,
 			String					root,
 			AbstractSVFileMatcher	matcher,
-			ISVDBFileSystemProvider	fs_provider) {
-		super(project, root, fs_provider);
+			ISVDBFileSystemProvider	fs_provider,
+			ISVDBIndexCache			cache) {
+		super(project, root, fs_provider, cache);
 		
 		fLog = LogFactory.getLogHandle("Index.SourceCollectionIndex");
 		
@@ -70,19 +69,23 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			for (int i=0; i<fFilePaths.size(); i++) {
 				fFilePaths.set(i, SVFileUtils.normalize(fFilePaths.get(i)));
 				
+				/** TEMP
 				// If we've added a new file, then give up and rebuild
 				if (!fPreProcFileMap.containsKey(fFilePaths.get(i))) {
 					rebuildIndex();
 					return;
 				}
+				 */
 			}
 			
 			initPaths();
+			/** TEMP
 			loadMarkers();
+			 */
 
 			// re-build the FileTree structure
 			for (String path : fFilePaths) {
-				SVDBFile pp_file = processPreProcFile(path, true);
+				SVDBFile pp_file = processPreProcFile(path);
 				if (has_pkg_interface_module_program(pp_file)) {
 					fModIfcClsFiles.add(pp_file);
 				} else {
@@ -90,6 +93,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 				}
 			}
 			
+			/** TEMP
 			for (SVDBFile pp_file : fModIfcClsFiles) {
 				fLog.debug("Process top-level file: " + pp_file.getFilePath());
 				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
@@ -102,6 +106,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 				buildPreProcFileMap(null, ft_root);
 			}
+			 */
 		}
 	}
 	
@@ -132,6 +137,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		}
 	}
 
+	/** TEMP
 	@Override
 	protected synchronized void buildPreProcFileMap() {
 		// Say the index is already valid
@@ -171,7 +177,9 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			buildPreProcFileMap(null, ft_root);
 		}
 	}
+	 */
 	
+	/** TEMP
 	@Override
 	protected void buildIndex(IProgressMonitor monitor) {
 		fLog.debug("--> buildIndex()");
@@ -210,6 +218,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		long end = System.currentTimeMillis();
 		fLog.debug("<-- buildIndex(" + (end-start) + ")");
 	}
+	 */
 	
 	private void dump_file_tree(String type, SVDBFileTree ft) {
 		if (ft == null) {
@@ -218,9 +227,11 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		}
 		fLog.debug(type + ": " + ft.getFilePath());
 		
+		/** TEMP
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {
 			dump_down(inc, 1);
 		}
+		 */
 	}
 	
 	private void dump_down(SVDBFileTree ft, int indent) {
@@ -232,9 +243,11 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		indent_s = indent_sb.toString();
 		
 		fLog.debug(indent_s + "IncFile: " + ft.getFilePath());
+		/** TEMP
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {
 			dump_down(inc, indent+1);
 		}
+		 */
 	}
 	
 	@Override
@@ -283,9 +296,11 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 
 	@Override
 	public void fileRemoved(String path) {
+		/** TEMP
 		if (fPreProcFileMap.containsKey(path)) {
 			rebuildIndex();
 		}
+		 */
 	}
 
 	@Override

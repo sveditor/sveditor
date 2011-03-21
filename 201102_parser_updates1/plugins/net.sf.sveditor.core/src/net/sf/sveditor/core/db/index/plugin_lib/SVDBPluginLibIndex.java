@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.Platform;
@@ -36,8 +37,9 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 	
 	public SVDBPluginLibIndex(
 			String 			project, 
-			String 			base_location) {
-		super(project, base_location, null);
+			String 			base_location,
+			ISVDBIndexCache	cache) {
+		super(project, base_location, null, cache);
 		
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 		
@@ -56,8 +58,9 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 	public SVDBPluginLibIndex(
 			String 			project, 
 			String			plugin_ns,
-			String			root) {
-		super(project, "plugin:/" + plugin_ns + "/" + root, null);
+			String			root,
+			ISVDBIndexCache	cache) {
+		super(project, "plugin:/" + plugin_ns + "/" + root, null, cache);
 
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 
@@ -77,6 +80,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 	public String getTypeID() {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
+	
 	
 	/*
 	@SuppressWarnings("unchecked")
@@ -129,6 +133,18 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 	}
 	 */
 	
+	public boolean isDir(String path) {
+ 		if (path.startsWith("plugin:/")) {
+ 			URL entry;
+
+			String leaf = path.substring(("plugin:/" + fPluginNS).length());
+
+			return ((entry = fBundle.getEntry(leaf)) != null && entry.getPath().endsWith("/"));
+		} else {
+			return false;
+		}
+	}
+
 	public void addMarker(String path, String type, int lineno, String msg) {}
 
 	public void clearMarkers(String path) {}

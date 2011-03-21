@@ -38,7 +38,8 @@ public class ProfileIndexLoad {
 		
 		System.out.println("Library Path: " + lib_path);
 		SVDBLibPathIndexFactory f = new SVDBLibPathIndexFactory();
-		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null);
+		// TODO: provide cache
+		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null, null);
 		mgr.addLibraryPath(index);
 		
 		ISVDBItemIterator item_it = mgr.getItemIterator(new NullProgressMonitor());

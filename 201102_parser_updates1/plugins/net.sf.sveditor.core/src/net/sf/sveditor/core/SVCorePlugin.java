@@ -27,6 +27,10 @@ import java.util.Map;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
+import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
@@ -55,7 +59,8 @@ import org.osgi.framework.Version;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVCorePlugin extends Plugin implements ILogListener {
+public class SVCorePlugin extends Plugin 
+	implements ILogListener, ISVDBIndexCacheFactory {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -204,15 +209,36 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return ret;
 	}
 	
+	public void setSVDBIndexRegistry(SVDBIndexRegistry rgy) {
+		fIndexRegistry = rgy;
+	}
+	
 	public SVDBIndexRegistry getSVDBIndexRegistry() {
 		if (fIndexRegistry == null) {
 			fIndexRegistry = new SVDBIndexRegistry();
-			fIndexRegistry.init(getStateLocation().toFile());
+			fIndexRegistry.init(this);
 		}
 		
 		return fIndexRegistry;
 	}
 	
+	public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
+		File file = getStateLocation().toFile();
+		File cache = new File(file, "cache");
+		File cache_dir = new File(cache, "project_name_" + base_location.hashCode());
+
+		if (!cache_dir.exists()) {
+			if (!cache_dir.mkdirs()) {
+				System.out.println("Failed to create cache directory");
+			}
+		}
+		
+		SVDBDirFS fs = new SVDBDirFS(cache_dir);
+		ISVDBIndexCache ret = new SVDBFileIndexCache(fs);
+
+		return ret;
+	}
+
 	public String getDefaultSourceCollectionIncludes() {
 		return "**/*.sv, **/*.svh, **/*.v, **/*.vl, **/*.vlog";
 	}

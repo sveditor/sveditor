@@ -38,6 +38,19 @@ public class PersistenceIndex implements ISVDBIndex {
 	private List<SVDBFile>			fLoadDBFileList;
 	private List<SVDBFile>			fLoadPPFileList;
 	
+	
+	
+	public List<String> getFileList(IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void init(IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	public PersistenceIndex(ISVDBIndex index) {
 		fTargetIndex = index;
 		fDumpDBFileList = new ArrayList<SVDBFile>();

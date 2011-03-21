@@ -32,13 +32,16 @@ import net.sf.sveditor.core.db.SVDBLocation;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
-	private InputStream			fIn;
-	private byte				fBuf[];
-	private byte				fTmp[];
-	private int					fBufIdx;
-	private int					fBufSize;
+	private InputStream								fIn;
+	private byte									fBuf[];
+	private byte									fTmp[];
+	private int										fBufIdx;
+	private int										fBufSize;
+	private int										fPos;
 	private static Map<Class, Map<Integer, Enum>>	fEnumMap;
 	private Map<SVDBItemType, Class>				fClassMap;
+	private static final boolean					fDebugEn = false;
+	private int										fLevel = 0;
 	
 	static {
 		fEnumMap = new HashMap<Class, Map<Integer,Enum>>();
@@ -49,6 +52,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		fBuf     	= new byte[1024*1024];
 		fBufIdx  	= 0;
 		fBufSize 	= 0;
+		fPos		= 0;
 		fClassMap 	= new HashMap<SVDBItemType, Class>();
 		
 		// Locate the class for each SVDBItemType element
@@ -61,9 +65,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 											  "net.sf.sveditor.core.db.expr."}) {
 				try {
 					cls = cl.loadClass(pref + key);
-				} catch (Exception e) {
-//					System.out.println("Failed to locate class " + key);
-				}
+				} catch (Exception e) { }
 			}
 			
 			if (cls == null) {
@@ -81,8 +83,9 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	}
 	
 	public void readObject(ISVDBChildItem parent, Class cls, Object target) throws DBFormatException {
-		
-//		System.out.println("readObject: " + cls.getName());
+		if (fDebugEn) {
+			debug("--> " + (++fLevel) + " readObject: " + cls.getName());
+		}
 		
 		if (cls.getSuperclass() != null && cls.getSuperclass() != Object.class) {
 			readObject(parent, cls.getSuperclass(), target);
@@ -111,7 +114,9 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 				try {
 					Class field_class = f.getType();
 					
-//					System.out.println("   read field: " + field_class.getName());
+					if (fDebugEn) {
+						debug("   read field " + f.getName() + " in " + cls.getName() + ": " + field_class.getName());
+					}
 
 					if (Enum.class.isAssignableFrom(field_class)) {
 						f.set(target, readEnumType(field_class));
@@ -120,7 +125,13 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 						if (t instanceof ParameterizedType) {
 							ParameterizedType pt = (ParameterizedType)t;
 							Type args[] = pt.getActualTypeArguments();
+							if (args.length != 1) {
+								throw new DBFormatException("" + args.length + "-parameter list unsupported");
+							}
 							Class c = (Class)args[0];
+							if (fDebugEn) {
+								debug("Read list field " + f.getName() + " w/item type " + c.getName());
+							}
 							if (c == String.class) {
 								f.set(target, readStringList());
 							} else if (c == Integer.class) {
@@ -156,7 +167,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 						f.setLong(target, readLong());
 					} else if (field_class == boolean.class) {
 						f.setBoolean(target, readBoolean());
-					} else if (SVDBLocation.class.isAssignableFrom(field_class)) {
+					} else if (SVDBLocation.class == field_class) {
 						f.set(target, readSVDBLocation());
 					} else if (ISVDBItemBase.class.isAssignableFrom(field_class)) {
 						f.set(target, readSVDBItem(parent));
@@ -168,6 +179,10 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 					throw new DBFormatException("Generic Load Failure: " + e.getMessage());
 				}
 			}
+		}
+
+		if (fDebugEn) {
+			debug("<-- " + (fLevel--) + " readObject: " + cls.getName());
 		}
 	}
 
@@ -334,8 +349,6 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 
 	@SuppressWarnings("unchecked")
 	public List readItemList(ISVDBChildItem parent) throws DBFormatException {
-//		System.out.println("readItemList");
-		
 		int type = readRawType();
 		
 		if (type == TYPE_NULL) {
@@ -347,6 +360,10 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		}
 		
 		int size = readInt();
+		
+		if (fDebugEn) {
+			debug("readSVDBItemList: " + size);
+		}
 		
 		List ret = new ArrayList();
 		for (int i=0; i<size; i++) {
@@ -360,6 +377,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		int type = readRawType();
 		
 		if (type == TYPE_NULL) {
+			debug("    readLocation: NULL");
 			return null;
 		}
 		
@@ -367,9 +385,14 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 			throw new DBFormatException("Expecting TYPE_SVDB_LOCATION ; received " + type);
 		}
 
+
 		int line = readInt();
 		int pos  = readInt();
-		
+
+		if (fDebugEn) {
+			debug("    readLocation: " + line + ":" + pos);
+		}
+
 		return new SVDBLocation(line, pos);
 	}
 
@@ -390,30 +413,86 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		readRawBytes(fTmp, 0, (type-TYPE_INT_8+1));
 		
 		switch (type) {
-			case TYPE_INT_8:
-				ret = fTmp[0];
-				break;
-			case TYPE_INT_16:
-				ret = (fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_24:
-				ret = (fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_32:
-				ret = (fTmp[3] << 24 | fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_40:
-				ret = (fTmp[4] << 32 | fTmp[3] << 24 | fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_48:
-				ret = (fTmp[5] << 40 | fTmp[4] << 32 | fTmp[3] << 24 | fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_56:
-				ret = (fTmp[6] << 48 | fTmp[5] << 40 | fTmp[4] << 32 | fTmp[3] << 24 | fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
-			case TYPE_INT_64:
-				ret = (fTmp[7] << 56 | fTmp[6] << 48 | fTmp[5] << 40 | fTmp[4] << 32 | fTmp[3] << 24 | fTmp[2] << 16 | fTmp[1] << 8 | fTmp[0]);
-				break;
+		case TYPE_INT_8:
+			ret = ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_16:
+			ret = ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_24:
+			ret = ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_32:
+			ret = ((int)fTmp[3] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_40:
+			ret = ((int)fTmp[4] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[3] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_48:
+			ret = ((int)fTmp[5] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[4] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[3] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_56:
+			ret = ((int)fTmp[6] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[5] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[4] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[3] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
+		case TYPE_INT_64:
+			ret = ((int)fTmp[7] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[6] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[5] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[4] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[3] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[2] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[1] & 0xFF);
+			ret <<= 8;
+			ret |= ((int)fTmp[0] & 0xFF);
+			break;
 		}
 		
 		return ret;
@@ -442,6 +521,9 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 
 		String ret = new String(fTmp, 0, len);
 		
+		if (fDebugEn) {
+			debug("readString: " + ret);
+		}
 		return ret;
 	}
 
@@ -483,7 +565,28 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		
 		return ret;
 	}
-	
+
+	public List<Long> readLongList() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_LONG_LIST) {
+			throw new DBFormatException("Expecting TYPE_LONG_LIST, received " + type);
+		}
+		
+		int size = readInt();
+		
+		List<Long> ret = new ArrayList<Long>();
+		for (int i=0; i<size; i++) {
+			ret.add(readLong());
+		}
+		
+		return ret;
+	}
+
 	public ISVDBItemBase readSVDBItem(ISVDBChildItem parent) throws DBFormatException {
 		int type = readRawType();
 		
@@ -494,6 +597,10 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		}
 		
 		SVDBItemType item_type   = readItemType();
+		
+		if (fDebugEn) {
+			debug("readSVDBItem: " + item_type);
+		}
 		
 		ISVDBItemBase ret = null;
 		
@@ -541,6 +648,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		
 		if (fBufIdx < fBufSize) {
 			ch = fBuf[fBufIdx++];
+			fPos++;
 		} else {
 			throw new DBFormatException("Unexpected EOF");
 		}
@@ -563,6 +671,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 				System.arraycopy(fBuf, fBufIdx, data, idx, this_len);
 				fBufIdx += this_len;
 				idx += this_len;
+				fPos += this_len;
 			}
 			
 			if (fBufIdx >= fBufSize) {
@@ -577,6 +686,12 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 				// EOF
 				throw new DBFormatException("Unexpected EOF");
 			}
+		}
+	}
+	
+	private void debug(String msg) {
+		if (fDebugEn) {
+			System.out.println(msg);
 		}
 	}
 }

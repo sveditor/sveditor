@@ -118,7 +118,6 @@ public class SVEditor extends TextEditor
 	@Override
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
-		// TODO Auto-generated method stub
 		super.init(site, input);
 		
 		if (input instanceof IURIEditorInput) {

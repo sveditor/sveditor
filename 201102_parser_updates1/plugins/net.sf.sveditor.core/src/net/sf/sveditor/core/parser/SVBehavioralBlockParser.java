@@ -103,6 +103,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				fLexer.peek() + " @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		SVDBStmt stmt = null;
 		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
+		SVDBLocation start = fLexer.getStartLocation();
 
 		// Try for a declaration here
 		if (fLexer.peekKeyword(decl_keywords) ||
@@ -118,6 +119,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					error("declaration in a post-declaration location");
 				}
 				SVDBStmt decl = parsers().blockItemDeclParser().parse();
+				decl.setLocation(start);
 				return decl;
 			} else {
 				// May be a declaration. Let's see
@@ -143,7 +145,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					}
 					
 					SVDBStmt decl = parsers().blockItemDeclParser().parse();
-					
+					decl.setLocation(start);
 				
 					// Bail for now
 					return decl; 
@@ -300,9 +302,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			event_stmt.setStmt(statement(decl_allowed, ansi_decl));
 			stmt = event_stmt;
 		} else if (fLexer.peekOperator("#")) {
-			SVDBLocation start = fLexer.getStartLocation();
 			SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
-			delay_stmt.setLocation(start);
 			
 			delay_stmt.setExpr(fParsers.exprParser().delay_expr());
 			delay_stmt.setStmt(statement(false, true));
@@ -405,13 +405,17 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		debug("<-- [" + level + "] statement " + fLexer.peek() + 
 				" @ " + fLexer.getStartLocation().getLine() + " parent=" + parent);
 		
+		stmt.setLocation(start);
 		return stmt;
 	}
 	
 	public SVDBActionBlockStmt action_block() throws SVParseException {
 		SVDBActionBlockStmt ret = new SVDBActionBlockStmt();
 		if (fLexer.peekOperator(";")) {
+			SVDBLocation start = fLexer.getStartLocation();
+			fLexer.eatToken();
 			SVDBStmt stmt = new SVDBNullStmt();
+			stmt.setLocation(start);
 			ret.setStmt(stmt);
 		} else if (fLexer.peekKeyword("else")) {
 			fLexer.eatToken();
@@ -433,7 +437,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.readOperator("(");
 		SVDBForStmt stmt = new SVDBForStmt();
 		stmt.setLocation(start);
-		if (!fLexer.peekOperator(";")) {
+		if (fLexer.peek() != null && !fLexer.peekOperator(";")) {
 			SVToken first = fLexer.peekToken();
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 			
@@ -518,6 +522,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	
 	private SVDBIfStmt parse_if_stmt() throws SVParseException {
+		SVDBLocation start = fLexer.getStartLocation();
 		String if_stem = fLexer.eatToken();
 		
 		debug("beginning of \"if\": " + if_stem);
@@ -529,6 +534,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.readOperator("(");
 		SVDBIfStmt if_stmt = new SVDBIfStmt(parsers().exprParser().expression()); 
 		fLexer.readOperator(")");
+		if_stmt.setLocation(start);
 		
 		debug("--> parse body of if");
 		SVDBStmt if_body = statement();

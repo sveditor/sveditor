@@ -10,9 +10,9 @@ import net.sf.sveditor.core.db.SVDBCoverpoint;
 import net.sf.sveditor.core.db.SVDBCoverpointBins;
 import net.sf.sveditor.core.db.SVDBCoverpointBins.BinsType;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
-import net.sf.sveditor.core.db.SVDBIdentifier;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
 
 public class SVCovergroupParser extends SVParserBase {
@@ -190,7 +190,7 @@ public class SVCovergroupParser extends SVParserBase {
 	
 	private void cover_cross(SVDBCoverpointCross cp) throws SVParseException {
 		while (fLexer.peek() != null) {
-			SVDBIdentifier id = SVDBIdentifier.readId(lexer());
+			SVDBIdentifierExpr id = fParsers.exprParser().idExpr();
 			cp.getCoverpointList().add(id);
 		
 			if (fLexer.peekOperator(",")) {
@@ -212,7 +212,7 @@ public class SVCovergroupParser extends SVParserBase {
 					cp.addItem(coverage_option());
 				} else {
 					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
-					SVDBIdentifier id = readId();
+					SVDBIdentifierExpr id = fParsers.exprParser().idExpr();
 					// TODO:
 				}
 			}

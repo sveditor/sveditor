@@ -1,1 +1,13 @@
 = SVEditor Index System =
+
+The Index is a central feature in SVEditor's architecture. 
+== Index Process ==
+There are four steps in the indexing process:
+* Root file list discovery
+* Pre-processor scan to discover included files
+* Constructing a File Tree for each file
+* Full parse
+  
+
+=== Root File List Discovery ===
+

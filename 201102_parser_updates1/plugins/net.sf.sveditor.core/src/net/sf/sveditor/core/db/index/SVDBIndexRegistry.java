@@ -28,6 +28,10 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
+import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBVersionException;
@@ -40,7 +44,10 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
 /**
  * Central storage for leaf indexes. Provides a central place to locate
@@ -56,6 +63,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
 	private File											fDatabaseDir;
 	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
+	private ISVDBIndexCacheFactory							fCacheFactory;
 	private LogHandle										fLog;
 
 	/**
@@ -71,14 +79,29 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
-		if (standalone_test_mode) {
-			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
-		} else {
-			fGlobalIndexMgr = getGlobalIndexMgr();
-		}
 	}
 	
-	public void init(File state_location) {
+	@Deprecated
+	public void init(final File state_location) {
+		fProjectIndexMap.clear();
+		fCacheFactory = new ISVDBIndexCacheFactory() {
+			
+			public ISVDBIndexCache createIndexCache(
+					String project_name,
+					String base_location) {
+				File cache_dir = new File(state_location, project_name + "_" + base_location.hashCode());
+				SVDBDirFS fs = new SVDBDirFS(cache_dir);
+				return new SVDBFileIndexCache(fs);
+			}
+		};
+		fGlobalIndexMgr = getGlobalIndexMgr();
+	}
+
+	public void init(ISVDBIndexCacheFactory cache_factory) {
+		fCacheFactory = cache_factory;
+		fProjectIndexMap.clear();
+		
+		/*
 		fProjectIndexMap.clear();
 		fDatabaseDescMap.clear();
 		if (state_location != null) {
@@ -87,9 +110,11 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		} else {
 			fDatabaseDir = null;
 		}
+		 */
+		
 		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
-	
+
 	public List<ISVDBIndex> getProjectIndexList(String project) {
 		if (fProjectIndexMap.containsKey(project)) {
 			return fProjectIndexMap.get(project);
@@ -104,6 +129,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			
 			// Ensure the global index has access to the built-in types
 			ISVDBIndex index = findCreateIndex(
+					new NullProgressMonitor(),
 					SVDBIndexRegistry.GLOBAL_PROJECT, 
 					SVCorePlugin.SV_BUILTIN_LIBRARY, 
 					SVDBPluginLibIndexFactory.TYPE, null);
@@ -112,6 +138,16 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			}
 		}
 		return fGlobalIndexMgr;
+	}
+
+	@Deprecated
+	public ISVDBIndex findCreateIndex(
+			String 					project, 
+			String 					base_location, 
+			String 					type,
+			Map<String, Object>		config) {
+		return findCreateIndex(new NullProgressMonitor(), project,
+				base_location, type, config);
 	}
 	
 	/**
@@ -123,6 +159,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 * @return
 	 */
 	public ISVDBIndex findCreateIndex(
+			IProgressMonitor		monitor,
 			String 					project, 
 			String 					base_location, 
 			String 					type,
@@ -149,10 +186,12 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			fLog.debug("    Index does not exist -- creating");
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
+			ISVDBIndexCache cache = fCacheFactory.createIndexCache(project, base_location);
 			
-			ret = factory.createSVDBIndex(project, base_location, config);
+			ret = factory.createSVDBIndex(project, base_location, cache, config);
 			
-			ret.init(this);
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			ret.init(m);
 			
 			project_index.add(ret);
 		} else {
@@ -160,6 +199,16 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		}
 		
 		return ret;
+	}
+
+	public ISVDBIndex findCreateIndex(
+			String 					project, 
+			String 					base_location, 
+			String 					type,
+			ISVDBIndexFactory		factory,
+			Map<String, Object>		config) {
+		return findCreateIndex(new NullProgressMonitor(), project,
+				base_location, type, factory, config);
 	}
 
 	/**
@@ -171,6 +220,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	 * @return
 	 */
 	public ISVDBIndex findCreateIndex(
+			IProgressMonitor		monitor,
 			String 					project, 
 			String 					base_location, 
 			String 					type,
@@ -196,10 +246,13 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		if (ret == null) {
 			fLog.debug("    Index does not exist -- creating");
-			// See about creating a new index
-			ret = factory.createSVDBIndex(project, base_location, config);
+			ISVDBIndexCache cache = fCacheFactory.createIndexCache(project, base_location);
 			
-			ret.init(this);
+			// See about creating a new index
+			ret = factory.createSVDBIndex(project, base_location, cache, config);
+			
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			ret.init(m);
 			
 			project_index.add(ret);
 		} else {

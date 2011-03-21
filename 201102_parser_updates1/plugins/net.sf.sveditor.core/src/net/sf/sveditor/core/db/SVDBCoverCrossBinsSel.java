@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db;
 
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 public class SVDBCoverCrossBinsSel extends SVDBItem {
 	
@@ -10,8 +11,8 @@ public class SVDBCoverCrossBinsSel extends SVDBItem {
 		super("", SVDBItemType.CoverCrossBinsSel);
 	}
 	
-	public SVDBCoverCrossBinsSel(SVDBIdentifier id) {
-		super(id.getId(), SVDBItemType.CoverCrossBinsSel);
+	public SVDBCoverCrossBinsSel(SVDBIdentifierExpr id) {
+		super(id, SVDBItemType.CoverCrossBinsSel);
 	}
 	
 	public void setSelectExpr(SVDBExpr expr) {

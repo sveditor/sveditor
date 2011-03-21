@@ -45,10 +45,10 @@ public class SVIntegerExprEvaluator {
 				SVDBIdentifierExpr id = (SVDBIdentifierExpr)expr;
 				
 				if (fValueProvider != null) {
-					return fValueProvider.get_value(id.getIdStr());
+					return fValueProvider.get_value(id.getId());
 				} else {
 					throw new Exception("Unable to resolve value of id \"" + 
-							id.getIdStr() + "\"; ValueProvider is null");
+							id.getId() + "\"; ValueProvider is null");
 				}
 			}
 				

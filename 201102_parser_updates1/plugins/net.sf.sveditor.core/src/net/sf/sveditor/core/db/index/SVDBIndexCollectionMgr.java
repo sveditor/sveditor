@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
@@ -265,7 +266,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 					Map<String, Object> config = new HashMap<String, Object>();
 					config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 					
-					index = rgy.findCreateIndex(
+					index = rgy.findCreateIndex(new NullProgressMonitor(),
 						fProject, dir, SVDBSourceCollectionIndexFactory.TYPE, config);
 				} else {
 					System.out.println("[TODO] create shadow index for " +

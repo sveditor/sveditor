@@ -50,7 +50,7 @@ public class SVDBItemBase implements ISVDBItemBase {
 	}
 
 	public void init(ISVDBItemBase other) {
-		fType = other.getType();
+		// Treat fType as immutable: fType = other.getType();
 		if (other.getLocation() != null) {
 			fLocation = other.getLocation().duplicate();
 		} else {

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.persistence.SVDBParentAttr;
 
 
@@ -31,7 +32,16 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 			fName = name;
 		}
 	}
-	
+
+	public SVDBItem(SVDBIdentifierExpr name, SVDBItemType type) {
+		super(type);
+		if (name == null) {
+			fName = "";
+		} else {
+			fName = name.getId();
+		}
+	}
+
 	public void setParent(ISVDBChildItem parent) {
 		fParent = parent;
 	}

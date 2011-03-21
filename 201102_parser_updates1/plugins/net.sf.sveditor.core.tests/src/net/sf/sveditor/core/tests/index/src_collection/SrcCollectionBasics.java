@@ -607,7 +607,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleFileToFS(data_dir + "/xxxxx.svh", testdir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(null);
+		rgy.init((File)null);
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				project_dir.getName(), "${workspace_loc}/a", 

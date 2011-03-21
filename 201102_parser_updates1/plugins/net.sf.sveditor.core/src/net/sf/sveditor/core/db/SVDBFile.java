@@ -14,9 +14,6 @@ package net.sf.sveditor.core.db;
 
 import java.io.File;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-
 public class SVDBFile extends SVDBScopeItem {
 	private String						fFile;
 	private long						fLastModified;
@@ -31,9 +28,10 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	public SVDBFile(String file, long lastModified) {
+	private SVDBFile(String file, long lastModified) {
 		this(file);
 		
+		fFile = file;
 		fLastModified = lastModified;
 		setLocation(new SVDBLocation(-1, -1));
 	}
@@ -64,9 +62,11 @@ public class SVDBFile extends SVDBScopeItem {
 	
 	public void init(SVDBItemBase other) {
 		super.init(other);
+		
+		SVDBFile o = (SVDBFile)other;
 
-		fFile               = ((SVDBFile)other).fFile;
-		fLastModified = ((SVDBFile)other).fLastModified;
+		fFile         = o.fFile;
+		fLastModified = o.fLastModified;
 	}
 
 	@Override

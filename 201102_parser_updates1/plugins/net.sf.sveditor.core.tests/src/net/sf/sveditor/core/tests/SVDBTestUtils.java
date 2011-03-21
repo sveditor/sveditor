@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import junit.framework.TestCase;
@@ -26,6 +28,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -112,6 +118,27 @@ public class SVDBTestUtils {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
 		
 		file = factory.parse(new StringInputStream(content), filename);
+		
+		// Test persistence
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		SVDBPersistenceWriter writer = new SVDBPersistenceWriter(bos);
+		try {
+			writer.writeSVDBItem(file);
+		} catch (DBWriteException e) {
+			TestCase.fail("Received DBWriteException: " + e.getMessage());
+		}
+		
+		writer.close();
+		
+		SVDBPersistenceReader reader = new SVDBPersistenceReader(
+				new ByteArrayInputStream(bos.toByteArray()));
+		
+		try {
+			reader.readSVDBItem(null);
+		} catch (DBFormatException e) {
+			e.printStackTrace();
+			TestCase.fail("Received DBFormatException: " + e.getMessage());
+		}
 		
 		return file;
 	}

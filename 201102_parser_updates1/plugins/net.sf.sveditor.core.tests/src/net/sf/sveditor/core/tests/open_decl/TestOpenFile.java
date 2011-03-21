@@ -54,7 +54,7 @@ public class TestOpenFile extends TestCase {
 			TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.init(null);
+			rgy.init((File)null);
 			
 			ISVDBIndex target_index = rgy.findCreateIndex("subdir2",
 					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",

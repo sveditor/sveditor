@@ -16,9 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 public class SVDBCoverpointCross extends SVDBScopeItem {
-	private List<SVDBIdentifier>	fCoverpointList;
+	private List<SVDBIdentifierExpr>	fCoverpointList;
 	private SVDBExpr					fIFF;
 
 	public SVDBCoverpointCross() {
@@ -27,7 +28,7 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 
 	public SVDBCoverpointCross(String name) {
 		super(name, SVDBItemType.CoverpointCross);
-		fCoverpointList = new ArrayList<SVDBIdentifier>();
+		fCoverpointList = new ArrayList<SVDBIdentifierExpr>();
 	}
 	
 	public SVDBExpr getIFF() {
@@ -38,7 +39,7 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 		fIFF = expr;
 	}
 
-	public List<SVDBIdentifier> getCoverpointList() {
+	public List<SVDBIdentifierExpr> getCoverpointList() {
 		return fCoverpointList;
 	}
 	

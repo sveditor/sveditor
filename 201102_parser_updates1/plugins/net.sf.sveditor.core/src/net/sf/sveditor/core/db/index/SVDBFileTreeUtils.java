@@ -88,11 +88,11 @@ public class SVDBFileTreeUtils {
 
 		if (fDebugEn) {
 			debug("   File \"" + file.getFilePath() + "\" complete");
-			for (SVDBFileTree f : file.getIncludedFiles()) {
-				debug("        Included - " + f.getFilePath());
+			for (String f : file.getIncludedFiles()) {
+				debug("        Included - " + f);
 			}
-			for (SVDBFileTree f : file.getIncludedByFiles()) {
-				debug("        Included-By - " + f.getFilePath());
+			for (String f : file.getIncludedByFiles()) {
+				debug("        Included-By - " + f);
 			}
 		}
 		
@@ -201,9 +201,9 @@ public class SVDBFileTreeUtils {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (!file.getIncludedFiles().contains(inc_file)) {
+					} else if (!file.getIncludedFiles().contains(inc_file.getFilePath())) {
 						debug("    include file \"" + inc.getName() + "\"");
-						file.getIncludedFiles().add(inc_file);
+						file.getIncludedFiles().add(inc_file.getFilePath());
 
 						if (!inc_file.getFileProcessed()) {
 							processFile(dp, inc_file, file_l);

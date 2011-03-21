@@ -39,6 +39,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 
 		if (fLexer.peekString() && 
 				(fLexer.peek().equals("DPI") || fLexer.peek().equals("DPI-C"))) {
+			fLexer.eatToken();
 			ret = parse_dpi_tf(start);
 		} else {
 			SVDBExportStmt exp = new SVDBExportStmt();

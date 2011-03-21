@@ -14,6 +14,8 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.InputStream;
 
+import junit.framework.TestCase;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -27,11 +29,22 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 		super("GLOBAL");
 	}
 	
-	public void setFile(SVDBFile file) {
-		fIndexFileMap.remove(file.getName());
-		fIndexFileMap.put(file.getName(), file);
+	@Override
+	protected void discoverRootFiles(IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		
 	}
 
+
+	public void setFile(SVDBFile file) {
+		TestCase.fail("New mechanism for setFile needed");
+		/** TODO
+		fIndexFileMap.remove(file.getName());
+		fIndexFileMap.put(file.getName(), file);
+		 */
+	}
+
+	/** TODO
 	@Override
 	protected void buildIndex(IProgressMonitor monitor) {
 		fIndexFileMapValid = true;
@@ -41,6 +54,7 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	protected void buildPreProcFileMap() {
 		fPreProcFileMapValid = true;
 	}
+	 */
 
 	@Override
 	protected boolean isLoadUpToDate() {

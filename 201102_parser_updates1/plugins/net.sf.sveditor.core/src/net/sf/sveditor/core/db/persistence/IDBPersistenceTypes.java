@@ -21,6 +21,7 @@ public interface IDBPersistenceTypes {
 	int					TYPE_BYTE_ARRAY		= 17;
 	int					TYPE_SVDB_LOCATION	= 18;
 	int					TYPE_MAP			= 19;
+	int					TYPE_LONG_LIST		= 20;
 	
 	int					TYPE_MAX			= 31;
 	

@@ -166,6 +166,25 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		}
 	}
 
+	public boolean isDir(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			try {
+				IFolder folder = root.getFolder(new Path(path));
+
+				return folder.exists();
+			} catch (IllegalArgumentException e) {
+				return false;
+			}
+		} else {
+			// Also look at the filesystem
+			return new File(path).isDirectory();
+		}
+	}
+
 	public void closeStream(InputStream in) {
 		try {
 			if (in != null) {

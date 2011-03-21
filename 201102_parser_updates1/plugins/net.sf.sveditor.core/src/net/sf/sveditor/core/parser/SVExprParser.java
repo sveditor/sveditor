@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVCoverageExpr;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
@@ -68,7 +69,7 @@ public class SVExprParser extends SVParserBase {
 		if (fLexer.peekOperator("(")) {
 			expr.setExpr(event_expression());
 		} else {
-			expr.setExpr(new SVDBIdentifierExpr(fLexer.readId()));
+			expr.setExpr(idExpr());
 		}
 		
 		return expr;
@@ -163,9 +164,9 @@ public class SVExprParser extends SVParserBase {
 	 */
 	public SVDBExpr expression() throws SVParseException {
 		SVDBExpr expr = null;
-		debug("--> expression()");
+//		debug("--> expression()");
 		expr = assignmentExpression();
-		debug("<-- expression() " + expr);
+//		debug("<-- expression() " + expr);
 		
 		return expr; 
 	}
@@ -359,7 +360,7 @@ public class SVExprParser extends SVParserBase {
 			a = inside;
 		}
 
-		debug("<-- assignmentExpression() " + a);
+		debug("<-- assignmentExpression() ");
 		return a;
 	}
 	
@@ -413,7 +414,7 @@ public class SVExprParser extends SVParserBase {
 		
 		SVDBExpr rhs = conditionalExpression();
 		a = new SVDBCondExpr(lhs, mhs, rhs);
-		debug("<-- conditionalExpression() " + a);
+		debug("<-- conditionalExpression() ");
 		return a;
 	}
 	
@@ -432,7 +433,7 @@ public class SVExprParser extends SVParserBase {
 			a = new SVDBBinaryExpr(a, "||", conditionalAndExpression());
 		}
 		
-		debug("<-- conditionalOrExpression() " + a);
+		debug("<-- conditionalOrExpression() ");
 		return a;
 	}
 	
@@ -687,7 +688,7 @@ public class SVExprParser extends SVParserBase {
 			}
 		}
 		
-		debug("<-- primary() " + ret);
+		debug("<-- primary() ");
 		return ret;
 	}
 	
@@ -927,6 +928,14 @@ public class SVExprParser extends SVParserBase {
 	
 	private String readIdentifier() throws SVParseException {
 		return fLexer.readId();
+	}
+	
+	public SVDBIdentifierExpr idExpr() throws SVParseException {
+		SVDBLocation start = fLexer.getStartLocation();
+		SVDBIdentifierExpr ret = new SVDBIdentifierExpr(fLexer.readId());
+		ret.setLocation(start);
+		
+		return ret;
 	}
 	
 	private String readNumber() throws SVParseException {

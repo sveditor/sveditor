@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -22,17 +23,17 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBIndexItemIterator implements ISVDBItemIterator {
+	private ISVDBIndex						fIndex;
 	private Stack<Iterator<ISVDBItemBase>>	fScopeStack;
-	private Iterator<SVDBFile>				fFileIterator;
+	private Iterator<String>				fFilePathIterator;
 	private Iterator<ISVDBItemBase>			fScopeIterator;
 	private SVDBFile						fOverrideFile;
 	private ISVDBItemBase					fCurrent;
 	
-	public SVDBIndexItemIterator(Map<String, SVDBFile> index_items) {
-		fFileIterator = index_items.values().iterator();
+	public SVDBIndexItemIterator(List<String> file_list, ISVDBIndex index) {
+		fFilePathIterator = file_list.iterator();
 		fScopeStack = new Stack<Iterator<ISVDBItemBase>>();
-		
-		fFileIterator = index_items.values().iterator();
+		fIndex = index;
 	}
 	
 	public void setOverride(SVDBFile file) {
@@ -92,8 +93,9 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 				}
 			} else if (!fScopeStack.empty()) {
 				fScopeIterator = fScopeStack.pop();
-			} else if (fFileIterator.hasNext()) {
-				SVDBFile file = fFileIterator.next();
+			} else if (fFilePathIterator.hasNext()) {
+				String path = fFilePathIterator.next();
+				SVDBFile file = fIndex.findFile(path);
 				
 				// Replace the file from the database with the override file
 				if (fOverrideFile != null &&

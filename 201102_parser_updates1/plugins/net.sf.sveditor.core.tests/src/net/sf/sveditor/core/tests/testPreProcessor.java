@@ -48,7 +48,7 @@ public class testPreProcessor implements IApplication {
 		
 		// ovm.getFileTree();
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
 		Map<String, SVDBFile> pp_map = index.getPreProcFileMap(new NullProgressMonitor());

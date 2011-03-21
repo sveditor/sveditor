@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -25,10 +27,12 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
+	private ISVDBIndexCache					fIndexCache;
 	private Map<String, SVDBMacroDef>		fMacroCache;
 	private SVDBFileTree					fContext;
 	private boolean							fFirstSearch;
@@ -36,10 +40,11 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 	private LogHandle						fLog;
 	private static final boolean			fDebugEn = false;
 	
-	public SVFileTreeMacroProvider(SVDBFileTree context) {
+	public SVFileTreeMacroProvider(ISVDBIndexCache cache, SVDBFileTree context) {
 		fLog = LogFactory.getLogHandle("SVFileTreeMacroProvider");
 		
 		fContext = context;
+		fIndexCache = cache;
 		fMacroCache = new HashMap<String, SVDBMacroDef>();
 		fFirstSearch = true;
 		fLastLineno  = 0;
@@ -95,7 +100,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		SVDBFileTree ib = fContext;
 		file_list.add(ib);
 		while (ib.getIncludedByFiles().size() > 0) {
-			ib = ib.getIncludedByFiles().get(0);
+			String ib_s = ib.getIncludedByFiles().get(0); 
+			ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
 			file_list.add(ib);
 		}
 		
@@ -137,7 +143,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				} else {
 					// Look for the included file
 					SVDBFileTree inc = null;
-					for (SVDBFileTree inc_t : file.getIncludedFiles()) {
+					for (String inc_s : file.getIncludedFiles()) {
+						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
 						if (inc_t.getFilePath().endsWith(((ISVDBNamedItem)it).getName())) {
 							inc = inc_t;
 							break;
@@ -151,8 +158,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					} else {
 						fLog.error("Failed to find \"" + ((ISVDBNamedItem)it).getName() + "\" in file-tree");
 						if (fDebugEn) {
-							for (SVDBFileTree inc_t : file.getIncludedFiles()) {
-								fLog.debug("    " + inc_t.getFilePath());
+							for (String inc_s : file.getIncludedFiles()) {
+								fLog.debug("    " + inc_s);
 							}
 						}
 					}
@@ -197,7 +204,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				}
 				SVDBFileTree inc = null;
 				String it_leaf = new File(((ISVDBNamedItem)it).getName()).getName(); 
-				for (SVDBFileTree inc_t : context.getIncludedFiles()) {
+				for (String inc_s : context.getIncludedFiles()) {
+					SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
 					if (fDebugEn) {
 						fLog.debug("    Checking file \"" + inc_t.getFilePath() + "\"");
 					}
@@ -222,8 +230,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					fLog.error("Failed to find \"" + 
 							((ISVDBNamedItem)it).getName() + "\" in this-file-tree");
 					if (fDebugEn) {
-						for (SVDBFileTree inc_t : context.getIncludedFiles()) {
-							fLog.debug("    " + inc_t.getFilePath());
+						for (String inc_s : context.getIncludedFiles()) {
+							fLog.debug("    " + inc_s);
 						}
 					}
 				}

@@ -71,16 +71,8 @@ public class SVExprDump {
 			
 			case IdentifierExpr: {
 				SVDBIdentifierExpr id = (SVDBIdentifierExpr)expr;
-				StringBuilder id_s = new StringBuilder();
 				
-				for (int i=0; i<id.getId().size(); i++) {
-					id_s.append(id.getId().get(i));
-					if (i+1 < id.getId().size()) {
-						id_s.append(".");
-					}
-				}
-				
-				fPS.print(id_s.toString());
+				fPS.print(id.getId());
 			} break;
 			
 			case IncDecExpr: {
