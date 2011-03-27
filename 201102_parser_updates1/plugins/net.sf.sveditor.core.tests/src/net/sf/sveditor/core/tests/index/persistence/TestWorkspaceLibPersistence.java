@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -77,7 +78,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
@@ -103,7 +104,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {
@@ -165,7 +166,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
@@ -191,7 +192,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		System.out.println("[NOTE] pre-sleep");

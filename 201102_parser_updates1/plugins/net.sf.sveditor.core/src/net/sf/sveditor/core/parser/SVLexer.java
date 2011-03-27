@@ -718,6 +718,11 @@ public class SVLexer extends SVToken {
 				// Not a based number
 				ch = readHexNumber(ch);
 				
+				if (ch == '.') {
+					// floating-point number
+					ch = readHexNumber(get_ch());
+				}
+				
 				// Probably a time
 				if (ch == 'f' || ch == 'p' || ch == 'n' || ch == 'u' || ch == 'm') {
 					fStringBuffer.append((char)ch);

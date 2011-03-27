@@ -42,6 +42,7 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 		super.init(other);
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBGenerateBlock) {
@@ -50,7 +51,6 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 			return false;
 		}
 	}
-
-	
+	 */
 
 }

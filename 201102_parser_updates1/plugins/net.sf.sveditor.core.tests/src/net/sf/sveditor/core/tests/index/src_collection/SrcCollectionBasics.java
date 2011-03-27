@@ -35,6 +35,7 @@ import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -77,7 +78,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_pkg/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_pkg");
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
@@ -137,7 +138,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_nopkg/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_nopkg");
 		ISVDBIndex index = rgy.findCreateIndex(
@@ -207,7 +208,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
 		ISVDBIndex index = rgy.findCreateIndex(
@@ -279,10 +280,10 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_module_missing_inc/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module_missing_inc");
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -353,11 +354,12 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_module_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_module_project");
-		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -405,7 +407,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_interface_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_interface_project");
@@ -457,7 +459,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_program_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_program_project");
@@ -511,7 +513,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
 		ISVDBIndex index = rgy.findCreateIndex(
@@ -607,7 +609,7 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleFileToFS(data_dir + "/xxxxx.svh", testdir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init((File)null);
+		rgy.init(TestIndexCacheFactory.instance(null));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				project_dir.getName(), "${workspace_loc}/a", 

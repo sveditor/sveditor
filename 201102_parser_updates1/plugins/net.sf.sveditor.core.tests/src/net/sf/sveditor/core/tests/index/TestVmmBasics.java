@@ -33,6 +33,7 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -59,7 +60,7 @@ public class TestVmmBasics extends TestCase {
 	}
 
 	public void testBasicProcessing() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		File tmpdir = new File(fTmpDir, "no_errors");
 		
 		if (tmpdir.exists()) {
@@ -68,11 +69,11 @@ public class TestVmmBasics extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
+				rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.vmmcentral.vmm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
@@ -129,7 +130,7 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/ethernet/ethernet.f",
@@ -177,7 +178,7 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/wishbone/wishbone.f",
@@ -226,7 +227,7 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",

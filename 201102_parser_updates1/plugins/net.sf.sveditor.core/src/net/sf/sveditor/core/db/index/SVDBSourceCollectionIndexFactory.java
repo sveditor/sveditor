@@ -85,9 +85,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 		}
 
 		ret = new SVDBSourceCollectionIndex(project_name, base_location, 
-				matcher, fs_provider, cache);
-		
-		SVDBIndexFactoryUtils.setBaseProperties(config, ret);
+				matcher, fs_provider, cache, config);
 		
 		return ret;
 	}

@@ -15,6 +15,8 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -27,6 +29,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private Map<String, SVDBFile>			fFileMap;
 	private ISVDBFS							fSVDBFS;
 	private Object							fIndexData;
+	private LogHandle						fLog;
 	
 	public SVDBFileIndexCache(ISVDBFS fs) {
 		fSVDBFS = fs;
@@ -35,6 +38,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap = new WeakHashMap<String, SVDBFile>();
 		fFileTreeMap = new WeakHashMap<String, SVDBFileTree>();
 		fFileMap = new WeakHashMap<String, SVDBFile>();
+		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 	}
 
 	public SVDBFileIndexCache(ISVDBFS fs, int cache_sz) {
@@ -44,6 +48,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap = new WeakHashMap<String, SVDBFile>(cache_sz);
 		fFileTreeMap = new WeakHashMap<String, SVDBFileTree>(cache_sz);
 		fFileMap = new WeakHashMap<String, SVDBFile>(cache_sz);
+		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 	}
 
 	
@@ -57,12 +62,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 
 	public boolean isValid() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 	
 	public void clear() {
-		// TODO Auto-generated method stub
-		
+		// Delete entire index
+		fLog.debug("clear");
+		fSVDBFS.delete("");
 	}
 
 	public void addFile(String path) {
@@ -158,6 +164,14 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 
 	public void setPreProcFile(String path, SVDBFile file) {
 		path = computePathDir(path);
+		
+		if (file == null) {
+			try {
+				throw new Exception("SVDBFile for path \"" + path + "\" is null");
+			} catch (Exception e) {
+				fLog.error("SVDBFile for path \"" + path + "\" is null", e);
+			}
+		}
 		
 		if (fPreProcFileMap.containsKey(path)) {
 			fPreProcFileMap.remove(path);
@@ -315,6 +329,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			OutputStream out;
 			
 			out = fSVDBFS.openFileWrite("index");
+			if (out == null) {
+				throw new DBWriteException("Failed to open file \"index\" for writing");
+			}
 			wrt = new SVDBPersistenceWriter(out);
 			wrt.writeString(fBaseLocation);
 			wrt.writeStringList(fFileList);

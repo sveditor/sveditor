@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -73,7 +74,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_project", 
@@ -100,7 +101,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		System.out.println("[NOTE] pre-sleep");
@@ -159,7 +160,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_project", 
@@ -194,7 +195,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		System.out.println("[NOTE] post-sleep");
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 
 		fIndexRebuildCnt = 0;
 
@@ -238,7 +239,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_project");
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
@@ -267,7 +268,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 
 		System.out.println("** RESET **");
 		// Now, reset the registry
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {
@@ -324,7 +325,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_project");
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
@@ -353,7 +354,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 
 		System.out.println("** RESET **");
 		// Now, reset the registry
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {

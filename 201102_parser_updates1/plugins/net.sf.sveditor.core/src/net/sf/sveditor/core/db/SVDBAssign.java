@@ -59,6 +59,20 @@ public class SVDBAssign extends SVDBStmt {
 	
 	public void init(SVDBItemBase other) {
 		super.init(other);
+		
+		SVDBAssign o = (SVDBAssign)other;
+		
+		if (o.fDelay == null) {
+			fDelay = null;
+		} else {
+			fDelay = o.fDelay.duplicate();
+		}
+		
 	}
-
+	
+	public boolean equals(Object other) {
+		boolean ret = super.equals(other);
+		
+		return ret;
+	}
 }

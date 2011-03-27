@@ -32,7 +32,8 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		fRoots = new ArrayList<PathTreeNode>();
 
 		PathTreeNodeFactory f = new PathTreeNodeFactory();
-		fRoots.addAll(f.build(index.getPreProcFileMap(new NullProgressMonitor()).values()));
+		System.out.println("[TODO] ProjectPathsIndexEntry");
+		// TEMP: fRoots.addAll(f.build(index.getPreProcFileMap(new NullProgressMonitor()).values()));
 	}
 	
 	public String getType() {

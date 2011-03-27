@@ -12,8 +12,8 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
-import net.sf.sveditor.core.db.persistence.SVDBParentAttr;
 
 
 
@@ -84,6 +84,7 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		super.init(o);
 	}
 	
+	/*
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
@@ -93,6 +94,7 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 			return super.equals(obj);
 		}
 	}
+	 */
 
 	@Override
 	public boolean equals(ISVDBItemBase obj, boolean full) {

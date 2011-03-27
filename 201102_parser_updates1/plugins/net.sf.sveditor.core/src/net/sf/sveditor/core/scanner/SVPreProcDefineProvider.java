@@ -19,8 +19,8 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;

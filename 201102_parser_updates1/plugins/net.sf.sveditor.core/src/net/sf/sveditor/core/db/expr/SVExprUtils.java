@@ -220,7 +220,8 @@ public class SVExprUtils {
 	
 	protected boolean field_access(PrintStream ps, SVDBFieldAccessExpr expr) {
 		expr_to_string(ps, expr.getExpr());
-		ps.print("." + expr.getId());
+		ps.print(".");
+		expr_to_string(ps, expr.getLeaf());
 		return true;
 	}
 	

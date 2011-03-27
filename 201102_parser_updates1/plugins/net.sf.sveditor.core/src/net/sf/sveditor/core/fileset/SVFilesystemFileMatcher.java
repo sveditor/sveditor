@@ -31,6 +31,8 @@ public class SVFilesystemFileMatcher extends AbstractSVFileMatcher {
 		for (SVFileSet fs : fFileSets) {
 			File base = new File(fs.getBase());
 			
+			System.out.println("base: " + base.getAbsolutePath());
+			
 			findIncludedPaths(fs.getBase(), ret, base);
 		}
 		

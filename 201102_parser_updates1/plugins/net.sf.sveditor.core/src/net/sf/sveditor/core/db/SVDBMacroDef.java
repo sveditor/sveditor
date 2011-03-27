@@ -65,6 +65,7 @@ public class SVDBMacroDef extends SVDBItem {
 		fDef = m.fDef;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBMacroDef) {
@@ -89,5 +90,6 @@ public class SVDBMacroDef extends SVDBItem {
 		
 		return false;
 	}
+	 */
 	
 }

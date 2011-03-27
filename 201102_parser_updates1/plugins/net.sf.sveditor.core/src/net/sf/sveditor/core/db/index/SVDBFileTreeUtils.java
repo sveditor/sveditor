@@ -178,6 +178,12 @@ public class SVDBFileTreeUtils {
 				}
 			} else if (it.getType() == SVDBItemType.Include) {
 				SVDBInclude inc = (SVDBInclude)it;
+				debug("Include File: " + inc.getName());
+				
+				if (file_l == null) {
+					debug("[ERROR] file_l == null");
+				}
+				
 				if (file_l != null) {
 					// TODO: opportunity for caching here
 

@@ -19,6 +19,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -32,6 +33,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -66,7 +68,7 @@ public class TestOvmBasics extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
@@ -109,7 +111,7 @@ public class TestOvmBasics extends TestCase {
 	}
 	
 	public void testXbusExample() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testXbusExample");
@@ -129,7 +131,7 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
@@ -177,7 +179,7 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
@@ -225,7 +227,7 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
@@ -234,7 +236,7 @@ public class TestOvmBasics extends TestCase {
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		SVDBModIfcDecl my_driver = null;
+		SVDBClassDecl my_driver = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -246,7 +248,7 @@ public class TestOvmBasics extends TestCase {
 				}
 			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(tmp_it).equals("my_driver")) {
-				my_driver = (SVDBModIfcDecl)tmp_it;
+				my_driver = (SVDBClassDecl)tmp_it;
 			}
 			
 			//System.out.println("tmp_it=" + tmp_it.getName());
@@ -280,7 +282,7 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/simple/compile_questa_sv.f",
@@ -289,7 +291,7 @@ public class TestOvmBasics extends TestCase {
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		SVDBModIfcDecl simple_driver = null;
+		SVDBClassDecl simple_driver = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -301,7 +303,7 @@ public class TestOvmBasics extends TestCase {
 				}
 			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(tmp_it).equals("simple_driver")) {
-				simple_driver = (SVDBModIfcDecl)tmp_it;
+				simple_driver = (SVDBClassDecl)tmp_it;
 			}
 			
 			//System.out.println("tmp_it=" + tmp_it.getName());

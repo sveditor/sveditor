@@ -36,9 +36,7 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 		}
 		
 		ISVDBIndex index = new SVDBLibIndex(
-				project_name, base_location, fs_provider, cache);
-		
-		SVDBIndexFactoryUtils.setBaseProperties(config, index);
+				project_name, base_location, fs_provider, cache, config);
 		
 		return index;
 	}

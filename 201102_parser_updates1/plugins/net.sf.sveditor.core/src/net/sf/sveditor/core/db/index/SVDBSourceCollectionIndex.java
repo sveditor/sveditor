@@ -13,6 +13,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
@@ -21,13 +22,13 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 
-public class SVDBSourceCollectionIndex extends SVDBLibIndex {
+import org.eclipse.core.runtime.IProgressMonitor;
+
+public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	
 	private AbstractSVFileMatcher			fFileMatcher;
 	private List<String>					fFilePaths;
@@ -43,73 +44,28 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			String					root,
 			AbstractSVFileMatcher	matcher,
 			ISVDBFileSystemProvider	fs_provider,
-			ISVDBIndexCache			cache) {
-		super(project, root, fs_provider, cache);
+			ISVDBIndexCache			cache,
+			Map<String, Object>		config) {
+		super(project, root, fs_provider, cache, config);
 		
 		fLog = LogFactory.getLogHandle("Index.SourceCollectionIndex");
 		
 		fFileMatcher = matcher;
 		fModIfcClsFiles = new HashSet<SVDBFile>();
 		fUnincludedFiles = new HashSet<SVDBFile>();
-		
-		// We've supplied a directory for the base location
-		fBaseLocationAndDirAreSame = true;
 	}
 	
 	@Override
-	public void load(
-			IDBReader 		index_data, 
-			List<SVDBFile> 	pp_files,
-			List<SVDBFile> 	db_files) throws DBFormatException {
-		load_base(index_data, pp_files, db_files);
-
-		if (isLoaded()) {
-			fFilePaths = fFileMatcher.findIncludedPaths();
-			
-			for (int i=0; i<fFilePaths.size(); i++) {
-				fFilePaths.set(i, SVFileUtils.normalize(fFilePaths.get(i)));
-				
-				/** TEMP
-				// If we've added a new file, then give up and rebuild
-				if (!fPreProcFileMap.containsKey(fFilePaths.get(i))) {
-					rebuildIndex();
-					return;
-				}
-				 */
-			}
-			
-			initPaths();
-			/** TEMP
-			loadMarkers();
-			 */
-
-			// re-build the FileTree structure
-			for (String path : fFilePaths) {
-				SVDBFile pp_file = processPreProcFile(path);
-				if (has_pkg_interface_module_program(pp_file)) {
-					fModIfcClsFiles.add(pp_file);
-				} else {
-					fUnincludedFiles.add(pp_file);
-				}
-			}
-			
-			/** TEMP
-			for (SVDBFile pp_file : fModIfcClsFiles) {
-				fLog.debug("Process top-level file: " + pp_file.getFilePath());
-				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-				buildPreProcFileMap(null, ft_root);
-			}
-
-			// Finally, add the files that weren't included
-			for (SVDBFile pp_file : fUnincludedFiles) {
-				fLog.debug("Process un-included file: " + pp_file.getFilePath());
-				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-				buildPreProcFileMap(null, ft_root);
-			}
-			 */
+	protected void discoverRootFiles(IProgressMonitor monitor) {
+		List<String> file_paths = fFileMatcher.findIncludedPaths();
+		
+		for (String path : file_paths) {
+			String rp = resolvePath(path);
+			addFile(rp);
+			addIncludePath(SVFileUtils.getPathParent(rp));
 		}
 	}
-	
+
 	@Override
 	public void rebuildIndex() {
 		super.rebuildIndex();
@@ -126,6 +82,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 	 * Must ensure that the file paths are discovered prior to 
 	 * calling this
 	 */
+	/*
 	@Override
 	protected void initPaths() {
 		// Update the include-paths list
@@ -136,6 +93,7 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 			}
 		}
 	}
+	 */
 
 	/** TEMP
 	@Override
@@ -285,7 +243,6 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		return false;
 	}
 	
-	@Override
 	public void fileAdded(String path) {
 		String res_base = getResolvedBaseLocation();
 		
@@ -294,7 +251,6 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		}
 	}
 
-	@Override
 	public void fileRemoved(String path) {
 		/** TEMP
 		if (fPreProcFileMap.containsKey(path)) {
@@ -303,14 +259,8 @@ public class SVDBSourceCollectionIndex extends SVDBLibIndex {
 		 */
 	}
 
-	@Override
 	public String getTypeID() {
 		return SVDBSourceCollectionIndexFactory.TYPE;
 	}
 	
-	@Override
-	public String getTypeName() {
-		return "SourceCollectionIndex";
-	}
-
 }

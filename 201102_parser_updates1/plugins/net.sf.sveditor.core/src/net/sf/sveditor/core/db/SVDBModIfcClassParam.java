@@ -57,6 +57,7 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		fDefault = ((SVDBModIfcClassParam)other).fDefault;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBModIfcClassParam) {
@@ -68,5 +69,6 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		
 		return false;
 	}
+	 */
 	
 }

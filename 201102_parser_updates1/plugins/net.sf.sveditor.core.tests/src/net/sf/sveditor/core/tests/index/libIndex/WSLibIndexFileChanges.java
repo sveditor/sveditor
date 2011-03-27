@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -48,6 +49,7 @@ public class WSLibIndexFileChanges extends TestCase {
 	
 	
 	public void testMissingIncludeAdded() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		File tmpdir = TestUtils.createTempDir();
 	
 		try {
@@ -55,7 +57,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		} catch (RuntimeException e) {
 			throw e;
 		} finally {
-			tmpdir.delete();
+			TestUtils.delete(tmpdir);
 		}
 	}
 	
@@ -68,13 +70,13 @@ public class WSLibIndexFileChanges extends TestCase {
 		
 		File db = new File(tmpdir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -83,6 +85,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
+			System.out.println("tmp_it: " + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
@@ -92,7 +95,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		}
 		
 		assertNotNull("Expect to find class1", class1_it);
-		assertNull("Expect to not fine class1_2", class1_2_it);
+		assertNull("Expect to not find class1_2", class1_2_it);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(out);
@@ -127,7 +130,5 @@ public class WSLibIndexFileChanges extends TestCase {
 
 		assertNotNull("Expect to find class1", class1_it);
 		assertNotNull("Expect to find class1_2", class1_2_it);
-
 	}
-
 }

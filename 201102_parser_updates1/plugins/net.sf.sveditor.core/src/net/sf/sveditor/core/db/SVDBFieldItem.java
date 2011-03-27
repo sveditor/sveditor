@@ -40,6 +40,7 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 		return ret;
 	}
 	
+	/*
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBFieldItem) {
 			boolean ret = super.equals(obj);
@@ -48,6 +49,7 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 		}
 		return false;
 	}
+	 */
 
 	public void init(SVDBItemBase other) {
 		super.init(other);

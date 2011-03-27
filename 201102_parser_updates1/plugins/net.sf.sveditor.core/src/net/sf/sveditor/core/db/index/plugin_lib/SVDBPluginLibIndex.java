@@ -17,33 +17,34 @@ import java.io.InputStream;
 import java.net.URL;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
-public class SVDBPluginLibIndex extends SVDBLibIndex 
-						implements ISVDBFileSystemProvider {
+public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemProvider {
 	private Bundle					fBundle;
 	private String					fPluginNS;
 	private String					fRootFile;
 	private long					fBundleVersion = -1;
 	
+	/*
 	public SVDBPluginLibIndex(
 			String 			project, 
 			String 			base_location,
 			ISVDBIndexCache	cache) {
-		super(project, base_location, null, cache);
+		super(project, base_location, null, cache, null);
 		
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 		
-		fFileSystemProvider = this;
+		setFileSystemProvider(this);
 		
 		base_location = base_location.substring("plugin:/".length());
 		
@@ -52,42 +53,40 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 		fRootFile = base_location.substring(base_location.indexOf('/')-1);
 		fBundle = Platform.getBundle(fPluginNS);
 		
-		fLog.debug("RootFile: " + fRootFile + " Root: " + fRoot);
+		fLog.debug("RootFile: " + fRootFile + " Root: " + getBaseLocation());
 	}
+	 */
 	
 	public SVDBPluginLibIndex(
 			String 			project, 
 			String			plugin_ns,
 			String			root,
 			ISVDBIndexCache	cache) {
-		super(project, "plugin:/" + plugin_ns + "/" + root, null, cache);
+		super(project, "plugin:/" + plugin_ns + "/" + root, null, cache, null);
 
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
-
-		fFileSystemProvider = this;
-
 		fRootFile = root;
 		fPluginNS = plugin_ns;
 		
-		/*
-		if (!root.startsWith("/")) {
-			root = "/" + root;
-		}
-		 */
 		fBundle = Platform.getBundle(fPluginNS);
+		fLog.debug("RootFile: " + fRootFile + " Root: " + getBaseLocation());
+		setFileSystemProvider(this);
 	}
 	
 	public String getTypeID() {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
 	
-	
-	/*
-	@SuppressWarnings("unchecked")
-	protected List<String> getFileList() {
+	@Override
+	protected void discoverRootFiles(IProgressMonitor monitor) {
 		String root_dir = SVFileUtils.getPathParent(fRootFile);
-		List<String> ret = new ArrayList<String>();
 		
+		clearFilesList();
+		clearIncludePaths();
+		addFile(getBaseLocation());
+		addIncludePath(getResolvedBaseLocationDir());
+		
+		/*
 		Enumeration<URL> entries = 
 			(Enumeration<URL>)fBundle.findEntries(root_dir, "*", true);
 		
@@ -126,13 +125,12 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 
 			String full_path = "plugin:/" + fPluginNS + path;
 			
-			ret.add(full_path);
+			fLog.debug("Adding file \"" + full_path + "\"");
+			addFile(full_path);
 		}
-		
-		return ret;
+		 */
 	}
-	 */
-	
+
 	public boolean isDir(String path) {
  		if (path.startsWith("plugin:/")) {
  			URL entry;
@@ -212,17 +210,15 @@ public class SVDBPluginLibIndex extends SVDBLibIndex
 		
 		return fBundleVersion;
 	}
-	
+
+	@Override
+	public void dispose() {
+		if (getCache() != null) {
+			getCache().sync();
+		}
+	}
+
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
 	public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
 
-
-	public void rebuildIndex() {}
-
-	public void removeChangeListener(ISVDBIndexChangeListener l) {}
-
-	public void addChangeListener(ISVDBIndexChangeListener l) {}
-
-	public void dispose() {}
-	
 }

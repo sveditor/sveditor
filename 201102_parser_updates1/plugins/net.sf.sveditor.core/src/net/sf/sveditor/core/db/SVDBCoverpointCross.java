@@ -63,6 +63,7 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 	}
 
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBCoverpointCross) {
@@ -79,5 +80,6 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 		
 		return false;
 	}
+	 */
 
 }

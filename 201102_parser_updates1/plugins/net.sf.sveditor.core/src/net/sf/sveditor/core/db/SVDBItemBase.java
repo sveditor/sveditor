@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+
 
 
 public class SVDBItemBase implements ISVDBItemBase {
@@ -60,7 +62,8 @@ public class SVDBItemBase implements ISVDBItemBase {
 	
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBItemBase) {
-			return equals((ISVDBItemBase)obj, true);
+			SVDBItemBase o = (SVDBItemBase)obj;
+			return (o.fType == fType);
 		} else {
 			return false;
 		}

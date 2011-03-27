@@ -7,7 +7,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.persistence.SVDBParentAttr;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 	@SVDBParentAttr

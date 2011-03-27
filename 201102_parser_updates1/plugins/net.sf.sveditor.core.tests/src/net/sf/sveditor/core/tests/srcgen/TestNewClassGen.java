@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -86,7 +87,7 @@ public class TestNewClassGen extends TestCase {
 			tmpdir.mkdirs();
 
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.init(tmpdir);
+			rgy.init(TestIndexCacheFactory.instance(tmpdir));
 
 			SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 			index_mgr.addPluginLibrary(

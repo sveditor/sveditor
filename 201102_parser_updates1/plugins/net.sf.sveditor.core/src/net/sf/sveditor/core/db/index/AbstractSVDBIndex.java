@@ -55,7 +55,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 
-public abstract class AbstractSVDBIndex implements ISVDBIndex {
+public abstract class AbstractSVDBIndex implements ISVDBIndex, ISVDBFileSystemChangeListener {
+	private static final int IndexState_AllInvalid 				= 0;
+	private static final int IndexState_RootFilesDiscovered 	= (IndexState_AllInvalid+1);
+	private static final int IndexState_FilesPreProcessed 		= (IndexState_RootFilesDiscovered+1);
+	private static final int IndexState_FileTreeValid 			= (IndexState_FilesPreProcessed+1);
+
 	private String							fProjectName;
 	private String							fBaseLocation;
 	private String							fResolvedBaseLocation;
@@ -63,7 +68,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	
 	private SVDBBaseIndexCacheData			fIndexCacheData;
 	
-
 	private ISVDBIncludeFileProvider		fIncludeFileProvider;
 	
 	private List<ISVDBIndexChangeListener>	fIndexChageListeners;
@@ -72,19 +76,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	protected static final List<String>		fSVExtensions;
 	protected static final List<String>		fIgnoreDirs;
 	protected LogHandle						fLog;
-	protected ISVDBFileSystemProvider		fFileSystemProvider;
+	private ISVDBFileSystemProvider			fFileSystemProvider;
 
 	protected boolean						fLoadUpToDate;
 	private ISVDBIndexCache					fCache;
+	private Map<String, Object>				fConfig;
 	
 	/**
 	 * True if the root file list is valid. 
 	 */
-	protected boolean							fRootFileListValid;
-	
-	protected boolean							fPreProcessorMapValid;
-	
-	protected boolean							fFileTreeMapValid;
+	private int									fIndexState;
 	
 	static {
 		fSVExtensions = new ArrayList<String>();
@@ -104,9 +105,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 
 	protected AbstractSVDBIndex(String project) {
-		
 		fProjectName = project;
-		
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 	}
 
@@ -114,30 +113,44 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 			String 						project,
 			String						base_location,
 			ISVDBFileSystemProvider 	fs_provider,
-			ISVDBIndexCache				cache) {
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
 		this(project);
 		fBaseLocation = base_location;
-		setFileSystemProvider(fs_provider);
 		fCache = cache;
-	}
+		fConfig = config;
 
+		setFileSystemProvider(fs_provider);
+	}
+	
 	/**
-	 * Initialize the index 
-	 * @param monitor
+	 * Called when the index is initialized to determine
+	 * whether the cached information is still valid
+	 * 
+	 * @return
 	 */
-	public void init(IProgressMonitor monitor) {
-		SubProgressMonitor m;
-		monitor.beginTask("Initialize index " + getBaseLocation(), 100);
-		
-		// Initialize the cache
-		m = new SubProgressMonitor(monitor, 1);
-		fIndexCacheData = createIndexCacheData();
-		fCache.init(m, fIndexCacheData);
-		
-		// If 
+	protected boolean checkCacheValid() {
 		boolean valid = true;
+		
+		// Confirm that global defines are the same
+		if (fConfig != null) {
+			/* TEMP:
+			if (fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
+				Map<String, String> define_map = (Map<String, String>)
+					fConfig.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
+				
+				for (String key : define_map.keySet()) {
+					if (!fIndexCacheData.getGlobalDefines().containsKey(key) ||
+							!fIndexCacheData.getGlobalDefines().get(key).equals(define_map.get(key))) {
+						valid = false;
+						break;
+					}
+				}
+			}
+			 */
+		}
+
 		if (fCache.getFileList().size() > 0) {
-			
 			for (String path : fCache.getFileList()){
 				long fs_timestamp = fFileSystemProvider.getLastModifiedTime(path);
 				long cache_timestamp = fCache.getLastModified(path);
@@ -148,27 +161,83 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 				}
 			}
 		} else {
+			// TODO:
+			System.out.println("Cache " + getBaseLocation() + " has 0 entries");
+			SVDBIndexFactoryUtils.setBaseProperties(fConfig, this);
 			valid = false;
 		}
 		
+		return valid;
+	}
+
+	/**
+	 * Initialize the index 
+	 * @param monitor
+	 */
+	@SuppressWarnings("unchecked")
+	public void init(IProgressMonitor monitor) {
+		SubProgressMonitor m;
+		
+		monitor.beginTask("Initialize index " + getBaseLocation(), 100);
+		
+		// Initialize the cache
+		m = new SubProgressMonitor(monitor, 1);
+		fIndexCacheData = createIndexCacheData();
+		fCache.init(m, fIndexCacheData);
+		
+		boolean valid = checkCacheValid();
+		
 		if (valid) {
-			System.out.println("Cache is valid");
-			fRootFileListValid = true;
-			fPreProcessorMapValid = true;
-			fFileTreeMapValid = true;
+			fLog.debug("Cache is valid");
+			fIndexState = IndexState_FileTreeValid;
 		} else {
-			System.out.println("Cache is invalid");
-			fRootFileListValid = false;
-			fPreProcessorMapValid = false;
-			fFileTreeMapValid = false;
-			fCache.clear();
+			fLog.debug("Cache " + getBaseLocation() + " is invalid");
+			invalidateIndex();
 		}
 
+		// Set the global settings anyway
+		if (fConfig != null && fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
+			Map<String, String> define_map = (Map<String, String>)
+				fConfig.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
+			
+			fIndexCacheData.clearGlobalDefines();
+			for (String key : define_map.keySet()) {
+				fIndexCacheData.setGlobalDefine(key, define_map.get(key));
+			}
+		}
+		
 		monitor.done();
+	}
+	
+	/**
+	 * @param monitor
+	 * @param state
+	 */
+	protected void ensureIndexState(IProgressMonitor monitor, int state) {
+		if (fIndexState < IndexState_RootFilesDiscovered && state >= IndexState_RootFilesDiscovered) {
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			discoverRootFiles(m);
+			fIndexState = IndexState_RootFilesDiscovered;
+		}
+		if (fIndexState < IndexState_FilesPreProcessed && state >= IndexState_FilesPreProcessed) {
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			preProcessFiles(m);
+			fIndexState = IndexState_FilesPreProcessed;
+		}
+		if (fIndexState < IndexState_FileTreeValid && state >= IndexState_FileTreeValid) {
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			buildFileTree(m);
+			fIndexState = IndexState_FileTreeValid;
+		}
+	}
+
+	protected void invalidateIndex() {
+		fIndexState = IndexState_AllInvalid;
+		fCache.clear();
 	}
 
 	public void rebuildIndex() {
-		// TODO Auto-generated method stub
+		invalidateIndex();
 	}
 
 	protected ISVDBIndexCache getCache() {
@@ -180,13 +249,37 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 
 	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {
+		if (fFileSystemProvider != null && fs_provider != fFileSystemProvider) {
+			fFileSystemProvider.removeFileSystemChangeListener(this);
+		}
 		fFileSystemProvider = fs_provider;
+		
+		if (fFileSystemProvider != null) {
+			fFileSystemProvider.init(getResolvedBaseLocationDir());
+			fFileSystemProvider.addFileSystemChangeListener(this);
+		}
 	}
 	
 	public ISVDBFileSystemProvider getFileSystemProvider() {
 		return fFileSystemProvider;
 	}
 	
+	public void fileChanged(String path) {
+		if (getCache().getFileList().contains(path)) {
+			invalidateIndex();
+		}
+	}
+
+	public void fileRemoved(String path) {
+		if (getCache().getFileList().contains(path)) {
+			invalidateIndex();
+		}
+	}
+
+	public void fileAdded(String path) {
+		// Not sure what to do with this one
+	}
+
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
@@ -248,24 +341,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	 * - Root File discovery
 	 * - Pre-processor parse 
 	 */
-	public List<String> getFileList(IProgressMonitor monitor) {
-		if (!fRootFileListValid) {
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			discoverRootFiles(m);
-			fRootFileListValid = true;
-			fPreProcessorMapValid = false;
-		}
-		
-		if (!fPreProcessorMapValid) {
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			preProcessFiles(m);
-		}
-		
-		if (!fFileTreeMapValid) {
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			buildFileTree(m);
-		}
-		
+	public synchronized List<String> getFileList(IProgressMonitor monitor) {
+		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList();
 	}
 	
@@ -365,7 +442,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 					root.getIncludedFiles().add(ft.getFilePath());
 					buildPreProcFileMap(root, ft);
 				} else {
-					fLog.debug("Failed to find include file \"" + ((ISVDBNamedItem)it).getName() + 
+					fLog.error("Failed to find include file \"" + ((ISVDBNamedItem)it).getName() + 
 							"\" (from file " + root.getFilePath() + ")");
 					SVDBFileTree ft = new SVDBFileTree(SVDBItem.getName(it));
 					root.getIncludedFiles().add(ft.getFilePath());
@@ -391,7 +468,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 	
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
-		
+		fLog.debug("findIncludedFile: " + path);
 		for (String inc_dir : fIndexCacheData.getIncludePaths()) {
 			String inc_path = resolvePath(inc_dir + "/" + path);
 			SVDBFile file = null;
@@ -571,7 +648,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		/**
 		return (fIndexFileMapValid && fPreProcFileMapValid);
 		 */
-		return false; // deprecated
+		return true; // deprecated
 	}
 	
 	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
@@ -765,8 +842,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		return new SVDBIndexItemIterator(getFileList(new NullProgressMonitor()), this);
 	}
 	
-	public SVDBFile findFile(String path) {
-		// TODO: Ensure first steps are complete
+	public synchronized SVDBFile findFile(String path) {
+		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
+		
 		SVDBFile ret;
 		
 		ret = fCache.getFile(new NullProgressMonitor(), path);
@@ -801,7 +879,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 		InputStream in = fFileSystemProvider.openStream(path_s);
 		
 		if (in == null) {
-			fLog.error("Failed to open file \"" + path_s + "\"");
+			fLog.error("ProcessFile: Failed to open file \"" + path_s + "\"");
 		}
 		
 		BufferedInputStream in_b = new BufferedInputStream(in);
@@ -853,7 +931,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 	
 
-	public SVDBFile findPreProcFile(String path) {
+	public synchronized SVDBFile findPreProcFile(String path) {
+		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
 		return fCache.getPreProcFile(new NullProgressMonitor(), path);
 	}
 	
@@ -886,7 +965,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	}
 	
 	
-	public SVDBFileTree findFileTree(String path) {
+	public synchronized SVDBFileTree findFileTree(String path) {
+		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
 		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path);
 		if (ft == null) {
 			// TODO:
@@ -921,17 +1001,19 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex {
 	
 
 	public void dispose() {
+		System.out.println("dispose()");
 		if (fFileSystemProvider != null) {
 			fFileSystemProvider.dispose();
 		}
 		if (fCache != null) {
+			System.out.println("    sync cache");
 			fCache.sync();
 		}
 	}
 	
 	public SVPreProcScanner createPreProcScanner(String path) {
 		InputStream in = getFileSystemProvider().openStream(path);
-		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path);
+		SVDBFileTree ft = findFileTree(path);
 		
 		if (ft == null) {
 //			Map<String, SVDBFileTree> m = getFileTreeMap(new NullProgressMonitor());

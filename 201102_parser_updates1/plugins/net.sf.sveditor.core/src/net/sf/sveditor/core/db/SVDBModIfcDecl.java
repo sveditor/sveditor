@@ -67,6 +67,7 @@ public class SVDBModIfcDecl extends SVDBScopeItem {
 		fPorts.addAll(o.fPorts);
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBModIfcDecl) {
@@ -89,5 +90,6 @@ public class SVDBModIfcDecl extends SVDBScopeItem {
 		}
 		return false;
 	}
+	 */
 	
 }

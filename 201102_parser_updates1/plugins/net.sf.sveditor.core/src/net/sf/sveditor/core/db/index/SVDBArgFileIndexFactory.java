@@ -34,10 +34,7 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 		}
 
 		SVDBArgFileIndex index = new SVDBArgFileIndex(
-				projectName, base_location, fs_provider, cache);
-		
-
-		SVDBIndexFactoryUtils.setBaseProperties(config, index);
+				projectName, base_location, fs_provider, cache, config);
 		
 		return index;
 	}

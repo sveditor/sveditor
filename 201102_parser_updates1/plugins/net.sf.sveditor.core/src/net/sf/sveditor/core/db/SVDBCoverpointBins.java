@@ -18,8 +18,8 @@ public class SVDBCoverpointBins extends SVDBItem {
 	private BinsKW					fBinsKW;
 	private BinsType				fBinsType;
 	private boolean					fIsArray;
-	private SVDBExpr					fArrayExpr;
-	private SVDBExpr					fIFF;
+	private SVDBExpr				fArrayExpr;
+	private SVDBExpr				fIFF;
 	
 	private List<SVDBExpr>			fRangeList;
 	

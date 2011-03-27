@@ -69,6 +69,7 @@ public class SVDBFile extends SVDBScopeItem {
 		fLastModified = o.fLastModified;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBFile) {
@@ -83,4 +84,5 @@ public class SVDBFile extends SVDBScopeItem {
 		}
 		return false;
 	}
+	 */
 }

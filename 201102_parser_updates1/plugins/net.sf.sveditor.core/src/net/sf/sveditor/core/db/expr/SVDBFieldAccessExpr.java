@@ -17,19 +17,19 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBFieldAccessExpr extends SVDBExpr {
 	private SVDBExpr 					fExpr;
-	private boolean					fStaticRef;
-	private String					fId;
+	private boolean						fStaticRef;
+	private SVDBExpr					fLeaf;
 
 	public SVDBFieldAccessExpr() {
 		this(null, false, null);
 	}
 	
-	public SVDBFieldAccessExpr(SVDBExpr expr, boolean static_ref, String id) {
+	public SVDBFieldAccessExpr(SVDBExpr expr, boolean static_ref, SVDBExpr leaf) {
 		super(SVDBItemType.FieldAccessExpr);
 		
 		fExpr = expr;
 		fStaticRef = static_ref;
-		fId   = id;
+		fLeaf = leaf;
 	}
 	
 	public SVDBExpr getExpr() {
@@ -40,11 +40,11 @@ public class SVDBFieldAccessExpr extends SVDBExpr {
 		return fStaticRef;
 	}
 	
-	public String getId() {
-		return fId;
+	public SVDBExpr getLeaf() {
+		return fLeaf;
 	}
 	
 	public SVDBFieldAccessExpr duplicate() {
-		return new SVDBFieldAccessExpr((SVDBExpr)fExpr.duplicate(), fStaticRef, fId);
+		return new SVDBFieldAccessExpr((SVDBExpr)fExpr.duplicate(), fStaticRef, fLeaf.duplicate());
 	}
 }

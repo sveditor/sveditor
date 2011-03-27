@@ -10,7 +10,12 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db;
+package net.sf.sveditor.core.db.utils;
+
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBPreProcCond;
 
 public class SVDBItemPrint {
 	

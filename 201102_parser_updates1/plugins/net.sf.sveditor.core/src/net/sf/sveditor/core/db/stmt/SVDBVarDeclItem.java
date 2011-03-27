@@ -4,8 +4,8 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
-import net.sf.sveditor.core.db.persistence.SVDBParentAttr;
 
 public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 	@SVDBParentAttr

@@ -26,9 +26,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {

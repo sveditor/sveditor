@@ -34,20 +34,21 @@ public class SVDBFileTree {
 
 	public SVDBFileTree(String path) {
 		fFilePath = path;
-		
-		if (fFilePath == null) {
-			try {
-				throw new Exception("fFilePath == null");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
 	}
 
 	public SVDBFileTree(SVDBFile file) {
 		fFilePath = file.getFilePath();
+		
+		if (!fFilePath.contains("/")) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		fSVDBFile = file;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();

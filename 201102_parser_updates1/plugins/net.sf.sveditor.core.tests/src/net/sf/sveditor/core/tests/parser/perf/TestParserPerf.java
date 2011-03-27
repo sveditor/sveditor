@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -37,14 +38,14 @@ public class TestParserPerf extends TestCase {
 		
 		String ovm_dir = path + "/ovm";
 
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 //		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		String xbus = ovm_dir + "/examples/xbus";
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.init((File)null);
+		rgy.init(TestIndexCacheFactory.instance(null));
 		
 		String compile_questa_sv = xbus + "/examples/compile_questa_sv.f";
 		System.out.println("compile_questa_sv=" + compile_questa_sv);

@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -79,7 +80,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
@@ -193,7 +194,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 

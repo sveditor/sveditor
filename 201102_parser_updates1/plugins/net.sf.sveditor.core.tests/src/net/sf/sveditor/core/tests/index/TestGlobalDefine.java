@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -71,7 +72,7 @@ public class TestGlobalDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
@@ -102,7 +103,7 @@ public class TestGlobalDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
@@ -134,7 +135,7 @@ public class TestGlobalDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex(pname, 

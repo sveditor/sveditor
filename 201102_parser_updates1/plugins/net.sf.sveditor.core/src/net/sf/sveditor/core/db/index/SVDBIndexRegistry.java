@@ -14,10 +14,8 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +23,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
@@ -35,7 +33,6 @@ import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBVersionException;
-import net.sf.sveditor.core.db.persistence.SVDBDump;
 import net.sf.sveditor.core.db.persistence.SVDBLoad;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -81,6 +78,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 	}
 	
+	/*
 	@Deprecated
 	public void init(final File state_location) {
 		fProjectIndexMap.clear();
@@ -89,13 +87,15 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			public ISVDBIndexCache createIndexCache(
 					String project_name,
 					String base_location) {
-				File cache_dir = new File(state_location, project_name + "_" + base_location.hashCode());
+				File cache_dir = new File(state_location, 
+						project_name + "_" + SVFileUtils.computeMD5(base_location));
 				SVDBDirFS fs = new SVDBDirFS(cache_dir);
 				return new SVDBFileIndexCache(fs);
 			}
 		};
 		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
+	 */
 
 	public void init(ISVDBIndexCacheFactory cache_factory) {
 		fCacheFactory = cache_factory;
@@ -439,6 +439,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	}
 	
 	private void save_state(String proj_name, List<ISVDBIndex> index_list) {
+		/*
 		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
 		List<SVDBPersistenceDescriptor>		db_list = fDatabaseDescMap.get(proj_name);
 		
@@ -452,10 +453,12 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				fLog.error("cannot create database dir");
 			}
 		}
+		 */
 		
 		for (ISVDBIndex index : index_list) {
 			fLog.debug("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
 			
+			/*
 			if (proj_name == null) {
 				fLog.error("proj_name null on : " + index.getClass().getName());
 			}
@@ -466,7 +469,10 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 					fLog.error("cannot create project db dir");
 				}
 			}
+			 */
+			index.dispose();
 			
+			/*
 			if (index.isLoaded()) {
 				// Dump out to the state location
 				
@@ -524,6 +530,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				// Delete the index file
 				// index_file.delete();
 			}
+			 */
 		}
 	}
 	

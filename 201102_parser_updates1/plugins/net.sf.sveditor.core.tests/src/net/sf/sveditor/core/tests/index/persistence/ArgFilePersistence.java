@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -35,6 +36,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
@@ -46,6 +48,7 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -78,7 +81,7 @@ public class ArgFilePersistence extends TestCase
 	
 	public void testOVMXbusDirectDumpLoad() throws DBFormatException, DBWriteException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File test_dir = new File(fTmpDir, "testOVMXbusDirectDumpLoad");
 		if (test_dir.exists()) {
@@ -97,9 +100,10 @@ public class ArgFilePersistence extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex target_index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex target_index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -171,15 +175,16 @@ public class ArgFilePersistence extends TestCase
 		}
 
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 
-		ISVDBIndex target_index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex target_index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
-		ISVDBFileSystemProvider fs = ((SVDBLibIndex)target_index).getFileSystemProvider();
-		SVPreProcScanner scanner = ((SVDBLibIndex)target_index).createPreProcScanner(path);
+		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
+		SVPreProcScanner scanner = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
@@ -222,7 +227,7 @@ public class ArgFilePersistence extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
@@ -246,7 +251,7 @@ public class ArgFilePersistence extends TestCase
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		System.out.println("[NOTE] pre-sleep");
@@ -312,7 +317,7 @@ public class ArgFilePersistence extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		fIndexRebuilt = 0;
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
@@ -321,15 +326,15 @@ public class ArgFilePersistence extends TestCase
 		index.addChangeListener(this);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		SVDBModIfcDecl target_it = null, target_orig = null;
+		SVDBClassDecl target_it = null, target_orig = null;
 		List<ISVDBItemBase> orig_list = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBModIfcDecl)tmp_it;
-				target_orig = (SVDBModIfcDecl)tmp_it.duplicate();
+				target_it = (SVDBClassDecl)tmp_it;
+				target_orig = (SVDBClassDecl)tmp_it.duplicate();
 			}
 			orig_list.add(tmp_it.duplicate());
 			if (tmp_it.getType() == SVDBItemType.Covergroup) {
@@ -355,7 +360,7 @@ public class ArgFilePersistence extends TestCase
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		System.out.println("[NOTE] pre-sleep");
@@ -383,7 +388,7 @@ public class ArgFilePersistence extends TestCase
 			new_list.add(tmp_it);
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBModIfcDecl)tmp_it;
+				target_it = (SVDBClassDecl)tmp_it;
 			}
 		}
 		
@@ -450,7 +455,7 @@ public class ArgFilePersistence extends TestCase
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_project/basic_lib.f");
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
@@ -478,7 +483,7 @@ public class ArgFilePersistence extends TestCase
 
 		System.out.println("** RESET **");
 		// Now, reset the registry
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {

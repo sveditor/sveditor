@@ -75,25 +75,16 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBTask) {
+			boolean ret = super.equals(obj);
 			SVDBTask o = (SVDBTask)obj;
-			
-			if (o.fAttr != fAttr) {
-				return false;
-			}
-			
-			if (fParams.size() == o.fParams.size()) {
-				for (int i=0; i<fParams.size(); i++) {
-					SVDBParamPortDecl p1 = fParams.get(i);
-					SVDBParamPortDecl p2 = o.fParams.get(i); 
-					if (!p1.equals(p2)) {
-						return false;
-					}
-				}
+
+			if (o.fName == null || fName == null) {
+				ret &= (o.fName == fName);
 			} else {
-				return false;
+				ret &= o.fName.equals(fName);
 			}
-			
-			return super.equals(obj);
+
+			return ret;
 		}
 		return false;
 	}

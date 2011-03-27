@@ -69,6 +69,7 @@ public class SVDBClassDecl extends SVDBScopeItem {
 		setSuperClass(o.getSuperClass());
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBClassDecl) {
@@ -105,5 +106,6 @@ public class SVDBClassDecl extends SVDBScopeItem {
 		}
 		return false;
 	}
+	 */
 
 }

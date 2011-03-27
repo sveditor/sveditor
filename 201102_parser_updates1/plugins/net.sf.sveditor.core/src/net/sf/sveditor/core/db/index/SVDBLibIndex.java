@@ -12,59 +12,26 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 
 public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFileSystemChangeListener  */ {
-	protected Map<String, SVDBFileTree>				fFileTreeMap;
-	protected String								fRoot;
-	protected String								fResolvedRoot;
-	protected SVPreProcDefineProvider				fDefineProvider;
-	protected List<String>							fIncludePaths;
-	protected boolean								fBaseLocationAndDirAreSame;
-	private String									fBaseLocationDir;
 	
 	public SVDBLibIndex(
 			String 					project, 
 			String 					root,
 			ISVDBFileSystemProvider fs_provider,
-			ISVDBIndexCache			cache) {
-		super(project, root, null, cache);
-		
-		fDefineProvider = new SVPreProcDefineProvider(null);
-		fFileTreeMap 	= new HashMap<String, SVDBFileTree>();
-		fRoot 			= root;
-		fResolvedRoot	= SVDBIndexUtil.expandVars(fRoot, true);
+			ISVDBIndexCache			cache,
+			Map<String, Object>		config) {
+		super(project, root, fs_provider, cache, config);
 		fLog = LogFactory.getLogHandle("SVDBLibIndex");
-		
-		fIncludePaths = new ArrayList<String>();
-		
-		setFileSystemProvider(fs_provider);
-		fBaseLocationAndDirAreSame = false;		
 	}
 	
 	public String getTypeID() {
@@ -78,52 +45,38 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 	
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
+		fLog.debug("discoverRootFiles - " + getBaseLocation());
 		
+		clearFilesList();
+		clearIncludePaths();
+		clearDefines();
+
+		monitor.beginTask("Discover Root Files", 4);
+		
+		// Add an include path for the library file location
+		addIncludePath(getResolvedBaseLocationDir());
+		addFile(getResolvedBaseLocation());
+		
+		monitor.done();
 	}
 
-	protected void initPaths() {
-		// Add an include path for the base directory
-		fIncludePaths.clear();
-		if (fFileSystemProvider.fileExists(getResolvedBaseLocation())) {
-			fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
-		}
-	}
-	
 	@Override
 	public void setFileSystemProvider(ISVDBFileSystemProvider fsProvider) {
-		if (fFileSystemProvider != null) {
+		if (getFileSystemProvider() != null) {
 			/** TEMP:
 			fFileSystemProvider.removeFileSystemChangeListener(this);
 			 */
 		}
 		super.setFileSystemProvider(fsProvider);
 		
-		if (fFileSystemProvider != null) {
-			fFileSystemProvider.init(getResolvedBaseLocation());
+		if (getFileSystemProvider() != null) {
+			getFileSystemProvider().init(getResolvedBaseLocation());
 			/** TEMP:
 			fFileSystemProvider.addFileSystemChangeListener(this);
 			 */
 		}
 	}
 
-	public Map<String, SVDBFileTree> getFileTreeMap(IProgressMonitor monitor) {
-		getPreProcFileMap(monitor); // Ensure the map is built
-		return fFileTreeMap;
-	}
-
-	public String getBaseLocation() {
-		return fRoot;
-	}
-	
-	public String getResolvedBaseLocation() {
-		if (fResolvedRoot == null) {
-			fResolvedRoot = SVDBIndexUtil.expandVars(fRoot, true);
-		}
-		
-		return fResolvedRoot;
-	}
-	
 /*	
 	public void rebuildIndex() {
 		fLog.debug("rebuildIndex \"" + getBaseLocation() + "\"");
@@ -347,7 +300,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		return true;
 	}
  */	
-	
+
+	/*
 	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(fDefineProvider);
@@ -402,21 +356,18 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 
 		fFileSystemProvider.clearMarkers(file_tree.getFilePath());
 		file_tree.setSVDBFile(svdb_pp);
-		/** TEMP
-		addIncludeFiles(file_tree, file_tree.getSVDBFile());
-		 */
+//TEMP		addIncludeFiles(file_tree, file_tree.getSVDBFile());
 		
 		fDefineProvider.setMacroProvider(createMacroProvider(file_tree));
 		SVDBFile svdb_f = factory.parse(copier.copy(), file_tree.getFilePath());
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 
-		/** TEMP
-		propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
-		addMarkers(path, svdb_f);
-		 */
+//TEMP		propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
+//TEMP		addMarkers(path, svdb_f);
 
 		return svdb_f;
 	}
+ */
 	
 	/**
 	 * buildPreProcFileMap()
@@ -666,7 +617,8 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		}
 	}
 	 */
-	
+
+	/*
 	public void fileAdded(String path) {
 		// fileAdded is ignored for LibIndex, since all the
 		// files are explicitly specified
@@ -702,6 +654,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 			}
 		}
 	}
+	 */
 
 	/** TEMP
 	public void fileChanged(String path) {
@@ -737,11 +690,11 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 	}
 	 */
 	
+	/*
 	private Map<SVDBFileTree, List<String>> find_missing_inc() {
 		Map<SVDBFileTree, List<String>> ret = new HashMap<SVDBFileTree, List<String>>();
 		
 		for (SVDBFileTree ft : fFileTreeMap.values()) {
-			/** TEMP:
 			for (SVDBFileTree inc : ft.getIncludedFiles()) {
 				if (inc.getSVDBFile() == null) {
 					if (!ret.containsKey(ft)) {
@@ -750,11 +703,11 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 					ret.get(ft).add(inc.getFilePath());
 				}
 			}
-			 */
 		}
 		
 		return ret;
 	}
+	 */
 
 	private Map<SVDBFile, List<String>> find_missing_inc_svdb() {
 		Map<SVDBFile, List<String>> ret = new HashMap<SVDBFile, List<String>>();
@@ -786,144 +739,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 			rebuildIndex();
 		}
 		 */
-	}
-
-	public SVDBFile findPreProcFile(String path) {
-		debug("findPreProcFile \"" + path + "\"");
-		return getPreProcFileMap(new NullProgressMonitor()).get(path);
-	}
-
-	protected String resolvePath(String path_orig) {
-		String path = path_orig;
-		String norm_path = null;
-		
-		fLog.debug("resolvePath: " + path_orig);
-
-		// relative to the base location or one of the include paths
-		if (path.startsWith("..")) {
-			if ((norm_path = resolveRelativePath(getResolvedBaseLocationDir(), path)) == null) {
-				for (String inc_path : fIncludePaths) {
-					if ((norm_path = resolveRelativePath(inc_path, path)) != null) {
-						break; 
-					}
-				}
-			}
-		} else {
-			if (path.equals(".")) {
-				path = getResolvedBaseLocationDir();
-			} else if (path.startsWith(".")) { 
-				path = getResolvedBaseLocationDir() + "/" + path.substring(2);
-			} else {
-				if (!fFileSystemProvider.fileExists(path)) {
-					//  See if this is an implicit path
-					String imp_path = getResolvedBaseLocationDir() + "/" + path;
-					if (fFileSystemProvider.fileExists(imp_path)) {
-						// This path is an implicit relative path that is 
-						// relative to the base directory
-						path = imp_path;
-					}
-				}
-			}
-			norm_path = normalizePath(path);
-		}
-		
-		return (norm_path != null)?norm_path:path_orig;
-	}
-	
-	private String resolveRelativePath(String base, String path) {
-		// path = getResolvedBaseLocationDir() + "/" + path;
-		String norm_path = normalizePath(base + "/" + path);
-
-		if (fFileSystemProvider.fileExists(norm_path)) {
-			return norm_path;
-		} else if (getBaseLocation().startsWith("${workspace_loc}")) {
-			// This could be a reference outside the workspace. Check
-			// whether we should reference this as a filesystem path 
-			// by computing the absolute path
-			String base_loc = getResolvedBaseLocationDir();
-			base_loc = base_loc.substring("${workspace_loc}".length());
-
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			IContainer base_dir = null;
-			try {
-				base_dir = root.getFolder(new Path(base_loc));
-			} catch (IllegalArgumentException e) {}
-
-			if (base_dir == null) {
-				if (base_loc.length() > 0) {
-					base_dir = root.getProject(base_loc.substring(1));
-				}
-			}
-
-			if (base_dir != null && base_dir.exists()) {
-				IPath base_dir_p = base_dir.getLocation();
-				if (base_dir_p != null) {
-					File path_f_t = new File(base_dir_p.toFile(), path);
-					try {
-						if (path_f_t.exists()) {
-							fLog.debug("Path does exist outside the project: " + path_f_t.getCanonicalPath());
-							norm_path = SVFileUtils.normalize(path_f_t.getCanonicalPath());
-							return norm_path;
-						}
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-		return null;
-	}
-
-	protected String normalizePath(String path) {
-		StringBuilder ret = new StringBuilder();
-		
-		int i=path.length()-1;
-		int end;
-		int skipCnt = 0;
-		
-		// First, skip any trailing '/'
-		while (i >=0 && (path.charAt(i) == '/' || path.charAt(i) == '\\')) {
-			i--;
-		}
-		
-		while (i >= 0) {
-			// scan backwards find the next path element
-			end = ret.length();
-			
-			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
-				ret.append(path.charAt(i));
-				i--;
-			}
-			
-			if (i != -1) {
-				ret.append("/");
-				i--;
-			}
-
-			if ((ret.length() - end) > 0) {
-				String str = ret.substring(end, ret.length()-1);
-				if (str.equals("..")) {
-					skipCnt++;
-					// remove .. element
-					ret.setLength(end);
-				} else if (skipCnt > 0) {
-					ret.setLength(end);
-					skipCnt--;
-				}
-			}
-		}
-
-		/*
-		if (skipCnt > 0) {
-			// throw new RuntimeException("exceeded skipCnt while normalizing \"" + path + "\"");
-		} 
-		 */
-		return ret.reverse().toString();
-	}
-
-	private void debug(String msg) {
-		fLog.debug(msg);
 	}
 
 }

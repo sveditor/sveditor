@@ -369,7 +369,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		

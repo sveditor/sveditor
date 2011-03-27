@@ -20,7 +20,7 @@ public class AllReleaseTests extends TestSuite {
 	
 	public AllReleaseTests() {
 		addTest(CoreReleaseTests.suite());
-		addTest(UiReleaseTests.suite());
+// TODO:		addTest(UiReleaseTests.suite());
 	}
 	
 	public static Test suite() {

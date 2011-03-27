@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -24,22 +25,22 @@ import net.sf.sveditor.core.svf_scanner.SVFScanner;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBArgFileIndex extends AbstractSVDBIndex {
-	private long						fArgFileLastModified;
 	
 	public SVDBArgFileIndex(
 			String						project,
 			String						root,
 			ISVDBFileSystemProvider		fs_provider,
-			ISVDBIndexCache				cache) {
-		super(project, root, fs_provider, cache);
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
+		super(project, root, fs_provider, cache, config);
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
-		
-//		fIncludePaths 		= new ArrayList<String>();
 	}
 	
 	public String getTypeID() {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
+	
+	
 
 	/*
 	@Override
@@ -161,7 +162,26 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
  */
 	
 	@Override
+	protected SVDBBaseIndexCacheData createIndexCacheData() {
+		return new SVDBArgFileIndexCacheData();
+	}
+	
+	@Override
+	protected boolean checkCacheValid() {
+		long ts = getFileSystemProvider().getLastModifiedTime(getResolvedBaseLocation());
+		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+
+		if (ts > cd.getArgFileTimestamp()) {
+			return false;
+		}
+
+		return super.checkCacheValid();
+	}
+
+	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
+		fLog.debug("discoverRootFiles - " + getBaseLocation());
+		
 		clearFilesList();
 		clearIncludePaths();
 		clearDefines();
@@ -171,7 +191,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		// Add an include path for the arg file location
 		addIncludePath(getResolvedBaseLocationDir());
 		
-		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
+		InputStream in = getFileSystemProvider().openStream(getResolvedBaseLocation());
 		
 		if (in != null) {
 			ITextScanner sc = new InputStreamTextScanner(in, getResolvedBaseLocation());
@@ -191,7 +211,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 				fLog.debug("[FILE PATH] " + f + " (" + exp_f + ")");
 				String res_f = resolvePath(exp_f);
 				
-				if (fFileSystemProvider.fileExists(res_f)) {
+				if (getFileSystemProvider().fileExists(res_f)) {
 					addFile(res_f);
 				} else {
 					fLog.error("Expanded path \"" + exp_f + "\" does not exist");
@@ -212,7 +232,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 				addDefine(entry.getKey(), entry.getValue());
 			}
 			
-			fFileSystemProvider.closeStream(in);
+			getFileSystemProvider().closeStream(in);
 			monitor.done();
 		} else {
 			monitor.done();
@@ -220,8 +240,23 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		}
 	}
 
+	@Override
+	public void dispose() {
+		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+		cd.setArgFileTimestamp(getFileSystemProvider().getLastModifiedTime(getResolvedBaseLocation()));
+		super.dispose();
+	}
 
-
+	@Override
+	public void fileChanged(String path) {
+		fLog.debug("File changed: " + path);
+		if (path.equals(getResolvedBaseLocation())) {
+			// Invalidate, since this is the root file
+			invalidateIndex();
+		}
+		super.fileChanged(path);
+	}
+	
 /*	
 	@Override
 	protected void buildIndex(IProgressMonitor monitor) {
@@ -252,30 +287,5 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	}
  */	
 	
-/*	
-	@Override
-	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
-		SVDBSearchResult<SVDBFile> ret = null;
-		
-		if ((ret = super.findIncludedFile(path)) != null) {
-			return ret;
-		}
-		
-		// Otherwise, search through each include path
-		for (String inc : fIncludePaths) {
-			inc = inc + "/" + path;
-			inc = resolvePath(inc);
-			
-			if (fFileSystemProvider.fileExists(inc)) {
-				SVDBFile pp_file = processPreProcFile(inc, true);
-				
-				ret = new SVDBSearchResult<SVDBFile>(pp_file, this);
-				break;
-			}
-		}
-		
-		return ret;
-	}
- */	
 
 }

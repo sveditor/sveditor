@@ -24,7 +24,6 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -51,6 +50,9 @@ import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -100,7 +102,48 @@ public class SVEditor extends TextEditor
 	private SVDBIndexCollectionMgr			fIndexMgr;
 	private LogHandle						fLog;
 	private String							fSVDBFilePath;
+	private UpdateProjectSettingsJob		fProjectSettingsJob;
+	private SVDBProjectData					fPendingProjectSettingsUpdate;
+	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
+	private boolean							fPendingUpdateSVDBFile;
+	
+	private class UpdateSVDBFileJob extends Job {
+		public UpdateSVDBFileJob() {
+			super("Update SVDBFile");
+		}
 
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			IEditorInput ed_in = getEditorInput();
+			IDocument doc = getDocumentProvider().getDocument(ed_in);
+			StringInputStream sin = new StringInputStream(doc.get());
+
+			SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath, getProgressMonitor());
+			fSVDBFile.getItems().clear();
+			if (new_in != null) {
+				//			SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
+				fSVDBFile.getItems().addAll(new_in.getItems());
+
+				fSVDBFile.setFilePath(fSVDBFilePath);
+
+				addErrorMarkers();
+			}
+
+			if (fOutline != null) {
+				fOutline.refresh();
+			}
+			
+			synchronized (SVEditor.this) {
+				fUpdateSVDBFileJob = null;
+				if (fPendingUpdateSVDBFile) {
+					updateSVDBFile();
+				}
+			}
+			
+			// TODO Auto-generated method stub
+			return Status.OK_STATUS;
+		}
+	}
 	
 	public SVEditor() {
 		super();
@@ -161,7 +204,7 @@ public class SVEditor extends TextEditor
 		initSVDBMgr();
 		
 		// Perform an initial parse of the file
-		updateSVDBFile();
+//		updateSVDBFile();
 	}
 
 	@Override
@@ -191,19 +234,29 @@ public class SVEditor extends TextEditor
 	 * which index is managing this file
 	 */
 	public void projectSettingsChanged(SVDBProjectData data) {
-		fLog.debug("Updating index information for editor \"" + 
-				fSVDBFilePath + "\"");
-		Tuple<ISVDBIndex, SVDBIndexCollectionMgr> result;
-		
-		result = SVDBIndexUtil.findIndexFile(
-				fSVDBFilePath, data.getName(), true);
-		
-		if (result == null) {
-			fLog.error("Failed to find index for \"" + fSVDBFilePath + "\"");
-			return;
+		fLog.debug("projectSettingsChanged");
+		synchronized (this) {
+			if (fProjectSettingsJob == null) {
+				fProjectSettingsJob = new UpdateProjectSettingsJob(this, data.getName());
+				fProjectSettingsJob.schedule();
+				fPendingProjectSettingsUpdate = null;
+			} else {
+				fPendingProjectSettingsUpdate = data;
+			}
+		}
+	}
+
+	public void int_projectSettingsUpdated(ISVDBIndex index, SVDBIndexCollectionMgr index_mgr) {
+		fLog.debug("projectSettingsUpdated - index=" + index + " ; index_mgr=" + index_mgr);
+		synchronized (this) {
+			fProjectSettingsJob = null;
+			fSVDBIndex = index;
+			fIndexMgr = index_mgr;
+		}
+		if (fPendingProjectSettingsUpdate != null) {
+			projectSettingsChanged(fPendingProjectSettingsUpdate);
 		} else {
-			fSVDBIndex = result.first();
-			fIndexMgr  = result.second();
+			updateSVDBFile();
 		}
 	}
 
@@ -261,6 +314,8 @@ public class SVEditor extends TextEditor
 					fSVDBFilePath = "${workspace_loc}" + fi.getFile().getFullPath().toOSString();
 					fSVDBFilePath = SVFileUtils.normalize(fSVDBFilePath);
 					
+					fLog.debug("Set SVDBFilePath=" + fSVDBFilePath);
+					
 					projectSettingsChanged(mgr.getProjectData(fi.getFile().getProject()));
 					
 					mgr.addProjectSettingsListener(this);
@@ -286,20 +341,18 @@ public class SVEditor extends TextEditor
 	}
 
 	void updateSVDBFile() {
-		IEditorInput ed_in = getEditorInput();
-		IDocument doc = getDocumentProvider().getDocument(ed_in);
+		fLog.debug("updateSVDBFile - fIndexMgr=" + fIndexMgr);
 		
-		StringInputStream sin = new StringInputStream(doc.get());
-
-		SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath, getProgressMonitor());
-		SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
-		
-		fSVDBFile.setFilePath(fSVDBFilePath);
-		
-		addErrorMarkers();
-		
-		if (fOutline != null) {
-			fOutline.refresh();
+		if (fIndexMgr != null) {
+			if (fUpdateSVDBFileJob == null) {
+				synchronized (this) {
+					fUpdateSVDBFileJob = new UpdateSVDBFileJob();
+					fUpdateSVDBFileJob.schedule();
+					fPendingUpdateSVDBFile = false;
+				}
+			} else {
+				fPendingUpdateSVDBFile = true;
+			}
 		}
 	}
 	
@@ -518,6 +571,7 @@ public class SVEditor extends TextEditor
 	}
 	
 	public String getFilePath() {
+		/*
 		IEditorInput ed_in = getEditorInput();
 		String ret = null;
 		
@@ -528,7 +582,10 @@ public class SVEditor extends TextEditor
 		}
 		
 		return ret;
+		 */
+		return fSVDBFilePath;
 	}
+	
 	
 	public void setSelection(ISVDBItemBase it, boolean set_cursor) {
 		int start = -1;

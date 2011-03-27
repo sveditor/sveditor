@@ -21,7 +21,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -37,6 +36,7 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -105,11 +105,12 @@ public class TestPreProc extends TestCase {
 
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 	
 		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 					SVDBPluginLibIndexFactory.TYPE, null);
 
+		/* TEMP:
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
@@ -157,6 +158,7 @@ public class TestPreProc extends TestCase {
 		System.out.println("path: " + ft.getFilePath());
 		// System.out.println("Orig is: \n" + orig.toString());
 		System.out.println("Result is: \n" + sb.toString());
+		 */
 	}
 
 	public void disabled_testNestedMacro() {
@@ -168,11 +170,12 @@ public class TestPreProc extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 					SVDBPluginLibIndexFactory.TYPE, null);
 
+		/*
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
@@ -220,6 +223,7 @@ public class TestPreProc extends TestCase {
 		System.out.println("path: " + ft.getFilePath());
 		// System.out.println("Orig is: \n" + orig.toString());
 		System.out.println("Result is: \n" + sb.toString());
+		 */
 	}
 	
 	public void testVmmErrorMacro() {
@@ -279,7 +283,7 @@ public class TestPreProc extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 
 		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
 				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
@@ -300,7 +304,7 @@ public class TestPreProc extends TestCase {
 
 	/*
 	public void testOvmComponentParamUtilsExpansion() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		if (fTmpDir.exists()) {

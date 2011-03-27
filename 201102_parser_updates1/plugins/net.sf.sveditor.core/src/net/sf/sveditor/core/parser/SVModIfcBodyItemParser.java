@@ -14,8 +14,11 @@ import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysEventType;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
+import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
+import net.sf.sveditor.core.db.stmt.SVDBDefParamStmt;
 import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
@@ -156,7 +159,29 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = fSpecialNonNull;
+			ret = p;
+		} else if (fLexer.peekKeyword("defparam")) {
+			fLexer.eatToken();
+			SVDBDefParamStmt defparam = new SVDBDefParamStmt();
+			
+			while (fLexer.peek() != null) {
+				SVDBLocation is = fLexer.getStartLocation();
+				SVDBDefParamItem item = new SVDBDefParamItem();
+				item.setLocation(is);
+				item.setTarget(fParsers.exprParser().hierarchical_identifier());
+				fLexer.readOperator("=");
+				item.setExpr(fParsers.exprParser().expression());
+				
+				defparam.addParamAssign(item);
+				
+				if (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
+				} else {
+					break;
+				}
+			}
+			fLexer.readOperator(";");
+			ret = defparam;
 		} else if (SVDataTypeParser.NetType.contains(id)) {
 			ret = parse_var_decl();
 		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
@@ -315,7 +340,24 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			} else if (type.equals("always_ff")) {
 				always_type = AlwaysType.AlwaysFF;
 			}
-			ret = new SVDBAlwaysStmt(always_type);
+			SVDBAlwaysStmt always_stmt = new SVDBAlwaysStmt(always_type);
+			
+			// TODO: Store always types in SVDBItem 
+			if (lexer().peekOperator("@")) {
+				lexer().eatToken();
+				lexer().readOperator("(");
+				if (lexer().peekOperator("*")) {
+					lexer().eatToken();
+					always_stmt.setAlwaysEventType(AlwaysEventType.Any);
+				} else {
+					always_stmt.setEventExpr(fParsers.exprParser().event_expression());
+					always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
+				}
+				lexer().readOperator(")");
+			} else {
+				always_stmt.setAlwaysEventType(AlwaysEventType.None);
+			}
+			ret = always_stmt;
 		} else {
 			ret = new SVDBInitialStmt();
 		}

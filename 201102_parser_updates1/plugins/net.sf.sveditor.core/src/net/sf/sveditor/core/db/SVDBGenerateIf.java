@@ -5,7 +5,5 @@ public class SVDBGenerateIf extends SVDBChildItem {
 	public SVDBGenerateIf() {
 		super(SVDBItemType.GenerateIf);
 	}
-	
-	
 
 }

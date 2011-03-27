@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -66,7 +67,7 @@ public class TestUvmBasics extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
@@ -128,7 +129,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
@@ -176,7 +177,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
@@ -224,7 +225,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
@@ -279,7 +280,7 @@ public class TestUvmBasics extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				"${workspace_loc}/simple/compile_questa_sv.f",

@@ -60,7 +60,7 @@ public class SVDBCoverpoint extends SVDBScopeItem {
 		fTarget = other_i.fTarget;
 	}
 
-
+/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBCoverpoint) {
@@ -70,5 +70,6 @@ public class SVDBCoverpoint extends SVDBScopeItem {
 			return false;
 		}
 	}
+ */
 	
 }

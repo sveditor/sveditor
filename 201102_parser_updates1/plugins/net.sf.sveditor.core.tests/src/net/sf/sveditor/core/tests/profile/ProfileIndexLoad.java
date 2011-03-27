@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -32,7 +33,7 @@ public class ProfileIndexLoad {
 		SVDBIndexCollectionMgr mgr = new SVDBIndexCollectionMgr(pname);
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		String lib_path = ovm_home + "/src/ovm_pkg.sv";
 		

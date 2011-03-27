@@ -103,7 +103,7 @@ public class TestParseFunction extends TestCase {
 			"    t = 20ns;\n" +
 			"endfunction\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
 		

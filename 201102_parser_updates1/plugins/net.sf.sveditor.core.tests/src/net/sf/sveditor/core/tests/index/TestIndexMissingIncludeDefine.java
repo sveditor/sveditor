@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -67,7 +68,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
@@ -89,7 +90,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f",
@@ -113,7 +114,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def",

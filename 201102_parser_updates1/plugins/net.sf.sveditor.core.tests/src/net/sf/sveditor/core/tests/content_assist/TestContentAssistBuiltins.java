@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -50,7 +51,7 @@ public class TestContentAssistBuiltins extends TestCase {
 		
 		fIndexMgr = new SVDBIndexCollectionMgr("TestContentAssistBuiltins");
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		fIndexMgr.addPluginLibrary(
 				rgy.findCreateIndex("TestContentAssistBuiltins", 
 						SVCorePlugin.SV_BUILTIN_LIBRARY, 

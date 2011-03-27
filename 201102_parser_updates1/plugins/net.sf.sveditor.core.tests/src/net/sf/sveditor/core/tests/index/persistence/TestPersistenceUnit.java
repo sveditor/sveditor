@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -200,7 +201,7 @@ public class TestPersistenceUnit extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init((File)null);
+		rgy.init(TestIndexCacheFactory.instance(null));
 
 		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
 				"GLOBAL", new File(tmp_dir, "test.f").getAbsolutePath(),

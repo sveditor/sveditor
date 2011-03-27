@@ -207,12 +207,15 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 		
 		if (fLexer.peekOperator("{")) {
+			fLexer.eatToken();
 			while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
 				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
 					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
 					SVDBIdentifierExpr id = fParsers.exprParser().idExpr();
+					fLexer.readOperator("=");
+					
 					// TODO:
 				}
 			}

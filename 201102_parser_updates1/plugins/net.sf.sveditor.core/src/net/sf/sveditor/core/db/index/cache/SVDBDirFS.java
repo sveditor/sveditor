@@ -25,6 +25,10 @@ public class SVDBDirFS implements ISVDBFS {
 
 	public OutputStream openFileWrite(String path) {
 		OutputStream ret = null;
+		
+		if (!fDBDir.exists()) {
+			fDBDir.mkdirs();
+		}
 
 		try {
 			ret = new FileOutputStream(new File(fDBDir, path));
@@ -34,8 +38,9 @@ public class SVDBDirFS implements ISVDBFS {
 	}
 	
 	public void close(InputStream in) {
-		// TODO Auto-generated method stub
-		
+		try {
+			in.close();
+		} catch (IOException e) {}
 	}
 
 	public boolean fileExists(String path) {
@@ -50,12 +55,16 @@ public class SVDBDirFS implements ISVDBFS {
 	}
 	
 	public void delete(String path) {
-		File file = new File(fDBDir, path);
-		
-		if (file.isDirectory()) {
-			delete_tree(file);
-		} else if (file.isFile()) {
-			file.delete();
+		if (path.equals("")) {
+			delete_tree(fDBDir);
+		} else {
+			File file = new File(fDBDir, path);
+
+			if (file.isDirectory()) {
+				delete_tree(file);
+			} else if (file.isFile()) {
+				file.delete();
+			}
 		}
 	}
 	

@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVGateInstantiationParser extends SVParserBase {
@@ -223,23 +224,35 @@ public class SVGateInstantiationParser extends SVParserBase {
 			SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(fLexer.eatToken());
 			
 			if (fLexer.peekOperator("(")) {
-				fLexer.readOperator("(");
-				fLexer.readKeyword(SVKeywords.fStrength);
-				
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
+				SVToken t = fLexer.consumeToken();
+
+				if (fLexer.peekKeyword(SVKeywords.fStrength)) {
 					fLexer.readKeyword(SVKeywords.fStrength);
-				}
 				
-				fLexer.readOperator(")");
+					if (fLexer.peekOperator(",")) {
+						fLexer.eatToken();
+						fLexer.readKeyword(SVKeywords.fStrength);
+					}
+				
+					fLexer.readOperator(")");
+				} else {
+					fLexer.ungetToken(t);
+				}
 			}
 
 			while (fLexer.peek() != null) {
-				item = new SVDBModIfcInst(type, fLexer.readId());
-				ret.add(item);
+				
+				if (fLexer.peekId()) {
+					item = new SVDBModIfcInst(type, fLexer.readId());
+				} else {
+					item = new SVDBModIfcInst(type, "");
+				}
 				
 				fLexer.readOperator("(");
-				parsers().exprParser().expression();
+				SVDBExpr expr = parsers().exprParser().expression(); 
+				item = new SVDBModIfcInst(type, expr.toString());
+				ret.add(item);
+				
 				fLexer.readOperator(")");
 				
 				if (fLexer.peekOperator(",")) {

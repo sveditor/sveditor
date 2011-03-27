@@ -76,6 +76,8 @@ public enum SVDBItemType {
 	ConstraintSolveBeforeStmt,
 	DisableStmt,
 	DisableForkStmt,
+	DefParamStmt,
+	DefParamItem,
 	DelayControlStmt,
 	DoWhileStmt,
 	EventControlStmt,

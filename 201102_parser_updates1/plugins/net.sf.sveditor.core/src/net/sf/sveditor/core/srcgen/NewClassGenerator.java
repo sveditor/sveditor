@@ -18,6 +18,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
@@ -63,7 +64,7 @@ public class NewClassGenerator {
 		
 		template += "class " + clsname;
 
-		SVDBModIfcDecl superclass_decl = null;
+		SVDBClassDecl superclass_decl = null;
 		if (superclass != null && 
 				!superclass.trim().equals("")) {
 			monitor.subTask("Finding super-class");
@@ -73,7 +74,7 @@ public class NewClassGenerator {
 				SVDBFindByName finder = new SVDBFindByName(index_it);
 				List<ISVDBItemBase> result = finder.find(superclass, SVDBItemType.ClassDecl);
 				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
-					superclass_decl = (SVDBModIfcDecl)result.get(0);
+					superclass_decl = (SVDBClassDecl)result.get(0);
 				}
 			}
 		}

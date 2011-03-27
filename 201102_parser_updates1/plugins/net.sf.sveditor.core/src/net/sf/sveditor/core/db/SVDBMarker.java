@@ -97,13 +97,11 @@ public class SVDBMarker extends SVDBItem {
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBMarker) {
 			SVDBMarker o = (SVDBMarker)obj;
+			boolean ret = super.equals(obj);
 			
-			if (!o.fMessage.equals(fMessage) ||
-					o.fKind != fKind || o.fAttr != fAttr) {
-				return false;
-			}
+			ret &= (o.fKind == fKind);
 			
-			return super.equals(obj);
+			return ret;
 		}
 		
 		return false;

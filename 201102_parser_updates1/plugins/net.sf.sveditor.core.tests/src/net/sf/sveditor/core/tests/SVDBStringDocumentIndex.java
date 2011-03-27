@@ -14,6 +14,8 @@ package net.sf.sveditor.core.tests;
 
 import java.io.InputStream;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -47,6 +49,7 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			public void clearMarkers(String path) {}
 			public void addMarker(String path, String type, int lineno, String msg) {}
 			public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
-		}, null);
+		}, TestIndexCacheFactory.instance(null).createIndexCache("__", "__"), null);
+		init(new NullProgressMonitor());
 	}
 }

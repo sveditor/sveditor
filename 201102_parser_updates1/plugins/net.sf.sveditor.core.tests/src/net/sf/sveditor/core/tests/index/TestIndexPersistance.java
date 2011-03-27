@@ -16,22 +16,24 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeListener {
 	private File			fTmpDir;
@@ -81,7 +83,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db_dir);
+		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		
 		ISVDBIndex index;
 		SVDBFile   file;
@@ -96,7 +98,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		index.addChangeListener(this);
 		fRebuildCount=0;
 		
-		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
+		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path); 
 		file = index.parse(in, path, new NullProgressMonitor());
 		
 		assertNotNull(file);
@@ -116,7 +118,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 
 		// Now, tear down everything
 		System.out.println(">==== PASS 2 ====");
-		rgy.init(db_dir);
+		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		index = rgy.findCreateIndex("xbus",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
@@ -157,7 +159,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		/* IProject project_dir = */ TestUtils.createProject("ovm", ovm);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db_dir);
+		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		
 		ISVDBIndex index;
 		SVDBFile   file;
@@ -192,7 +194,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 
 		// Now, tear down everything
 		System.out.println(">==== PASS 2 ====");
-		rgy.init(db_dir);
+		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		index = rgy.findCreateIndex("ovm",
 				"${workspace_loc}/ovm/src/ovm_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);

@@ -62,7 +62,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testDelayedAssign");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -706,7 +706,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		"	assign co = c[SIZE];\n" +
 		"endmodule\n"
 		;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVDBFile file = SVDBTestUtils.parse(doc, "testGen_LRM_Ex3");
 		
@@ -1324,9 +1324,26 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testGatePrimitives2", doc, new String[] {"switch_primitives"});
+	}
+	
+	public void testCovergroup() {
+		String doc =
+			"module t;\n" +
+			"	covergroup foobar;\n" +
+			"		foo_cp : coverpoint (foo);\n" +
+			"		foo2_cp : coverpoint foo2;\n" +
+			"		foo_cross : cross foo_cp, foo2_cp {\n" +
+			"			ignore_bins foo = (intersect etc);\n" +
+			"		}\n" +
+			"	endgroup\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("testCovergroup", doc, new String[] {"t", "foobar"});
 	}
 
 	private void runTest(

@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -65,9 +66,10 @@ public class TestArgFileIndex extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -90,7 +92,64 @@ public class TestArgFileIndex extends TestCase {
 		assertNull("Incorrectly found class1_dir2", class1_dir2);
 		assertNotNull("Failed to find class1_dir1", class1_dir1);
 	}
-	
+
+	public void testArgFileIncludePath() throws IOException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		File project_dir_f = new File(fTmpDir, "testArgFileIncludePath_project");
+		
+		if (project_dir_f.exists()) {
+			TestUtils.delete(project_dir_f);
+		}
+		
+		final IProject project_dir = TestUtils.createProject("testArgFileIncludePath_project", project_dir_f);
+		utils.copyBundleDirToWS("/data/arg_file_include_path/", project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/testArgFileIncludePath_project/arg_file_include_path/arg_file_include_path.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		SVCorePlugin.setenv("TEST_ENVVAR", fTmpDir.getAbsolutePath() + "/testArgFileIncludePath_project");
+		
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1 = null, class2 = null;
+		ISVDBItemBase ext_pkg_1 = null, ext_pkg_2 = null;
+		
+		while (it.hasNext()) {
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
+			
+			System.out.println("Item: " + tmp_it.getType() + " " + name);
+			
+			if (name.equals("class1")) {
+				class1 = tmp_it;
+			} else if (name.equals("class2")) {
+				class2 = tmp_it;
+			} else if (name.equals("ext_pkg_1")) {
+				ext_pkg_1 = tmp_it;
+			} else if (name.equals("ext_pkg_2")) {
+				ext_pkg_2 = tmp_it;
+			}
+		}
+
+		assertNotNull(class1);
+		assertNotNull(class2);
+		assertNotNull(ext_pkg_1);
+		assertNotNull(ext_pkg_2);
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
+
 	public void testEnvVarExpansion() throws IOException {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -107,7 +166,7 @@ public class TestArgFileIndex extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
 				"${workspace_loc}/testEnvVarExpansion_project/arg_file_env_var/arg_file_env_var.f", 

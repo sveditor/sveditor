@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
@@ -24,7 +25,15 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 		AlwaysFF
 	};
 	
-	private AlwaysType		fAlwaysType;
+	public enum AlwaysEventType {
+		None, // always ... 
+		Any,  // @(*)
+		Expr // always @(a or b or c)
+	}
+	
+	private AlwaysType			fAlwaysType;
+	private AlwaysEventType		fAlwaysEventType;
+	private SVDBExpr			fAlwaysEventExpr;
 	
 	public SVDBAlwaysStmt() {
 		this(AlwaysType.Always);
@@ -37,6 +46,22 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
 	public AlwaysType getAlwaysType() {
 		return fAlwaysType;
+	}
+	
+	public AlwaysEventType getAlwaysEventType() {
+		return fAlwaysEventType;
+	}
+	
+	public void setAlwaysEventType(AlwaysEventType type) {
+		fAlwaysEventType = type;
+	}
+	
+	public SVDBExpr getEventExpr() {
+		return fAlwaysEventExpr;
+	}
+	
+	public void setEventExpr(SVDBExpr expr) {
+		fAlwaysEventExpr = expr;
 	}
 	
 	@Override
