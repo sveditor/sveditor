@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -27,6 +28,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private Map<String, SVDBFile>			fPreProcFileMap;
 	private Map<String, SVDBFileTree>		fFileTreeMap;
 	private Map<String, SVDBFile>			fFileMap;
+	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	private ISVDBFS							fSVDBFS;
 	private Object							fIndexData;
 	private LogHandle						fLog;
@@ -38,6 +40,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap = new WeakHashMap<String, SVDBFile>();
 		fFileTreeMap = new WeakHashMap<String, SVDBFileTree>();
 		fFileMap = new WeakHashMap<String, SVDBFile>();
+		fMarkerMap = new WeakHashMap<String, List<SVDBMarker>>();
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 	}
 
@@ -48,6 +51,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap = new WeakHashMap<String, SVDBFile>(cache_sz);
 		fFileTreeMap = new WeakHashMap<String, SVDBFileTree>(cache_sz);
 		fFileMap = new WeakHashMap<String, SVDBFile>(cache_sz);
+		fMarkerMap = new WeakHashMap<String, List<SVDBMarker>>();
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 	}
 
@@ -68,6 +72,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	public void clear() {
 		// Delete entire index
 		fLog.debug("clear");
+		fFileList.clear();
+		fPreProcFileMap.clear();
+		fFileTreeMap.clear();
+		fFileMap.clear();
+		fLastModifiedMap.clear();
 		fSVDBFS.delete("");
 	}
 
@@ -75,6 +84,35 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		if (!fFileList.contains(path)) {
 			fFileList.add(path);
 		}
+	}
+	
+	public void setMarkers(String path, List<SVDBMarker> markers) {
+		if (fMarkerMap.containsKey(path)) {
+			fMarkerMap.remove(path);
+		}
+		
+		fMarkerMap.put(path, markers);
+		
+		String parent_dir = computePathDir(path);
+		fSVDBFS.mkdirs(parent_dir);
+		String target_file = parent_dir + "/markers";
+		writeMarkerList(target_file, markers);
+	}
+	
+	public List<SVDBMarker> getMarkers(String path) {
+		List<SVDBMarker> m = null;
+		if (fMarkerMap.containsKey(path)) {
+			m = fMarkerMap.get(path);
+		} else {
+			String parent_dir = computePathDir(path);
+			String target_file = parent_dir + "/markers";
+			if (fSVDBFS.fileExists(target_file)){
+				List<SVDBMarker> marker_list = readMarkerList(target_file);
+				fMarkerMap.put(path, marker_list);
+			}
+		}
+		
+		return m;
 	}
 
 
@@ -98,6 +136,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 				}
 				in.close();
 			}
+			
+			in = fSVDBFS.openFileRead("index_data");
+			if (in != null) {
+				rdr = new SVDBPersistenceReader(in);
+				rdr.readObject(null, index_data.getClass(), index_data);
+			}
+			fIndexData = index_data;
 		} catch (IOException e) {}
 		  catch (DBFormatException e) {
 			  e.printStackTrace();
@@ -221,7 +266,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			fFileTreeMap.remove(path);
 		}
 		fFileTreeMap.put(path, file_tree);
-
+		
 		String target_dir = computePathDir(path);
 		fSVDBFS.mkdirs(target_dir);
 		
@@ -248,6 +293,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			SVDBFileTree f = null;
 			try {
 				f = readFileTree(fSVDBFS.openFileRead(target_dir + "/fileTreeMap"));
+				
 				fFileTreeMap.put(path, f);
 				return f;
 			} catch (IOException e) {
@@ -260,7 +306,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	
 
 	public void removeFile(String path) {
-		
 		fFileList.remove(path);
 		fFileMap.remove(path);
 		fFileTreeMap.remove(path);
@@ -321,6 +366,42 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		return ret;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private List<SVDBMarker> readMarkerList(String path) {
+		InputStream in = null;
+		try {
+			in = fSVDBFS.openFileRead(path);
+		} catch (IOException e) { }
+		
+		SVDBPersistenceReader rdr = new SVDBPersistenceReader(in);
+		
+		List<SVDBMarker> ret = null;
+		
+		try {
+			ret = (List<SVDBMarker>)rdr.readItemList(null);
+		} catch (DBFormatException e) {
+			e.printStackTrace();
+		}
+
+		fSVDBFS.close(in);
+		
+		return ret;
+	}
+	
+	private void writeMarkerList(String path, List<SVDBMarker> marker_list) {
+		try {
+			OutputStream out = fSVDBFS.openFileWrite(path);
+			SVDBPersistenceWriter writer = new SVDBPersistenceWriter(out);
+			writer.writeItemList(marker_list);
+			writer.close();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (DBWriteException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void sync() {
 		SVDBPersistenceWriter wrt = null;
@@ -341,6 +422,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			}
 			wrt.writeLongList(timestamp_list);
 			
+			wrt.close();
+			out.close();
+			
+			out = fSVDBFS.openFileWrite("index_data");
+			wrt = new SVDBPersistenceWriter(out);
+			wrt.writeObject(fIndexData.getClass(), fIndexData);
 			wrt.close();
 			out.close();
 		} catch (IOException e) {

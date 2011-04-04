@@ -13,6 +13,8 @@
 package net.sf.sveditor.ui.tests.explorer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -46,7 +48,8 @@ public class TestExplorer extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fIndexCollectionOVMMgr = new SVDBIndexCollectionMgr(pname);
 		fIndexCollectionOVMMgr.addPluginLibrary(
-				rgy.findCreateIndex(pname, SVCoreTestsPlugin.OVM_LIBRARY_ID, 
+				rgy.findCreateIndex(new NullProgressMonitor(), 
+						pname, SVCoreTestsPlugin.OVM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
@@ -66,7 +69,11 @@ public class TestExplorer extends TestCase {
 		List<ISVDBIndex> l = fIndexCollectionOVMMgr.getPluginPathList();
 		
 		for (ISVDBIndex i : l) {
-			List<PathTreeNode> roots = f.build(i.getPreProcFileMap(new NullProgressMonitor()).values());
+			List<SVDBFile> file_l = new ArrayList<SVDBFile>();
+			for (String p : i.getFileList(new NullProgressMonitor())) {
+				file_l.add(i.findPreProcFile(p));
+			}
+			List<PathTreeNode> roots = f.build(file_l);
 			
 			for (PathTreeNode n : roots) {
 				System.out.println("root: " + n.getName());

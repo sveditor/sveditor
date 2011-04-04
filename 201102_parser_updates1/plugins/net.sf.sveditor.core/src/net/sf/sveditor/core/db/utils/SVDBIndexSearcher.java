@@ -15,6 +15,8 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -32,22 +34,24 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBIndexSearcher {
-	private List<SVDBFile>			fFiles = new ArrayList<SVDBFile>();
+	private Map<ISVDBIndex, List<String>>	fIndexMap;
 
 	public SVDBIndexSearcher() {
 	}
 	
 	public SVDBIndexSearcher(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
+		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
 	}
 
 	public void addIndex(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
+		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
 	}
 	
+	/**
 	public void addFile(SVDBFile file) {
 		fFiles.add(file);
 	}
+	 */
 	
 	/**
 	 * Finds all classes named 'name' 
@@ -58,9 +62,12 @@ public class SVDBIndexSearcher {
 	public SVDBClassDecl findNamedClass(String name) {
 		SVDBClassDecl c;
 		
-		for (SVDBFile f : fFiles) {
-			if ((c= findNamedClass(name, f)) != null) {
-				return c;
+		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+			for (String fname : e.getValue()) {
+				SVDBFile f = e.getKey().findFile(fname);
+				if ((c= findNamedClass(name, f)) != null) {
+					return c;
+				}
 			}
 		}
 
@@ -231,9 +238,12 @@ public class SVDBIndexSearcher {
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (SVDBFile f : fFiles) {
-			List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);
-			ret.addAll(r);
+		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+			for (String fname : e.getValue()) {
+				SVDBFile f = e.getKey().findFile(fname);
+				List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);
+				ret.addAll(r);
+			}
 		}
 		
 		return ret;

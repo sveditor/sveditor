@@ -60,9 +60,6 @@ public class SVClassDeclParser extends SVParserBase {
 		cls_type = new SVDBTypeInfoClassType(cls_type_name);
 		cls.setClassType(cls_type);
 		
-		// TODO: Should remove this later
-		parsers().SVParser().enter_scope("class", cls);
-		
 		if (fLexer.peekOperator("#")) {
 			// Handle classes with parameters
 			cls.addParameters(parsers().paramPortListParser().parse());
@@ -86,9 +83,6 @@ public class SVClassDeclParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
-		
-		// Force new-statement
-		parsers().SVParser().setNewStatement();
 		
 		// TODO: need a better system here...
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endclass")) {
@@ -119,9 +113,6 @@ public class SVClassDeclParser extends SVParserBase {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
-		
-		// TODO: remove this later
-		parsers().SVParser().handle_leave_scope();
 		
 		return cls;
 	}

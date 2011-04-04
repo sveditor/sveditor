@@ -81,8 +81,8 @@ public class MethodGenerator {
 				
 				new_tf.append(", ");
 			}
-			new_tf.setLength(new_tf.length()-2);
 		}
+		new_tf.setLength(new_tf.length()-2);
 		
 		if (new_tf.toString().endsWith(", ")) {
 			new_tf.setLength(new_tf.length()-2);

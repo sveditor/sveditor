@@ -10,6 +10,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
@@ -33,11 +34,11 @@ public class IndexTestUtils {
 						m.getMessage(), ci);
 				SVDBFile file = (SVDBFile)ci;
 				
-				if (m.getName().equals(SVDBMarker.MARKER_ERR) ||
-						m.getName().equals(SVDBMarker.MARKER_WARN)) {
+				if (m.getMarkerType() == MarkerType.Error ||
+						m.getMarkerType() == MarkerType.Warning) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
 							" @ " + file.getName() + ":" + m.getLocation().getLine());
-					TestCase.fail("Unexpected " + m.getName() + " @ " + 
+					TestCase.fail("Unexpected marker type " + m.getMarkerType() + " @ " + 
 							file.getName() + ":" + m.getLocation().getLine());
 				}
 			}

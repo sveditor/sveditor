@@ -154,6 +154,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testFilelistChangeDetected() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -168,7 +169,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -217,7 +218,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());

@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
@@ -33,6 +34,7 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -60,7 +62,7 @@ public class TestVmmBasics extends TestCase {
 	}
 
 	public void testBasicProcessing() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File tmpdir = new File(fTmpDir, "no_errors");
 		
 		if (tmpdir.exists()) {
@@ -144,7 +146,7 @@ public class TestVmmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -192,7 +194,7 @@ public class TestVmmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -223,29 +225,34 @@ public class TestVmmBasics extends TestCase {
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_item.sv");
+		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
 		
 		int ch, lineno=1;
 		System.out.print(lineno + ": ");
+		StringBuilder sb = new StringBuilder();
 		while ((ch = pp.get_ch()) != -1) {
 			System.out.print((char)ch);
+			sb.append((char)ch);
 			if (ch == '\n') {
 				lineno++;
 				System.out.print(lineno + ": ");
 			}
 		}
+		
+		SVDBTestUtils.parse(sb.toString(), "preProcessed.simple_sequencer.sv");
 		
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -256,7 +263,7 @@ public class TestVmmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}

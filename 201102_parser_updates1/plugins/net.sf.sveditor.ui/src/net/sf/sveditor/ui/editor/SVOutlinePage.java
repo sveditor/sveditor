@@ -40,8 +40,8 @@ public class SVOutlinePage extends ContentOutlinePage
 			Runnable, ISVDBChangeListener {
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
-	private boolean						fIgnoreSelection = false;
-	private ISVDBItemBase				fLastSelection;
+	private boolean						fIgnoreSelectionChange = false;
+	private ISVDBItemBase				fLastSelection;	
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -126,7 +126,7 @@ public class SVOutlinePage extends ContentOutlinePage
 
 			
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (fIgnoreSelection) {
+				if (fIgnoreSelectionChange) {
 					return;
 				}
 				
@@ -137,7 +137,7 @@ public class SVOutlinePage extends ContentOutlinePage
 					if (sel.getFirstElement() instanceof ISVDBItemBase) {
 						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
 						
-						if (fLastSelection == null || fLastSelection != it) {
+						if (fLastSelection == null || !fLastSelection.equals(it)) {
 							fEditor.setSelection(it, false);
 							fLastSelection = it;
 						}

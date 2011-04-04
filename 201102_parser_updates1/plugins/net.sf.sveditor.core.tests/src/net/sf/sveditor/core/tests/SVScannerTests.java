@@ -12,6 +12,9 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
@@ -53,14 +56,11 @@ public class SVScannerTests extends TestCase {
 		int idx = 0;
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
-		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists", markers);
 
-		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("[Item] " + it.getType() + " " + SVDBItem.getName(it));
-			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarker m = (SVDBMarker)it;
-				System.out.println("[ERROR] " + m.getMessage());
-			}
+		for (SVDBMarker m : markers) {
+			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals(1, file.getItems().size());
 		assertTrue(file.getItems().get(0) instanceof SVDBModIfcDecl);

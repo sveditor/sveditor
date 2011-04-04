@@ -40,103 +40,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
 	
-	
-
-	/*
-	@Override
-	public void dump(IDBWriter index_data) {
-		try {
-			// Save the last-modified time for the arg file
-			long last_modified = fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation());
-			index_data.writeLong(last_modified);
-		} catch (DBWriteException e) {
-			fLog.error("Problem while writing", e);
-		}
-		
-		super.dump(index_data);
-	}
-	 */
-
-	/*
-	@Override
-	public void load(
-			IDBReader 		index_data, 
-			List<SVDBFile> 	pp_files,
-			List<SVDBFile> 	db_files) throws DBFormatException {
-		fArgFileLastModified = index_data.readLong();
-		fLoadUpToDate = true;
-		
-		fLog.debug("load - pp_files.size=" + pp_files.size() + " db_files.size=" + db_files.size());
-		
-		// Read back the Global Defines. Project settings will already
-		// be set.  
-		int n_defines = index_data.readInt();
-		for (int i=0; i<n_defines; i++) {
-			String key = index_data.readString();
-			String val = index_data.readString();
-			
-			if (fGlobalDefines.containsKey(key) ||
-					!fGlobalDefines.get(key).equals(val)) {
-				fGlobalDefines.remove(key);
-				fGlobalDefines.put(key, val);
-				fLog.debug("Invalidating load, since key " + key + " changed value");
-				fLoadUpToDate = false;
-			}
-		}
-
-		// Load up file paths from the .f target 
-		initPaths();
-
-		load_base(index_data, pp_files, db_files);
-		
-		if (isLoaded()) {
-			fLog.debug("Index is loaded... Loading markers and FileTreeMap");
-
-			// re-build the FileTree structure
-			for (String file : fFilePaths) {
-				file = resolvePath(file);
-				SVDBFile pp_file = findPreProcFile(file);
-				
-				fLog.debug("    Building FileTree for \"" + file + "\"");
-				
-				if (pp_file == null) {
-					fLog.error("Failed to find pre-proc file \"" + file + "\"");
-					continue;
-				}
-				
-				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-				buildPreProcFileMap(null, ft_root);
-			}
-			
-			loadMarkers();
-		} else {
-			fLog.debug("Index is not loaded...");
-		}
-	}
-
-	@Override
-	protected boolean isLoadUpToDate() {
-		fLog.debug("BaseLocation Exists: " + 
-				fFileSystemProvider.fileExists(getResolvedBaseLocation()) + 
-				" ArgFileLastModified (saved): " + fArgFileLastModified + 
-				" ArgFileLastModified (current): " + fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation()));
-		if (fFileSystemProvider.fileExists(getResolvedBaseLocation()) &&
-				fArgFileLastModified >= fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation())) {
-			return super.isLoadUpToDate();
-		}
-		return false;
-	}
-	
-	@Override
-	public void fileChanged(String path) {
-		if (path.equals(getResolvedBaseLocation())) {
-			rebuildIndex();
-		} else {
-			super.fileChanged(path);
-		}
-	}
-	 */
-
 /*
 	@Override
 	protected void buildPreProcFileMap() {
@@ -172,6 +75,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
 
 		if (ts > cd.getArgFileTimestamp()) {
+			fLog.debug("    ts=" + ts + " cache ArgFileTimestamp=" + cd.getArgFileTimestamp());
 			return false;
 		}
 
@@ -243,7 +147,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	@Override
 	public void dispose() {
 		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
-		cd.setArgFileTimestamp(getFileSystemProvider().getLastModifiedTime(getResolvedBaseLocation()));
+		long ts = getFileSystemProvider().getLastModifiedTime(getResolvedBaseLocation());
+		fLog.debug("Setting ArgFile Timestamp: " + ts);
+		cd.setArgFileTimestamp(ts);
 		super.dispose();
 	}
 

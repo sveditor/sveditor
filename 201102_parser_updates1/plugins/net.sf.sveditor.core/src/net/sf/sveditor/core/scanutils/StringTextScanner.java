@@ -77,6 +77,10 @@ public class StringTextScanner extends AbstractTextScanner
 			return fStr.substring((int)start, (int)(start+length-1));
 		}
 	}
+	
+	public int charAt(int pos) {
+		return fStr.charAt(pos);
+	}
 
 	public long getPos() {
 		return fIdx;

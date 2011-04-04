@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -25,6 +26,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -33,7 +35,6 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -82,7 +83,7 @@ public class TestContentAssistBasics extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 	
 	
@@ -98,7 +99,8 @@ public class TestContentAssistBasics extends TestCase {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, fIndexCollectionOVMMgr);
@@ -124,7 +126,8 @@ public class TestContentAssistBasics extends TestCase {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, fIndexCollectionVMMMgr);
@@ -553,7 +556,8 @@ public class TestContentAssistBasics extends TestCase {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);
 		fIndex.setFile(file);
 
 		return new Tuple<SVDBFile, TextTagPosUtils>(file, tt_utils);

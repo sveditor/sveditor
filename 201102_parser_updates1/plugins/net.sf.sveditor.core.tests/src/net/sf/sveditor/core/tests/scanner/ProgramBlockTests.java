@@ -12,11 +12,15 @@
 
 package net.sf.sveditor.core.tests.scanner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class ProgramBlockTests extends TestCase {
@@ -38,7 +42,8 @@ public class ProgramBlockTests extends TestCase {
 				"\n\n\n\n");
 		ISVDBFileFactory f = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = f.parse(in, "test");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = f.parse(in, "test", markers);
 		
 		SVDBTestUtils.assertFileHasElements(file, "foo", "foobar", "foo_c");
 	}

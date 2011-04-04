@@ -292,7 +292,6 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class3 = null;
 		ISVDBItemBase def_function = null;
-		List<ISVDBItemBase> markers = new ArrayList<ISVDBItemBase>();
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -312,19 +311,18 @@ public class SrcCollectionBasics extends TestCase {
 				class3 = tmp_it;
 			} else if (name.equals("def_function")) {
 				def_function = tmp_it;
-			} else if (tmp_it.getType() == SVDBItemType.Marker) {
-				markers.add(tmp_it);
 			}
 		}
 		
 		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
-		/*
-		SVDBFile file = index.parse(
-				fs.openStream("/project_dir_src_collection_module_missing_inc/class1.svh"), 
-				"/project_dir_src_collection_module_missing_inc/class1.svh");
-		 */
 		String file_path = new File(path, "class1.svh").getAbsolutePath();
-		/* SVDBFile file = */ index.parse(fs.openStream(file_path), file_path, new NullProgressMonitor()); 
+		/* SVDBFile file = */ index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null); 
+
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> tmp_m = index.getMarkers(file);
+			markers.addAll(tmp_m);
+		}
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + ((SVDBMarker)warn).getMessage());
@@ -337,8 +335,8 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
 		assertEquals("class1", SVDBItem.getName(class1));
-		// Expect two entries for missing include entry
-		assertEquals("Confirm no warnings", 2, markers.size());
+		// Expect one marker -- missing_inc.svh
+		assertEquals("Confirm 1 warnings", 1, markers.size());
 		System.out.println("<-- testMissingIncludeRecurseModule()");
 	}
 
@@ -396,6 +394,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testBasicClassIncludingInterface() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -411,7 +410,8 @@ public class SrcCollectionBasics extends TestCase {
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_interface_project");
-		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -448,6 +448,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testBasicClassIncludingProgram() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -463,7 +464,8 @@ public class SrcCollectionBasics extends TestCase {
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_program_project");
-		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -500,9 +502,8 @@ public class SrcCollectionBasics extends TestCase {
 	}
 
 	public void testFSNewFileAdded() throws IOException {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
 		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -516,7 +517,7 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -576,7 +577,7 @@ public class SrcCollectionBasics extends TestCase {
 				"project_dir_src_collection_module/new_class.svh").getAbsolutePath();
 		FileInputStream in = new FileInputStream(
 				new File(project_dir, "project_dir_src_collection_module/new_class.svh"));				
-		SVDBFile new_class_file = index.parse(in, new_class_path, new NullProgressMonitor());
+		SVDBFile new_class_file = index.parse(new NullProgressMonitor(), in, new_class_path, null);
 		
 		assertNotNull(new_class_file);
 	}
@@ -586,6 +587,7 @@ public class SrcCollectionBasics extends TestCase {
 	 * are correctly resolved
 	 */
 	public void testOutsideWsRelativeIncPaths() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(false);
 		System.out.println("--> testOutsideWsRelativeIncPaths()");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File testdir = new File(fTmpDir, "testdir");
@@ -597,8 +599,6 @@ public class SrcCollectionBasics extends TestCase {
 			sub2.delete();
 		}
 		
-		SVCorePlugin.getDefault().enableDebug(false);
-
 		final IProject project_dir = TestUtils.createProject("a", new File(sub3, "a"));
 
 		String data_dir = "/project_dir_src_collection_ws_ext_inc";
@@ -611,10 +611,16 @@ public class SrcCollectionBasics extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(null));
 		
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), "${workspace_loc}/a", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.setGlobalDefine("TEST_MODE", "1");
+		
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		while (it.hasNext()) {
+			ISVDBItemBase it_t = it.nextItem();
+			System.out.println("it_t: " + it_t.getType() + " " + SVDBItem.getName(it_t));
+		}
 		
 		IndexTestUtils.assertNoErrWarn(index);
 		
@@ -622,7 +628,7 @@ public class SrcCollectionBasics extends TestCase {
 		
 		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
 		String file_path = "${workspace_loc}/a/top.v";
-		SVDBFile file = index.parse(fs.openStream(file_path), file_path, new NullProgressMonitor());
+		SVDBFile file = index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null);
 		
 		SVDBTestUtils.assertFileHasElements(file, "top");
 		ISVDBItemBase top = SVDBTestUtils.findInFile(file, "top");

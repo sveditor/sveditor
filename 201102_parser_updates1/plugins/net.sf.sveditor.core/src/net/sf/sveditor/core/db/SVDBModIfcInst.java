@@ -12,18 +12,33 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SVDBModIfcInst extends SVDBFieldItem {
 	
 	private SVDBTypeInfo				fTypeInfo;
+	private List<SVDBModIfcInstItem>	fInstList;
 	
 	public SVDBModIfcInst() {
 		super("", SVDBItemType.ModIfcInst);
+		fInstList = new ArrayList<SVDBModIfcInstItem>();
 	}
 	
-	public SVDBModIfcInst(SVDBTypeInfo type, String name) {
-		super(name, SVDBItemType.ModIfcInst);
+	public SVDBModIfcInst(SVDBTypeInfo type) {
+		super("", SVDBItemType.ModIfcInst);
 		fTypeInfo = type;
+		fInstList = new ArrayList<SVDBModIfcInstItem>();
+	}
+	
+	public List<SVDBModIfcInstItem> getInstList() {
+		return fInstList;
+	}
+	
+	public void addInst(SVDBModIfcInstItem item) {
+		item.setParent(this);
+		fInstList.add(item);
 	}
 	
 	public SVDBTypeInfo getTypeInfo() {
@@ -39,7 +54,7 @@ public class SVDBModIfcInst extends SVDBFieldItem {
 	}
 	
 	public SVDBModIfcInst duplicate() {
-		SVDBModIfcInst ret = new SVDBModIfcInst(fTypeInfo, getName());
+		SVDBModIfcInst ret = new SVDBModIfcInst(fTypeInfo);
 		
 		init(ret);
 		

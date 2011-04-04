@@ -25,6 +25,14 @@ public enum SVDBItemType {
 	Task,
 	Function,
 	ModIfcInst,
+	ModIfcInstItem,
+	ModportDecl,
+	ModportItem,
+	ModportSimplePortsDecl,
+	ModportSimplePort,
+	ModportClockingPortDecl,
+	ModportTFPortsDecl,
+	ModportTFPort,
 	MacroDef,
 	PreProcCond,
 	Include,
@@ -114,9 +122,11 @@ public enum SVDBItemType {
 	TypedefItem,
 	
 	CoverageOptionStmt,
+	CoverageCrossBinsSelectStmt,
 
 	// Expressions
 	ClockingEventExpr,
+	CrossBinsSelectConditionExpr,
 	ArrayAccessExpr,
 	AssignExpr,
 	BinaryExpr,

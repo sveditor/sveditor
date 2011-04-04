@@ -77,9 +77,6 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		module.setLocation(start);
 		
-		// TODO: Should remove this later
-		parsers().SVParser().enter_scope(type_name, module);
-
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
 			while (fLexer.peekKeyword("import")) {
@@ -102,9 +99,6 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		}
 		fLexer.readOperator(";");
 		
-		// TODO: should be cleaned up
-		parsers().SVParser().setNewStatement();
-
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end" + type_name)) {
@@ -118,7 +112,6 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					}
 
 					module.addItem(item);
-
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
@@ -131,13 +124,16 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			SVDBLocation end = fLexer.getStartLocation();
 			module.setEndLocation(end);
 			fLexer.readKeyword("end" + type_name);
+			
+			// Optional labeled end
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
+			}
 		} else {
 			SVDBLocation end = fLexer.getStartLocation();
 			module.setEndLocation(end);
 		}
-
-		// Pop the first-level scope
-		parsers().SVParser().handle_leave_scope();
 
 		debug("<-- process_mod_ifc_prog()");
 		return module;

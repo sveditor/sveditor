@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -145,7 +145,7 @@ public class TestOvmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -193,7 +193,7 @@ public class TestOvmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -243,7 +243,7 @@ public class TestOvmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
@@ -298,7 +298,7 @@ public class TestOvmBasics extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&

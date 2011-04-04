@@ -705,6 +705,9 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.isNumber()) {
 				debug("-- primary is a number");
 				ret = new SVDBLiteralExpr(readNumber());
+			} else if (fLexer.peekOperator("$")) {
+				fLexer.eatToken();
+				return new SVDBRangeDollarBoundExpr();
 			} else if (fLexer.peekString()) {
 				debug("-- primary is a string");
 				ret = new SVDBStringExpr(fLexer.eatToken());

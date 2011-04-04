@@ -48,7 +48,7 @@ public class TestArgFileIndex extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 
 	public void testIncludePathPriority() {
@@ -110,7 +110,7 @@ public class TestArgFileIndex extends TestCase {
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -124,7 +124,7 @@ public class TestArgFileIndex extends TestCase {
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null, class2 = null;
-		ISVDBItemBase ext_pkg_1 = null, ext_pkg_2 = null;
+		ISVDBItemBase arg_file_multi_include = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -132,21 +132,18 @@ public class TestArgFileIndex extends TestCase {
 			
 			System.out.println("Item: " + tmp_it.getType() + " " + name);
 			
-			if (name.equals("class1")) {
+			if (name.equals("class1_dir1")) {
 				class1 = tmp_it;
 			} else if (name.equals("class2")) {
 				class2 = tmp_it;
-			} else if (name.equals("ext_pkg_1")) {
-				ext_pkg_1 = tmp_it;
-			} else if (name.equals("ext_pkg_2")) {
-				ext_pkg_2 = tmp_it;
-			}
+			} else if (name.equals("arg_file_multi_include")) {
+				arg_file_multi_include = tmp_it;
+			} 
 		}
 
 		assertNotNull(class1);
 		assertNotNull(class2);
-		assertNotNull(ext_pkg_1);
-		assertNotNull(ext_pkg_2);
+		assertNotNull(arg_file_multi_include);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 

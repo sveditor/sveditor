@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class TestNullIndexCache implements ISVDBIndexCache {
 	private Object						fData;
@@ -18,6 +19,7 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 	private Map<String, SVDBFile>		fPreProcFileMap;
 	private Map<String, SVDBFile>		fFileMap;
 	private Map<String, SVDBFileTree>	fFileTreeMap;
+	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	
 	public TestNullIndexCache() {
 		fFileList = new ArrayList<String>();
@@ -25,6 +27,7 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap = new HashMap<String, SVDBFile>();
 		fFileMap = new HashMap<String, SVDBFile>();
 		fFileTreeMap = new HashMap<String, SVDBFileTree>();
+		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
 
 	public void setIndexData(Object data) {
@@ -45,10 +48,22 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		fFileTreeMap.clear();
 		fLastModifiedMap.clear();
 		fPreProcFileMap.clear();
+		fMarkerMap.clear();
 	}
 
 	public List<String> getFileList() {
 		return fFileList;
+	}
+	
+	public List<SVDBMarker> getMarkers(String path) {
+		return fMarkerMap.get(path);
+	}
+
+	public void setMarkers(String path, List<SVDBMarker> markers) {
+		if (fMarkerMap.containsKey(path)) {
+			fMarkerMap.remove(path);
+		}
+		fMarkerMap.put(path, markers);
 	}
 
 	public long getLastModified(String path) {

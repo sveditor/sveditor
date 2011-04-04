@@ -12,14 +12,12 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 
 public class SVDBFileTree {
-	
 	boolean					fProcessed;
 	String					fFilePath;
 	SVDBFile				fSVDBFile;
@@ -42,24 +40,9 @@ public class SVDBFileTree {
 	public SVDBFileTree(SVDBFile file) {
 		fFilePath = file.getFilePath();
 		
-		if (!fFilePath.contains("/")) {
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		fSVDBFile = file;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
-		
-		if (fFilePath == null) {
-			try {
-				throw new Exception("fFilePath == null");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	public boolean getFileProcessed() {
@@ -88,6 +71,12 @@ public class SVDBFileTree {
 	
 	public List<String> getIncludedFiles() {
 		return fIncludedFiles;
+	}
+	
+	public void addIncludedFile(String path) {
+		if (!fIncludedFiles.contains(path)) {
+			fIncludedFiles.add(path);
+		}
 	}
 	
 	public List<String> getIncludedByFiles() {

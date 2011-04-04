@@ -22,7 +22,7 @@ import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFileSystemChangeListener  */ {
+public class SVDBLibIndex extends AbstractSVDBIndex {
 	
 	public SVDBLibIndex(
 			String 					project, 
@@ -37,11 +37,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 	public String getTypeID() {
 		return SVDBLibPathIndexFactory.TYPE;
 	}
-	
-	public String getTypeName() {
-		return "LibraryIndex";
-	}
-	
 	
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
@@ -59,83 +54,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		
 		monitor.done();
 	}
-
-	@Override
-	public void setFileSystemProvider(ISVDBFileSystemProvider fsProvider) {
-		if (getFileSystemProvider() != null) {
-			/** TEMP:
-			fFileSystemProvider.removeFileSystemChangeListener(this);
-			 */
-		}
-		super.setFileSystemProvider(fsProvider);
-		
-		if (getFileSystemProvider() != null) {
-			getFileSystemProvider().init(getResolvedBaseLocation());
-			/** TEMP:
-			fFileSystemProvider.addFileSystemChangeListener(this);
-			 */
-		}
-	}
-
-/*	
-	public void rebuildIndex() {
-		fLog.debug("rebuildIndex \"" + getBaseLocation() + "\"");
-		
-		if (fFileSystemProvider != null) {
-			for (SVDBFile file : fPreProcFileMap.values()) {
-				fFileSystemProvider.clearMarkers(file.getFilePath());
-			}
-		}
-		
-		fIndexFileMap.clear();
-		fPreProcFileMap.clear();
-		fFileTreeMap.clear();
-		
-		fIndexFileMapValid = false;
-		fPreProcFileMapValid  = false;
-	}
- */	
-
-/*
-	public void load(
-			IDBReader index_data, 
-			List<SVDBFile> ppFiles, 
-			List<SVDBFile> dbFiles) throws DBFormatException {
-		fLoadUpToDate = true;
-		fLog.debug("load - ppFiles.size=" + ppFiles.size() + " dbFiles.size=" + dbFiles.size());
-		
-		// Read back the Global Defines. Project settings will already
-		// be set.  
-		int n_defines = index_data.readInt();
-		for (int i=0; i<n_defines; i++) {
-			String key = index_data.readString();
-			String val = index_data.readString();
-			
-			if (fGlobalDefines.containsKey(key) ||
-					!fGlobalDefines.get(key).equals(val)) {
-				fGlobalDefines.remove(key);
-				fGlobalDefines.put(key, val);
-				fLog.debug("Invalidating load, since key " + key + " changed value");
-				fLoadUpToDate = false;
-			}
-		}
-		
-		initPaths();
-		
-		load_base(index_data, ppFiles, dbFiles);
-		
-		if (isLoaded()) {
-			fLog.debug("Index is loaded... Loading markers and FileTreeMap");
-			loadMarkers();
-			
-			SVDBFile pp_file = findPreProcFile(getResolvedBaseLocation());
-			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-			buildPreProcFileMap(null, ft_root);
-		} else {
-			fLog.debug("Index is not loaded...");
-		}
-	}
- */	
 
 /*	
 	// Load markers from the FileIndexMap
@@ -170,7 +88,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)it;
-				String type = (m.getName().equals(SVDBMarker.MARKER_ERR))?
+				String type = (m.getMarkerType() == MarkerType.Error)?
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR:
 						ISVDBFileSystemProvider.MARKER_TYPE_WARNING;
 				String msg = m.getMessage();
@@ -206,7 +124,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		for (ISVDBItemBase it : ft.getSVDBFile().getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)it;
-				String type = (m.getName().equals(SVDBMarker.MARKER_ERR))?
+				String type = (m.getMarkerType() == MarkerType.Error)?
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR:
 						ISVDBFileSystemProvider.MARKER_TYPE_WARNING;
 				String msg = m.getMessage() + " in " +
@@ -600,7 +518,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 					// Create a marker for the missing include file
 					SVDBFile real_svdb = fPreProcFileMap.get(root.getFilePath());
 					if (real_svdb != null) {
-						SVDBMarker err = new SVDBMarker(SVDBMarker.MARKER_ERR,
+						SVDBMarker err = new SVDBMarker(MarkerType.Error,
 								SVDBMarker.KIND_MISSING_INC,
 								"Failed to find include file \"" + ((ISVDBNamedItem)it).getName() + "\"");
 						err.setAttr(SVDBMarker.MISSING_INC_PATH, ((ISVDBNamedItem)it).getName());
@@ -732,13 +650,13 @@ public class SVDBLibIndex extends AbstractSVDBIndex /** TEMP: implements ISVDBFi
 		return ret;
 	}
 
+	/** TEMP:
 	public void fileRemoved(String path) {
-		/** TEMP:
 		if (fPreProcFileMapValid && fPreProcFileMap.containsKey(path)) {
 			fLog.debug("fileRemoved: \"" + path + "\"");
 			rebuildIndex();
 		}
-		 */
 	}
+	 */
 
 }

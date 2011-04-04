@@ -49,6 +49,7 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.TestNullIndexCache;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -74,7 +75,7 @@ public class ArgFilePersistence extends TestCase
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -101,16 +102,15 @@ public class ArgFilePersistence extends TestCase
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
+		TestNullIndexCache cache = new TestNullIndexCache();
 		
 		ISVDBIndex target_index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
-				SVDBArgFileIndexFactory.TYPE, null);
-		
-		PersistenceIndex index = new PersistenceIndex(target_index);
+				SVDBArgFileIndexFactory.TYPE, cache, null);
 		
 		// Force loading
-		ISVDBItemIterator item_it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator item_it = target_index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (item_it.hasNext()) {
@@ -135,6 +135,7 @@ public class ArgFilePersistence extends TestCase
 		
 		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
 		
+		/*
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		dumper.dump(index, out);
 
@@ -152,6 +153,8 @@ public class ArgFilePersistence extends TestCase
 			SVDBItemTestComparator c = new SVDBItemTestComparator();
 			c.compare(fd, fl);
 		}
+		 */
+		TestCase.fail("Expected fail");
 	}
 
 	public void testXbusTransferFileParse() throws DBFormatException {
@@ -189,7 +192,7 @@ public class ArgFilePersistence extends TestCase
 		InputStream in = fs.openStream(path);
 
 		System.out.println("--> Parse 1");
-		SVDBFile file = target_index.parse(in, path, new NullProgressMonitor());
+		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null);
 		System.out.println("<-- Parse 1");
 
 		// Display the 
@@ -206,7 +209,7 @@ public class ArgFilePersistence extends TestCase
 		
 		in = new ByteArrayInputStream(bos.toByteArray());
 		System.out.println("--> parse()");
-		file = target_index.parse(in, path, new NullProgressMonitor());
+		file = target_index.parse(new NullProgressMonitor(), in, path, null);
 		System.out.println("<-- parse()");
 		
 		SVDBTestUtils.assertNoErrWarn(file); 

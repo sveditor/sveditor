@@ -37,7 +37,7 @@ public class WSArgFileIndexChanges extends TestCase {
 	
 	public void testArgFileChange() {
 		File tmpdir = TestUtils.createTempDir();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		try {
 			int_testArgFileChange(tmpdir);

@@ -7,13 +7,29 @@ import java.util.Map;
 
 public class SVDBBaseIndexCacheData {
 	private List<String>					fIncludePathList;
+	private List<String>					fMissingIncludeFiles;
 	private Map<String, String>				fGlobalDefines;
 	private Map<String, String>				fDefineMap;
 
 	public SVDBBaseIndexCacheData() {
 		fIncludePathList = new ArrayList<String>();
+		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
+	}
+	
+	public void addMissingIncludeFile(String path) {
+		if (!fMissingIncludeFiles.contains(path)) {
+			fMissingIncludeFiles.add(path);
+		}
+	}
+	
+	public void clearMissingIncludeFiles() {
+		fMissingIncludeFiles.clear();
+	}
+	
+	public List<String> getMissingIncludeFiles() {
+		return fMissingIncludeFiles;
 	}
 	
 	public void setGlobalDefine(String key, String val) {
@@ -52,7 +68,9 @@ public class SVDBBaseIndexCacheData {
 	}
 	
 	public void addIncludePath(String path) {
-		fIncludePathList.add(path);
+		if (!fIncludePathList.contains(path)) {
+			fIncludePathList.add(path);
+		}
 	}
 	
 	public List<String> getIncludePaths() {

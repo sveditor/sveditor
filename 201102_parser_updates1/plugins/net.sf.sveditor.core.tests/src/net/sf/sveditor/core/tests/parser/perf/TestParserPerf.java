@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.tests.parser.perf;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +8,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -61,7 +61,7 @@ public class TestParserPerf extends TestCase {
 			
 			if (tmp_it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}

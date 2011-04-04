@@ -113,9 +113,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 
 		try {
-			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			index.parse(new NullProgressMonitor(), class_1_2_file.getContents(), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -208,9 +207,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		p_data.getProjectIndexMgr().getItemIterator(new NullProgressMonitor());
 		
 		try {
-			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			index.parse(new NullProgressMonitor(), class_1_2_file.getContents(), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -267,9 +265,9 @@ public class TestSrcCollectionWSChanges extends TestCase
 		// The goal is to ensure that no exceptions are thrown
 		SVDBFile class_1_2_db = null;
 		try {
-			class_1_2_db = index.parse(new StringInputStream(class_str), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			class_1_2_db = index.parse(new NullProgressMonitor(), 
+					new StringInputStream(class_str), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());

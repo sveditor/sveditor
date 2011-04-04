@@ -92,6 +92,10 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			if ((ret = searchDown(context, context, key)) == null) {
 				for (String ib_s : context.getIncludedByFiles()) {
 					SVDBFileTree ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+					if (ib == null) {
+						fLog.error("Failed to obtain path \"" + ib_s + "\" from the FileTree Cache");
+						continue;
+					}
 					ret = searchUp(context, ib, context, key);
 				}
 			}

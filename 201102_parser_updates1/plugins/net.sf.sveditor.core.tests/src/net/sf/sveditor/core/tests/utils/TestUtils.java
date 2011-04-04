@@ -133,7 +133,7 @@ public class TestUtils {
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Failed to create project");
+			throw new RuntimeException("Failed to create project: " + e.getMessage());
 		}
 		
 		return project;

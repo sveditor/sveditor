@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.index.cache;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,6 +54,10 @@ public interface ISVDBIndexCache {
 	void setLastModified(String path, long timestamp);
 	
 	void addFile(String path);
+	
+	List<SVDBMarker> getMarkers(String path);
+	
+	void setMarkers(String path, List<SVDBMarker> markers);
 	
 	/**
 	 * Returns the pre-processor view of the file

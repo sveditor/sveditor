@@ -31,8 +31,16 @@ public class SVTaskFunctionParser extends SVParserBase {
 		super(parser);
 	}
 	
+	public SVDBTask parse_method_decl() throws SVParseException {
+		return parse(null, true, 0);
+	}
+	
 	// Enter on 'function'
 	public SVDBTask parse(SVDBLocation start, int qualifiers) throws SVParseException {
+		return parse(start, false, qualifiers);
+	}
+	
+	private SVDBTask parse(SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
 		SVDBTask func = null;
 		SVDBLocation end = null;
 		String tf_name;
@@ -99,7 +107,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 		List<SVDBParamPortDecl> params = null;
 		boolean is_ansi = true;
 		debug("Function Terminator: " + fLexer.peek());
-		if (fLexer.peekOperator("(")) {
+		// method declarations are required to have parens
+		if (is_decl || fLexer.peekOperator("(")) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
 			is_ansi = true;
@@ -108,7 +117,11 @@ public class SVTaskFunctionParser extends SVParserBase {
 			params = new ArrayList<SVDBParamPortDecl>();
 			is_ansi = false;
 		}
-		fLexer.readOperator(";");
+		
+		// Method declaration is not terminated with a semi-colon
+		if (!is_decl) {
+			fLexer.readOperator(";");
+		}
 		
 		debug("Procesing " + type + " " + tf_name);
 		
@@ -122,7 +135,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		func.setLocation(start);
 		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
-		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
+		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
 				(qualifiers & (SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) !=
 					(SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual) &&
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {

@@ -11,10 +11,9 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -31,9 +30,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	
 	private AbstractSVFileMatcher			fFileMatcher;
-	private List<String>					fFilePaths;
+	/*
 	private Set<SVDBFile>					fModIfcClsFiles;
 	private Set<SVDBFile>					fUnincludedFiles;
+	 */
 	
 	static {
 		LogFactory.getLogHandle("Index.SourceCollectionIndex");
@@ -51,21 +51,78 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		fLog = LogFactory.getLogHandle("Index.SourceCollectionIndex");
 		
 		fFileMatcher = matcher;
+		/*
 		fModIfcClsFiles = new HashSet<SVDBFile>();
 		fUnincludedFiles = new HashSet<SVDBFile>();
+		 */
 	}
 	
+	@Override
+	protected boolean checkCacheValid() {
+		boolean valid = super.checkCacheValid();
+		
+		if (valid) {
+			List<String> file_paths = fFileMatcher.findIncludedPaths();
+			List<String> cache_files = getCache().getFileList();
+			List<String> tmp_cache_files = new ArrayList<String>();
+			
+			tmp_cache_files.addAll(cache_files);
+			
+			// First, check that all discovered files exist
+			for (String path : file_paths) {
+				if (cache_files.contains(path)) {
+					long fs_timestamp = getFileSystemProvider().getLastModifiedTime(path);
+					long cache_timestamp = getCache().getLastModified(path);
+					
+					if (cache_timestamp < fs_timestamp) {
+						valid = false;
+						break;
+					}
+					tmp_cache_files.remove(path);
+				} else {
+					valid = false;
+					break;
+				}
+			}
+			
+			// If all discovered files are up-to-date in the cache,
+			// check any cached files that were not discovered
+			if (valid) {
+				for (String path : tmp_cache_files) {
+					if (getFileSystemProvider().fileExists(path)) {
+						long fs_timestamp = getFileSystemProvider().getLastModifiedTime(path);
+						long cache_timestamp = getCache().getLastModified(path);
+
+						if (cache_timestamp < fs_timestamp) {
+							valid = false;
+							break;
+						}
+					} else {
+						valid = false;
+						break;
+					}
+				}
+			}
+		}
+		
+		return valid;
+	}
+
+
+
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
 		List<String> file_paths = fFileMatcher.findIncludedPaths();
 		
 		for (String path : file_paths) {
 			String rp = resolvePath(path);
+			fLog.debug("Adding root file \"" + rp + "\"");
 			addFile(rp);
 			addIncludePath(SVFileUtils.getPathParent(rp));
 		}
 	}
 
+	/*
 	@Override
 	public void rebuildIndex() {
 		super.rebuildIndex();
@@ -75,6 +132,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 			fFilePaths.clear();
 		}
 	}
+	 */
 
 	/**
 	 * initPaths()
@@ -212,6 +270,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
 		SVDBSearchResult<SVDBFile> ret = super.findIncludedFile(path);
 	
+		/*
 		if (ret != null) {
 			if (fUnincludedFiles.contains(ret.getItem())) {
 				fLog.debug("Remove include file \"" + 
@@ -220,6 +279,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 				fUnincludedFiles.remove(ret.getItem());
 			}
 		}
+		 */
 
 		return ret;
 	}
@@ -242,7 +302,8 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		
 		return false;
 	}
-	
+
+	/*
 	public void fileAdded(String path) {
 		String res_base = getResolvedBaseLocation();
 		
@@ -252,12 +313,11 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	}
 
 	public void fileRemoved(String path) {
-		/** TEMP
-		if (fPreProcFileMap.containsKey(path)) {
-			rebuildIndex();
-		}
-		 */
+		// if (fPreProcFileMap.containsKey(path)) {
+		//	rebuildIndex();
+		// }
 	}
+	 */
 
 	public String getTypeID() {
 		return SVDBSourceCollectionIndexFactory.TYPE;

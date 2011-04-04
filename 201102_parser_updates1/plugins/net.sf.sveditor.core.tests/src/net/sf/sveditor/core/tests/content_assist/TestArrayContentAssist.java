@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -23,6 +24,7 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -49,7 +51,7 @@ public class TestArrayContentAssist extends TestCase {
 		fIndexMgr = new SVDBIndexCollectionMgr("GLOBAL");
 		fIndexMgr.addLibraryPath(fIndex);
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				SVDBIndexRegistry.GLOBAL_PROJECT, 
 				SVCorePlugin.SV_BUILTIN_LIBRARY, 
 				SVDBPluginLibIndexFactory.TYPE, null);
@@ -308,7 +310,8 @@ public class TestArrayContentAssist extends TestCase {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);
 		fIndex.setFile(file);
 
 		return new Tuple<SVDBFile, TextTagPosUtils>(file, tt_utils);

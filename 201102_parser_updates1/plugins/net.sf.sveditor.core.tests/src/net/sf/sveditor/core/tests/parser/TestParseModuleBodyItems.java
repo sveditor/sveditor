@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
@@ -401,7 +402,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			if (it.getType() == SVDBItemType.Marker) {
 				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
 				SVDBMarker m = (SVDBMarker)it;
-				if (m.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -1184,6 +1185,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testMultiModuleInstantiation() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module t;\n" +
 			"\n" +
@@ -1236,6 +1238,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	#()();\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testModulePreBodyImport", doc, new String[] {"p", "t"});
 	}
@@ -1336,14 +1339,31 @@ public class TestParseModuleBodyItems extends TestCase {
 			"		foo_cp : coverpoint (foo);\n" +
 			"		foo2_cp : coverpoint foo2;\n" +
 			"		foo_cross : cross foo_cp, foo2_cp {\n" +
-			"			ignore_bins foo = (intersect etc);\n" +
+			"			ignore_bins foo = binsof(foo_cp) intersect {0};\n" +
 			"		}\n" +
 			"	endgroup\n" +
 			"endmodule\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testCovergroup", doc, new String[] {"t", "foobar"});
+	}
+	
+	public void testModuleInst() {
+		String doc =
+			"module sub #(parameter P1=1, parameter P2=2) (\n" +
+			"        input clk,\n" +
+			"        output dat);\n" +
+			"endmodule\n" +
+			"\n" +
+			"module t;\n" +
+			"	sub #(.P1(2), .P2(3)) sub_1(.clk(1), .dat(2));\n" +
+			"	sub #(.P1(3), .P2(4)) sub_2_1(1, 2), sub_2_2(2, 3);\n" +
+			"endmodule"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testModuleInst", doc, new String[] {"sub", "t"});
 	}
 
 	private void runTest(

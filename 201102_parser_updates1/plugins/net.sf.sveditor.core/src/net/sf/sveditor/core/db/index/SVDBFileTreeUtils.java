@@ -209,7 +209,7 @@ public class SVDBFileTreeUtils {
 						}
 					} else if (!file.getIncludedFiles().contains(inc_file.getFilePath())) {
 						debug("    include file \"" + inc.getName() + "\"");
-						file.getIncludedFiles().add(inc_file.getFilePath());
+						file.addIncludedFile(inc_file.getFilePath());
 
 						if (!inc_file.getFileProcessed()) {
 							processFile(dp, inc_file, file_l);

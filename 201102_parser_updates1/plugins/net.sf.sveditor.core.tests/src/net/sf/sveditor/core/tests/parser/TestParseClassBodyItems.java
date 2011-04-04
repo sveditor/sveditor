@@ -49,7 +49,15 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest("testTaskFunction", content, 
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
-	
+
+	public void testEmptyClass() {
+		String content = 
+			"class class1;\n" +
+			"\n" +
+			"endclass";
+		runTest("testTaskFunction", content, new String[] {"class1"});
+	}
+
 	public void testSingleParameterClass() {
 		String content =
 			"class ovm_random_stimulus #(type T=ovm_transaction) extends ovm_component;\n" +
@@ -122,7 +130,7 @@ public class TestParseClassBodyItems extends TestCase {
 					SVDBItem.getName(it_t).equals("foobar")) {
 				foobar_c = (SVDBClassDecl)it_t;
 			} else if (it_t.getType() == SVDBItemType.Marker &&
-					SVDBItem.getName(it_t).equals(SVDBMarker.MARKER_ERR)) {
+					SVDBItem.getName(it_t).equals(MarkerType.Error)) {
 				errors.add((SVDBMarker)it_t);
 				System.out.println("[ERROR] " + ((SVDBMarker)it_t).getMessage());
 			}
@@ -179,10 +187,11 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 	
 	public void testBuiltinExternTasks() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 			"__sv_builtin class process;\n" +
 			"\n" +
-			"enum state { FINISHED, RUNNING, WAITING, SUSPENDED, KILLED };\n" +
+			"enum { FINISHED, RUNNING, WAITING, SUSPENDED, KILLED } state;\n" +
 			"\n" +
 			"static extern function process self();\n" +
 			"\n" +

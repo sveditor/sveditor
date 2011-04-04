@@ -134,7 +134,8 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 								debug("Read list field " + f.getName() + " w/item type " + c.getName());
 							}
 							if (c == String.class) {
-								f.set(target, readStringList());
+								Object o = readStringList();
+								f.set(target, o);
 							} else if (c == Integer.class) {
 								f.set(target, readIntList());
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {

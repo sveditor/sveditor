@@ -39,6 +39,7 @@ public class SVDBLoad {
 		return fReader.readBaseLocation();
 	}
 	
+	/*
 	@SuppressWarnings("unchecked")
 	public void load(ISVDBIndex index, InputStream in) throws DBFormatException {
 		IDBReader		index_data = null;
@@ -76,5 +77,6 @@ public class SVDBLoad {
 		
 		index.load(index_data, pp_list, db_list);
 	}
+	 */
 	
 }

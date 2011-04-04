@@ -56,11 +56,6 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 	 */
 
-	@Override
-	protected boolean isLoadUpToDate() {
-		return true;
-	}
-
 	public void addChangeListener(ISVDBIndexChangeListener l) {}
 
 	public String getBaseLocation() {

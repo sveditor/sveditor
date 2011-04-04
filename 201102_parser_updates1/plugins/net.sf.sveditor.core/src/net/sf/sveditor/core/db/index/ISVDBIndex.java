@@ -14,21 +14,22 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.SVDBMarker;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider {
 	
 	public void init(IProgressMonitor monitor);
 
 	
-	SVDBFile parse(InputStream in, String path, IProgressMonitor monitor);
+	SVDBFile parse(
+			IProgressMonitor monitor,
+			InputStream in, 
+			String path, 
+			List<SVDBMarker> markers);
 	
 	/**
 	 * Cleans up this entry
@@ -52,53 +53,15 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	String getTypeID();
 	
 	/**
-	 * Returns whether this database has loaded information from all its files
-	 */
-	boolean isLoaded();
-	
-	/**
-	 * Dump index-specific data
-	 */
-	@Deprecated
-	void dump(IDBWriter	index_data);
-	
-	/**
-	 * Load this index from the specified lists
-	 */
-	@Deprecated
-	void load(
-			IDBReader			index_data,
-			List<SVDBFile> 		pp_files, 
-			List<SVDBFile> 		db_files) throws DBFormatException;
-	
-	/**
 	 * Sets the include provider
 	 * 
 	 * @param index
 	 */
 	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
-	/**
-	 * Returns the parsed list of files
-	 * 
-	 * This is a map, so that it is possible in the future to
-	 * abstract away the notion of 'list'
-	 * 
-	 * NOTE: this method is non-functional if the index is an Include Path
-	 * @return
-	 */
-	@Deprecated
-	Map<String, SVDBFile> getFileDB(IProgressMonitor monitor);
-	
-	/**
-	 * Returns list of SVDBFile with pre-proc info
-	 * 
-	 * @return
-	 */
-	@Deprecated
-	Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor);
-	
 	List<String> getFileList(IProgressMonitor monitor);
+	
+	List<SVDBMarker> getMarkers(String path);
 
 	/**
 	 * Finds the specified file within this index. Returns 'null' if

@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -26,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -53,8 +55,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		fIndexMgr.addPluginLibrary(
-				rgy.findCreateIndex("TestContentAssistBuiltins", 
-						SVCorePlugin.SV_BUILTIN_LIBRARY, 
+				rgy.findCreateIndex(new NullProgressMonitor(),
+						"TestContentAssistBuiltins", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		fIndex = new ContentAssistIndex();
@@ -65,7 +67,7 @@ public class TestContentAssistBuiltins extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 
 	public void testCovergroupOption() {
@@ -179,7 +181,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);
 		fIndex.setFile(file);
 
 		return new Tuple<SVDBFile, TextTagPosUtils>(file, tt_utils);

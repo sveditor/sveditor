@@ -18,9 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -31,6 +30,8 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class FileIndexIterator implements ISVDBIndexIterator {
 	Map<String, SVDBFile>			fFileMap;
@@ -54,25 +55,17 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public void setGlobalDefine(String key, String val) {}
 					public void removeChangeListener(ISVDBIndexChangeListener l) {}
 					public void rebuildIndex() {}
-					public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
+					public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 						return null;
-					}
-					public void load(IDBReader index_data, List<SVDBFile> pp_files,
-							List<SVDBFile> db_files) throws DBFormatException {}
-					public boolean isLoaded() {
-						return false;
 					}
 					public void init(IProgressMonitor monitor) {}
 					public String getTypeID() {
 						return null;
 					}
-					public Map<String, SVDBFile> getPreProcFileMap(IProgressMonitor monitor) {
-						return null;
-					}
 					public List<String> getFileList(IProgressMonitor monitor) {
 						return null;
 					}
-					public Map<String, SVDBFile> getFileDB(IProgressMonitor monitor) {
+					public List<SVDBMarker> getMarkers(String path ) {
 						return null;
 					}
 					public String getBaseLocation() {
@@ -84,7 +77,6 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public SVDBFile findFile(String path) {
 						return fFileMap.get(path);
 					}
-					public void dump(IDBWriter index_data) {}
 					public void dispose() {}
 					public void clearGlobalDefines() {}
 					public void addChangeListener(ISVDBIndexChangeListener l) {}

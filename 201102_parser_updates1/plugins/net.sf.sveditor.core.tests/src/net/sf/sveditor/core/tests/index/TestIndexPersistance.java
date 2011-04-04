@@ -14,6 +14,7 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -92,19 +93,18 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 
 		System.out.println(">==== PASS 1 ====");
 		// Create the index
-		index = rgy.findCreateIndex("xbus",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "xbus",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 		
-		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path, new NullProgressMonitor());
+		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path);
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
+		file = index.parse(new NullProgressMonitor(), in, path, errors);
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
-		
-		List<SVDBMarker> errors = IndexTests.getErrorsWarnings(index);
 		
 		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
@@ -119,14 +119,14 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		// Now, tear down everything
 		System.out.println(">==== PASS 2 ====");
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
-		index = rgy.findCreateIndex("xbus",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "xbus",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 
-		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path, new NullProgressMonitor());
+		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path); 
+		file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);
@@ -168,19 +168,19 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 
 		System.out.println(">==== PASS 1 ====");
 		// Create the index
-		index = rgy.findCreateIndex("ovm",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "ovm",
 				"${workspace_loc}/ovm/src/ovm_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 		
-		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path, new NullProgressMonitor());
+		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path);
+		
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();		
+		file = index.parse(new NullProgressMonitor(), in, path, errors);
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
-		
-		List<SVDBMarker> errors = IndexTests.getErrorsWarnings(index);
 		
 		for (SVDBMarker m : errors) {
 			System.out.println("[ERROR] " + m.getMessage());
@@ -195,14 +195,14 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		// Now, tear down everything
 		System.out.println(">==== PASS 2 ====");
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
-		index = rgy.findCreateIndex("ovm",
-				"${workspace_loc}/ovm/src/ovm_pkg.sv",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), 
+				"ovm", "${workspace_loc}/ovm/src/ovm_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(in, path, new NullProgressMonitor());
+		file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);

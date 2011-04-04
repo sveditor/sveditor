@@ -14,7 +14,9 @@ package net.sf.sveditor.ui.editor;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -24,8 +26,8 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -117,8 +119,9 @@ public class SVEditor extends TextEditor
 			IEditorInput ed_in = getEditorInput();
 			IDocument doc = getDocumentProvider().getDocument(ed_in);
 			StringInputStream sin = new StringInputStream(doc.get());
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
-			SVDBFile new_in = fIndexMgr.parse(sin, fSVDBFilePath, getProgressMonitor());
+			SVDBFile new_in = fIndexMgr.parse(getProgressMonitor(), sin, fSVDBFilePath, markers);
 			fSVDBFile.getItems().clear();
 			if (new_in != null) {
 				//			SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
@@ -126,7 +129,7 @@ public class SVEditor extends TextEditor
 
 				fSVDBFile.setFilePath(fSVDBFilePath);
 
-				addErrorMarkers();
+				addErrorMarkers(markers);
 			}
 
 			if (fOutline != null) {
@@ -660,7 +663,7 @@ public class SVEditor extends TextEditor
 	/**
 	 * Add error annotations from the 
 	 */
-	private void addErrorMarkers() {
+	private void addErrorMarkers(List<SVDBMarker> markers) {
 		// Mostly used in testing mode
 		if (getDocumentProvider() == null || getEditorInput() == null ||
 				getDocumentProvider().getAnnotationModel(getEditorInput()) == null) {
@@ -669,27 +672,24 @@ public class SVEditor extends TextEditor
 		clearErrors();
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 		
-		for (ISVDBItemBase it : fSVDBFile.getItems()) {
-			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarker marker = (SVDBMarker)it;
-				Annotation ann = null;
-				int line = -1;
-				
-				if (marker.getName().equals(SVDBMarker.MARKER_ERR)) {
-					ann = new Annotation(
-							"org.eclipse.ui.workbench.texteditor.error", 
-							false, marker.getMessage());
-					line = marker.getLocation().getLine();
-				}
-				
-				if (ann != null) {
-					IDocument doc = getDocumentProvider().getDocument(getEditorInput());
-					try {
-						Position pos = new Position(doc.getLineOffset(line-1));
-						ann_model.addAnnotation(ann, pos);
-					} catch (BadLocationException e) {
-						e.printStackTrace();
-					}
+		for (SVDBMarker marker : markers) {
+			Annotation ann = null;
+			int line = -1;
+
+			if (marker.getMarkerType() == MarkerType.Error) {
+				ann = new Annotation(
+						"org.eclipse.ui.workbench.texteditor.error", 
+						false, marker.getMessage());
+				line = marker.getLocation().getLine();
+			}
+
+			if (ann != null) {
+				IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+				try {
+					Position pos = new Position(doc.getLineOffset(line-1));
+					ann_model.addAnnotation(ann, pos);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
 				}
 			}
 		}

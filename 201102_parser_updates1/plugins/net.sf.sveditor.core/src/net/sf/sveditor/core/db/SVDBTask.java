@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 	private List<SVDBParamPortDecl>			fParams;
-	private int							fAttr;
+	private int								fAttr;
 	
 	public SVDBTask() {
 		super("", SVDBItemType.Task);

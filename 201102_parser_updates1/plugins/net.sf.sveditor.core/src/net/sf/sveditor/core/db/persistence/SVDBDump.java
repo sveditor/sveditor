@@ -12,12 +12,6 @@
 
 package net.sf.sveditor.core.db.persistence;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
-
-import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -32,6 +26,7 @@ public class SVDBDump {
 		fVersion = version;
 	}
 	
+	/*
 	public void dump(ISVDBIndex index, OutputStream out) throws DBWriteException {
 		ByteArrayOutputStream	index_data_bos = new ByteArrayOutputStream();
 		SVDBPersistenceWriter	index_data = new SVDBPersistenceWriter(index_data_bos);
@@ -73,5 +68,6 @@ public class SVDBDump {
 		// Ensure any cached data is written back
 		fWriter.close();
 	}
+	 */
 	
 }

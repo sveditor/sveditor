@@ -79,8 +79,6 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
-		String root_dir = SVFileUtils.getPathParent(fRootFile);
-		
 		clearFilesList();
 		clearIncludePaths();
 		addFile(getBaseLocation());

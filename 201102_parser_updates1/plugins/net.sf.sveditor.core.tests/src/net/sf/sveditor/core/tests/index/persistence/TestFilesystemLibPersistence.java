@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -161,8 +162,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_missing_inc/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
@@ -175,6 +176,13 @@ public class TestFilesystemLibPersistence extends TestCase {
 				target_it = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
 				missing_inc = (SVDBMarker)tmp_it;
+			}
+		}
+		
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> markers = index.getMarkers(file);
+			for (SVDBMarker m : markers) {
+				missing_inc = m;
 			}
 		}
 

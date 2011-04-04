@@ -26,43 +26,55 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBParamValueAssignList parse() throws SVParseException {
+	public SVDBParamValueAssignList parse(boolean is_parameter) throws SVParseException {
 		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
 		// StringBuilder v = new StringBuilder();
-		
-		fLexer.readOperator("#");
+
+		if (is_parameter) {
+			fLexer.readOperator("#");
+		}
 		fLexer.readOperator("(");
-		while (true) {
+		while (fLexer.peek() != null && !fLexer.peekOperator(")")) {
 			boolean is_mapped = false;
+			boolean is_wildcard = false;
 			String name = null;
 			if (fLexer.peekOperator(".")) {
 				fLexer.eatToken();
-				name = fLexer.readId();
-				fLexer.readOperator("(");
-				is_mapped = true;
+				if (!is_parameter && fLexer.peekOperator("*")) {
+					ret.addParameter(new SVDBParamValueAssign("*", (SVDBExpr)null));
+					is_wildcard = true;
+					is_mapped = true;
+				} else {
+					name = fLexer.readId();
+					fLexer.readOperator("(");
+					is_mapped = true;
+				}
 			}
 			
-			// TODO:
-			// Skip forward to see if we have a scoped identifier
-			List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
-			
-			if (fLexer.peekOperator("#") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
-				// This is actually a type reference
-				fLexer.ungetToken(id_list);
-				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
-				ret.addParameter(new SVDBParamValueAssign(name, type));
-			} else {
-				fLexer.ungetToken(id_list);
-				SVDBExpr val = parsers().exprParser().expression();
-				ret.addParameter(new SVDBParamValueAssign(name, val));
-			}
+			if (!is_wildcard) {
+				// Allow an empty port-mapping entry: .foo()
+				if (!fLexer.peekOperator(")")) {
+					List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
 
-			if (is_mapped) {
-				// Read inside
-				fLexer.readOperator(")");
-			}
+					if (fLexer.peekOperator("#") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
+						// This is actually a type reference
+						fLexer.ungetToken(id_list);
+						SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+						ret.addParameter(new SVDBParamValueAssign(name, type));
+					} else {
+						fLexer.ungetToken(id_list);
+						SVDBExpr val = parsers().exprParser().expression();
+						ret.addParameter(new SVDBParamValueAssign(name, val));
+					}
+				}
 
-			//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
+				if (is_mapped) {
+					// Read inside
+					fLexer.readOperator(")");
+				}
+
+				//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
+			}
 			ret.setIsNamedMapping(is_mapped);
 			
 			if (fLexer.peekOperator(",")) {

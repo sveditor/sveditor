@@ -40,7 +40,7 @@ public class FileSetTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 
 	public void testDefaultRecurse() {

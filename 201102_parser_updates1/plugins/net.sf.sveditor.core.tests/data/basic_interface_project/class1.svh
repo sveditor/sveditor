@@ -21,7 +21,7 @@ class class1;
 		foo2_cp : coverpoint foo2;
 
 		foo_cross : cross foo_cp, foo2_cp {
-			ignore_bins foo = (intersect etc);
+			ignore_bins foo = binsof (foo_cp) intersect {[5:$]};
 		}
 	endgroup
 	

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -27,6 +28,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -45,11 +47,11 @@ public class SVDBTestUtils {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)it;
 				
-				if (m.getName().equals(SVDBMarker.MARKER_ERR) ||
-						m.getName().equals(SVDBMarker.MARKER_WARN)) {
+				if (m.getMarkerType() == MarkerType.Error ||
+						m.getMarkerType() == MarkerType.Warning) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
 							" @ " + file.getName() + ":" + m.getLocation().getLine());
-					TestCase.fail("Unexpected " + m.getName() + " @ " + 
+					TestCase.fail("Unexpected marker type " + m.getMarkerType() + " @ " + 
 							file.getName() + ":" + m.getLocation().getLine());
 				}
 			}
@@ -116,9 +118,16 @@ public class SVDBTestUtils {
 		};
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
-		file = factory.parse(new StringInputStream(content), filename);
+		file = factory.parse(new StringInputStream(content), filename, markers);
 		
+		for (SVDBMarker m : markers) {
+			System.out.println("[MARKER] " + m.getMessage());
+		}
+		TestCase.assertEquals("Unexpected errors", 0, markers.size());
+
+		/*
 		// Test persistence
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		SVDBPersistenceWriter writer = new SVDBPersistenceWriter(bos);
@@ -139,6 +148,7 @@ public class SVDBTestUtils {
 			e.printStackTrace();
 			TestCase.fail("Received DBFormatException: " + e.getMessage());
 		}
+		 */
 		
 		return file;
 	}

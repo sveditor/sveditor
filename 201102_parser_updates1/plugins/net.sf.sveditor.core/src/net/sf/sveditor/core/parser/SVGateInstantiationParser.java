@@ -1,9 +1,7 @@
 package net.sf.sveditor.core.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -14,9 +12,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public List<SVDBModIfcInst> parse() throws SVParseException {
-		List<SVDBModIfcInst> ret = new ArrayList<SVDBModIfcInst>();
-		SVDBModIfcInst item;
+	public SVDBModIfcInst parse() throws SVParseException {
+		SVDBModIfcInst item = null;
 		
 		if (fLexer.peekKeyword("cmos", "rcmos")) {
 			// cmos gates have 4 terminals
@@ -27,14 +24,16 @@ public class SVGateInstantiationParser extends SVParserBase {
 				parsers().SVParser().delay3();
 			}
 			
+			item = new SVDBModIfcInst(type);
+			
 			// Now, a series of switch instances
 			while (fLexer.peek() != null) {
 				String name = ""; 
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInst(type, name);
-				ret.add(item);
+				SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+				item.addInst(inst);
 				
 				fLexer.readOperator("(");
 				
@@ -74,15 +73,17 @@ public class SVGateInstantiationParser extends SVParserBase {
 				parsers().SVParser().delay3();
 			}
 			
+			item = new SVDBModIfcInst(type);
+			
 			// Now, a series of switch instances
 			while (fLexer.peek() != null) {
 				String name = ""; 
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInst(type, name);
-				ret.add(item);
-				
+				SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+				item.addInst(inst);
+
 				fLexer.readOperator("(");
 				
 				// TODO: output_terminal
@@ -113,6 +114,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				// TODO: handle/store delay somewhere
 				parsers().SVParser().delay3();
 			}
+			
+			item = new SVDBModIfcInst(type);
 
 			// Now, a series of switch instances
 			while (fLexer.peek() != null) {
@@ -120,8 +123,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInst(type, name);
-				ret.add(item);
+				SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+				item.addInst(inst);
 				
 				fLexer.readOperator("(");
 				
@@ -155,6 +158,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				// TODO: handle/store delay somewhere
 				parsers().SVParser().delay3();
 			}
+			
+			item = new SVDBModIfcInst(type);
 
 			// Now, a series of switch instances
 			while (fLexer.peek() != null) {
@@ -162,8 +167,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInst(type, name);
-				ret.add(item);
+				SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+				item.addInst(inst);
 				
 				fLexer.readOperator("(");
 				
@@ -190,6 +195,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				// TODO: handle/store delay somewhere
 				parsers().SVParser().delay3();
 			}
+			
+			item = new SVDBModIfcInst(type);
 
 			// Now, a series of switch instances
 			while (fLexer.peek() != null) {
@@ -197,8 +204,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				if (fLexer.peekId()) {
 					name = fLexer.eatToken();
 				}
-				item = new SVDBModIfcInst(type, name);
-				ret.add(item);
+				SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+				item.addInst(inst);
 				
 				fLexer.readOperator("(");
 				
@@ -240,19 +247,21 @@ public class SVGateInstantiationParser extends SVParserBase {
 				}
 			}
 
+			item = new SVDBModIfcInst(type);
+
 			while (fLexer.peek() != null) {
-				
+
+				SVDBModIfcInstItem inst;
+
 				if (fLexer.peekId()) {
-					item = new SVDBModIfcInst(type, fLexer.readId());
+					inst = new SVDBModIfcInstItem(fLexer.readId());
 				} else {
-					item = new SVDBModIfcInst(type, "");
+					inst = new SVDBModIfcInstItem("");
 				}
+				item.addInst(inst);
 				
 				fLexer.readOperator("(");
 				SVDBExpr expr = parsers().exprParser().expression(); 
-				item = new SVDBModIfcInst(type, expr.toString());
-				ret.add(item);
-				
 				fLexer.readOperator(")");
 				
 				if (fLexer.peekOperator(",")) {
@@ -267,7 +276,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		
 		fLexer.readOperator(";");
 		
-		return ret;
+		return item;
 	}
 
 }

@@ -26,7 +26,6 @@ public class SVClockingBlockParser extends SVParserBase {
 		String expr = "";
 		
 		clk_blk.setLocation(fLexer.getStartLocation());
-		parsers().SVParser().enter_scope("clocking", clk_blk);
 
 		try {
 			// TODO: 
@@ -73,7 +72,6 @@ public class SVClockingBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 		} finally {
-			parsers().SVParser().handle_leave_scope();
 		}
 		
 		return clk_blk;

@@ -489,10 +489,16 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ifdef_enabled()) {
 				// Read the full string
 
-				if (fDefineProvider != null && fDefineProvider.hasParameters(type, fLineno)) {
+				boolean is_defined = (fDefineProvider != null)?fDefineProvider.isDefined(type, fLineno):false;
+				if (fDefineProvider != null && 
+						(fDefineProvider.hasParameters(type, fLineno) || !is_defined)) {
 					// Try to read the parameter list
 					ch = get_ch_ll();
-					ch = skipWhite_ll(ch);
+					// skip up to new-line or non-whitespace
+					while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+						ch = get_ch_ll();
+					}
+					// ch = skipWhite_ll(ch);
 
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
@@ -512,7 +518,7 @@ public class SVPreProcScanner implements ISVScanner {
 								fTmpBuffer.append((char)ch);
 							}
 						} while (ch != -1 && matchLevel > 0);
-					} else {
+					} else if (is_defined) {
 						fDefineProvider.error("macro \"" + type +
 								"\" should have parameters, but doesn't", 
 								fScanLocation.getFileName(),
@@ -521,6 +527,8 @@ public class SVPreProcScanner implements ISVScanner {
 						"\" should have parameters, but doesn't @ " +
 							fScanLocation.getFileName() + ":" + 
 							fScanLocation.getLineNo());
+						unget_ch(ch);
+					} else {
 						unget_ch(ch);
 					}
 				}

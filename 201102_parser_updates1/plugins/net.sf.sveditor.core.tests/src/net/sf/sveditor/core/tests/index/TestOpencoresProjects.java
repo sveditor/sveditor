@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -153,15 +154,14 @@ public class TestOpencoresProjects extends TestCase {
 			ISVDBItemBase it = it_i.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker marker = (SVDBMarker)it;
-				if (marker.getName().equals(SVDBMarker.MARKER_ERR)) {
+				if (marker.getMarkerType() == MarkerType.Error) {
 					errors.add(marker);
 				}
 			}
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage() + " @ " + 
-					SVDBItem.getName(m.getParent()) + ":" + m.getLocation().getLine());
+			System.out.println("[ERROR] " + m.getMessage() + " @ " + ":" + m.getLocation().getLine());
 		}
 		
 		assertEquals(0, errors.size());

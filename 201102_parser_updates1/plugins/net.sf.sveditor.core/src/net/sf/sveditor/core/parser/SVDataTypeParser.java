@@ -164,7 +164,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(fLexer.readId());
 			if (fLexer.peekOperator("#")) {
-				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
+				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 				ud_type.setParameters(plist);
 			}
 			type = ud_type;
@@ -263,7 +263,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			if (fLexer.peekOperator("#")) {
-				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse();
+				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 				((SVDBTypeInfoUserDef)type).setParameters(plist);
 			}
 			
@@ -492,7 +492,7 @@ public class SVDataTypeParser extends SVParserBase {
 			class_type.addClassItem(class_item);
 			
 			if (fLexer.peekOperator("#")) {
-				SVDBParamValueAssignList param_assign = parsers().paramValueAssignParser().parse();
+				SVDBParamValueAssignList param_assign = parsers().paramValueAssignParser().parse(true);
 				class_item.setParamAssignList(param_assign);
 			}
 			

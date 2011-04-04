@@ -159,7 +159,7 @@ public class TestIndexParse extends TestCase {
 		
 		assertNotNull("Failed to open path \"" + path + "\"", in);
 		
-		SVDBFile file = index.parse(in, path, new NullProgressMonitor());
+		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull("Failed to parse path \"" + path + "\"", file);
 		
@@ -172,7 +172,7 @@ public class TestIndexParse extends TestCase {
 			
 			assertNotNull("Failed to open path \"" + path_n + "\"", in);
 			
-			file = index.parse(in, path_n, new NullProgressMonitor());
+			file = index.parse(new NullProgressMonitor(), in, path_n, null);
 			
 			assertNotNull("Failed to parse path \"" + path_n + "\"", file);
 			

@@ -125,7 +125,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());

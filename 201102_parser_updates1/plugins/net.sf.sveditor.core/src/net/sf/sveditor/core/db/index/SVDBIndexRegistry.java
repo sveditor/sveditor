@@ -12,28 +12,16 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
-import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBVersionException;
-import net.sf.sveditor.core.db.persistence.SVDBLoad;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -53,12 +41,11 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * @author ballance
  *
  */
-public class SVDBIndexRegistry implements ISVDBIndexRegistry {
+public class SVDBIndexRegistry  {
 	public static final String								GLOBAL_PROJECT = "GLOBAL";
 	
 	private SVDBIndexCollectionMgr							fGlobalIndexMgr;
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
-	private File											fDatabaseDir;
 	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
 	private ISVDBIndexCacheFactory							fCacheFactory;
 	private LogHandle										fLog;
@@ -150,6 +137,50 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 				base_location, type, config);
 	}
 	
+	public ISVDBIndex findCreateIndex(
+			IProgressMonitor		monitor,
+			String 					project, 
+			String 					base_location, 
+			String 					type,
+			ISVDBIndexCache			cache,
+			Map<String, Object>		config) {
+		ISVDBIndex ret = null;
+		
+		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
+		
+		if (!fProjectIndexMap.containsKey(project)) {
+			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
+		}
+		
+		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
+		
+		for (ISVDBIndex index : project_index) {
+			if (index.getBaseLocation().equals(base_location) &&
+					index.getTypeID().equals(type)) {
+				ret = index;
+				break;
+			}
+		}
+		
+		if (ret == null) {
+			fLog.debug("    Index does not exist -- creating");
+			// See about creating a new index
+			ISVDBIndexFactory factory = findFactory(type);
+			
+			ret = factory.createSVDBIndex(project, base_location, cache, config);
+			
+			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+			ret.init(m);
+			
+			project_index.add(ret);
+		} else {
+			fLog.debug("    Index already exists");
+		}
+		
+		return ret;
+		
+	}
+
 	/**
 	 * Finds or creates an index
 	 * 
@@ -270,12 +301,7 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		}
 		
 		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
-			if (index.isLoaded()) {
-				fLog.debug("    rebuild index \"" + index.getBaseLocation() + "\"");
-				index.rebuildIndex();
-			} else {
-				fLog.debug("    skipping index \"" + index.getBaseLocation() + "\" - not loaded");
-			}
+			index.rebuildIndex();
 		}
 		
 		// Also clear any persistence data for the project
@@ -288,140 +314,6 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 			fDatabaseDescMap.remove(project);
 		}
 	}
-	
-	public boolean loadPersistedData(String project, ISVDBIndex index) {
-		fLog.debug("loadPersistedData: " + index.getBaseLocation() + "(project=" + project + ")");
-		
-		String base_location = index.getBaseLocation();
-		SVDBPersistenceDescriptor desc = null;
-		
-		if (!fDatabaseDescMap.containsKey(project)) {
-			fLog.debug("    Project isn't in the database");
-			return false;
-		}
-		
-		List<SVDBPersistenceDescriptor> db_desc = fDatabaseDescMap.get(project);
-		
-		for (SVDBPersistenceDescriptor d : db_desc) {
-			if (d.getBaseLocation().equals(base_location)) {
-				desc = d;
-				break;
-			}
-		}
-		
-		if (desc != null) {
-			fLog.debug("    Found persistence record");
-			SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
-			InputStream in = null;
-			boolean loaded = false;
-			try {
-				ZipInputStream zip_in = null;
-				in = new FileInputStream(desc.getDBFile());
-				
-				if (desc.getDBFile().getName().endsWith(".zip")) {
-					zip_in = new ZipInputStream(in);
-					zip_in.getNextEntry();
-					in = zip_in;
-				}
-				fLog.debug("Loading from file \"" + desc.getDBFile().getPath() + "\"");
-				loader.load(index, in);
-				loaded = true;
-				
-				in.close();
-			} catch (DBFormatException e) {
-				if (e instanceof DBVersionException) {
-					fLog.note("Rebuilding index for project \"" + project + 
-							"\" due to version mismatch: " + e.getMessage());
-				} else {
-					fLog.error("Failed to load index for project \"" + project + 
-							"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
-							"\"", e);
-				}
-				// Remove the DB file, since it's bad... 
-				File db_file = desc.getDBFile();
-				db_file.delete();
-				
-				// Remove this location so we don't get follow-on errors
-				db_desc.remove(desc);
-			} catch (Exception e) {
-				e.printStackTrace();
-
-				fLog.error("Failed to load index for project \"" + project + 
-						"\" from file \"" + desc.getDBFile().getAbsolutePath() + 
-						"\"", e);
-				
-				// Remove the DB file, since it's bad... 
-				File db_file = desc.getDBFile();
-				db_file.delete();
-				
-				// Remove this location so we don't get follow-on errors
-				db_desc.remove(desc);
-			} finally {
-				if (in != null) {
-					try {
-						in.close();
-					} catch (IOException e) {}
-				}
-			}
-			
-			return loaded;
-		} else {
-			fLog.debug("    Failed to find persistence record");
-			return false;
-		}
-	}
-	
-	private void load_database_descriptors() {
-		fLog.debug("load_database_descriptors");
-		if (fDatabaseDir != null && fDatabaseDir.exists()) {
-			SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
-			
-			for (File d : fDatabaseDir.listFiles()) {
-				if (d.isDirectory()) {
-					String project_name = d.getName();
-					List<SVDBPersistenceDescriptor> db_desc = 
-						new ArrayList<SVDBPersistenceDescriptor>();
-					
-					fLog.debug("Load persistent data for project \"" + d.getName() + "\"");
-					
-					for (File f : d.listFiles()) {
-						if (f.isFile() && 
-								(f.getName().endsWith(".db") || f.getName().endsWith(".db.zip"))) {
-							try {
-								ZipInputStream zip_in = null;
-								InputStream in = new FileInputStream(f);
-								
-								if (f.getName().endsWith(".zip")) {
-									zip_in = new ZipInputStream(in);
-									ZipEntry entry = zip_in.getNextEntry();
-									fLog.debug("Open entry \"" + entry.getName() + "\" in db file \"" + 
-											f.getAbsolutePath() + "\"");
-									in = zip_in;
-								}
-								String base = loader.readBaseLocation(in);
-								
-								fLog.debug("Add index " + f.getAbsolutePath() + " with base=" + base);
-								db_desc.add(
-									new SVDBPersistenceDescriptor(f, base));
-								
-								in.close();
-							} catch (Exception e) {
-								fLog.error("Failed to read base location from index \"" + 
-										f.getAbsolutePath() + "\" for project \"" + d.getName() + "\"", e);
-								// If the file is corrupt, delete it
-								f.delete();
-							}
-						}
-					}
-					
-					fDatabaseDescMap.put(project_name, db_desc);
-				}
-			}
-		} else {
-			fLog.debug("Database location does not exist");
-		}
-	}
-	
 
 	/**
 	 * Saves the state of loaded indexes to the state_location directory
@@ -429,144 +321,22 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 	public void save_state() {
 		fLog.debug("save_state()");
 		
+		for (List<ISVDBIndex> index_l : fProjectIndexMap.values()) {
+			for (ISVDBIndex index : index_l) {
+				index.dispose();
+			}
+		}
+		/*
 		for (String proj_name : fProjectIndexMap.keySet()) {
 			save_state(proj_name, fProjectIndexMap.get(proj_name));
 		}
+		 */
 		
 		// Now, iterate through each saved database and clean up
 		// any leftover saved-database files
 		
 	}
 	
-	private void save_state(String proj_name, List<ISVDBIndex> index_list) {
-		/*
-		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
-		List<SVDBPersistenceDescriptor>		db_list = fDatabaseDescMap.get(proj_name);
-		
-		if (fDatabaseDir == null) {
-			fLog.debug("not saving state");
-			return;
-		}
-		
-		if (!fDatabaseDir.exists()) {
-			if (!fDatabaseDir.mkdirs()) {
-				fLog.error("cannot create database dir");
-			}
-		}
-		 */
-		
-		for (ISVDBIndex index : index_list) {
-			fLog.debug("fDatabaseDir=" + fDatabaseDir + "; proj_name=" + proj_name);
-			
-			/*
-			if (proj_name == null) {
-				fLog.error("proj_name null on : " + index.getClass().getName());
-			}
-			File proj_db_dir = new File(fDatabaseDir, proj_name);
-			
-			if (!proj_db_dir.exists()) {
-				if (!(proj_db_dir.mkdirs())) {
-					fLog.error("cannot create project db dir");
-				}
-			}
-			 */
-			index.dispose();
-			
-			/*
-			if (index.isLoaded()) {
-				// Dump out to the state location
-				
-				SVDBPersistenceDescriptor d = null;
-				
-				if (db_list != null) {
-					d = findPersistenceDescriptor(db_list, index.getBaseLocation());
-				}
-				
-				File index_file;
-				if (d == null) {
-					// Pick a new filename
-					index_file = pickIndexFileName(proj_db_dir);
-				} else {
-					index_file = d.getDBFile();
-				}
-				
-				fLog.debug("Saving index \"" + index + "\" for project \"" + 
-						proj_db_dir.getName() + "\"");
-				
-				// Dump the database to disk
-				try {
-					ZipOutputStream zip_out = null;
-					OutputStream out;
-					
-					if (index_file.getName().endsWith(".zip")) {
-						index_file.delete(); // ensure we clear out the file
-						out = new FileOutputStream(index_file);
-						String entry_name = index_file.getName();
-						entry_name = entry_name.substring(0, entry_name.length()-4);
-						zip_out = new ZipOutputStream(out);
-						zip_out.putNextEntry(new ZipEntry(entry_name));
-					} else {
-						 out = new FileOutputStream(index_file);						
-					}
-
-					if (zip_out != null) {
-						dumper.dump(index, zip_out);
-						zip_out.closeEntry();
-						
-						zip_out.flush();
-						zip_out.close();
-						out.close();
-					} else {
-						dumper.dump(index, out);
-						out.flush();
-						out.close();
-					}
-				} catch (Exception e) {
-					fLog.error("Failed to save index \"" + 
-							index.getBaseLocation() + "\" to persistence file \"" + 
-							index_file.getAbsolutePath() + "\"", e);
-				}
-				
-				// Delete the index file
-				// index_file.delete();
-			}
-			 */
-		}
-	}
-	
-	private SVDBPersistenceDescriptor findPersistenceDescriptor(
-			List<SVDBPersistenceDescriptor>		db_list,
-			String 								base) {
-		for (SVDBPersistenceDescriptor d : db_list) {
-			if (d.getBaseLocation().equals(base)) {
-				return d;
-			}
-		}
-		
-		return null;
-	}
-	
-	private static File pickIndexFileName(File db_dir) {
-		final boolean use_zip = true;
-		if (!db_dir.exists()) {
-			db_dir.mkdirs();
-		}
-		
-		for (int i=0; i<1000000; i++) {
-			File test = new File(db_dir, "index_" + i + ".db");
-			File test_z = new File(db_dir, "index_" + i + ".db.zip");
-			
-			if (!test.exists() && !test_z.exists()) {
-				if (use_zip) {
-					return test_z;
-				} else {
-					return test;
-				}
-			}
-		}
-		
-		return null;
-	}
 	
 	private ISVDBIndexFactory findFactory(String type) {
 		ISVDBIndexFactory ret = null;
@@ -595,6 +365,5 @@ public class SVDBIndexRegistry implements ISVDBIndexRegistry {
 		
 		return ret;
 	}
-	
 	
 }

@@ -170,6 +170,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
 			
+			if (path.startsWith("/")) {
+				path = path.substring(1);
+			}
+			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			try {
@@ -177,8 +181,17 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 
 				return folder.exists();
 			} catch (IllegalArgumentException e) {
-				return false;
+				// Likely because the path is a project-only path (eg /a)
+				// e.printStackTrace();
 			}
+			
+			// Try project
+			try {
+				IProject project = root.getProject(path);
+				return project.exists();
+			} catch (IllegalArgumentException e) {}
+			
+			return false;
 		} else {
 			// Also look at the filesystem
 			return new File(path).isDirectory();

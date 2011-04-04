@@ -121,6 +121,7 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testSourceCollectionIndexGlobalDefine() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		CoreReleaseTests.clearErrors();
 		
@@ -138,7 +139,7 @@ public class TestGlobalDefine extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex(pname, 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), pname, 
 				"${workspace_loc}/project/basic_lib_global_defs",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();

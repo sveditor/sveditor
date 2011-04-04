@@ -56,7 +56,9 @@ public class SVDBDirFS implements ISVDBFS {
 	
 	public void delete(String path) {
 		if (path.equals("")) {
-			delete_tree(fDBDir);
+			if (fDBDir.exists()) {
+				delete_tree(fDBDir);
+			}
 		} else {
 			File file = new File(fDBDir, path);
 

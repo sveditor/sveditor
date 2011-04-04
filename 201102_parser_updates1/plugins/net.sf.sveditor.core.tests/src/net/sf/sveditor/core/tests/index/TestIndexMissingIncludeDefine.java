@@ -20,6 +20,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
@@ -56,6 +57,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 
 	
 	public void testWSLibMissingIncludeDefine() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -70,7 +72,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -132,7 +134,10 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
 		
 		// Force the file database to be built
-		index.getFileDB(new NullProgressMonitor());
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		while (it.hasNext()) {
+			it.nextItem();
+		}
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
 
@@ -140,7 +145,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		fs_provider_m.getMarkers().clear();
 		// String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
 		InputStream in = fs_provider_m.openStream(path);
-		SVDBFile file = index.parse(in, path, new NullProgressMonitor());
+		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull("Failed to parse target file", file);
 		

@@ -49,7 +49,7 @@ public class WSLibIndexFileChanges extends TestCase {
 	
 	
 	public void testMissingIncludeAdded() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File tmpdir = TestUtils.createTempDir();
 	
 		try {
@@ -109,10 +109,12 @@ public class WSLibIndexFileChanges extends TestCase {
 		// Now, write back the file
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
 
+		System.out.println(">> SLEEP");
 		// Wait a bit...
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) { }
+		System.out.println("<< SLEEP");
 
 		it = index.getItemIterator(new NullProgressMonitor());
 		class1_it = null;
@@ -120,6 +122,7 @@ public class WSLibIndexFileChanges extends TestCase {
 
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
+			System.out.println("tmp_it 2: " + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;

@@ -11,8 +11,14 @@ import net.sf.sveditor.core.db.SVDBCoverpointBins;
 import net.sf.sveditor.core.db.SVDBCoverpointBins.BinsType;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVDBCrossBinsSelectConditionExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBParenExpr;
+import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
+import net.sf.sveditor.core.db.stmt.SVDBCoverageCrossBinsSelectStmt;
 import net.sf.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
 
 public class SVCovergroupParser extends SVParserBase {
@@ -212,17 +218,92 @@ public class SVCovergroupParser extends SVParserBase {
 				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
+					SVDBCoverageCrossBinsSelectStmt select_stmt = new SVDBCoverageCrossBinsSelectStmt();
 					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
-					SVDBIdentifierExpr id = fParsers.exprParser().idExpr();
+					select_stmt.setBinsType(type);
+					select_stmt.setBinsName(fParsers.exprParser().idExpr());
 					fLexer.readOperator("=");
+					select_stmt.setSelectCondition(select_expression());
 					
-					// TODO:
+					if (fLexer.peekKeyword("iff")) {
+						fLexer.eatToken();
+						fLexer.readOperator("(");
+						select_stmt.setIffExpr(fParsers.exprParser().expression());
+						fLexer.readOperator(")");
+					}
+					fLexer.readOperator(";");
+					cp.addItem(select_stmt);
 				}
 			}
+			fLexer.readOperator("}");
 		} else {
 			fLexer.readOperator(";");
 		}
+	}
+	
+	private SVDBExpr select_expression() throws SVParseException {
+		SVDBExpr expr = or_select_expression();
 		
+		return expr;
+	}
+	
+	private SVDBExpr or_select_expression() throws SVParseException {
+		SVDBExpr expr = and_select_expression();
+		
+		while (fLexer.peekOperator("||")) {
+			fLexer.eatToken();
+			expr = new SVDBBinaryExpr(expr, "||", and_select_expression());
+		}
+		
+		return expr;
+	}
+	
+	private SVDBExpr and_select_expression() throws SVParseException {
+		SVDBExpr expr = unary_select_condition();
+		
+		while (fLexer.peekOperator("&&")) {
+			fLexer.eatToken();
+			expr = new SVDBBinaryExpr(expr, "&&", unary_select_condition());
+		}
+	
+		return expr;
+	}
+	
+	private SVDBExpr unary_select_condition() throws SVParseException {
+		if (fLexer.peekOperator("!")) {
+			return new SVDBUnaryExpr("!", select_condition());
+		} else if (fLexer.peekOperator("(")) {
+			fLexer.eatToken();
+			SVDBParenExpr ret = new SVDBParenExpr(select_expression());
+			fLexer.readOperator(")");
+			return ret;
+		} else {
+			return select_condition();
+		}
+	}
+	
+	private SVDBExpr select_condition() throws SVParseException {
+		SVDBLocation start = fLexer.getStartLocation();
+		SVDBCrossBinsSelectConditionExpr select_c = new SVDBCrossBinsSelectConditionExpr();
+		select_c.setLocation(start);
+		
+		fLexer.readKeyword("binsof");
+		fLexer.readOperator("(");
+		SVDBExpr bins_expr = fParsers.exprParser().idExpr();
+		if (fLexer.peekOperator(".")) {
+			fLexer.eatToken();
+			bins_expr = new SVDBFieldAccessExpr(bins_expr, false, 
+					fParsers.exprParser().idExpr());
+		}
+		select_c.setBinsExpr(bins_expr);
+		fLexer.readOperator(")");
+		
+		if (fLexer.peekKeyword("intersect")) {
+			fLexer.eatToken();
+			fParsers.exprParser().open_range_list(select_c.getIntersectList());
+		}
+		
+		return select_c;
 	}
 	
 	private boolean isOption() throws SVParseException {
