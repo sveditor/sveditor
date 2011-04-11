@@ -20,7 +20,7 @@ public class TestParseInterfaceBodyItems extends TestCase {
 	}
 
 	public void testModportMethod() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc = 
 			"interface foo;\n" +

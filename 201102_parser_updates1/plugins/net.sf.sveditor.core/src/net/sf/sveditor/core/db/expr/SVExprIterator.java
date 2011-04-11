@@ -34,8 +34,6 @@ public class SVExprIterator {
 			case InsideExpr: inside((SVDBInsideExpr)expr); break;
 			case LiteralExpr: literal((SVDBLiteralExpr)expr); break;
 			case ParenExpr: paren((SVDBParenExpr)expr); break;
-			case QualifiedSuperFieldRefExpr: qualified_super_field_ref((SVDBQualifiedSuperFieldRefExpr)expr); break;
-			case QualifiedThisRefExpr: qualified_this_ref((SVDBQualifiedThisRefExpr)expr); break;
 			case TFCallExpr: tf_call((SVDBTFCallExpr)expr); break;
 			case UnaryExpr: unary((SVDBUnaryExpr)expr); break;
 			case RangeExpr: range((SVDBRangeExpr)expr); break;
@@ -101,14 +99,6 @@ public class SVExprIterator {
 		visit(expr.getExpr());
 	}
 
-	protected void qualified_super_field_ref(SVDBQualifiedSuperFieldRefExpr expr) {
-		visit(expr.getLhs());
-	}
-	
-	protected void qualified_this_ref(SVDBQualifiedThisRefExpr expr) {
-		visit(expr.getExpr());
-	}
-	
 	protected void solve_before(SVDBConstraintSolveBeforeStmt expr) {
 	}
 	

@@ -217,7 +217,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 				fLog.error("SVDBFile for path \"" + path + "\" is null", e);
 			}
 		}
-		
+
 		if (fPreProcFileMap.containsKey(path)) {
 			fPreProcFileMap.remove(path);
 		}

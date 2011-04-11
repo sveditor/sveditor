@@ -28,6 +28,8 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -51,7 +53,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 		}
 	}
 
@@ -63,6 +65,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 
 	public void testWSArgFileIndex() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testWSArgFileIndex");
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -91,7 +94,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		InputStream in;
 		String path = "${workspace_loc}/xbus/examples/xbus_demo_tb.sv";
 
-		System.out.println(">==== PASS 1 ====");
+		log.debug(">==== PASS 1 ====");
 		// Create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "xbus",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
@@ -107,17 +110,17 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		assertEquals(1, fRebuildCount);
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
 
-		System.out.println("<==== PASS 1 ====");
+		log.debug("<==== PASS 1 ====");
 
 		// Save the database
 		rgy.save_state();
 
 		// Now, tear down everything
-		System.out.println(">==== PASS 2 ====");
+		log.debug(">==== PASS 2 ====");
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "xbus",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
@@ -130,15 +133,17 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);
-		System.out.println("<==== PASS 2 ====");
+		log.debug("<==== PASS 2 ====");
 		
 		// Ensure no errors were produced
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testWSLibIndex() {
 		CoreReleaseTests.clearErrors();
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testWSLibIndex");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testLibIndex");
@@ -166,7 +171,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		InputStream in;
 		String path = "${workspace_loc}/ovm/src/base/ovm_component.svh";
 
-		System.out.println(">==== PASS 1 ====");
+		log.debug(">==== PASS 1 ====");
 		// Create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "ovm",
 				"${workspace_loc}/ovm/src/ovm_pkg.sv",
@@ -183,17 +188,17 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		assertEquals(1, fRebuildCount);
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
 
-		System.out.println("<==== PASS 1 ====");
+		log.debug("<==== PASS 1 ====");
 
 		// Save the database
 		rgy.save_state();
 
 		// Now, tear down everything
-		System.out.println(">==== PASS 2 ====");
+		log.debug(">==== PASS 2 ====");
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
 		index = rgy.findCreateIndex(new NullProgressMonitor(), 
 				"ovm", "${workspace_loc}/ovm/src/ovm_pkg.sv",
@@ -206,9 +211,10 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);
-		System.out.println("<==== PASS 2 ====");
+		log.debug("<==== PASS 2 ====");
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
 }

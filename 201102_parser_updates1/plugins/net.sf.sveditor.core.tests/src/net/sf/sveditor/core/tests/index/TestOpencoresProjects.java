@@ -56,7 +56,7 @@ public class TestOpencoresProjects extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 		}
 	}
 	

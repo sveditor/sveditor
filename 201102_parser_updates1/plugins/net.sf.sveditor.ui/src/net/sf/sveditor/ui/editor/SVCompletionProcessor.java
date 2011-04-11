@@ -27,13 +27,12 @@ import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefItem;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
@@ -136,10 +135,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							it, doc, replacementOffset, replacementLength);
 					break;
 					
-				case TypedefItem: {
-					SVDBTypedefItem td = (SVDBTypedefItem)it;
-					SVDBTypedefStmt tds = (SVDBTypedefStmt)td.getParent();
-					String td_name_lc = td.getName().toLowerCase();
+				case TypedefStmt: {
+					SVDBTypedefStmt tds = (SVDBTypedefStmt)it;
+					String td_name_lc = tds.getName().toLowerCase();
 					String prefix_lc  = prefix.toLowerCase();
 					
 					// If we matched the typename, then construct a typedef
@@ -161,7 +159,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 						for (String name : enums.first()) {
 							String name_lc = name.toLowerCase();
 							if (prefix.equals("") || name_lc.startsWith(prefix_lc)) {
-								String label = td.getName() + "::" + name;
+								String label = tds.getName() + "::" + name;
 								cp = new CompletionProposal(name,
 										replacementOffset, replacementLength, 
 										name.length(),

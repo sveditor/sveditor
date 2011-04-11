@@ -119,47 +119,40 @@ public enum SVDBItemType {
 	ParamPortDecl,
 	
 	TypedefStmt,
-	TypedefItem,
 	
 	CoverageOptionStmt,
 	CoverageCrossBinsSelectStmt,
 
 	// Expressions
-	ClockingEventExpr,
-	CrossBinsSelectConditionExpr,
 	ArrayAccessExpr,
 	AssignExpr,
+	AssignmentPatternExpr,
+	AssignmentPatternRepeatExpr,
 	BinaryExpr,
 	CastExpr,
+	ClockingEventExpr,
+	ConcatenationExpr,
 	CondExpr,
+	CrossBinsSelectConditionExpr,
 	CtorExpr,
 	FieldAccessExpr,
 	IdentifierExpr,
 	IncDecExpr,
+	InsideExpr,
 	LiteralExpr,
+	NamedArgExpr, // .ARG(value)
 	NullExpr,
 	ParenExpr,
-	InsideExpr,
-	RangeExpr,
-	RangeDollarBoundExpr,
-	QualifiedSuperFieldRefExpr,
-	QualifiedThisRefExpr,
-	TFCallExpr,
 	RandomizeCallExpr,
+	RangeDollarBoundExpr,
+	RangeExpr,
+	TFCallExpr,
 	UnaryExpr,
 	
-	NamedArgExpr, // .ARG(value)
-	
-	ConcatenationExpr,
 	StringExpr,
-	AssignmentPatternExpr,
-	AssignmentPatternRepeatExpr,
 	
 	CoverpointExpr,
 	CoverBinsExpr,
-
-	ThisExpr,
-	SuperExpr,
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

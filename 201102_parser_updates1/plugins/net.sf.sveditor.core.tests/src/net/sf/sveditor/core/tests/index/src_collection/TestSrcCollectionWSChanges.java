@@ -49,7 +49,6 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 	@Override
 	protected void setUp() throws Exception {
-		System.out.println("setUp");
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
@@ -57,11 +56,10 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 	@Override
 	protected void tearDown() throws Exception {
-		System.out.println("tearDown");
 		super.tearDown();
 
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}

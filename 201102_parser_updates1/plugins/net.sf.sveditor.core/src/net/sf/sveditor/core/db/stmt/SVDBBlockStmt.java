@@ -5,11 +5,12 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
-public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
+public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 	@SVDBParentAttr
 	private ISVDBChildItem			fParent;
 	
@@ -22,9 +23,16 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 		fBlockName = "";
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
-	
+
+	public SVDBBlockStmt(SVDBItemType type) {
+		super(type);
+		fBlockName = "";
+		fItems = new ArrayList<ISVDBItemBase>();
+	}
+
 	public void addStmt(SVDBStmt stmt) {
 		fItems.add(stmt);
+		stmt.setParent(this);
 	}
 	
 	public String getBlockName() {

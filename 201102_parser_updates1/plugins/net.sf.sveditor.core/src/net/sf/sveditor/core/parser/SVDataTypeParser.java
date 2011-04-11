@@ -473,7 +473,7 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 			}
 			
-			struct.getFields().add(var);
+			struct.addField(var);
 			fLexer.readOperator(";");
 							
 		} while (fLexer.peek() != null && !fLexer.peekOperator("}"));

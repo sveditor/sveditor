@@ -32,6 +32,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -48,7 +50,6 @@ public class SrcCollectionBasics extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		System.out.println("setUp");
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
@@ -56,17 +57,17 @@ public class SrcCollectionBasics extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		System.out.println("tearDown");
 		super.tearDown();
 
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
 	
 	public void testFindSourceRecursePkg() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testFindSourceRecursePkg");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -81,7 +82,8 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_pkg");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -109,7 +111,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -122,11 +124,12 @@ public class SrcCollectionBasics extends TestCase {
 		
 		// rgy.save_state();
 
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testFindSourceRecurseNoPkg() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
+		LogHandle log = LogFactory.getLogHandle("testFindSourceRecurseNoPkg");
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -141,7 +144,7 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_nopkg");
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -173,7 +176,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -186,7 +189,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// rgy.save_state();
-
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -196,13 +199,14 @@ public class SrcCollectionBasics extends TestCase {
 	 */
 	public void testFindSourceRecurseModule() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testFindSourceRecurseModule");
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
@@ -211,7 +215,7 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -226,7 +230,7 @@ public class SrcCollectionBasics extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
+			log.debug("tmp_it: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1")) {
 				class1 = tmp_it;
@@ -246,7 +250,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -258,6 +262,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
 		assertEquals("class1", SVDBItem.getName(class1));
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -266,15 +271,17 @@ public class SrcCollectionBasics extends TestCase {
 	 * `celldefine directives are processed properly
 	 */
 	public void testMissingIncludeRecurseModule() {
-		System.out.println("--> testMissingIncludeRecurseModule()");
+		LogHandle log = LogFactory.getLogHandle("testMissingIncludeRecurseModule");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
+		log.debug("--> testMissingIncludeRecurseModule()");
+		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/project_dir_src_collection_module_missing_inc/", project_dir);
@@ -297,7 +304,7 @@ public class SrcCollectionBasics extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
+			log.debug("tmp_it: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1")) {
 				class1 = tmp_it;
@@ -325,7 +332,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + ((SVDBMarker)warn).getMessage());
+			log.debug("SVDBMarkerItem: " + ((SVDBMarker)warn).getMessage());
 		}
 		
 		assertNotNull("located class1", class1);
@@ -337,16 +344,18 @@ public class SrcCollectionBasics extends TestCase {
 		assertEquals("class1", SVDBItem.getName(class1));
 		// Expect one marker -- missing_inc.svh
 		assertEquals("Confirm 1 warnings", 1, markers.size());
-		System.out.println("<-- testMissingIncludeRecurseModule()");
+		log.debug("<-- testMissingIncludeRecurseModule()");
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicClassIncludingModule() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testBasicClassIncludingModule");
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/data/basic_module_project/", project_dir);
@@ -382,7 +391,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -391,16 +400,18 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicClassIncludingInterface() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testBasicClassIncludingInterface");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/data/basic_interface_project/", project_dir);
@@ -436,7 +447,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -445,10 +456,12 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicClassIncludingProgram() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testBasicClassIncludingProgram");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -490,7 +503,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -499,16 +512,18 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testFSNewFileAdded() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testFSNewFileAdded");
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
@@ -532,7 +547,7 @@ public class SrcCollectionBasics extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("tmp_it: " + tmp_it.getType() + " " + name);
+			log.debug("tmp_it: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1")) {
 				class1 = tmp_it;
@@ -552,7 +567,7 @@ public class SrcCollectionBasics extends TestCase {
 		}
 
 		for (ISVDBItemBase warn : markers) {
-			System.out.println("SVDBMarkerItem: " + 
+			log.debug("SVDBMarkerItem: " + 
 					((SVDBMarker)warn).getMessage());
 		}
 		
@@ -580,6 +595,7 @@ public class SrcCollectionBasics extends TestCase {
 		SVDBFile new_class_file = index.parse(new NullProgressMonitor(), in, new_class_path, null);
 		
 		assertNotNull(new_class_file);
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -588,7 +604,8 @@ public class SrcCollectionBasics extends TestCase {
 	 */
 	public void testOutsideWsRelativeIncPaths() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
-		System.out.println("--> testOutsideWsRelativeIncPaths()");
+		LogHandle log = LogFactory.getLogHandle("testOutsideWsRelativeIncPaths");
+		log.debug("--> testOutsideWsRelativeIncPaths()");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File testdir = new File(fTmpDir, "testdir");
 		File sub1 = new File(testdir, "sub1");
@@ -619,7 +636,7 @@ public class SrcCollectionBasics extends TestCase {
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
-			System.out.println("it_t: " + it_t.getType() + " " + SVDBItem.getName(it_t));
+			log.debug("it_t: " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		IndexTestUtils.assertNoErrWarn(index);
@@ -636,7 +653,8 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located top", top);
 		
 		// Expect one entry for missing include entry
-		System.out.println("<-- testOutsideWsRelativeIncPaths()");
+		log.debug("<-- testOutsideWsRelativeIncPaths()");
+		LogFactory.removeLogHandle(log);
 	}
 
 }

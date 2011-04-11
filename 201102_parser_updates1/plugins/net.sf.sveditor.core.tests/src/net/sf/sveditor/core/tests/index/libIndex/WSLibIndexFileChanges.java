@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -53,7 +55,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		File tmpdir = TestUtils.createTempDir();
 	
 		try {
-			int_testMissingIncludeAdded(tmpdir);
+			int_testMissingIncludeAdded("testMissingIncludeAdded", tmpdir);
 		} catch (RuntimeException e) {
 			throw e;
 		} finally {
@@ -61,8 +63,9 @@ public class WSLibIndexFileChanges extends TestCase {
 		}
 	}
 	
-	private void int_testMissingIncludeAdded(File tmpdir) throws RuntimeException {
+	private void int_testMissingIncludeAdded(String testname, File tmpdir) throws RuntimeException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -85,7 +88,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
-			System.out.println("tmp_it: " + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it: " + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
@@ -109,12 +112,12 @@ public class WSLibIndexFileChanges extends TestCase {
 		// Now, write back the file
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
 
-		System.out.println(">> SLEEP");
+		log.debug(">> SLEEP");
 		// Wait a bit...
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) { }
-		System.out.println("<< SLEEP");
+		log.debug("<< SLEEP");
 
 		it = index.getItemIterator(new NullProgressMonitor());
 		class1_it = null;
@@ -122,7 +125,7 @@ public class WSLibIndexFileChanges extends TestCase {
 
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
-			System.out.println("tmp_it 2: " + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it 2: " + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
@@ -133,5 +136,6 @@ public class WSLibIndexFileChanges extends TestCase {
 
 		assertNotNull("Expect to find class1", class1_it);
 		assertNotNull("Expect to find class1_2", class1_2_it);
+		LogFactory.removeLogHandle(log);
 	}
 }

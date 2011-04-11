@@ -94,13 +94,6 @@ public class SVExprDump {
 				fPS.print(")");
 			} break;
 			
-			case QualifiedSuperFieldRefExpr: {
-				
-			} break;
-			
-			case QualifiedThisRefExpr: {
-			} break;
-		
 			case TFCallExpr: {
 				
 			} break;

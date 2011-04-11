@@ -28,7 +28,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 			}
 			String hash = SVFileUtils.computeMD5(base_location);
 			File target = new File(fRoot, project_name + "_" + hash);
-			System.out.println("Create index: " + target.getAbsolutePath());
+//			System.out.println("Create index: " + target.getAbsolutePath());
 			if (!target.isDirectory()) {
 				TestCase.assertTrue(target.mkdirs());
 			}

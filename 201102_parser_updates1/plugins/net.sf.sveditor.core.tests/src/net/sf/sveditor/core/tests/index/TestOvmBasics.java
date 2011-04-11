@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -32,11 +33,14 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOvmBasics extends TestCase {
@@ -54,13 +58,14 @@ public class TestOvmBasics extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 		}
 	}
 
 	public void testBasicProcessing() {
 		File tmpdir = new File(fTmpDir, "no_errors");
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		
 		if (tmpdir.exists()) {
 			tmpdir.delete();
@@ -72,19 +77,22 @@ public class TestOvmBasics extends TestCase {
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex("GLOBAL", "org.ovmworld.ovm", 
+				rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase ovm_component=null, ovm_sequence=null;
+		SVDBFile current_file = null;
 		
 		while (index_it.hasNext()) {
 			ISVDBItemBase it = index_it.nextItem();
 			String name = SVDBItem.getName(it);
-			System.out.println("" + it.getType() + " " + name);
+			log.debug("" + it.getType() + " " + name);
 			
-			if (it.getType() == SVDBItemType.Marker) {
+			if (it.getType() == SVDBItemType.File) {
+				current_file = (SVDBFile)it;
+			} else if (it.getType() == SVDBItemType.Marker) {
 				markers.add((SVDBMarker)it);
 			} else if (it.getType() == SVDBItemType.ClassDecl) {
 				if (name.equals("ovm_component")) {
@@ -95,23 +103,29 @@ public class TestOvmBasics extends TestCase {
 			} else if (it.getType() == SVDBItemType.MacroDef) {
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
-				
+				if (v.getParent() == null) {
+					log.debug("Current file is: " + current_file.getFilePath());
+					log.debug("    Lineno: " + v.getLocation().getLine());
+				}
+				assertNotNull("Variable " + SVDBItem.getName(v.getVarList().get(0)) + " has null parent", v.getParent());
 				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
 						name + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
 		
 		for (SVDBMarker m : markers) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
 		assertNotNull("Check found ovm_sequence", ovm_sequence);
 		assertNotNull("Check found ovm_component", ovm_component);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testXbusExample() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testXbusExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testXbusExample");
@@ -123,17 +137,17 @@ public class TestOvmBasics extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
+		IProject project_dir = TestUtils.createProject("xbus", xbus);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -154,12 +168,16 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
+		
+		TestUtils.deleteProject(project_dir);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testTrivialExample() {
+		LogHandle log = LogFactory.getLogHandle("testTrivialExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testTrivialExample");
@@ -175,13 +193,13 @@ public class TestOvmBasics extends TestCase {
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -202,9 +220,10 @@ public class TestOvmBasics extends TestCase {
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testSequenceBasicReadWriteExample() {

@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
@@ -33,18 +32,11 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBSequence;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -560,95 +552,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				SVDBParamPortDecl.Direction_Inout);
 		fTaskFuncParamQualifiers.put("ref", SVDBParamPortDecl.Direction_Ref);
 		fTaskFuncParamQualifiers.put("var", SVDBParamPortDecl.Direction_Var);
-	}
-
-	/**
-	 * scanVariableDeclaration()
-	 * 
-	 * Scans through a list of variable declarations
-	 * 
-	 * Expects first string(s) read to be the type name
-	 */
-	private boolean scanVariableDeclaration(int modifiers)
-			throws SVParseException {
-		SVDBTypeInfo type;
-		boolean is_variable = true;
-
-		// TODO: need to modify this to be different for class and module/interface
-		// scopes
-		type = parsers().dataTypeParser().data_type(modifiers);
-		
-		if (type == null) {
-			error("Failed to parse type");
-		}
-
-		// Not a variable declaration
-		if (fLexer.peekOperator()) {
-			return false;
-		}
-
-		// Handle parameterization
-		do {
-
-			if (fLexer.peekOperator(",")) {
-				fLexer.eatToken();
-			}
-
-			String inst_name_or_var = fLexer.readIdOrKeyword();
-
-			if (inst_name_or_var == null) {
-				is_variable = false;
-				break;
-			}
-
-			debug("inst name or var: " + inst_name_or_var);
-
-			if (fLexer.peekOperator("(")) {
-				type = new SVDBTypeInfoModuleIfc(type.getName());
-				
-				// it's a module
-				debug("module instantiation - " + inst_name_or_var);
-				fLexer.skipPastMatch("(", ")");
-				
-				SVDBModIfcInst item = new SVDBModIfcInst(
-						type/*, inst_name_or_var*/);
-				setLocation(item);
-				fScopeStack.peek().addItem(item);
-			} else {
-				int attr = 0;
-				String bounds = null;
-
-				SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, 0);
-				SVDBVarDeclItem vi = new SVDBVarDeclItem(inst_name_or_var);
-
-				// non-module instance
-				if (fLexer.peekOperator("[")) {
-					// Array type
-					vi.setArrayDim(parsers().dataTypeParser().var_dim());
-				}
-				
-				setLocation(item);
-				setLocation(vi);
-				item.addVar(vi);
-
-				if (vi.getName() == null || vi.getName().equals("")) {
-					System.out.println("    " +
-							fFile.getFilePath() + ":"  + item.getLocation().getLine());
-				}
-				item.setAttr(attr);
-				fScopeStack.peek().addItem(item);
-			}
-
-			if (fLexer.peekOperator("=")) {
-				fLexer.eatToken();
-				/*String expr = */parsers().exprParser().expression();
-			}
-
-		} while (fLexer.peekOperator(","));
-
-		fNewStatement = true;
-
-		return is_variable;
 	}
 
 	public static boolean isFirstLevelScope(String id, int modifiers) {

@@ -120,9 +120,21 @@ public class TestUtils {
 		try {
 			if (project.exists()) {
 				project.close(new NullProgressMonitor());
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+//			throw new RuntimeException("Failed to close existing project: " + e.getMessage());
+		}
+		try {
+			if (project.exists()) {
 				project.delete(true, true, new NullProgressMonitor());
 			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Failed to close existing project: " + e.getMessage());
+		}
 
+		try {
 			IProjectDescription desc = project.getWorkspace().newProjectDescription(name);
 			desc.setLocationURI(location);
 			

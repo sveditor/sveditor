@@ -31,6 +31,7 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 	
 	public void addField(SVDBVarDeclStmt f) {
 		fFields.add(f);
+		f.setParent(this);
 	}
 
 	@Override

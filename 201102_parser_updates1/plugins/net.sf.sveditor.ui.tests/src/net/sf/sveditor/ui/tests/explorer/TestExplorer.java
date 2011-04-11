@@ -60,7 +60,7 @@ public class TestExplorer extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 	
 	public void testPathTreeNodeFactory() {

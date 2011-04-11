@@ -285,14 +285,6 @@ public class SVExprUtils {
 				ret = true;
 				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
 				break;
-			case ThisExpr:
-				ret = true;
-				ps.print("this");
-				break;
-			case SuperExpr:
-				ret = true;
-				ps.print("super");
-				break;
 			
 			default:
 				try {

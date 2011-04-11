@@ -39,15 +39,11 @@ import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
 import net.sf.sveditor.core.db.expr.SVDBNamedArgExpr;
 import net.sf.sveditor.core.db.expr.SVDBNullExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
-import net.sf.sveditor.core.db.expr.SVDBQualifiedSuperFieldRefExpr;
-import net.sf.sveditor.core.db.expr.SVDBQualifiedThisRefExpr;
 import net.sf.sveditor.core.db.expr.SVDBRandomizeCallExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeDollarBoundExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
 import net.sf.sveditor.core.db.expr.SVDBStringExpr;
-import net.sf.sveditor.core.db.expr.SVDBSuperExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
-import net.sf.sveditor.core.db.expr.SVDBThisExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
 import net.sf.sveditor.core.db.expr.SVExprParseException;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -740,21 +736,13 @@ public class SVExprParser extends SVParserBase {
 				ret = concatenation_or_repetition();
 			} else if (peekKeyword("this")) {
 				eatToken();
-				return new SVDBThisExpr();
-				/*
-				if (peekOperator("(")) {
-					// 'this' Arguments
-					// Alternate constructor invocation
-					// TODO: N/A??
-				}
-				error("Unhandled primary 'this'");
-				 */
+				return new SVDBIdentifierExpr("this");
 			} else if (peekKeyword("super")) {
 				eatToken();
-				return new SVDBSuperExpr();
-				// error("Unhandled primary 'super'");
+				return new SVDBIdentifierExpr("super");
 			} else if (peekKeyword("void")) {
 				eatToken();
+				return new SVDBIdentifierExpr("void");
 			} else {
 				error("Unexpected token in primary: \"" + fLexer.getImage() + "\"");
 			}
@@ -873,19 +861,16 @@ public class SVExprParser extends SVParserBase {
 						new SVDBIdentifierExpr(id));
 			}
 		}
+		/*
 		// TODO: Seems redundant
 		if (peekKeyword("this")) {
 			// '.' 'this'
 			eatToken();
-			return new SVDBQualifiedThisRefExpr(expr);
+			return new SVDBIdentifierExpr("this");
 		}
 		if (peekKeyword("super")) {
 			eatToken();
-			/** Java-only -- qualified constructor invocation
-			if (peekOperator("(")) {
-				
-			}
-			 */
+			
 			readOperator(".");
 			String id;
 			if (peekKeyword("new", "super", "this")) {
@@ -899,6 +884,7 @@ public class SVExprParser extends SVParserBase {
 				return new SVDBQualifiedSuperFieldRefExpr(expr, id);
 			}
 		}
+		 */
 		// END: Seems redundant
 		
 		// TODO: keyword new

@@ -67,7 +67,7 @@ public class ProfileIndexLoad {
 			long end_time = System.currentTimeMillis();
 			
 			System.out.println("Parse Time: " + (end_time - start_time));
-			t.fTmpDir.delete();
+			TestUtils.delete(t.fTmpDir);
 		}
 	}
 

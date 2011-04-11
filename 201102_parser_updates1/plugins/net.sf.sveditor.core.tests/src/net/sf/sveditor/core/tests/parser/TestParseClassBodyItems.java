@@ -25,6 +25,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
@@ -104,6 +106,50 @@ public class TestParseClassBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testTypedClassParameters", content, 
+				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
+	}
+
+	public void testAttrInstance() {
+		String content = 
+			"(*attr1=\"foo\", attr2=bar*)\n" +
+			"class foobar;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"        a = 5;\n" +
+			"        b = 6;\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"    function void foo_func_e();\n" +
+			"        c = 5;\n" +
+			"        d = 6;\n" +
+			"    endfunction:foo_func_e\n" + // endfunction without : <name>
+			"\n" +
+			"    task foo_task();\n" +
+			"    endtask\n" +
+			"endclass\n";
+		runTest("testTaskFunction", content, 
+				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
+	}
+	
+	public void testIncompleteAttrInstance() {
+		String content = 
+			"(*attr1=\"foo\", \n" +
+			"class foobar;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"        a = 5;\n" +
+			"        b = 6;\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"    function void foo_func_e();\n" +
+			"        c = 5;\n" +
+			"        d = 6;\n" +
+			"    endfunction:foo_func_e\n" + // endfunction without : <name>
+			"\n" +
+			"    task foo_task();\n" +
+			"    endtask\n" +
+			"endclass\n";
+		runTest("testTaskFunction", content, 
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
@@ -234,6 +280,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
+		LogHandle log = LogFactory.getLogHandle("testClassStringFields");
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBClassDecl cg_options = null;
@@ -241,13 +288,13 @@ public class TestParseClassBodyItems extends TestCase {
 			if (SVDBItem.getName(it).equals("__sv_builtin_covergroup_options")) {
 				cg_options = (SVDBClassDecl)it;
 			}
-//			System.out.println("Item: " + it.getType() + " " + it.getName());
+			log.debug("Item: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 		
 		assertNotNull("Failed to find class __sv_builtin_covergroup_options", cg_options);
 		
 		for (ISVDBItemBase it : cg_options.getItems()) {
-			System.out.println("    Item: " + it.getType() + " " + SVDBItem.getName(it));
+			log.debug("    Item: " + it.getType() + " " + SVDBItem.getName(it));
 			assertNotNull("Item " + SVDBItem.getName(it) + " does not have a location",
 					it.getLocation());
 			if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {

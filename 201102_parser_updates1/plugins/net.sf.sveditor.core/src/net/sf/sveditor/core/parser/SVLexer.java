@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class SVLexer extends SVToken {
 		":", "::", ":/", ":=",
 		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
-		"->", "#", "##", "@", "@@"
+		"->", "#", "##", "@", "@@",
 	};
 	
 	private static final String AllOperators[];
@@ -469,6 +470,25 @@ public class SVLexer extends SVToken {
 				fTokenConsumed = false;
 				return true;
 			} else {
+				/*
+				boolean ret;
+				if ((ret = next_token_int()) && fIsOperator && fImage.equals("(*")) {
+					// Consume attribute instance
+					List<SVToken> unget_list = new ArrayList<SVToken>();
+					unget_list.add(consumeToken());
+					while ((ret = next_token_int())) {
+						if (fIsOperator && fImage.equals("*)")) {
+							unget_list.add(consumeToken());
+							ret = next_token_int();
+							break;
+						} 
+						if (fIsKeyword) {
+							return ret;
+						}
+					}
+				}
+				return ret;
+				 */
 				return next_token_int();
 			}
 		} catch (SVParseException e) {

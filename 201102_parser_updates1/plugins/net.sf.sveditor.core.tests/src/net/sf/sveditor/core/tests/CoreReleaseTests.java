@@ -58,7 +58,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(new TestSuite(PreProcMacroTests.class));
 		addTest(new TestSuite(TestPreProc.class));
 		addTest(IndentTests.suite());
-// TODO:		addTest(ContentAssistTests.suite());
+		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());
 		addTest(IndexTests.suite());
 		addTest(SrcGenTests.suite());

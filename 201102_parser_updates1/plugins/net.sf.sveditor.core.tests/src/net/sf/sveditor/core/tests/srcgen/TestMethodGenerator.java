@@ -13,8 +13,11 @@
 package net.sf.sveditor.core.tests.srcgen;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.srcgen.MethodGenerator;
@@ -23,6 +26,8 @@ import net.sf.sveditor.core.tests.indent.IndentComparator;
 public class TestMethodGenerator extends TestCase {
 	
 	public void testVoidFunction() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle("testVoidFunction");
 		String content =
 			"function void foobar();\n" +
 			"    a = 5;\n" +
@@ -46,12 +51,14 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
-		IndentComparator.compare("testVoidFunction", exp, src);
+		IndentComparator.compare(log, "testVoidFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBuiltinRetFunction() throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle("testBuiltinRetFunction");
 		String content =
 			"function longint unsigned foobar();\n" +
 			"    a = 5;\n" +
@@ -75,12 +82,14 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
-		IndentComparator.compare("testBuiltinRetFunction", exp, src);
+		IndentComparator.compare(log, "testBuiltinRetFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testParamClassRetFunction() throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle("testParamClassRetFunction");
 		String content =
 			"function foo_c #(bar_c) foobar();\n" +
 			"    a = 5;\n" +
@@ -104,12 +113,14 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
 		IndentComparator.compare("testParamClassRetFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testParamClassParamFunction() throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle("testParamClassParamFunction");
 		String content =
 			"function void foobar(output foo_c #(bar_c) p);\n" +
 			"    a = 5;\n" +
@@ -133,12 +144,14 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
-		IndentComparator.compare("testParamClassParamFunction", exp, src);
+		IndentComparator.compare(log, "testParamClassParamFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testRefParamFunction() throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle("testRefParamFunction");
 		String content =
 			"function void foobar(ref int a);\n" +
 			"    a = 5;\n" +
@@ -162,12 +175,15 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
-		IndentComparator.compare("testRefParamFunction", exp, src);
+		IndentComparator.compare(log, "testRefParamFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testRefVarListParamFunction() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle("testRefVarListParamFunction");
 		String content =
 			"function void foobar(ref int a, b, c);\n" +
 			"    a = 5;\n" +
@@ -191,9 +207,10 @@ public class TestMethodGenerator extends TestCase {
 		
 		String src = gen.generate(tf);
 		
-		System.out.println("src:\n" + src);
+		log.debug("src:\n" + src);
 		
-		IndentComparator.compare("testRefVarListParamFunction", exp, src);
+		IndentComparator.compare(log, "testRefVarListParamFunction", exp, src);
+		LogFactory.removeLogHandle(log);
 	}
 
 }

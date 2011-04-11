@@ -15,6 +15,8 @@ package net.sf.sveditor.core.tests.indent;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.indent.SVIndentToken;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class TestIndentScanner extends TestCase {
@@ -59,14 +61,14 @@ public class TestIndentScanner extends TestCase {
 			false, // ovm_component
 			true,  // ;
 		};
-		
+		LogHandle log = LogFactory.getLogHandle("testIsStartLine");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(content)));
 		
 		
 		for (int i=0; i<start_line.length; i++) {
 			SVIndentToken tok = scanner.next();
-			System.out.println("tok: isStartLine=" + tok.isStartLine() + " isEndLine=" +
+			log.debug("tok: isStartLine=" + tok.isStartLine() + " isEndLine=" +
 					tok.isEndLine() + " value=" + tok.getImage());
 			
 			assertEquals("Expected token " + tok.getImage() + " to start line", 
@@ -74,6 +76,7 @@ public class TestIndentScanner extends TestCase {
 			assertEquals("Expected token " + tok.getImage() + " to end line", 
 					end_line[i], tok.isEndLine());
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testLeadingWhitespace() {
@@ -90,7 +93,7 @@ public class TestIndentScanner extends TestCase {
 			"a = 5;\n" +
 			"	endfunction\n" +
 			"\n";
-		
+		LogHandle log = LogFactory.getLogHandle("testLeadingWhitespace");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(content)));
 		
@@ -99,9 +102,10 @@ public class TestIndentScanner extends TestCase {
 		
 		while ((tok = scanner.next()) != null) {
 			if (tok.getImage().equals("class")) {
-				System.out.println("Leading whitespace: \"" + tok.getLeadingWS() + "\"");
+				log.debug("Leading whitespace: \"" + tok.getLeadingWS() + "\"");
 			}
 		}
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testMultiEmptyLines() {

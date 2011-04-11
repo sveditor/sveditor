@@ -18,7 +18,7 @@ public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
 		fParent = parent;
 	}
 	
-	public Iterable<ISVDBItemBase> getChildren() {
+	public Iterable getChildren() {
 		return EmptySVDBItemIterable.iterable;
 	}
 	

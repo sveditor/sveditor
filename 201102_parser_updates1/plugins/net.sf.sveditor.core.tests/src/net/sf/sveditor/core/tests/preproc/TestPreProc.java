@@ -31,6 +31,8 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -48,7 +50,6 @@ public class TestPreProc extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		System.out.println("setUp");
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
@@ -56,11 +57,10 @@ public class TestPreProc extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		System.out.println("tearDown");
 		super.tearDown();
 
 		if (fTmpDir != null) {
-//			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -251,21 +251,24 @@ public class TestPreProc extends TestCase {
 			"while (0); \n"
 			;
 			
+		LogHandle log = LogFactory.getLogHandle("testVmmErrorMacro");
 		String result = SVDBTestUtils.preprocess(doc, "testVmmErrorMacro");
 		
-		System.out.println("Result:\n" + result.trim());
-		System.out.println("====");
-		System.out.println("Expected:\n" + expected.trim());
-		System.out.println("====");
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
 		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testOvmSequenceUtilsExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testOvmSequenceUtilsExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		if (fTmpDir.exists()) {
-			assertTrue(fTmpDir.delete());
+			TestUtils.delete(fTmpDir);
 		}
 		assertTrue(fTmpDir.mkdirs());
 		
@@ -286,7 +289,8 @@ public class TestPreProc extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(db));
 
 		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
-				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
+				new NullProgressMonitor(), "GLOBAL", 
+				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
 		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
@@ -297,9 +301,10 @@ public class TestPreProc extends TestCase {
 		while ((ch = scanner.get_ch()) != -1) {
 			sb.append((char)ch);
 		}
-		System.out.println(sb.toString());
+		log.debug(sb.toString());
 		
 		assertTrue((sb.indexOf("end )") == -1));
+		LogFactory.removeLogHandle(log);
 	}
 
 	/*
@@ -308,7 +313,7 @@ public class TestPreProc extends TestCase {
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		if (fTmpDir.exists()) {
-			assertTrue(fTmpDir.delete());
+			assertTrue(TestUtils.delete(fTmpDir));
 		}
 		assertTrue(fTmpDir.mkdirs());
 		

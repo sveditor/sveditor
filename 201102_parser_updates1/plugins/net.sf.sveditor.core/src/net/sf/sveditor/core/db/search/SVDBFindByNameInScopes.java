@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBFindByNameInScopes {
 	
@@ -40,21 +41,44 @@ public class SVDBFindByNameInScopes {
 			
 			// First, search the local variables
 			for (ISVDBItemBase it : context.getChildren()) {
-				if (SVDBItem.getName(it).equals(name)) {
-					boolean match = (types.length == 0);
+				if (it instanceof SVDBVarDeclStmt) {
+					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getVarList()) {
+						if (SVDBItem.getName(it_t).equals(name)) {
+							boolean match = (types.length == 0);
 
-					for (SVDBItemType t : types) {
-						if (it.getType() == t) {
-							match = true;
-							break;
+							for (SVDBItemType t : types) {
+								if (it_t.getType() == t) {
+									match = true;
+									break;
+								}
+							}
+							
+							if (match) {
+								ret.add(it_t);
+								
+								if (stop_on_first_match) {
+									break;
+								}
+							}
 						}
 					}
-					
-					if (match) {
-						ret.add(it);
+				} else {
+					if (SVDBItem.getName(it).equals(name)) {
+						boolean match = (types.length == 0);
+
+						for (SVDBItemType t : types) {
+							if (it.getType() == t) {
+								match = true;
+								break;
+							}
+						}
 						
-						if (stop_on_first_match) {
-							break;
+						if (match) {
+							ret.add(it);
+							
+							if (stop_on_first_match) {
+								break;
+							}
 						}
 					}
 				}

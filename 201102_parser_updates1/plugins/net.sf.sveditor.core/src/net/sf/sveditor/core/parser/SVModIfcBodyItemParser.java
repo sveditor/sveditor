@@ -322,13 +322,14 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	public ISVDBChildItem parse_var_decl_module_inst(int modifiers) throws SVParseException {
 		SVDBTypeInfo type;
-		SVDBLocation start = fLexer.getStartLocation();
+		SVDBLocation start = fLexer.getStartLocation(), item_start;
 		ISVDBChildItem ret = null;
 
 		// TODO: need to modify this to be different for class and module/interface
 		// scopes
 		type = parsers().dataTypeParser().data_type(modifiers);
 		
+		item_start = fLexer.getStartLocation();
 		String inst_name_or_var = fLexer.readIdOrKeyword();
 
 		debug("inst name or var: " + inst_name_or_var);
@@ -338,6 +339,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			debug("Module instance type: " + type.getClass().getName());
 			type = new SVDBTypeInfoModuleIfc(type.getName());
 			SVDBModIfcInst inst = new SVDBModIfcInst(type);
+			inst.setLocation(start);
 
 			while (fLexer.peek() != null) {
 				// it's a module
@@ -358,13 +360,13 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fLexer.readOperator(";");
 			ret = inst;
 		} else {
-			String bounds = null;
-
 			SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, 0);
 			item.setAttr(modifiers);
+			item.setLocation(start);
 
 			while (fLexer.peek() != null) {
 				SVDBVarDeclItem vi = new SVDBVarDeclItem(inst_name_or_var);
+				vi.setLocation(item_start);
 
 				// non-module instance
 				if (fLexer.peekOperator("[")) {

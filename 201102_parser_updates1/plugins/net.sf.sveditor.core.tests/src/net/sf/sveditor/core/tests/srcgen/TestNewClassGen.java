@@ -21,6 +21,8 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -47,7 +49,7 @@ public class TestNewClassGen extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -72,6 +74,7 @@ public class TestNewClassGen extends TestCase {
 			"`endif /* INCLUDED_test_svh */\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
+		LogHandle log = LogFactory.getLogHandle("testNewClassBasics");
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
@@ -82,7 +85,7 @@ public class TestNewClassGen extends TestCase {
 			File tmpdir = new File(fTmpDir, "no_errors");
 
 			if (tmpdir.exists()) {
-				tmpdir.delete();
+				TestUtils.delete(tmpdir);
 			}
 			tmpdir.mkdirs();
 
@@ -91,7 +94,8 @@ public class TestNewClassGen extends TestCase {
 
 			SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 			index_mgr.addPluginLibrary(
-					rgy.findCreateIndex("GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
+					rgy.findCreateIndex(new NullProgressMonitor(),
+							"GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 							SVDBPluginLibIndexFactory.TYPE, null));
 
 			gen.generate(index_mgr, file, "new_class", null, true, new NullProgressMonitor());
@@ -99,9 +103,9 @@ public class TestNewClassGen extends TestCase {
 			try {
 				InputStream in = file.getContents();
 				String content = SVCoreTestsPlugin.readStream(in);
-				System.out.println("content:\n" + content);
+				log.debug("content:\n" + content);
 				
-				IndentComparator.compare("testNewClassBasics", 
+				IndentComparator.compare(log, "testNewClassBasics", 
 						expected.trim(), content.trim());
 				in.close();
 			} catch (CoreException e) {
@@ -111,6 +115,7 @@ public class TestNewClassGen extends TestCase {
 			}
 		} finally {
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNewClassSuperCtor() {
@@ -143,6 +148,7 @@ public class TestNewClassGen extends TestCase {
 			"`endif /* INCLUDED_test_svh */\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
+		LogHandle log = LogFactory.getLogHandle("testNewClassSuperCtor");
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
@@ -153,7 +159,7 @@ public class TestNewClassGen extends TestCase {
 			File tmpdir = new File(fTmpDir, "no_errors");
 
 			if (tmpdir.exists()) {
-				assertTrue(tmpdir.delete());
+				TestUtils.delete(tmpdir);
 			}
 			assertTrue(tmpdir.mkdirs());
 			
@@ -164,9 +170,9 @@ public class TestNewClassGen extends TestCase {
 			try {
 				InputStream in = file.getContents();
 				String content = SVCoreTestsPlugin.readStream(in);
-				System.out.println("content:\n" + content);
+				log.debug("content:\n" + content);
 				
-				IndentComparator.compare("testNewClassSuperCtor", 
+				IndentComparator.compare(log, "testNewClassSuperCtor", 
 						expected.trim(), content.trim());
 				in.close();
 			} catch (CoreException e) {
@@ -176,6 +182,7 @@ public class TestNewClassGen extends TestCase {
 			}
 		} finally {
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	// TODO: not sure if just filling in the default parameter values is the best option
@@ -209,6 +216,7 @@ public class TestNewClassGen extends TestCase {
 			"`endif /* INCLUDED_test_svh */\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
+		LogHandle log = LogFactory.getLogHandle("testNewClassTemplateSuper");
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
@@ -230,9 +238,9 @@ public class TestNewClassGen extends TestCase {
 			try {
 				InputStream in = file.getContents();
 				String content = SVCoreTestsPlugin.readStream(in);
-				System.out.println("content:\n" + content);
+				log.debug("content:\n" + content);
 				
-				IndentComparator.compare("testNewClassTemplateSuper", 
+				IndentComparator.compare(log, "testNewClassTemplateSuper", 
 						expected.trim(), content.trim());
 				in.close();
 			} catch (CoreException e) {
@@ -242,6 +250,7 @@ public class TestNewClassGen extends TestCase {
 			}
 		} finally {
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 }

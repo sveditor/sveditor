@@ -3,8 +3,6 @@ package net.sf.sveditor.core.tests.index.cache;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -16,9 +14,14 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexCache extends TestCase {
 	
@@ -28,6 +31,7 @@ public class TestIndexCache extends TestCase {
 		final File db_dir = new File(tmp_dir, "db");
 		File test_dir = new File(tmp_dir, "test");
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testFileCacheBasics");
 		
 		assertTrue(db_dir.mkdirs());
 		assertTrue(test_dir.mkdirs());
@@ -35,7 +39,7 @@ public class TestIndexCache extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
+		IProject project_dir = TestUtils.createProject("xbus", xbus);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
@@ -63,7 +67,7 @@ public class TestIndexCache extends TestCase {
 		SVDBFile f1_1 = index.findFile(l_1.get(0));
 		
 		end = System.currentTimeMillis();
-		System.out.println("First Iteration 1: " + (end-start) + "ms");
+		log.debug("First Iteration 1: " + (end-start) + "ms");
 
 		it = index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
@@ -72,7 +76,7 @@ public class TestIndexCache extends TestCase {
 		index.dispose();
 		end = System.currentTimeMillis();
 		
-		System.out.println("First Iteration 2: " + (end-start) + "ms");
+		log.debug("First Iteration 2: " + (end-start) + "ms");
 
 		rgy.init(f);
 		start = System.currentTimeMillis();
@@ -86,8 +90,10 @@ public class TestIndexCache extends TestCase {
 		
 		end = System.currentTimeMillis();
 
-		System.out.println("Second Iteration: " + (end-start) + "ms");
+		log.debug("Second Iteration: " + (end-start) + "ms");
 
+		TestUtils.deleteProject(project_dir);
+		LogFactory.removeLogHandle(log);
 	}
 
 }

@@ -23,11 +23,13 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -45,6 +47,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -94,6 +97,57 @@ public class SVExpressionUtils {
 			boolean				match_prefix,
 			int					max_matches) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		SVExprUtilsParser parser = new SVExprUtilsParser(expr_ctxt);
+		fLog.debug("--> findItems(active_scope=\"" + 
+				((active_scope != null)?((ISVDBNamedItem)active_scope).getName():null) + "\" " +
+				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
+				"\" leaf=\"" + expr_ctxt.fLeaf + "\" match_prefix=" + match_prefix + ")");
+
+		if (expr_ctxt.fTrigger != null && !expr_ctxt.fTrigger.equals("=")) {
+			if (expr_ctxt.fTrigger.equals("`")) {
+				findMacroItems(expr_ctxt, index_it, max_matches, match_prefix, ret);
+			} else {
+				SVDBExpr expr = null;
+				try {
+					expr = parser.parsers().exprParser().expression();
+				} catch (SVParseException e) {
+					e.printStackTrace();
+				}
+				
+				if (expr != null) {
+					// Traverse the expression to find the 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							active_scope, fNameMatcher, index_it);
+					ISVDBItemBase item = v.findItem(expr);
+					if (item != null) {
+						System.out.println("Item: " + item.getType() + " " + SVDBItem.getName(item));
+					}
+				}
+				/*
+				findTriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger, 
+						expr_ctxt.fLeaf, active_scope, index_it, max_matches, 
+						match_prefix, ret);
+				 */
+			}
+		} else {
+			// Trigger is null or '='
+			if (expr_ctxt.fType == ContextType.Import) {
+				SVDBFindByName finder = new SVDBFindByName(index_it, fNameMatcher);
+				ret.addAll(finder.find(expr_ctxt.fLeaf, SVDBItemType.PackageDecl));
+			} else {
+				findUntriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger,
+						expr_ctxt.fLeaf, active_scope, index_it, 
+						max_matches, match_prefix, ret);
+			}
+		}
+
+		fLog.debug("<-- findItems(root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + 
+				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
+				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
+		
+
+		return ret;
+		/*
 		fLog.debug("--> findItems(active_scope=\"" + 
 				((active_scope != null)?((ISVDBNamedItem)active_scope).getName():null) + "\" " +
 				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
@@ -123,6 +177,7 @@ public class SVExpressionUtils {
 				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
 				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
 		return ret;
+		 */
 	}
 	
 	private void findMacroItems(
@@ -360,7 +415,7 @@ public class SVExpressionUtils {
 	 * @param search_forward
 	 * @return
 	 */
-	public String extractPreTriggerPortion(IBIDITextScanner doc) {
+	private String extractPreTriggerPortion(IBIDITextScanner doc) {
 		StringBuffer tmp = new StringBuffer();
 		int last_nws_ch = -1;
 		String end_match[] = { 

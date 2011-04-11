@@ -21,10 +21,12 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -57,8 +59,8 @@ public class SVDBFindByNameInClassHierarchy {
 		}
 		
 		if (scope != null && 
-				((ISVDBNamedItem)scope).getName() != null && 
-				((ISVDBNamedItem)scope).getName().indexOf("::") != -1) {
+				SVDBScopeItem.getName(scope) != null && 
+				SVDBScopeItem.getName(scope).indexOf("::") != -1) {
 			// Looks like an extern function
 			String clsname = ((ISVDBNamedItem)scope).getName().substring(0, 
 					((ISVDBNamedItem)scope).getName().indexOf("::"));
@@ -104,8 +106,16 @@ public class SVDBFindByNameInClassHierarchy {
 				}
 
 				if (matches) {
-					if (fMatcher.match((ISVDBNamedItem)it, id)) {
-						ret.add(it);
+					if (it.getType() == SVDBItemType.VarDeclStmt) {
+						for (SVDBVarDeclItem it_t : ((SVDBVarDeclStmt)it).getVarList()) {
+							if (fMatcher.match((ISVDBNamedItem)it_t, id)) {
+								ret.add(it_t);
+							}
+						}
+					} else {
+						if (fMatcher.match((ISVDBNamedItem)it, id)) {
+							ret.add(it);
+						}
 					}
 				}
 			}

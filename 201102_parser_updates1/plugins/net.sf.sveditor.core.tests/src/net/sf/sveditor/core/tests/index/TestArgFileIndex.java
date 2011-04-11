@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -53,6 +55,7 @@ public class TestArgFileIndex extends TestCase {
 
 	public void testIncludePathPriority() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testIncludePathPriority");
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
@@ -62,7 +65,7 @@ public class TestArgFileIndex extends TestCase {
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -80,7 +83,7 @@ public class TestArgFileIndex extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("Item: " + tmp_it.getType() + " " + name);
+			log.debug("Item: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1_dir1")) {
 				class1_dir1 = tmp_it;
@@ -91,11 +94,13 @@ public class TestArgFileIndex extends TestCase {
 		
 		assertNull("Incorrectly found class1_dir2", class1_dir2);
 		assertNotNull("Failed to find class1_dir1", class1_dir1);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testArgFileIncludePath() throws IOException {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testArgFileIncludePath");
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
@@ -130,7 +135,7 @@ public class TestArgFileIndex extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("Item: " + tmp_it.getType() + " " + name);
+			log.debug("Item: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1_dir1")) {
 				class1 = tmp_it;
@@ -145,12 +150,14 @@ public class TestArgFileIndex extends TestCase {
 		assertNotNull(class2);
 		assertNotNull(arg_file_multi_include);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testEnvVarExpansion() throws IOException {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
+
+		LogHandle log = LogFactory.getLogHandle("testEnvVarExpansion");
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject("testEnvVarExpansion_project");
@@ -159,13 +166,13 @@ public class TestArgFileIndex extends TestCase {
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
-			db.delete();
+			TestUtils.delete(db);
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/testEnvVarExpansion_project/arg_file_env_var/arg_file_env_var.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		SVCorePlugin.setenv("EXT_LIB", fTmpDir.getAbsolutePath() + "/ext_lib");
@@ -196,7 +203,7 @@ public class TestArgFileIndex extends TestCase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
-			System.out.println("Item: " + tmp_it.getType() + " " + name);
+			log.debug("Item: " + tmp_it.getType() + " " + name);
 			
 			if (name.equals("class1")) {
 				class1 = tmp_it;
@@ -214,6 +221,7 @@ public class TestArgFileIndex extends TestCase {
 		assertNotNull(ext_pkg_1);
 		assertNotNull(ext_pkg_2);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
 }

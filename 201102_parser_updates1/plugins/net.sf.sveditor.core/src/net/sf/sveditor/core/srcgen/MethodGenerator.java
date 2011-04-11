@@ -82,9 +82,8 @@ public class MethodGenerator {
 				new_tf.append(", ");
 			}
 		}
-		new_tf.setLength(new_tf.length()-2);
-		
-		if (new_tf.toString().endsWith(", ")) {
+
+		if (tf.getParams().size() > 0) {
 			new_tf.setLength(new_tf.length()-2);
 		}
 		
