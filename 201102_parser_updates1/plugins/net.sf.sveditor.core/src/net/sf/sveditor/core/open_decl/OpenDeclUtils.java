@@ -54,7 +54,9 @@ public class OpenDeclUtils {
 		// If this is an include lookup, then use a different matching strategy
 		if (expr_ctxt.fTrigger != null && expr_ctxt.fRoot != null &&
 				expr_ctxt.fTrigger.equals("`") && expr_ctxt.fRoot.equals("include")) {
-			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
+//			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
+		} else {
+			
 		}
 
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();

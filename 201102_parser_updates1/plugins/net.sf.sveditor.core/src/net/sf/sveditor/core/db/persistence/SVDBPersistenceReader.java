@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -19,6 +20,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,54 +36,52 @@ import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
-	private InputStream								fIn;
-	private byte									fBuf[];
+	private DataInput								fInBuf;
 	private byte									fTmp[];
-	private int										fBufIdx;
-	private int										fBufSize;
-	private int										fPos;
 	private static Map<Class, Map<Integer, Enum>>	fEnumMap;
-	private Map<SVDBItemType, Class>				fClassMap;
+	private static Map<SVDBItemType, Class>			fClassMap;
 	private static final boolean					fDebugEn = false;
 	private int										fLevel = 0;
 	
 	static {
 		fEnumMap = new HashMap<Class, Map<Integer,Enum>>();
 	}
+	
+	public SVDBPersistenceReader() {
+		this(null);
+	}
 
 	public SVDBPersistenceReader(InputStream in) {
-		fIn      	= in;
-		fBuf     	= new byte[1024*1024];
-		fBufIdx  	= 0;
-		fBufSize 	= 0;
-		fPos		= 0;
-		fClassMap 	= new HashMap<SVDBItemType, Class>();
-		
-		// Locate the class for each SVDBItemType element
-		ClassLoader cl = getClass().getClassLoader();
-		for (SVDBItemType v : SVDBItemType.values()) {
-			String key = "SVDB" + v.name();
-			Class cls = null;
-			for (String pref : new String [] {"net.sf.sveditor.core.db.", 
-											  "net.sf.sveditor.core.db.stmt.",
-											  "net.sf.sveditor.core.db.expr."}) {
-				try {
-					cls = cl.loadClass(pref + key);
-				} catch (Exception e) { }
-			}
-			
-			if (cls == null) {
-				System.out.println("Failed to locate class " + key);
-			} else {
-				fClassMap.put(v, cls);
+//		fIn      	= in;
+		synchronized (getClass()) {
+			if (fClassMap == null) {
+				fClassMap 	= new HashMap<SVDBItemType, Class>();
+
+				// Locate the class for each SVDBItemType element
+				ClassLoader cl = getClass().getClassLoader();
+				for (SVDBItemType v : SVDBItemType.values()) {
+					String key = "SVDB" + v.name();
+					Class cls = null;
+					for (String pref : new String [] {"net.sf.sveditor.core.db.", 
+							"net.sf.sveditor.core.db.stmt.",
+					"net.sf.sveditor.core.db.expr."}) {
+						try {
+							cls = cl.loadClass(pref + key);
+						} catch (Exception e) { }
+					}
+
+					if (cls == null) {
+						System.out.println("Failed to locate class " + key);
+					} else {
+						fClassMap.put(v, cls);
+					}
+				}
 			}
 		}
 	}
 	
-	public void init(InputStream in) {
-		fIn = in;
-		fBufIdx  = 0;
-		fBufSize = 0;
+	public void init(DataInput in) {
+		fInBuf = in;
 	}
 	
 	public void readObject(ISVDBChildItem parent, Class cls, Object target) throws DBFormatException {
@@ -139,7 +140,11 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 							} else if (c == Integer.class) {
 								f.set(target, readIntList());
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
-								f.set(target, readItemList(parent));
+								if (target instanceof ISVDBChildItem) {
+									f.set(target, readItemList((ISVDBChildItem)target));
+								} else {
+									f.set(target, readItemList(null));
+								}
 							} else {
 								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
 							}
@@ -266,7 +271,11 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	
 	private int readRawType() throws DBFormatException {
 		int ret = -1;
-		ret = getch();
+		try {
+			ret = fInBuf.readByte();
+		} catch (IOException e) {
+			throw new DBFormatException("readRawType failed: " + e.getMessage());
+		}
 		
 		if (ret < TYPE_INT_8 || ret >= TYPE_MAX) {
 			throw new DBFormatException("Invalid type " + ret);
@@ -281,36 +290,20 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 			throw new DBFormatException("Invalid int type " + type);
 		}
 		
-		if (fTmp == null || fTmp.length < 4) {
-			fTmp = new byte[4];
-		}
-		readRawBytes(fTmp, 0, (type-TYPE_INT_8+1));
-		
-		switch (type) {
-			case TYPE_INT_8:
-				ret = ((int)fTmp[0] & 0xFF);
-				break;
-			case TYPE_INT_16:
-				ret = ((int)fTmp[1] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[0] & 0xFF);
-				break;
-			case TYPE_INT_24:
-				ret = ((int)fTmp[2] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[1] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[0] & 0xFF);
-				break;
-			case TYPE_INT_32:
-				ret = ((int)fTmp[3] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[2] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[1] & 0xFF);
-				ret <<= 8;
-				ret |= ((int)fTmp[0] & 0xFF);
-				break;
+		try {
+			switch (type) {
+				case TYPE_INT_8:
+					ret = fInBuf.readByte();
+					break;
+				case TYPE_INT_16:
+					ret = fInBuf.readShort();
+					break;
+				case TYPE_INT_32:
+					ret = fInBuf.readInt();
+					break;
+			}
+		} catch (IOException e) {
+			throw new DBFormatException("readInt failed: " + e.getMessage());
 		}
 		
 		return ret;
@@ -408,93 +401,24 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		if (type < TYPE_INT_8 || type > TYPE_INT_64) {
 			throw new DBFormatException("Invalid int type " + type);
 		}
-		
-		if (fTmp == null || fTmp.length < 4) {
-			fTmp = new byte[4];
-		}
-		readRawBytes(fTmp, 0, (type-TYPE_INT_8+1));
-		
-		switch (type) {
-		case TYPE_INT_8:
-			ret = ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_16:
-			ret = ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_24:
-			ret = ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_32:
-			ret = ((int)fTmp[3] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_40:
-			ret = ((int)fTmp[4] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[3] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_48:
-			ret = ((int)fTmp[5] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[4] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[3] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_56:
-			ret = ((int)fTmp[6] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[5] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[4] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[3] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
-		case TYPE_INT_64:
-			ret = ((int)fTmp[7] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[6] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[5] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[4] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[3] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[2] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[1] & 0xFF);
-			ret <<= 8;
-			ret |= ((int)fTmp[0] & 0xFF);
-			break;
+
+		try {
+			switch (type) {
+				case TYPE_INT_8:
+					ret = fInBuf.readByte();
+					break;
+				case TYPE_INT_16:
+					ret = fInBuf.readShort();
+					break;
+				case TYPE_INT_32:
+					ret = fInBuf.readInt();
+					break;
+				case TYPE_INT_64:
+					ret = fInBuf.readLong();
+					break;
+			}
+		} catch (IOException e) {
+			throw new DBFormatException("readLong failed: " + e.getMessage());
 		}
 		
 		return ret;
@@ -519,7 +443,11 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		if (fTmp == null || fTmp.length < len) {
 			fTmp = new byte[len];
 		}
-		readRawBytes(fTmp, 0, len);
+		try {
+			fInBuf.readFully(fTmp, 0, len);
+		} catch (IOException e) {
+			throw new DBFormatException("readString failed: " + e.getMessage());
+		}
 
 		String ret = new String(fTmp, 0, len);
 		
@@ -541,8 +469,12 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		}
 		int size = readInt();
 		byte ret[] = new byte[size];
-		
-		readRawBytes(ret, 0, size);
+
+		try {
+			fInBuf.readFully(ret);
+		} catch (IOException e) {
+			throw new DBFormatException("readByteArray failed: " + e.getMessage());
+		}
 		
 		return ret;
 	}
@@ -625,7 +557,13 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	}
 
 	public void readType(int exp) throws DBFormatException {
-		int type = getch();
+		int type = -1;
+		
+		try {
+			type = fInBuf.readByte(); 
+		} catch (IOException e) {
+			throw new DBFormatException("readType failed: " + e.getMessage());
+		}
 		
 		if (type == -1) {
 			throw new DBFormatException("Unexpected EOF");
@@ -638,56 +576,11 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		}
 	}
 
-	public int getch() throws DBFormatException {
-		int ch = -1;
-
-		if (fBufIdx >= fBufSize) {
-			try {
-				fBufSize = fIn.read(fBuf, 0, fBuf.length);
-				fBufIdx  = 0;
-			} catch (IOException e) { }
-		}
-		
-		if (fBufIdx < fBufSize) {
-			ch = fBuf[fBufIdx++];
-			fPos++;
-		} else {
-			throw new DBFormatException("Unexpected EOF");
-		}
-		
-		return ch;
-	}
-	
 	public void readRawBytes(byte data[], int offset, int length) throws DBFormatException {
-		int idx=0;
-		while (idx < length) {
-			int remaining = (length-idx);
-			
-			if ((fBufSize-fBufIdx) > 0) {
-				int this_len;
-				if (remaining > (fBufSize-fBufIdx)) {
-					this_len = (fBufSize-fBufIdx);
-				} else {
-					this_len = remaining;
-				}
-				System.arraycopy(fBuf, fBufIdx, data, idx, this_len);
-				fBufIdx += this_len;
-				idx += this_len;
-				fPos += this_len;
-			}
-			
-			if (fBufIdx >= fBufSize) {
-				// Refill 
-				try {
-					fBufSize = fIn.read(fBuf, 0, fBuf.length);
-					fBufIdx  = 0;
-				} catch (IOException e) { }
-			}
-			
-			if (fBufSize == 0 && (idx < length)) {
-				// EOF
-				throw new DBFormatException("Unexpected EOF");
-			}
+		try {
+			fInBuf.readFully(data, offset, length);
+		} catch (IOException e) {
+			throw new DBFormatException("readRawBytes failed: " + e.getMessage());
 		}
 	}
 	

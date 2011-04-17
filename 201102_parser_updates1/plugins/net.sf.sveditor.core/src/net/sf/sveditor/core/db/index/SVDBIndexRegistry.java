@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -108,6 +109,18 @@ public class SVDBIndexRegistry  {
 		} else {
 			return new ArrayList<ISVDBIndex>();
 		}
+	}
+	
+	public List<ISVDBIndex> getIndexList() {
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		for (Entry<String, List<ISVDBIndex>> e : fProjectIndexMap.entrySet()) {
+			for (ISVDBIndex index : e.getValue()) {
+				if (!ret.contains(index)) {
+					ret.add(index);
+				}
+			}
+		}
+		return ret;
 	}
 	
 	public SVDBIndexCollectionMgr getGlobalIndexMgr() {
@@ -301,6 +314,7 @@ public class SVDBIndexRegistry  {
 		}
 		
 		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
+			System.out.println("Rebuild index \"" + index.getBaseLocation() + "\"");
 			index.rebuildIndex();
 		}
 		
@@ -326,6 +340,21 @@ public class SVDBIndexRegistry  {
 				index.dispose();
 			}
 		}
+
+		if (fCacheFactory != null) {
+			List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
+			for (List<ISVDBIndex> index_l : fProjectIndexMap.values()) {
+				for (ISVDBIndex index : index_l) {
+					if (!cache_l.contains(index) && index.getCache() != null) {
+						cache_l.add(index.getCache());
+					}
+				}
+			}
+			
+			// Compact the cache-storage area
+			fCacheFactory.compactCache(cache_l);
+		}
+		
 		/*
 		for (String proj_name : fProjectIndexMap.keySet()) {
 			save_state(proj_name, fProjectIndexMap.get(proj_name));

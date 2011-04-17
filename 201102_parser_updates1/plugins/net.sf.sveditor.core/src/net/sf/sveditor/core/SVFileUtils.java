@@ -117,4 +117,17 @@ public class SVFileUtils {
     	}
     	return "UNSUPPORTED";
     }
+    
+    public static void delete(File file) {
+    	if (!file.exists()) {
+    		return;
+    	}
+    	
+    	if (file.isDirectory()) {
+    		for (File f : file.listFiles()) {
+    			delete(f);
+    		}
+    	}
+    	file.delete();
+    }
 }

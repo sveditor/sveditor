@@ -33,6 +33,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestPersistenceUnit extends TestCase {
 	
+	/*
 	// Ensures that each SVDBItemType has a corresponding class
 	@SuppressWarnings("rawtypes")
 	public void testItemsExist() {
@@ -233,5 +234,6 @@ public class TestPersistenceUnit extends TestCase {
 			fail("Caught exception: " + e.getMessage());
 		}
 	}
+	 */
 	
 }

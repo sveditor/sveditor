@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.File;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -39,6 +40,8 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 		}
 	}
 	
+	public void compactCache(List<ISVDBIndexCache> cache_list) { }
+
 	public static TestIndexCacheFactory instance(File dir) {
 		return new TestIndexCacheFactory(dir);
 	}

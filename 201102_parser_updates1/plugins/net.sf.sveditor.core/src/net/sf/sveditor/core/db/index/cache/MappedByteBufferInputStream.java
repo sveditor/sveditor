@@ -1,29 +1,37 @@
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.MappedByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 
 public class MappedByteBufferInputStream extends InputStream {
-	private List<MappedByteBuffer>		fBlockList;
-	private int							fBlockIdx;
+	private RandomAccessFile			fIn;
+	private ByteBuffer					fByteBuffer;
+	private int							fBufferIdx;
+	private int							fBufferMax;
 	private byte						fTmp[] = new byte[1];
 	
-	public MappedByteBufferInputStream() {
-		fBlockList = new ArrayList<MappedByteBuffer>();
+	public MappedByteBufferInputStream(File path) throws IOException {
+		fIn = new RandomAccessFile(path, "r");
+
+		FileChannel channel = fIn.getChannel();
+		fByteBuffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
+		fBufferMax = (int)channel.size();
+		fBufferIdx = 0;
 	}
 
 	@Override
 	public int available() throws IOException {
-		// TODO Auto-generated method stub
-		return super.available();
+		return (fByteBuffer.limit()-fBufferIdx);
 	}
 
 	@Override
 	public void close() throws IOException {
-		fBlockList.clear();
+		fIn.close();
 	}
 
 	@Override
@@ -44,7 +52,14 @@ public class MappedByteBufferInputStream extends InputStream {
 
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		return -1;
+		int ret = -1;
+
+		if (fByteBuffer.remaining() > 0) {
+			ret = (fByteBuffer.remaining() >= len)?len:fByteBuffer.remaining();
+			fByteBuffer.get(b, off, ret);
+			System.out.println("Read " + ret + " bytes");
+		}
+		return ret;
 	}
 
 	@Override

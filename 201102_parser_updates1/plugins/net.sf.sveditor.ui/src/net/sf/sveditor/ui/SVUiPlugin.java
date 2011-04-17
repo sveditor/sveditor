@@ -13,16 +13,24 @@
 package net.sf.sveditor.ui;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
@@ -93,6 +101,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
 		SVCorePlugin.getDefault().enableDebug(debug_en);
 		
+		fRefreshIndexJob.setPriority(Job.LONG);
+		fRefreshIndexJob.schedule(5000);
 	}
 
 	/*
@@ -290,7 +300,23 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
-	
-	
+	private Job						fRefreshIndexJob = new Job("RefreshIndexJob") {
+		
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			List<ISVDBIndex> index_list = rgy.getIndexList();
+			monitor.beginTask("Refreshing Indexes", index_list.size());
+			
+			for (ISVDBIndex index : index_list) {
+				SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
+				index.loadIndex(sub);
+			}
+			
+			monitor.done();
+			
+			return Status.OK_STATUS;
+		}
+	};
 
 }

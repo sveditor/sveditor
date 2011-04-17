@@ -248,6 +248,27 @@ public class SVCorePlugin extends Plugin
 
 		return ret;
 	}
+	
+	public void compactCache(List<ISVDBIndexCache> cache_list) {
+		File file = getStateLocation().toFile();
+		File cache = new File(file, "cache");
+		if (cache.isDirectory()) {
+			List<File> file_list = new ArrayList<File>();
+			for (File f : cache.listFiles()) {
+				if (!f.getName().equals(".") && !f.getName().equals("..")) {
+					file_list.add(f);
+				}
+			}
+			for (ISVDBIndexCache index_c : cache_list) {
+				index_c.removeStoragePath(file_list);
+			}
+			
+			for (File f : file_list) {
+				System.out.println("Compacting cache: " + f.getAbsolutePath());
+				SVFileUtils.delete(f);
+			}
+		}
+	}
 
 	public String getDefaultSourceCollectionIncludes() {
 		return "**/*.sv, **/*.svh, **/*.v, **/*.vl, **/*.vlog";

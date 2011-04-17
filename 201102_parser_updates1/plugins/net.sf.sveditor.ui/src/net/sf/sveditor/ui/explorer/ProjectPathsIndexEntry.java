@@ -17,8 +17,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 public class ProjectPathsIndexEntry implements IProjectPathsData {
 	private String					fType;
 	private ISVDBIndex				fIndex;

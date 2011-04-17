@@ -122,18 +122,6 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		}
 	}
 
-	/*
-	@Override
-	public void rebuildIndex() {
-		super.rebuildIndex();
-		fModIfcClsFiles.clear();
-		fUnincludedFiles.clear();
-		if (fFilePaths != null) {
-			fFilePaths.clear();
-		}
-	}
-	 */
-
 	/**
 	 * initPaths()
 	 * 

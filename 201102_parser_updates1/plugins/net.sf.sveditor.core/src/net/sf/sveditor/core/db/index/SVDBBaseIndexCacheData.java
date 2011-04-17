@@ -6,16 +6,22 @@ import java.util.List;
 import java.util.Map;
 
 public class SVDBBaseIndexCacheData {
+	private String							fBaseLocation;
 	private List<String>					fIncludePathList;
 	private List<String>					fMissingIncludeFiles;
 	private Map<String, String>				fGlobalDefines;
 	private Map<String, String>				fDefineMap;
 
-	public SVDBBaseIndexCacheData() {
+	public SVDBBaseIndexCacheData(String base) {
+		fBaseLocation = base;
 		fIncludePathList = new ArrayList<String>();
 		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
+	}
+	
+	public String getBaseLocation() {
+		return fBaseLocation;
 	}
 	
 	public void addMissingIncludeFile(String path) {

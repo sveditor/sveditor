@@ -17,6 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -93,4 +94,8 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	void removeChangeListener(ISVDBIndexChangeListener l);
 	
 	// TODO: add support for change listeners ???
+	
+	ISVDBIndexCache getCache();
+	
+	void loadIndex(IProgressMonitor monitor);
 }

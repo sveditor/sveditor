@@ -22,13 +22,13 @@ import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -354,12 +354,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
-		SVDBModIfcDecl cl = (SVDBModIfcDecl)it;
+		SVDBClassDecl cl = (SVDBClassDecl)it;
 		
 		r.append(SVDBItem.getName(it));
 		d.append(SVDBItem.getName(it));
 		
-		if (cl.getParameters().size() > 0) {
+		if (cl.getParameters() != null && cl.getParameters().size() > 0) {
 			r.append(" #(");
 			for (int i=0; i<cl.getParameters().size(); i++) {
 				SVDBModIfcClassParam pm = cl.getParameters().get(i);

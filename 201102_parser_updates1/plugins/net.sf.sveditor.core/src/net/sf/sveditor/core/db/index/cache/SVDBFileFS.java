@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,11 +25,31 @@ public class SVDBFileFS implements ISVDBFS {
 		RandomAccessFile f;
 //		f.getChannel().map(arg0, arg1, arg2)
 	}
+	
+	public String getRoot() {
+		return "";
+	}
 
+	public void removeStoragePath(List<File> db_file_list) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public InputStream openFileRead(String path) throws IOException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public RandomAccessFile openChannelRead(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public RandomAccessFile openChannelWrite(String path) {
+		return null;
+	}
+	
+	public void closeChannel(RandomAccessFile ch) {
 	}
 
 	public void close(InputStream in) {

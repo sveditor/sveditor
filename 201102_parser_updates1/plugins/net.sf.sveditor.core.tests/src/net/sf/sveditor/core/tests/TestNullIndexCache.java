@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.tests;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,8 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		fFileTreeMap = new HashMap<String, SVDBFileTree>();
 		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
+	
+	public void removeStoragePath(List<File> db_path_list) {}
 
 	public void setIndexData(Object data) {
 		fData = data;
@@ -40,6 +43,9 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 
 	public void init(IProgressMonitor monitor, Object index_data) {
 		fData = index_data;
+	}
+	
+	public void initLoad(IProgressMonitor monitor) {
 	}
 
 	public void clear() {

@@ -170,7 +170,7 @@ public class SVDBFindByNameInClassHierarchy {
 				}
 			}
 			
-			if (matches) {
+			if (matches && it instanceof ISVDBNamedItem) {
 				if (fMatcher.match((ISVDBNamedItem)it, id)) {
 					items.add(it);
 				}

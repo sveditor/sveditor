@@ -189,13 +189,6 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				}
 				 */
 
-				System.out.println("post-macro character for " + key + " : " + (char)ch);
-				System.out.println("    Full String: " + scanner.get_str(0, scanner.getLimit()));
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 				if (ch == '(') {
 					ch = scanner.skipPastMatch("()");
 					scanner.unget_ch(ch);

@@ -41,6 +41,7 @@ import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 public class TestInitDuplicate extends TestCase {
 
+	/*
 	public void disabled_testSVDBDumpLoad() throws DBFormatException, DBWriteException {
 		SVDB.init();
 		
@@ -118,5 +119,6 @@ public class TestInitDuplicate extends TestCase {
 		}
 		assertTrue(eq);
 	}
+	 */
 
 }

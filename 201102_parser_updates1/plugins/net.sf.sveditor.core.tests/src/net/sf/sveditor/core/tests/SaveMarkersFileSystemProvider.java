@@ -34,12 +34,9 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	public List<String> getMarkers() {
 		List<String> ret = new ArrayList<String>();
 		
-		System.out.println("==> getMarkers()");
 		for (Entry<String, List<String>> e : fMarkersMap.entrySet()) {
-			System.out.println("Entry : " + e.getKey() + " " + e.getValue().size());
 			ret.addAll(e.getValue());
 		}
-		System.out.println("<== getMarkers()");
 		
 		return ret;
 	}
@@ -49,14 +46,12 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	}
 
 	public synchronized void addMarker(String path, String type, int lineno, String msg) {
-		System.out.println("SaveMarkersFileSystemProvider.addMarker: " + msg + "(" + path + ")");
 		if (!fMarkersMap.containsKey(path)) {
 			fMarkersMap.put(path, new ArrayList<String>());
 		}
 		fMarkersMap.get(path).add(msg);
 
 		fFSProvider.addMarker(path, type, lineno, msg);
-		System.out.println("==> Now " + fMarkersMap.size() + " markers");
 	}
 	
 

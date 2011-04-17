@@ -4,7 +4,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
 	private long					fArgFileTimestamp;
 	
-	public SVDBArgFileIndexCacheData() {
+	public SVDBArgFileIndexCacheData(String base_location) {
+		super(base_location);
 		fArgFileTimestamp = -1;
 	}
 	

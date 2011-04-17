@@ -26,9 +26,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -55,6 +53,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public void setGlobalDefine(String key, String val) {}
 					public void removeChangeListener(ISVDBIndexChangeListener l) {}
 					public void rebuildIndex() {}
+					public ISVDBIndexCache getCache() { return null; }
 					public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 						return null;
 					}
@@ -80,6 +79,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public void dispose() {}
 					public void clearGlobalDefines() {}
 					public void addChangeListener(ISVDBIndexChangeListener l) {}
+					public void loadIndex(IProgressMonitor monitor) {}
 				});
 	}
 

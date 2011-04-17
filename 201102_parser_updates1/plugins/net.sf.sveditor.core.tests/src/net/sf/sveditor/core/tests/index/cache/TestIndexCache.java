@@ -50,6 +50,8 @@ public class TestIndexCache extends TestCase {
 				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
 				return cache;
 			}
+
+			public void compactCache(List<ISVDBIndexCache> cache_list) {}
 		};
 		rgy.init(f);
 		

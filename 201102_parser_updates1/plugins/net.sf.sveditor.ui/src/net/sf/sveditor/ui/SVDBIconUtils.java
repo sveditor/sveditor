@@ -63,6 +63,10 @@ public class SVDBIconUtils implements ISVIcons {
 		if (it.getType() == SVDBItemType.VarDeclItem) {
 			SVDBVarDeclItem decl = (SVDBVarDeclItem)it;
 			SVDBVarDeclStmt decl_p = decl.getParent();
+			
+			if (decl_p == null) {
+				System.out.println("Parent of " + decl.getName() + " @ " + decl.getLocation().getLine() + " is NULL");
+			}
 			int attr = decl_p.getAttr();
 			if (decl_p.getParent() != null && 
 					(decl_p.getParent().getType() == SVDBItemType.Task ||

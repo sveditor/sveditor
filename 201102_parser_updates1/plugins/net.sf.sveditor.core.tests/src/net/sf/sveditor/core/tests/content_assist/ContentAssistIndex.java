@@ -59,7 +59,6 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	public void addChangeListener(ISVDBIndexChangeListener l) {}
 	public String getBaseLocation() { return ""; }
 	public String getTypeID() { return "ContentAssistIndex"; }
-	public void rebuildIndex() {}
 	public void removeChangeListener(ISVDBIndexChangeListener l) {}
 	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) { return null; }
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) { return null; }

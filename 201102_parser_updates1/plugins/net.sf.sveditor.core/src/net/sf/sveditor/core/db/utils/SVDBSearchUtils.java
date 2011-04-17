@@ -19,6 +19,8 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -102,7 +104,7 @@ public class SVDBSearchUtils {
 				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
 				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
-					debug("    sub-scope " + ((ISVDBNamedItem)it).getName() + " @ " + 
+					debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
 							it.getLocation().getLine() + "-" + 
 							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 

@@ -40,33 +40,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
 	
-/*
-	@Override
-	protected void buildPreProcFileMap() {
-		initPaths();
-		
-		// Say the index is already valid
-		fPreProcFileMapValid = true;
-		
-		for (String file : fFilePaths) {
-			String r_file = resolvePath(file);
-			fLog.debug("Resolved path for \"" + file + "\" is \"" + r_file + "\"");
-			SVDBFile pp_file = processPreProcFile(r_file, true);
-			
-			if (pp_file == null) {
-				fLog.error("Failed to find file \"" + r_file + "\"");
-				return;
-			}
-			
-			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-			buildPreProcFileMap(null, ft_root);
-		}
-	}
- */
-	
 	@Override
 	protected SVDBBaseIndexCacheData createIndexCacheData() {
-		return new SVDBArgFileIndexCacheData();
+		return new SVDBArgFileIndexCacheData(getBaseLocation());
 	}
 	
 	@Override

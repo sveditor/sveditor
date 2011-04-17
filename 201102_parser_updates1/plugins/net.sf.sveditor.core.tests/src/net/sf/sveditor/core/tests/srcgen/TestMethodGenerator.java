@@ -26,7 +26,7 @@ import net.sf.sveditor.core.tests.indent.IndentComparator;
 public class TestMethodGenerator extends TestCase {
 	
 	public void testVoidFunction() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testVoidFunction");
 		String content =
 			"function void foobar();\n" +
@@ -182,7 +182,7 @@ public class TestMethodGenerator extends TestCase {
 	}
 
 	public void testRefVarListParamFunction() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testRefVarListParamFunction");
 		String content =
 			"function void foobar(ref int a, b, c);\n" +

@@ -26,6 +26,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -349,9 +350,9 @@ public class SVEditor extends TextEditor
 		if (fIndexMgr != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
+					fPendingUpdateSVDBFile = false;
 					fUpdateSVDBFileJob = new UpdateSVDBFileJob();
 					fUpdateSVDBFileJob.schedule();
-					fPendingUpdateSVDBFile = false;
 				}
 			} else {
 				fPendingUpdateSVDBFile = true;
@@ -456,15 +457,23 @@ public class SVEditor extends TextEditor
 		setAction(SVUiPlugin.PLUGIN_ID + ".override.tf", ov_tf_action);
 	}
 	
+	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
+		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
+		public boolean hasNext(SVDBItemType... type_list) { return false; }
+	};
+	
 	private ISVDBIndexIterator SVEditorIndexIterator = new ISVDBIndexIterator() {
-		
 		public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-			SVDBIndexCollectionItemIterator it = 
-				(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator(monitor);
-			
-			it.setOverride(fSVDBIndex, fSVDBFile);
-			
-			return it;
+			if (fIndexMgr != null) {
+				SVDBIndexCollectionItemIterator it = 
+					(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator(monitor);
+
+				it.setOverride(fSVDBIndex, fSVDBFile);
+
+				return it;
+			} else {
+				return SVEmptyItemIterator;
+			}
 		}
 	};
 	

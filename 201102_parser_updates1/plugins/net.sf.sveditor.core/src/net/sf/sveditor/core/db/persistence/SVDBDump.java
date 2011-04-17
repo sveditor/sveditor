@@ -22,7 +22,7 @@ public class SVDBDump {
 	
 	public SVDBDump(String version) {
 		fLog = LogFactory.getLogHandle("SVDBDump");
-		fWriter = new SVDBPersistenceWriter(null);
+		fWriter = new SVDBPersistenceWriter();
 		fVersion = version;
 	}
 	

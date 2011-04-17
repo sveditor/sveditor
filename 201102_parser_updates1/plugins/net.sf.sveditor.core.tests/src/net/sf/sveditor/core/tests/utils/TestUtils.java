@@ -58,6 +58,21 @@ public class TestUtils {
 		return ret;
 	}
 	
+	public static String readInput(InputStream in) {
+		StringBuilder sb = new StringBuilder();
+		byte tmp[] = new byte[1024];
+		int len;
+		
+		try {
+			while ((len = in.read(tmp, 0, tmp.length)) > 0) {
+				sb.append(new String(tmp, 0, len));
+			}
+		} catch (IOException e) {
+			
+		}
+		return sb.toString();
+	}
+	
 	public static void delete(File item) {
 		if (item.isDirectory()) {
 			for (File i : item.listFiles()) {

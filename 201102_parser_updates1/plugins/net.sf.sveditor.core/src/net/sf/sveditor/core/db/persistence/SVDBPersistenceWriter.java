@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataOutput;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
@@ -33,128 +34,66 @@ import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
-	private OutputStream						fOutputStream;
-	private byte								fBuf[];
-	private int									fBufIdx;
+	private DataOutput							fBuf;
 	private Map<Class, Map<Object, Integer>>	fEnumMap;
 	private static final boolean				fDebugEn = false;
 	private int									fLevel;
 	
-	public SVDBPersistenceWriter(OutputStream out) {
-		fOutputStream = out;
-		fBuf = new byte[1024*1024];
+	public SVDBPersistenceWriter() {
+		this(null);
+	}
+	
+	private SVDBPersistenceWriter(OutputStream out) {
 		fEnumMap = new HashMap<Class, Map<Object,Integer>>();
 	}
 	
-	public void init(OutputStream out) {
-		fOutputStream = out;
-		fBufIdx = 0;
+	public void init(DataOutput out) {
+		fBuf = out;
 	}
 	
 	public void close() {
-		try {
-			if (fBufIdx > 0) {
-				fOutputStream.write(fBuf, 0, fBufIdx);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void writeInt(int val) throws DBWriteException {
-		int type = -1;
-		byte tmp[] = new byte[5];
-		if (val < 0) {
-			if (val >= -0x000000FF) {
-				type = TYPE_INT_8;
-				tmp[0] = TYPE_INT_8;
-				tmp[1] = (byte)val;
-			} else if (val >= -0x0000FFFF) {
-				type = TYPE_INT_16;
-				tmp[0] = TYPE_INT_16;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-			} else if (val >= -0x00FFFFFF) {
-				type = TYPE_INT_24;
-				tmp[0] = TYPE_INT_24;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-			} else { 
-				type = TYPE_INT_32;
-				tmp[0] = TYPE_INT_32;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-			}
-		} else {
-			if (val <= 0x0000007F) {
-				type = TYPE_INT_8;
-				tmp[0] = TYPE_INT_8;
-				tmp[1] = (byte)val;
-			} else if (val <= 0x00007FFF) {
-				type = TYPE_INT_16;
-				tmp[0] = TYPE_INT_16;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-			} else if (val <= 0x007FFFFF) {
-				type = TYPE_INT_24;
-				tmp[0] = TYPE_INT_24;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
+		try {
+			if (val < 0) {
+				if (val >= -0x000000FF) {
+					fBuf.write((byte)TYPE_INT_8);
+					fBuf.write((byte)val);
+				} else if (val >= -0x0000FFFF) {
+					fBuf.write((byte)TYPE_INT_16);
+					fBuf.writeShort((short)val);
+				} else { 
+					fBuf.write((byte)TYPE_INT_32);
+					fBuf.writeInt(val);
+				}
 			} else {
-				type = TYPE_INT_32;
-				tmp[0] = TYPE_INT_32;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
+				if (val <= 0x0000007F) {
+					fBuf.write((byte)TYPE_INT_8);
+					fBuf.write((byte)val);
+				} else if (val <= 0x00007FFF) {
+					fBuf.write((byte)TYPE_INT_16);
+					fBuf.writeShort((short)val);
+				} else {
+					fBuf.write((byte)TYPE_INT_32);
+					fBuf.writeInt(val);
+				}
 			}
+		} catch (IOException e) {
+			throw new DBWriteException("writeInt failed: " + e.getMessage());
 		}
-		writeRawBytes(tmp, 0, (type-TYPE_INT_8)+2);
-		
-//		writeRawString("I<" + Integer.toHexString(val) + ">");
 	}
 	
 	public void writeBool(boolean v) throws DBWriteException {
 		writeRawType((v)?TYPE_BOOL_TRUE:TYPE_BOOL_FALSE);
 	}
 	
-	private void writeRawByte(byte data) throws DBWriteException {
-		if ((fBufIdx+1) >= fBuf.length) {
-			// flush before adding
-			try {
-				fOutputStream.write(fBuf, 0, fBufIdx);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			fBufIdx = 0;
-		}
-		fBuf[fBufIdx++] = data;
-	}
-	
-	private void writeRawBytes(byte data[], int offset, int length) throws DBWriteException {
-		if ((length+fBufIdx) >= fBuf.length) {
-			// flush before adding
-			try {
-				if (fBufIdx > 0) {
-					fOutputStream.write(fBuf, 0, fBufIdx);
-				}
-				fOutputStream.write(data, offset, length);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			fBufIdx = 0;
-		} else {
-			System.arraycopy(data, offset, fBuf, fBufIdx, length);
-			fBufIdx += length;
-		}
-	}
-	
 	private void writeRawType(int type) throws DBWriteException {
-		writeRawByte((byte)type);
+		try {
+			fBuf.write((byte)type);
+		} catch (IOException e) {
+			throw new DBWriteException("writeRawType failed: " + e.getMessage());
+		}
 	}
 
 	public void writeIntList(List<Integer> items) throws DBWriteException {
@@ -345,134 +284,39 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 	}
 	
 	public void writeLong(long val) throws DBWriteException {
-		int type = -1;
-		byte tmp[] = new byte[9];
-		if (val < 0) {
-			if (val >= -0x00000000000000FFL) {
-				type = TYPE_INT_8;
-				tmp[0] = TYPE_INT_8;
-				tmp[1] = (byte)val;
-			} else if (val >= -0x000000000000FFFFL) {
-				type = TYPE_INT_16;
-				tmp[0] = TYPE_INT_16;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-			} else if (val >= -0x0000000000FFFFFFL) {
-				type = TYPE_INT_24;
-				tmp[0] = TYPE_INT_24;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-			} else if (val >= -0x00000000FFFFFFFFL) {
-				type = TYPE_INT_32;
-				tmp[0] = TYPE_INT_32;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-			} else if (val >= -0x000000FFFFFFFFFFL) {
-				type = TYPE_INT_40;
-				tmp[0] = (byte)type;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-			} else if (val >= -0x0000FFFFFFFFFFFFL) {
-				type = TYPE_INT_48;
-				tmp[0] = (byte)type;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-			} else if (val >= -0x00FFFFFFFFFFFFFFL) {
-				type = TYPE_INT_56;
-				tmp[0] = (byte)type;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-				tmp[7] = (byte)(val >> 48);
+		try {
+			if (val < 0) {
+				if (val >= -0x00000000000000FFL) {
+					fBuf.write(TYPE_INT_8);
+					fBuf.writeByte((byte)val);
+				} else if (val >= -0x000000000000FFFFL) {
+					fBuf.write(TYPE_INT_16);
+					fBuf.writeShort((short)val);
+				} else if (val >= -0x00000000FFFFFFFFL) {
+					fBuf.write(TYPE_INT_32);
+					fBuf.writeInt((int)val);
+				} else {
+					fBuf.write(TYPE_INT_64);
+					fBuf.writeLong(val);
+				}
 			} else {
-				type = TYPE_INT_64;
-				tmp[0] = (byte)type;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-				tmp[7] = (byte)(val >> 48);
-				tmp[8] = (byte)(val >> 56);
+				if (val <= 0x000000000000007FL) {
+					fBuf.write(TYPE_INT_8);
+					fBuf.writeByte((byte)val);
+				} else if (val <= 0x0000000000007FFFL) {
+					fBuf.write(TYPE_INT_16);
+					fBuf.writeShort((short)val);
+				} else if (val <= 0x000000007FFFFFFFL) {
+					fBuf.write(TYPE_INT_32);
+					fBuf.writeInt((int)val);
+				} else {
+					fBuf.write(TYPE_INT_64);
+					fBuf.writeLong(val);
+				}
 			}
-		} else {
-			if (val <= 0x000000000000007FL) {
-				type = TYPE_INT_8;
-				tmp[0] = TYPE_INT_8;
-				tmp[1] = (byte)val;
-			} else if (val <= 0x0000000000007FFFL) {
-				type = TYPE_INT_16;
-				tmp[0] = TYPE_INT_16;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-			} else if (val <= 0x00000000007FFFFFL) {
-				type = TYPE_INT_24;
-				tmp[0] = TYPE_INT_24;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-			} else if (val <= 0x000000007FFFFFFFL) {
-				type = TYPE_INT_32;
-				tmp[0] = TYPE_INT_32;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-			} else if (val <= 0x0000007FFFFFFFFFL) {
-				type = TYPE_INT_40;
-				tmp[0] = TYPE_INT_40;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-			} else if (val <= 0x00007FFFFFFFFFFFL) {
-				type = TYPE_INT_48;
-				tmp[0] = TYPE_INT_48;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-			} else if (val <= 0x007FFFFFFFFFFFFFL) {
-				type = TYPE_INT_56;
-				tmp[0] = TYPE_INT_56;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-				tmp[7] = (byte)(val >> 48);
-			} else {
-				type = TYPE_INT_64;
-				tmp[0] = TYPE_INT_64;
-				tmp[1] = (byte)val;
-				tmp[2] = (byte)(val >> 8);
-				tmp[3] = (byte)(val >> 16);
-				tmp[4] = (byte)(val >> 24);
-				tmp[5] = (byte)(val >> 32);
-				tmp[6] = (byte)(val >> 40);
-				tmp[7] = (byte)(val >> 48);
-				tmp[8] = (byte)(val >> 56);
-			}
+		} catch (IOException e) {
+			throw new DBWriteException("writeLong failed: " + e.getMessage());
 		}
-		writeRawBytes(tmp, 0, (type-TYPE_INT_8)+2);
 	}
 
 	public void writeString(String val) throws DBWriteException {
@@ -482,10 +326,13 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 			if (fDebugEn) {
 				debug("    writeString: " + val);
 			}
-			byte b[] = val.getBytes();
-			writeRawType(TYPE_STRING);
-			writeInt(b.length);
-			writeRawBytes(b, 0, b.length);
+			try {
+				writeRawType(TYPE_STRING);
+				writeInt(val.length());
+				fBuf.writeBytes(val);
+			} catch (IOException e) {
+				throw new DBWriteException("writeString failed: " + e.getMessage());
+			}
 		}
 	}
 
@@ -495,7 +342,11 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 		} else {
 			writeRawType(TYPE_BYTE_ARRAY);
 			writeInt(data.length);
-			writeRawBytes(data, 0, data.length);
+			try {
+				fBuf.write(data);
+			} catch (IOException e) {
+				throw new DBWriteException("writeByteArray failed: " + e.getMessage());
+			}
 		}
 	}
 

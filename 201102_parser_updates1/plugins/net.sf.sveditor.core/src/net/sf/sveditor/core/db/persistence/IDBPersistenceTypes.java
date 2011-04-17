@@ -3,11 +3,11 @@ package net.sf.sveditor.core.db.persistence;
 public interface IDBPersistenceTypes {
 	int					TYPE_INT_8 			= 0;
 	int					TYPE_INT_16			= 1;
-	int					TYPE_INT_24			= 2;
+//	int					TYPE_INT_24			= 2;
 	int					TYPE_INT_32			= 3;
-	int					TYPE_INT_40			= 4;
-	int					TYPE_INT_48			= 5;
-	int					TYPE_INT_56			= 6;
+//	int					TYPE_INT_40			= 4;
+//	int					TYPE_INT_48			= 5;
+//	int					TYPE_INT_56			= 6;
 	int					TYPE_INT_64			= 7;
 	int					TYPE_INT_LIST 		= 8;
 	int					TYPE_STRING			= 9;

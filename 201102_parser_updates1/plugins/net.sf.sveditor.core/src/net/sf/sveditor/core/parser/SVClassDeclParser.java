@@ -90,11 +90,9 @@ public class SVClassDeclParser extends SVParserBase {
 			
 			try {
 				item = fParsers.modIfcBodyItemParser().parse("class");
-
-				// Check whether we aborted parsing the body because
-				// we found a 1st-level scope keyword
+				
 				if (item == null) {
-					break;
+					
 				}
 				
 				cls.addItem(item);

@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.File;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -9,6 +10,13 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndexCache {
+	
+	/**
+	 * The cache must remove the path corresponding to this cache
+	 * instance from the supplied list. This method is used in the
+	 * database-compacting process 
+	 */
+	void removeStoragePath(List<File> db_path_list);
 	
 	/**
 	 * Index data is data specific to the index style. This 
@@ -35,6 +43,11 @@ public interface ISVDBIndexCache {
 	 * @param monitor
 	 */
 	void init(IProgressMonitor monitor, Object index_data);
+	
+	/**
+	 * Perform the initial load
+	 */
+	void initLoad(IProgressMonitor monitor);
 	
 	/**
 	 * Invalidate this cache, clearing any backing storage
