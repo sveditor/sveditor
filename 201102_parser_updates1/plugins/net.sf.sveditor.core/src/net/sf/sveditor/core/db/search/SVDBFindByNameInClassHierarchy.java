@@ -123,10 +123,14 @@ public class SVDBFindByNameInClassHierarchy {
 			// Always match exact
 			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
 			if (((SVDBClassDecl)scope).getSuperClass() != null) {
+				String super_name = ((SVDBClassDecl)scope).getSuperClass().getName();
+				fLog.debug("Searching for super-class \"" +  super_name + "\""); 
 				scope = finder.find((SVDBClassDecl)scope);
 				if (scope != null) {
 					fLog.debug("Find super-class \"" + 
 						((SVDBClassDecl)scope).getSuperClass() + "\" returns " + scope);
+				} else {
+					fLog.debug("Failed to find super-class \"" +  super_name + "\""); 
 				}
 			} else {
 				fLog.debug("No super-class");

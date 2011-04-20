@@ -710,6 +710,44 @@ public class SVPreProcScanner implements ISVScanner {
 	}
 	
 	private int get_ch_ll() {
+		int ch = -1;
+		int ch_l = -1;
+		for (int i=0; i<2; i++) {
+			
+			if (fUngetCh != -1) {
+				ch = fUngetCh;
+				fUngetCh = -1;
+				return ch;
+			}
+			
+			if (fInputBufferIdx >= fInputBufferMax) {
+				fInputBufferIdx = 0;
+				fInputBufferMax = -1;
+				try {
+					fInputBufferMax = fInput.read(
+							fInputBuffer, 0, fInputBuffer.length);
+				} catch (IOException e) {
+				}
+			}
+			
+			if (fInputBufferIdx < fInputBufferMax) {
+				ch = fInputBuffer[fInputBufferIdx++];
+			}
+			
+			if (fLastCh == '\n') {
+				fLineno++;
+			}
+			fLastCh = ch;
+			
+			if (ch_l != '\r') {
+				break;
+			} else if (ch != '\n') {
+				unget_ch(ch);
+				ch = '\n';
+			}
+			ch_l = ch;
+		}
+		/*
 		int ch = get_ch_ll_1();
 		
 		if (ch == '\r') {
@@ -720,6 +758,7 @@ public class SVPreProcScanner implements ISVScanner {
 			ch = '\n';
 		}
 		
+		 */
 		return ch;
 	}
 	

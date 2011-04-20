@@ -36,6 +36,7 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeListener {
@@ -149,19 +150,19 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		File test_dir = new File(fTmpDir, "testLibIndex");
 		File db_dir = new File(fTmpDir, "db");
 		if (test_dir.exists()) {
-			assertTrue(test_dir.delete());
+			TestUtils.delete(test_dir);
 		}
 		assertTrue(test_dir.mkdirs());
 		
 		if (db_dir.exists()) {
-			assertTrue(db_dir.delete());
+			TestUtils.delete(db_dir);
 		}
 		assertTrue(db_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");
 		
-		/* IProject project_dir = */ TestUtils.createProject("ovm", ovm);
+		IProject project_dir = TestUtils.createProject("ovm", ovm);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
@@ -215,6 +216,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
+		TestUtils.deleteProject(project_dir);
 	}
 
 }

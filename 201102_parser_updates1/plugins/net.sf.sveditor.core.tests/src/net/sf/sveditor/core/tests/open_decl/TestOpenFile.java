@@ -43,7 +43,7 @@ public class TestOpenFile extends TestCase {
 	
 	public void testRelPathOpenDecl() throws IOException {
 		File tmpdir = TestUtils.createTempDir();
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		try {
 			BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -57,8 +57,8 @@ public class TestOpenFile extends TestCase {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.init(TestIndexCacheFactory.instance(null));
 			
-			ISVDBIndex target_index = rgy.findCreateIndex("subdir2",
-					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",
+			ISVDBIndex target_index = rgy.findCreateIndex(new NullProgressMonitor(),
+					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
 			ISVDBItemIterator it = target_index.getItemIterator(new NullProgressMonitor());
@@ -90,7 +90,7 @@ public class TestOpenFile extends TestCase {
 			
 			
 		} finally {
-			tmpdir.delete();
+			TestUtils.delete(tmpdir);
 		}
 	}
 

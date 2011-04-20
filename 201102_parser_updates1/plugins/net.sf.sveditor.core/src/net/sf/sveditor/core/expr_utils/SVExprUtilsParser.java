@@ -11,8 +11,24 @@ public class SVExprUtilsParser implements ISVParser {
 	private SVParsers		fParsers;
 	
 	public SVExprUtilsParser(SVExprContext context) {
+		this(context, false);
+	}
+	
+	public SVExprUtilsParser(SVExprContext context, boolean parse_full) {
+		StringBuilder content = new StringBuilder();
+		
+		if (context.fTrigger == null) {
+			content.append(context.fLeaf);
+		} else {
+			content.append(context.fRoot);
+			if (parse_full) {
+				content.append(context.fTrigger);
+				content.append(context.fLeaf);
+			}
+		}
+		
 		fLexer = new SVLexer();
-		fLexer.init(this, new StringTextScanner(context.fRoot));
+		fLexer.init(this, new StringTextScanner(content));
 		fParsers = new SVParsers(this);
 	}
 

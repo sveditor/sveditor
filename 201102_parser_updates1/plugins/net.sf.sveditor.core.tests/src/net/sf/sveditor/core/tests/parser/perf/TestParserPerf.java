@@ -45,7 +45,7 @@ public class TestParserPerf extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.init(TestIndexCacheFactory.instance(null));
+		rgy.test_init(TestIndexCacheFactory.instance(null));
 		
 		String compile_questa_sv = xbus + "/examples/compile_questa_sv.f";
 		System.out.println("compile_questa_sv=" + compile_questa_sv);

@@ -108,12 +108,6 @@ public class SVDBDirFS implements ISVDBFS {
 	public void delete(String path) {
 		if (path.equals("")) {
 			if (fDBDir.exists()) {
-				System.out.println("Delete root dir " + fDBDir.getAbsolutePath());
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 				delete_tree(fDBDir);
 			}
 		} else {

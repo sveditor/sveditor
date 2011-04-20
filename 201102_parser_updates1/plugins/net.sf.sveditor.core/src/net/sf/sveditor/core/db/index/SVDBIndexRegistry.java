@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +46,6 @@ public class SVDBIndexRegistry  {
 	
 	private SVDBIndexCollectionMgr							fGlobalIndexMgr;
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
-	private Map<String, List<SVDBPersistenceDescriptor>>  	fDatabaseDescMap;
 	private ISVDBIndexCacheFactory							fCacheFactory;
 	private LogHandle										fLog;
 
@@ -62,7 +60,6 @@ public class SVDBIndexRegistry  {
 	
 	public SVDBIndexRegistry(boolean standalone_test_mode) {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
-		fDatabaseDescMap = new HashMap<String, List<SVDBPersistenceDescriptor>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 	}
 	
@@ -89,18 +86,12 @@ public class SVDBIndexRegistry  {
 		fCacheFactory = cache_factory;
 		fProjectIndexMap.clear();
 		
-		/*
-		fProjectIndexMap.clear();
-		fDatabaseDescMap.clear();
-		if (state_location != null) {
-			fDatabaseDir = new File(state_location, "db");
-			load_database_descriptors();
-		} else {
-			fDatabaseDir = null;
-		}
-		 */
-		
 		fGlobalIndexMgr = getGlobalIndexMgr();
+	}
+
+	public void test_init(ISVDBIndexCacheFactory cache_factory) {
+		fCacheFactory = cache_factory;
+		fProjectIndexMap.clear();
 	}
 
 	public List<ISVDBIndex> getProjectIndexList(String project) {
@@ -317,16 +308,6 @@ public class SVDBIndexRegistry  {
 			System.out.println("Rebuild index \"" + index.getBaseLocation() + "\"");
 			index.rebuildIndex();
 		}
-		
-		// Also clear any persistence data for the project
-		if (fDatabaseDescMap.containsKey(project)) {
-			List<SVDBPersistenceDescriptor> db_desc = fDatabaseDescMap.get(project);
-			
-			for (SVDBPersistenceDescriptor d : db_desc) {
-				d.getDBFile().delete();
-			}
-			fDatabaseDescMap.remove(project);
-		}
 	}
 
 	/**
@@ -370,7 +351,6 @@ public class SVDBIndexRegistry  {
 	private ISVDBIndexFactory findFactory(String type) {
 		ISVDBIndexFactory ret = null;
 		IExtensionRegistry rgy = Platform.getExtensionRegistry();
-		
 		
 		IExtensionPoint ext_pt = rgy.getExtensionPoint(
 				SVCorePlugin.PLUGIN_ID, "SVDBIndexFactories");

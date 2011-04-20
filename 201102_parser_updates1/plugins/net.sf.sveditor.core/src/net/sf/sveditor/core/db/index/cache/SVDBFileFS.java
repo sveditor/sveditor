@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +9,57 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.util.List;
 
+/**
+ * 
+ * @author ballance
+ *
+ * All blocks 1K (?)
+ * 
+ * Backing File Layout:
+ * |===================================================
+ * | Header Block
+ * |  
+ * |===================================================
+ * |
+ * |
+ */
 public class SVDBFileFS implements ISVDBFS {
+	private RandomAccessFile			fStorage;
+	
+	private class Block {
+		private long				fNextBlockPtr;
+		
+		public long getNextBlock() {
+			return fNextBlockPtr;
+		}
+		
+		public void setNextBlock(long next) {
+			fNextBlockPtr = next;
+		}
+		
+		Block(DataInput in) throws IOException {
+			fNextBlockPtr = in.readLong();
+		}
+	}
+	
+	private class RootBlock {
+		private long				fDirentPtr;
+		private long				fBitmapPtr;
+		
+	}
+	
+	private class Dirent extends Block {
+		
+		Dirent(DataInput in) throws IOException {
+			super(in);
+		}
+		
+	}
+	
+	private class FileEntry {
+		
+	}
+	
 	private class BlockBitmap {
 		private MappedByteBuffer		fBlock;
 		

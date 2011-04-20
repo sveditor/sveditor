@@ -34,6 +34,7 @@ public class SVDBTypeInfoClassItem extends SVDBTypeInfo {
 	}
 	
 	public void init_class_item(SVDBTypeInfoClassItem item) {
+		setName(item.getName());
 		if (item.fParamAssign == null) {
 			fParamAssign = null;
 		} else {
