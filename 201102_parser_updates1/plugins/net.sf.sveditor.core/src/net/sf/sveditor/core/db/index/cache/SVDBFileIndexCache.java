@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
@@ -353,6 +354,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 	
 	private String computePathDir(String path) {
+		/*
 		String ret = path;
 		ret = ret.replace('/', '_');
 		ret = ret.replace('$', '_');
@@ -360,6 +362,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		ret = ret.replace('}', '_');
 
 		return ret;
+		 */
+		return SVFileUtils.computeMD5(path);
 	}
 	
 	private SVDBFile readFile(RandomAccessFile in, String path) {
