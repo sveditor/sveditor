@@ -41,8 +41,9 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		return fData;
 	}
 
-	public void init(IProgressMonitor monitor, Object index_data) {
+	public boolean init(IProgressMonitor monitor, Object index_data) {
 		fData = index_data;
+		return true;
 	}
 	
 	public void initLoad(IProgressMonitor monitor) {

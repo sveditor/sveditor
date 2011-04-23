@@ -205,9 +205,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		// Initialize the cache
 		m = new SubProgressMonitor(monitor, 1);
 		fIndexCacheData = createIndexCacheData();
-		fCache.init(m, fIndexCacheData);
+		boolean valid = fCache.init(m, fIndexCacheData);
 
-		boolean valid = checkCacheValid();
+		if (valid) {
+			valid = checkCacheValid();
+		}
 
 		if (valid) {
 			fLog.debug("Cache is valid");

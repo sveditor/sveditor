@@ -131,7 +131,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 
-	public void init(IProgressMonitor monitor, Object index_data) {
+	public boolean init(IProgressMonitor monitor, Object index_data) {
+		boolean valid = false;
 		fFileList.clear();
 		fBaseLocation = "";
 		fIndexData = index_data;
@@ -160,6 +161,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 				fPersistenceRdr.readObject(null, index_data.getClass(), index_data);
 				System.out.println("Cache " + fSVDBFS.getRoot() + " has base " + 
 						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
+				valid = true;
 			} else {
 				System.out.println("Failed to read index_data");
 			}
@@ -167,13 +169,15 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		} catch (DBFormatException e) {
 			  e.printStackTrace();
 		}
+		
+		return valid;
 	}
 	
 	public void initLoad(IProgressMonitor monitor) {
 		for (int i=0; i<fCacheSize && i<fFileList.size(); i++) {
 			String path = fFileList.get(i);
-//			getPreProcFile(new NullProgressMonitor(), path);
-//			getFileTree(new NullProgressMonitor(), path);
+			getPreProcFile(new NullProgressMonitor(), path);
+			getFileTree(new NullProgressMonitor(), path);
 			getFile(new NullProgressMonitor(), path);
 		}
 	}
@@ -237,8 +241,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void setPreProcFile(String path, SVDBFile file) {
-		path = computePathDir(path);
-		
 		if (file == null) {
 			try {
 				throw new Exception("SVDBFile for path \"" + path + "\" is null");
