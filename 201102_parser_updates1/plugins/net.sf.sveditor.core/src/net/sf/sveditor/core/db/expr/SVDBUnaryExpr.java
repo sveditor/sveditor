@@ -39,7 +39,7 @@ public class SVDBUnaryExpr extends SVDBExpr {
 	}
 	
 	public SVDBUnaryExpr duplicate() {
-		return new SVDBUnaryExpr(fOp, (SVDBExpr)fExpr.duplicate());
+		return (SVDBUnaryExpr)super.duplicate();
 	}
 
 }

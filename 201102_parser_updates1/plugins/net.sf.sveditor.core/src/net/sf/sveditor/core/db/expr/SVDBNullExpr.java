@@ -21,11 +21,7 @@ public class SVDBNullExpr extends SVDBExpr {
 	}
 	
 	public SVDBNullExpr duplicate() {
-		SVDBNullExpr ret = new SVDBNullExpr();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBNullExpr)super.duplicate();
 	}
 
 }

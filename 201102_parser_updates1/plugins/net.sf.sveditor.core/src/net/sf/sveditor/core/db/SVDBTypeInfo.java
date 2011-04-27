@@ -59,10 +59,7 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 
 	@Override
 	public SVDBTypeInfo duplicate() {
-		SVDBTypeInfo ret = new SVDBTypeInfo(getName(), getType());
-		ret.init(this);
-
-		return ret;
+		return (SVDBTypeInfo)super.duplicate();
 	}
 	
 	public static boolean isDataType(SVDBItemType type) {

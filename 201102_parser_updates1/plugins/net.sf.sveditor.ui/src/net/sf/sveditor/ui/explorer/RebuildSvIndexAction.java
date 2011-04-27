@@ -82,6 +82,9 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 				
 				rgy.rebuildIndex(p.getName());
 			}
+			
+			// Finally, rebuild global index
+			rgy.rebuildIndex(SVDBIndexRegistry.GLOBAL_PROJECT);
 		}
 	}
 

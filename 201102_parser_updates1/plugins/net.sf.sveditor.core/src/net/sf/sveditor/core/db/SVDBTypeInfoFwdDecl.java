@@ -39,9 +39,7 @@ public class SVDBTypeInfoFwdDecl extends SVDBTypeInfo {
 
 	@Override
 	public SVDBTypeInfoFwdDecl duplicate() {
-		SVDBTypeInfoFwdDecl ret = new SVDBTypeInfoFwdDecl(fTypeClass, getName());
-		
-		return ret;
+		return (SVDBTypeInfoFwdDecl)super.duplicate(); 
 	}
 	
 }

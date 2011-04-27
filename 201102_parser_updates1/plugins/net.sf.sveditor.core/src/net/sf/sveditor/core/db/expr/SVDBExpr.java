@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.expr;
 
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBItemUtils;
 
 public class SVDBExpr extends SVDBItemBase {
 	
@@ -26,11 +27,7 @@ public class SVDBExpr extends SVDBItemBase {
 	}
 	
 	public SVDBExpr duplicate() {
-		SVDBExpr ret = new SVDBExpr(getType());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBExpr)SVDBItemUtils.duplicate(this);
 	}
 	
 	public void init(SVDBItemBase other) {

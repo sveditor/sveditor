@@ -45,11 +45,7 @@ public class SVDBBinaryExpr extends SVDBExpr {
 	}
 	
 	public SVDBBinaryExpr duplicate() {
-		SVDBBinaryExpr ret = new SVDBBinaryExpr(
-				(SVDBExpr)fLhs.duplicate(), fOp, 
-				(SVDBExpr)fRhs.duplicate());
-		
-		return ret;
+		return (SVDBBinaryExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

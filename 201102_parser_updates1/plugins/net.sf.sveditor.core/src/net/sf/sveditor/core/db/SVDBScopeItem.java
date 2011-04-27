@@ -56,14 +56,6 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		return fItems;
 	}
 
-	public SVDBItemBase duplicate() {
-		SVDBScopeItem ret = new SVDBScopeItem(getName(), getType());
-
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		

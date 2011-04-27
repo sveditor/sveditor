@@ -65,11 +65,7 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 
 	@Override
 	public SVDBBlockStmt duplicate() {
-		SVDBBlockStmt ret = new SVDBBlockStmt();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBBlockStmt)super.duplicate();
 	}
 
 	@Override

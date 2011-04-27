@@ -25,11 +25,7 @@ public class SVDBInclude extends SVDBItem {
 	
 	@Override
 	public SVDBInclude duplicate() {
-		SVDBInclude ret = new SVDBInclude(getName());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBInclude)super.duplicate();
 	}
 
 	@Override

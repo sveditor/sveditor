@@ -46,11 +46,7 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	}
 	
 	public SVDBClassDecl duplicate() {
-		SVDBClassDecl ret = new SVDBClassDecl(getName());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBClassDecl)SVDBItemUtils.duplicate(this);
 	}
 
 	public void init(SVDBItemBase other) {
@@ -58,9 +54,9 @@ public class SVDBClassDecl extends SVDBScopeItem {
 		SVDBClassDecl o = (SVDBClassDecl)other;
 
 		if (o.fParams != null) {
-			fParams.clear();
+			fParams = new ArrayList<SVDBModIfcClassParam>();
 			for (SVDBModIfcClassParam p : o.fParams) {
-				fParams.add((SVDBModIfcClassParam)p.duplicate());
+				fParams.add(p);
 			}
 		} else {
 			fParams = null;

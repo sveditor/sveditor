@@ -23,12 +23,4 @@ public class SVDBPackageDecl extends SVDBScopeItem {
 		super(name, SVDBItemType.PackageDecl);
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBPackageDecl ret = new SVDBPackageDecl(getName());
-		
-		ret.init(this);
-		
-		return ret;
-	}
-	
 }

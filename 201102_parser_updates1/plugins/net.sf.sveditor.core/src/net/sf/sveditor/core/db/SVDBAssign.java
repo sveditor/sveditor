@@ -50,11 +50,7 @@ public class SVDBAssign extends SVDBStmt {
 	}
 	
 	public SVDBAssign duplicate() {
-		SVDBAssign ret = new SVDBAssign();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBAssign)SVDBItemUtils.duplicate(this);
 	}
 	
 	public void init(SVDBItemBase other) {

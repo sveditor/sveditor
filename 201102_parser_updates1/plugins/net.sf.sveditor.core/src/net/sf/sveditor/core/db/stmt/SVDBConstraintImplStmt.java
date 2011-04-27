@@ -40,9 +40,7 @@ public class SVDBConstraintImplStmt extends SVDBStmt {
 	}
 	
 	public SVDBConstraintImplStmt duplicate() {
-		return new SVDBConstraintImplStmt(
-				(SVDBExpr)fExpr.duplicate(), 
-				(SVDBConstraintSetStmt)fConstraint.duplicate());
+		return (SVDBConstraintImplStmt)super.duplicate();
 	}
 
 }

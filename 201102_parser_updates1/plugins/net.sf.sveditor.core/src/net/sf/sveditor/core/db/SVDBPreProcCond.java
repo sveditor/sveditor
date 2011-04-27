@@ -30,14 +30,6 @@ public class SVDBPreProcCond extends SVDBScopeItem {
 		return fConditional;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBPreProcCond ret = new SVDBPreProcCond(getName(), fConditional);
-		
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 	}

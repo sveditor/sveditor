@@ -60,11 +60,7 @@ public class SVDBAssignExpr extends SVDBExpr {
 	}
 
 	public SVDBAssignExpr duplicate() {
-		SVDBAssignExpr ret = new SVDBAssignExpr(fLhs, fOp, fRhs);
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBAssignExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

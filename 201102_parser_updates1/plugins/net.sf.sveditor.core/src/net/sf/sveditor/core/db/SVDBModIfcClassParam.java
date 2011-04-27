@@ -43,12 +43,8 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		fDefaultType = type;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBModIfcClassParam(getName());
-		
-		init(ret);
-		
-		return ret;
+	public SVDBModIfcClassParam duplicate() {
+		return (SVDBModIfcClassParam)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

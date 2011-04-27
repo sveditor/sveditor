@@ -39,11 +39,7 @@ public class SVDBCastExpr extends SVDBExpr {
 	}
 	
 	public SVDBCastExpr duplicate() {
-		SVDBCastExpr ret = new SVDBCastExpr(
-				(SVDBExpr)fCastType.duplicate(), 
-				(SVDBExpr)fExpr.duplicate());
-		
-		return ret;
+		return (SVDBCastExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

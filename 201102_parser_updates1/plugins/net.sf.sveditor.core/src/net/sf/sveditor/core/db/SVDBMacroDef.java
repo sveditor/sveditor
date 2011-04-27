@@ -46,16 +46,6 @@ public class SVDBMacroDef extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBMacroDef ret = new SVDBMacroDef(
-				getName(), fParams, fDef);
-		
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		

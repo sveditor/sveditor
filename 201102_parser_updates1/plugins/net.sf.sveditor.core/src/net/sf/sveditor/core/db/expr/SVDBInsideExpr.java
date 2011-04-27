@@ -40,13 +40,7 @@ public class SVDBInsideExpr extends SVDBExpr {
 	}
 	
 	public SVDBInsideExpr duplicate() {
-		SVDBInsideExpr ret = new SVDBInsideExpr((SVDBExpr)fLhs.duplicate());
-		
-		for (SVDBExpr e : fValueRangeList) {
-			ret.getValueRangeList().add((SVDBExpr)e.duplicate());
-		}
-		
-		return ret;
+		return (SVDBInsideExpr)super.duplicate();
 	}
 
 }

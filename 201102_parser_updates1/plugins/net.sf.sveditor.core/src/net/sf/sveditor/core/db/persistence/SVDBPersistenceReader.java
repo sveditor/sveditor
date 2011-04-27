@@ -14,14 +14,11 @@ package net.sf.sveditor.core.db.persistence;
 
 import java.io.DataInput;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,11 +45,6 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	}
 	
 	public SVDBPersistenceReader() {
-		this(null);
-	}
-
-	public SVDBPersistenceReader(InputStream in) {
-//		fIn      	= in;
 		synchronized (getClass()) {
 			if (fClassMap == null) {
 				fClassMap 	= new HashMap<SVDBItemType, Class>();

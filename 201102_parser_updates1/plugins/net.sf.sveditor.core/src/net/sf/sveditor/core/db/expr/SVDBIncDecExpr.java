@@ -39,7 +39,7 @@ public class SVDBIncDecExpr extends SVDBExpr {
 	}
 	
 	public SVDBIncDecExpr duplicate() {
-		return new SVDBIncDecExpr(fOp, (SVDBExpr)fExpr.duplicate());
+		return (SVDBIncDecExpr)super.duplicate();
 	}
 
 }

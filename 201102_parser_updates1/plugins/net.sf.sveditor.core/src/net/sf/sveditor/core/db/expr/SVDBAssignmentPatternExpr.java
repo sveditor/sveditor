@@ -35,14 +35,7 @@ public class SVDBAssignmentPatternExpr extends SVDBExpr {
 	}
 	
 	public SVDBAssignmentPatternExpr duplicate() {
-		SVDBAssignmentPatternExpr ret = new SVDBAssignmentPatternExpr();
-		for (SVDBExpr e : fPatternList) {
-			ret.fPatternList.add((SVDBExpr)e.duplicate());
-		}
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBAssignmentPatternExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

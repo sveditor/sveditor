@@ -71,8 +71,7 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 	}
 
 	public SVDBVarDeclItem duplicate() {
-		// TODO Auto-generated method stub
-		return null;
+		return (SVDBVarDeclItem)super.duplicate();
 	}
 
 	public void init(ISVDBItemBase other) {

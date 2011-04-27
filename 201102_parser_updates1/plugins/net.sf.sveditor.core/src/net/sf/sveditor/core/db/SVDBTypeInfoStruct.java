@@ -55,13 +55,6 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 
 	@Override
 	public SVDBTypeInfoStruct duplicate() {
-		SVDBTypeInfoStruct ret = new SVDBTypeInfoStruct();
-		ret.setName(getName());
-		
-		for (SVDBVarDeclStmt f : fFields) {
-			ret.addField((SVDBVarDeclStmt)f.duplicate());
-		}
-		
-		return ret;
+		return (SVDBTypeInfoStruct)super.duplicate();
 	}
 }

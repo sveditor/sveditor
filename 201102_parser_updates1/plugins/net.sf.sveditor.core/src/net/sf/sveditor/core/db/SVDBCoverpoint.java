@@ -43,12 +43,8 @@ public class SVDBCoverpoint extends SVDBScopeItem {
 	}
 	
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBCoverpoint ret = new SVDBCoverpoint(getName());
-		
-		ret.init(this);
-		
-		return ret;
+	public SVDBCoverpoint duplicate() {
+		return (SVDBCoverpoint)SVDBItemUtils.duplicate(this);
 	}
 
 	@Override

@@ -45,12 +45,7 @@ public class SVDBConstraintSolveBeforeStmt extends SVDBStmt {
 	}
 	
 	public SVDBConstraintSolveBeforeStmt duplicate() {
-		SVDBConstraintSolveBeforeStmt ret = new SVDBConstraintSolveBeforeStmt();
-		
-		ret.fSolveBeforeList.addAll(fSolveAfterList);
-		ret.fSolveAfterList.addAll(fSolveAfterList);
-		
-		return ret;
+		return (SVDBConstraintSolveBeforeStmt)super.duplicate();
 	}
 
 }

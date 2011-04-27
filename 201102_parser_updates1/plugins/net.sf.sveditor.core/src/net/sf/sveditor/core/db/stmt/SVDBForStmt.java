@@ -38,10 +38,7 @@ public class SVDBForStmt extends SVDBBodyStmt {
 	}
 	
 	public SVDBForStmt duplicate() {
-		SVDBForStmt ret = new SVDBForStmt();
-		ret.init(this);
-		
-		return ret;
+		return (SVDBForStmt)super.duplicate();
 	}
 	
 	public void init(ISVDBItemBase other) {

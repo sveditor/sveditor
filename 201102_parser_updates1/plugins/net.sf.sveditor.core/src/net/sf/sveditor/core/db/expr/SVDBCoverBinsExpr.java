@@ -73,15 +73,7 @@ public class SVDBCoverBinsExpr extends SVCoverageExpr {
 	}
 	
 	public SVDBCoverBinsExpr duplicate() {
-		SVDBCoverBinsExpr ret = new SVDBCoverBinsExpr(fName, fBinsType);
-		ret.fIsArray = fIsArray;
-		ret.fArrayExpr = (SVDBExpr)((fArrayExpr != null)?fArrayExpr.duplicate():null);
-		for (SVDBExpr e : fRangeList) {
-			ret.fRangeList.add((SVDBExpr)e.duplicate());
-		}
-		ret.fIsDefault = fIsDefault;
-		
-		return ret;
+		return (SVDBCoverBinsExpr)super.duplicate();
 	}
 	
 

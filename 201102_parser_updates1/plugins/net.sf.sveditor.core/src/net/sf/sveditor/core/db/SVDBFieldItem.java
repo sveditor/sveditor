@@ -32,14 +32,6 @@ public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 		fFieldAttr = attr;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBFieldItem ret = new SVDBFieldItem(getName(), getType());
-		
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	/*
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBFieldItem) {

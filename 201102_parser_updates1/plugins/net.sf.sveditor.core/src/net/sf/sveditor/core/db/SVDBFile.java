@@ -52,14 +52,6 @@ public class SVDBFile extends SVDBScopeItem {
 		fFile = file;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBFile ret = new SVDBFile(fFile);
-		
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		

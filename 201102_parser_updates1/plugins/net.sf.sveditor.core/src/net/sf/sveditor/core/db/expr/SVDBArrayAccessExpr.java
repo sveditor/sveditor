@@ -45,11 +45,7 @@ public class SVDBArrayAccessExpr extends SVDBExpr {
 	}
 	
 	public SVDBArrayAccessExpr duplicate() {
-		SVDBArrayAccessExpr ret = new SVDBArrayAccessExpr(fLhs, fLow, fHigh);
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBArrayAccessExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

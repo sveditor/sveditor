@@ -70,10 +70,7 @@ public class SVDBMarker extends SVDBItemBase {
 
 	@Override
 	public SVDBMarker duplicate() {
-		SVDBMarker ret = new SVDBMarker(getMarkerType(), getKind(), getMessage());
-		ret.setLocation(getLocation());
-		
-		return ret;
+		return (SVDBMarker)SVDBItemUtils.duplicate(this);
 	}
 
 

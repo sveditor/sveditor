@@ -44,11 +44,8 @@ public class SVDBItemBase implements ISVDBItemBase {
 		fLocation = location;
 	}
 
-	public SVDBItemBase duplicate() {
-		SVDBItemBase ret = new SVDBItemBase(getType());
-		ret.init(this);
-		
-		return ret;
+	public ISVDBItemBase duplicate() {
+		return SVDBItemUtils.duplicate(this);
 	}
 
 	public void init(ISVDBItemBase other) {

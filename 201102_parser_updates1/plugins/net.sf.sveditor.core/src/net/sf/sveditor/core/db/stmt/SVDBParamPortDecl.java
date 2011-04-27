@@ -62,11 +62,7 @@ public class SVDBParamPortDecl extends SVDBVarDeclStmt {
 	}
 	
 	public SVDBParamPortDecl duplicate() {
-		SVDBParamPortDecl ret = new SVDBParamPortDecl(fTypeInfo);
-		
-		init(ret);
-		
-		return ret;
+		return (SVDBParamPortDecl)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

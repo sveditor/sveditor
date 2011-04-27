@@ -51,11 +51,7 @@ public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
 	
 	@Override
 	public SVDBTypedefStmt duplicate() {
-		SVDBTypedefStmt ret = new SVDBTypedefStmt(fTypeInfo.duplicate());
-		
-		ret.init(this);
-
-		return ret;
+		return (SVDBTypedefStmt)super.duplicate();
 	}
 
 	@Override

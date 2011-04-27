@@ -61,12 +61,6 @@ public class SVDBTFCallExpr extends SVDBExpr {
 	}
 	
 	public SVDBTFCallExpr duplicate() {
-		List<SVDBExpr> args = new ArrayList<SVDBExpr>();
-		
-		for (int i=0; i<fArgs.size(); i++) {
-			args.add(fArgs.get(i).duplicate());
-		}
-		
-		return new SVDBTFCallExpr((SVDBExpr)fTarget.duplicate(), fName, args);
+		return (SVDBTFCallExpr)super.duplicate();
 	}
 }

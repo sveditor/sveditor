@@ -34,7 +34,7 @@ public class SVDBLiteralExpr extends SVDBExpr {
 	}
 	
 	public SVDBLiteralExpr duplicate() {
-		return new SVDBLiteralExpr(fLiteral);
+		return (SVDBLiteralExpr)super.duplicate();
 	}
 
 }

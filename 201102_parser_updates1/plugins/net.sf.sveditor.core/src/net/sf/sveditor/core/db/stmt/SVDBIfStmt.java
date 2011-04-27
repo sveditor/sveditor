@@ -39,15 +39,6 @@ public class SVDBIfStmt extends SVDBStmt {
 	}
 	
 	@Override
-	public SVDBStmt duplicate() {
-		SVDBIfStmt ret = new SVDBIfStmt(null);
-		
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
 	public void init(ISVDBItemBase other) {
 		SVDBIfStmt o = (SVDBIfStmt)other;
 		

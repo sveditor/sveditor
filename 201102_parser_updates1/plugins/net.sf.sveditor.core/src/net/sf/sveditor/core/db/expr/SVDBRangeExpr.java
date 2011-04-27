@@ -39,7 +39,7 @@ public class SVDBRangeExpr extends SVDBExpr {
 	}
 	
 	public SVDBRangeExpr duplicate() {
-		return new SVDBRangeExpr((SVDBExpr)fLeft.duplicate(), (SVDBExpr)fRight.duplicate());
+		return (SVDBRangeExpr)super.duplicate();
 	}
 
 }

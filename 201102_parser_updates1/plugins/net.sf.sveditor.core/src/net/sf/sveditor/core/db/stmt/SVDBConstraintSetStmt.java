@@ -34,13 +34,7 @@ public class SVDBConstraintSetStmt extends SVDBStmt {
 	}
 	
 	public SVDBConstraintSetStmt duplicate() {
-		SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt();
-		
-		for (SVDBStmt e : fConstraintList) {
-			ret.fConstraintList.add(e.duplicate());
-		}
-		
-		return ret;
+		return (SVDBConstraintSetStmt)super.duplicate();
 	}
 
 }

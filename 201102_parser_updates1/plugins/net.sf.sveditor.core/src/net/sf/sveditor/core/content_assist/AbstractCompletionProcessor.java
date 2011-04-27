@@ -132,7 +132,8 @@ public abstract class AbstractCompletionProcessor {
 				// Traverse the expression to find the type of the leaf element 
 				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
 						src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
-				ISVDBItemBase item = v.findItem(expr);
+//				ISVDBItemBase item = v.findItem(expr);
+				ISVDBItemBase item = v.findTypeItem(expr);
 				
 				if (item == null) {
 					fLog.debug("Failed to traverse the content-assist expression");

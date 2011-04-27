@@ -11,15 +11,6 @@ public class SVDBStmt extends SVDBChildItem {
 	}
 	
 	@Override
-	public SVDBStmt duplicate() {
-		SVDBStmt ret = new SVDBStmt(getType());
-		
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
 	public void init(ISVDBItemBase other) {
 		super.init(other);
 	}
@@ -27,6 +18,11 @@ public class SVDBStmt extends SVDBChildItem {
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj);
+	}
+	
+	@Override
+	public SVDBStmt duplicate() {
+		return (SVDBStmt)super.duplicate();
 	}
 
 	@Override

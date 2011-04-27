@@ -43,11 +43,7 @@ public class SVDBModIfcDecl extends SVDBScopeItem {
 	}
 	
 	public SVDBModIfcDecl duplicate() {
-		SVDBModIfcDecl ret = new SVDBModIfcDecl(getName(), getType());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBModIfcDecl)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

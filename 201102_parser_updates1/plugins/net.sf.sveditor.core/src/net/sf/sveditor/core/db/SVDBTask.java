@@ -54,14 +54,6 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 		}
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBTask ret = new SVDBTask(getName(), getType());
-		
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 

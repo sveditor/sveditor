@@ -102,9 +102,7 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 	}
 	
 	public SVDBVarDeclStmt duplicate() {
-		SVDBVarDeclStmt ret = new SVDBVarDeclStmt((SVDBTypeInfo)fTypeInfo.duplicate(), fFieldAttr);
-		
-		return ret;
+		return (SVDBVarDeclStmt)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

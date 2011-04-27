@@ -22,6 +22,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -35,6 +36,8 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -59,6 +62,7 @@ public class TestArrayContentAssist extends TestCase {
 	}
 
 	public void testQueueFunctions() {
+		LogHandle log = LogFactory.getLogHandle("testQueueFunctions");
 		String doc =
 			"class elem_t;\n" +
 			"    int my_field;\n" +
@@ -73,7 +77,7 @@ public class TestArrayContentAssist extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -87,23 +91,23 @@ public class TestArrayContentAssist extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBModIfcDecl my_class1 = null;
+		SVDBClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
-			System.out.println("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
+			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
 			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcDecl)it_t;
+				my_class1 = (SVDBClassDecl)it_t;
 			} else if (SVDBItem.getName(it_t).startsWith("__sv_builtin")) {
-				System.out.println("Builtin: " + SVDBItem.getName(it_t));
+				log.debug("Builtin: " + SVDBItem.getName(it_t));
 			}
 		}
 		
 		assertNotNull(my_class1);
 		
-		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
+		log.debug("[my_class1] " + my_class1.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class1.getItems()) {
-			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
+			log.debug("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		cp.computeProposals(scanner, ini.first(), 
@@ -115,6 +119,7 @@ public class TestArrayContentAssist extends TestCase {
 		validateResults(new String[] {
 				"size", "insert", "delete", "pop_front",
 				"pop_back", "push_front", "push_back"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testQueueElemItems() {

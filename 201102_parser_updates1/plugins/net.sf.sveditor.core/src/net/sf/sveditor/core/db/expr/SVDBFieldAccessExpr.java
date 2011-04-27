@@ -45,6 +45,6 @@ public class SVDBFieldAccessExpr extends SVDBExpr {
 	}
 	
 	public SVDBFieldAccessExpr duplicate() {
-		return new SVDBFieldAccessExpr((SVDBExpr)fExpr.duplicate(), fStaticRef, fLeaf.duplicate());
+		return (SVDBFieldAccessExpr)super.duplicate();
 	}
 }

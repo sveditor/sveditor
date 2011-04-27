@@ -45,12 +45,7 @@ public class SVDBCondExpr extends SVDBExpr {
 	}
 	
 	public SVDBCondExpr duplicate() {
-		SVDBCondExpr ret = new SVDBCondExpr(
-				(SVDBExpr)fLhs.duplicate(), 
-				(SVDBExpr)fMhs.duplicate(), 
-				(SVDBExpr)fRhs.duplicate());
-		
-		return ret;
+		return (SVDBCondExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

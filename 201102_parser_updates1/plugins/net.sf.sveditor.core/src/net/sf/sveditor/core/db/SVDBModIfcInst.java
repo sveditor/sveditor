@@ -54,11 +54,7 @@ public class SVDBModIfcInst extends SVDBFieldItem {
 	}
 	
 	public SVDBModIfcInst duplicate() {
-		SVDBModIfcInst ret = new SVDBModIfcInst(fTypeInfo);
-		
-		init(ret);
-		
-		return ret;
+		return (SVDBModIfcInst)super.duplicate();
 	}
 	
 	public void init(ISVDBItemBase other) {

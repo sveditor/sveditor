@@ -70,13 +70,6 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		return fType;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBItem(fName, fType);
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		SVDBItem o = (SVDBItem)other;
 		fName     = o.fName;

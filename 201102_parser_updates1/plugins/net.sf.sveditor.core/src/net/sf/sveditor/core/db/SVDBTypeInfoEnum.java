@@ -53,16 +53,7 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	}
 	
 	public SVDBTypeInfoEnum duplicate() {
-		SVDBTypeInfoEnum ret = new SVDBTypeInfoEnum(getName());
-		
-		for (String k : fKeyList) {
-			ret.fKeyList.add(k);
-		}
-		for (String v : fValList) {
-			ret.fValList.add(v);
-		}
-		
-		return ret;
+		return (SVDBTypeInfoEnum)super.duplicate();
 	}
 
 	@Override

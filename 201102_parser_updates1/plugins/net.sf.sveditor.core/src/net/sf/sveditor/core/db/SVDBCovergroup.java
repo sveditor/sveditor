@@ -52,11 +52,7 @@ public class SVDBCovergroup extends SVDBModIfcDecl {
 	}
 	
 	public SVDBCovergroup duplicate() {
-		SVDBCovergroup cg = new SVDBCovergroup(getName());
-		
-		cg.init(this);
-		
-		return cg;
+		return (SVDBCovergroup)SVDBItemUtils.duplicate(this);
 	}
 	
 	public void init(SVDBItemBase other) {

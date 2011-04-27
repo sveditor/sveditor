@@ -31,11 +31,7 @@ public class SVDBConcatenationExpr extends SVDBExpr {
 	}
 	
 	public SVDBConcatenationExpr duplicate() {
-		SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBConcatenationExpr)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {

@@ -77,19 +77,7 @@ public class SVDBCoverpointExpr extends SVCoverageExpr {
 	}
 	
 	public SVDBCoverpointExpr duplicate() {
-		SVDBCoverpointExpr ret = new SVDBCoverpointExpr();
-		
-		ret.fOptionMap.putAll(fOptionMap);
-		ret.fTypeOptionMap.putAll(fTypeOptionMap);
-
-		for (SVDBCoverBinsExpr e : fCoverBins) {
-			ret.fCoverBins.add((SVDBCoverBinsExpr)e.duplicate());
-		}
-		
-		ret.fIffExpr = (SVDBExpr)((fIffExpr != null)?fIffExpr.duplicate():null);
-		ret.fTarget  = (SVDBExpr)((fTarget != null)?fTarget.duplicate():null);
-		
-		return ret;
+		return (SVDBCoverpointExpr)super.duplicate();
 	}
 
 }

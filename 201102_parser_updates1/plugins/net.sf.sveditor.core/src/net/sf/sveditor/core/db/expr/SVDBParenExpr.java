@@ -33,7 +33,7 @@ public class SVDBParenExpr extends SVDBExpr {
 	}
 	
 	public SVDBParenExpr duplicate() {
-		return new SVDBParenExpr((SVDBExpr)fExpr.duplicate());
+		return (SVDBParenExpr)super.duplicate();
 	}
 
 }

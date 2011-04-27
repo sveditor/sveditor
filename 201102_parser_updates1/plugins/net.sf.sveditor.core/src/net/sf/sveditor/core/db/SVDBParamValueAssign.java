@@ -37,14 +37,6 @@ public class SVDBParamValueAssign extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBParamValueAssign ret = new SVDBParamValueAssign(getName(), fValue);
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		

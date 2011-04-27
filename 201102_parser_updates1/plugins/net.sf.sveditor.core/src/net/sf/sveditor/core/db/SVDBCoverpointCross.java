@@ -45,11 +45,7 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 	
 	@Override
 	public SVDBItemBase duplicate() {
-		SVDBCoverpointCross ret = new SVDBCoverpointCross(getName());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBCoverpointCross)SVDBItemUtils.duplicate(this);
 	}
 
 	@Override

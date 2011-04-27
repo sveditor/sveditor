@@ -66,11 +66,7 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
 	@Override
 	public SVDBAlwaysStmt duplicate() {
-		SVDBAlwaysStmt ret = new SVDBAlwaysStmt(fAlwaysType);
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBAlwaysStmt)super.duplicate();
 	}
 
 	@Override

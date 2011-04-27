@@ -50,12 +50,7 @@ public class SVDBConstraintDistListItem extends SVDBStmt {
 	}
 	
 	public SVDBConstraintDistListItem duplicate() {
-		SVDBConstraintDistListItem ret = new SVDBConstraintDistListItem();
-		ret.setLHS((SVDBExpr)fLHS.duplicate());
-		ret.setRHS((SVDBExpr)fRHS.duplicate());
-		ret.setIsDist(fIsDist);
-		
-		return ret;
+		return (SVDBConstraintDistListItem)super.duplicate();
 	}
 
 }

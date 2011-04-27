@@ -29,14 +29,6 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 	}
 	
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBGenerateBlock item = new SVDBGenerateBlock(getName());
-		item.init(this);
-		
-		return item;
-	}
-
-	@Override
 	public void init(SVDBItemBase other) {
 		// TODO Auto-generated method stub
 		super.init(other);

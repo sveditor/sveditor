@@ -24,11 +24,8 @@ public class SVDBClockingBlock extends SVDBScopeItem {
 	}
 	
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBClockingBlock ret = new SVDBClockingBlock(getName());
-		ret.init(this);
-		
-		return ret;
+	public SVDBClockingBlock duplicate() {
+		return (SVDBClockingBlock)SVDBItemUtils.duplicate(this);
 	}
 
 	@Override

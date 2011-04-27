@@ -15,6 +15,8 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+
 public class SVDBParamValueAssignList extends SVDBItem {
 	
 	private boolean							fNamedMapping;
@@ -33,7 +35,12 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	public void addParameter(SVDBParamValueAssign assign) {
 		fParameters.add(assign);
 	}
-	
+
+	public void addParameter(String name, String val) {
+		SVDBParamValueAssign assign = new SVDBParamValueAssign(name, new SVDBIdentifierExpr(val));
+		fParameters.add(assign);
+	}
+
 	public boolean getIsNamedMapping() {
 		return fNamedMapping;
 	}
@@ -44,11 +51,7 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	
 	@Override
 	public SVDBParamValueAssignList duplicate() {
-		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBParamValueAssignList)super.duplicate();
 	}
 
 	@Override

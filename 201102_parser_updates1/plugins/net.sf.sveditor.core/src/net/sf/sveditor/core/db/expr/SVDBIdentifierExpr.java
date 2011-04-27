@@ -37,7 +37,7 @@ public class SVDBIdentifierExpr extends SVDBExpr {
 	}
 	
 	public SVDBIdentifierExpr duplicate() {
-		return new SVDBIdentifierExpr(fId);
+		return (SVDBIdentifierExpr)super.duplicate();
 	}
 	
 

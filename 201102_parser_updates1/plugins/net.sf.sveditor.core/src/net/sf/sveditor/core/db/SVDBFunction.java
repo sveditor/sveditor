@@ -21,4 +21,17 @@ public class SVDBFunction extends SVDBTask {
 		fRetType = ret;
 	}
 
+	@Override
+	public SVDBFunction duplicate() {
+		return (SVDBFunction)super.duplicate();
+	}
+
+	@Override
+	public void init(SVDBItemBase other) {
+		super.init(other);
+		
+		SVDBFunction o = (SVDBFunction)other;
+		fRetType = o.fRetType.duplicate(); 
+	}
+	
 }

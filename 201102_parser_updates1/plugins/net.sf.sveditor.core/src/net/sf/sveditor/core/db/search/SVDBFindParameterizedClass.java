@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -42,14 +41,14 @@ import net.sf.sveditor.core.scanner.SVKeywords;
  *
  */
 public class SVDBFindParameterizedClass {
-	private ISVDBIndexIterator										fIndexIt;
-	private Set<Tuple<SVDBClassDecl, SVDBTypeInfoUserDef>>			fParamClassCache;
-	private SVDBFindNamedModIfcClassIfc								fFinder;
+	private ISVDBIndexIterator									fIndexIt;
+	private Set<Tuple<SVDBClassDecl, SVDBTypeInfoUserDef>>		fParamClassCache;
+	private SVDBFindNamedClass									fFindNamedClass;
 	
 	public SVDBFindParameterizedClass(ISVDBIndexIterator it) {
 		fIndexIt = it;
 		fParamClassCache = new HashSet<Tuple<SVDBClassDecl,SVDBTypeInfoUserDef>>();
-		fFinder = new SVDBFindNamedModIfcClassIfc(fIndexIt);
+		fFindNamedClass = new SVDBFindNamedClass(fIndexIt);
 	}
 	
 	
@@ -91,10 +90,10 @@ public class SVDBFindParameterizedClass {
 		}
 		
 		if (ret == null) {
-			List<ISVDBChildItem> result = fFinder.find(type_info.getName());
+			List<SVDBClassDecl> result = fFindNamedClass.find(type_info.getName());
 			
-			if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
-				ret = specialize((SVDBClassDecl)result.get(0), type_info);
+			if (result.size() > 0) {
+				ret = specialize(result.get(0), type_info);
 				fParamClassCache.add(
 						new Tuple<SVDBClassDecl, SVDBTypeInfoUserDef>(ret, type_info));
 			}
@@ -113,7 +112,13 @@ public class SVDBFindParameterizedClass {
 		for (int i=0; i<decl.getParameters().size(); i++) {
 			String p_name = decl.getParameters().get(i).getName();
 			// TODO:
-			String p_val  = param_list.getParameters().get(i).getValue().toString();
+			SVDBParamValueAssign assign = param_list.getParameters().get(i);
+			String p_val  = ""; 
+			if (assign.getValue() == null) {
+				System.out.println("[ERROR] parameter \"" + assign.getName() + "\" has null value");
+			} else {
+				p_val = assign.getValue().toString();
+			}
 			param_map.put(p_name, p_val);
 		}
 		

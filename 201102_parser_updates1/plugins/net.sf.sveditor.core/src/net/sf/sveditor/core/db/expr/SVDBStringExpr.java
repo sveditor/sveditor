@@ -31,11 +31,7 @@ public class SVDBStringExpr extends SVDBExpr {
 	}
 	
 	public SVDBStringExpr duplicate() {
-		SVDBStringExpr ret = new SVDBStringExpr(fStr);
-		
-		ret.init(ret);
-		
-		return ret;
+		return (SVDBStringExpr)super.duplicate();
 	}
 
 }
