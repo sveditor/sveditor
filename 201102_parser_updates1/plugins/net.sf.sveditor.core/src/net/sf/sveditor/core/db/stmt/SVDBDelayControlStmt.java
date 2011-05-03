@@ -3,10 +3,9 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBDelayControlStmt extends SVDBStmt {
+public class SVDBDelayControlStmt extends SVDBBodyStmt {
 	
 	private SVDBExpr				fExpr;
-	private SVDBStmt			fStmt;
 	
 	public SVDBDelayControlStmt() {
 		super(SVDBItemType.DelayControlStmt);
@@ -20,12 +19,4 @@ public class SVDBDelayControlStmt extends SVDBStmt {
 		return fExpr;
 	}
 	
-	public void setStmt(SVDBStmt stmt) {
-		fStmt = stmt;
-	}
-	
-	public SVDBStmt getStmt() {
-		return fStmt;
-	}
-
 }

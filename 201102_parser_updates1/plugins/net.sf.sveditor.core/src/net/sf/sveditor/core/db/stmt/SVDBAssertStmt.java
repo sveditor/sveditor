@@ -6,7 +6,7 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssertStmt extends SVDBStmt implements ISVDBNamedItem {
 	private String					fName;
-	private SVDBExpr					fExpr;
+	private SVDBExpr				fExpr;
 	private SVDBActionBlockStmt		fActionBlock;
 	
 	public SVDBAssertStmt() {

@@ -50,9 +50,11 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		return fParent;
 	}
 	
-	public Iterable<ISVDBItemBase> getChildren() {
-		return EmptySVDBItemIterable.iterable;
+	/*
+	public Iterable<ISVDBChildItem> getChildren() {
+		return EmptySVDBChildItemIterable.iterable;
 	}
+	 */
 
 	public String getName() {
 		return fName;

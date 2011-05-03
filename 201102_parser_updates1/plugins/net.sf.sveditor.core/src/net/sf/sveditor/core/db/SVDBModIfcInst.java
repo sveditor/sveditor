@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -36,6 +37,15 @@ public class SVDBModIfcInst extends SVDBFieldItem {
 		return fInstList;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fInstList.iterator();
+			}
+		};
+	}
+
 	public void addInst(SVDBModIfcInstItem item) {
 		item.setParent(this);
 		fInstList.add(item);

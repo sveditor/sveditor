@@ -30,7 +30,7 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 public class TestOpenClass extends TestCase {
 	
 	public void testOpenVariableRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +
 			"endclass\n" +
@@ -64,7 +64,7 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenVariableDottedRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +					// 1
 			"	int		field_a;\n" +			// 2
@@ -99,7 +99,7 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenVariableExplicitThisDottedRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +						// 1
 			"	int		field_a;\n" +				// 2
@@ -134,7 +134,7 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenVariableDottedSuperRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +					// 1
 			"	int		field_a;\n" +			// 2
@@ -172,7 +172,7 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenVariableExplicitDottedSuperRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +						// 1
 			"	int		field_a;\n" +				// 2

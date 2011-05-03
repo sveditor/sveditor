@@ -3,9 +3,8 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBWaitStmt extends SVDBStmt {
+public class SVDBWaitStmt extends SVDBBodyStmt {
 	private SVDBExpr			fExpr;
-	private SVDBStmt		fStmt;
 	
 	public SVDBWaitStmt() {
 		this(SVDBItemType.WaitStmt);
@@ -23,12 +22,4 @@ public class SVDBWaitStmt extends SVDBStmt {
 		return fExpr;
 	}
 	
-	public void setStmt(SVDBStmt stmt) {
-		fStmt = stmt;
-	}
-	
-	public SVDBStmt getStmt() {
-		return fStmt;
-	}
-
 }

@@ -16,13 +16,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
-	protected List<ISVDBItemBase>		fItems;
+	protected List<ISVDBChildItem>		fItems;
 	protected SVDBLocation				fEndLocation;
 	
 	protected SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);
 		
-		fItems = new ArrayList<ISVDBItemBase>();
+		fItems = new ArrayList<ISVDBChildItem>();
+	}
+	
+	public SVDBScopeItem() {
+		super("", SVDBItemType.NullExpr);
+		fItems = new ArrayList<ISVDBChildItem>();
 	}
 	
 	public void setEndLocation(SVDBLocation loc) {
@@ -33,15 +38,18 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		return fEndLocation;
 	}
 	
-	public void addItem(ISVDBChildItem item) {
+	public void addItem(ISVDBItemBase item) {
+		if (item instanceof ISVDBChildItem) {
+			((ISVDBChildItem)item).setParent(this);
+			fItems.add((ISVDBChildItem)item);
+		} else {
+			throw new RuntimeException("Failed to add non-child item");
+		}
+	}
+	
+	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fItems.add(item);
-	}
-
-	public void addItems(List<ISVDBChildItem> items) {
-		for (ISVDBChildItem item : items) {
-			addItem(item);
-		}
 	}
 
 	/**
@@ -49,30 +57,12 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	 */
 	@Deprecated
 	public List<ISVDBItemBase> getItems() {
-		return fItems;
+		return (List<ISVDBItemBase>)((List)fItems);
 	}
 	
-	public Iterable<ISVDBItemBase> getChildren() {
+	public Iterable<ISVDBChildItem> getChildren() {
 		return fItems;
 	}
-
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		SVDBScopeItem si = (SVDBScopeItem)other;
-		
-		fItems.clear();
-		for (ISVDBItemBase it : si.getItems()) {
-			fItems.add(it.duplicate());
-		}
-		if (((SVDBScopeItem)other).fEndLocation != null) {
-			fEndLocation = new SVDBLocation(
-				((SVDBScopeItem)other).fEndLocation);
-		} else {
-			fEndLocation = null;
-		}
-	}
-
 
 	@Override
 	public boolean equals(Object obj) {

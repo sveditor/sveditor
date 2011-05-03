@@ -35,6 +35,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -160,6 +162,7 @@ public class TestContentAssistBasics extends TestCase {
 	}
 
 	public void testScopedNonInheritanceAssist() {
+		LogHandle log = LogFactory.getLogHandle("testScopedNonInheritanceAssist");
 		String doc =
 			"class my_class1;\n" +							// 1
 			"    int           my_field1_class1;\n" +		// 2
@@ -174,7 +177,7 @@ public class TestContentAssistBasics extends TestCase {
 			"        int v = my_<<MARK>>\n" +				// 11
 			"    endfunction\n" +							// 12
 			"endclass\n";									// 13
-		// SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -192,15 +195,15 @@ public class TestContentAssistBasics extends TestCase {
 		
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
+			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
 			if (SVDBItem.getName(it_t).equals("my_class2")) {
 				my_class2 = (SVDBClassDecl)it_t;
 			}
 		}
 		
-		System.out.println("[my_class2] " + my_class2.getItems().size() + " items");
+		log.debug("[my_class2] " + my_class2.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class2.getItems()) {
-			System.out.println("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
+			log.debug("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
 		cp.computeProposals(scanner, ini.first(), 
@@ -212,6 +215,7 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"my_class1", "my_class2",
 				"my_field1_class2", "my_field2_class2"
 				}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testScopedFieldContentAssist() {

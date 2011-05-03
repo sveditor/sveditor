@@ -158,16 +158,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					fLog.debug("Cache " + getBaseLocation() + 
 							" is invalid : path " + path + " fs_timestamp="
 							+ fs_timestamp + " cache_timestamp=" + cache_timestamp);
-					System.out.println("Cache " + getBaseLocation() + 
-							" is invalid : path " + path + " fs_timestamp="
-							+ fs_timestamp + " cache_timestamp=" + cache_timestamp);
 					valid = false;
 					break;
 				}
 			}
 		} else {
 			fLog.debug("Cache " + getBaseLocation() + " is invalid -- 0 entries");
-			System.out.println("Cache " + getBaseLocation() + " is invalid -- 0 entries");
 			SVDBIndexFactoryUtils.setBaseProperties(fConfig, this);
 			valid = false;
 		}
@@ -178,7 +174,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				SVDBSearchResult<SVDBFile> res = findIncludedFile(path);
 				if (res != null) {
 					fLog.debug("    Found previously-missing include file \"" + path + "\"");
-					System.out.println("    Found previously-missing include file \"" + path + "\"");
 					valid = false;
 					break;
 				}
@@ -186,7 +181,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 		
 		fLog.debug("Cache " + getBaseLocation() + " is " + ((valid)?"valid":"invalid"));
-		System.out.println("Cache " + getBaseLocation() + " is " + ((valid)?"valid":"invalid"));
 
 		return valid;
 	}
@@ -213,11 +207,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		if (valid) {
 			fLog.debug("Cache is valid");
-			System.out.println("Cache is valid");
 			fIndexState = IndexState_AllFilesParsed;
 		} else {
 			fLog.debug("Cache " + getBaseLocation() + " is invalid");
-			System.out.println("Cache " + getBaseLocation() + " is invalid");
 			invalidateIndex();
 		}
 
@@ -953,7 +945,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					
 			}
 			IPreProcMacroProvider mp = createMacroProvider(ft_root);
-			System.out.println("Parse: " + path);
 			processFile(ft_root, mp);
 			ret = fCache.getFile(new NullProgressMonitor(), path);
 			
@@ -1030,7 +1021,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		 * add the file. This happens on first parse
 		 * fIndexFileMap.put(path.getFilePath(), svdb_f); }
 		 */
-		System.out.println("setFile " + path.getFilePath());
 		fCache.setFile(path.getFilePath(), svdb_f);
 		fCache.setMarkers(path.getFilePath(), markers);
 
@@ -1112,7 +1102,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public void dispose() {
-		System.out.println("dispose() " + getBaseLocation());
 		fLog.debug("dispose() - " + getBaseLocation());
 		if (fCache != null) {
 			fCache.sync();

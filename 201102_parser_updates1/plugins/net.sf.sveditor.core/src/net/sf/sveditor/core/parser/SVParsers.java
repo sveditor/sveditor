@@ -44,6 +44,7 @@ public class SVParsers {
 	private SVAssertionParser					fAssertionParser;
 	private SVModIfcBodyItemParser				fModIfcBodyItemParser;
 	private SVConstraintParser					fConstraintParser;
+	private SVAttributeParser					fAttrParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
@@ -210,6 +211,13 @@ public class SVParsers {
 			fConstraintParser = new SVConstraintParser(fSVParser);
 		}
 		return fConstraintParser;
+	}
+	
+	public SVAttributeParser attrParser() {
+		if (fAttrParser == null) {
+			fAttrParser = new SVAttributeParser(fSVParser);
+		}
+		return fAttrParser;
 	}
 
 }

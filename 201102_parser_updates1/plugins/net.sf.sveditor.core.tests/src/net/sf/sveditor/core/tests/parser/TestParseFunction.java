@@ -16,8 +16,10 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -27,16 +29,32 @@ import net.sf.sveditor.core.parser.SVParseException;
 
 public class TestParseFunction extends TestCase {
 	
+	private SVDBTask parse_tf(String content, String name) throws SVParseException {
+		SVDBScopeItem scope = new SVDBScopeItem();
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		parser.init(new StringInputStream(content), name);
+		
+		parser.parsers().taskFuncParser().parse(scope, null, 0);
+
+		return (SVDBTask)scope.getChildren().iterator().next();
+	}
+
+	private SVDBClassDecl parse_class(String content, String name) throws SVParseException {
+		SVDBScopeItem scope = new SVDBScopeItem();
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		parser.init(new StringInputStream(content), name);
+		
+		parser.parsers().classParser().parse(scope, 0);
+
+		return (SVDBClassDecl)scope.getChildren().iterator().next();
+	}
+
 	public void testBasicFunction() throws SVParseException {
 		String content =
 			"function void foobar();\n" +
 			"    a = 5;\n" +
 			"endfunction\n";
-		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		parser.parsers().taskFuncParser().parse(null, 0);
+		parse_tf(content, "testBasicFunction");
 	}
 
 	public void testReturnOnlyFunction() throws SVParseException {
@@ -45,19 +63,9 @@ public class TestParseFunction extends TestCase {
 			"local virtual function string foobar();\n" +
 			"    return \"foobar\";\n" +
 			"endfunction\n" +
-			"endclass\n" 
+			"endclass\n"
 			;
-		
-		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		try {
-			parser.parsers().classParser().parse(0);
-		} catch (SVParseException e) {
-			e.printStackTrace();
-			throw e;
-		}
+		parse_class(content, "testReturnOnlyFunction");
 	}
 
 	// Tests that local variables are correctly recognized and that 
@@ -71,10 +79,8 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parse_tf(content, "testLocalVarsWithCast");
 
 		assertEquals(3, func.getItems().size());
 		SVDBVarDeclItem a=null, b=null;
@@ -104,10 +110,8 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parse_tf(content, "testLocalTimeVar");
 
 		assertEquals(2, func.getItems().size());
 		assertTrue(func.getItems().get(0).getType() == SVDBItemType.VarDeclStmt);
@@ -126,9 +130,8 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parse_tf(content, "testLocalTypedef");
 		
 		SVDBVarDeclItem a=null;
 		for (ISVDBItemBase it : func.getItems()) {
@@ -154,10 +157,7 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-//		SVDBTaskFuncScope func = 
-			parser.parsers().taskFuncParser().parse(null, 0);
+		parse_tf(content, "testStaticFunction");
 	}
 	
 	public void testIfElseBody() throws SVParseException {
@@ -177,11 +177,8 @@ public class TestParseFunction extends TestCase {
 			;
 
 		SVCorePlugin.getDefault().enableDebug(false);
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-//		SVDBTaskFuncScope func = 
-			parser.parsers().taskFuncParser().parse(null, 0);
+		parse_tf(content, "testIfElseBody");
 	}
 
 	public void testAutomaticFunction() throws SVParseException {
@@ -191,9 +188,8 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-		parser.parsers().taskFuncParser().parse(null, 0);
+		parse_tf(content, "testAutomaticFunction");
 	}
 
 	public void testParamListFunction() throws SVParseException {
@@ -212,10 +208,8 @@ public class TestParseFunction extends TestCase {
 			"endfunction\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
 		
-		SVDBTask func = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
 		assertEquals("bar", func.getParams().get(1).getVarList().get(0).getName());
 		assertEquals(SVDBParamPortDecl.Direction_Ref,

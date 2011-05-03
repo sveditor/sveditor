@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -352,7 +353,7 @@ public class SVDataTypeParser extends SVParserBase {
 		return type;
 	}
 	
-	public SVDBTypedefStmt typedef() throws SVParseException {
+	public void typedef(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBTypedefStmt typedef = null;
 
 		// typedef <type> <name>;
@@ -383,8 +384,7 @@ public class SVDataTypeParser extends SVParserBase {
 		}
 
 		fLexer.readOperator(";");
-		
-		return typedef;
+		parent.addChildItem(typedef);
 	}
 	
 	public SVDBVarDimItem var_dim() throws SVParseException {
@@ -473,7 +473,7 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 			}
 			
-			struct.addField(var);
+			struct.addChildItem(var);
 			fLexer.readOperator(";");
 							
 		} while (fLexer.peek() != null && !fLexer.peekOperator("}"));

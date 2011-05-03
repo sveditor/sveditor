@@ -65,11 +65,6 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 		fParent = (SVDBVarDeclStmt)parent;
 	}
 
-	public Iterable<ISVDBItemBase> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public SVDBVarDeclItem duplicate() {
 		return (SVDBVarDeclItem)super.duplicate();
 	}

@@ -28,14 +28,6 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	private SVDBFile(String file, long lastModified) {
-		this(file);
-		
-		fFile = file;
-		fLastModified = lastModified;
-		setLocation(new SVDBLocation(-1, -1));
-	}
-
 	public long getLastModified() {
 		return fLastModified;
 	}

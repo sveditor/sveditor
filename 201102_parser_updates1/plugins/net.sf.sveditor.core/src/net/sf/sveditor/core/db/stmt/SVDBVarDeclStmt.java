@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -88,9 +89,9 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 	}
 	
 	@Override
-	public Iterable<ISVDBItemBase> getChildren() {
-		return new Iterable<ISVDBItemBase>() {
-			public Iterator<ISVDBItemBase> iterator() {
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
 				return (Iterator)fVarList.iterator();
 			}
 		};

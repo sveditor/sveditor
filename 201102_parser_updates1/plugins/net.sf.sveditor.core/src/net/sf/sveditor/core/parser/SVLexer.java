@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.parser;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +42,7 @@ public class SVLexer extends SVToken {
 	private SVToken						fCaptureLastToken;
 	private ISVParser					fParser;
 	private Stack<SVToken>				fUngetStack;
+	private boolean						fInAttr;
 		
 	public static final String RelationalOps[] = {
 		"&", "&&", "|", "||", 
@@ -65,6 +65,7 @@ public class SVLexer extends SVToken {
 		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
 		"->", "#", "##", "@", "@@",
+		"(*", "*)"
 	};
 	
 	private static final String AllOperators[];
@@ -120,6 +121,10 @@ public class SVLexer extends SVToken {
 	
 	public void setNewlineAsOperator(boolean en) {
 		fNewlineAsOperator = en;
+	}
+	
+	public void setInAttr(boolean in) {
+		fInAttr = in;
 	}
 	
 	public void init(ISVParser parser, ITextScanner scanner) {
@@ -473,6 +478,7 @@ public class SVLexer extends SVToken {
 				/*
 				boolean ret;
 				if ((ret = next_token_int()) && fIsOperator && fImage.equals("(*")) {
+					fInAttr = true;
 					// Consume attribute instance
 					List<SVToken> unget_list = new ArrayList<SVToken>();
 					unget_list.add(consumeToken());
@@ -483,9 +489,11 @@ public class SVLexer extends SVToken {
 							break;
 						} 
 						if (fIsKeyword) {
+							fInAttr = false;
 							return ret;
 						}
 					}
+					fInAttr = false;
 				}
 				return ret;
 				 */
@@ -615,7 +623,40 @@ public class SVLexer extends SVToken {
 			}
 			
 			fImage = fStringBuffer.toString();
-
+		} else if (ch == '(') {
+			// Could be (, (*
+			// Want to avoid (*) case
+			ch2 = get_ch();
+			if (ch2 == '*') {
+				int ch3 = get_ch();
+				if (ch3 != ')') {
+					fStringBuffer.append("(*");
+					System.out.println("unget_ch3: " + (char)ch3);
+					unget_ch(ch3);
+				} else {
+					System.out.println("unget_ch3: " + (char)ch3 + " ch2=" + (char)ch2);
+					unget_ch(ch3);
+					unget_ch(ch2);
+					fStringBuffer.append("(");
+				}
+			} else {
+				unget_ch(ch2);
+				fStringBuffer.append("(");
+			}
+			fIsOperator = true;
+		} else if (ch == '*') {
+			// Could be *, **, or *)
+			ch2 = get_ch();
+			
+			if (ch2 == ')' && fInAttr) {
+				fStringBuffer.append("*)");
+			} else if (ch2 == '*') {
+				fStringBuffer.append("**");
+			} else {
+				fStringBuffer.append("*");
+				unget_ch(ch2);
+			}
+			fIsOperator = true;
 		} else if (fOperatorSet.contains(tmp) || 
 				// Operators that can have up to two elements
 				f2SeqPrefixes.contains(tmp) ||
@@ -836,6 +877,7 @@ public class SVLexer extends SVToken {
 
 	private void error(String msg) throws SVParseException {
 		endCapture();
+		setInAttr(false);
 		fParser.error(msg);
 	}
 }

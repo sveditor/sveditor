@@ -39,6 +39,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private int					fInputBufferIdx = 0;
 	private int					fInputBufferMax = 0;
 	private int					fUngetCh = -1;
+	private int					fUngetCh2 = -1;
 	private int					fLastCh  = -1;
 	private int					fLineno;
 	private StringBuffer		fPPBuffer;
@@ -716,7 +717,8 @@ public class SVPreProcScanner implements ISVScanner {
 			
 			if (fUngetCh != -1) {
 				ch = fUngetCh;
-				fUngetCh = -1;
+				fUngetCh = fUngetCh2;
+				fUngetCh2 = -1;
 				return ch;
 			}
 			
@@ -739,62 +741,24 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 			fLastCh = ch;
 			
-			if (ch_l != '\r') {
+			if (ch != '\r' && ch_l != '\r') {
 				break;
-			} else if (ch != '\n') {
+			} else if (ch_l == '\r' && ch != '\n') {
 				unget_ch(ch);
 				ch = '\n';
 			}
 			ch_l = ch;
 		}
-		/*
-		int ch = get_ch_ll_1();
-		
-		if (ch == '\r') {
-			int ch2 = get_ch_ll_1();
-			if (ch2 != '\n') {
-				unget_ch(ch2);
-			}
-			ch = '\n';
-		}
-		
-		 */
-		return ch;
-	}
-	
-	private int get_ch_ll_1() {
-		int ch = -1;
-		
-		if (fUngetCh != -1) {
-			ch = fUngetCh;
-			fUngetCh = -1;
-			return ch;
-		}
-		
-		if (fInputBufferIdx >= fInputBufferMax) {
-			fInputBufferIdx = 0;
-			fInputBufferMax = -1;
-			try {
-				fInputBufferMax = fInput.read(
-						fInputBuffer, 0, fInputBuffer.length);
-			} catch (IOException e) {
-			}
-		}
-		
-		if (fInputBufferIdx < fInputBufferMax) {
-			ch = fInputBuffer[fInputBufferIdx++];
-		}
-		
-		if (fLastCh == '\n') {
-			fLineno++;
-		}
-		fLastCh = ch;
-		
 		return ch;
 	}
 	
 	private void unget_ch(int ch) {
-		fUngetCh = ch;
+		if (fUngetCh == -1) {
+			fUngetCh = ch;
+		} else {
+			fUngetCh2 = fUngetCh;
+			fUngetCh = ch;
+		}
 	}
 	
 	private void push_unacc(String str) {

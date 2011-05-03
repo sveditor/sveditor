@@ -15,12 +15,15 @@ package net.sf.sveditor.core.db;
 import java.util.List;
 
 
-public interface ISVDBScopeItem extends ISVDBChildItem {
+public interface ISVDBScopeItem extends ISVDBChildParent {
 	
 	SVDBLocation getEndLocation();
 	
 	void setEndLocation(SVDBLocation loc);
 	
 	List<ISVDBItemBase> getItems();
-
+	
+	@Deprecated
+	void addItem(ISVDBItemBase item);
+	
 }

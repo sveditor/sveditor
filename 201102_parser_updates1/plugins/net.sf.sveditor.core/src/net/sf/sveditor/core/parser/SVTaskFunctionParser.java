@@ -15,10 +15,12 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -31,16 +33,27 @@ public class SVTaskFunctionParser extends SVParserBase {
 		super(parser);
 	}
 	
+	public void parse_method_decl(ISVDBScopeItem parent) throws SVParseException {
+		parse(parent, null, true, 0);
+	}
+
 	public SVDBTask parse_method_decl() throws SVParseException {
-		return parse(null, true, 0);
+		SVDBScopeItem scope = new SVDBScopeItem();
+		parse(scope, null, true, 0);
+		
+		if (scope.getItems().size() > 0) {
+			return (SVDBTask)scope.getItems().get(0);
+		} else {
+			return null;
+		}
 	}
-	
+
 	// Enter on 'function'
-	public SVDBTask parse(SVDBLocation start, int qualifiers) throws SVParseException {
-		return parse(start, false, qualifiers);
+	public void parse(ISVDBScopeItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
+		parse(parent, start, false, qualifiers);
 	}
 	
-	private SVDBTask parse(SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
+	private void parse(ISVDBScopeItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
 		SVDBTask func = null;
 		SVDBLocation end = null;
 		String tf_name;
@@ -134,6 +147,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 		func.setAttr(qualifiers);
 		func.setLocation(start);
 		
+		parent.addItem(func);
+		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
 				(qualifiers & (SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) !=
@@ -168,8 +183,6 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		
 		func.setEndLocation(end);
-		
-		return func;
 	}
 
 }

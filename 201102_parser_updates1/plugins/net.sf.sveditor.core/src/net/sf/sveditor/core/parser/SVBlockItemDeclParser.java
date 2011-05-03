@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
@@ -25,12 +27,14 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBStmt parse() throws SVParseException {
-		SVDBStmt decl = null;
+	public void parse(ISVDBAddChildItem parent, SVDBLocation start) throws SVParseException {
 		
 		if (fLexer.peekKeyword("typedef")) {
-			decl = parsers().dataTypeParser().typedef();
-		} else {		
+			parsers().dataTypeParser().typedef(parent);
+		} else {
+			if (start == null) {
+				start = fLexer.getStartLocation();
+			}
 			// TODO: add qualifiers to variable
 			if (fLexer.peekKeyword("const")) {
 				fLexer.eatToken();
@@ -50,6 +54,8 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				// Data declaration or statement
 				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
+				var_decl.setLocation(start);
+				parent.addChildItem(var_decl);
 
 				// Ensure we don't misinterpret a static reference
 				if (!fLexer.peekOperator("::")) {
@@ -80,12 +86,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 					}
 					fLexer.readOperator(";");
 				}
-				decl = var_decl;
 			} else {
 				error("Unexpected variable-declaration stem token \"" + fLexer.peek() + "\"");
 			}
 		}
-		
-		return decl;
 	}
 }

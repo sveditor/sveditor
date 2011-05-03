@@ -90,8 +90,12 @@ public class SVDBTestUtils {
 		
 		return null;
 	}
-
+	
 	public static SVDBFile parse(String content, String filename) {
+		return parse(content, filename, false);
+	}
+
+	public static SVDBFile parse(String content, String filename, boolean exp_err) {
 		SVDBFile file = null;
 		SVPreProcScanner pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
@@ -125,7 +129,9 @@ public class SVDBTestUtils {
 		for (SVDBMarker m : markers) {
 			System.out.println("[MARKER] " + m.getMessage());
 		}
-		TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		if (!exp_err) {
+			TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		}
 
 		/*
 		// Test persistence

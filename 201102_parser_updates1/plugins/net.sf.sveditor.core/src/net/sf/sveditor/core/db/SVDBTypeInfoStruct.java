@@ -13,11 +13,13 @@
 package net.sf.sveditor.core.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
-public class SVDBTypeInfoStruct extends SVDBTypeInfo {
+public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
+	private SVDBLocation					fEndLocation;
 	private List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
@@ -25,12 +27,37 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 		fFields = new ArrayList<SVDBVarDeclStmt>();
 	}
 	
+	public SVDBLocation getEndLocation() {
+		return fEndLocation;
+	}
+
+
+	public void setEndLocation(SVDBLocation loc) {
+		fEndLocation = loc;
+	}
+
+	// Deprecated methods
+	public List<ISVDBItemBase> getItems() {
+		return (List)fFields;
+	}
+	
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fFields.iterator();
+			}
+		};
+	}
+
+	public void addItem(ISVDBItemBase item) {
+	}
+
 	public List<SVDBVarDeclStmt> getFields() {
 		return fFields;
 	}
 	
-	public void addField(SVDBVarDeclStmt f) {
-		fFields.add(f);
+	public void addChildItem(ISVDBChildItem f) {
+		fFields.add((SVDBVarDeclStmt)f);
 		f.setParent(this);
 	}
 

@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -80,6 +82,7 @@ public class TestContentAssistStruct extends TestCase {
 	 * Test that content assist on struct module ports works
 	 */
 	public void testContentAssistStructModuleInput() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructModuleInput");
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -98,7 +101,7 @@ public class TestContentAssistStruct extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
@@ -107,8 +110,8 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
@@ -119,6 +122,7 @@ public class TestContentAssistStruct extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBCovergroup.BinsKW;
 import net.sf.sveditor.core.db.SVDBCoverpoint;
@@ -27,13 +28,14 @@ public class SVCovergroupParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBCovergroup parse() throws SVParseException {
+	public void parse(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("covergroup");
 		String cg_name = fLexer.readId();
 
 		SVDBCovergroup cg = new SVDBCovergroup(cg_name);
 		cg.setLocation(start);
+		
 
 		while (fLexer.peekOperator("(")) {
 			cg.setParamPort(parsers().tfPortListParser().parse());
@@ -50,6 +52,7 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
+		parent.addItem(cg);
 
 		// Skip statements
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
@@ -70,8 +73,6 @@ public class SVCovergroupParser extends SVParserBase {
 			fLexer.eatToken();
 			fLexer.readId(); // labeled group
 		}
-
-		return cg;
 	}
 	
 	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {

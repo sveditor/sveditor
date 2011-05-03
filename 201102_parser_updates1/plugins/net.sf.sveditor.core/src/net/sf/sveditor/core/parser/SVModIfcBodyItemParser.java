@@ -1,12 +1,10 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBAssign;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFieldItem;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBModportClockingPortDecl;
@@ -32,7 +30,6 @@ import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -44,9 +41,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public ISVDBChildItem parse(String typename) throws SVParseException {
+	public void parse(ISVDBScopeItem parent, String typename) throws SVParseException {
 		int modifiers = 0;
-		ISVDBChildItem ret = null;
+		if (fLexer.peekOperator("(*")) {
+			fParsers.attrParser().parse(parent);
+		}
 		String id = fLexer.peek();
 
 		debug("--> process_module_class_interface_body_item: \"" + id + 
@@ -61,70 +60,67 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		debug("body item is: " + id);
 
 		if (id.equals("function") || id.equals("task")) {
-			ret = parsers().taskFuncParser().parse(start, modifiers);
+			parsers().taskFuncParser().parse(parent, start, modifiers);
 		} else if (id.equals("property")) {
-			ret = parsers().SVParser().process_property();
+			parsers().SVParser().process_property(parent);
 		} else if (fLexer.peekKeyword("generate", "for", "if", "case")) {
 			// Generate-block statements
-			ret = parsers().generateBlockParser().parse();
+			parsers().generateBlockParser().parse(parent);
 		} else if (id.equals("specify")) {
-			ret = parsers().specifyBlockParser().parse();
+			parsers().specifyBlockParser().parse(parent);
 		} else if (fLexer.peekKeyword("default", "global", "clocking")) {
 			// Clocking block
-			ret = parsers().clockingBlockParser().parse();
+			parsers().clockingBlockParser().parse(parent);
 		} else if (id.equals(";")) {
 			// null statement
+			SVDBNullStmt stmt = new SVDBNullStmt();
+			stmt.setLocation(fLexer.getStartLocation());
 			fLexer.eatToken();
-			ret = new SVDBNullStmt();
+			parent.addChildItem(stmt);
 		} else if (fLexer.peekKeyword("always","always_comb","always_latch","always_ff","initial")) {
-			ret = parse_initial_always();
+			parse_initial_always(parent);
 		} else if (fLexer.peekKeyword("final")) {
-			ret = parse_final();
+			parse_final(parent);
 		} else if (id.equals("modport")) {
-			ret = modport_decl();
+			modport_decl(parent);
 		} else if (id.equals("assign")) {
-			ret = parse_assign();
+			parse_assign(parent);
 		} else if (id.equals("covergroup")) {
-			ret = parsers().covergroupParser().parse();
+			parsers().covergroupParser().parse(parent);
 		} else if (id.equals("constraint")) {
-			ret = fParsers.constraintParser().parse(modifiers);
+			fParsers.constraintParser().parse(parent, modifiers);
 		} else if (id.equals("sequence")) {
-			fParsers.SVParser().process_sequence();
-			ret = fSpecialNonNull;
+			fParsers.SVParser().process_sequence(parent);
 		} else if (id.equals("import")) {
-			ret = parsers().impExpParser().parse_import();
+			parsers().impExpParser().parse_import(parent);
 		} else if (id.equals("clocking")) {
-			ret = fParsers.clockingBlockParser().parse();
+			fParsers.clockingBlockParser().parse(parent);
 		} else if (id.equals("typedef")) {
-			SVDBTypedefStmt td = parsers().dataTypeParser().typedef();
-			
-			ret = td;
+			parsers().dataTypeParser().typedef(parent);
 		} else if (id.equals("class")) {
-			SVDBClassDecl cls = null;
 			try {
-				cls = parsers().classParser().parse(modifiers);
+				parsers().classParser().parse(parent, modifiers);
 			} catch (SVParseException e) {
 //				System.out.println("ParseException: post-class-module()");
 //				e.printStackTrace();
 			}
-			ret = cls;
 		} else if (id.equals("module") || id.equals("program") ||
 				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
-			SVDBModIfcDecl m = null;
 			// enter module scope
 			// TODO: should probably add this item to the 
 			// File scope here
 			try {
-				m = parsers().modIfcProgParser().parse(modifiers);
+				parsers().modIfcProgParser().parse(parent, modifiers);
 			} catch (SVParseException e) {
 			}
-			
-			ret = m;
 		} else if (id.equals("parameter") || id.equals("localparam")) {
-			ret = parse_parameter_decl();
+			parse_parameter_decl(parent);
 		} else if (fLexer.peekKeyword("defparam")) {
-			fLexer.eatToken();
 			SVDBDefParamStmt defparam = new SVDBDefParamStmt();
+			defparam.setLocation(fLexer.getStartLocation());
+			fLexer.eatToken();
+			
+			parent.addChildItem(defparam);
 			
 			while (fLexer.peek() != null) {
 				SVDBLocation is = fLexer.getStartLocation();
@@ -143,11 +139,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = defparam;
 		} else if (SVDataTypeParser.NetType.contains(id)) {
-			ret = parse_var_decl();
+			parse_var_decl(parent);
 		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
-			ret = parsers().gateInstanceParser().parse();
+			parsers().gateInstanceParser().parse(parent);
 		} else if (fLexer.peekKeyword("defparam", "specparam")) {
 			// TODO: defparam doesn't appear in hierarchy
 			fLexer.eatToken();
@@ -160,25 +155,20 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = fSpecialNonNull;
 		} else if (!fLexer.peekOperator()) {
 			// likely a variable or module declaration
 
 			debug("Likely VarDecl: " + id);
 
-			ret = parse_var_decl_module_inst(modifiers);
+			parse_var_decl_module_inst(parent, modifiers);
+		} else {
+			error("Unknown module/class/iterface body item: Operator " + fLexer.eatToken());
 		}
 
-		debug("<-- process_module_class_interface_body_item - " + 
-				((ret != null)?SVDBItem.getName(ret):"NULL"));
-
-		if (ret != null) {
-			ret.setLocation(start);
-		}
-		return ret;
+		debug("<-- process_module_class_interface_body_item"); 
 	}
 	
-	public ISVDBChildItem parse_parameter_decl() throws SVParseException {
+	public void parse_parameter_decl(ISVDBScopeItem parent) throws SVParseException {
 		// local parameter
 		fLexer.readKeyword("parameter", "localparam");
 		
@@ -201,6 +191,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		
 		SVDBParamPortDecl p = new SVDBParamPortDecl(data_type);
 		SVDBVarDeclItem pi;
+		
+		parent.addItem(p);
+		
 		while (true) {
 			pi = new SVDBVarDeclItem(param_name);
 			
@@ -224,11 +217,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 		}
 		fLexer.readOperator(";");
-		
-		return p;
 	}
 	
-	public SVDBAssign parse_assign() throws SVParseException {
+	public void parse_assign(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("assign");
 		SVDBAssign assign = new SVDBAssign();
@@ -247,10 +238,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		
 		fLexer.readOperator(";");
 		
-		return assign;
+		parent.addChildItem(assign);
 	}
 	
-	private SVDBVarDeclStmt parse_var_decl() throws SVParseException {
+	private void parse_var_decl(ISVDBScopeItem parent) throws SVParseException {
 		// net type
 		String net_type = fLexer.eatToken();
 		String vector_dim = null;
@@ -293,6 +284,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
 		
 		var = new SVDBVarDeclStmt(type_info, 0);
+		parent.addChildItem(var);
 		while (true) {
 			
 			SVDBVarDeclItem vi = new SVDBVarDeclItem(net_name);
@@ -317,13 +309,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
-		return var;
 	}
 	
-	public ISVDBChildItem parse_var_decl_module_inst(int modifiers) throws SVParseException {
+	public void parse_var_decl_module_inst(ISVDBScopeItem parent, int modifiers) throws SVParseException {
 		SVDBTypeInfo type;
 		SVDBLocation start = fLexer.getStartLocation(), item_start;
-		ISVDBChildItem ret = null;
 
 		// TODO: need to modify this to be different for class and module/interface
 		// scopes
@@ -340,6 +330,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			type = new SVDBTypeInfoModuleIfc(type.getName());
 			SVDBModIfcInst inst = new SVDBModIfcInst(type);
 			inst.setLocation(start);
+			
+			parent.addChildItem(inst);
 
 			while (fLexer.peek() != null) {
 				// it's a module
@@ -358,11 +350,12 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = inst;
 		} else {
 			SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, 0);
 			item.setAttr(modifiers);
 			item.setLocation(start);
+			
+			parent.addChildItem(item);
 
 			while (fLexer.peek() != null) {
 				SVDBVarDeclItem vi = new SVDBVarDeclItem(inst_name_or_var);
@@ -390,29 +383,28 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = item;
 		}
-		
-		return ret;
 	}
 	
-	private ISVDBChildItem parse_final() throws SVParseException {
+	private void parse_final(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("final");
 		
 		SVDBBodyStmt ret = new SVDBFinalStmt();
 		ret.setLocation(start);
 		
-		ret.setBody(fParsers.behavioralBlockParser().statement());
+		parent.addChildItem(ret);
 		
-		return ret;
+		fParsers.behavioralBlockParser().statement(ret);
 	}
 	
-	private ISVDBChildItem modport_decl() throws SVParseException {
+	private void modport_decl(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("modport");
 		SVDBModportDecl modport = new SVDBModportDecl();
 		modport.setLocation(start);
+		
+		parent.addItem(modport);
 		
 		while (fLexer.peek() != null) {
 			start = fLexer.getStartLocation();
@@ -453,8 +445,6 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 		}
 		fLexer.readOperator(";");
-		
-		return modport;
 	}
 
 	private SVDBModportClockingPortDecl modport_clocking_declaration() throws SVParseException {
@@ -475,6 +465,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			} else {
 				port.setId(fLexer.readId());
 			}
+			ret.addChildItem(port);
 			
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
@@ -524,7 +515,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		return ret;
 	}
 	
-	private ISVDBChildItem parse_initial_always() throws SVParseException {
+	private void parse_initial_always(ISVDBScopeItem parent) throws SVParseException {
 		ISVDBChildItem ret = null;
 		SVDBLocation start = fLexer.getStartLocation();
 		String type = fLexer.readKeyword("initial", 
@@ -565,8 +556,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 		ret.setLocation(start);
 		
-		((SVDBBodyStmt)ret).setBody(fParsers.behavioralBlockParser().statement());
-
-		return ret;
+		parent.addChildItem(ret);
+		fParsers.behavioralBlockParser().statement((SVDBBodyStmt)ret);
 	}
 }

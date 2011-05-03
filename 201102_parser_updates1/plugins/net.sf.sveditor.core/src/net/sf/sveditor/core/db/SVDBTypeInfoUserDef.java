@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 import java.util.List;
 
 
-public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem {
+public class SVDBTypeInfoUserDef extends SVDBTypeInfo /* implements ISVDBScopeItem  */{
 	protected SVDBParamValueAssignList				fParamAssignList;
 	protected SVDBLocation							fEndLocation;
 	protected List<ISVDBItemBase>					fItems;

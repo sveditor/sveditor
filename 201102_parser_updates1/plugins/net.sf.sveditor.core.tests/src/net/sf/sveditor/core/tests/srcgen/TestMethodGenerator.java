@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.srcgen;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -24,6 +25,16 @@ import net.sf.sveditor.core.srcgen.MethodGenerator;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 
 public class TestMethodGenerator extends TestCase {
+	
+	private SVDBTask parse_tf(String content, String name) throws SVParseException {
+		SVDBScopeItem scope = new SVDBScopeItem();
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		parser.init(new StringInputStream(content), name);
+		
+		parser.parsers().taskFuncParser().parse(scope, null, 0);
+
+		return (SVDBTask)scope.getChildren().iterator().next();
+	}
 	
 	public void testVoidFunction() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -42,10 +53,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testVoidFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -73,10 +81,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testBuiltinRetFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -104,10 +109,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testParamClassRetFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -135,10 +137,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testParamClassParamFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -166,10 +165,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testRefParamFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		
@@ -198,10 +194,7 @@ public class TestMethodGenerator extends TestCase {
 			"\n" +
 			"    endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		
-		SVDBTask tf = parser.parsers().taskFuncParser().parse(null, 0);
+		SVDBTask tf = parse_tf(content, "testRefVarListParamFunction");
 		
 		MethodGenerator gen = new MethodGenerator();
 		

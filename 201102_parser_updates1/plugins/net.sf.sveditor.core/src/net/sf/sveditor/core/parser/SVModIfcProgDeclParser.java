@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -30,7 +31,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBModIfcDecl parse(int qualifiers) throws SVParseException {
+	public void parse(ISVDBScopeItem parent, int qualifiers) throws SVParseException {
 		String id;
 		String module_type_name = null;
 		SVDBModIfcDecl module = null;
@@ -77,12 +78,13 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		module.setLocation(start);
 		
+		parent.addItem(module);
+		
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
 			while (fLexer.peekKeyword("import")) {
 				// Import statement
-				ISVDBChildItem imp = parsers().impExpParser().parse_import();
-				module.addItem(imp);
+				parsers().impExpParser().parse_import(module);
 			}
 		}
 
@@ -103,15 +105,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end" + type_name)) {
 				try {
-					ISVDBChildItem item = fParsers.modIfcBodyItemParser().parse(type_name);
-					
-					// Check whether we aborted parsing the body because
-					// we found a 1st-level scope keyword
-					if (item == null) {
-						break;
-					}
-
-					module.addItem(item);
+					fParsers.modIfcBodyItemParser().parse(module, type_name);
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
@@ -136,7 +130,6 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		}
 
 		debug("<-- process_mod_ifc_prog()");
-		return module;
 	}
 
 }

@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -12,7 +13,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBModIfcInst parse() throws SVParseException {
+	public void parse(ISVDBScopeItem parent) throws SVParseException {
 		SVDBModIfcInst item = null;
 		
 		if (fLexer.peekKeyword("cmos", "rcmos")) {
@@ -275,8 +276,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
-		
-		return item;
+
+		parent.addItem(item);
 	}
 
 }

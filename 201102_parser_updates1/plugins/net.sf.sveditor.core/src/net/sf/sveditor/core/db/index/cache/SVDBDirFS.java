@@ -113,7 +113,7 @@ public class SVDBDirFS implements ISVDBFS {
 		} else {
 			File file = new File(fDBDir, path);
 
-			System.out.println("Delete \"" + file.getAbsolutePath() + "\"");
+			debug("Delete \"" + file.getAbsolutePath() + "\"");
 
 			if (file.isDirectory()) {
 				delete_tree(file);
@@ -138,7 +138,7 @@ public class SVDBDirFS implements ISVDBFS {
 			if (p.exists()) {
 				for (File f : p.listFiles()) {
 					if (f.getName().equals("..") || f.getName().equals(".")) {
-						System.out.println("[ERROR] " + f.getName());
+						debug("[ERROR] " + f.getName());
 						continue;
 					}
 					if (f.isDirectory()) {
@@ -147,7 +147,7 @@ public class SVDBDirFS implements ISVDBFS {
 				}
 				for (File f : p.listFiles()) {
 					if (f.getName().equals("..") || f.getName().equals(".")) {
-						System.out.println("[ERROR] " + f.getName());
+						debug("[ERROR] " + f.getName());
 						continue;
 					}
 					if (f.isFile()) {
@@ -163,6 +163,10 @@ public class SVDBDirFS implements ISVDBFS {
 	public void sync() throws IOException {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private void debug(String msg) {
+		// TODO:
 	}
 
 }

@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
@@ -32,7 +33,7 @@ public class SVClassDeclParser extends SVParserBase {
 	 * @return
 	 * @throws SVParseException
 	 */
-	public SVDBClassDecl parse(int qualifiers) throws SVParseException {
+	public void parse(ISVDBScopeItem parent, int qualifiers) throws SVParseException {
 		SVDBClassDecl cls = null;
 		SVDBTypeInfoClassType cls_type;
 		String cls_type_name = null;
@@ -84,23 +85,16 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		fLexer.readOperator(";");
 		
+		parent.addChildItem(cls);
+		
 		// TODO: need a better system here...
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endclass")) {
-			ISVDBChildItem item;
 			
 			try {
-				item = fParsers.modIfcBodyItemParser().parse("class");
-				
-				if (item == null) {
-					
-				}
-				
-				cls.addItem(item);
+				fParsers.modIfcBodyItemParser().parse(cls, "class");
 			} catch (SVParseException e) {
 				// Catch error
 			}
-			
-			// TODO: normally we'd add this item to the class, but that's already being done
 		}
 
 		cls.setEndLocation(fLexer.getStartLocation());
@@ -111,8 +105,6 @@ public class SVClassDeclParser extends SVParserBase {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
-		
-		return cls;
 	}
 
 }

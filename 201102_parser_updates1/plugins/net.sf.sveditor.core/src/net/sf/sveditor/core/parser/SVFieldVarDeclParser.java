@@ -2,8 +2,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVFieldVarDeclParser extends SVParserBase {
@@ -18,7 +17,7 @@ public class SVFieldVarDeclParser extends SVParserBase {
 	 * @param decl_allowed
 	 * @return
 	 */
-	public ISVDBItemBase try_parse(boolean decl_allowed) throws SVParseException {
+	public boolean try_parse(ISVDBAddChildItem parent, boolean decl_allowed) throws SVParseException {
 		if ((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void")) ||
 				fLexer.isIdentifier() || fLexer.peekKeyword("typedef")) {
 			boolean builtin_type = (fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void"));
@@ -29,8 +28,8 @@ public class SVFieldVarDeclParser extends SVParserBase {
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");
 				}
-				SVDBStmt decl = parsers().blockItemDeclParser().parse();
-				return decl;
+				parsers().blockItemDeclParser().parse(parent, null);
+				return true;
 			} else {
 				// May be a declaration. Let's see
 				
@@ -52,10 +51,10 @@ public class SVFieldVarDeclParser extends SVParserBase {
 						error("declaration in a non-declaration location");
 					}
 					
-					SVDBStmt decl = parsers().blockItemDeclParser().parse();
+					parsers().blockItemDeclParser().parse(parent, null);
 				
 					// Bail for now
-					return decl; 
+					return true; 
 				}
 			}
 		} else {
@@ -64,7 +63,7 @@ public class SVFieldVarDeclParser extends SVParserBase {
 			debug("non-declaration statement: " + fLexer.peek());
 		}
 		
-		return null;
+		return false;
 	}
 
 }

@@ -12,8 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
 
 public class SVGenerateBlockParser extends SVParserBase {
@@ -22,38 +21,38 @@ public class SVGenerateBlockParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public ISVDBChildItem parse() throws SVParseException {
+	public void parse(ISVDBScopeItem parent) throws SVParseException {
 		if (fLexer.peekKeyword("generate")) {
-			return generate_block();
+			generate_block(parent);
 		} else if (fLexer.peekKeyword("if")) {
-			return if_block();
+			if_block(parent);
 		} else if (fLexer.peekKeyword("for")) {
-			return for_block();
+			for_block(parent);
 		} else if (fLexer.peekKeyword("case")) {
-			return case_block();
+			case_block(parent);
 		} else {
 			fLexer.readKeyword("generate", "if", "for", "case");
-			return null;
 		}
 	}
 	
-	public SVDBGenerateBlock generate_block() throws SVParseException {
+	public void generate_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("");
 		gen_blk.setLocation(fLexer.getStartLocation());
 		
 		fLexer.readKeyword("generate");
+		
+		parent.addItem(gen_blk);
 		while (fLexer.peek() != null && 
 				!fLexer.peekKeyword("endgenerate") && !fLexer.peekKeyword("endmodule")) {
-			fParsers.modIfcBodyItemParser().parse("generate");
+			fParsers.modIfcBodyItemParser().parse(gen_blk, "generate");
 		}
 		
 		gen_blk.setEndLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("endgenerate");
 		
-		return gen_blk;
 	}
 	
-	public SVDBGenerateBlock if_block() throws SVParseException {
+	public void if_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock if_blk = new SVDBGenerateBlock("if");
 		fLexer.readKeyword("if");
 		fLexer.readOperator("(");
@@ -67,12 +66,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-				ISVDBChildItem item = fParsers.modIfcBodyItemParser().parse("generate");
-				if_blk.addItem(item);
-				
-				if (item == null) {
-					break;
-				}
+				fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 			}
 			fLexer.readKeyword("end");
 			if (fLexer.peekOperator(":")) {
@@ -80,7 +74,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 		} else {
-			if_blk.addItem(fParsers.modIfcBodyItemParser().parse("generate"));
+			fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 		}
 		
 		if (fLexer.peekKeyword("else")) {
@@ -92,13 +86,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 					fLexer.readId();
 				}
 				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-					ISVDBChildItem item = fParsers.modIfcBodyItemParser().parse("generate");
-
-					if (item == null) {
-						break;
-					}
-					
-					if_blk.addItem(item);
+					fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 				}
 				fLexer.readKeyword("end");
 				if (fLexer.peekOperator(":")) {
@@ -106,15 +94,13 @@ public class SVGenerateBlockParser extends SVParserBase {
 					fLexer.readId();
 				}
 			} else {
-				if_blk.addItem(fParsers.modIfcBodyItemParser().parse("generate"));
-				System.out.println("post-else token: " + fLexer.peek());
+				fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 			}
 		}
 		
-		return if_blk;
 	}
 	
-	public SVDBGenerateBlock for_block() throws SVParseException {
+	public void for_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("for");
 		
 		fLexer.readKeyword("for");
@@ -134,7 +120,9 @@ public class SVGenerateBlockParser extends SVParserBase {
 			/*String incr = */parsers().exprParser().expression();
 		}
 		fLexer.readOperator(")");
-		
+
+		parent.addItem(gen_blk);
+
 		if (fLexer.peekKeyword("begin")) {
 			fLexer.eatToken();
 			if (fLexer.peekOperator(":")) {
@@ -142,7 +130,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-				gen_blk.addItem(fParsers.modIfcBodyItemParser().parse("for"));
+				fParsers.modIfcBodyItemParser().parse(gen_blk, "for");
 			}
 			fLexer.readKeyword("end");
 			if (fLexer.peekOperator(":")) {
@@ -150,19 +138,19 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 		} else {
-			gen_blk.addItem(fParsers.modIfcBodyItemParser().parse("for"));
+			fParsers.modIfcBodyItemParser().parse(gen_blk, "for");
 		}
-		
-		return gen_blk;
 	}
 	
-	public SVDBGenerateBlock case_block() throws SVParseException {
+	public void case_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock case_blk = new SVDBGenerateBlock("case");
 		
 		fLexer.readKeyword("case");
 		fLexer.readOperator("(");
 		parsers().exprParser().expression();
 		fLexer.readOperator(")");
+		
+		parent.addItem(case_blk);
 		
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endcase")) {
 			if (fLexer.peekKeyword("default")) {
@@ -186,7 +174,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				}
 				
 				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-					case_blk.addItem(fParsers.modIfcBodyItemParser().parse("generate"));
+					fParsers.modIfcBodyItemParser().parse(case_blk, "generate");
 				}
 				
 				fLexer.readKeyword("end");
@@ -195,13 +183,11 @@ public class SVGenerateBlockParser extends SVParserBase {
 					fLexer.readId();
 				}
 			} else {
-				case_blk.addItem(fParsers.modIfcBodyItemParser().parse("generate"));
+				fParsers.modIfcBodyItemParser().parse(case_blk, "generate");
 			}
 		}
 
 		fLexer.readKeyword("endcase");
-		
-		return case_blk;
 	}
 
 }

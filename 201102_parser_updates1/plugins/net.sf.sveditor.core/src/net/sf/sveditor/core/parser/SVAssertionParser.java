@@ -1,6 +1,8 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssumeStmt;
 
@@ -10,7 +12,7 @@ public class SVAssertionParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBAssertStmt parse() throws SVParseException {
+	public SVDBAssertStmt parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		
 		String assert_type = fLexer.readKeyword("assert", "assume");
@@ -32,8 +34,11 @@ public class SVAssertionParser extends SVParserBase {
 			assert_stmt.setExpr(parsers().exprParser().expression());
 			fLexer.readOperator(")");
 		}
+		
+		parent.addChildItem(assert_stmt);
+		assert_stmt.setActionBlock(new SVDBActionBlockStmt());
 
-		assert_stmt.setActionBlock(parsers().behavioralBlockParser().action_block());
+		parsers().behavioralBlockParser().action_block(assert_stmt.getActionBlock());
 		
 		return assert_stmt;
 	}

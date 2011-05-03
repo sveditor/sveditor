@@ -149,7 +149,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"    task foo_task();\n" +
 			"    endtask\n" +
 			"endclass\n";
-		runTest("testTaskFunction", content, 
+		runTestExpErr("testTaskFunction", content, 
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
@@ -493,6 +493,15 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, testname);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
+	}
+
+	private void runTestExpErr(
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
+		SVDBFile file = SVDBTestUtils.parse(doc, testname, true);
+		
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
 

@@ -31,20 +31,23 @@ import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
 	public void testPackageModule() {
+		LogHandle log = LogFactory.getLogHandle("testPackageModule");
 		String content =
-			"package p;\r\n" +
-		    "typedef enum logic[1:0] {\r\n" +
-		    "    e0, e1, e2, e3\r    } e;" +
-			"endpackage\r\n" +
-			"\r\n" +
-			"module t1\r\n" +
-			"	(\r\n" +
-		    "    input e [1:0] eee // No parse error.\r    );\r\n" +
+			"package p;\r\n" +						// 1
+		    "typedef enum logic[1:0] {\r\n" +		// 2
+		    "    e0, e1, e2, e3\r    } e;" +		// 3
+			"endpackage\r\n" +						// 4
+			"\r\n" +								// 5
+			"module t1\r\n" +						// 6
+			"	(\r\n" +							// 7
+		    "    input e [1:0] eee // No parse error.\r    );\r\n" +	// 8
 		    "endmodule\r\n"
 		    ;
 
@@ -53,6 +56,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "p", "t1");
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testDelayedAssign() {

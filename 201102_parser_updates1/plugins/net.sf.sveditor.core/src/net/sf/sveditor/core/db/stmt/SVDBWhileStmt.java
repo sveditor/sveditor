@@ -3,10 +3,9 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBWhileStmt extends SVDBStmt {
+public class SVDBWhileStmt extends SVDBBodyStmt {
 	private SVDBExpr				fCond;
-	private SVDBStmt			fBody;
-
+	
 	public SVDBWhileStmt() {
 		super(SVDBItemType.WhileStmt);
 	}
@@ -14,15 +13,14 @@ public class SVDBWhileStmt extends SVDBStmt {
 	public SVDBWhileStmt(SVDBExpr cond) {
 		super(SVDBItemType.WhileStmt);
 		fCond = cond;
-		fBody = null;
 	}
 	
-	public SVDBStmt getBody() {
-		return fBody;
+	public SVDBExpr getExpr() {
+		return fCond;
 	}
 	
-	public void setBody(SVDBStmt body) {
-		fBody = body;
+	public void setExpr(SVDBExpr expr) {
+		fCond = expr;
 	}
-
+	
 }

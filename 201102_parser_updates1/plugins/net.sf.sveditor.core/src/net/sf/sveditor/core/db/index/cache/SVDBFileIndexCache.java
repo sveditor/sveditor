@@ -63,7 +63,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fMarkerMap = new WeakHashMap<String, List<SVDBMarker>>(cache_sz);
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 		
-		System.out.println("Create Cache: " + fs.getRoot());
+		debug("Create Cache: " + fs.getRoot());
 	}
 
 	public void removeStoragePath(List<File> db_path_list) {
@@ -159,11 +159,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			if (in != null) {
 				fPersistenceRdr.init(in);
 				fPersistenceRdr.readObject(null, index_data.getClass(), index_data);
-				System.out.println("Cache " + fSVDBFS.getRoot() + " has base " + 
+				debug("Cache " + fSVDBFS.getRoot() + " has base " + 
 						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
 				valid = true;
 			} else {
-				System.out.println("Failed to read index_data");
+				debug("Failed to read index_data");
 			}
 //		} catch (IOException e) {}
 		} catch (DBFormatException e) {
@@ -229,12 +229,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		if (fSVDBFS.fileExists(target_dir + "/file")) {
 			SVDBFile f = null;
-			//				System.out.println("readFile: " + path);
+			//				debug("readFile: " + path);
 			f = readFile(fSVDBFS.openChannelRead(target_dir + "/file"), path);
 			fFileMap.put(path, f);
 			return f;
 		} else {
-			System.out.println("Target dir does not exist: " + target_dir);
+			debug("Target dir does not exist: " + target_dir);
 		}
 
 		return null;
@@ -271,7 +271,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 
 	public void setFile(String path, SVDBFile file) {
 		if (file == null) {
-			System.out.println("setFile \"" + path + "\" == NULL");
+			debug("setFile \"" + path + "\" == NULL");
 			fFileMap.remove(path);
 			String target_dir = computePathDir(path);
 			fSVDBFS.delete(target_dir + "/file");
@@ -369,7 +369,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 	
 	private SVDBFile readFile(RandomAccessFile in, String path) {
-//		System.out.println("readFile " + path);
+//		debug("readFile " + path);
 		fPersistenceRdr.init(in);
 		
 		SVDBFile ret = new SVDBFile();
@@ -385,7 +385,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	private SVDBFileTree readFileTree(RandomAccessFile in) {
-//		System.out.println("readFileTree");
+//		debug("readFileTree");
 		fPersistenceRdr.init(in);
 		
 		SVDBFileTree ret = new SVDBFileTree();
@@ -466,6 +466,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void debug(String msg) {
+		// TODO:
 	}
 	
 }

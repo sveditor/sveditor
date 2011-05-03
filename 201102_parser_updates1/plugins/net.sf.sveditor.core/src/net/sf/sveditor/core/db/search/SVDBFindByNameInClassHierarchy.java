@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -93,9 +94,9 @@ public class SVDBFindByNameInClassHierarchy {
 		}
 		
 		// Now, search through the scope and the class hierarchy
-		while (scope != null) {
+		while (scope != null && scope instanceof ISVDBChildParent) {
 			fLog.debug("Searching scope \"" + ((ISVDBNamedItem)scope).getName() + "\"");
-			for (ISVDBItemBase it : scope.getChildren()) {
+			for (ISVDBItemBase it : ((ISVDBChildParent)scope).getChildren()) {
 				boolean matches = (types.length == 0);
 				
 				for (SVDBItemType type : types) {

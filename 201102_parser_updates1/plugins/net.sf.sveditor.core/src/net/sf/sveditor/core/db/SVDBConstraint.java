@@ -13,11 +13,12 @@
 package net.sf.sveditor.core.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
-public class SVDBConstraint extends SVDBItem {
+public class SVDBConstraint extends SVDBScopeItem {
 	private List<SVDBStmt>		fConstraintList;
 	
 	public SVDBConstraint() {
@@ -25,12 +26,18 @@ public class SVDBConstraint extends SVDBItem {
 		fConstraintList = new ArrayList<SVDBStmt>();
 	}
 
-	public List<SVDBStmt> getConstraintList() {
-		return fConstraintList;
+	public void addChildItem(ISVDBChildItem stmt) {
+		stmt.setParent(this);
+		fConstraintList.add((SVDBStmt)stmt);
 	}
-	
-	public void addConstraint(SVDBStmt stmt) {
-		fConstraintList.add(stmt);
+
+	@Override
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fConstraintList.iterator();
+			}
+		};
 	}
 	
 	/*

@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem {
-	private List<ISVDBItemBase>			fGenerateItems;
+	private List<ISVDBChildItem>		fGenerateItems;
 	private SVDBLocation				fEndLocation;
 	
 	public SVDBGenerateRegion() {
 		super(SVDBItemType.GenerateRegion);
-		fGenerateItems = new ArrayList<ISVDBItemBase>();
+		fGenerateItems = new ArrayList<ISVDBChildItem>();
 	}
 
-	public Iterable<ISVDBItemBase> getChildren() {
+	public Iterable<ISVDBChildItem> getChildren() {
 		return fGenerateItems;
 	}
 
@@ -25,7 +25,19 @@ public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem 
 	}
 
 	public List<ISVDBItemBase> getItems() {
-		return fGenerateItems;
+		return (List<ISVDBItemBase>)((List)fGenerateItems);
+	}
+
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fGenerateItems.add(item);
+	}
+
+	public void addItem(ISVDBItemBase item) {
+		if (item instanceof ISVDBChildItem) {
+			((ISVDBChildItem)item).setParent(this);
+			fGenerateItems.add((ISVDBChildItem)item);
+		}
 	}
 
 }

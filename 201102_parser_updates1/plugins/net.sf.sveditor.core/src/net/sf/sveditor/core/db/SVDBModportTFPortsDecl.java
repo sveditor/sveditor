@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db;
 
-import java.util.List;
 
 public class SVDBModportTFPortsDecl extends SVDBModportPortsDecl {
 	public enum ImpExpType {

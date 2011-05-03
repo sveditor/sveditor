@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVTaskFuncBodyParser extends SVParserBase {
 	
@@ -37,11 +36,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
-				SVDBStmt stmt = parsers().behavioralBlockParser().statement(decl_allowed, is_ansi);
-				
-				decl_allowed = SVBehavioralBlockParser.isDeclAllowed(stmt);
-				
-				tf.addItem(stmt);
+				decl_allowed = parsers().behavioralBlockParser().statement(tf, decl_allowed, is_ansi);
 			}
 		}
 		

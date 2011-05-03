@@ -13,9 +13,8 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
@@ -32,15 +31,14 @@ public class SVImpExpStmtParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public ISVDBChildItem parse_export() throws SVParseException {
-		ISVDBChildItem ret = null;
+	public void parse_export(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("export");
 
 		if (fLexer.peekString() && 
 				(fLexer.peek().equals("DPI") || fLexer.peek().equals("DPI-C"))) {
 			fLexer.eatToken();
-			ret = parse_dpi_tf(start);
+			parse_dpi_tf(parent, start);
 		} else {
 			SVDBExportStmt exp = new SVDBExportStmt();
 			exp.setLocation(start);
@@ -64,13 +62,11 @@ public class SVImpExpStmtParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			ret = exp;
+			parent.addItem(exp);
 		}
-		
-		return ret;
 	}
 	
-	private SVDBTask parse_dpi_tf(SVDBLocation start) throws SVParseException {
+	private void parse_dpi_tf(ISVDBScopeItem parent, SVDBLocation start) throws SVParseException {
 		int modifiers = IFieldItemAttr.FieldAttr_DPI;
 
 		modifiers |= parsers().SVParser().scan_qualifiers(false);
@@ -83,14 +79,10 @@ public class SVImpExpStmtParser extends SVParserBase {
 		}
 
 		// Read tf extern declaration
-		SVDBTask tf = parsers().taskFuncParser().parse(start, modifiers);
-		
-		return tf;
+		parsers().taskFuncParser().parse(parent, start, modifiers);
 	}
 
-	public ISVDBChildItem parse_import() throws SVParseException {
-		ISVDBChildItem ret = null;
-		
+	public void parse_import(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("import");
 		
@@ -100,7 +92,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 
 			if (qualifier != null && qualifier.equals("DPI")
 					|| qualifier.equals("DPI-C")) {
-				ret = parse_dpi_tf(start);
+				parse_dpi_tf(parent, start);
 			} else {
 				error("Expecting DPI import, but received \"" + qualifier + "\"");
 			}
@@ -118,10 +110,8 @@ public class SVImpExpStmtParser extends SVParserBase {
 			}
 		
 			fLexer.readOperator(";");
-			ret = imp;
+			parent.addItem(imp);
 		}
-		
-		return ret;
 	}
 	
 	private SVDBStringExpr package_import_item() throws SVParseException {

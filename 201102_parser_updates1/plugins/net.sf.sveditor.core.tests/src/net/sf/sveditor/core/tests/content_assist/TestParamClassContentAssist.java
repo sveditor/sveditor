@@ -22,6 +22,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -75,13 +76,13 @@ public class TestParamClassContentAssist extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBModIfcDecl my_class1 = null;
+		SVDBClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcDecl)it_t;
+				my_class1 = (SVDBClassDecl)it_t;
 			}
 		}
 		
@@ -137,13 +138,13 @@ public class TestParamClassContentAssist extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBModIfcDecl my_class1 = null;
+		SVDBClassDecl my_class1 = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
 			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcDecl)it_t;
+				my_class1 = (SVDBClassDecl)it_t;
 			}
 		}
 		

@@ -23,6 +23,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -95,7 +96,7 @@ public class TestContentAssistBuiltins extends TestCase {
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBCovergroup cg = null;
-		SVDBModIfcDecl my_class1 = null;
+		SVDBClassDecl my_class1 = null;
 		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
@@ -106,7 +107,7 @@ public class TestContentAssistBuiltins extends TestCase {
 				cg = (SVDBCovergroup)it_t;
 			} else if (it_t.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcDecl)it_t;
+				my_class1 = (SVDBClassDecl)it_t;
 			}
 		}
 		
@@ -147,7 +148,7 @@ public class TestContentAssistBuiltins extends TestCase {
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
 		SVDBCovergroup cg = null;
-		SVDBModIfcDecl my_class1 = null;
+		SVDBClassDecl my_class1 = null;
 		it = index_it.getItemIterator(new NullProgressMonitor());
 		
 		while (it.hasNext()) {
@@ -158,7 +159,7 @@ public class TestContentAssistBuiltins extends TestCase {
 				cg = (SVDBCovergroup)it_t;
 			} else if (it_t.getType() == SVDBItemType.ClassDecl &&
 					SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBModIfcDecl)it_t;
+				my_class1 = (SVDBClassDecl)it_t;
 			}
 		}
 		

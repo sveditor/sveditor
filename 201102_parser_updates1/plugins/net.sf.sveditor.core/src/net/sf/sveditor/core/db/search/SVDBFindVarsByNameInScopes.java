@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -51,10 +52,10 @@ public class SVDBFindVarsByNameInScopes {
 		ISVDBChildItem context_save = context;
 
 		// Search up the scope
-		while (context != null) {
+		while (context != null && context instanceof ISVDBChildParent) {
 			
 			// First, search the local variables
-			for (ISVDBItemBase it : context.getChildren()) {
+			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
 				if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 					boolean stop = false;
 					for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {

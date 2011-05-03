@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClockingBlock;
 
 public class SVClockingBlockParser extends SVParserBase {
@@ -20,12 +21,14 @@ public class SVClockingBlockParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBClockingBlock parse() throws SVParseException {
+	public void parse(ISVDBScopeItem parent) throws SVParseException {
 		SVDBClockingBlock clk_blk = new SVDBClockingBlock("");
 		String name = "";
 		String expr = "";
 		
 		clk_blk.setLocation(fLexer.getStartLocation());
+		
+		parent.addItem(clk_blk);
 
 		try {
 			// TODO: 
@@ -73,8 +76,6 @@ public class SVClockingBlockParser extends SVParserBase {
 			}
 		} finally {
 		}
-		
-		return clk_blk;
 	}
 	
 	private String event_expr() throws SVParseException {

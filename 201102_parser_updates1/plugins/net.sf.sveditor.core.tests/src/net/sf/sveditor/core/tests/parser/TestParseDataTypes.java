@@ -18,6 +18,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -25,6 +28,7 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 public class TestParseDataTypes extends TestCase {
 	
 	public void testTypedefVirtual() throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle("testTypedefVirtual");
 		String content =
 			"class foobar;\n" +
 			"    typedef virtual my_if #(FOO, BAR, BAZ) my_if_t;\n" +
@@ -32,12 +36,17 @@ public class TestParseDataTypes extends TestCase {
 			"endclass\n";
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), "test");
+		SVDBScopeItem scope = new SVDBScopeItem();
 		
-		SVDBClassDecl cls = parser.parsers().classParser().parse(0);
+		parser.parsers().classParser().parse(scope, 0);
 		
-		for (ISVDBItemBase it : cls.getItems()) {
-			System.out.println("it " + it.getType() + " " + SVDBItem.getName(it));
+		assertTrue(scope.getChildren().iterator().hasNext());
+		SVDBClassDecl cls = (SVDBClassDecl)scope.getChildren().iterator().next();
+		
+		for (ISVDBItemBase it : cls.getChildren()) {
+			log.debug("it " + it.getType() + " " + SVDBItem.getName(it));
 		}
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testTypedefEnumFwdDecl() throws SVParseException {

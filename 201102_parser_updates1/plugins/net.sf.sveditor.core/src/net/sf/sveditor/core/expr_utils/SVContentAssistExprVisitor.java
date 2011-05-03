@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -28,6 +29,7 @@ import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
@@ -139,6 +141,7 @@ public class SVContentAssistExprVisitor {
 	}
 
 	protected void visit(SVDBExpr expr) {
+		fLog.debug("visit: " + expr.getType());
 		switch (expr.getType()) {
 				
 			case CastExpr:
@@ -164,13 +167,17 @@ public class SVContentAssistExprVisitor {
 			case AssignExpr:
 				assign_expr((SVDBAssignExpr)expr);
 				break;
+				
+			case ArrayAccessExpr:
+				array_access_expr((SVDBArrayAccessExpr)expr);
+				break;
+				
 
 			case ClockingEventExpr:
 			case ConcatenationExpr:
 			case CondExpr:
 			case CrossBinsSelectConditionExpr:
 			case CtorExpr:
-			case ArrayAccessExpr:
 			case AssignmentPatternExpr:
 			case AssignmentPatternRepeatExpr:
 			case BinaryExpr:
@@ -253,8 +260,30 @@ public class SVContentAssistExprVisitor {
 
 				List<ISVDBItemBase> item_l = finder_n.find(type.getName());
 				
+				// TODO: need to filter out forward-decl items?
 				if (item_l.size() > 0) {
 					item = item_l.get(0);
+				}
+			}
+			
+			// Resolve any typedefs
+			while (item != null && item.getType() == SVDBItemType.TypedefStmt) {
+				fLog.debug("Item " + SVDBItem.getName(item) + " is typedef");
+				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
+				type = td.getTypeInfo();
+				if (type.getType() == SVDBItemType.TypeInfoStruct) {
+					// Found something useful
+					item = type;
+				} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
+					// Lookup user-defined type name
+					SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
+
+					List<ISVDBItemBase> item_l = finder_n.find(type.getName());
+					
+					// TODO: need to filter out forward-decl items?
+					if (item_l.size() > 0) {
+						item = item_l.get(0);
+					}
 				}
 			}
 			
@@ -298,7 +327,14 @@ public class SVContentAssistExprVisitor {
 		if (target_type_info != null) {
 			ret = fFindParameterizedClass.find(target_type_info);
 		}
-		
+
+		/*
+		System.out.println("    resolveArrayType: ret=" + ret);
+		for (ISVDBItemBase b : ((SVDBClassDecl)ret).getItems()) {
+			System.out.println("    " + SVDBItem.getName(b));
+		}
+		 */
+
 		return ret;
 	}
 	
@@ -364,6 +400,7 @@ public class SVContentAssistExprVisitor {
 	}
 	
 	protected void tf_call(SVDBTFCallExpr expr) {
+		fLog.debug("tf_call: ");
 		if (fResolveStack.size() == 0) {
 			// Resolve relative to the active context
 		} else {
@@ -375,6 +412,24 @@ public class SVContentAssistExprVisitor {
 		fLog.debug("assign_expr: ");
 		visit(expr.getLhs());
 		visit(expr.getRhs());
+	}
+	
+	protected void array_access_expr(SVDBArrayAccessExpr expr) {
+		fLog.debug("array_access_expr: ");
+		visit(expr.getLhs());
+		
+		if (fResolveStack.size() == 0) {
+			throw new SVAbortException("Incorrect array-access expression at root");
+		}
+		ISVDBItemBase item = fResolveStack.peek();
+		System.out.println("item=" + item.getType());
+		
+		if (item.getType() == SVDBItemType.VarDeclItem) {
+			// Push a non-array version of the variable
+			SVDBVarDeclItem vi = ((SVDBVarDeclItem)item).duplicate();
+			vi.setArrayDim(null);
+			fResolveStack.push(vi);
+		}
 	}
 
 }

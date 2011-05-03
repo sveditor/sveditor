@@ -19,7 +19,7 @@ public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
 	}
 	
 	public Iterable getChildren() {
-		return EmptySVDBItemIterable.iterable;
+		return EmptySVDBChildItemIterable.iterable;
 	}
 	
 }

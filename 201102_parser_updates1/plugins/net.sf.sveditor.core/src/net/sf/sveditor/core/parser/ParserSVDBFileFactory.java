@@ -19,13 +19,12 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -180,50 +179,50 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 	
-	private ISVDBChildItem top_level_item() throws SVParseException {
-		ISVDBChildItem item = null;
+	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		int modifiers = scan_qualifiers(false);
 		
+		if (fLexer.peekOperator("(*")) {
+			fSVParsers.attrParser().parse(parent);
+		}
+		
 		if (fLexer.peekKeyword("class")) {
-			item = parsers().classParser().parse(modifiers);
+			parsers().classParser().parse(parent, modifiers);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
 			// enter module scope
 			// TODO: should probably add this item to the 
 			// File scope here
-			item = parsers().modIfcProgParser().parse(modifiers);
+			parsers().modIfcProgParser().parse(parent, modifiers);
 		} else if (fLexer.peekKeyword("package")) {
-			item = package_decl();
+			package_decl(parent);
 		} else if (fLexer.peekKeyword("import")) {
-			item = parsers().impExpParser().parse_import();
+			parsers().impExpParser().parse_import(parent);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("export")) {
-			item = parsers().impExpParser().parse_export();
+			parsers().impExpParser().parse_export(parent);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("typedef")) {
-			item = parsers().dataTypeParser().typedef();
+			parsers().dataTypeParser().typedef(parent);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("function","task")) {
-			item = parsers().taskFuncParser().parse(start, modifiers);
+			parsers().taskFuncParser().parse(parent, start, modifiers);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("parameter","localparam")) {
-			item = parsers().modIfcBodyItemParser().parse_parameter_decl();
+			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
 		} else if (!fLexer.peekOperator()) {
-			item = parsers().modIfcBodyItemParser().parse_var_decl_module_inst(modifiers);
+			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
 		} else {
 			// TODO: check for a data declaration
 			error("Unknown top-level element \"" + fLexer.peek() + "\"");
 		}
-
-		return item;
 	}
 
 	private void process_file() throws SVParseException {
 		
 		while (fLexer.peek() != null) {
-			ISVDBChildItem item = top_level_item();
-			fFile.addItem(item);
+			top_level_item(fFile);
 		}
 
 		/*
@@ -252,17 +251,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		 */
 	}
 
-	public void process_sequence() throws SVParseException {
+	public void process_sequence(ISVDBScopeItem parent) throws SVParseException {
 
 		fLexer.readKeyword("sequence");
 		String name = fLexer.readId();
-		fSemanticScopeStack.push("sequence");
 
 		SVDBScopeItem it = new SVDBSequence(name);
 
 		setLocation(it);
-		fScopeStack.peek().addItem(it);
-		fScopeStack.push(it);
+		parent.addItem(it);
 		
 
 		String id;
@@ -271,21 +268,17 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				break;
 			}
 		}
-
-		handle_leave_scope();
 	}
 
-	public SVDBItem process_property() throws SVParseException {
+	public void process_property(ISVDBScopeItem parent) throws SVParseException {
 		fLexer.readKeyword("property");
 		String name = fLexer.readId();
-		fSemanticScopeStack.push("property");
 
 		SVDBScopeItem it = new SVDBProperty(name);
 
 		setLocation(it);
 
-		fScopeStack.peek().addItem(it);
-		fScopeStack.push(it);
+		parent.addItem(it);
 
 		String id;
 		while ((id = scan_statement()) != null) {
@@ -293,10 +286,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				break;
 			}
 		}
-
-		handle_leave_scope();
-
-		return it;
 	}
 
 	public int scan_qualifiers(boolean param)
@@ -430,7 +419,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return sb.toString();
 	}
 
-	private ISVDBChildItem package_decl() throws SVParseException {
+	private void package_decl(ISVDBScopeItem parent) throws SVParseException {
+		if (fLexer.peekOperator("(*")) {
+			fSVParsers.attrParser().parse(parent);
+		}
 		SVDBPackageDecl pkg = new SVDBPackageDecl();
 		pkg.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("package");
@@ -442,10 +434,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		String pkg_name = readQualifiedIdentifier();
 		pkg.setName(pkg_name);
 		fLexer.readOperator(";");
+		
+		parent.addItem(pkg);
 
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
-			ISVDBChildItem item = top_level_item();
-			pkg.addItem(item);
+			top_level_item(pkg);
 			
 			if (fLexer.peekKeyword("endpackage")) {
 				break;
@@ -458,65 +451,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fLexer.peekOperator(":")) {
 			fLexer.eatToken();
 			fLexer.readId();
-		}
-
-		return pkg;
-	}
-
-	private void enter_scope(String type, SVDBScopeItem scope) {
-		fSemanticScopeStack.push(type);
-		fScopeStack.peek().addItem(scope);
-		fScopeStack.push(scope);
-	}
-	
-	public void handle_leave_scope() {
-		handle_leave_scope(1);
-	}
-
-	private void handle_leave_scope(int levels) {
-		fStmtLocation = getLocation();
-		for (int i = 0; i < levels; i++) {
-			String type = null;
-
-			if (fSemanticScopeStack.size() > 0) {
-				type = fSemanticScopeStack.pop();
-			} else {
-				System.out.println("[ERROR] attempting to leave scope @ "
-						+ getLocation().getFileName() + ":"
-						+ getLocation().getLineNo());
-			}
-
-			if (type != null) {
-				if (type.equals("module")) {
-					leave_module_decl();
-				} else if (type.equals("program")) {
-					leave_program_decl();
-				} else if (type.equals("interface")) {
-					leave_interface_decl();
-				} else if (type.equals("class")) {
-					leave_class_decl();
-				} else if (type.equals("task")) {
-					leave_task_decl();
-				} else if (type.equals("function")) {
-					leave_func_decl();
-				} else if (type.equals("covergroup")) {
-					leave_covergroup();
-				} else if (type.equals("sequence")) {
-					if (fScopeStack.size() > 0
-							&& fScopeStack.peek().getType() == SVDBItemType.Sequence) {
-						setEndLocation(fScopeStack.peek());
-						fScopeStack.pop();
-					}
-				} else if (type.equals("property")) {
-					if (fScopeStack.size() > 0
-							&& fScopeStack.peek().getType() == SVDBItemType.Property) {
-						setEndLocation(fScopeStack.peek());
-						fScopeStack.pop();
-					}
-				} else {
-					fScopeStack.pop();
-				}
-			}
 		}
 	}
 

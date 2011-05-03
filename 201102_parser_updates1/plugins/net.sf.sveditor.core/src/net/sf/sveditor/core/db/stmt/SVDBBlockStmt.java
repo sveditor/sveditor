@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -30,11 +31,30 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
 
-	public void addStmt(SVDBStmt stmt) {
-		fItems.add(stmt);
-		stmt.setParent(this);
+	
+	public void addChildItem(ISVDBChildItem item) {
+		fItems.add(item);
+		if (item != null) {
+			item.setParent(this);
+		}
 	}
 	
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator<ISVDBChildItem>)(Iterator)fItems.iterator();
+			}
+		};
+	}
+
+	public void addItem(ISVDBItemBase item) {
+		fItems.add(item);
+		if (item != null && item instanceof ISVDBChildItem) {
+			((ISVDBChildItem)item).setParent(this);
+		}
+	}
+
 	public String getBlockName() {
 		return fBlockName;
 	}
