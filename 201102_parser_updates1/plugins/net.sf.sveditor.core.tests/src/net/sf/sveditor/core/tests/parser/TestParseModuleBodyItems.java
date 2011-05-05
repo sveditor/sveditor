@@ -1056,14 +1056,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	end\n" +
 			"endmodule\n";
 
-		SVDBFile target_file = new SVDBFile("testMappedParameterizedModule");
 		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
-		
-		SVDBFileMerger.merge(target_file, file, null, null, null);
-		
-		// Merge twice for good measure. The first time actually does something.
-		// The second time ensures maximum compares
-		SVDBFileMerger.merge(target_file, file, null, null, null);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		

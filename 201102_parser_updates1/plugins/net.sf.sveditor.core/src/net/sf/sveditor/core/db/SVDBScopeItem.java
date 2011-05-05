@@ -37,6 +37,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	public SVDBLocation getEndLocation() {
 		return fEndLocation;
 	}
+
 	
 	public void addItem(ISVDBItemBase item) {
 		if (item instanceof ISVDBChildItem) {

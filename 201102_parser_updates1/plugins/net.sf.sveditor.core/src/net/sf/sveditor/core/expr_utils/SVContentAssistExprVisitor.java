@@ -7,8 +7,10 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -232,6 +234,28 @@ public class SVContentAssistExprVisitor {
 		}
 	}
 	
+	private ISVDBItemBase findInPackage(SVDBPackageDecl pkg, String name) {
+		ISVDBItemBase ret = null;
+		SVDBFile file = null;
+		ISVDBChildItem c = pkg;
+		
+		while (c != null && c.getType() != SVDBItemType.PackageDecl) {
+			c = c.getParent();
+		}
+		
+		for (ISVDBChildItem pkg_item : pkg.getChildren()) {
+			if (pkg_item.getType() == SVDBItemType.Include) {
+				// TODO:
+				// ret = findInInclude(file, pkg_item, name);
+			} else if (SVDBItem.getName(pkg_item).equals(name)) {
+				ret = pkg_item;
+				break;
+			}
+		}
+		
+		return ret;
+	}
+	
 	/**
 	 * Returns the type of the specified element.  
 	 * @param item
@@ -251,6 +275,9 @@ public class SVContentAssistExprVisitor {
 		} else if (item.getType() == SVDBItemType.ClassDecl) {
 			// NULL transform: item is already a type
 			fLog.debug("    item " + SVDBItem.getName(item) + " already a class");
+			return item;
+		} else if (item.getType() == SVDBItemType.PackageDecl) {
+			fLog.debug("    item " + SVDBItem.getName(item) + " is a package");
 			return item;
 		}
 		
@@ -306,26 +333,34 @@ public class SVContentAssistExprVisitor {
 		
 		switch (var_dim.getDimType()) {
 			case Associative:
+				fLog.debug("Associative array");
 				target_type_info = new SVDBTypeInfoUserDef("__sv_builtin_assoc_array");
 				param_l.addParameter("T", base_type);
 				param_l.addParameter("IDX", var_dim.getExpr().toString());
 				break;
 			case Queue:
+				fLog.debug("Queue");
 				target_type_info = new SVDBTypeInfoUserDef("__sv_builtin_queue");
 				param_l.addParameter("T", base_type);
 				break;
 			case Sized:
 			case Unsized:
+				fLog.debug("Array");
 				target_type_info = new SVDBTypeInfoUserDef("__sv_builtin_array");
 				param_l.addParameter("T", base_type);
 				break;
+			default:
+				fLog.debug("Unknown variable dimension type");
+					
 		}
 		
 		target_type_info.setParameters(param_l);
 		
 		// Locate the class
-		if (target_type_info != null) {
-			ret = fFindParameterizedClass.find(target_type_info);
+		ret = fFindParameterizedClass.find(target_type_info);
+		
+		if (ret == null) {
+			fLog.debug("Failed to find target_type_info: " + target_type_info.getName());
 		}
 
 		/*
@@ -352,6 +387,8 @@ public class SVContentAssistExprVisitor {
 					SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIt);
 					return finder.find(fClassScope);
 				}
+			} else {
+				return null;
 			}
 		}
 		
@@ -389,7 +426,11 @@ public class SVContentAssistExprVisitor {
 			}
 			fLog.debug("    item type: " + SVDBItem.getName(item));
 			
-			item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
+			if (item.getType() == SVDBItemType.PackageDecl) {
+				item = findInPackage((SVDBPackageDecl)item, expr.getId());
+			} else {
+				item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
+			}
 			
 			if (item == null) {
 				throw new SVAbortException("Failed to find field \"" + expr.getId() + "\"");

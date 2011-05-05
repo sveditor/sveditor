@@ -631,10 +631,8 @@ public class SVLexer extends SVToken {
 				int ch3 = get_ch();
 				if (ch3 != ')') {
 					fStringBuffer.append("(*");
-					System.out.println("unget_ch3: " + (char)ch3);
 					unget_ch(ch3);
 				} else {
-					System.out.println("unget_ch3: " + (char)ch3 + " ch2=" + (char)ch2);
 					unget_ch(ch3);
 					unget_ch(ch2);
 					fStringBuffer.append("(");

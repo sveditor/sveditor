@@ -22,6 +22,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
@@ -211,7 +213,8 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenScopedClassReference() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testOpenScopedClassReference");
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"package foo;\n" +
 			"	class foo_c;\n" +
@@ -229,15 +232,16 @@ public class TestOpenClass extends TestCase {
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
 		int idx = doc.indexOf("foo::foo_c");
-		System.out.println("index: " + idx);
+		log.debug("index: " + idx);
 		scanner.seek(idx+"foo::fo".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
 				file, 4, scanner, target_index);
 		
-		System.out.println(ret.size() + " items");
+		log.debug(ret.size() + " items");
 		assertEquals(1, ret.size());
+		LogFactory.removeLogHandle(log);
 	}
 
 }

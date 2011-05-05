@@ -123,7 +123,8 @@ public class TestContentAssistBasics extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, createOVMIndexMgr());
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				"testOVMMacroContentAssist", file, createOVMIndexMgr());
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
 
@@ -151,7 +152,8 @@ public class TestContentAssistBasics extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, fIndexCollectionVMMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				"testVMMMacroContentAssist", file, fIndexCollectionVMMMgr);
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
 

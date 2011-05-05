@@ -37,6 +37,7 @@ public class TestContentAssistStruct extends TestCase {
 	 * Test that basic macro content assist works
 	 */
 	public void testContentAssistStructTypedef() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructTypedef");
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -65,10 +66,11 @@ public class TestContentAssistStruct extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -76,6 +78,7 @@ public class TestContentAssistStruct extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -114,7 +117,8 @@ public class TestContentAssistStruct extends TestCase {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -131,6 +135,7 @@ public class TestContentAssistStruct extends TestCase {
 	 * semicolon doesn't throw off content assist
 	 */
 	public void testContentAssistStructModuleInputModuleScope() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructModuleInputModuleScope");
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -156,10 +161,11 @@ public class TestContentAssistStruct extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -167,12 +173,14 @@ public class TestContentAssistStruct extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
 	 * Test that basic macro content assist works
 	 */
 	public void testContentAssistStructInClassTypedef() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructInClassTypedef");
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -201,10 +209,11 @@ public class TestContentAssistStruct extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -212,12 +221,14 @@ public class TestContentAssistStruct extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
 	 * Test that basic macro content assist works
 	 */
 	public void testContentAssistStructField() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructField");
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -246,10 +257,11 @@ public class TestContentAssistStruct extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("    it: " + it.getType() + " " + SVDBItem.getName(it));
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, new FileIndexIterator(file));
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -258,6 +270,7 @@ public class TestContentAssistStruct extends TestCase {
 		
 		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field", 
 				"my_logic_field", "my_logic_queue"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 }

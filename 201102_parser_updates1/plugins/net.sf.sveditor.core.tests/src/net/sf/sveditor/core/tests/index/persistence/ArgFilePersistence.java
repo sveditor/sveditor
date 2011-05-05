@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -39,16 +38,12 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.SVDBDump;
-import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.TestNullIndexCache;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -79,6 +74,7 @@ public class ArgFilePersistence extends TestCase
 		}
 	}
 	
+	/*
 	public void testOVMXbusDirectDumpLoad() throws DBFormatException, DBWriteException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -135,7 +131,6 @@ public class ArgFilePersistence extends TestCase
 		
 		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
 		
-		/*
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		dumper.dump(index, out);
 
@@ -153,11 +148,11 @@ public class ArgFilePersistence extends TestCase
 			SVDBItemTestComparator c = new SVDBItemTestComparator();
 			c.compare(fd, fl);
 		}
-		 */
 		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 		TestCase.fail("Expected fail");
 	}
+	*/
 
 	public void testXbusTransferFileParse() throws DBFormatException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

@@ -18,10 +18,16 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBFindByNameInScopes {
@@ -98,6 +104,35 @@ public class SVDBFindByNameInScopes {
 						ret.add(it);
 						
 						if (stop_on_first_match) {
+							break;
+						}
+					}
+				}
+			}
+
+			if (ret.size() > 0 && stop_on_first_match) {
+				break;
+			}
+			
+			// Next, if we check the class parameters if we're in a class scope,
+			// or the module ports/parameters if we're in an interface/module scope
+			if (context.getType() == SVDBItemType.ClassDecl) {
+				SVDBClassDecl cls = (SVDBClassDecl)context;
+				
+			} else if (context.getType() == SVDBItemType.ModuleDecl ||
+					context.getType() == SVDBItemType.InterfaceDecl) {
+				List<SVDBParamPortDecl> p_list = ((SVDBModIfcDecl)context).getPorts();
+
+				// Check ports
+				for (SVDBParamPortDecl p : p_list) {
+					for (SVDBVarDeclItem pi : p.getVarList()) {
+						if (pi.getName().equals(name)) {
+							ret.add(pi);
+							if (ret.size() > 0 && stop_on_first_match) {
+								break;
+							}
+						}
+						if (ret.size() > 0 && stop_on_first_match) {
 							break;
 						}
 					}

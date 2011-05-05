@@ -52,12 +52,12 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
-		parent.addItem(cg);
+		parent.addChildItem(cg);
 
 		// Skip statements
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
 			ISVDBChildItem cov_item;
-			
+
 			if (isOption()) {
 				cov_item = coverage_option();
 			} else {
@@ -65,7 +65,7 @@ public class SVCovergroupParser extends SVParserBase {
 			}
 			cg.addItem(cov_item);
 		}
-		
+
 		cg.setEndLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("endgroup");
 		

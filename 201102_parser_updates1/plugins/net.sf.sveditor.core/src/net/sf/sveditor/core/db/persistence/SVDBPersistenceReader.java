@@ -185,18 +185,6 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		}
 	}
 
-	public String readBaseLocation() throws DBFormatException {
-		DBHeader hdr = new DBHeader();
-		
-		readObject(null, DBHeader.class, hdr);
-		
-		if (hdr.magic == null || !hdr.magic.equals("SDB")) {
-			throw new DBFormatException("Database not prefixed with SDB (" + hdr.magic + ")");
-		}
-		
-		return hdr.base_location;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public Enum readEnumType(Class enum_type) throws DBFormatException {
 		int type = readRawType();
