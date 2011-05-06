@@ -14,6 +14,7 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -21,6 +22,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -35,6 +37,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -58,7 +61,7 @@ public class TestContentAssistBasics extends TestCase {
 	public void setUp() {
 		fTmpDir = TestUtils.createTempDir();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
+
 		utils.copyBundleDirToFS("/data/basic_content_assist_project", fTmpDir);
 
 		String pname = "basic_content_assist_project";
@@ -73,8 +76,8 @@ public class TestContentAssistBasics extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
-//		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
-//		fIndexCollectionVMMMgr.getItemIterator(new NullProgressMonitor());
+		//		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
+		//		fIndexCollectionVMMMgr.getItemIterator(new NullProgressMonitor());
 	}
 	
 	private SVDBIndexCollectionMgr createStandaloneIndexMgr() {
@@ -204,7 +207,7 @@ public class TestContentAssistBasics extends TestCase {
 		}
 		
 		log.debug("[my_class2] " + my_class2.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class2.getItems()) {
+		for (ISVDBItemBase it_t : my_class2.getChildren()) {
 			log.debug("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
@@ -394,6 +397,7 @@ public class TestContentAssistBasics extends TestCase {
 	 * Test that constructor completion works properly
 	 */
 	public void testConstructorCompletion() {
+		LogHandle log = LogFactory.getLogHandle("testConstructorCompletion");
 		String doc =
 			"class my_class1;\n" +
 			"    int           my_field1_class1;\n" +
@@ -415,7 +419,7 @@ public class TestContentAssistBasics extends TestCase {
 			"        cl1 = new<<MARK>>\n" +
 			"    endfunction\n" +
 			"endclass\n";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
@@ -429,10 +433,10 @@ public class TestContentAssistBasics extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		for (SVCompletionProposal p : proposals) {
-			System.out.println("Proposal: \"" + p.getReplacement() + "\"");
+			log.debug("Proposal: \"" + p.getReplacement() + "\"");
 		}
 		
-		assertEquals("Expecting two proposals", 2, proposals.size());
+		assertEquals("Expecting one proposal", 2, proposals.size());
 
 		SVDBTask 	new_f;
 		SVDBVarDeclItem		new_field;
@@ -445,7 +449,7 @@ public class TestContentAssistBasics extends TestCase {
 			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
 		}
 		
-		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + 
+		log.debug("new_f parent is " + new_f.getParent().getType() + " " + 
 				SVDBItem.getName(new_f.getParent()));
 
 		/*
@@ -462,12 +466,14 @@ public class TestContentAssistBasics extends TestCase {
 		 */
 		
 		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
-		assertEquals("Expect field name to be 'new_field'", "new_field", new_field.getName());
+		assertEquals("Expect field name to be 'new_field'", "new_field", 
+				SVDBItem.getName(new_field));
 		
 		assertEquals("Expect to get 'new' from class1", 
 				"my_class1", SVDBItem.getName(new_f.getParent()));
 		assertEquals("Expect to get 'new_field' from class2", 
-				"my_class2", SVDBItem.getName(new_field.getParent()));
+				"my_class2", SVDBItem.getName(new_field.getParent().getParent()));
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testUntriggeredClassAssist() {

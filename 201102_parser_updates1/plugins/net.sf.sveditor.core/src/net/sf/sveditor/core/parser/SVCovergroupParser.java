@@ -35,7 +35,6 @@ public class SVCovergroupParser extends SVParserBase {
 
 		SVDBCovergroup cg = new SVDBCovergroup(cg_name);
 		cg.setLocation(start);
-		
 
 		while (fLexer.peekOperator("(")) {
 			cg.setParamPort(parsers().tfPortListParser().parse());
@@ -54,25 +53,43 @@ public class SVCovergroupParser extends SVParserBase {
 		fLexer.readOperator(";");
 		parent.addChildItem(cg);
 
-		// Skip statements
-		while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
-			ISVDBChildItem cov_item;
+		try {
+			// Skip statements
+			while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
+				ISVDBChildItem cov_item;
 
-			if (isOption()) {
-				cov_item = coverage_option();
-			} else {
-				cov_item = coverage_spec();
+				if (isOption()) {
+					cov_item = coverage_option();
+				} else {
+					cov_item = coverage_spec();
+				}
+				cg.addItem(cov_item);
 			}
-			cg.addItem(cov_item);
-		}
 
-		cg.setEndLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("endgroup");
-		
-		if (fLexer.peekOperator(":")) {
-			fLexer.eatToken();
-			fLexer.readId(); // labeled group
+			cg.setEndLocation(fLexer.getStartLocation());
+			fLexer.readKeyword("endgroup");
+			
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId(); // labeled group
+			}
+		} catch (SVParseException e) {
+			// attempt to recover from the error
+			while (fLexer.peek() != null && 
+					!fLexer.peekKeyword("endgroup", "class", "module", "function",
+							"task", "endclass", "endmodule")) {
+				fLexer.eatToken();
+			}
+			cg.setEndLocation(fLexer.getStartLocation());
+			if (fLexer.peekKeyword("endgroup")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId(); // labeled group
+				}
+			}
 		}
+		
 	}
 	
 	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {

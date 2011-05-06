@@ -23,7 +23,9 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -104,6 +106,10 @@ public abstract class AbstractCompletionProcessor {
 
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
+		
+		if (src_scope != null) {
+			debug("src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
+		}
 
 		/*
 		if (src_scope == null) {
@@ -312,6 +318,7 @@ public abstract class AbstractCompletionProcessor {
 			ISVDBChildItem			src_scope,
 			ISVDBItemBase			leaf_item) {
 		// Determine the type of the leaf item
+		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
 
 		// TODO: search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
@@ -380,14 +387,9 @@ public abstract class AbstractCompletionProcessor {
 			for (int i=0; i<result.size(); i++) {
 				boolean add = true;
 				
-				if (ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
-						"new".startsWith(ctxt.fLeaf)) {
-					// This is possibly a call to 'new'. We'll add
-					// a proposal for this later based on the base type
-					if (result.get(i).getType() == SVDBItemType.Function &&
-							((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
-						add = false;
-					}
+				if (result.get(i).getType() == SVDBItemType.Function &&
+						((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
+					add = false;
 				}
 				
 				if (add) {
@@ -470,14 +472,21 @@ public abstract class AbstractCompletionProcessor {
 		
 		// Special case: If this is a constructor call, then do a 
 		// context lookup on the LHS
-		/*
-		if (root != null && ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
-				ctxt.fLeaf != null && "new".startsWith(ctxt.fLeaf)) {
-			fLog.debug("Looking for new in root=" + root);
-			findctxt.fTriggeredItems(root, "=", "new", src_scope, 
-					getIndexIterator(), max_matches, false, ret);
+		fLog.debug("item is type " + item.getType());
+		if ((item.getType() == SVDBItemType.ClassDecl) &&
+				("new".startsWith(ctxt.fLeaf) || ctxt.fLeaf.equals(""))) {
+			SVDBClassDecl cls = (SVDBClassDecl)item;
+			
+			fLog.debug("Looking for 'new' in root=" + SVDBItem.getName(item));
+			for (ISVDBChildItem c : cls.getChildren()) {
+				if (c.getType() == SVDBItemType.Function) {
+					SVDBFunction f = (SVDBFunction)c;
+					if (f.getName().equals("new")) {
+						addProposal(c, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+				}
+			}
 		}
-		 */
 	}
 
 	private void findUntriggeredProposals(

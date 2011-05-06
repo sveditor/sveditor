@@ -248,6 +248,7 @@ public class TestContentAssistStruct extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(true);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);

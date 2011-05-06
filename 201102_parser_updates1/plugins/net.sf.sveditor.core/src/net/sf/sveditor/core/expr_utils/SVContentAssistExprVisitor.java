@@ -42,7 +42,7 @@ public class SVContentAssistExprVisitor {
 	private LogHandle					fLog;
 	private ISVDBIndexIterator			fIndexIt;
 	private ISVDBScopeItem				fScope;
-	private SVDBClassDecl				fClassScope;
+	private ISVDBChildItem				fClassScope;
 	private ISVDBFindNameMatcher		fNameMatcher;
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
@@ -85,12 +85,14 @@ public class SVContentAssistExprVisitor {
 			return;
 		}
 		
-		while (parent != null && parent.getType() != SVDBItemType.ClassDecl) {
+		while (parent != null && !parent.getType().isElemOf(
+				SVDBItemType.ClassDecl, SVDBItemType.Covergroup
+				)) { 
 			parent = parent.getParent();
 		}
 		
-		if (parent != null && parent.getType() == SVDBItemType.ClassDecl) {
-			fClassScope = (SVDBClassDecl)parent;
+		if (parent != null) {
+			fClassScope = parent;
 		} else {
 			// See if this scope is an external task/function
 			if (fScope.getType() == SVDBItemType.Function || 
@@ -133,7 +135,7 @@ public class SVContentAssistExprVisitor {
 		try {
 			visit(expr);
 			if (fResolveStack.size() > 0) {
-				return findType(fResolveStack.pop());
+				return findType(fResolveStack.peek());
 			}
 		} catch (SVAbortException e) {
 			e.printStackTrace();
@@ -213,6 +215,7 @@ public class SVContentAssistExprVisitor {
 	private ISVDBItemBase findInScopeHierarchy(String name) {
 		SVDBFindByNameInScopes finder = new SVDBFindByNameInScopes(fIndexIt);
 		
+		fLog.debug("FindByNameInScopes: " + fScope.getType() + " " + SVDBItem.getName(fScope));
 		List<ISVDBItemBase> items = finder.find(fScope, name, true); 
 		
 		if (items.size() > 0) {
@@ -223,8 +226,22 @@ public class SVContentAssistExprVisitor {
 	}
 	
 	private ISVDBItemBase findInClassHierarchy(ISVDBChildItem root, String name) {
+		fLog.debug("findInClassHierarchy: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		if (root.getType() == SVDBItemType.Covergroup) {
+			// Find the built-in class
+			fLog.debug("Search for covergroup class");
+			
+			List<SVDBClassDecl> l = fFindNamedClass.find("__sv_builtin_covergroup");
+			if (l.size() > 0) {
+				root = l.get(0);
+			} else {
+				return null;
+			}
+		}
+		
 		SVDBFindByNameInClassHierarchy finder_h = 
 			new SVDBFindByNameInClassHierarchy(fIndexIt, fNameMatcher);
+		
 		List<ISVDBItemBase> items = finder_h.find(root, name);
 		
 		if (items.size() > 0) {
@@ -286,11 +303,13 @@ public class SVContentAssistExprVisitor {
 				SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
 				List<ISVDBItemBase> item_l = finder_n.find(type.getName());
-				
+			
 				// TODO: need to filter out forward-decl items?
 				if (item_l.size() > 0) {
 					item = item_l.get(0);
 				}
+			} else if (type.getType() == SVDBItemType.TypeInfoStruct) {
+				item = type;
 			}
 			
 			// Resolve any typedefs
@@ -375,17 +394,15 @@ public class SVContentAssistExprVisitor {
 	
 	private ISVDBItemBase findRoot(String id) {
 		ISVDBItemBase ret = null;
-		List<ISVDBItemBase> r_l;
-
 		fLog.debug("findRoot: " + id);
 
 		if (id.equals("this") || id.equals("super")) {
 			if (fClassScope != null) {
 				if (id.equals("this")) {
 					return fClassScope;
-				} else {
+				} else if (fClassScope.getType() == SVDBItemType.ClassDecl) {
 					SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIt);
-					return finder.find(fClassScope);
+					return finder.find((SVDBClassDecl)fClassScope);
 				}
 			} else {
 				return null;
@@ -402,8 +419,6 @@ public class SVContentAssistExprVisitor {
 			return ret;
 		}
 
-//		r_l = f
-		
 		return ret;
 	}
 	

@@ -35,6 +35,8 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -72,11 +74,12 @@ public class TestContentAssistBuiltins extends TestCase {
 	}
 
 	public void testCovergroupOption() {
+		LogHandle log = LogFactory.getLogHandle("testCovergroupOption");
 		String doc =
 			"class my_class1;\n" +							// 1
-			"\n" +
-			"    covergroup foo;\n" +
-			"        option.per_<<MARK>>\n" +
+			"\n" +											// 2
+			"    covergroup foo;\n" +						// 3
+			"        option.per_<<MARK>>\n" +				// 4
 			"    endgroup\n" +
 			"endclass\n"
 			;
@@ -114,6 +117,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		assertNotNull(cg);
 		assertNotNull(my_class1);
 		
+		log.debug("");
+		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
@@ -121,6 +126,8 @@ public class TestContentAssistBuiltins extends TestCase {
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
 		validateResults(new String[] {"per_instance"}, proposals);
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testCovergroupTypeOptionMergeInstances() {

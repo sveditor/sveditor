@@ -20,7 +20,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -28,14 +27,14 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public class SVDBSearchUtils {
 	
-	private static boolean			fDebugEn = false;
+	private static final boolean		fDebugEn = false;
 	
 	public static List<ISVDBItemBase> findItemsByType(
 			SVDBScopeItem			scope,
 			SVDBItemType	...		types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (ISVDBItemBase it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getChildren()) {
 			boolean match = (types.length == 0);
 			
 			for (SVDBItemType t : types) {
@@ -99,7 +98,8 @@ public class SVDBSearchUtils {
 	 */
 	public static ISVDBScopeItem findActiveScope(ISVDBScopeItem scope, int lineno) {
 		debug("findActiveScope: " + ((ISVDBNamedItem)scope).getName() + " " + lineno);
-		for (ISVDBItemBase it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getChildren()) {
+			debug("    Child: " + SVDBItem.getName(it) + " " + (it instanceof ISVDBScopeItem));
 			if (it instanceof ISVDBScopeItem) {
 				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
