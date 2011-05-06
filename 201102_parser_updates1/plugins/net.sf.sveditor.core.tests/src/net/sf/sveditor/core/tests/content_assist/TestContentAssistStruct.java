@@ -104,7 +104,7 @@ public class TestContentAssistStruct extends TestCase {
 			"endmodule\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
@@ -248,7 +248,7 @@ public class TestContentAssistStruct extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);

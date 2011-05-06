@@ -214,7 +214,7 @@ public class TestOpenClass extends TestCase {
 
 	public void testOpenScopedClassReference() {
 		LogHandle log = LogFactory.getLogHandle("testOpenScopedClassReference");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"package foo;\n" +
 			"	class foo_c;\n" +
