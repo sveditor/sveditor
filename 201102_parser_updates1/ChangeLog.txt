@@ -1,10 +1,21 @@
 
--- 0.5.0 Release --
+-- 0.6.0.ea1 Release --
 
-- Enhance SVEditor to make two time-consuming startup tasks (index-afinity discovery file parse) 
-  threaded operations. This has the effect of making SVEditor open easier.
+- Enhance SVEditor to make two time-consuming startup tasks 
+  (index-afinity discovery and file parse) threaded operations. 
+  This has the effect of making SVEditor open more quickly.
 
-- 
+- Major changes to the parser. Nearly all SystemVerilog constructs
+  are fully parsed. Previously, many were lexically processed via
+  a scanner.
+
+- Use a backing cache for files in the index. This permits faster
+  startup time, and should be more scalable, since the database need
+  not be entirely in memory
+
+- :q
+
+
 
 
 -- 0.4.0 Release --

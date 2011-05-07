@@ -13,9 +13,7 @@
 package net.sf.sveditor.core;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
@@ -39,14 +37,13 @@ public class SVFileUtils {
 		String parent = new File(path).getParent();
 		
 		if (parent == null) {
-			System.out.println("Failed to get parent of \"" + path + "\"");
 			parent = path;
 		}
 		return fWinPathPattern.matcher(parent).replaceAll("/");
 	}
 	
 	public static String normalize(String path) {
-		if (fIsWinPlatform) {
+		if (path.indexOf('\\') != -1) {
 			path = fWinPathPattern.matcher(path).replaceAll("/");
 			if (path.length() >= 3 && path.charAt(0) == '/' &&
 					Character.isLetter(path.charAt(1)) &&

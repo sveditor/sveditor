@@ -131,7 +131,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 */
 	protected boolean checkCacheValid() {
 		boolean valid = true;
-
+		String version = SVCorePlugin.getDefault().getVersion();
+		
+		fLog.debug("Cached version=" + fIndexCacheData.getVersion() + " version=" + version);
+		
+		if (fIndexCacheData.getVersion() == null ||
+				!fIndexCacheData.getVersion().equals(version)) {
+			valid = false;
+			return valid;
+		}
+		
 		// Confirm that global defines are the same
 		if (fConfig != null) {
 			/*
@@ -212,6 +221,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			invalidateIndex();
 		}
+		// set the version to check later
+		fIndexCacheData.setVersion(SVCorePlugin.getDefault().getVersion());
 
 		// Set the global settings anyway
 		if (fConfig != null

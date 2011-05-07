@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SVDBBaseIndexCacheData {
+	private String							fVersion;
 	private String							fBaseLocation;
 	private List<String>					fIncludePathList;
 	private List<String>					fMissingIncludeFiles;
@@ -18,6 +19,14 @@ public class SVDBBaseIndexCacheData {
 		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
+	}
+	
+	public String getVersion() {
+		return fVersion;
+	}
+	
+	public void setVersion(String version) {
+		fVersion = version;
 	}
 	
 	public String getBaseLocation() {
