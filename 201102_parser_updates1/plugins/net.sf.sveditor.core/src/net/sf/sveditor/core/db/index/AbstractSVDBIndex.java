@@ -68,6 +68,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private String fBaseLocationDir;
 
 	private SVDBBaseIndexCacheData 			fIndexCacheData;
+	private boolean							fCacheDataValid;
 
 	private ISVDBIncludeFileProvider 		fIncludeFileProvider;
 
@@ -208,15 +209,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		// Initialize the cache
 		m = new SubProgressMonitor(monitor, 1);
 		fIndexCacheData = createIndexCacheData();
-		boolean valid = fCache.init(m, fIndexCacheData);
+		fCacheDataValid = fCache.init(m, fIndexCacheData);
 
-		if (valid) {
-			valid = checkCacheValid();
+		if (fCacheDataValid) {
+			fCacheDataValid = checkCacheValid();
 		}
 
-		if (valid) {
+		if (fCacheDataValid) {
 			fLog.debug("Cache is valid");
-			fIndexState = IndexState_AllFilesParsed;
+//			fIndexState = IndexState_AllFilesParsed;
+			fIndexState = IndexState_FileTreeValid;
 		} else {
 			fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			invalidateIndex();
@@ -236,9 +238,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 		
-		if (valid) {
-			fCache.initLoad(new SubProgressMonitor(monitor, 1));
-		}
+//		if (valid) {
+//			fCache.initLoad(new SubProgressMonitor(monitor, 1));
+//		}
 
 		monitor.done();
 	}
@@ -285,13 +287,17 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			List<String> files = getFileList(new NullProgressMonitor());
-			m.beginTask("Parsing Files", files.size());
-			for (String f : files) {
-				findFile(f);
-				m.worked(1);
+			if (fCacheDataValid) {
+				fCache.initLoad(m);
+			} else {
+				List<String> files = getFileList(new NullProgressMonitor());
+				m.beginTask("Parsing Files", files.size());
+				for (String f : files) {
+					findFile(f);
+					m.worked(1);
+				}
+				m.done();
 			}
-			m.done();
 			fIndexState = IndexState_AllFilesParsed;
 		}
 		
@@ -300,6 +306,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	protected void invalidateIndex() {
 		fIndexState = IndexState_AllInvalid;
+		fCacheDataValid = false;
 		fCache.clear();
 	}
 
