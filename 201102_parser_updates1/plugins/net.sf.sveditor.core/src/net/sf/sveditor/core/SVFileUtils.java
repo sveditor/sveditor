@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Path;
 
 public class SVFileUtils {
 	private static Pattern					fWinPathPattern;
+	public static boolean					fIsWinPlatform;
 	
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
@@ -45,14 +46,16 @@ public class SVFileUtils {
 	}
 	
 	public static String normalize(String path) {
-		path = fWinPathPattern.matcher(path).replaceAll("/");
-		if (path.length() >= 3 && path.charAt(0) == '/' &&
-				Character.isLetter(path.charAt(1)) &&
-				path.charAt(2) == ':') {
-			// If this is a windows path prefixed with '/', 
-			// fix up:
-			// /C:/foo => C:/foo
-			path = path.substring(1);
+		if (fIsWinPlatform) {
+			path = fWinPathPattern.matcher(path).replaceAll("/");
+			if (path.length() >= 3 && path.charAt(0) == '/' &&
+					Character.isLetter(path.charAt(1)) &&
+					path.charAt(2) == ':') {
+				// If this is a windows path prefixed with '/', 
+				// fix up:
+				// /C:/foo => C:/foo
+				path = path.substring(1);
+			}
 		}
 		return path;
 	}

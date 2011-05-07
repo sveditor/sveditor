@@ -19,7 +19,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -176,5 +175,4 @@ public class TestOpencoresProjects extends TestCase {
 			p.delete(true, new NullProgressMonitor());
 		}
 	}
-
 }

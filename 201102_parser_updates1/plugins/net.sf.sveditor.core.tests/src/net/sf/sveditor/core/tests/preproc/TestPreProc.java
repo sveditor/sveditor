@@ -60,7 +60,7 @@ public class TestPreProc extends TestCase {
 		super.tearDown();
 
 		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
+//			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -107,8 +107,8 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 	
-		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
-					SVDBPluginLibIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"GLOBAL", "org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
 
 		/* TEMP:
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
@@ -294,6 +294,7 @@ public class TestPreProc extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
 		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(scanner);
 		
 		StringBuilder sb = new StringBuilder();
 		int ch;
@@ -302,6 +303,7 @@ public class TestPreProc extends TestCase {
 			sb.append((char)ch);
 		}
 		log.debug(sb.toString());
+		scanner.close();
 		
 		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);

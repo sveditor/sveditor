@@ -94,6 +94,10 @@ public class SVCorePlugin extends Plugin
 		super.start(context);
 		fPlugin = this;
 		
+		if (context.getProperty("osgi.os").toLowerCase().startsWith("win")) {
+			SVFileUtils.fIsWinPlatform = true;
+		}
+		
 		SVDB.init();
 		
 		fTodoScanner = new SVTodoScanner();

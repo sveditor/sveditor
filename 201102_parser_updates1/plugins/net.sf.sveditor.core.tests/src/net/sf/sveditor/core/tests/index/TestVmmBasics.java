@@ -258,6 +258,7 @@ public class TestVmmBasics extends TestCase {
 			}
 		}
 		log.debug("Content\n" + sb_dbg.toString());
+		pp.close();
 		
 		SVDBTestUtils.parse(sb.toString(), "preProcessed.simple_sequencer.sv");
 		

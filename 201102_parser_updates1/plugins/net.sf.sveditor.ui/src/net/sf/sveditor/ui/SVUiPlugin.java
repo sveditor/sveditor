@@ -77,6 +77,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 	// tab is equivalent to
 	private String								fInsertSpaceTestOverride;
 	
+	private boolean								fStartRefreshJob = false;
+	
 	
 	/**
 	 * The constructor
@@ -100,9 +102,14 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
 		SVCorePlugin.getDefault().enableDebug(debug_en);
-		
-		fRefreshIndexJob.setPriority(Job.LONG);
-		fRefreshIndexJob.schedule(5000);
+	}
+	
+	public void startRefreshJob() {
+		if (!fStartRefreshJob) {
+			fRefreshIndexJob.setPriority(Job.LONG);
+			fRefreshIndexJob.schedule(5000);
+			fStartRefreshJob = true;
+		}
 	}
 
 	/*

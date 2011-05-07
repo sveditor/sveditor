@@ -161,6 +161,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 				fPersistenceRdr.readObject(null, index_data.getClass(), index_data);
 				debug("Cache " + fSVDBFS.getRoot() + " has base " + 
 						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
+				fSVDBFS.closeChannel(in);
 				valid = true;
 			} else {
 				debug("Failed to read index_data");
@@ -208,14 +209,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		if (fSVDBFS.fileExists(target_dir + "/preProcFile")) {
 			SVDBFile f = null;
-//			try {
-//				f = readFile(fSVDBFS.openFileRead(target_dir + "/preProcFile"), path);
-				f = readFile(fSVDBFS.openChannelRead(target_dir + "/preProcFile"), path);
-				fPreProcFileMap.put(path, f);
-				return f;
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/preProcFile"); 
+			f = readFile(in, path);
+			fSVDBFS.closeChannel(in);
+			fPreProcFileMap.put(path, f);
+			return f;
 		}
 
 		return null;
@@ -230,7 +228,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		if (fSVDBFS.fileExists(target_dir + "/file")) {
 			SVDBFile f = null;
 			//				debug("readFile: " + path);
-			f = readFile(fSVDBFS.openChannelRead(target_dir + "/file"), path);
+			RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/file"); 
+			f = readFile(in, path);
+			fSVDBFS.closeChannel(in);
 			fFileMap.put(path, f);
 			return f;
 		} else {
@@ -328,15 +328,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		if (fSVDBFS.fileExists(target_dir + "/fileTreeMap")) {
 			SVDBFileTree f = null;
-//			try {
-//				f = readFileTree(fSVDBFS.openFileRead(target_dir + "/fileTreeMap"));
-				f = readFileTree(fSVDBFS.openChannelRead(target_dir + "/fileTreeMap"));
-				
-				fFileTreeMap.put(path, f);
-				return f;
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/fileTreeMap"); 
+			f = readFileTree(in);
+			fSVDBFS.closeChannel(in);
+
+			fFileTreeMap.put(path, f);
+			return f;
 		}
 
 		return null;
@@ -379,8 +376,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			e.printStackTrace();
 		}
 
-		fSVDBFS.closeChannel(in);
-		
 		return ret;
 	}
 
@@ -394,8 +389,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		} catch (DBFormatException e) {
 			e.printStackTrace();
 		}
-		
-		fSVDBFS.closeChannel(in);
 		
 		return ret;
 	}
@@ -425,9 +418,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			fPersistenceWriter.init(out);
 			fPersistenceWriter.writeItemList(marker_list);
 			fPersistenceWriter.close();
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+			fSVDBFS.closeChannel(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		}
@@ -461,8 +452,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			fPersistenceWriter.init(out);
 			fPersistenceWriter.writeObject(fIndexData.getClass(), fIndexData);
 			fPersistenceWriter.close();
-			out.close();
-		} catch (IOException e) {
+			fSVDBFS.closeChannel(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		}

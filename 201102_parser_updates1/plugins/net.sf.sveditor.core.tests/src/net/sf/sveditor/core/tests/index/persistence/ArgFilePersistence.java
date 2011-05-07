@@ -204,6 +204,7 @@ public class ArgFilePersistence extends TestCase
 				System.out.print("" + line + ": ");
 			}
 		}
+		scanner.close();
 		
 		in = new ByteArrayInputStream(bos.toByteArray());
 		log.debug("--> parse()");

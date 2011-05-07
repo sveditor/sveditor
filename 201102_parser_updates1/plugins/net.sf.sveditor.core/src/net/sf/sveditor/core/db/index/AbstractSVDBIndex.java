@@ -521,6 +521,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			List<String>	missing_includes) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 
+		fLog.debug("setFileTree " + root.getFilePath());
 		fCache.setFileTree(root.getFilePath(), root);
 
 		if (parent != null) {
@@ -1061,10 +1062,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		sc.init(in, path);
 		sc.scan();
 
-		try {
-			in.close();
-		} catch (IOException e) {
-		}
+		getFileSystemProvider().closeStream(in);
 
 		SVDBFile file = ob.getFiles().get(0);
 
@@ -1112,6 +1110,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public SVPreProcScanner createPreProcScanner(String path) {
+		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);
 		SVDBFileTree ft = findFileTree(path);
 
@@ -1131,8 +1130,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		SVPreProcScanner pp = new SVPreProcScanner();
 		pp.setDefineProvider(dp);
-		// pp.setScanner(this);
-		// pp.setObserver(this);
 
 		pp.init(in, path);
 		pp.setExpandMacros(true);

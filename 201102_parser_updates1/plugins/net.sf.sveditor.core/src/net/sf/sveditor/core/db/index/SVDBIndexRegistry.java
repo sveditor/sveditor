@@ -335,16 +335,6 @@ public class SVDBIndexRegistry  {
 			// Compact the cache-storage area
 			fCacheFactory.compactCache(cache_l);
 		}
-		
-		/*
-		for (String proj_name : fProjectIndexMap.keySet()) {
-			save_state(proj_name, fProjectIndexMap.get(proj_name));
-		}
-		 */
-		
-		// Now, iterate through each saved database and clean up
-		// any leftover saved-database files
-		
 	}
 	
 	

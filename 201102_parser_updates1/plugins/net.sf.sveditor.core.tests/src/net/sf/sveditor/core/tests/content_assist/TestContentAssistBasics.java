@@ -14,7 +14,6 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -22,7 +21,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -37,13 +35,14 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -66,6 +65,7 @@ public class TestContentAssistBasics extends TestCase {
 
 		String pname = "basic_content_assist_project";
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(new TestNullIndexCacheFactory());
 		fIndex = new ContentAssistIndex();
 
 		fIndexCollectionVMMMgr = new SVDBIndexCollectionMgr(pname);
@@ -74,10 +74,6 @@ public class TestContentAssistBasics extends TestCase {
 				rgy.findCreateIndex(new NullProgressMonitor(), pname, 
 						SVCoreTestsPlugin.VMM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
-
-		// Force database loading
-		//		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
-		//		fIndexCollectionVMMMgr.getItemIterator(new NullProgressMonitor());
 	}
 	
 	private SVDBIndexCollectionMgr createStandaloneIndexMgr() {

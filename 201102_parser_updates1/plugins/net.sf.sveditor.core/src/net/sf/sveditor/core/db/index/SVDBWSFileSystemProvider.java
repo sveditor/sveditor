@@ -203,7 +203,9 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			if (in != null) {
 				in.close();
 			}
-		} catch (IOException e) { }
+		} catch (IOException e) { 
+			e.printStackTrace();
+		}
 	}
 
 	public InputStream openStream(String path) {

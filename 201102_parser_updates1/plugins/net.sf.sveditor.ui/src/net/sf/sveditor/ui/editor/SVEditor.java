@@ -160,6 +160,9 @@ public class SVEditor extends TextEditor
 				fPropertyChangeListener);
 		
 		fLog = LogFactory.getLogHandle("SVEditor");
+		
+		// Check in with the plug-in
+		SVUiPlugin.getDefault().startRefreshJob();
 	}
 	
 	@Override

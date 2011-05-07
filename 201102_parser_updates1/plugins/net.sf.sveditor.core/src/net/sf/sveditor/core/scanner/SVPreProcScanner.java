@@ -139,6 +139,14 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		fScanLocation.setFileName(name);
 	}
+	
+	public void close() {
+		try {
+			if (fInput != null) {
+				fInput.close();
+			}
+		} catch (IOException e) {}
+	}
 
 	public void scan() {
 		int     ch;

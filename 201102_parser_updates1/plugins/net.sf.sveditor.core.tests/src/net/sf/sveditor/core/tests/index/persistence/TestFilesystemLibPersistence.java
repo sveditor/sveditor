@@ -27,6 +27,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -61,12 +63,13 @@ public class TestFilesystemLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
@@ -75,8 +78,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_project/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
@@ -84,7 +87,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -123,7 +126,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		TestUtils.copy(out, new File(project_dir, "basic_lib_project/class1.svh"));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
+		index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
 		
@@ -137,10 +141,12 @@ public class TestFilesystemLibPersistence extends TestCase {
 			}
 		}
 		
-		System.out.println("target_it=" + target_it);
+		log.debug("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
 		assertEquals("class1_1", SVDBItem.getName(target_it));
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
