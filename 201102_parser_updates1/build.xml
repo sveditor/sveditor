@@ -72,9 +72,7 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
             <arg value="scripts/upload_release.sh"/>
         </exec>
 
-<!--
         <delete dir="${basedir}/release"/> 
-  -->
         <delete dir="${buildDirectory}"/>
     </target>
 

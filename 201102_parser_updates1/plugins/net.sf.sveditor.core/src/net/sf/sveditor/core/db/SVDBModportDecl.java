@@ -16,17 +16,15 @@ public class SVDBModportDecl extends SVDBChildItem implements ISVDBChildParent {
 		return fModportItemList;
 	}
 	
-	@Override
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			
 			public Iterator<ISVDBChildItem> iterator() {
-				return (Iterator<ISVDBChildItem>)(Iterable)fModportItemList.iterator();
+				return (Iterator)fModportItemList.iterator();
 			}
 		};
 	}
 	
-	@Override
 	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fModportItemList.add((SVDBModportItem)item);

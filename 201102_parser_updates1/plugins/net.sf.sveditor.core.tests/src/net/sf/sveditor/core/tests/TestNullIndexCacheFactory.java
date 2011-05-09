@@ -7,13 +7,11 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 
 public class TestNullIndexCacheFactory implements ISVDBIndexCacheFactory {
 
-	@Override
 	public ISVDBIndexCache createIndexCache(String project_name,
 			String base_location) {
 		return new TestNullIndexCache();
 	}
 
-	@Override
 	public void compactCache(List<ISVDBIndexCache> cache_list) {
 	}
 

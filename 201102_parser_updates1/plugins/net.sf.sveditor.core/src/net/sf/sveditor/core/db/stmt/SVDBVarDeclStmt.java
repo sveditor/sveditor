@@ -84,13 +84,11 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 		fFieldAttr = attr;
 	}
 	
-	@Override
 	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fVarList.add((SVDBVarDeclItem)item);
 	}
 
-	@Override
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {

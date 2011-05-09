@@ -16,16 +16,13 @@ public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
 		fExportList = new ArrayList<SVDBExportItem>();
 	}
 	
-	@Override
 	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fExportList.add((SVDBExportItem)item);
 	}
 
-	@Override
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
-			@Override
 			public Iterator<ISVDBChildItem> iterator() {
 				return (Iterator)fExportList.iterator();
 			}

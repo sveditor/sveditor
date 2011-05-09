@@ -46,7 +46,6 @@ public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 		};
 	}
 	
-	@Override
 	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fInstList.add((SVDBModIfcInstItem)item);
