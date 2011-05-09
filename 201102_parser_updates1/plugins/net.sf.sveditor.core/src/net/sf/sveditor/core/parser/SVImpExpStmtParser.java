@@ -15,8 +15,9 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.expr.SVDBStringExpr;
+import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
+import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 
 /**
@@ -48,11 +49,13 @@ public class SVImpExpStmtParser extends SVParserBase {
 				fLexer.readOperator("*");
 				fLexer.readOperator("::");
 				fLexer.readOperator("*");
-				exp.addExport(new SVDBStringExpr(fLexer.endCapture()));
+				SVDBExportItem ei = new SVDBExportItem();
+				ei.setExport(fLexer.endCapture());
+				exp.addChildItem(ei);
 			} else {
 				
 				while (fLexer.peek() != null) {
-					exp.addExport(package_import_item());
+					exp.addChildItem(package_export_item());
 					
 					if (fLexer.peekOperator(",")) {
 						fLexer.eatToken();
@@ -62,7 +65,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-			parent.addItem(exp);
+			parent.addChildItem(exp);
 		}
 	}
 	
@@ -100,7 +103,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 			SVDBImportStmt imp = new SVDBImportStmt();
 			imp.setLocation(start);
 			while (fLexer.peek() != null) {
-				imp.addImport(package_import_item());
+				imp.addChildItem(package_import_item());
 				
 				if (fLexer.peekOperator(",")) {
 					fLexer.eatToken();
@@ -110,11 +113,13 @@ public class SVImpExpStmtParser extends SVParserBase {
 			}
 		
 			fLexer.readOperator(";");
-			parent.addItem(imp);
+			parent.addChildItem(imp);
 		}
 	}
 	
-	private SVDBStringExpr package_import_item() throws SVParseException {
+	private SVDBImportItem package_import_item() throws SVParseException {
+		SVDBImportItem imp = new SVDBImportItem();
+		imp.setLocation(fLexer.getStartLocation());
 		fLexer.startCapture();
 		fLexer.readId();
 		while (fLexer.peekOperator("::")) {
@@ -126,6 +131,25 @@ public class SVImpExpStmtParser extends SVParserBase {
 			}
 		}
 		
-		return new SVDBStringExpr(fLexer.endCapture());
+		imp.setImport(fLexer.endCapture());
+		return imp;
+	}
+	
+	private SVDBExportItem package_export_item() throws SVParseException {
+		SVDBExportItem exp = new SVDBExportItem();
+		exp.setLocation(fLexer.getStartLocation());
+		fLexer.startCapture();
+		fLexer.readId();
+		while (fLexer.peekOperator("::")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator("*")) {
+				fLexer.eatToken();
+			} else {
+				fLexer.readId();
+			}
+		}
+		
+		exp.setExport(fLexer.endCapture());
+		return exp;
 	}
 }

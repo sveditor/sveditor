@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.parser;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -87,11 +88,11 @@ public class TestParseFunction extends TestCase {
 		for (ISVDBItemBase it_t : func.getItems()) {
 			if (it_t.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it_t;
-				for (SVDBVarDeclItem vi : v.getVarList()) {
-					if (vi.getName().equals("a")) {
-						a = vi;
-					} else if (vi.getName().equals("b")) {
-						b = vi;
+				for (ISVDBChildItem vi : v.getChildren()) {
+					if (SVDBItem.getName(vi).equals("a")) {
+						a = (SVDBVarDeclItem)vi;
+					} else if (SVDBItem.getName(vi).equals("b")) {
+						b = (SVDBVarDeclItem)vi;
 					}
 				}
 			}
@@ -116,7 +117,8 @@ public class TestParseFunction extends TestCase {
 		assertEquals(2, func.getItems().size());
 		assertTrue(func.getItems().get(0).getType() == SVDBItemType.VarDeclStmt);
 		SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)func.getItems().get(0);
-		assertEquals("t", stmt.getVarList().get(0).getName());
+		SVDBVarDeclItem vi = (SVDBVarDeclItem)stmt.getChildren().iterator().next();
+		assertEquals("t", vi.getName());
 	}
 
 	// Tests that local variables are correctly recognized and that 
@@ -136,9 +138,9 @@ public class TestParseFunction extends TestCase {
 		SVDBVarDeclItem a=null;
 		for (ISVDBItemBase it : func.getItems()) {
 			if (it.getType() == SVDBItemType.VarDeclStmt) {
-				for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
-					if (vi.getName().equals("a")) {
-						a = vi;
+				for (ISVDBChildItem vi : ((SVDBVarDeclStmt)it).getChildren()) {
+					if (SVDBItem.getName(vi).equals("a")) {
+						a = (SVDBVarDeclItem)vi;
 					}
 				}
 			}
@@ -211,7 +213,9 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
-		assertEquals("bar", func.getParams().get(1).getVarList().get(0).getName());
+		ISVDBChildItem c = func.getParams().get(1).getChildren().iterator().next();
+				
+		assertEquals("bar", SVDBItem.getName(c));
 		assertEquals(SVDBParamPortDecl.Direction_Ref,
 				func.getParams().get(1).getDir());
 	}

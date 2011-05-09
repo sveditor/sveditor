@@ -117,7 +117,7 @@ public class SVPortListParser extends SVParserBase {
 			param_r.setDir(dir);
 			param_r.setLocation(it_start);
 			SVDBVarDeclItem param = new SVDBVarDeclItem(id);
-			param_r.addVar(param);
+			param_r.addChildItem(param);
 
 			if (fLexer.peekOperator("[")) {
 				// This port is an array port

@@ -236,20 +236,24 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		d.append(SVDBItem.getName(it) + "(");
 		r.append(escapeId(SVDBItem.getName(it)) + "(");
 		
+		boolean has_params = false;
 		for (int i=0; i<tf.getParams().size(); i++) {
 			SVDBParamPortDecl param = tf.getParams().get(i);
-			for (int j=0; j<param.getVarList().size(); j++) {
-				SVDBVarDeclItem vi = param.getVarList().get(j);
+			for (ISVDBChildItem c : param.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				d.append(param.getTypeName() + " " + vi.getName());
 				r.append("${");
 				r.append(vi.getName());
 				r.append("}");
-				
-				if (i+1 < tf.getParams().size()) {
-					d.append(", ");
-					r.append(", ");
-				}
+
+				d.append(", ");
+				r.append(", ");
+				has_params = true;
 			}
+		}
+		if (has_params) {
+			d.setLength(d.length()-2);
+			r.setLength(r.length()-2);
 		}
 		d.append(")");
 		r.append(")");

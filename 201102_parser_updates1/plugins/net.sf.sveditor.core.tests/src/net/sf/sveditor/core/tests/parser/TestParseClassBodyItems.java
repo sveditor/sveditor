@@ -80,6 +80,21 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"ovm_random_stimulus"});
 	}
 
+	public void testCovergroupSizedArrayBins() {
+		String content =
+			"class foo;\n" +
+			"	covergroup cg;\n" +
+			"		foo_cp : coverpoint foo_field {\n" +
+			"			bins foo_field[8] = {[0:255]};\n" +
+			"		}\n" +
+			"	endgroup\n" +
+			"endclass\n"
+			;
+		
+		runTest("testCovergroupSizedArrayBins", content, 
+				new String[] {"foo", "cg"});
+	}
+
 	public void testTypedClassParameters() {
 		String content = 
 			"`define PARAMS \\\n" +
@@ -284,7 +299,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBClassDecl cg_options = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("__sv_builtin_covergroup_options")) {
 				cg_options = (SVDBClassDecl)it;
 			}
@@ -293,7 +308,7 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		assertNotNull("Failed to find class __sv_builtin_covergroup_options", cg_options);
 		
-		for (ISVDBItemBase it : cg_options.getItems()) {
+		for (ISVDBItemBase it : cg_options.getChildren()) {
 			log.debug("    Item: " + it.getType() + " " + SVDBItem.getName(it));
 			assertNotNull("Item " + SVDBItem.getName(it) + " does not have a location",
 					it.getLocation());

@@ -244,4 +244,73 @@ public class TestOpenClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testOpenClassTypeRef() {
+		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRef");
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo;\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar extends foo;\n" +
+			"    foo      m_foo;\n" +
+			"\n" +
+			"    function new();\n" +
+			"        m_foo = 5;\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, "testOpenVariableRef.svh");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("extends foo");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"extends f".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, 4, scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.ClassDecl, ret.get(0).first().getType());
+		assertEquals("foo", SVDBItem.getName(ret.get(0).first()));
+	}
+
+	public void testOpenIfcTypeRef() {
+		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRef");
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"interface foo;\n" +
+			"endinterface\n" +
+			"\n" +
+			"class bar;\n" +
+			"    virtual foo      m_foo();\n" +
+			"\n" +
+			"    function new();\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, "testOpenIfcTypeRef");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("virtual foo");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"virtual f".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, 4, scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.InterfaceDecl, ret.get(0).first().getType());
+		assertEquals("foo", SVDBItem.getName(ret.get(0).first()));
+	}
+
 }

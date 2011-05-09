@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -88,8 +88,8 @@ public class TestParamClassContentAssist extends TestCase {
 		
 		assertNotNull(my_class1);
 		
-		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
+		System.out.println("[my_class1] " + SVDBUtil.getChildrenSize(my_class1) + " items");
+		for (ISVDBItemBase it_t : my_class1.getChildren()) {
 			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
@@ -150,8 +150,8 @@ public class TestParamClassContentAssist extends TestCase {
 		
 		assertNotNull(my_class1);
 		
-		System.out.println("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
+		System.out.println("[my_class1] " + SVDBUtil.getChildrenSize(my_class1) + " items");
+		for (ISVDBItemBase it_t : my_class1.getChildren()) {
 			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		

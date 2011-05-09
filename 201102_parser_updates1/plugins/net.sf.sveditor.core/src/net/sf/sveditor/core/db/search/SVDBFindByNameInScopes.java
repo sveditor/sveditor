@@ -19,11 +19,9 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
@@ -49,7 +47,7 @@ public class SVDBFindByNameInScopes {
 			// First, search the local variables
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
 				if (it instanceof SVDBVarDeclStmt) {
-					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getVarList()) {
+					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getChildren()) {
 						if (SVDBItem.getName(it_t).equals(name)) {
 							boolean match = (types.length == 0);
 
@@ -125,7 +123,8 @@ public class SVDBFindByNameInScopes {
 
 				// Check ports
 				for (SVDBParamPortDecl p : p_list) {
-					for (SVDBVarDeclItem pi : p.getVarList()) {
+					for (ISVDBChildItem c : p.getChildren()) {
+						SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
 						if (pi.getName().equals(name)) {
 							ret.add(pi);
 							if (ret.size() > 0 && stop_on_first_match) {

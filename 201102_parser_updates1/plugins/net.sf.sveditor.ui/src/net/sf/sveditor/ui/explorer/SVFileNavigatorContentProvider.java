@@ -49,7 +49,6 @@ public class SVFileNavigatorContentProvider
 		fLog = LogFactory.getLogHandle("SVFileNavigatorContentProvider");
 	}
 	
-	
 	public void SVDBFileChanged(
 			SVDBFile 			file, 
 			List<SVDBItem> 		adds,
@@ -106,7 +105,7 @@ public class SVFileNavigatorContentProvider
 			if (svdb_file != null) {
 				List<SVDBItem> ret = new ArrayList<SVDBItem>();
 				
-				for (ISVDBItemBase it : svdb_file.getItems()) {
+				for (ISVDBItemBase it : svdb_file.getChildren()) {
 					if (it.getType() != SVDBItemType.Marker) {
 						ret.add((SVDBItem)it);
 					}

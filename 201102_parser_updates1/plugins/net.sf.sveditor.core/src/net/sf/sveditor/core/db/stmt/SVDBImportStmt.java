@@ -1,26 +1,35 @@
 package net.sf.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 
-public class SVDBImportStmt extends SVDBStmt {
+public class SVDBImportStmt extends SVDBStmt implements ISVDBChildParent {
 	
-	private List<SVDBStringExpr>			fImportList;
+	private List<SVDBImportItem>			fImportList;
 	
 	public SVDBImportStmt() {
 		super(SVDBItemType.ImportStmt);
-		fImportList = new ArrayList<SVDBStringExpr>();
+		fImportList = new ArrayList<SVDBImportItem>();
 	}
 	
-	public List<SVDBStringExpr> getImportList() {
-		return fImportList;
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fImportList.add((SVDBImportItem)item);
 	}
 	
-	public void addImport(SVDBStringExpr imp) {
-		fImportList.add(imp);
+	@Override
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			@Override
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fImportList.iterator();
+			}
+		};
 	}
-
 }

@@ -58,7 +58,8 @@ public class SVDBFindVarsByNameInScopes {
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
 				if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 					boolean stop = false;
-					for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
+					for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
+						SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 						if (vi.getName().equals(name)) {
 							ret.add(vi);
 							
@@ -83,7 +84,8 @@ public class SVDBFindVarsByNameInScopes {
 					context.getType() == SVDBItemType.Task) {
 				for (SVDBParamPortDecl it : ((SVDBTask)context).getParams()) {
 					boolean stop = false;
-					for (SVDBVarDeclItem vi : it.getVarList()) {
+					for (ISVDBChildItem c : it.getChildren()) {
+						SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 						if (fMatcher.match(vi, name)) {
 							ret.add(vi);
 							
@@ -101,7 +103,8 @@ public class SVDBFindVarsByNameInScopes {
 				SVDBModIfcDecl m = (SVDBModIfcDecl)context;
 				for (SVDBParamPortDecl p : m.getPorts()) {
 					boolean stop = false;
-					for (SVDBVarDeclItem vi : p.getVarList()) {
+					for (ISVDBChildItem c : p.getChildren()) {
+						SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 						if (fMatcher.match(vi, name)) {
 							ret.add(vi);
 							if (stop_on_first_match) {

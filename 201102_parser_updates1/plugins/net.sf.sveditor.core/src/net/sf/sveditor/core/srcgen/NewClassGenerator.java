@@ -16,16 +16,17 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -100,7 +101,7 @@ public class NewClassGenerator {
 			monitor.subTask("Setting up constructor");
 			SVDBTask new_func = null;
 			if (superclass_decl != null) {
-				for (ISVDBItemBase it : superclass_decl.getItems()) {
+				for (ISVDBChildItem it : superclass_decl.getChildren()) {
 					if (it.getType() == SVDBItemType.Function && 
 							it instanceof ISVDBNamedItem &&
 							((ISVDBNamedItem)it).getName().equals("new")) {
@@ -120,14 +121,16 @@ public class NewClassGenerator {
 					for (int i=0; i<params.size(); i++) {
 						SVDBParamPortDecl p = params.get(i);
 						template += p.getTypeName() + " ";
+						/*
 						for (int j=0; j<p.getVarList().size(); j++) {
 							template += p.getVarList().get(j).getName();
 							if (j+1 < p.getVarList().size()) {
 								template += ", ";
 							}
 						}
-						
-						if (i+1 < params.size()) {
+						 */
+						for (ISVDBChildItem c : p.getChildren()) {
+							template += ((SVDBVarDeclItem)c).getName();
 							template += ", ";
 						}
 					}
@@ -139,17 +142,15 @@ public class NewClassGenerator {
 					template += "super.new(";
 					for (int i=0; i<params.size(); i++) {
 						SVDBParamPortDecl p = params.get(i);
-						for (int j=0; j<p.getVarList().size(); j++) {
-							template += p.getVarList().get(j).getName();
+						for (ISVDBChildItem c : p.getChildren()) {
+							template += ((SVDBVarDeclItem)c).getName();
 							
-							if (j+1 < p.getVarList().size()) {
-								template += ", ";
-							}
-						}
-						
-						if (i+1 < params.size()) {
 							template += ", ";
 						}
+					}
+					
+					if (template.endsWith(", ")) {
+						template = template.substring(0, template.length()-2);
 					}
 					template += ");\n";
 				} else {

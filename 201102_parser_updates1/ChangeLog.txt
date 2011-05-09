@@ -1,4 +1,19 @@
 
+-- 0.6.0.ea2 Release --
+
+- Correct a few bugs with the editor outline view. 
+    - Module instances, imports and a few other things affected by the 
+      SVDB structure changes are now correctly displayed.
+    - Covergroup items are not expandable now
+    - Covergroup options are now displayed correctly
+
+- Correct a parse error with coverpoint sized array bins (bins foo[8] = ...)
+
+- Update 'Rebuild Index' command on the context menu of the Project Explorer
+  to immediately request a build of the index after invalidating it.
+
+- Correct open-declaration for super-class reference
+
 -- 0.6.0.ea1 Release --
 
 - Enhance SVEditor to make two time-consuming startup tasks 
@@ -12,11 +27,6 @@
 - Use a backing cache for files in the index. This permits faster
   startup time, and should be more scalable, since the database need
   not be entirely in memory
-
-- :q
-
-
-
 
 -- 0.4.0 Release --
 

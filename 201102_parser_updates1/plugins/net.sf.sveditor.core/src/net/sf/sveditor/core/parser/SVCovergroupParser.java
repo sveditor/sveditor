@@ -94,11 +94,13 @@ public class SVCovergroupParser extends SVParserBase {
 	
 	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {
 		// option or type_option
+		SVDBLocation start = fLexer.getStartLocation();
 		String type = fLexer.eatToken();
 		fLexer.readOperator(".");
 		String name = fLexer.readId();
 		
 		SVDBCoverageOptionStmt opt = new SVDBCoverageOptionStmt(name, type.equals("type_option"));
+		opt.setLocation(start);
 		fLexer.readOperator("=");
 		opt.setExpr(parsers().exprParser().expression());
 		
@@ -168,6 +170,7 @@ public class SVCovergroupParser extends SVParserBase {
 							fLexer.eatToken();
 						} else {
 							bins.setArrayExpr(parsers().exprParser().expression());
+							fLexer.readOperator("]");
 						}
 					}
 					

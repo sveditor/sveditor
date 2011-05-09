@@ -20,16 +20,11 @@ import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -78,6 +73,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private String								fInsertSpaceTestOverride;
 	
 	private boolean								fStartRefreshJob = false;
+	private RefreshIndexJob						fRefreshIndexJob;
 	
 	
 	/**
@@ -104,12 +100,37 @@ public class SVUiPlugin extends AbstractUIPlugin
 		SVCorePlugin.getDefault().enableDebug(debug_en);
 	}
 	
-	public void startRefreshJob() {
+	// Called by SVEditor on startup
+	public synchronized void startRefreshJob() {
 		if (!fStartRefreshJob) {
-			fRefreshIndexJob.setPriority(Job.LONG);
-			fRefreshIndexJob.schedule(5000);
+			RefreshProjectIndexesJob rj = new RefreshProjectIndexesJob();
+			rj.setPriority(Job.LONG);
+			rj.schedule(5000);
+			
 			fStartRefreshJob = true;
 		}
+	}
+	
+	public synchronized void refreshIndex(ISVDBIndex index) {
+		if (fRefreshIndexJob == null) {
+			fRefreshIndexJob = new RefreshIndexJob(this);
+			fRefreshIndexJob.setPriority(Job.LONG);
+			fRefreshIndexJob.schedule(1000);
+		}
+		fRefreshIndexJob.addIndex(index);
+	}
+	
+	public synchronized void refreshIndexList(List<ISVDBIndex> list) {
+		if (fRefreshIndexJob == null) {
+			fRefreshIndexJob = new RefreshIndexJob(this);
+			fRefreshIndexJob.setPriority(Job.LONG);
+			fRefreshIndexJob.schedule(1000);
+		}
+		fRefreshIndexJob.addIndexList(list);
+	}
+	
+	public synchronized void refreshJobComplete() {
+		fRefreshIndexJob = null;
 	}
 
 	/*
@@ -306,24 +327,4 @@ public class SVUiPlugin extends AbstractUIPlugin
 			}
 		}
 	}
-	
-	private Job						fRefreshIndexJob = new Job("RefreshIndexJob") {
-		
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			List<ISVDBIndex> index_list = rgy.getIndexList();
-			monitor.beginTask("Refreshing Indexes", index_list.size());
-			
-			for (ISVDBIndex index : index_list) {
-				SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
-				index.loadIndex(sub);
-			}
-			
-			monitor.done();
-			
-			return Status.OK_STATUS;
-		}
-	};
-
 }

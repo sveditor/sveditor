@@ -18,12 +18,12 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
-public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
+public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBChildParent {
 	
 	protected SVDBTypeInfo				fTypeInfo;
 	protected int						fFieldAttr;
@@ -53,8 +53,8 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 	public static String getName(SVDBVarDeclStmt stmt) {
 		StringBuilder sb = new StringBuilder();
 		
-		for (SVDBVarDeclItem vi : stmt.getVarList()) {
-			sb.append(vi.getName());
+		for (ISVDBChildItem vi : stmt.getChildren()) {
+			sb.append(SVDBItem.getName(vi));
 			sb.append(", ");
 		}
 		if (sb.length() > 2) {
@@ -84,10 +84,12 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 		fFieldAttr = attr;
 	}
 	
-	public List<SVDBVarDeclItem> getVarList() {
-		return fVarList;
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fVarList.add((SVDBVarDeclItem)item);
 	}
-	
+
 	@Override
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
@@ -97,30 +99,10 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr {
 		};
 	}
 
-	public void addVar(SVDBVarDeclItem item) {
-		item.setParent(this);
-		fVarList.add(item);
-	}
-	
 	public SVDBVarDeclStmt duplicate() {
 		return (SVDBVarDeclStmt)super.duplicate();
 	}
 	
-	public void init(SVDBItemBase other) {
-		super.init(other);
-
-		fTypeInfo.init(((SVDBVarDeclStmt)other).fTypeInfo);
-		
-		SVDBVarDeclStmt other_v = (SVDBVarDeclStmt)other;
-		fFieldAttr = other_v.fFieldAttr;
-		
-		fVarList.clear();
-		for (SVDBVarDeclItem v : other_v.getVarList()) {
-			fVarList.add(v.duplicate());
-		}
-	}
-
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBVarDeclStmt) {

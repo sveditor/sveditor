@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -31,7 +32,8 @@ public class SVDBIndexValidator extends TestCase {
 			
 			if (it.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
-				for (SVDBVarDeclItem vi : v.getVarList()) {
+				for (ISVDBChildItem c : v.getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 //					assertNotNull(v.getParent());
 					assertNotNull(vi.getParent());
 					assertNotNull("TypeInfo for variable " + vi.getName() + " is null",

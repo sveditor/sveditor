@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.srcgen;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
@@ -76,7 +77,8 @@ public class MethodGenerator {
 			
 			new_tf.append(ti.toString());
 			new_tf.append(" ");
-			for (SVDBVarDeclItem vi : p.getVarList()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				new_tf.append(vi.getName());
 				
 				new_tf.append(", ");

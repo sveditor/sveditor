@@ -643,13 +643,13 @@ public class SVLexer extends SVToken {
 			}
 			fIsOperator = true;
 		} else if (ch == '*') {
-			// Could be *, **, or *)
+			// Could be *, **, *=, or *)
 			ch2 = get_ch();
 			
 			if (ch2 == ')' && fInAttr) {
 				fStringBuffer.append("*)");
-			} else if (ch2 == '*') {
-				fStringBuffer.append("**");
+			} else if (ch2 == '*' || ch2 == '=') {
+				fStringBuffer.append("*" + (char)ch2);
 			} else {
 				fStringBuffer.append("*");
 				unget_ch(ch2);

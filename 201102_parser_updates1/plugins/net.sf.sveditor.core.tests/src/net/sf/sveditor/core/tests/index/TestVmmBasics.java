@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -100,8 +101,9 @@ public class TestVmmBasics extends TestCase {
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)v.getChildren().iterator().next();
 				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
-						v.getVarList().get(0).getName() + " has a null TypeInfo", v.getTypeInfo());
+						vi.getName() + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
 		

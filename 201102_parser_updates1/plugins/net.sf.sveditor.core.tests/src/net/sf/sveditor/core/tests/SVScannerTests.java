@@ -75,8 +75,9 @@ public class SVScannerTests extends TestCase {
 		for (ISVDBChildItem it : m.getChildren()) {
 			assertTrue(it instanceof SVDBVarDeclStmt);
 			SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
-			for (SVDBVarDeclItem vi : v.getVarList()) {
-				log.debug("Variable " + v.getTypeName() + " " + v.getVarList().get(0).getName());
+			for (ISVDBChildItem c : v.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				log.debug("Variable " + v.getTypeName() + " " + vi.getName());
 				assertEquals(exp[idx++], v.getTypeName());
 				assertEquals(exp[idx++], vi.getName());
 			}

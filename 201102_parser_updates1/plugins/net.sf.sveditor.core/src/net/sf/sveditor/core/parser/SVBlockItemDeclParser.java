@@ -66,7 +66,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						SVDBVarDeclItem var = new SVDBVarDeclItem(name);
 						var.setLocation(it_start);
 
-						var_decl.addVar(var);
+						var_decl.addChildItem(var);
 
 						// TODO: handle array, queue, etc
 						if (fLexer.peekOperator("[")) {

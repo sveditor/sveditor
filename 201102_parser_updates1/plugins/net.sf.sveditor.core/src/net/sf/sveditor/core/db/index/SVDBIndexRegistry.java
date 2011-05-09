@@ -296,7 +296,7 @@ public class SVDBIndexRegistry  {
 		
 		return ret;
 	}
-
+	
 	public void rebuildIndex(String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
 		if (!fProjectIndexMap.containsKey(project)) {

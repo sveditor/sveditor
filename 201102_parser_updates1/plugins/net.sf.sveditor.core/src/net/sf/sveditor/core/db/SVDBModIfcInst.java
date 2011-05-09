@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class SVDBModIfcInst extends SVDBFieldItem {
+public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 	
 	private SVDBTypeInfo				fTypeInfo;
 	private List<SVDBModIfcInstItem>	fInstList;
@@ -44,6 +44,12 @@ public class SVDBModIfcInst extends SVDBFieldItem {
 				return (Iterator)fInstList.iterator();
 			}
 		};
+	}
+	
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fInstList.add((SVDBModIfcInstItem)item);
 	}
 
 	public void addInst(SVDBModIfcInstItem item) {

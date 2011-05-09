@@ -35,7 +35,6 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVModIfcBodyItemParser extends SVParserBase {
-	private final ISVDBChildItem fSpecialNonNull = new SVDBNullStmt();
 	
 	public SVModIfcBodyItemParser(ISVParser parser) {
 		super(parser);
@@ -206,7 +205,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 			
 			pi.setLocation(it_start);
-			p.addVar(pi);
+			p.addChildItem(pi);
 			
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
@@ -289,7 +288,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			
 			SVDBVarDeclItem vi = new SVDBVarDeclItem(net_name);
 			vi.setLocation(start);
-			var.addVar(vi);
+			var.addChildItem(vi);
 			
 			if (fLexer.peekOperator("[")) {
 				vi.setArrayDim(parsers().dataTypeParser().var_dim());
@@ -336,9 +335,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			while (fLexer.peek() != null) {
 				// it's a module
 				debug("module instantiation - " + inst_name_or_var);
-				SVDBParamValueAssignList port_map = fParsers.paramValueAssignParser().parse(false);
-
 				SVDBModIfcInstItem item = new SVDBModIfcInstItem(inst_name_or_var);
+				item.setLocation(fLexer.getStartLocation());
+				inst.addChildItem(item);
+				
+				SVDBParamValueAssignList port_map = fParsers.paramValueAssignParser().parse(false);
 				item.setPortMap(port_map);
 
 				if (fLexer.peekOperator(",")) {
@@ -367,7 +368,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					vi.setArrayDim(parsers().dataTypeParser().var_dim());
 				}
 
-				item.addVar(vi);
+				item.addChildItem(vi);
 
 				if (fLexer.peekOperator("=")) {
 					fLexer.eatToken();

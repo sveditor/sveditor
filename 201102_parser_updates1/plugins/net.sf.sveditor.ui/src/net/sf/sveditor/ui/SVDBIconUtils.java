@@ -52,7 +52,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.ClockingBlock, CLOCKING_OBJ);
-		fImgDescMap.put(SVDBItemType.ImportStmt, IMPORT_OBJ);
+		fImgDescMap.put(SVDBItemType.ImportItem, IMPORT_OBJ);
 	}
 	
 	public static Image getIcon(String key) {
@@ -85,7 +85,7 @@ public class SVDBIconUtils implements ISVIcons {
 			int            attr = ((IFieldItemAttr)it).getAttr();
 			SVDBItemType   type = it.getType();
 			
-			if (type == SVDBItemType.ModIfcInst) {
+			if (type == SVDBItemType.ModIfcInstItem) {
 				return SVUiPlugin.getImage(MOD_IFC_INST_OBJ);
 			} else if (type == SVDBItemType.Task || 
 					type == SVDBItemType.Function) {
@@ -99,8 +99,8 @@ public class SVDBIconUtils implements ISVIcons {
 			} else if (SVDBStmt.isType(it, SVDBItemType.ParamPortDecl)) {
 				return SVUiPlugin.getImage(LOCAL_OBJ);
 			}
-		} else if (it instanceof SVDBItem) {
-			SVDBItemType type = ((SVDBItem)it).getType();
+		} else if (it instanceof ISVDBItemBase) {
+			SVDBItemType type = ((ISVDBItemBase)it).getType();
 			
 			if (fImgDescMap.containsKey(type)) {
 				return SVUiPlugin.getImage(fImgDescMap.get(type));

@@ -20,6 +20,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -75,7 +76,8 @@ public class SVDBTestUtils {
 			if (SVDBItem.getName(it).equals(e)) {
 				return it;
 			} else if (it.getType() == SVDBItemType.VarDeclStmt) {
-				for (SVDBVarDeclItem vi : ((SVDBVarDeclStmt)it).getVarList()) {
+				for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 					if (vi.getName().equals(e)) {
 						return vi;
 					}

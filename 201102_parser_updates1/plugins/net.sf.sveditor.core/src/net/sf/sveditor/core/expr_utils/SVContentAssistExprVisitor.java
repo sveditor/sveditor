@@ -215,7 +215,8 @@ public class SVContentAssistExprVisitor {
 	private ISVDBItemBase findInScopeHierarchy(String name) {
 		SVDBFindByNameInScopes finder = new SVDBFindByNameInScopes(fIndexIt);
 		
-		fLog.debug("FindByNameInScopes: " + fScope.getType() + " " + SVDBItem.getName(fScope));
+		fLog.debug("FindByNameInScopes: " + 
+				((fScope != null)?(fScope.getType() + " " + SVDBItem.getName(fScope)):"NONE"));
 		List<ISVDBItemBase> items = finder.find(fScope, name, true); 
 		
 		if (items.size() > 0) {
@@ -417,6 +418,13 @@ public class SVContentAssistExprVisitor {
 		// Check the super-class hierarchy
 		if (fClassScope != null && (ret = findInClassHierarchy(fClassScope, id)) != null) {
 			return ret;
+		}
+		
+		// Perform global search
+		List<SVDBClassDecl> cls_l = fFindNamedClass.find(id);
+		
+		if (cls_l.size() > 0) {
+			return cls_l.get(0);
 		}
 
 		return ret;

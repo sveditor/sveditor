@@ -213,6 +213,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
 		} else if (!fLexer.peekOperator()) {
 			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
+		} else if (fLexer.peekOperator(";")) {
+			// null statement
+			fLexer.eatToken();
 		} else {
 			// TODO: check for a data declaration
 			error("Unknown top-level element \"" + fLexer.peek() + "\"");

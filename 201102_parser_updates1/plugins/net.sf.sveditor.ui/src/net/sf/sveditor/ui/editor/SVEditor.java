@@ -54,6 +54,7 @@ import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
@@ -305,8 +306,9 @@ public class SVEditor extends TextEditor
 				if (target != null) {
 					fLog.debug("Found a target plugin library");
 					fIndexMgr.addPluginLibrary(rgy.findCreateIndex(
-							SVDBIndexRegistry.GLOBAL_PROJECT, 
-							target.getId(), SVDBPluginLibIndexFactory.TYPE, null));
+							new NullProgressMonitor(), 
+							SVDBIndexRegistry.GLOBAL_PROJECT, target.getId(), 
+							SVDBPluginLibIndexFactory.TYPE, null));
 				} else {
 					fLog.debug("Did not find the target plugin library");
 				}

@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -107,7 +108,8 @@ public class TestOvmBasics extends TestCase {
 					log.debug("Current file is: " + current_file.getFilePath());
 					log.debug("    Lineno: " + v.getLocation().getLine());
 				}
-				assertNotNull("Variable " + SVDBItem.getName(v.getVarList().get(0)) + " has null parent", v.getParent());
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)v.getChildren().iterator().next();
+				assertNotNull("Variable " + vi.getName() + " has null parent", v.getParent());
 				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
 						name + " has a null TypeInfo", v.getTypeInfo());
 			}

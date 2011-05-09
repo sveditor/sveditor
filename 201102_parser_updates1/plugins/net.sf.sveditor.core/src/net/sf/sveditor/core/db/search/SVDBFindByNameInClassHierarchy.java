@@ -21,7 +21,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -108,12 +107,12 @@ public class SVDBFindByNameInClassHierarchy {
 
 				if (matches) {
 					if (it.getType() == SVDBItemType.VarDeclStmt) {
-						for (SVDBVarDeclItem it_t : ((SVDBVarDeclStmt)it).getVarList()) {
+						for (ISVDBChildItem it_t : ((SVDBVarDeclStmt)it).getChildren()) {
 							if (fMatcher.match((ISVDBNamedItem)it_t, id)) {
 								ret.add(it_t);
 							}
 						}
-					} else {
+					} else if (it instanceof ISVDBNamedItem) {
 						if (fMatcher.match((ISVDBNamedItem)it, id)) {
 							ret.add(it);
 						}
@@ -159,7 +158,8 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 			
 			if (matches) {
-				for (SVDBVarDeclItem vi : it.getVarList()) {
+				for (ISVDBChildItem c : it.getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 					if (fMatcher.match(vi, id)) {
 						items.add(vi);
 					}

@@ -17,9 +17,11 @@ public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
 	public void setParent(ISVDBChildItem parent) {
 		fParent = parent;
 	}
-	
+
+	/*
 	public Iterable getChildren() {
 		return EmptySVDBChildItemIterable.iterable;
 	}
+	 */
 	
 }

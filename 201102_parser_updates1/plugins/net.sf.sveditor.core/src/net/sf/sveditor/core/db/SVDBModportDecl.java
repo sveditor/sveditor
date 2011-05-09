@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SVDBModportDecl extends SVDBChildItem {
+public class SVDBModportDecl extends SVDBChildItem implements ISVDBChildParent {
 	private List<SVDBModportItem>			fModportItemList;
 	
 	public SVDBModportDecl() {
@@ -25,8 +25,15 @@ public class SVDBModportDecl extends SVDBChildItem {
 			}
 		};
 	}
+	
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fModportItemList.add((SVDBModportItem)item);
+	}
 
 	public void addModportItem(SVDBModportItem item) {
+		item.setParent(this);
 		fModportItemList.add(item);
 	}
 

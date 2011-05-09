@@ -1,25 +1,35 @@
 package net.sf.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 
-public class SVDBExportStmt extends SVDBStmt {
-	private List<SVDBStringExpr>			fExportList;
+public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
+	private List<SVDBExportItem>			fExportList;
 	
 	public SVDBExportStmt() {
 		super(SVDBItemType.ExportStmt);
-		fExportList = new ArrayList<SVDBStringExpr>();
+		fExportList = new ArrayList<SVDBExportItem>();
 	}
 	
-	public List<SVDBStringExpr> getExportList() {
-		return fExportList;
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fExportList.add((SVDBExportItem)item);
 	}
-	
-	public void addExport(SVDBStringExpr exp) {
-		fExportList.add(exp);
+
+	@Override
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			@Override
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fExportList.iterator();
+			}
+		};
 	}
 
 }

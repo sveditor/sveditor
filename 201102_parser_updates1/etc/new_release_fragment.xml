@@ -2,19 +2,19 @@
 
 <!-- BEGIN: Release 1.2.3 -->
    <feature 
-       url="https://sourceforge.net/projects/sveditor/files/update_site/1.2.3/features/net.sf.sveditor_1.2.3.jar/download" 
+       url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/features/net.sf.sveditor_1.2.3.jar/download" 
        id="net.sf.sveditor" version="1.2.3">
       <category name="SVEditor Feature"/>
    </feature>
 
    <archive path="plugins/net.sf.sveditor.core_1.2.3.jar"
-    url="https://sourceforge.net/projects/sveditor/files/update_site/1.2.3/plugins/net.sf.sveditor.core_1.2.3.jar/download"/>
+    url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.core_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.ui_1.2.3.jar"
-    url="https://sourceforge.net/projects/sveditor/files/update_site/1.2.3/plugins/net.sf.sveditor.ui_1.2.3.jar/download"/>
+    url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.ui_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.doc.dev_1.2.3.jar"
-    url="https://sourceforge.net/projects/sveditor/files/update_site/1.2.3/plugins/net.sf.sveditor.doc.dev_1.2.3.jar/download"/>
+    url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.doc.dev_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.doc.user_1.2.3.jar"
-    url="https://sourceforge.net/projects/sveditor/files/update_site/1.2.3/plugins/net.sf.sveditor.doc.user_1.2.3.jar/download"/>
+    url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.doc.user_1.2.3.jar/download"/>
 
 
 <!-- END: Release 1.2.3 -->
