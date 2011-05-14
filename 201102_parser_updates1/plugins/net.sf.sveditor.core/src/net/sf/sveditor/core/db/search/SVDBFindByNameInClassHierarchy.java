@@ -167,7 +167,7 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 		}
 		
-		for (ISVDBItemBase it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getChildren()) {
 			for (SVDBItemType type : types) {
 				if (it.getType() == type) {
 					matches = true;

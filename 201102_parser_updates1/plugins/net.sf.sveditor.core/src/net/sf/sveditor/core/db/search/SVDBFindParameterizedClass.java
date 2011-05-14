@@ -204,7 +204,7 @@ public class SVDBFindParameterizedClass {
 		}
 		 */
 		
-		for (ISVDBItemBase it : cls.getItems()) {
+		for (ISVDBItemBase it : cls.getChildren()) {
 			specialize_int(it, param_map);
 		}
 	}

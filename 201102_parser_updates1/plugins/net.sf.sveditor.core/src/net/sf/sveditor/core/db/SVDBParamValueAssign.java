@@ -35,22 +35,9 @@ public class SVDBParamValueAssign extends SVDBItem {
 	public SVDBExpr getValue() {
 		return fValue;
 	}
-
-	@Override
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		fValue = ((SVDBParamValueAssign)other).fValue;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBParamValueAssign) {
-			return (fValue.equals(((SVDBParamValueAssign)obj).fValue) &&
-					super.equals(obj));
-		}
-		
-		return false;
-	}
 	
+	public SVDBTypeInfo getTypeInfo() {
+		return fType;
+	}
+
 }

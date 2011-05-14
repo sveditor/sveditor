@@ -37,10 +37,12 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
 	}
 
 	// Deprecated methods
+	@SuppressWarnings({"rawtypes","unchecked"})
 	public List<ISVDBItemBase> getItems() {
 		return (List)fFields;
 	}
 	
+	@SuppressWarnings({"rawtypes","unchecked"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {

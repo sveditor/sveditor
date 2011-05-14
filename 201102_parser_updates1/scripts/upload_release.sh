@@ -70,7 +70,7 @@ if test $do_tag -eq 1; then
   svn_cmd="svn --username $SF_USERNAME"
 
   # Check, first to see if we can access
-  $svn_cmd ls $svnroot/trunk > /dev/null
+  $svn_cmd ls $svnroot/$src_url > /dev/null
 
   if test $? -ne 0; then
     echo "[ERROR] cannot access SVNROOT"
@@ -88,7 +88,7 @@ if test $do_tag -eq 1; then
 
   # Finally, create the release tag
   $svn_cmd cp -m "Release tag for ${version}" \
-     $svnroot/trunk $svnroot/tags/release/${version}
+     $svnroot/$src_url $svnroot/tags/release/${version}
 
   if test $? -ne 0; then
     echo "[ERROR] failed to create release tag"

@@ -1379,6 +1379,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testModuleInst", doc, new String[] {"sub", "t"});
 	}
+	
 
 	private void runTest(
 			String			testname,

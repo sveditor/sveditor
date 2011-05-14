@@ -7,7 +7,6 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
@@ -254,7 +253,7 @@ public class SVContentAssistExprVisitor {
 	
 	private ISVDBItemBase findInPackage(SVDBPackageDecl pkg, String name) {
 		ISVDBItemBase ret = null;
-		SVDBFile file = null;
+//		SVDBFile file = null;
 		ISVDBChildItem c = pkg;
 		
 		while (c != null && c.getType() != SVDBItemType.PackageDecl) {

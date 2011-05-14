@@ -143,6 +143,7 @@ public class SVDBItemUtils {
 		}
 	}
 	
+	@SuppressWarnings({"unchecked"})
 	private static Object duplicateStringList(Object src_obj) {
 		List<String> ret = null;
 		if (src_obj != null) {
@@ -153,6 +154,7 @@ public class SVDBItemUtils {
 		return ret;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static Object duplicateIntList(Object src_obj) {
 		List<Integer> ret = null;
 		if (src_obj != null) {
@@ -163,6 +165,7 @@ public class SVDBItemUtils {
 		return ret;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static Object duplicateItemList(Object src_obj) {
 		List<ISVDBItemBase> ret = null;
 		if (src_obj != null) {
@@ -175,6 +178,7 @@ public class SVDBItemUtils {
 		return ret;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static Object duplicateMapStringString(Object src_obj) {
 		Map<String, String> ret = null;
 		if (src_obj != null) {

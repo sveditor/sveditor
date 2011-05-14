@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.db;
 
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBCovergroup.BinsKW;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -21,7 +19,7 @@ public class SVDBCoverpointBins extends SVDBItem {
 	private SVDBExpr				fArrayExpr;
 	private SVDBExpr				fIFF;
 	
-	private List<SVDBExpr>			fRangeList;
+//	private List<SVDBExpr>			fRangeList;
 	
 	public SVDBCoverpointBins() {
 		super("", SVDBItemType.CoverpointBins);

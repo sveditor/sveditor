@@ -16,6 +16,7 @@ public class SVDBModportDecl extends SVDBChildItem implements ISVDBChildParent {
 		return fModportItemList;
 	}
 	
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			

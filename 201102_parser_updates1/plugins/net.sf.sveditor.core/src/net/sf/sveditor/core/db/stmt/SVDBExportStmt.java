@@ -21,6 +21,7 @@ public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
 		fExportList.add((SVDBExportItem)item);
 	}
 
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {

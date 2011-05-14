@@ -73,8 +73,9 @@ public class SVFileNavigatorContentProvider
 			SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
 			SVDBIndexCollectionMgr index_mgr = pdata.getProjectIndexMgr();
 			
-			List<SVDBSearchResult<SVDBFile>> res = 
-				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
+			List<SVDBSearchResult<SVDBFile>> res = new ArrayList<SVDBSearchResult<SVDBFile>>();
+// TODO: File-structure display disabled for now
+//				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
 			
 			SVDBFile svdb_file = null;
 			if (res.size() == 0) {

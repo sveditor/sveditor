@@ -44,15 +44,10 @@ public class SVDBFile extends SVDBScopeItem {
 		fFile = file;
 	}
 	
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		SVDBFile o = (SVDBFile)other;
-
-		fFile         = o.fFile;
-		fLastModified = o.fLastModified;
+	public void clearChildren() {
+		fItems.clear();
 	}
-
+	
 	/*
 	@Override
 	public boolean equals(Object obj) {

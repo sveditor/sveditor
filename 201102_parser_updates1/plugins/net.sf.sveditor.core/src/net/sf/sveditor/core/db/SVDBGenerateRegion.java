@@ -24,6 +24,7 @@ public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem 
 		fEndLocation = loc;
 	}
 
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public List<ISVDBItemBase> getItems() {
 		return (List<ISVDBItemBase>)((List)fGenerateItems);
 	}

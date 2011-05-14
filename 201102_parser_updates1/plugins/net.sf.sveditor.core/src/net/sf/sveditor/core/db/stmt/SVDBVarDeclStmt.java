@@ -89,6 +89,7 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 		fVarList.add((SVDBVarDeclItem)item);
 	}
 
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {

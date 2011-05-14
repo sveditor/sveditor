@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -45,6 +46,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
@@ -124,10 +126,11 @@ public class SVEditor extends TextEditor
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
 			SVDBFile new_in = fIndexMgr.parse(getProgressMonitor(), sin, fSVDBFilePath, markers);
-			fSVDBFile.getItems().clear();
+			fSVDBFile.clearChildren();
+			
 			if (new_in != null) {
 				//			SVDBFileMerger.merge(fSVDBFile, new_in, null, null, null);
-				fSVDBFile.getItems().addAll(new_in.getItems());
+				SVDBUtil.addAllChildren(fSVDBFile, new_in);
 
 				fSVDBFile.setFilePath(fSVDBFilePath);
 
@@ -145,7 +148,6 @@ public class SVEditor extends TextEditor
 				}
 			}
 			
-			// TODO Auto-generated method stub
 			return Status.OK_STATUS;
 		}
 	}
@@ -428,6 +430,12 @@ public class SVEditor extends TextEditor
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", od_action);
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
+		
+		FindReferencesAction fr_action = new FindReferencesAction(bundle, this);
+		fr_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.find.references");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", fr_action);
+		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
+		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
 
 		OpenTypeHierarchyAction th_action = new OpenTypeHierarchyAction(bundle, this);
 		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
@@ -519,6 +527,8 @@ public class SVEditor extends TextEditor
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
+				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 

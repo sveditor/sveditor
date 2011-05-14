@@ -20,9 +20,7 @@ import java.util.Set;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -30,6 +28,7 @@ import org.eclipse.jface.viewers.Viewer;
 public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	private static final Set<SVDBItemType>		fDoNotRecurseScopes;
+	private static final Set<SVDBItemType>		fExpandInLineItems;
 	
 	static {
 		fDoNotRecurseScopes = new HashSet<SVDBItemType>();
@@ -37,9 +36,35 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fDoNotRecurseScopes.add(SVDBItemType.Task);
 		fDoNotRecurseScopes.add(SVDBItemType.Coverpoint);
 		fDoNotRecurseScopes.add(SVDBItemType.CoverpointCross);
+		
+		fExpandInLineItems = new HashSet<SVDBItemType>();
+		fExpandInLineItems.add(SVDBItemType.VarDeclStmt);
+		fExpandInLineItems.add(SVDBItemType.ModIfcInst);
+		fExpandInLineItems.add(SVDBItemType.ImportStmt);
+		fExpandInLineItems.add(SVDBItemType.ExportStmt);
 	}
 	
 	public Object[] getChildren(Object elem) {
+		if (elem instanceof ISVDBItemBase) {
+			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
+			ISVDBItemBase it = (ISVDBItemBase)elem;
+			if (it instanceof ISVDBChildParent && 
+					!fDoNotRecurseScopes.contains(it.getType())) {
+				for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
+					if (fExpandInLineItems.contains(ci.getType())) {
+						for (ISVDBChildItem ci_p : ((ISVDBChildParent)ci).getChildren()) {
+							c.add(ci_p);
+						}
+					} else {
+						c.add(ci);
+					}
+				}
+			}
+			
+			return c.toArray();
+		}
+		
+		/*
 		if (elem instanceof ISVDBChildParent && 
 				!fDoNotRecurseScopes.contains(((ISVDBChildParent)elem).getType())) {
 			ISVDBChildParent cp = (ISVDBChildParent)elem;
@@ -62,9 +87,9 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 				}
 			}
 			return c.toArray();
-		} else {
-			return new Object[0];
 		}
+		 */
+		return new Object[0];
 	}
 	
 	public Object getParent(Object element) {
@@ -86,11 +111,14 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	}
 
 	public Object[] getElements(Object element) {
+		return getChildren(element);
+		/*
 		if (element instanceof ISVDBScopeItem) {
 			return ((ISVDBScopeItem)element).getItems().toArray();
 		} else {
 			return new Object[0];
 		}
+		 */
 	}
 
 	public void dispose() {

@@ -138,7 +138,7 @@ public class SVDBFindVarsByNameInScopes {
 				SVDBClassDecl cls = (SVDBClassDecl)context;
 				
 				while (cls != null) {
-					for (ISVDBItemBase it : cls.getItems()) {
+					for (ISVDBItemBase it : cls.getChildren()) {
 						if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt) ||
 								it.getType() == SVDBItemType.Covergroup ||
 								it.getType() == SVDBItemType.Coverpoint) {

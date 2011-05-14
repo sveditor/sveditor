@@ -41,22 +41,6 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 		fArrayDim = dim;
 	}
 	
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		SVDBTypeInfo other_t = (SVDBTypeInfo)other;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBTypeInfo) {
-			SVDBTypeInfo o = (SVDBTypeInfo)obj;
-			
-			return super.equals(obj);
-		}
-		return false;
-	}
-
 	@Override
 	public SVDBTypeInfo duplicate() {
 		return (SVDBTypeInfo)super.duplicate();

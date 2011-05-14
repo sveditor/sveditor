@@ -13,5 +13,11 @@ public class SVDBUtil {
 		}
 		return count;
 	}
+	
+	public static void addAllChildren(ISVDBChildParent dest, ISVDBChildParent src) {
+		for (ISVDBChildItem c : src.getChildren()) {
+			dest.addChildItem(c);
+		}
+	}
 
 }

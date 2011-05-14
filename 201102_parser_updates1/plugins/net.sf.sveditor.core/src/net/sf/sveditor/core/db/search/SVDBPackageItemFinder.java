@@ -41,7 +41,7 @@ public class SVDBPackageItemFinder {
 		SVDBFindIncludedFile inc_finder = new SVDBFindIncludedFile(fIndexIt);
 		List<SVDBItem> ret = new ArrayList<SVDBItem>();
 		
-		for (ISVDBItemBase it : pkg.getItems()) {
+		for (ISVDBItemBase it : pkg.getChildren()) {
 			if (it.getType() == SVDBItemType.Include) {
 				List<SVDBFile> file = inc_finder.find(((SVDBInclude)it).getName());
 				
@@ -60,7 +60,7 @@ public class SVDBPackageItemFinder {
 	}
 	
 	private void find(SVDBFile file, List<SVDBItem> items, String name) {
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.ClassDecl) {
 				if (fMatcher.match((SVDBModIfcDecl)it, name)) {
 					items.add((SVDBModIfcDecl)it);

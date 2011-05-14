@@ -109,6 +109,10 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
+					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
+							fLexer.peekKeyword("end"+ type_name)) {
+						fLexer.eatToken();
+					}
 				}
 
 				// TODO: Should have already been added ?

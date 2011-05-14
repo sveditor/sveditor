@@ -14,8 +14,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.Map;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {

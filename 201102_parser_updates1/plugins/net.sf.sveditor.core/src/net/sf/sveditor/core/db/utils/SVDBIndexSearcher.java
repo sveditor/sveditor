@@ -75,7 +75,7 @@ public class SVDBIndexSearcher {
 	}
 	
 	private SVDBClassDecl findNamedClass(String name, SVDBScopeItem parent) {
-		for (ISVDBItemBase it : parent.getItems()) {
+		for (ISVDBItemBase it : parent.getChildren()) {
 			if (it.getType() == SVDBItemType.ClassDecl && 
 					((ISVDBNamedItem)it).getName() != null &&
 					((ISVDBNamedItem)it).getName().equals(name)) {
@@ -257,7 +257,7 @@ public class SVDBIndexSearcher {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		while (ref_type != null) {
-			for (ISVDBItemBase it : ref_type.getItems()) {
+			for (ISVDBItemBase it : ref_type.getChildren()) {
 				boolean type_match = (types.length == 0);
 				
 				for (SVDBItemType type : types) {

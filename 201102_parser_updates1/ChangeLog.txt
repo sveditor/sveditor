@@ -1,4 +1,12 @@
 
+-- 0.6.0.ea3 Release --
+
+- Correct a parse error with the '**' operator
+
+- Correct an infinite loop when a parse error occurs in a class scope
+
+- Temporarily disabled file-structure display in the Project Explorer
+
 -- 0.6.0.ea2 Release --
 
 - Correct a few bugs with the editor outline view. 

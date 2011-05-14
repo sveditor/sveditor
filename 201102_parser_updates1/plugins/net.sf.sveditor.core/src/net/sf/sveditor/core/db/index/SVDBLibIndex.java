@@ -12,11 +12,8 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 
@@ -627,10 +624,10 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 	}
 	 */
 
+	/** TEMP
 	private Map<SVDBFile, List<String>> find_missing_inc_svdb() {
 		Map<SVDBFile, List<String>> ret = new HashMap<SVDBFile, List<String>>();
 		
-		/** TEMP
 		for (SVDBFile ft : fPreProcFileMap.values()) {
 			for (ISVDBItemBase it : ft.getItems()) {
 				if (it.getType() == SVDBItemType.Marker) {
@@ -645,10 +642,10 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 				}
 			}
 		}
-		 */
 		
 		return ret;
 	}
+	*/
 
 	/** TEMP:
 	public void fileRemoved(String path) {

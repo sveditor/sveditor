@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 	

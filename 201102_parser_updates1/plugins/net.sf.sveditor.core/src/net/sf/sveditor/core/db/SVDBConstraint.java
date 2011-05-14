@@ -32,6 +32,7 @@ public class SVDBConstraint extends SVDBScopeItem {
 	}
 
 	@Override
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {

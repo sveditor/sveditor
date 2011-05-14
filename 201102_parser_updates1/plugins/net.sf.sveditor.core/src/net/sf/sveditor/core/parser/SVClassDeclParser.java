@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -94,6 +93,11 @@ public class SVClassDeclParser extends SVParserBase {
 				fParsers.modIfcBodyItemParser().parse(cls, "class");
 			} catch (SVParseException e) {
 				// Catch error
+				// TODO: recover from errors
+				while (fLexer.peek() != null && 
+						!fLexer.peekOperator(";") && !fLexer.peekKeyword("endclass")) {
+					fLexer.eatToken();
+				}
 			}
 		}
 

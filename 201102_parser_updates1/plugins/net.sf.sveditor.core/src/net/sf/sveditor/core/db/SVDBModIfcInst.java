@@ -37,7 +37,7 @@ public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 		return fInstList;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			public Iterator<ISVDBChildItem> iterator() {
@@ -72,14 +72,4 @@ public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 		return (SVDBModIfcInst)super.duplicate();
 	}
 	
-	public void init(ISVDBItemBase other) {
-		super.init(other);
-		
-		SVDBModIfcInst o = (SVDBModIfcInst)other;
-		if (o.fTypeInfo == null) {
-			fTypeInfo = null; 
-		} else {
-			fTypeInfo = o.fTypeInfo.duplicate();
-		}
-	}
 }

@@ -578,7 +578,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr multiplicativeExpression() throws SVParseException {
 		SVDBExpr a = unaryExpression();
 		
-		while (peekOperator("*", "/", "%")) {
+		while (peekOperator("*", "/", "%", "**")) {
 			a = new SVDBBinaryExpr(a, readOperator(), unaryExpression());
 		}
 		return a;

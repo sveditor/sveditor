@@ -39,11 +39,12 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 		}
 	}
 	
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new Iterable<ISVDBChildItem>() {
 			
 			public Iterator<ISVDBChildItem> iterator() {
-				return (Iterator<ISVDBChildItem>)(Iterator)fItems.iterator();
+				return (Iterator)fItems.iterator();
 			}
 		};
 	}

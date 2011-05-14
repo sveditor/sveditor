@@ -34,6 +34,7 @@ public class TestParseInterfaceBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testModportBasic");
 		SVDBTestUtils.assertFileHasElements(file, "foo");
 	}
+	
 
 }
 

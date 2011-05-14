@@ -56,33 +56,4 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		return (SVDBTypeInfoEnum)super.duplicate();
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBTypeInfoEnum) {
-			SVDBTypeInfoEnum o = (SVDBTypeInfoEnum)obj;
-			
-			/*
-			if (o.fEnumList.size() == fEnumList.size()) {
-				for (int i=0; i<fEnumList.size(); i++) {
-					String k1 = fEnumList.get(i).first();
-					String v1 = fEnumList.get(i).second();
-					String k2 = o.fEnumList.get(i).first();
-					String v2 = o.fEnumList.get(i).second();
-					
-					if (k1 == null || k2 == null || v1 == null || v2 == null) {
-						System.out.println("k1=" + k1 + " k2=" + k2 + " v1=" + v1 + " v2=" + v2);
-					}
-					if (!k1.equals(k2) || !v1.equals(v2)) {
-						return false;
-					}
-				}
-			} else {
-				return false;
-			}
-			 */
-			
-			return super.equals(obj);
-		}
-		return false;
-	}
 }

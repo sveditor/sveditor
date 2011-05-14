@@ -110,7 +110,7 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_package_refs(List<ISVDBItemBase> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
+//		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 
 		System.out.println("[ERROR] find_package_refs not supported");
 	}

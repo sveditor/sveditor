@@ -16,10 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
@@ -224,6 +221,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	}
 	 */
 	
+	/** TEMP
 	private void dump_file_tree(String type, SVDBFileTree ft) {
 		if (ft == null) {
 			fLog.debug("dump_file_tree: type=" + type + " ft=null");
@@ -231,13 +229,13 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		}
 		fLog.debug(type + ": " + ft.getFilePath());
 		
-		/** TEMP
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {
 			dump_down(inc, 1);
 		}
-		 */
 	}
+		 */
 	
+	/** TEMP
 	private void dump_down(SVDBFileTree ft, int indent) {
 		String indent_s;
 		StringBuilder indent_sb = new StringBuilder();
@@ -247,12 +245,11 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		indent_s = indent_sb.toString();
 		
 		fLog.debug(indent_s + "IncFile: " + ft.getFilePath());
-		/** TEMP
 		for (SVDBFileTree inc : ft.getIncludedFiles()) {
 			dump_down(inc, indent+1);
 		}
-		 */
 	}
+		 */
 	
 	@Override
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
@@ -272,6 +269,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		return ret;
 	}
 
+	/*
 	private boolean has_pkg_interface_module_program(ISVDBScopeItem scope) {
 		if (scope.getType() == SVDBItemType.ModuleDecl ||
 				scope.getType() == SVDBItemType.InterfaceDecl ||
@@ -290,6 +288,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		
 		return false;
 	}
+	 */
 
 	/*
 	public void fileAdded(String path) {

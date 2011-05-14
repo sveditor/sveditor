@@ -123,6 +123,25 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest("testTypedClassParameters", content, 
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
+	
+	public void testMultiParamClass() {
+		String content = 
+				"class my_class\n" +
+				"#(\n" +
+				"type vif = virtual my_inteface, // causes arse error\n" +
+				"type data = pkg_mypackage::my_datatype\n" +
+				") extends uvm_object;\n" +
+				"\n" +
+				"// class internals\n" +
+				"\n" +
+				"endclass\n" +
+				"\n";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testTypedClassParameters", content, 
+				new String[] {"my_class"});
+	}
+	
 
 	public void testAttrInstance() {
 		String content = 

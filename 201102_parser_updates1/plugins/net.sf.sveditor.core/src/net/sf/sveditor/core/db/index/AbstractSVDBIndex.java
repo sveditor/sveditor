@@ -36,7 +36,6 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.job_mgr.ISVEditorJob;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -83,7 +82,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	protected boolean 						fLoadUpToDate;
 	private ISVDBIndexCache 				fCache;
 	private Map<String, Object> 			fConfig;
-	private ISVEditorJob					fEnsureIndexStateJob;
+//	private ISVEditorJob					fEnsureIndexStateJob;
 
 	/**
 	 * True if the root file list is valid.

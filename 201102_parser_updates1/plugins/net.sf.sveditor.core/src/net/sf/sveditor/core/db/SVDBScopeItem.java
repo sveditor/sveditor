@@ -57,6 +57,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	 * getItems() is replaced by getChildren()
 	 */
 	@Deprecated
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public List<ISVDBItemBase> getItems() {
 		return (List<ISVDBItemBase>)((List)fItems);
 	}
