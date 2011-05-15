@@ -33,6 +33,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
 	protected RetargetTextEditorAction fAddBlockCommentAction;
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
@@ -53,6 +54,11 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
+		
+		fFindReferencesAction = new RetargetTextEditorAction(
+				bundle, "FindReferences.");
+		fFindReferencesAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.find.references");
 
 		fOpenTypeHierarchyAction = new RetargetTextEditorAction(
 				bundle, "OpenTypeHierarchy.");
@@ -80,6 +86,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}
 	}
@@ -99,6 +106,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}	
 	}
@@ -113,6 +121,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
+		fFindReferencesAction.setAction(getAction(editor, "FindReferences"));
 		fIndentAction.setAction(getAction(editor, "Indent"));
 		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));
 		fRemoveBlockCommentAction.setAction(getAction(editor, "RemoveBlockComment"));

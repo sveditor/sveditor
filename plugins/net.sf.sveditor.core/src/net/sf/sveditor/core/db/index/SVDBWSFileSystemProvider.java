@@ -166,12 +166,46 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		}
 	}
 
+	public boolean isDir(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			if (path.startsWith("/")) {
+				path = path.substring(1);
+			}
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			try {
+				IFolder folder = root.getFolder(new Path(path));
+
+				return folder.exists();
+			} catch (IllegalArgumentException e) {
+				// Likely because the path is a project-only path (eg /a)
+				// e.printStackTrace();
+			}
+			
+			// Try project
+			try {
+				IProject project = root.getProject(path);
+				return project.exists();
+			} catch (IllegalArgumentException e) {}
+			
+			return false;
+		} else {
+			// Also look at the filesystem
+			return new File(path).isDirectory();
+		}
+	}
+
 	public void closeStream(InputStream in) {
 		try {
 			if (in != null) {
 				in.close();
 			}
-		} catch (IOException e) { }
+		} catch (IOException e) { 
+			e.printStackTrace();
+		}
 	}
 
 	public InputStream openStream(String path) {
@@ -310,7 +344,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			IFile file = root.getFile(new Path(path));
 			
 			if (file != null) {
-				return file.getModificationStamp();
+				return file.getLocation().toFile().lastModified();
+				// return file.getModificationStamp();
 			} else {
 				return 0;
 			}

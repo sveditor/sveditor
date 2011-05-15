@@ -14,32 +14,22 @@ package net.sf.sveditor.core.db;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
-
-public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem {
+public class SVDBTypeInfoUserDef extends SVDBTypeInfo /* implements ISVDBScopeItem  */{
 	protected SVDBParamValueAssignList				fParamAssignList;
 	protected SVDBLocation							fEndLocation;
 	protected List<ISVDBItemBase>					fItems;
 	
+	public SVDBTypeInfoUserDef() {
+		this("");
+	}
+	
 	public SVDBTypeInfoUserDef(String typename) {
-		this(typename, SVDBDataType.UserDefined);
+		this(typename, SVDBItemType.TypeInfoUserDef);
 	}
 	
-	public SVDBTypeInfoUserDef(String typename, SVDBDataType type) {
+	public SVDBTypeInfoUserDef(String typename, SVDBItemType type) {
 		super(typename, type);
-	}
-	
-	public SVDBTypeInfoUserDef(
-			SVDBDataType 	dt, 
-			SVDBFile 		file, 
-			SVDBScopeItem 	parent, 
-			SVDBItemType 	type, 
-			IDBReader 		reader) throws DBFormatException {
-		super(dt, file, parent, type, reader);
-		fParamAssignList = (SVDBParamValueAssignList)reader.readSVDBItem(file, parent);
 	}
 	
 	public SVDBLocation getEndLocation() {
@@ -53,12 +43,6 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 	public void setEndLocation(SVDBLocation loc) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeSVDBItem(fParamAssignList);
 	}
 
 	public SVDBParamValueAssignList getParameters() {
@@ -111,13 +95,7 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo implements ISVDBScopeItem 
 
 	@Override
 	public SVDBTypeInfoUserDef duplicate() {
-		SVDBTypeInfoUserDef ret = new SVDBTypeInfoUserDef(getName(), getDataType());
-		
-		if (fParamAssignList != null) {
-			ret.setParameters((SVDBParamValueAssignList)getParameters().duplicate());
-		}
-		
-		return ret;
+		return (SVDBTypeInfoUserDef)super.duplicate();
 	}
 	
 }

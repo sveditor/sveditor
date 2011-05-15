@@ -13,39 +13,54 @@
 package net.sf.sveditor.core.db;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
-public class SVDBTypeInfoStruct extends SVDBTypeInfo {
+public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
+	private SVDBLocation					fEndLocation;
 	private List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
-		super("<<ANONYMOUS>>", SVDBDataType.Struct);
+		super("<<ANONYMOUS>>", SVDBItemType.TypeInfoStruct);
 		fFields = new ArrayList<SVDBVarDeclStmt>();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public SVDBTypeInfoStruct(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.Struct, file, parent, type, reader);
-		fFields = (List<SVDBVarDeclStmt>)reader.readItemList(file, parent);
+	public SVDBLocation getEndLocation() {
+		return fEndLocation;
+	}
+
+
+	public void setEndLocation(SVDBLocation loc) {
+		fEndLocation = loc;
+	}
+
+	// Deprecated methods
+	@SuppressWarnings({"rawtypes","unchecked"})
+	public List<ISVDBItemBase> getItems() {
+		return (List)fFields;
 	}
 	
+	@SuppressWarnings({"rawtypes","unchecked"})
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fFields.iterator();
+			}
+		};
+	}
+
+	public void addItem(ISVDBItemBase item) {
+	}
+
 	public List<SVDBVarDeclStmt> getFields() {
 		return fFields;
 	}
 	
-	public void addField(SVDBVarDeclStmt f) {
-		fFields.add(f);
-	}
-
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeItemList(fFields);
+	public void addChildItem(ISVDBChildItem f) {
+		fFields.add((SVDBVarDeclStmt)f);
+		f.setParent(this);
 	}
 
 	@Override
@@ -69,13 +84,6 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo {
 
 	@Override
 	public SVDBTypeInfoStruct duplicate() {
-		SVDBTypeInfoStruct ret = new SVDBTypeInfoStruct();
-		ret.setName(getName());
-		
-		for (SVDBVarDeclStmt f : fFields) {
-			ret.addField((SVDBVarDeclStmt)f.duplicate());
-		}
-		
-		return ret;
+		return (SVDBTypeInfoStruct)super.duplicate();
 	}
 }

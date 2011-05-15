@@ -15,10 +15,10 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 
@@ -39,9 +39,9 @@ public class SVDBFindNamedModIfcClassIfc {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 
-	public List<SVDBModIfcClassDecl> find(String type_name) {
+	public List<ISVDBChildItem> find(String type_name) {
 		ISVDBItemIterator item_it = fIndexIt.getItemIterator(new NullProgressMonitor());
-		List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
+		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
 		
 		while (item_it.hasNext()) {
 			boolean had_next = item_it.hasNext();
@@ -51,12 +51,11 @@ public class SVDBFindNamedModIfcClassIfc {
 				System.out.println("it == null ; hasNext=" + had_next);
 			}
 			
-			if ((it.getType() == SVDBItemType.Class ||
-					it.getType() == SVDBItemType.Module ||
-					it.getType() == SVDBItemType.Interface ||
-					it.getType() == SVDBItemType.Struct)) {
+			if ((it.getType() == SVDBItemType.ClassDecl ||
+					it.getType() == SVDBItemType.ModuleDecl ||
+					it.getType() == SVDBItemType.InterfaceDecl)) {
 				if (fMatcher.match((ISVDBNamedItem)it, type_name)) {
-					ret.add((SVDBModIfcClassDecl)it);
+					ret.add((ISVDBChildItem)it);
 				}
 			}
 		}

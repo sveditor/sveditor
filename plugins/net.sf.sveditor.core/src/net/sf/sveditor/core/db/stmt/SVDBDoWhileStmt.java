@@ -1,29 +1,21 @@
 package net.sf.sveditor.core.db.stmt;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBDoWhileStmt extends SVDBStmt {
-	private SVExpr			fCond;
-	private SVDBStmt		fBody;
+public class SVDBDoWhileStmt extends SVDBBodyStmt {
+	private SVDBExpr			fCond;
 	
 	public SVDBDoWhileStmt() {
-		super(SVDBStmtType.DoWhileStmt);
+		super(SVDBItemType.DoWhileStmt);
 	}
 	
-	public void setCond(SVExpr cond) {
+	public void setCond(SVDBExpr cond) {
 		fCond = cond;
 	}
 	
-	public SVExpr getCond() {
+	public SVDBExpr getCond() {
 		return fCond;
 	}
 	
-	public void setBody(SVDBStmt body) {
-		fBody = body;
-	}
-	
-	public SVDBStmt getBody() {
-		return fBody;
-	}
-
 }

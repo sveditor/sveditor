@@ -1,13 +1,40 @@
 
--- 0.4.1 Release --
+-- 0.6.0.ea3 Release --
 
-- (#3219052) Implement support for escaped identifiers.
+- Correct a parse error with the '**' operator
 
-- (#3211077) Correct bug with files with upper-case filename extensions (eg file.SV)
+- Correct an infinite loop when a parse error occurs in a class scope
 
-- (#3199251) Trim update site to only carry the latest release
+- Temporarily disabled file-structure display in the Project Explorer
 
-------------------------------------------------------------------------------
+-- 0.6.0.ea2 Release --
+
+- Correct a few bugs with the editor outline view. 
+    - Module instances, imports and a few other things affected by the 
+      SVDB structure changes are now correctly displayed.
+    - Covergroup items are not expandable now
+    - Covergroup options are now displayed correctly
+
+- Correct a parse error with coverpoint sized array bins (bins foo[8] = ...)
+
+- Update 'Rebuild Index' command on the context menu of the Project Explorer
+  to immediately request a build of the index after invalidating it.
+
+- Correct open-declaration for super-class reference
+
+-- 0.6.0.ea1 Release --
+
+- Enhance SVEditor to make two time-consuming startup tasks 
+  (index-afinity discovery and file parse) threaded operations. 
+  This has the effect of making SVEditor open more quickly.
+
+- Major changes to the parser. Nearly all SystemVerilog constructs
+  are fully parsed. Previously, many were lexically processed via
+  a scanner.
+
+- Use a backing cache for files in the index. This permits faster
+  startup time, and should be more scalable, since the database need
+  not be entirely in memory
 
 -- 0.4.0 Release --
 

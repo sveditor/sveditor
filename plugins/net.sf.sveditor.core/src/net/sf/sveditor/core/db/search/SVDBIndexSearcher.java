@@ -18,7 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 
@@ -51,7 +51,7 @@ public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 		return null;
 	}
 
-	public SVDBModIfcClassDecl findNamedModClassIfc(String name) {
+	public SVDBModIfcDecl findNamedModClassIfc(String name) {
 		System.out.println("[FIXME] findNamedModClassIfc(" + name + ")");
 		/*
 		SVDBModIfcClassDecl c;
@@ -65,7 +65,7 @@ public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 		return null;
 	}
 
-	public SVDBModIfcClassDecl findSuperClass(SVDBModIfcClassDecl cls) {
+	public SVDBModIfcDecl findSuperClass(SVDBModIfcDecl cls) {
 		// TODO Auto-generated method stub
 		return null;
 	}

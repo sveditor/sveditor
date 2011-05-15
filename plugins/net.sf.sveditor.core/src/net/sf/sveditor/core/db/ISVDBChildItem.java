@@ -7,6 +7,4 @@ public interface ISVDBChildItem extends ISVDBItemBase {
 
 	void setParent(ISVDBChildItem parent);
 	
-	Iterable<ISVDBItemBase> getChildren();
-
 }

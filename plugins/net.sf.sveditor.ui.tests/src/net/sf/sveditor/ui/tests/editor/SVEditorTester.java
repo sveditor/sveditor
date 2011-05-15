@@ -12,10 +12,14 @@
 
 package net.sf.sveditor.ui.tests.editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.ui.editor.ISVEditor;
@@ -47,9 +51,10 @@ public class SVEditorTester implements ISVEditor {
 		fAutoEditTester = UiReleaseTests.createAutoEditTester();
 		fAutoEditTester.setContent(doc);
 
-		ISVDBFileFactory factory = SVCorePlugin.getDefault().createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		fSVDBFile = factory.parse(new StringInputStream(doc), filename);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		fSVDBFile = factory.parse(new StringInputStream(doc), filename, markers);
 
 		fIndexIt = new FileIndexIterator(fSVDBFile);
 	}

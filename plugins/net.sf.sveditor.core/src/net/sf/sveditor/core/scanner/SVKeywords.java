@@ -240,30 +240,44 @@ public class SVKeywords {
 		"within*",
 		"wor",
 		"xnor",
-		"xor"		
+		"xor",
+		
+		// defacto-reserved words
+		"1step"
 	};
 	
 	private static final String 					fTypeStrings[] = {
 		"void",
-		"bit",
 		"chandle",
 		"event",
-		"int",
-		"integer",
-		"real",
+		
+		"bit",
+		"logic",
 		"reg",
+		
+		"byte",
 		"shortint",
+		"int",
+		"longint",
+		"integer",
+		"time",
+		
 		"shortreal",
+		"real",
+		"realtime",
+		
 		"signed",
 		"string",
-		"time",
 		"unsigned",
-		"longint"
 	};
 	
-	private static final Set<String>				fTypeNames;
+	public static final Set<String>					fBuiltinTypes;
 	private static final Map<String, Boolean>		fKeywordMap;
 	public static final Set<String>					fBuiltinGates;
+	public static final Set<String>					fStrength0;
+	public static final Set<String>					fStrength1;
+	public static final Set<String>					fStrength;
+	public static final Set<String>					fAssignmentOps;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -276,9 +290,9 @@ public class SVKeywords {
 			fKeywordMap.put(str, is_sv);
 		}
 		
-		fTypeNames = new HashSet<String>();
+		fBuiltinTypes = new HashSet<String>();
 		for (String n : fTypeStrings) {
-			fTypeNames.add(n);
+			fBuiltinTypes.add(n);
 		}
 		
 		fBuiltinGates = new HashSet<String>();
@@ -308,6 +322,38 @@ public class SVKeywords {
 		fBuiltinGates.add("rtran");
 		fBuiltinGates.add("pullup");
 		fBuiltinGates.add("pulldown");
+		
+		fStrength0 = new HashSet<String>();
+		fStrength0.add("supply0");
+		fStrength0.add("strong0");
+		fStrength0.add("pull0");
+		fStrength0.add("weak0");
+		
+		fStrength1 = new HashSet<String>();
+		fStrength1.add("supply1");
+		fStrength1.add("strong1");
+		fStrength1.add("pull1");
+		fStrength1.add("weak1");
+		
+		fStrength = new HashSet<String>();
+		fStrength.addAll(fStrength0);
+		fStrength.addAll(fStrength1);
+		
+		fAssignmentOps = new HashSet<String>();
+		fAssignmentOps.add("=");
+		fAssignmentOps.add("+=");
+		fAssignmentOps.add("-=");
+		fAssignmentOps.add("*=");
+		fAssignmentOps.add("/=");
+		fAssignmentOps.add("&=");
+		fAssignmentOps.add("|=");
+		fAssignmentOps.add("^=");
+		fAssignmentOps.add("%=");
+		fAssignmentOps.add("<<=");
+		fAssignmentOps.add(">>=");
+		fAssignmentOps.add("<<<=");
+		fAssignmentOps.add(">>>=");
+		fAssignmentOps.add("<=");
 	};
 
 	public static boolean isSVKeyword(String kw) {
@@ -325,7 +371,7 @@ public class SVKeywords {
 	}
 	
 	public static boolean isBuiltInType(String type) {
-		return fTypeNames.contains(type);
+		return fBuiltinTypes.contains(type);
 	}
 	
 	public static boolean isDir(String dir) {

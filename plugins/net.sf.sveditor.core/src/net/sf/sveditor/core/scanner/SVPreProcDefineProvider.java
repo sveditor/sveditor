@@ -18,9 +18,8 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -109,7 +108,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			return "";
 		}
 
-		fMacroProvider.setMacro("__FILE__", fFilename);
+		fMacroProvider.setMacro("__FILE__", "\"" + fFilename + "\"");
 		fMacroProvider.setMacro("__LINE__", "" + fLineno);
 		fExpandStack.clear();
 		fEnableOutputStack.clear();
@@ -193,6 +192,25 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				if (ch == '(') {
 					ch = scanner.skipPastMatch("()");
 					scanner.unget_ch(ch);
+				}
+				
+				// TODO: replace text with appropriate number of new-line characters?
+				int newline_count = 0;
+				for (int i=macro_start; i<scanner.getOffset(); i++) {
+					if (scanner.charAt(i) == '\n') {
+						newline_count++;
+					}
+				}
+				if (newline_count > 0) {
+					StringBuilder replace = new StringBuilder();
+					while (newline_count > 0) {
+						replace.append("\n");
+						newline_count--;
+					}
+					scanner.replace(macro_start, scanner.getOffset(), replace.toString());
+				} else {
+					// Replace text of the undefined macro with whitespace
+					scanner.replace(macro_start, scanner.getOffset(), "");
 				}
 				
 				// TODO: ?

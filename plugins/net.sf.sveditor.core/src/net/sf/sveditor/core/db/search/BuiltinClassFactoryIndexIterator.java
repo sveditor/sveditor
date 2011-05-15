@@ -14,17 +14,17 @@ package net.sf.sveditor.core.db.search;
 
 import java.util.HashMap;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * Built-in class iterator that constructs SVDB items with appropriate
@@ -61,8 +61,7 @@ public class BuiltinClassFactoryIndexIterator implements ISVDBIndexIterator {
 					it = fItemMap.get(it);
 				} else if (BuiltinClassConstants.hasBuiltin(it.getType())) {
 					// Create a duplicate item with the correct base type
-					SVDBModIfcClassDecl cls = 
-						(SVDBModIfcClassDecl)((SVDBModIfcClassDecl)it).duplicate();
+					SVDBClassDecl cls = ((SVDBClassDecl)it).duplicate();
 					cls.setSuperClass(
 							BuiltinClassConstants.getBuiltinClass(it.getType()));
 					fLog.debug("Create modified type for " + 

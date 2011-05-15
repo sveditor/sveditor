@@ -12,41 +12,150 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@SuppressWarnings("rawtypes")
 public enum SVDBItemType {
-	NULL,
 	File,
-	Module,
-	Class,
-	Interface,
-	Program,
-	Struct,
+	ModuleDecl,
+	ClassDecl,
+	InterfaceDecl,
+	ProgramDecl,
 	Task,
 	Function,
 	ModIfcInst,
-	Macro,
+	ModIfcInstItem,
+	ModportDecl,
+	ModportItem,
+	ModportSimplePortsDecl,
+	ModportSimplePort,
+	ModportClockingPortDecl,
+	ModportTFPortsDecl,
+	ModportTFPort,
+	MacroDef,
 	PreProcCond,
 	Include,
 	PackageDecl,
 	Covergroup,
 	Coverpoint,
+	CoverpointBins,
 	CoverpointCross,
+	CoverCrossBinsSel,
 	Sequence,
 	Property,
 	ModIfcClassParam,
 	Constraint,
-	Typedef,
-	TypeInfo,
-	InitialBlock,
-	AlwaysBlock,
 	Assign,
 	Marker,
-	ParamValue,
-	ParamValueList,
+	ParamValueAssign,
+	ParamValueAssignList,
 	GenerateBlock,
+	GenerateFor,
+	GenerateIf,
+	GenerateRegion,
 	ClockingBlock,
-	Import,
-	Expr,
-	Stmt;
+	
+	// Data Types
+	TypeInfoBuiltin,
+	TypeInfoBuiltinNet,
+	TypeInfoClassItem,
+	TypeInfoClassType,
+	TypeInfoEnum,
+	TypeInfoFwdDecl,
+	TypeInfoStruct,
+	TypeInfoUserDef,
+	TypeInfoModuleIfc,
+
+	// Statement items
+	ActionBlockStmt,
+	AlwaysStmt,
+	AssertStmt,
+	AssignStmt,
+	AssumeStmt,
+	LabeledStmt,
+	BlockStmt,
+	ConstraintDistListStmt,
+	ConstraintDistListItem,
+	ConstraintForeachStmt,
+	ConstraintIfStmt,
+	ConstraintImplStmt,
+	ConstraintSetStmt,
+	ConstraintSolveBeforeStmt,
+	DisableStmt,
+	DisableForkStmt,
+	DefParamStmt,
+	DefParamItem,
+	DelayControlStmt,
+	DoWhileStmt,
+	EventControlStmt,
+	ExportStmt,
+	ExportItem,
+	ExprStmt,
+	FinalStmt,
+	ForStmt,
+	ForeachStmt,
+	ForeverStmt,
+	NullStmt,
+	ProceduralContAssignStmt,
+	WhileStmt,
+	RepeatStmt,
+	IfStmt,
+	ImportStmt,
+	ImportItem,
+	InitialStmt,
+	ForkStmt,
+	CaseStmt,
+	CaseItem,
+	WaitStmt,
+	WaitForkStmt,
+	WaitOrderStmt,
+	ReturnStmt,
+	BreakStmt,
+	ContinueStmt,
+	EventTriggerStmt,
+	
+	VarDeclStmt,
+	VarDeclItem,
+	VarDimItem,	
+	ParamPortDecl,
+	
+	TypedefStmt,
+	
+	CoverageOptionStmt,
+	CoverageCrossBinsSelectStmt,
+
+	// Expressions
+	ArrayAccessExpr,
+	AssignExpr,
+	AssignmentPatternExpr,
+	AssignmentPatternRepeatExpr,
+	BinaryExpr,
+	CastExpr,
+	ClockingEventExpr,
+	ConcatenationExpr,
+	CondExpr,
+	CrossBinsSelectConditionExpr,
+	CtorExpr,
+	FieldAccessExpr,
+	IdentifierExpr,
+	IncDecExpr,
+	InsideExpr,
+	LiteralExpr,
+	NamedArgExpr, // .ARG(value)
+	NullExpr,
+	ParenExpr,
+	RandomizeCallExpr,
+	RangeDollarBoundExpr,
+	RangeExpr,
+	TFCallExpr,
+	UnaryExpr,
+	
+	StringExpr,
+	
+	CoverpointExpr,
+	CoverBinsExpr,
+	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {
 		if (type_list.length == 0) {
@@ -59,4 +168,13 @@ public enum SVDBItemType {
 		}
 		return false;
 	}
+	
+	public static final Map<SVDBItemType, Class>		fObjectMap;
+	
+	static {
+		fObjectMap = new HashMap<SVDBItemType, Class>();
+		fObjectMap.put(File, SVDBFile.class);
+		fObjectMap.put(ModuleDecl, SVDBModIfcDecl.class);		
+	}
+	
 }

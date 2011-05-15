@@ -1,38 +1,31 @@
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBIfStmt extends SVDBStmt {
-	private SVExpr			fCondExpr;
+public class SVDBIfStmt extends SVDBStmt implements ISVDBAddChildItem {
+	private SVDBExpr		fCondExpr;
+	
+	@SVDBDoNotSaveAttr
+	private int				fAddIdx;
+	
 	private SVDBStmt		fIfStmt;
 	private SVDBStmt		fElseStmt;
 	
-	public SVDBIfStmt(SVExpr expr) {
-		super(SVDBStmtType.IfStmt);
+	public SVDBIfStmt() {
+		super(SVDBItemType.IfStmt);
+	}
+	
+	public SVDBIfStmt(SVDBExpr expr) {
+		super(SVDBItemType.IfStmt);
 		fCondExpr = expr;
 	}
 	
-	public SVDBIfStmt(ISVDBItemBase parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
-		super(parent, stmt_type, reader);
-		
-		fCondExpr = SVExpr.readExpr(reader);
-		fIfStmt = SVDBStmt.readStmt(this, reader);
-		fElseStmt = SVDBStmt.readStmt(this, reader);
-	}
-	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		SVExpr.writeExpr(fCondExpr, writer);
-		SVDBStmt.writeStmt(fIfStmt, writer);
-		SVDBStmt.writeStmt(fElseStmt, writer);
-	}
-
-	public SVExpr getCond() {
+	public SVDBExpr getCond() {
 		return fCondExpr;
 	}
 	
@@ -52,13 +45,15 @@ public class SVDBIfStmt extends SVDBStmt {
 		fElseStmt = stmt;
 	}
 	
-	@Override
-	public SVDBStmt duplicate() {
-		SVDBIfStmt ret = new SVDBIfStmt(null);
-		
-		ret.init(this);
-		
-		return ret;
+	public void addChildItem(ISVDBChildItem item) {
+		if (fAddIdx++ == 0) {
+			fIfStmt = (SVDBStmt)item;
+		} else if (fAddIdx++ == 1) {
+			fElseStmt = (SVDBStmt)item;
+		}
+		if (item != null) {
+			item.setParent(this);
+		}
 	}
 
 	@Override

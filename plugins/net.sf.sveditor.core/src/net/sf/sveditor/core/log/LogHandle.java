@@ -51,9 +51,10 @@ public class LogHandle implements ILogHandle {
 		println(level, fDebugLevel, msg);
 		println(level, fDebugLevel, e.getMessage());
 		for (StackTraceElement s_e : e.getStackTrace()) {
-			println(level, fDebugLevel, "    at " + 
+			String m = "    at " + 
 					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
-					s_e.getFileName() + ":" + s_e.getLineNumber() + ")");
+					s_e.getFileName() + ":" + s_e.getLineNumber() + ")";
+			println(level, fDebugLevel, m);
 		}
 	}
 

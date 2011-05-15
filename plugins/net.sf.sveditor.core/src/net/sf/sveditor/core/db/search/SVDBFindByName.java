@@ -54,8 +54,10 @@ public class SVDBFindByName {
 			}
 			
 			if (type_match) {
-				if (fMatcher.match((ISVDBNamedItem)it, name)) {
-					ret.add(it);
+				if (it instanceof ISVDBNamedItem) {
+					if (fMatcher.match((ISVDBNamedItem)it, name)) {
+						ret.add(it);
+					}
 				}
 			}
 		}

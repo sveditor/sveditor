@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+import junit.framework.TestCase;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -54,6 +56,32 @@ public class TestUtils {
 		}
 		
 		return ret;
+	}
+	
+	public static String readInput(InputStream in) {
+		StringBuilder sb = new StringBuilder();
+		byte tmp[] = new byte[1024];
+		int len;
+		
+		try {
+			while ((len = in.read(tmp, 0, tmp.length)) > 0) {
+				sb.append(new String(tmp, 0, len));
+			}
+		} catch (IOException e) {
+			
+		}
+		return sb.toString();
+	}
+	
+	public static void delete(File item) {
+		if (item.isDirectory()) {
+			for (File i : item.listFiles()) {
+				delete(i);
+			}
+		}
+		if (!item.delete()) {
+			TestCase.fail("Failed to delete \"" + item.getAbsolutePath() + "\"");
+		}
 	}
 	
 	public static void copy(ByteArrayOutputStream in, File out) {
@@ -107,9 +135,21 @@ public class TestUtils {
 		try {
 			if (project.exists()) {
 				project.close(new NullProgressMonitor());
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+//			throw new RuntimeException("Failed to close existing project: " + e.getMessage());
+		}
+		try {
+			if (project.exists()) {
 				project.delete(true, true, new NullProgressMonitor());
 			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Failed to close existing project: " + e.getMessage());
+		}
 
+		try {
 			IProjectDescription desc = project.getWorkspace().newProjectDescription(name);
 			desc.setLocationURI(location);
 			
@@ -120,7 +160,7 @@ public class TestUtils {
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Failed to create project");
+			throw new RuntimeException("Failed to create project: " + e.getMessage());
 		}
 		
 		return project;

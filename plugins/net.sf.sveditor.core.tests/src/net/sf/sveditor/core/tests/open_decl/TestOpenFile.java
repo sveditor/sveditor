@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -54,10 +55,10 @@ public class TestOpenFile extends TestCase {
 			TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.init(null);
+			rgy.init(TestIndexCacheFactory.instance(null));
 			
-			ISVDBIndex target_index = rgy.findCreateIndex("subdir2",
-					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",
+			ISVDBIndex target_index = rgy.findCreateIndex(new NullProgressMonitor(),
+					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
 			ISVDBItemIterator it = target_index.getItemIterator(new NullProgressMonitor());
@@ -89,7 +90,7 @@ public class TestOpenFile extends TestCase {
 			
 			
 		} finally {
-			tmpdir.delete();
+			TestUtils.delete(tmpdir);
 		}
 	}
 

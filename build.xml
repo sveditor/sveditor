@@ -63,6 +63,9 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
             <filterset begintoken="1" endtoken="3">
                 <filter token=".2." value="${feature.version}"/>
             </filterset>
+            <filterset>
+                <filter token="frs_update_site_dir" value="${frs_update_site_dir}"/>
+            </filterset>
         </copy>
 
         <exec executable="/bin/sh">

@@ -13,64 +13,54 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.InputStream;
-
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 public class ContentAssistIndex extends AbstractSVDBIndex {
+	private SVDBFile				fFile;
 	
 	public ContentAssistIndex() {
 		super("GLOBAL");
 	}
 	
+	@Override
+	protected void discoverRootFiles(IProgressMonitor monitor) { }
+
 	public void setFile(SVDBFile file) {
-		fIndexFileMap.remove(file.getName());
-		fIndexFileMap.put(file.getName(), file);
+		fFile = file;
+	}
+	
+	@Override
+	public synchronized List<String> getFileList(IProgressMonitor monitor) {
+		List<String> ret = new ArrayList<String>();
+		ret.add(fFile.getFilePath());
+		return ret;
 	}
 
 	@Override
-	protected void buildIndex(IProgressMonitor monitor) {
-		fIndexFileMapValid = true;
+	public synchronized SVDBFile findFile(String path) {
+		return fFile;
 	}
 
 	@Override
-	protected void buildPreProcFileMap() {
-		fPreProcFileMapValid = true;
-	}
-
-	@Override
-	protected boolean isLoadUpToDate() {
-		return true;
+	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		return super.getItemIterator(monitor);
 	}
 
 	public void addChangeListener(ISVDBIndexChangeListener l) {}
-
-	public String getBaseLocation() {
-		return "";
-	}
-
-	public String getTypeID() {
-		return "ContentAssistIndex";
-	}
-	
-	public String getTypeName() {
-		return "";
-	}
-
-	public void rebuildIndex() {}
-
+	public String getBaseLocation() { return ""; }
+	public String getTypeID() { return "ContentAssistIndex"; }
 	public void removeChangeListener(ISVDBIndexChangeListener l) {}
-
-	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
-		return null;
-	}
-
-	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
-		return null;
-	}
+	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) { return null; }
+	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) { return null; }
 
 }

@@ -14,16 +14,24 @@ package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
+import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
+import net.sf.sveditor.core.db.stmt.SVDBExportItem;
+import net.sf.sveditor.core.db.stmt.SVDBImportItem;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
@@ -55,16 +63,17 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 	}
 	
 	public StyledString getStyledText(Object element) {
-		if (element instanceof SVDBVarDeclStmt) {
-			SVDBVarDeclStmt var = (SVDBVarDeclStmt)element;
-			StyledString ret = new StyledString(((SVDBVarDeclStmt)element).getName());
+		if (element instanceof SVDBVarDeclItem) {
+			SVDBVarDeclItem var = (SVDBVarDeclItem)element;
+			SVDBVarDeclStmt var_r = var.getParent();
+			StyledString ret = new StyledString(var.getName());
 			
-			if (var.getTypeInfo() != null) {
-				ret.append(" : " + var.getTypeName(), StyledString.QUALIFIER_STYLER);
+			if (var_r.getTypeInfo() != null) {
+				ret.append(" : " + var_r.getTypeName(), StyledString.QUALIFIER_STYLER);
 				
-				SVDBTypeInfo type = var.getTypeInfo();
+				SVDBTypeInfo type = var_r.getTypeInfo();
 				
-				if (type.getDataType() == SVDBDataType.UserDefined) {
+				if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 					SVDBTypeInfoUserDef cls = (SVDBTypeInfoUserDef)type;
 					if (cls.getParameters() != null && 
 							cls.getParameters().getParameters().size() > 0) {
@@ -86,13 +95,14 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			return ret; 
 		} else if (element instanceof ISVDBNamedItem) {
 			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
+			ISVDBNamedItem ni = (ISVDBNamedItem)element;
 			
-			if (element instanceof SVDBTaskFuncScope) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)element;
+			if (ni.getType().isElemOf(SVDBItemType.Task, SVDBItemType.Function)) {
+				SVDBTask tf = (SVDBTask)element;
 				
 				ret.append("(");
 				for (int i=0; i<tf.getParams().size(); i++) {
-					SVDBParamPort p = tf.getParams().get(i);
+					SVDBParamPortDecl p = tf.getParams().get(i);
 					ret.append(p.getTypeName());
 					if (i+1 < tf.getParams().size()) {
 						ret.append(", ");
@@ -101,14 +111,16 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				
 				ret.append(")");
 				
-				if (tf.getType() == SVDBItemType.Function && 
-						tf.getReturnType() != null && 
-						!tf.getReturnType().equals("void") &&
-						fShowFunctionRetType) {
-					ret.append(": " + tf.getReturnType(), StyledString.QUALIFIER_STYLER);
+				if (tf.getType() == SVDBItemType.Function) {
+					SVDBFunction f = (SVDBFunction)tf;
+					if (f.getReturnType() != null && 
+							!f.getReturnType().equals("void") &&
+							fShowFunctionRetType) {
+						ret.append(": " + f.getReturnType(), StyledString.QUALIFIER_STYLER);
+					}
 				}
-			} else if (element instanceof SVDBModIfcClassDecl) {
-				SVDBModIfcClassDecl decl = (SVDBModIfcClassDecl)element;
+			} else if (element instanceof SVDBModIfcDecl) {
+				SVDBModIfcDecl decl = (SVDBModIfcDecl)element;
 
 				if (decl.getParameters().size() > 0) {
 					ret.append("<", StyledString.QUALIFIER_STYLER);
@@ -124,14 +136,64 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 					
 					ret.append(">", StyledString.QUALIFIER_STYLER);
 				}
-			} 
-			if (element instanceof SVDBAlwaysBlock) {
-				if (ret.equals("")) {
-					ret = new StyledString(((SVDBAlwaysBlock)element).getExpr().trim());
+			} else if (element instanceof SVDBClassDecl) {
+				SVDBClassDecl decl = (SVDBClassDecl)element;
+
+				if (decl.getParameters() != null && decl.getParameters().size() > 0) {
+					ret.append("<", StyledString.QUALIFIER_STYLER);
+
+					for (int i=0; i<decl.getParameters().size(); i++) {
+						SVDBModIfcClassParam p = decl.getParameters().get(i);
+						ret.append(p.getName(), StyledString.QUALIFIER_STYLER);
+
+						if (i+1 < decl.getParameters().size()) {
+							ret.append(", ", StyledString.QUALIFIER_STYLER);
+						}
+					}
+					
+					ret.append(">", StyledString.QUALIFIER_STYLER);
 				}
+			} else if (ni.getType() == SVDBItemType.ModIfcInstItem) {
+				SVDBModIfcInstItem mod_item = (SVDBModIfcInstItem)ni;
+				SVDBModIfcInst mod_inst = (SVDBModIfcInst)mod_item.getParent();
+				
+				ret.append(" : " + mod_inst.getTypeName(), StyledString.QUALIFIER_STYLER);
+			} else if (ni.getType() == SVDBItemType.CoverageOptionStmt) {
+				SVDBCoverageOptionStmt option = (SVDBCoverageOptionStmt)ni;
+				ret.append(" : option", StyledString.QUALIFIER_STYLER);
+			} else {
+//				ret = new StyledString("UNKNOWN NamedItem " + ((ISVDBNamedItem)element).getType());
 			}
 			
-			return ret; 
+			return ret;
+		} else if (element instanceof ISVDBItemBase) {
+			ISVDBItemBase it = (ISVDBItemBase)element;
+			StyledString ret = null;
+			
+			if (it.getType() == SVDBItemType.AlwaysStmt) {
+				SVDBAlwaysStmt always = (SVDBAlwaysStmt)it;
+				if (always.getBody() != null && always.getBody().getType() == SVDBItemType.EventControlStmt) {
+					SVDBEventControlStmt stmt = (SVDBEventControlStmt)always.getBody();
+					ret = new StyledString(stmt.getExpr().toString().trim());
+				} else {
+					ret = new StyledString("always");
+				}
+			} else if (it.getType() == SVDBItemType.InitialStmt) {
+				ret = new StyledString("initial");
+			} else if (it.getType() == SVDBItemType.FinalStmt) {
+				ret = new StyledString("final");
+			} else if (it.getType() == SVDBItemType.ImportItem) {
+				SVDBImportItem imp = (SVDBImportItem)it;
+				ret = new StyledString("import " + imp.getImport());
+			} else if (it.getType() == SVDBItemType.ExportItem) {
+				SVDBExportItem exp = (SVDBExportItem)it;
+				ret = new StyledString("export " + exp.getExport());
+			}
+			
+			if (ret == null) {
+				ret = new StyledString(element.toString());
+			}
+			return ret;
 		} else {
 			return new StyledString(element.toString());
 		}

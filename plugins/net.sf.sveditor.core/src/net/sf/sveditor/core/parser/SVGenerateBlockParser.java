@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
 
 public class SVGenerateBlockParser extends SVParserBase {
@@ -20,179 +21,173 @@ public class SVGenerateBlockParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBGenerateBlock generate_block() throws SVParseException {
-		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("");
-		gen_blk.setLocation(lexer().getStartLocation());
-		
-		lexer().readKeyword("generate");
-		while (lexer().peek() != null && 
-				!lexer().peekKeyword("endgenerate") && !lexer().peekKeyword("endmodule")) {
-			parsers().SVParser().process_module_class_interface_body_item("generate");
+	public void parse(ISVDBScopeItem parent) throws SVParseException {
+		if (fLexer.peekKeyword("generate")) {
+			generate_block(parent);
+		} else if (fLexer.peekKeyword("if")) {
+			if_block(parent);
+		} else if (fLexer.peekKeyword("for")) {
+			for_block(parent);
+		} else if (fLexer.peekKeyword("case")) {
+			case_block(parent);
+		} else {
+			fLexer.readKeyword("generate", "if", "for", "case");
 		}
-		
-		gen_blk.setEndLocation(lexer().getStartLocation());
-		lexer().readKeyword("endgenerate");
-		
-		return gen_blk;
 	}
 	
-	public SVDBGenerateBlock if_block() throws SVParseException {
-		SVDBGenerateBlock if_blk = new SVDBGenerateBlock("if");
-		parsers().SVParser().enter_scope("generate_if", if_blk);
-		lexer().readKeyword("if");
-		lexer().readOperator("(");
-		/*String cond = */parsers().exprParser().expression();
-		lexer().readOperator(")");
+	public void generate_block(ISVDBScopeItem parent) throws SVParseException {
+		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("");
+		gen_blk.setLocation(fLexer.getStartLocation());
 		
-		if (lexer().peekKeyword("begin")) {
-			lexer().eatToken();
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
-			}
-			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-				if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
-					break;
-				}
-			}
-			lexer().readKeyword("end");
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
-			}
-		} else {
-			parsers().SVParser().process_module_class_interface_body_item("generate");
+		fLexer.readKeyword("generate");
+		
+		parent.addItem(gen_blk);
+		while (fLexer.peek() != null && 
+				!fLexer.peekKeyword("endgenerate") && !fLexer.peekKeyword("endmodule")) {
+			fParsers.modIfcBodyItemParser().parse(gen_blk, "generate");
 		}
 		
-		if (lexer().peekKeyword("else")) {
-			lexer().eatToken();
-			if (lexer().peekKeyword("begin")) {
-				lexer().eatToken();
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+		gen_blk.setEndLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("endgenerate");
+		
+	}
+	
+	public void if_block(ISVDBScopeItem parent) throws SVParseException {
+		SVDBGenerateBlock if_blk = new SVDBGenerateBlock("if");
+		fLexer.readKeyword("if");
+		fLexer.readOperator("(");
+		/*String cond = */parsers().exprParser().expression();
+		fLexer.readOperator(")");
+		
+		if (fLexer.peekKeyword("begin")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
+			}
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+				fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
+			}
+			fLexer.readKeyword("end");
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
+			}
+		} else {
+			fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
+		}
+		
+		if (fLexer.peekKeyword("else")) {
+			fLexer.eatToken();
+			if (fLexer.peekKeyword("begin")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
-				while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-					if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
-						break;
-					}
+				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+					fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 				}
-				lexer().readKeyword("end");
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+				fLexer.readKeyword("end");
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 			} else {
-				parsers().SVParser().process_module_class_interface_body_item("generate");
-				System.out.println("post-else token: " + lexer().peek());
+				fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 			}
 		}
 		
-		parsers().SVParser().handle_leave_scope();
-		
-		return if_blk;
 	}
 	
-	public SVDBGenerateBlock for_block() throws SVParseException {
+	public void for_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("for");
-		parsers().SVParser().enter_scope("for", gen_blk);
 		
-		lexer().readKeyword("for");
-		lexer().readOperator("(");
-		if (lexer().peekKeyword("genvar")) {
-			lexer().eatToken();
+		fLexer.readKeyword("for");
+		fLexer.readOperator("(");
+		if (fLexer.peekKeyword("genvar")) {
+			fLexer.eatToken();
 		}
-		if (!lexer().peekOperator(";")) {
+		if (!fLexer.peekOperator(";")) {
 			/*String init = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(";");
-		if (!lexer().peekOperator(";")) {
+		fLexer.readOperator(";");
+		if (!fLexer.peekOperator(";")) {
 			/*String cond = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(";");
-		if (!lexer().peekOperator(")")) {
+		fLexer.readOperator(";");
+		if (!fLexer.peekOperator(")")) {
 			/*String incr = */parsers().exprParser().expression();
 		}
-		lexer().readOperator(")");
-		
-		if (lexer().peekKeyword("begin")) {
-			lexer().eatToken();
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+		fLexer.readOperator(")");
+
+		parent.addItem(gen_blk);
+
+		if (fLexer.peekKeyword("begin")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
-			while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-				if (parsers().SVParser().process_module_class_interface_body_item("for") == null) {
-					break;
-				}
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+				fParsers.modIfcBodyItemParser().parse(gen_blk, "for");
 			}
-			lexer().readKeyword("end");
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
+			fLexer.readKeyword("end");
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
 			}
 		} else {
-			parsers().SVParser().process_module_class_interface_body_item("for");
+			fParsers.modIfcBodyItemParser().parse(gen_blk, "for");
 		}
-		
-		parsers().SVParser().handle_leave_scope();
-		
-		return gen_blk;
 	}
 	
-	public SVDBGenerateBlock case_block() throws SVParseException {
+	public void case_block(ISVDBScopeItem parent) throws SVParseException {
 		SVDBGenerateBlock case_blk = new SVDBGenerateBlock("case");
-		parsers().SVParser().enter_scope("generate_case", case_blk);
 		
-		lexer().readKeyword("case");
-		lexer().readOperator("(");
+		fLexer.readKeyword("case");
+		fLexer.readOperator("(");
 		parsers().exprParser().expression();
-		lexer().readOperator(")");
+		fLexer.readOperator(")");
 		
-		while (lexer().peek() != null && !lexer().peekKeyword("endcase")) {
-			if (lexer().peekKeyword("default")) {
-				lexer().eatToken();
+		parent.addItem(case_blk);
+		
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endcase")) {
+			if (fLexer.peekKeyword("default")) {
+				fLexer.eatToken();
 			} else {
 				// Read list of expressions
 				do {
-					if (lexer().peekOperator(",")) {
-						lexer().eatToken();
+					if (fLexer.peekOperator(",")) {
+						fLexer.eatToken();
 					}
-					parsers().exprParser().expression(false);
-				} while (lexer().peekOperator(","));
+					parsers().exprParser().expression();
+				} while (fLexer.peekOperator(","));
 			}
-			lexer().readOperator(":");
+			fLexer.readOperator(":");
 			
-			if (lexer().peekKeyword("begin")) {
-				lexer().eatToken();
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+			if (fLexer.peekKeyword("begin")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 				
-				while (lexer().peek() != null && !lexer().peekKeyword("end")) {
-					if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
-						break;
-					}
+				while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+					fParsers.modIfcBodyItemParser().parse(case_blk, "generate");
 				}
 				
-				lexer().readKeyword("end");
-				if (lexer().peekOperator(":")) {
-					lexer().eatToken();
-					lexer().readId();
+				fLexer.readKeyword("end");
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					fLexer.readId();
 				}
 			} else {
-				if (parsers().SVParser().process_module_class_interface_body_item("generate") == null) {
-					break;
-				}
+				fParsers.modIfcBodyItemParser().parse(case_blk, "generate");
 			}
 		}
 
-		lexer().readKeyword("endcase");
-		
-		parsers().SVParser().handle_leave_scope();
-
-		return case_blk;
+		fLexer.readKeyword("endcase");
 	}
 
 }

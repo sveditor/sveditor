@@ -15,7 +15,7 @@ package net.sf.sveditor.ui.wizards;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.methodology_templates.MethodologyTemplate;
 
@@ -180,7 +180,7 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		dlg.setClassName(fSuperClassStr);
 		
 		if (dlg.open() == Window.OK) {
-			SVDBModIfcClassDecl cls = dlg.getSelectedClass();
+			SVDBModIfcDecl cls = dlg.getSelectedClass();
 			if (cls != null) {
 				fSuperClass.setText(cls.getName());
 			}

@@ -12,17 +12,24 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVScannerTests extends TestCase {
 	
@@ -34,6 +41,7 @@ public class SVScannerTests extends TestCase {
 	 * 
 	 */
 	public void testVariableLists() {
+		LogHandle log = LogFactory.getLogHandle("testVariableLists");
 		String in_data = 
 			"module foo;\n" +
 			"    input a, b, c, d;\n" +
@@ -52,28 +60,29 @@ public class SVScannerTests extends TestCase {
 		int idx = 0;
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
-		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists", markers);
 
-		for (ISVDBItemBase it : file.getItems()) {
-			System.out.println("[Item] " + it.getType() + " " + SVDBItem.getName(it));
-			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				System.out.println("[ERROR] " + m.getMessage());
-			}
+		for (SVDBMarker m : markers) {
+			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals(1, file.getItems().size());
-		assertTrue(file.getItems().get(0) instanceof SVDBModIfcClassDecl);
+		assertTrue(file.getItems().get(0) instanceof SVDBModIfcDecl);
 		
-		SVDBModIfcClassDecl m = (SVDBModIfcClassDecl)file.getItems().get(0);
+		SVDBModIfcDecl m = (SVDBModIfcDecl)file.getItems().get(0);
 		assertEquals("foo", m.getName());
 		
-		for (ISVDBItemBase it : m.getItems()) {
+		for (ISVDBChildItem it : m.getChildren()) {
 			assertTrue(it instanceof SVDBVarDeclStmt);
 			SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
-			System.out.println("Variable " + v.getTypeName() + " " + v.getName());
-			assertEquals(exp[idx++], v.getTypeName());
-			assertEquals(exp[idx++], v.getName());
+			for (ISVDBChildItem c : v.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				log.debug("Variable " + v.getTypeName() + " " + vi.getName());
+				assertEquals(exp[idx++], v.getTypeName());
+				assertEquals(exp[idx++], vi.getName());
+			}
 		}
+		LogFactory.removeLogHandle(log);
 	}
 	
 }

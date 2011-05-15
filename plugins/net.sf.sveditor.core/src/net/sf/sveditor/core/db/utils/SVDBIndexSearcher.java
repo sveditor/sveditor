@@ -15,41 +15,43 @@ package net.sf.sveditor.core.db.utils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBClassHierarchy;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBIndexSearcher {
-	private List<SVDBFile>			fFiles = new ArrayList<SVDBFile>();
+	private Map<ISVDBIndex, List<String>>	fIndexMap;
 
 	public SVDBIndexSearcher() {
 	}
 	
 	public SVDBIndexSearcher(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
+		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
 	}
 
 	public void addIndex(ISVDBIndex index) {
-		fFiles.addAll(index.getFileDB(new NullProgressMonitor()).values());
+		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
 	}
 	
+	/**
 	public void addFile(SVDBFile file) {
 		fFiles.add(file);
 	}
+	 */
 	
 	/**
 	 * Finds all classes named 'name' 
@@ -57,30 +59,31 @@ public class SVDBIndexSearcher {
 	 * @param name
 	 * @return
 	 */
-	public SVDBModIfcClassDecl findNamedModClassIfc(String name) {
-		SVDBModIfcClassDecl c;
+	public SVDBClassDecl findNamedClass(String name) {
+		SVDBClassDecl c;
 		
-		for (SVDBFile f : fFiles) {
-			if ((c= findNamedModClass(name, f)) != null) {
-				return c;
+		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+			for (String fname : e.getValue()) {
+				SVDBFile f = e.getKey().findFile(fname);
+				if ((c= findNamedClass(name, f)) != null) {
+					return c;
+				}
 			}
 		}
 
 		return null;
 	}
 	
-	private SVDBModIfcClassDecl findNamedModClass(String name, SVDBScopeItem parent) {
-		for (ISVDBItemBase it : parent.getItems()) {
-			if ((it.getType() == SVDBItemType.Class ||
-					it.getType() == SVDBItemType.Module ||
-					it.getType() == SVDBItemType.Interface) && 
+	private SVDBClassDecl findNamedClass(String name, SVDBScopeItem parent) {
+		for (ISVDBItemBase it : parent.getChildren()) {
+			if (it.getType() == SVDBItemType.ClassDecl && 
 					((ISVDBNamedItem)it).getName() != null &&
 					((ISVDBNamedItem)it).getName().equals(name)) {
-				return (SVDBModIfcClassDecl)it;
+				return (SVDBClassDecl)it;
 			} else if (it.getType() == SVDBItemType.PackageDecl) {
-				SVDBModIfcClassDecl c;
+				SVDBClassDecl c;
 				
-				if ((c = findNamedModClass(name, (SVDBScopeItem)it)) != null) {
+				if ((c = findNamedClass(name, (SVDBScopeItem)it)) != null) {
 					return c;
 				}
 			}
@@ -89,9 +92,9 @@ public class SVDBIndexSearcher {
 		return null;
 	}
 	
-	public SVDBModIfcClassDecl findSuperClass(SVDBModIfcClassDecl cls) {
+	public SVDBClassDecl findSuperClass(SVDBClassDecl cls) {
 		if (cls.getSuperClass() != null) {
-			return findNamedModClassIfc(cls.getSuperClass());
+			return findNamedClass(cls.getSuperClass().getName());
 		} else {
 			return null;
 		}
@@ -118,7 +121,7 @@ public class SVDBIndexSearcher {
 			// First, search the local variables
 			if (context instanceof ISVDBScopeItem) {
 				for (ISVDBItemBase it : ((ISVDBScopeItem)context).getItems()) {
-					if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+					if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 						if (((ISVDBNamedItem)it).getName().equals(name)) {
 							ret.add(it);
 
@@ -137,7 +140,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
@@ -209,7 +212,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTaskFuncScope)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
@@ -230,53 +233,17 @@ public class SVDBIndexSearcher {
 		return ret;
 	}
 
-	/**
-	 * 
-	 * @param it
-	 * @return
-	 */
-	public SVDBClassHierarchy findClassTypeOfItem(SVDBItem it) {
-		/*
-		SVDBClassHierarchy  ret = null;
-		SVDBModIfcClassDecl c = null;
-		
-		if (it.getType() == SVDBItemType.VarDecl) {
-			SVDBVarDeclItem d = (SVDBVarDeclItem)it;
-			
-			if (d.getTypeName() != null) {
-				if ((c = findNamedClass(d.getTypeName())) != null) {
-					ret = new SVDBClassHierarchy(c);
-					
-					// Now, iterate through the 
-					
-					if (ret.getParameters().size() > 0) {
-						// TODO: must customize this class
-					}
-					return findNamedClass(d.getTypeName());
-				}
-			}
-		} else if (it.getType() == SVDBItemType.Function) {
-			// Find the return type of the function
-			SVDBTaskFuncScope f = (SVDBTaskFuncScope)it;
-			
-			if (f.getReturnType() != null && !f.getReturnType().equals("void")) {
-				// See if we can find this type
-				return findNamedClass(f.getReturnType());
-			}
-		}
-		 */
-		
-		return null;
-	}
-	
 	public List<ISVDBItemBase> findByName(
 			String				name,
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (SVDBFile f : fFiles) {
-			List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);
-			ret.addAll(r);
+		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+			for (String fname : e.getValue()) {
+				SVDBFile f = e.getKey().findFile(fname);
+				List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);
+				ret.addAll(r);
+			}
 		}
 		
 		return ret;
@@ -290,7 +257,7 @@ public class SVDBIndexSearcher {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		while (ref_type != null) {
-			for (ISVDBItemBase it : ref_type.getItems()) {
+			for (ISVDBItemBase it : ref_type.getChildren()) {
 				boolean type_match = (types.length == 0);
 				
 				for (SVDBItemType type : types) {
@@ -307,10 +274,10 @@ public class SVDBIndexSearcher {
 			}
 			
 			// Continue traversing the type hierarchy
-			if (ref_type.getType() == SVDBItemType.Class &&
-					((SVDBModIfcClassDecl)ref_type).getSuperClass() != null) {
-				ref_type = findNamedModClassIfc(
-						((SVDBModIfcClassDecl)ref_type).getSuperClass());
+			if (ref_type.getType() == SVDBItemType.ClassDecl &&
+					((SVDBClassDecl)ref_type).getSuperClass() != null) {
+				ref_type = findNamedClass(
+						((SVDBClassDecl)ref_type).getSuperClass().getName());
 			} else {
 				ref_type = null;
 			}
@@ -329,7 +296,7 @@ public class SVDBIndexSearcher {
 
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+		while (scope != null && scope.getType() != SVDBItemType.ClassDecl) {
 			scope = scope.getParent();
 		}
 		
@@ -356,7 +323,7 @@ public class SVDBIndexSearcher {
 				}
 			}
 			
-			scope = findNamedModClassIfc(((SVDBModIfcClassDecl)scope).getSuperClass()); 
+			scope = findNamedClass(((SVDBClassDecl)scope).getSuperClass().getName()); 
 		}
 		
 		return ret;

@@ -14,10 +14,10 @@ package net.sf.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
-import net.sf.sveditor.core.db.expr.SVBinaryExpr;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.expr.SVIdentifierExpr;
-import net.sf.sveditor.core.db.expr.SVLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
 
 public class SVIntegerExprEvaluator {
 	private IValueProvider			fValueProvider;
@@ -26,38 +26,38 @@ public class SVIntegerExprEvaluator {
 		fValueProvider = provider;
 	}
 	
-	public BigInteger evaluate(SVExpr expr) throws Exception {
-		switch (expr.getExprType()) {
-			case Literal: {
-				SVLiteralExpr literal = (SVLiteralExpr)expr;
+	public BigInteger evaluate(SVDBExpr expr) throws Exception {
+		switch (expr.getType()) {
+			case LiteralExpr: {
+				SVDBLiteralExpr literal = (SVDBLiteralExpr)expr;
 				return parse_literal(literal);
 				}
 			
-			case Binary: {
-				SVBinaryExpr binary = (SVBinaryExpr)expr;
+			case BinaryExpr: {
+				SVDBBinaryExpr binary = (SVDBBinaryExpr)expr;
 				return evaluate_binary(
 						evaluate(binary.getLhs()), 
 						binary.getOp(),
 						evaluate(binary.getRhs()));
 			}
 			
-			case Identifier: {
-				SVIdentifierExpr id = (SVIdentifierExpr)expr;
+			case IdentifierExpr: {
+				SVDBIdentifierExpr id = (SVDBIdentifierExpr)expr;
 				
 				if (fValueProvider != null) {
-					return fValueProvider.get_value(id.getIdStr());
+					return fValueProvider.get_value(id.getId());
 				} else {
 					throw new Exception("Unable to resolve value of id \"" + 
-							id.getIdStr() + "\"; ValueProvider is null");
+							id.getId() + "\"; ValueProvider is null");
 				}
 			}
 				
 			default:
-				throw new Exception("Unhandled expression type: " + expr.getExprType());
+				throw new Exception("Unhandled expression type: " + expr.getType());
 		}
 	}
 	
-	public BigInteger parse_literal(SVLiteralExpr literal) throws Exception {
+	public BigInteger parse_literal(SVDBLiteralExpr literal) throws Exception {
 		int radix = 10;
 		
 		String value = literal.getValue();

@@ -41,19 +41,18 @@ public class testPreProcessor implements IApplication {
 		 */
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", "/usr1/fun/sveditor",
-				SVDBSourceCollectionIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"/usr1/fun/sveditor", SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		String filename = "/tools/ovm/ovm-2.0.1/src/base/ovm_factory.sv";
 		
 		// ovm.getFileTree();
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
-		Map<String, SVDBFile> pp_map = index.getPreProcFileMap(new NullProgressMonitor());
-		
-		/* SVDBFile scen_gen = */pp_map.get(new File(filename));
+		// ??
+		index.findPreProcFile(filename);
 		
 		System.out.println("--> createFileContext()");
 		// TODO: need to provide IncludeProvider

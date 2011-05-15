@@ -15,28 +15,20 @@ package net.sf.sveditor.core.expr_utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -47,22 +39,20 @@ import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
-import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.db.search.SVDBFindVarsByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBPackageItemFinder;
 import net.sf.sveditor.core.db.search.SVDBStructFieldFinder;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * SVExpressionUtils
@@ -106,6 +96,57 @@ public class SVExpressionUtils {
 			boolean				match_prefix,
 			int					max_matches) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		SVExprUtilsParser parser = new SVExprUtilsParser(expr_ctxt);
+		fLog.debug("--> findItems(active_scope=\"" + 
+				((active_scope != null)?((ISVDBNamedItem)active_scope).getName():null) + "\" " +
+				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
+				"\" leaf=\"" + expr_ctxt.fLeaf + "\" match_prefix=" + match_prefix + ")");
+
+		if (expr_ctxt.fTrigger != null && !expr_ctxt.fTrigger.equals("=")) {
+			if (expr_ctxt.fTrigger.equals("`")) {
+				findMacroItems(expr_ctxt, index_it, max_matches, match_prefix, ret);
+			} else {
+				SVDBExpr expr = null;
+				try {
+					expr = parser.parsers().exprParser().expression();
+				} catch (SVParseException e) {
+					e.printStackTrace();
+				}
+				
+				if (expr != null) {
+					// Traverse the expression to find the 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							active_scope, fNameMatcher, index_it);
+					ISVDBItemBase item = v.findItem(expr);
+					if (item != null) {
+						System.out.println("Item: " + item.getType() + " " + SVDBItem.getName(item));
+					}
+				}
+				/*
+				findTriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger, 
+						expr_ctxt.fLeaf, active_scope, index_it, max_matches, 
+						match_prefix, ret);
+				 */
+			}
+		} else {
+			// Trigger is null or '='
+			if (expr_ctxt.fType == ContextType.Import) {
+				SVDBFindByName finder = new SVDBFindByName(index_it, fNameMatcher);
+				ret.addAll(finder.find(expr_ctxt.fLeaf, SVDBItemType.PackageDecl));
+			} else {
+				findUntriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger,
+						expr_ctxt.fLeaf, active_scope, index_it, 
+						max_matches, match_prefix, ret);
+			}
+		}
+
+		fLog.debug("<-- findItems(root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + 
+				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
+				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
+		
+
+		return ret;
+		/*
 		fLog.debug("--> findItems(active_scope=\"" + 
 				((active_scope != null)?((ISVDBNamedItem)active_scope).getName():null) + "\" " +
 				" root=\"" + expr_ctxt.fRoot + "\" trigger=\"" + expr_ctxt.fTrigger +
@@ -135,6 +176,7 @@ public class SVExpressionUtils {
 				expr_ctxt.fTrigger + "\" leaf=\"" + expr_ctxt.fLeaf + 
 				"\" match_prefix=" + match_prefix + ") returns " + ret.size() + " results");
 		return ret;
+		 */
 	}
 	
 	private void findMacroItems(
@@ -158,7 +200,7 @@ public class SVExpressionUtils {
 			while (it_i.hasNext()) {
 				ISVDBItemBase it_t = it_i.nextItem();
 
-				if (it_t.getType() == SVDBItemType.Macro) {
+				if (it_t.getType() == SVDBItemType.MacroDef) {
 					if (match_prefix) {
 						if (expr_ctxt.fLeaf.equals("") || 
 								((ISVDBNamedItem)it_t).getName().startsWith(expr_ctxt.fLeaf)) {
@@ -202,8 +244,7 @@ public class SVExpressionUtils {
 			fLog.debug("Using " + it_t.getType() + " " + 
 					SVDBItem.getName(it_t) + " as search base");
 
-			if (it_t.getType() == SVDBItemType.Class || 
-					it_t.getType() == SVDBItemType.Struct ||
+			if (it_t.getType() == SVDBItemType.ClassDecl || 
 					it_t.getType() == SVDBItemType.Covergroup ||
 					it_t.getType() == SVDBItemType.Coverpoint) {
 				SVDBFindByNameInClassHierarchy finder_h = 
@@ -224,13 +265,10 @@ public class SVExpressionUtils {
 				SVDBPackageItemFinder finder_p = new SVDBPackageItemFinder(
 						index_it, fNameMatcher);
 				ret.addAll(finder_p.find((SVDBPackageDecl)it_t, leaf));
-			} else if (it_t.getType() == SVDBItemType.TypeInfo) {
-				SVDBTypeInfo ti = (SVDBTypeInfo)it_t;
-				if (ti.getDataType() == SVDBDataType.Struct) {
-					SVDBTypeInfoStruct struct = (SVDBTypeInfoStruct)ti;
-					SVDBStructFieldFinder finder = new SVDBStructFieldFinder(fNameMatcher);
-					ret.addAll(finder.find(struct, leaf));
-				}
+			} else if (it_t.getType() == SVDBItemType.TypeInfoStruct) {
+				SVDBTypeInfoStruct struct = (SVDBTypeInfoStruct)it_t;
+				SVDBStructFieldFinder finder = new SVDBStructFieldFinder(fNameMatcher);
+				ret.addAll(finder.find(struct, leaf));
 			} else {
 				fLog.debug("Target type is " + it_t.getType() + " -- cannot search");
 			}
@@ -283,13 +321,13 @@ public class SVExpressionUtils {
 		SVDBFindNamedModIfcClassIfc finder_cls =
 			new SVDBFindNamedModIfcClassIfc(index_it, fNameMatcher);
 
-		List<SVDBModIfcClassDecl> cl_l = finder_cls.find(leaf);
+		List<ISVDBChildItem> cl_l = finder_cls.find(leaf);
 
 		if (cl_l.size() > 0) {
 			fLog.debug("Global type search for \"" + leaf + 
 					"\" returned " + cl_l.size());
-			for (SVDBModIfcClassDecl cl : cl_l) {
-				fLog.debug("    " + cl.getType() + " " + cl.getName());
+			for (ISVDBChildItem cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
 			}
 			if (max_matches == 0 || ret.size() < max_matches) {
 				ret.addAll(cl_l);
@@ -303,7 +341,7 @@ public class SVExpressionUtils {
 		SVDBFindByName finder_tf = new SVDBFindByName(index_it, fNameMatcher);
 
 		List<ISVDBItemBase> it_l = finder_tf.find(leaf,
-				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.Typedef,
+				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
 				SVDBItemType.PackageDecl);
 		
 		// Remove any definitions of extern tasks/functions, 
@@ -311,7 +349,7 @@ public class SVExpressionUtils {
 		for (int i=0; i<it_l.size(); i++) {
 			if (it_l.get(i).getType() == SVDBItemType.Function || 
 					it_l.get(i).getType() == SVDBItemType.Task) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it_l.get(i);
+				SVDBTask tf = (SVDBTask)it_l.get(i);
 				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
 						tf.getName().contains("::")) {
 					it_l.remove(i);
@@ -322,14 +360,14 @@ public class SVExpressionUtils {
 				// global or members of a package
 				ISVDBItemBase scope_t = tf;
 				while (scope_t != null && 
-						scope_t.getType() != SVDBItemType.Class &&
-						scope_t.getType() != SVDBItemType.Module) {
+						scope_t.getType() != SVDBItemType.ClassDecl &&
+						scope_t.getType() != SVDBItemType.ModuleDecl) {
 					scope_t = ((ISVDBChildItem)scope_t).getParent();
 				}
 
 				if (scope_t != null && 
-						(scope_t.getType() == SVDBItemType.Class ||
-						scope_t.getType() == SVDBItemType.Module)) {
+						(scope_t.getType() == SVDBItemType.ClassDecl ||
+						scope_t.getType() == SVDBItemType.ModuleDecl)) {
 					it_l.remove(i);
 					i--;
 				}
@@ -376,7 +414,7 @@ public class SVExpressionUtils {
 	 * @param search_forward
 	 * @return
 	 */
-	public String extractPreTriggerPortion(IBIDITextScanner doc) {
+	private String extractPreTriggerPortion(IBIDITextScanner doc) {
 		StringBuffer tmp = new StringBuffer();
 		int last_nws_ch = -1;
 		String end_match[] = { 
@@ -593,18 +631,18 @@ public class SVExpressionUtils {
 			ISVDBItemBase it = item_list.get(item_list.size()-1);
 			debug("  last item type=" + it.getType());
 			
-			if (it.getType() == SVDBItemType.Class) {
-				SVDBModIfcClassDecl cls_t = (SVDBModIfcClassDecl)it;
+			if (it.getType() == SVDBItemType.ClassDecl) {
+				SVDBClassDecl cls_t = (SVDBClassDecl)it;
 				// cls_t should be the specialized array type. We use the template
 				// parameter to get the array-element type
 				if (cls_t.getParameters() != null && cls_t.getParameters().size() > 0) {
 					SVDBFindNamedModIfcClassIfc finder_c = 
 						new SVDBFindNamedModIfcClassIfc(index_it);
-					List<SVDBModIfcClassDecl> result =
+					List<ISVDBChildItem> result =
 						finder_c.find(cls_t.getParameters().get(0).getName());
 					
-					if (result.size() > 0) {
-						cls_t = result.get(0);
+					if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
+						cls_t = (SVDBClassDecl)result.get(0);
 						item_list.add(cls_t);
 					}
 				} else {
@@ -615,7 +653,7 @@ public class SVExpressionUtils {
 		
 		return 0;
 	}
-	
+
 	private int processPreTriggerId(
 			ISVDBScopeItem		context,
 			ITextScanner		scanner,
@@ -624,6 +662,7 @@ public class SVExpressionUtils {
 			boolean				resolveFinalReturnType,
 			ISVDBIndexIterator	index_it,
 			List<ISVDBItemBase>		item_list) {
+/** MSB: database structure changes
 		// Read an identifier
 		int ch = scanner.get_ch();
 		
@@ -738,7 +777,7 @@ public class SVExpressionUtils {
 						
 						matches = finder.find(id, SVDBItemType.Class, 
 								SVDBItemType.Struct, SVDBItemType.PackageDecl,
-								SVDBItemType.Typedef);
+								SVDBItemType.VarDeclStmt);
 					} else {
 						SVDBFindVarsByNameInScopes finder =
 							new SVDBFindVarsByNameInScopes(index_it, fDefaultMatcher);
@@ -771,16 +810,15 @@ public class SVExpressionUtils {
 								} else {
 									fLog.debug("Did not find \"" + id + "\" as a type");
 								}
-								/*
-								SVDBModIfcClassDecl class_type = 
-									SVDBSearchUtils.findClassScope(context);
 
-								if (class_type != null) {
-									SVDBFindByNameInClassHierarchy finder_c = 
-										new SVDBFindByNameInClassHierarchy(index_it);
-									matches = finder_c.find((SVDBScopeItem)class_type, id);
-								}
-								 */
+								// SVDBModIfcClassDecl class_type = 
+								//	SVDBSearchUtils.findClassScope(context);
+								// 
+								// if (class_type != null) {
+								//	SVDBFindByNameInClassHierarchy finder_c = 
+								//		new SVDBFindByNameInClassHierarchy(index_it);
+								//	matches = finder_c.find((SVDBScopeItem)class_type, id);
+								// }
 							}
 						}
 					}
@@ -812,10 +850,10 @@ public class SVExpressionUtils {
 			if (field instanceof SVDBModIfcClassDecl ||
 					field instanceof SVDBPackageDecl) {
 				type = field;
-			} else if (SVDBStmt.isType(field, SVDBStmtType.VarDecl)) {
+			} else if (SVDBStmt.isType(field, SVDBItemType.VarDeclStmt)) {
 				type = findVarType(index_it, (SVDBVarDeclStmt)field);
-			} else if (field instanceof SVDBTypedef) {
-				SVDBTypedef td = (SVDBTypedef)field;
+			} else if (field instanceof SVDBTypedefStmt) {
+				SVDBTypedefStmt td = (SVDBTypedefStmt)field;
 				if (td.getTypeInfo().getDataType() == SVDBDataType.Struct) {
 					type = td.getTypeInfo();
 				} else if (td.getTypeInfo().getDataType() == SVDBDataType.UserDefined) {
@@ -823,6 +861,10 @@ public class SVExpressionUtils {
 						new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 					debug("field is a user-defined type=\"" + td.getName() + "\" typeName=\"" + td.getTypeInfo().getName() + "\"");
 
+					for (ISVDBItemBase i : td.getChildren()) {
+						SVDBTypedefItem td_i = (SVDBTypedefItem)i;
+						
+					}
 					List<SVDBModIfcClassDecl> cl_l = finder.find(td.getName());
 					type = (cl_l.size() > 0)?cl_l.get(0):null;
 				}
@@ -845,16 +887,19 @@ public class SVExpressionUtils {
 		}
 		
 		return 0;
+ */
+		return -1;
 	}
 	
 	private ISVDBItemBase findVarType(
 			ISVDBIndexIterator 	index_it,
 			SVDBVarDeclStmt 	field) {
 		ISVDBItemBase type = null;
+/** MSB: database structure changes		
 		SVDBFindNamedModIfcClassIfc finder = 
 			new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 		
-		debug("findVarType: field=" + field.getName());
+		debug("findVarType: field=" + SVDBVarDeclStmt.getName(field));
 		
 		// Determine pre-operations to resolve actual target type
 		if (field.getTypeInfo().getDataType() == SVDBDataType.Struct) {
@@ -904,10 +949,10 @@ public class SVExpressionUtils {
 		// The method for obtaining the name may change
 		String var_type_name = var_type.getName();
 		
-		if ((attr & SVDBVarDeclStmt.VarAttr_Queue) != 0 ||
-			(attr & SVDBVarDeclStmt.VarAttr_DynamicArray) != 0) {
+		if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0 ||
+			(attr & SVDBVarDeclItem.VarAttr_DynamicArray) != 0) {
 			String base;
-			if ((attr & SVDBVarDeclStmt.VarAttr_Queue) != 0) {
+			if ((attr & SVDBVarDeclItem.VarAttr_Queue) != 0) {
 				base = "__sv_builtin_queue";
 			} else {
 				base = "__sv_builtin_array";
@@ -924,7 +969,7 @@ public class SVExpressionUtils {
 			if (cls_t != null) {
 				type = cls_t;
 			}
-		} else if ((attr & SVDBVarDeclStmt.VarAttr_AssocArray) != 0) {
+		} else if ((attr & SVDBVarDeclItem.VarAttr_AssocArray) != 0) {
 			String base = "__sv_builtin_assoc_array";
 			SVDBParamValueAssignList params = 
 				new SVDBParamValueAssignList();
@@ -949,7 +994,8 @@ public class SVExpressionUtils {
 			if (cls_t != null) {
 				type = cls_t;
 			}
-		} 
+		}
+ */
 
 		return type;
 	}
@@ -960,7 +1006,7 @@ public class SVExpressionUtils {
 		SVDBFindNamedModIfcClassIfc finder = 
 			new SVDBFindNamedModIfcClassIfc(index_it, fDefaultMatcher);
 		
-		List<SVDBModIfcClassDecl> cl_l = finder.find(typename);
+		List<ISVDBChildItem> cl_l = finder.find(typename);
 		type = (cl_l.size() > 0)?cl_l.get(0):null;
 
 		debug("Searching for class \"" + typename + "\" -- " + cl_l.size());
@@ -969,11 +1015,11 @@ public class SVExpressionUtils {
 		if (cl_l.size() == 0) {
 			SVDBFindByName finder_n = new SVDBFindByName(index_it);
 
-			List<ISVDBItemBase> result = finder_n.find(typename, SVDBItemType.Typedef);
+			List<ISVDBItemBase> result = finder_n.find(typename, SVDBItemType.TypedefStmt);
 			debug("Searching for typedef \"" + typename + "\" -- " + result.size());
-			
 			if (result.size() > 0) {
-				SVDBTypedef td = (SVDBTypedef)result.get(0);
+				/*			
+				SVDBTypedefStmt td = (SVDBTypedefStmt)result.get(0);
 				debug("    typedef DataType=" + td.getTypeInfo().getDataType());
 				if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
 					cl_l = finder.find(td.getTypeInfo().getName());
@@ -984,6 +1030,8 @@ public class SVExpressionUtils {
 					cl_l = finder.find(td.getTypeInfo().getName());
 					type = (cl_l.size() > 0)?cl_l.get(0):null;
 				}
+				 */
+				type = null;
 			} else {
 				type = null;
 			}
@@ -1078,13 +1126,13 @@ public class SVExpressionUtils {
 	}
 	 */
 	
-	private SVDBTaskFuncScope findTaskFunc(
+	private SVDBTask findTaskFunc(
 			ISVDBIndexIterator		index_it,
 			ISVDBScopeItem			context,
 			ISVDBItemBase 				search_ctxt,
 			String					id,
 			String					preceeding_activator) {
-		SVDBTaskFuncScope func = null;
+		SVDBTask func = null;
 		
 		if (search_ctxt == null) {
 			SVDBFindByNameInScopes finder_scopes =
@@ -1098,7 +1146,7 @@ public class SVExpressionUtils {
 					"\" returned " + matches.size() + " matches");
 			
 			if (matches.size() > 0) {
-				func = (SVDBTaskFuncScope)matches.get(0);
+				func = (SVDBTask)matches.get(0);
 			}
 		} else {
 			SVDBFindByNameInClassHierarchy finder_h =
@@ -1111,7 +1159,7 @@ public class SVExpressionUtils {
 					"\" in \"" + SVDBItem.getName(search_ctxt) + 
 					"\" returned " + matches.size() + " matches");
 			
-			func = (SVDBTaskFuncScope)filterByAttr(matches, preceeding_activator);
+			func = (SVDBTask)filterByAttr(matches, preceeding_activator);
 		}
 		
 		return func;
@@ -1124,8 +1172,8 @@ public class SVExpressionUtils {
 			int attr = 0;
 			
 			if (it.getType() == SVDBItemType.Task || it.getType() == SVDBItemType.Function) {
-				attr = ((SVDBTaskFuncScope)it).getAttr();
-			} else if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+				attr = ((SVDBTask)it).getAttr();
+			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				attr = ((SVDBVarDeclStmt)it).getAttr();
 			}
 			

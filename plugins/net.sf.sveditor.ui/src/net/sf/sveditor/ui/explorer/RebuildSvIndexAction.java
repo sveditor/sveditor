@@ -16,9 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -80,8 +82,15 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 					p.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 				} catch (CoreException e) {}
 				
-				rgy.rebuildIndex(p.getName());
+				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
+				for (ISVDBIndex index : index_list) {
+					index.rebuildIndex();
+				}
+				SVUiPlugin.getDefault().refreshIndexList(index_list);
 			}
+			
+			// Finally, rebuild global index
+			rgy.rebuildIndex(SVDBIndexRegistry.GLOBAL_PROJECT);
 		}
 	}
 

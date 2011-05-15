@@ -12,11 +12,15 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -24,8 +28,15 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -35,13 +46,13 @@ public class SVDBTestUtils {
 	public static void assertNoErrWarn(SVDBFile file) {
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
+				SVDBMarker m = (SVDBMarker)it;
 				
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR) ||
-						m.getName().equals(SVDBMarkerItem.MARKER_WARN)) {
+				if (m.getMarkerType() == MarkerType.Error ||
+						m.getMarkerType() == MarkerType.Warning) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
 							" @ " + file.getName() + ":" + m.getLocation().getLine());
-					TestCase.fail("Unexpected " + m.getName() + " @ " + 
+					TestCase.fail("Unexpected marker type " + m.getMarkerType() + " @ " + 
 							file.getName() + ":" + m.getLocation().getLine());
 				}
 			}
@@ -64,6 +75,13 @@ public class SVDBTestUtils {
 		for (ISVDBItemBase it : scope.getItems()) {
 			if (SVDBItem.getName(it).equals(e)) {
 				return it;
+			} else if (it.getType() == SVDBItemType.VarDeclStmt) {
+				for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+					if (vi.getName().equals(e)) {
+						return vi;
+					}
+				}
 			} else if (it instanceof ISVDBScopeItem) {
 				ISVDBItemBase t;
 				if ((t = findElement((ISVDBScopeItem)it, e)) != null) {
@@ -74,8 +92,12 @@ public class SVDBTestUtils {
 		
 		return null;
 	}
-
+	
 	public static SVDBFile parse(String content, String filename) {
+		return parse(content, filename, false);
+	}
+
+	public static SVDBFile parse(String content, String filename, boolean exp_err) {
 		SVDBFile file = null;
 		SVPreProcScanner pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
@@ -91,7 +113,7 @@ public class SVDBTestUtils {
 			
 			public SVDBMacroDef findMacro(String name, int lineno) {
 				for (ISVDBItemBase it : pp_file.getItems()) {
-					if (it.getType() == SVDBItemType.Macro && 
+					if (it.getType() == SVDBItemType.MacroDef && 
 							SVDBItem.getName(it).equals(name)) {
 						return (SVDBMacroDef)it;
 					}
@@ -102,8 +124,39 @@ public class SVDBTestUtils {
 		};
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
-		file = factory.parse(new StringInputStream(content), filename);
+		file = factory.parse(new StringInputStream(content), filename, markers);
+		
+		for (SVDBMarker m : markers) {
+			System.out.println("[MARKER] " + m.getMessage());
+		}
+		if (!exp_err) {
+			TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		}
+
+		/*
+		// Test persistence
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		SVDBPersistenceWriter writer = new SVDBPersistenceWriter(bos);
+		try {
+			writer.writeSVDBItem(file);
+		} catch (DBWriteException e) {
+			TestCase.fail("Received DBWriteException: " + e.getMessage());
+		}
+		
+		writer.close();
+		
+		SVDBPersistenceReader reader = new SVDBPersistenceReader(
+				new ByteArrayInputStream(bos.toByteArray()));
+		
+		try {
+			reader.readSVDBItem(null);
+		} catch (DBFormatException e) {
+			e.printStackTrace();
+			TestCase.fail("Received DBFormatException: " + e.getMessage());
+		}
+		 */
 		
 		return file;
 	}
@@ -129,7 +182,7 @@ public class SVDBTestUtils {
 					return new SVDBMacroDef("__LINE__", new ArrayList<String>(), "0");
 				} else {
 					for (ISVDBItemBase it : pp_file.getItems()) {
-						if (it.getType() == SVDBItemType.Macro && 
+						if (it.getType() == SVDBItemType.MacroDef && 
 								SVDBItem.getName(it).equals(name)) {
 							return (SVDBMacroDef)it;
 						}

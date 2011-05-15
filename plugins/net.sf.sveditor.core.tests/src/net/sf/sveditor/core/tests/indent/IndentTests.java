@@ -20,6 +20,8 @@ import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -404,6 +406,7 @@ public class IndentTests extends TestCase {
 	}
 
 	public void testMultiBlankLine() {
+		LogHandle log = LogFactory.getLogHandle("testMultiBlankLine");
 		String ref = 
 		"class my_component1 extends ovm_component;\n" +
 		"	\n" +
@@ -423,14 +426,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:");
+		log.debug(result);
+		log.debug("====");
 		
-		IndentComparator.compare("testMultiBlankLine", ref, result);
+		IndentComparator.compare(log, "testMultiBlankLine", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testFunctionComment() {
@@ -447,7 +450,8 @@ public class IndentTests extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-			
+
+			LogHandle log = LogFactory.getLogHandle("testFunctionComment");
 			SVCorePlugin.getDefault().enableDebug(false);
 			
 			// Run the indenter over the reference source
@@ -458,14 +462,14 @@ public class IndentTests extends TestCase {
 			
 			String result = indenter.indent(-1, -1);
 			
-			System.out.println("Ref:");
-			System.out.print(ref);
-			System.out.println("====");
-			System.out.println("Result:");
-			System.out.print(result);
-			System.out.println("====");
+			log.debug("Ref:\n" + ref);
+			log.debug("====");
+			log.debug("Result:");
+			log.debug(result);
+			log.debug("====");
 			
-			IndentComparator.compare("testFunctionComment", ref, result);
+			IndentComparator.compare(log, "testFunctionComment", ref, result);
+			LogFactory.removeLogHandle(log);
 	}
 
 	public void testModuleFirstItemComment() {
@@ -477,6 +481,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testModuleFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -486,14 +491,13 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testModuleFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testModuleFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testInitialFirstItemComment() {
@@ -508,6 +512,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testInitialFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -517,14 +522,13 @@ public class IndentTests extends TestCase {
 
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testInitialFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testInitialFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testFunctionFirstItemComment() {
@@ -539,6 +543,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testFunctionFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -548,14 +553,13 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testFunctionFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testFunctionFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testIfInFunction() {
@@ -582,6 +586,7 @@ public class IndentTests extends TestCase {
         ;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testIfInFunction");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -593,14 +598,13 @@ public class IndentTests extends TestCase {
 		indenter.setAdaptiveIndentEnd(5);
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testIfInFunction", ref, result);
+		IndentComparator.compare(log, "testIfInFunction", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	private StringBuilder removeLeadingWS(String ref) {

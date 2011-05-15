@@ -17,12 +17,12 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public interface ISVDBIndexSearcher {
 	
-	SVDBModIfcClassDecl findNamedModClassIfc(String name);
+	SVDBModIfcDecl findNamedModClassIfc(String name);
 	
 	
 	/** 
@@ -59,7 +59,7 @@ public interface ISVDBIndexSearcher {
 			SVDBScopeItem			scope,
 			SVDBItemType	...		type_filter);
 	
-	SVDBModIfcClassDecl findSuperClass(SVDBModIfcClassDecl cls);
+	SVDBModIfcDecl findSuperClass(SVDBModIfcDecl cls);
 	
 	SVDBFile findIncludedFile(String path);
 		

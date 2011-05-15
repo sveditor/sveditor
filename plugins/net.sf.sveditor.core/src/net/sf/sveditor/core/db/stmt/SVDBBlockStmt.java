@@ -1,59 +1,61 @@
 package net.sf.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
-public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
+public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
+	@SVDBParentAttr
 	private ISVDBChildItem			fParent;
+	
 	private List<ISVDBItemBase>		fItems;
 	private SVDBLocation			fEndLocation;
 	private String					fBlockName;
 	
-	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType type,
-					IDBReader reader) throws DBFormatException {
-				return new SVDBBlockStmt(parent, type, reader);
-			}
-		}, SVDBStmtType.Block);
-	}
-	
 	public SVDBBlockStmt() {
-		super(SVDBStmtType.Block);
+		super(SVDBItemType.BlockStmt);
 		fBlockName = "";
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
-	
-	public SVDBBlockStmt(ISVDBChildItem parent, SVDBStmtType type, IDBReader reader) 
-		throws DBFormatException {
-		super(parent, type, reader);
-		fParent = parent;
-		
-		fBlockName = reader.readString();
-		fEndLocation = SVDBLocation.readLocation(reader);
-		// TODO: 
+
+	public SVDBBlockStmt(SVDBItemType type) {
+		super(type);
+		fBlockName = "";
 		fItems = new ArrayList<ISVDBItemBase>();
 	}
+
 	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		writer.writeString(fBlockName);
-		SVDBLocation.writeLocation(fEndLocation, writer);
+	public void addChildItem(ISVDBChildItem item) {
+		fItems.add(item);
+		if (item != null) {
+			item.setParent(this);
+		}
 	}
 	
-	public void addStmt(SVDBStmt stmt) {
-		fItems.add(stmt);
+	@SuppressWarnings({"unchecked","rawtypes"})
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fItems.iterator();
+			}
+		};
 	}
-	
+
+	public void addItem(ISVDBItemBase item) {
+		fItems.add(item);
+		if (item != null && item instanceof ISVDBChildItem) {
+			((ISVDBChildItem)item).setParent(this);
+		}
+	}
+
 	public String getBlockName() {
 		return fBlockName;
 	}
@@ -84,11 +86,7 @@ public class SVDBBlockStmt extends SVDBStmt /* implements ISVDBScopeItem  */{
 
 	@Override
 	public SVDBBlockStmt duplicate() {
-		SVDBBlockStmt ret = new SVDBBlockStmt();
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBBlockStmt)super.duplicate();
 	}
 
 	@Override

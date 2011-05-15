@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.core.expr.eval;
 
-import net.sf.sveditor.core.db.expr.SVExpr;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVExprComparator {
 	
 	public synchronized boolean is_equal(
-			SVExpr				expr_1,
-			SVExpr				expr_2) {
+			SVDBExpr				expr_1,
+			SVDBExpr				expr_2) {
 		return false;
 	}
 

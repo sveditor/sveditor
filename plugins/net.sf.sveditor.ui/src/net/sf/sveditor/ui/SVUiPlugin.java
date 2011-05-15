@@ -13,16 +13,19 @@
 package net.sf.sveditor.ui;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
@@ -69,6 +72,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	// tab is equivalent to
 	private String								fInsertSpaceTestOverride;
 	
+	private boolean								fStartRefreshJob = false;
+	private RefreshIndexJob						fRefreshIndexJob;
+	
 	
 	/**
 	 * The constructor
@@ -92,7 +98,39 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
 		SVCorePlugin.getDefault().enableDebug(debug_en);
-		
+	}
+	
+	// Called by SVEditor on startup
+	public synchronized void startRefreshJob() {
+		if (!fStartRefreshJob) {
+			RefreshProjectIndexesJob rj = new RefreshProjectIndexesJob();
+			rj.setPriority(Job.LONG);
+			rj.schedule(5000);
+			
+			fStartRefreshJob = true;
+		}
+	}
+	
+	public synchronized void refreshIndex(ISVDBIndex index) {
+		if (fRefreshIndexJob == null) {
+			fRefreshIndexJob = new RefreshIndexJob(this);
+			fRefreshIndexJob.setPriority(Job.LONG);
+			fRefreshIndexJob.schedule(1000);
+		}
+		fRefreshIndexJob.addIndex(index);
+	}
+	
+	public synchronized void refreshIndexList(List<ISVDBIndex> list) {
+		if (fRefreshIndexJob == null) {
+			fRefreshIndexJob = new RefreshIndexJob(this);
+			fRefreshIndexJob.setPriority(Job.LONG);
+			fRefreshIndexJob.schedule(1000);
+		}
+		fRefreshIndexJob.addIndexList(list);
+	}
+	
+	public synchronized void refreshJobComplete() {
+		fRefreshIndexJob = null;
 	}
 
 	/*
@@ -289,8 +327,4 @@ public class SVUiPlugin extends AbstractUIPlugin
 			}
 		}
 	}
-	
-	
-	
-
 }

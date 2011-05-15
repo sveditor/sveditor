@@ -250,6 +250,12 @@
             name="Open Declaration">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Find References"
+            id="net.sf.sveditor.ui.editor.find.references"
+            name="Find References">
+      </command>
+      <command
             id="net.sf.sveditor.ui.override.tf.command"
             name="Override Tasks/Functions">
       </command>
@@ -331,6 +337,12 @@
                definitionId="net.sf.sveditor.ui.editor.open.declaration"
                id="net.sf.sveditor.ui.svOpenEditorAction"
                label="Open Declaration"
+               retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.find.references"
+               id="net.sf.sveditor.ui.svFindReferencesAction"
+               label="Find References"
                retarget="true">
          </action>
          <action

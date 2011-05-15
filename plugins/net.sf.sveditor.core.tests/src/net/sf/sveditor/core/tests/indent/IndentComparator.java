@@ -15,11 +15,20 @@ package net.sf.sveditor.core.tests.indent;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 import junit.framework.TestCase;
 
 public class IndentComparator {
 	
 	public static void compare(String msg, String expected, String result) {
+		LogHandle log = LogFactory.getLogHandle(msg);
+		compare(log, msg, expected, result);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public static void compare(LogHandle log, String msg, String expected, String result) {
 		List<String> lines_expected = split(expected);
 		List<String> lines_result   = split(result);
 		int lineno = 1;
@@ -33,20 +42,20 @@ public class IndentComparator {
 			String r = (i<lines_result.size())?lines_result.get(i):null;
 			if (e != null && r != null) {
 				if (e.equals(r)) {
-					System.out.println(lineno + " [OK]  \"" + r + "\"");
+					log.debug(lineno + " [OK]  \"" + r + "\"");
 				} else {
-					System.out.println(lineno + " [ERR] expected: \"" + e + "\"");
-					System.out.println(lineno + " [ERR] result  : \"" + r + "\"");
+					log.error(lineno + " [ERR] expected: \"" + e + "\"");
+					log.error(lineno + " [ERR] result  : \"" + r + "\"");
 					failures++;
 				}
 			} else {
 				if (e == null && r.equals("")) {
-					System.out.println(lineno + " [OK]  \"" + r + "\" [Exp==null]");
+					log.debug(lineno + " [OK]  \"" + r + "\" [Exp==null]");
 				} else if (r == null && e.equals("")) {
-					System.out.println(lineno + " [OK]  \"" + e + "\" [Res==null]");
+					log.debug(lineno + " [OK]  \"" + e + "\" [Res==null]");
 				} else {
-					System.out.println(lineno + " [ERR] expected: \"" + e + "\"");
-					System.out.println(lineno + " [ERR] result  : \"" + r + "\"");
+					log.error(lineno + " [ERR] expected: \"" + e + "\"");
+					log.error(lineno + " [ERR] result  : \"" + r + "\"");
 					failures++;
 				}
 			}

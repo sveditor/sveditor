@@ -19,10 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -227,7 +229,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	 * Parse content from the input stream in the context 
 	 * of this index.
 	 */
-	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
+	public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 		SVDBFile ret = null;
 		
 		path = SVFileUtils.normalize(path);
@@ -242,7 +244,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		
 		if (result.size() > 0) {
 			// Use the parser from the associated index
-			ret = result.get(0).getIndex().parse(in, path, monitor);
+			ret = result.get(0).getIndex().parse(monitor, in, path, markers);
 		} else {
 			// Create a shadow index using the current directory
 			String dir = SVFileUtils.getPathParent(path);
@@ -265,7 +267,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 					Map<String, Object> config = new HashMap<String, Object>();
 					config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 					
-					index = rgy.findCreateIndex(
+					index = rgy.findCreateIndex(new NullProgressMonitor(),
 						fProject, dir, SVDBSourceCollectionIndexFactory.TYPE, config);
 				} else {
 					System.out.println("[TODO] create shadow index for " +
@@ -275,7 +277,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				addShadowIndex(dir, index);
 			}
 			
-			ret = fShadowIndexMap.get(dir).parse(in, path, monitor);
+			ret = fShadowIndexMap.get(dir).parse(monitor, in, path, markers);
 		}
 		
 		return ret;

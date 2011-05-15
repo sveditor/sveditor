@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -41,6 +42,7 @@ public class SVLexer extends SVToken {
 	private SVToken						fCaptureLastToken;
 	private ISVParser					fParser;
 	private Stack<SVToken>				fUngetStack;
+	private boolean						fInAttr;
 		
 	public static final String RelationalOps[] = {
 		"&", "&&", "|", "||", 
@@ -50,7 +52,7 @@ public class SVLexer extends SVToken {
 		"<", "<<", "<=", "<<<",
 		">", ">>", ">=", ">>>",
 		"=", "*=", "/=", "%=", "+=", "==", "!=",
-		"-=", "<<=", ">>=", "&=", "^=", "|=",
+		"-=", "<<=", ">>=", "<<<=", ">>>=", "&=", "^=", "|=",
 		"===", "!==", "==?", "!=?",
 	};
 	
@@ -62,7 +64,8 @@ public class SVLexer extends SVToken {
 		":", "::", ":/", ":=",
 		"+:", "-:", // array-index operators
 		",", ";", ".", ".*", "'",
-		"->", "#", "@",
+		"->", "#", "##", "@", "@@",
+		"(*", "*)"
 	};
 	
 	private static final String AllOperators[];
@@ -120,6 +123,10 @@ public class SVLexer extends SVToken {
 		fNewlineAsOperator = en;
 	}
 	
+	public void setInAttr(boolean in) {
+		fInAttr = in;
+	}
+	
 	public void init(ISVParser parser, ITextScanner scanner) {
 		fTokenConsumed 	= true;
 		fScanner 		= scanner;
@@ -172,6 +179,14 @@ public class SVLexer extends SVToken {
 		}
 		
 		fUngetStack.push(tok);
+		peek();
+		debug("After un-get of token \"" + tok.getImage() + "\" next token is \"" + peek() + "\"");
+	}
+	
+	public void ungetToken(List<SVToken> tok_l) {
+		for (int i=tok_l.size()-1; i>=0; i--) {
+			ungetToken(tok_l.get(i));
+		}
 	}
 	
 	public String peek() {
@@ -225,13 +240,22 @@ public class SVLexer extends SVToken {
 		}
 		return false;
 	}
-	
+
+	public boolean peekOperator(Set<String> ops) throws SVParseException {
+		peek();
+		
+		if (fIsOperator) {
+			return ops.contains(fImage);
+		}
+		return false;
+	}
+
 	public boolean peekId() throws SVParseException {
 		peek();
 		
 		return fIsIdentifier;
 	}
-	
+
 	public boolean peekNumber() throws SVParseException {
 		peek();
 		
@@ -251,6 +275,10 @@ public class SVLexer extends SVToken {
 		if (fIsOperator) {
 			if (ops.length == 0) {
 				found = true;
+			} else if (ops.length == 1) {
+				found = fImage.equals(ops[0]);
+			} else if (ops.length == 2) {
+				found = fImage.equals(ops[0]) || fImage.equals(ops[1]);
 			} else {
 				for (String op : ops) {
 					if (fImage.equals(op)) {
@@ -282,9 +310,20 @@ public class SVLexer extends SVToken {
 		peek();
 		
 		boolean found = false;
+		if (kw.length == 1 && kw[0].equals("return") && fImage.equals("return")) {
+			debug("RETURN: " + fIsKeyword);
+		}
 		if (fIsKeyword) {
 			if (kw.length == 0) {
 				found = true;
+			} else if (kw.length == 1) {
+				found = fImage.equals(kw[0]);
+			} else if (kw.length == 2) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]);
+			} else if (kw.length == 3) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]);
+			} else if (kw.length == 4) {
+				found = fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) || fImage.equals(kw[3]);
 			} else {
 				for (String k : kw) {
 					if (fImage.equals(k)) {
@@ -309,6 +348,23 @@ public class SVLexer extends SVToken {
 		return found;
 	}
 
+	public String readKeyword(Set<String> kw) throws SVParseException {
+		if (!peekKeyword(kw)) {
+			StringBuilder sb = new StringBuilder();
+			
+			for (String k : kw) {
+				sb.append(k);
+			}
+			if (sb.length() > 2) {
+				sb.setLength(sb.length()-2);
+			}
+			
+			error("Expecting one of keyword \"" + 
+					sb.toString() + "\" ; received \"" + fImage + "\"");
+		}
+		return eatToken();
+	}
+	
 	public String readKeyword(String ... kw) throws SVParseException {
 		
 		if (!peekKeyword(kw)) {
@@ -369,6 +425,16 @@ public class SVLexer extends SVToken {
 		return eatToken();
 	}
 	
+	public SVToken readIdTok() throws SVParseException {
+		peek();
+		
+		if (!fIsIdentifier) {
+			error("Expecting an identifier ; received \"" + fImage + "\"");
+		}
+		
+		return consumeToken();
+	}
+	
 	public String readIdOrKeyword() throws SVParseException {
 		peek();
 
@@ -404,9 +470,33 @@ public class SVLexer extends SVToken {
 		}
 		try {
 			if (fUngetStack.size() > 0) {
+				debug("next_token: unget_stack top=" + fUngetStack.peek().getImage());
 				init(fUngetStack.pop());
+				fTokenConsumed = false;
 				return true;
 			} else {
+				/*
+				boolean ret;
+				if ((ret = next_token_int()) && fIsOperator && fImage.equals("(*")) {
+					fInAttr = true;
+					// Consume attribute instance
+					List<SVToken> unget_list = new ArrayList<SVToken>();
+					unget_list.add(consumeToken());
+					while ((ret = next_token_int())) {
+						if (fIsOperator && fImage.equals("*)")) {
+							unget_list.add(consumeToken());
+							ret = next_token_int();
+							break;
+						} 
+						if (fIsKeyword) {
+							fInAttr = false;
+							return ret;
+						}
+					}
+					fInAttr = false;
+				}
+				return ret;
+				 */
 				return next_token_int();
 			}
 		} catch (SVParseException e) {
@@ -531,8 +621,40 @@ public class SVLexer extends SVToken {
 			} else {
 				fIsOperator = true;
 			}
+			
 			fImage = fStringBuffer.toString();
-
+		} else if (ch == '(') {
+			// Could be (, (*
+			// Want to avoid (*) case
+			ch2 = get_ch();
+			if (ch2 == '*') {
+				int ch3 = get_ch();
+				if (ch3 != ')') {
+					fStringBuffer.append("(*");
+					unget_ch(ch3);
+				} else {
+					unget_ch(ch3);
+					unget_ch(ch2);
+					fStringBuffer.append("(");
+				}
+			} else {
+				unget_ch(ch2);
+				fStringBuffer.append("(");
+			}
+			fIsOperator = true;
+		} else if (ch == '*') {
+			// Could be *, **, *=, or *)
+			ch2 = get_ch();
+			
+			if (ch2 == ')' && fInAttr) {
+				fStringBuffer.append("*)");
+			} else if (ch2 == '*' || ch2 == '=') {
+				fStringBuffer.append("*" + (char)ch2);
+			} else {
+				fStringBuffer.append("*");
+				unget_ch(ch2);
+			}
+			fIsOperator = true;
 		} else if (fOperatorSet.contains(tmp) || 
 				// Operators that can have up to two elements
 				f2SeqPrefixes.contains(tmp) ||
@@ -662,6 +784,11 @@ public class SVLexer extends SVToken {
 				// Not a based number
 				ch = readHexNumber(ch);
 				
+				if (ch == '.') {
+					// floating-point number
+					ch = readHexNumber(get_ch());
+				}
+				
 				// Probably a time
 				if (ch == 'f' || ch == 'p' || ch == 'n' || ch == 'u' || ch == 'm') {
 					fStringBuffer.append((char)ch);
@@ -755,6 +882,7 @@ public class SVLexer extends SVToken {
 
 	private void error(String msg) throws SVParseException {
 		endCapture();
+		setInAttr(false);
 		fParser.error(msg);
 	}
 }

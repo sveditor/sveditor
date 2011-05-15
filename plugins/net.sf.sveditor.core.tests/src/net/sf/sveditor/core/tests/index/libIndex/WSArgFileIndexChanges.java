@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -36,13 +37,14 @@ public class WSArgFileIndexChanges extends TestCase {
 	
 	public void testArgFileChange() {
 		File tmpdir = TestUtils.createTempDir();
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		try {
 			int_testArgFileChange(tmpdir);
 		} catch (RuntimeException e) {
 			throw e;
 		} finally {
-			tmpdir.delete();
+			TestUtils.delete(tmpdir);
 		}
 	}
 	
@@ -59,9 +61,9 @@ public class WSArgFileIndexChanges extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		

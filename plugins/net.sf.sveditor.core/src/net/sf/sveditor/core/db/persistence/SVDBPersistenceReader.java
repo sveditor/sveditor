@@ -12,540 +12,561 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 @SuppressWarnings("rawtypes")
-public class SVDBPersistenceReader implements IDBReader {
-	private InputStream			fIn;
-	private byte				fBuf[];
-	private int					fBufIdx;
-	private int					fBufSize;
-	private int					fUngetCh;
-	private StringBuilder		fTmpBuffer;
-	private static Map<Class, List<Enum>>		fEnumMap;
-	private static final Map<SVDBItemType, ISVDBPersistenceFactory>	fSVDBFactoryMap;
+public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
+	private DataInput								fInBuf;
+	private byte									fTmp[];
+	private static Map<Class, Map<Integer, Enum>>	fEnumMap;
+	private static Map<SVDBItemType, Class>			fClassMap;
+	private static final boolean					fDebugEn = false;
+	private int										fLevel = 0;
 	
 	static {
-		fSVDBFactoryMap = new HashMap<SVDBItemType, ISVDBPersistenceFactory>();
-		
-		fEnumMap = new HashMap<Class, List<Enum>>();
+		fEnumMap = new HashMap<Class, Map<Integer,Enum>>();
 	}
+	
+	public SVDBPersistenceReader() {
+		synchronized (getClass()) {
+			if (fClassMap == null) {
+				fClassMap 	= new HashMap<SVDBItemType, Class>();
 
-	public SVDBPersistenceReader(InputStream in) {
-		fIn      	= in;
-		fBuf     	= new byte[1024*1024];
-		fBufIdx  	= 0;
-		fBufSize 	= 0;
-		fUngetCh	= -1;
-		fTmpBuffer 	= new StringBuilder();
-	}
-	
-	public void init(InputStream in) {
-		fIn = in;
-		fUngetCh = -1;
-		fBufIdx  = 0;
-		fBufSize = 0;
-	}
-	
-	public static void registerPersistenceFactory(
-			ISVDBPersistenceFactory factory,
-			SVDBItemType 	...		types) {
-		for (SVDBItemType type : types) {
-			if (fSVDBFactoryMap.containsKey(type)) {
-				fSVDBFactoryMap.remove(type);
+				// Locate the class for each SVDBItemType element
+				ClassLoader cl = getClass().getClassLoader();
+				for (SVDBItemType v : SVDBItemType.values()) {
+					String key = "SVDB" + v.name();
+					Class cls = null;
+					for (String pref : new String [] {"net.sf.sveditor.core.db.", 
+							"net.sf.sveditor.core.db.stmt.",
+					"net.sf.sveditor.core.db.expr."}) {
+						try {
+							cls = cl.loadClass(pref + key);
+						} catch (Exception e) { }
+					}
+
+					if (cls == null) {
+						System.out.println("Failed to locate class " + key);
+					} else {
+						fClassMap.put(v, cls);
+					}
+				}
 			}
-			fSVDBFactoryMap.put(type, factory);
 		}
-	}
-
-	public static void registerEnumType(Class enum_type, Enum values[]) {
-		List<Enum> enum_list = new ArrayList<Enum>();
-		for (Enum e : values) {
-			enum_list.add(e);
-		}
-		
-		fEnumMap.put(enum_type, enum_list);
 	}
 	
-	public static int getEnumIndex(Class enum_type, Enum value) {
-		List<Enum> enum_list = fEnumMap.get(enum_type);
-		return enum_list.indexOf(value);
-	}
-
-	public String readBaseLocation() throws DBFormatException {
-		String SDB = readTypeString();
-		
-		if (!"SDB".equals(SDB)) {
-			throw new DBFormatException("Database not prefixed with SDB (" + SDB + ")");
-		}
-		
-		int ch;
-		
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("Missing '<'");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-         		
-		if (ch != '>') {
-			throw new DBFormatException("Unterminated SDB record");
-		}
-
-		// Trim off the version number, if present
-		int base_end = fTmpBuffer.indexOf("::");
-		if (base_end != -1) {
-			fTmpBuffer.setLength(base_end);
-		}
-		
-		return fTmpBuffer.toString();
+	public void init(DataInput in) {
+		fInBuf = in;
 	}
 	
+	public void readObject(ISVDBChildItem parent, Class cls, Object target) throws DBFormatException {
+		if (fDebugEn) {
+			debug("--> " + (++fLevel) + " readObject: " + cls.getName());
+		}
+		
+		if (cls.getSuperclass() != null && cls.getSuperclass() != Object.class) {
+			readObject(parent, cls.getSuperclass(), target);
+		}
+		
+		Field fields[] = cls.getDeclaredFields();
+		
+		for (Field f : fields) {
+			f.setAccessible(true);
+			
+			if (!Modifier.isStatic(f.getModifiers())) {
+				
+				if (f.getAnnotation(SVDBParentAttr.class) != null) {
+					try {
+						f.set(target, parent);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+					continue;
+				}
+				
+				if (f.getAnnotation(SVDBDoNotSaveAttr.class) != null) {
+					continue;
+				}
+				
+				try {
+					Class field_class = f.getType();
+					
+					if (fDebugEn) {
+						debug("   read field " + f.getName() + " in " + cls.getName() + ": " + field_class.getName());
+					}
+
+					if (Enum.class.isAssignableFrom(field_class)) {
+						f.set(target, readEnumType(field_class));
+					} else if (List.class.isAssignableFrom(field_class)) {
+						Type t = f.getGenericType();
+						if (t instanceof ParameterizedType) {
+							ParameterizedType pt = (ParameterizedType)t;
+							Type args[] = pt.getActualTypeArguments();
+							if (args.length != 1) {
+								throw new DBFormatException("" + args.length + "-parameter list unsupported");
+							}
+							Class c = (Class)args[0];
+							if (fDebugEn) {
+								debug("Read list field " + f.getName() + " w/item type " + c.getName());
+							}
+							if (c == String.class) {
+								Object o = readStringList();
+								f.set(target, o);
+							} else if (c == Integer.class) {
+								f.set(target, readIntList());
+							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
+								if (target instanceof ISVDBChildItem) {
+									f.set(target, readItemList((ISVDBChildItem)target));
+								} else {
+									f.set(target, readItemList(null));
+								}
+							} else {
+								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
+							}
+						} else {
+							throw new DBFormatException("Non-parameterized list");
+						}
+					} else if (Map.class.isAssignableFrom(field_class)) {
+						Type t = f.getGenericType();
+						if (t instanceof ParameterizedType) {
+							ParameterizedType pt = (ParameterizedType)t;
+							Type args[] = pt.getActualTypeArguments();
+							Class key_c = (Class)args[0];
+							Class val_c = (Class)args[1];
+							if (key_c == String.class && val_c == String.class) {
+								f.set(target, readMapStringString());
+							} else {
+								throw new DBFormatException("Map<" + key_c.getName() + ", " + val_c.getName() + ">: Class " + cls.getName());
+							}
+						} else {
+							throw new DBFormatException("Non-parameterized list");
+						}
+					} else if (field_class == String.class) {
+						f.set(target, readString());
+					} else if (field_class == int.class) {
+						f.setInt(target, readInt());
+					} else if (field_class == long.class) {
+						f.setLong(target, readLong());
+					} else if (field_class == boolean.class) {
+						f.setBoolean(target, readBoolean());
+					} else if (SVDBLocation.class == field_class) {
+						f.set(target, readSVDBLocation());
+					} else if (ISVDBItemBase.class.isAssignableFrom(field_class)) {
+						f.set(target, readSVDBItem(parent));
+					} else {
+						throw new DBFormatException("Unhandled class " + field_class.getName());
+					}
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+					throw new DBFormatException("Generic Load Failure: " + e.getMessage());
+				}
+			}
+		}
+
+		if (fDebugEn) {
+			debug("<-- " + (fLevel--) + " readObject: " + cls.getName());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public Enum readEnumType(Class enum_type) throws DBFormatException {
-		List<Enum> enum_vals = fEnumMap.get(enum_type);
-		String type = readTypeString();
+		int type = readRawType();
 		
-		if (!"ET".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for enum type: \"" + type + "\"");
+		if (type == TYPE_NULL) {
+			return null;
 		}
 		
-		int ch;
-		int idx;
-		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException("Missing '<' on item-list size (" + (char)ch + ")"); 
+		if (type != TYPE_ENUM) {
+			throw new DBFormatException("Expecting TYPE_ENUM ; received " + type);
 		}
 
-		idx = readRawInt();
-		
-		if ((ch = getch()) != '>') {
-			throw new DBFormatException("Missing '>' on item-list size");
+		if (!fEnumMap.containsKey(enum_type)) {
+			Enum vals[] = null;
+			try {
+				Method m = null;
+				m = enum_type.getMethod("values");
+				vals = (Enum[])m.invoke(null);
+			} catch (Exception ex) {
+				throw new DBFormatException("Enum class " + 
+						enum_type.getName() + " does not have a values() method");
+			}
+			Map<Integer, Enum> em = new HashMap<Integer, Enum>();
+			for (int i=0; i<vals.length; i++) {
+				em.put(i, vals[i]);
+			}
+			
+			fEnumMap.put(enum_type, em);
 		}
+		Map<Integer, Enum> enum_vals = fEnumMap.get(enum_type);
 
-		return enum_vals.get(idx);
+		int val = readInt();
+		
+		Enum ret = enum_vals.get(val); 
+		
+		if (ret == null) {
+			throw new DBFormatException("Value " + val + " does not exist in Enum " + enum_type.getName());
+		}
+		
+		return ret;
+	}
+	
+	private Map<String, String> readMapStringString() throws DBFormatException {
+		Map<String, String> ret = new HashMap<String, String>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			String val = readString();
+			ret.put(key, val);
+		}
+		
+		return ret;
+	}
+	
+	private int readRawType() throws DBFormatException {
+		int ret = -1;
+		try {
+			ret = fInBuf.readByte();
+		} catch (IOException e) {
+			throw new DBFormatException("readRawType failed: " + e.getMessage());
+		}
+		
+		if (ret < TYPE_INT_8 || ret >= TYPE_MAX) {
+			throw new DBFormatException("Invalid type " + ret);
+		}
+		return ret;
 	}
 	
 	public int readInt() throws DBFormatException {
-		String type = readTypeString();
-		
-		if (!"I".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for integer: \"" + type + "\"");
+		int type = readRawType();
+		int ret = -1;
+		if (type < TYPE_INT_8 || type > TYPE_INT_32) {
+			throw new DBFormatException("Invalid int type " + type);
 		}
 		
-		int ch = getch(); // expect '<'
-		
-		
-		int ret = readRawHexInt();
-		
-		if ((ch = getch()) != '>') { // expect '>'
-			throw new DBFormatException(
-					"Unterminated integer: \"" + (char)ch + "\"");
+		try {
+			switch (type) {
+				case TYPE_INT_8:
+					ret = fInBuf.readByte();
+					break;
+				case TYPE_INT_16:
+					ret = fInBuf.readShort();
+					break;
+				case TYPE_INT_32:
+					ret = fInBuf.readInt();
+					break;
+			}
+		} catch (IOException e) {
+			throw new DBFormatException("readInt failed: " + e.getMessage());
 		}
-
+		
 		return ret;
+	}
+	
+	public boolean readBoolean() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_BOOL_TRUE) {
+			return true;
+		} else if (type == TYPE_BOOL_FALSE) {
+			return false;
+		} else {
+			throw new DBFormatException("Expecting BOOL_TRUE or BOOL_FALSE ; received " + type);
+		}
 	}
 
 	public List<Integer> readIntList() throws DBFormatException {
-		String type = readTypeString();
+		int type = readRawType();
 		
-		if (!"SNL".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for integer-list: \"" + type + "\"");
-		}
-		
-		int ch;
-		int size;
-		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException(
-					"Bad format for string-list: expecting '<' (" + (char)ch + ")");
-		}
-		
-		size = readRawInt();
-		
-		ch = getch(); // expect '>'
-		
-		if (size == -1) {
+		if (type == TYPE_NULL) {
 			return null;
-		} else {
-			List<Integer> ret = new ArrayList<Integer>();
-
-			while (size-- > 0) {
-				ret.add(readInt());
-			}
-			
-			return ret;
 		}
+		
+		if (type != TYPE_INT_LIST) {
+			throw new DBFormatException("Expecting INT_LIST, receive " + type);
+		}
+		
+		int size = readInt();
+		
+		List<Integer> ret = new ArrayList<Integer>();
+		for (int i=0; i<size; i++) {
+			ret.add(readInt());
+		}
+		
+		return ret;
 	}
 
-	public List readItemList(SVDBFile file, SVDBScopeItem parent)
-			throws DBFormatException {
-		String type = readTypeString();
+	@SuppressWarnings("unchecked")
+	public List readItemList(ISVDBChildItem parent) throws DBFormatException {
+		int type = readRawType();
 		
-		if (!"SIL".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for item list: \"" + type + "\"");
+		if (type == TYPE_NULL) {
+			return null;
 		}
 		
-		int ch;
-		int size;
+		if (type != TYPE_ITEM_LIST) {
+			throw new DBFormatException("Expect TYPE_ITEM_LIST, receive " + type);
+		}
 		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException("Missing '<' on item-list size (" + (char)ch + ")"); 
+		int size = readInt();
+		
+		if (fDebugEn) {
+			debug("readSVDBItemList: " + size);
+		}
+		
+		List ret = new ArrayList();
+		for (int i=0; i<size; i++) {
+			ret.add(readSVDBItem(parent));
+		}
+		
+		return ret;
+	}
+	
+	public SVDBLocation readSVDBLocation() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			debug("    readLocation: NULL");
+			return null;
+		}
+		
+		if (type != TYPE_SVDB_LOCATION) {
+			throw new DBFormatException("Expecting TYPE_SVDB_LOCATION ; received " + type);
 		}
 
-		size = readRawInt();
-		
-		if ((ch = getch()) != '>') {
-			throw new DBFormatException("Missing '>' on item-list size");
+
+		int line = readInt();
+		int pos  = readInt();
+
+		if (fDebugEn) {
+			debug("    readLocation: " + line + ":" + pos);
 		}
-		
-		if (size == -1) {
-			return null;
-		} else {
-			List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
-			while (size-- > 0) {
-				ret.add(readSVDBItem(file, parent));
-			}
-			
-			return ret;
-		}
+
+		return new SVDBLocation(line, pos);
 	}
 
 	public SVDBItemType readItemType() throws DBFormatException {
 		return (SVDBItemType)readEnumType(SVDBItemType.class);
-/*
-		String type = readTypeString();
-		
-		if (!"IT".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for item type: \"" + type + "\"");
-		}
-		
-		int ch = getch();
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-		
-		if (ch != '>') {
-			throw new DBFormatException(
-					"Unterminated item type: \"" + (char)ch + "\"");
-		}
-		
-		SVDBItemType ret = null;
-		
-		try {
-			ret = SVDBItemType.valueOf(fTmpBuffer.toString());
-		} catch (Exception e) {
-			System.out.println("[ERROR] value \"" + fTmpBuffer.toString() + "\" isn't an SVDBItemType value");
-		}
-		
-		return ret;
- */		
 	}
 
 	public long readLong() throws DBFormatException {
-		String type = readTypeString();
-		
-		if (!"L".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for long: \"" + type + "\"");
+		int type = readRawType();
+		long ret = -1;
+		if (type < TYPE_INT_8 || type > TYPE_INT_64) {
+			throw new DBFormatException("Invalid int type " + type);
+		}
+
+		try {
+			switch (type) {
+				case TYPE_INT_8:
+					ret = fInBuf.readByte();
+					break;
+				case TYPE_INT_16:
+					ret = fInBuf.readShort();
+					break;
+				case TYPE_INT_32:
+					ret = fInBuf.readInt();
+					break;
+				case TYPE_INT_64:
+					ret = fInBuf.readLong();
+					break;
+			}
+		} catch (IOException e) {
+			throw new DBFormatException("readLong failed: " + e.getMessage());
 		}
 		
-		int ch = getch();
-		
-		fTmpBuffer.setLength(0);
-		
-		while ((ch = getch()) != -1 && ch != '>') {
-			fTmpBuffer.append((char)ch);
-		}
-		
-		if (ch != '>') {
-			throw new DBFormatException(
-					"Unterminated integer: \"" + (char)ch + "\"");
-		}
-		
-		return Long.parseLong(fTmpBuffer.toString(), 16);
+		return ret;
 	}
 
 	public String readString() throws DBFormatException {
-		String type = readTypeString();
+		int type = readRawType();
 		
-		if (!"S".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for string: \"" + type + "\"");
-		}
-		
-		int ch;
-		
-		// Expect the next char to be '<' as well
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("STRING");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		ch = getch(); // expect '<'
-		
-		int size = readRawInt();
-		
-		if ((ch = getch()) != '>') {
-			throw new DBFormatException(
-					"Unterminated string size: \"" + (char)ch + "\"");
-		}
-		
-		if (size == -1) {
-			if ((ch = getch()) != '>') {
-				throw new DBFormatException("Unterminated null string");
-			}
+		if (type == TYPE_NULL) {
 			return null;
-		} else {
-			fTmpBuffer.setLength(0);
-			while ((ch = getch()) != -1 && size-- > 0) {
-				fTmpBuffer.append((char)ch);
-			}
-
-			// if ((ch = getch()) != '>') {
-			if (ch != '>') {
-				System.out.println("string thus far is: " + 
-						fTmpBuffer.toString());
-				throw new DBFormatException(
-						"Unterminated string: \"" + (char)ch + "\"");
-			}
-
-			return fTmpBuffer.toString();
 		}
+		
+		if (type != TYPE_STRING) {
+			throw new DBFormatException("Expecting TYPE_STRING, received " + type);
+		}
+		
+		int len = readInt();
+		
+		if (len < 0) {
+			throw new DBFormatException("Received string length < 0: " + len);
+		}
+		if (fTmp == null || fTmp.length < len) {
+			fTmp = new byte[len];
+		}
+		try {
+			fInBuf.readFully(fTmp, 0, len);
+		} catch (IOException e) {
+			throw new DBFormatException("readString failed: " + e.getMessage());
+		}
+
+		String ret = new String(fTmp, 0, len);
+		
+		if (fDebugEn) {
+			debug("readString: " + ret);
+		}
+		return ret;
 	}
 
 	public byte [] readByteArray() throws DBFormatException {
-		byte ret[] = null;
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_BYTE_ARRAY) {
+			throw new DBFormatException("Expecting TYPE_BYTE_ARRAY, received " + type);
+		}
+		int size = readInt();
+		byte ret[] = new byte[size];
 
-		String type = readTypeString();
-		
-		if (!"BA".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for byte array : \"" + type + "\"");
-		}
-		
-		int ch;
-		
-		// Expect the next char to be '<' as well
-		if ((ch = getch()) != '<') {
-			throw new DBFormatException("BYTE_ARRAY");
-		}
-		
-		fTmpBuffer.setLength(0);
-		
-		ch = getch(); // expect '<'
-		
-		int size = readRawInt();
-		
-		if ((ch = getch()) != '>') {
-			throw new DBFormatException(
-					"Unterminated bytearray size: \"" + (char)ch + "\"");
-		}
-		
-		if (size == -1) {
-			if ((ch = getch()) != '>') {
-				throw new DBFormatException("Unterminated null string");
-			}
-		} else if (size == 0) {
-			// Expect a closing '>'
-			if ((ch = getch()) != '>') {
-				throw new DBFormatException("Unterminated empty byte array");
-			}
-		} else {
-			ret = new byte[size];
-			
-			for (int i=0; i<size; i++) {
-				fTmpBuffer.setLength(0);
-				while ((ch = getch()) != -1 && ch != ',' && ch != '>') {
-					fTmpBuffer.append((char)ch);
-				}
-				
-				try {
-					ret[i] = Byte.parseByte(fTmpBuffer.toString());
-				} catch (NumberFormatException e) {
-					throw new DBFormatException("Failed to parse byteArray element \"" + 
-							fTmpBuffer.toString() + "\": " + e.getMessage());
-				}
-			}
-
-			if (ch != '>') {
-				throw new DBFormatException(
-						"Unterminated byteArray: \"" + (char)ch + "\"");
-			}
+		try {
+			fInBuf.readFully(ret);
+		} catch (IOException e) {
+			throw new DBFormatException("readByteArray failed: " + e.getMessage());
 		}
 		
 		return ret;
 	}
 
 	public List<String> readStringList() throws DBFormatException {
-		String type = readTypeString();
+		int type = readRawType();
 		
-		if (!"SSL".equals(type)) {
-			throw new DBFormatException(
-					"Bad format for string-list: \"" + type + "\"");
-		}
-		
-		int ch;
-		int size;
-		
-		if ((ch = getch()) != '<') { // expect '<'
-			throw new DBFormatException(
-					"Bad format for string-list: expecting '<' (" + (char)ch + ")");
-		}
-		
-		size = readRawInt();
-		
-		/* ch = */ getch(); // expect '>'
-		
-		if (size == -1) {
+		if (type == TYPE_NULL) {
 			return null;
-		} else {
-			List<String> ret = new ArrayList<String>();
-
-			while (size-- > 0) {
-				ret.add(readString());
-			}
-			
-			return ret;
-		}
-	}
-
-	private int readRawInt() throws DBFormatException {
-		int ret = 0;
-		int ch;
-		
-		if ((ch = getch()) == '-') {
-			if ((ch = getch()) == '1') {
-				return -1;
-			} else {
-				throw new DBFormatException("Only -1 is supported as negative number");
-			}
-		} else {
-			unget(ch);
-			
-			while ((ch = getch()) != -1 && ch >= '0' && ch <= '9') {
-				ret *= 10;
-				ret += (ch - '0');
-			}
-			
-			unget(ch);
-			
 		}
 		
-		return ret;
-	}
-	
-	private int readRawHexInt() throws DBFormatException {
-		int ret = 0;
-		int ch;
-		
-		if ((ch = getch()) == '-') {
-			if ((ch = getch()) == '1') {
-				return -1;
-			} else {
-				throw new DBFormatException("Only -1 is supported as negative number");
-			}
-		} else {
-			unget(ch);
-			
-			while ((ch = getch()) != -1 && 
-					((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))) {
-				ret *= 16;
-				if ((ch >= '0' && ch <= '9')) {
-					ret += (ch - '0');
-				} else {
-					ret += (10 + (ch - 'a'));
-				}
-			}
-			
-			unget(ch);
-			
-			return ret;
+		if (type != TYPE_STRING_LIST) {
+			throw new DBFormatException("Expecting TYPE_STRING_LIST, received " + type);
 		}
-	}
-	
-	public SVDBItemBase readSVDBItem(
-			SVDBFile			file,
-			SVDBScopeItem		parent
-			) throws DBFormatException {
-		SVDBItemBase ret = null;
 		
-		SVDBItemType type   = readItemType();
+		int size = readInt();
 		
-		if (type == SVDBItemType.NULL) {
-			return null;
-		} else if (fSVDBFactoryMap.containsKey(type)) {
-			ret = fSVDBFactoryMap.get(type).readSVDBItem(this, type, file, parent);
-		} else {
-			throw new DBFormatException("Unsupported SVDBItemType " + type);
+		List<String> ret = new ArrayList<String>();
+		for (int i=0; i<size; i++) {
+			ret.add(readString());
 		}
 		
 		return ret;
 	}
 
-	public String readTypeString() {
-		fTmpBuffer.setLength(0);
+	public List<Long> readLongList() throws DBFormatException {
+		int type = readRawType();
 		
-		int ch;
-		int count = 0;
-		
-		while ((ch = getch()) != -1 && ch != '<' && ++count < 16) {
-			fTmpBuffer.append((char)ch);
+		if (type == TYPE_NULL) {
+			return null;
 		}
 		
-		if (ch == '<') {
-			unget(ch);
-			return fTmpBuffer.toString();
-		} else {
+		if (type != TYPE_LONG_LIST) {
+			throw new DBFormatException("Expecting TYPE_LONG_LIST, received " + type);
+		}
+		
+		int size = readInt();
+		
+		List<Long> ret = new ArrayList<Long>();
+		for (int i=0; i<size; i++) {
+			ret.add(readLong());
+		}
+		
+		return ret;
+	}
+
+	public ISVDBItemBase readSVDBItem(ISVDBChildItem parent) throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
 			return null;
+		} else if (type != TYPE_ITEM) {
+			throw new DBFormatException("Expecting TYPE_ITEM ; received " + type);
+		}
+		
+		SVDBItemType item_type   = readItemType();
+		
+		if (fDebugEn) {
+			debug("readSVDBItem: " + item_type);
+		}
+		
+		ISVDBItemBase ret = null;
+		
+		if (fClassMap.containsKey(item_type)) {
+			Class cls = fClassMap.get(item_type);
+			Object obj = null;
+			try {
+				obj = cls.newInstance();
+			} catch (Exception e) {
+				throw new DBFormatException("Failed to create object: " + item_type + " " + e.getMessage());
+			}
+
+			readObject(parent, cls, obj);
+			ret = (ISVDBItemBase)obj;
+		} else {
+			throw new DBFormatException("Unsupported SVDBItemType " + item_type);
+		}
+		
+		return ret;
+	}
+
+	public void readType(int exp) throws DBFormatException {
+		int type = -1;
+		
+		try {
+			type = fInBuf.readByte(); 
+		} catch (IOException e) {
+			throw new DBFormatException("readType failed: " + e.getMessage());
+		}
+		
+		if (type == -1) {
+			throw new DBFormatException("Unexpected EOF");
+		}
+		if (type >= TYPE_MAX) {
+			throw new DBFormatException("Invalid primitive type " + type);
+		}
+		if (type != exp) {
+			throw new DBFormatException("Expected type " + exp + " received " + type);
 		}
 	}
 
-	public int getch() {
-		int ch = -1;
-		
-		if (fUngetCh != -1) {
-			ch = fUngetCh;
-			fUngetCh = -1;
-		} else {
-			if (fBufIdx >= fBufSize) {
-				try {
-					fBufSize = fIn.read(fBuf, 0, fBuf.length);
-					fBufIdx  = 0;
-				} catch (IOException e) { }
-			}
-			
-			if (fBufIdx < fBufSize) {
-				ch = fBuf[fBufIdx++];
-			}
+	public void readRawBytes(byte data[], int offset, int length) throws DBFormatException {
+		try {
+			fInBuf.readFully(data, offset, length);
+		} catch (IOException e) {
+			throw new DBFormatException("readRawBytes failed: " + e.getMessage());
 		}
-		
-		return ch;
 	}
 	
-	public void unget(int ch) {
-		fUngetCh = ch;
+	private void debug(String msg) {
+		if (fDebugEn) {
+			System.out.println(msg);
+		}
 	}
 }

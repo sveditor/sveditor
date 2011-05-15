@@ -39,6 +39,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private int					fInputBufferIdx = 0;
 	private int					fInputBufferMax = 0;
 	private int					fUngetCh = -1;
+	private int					fUngetCh2 = -1;
 	private int					fLastCh  = -1;
 	private int					fLineno;
 	private StringBuffer		fPPBuffer;
@@ -137,6 +138,14 @@ public class SVPreProcScanner implements ISVScanner {
 		fFileName = name;
 		
 		fScanLocation.setFileName(name);
+	}
+	
+	public void close() {
+		try {
+			if (fInput != null) {
+				fInput.close();
+			}
+		} catch (IOException e) {}
 	}
 
 	public void scan() {
@@ -489,10 +498,16 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ifdef_enabled()) {
 				// Read the full string
 
-				if (fDefineProvider != null && fDefineProvider.hasParameters(type, fLineno)) {
+				boolean is_defined = (fDefineProvider != null)?fDefineProvider.isDefined(type, fLineno):false;
+				if (fDefineProvider != null && 
+						(fDefineProvider.hasParameters(type, fLineno) || !is_defined)) {
 					// Try to read the parameter list
 					ch = get_ch_ll();
-					ch = skipWhite_ll(ch);
+					// skip up to new-line or non-whitespace
+					while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+						ch = get_ch_ll();
+					}
+					// ch = skipWhite_ll(ch);
 
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
@@ -512,7 +527,7 @@ public class SVPreProcScanner implements ISVScanner {
 								fTmpBuffer.append((char)ch);
 							}
 						} while (ch != -1 && matchLevel > 0);
-					} else {
+					} else if (is_defined) {
 						fDefineProvider.error("macro \"" + type +
 								"\" should have parameters, but doesn't", 
 								fScanLocation.getFileName(),
@@ -521,6 +536,8 @@ public class SVPreProcScanner implements ISVScanner {
 						"\" should have parameters, but doesn't @ " +
 							fScanLocation.getFileName() + ":" + 
 							fScanLocation.getLineNo());
+						unget_ch(ch);
+					} else {
 						unget_ch(ch);
 					}
 				}
@@ -702,52 +719,54 @@ public class SVPreProcScanner implements ISVScanner {
 	}
 	
 	private int get_ch_ll() {
-		int ch = get_ch_ll_1();
-		
-		if (ch == '\r') {
-			int ch2 = get_ch_ll_1();
-			if (ch2 != '\n') {
-				unget_ch(ch2);
-			}
-			ch = '\n';
-		}
-		
-		return ch;
-	}
-	
-	private int get_ch_ll_1() {
 		int ch = -1;
-		
-		if (fUngetCh != -1) {
-			ch = fUngetCh;
-			fUngetCh = -1;
-			return ch;
-		}
-		
-		if (fInputBufferIdx >= fInputBufferMax) {
-			fInputBufferIdx = 0;
-			fInputBufferMax = -1;
-			try {
-				fInputBufferMax = fInput.read(
-						fInputBuffer, 0, fInputBuffer.length);
-			} catch (IOException e) {
+		int ch_l = -1;
+		for (int i=0; i<2; i++) {
+			
+			if (fUngetCh != -1) {
+				ch = fUngetCh;
+				fUngetCh = fUngetCh2;
+				fUngetCh2 = -1;
+				return ch;
 			}
+			
+			if (fInputBufferIdx >= fInputBufferMax) {
+				fInputBufferIdx = 0;
+				fInputBufferMax = -1;
+				try {
+					fInputBufferMax = fInput.read(
+							fInputBuffer, 0, fInputBuffer.length);
+				} catch (IOException e) {
+				}
+			}
+			
+			if (fInputBufferIdx < fInputBufferMax) {
+				ch = fInputBuffer[fInputBufferIdx++];
+			}
+			
+			if (fLastCh == '\n') {
+				fLineno++;
+			}
+			fLastCh = ch;
+			
+			if (ch != '\r' && ch_l != '\r') {
+				break;
+			} else if (ch_l == '\r' && ch != '\n') {
+				unget_ch(ch);
+				ch = '\n';
+			}
+			ch_l = ch;
 		}
-		
-		if (fInputBufferIdx < fInputBufferMax) {
-			ch = fInputBuffer[fInputBufferIdx++];
-		}
-		
-		if (fLastCh == '\n') {
-			fLineno++;
-		}
-		fLastCh = ch;
-		
 		return ch;
 	}
 	
 	private void unget_ch(int ch) {
-		fUngetCh = ch;
+		if (fUngetCh == -1) {
+			fUngetCh = ch;
+		} else {
+			fUngetCh2 = fUngetCh;
+			fUngetCh = ch;
+		}
 	}
 	
 	private void push_unacc(String str) {

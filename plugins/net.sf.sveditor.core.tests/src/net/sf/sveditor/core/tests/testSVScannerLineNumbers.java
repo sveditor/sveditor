@@ -13,12 +13,15 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -30,7 +33,8 @@ public class testSVScannerLineNumbers implements IApplication {
 		InputStream in = SVCoreTestsPlugin.openFile("data/tlm_imps.svh");
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
-		SVDBFile f =  factory.parse(in, "tlm_imps.svh");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile f =  factory.parse(in, "tlm_imps.svh", markers);
 		
 		for (ISVDBItemBase it : f.getItems()) {
 			System.out.println("item \"" + SVDBItem.getName(it) + "\" @ line " + it.getLocation().getLine());

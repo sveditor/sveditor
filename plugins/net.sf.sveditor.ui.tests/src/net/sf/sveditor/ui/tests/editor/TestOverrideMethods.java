@@ -17,9 +17,10 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
@@ -209,31 +210,31 @@ public class TestOverrideMethods extends TestCase {
 		sve_tester.getAutoEdit().setCaretOffset(tag_utils.getTagPos("MARK"));
 		sve_tester.setSelection(sel);
 		
-		SVDBModIfcClassDecl extension = null;
-		SVDBModIfcClassDecl	base = null;
+		SVDBClassDecl extension = null;
+		SVDBClassDecl	base = null;
 		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
 			if (SVDBItem.getName(it).equals(extension_class_name)) {
-				extension = (SVDBModIfcClassDecl)it;
+				extension = (SVDBClassDecl)it;
 			}
 		}
 		assertNotNull(extension);
 		
 		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
 			if (SVDBItem.getName(it).equals(extension.getSuperClass())) {
-				base = (SVDBModIfcClassDecl)it;
+				base = (SVDBClassDecl)it;
 			}
 		}
 		assertNotNull(base);
 		
 		OverrideMethodsFinder finder = new OverrideMethodsFinder(
 				extension, sve_tester.getIndexIterator());
-		final List<SVDBTaskFuncScope> targets = finder.getMethods(base);
+		final List<SVDBTask> targets = finder.getMethods(base);
 		
 		OverrideTaskFuncImpl override = new OverrideTaskFuncImpl(
 				sve_tester, new IOverrideMethodsTargetProvider() {
 					
 					@Override
-					public List<SVDBTaskFuncScope> getTargets(ISVDBScopeItem activeScope) {
+					public List<SVDBTask> getTargets(ISVDBScopeItem activeScope) {
 						return targets;
 					}
 				});

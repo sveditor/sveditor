@@ -15,50 +15,23 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-
 public class SVDBMacroDef extends SVDBItem {
 	private List<String>			fParams;
 	private String					fDef;
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBMacroDef(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Macro); 
+
+	public SVDBMacroDef() {
+		super("", SVDBItemType.MacroDef);
 	}
-	
 	
 	public SVDBMacroDef(
 			String 				name, 
 			List<String>		params,
 			String				def) {
-		super(name, SVDBItemType.Macro);
+		super(name, SVDBItemType.MacroDef);
 		fParams = new ArrayList<String>();
 		fParams.addAll(params);
 		fDef = def;
 	}
-	
-	public SVDBMacroDef(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fParams = reader.readStringList();
-		fDef    = reader.readString();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeStringList(fParams);
-		writer.writeString(fDef);
-	}
-	
 	
 	public String getDef() {
 		return fDef;
@@ -73,16 +46,6 @@ public class SVDBMacroDef extends SVDBItem {
 	}
 
 	@Override
-	public SVDBItemBase duplicate() {
-		SVDBMacroDef ret = new SVDBMacroDef(
-				getName(), fParams, fDef);
-		
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
 	public void init(SVDBItemBase other) {
 		super.init(other);
 		
@@ -92,6 +55,7 @@ public class SVDBMacroDef extends SVDBItem {
 		fDef = m.fDef;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBMacroDef) {
@@ -116,5 +80,6 @@ public class SVDBMacroDef extends SVDBItem {
 		
 		return false;
 	}
+	 */
 	
 }

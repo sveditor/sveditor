@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.tests.lexer;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ISVParser;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -44,6 +46,7 @@ public class TestClassItems extends TestCase {
 			"\n" +
 			"endclass\n";
 
+		final LogHandle log = LogFactory.getLogHandle("testClassFields");
 		final SVLexer lexer = new SVLexer();
 		ISVParser parser = new ISVParser() {
 			
@@ -68,9 +71,10 @@ public class TestClassItems extends TestCase {
 		lexer.init(parser, new StringTextScanner(content));
 		
 		while (lexer.peek() != null) {
-			System.out.println("token: \"" + lexer.getImage() + "\"");
+			log.debug("token: \"" + lexer.getImage() + "\"");
 			lexer.eatToken();
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 }

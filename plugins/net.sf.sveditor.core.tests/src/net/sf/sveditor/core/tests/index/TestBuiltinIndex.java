@@ -20,17 +20,18 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -49,7 +50,7 @@ public class TestBuiltinIndex extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 		}
 	}
 
@@ -62,7 +63,7 @@ public class TestBuiltinIndex extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
@@ -70,7 +71,7 @@ public class TestBuiltinIndex extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> markers = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase string_cls=null, process_cls=null, covergrp_cls=null;
 		ISVDBItemBase finish_task=null;
 		
@@ -86,16 +87,16 @@ public class TestBuiltinIndex extends TestCase {
 				}
 			}
 			
-			if (SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+			if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				assertNotNull("Item " + SVDBItem.getName(it) + " w/parent " + 
 						SVDBItem.getName(((SVDBVarDeclStmt)it).getParent()) + " has null type",
 					((SVDBVarDeclStmt)it).getTypeInfo());
 			}
 			
 			if (it.getType() == SVDBItemType.Marker) {
-				markers.add((SVDBMarkerItem)it);
-			} else if (it.getType() == SVDBItemType.Class) {
-				String name = ((SVDBModIfcClassDecl)it).getName();
+				markers.add((SVDBMarker)it);
+			} else if (it.getType() == SVDBItemType.ClassDecl) {
+				String name = ((SVDBClassDecl)it).getName();
 				if (name.equals("string")) {
 					string_cls = it;
 				} else if (name.equals("process")) {

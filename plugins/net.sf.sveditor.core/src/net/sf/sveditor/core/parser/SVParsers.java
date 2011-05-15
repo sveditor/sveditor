@@ -20,8 +20,10 @@ package net.sf.sveditor.core.parser;
  */
 public class SVParsers {
 	
-	private ParserSVDBFileFactory				fSVParser;
+	private ISVParser							fSVParser;
+	private ParserSVDBFileFactory				fSVDBFileFactory;
 	private SVClassDeclParser					fClassParser;
+	private SVCovergroupParser					fCovergroupParser;
 	private SVParameterDeclParser				fParamDeclParser;
 	private SVParameterPortListParser			fParamPortParser;
 	private SVDataTypeParser					fDataTypeParser;
@@ -36,16 +38,25 @@ public class SVParsers {
 	private SVGenerateBlockParser				fGenBlockParser;
 	private SVClockingBlockParser				fClkBlockParser;
 	private SVSpecifyBlockParser				fSpecifyBlockParser;
-	private SVImportStmtParser					fImportParser;
+	private SVImpExpStmtParser					fImportParser;
 	private SVExprParser						fExprParser;
 	private SVGateInstantiationParser			fGateInstanceParser;
+	private SVAssertionParser					fAssertionParser;
+	private SVModIfcBodyItemParser				fModIfcBodyItemParser;
+	private SVConstraintParser					fConstraintParser;
+	private SVAttributeParser					fAttrParser;
 	
 	public SVParsers(ParserSVDBFileFactory sv_parser) {
 		fSVParser = sv_parser;
+		fSVDBFileFactory = sv_parser;
+	}
+	
+	public SVParsers(ISVParser parser) {
+		fSVParser = parser;
 	}
 	
 	public ParserSVDBFileFactory SVParser() {
-		return fSVParser;
+		return fSVDBFileFactory;
 	}
 	
 	public SVClassDeclParser classParser() {
@@ -76,7 +87,7 @@ public class SVParsers {
 		return fDataTypeParser;
 	}
 	
-	public SVTaskFunctionParser functionParser() {
+	public SVTaskFunctionParser taskFuncParser() {
 		if (fFunctionParser == null) {
 			fFunctionParser = new SVTaskFunctionParser(fSVParser);
 		}
@@ -153,9 +164,9 @@ public class SVParsers {
 		return fSpecifyBlockParser;
 	}
 	
-	public SVImportStmtParser importParser() {
+	public SVImpExpStmtParser impExpParser() {
 		if (fImportParser == null) {
-			fImportParser = new SVImportStmtParser(fSVParser);
+			fImportParser = new SVImpExpStmtParser(fSVParser);
 		}
 		return fImportParser;
 	}
@@ -172,6 +183,41 @@ public class SVParsers {
 			fGateInstanceParser = new SVGateInstantiationParser(fSVParser);
 		}
 		return fGateInstanceParser;
+	}
+	
+	public SVAssertionParser assertionParser() {
+		if (fAssertionParser == null) {
+			fAssertionParser = new SVAssertionParser(fSVParser);
+		}
+		return fAssertionParser;
+	}
+	
+	public SVCovergroupParser covergroupParser() {
+		if (fCovergroupParser == null) {
+			fCovergroupParser = new SVCovergroupParser(fSVParser);
+		}
+		return fCovergroupParser;
+	}
+	
+	public SVModIfcBodyItemParser modIfcBodyItemParser() {
+		if (fModIfcBodyItemParser == null) {
+			fModIfcBodyItemParser = new SVModIfcBodyItemParser(fSVParser);
+		}
+		return fModIfcBodyItemParser;
+	}
+	
+	public SVConstraintParser constraintParser() {
+		if (fConstraintParser == null) {
+			fConstraintParser = new SVConstraintParser(fSVParser);
+		}
+		return fConstraintParser;
+	}
+	
+	public SVAttributeParser attrParser() {
+		if (fAttrParser == null) {
+			fAttrParser = new SVAttributeParser(fSVParser);
+		}
+		return fAttrParser;
 	}
 
 }

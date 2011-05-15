@@ -12,63 +12,36 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class SVDBConstraint extends SVDBItem {
-	private String				fConstraintExpr;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+
+public class SVDBConstraint extends SVDBScopeItem {
+	private List<SVDBStmt>		fConstraintList;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBConstraint(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Constraint); 
-	}
-	
-	
-	public SVDBConstraint(String name) {
-		super(name, SVDBItemType.Constraint);
-		fConstraintExpr = "";
+	public SVDBConstraint() {
+		super("", SVDBItemType.Constraint);
+		fConstraintList = new ArrayList<SVDBStmt>();
 	}
 
-	public SVDBConstraint(String name, String expr) {
-		super(name, SVDBItemType.Constraint);
-		fConstraintExpr = expr;
-	}
-
-	public String getConstraintExpr() {
-		return fConstraintExpr;
-	}
-	
-	public void setConstraintExpr(String expr) {
-		fConstraintExpr = expr;
-	}
-	
-	public SVDBConstraint(
-			SVDBFile 		file, 
-			SVDBScopeItem 	parent,
-			SVDBItemType	type,
-			IDBReader		reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		
-		fConstraintExpr = reader.readString();
+	public void addChildItem(ISVDBChildItem stmt) {
+		stmt.setParent(this);
+		fConstraintList.add((SVDBStmt)stmt);
 	}
 
 	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		writer.writeString(fConstraintExpr);
+	@SuppressWarnings({"unchecked","rawtypes"})
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			public Iterator<ISVDBChildItem> iterator() {
+				return (Iterator)fConstraintList.iterator();
+			}
+		};
 	}
-
-
+	
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBConstraint) {
@@ -77,5 +50,6 @@ public class SVDBConstraint extends SVDBItem {
 		}
 		return false;
 	}
+	 */
 	
 }

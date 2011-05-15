@@ -12,13 +12,16 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+
 
 
 public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
+	
+	@SVDBParentAttr
 	protected ISVDBChildItem		fParent;
+	
 	protected String				fName;
 	
 	public SVDBItem(String name, SVDBItemType type) {
@@ -29,21 +32,16 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 			fName = name;
 		}
 	}
-	
-	public SVDBItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
+
+	public SVDBItem(SVDBIdentifierExpr name, SVDBItemType type) {
 		super(type);
-		fParent   = parent;
-		fName     = reader.readString();
-		fLocation = new SVDBLocation(reader.readInt(), reader.readInt());
+		if (name == null) {
+			fName = "";
+		} else {
+			fName = name.getId();
+		}
 	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fName);
-		writer.writeInt((fLocation != null)?fLocation.getLine():0);
-		writer.writeInt((fLocation != null)?fLocation.getPos():0);
-	}
-	
+
 	public void setParent(ISVDBChildItem parent) {
 		fParent = parent;
 	}
@@ -52,9 +50,11 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		return fParent;
 	}
 	
-	public Iterable<ISVDBItemBase> getChildren() {
-		return EmptySVDBItemIterable.iterable;
+	/*
+	public Iterable<ISVDBChildItem> getChildren() {
+		return EmptySVDBChildItemIterable.iterable;
 	}
+	 */
 
 	public String getName() {
 		return fName;
@@ -72,13 +72,6 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		return fType;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBItem(fName, fType);
-		ret.init(this);
-		
-		return ret;
-	}
-	
 	public void init(SVDBItemBase other) {
 		SVDBItem o = (SVDBItem)other;
 		fName     = o.fName;
@@ -86,6 +79,7 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 		super.init(o);
 	}
 	
+	/*
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
@@ -95,6 +89,7 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
 			return super.equals(obj);
 		}
 	}
+	 */
 
 	@Override
 	public boolean equals(ISVDBItemBase obj, boolean full) {

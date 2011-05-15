@@ -12,10 +12,14 @@
 
 package net.sf.sveditor.core.tests.scanner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.SVDBMarker;
 
 public class EnumTypes extends TestCase {
 	
@@ -35,7 +39,8 @@ public class EnumTypes extends TestCase {
 		
 		ISVDBFileFactory f = SVCorePlugin.createFileFactory(null);
 		
-		/* SVDBFile file = */ f.parse(in, "enum_defs");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		/* SVDBFile file = */ f.parse(in, "enum_defs", markers);
 		
 	}
 

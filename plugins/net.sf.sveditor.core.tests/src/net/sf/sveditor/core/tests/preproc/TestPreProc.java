@@ -18,8 +18,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
@@ -33,13 +31,18 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestPreProc extends TestCase {
 
@@ -47,7 +50,6 @@ public class TestPreProc extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		System.out.println("setUp");
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
@@ -55,11 +57,10 @@ public class TestPreProc extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		System.out.println("tearDown");
 		super.tearDown();
 
 		if (fTmpDir != null) {
-//			fTmpDir.delete();
+//			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -104,11 +105,12 @@ public class TestPreProc extends TestCase {
 
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 	
-		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
-					SVDBPluginLibIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"GLOBAL", "org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
 
+		/* TEMP:
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
@@ -120,7 +122,7 @@ public class TestPreProc extends TestCase {
 			}
 		}
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		
@@ -156,6 +158,7 @@ public class TestPreProc extends TestCase {
 		System.out.println("path: " + ft.getFilePath());
 		// System.out.println("Orig is: \n" + orig.toString());
 		System.out.println("Result is: \n" + sb.toString());
+		 */
 	}
 
 	public void disabled_testNestedMacro() {
@@ -167,11 +170,12 @@ public class TestPreProc extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(tmpdir);
+		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
 		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
 					SVDBPluginLibIndexFactory.TYPE, null);
 
+		/*
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
 		ISVDBFileSystemProvider fs_provider = ((SVDBLibIndex)index).getFileSystemProvider();
 		
@@ -183,7 +187,7 @@ public class TestPreProc extends TestCase {
 			}
 		}
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		
@@ -219,6 +223,7 @@ public class TestPreProc extends TestCase {
 		System.out.println("path: " + ft.getFilePath());
 		// System.out.println("Orig is: \n" + orig.toString());
 		System.out.println("Result is: \n" + sb.toString());
+		 */
 	}
 	
 	public void testVmmErrorMacro() {
@@ -246,21 +251,24 @@ public class TestPreProc extends TestCase {
 			"while (0); \n"
 			;
 			
+		LogHandle log = LogFactory.getLogHandle("testVmmErrorMacro");
 		String result = SVDBTestUtils.preprocess(doc, "testVmmErrorMacro");
 		
-		System.out.println("Result:\n" + result.trim());
-		System.out.println("====");
-		System.out.println("Expected:\n" + expected.trim());
-		System.out.println("====");
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
 		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testOvmSequenceUtilsExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testOvmSequenceUtilsExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		if (fTmpDir.exists()) {
-			assertTrue(fTmpDir.delete());
+			TestUtils.delete(fTmpDir);
 		}
 		assertTrue(fTmpDir.mkdirs());
 		
@@ -278,13 +286,15 @@ public class TestPreProc extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 
 		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
-				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
+				new NullProgressMonitor(), "GLOBAL", 
+				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
 		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(scanner);
 		
 		StringBuilder sb = new StringBuilder();
 		int ch;
@@ -292,8 +302,70 @@ public class TestPreProc extends TestCase {
 		while ((ch = scanner.get_ch()) != -1) {
 			sb.append((char)ch);
 		}
-		System.out.println(sb.toString());
+		log.debug(sb.toString());
+		scanner.close();
+		
+		assertTrue((sb.indexOf("end )") == -1));
+		LogFactory.removeLogHandle(log);
+	}
+
+	/*
+	public void testOvmComponentParamUtilsExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			assertTrue(TestUtils.delete(fTmpDir));
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/ovm.zip", fTmpDir);
+		utils.copyBundleFileToFS("/data/ovm_component_param_utils_macro.svh", fTmpDir);
+		
+		PrintStream ps = new PrintStream(new File(fTmpDir, "test.f"));
+				
+		ps.println("+incdir+./ovm/src");
+		ps.println("+incdir+./ovm/examples/xbus/sv");
+		ps.println("+incdir+./ovm/examples/xbus/examples");
+		ps.println("./ovm/src/ovm_pkg.sv");
+		ps.println("./ovm/examples/xbus/examples/xbus_tb_top.sv");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(db);
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				"GLOBAL", new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		SVPreProcScanner scanner = index.createPreProcScanner("./ovm/examples/xbus/sv/xbus_master_monitor.sv");
+		
+		StringBuilder sb = new StringBuilder();
+		StringBuilder sb2 = new StringBuilder();
+		int ch;
+		int last_ch=-1;
+		int lineno=1;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (last_ch == -1 || last_ch == '\n') {
+				sb2.append("" + lineno + ": ");
+				lineno++;
+			}
+			sb.append((char)ch);
+			sb2.append((char)ch);
+			last_ch=ch;
+		}
+		System.out.println(sb2.toString());
+		
+		SVDBFile file = SVDBTestUtils.parse(sb.toString(), "ovm_in_order_comparator.svh");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		
 		
 		assertTrue((sb.indexOf("end )") == -1));
 	}
+	*/
+
 }

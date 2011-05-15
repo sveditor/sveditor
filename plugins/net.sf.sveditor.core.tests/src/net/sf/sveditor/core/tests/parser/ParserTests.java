@@ -18,9 +18,11 @@ public class ParserTests extends TestSuite {
 	
 	public static TestSuite suite() {
 		TestSuite s = new TestSuite("ParserTests");
+		s.addTest(new TestSuite(TestParseTopLevelItems.class));
 		s.addTest(new TestSuite(TestParseClassBodyItems.class));
 		s.addTest(new TestSuite(TestParseFunction.class));
 		s.addTest(new TestSuite(TestParseModuleBodyItems.class));
+		s.addTest(new TestSuite(TestParseInterfaceBodyItems.class));
 		s.addTest(new TestSuite(TestParseDataTypes.class));
 		s.addTest(new TestSuite(TestParseProgramBlocks.class));
 		

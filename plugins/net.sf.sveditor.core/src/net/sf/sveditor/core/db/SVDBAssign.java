@@ -12,42 +12,63 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
-public class SVDBAssign extends SVDBItem {
+public class SVDBAssign extends SVDBStmt {
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBAssign(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Assign); 
+	private SVDBExpr				fLHS;
+	private SVDBExpr				fDelay;
+	private SVDBExpr				fRHS;
+	
+	public SVDBAssign() {
+		super(SVDBItemType.Assign);
 	}
 	
-	public SVDBAssign(String target) {
-		super(target, SVDBItemType.Assign);
+	public void setLHS(SVDBExpr lhs) {
+		fLHS = lhs;
 	}
 	
-	public SVDBAssign(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
+	public SVDBExpr getLHS() {
+		return fLHS;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBAssign ret = new SVDBAssign(getName());
-		
-		ret.init(this);
-		
-		return ret;
+	public void setDelay(SVDBExpr delay) {
+		fDelay = delay;
+	}
+	
+	public SVDBExpr getDelay() {
+		return fDelay;
+	}
+	
+	public void setRHS(SVDBExpr rhs) {
+		fRHS = rhs;
+	}
+	
+	public SVDBExpr getRHS() {
+		return fRHS;
+	}
+	
+	public SVDBAssign duplicate() {
+		return (SVDBAssign)SVDBItemUtils.duplicate(this);
 	}
 	
 	public void init(SVDBItemBase other) {
 		super.init(other);
+		
+		SVDBAssign o = (SVDBAssign)other;
+		
+		if (o.fDelay == null) {
+			fDelay = null;
+		} else {
+			fDelay = o.fDelay.duplicate();
+		}
+		
 	}
-
+	
+	public boolean equals(Object other) {
+		boolean ret = super.equals(other);
+		
+		return ret;
+	}
 }

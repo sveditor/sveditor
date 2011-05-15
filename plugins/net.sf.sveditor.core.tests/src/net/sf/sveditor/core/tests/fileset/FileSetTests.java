@@ -26,6 +26,7 @@ import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -40,10 +41,11 @@ public class FileSetTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 
 	public void testDefaultRecurse() {
+		LogHandle log = LogFactory.getLogHandle("testDefaultRecurse");
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
@@ -71,17 +73,19 @@ public class FileSetTests extends TestCase {
 		match_set.add("class3.svh");
 		
 		for (String m : matches) {
-			System.out.println("Match: " + m);
+			log.debug("Match: " + m);
 			File f = new File(m);
 			assertTrue(match_set.contains(f.getName()));
 			match_set.remove(f.getName());
 		}
 		
 		assertEquals(0, match_set.size());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testExcludeRecurse() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testExcludeRecurse");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
 		utils.copyBundleDirToFS("/project_dir_src_collection_module", t_dir);
@@ -108,17 +112,19 @@ public class FileSetTests extends TestCase {
 		match_set.add("sub.v");
 		
 		for (String m : matches) {
-			System.out.println("Match: " + m);
+			log.debug("Match: " + m);
 			File f = new File(m);
 			assertTrue(match_set.contains(f.getName()));
 			match_set.remove(f.getName());
 		}
 		
 		assertEquals(0, match_set.size());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNonRecurseVlog() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testNonRecurseVlog");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File t_dir = new File(fTmpDir, "testDefaultRecurse"); 
 		utils.copyBundleDirToFS("/project_dir_src_collection_module", t_dir);
@@ -138,13 +144,14 @@ public class FileSetTests extends TestCase {
 		match_set.add("sub.v");
 		
 		for (String m : matches) {
-			System.out.println("Match: " + m);
+			log.debug("Match: " + m);
 			File f = new File(m);
 			assertTrue(match_set.contains(f.getName()));
 			match_set.remove(f.getName());
 		}
 		
 		assertEquals(0, match_set.size());
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testWindowsPathPattern() {

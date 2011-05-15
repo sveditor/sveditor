@@ -22,18 +22,19 @@ import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -124,19 +125,19 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							it, doc, replacementOffset, replacementLength);
 					break;
 		
-				case Macro:
+				case MacroDef:
 					cp = createMacroProposal(
 							it, doc, replacementOffset, replacementLength);
 					break;
 		
-				case Class:
+				case ClassDecl:
 					cp = createClassProposal(
 							it, doc, replacementOffset, replacementLength);
 					break;
 					
-				case Typedef: {
-					SVDBTypedef td = (SVDBTypedef)it;
-					String td_name_lc = td.getName().toLowerCase();
+				case TypedefStmt: {
+					SVDBTypedefStmt tds = (SVDBTypedefStmt)it;
+					String td_name_lc = tds.getName().toLowerCase();
 					String prefix_lc  = prefix.toLowerCase();
 					
 					// If we matched the typename, then construct a typedef
@@ -150,14 +151,15 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					
 					// Check to see if the name matches any enum values
-					if (td.getTypeInfo().getDataType() == SVDBDataType.Enum) {
-						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)td.getTypeInfo();
+					if (tds.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)tds.getTypeInfo();
 						
-						for (Tuple<String, String> n : enum_t.getEnumValues()) {
-							String name = n.first();
-							String name_lc = n.first().toLowerCase();
+						Tuple<List<String>, List<String>> enums = enum_t.getEnumValues(); 
+
+						for (String name : enums.first()) {
+							String name_lc = name.toLowerCase();
 							if (prefix.equals("") || name_lc.startsWith(prefix_lc)) {
-								String label = td.getName() + "::" + name;
+								String label = tds.getName() + "::" + name;
 								cp = new CompletionProposal(name,
 										replacementOffset, replacementLength, 
 										name.length(),
@@ -229,39 +231,47 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
-		SVDBTaskFuncScope tf = (SVDBTaskFuncScope)it;
+		SVDBTask tf = (SVDBTask)it;
 		
 		d.append(SVDBItem.getName(it) + "(");
 		r.append(escapeId(SVDBItem.getName(it)) + "(");
 		
+		boolean has_params = false;
 		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPort param = tf.getParams().get(i);
-			
-			d.append(param.getTypeName() + " " + param.getName());
-			r.append("${");
-			r.append(param.getName());
-			r.append("}");
-			
-			if (i+1 < tf.getParams().size()) {
+			SVDBParamPortDecl param = tf.getParams().get(i);
+			for (ISVDBChildItem c : param.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				d.append(param.getTypeName() + " " + vi.getName());
+				r.append("${");
+				r.append(vi.getName());
+				r.append("}");
+
 				d.append(", ");
 				r.append(", ");
+				has_params = true;
 			}
+		}
+		if (has_params) {
+			d.setLength(d.length()-2);
+			r.setLength(r.length()-2);
 		}
 		d.append(")");
 		r.append(")");
 		
-		if (it.getType() == SVDBItemType.Function &&
-				tf.getReturnType() != null &&
-				!tf.getReturnType().equals("void") &&
+		if (it.getType() == SVDBItemType.Function) {
+			SVDBFunction f = (SVDBFunction)tf;
+			if (f.getReturnType() != null &&
+				!f.getReturnType().equals("void") &&
 				!SVDBItem.getName(it).equals("new")) {
-			d.append(" : ");
-			d.append(tf.getReturnType());
+				d.append(" : ");
+				d.append(f.getReturnType());
+			}
 		}
 		
 		// Find the class that this function belongs to (if any)
 		ISVDBChildItem class_it = (ISVDBChildItem)it;
 		
-		while (class_it != null && class_it.getType() != SVDBItemType.Class) {
+		while (class_it != null && class_it.getType() != SVDBItemType.ClassDecl) {
 			class_it = class_it.getParent();
 		}
 		
@@ -348,12 +358,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();
 		StringBuilder r = new StringBuilder();
-		SVDBModIfcClassDecl cl = (SVDBModIfcClassDecl)it;
+		SVDBClassDecl cl = (SVDBClassDecl)it;
 		
 		r.append(SVDBItem.getName(it));
 		d.append(SVDBItem.getName(it));
 		
-		if (cl.getParameters().size() > 0) {
+		if (cl.getParameters() != null && cl.getParameters().size() > 0) {
 			r.append(" #(");
 			for (int i=0; i<cl.getParameters().size(); i++) {
 				SVDBModIfcClassParam pm = cl.getParameters().get(i);

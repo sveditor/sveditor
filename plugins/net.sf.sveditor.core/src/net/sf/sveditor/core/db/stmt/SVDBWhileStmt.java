@@ -1,32 +1,26 @@
 package net.sf.sveditor.core.db.stmt;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBWhileStmt extends SVDBStmt {
-	private SVExpr				fCond;
-	private SVDBStmt			fBody;
+public class SVDBWhileStmt extends SVDBBodyStmt {
+	private SVDBExpr				fCond;
 	
-	public SVDBWhileStmt(SVExpr cond) {
-		super(SVDBStmtType.WhileStmt);
+	public SVDBWhileStmt() {
+		super(SVDBItemType.WhileStmt);
+	}
+	
+	public SVDBWhileStmt(SVDBExpr cond) {
+		super(SVDBItemType.WhileStmt);
 		fCond = cond;
-		fBody = null;
 	}
 	
-	public SVDBWhileStmt(ISVDBItemBase parent, SVDBStmtType stmt_type, IDBReader reader) throws DBFormatException {
-		super(parent, stmt_type, reader);
-		fCond = SVExpr.readExpr(reader);
-		fBody = SVDBStmt.readStmt(this, reader);
+	public SVDBExpr getExpr() {
+		return fCond;
 	}
 	
-	public SVDBStmt getBody() {
-		return fBody;
+	public void setExpr(SVDBExpr expr) {
+		fCond = expr;
 	}
 	
-	public void setBody(SVDBStmt body) {
-		fBody = body;
-	}
-
 }

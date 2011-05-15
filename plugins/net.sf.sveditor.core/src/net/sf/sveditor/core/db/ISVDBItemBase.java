@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public interface ISVDBItemBase {
 	
@@ -21,8 +20,6 @@ public interface ISVDBItemBase {
 	SVDBLocation getLocation();
 	
 	void setLocation(SVDBLocation location);
-	
-	void dump(IDBWriter writer);
 	
 	ISVDBItemBase duplicate();
 	

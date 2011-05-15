@@ -29,8 +29,11 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
@@ -40,8 +43,8 @@ public class SVOutlinePage extends ContentOutlinePage
 			Runnable, ISVDBChangeListener {
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
-	private boolean						fIgnoreSelection = false;
-	private ISVDBItemBase				fLastSelection;
+	private boolean						fIgnoreSelectionChange = false;
+	private ISVDBItemBase				fLastSelection;	
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -74,6 +77,16 @@ public class SVOutlinePage extends ContentOutlinePage
 		getTreeViewer().setInput(fEditor.getSVDBFile());
 		
 		getTreeViewer().getControl().getDisplay().asyncExec(this);
+		/*
+		getTreeViewer().getControl().addListener(SWT.MouseDown, 
+				new Listener() {
+					
+					@Override
+					public void handleEvent(Event event) {
+						System.out.println("Mouse: " + event.button + " " + event.type);
+					}
+				});
+		 */
 		
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
@@ -126,7 +139,7 @@ public class SVOutlinePage extends ContentOutlinePage
 
 			
 			public void selectionChanged(SelectionChangedEvent event) {
-				if (fIgnoreSelection) {
+				if (fIgnoreSelectionChange) {
 					return;
 				}
 				
@@ -137,7 +150,7 @@ public class SVOutlinePage extends ContentOutlinePage
 					if (sel.getFirstElement() instanceof ISVDBItemBase) {
 						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
 						
-						if (fLastSelection == null || fLastSelection != it) {
+						if (fLastSelection == null || !fLastSelection.equals(it)) {
 							fEditor.setSelection(it, false);
 							fLastSelection = it;
 						}

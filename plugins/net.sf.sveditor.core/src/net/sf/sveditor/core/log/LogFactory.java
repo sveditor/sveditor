@@ -46,6 +46,11 @@ public class LogFactory implements ILogListener {
 		}
 		return f.fLogHandleMap.get(name);
 	}
+	
+	public static void removeLogHandle(LogHandle log) {
+		LogFactory f = getDefault();
+		f.fLogHandleMap.remove(log.getName());
+	}
 
 	public void addLogListener(ILogListener l) {
 		synchronized (fLogListeners) {

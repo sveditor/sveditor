@@ -16,15 +16,17 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -63,7 +65,7 @@ public class NewClassGenerator {
 		
 		template += "class " + clsname;
 
-		SVDBModIfcClassDecl superclass_decl = null;
+		SVDBClassDecl superclass_decl = null;
 		if (superclass != null && 
 				!superclass.trim().equals("")) {
 			monitor.subTask("Finding super-class");
@@ -71,9 +73,9 @@ public class NewClassGenerator {
 		
 			if (index_it != null) {
 				SVDBFindByName finder = new SVDBFindByName(index_it);
-				List<ISVDBItemBase> result = finder.find(superclass, SVDBItemType.Class);
-				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.Class) {
-					superclass_decl = (SVDBModIfcClassDecl)result.get(0);
+				List<ISVDBItemBase> result = finder.find(superclass, SVDBItemType.ClassDecl);
+				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
+					superclass_decl = (SVDBClassDecl)result.get(0);
 				}
 			}
 		}
@@ -97,13 +99,13 @@ public class NewClassGenerator {
 		
 		if (implement_new) {
 			monitor.subTask("Setting up constructor");
-			SVDBTaskFuncScope new_func = null;
+			SVDBTask new_func = null;
 			if (superclass_decl != null) {
-				for (ISVDBItemBase it : superclass_decl.getItems()) {
+				for (ISVDBChildItem it : superclass_decl.getChildren()) {
 					if (it.getType() == SVDBItemType.Function && 
 							it instanceof ISVDBNamedItem &&
 							((ISVDBNamedItem)it).getName().equals("new")) {
-						new_func = (SVDBTaskFuncScope)it;
+						new_func = (SVDBTask)it;
 						break;
 					}
 				}
@@ -112,28 +114,43 @@ public class NewClassGenerator {
 			if (new_func != null) {
 				if (new_func.getParams() != null && 
 						new_func.getParams().size() > 0) {
-					List<SVDBParamPort> params = new_func.getParams();
+					List<SVDBParamPortDecl> params = new_func.getParams();
 					template += "\n";
 					template += "function new(";
 					
 					for (int i=0; i<params.size(); i++) {
-						SVDBParamPort p = params.get(i);
-						template += p.getTypeName() + " " + p.getName();
-						
-						if (i+1 < params.size()) {
+						SVDBParamPortDecl p = params.get(i);
+						template += p.getTypeName() + " ";
+						/*
+						for (int j=0; j<p.getVarList().size(); j++) {
+							template += p.getVarList().get(j).getName();
+							if (j+1 < p.getVarList().size()) {
+								template += ", ";
+							}
+						}
+						 */
+						for (ISVDBChildItem c : p.getChildren()) {
+							template += ((SVDBVarDeclItem)c).getName();
 							template += ", ";
 						}
+					}
+					if (template.endsWith(", ")) {
+						template = template.substring(0, template.length()-2);
 					}
 					template += ");\n";
 
 					template += "super.new(";
 					for (int i=0; i<params.size(); i++) {
-						SVDBParamPort p = params.get(i);
-						template += p.getName();
-						
-						if (i+1 < params.size()) {
+						SVDBParamPortDecl p = params.get(i);
+						for (ISVDBChildItem c : p.getChildren()) {
+							template += ((SVDBVarDeclItem)c).getName();
+							
 							template += ", ";
 						}
+					}
+					
+					if (template.endsWith(", ")) {
+						template = template.substring(0, template.length()-2);
 					}
 					template += ");\n";
 				} else {

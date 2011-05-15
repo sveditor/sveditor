@@ -14,44 +14,28 @@ package net.sf.sveditor.core.parser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
-import net.sf.sveditor.core.BuiltinClassConstants;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBAlwaysBlock;
-import net.sf.sveditor.core.db.SVDBAssign;
-import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBCoverGroup;
-import net.sf.sveditor.core.db.SVDBCoverPoint;
-import net.sf.sveditor.core.db.SVDBCoverpointCross;
-import net.sf.sveditor.core.db.SVDBDataType;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBInitialBlock;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
-import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.SVDBTypedef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.SVDBSequence;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -95,6 +79,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private List<SVParseException> 		fParseErrors;
 	private int							fParseErrorMax;
 	private LogHandle					fLog;
+	private List<SVDBMarker>			fMarkers;
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		setDefineProvider(dp);
@@ -136,16 +121,26 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void preProcError(String msg, String filename, int lineno) {
-		error(msg, filename, lineno, -1);
+		if (fMarkers != null) {
+			SVDBMarker marker = new SVDBMarker(
+					MarkerType.Error, MarkerKind.UndefinedMacro, msg);
+			marker.setLocation(new SVDBLocation(lineno, 0));
+			fMarkers.add(marker);
+		}
 	}
 
 	/**
 	 * 
 	 * @param in
 	 */
-	public void scan(InputStream in, String filename) {
+	private void scan(InputStream in, String filename, List<SVDBMarker> markers) {
 
 		fNewStatement = true;
+		fMarkers = markers;
+		
+		if (fMarkers == null) {
+			fMarkers = new ArrayList<SVDBMarker>();
+		}
 
 		if (fDefineProvider != null) {
 			fDefineProvider.addErrorListener(this);
@@ -183,317 +178,91 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fDefineProvider.removeErrorListener(this);
 		}
 	}
+	
+	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
+		SVDBLocation start = fLexer.getStartLocation();
+		int modifiers = scan_qualifiers(false);
+		
+		if (fLexer.peekOperator("(*")) {
+			fSVParsers.attrParser().parse(parent);
+		}
+		
+		if (fLexer.peekKeyword("class")) {
+			parsers().classParser().parse(parent, modifiers);
+			fNewStatement = true;
+		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
+			// enter module scope
+			// TODO: should probably add this item to the 
+			// File scope here
+			parsers().modIfcProgParser().parse(parent, modifiers);
+		} else if (fLexer.peekKeyword("package")) {
+			package_decl(parent);
+		} else if (fLexer.peekKeyword("import")) {
+			parsers().impExpParser().parse_import(parent);
+			fNewStatement = true;
+		} else if (fLexer.peekKeyword("export")) {
+			parsers().impExpParser().parse_export(parent);
+			fNewStatement = true;
+		} else if (fLexer.peekKeyword("typedef")) {
+			parsers().dataTypeParser().typedef(parent);
+			fNewStatement = true;
+		} else if (fLexer.peekKeyword("function","task")) {
+			parsers().taskFuncParser().parse(parent, start, modifiers);
+			fNewStatement = true;
+		} else if (fLexer.peekKeyword("parameter","localparam")) {
+			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
+		} else if (!fLexer.peekOperator()) {
+			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
+		} else if (fLexer.peekOperator(";")) {
+			// null statement
+			fLexer.eatToken();
+		} else {
+			// TODO: check for a data declaration
+			error("Unknown top-level element \"" + fLexer.peek() + "\"");
+		}
+	}
 
 	private void process_file() throws SVParseException {
-		String id;
+		
+		while (fLexer.peek() != null) {
+			top_level_item(fFile);
+		}
 
+		/*
 		try {
 			while ((id = scan_statement()) != null) {
-				SVDBLocation start = lexer().getStartLocation();
-				int modifiers = scan_qualifiers(false);
-				id = lexer().peek();
+				ISVDBChildItem item = null;
+				id = fLexer.peek();
 
 				if (id != null) {
-					if (id.equals("class")) {
-						try {
-							parsers().classParser().parse(modifiers);
-						} catch (SVParseException e) {}
-						fNewStatement = true;
-					} else if (id.equals("module") || id.equals("macromodule") ||
-							id.equals("interface") || id.equals("program")) {
-						// enter module scope
-						// TODO: should probably add this item to the 
-						// File scope here
-						try {
-							parsers().modIfcProgParser().parse(modifiers);
-						} catch (SVParseException e) {}
-					} else if (id.equals("package") || id.equals("endpackage")) {
-						process_package(id);
-					} else if (id.equals("import")) {
-						List<SVDBItem> items = parsers().importParser().parse();
-						
-						if (fScopeStack.size() > 0) {
-							for (SVDBItem item : items) {
-								fScopeStack.peek().addItem(item);
-							}
-						}
-						fNewStatement = true;
-					} else if (id.equals("export")) {
-						process_export(id);
-					} else if (id.equals("typedef")) {
-						for (SVDBTypedef td : process_typedef(false)) {
-							if (fScopeStack.size() > 0) {
-								fScopeStack.peek().addItem(td);
-							}
-						}
-						
-						fNewStatement = true;
-					} else if (id.equals("function") || id.equals("task")) {
-						SVDBTaskFuncScope f = parsers().functionParser().parse(
-								start, modifiers);
-						fScopeStack.peek().addItem(f);
-						fNewStatement = true;
+					try {
+					} catch (SVParseException e) {
+						fLog.debug("parse error at top-level", e);
 					}
 				} else {
 					System.out.println("[WARN] id @ top-level is null");
 					System.out.println("    " + getLocation().getFileName()
 							+ ":" + getLocation().getLineNo());
 				}
+				
+				if (item != null && fScopeStack.size() > 0) {
+					fScopeStack.peek().addItem(item);
+				}
 			}
 		} catch (EOFException e) {
 		}
+		 */
 	}
 
-	private void process_initial_always() throws SVParseException {
-		String expr = "", name = "";
-		
-		String type = lexer().readKeyword("initial", 
-				"always", "always_comb", "always_latch", "always_ff");
+	public void process_sequence(ISVDBScopeItem parent) throws SVParseException {
 
-		if (!type.equals("initial")) {
-			if (lexer().peekOperator("@")) {
-				lexer().eatToken();
-				
-				if (lexer().peekOperator("*")) {
-					lexer().eatToken();
-					expr = "*";
-				} else {
-					lexer().startCapture();
+		fLexer.readKeyword("sequence");
+		String name = fLexer.readId();
 
-					if (lexer().peekOperator("(")) {
-						lexer().skipPastMatch("(", ")");
-					}
-					expr = lexer().endCapture();
-				}
-			} else if (lexer().peekOperator("#")) {
-				lexer().eatToken();
-				lexer().startCapture();
-
-				if (lexer().peekOperator("(")) {
-					lexer().skipPastMatch("(", ")");
-				} else {
-					// Just read to the end of the next whitespace item
-					lexer().eatToken();
-				}
-
-				expr = lexer().endCapture();
-			}
-		}
-
-		SVDBScopeItem scope;
-		if (type.startsWith("always")) {
-			scope = new SVDBAlwaysBlock(expr);
-		} else {
-			scope = new SVDBInitialBlock();
-		}
-		setLocation(scope);
-
-		fScopeStack.peek().addItem(scope);
-		fScopeStack.push(scope);
-		
-
-		if (lexer().peekKeyword("begin")) {
-			parsers().behavioralBlockParser().parse();
-		} else {
-			// single-statement begin.
-			parsers().behavioralBlockParser().parse();
-		}
-
-		if (fScopeStack.size() > 0
-				&& (fScopeStack.peek().getType() == SVDBItemType.AlwaysBlock || fScopeStack
-						.peek().getType() == SVDBItemType.InitialBlock)) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop().setName(name);
-		}
-	}
-
-	private void process_assign() throws SVParseException {
-		String target = "";
-		lexer().readKeyword("assign");
-		
-		if (lexer().peekOperator("#")) {
-			// Time expression
-			lexer().eatToken();
-			parsers().exprParser().expression(); // delay expression
-		}
-		
-		// Allow LHS to be a SV keyword (fits Verilog)
-		if (lexer().peekId() || lexer().peekOperator("(") ||
-				(lexer().peekKeyword() && !SVKeywords.isVKeyword(lexer().peek()))) {
-			target = parsers().exprParser().expression().toString();
-		} else if (lexer().peekOperator("{")) {
-			lexer().startCapture();
-			lexer().skipPastMatch("{", "}");
-			target = lexer().endCapture();
-		}
-		
-		SVDBAssign assign = new SVDBAssign(target);
-		
-		if (lexer().peekOperator("=")) {
-			lexer().eatToken();
-			parsers().exprParser().expression();
-		}
-		
-		setLocation(assign);
-		fScopeStack.peek().addItem(assign);
-		lexer().readOperator(";");
-	}
-
-	private void process_constraint() throws SVParseException {
-		lexer().readKeyword("constraint");
-		
-		String cname = lexer().readId();
-
-		if (lexer().peekOperator("{")) {
-			lexer().startCapture();
-			lexer().skipPastMatch("{", "}");
-			String expr = lexer().endCapture();
-
-			expr = expr.substring(1, expr.length() - 1);
-
-			constraint(cname, expr);
-		}
-
-		fNewStatement = true;
-	}
-
-	private void process_covergroup() throws SVParseException {
-		fSemanticScopeStack.push("covergroup");
-
-		lexer().readKeyword("covergroup");
-		String cg_name = lexer().readId();
-
-		SVDBCoverGroup cg = new SVDBCoverGroup(cg_name);
-		cg.setSuperClass(BuiltinClassConstants.Covergroup);
-		setLocation(cg);
-		fScopeStack.peek().addItem(cg);
-		fScopeStack.push(cg);
-		
-
-		while (lexer().peekOperator("(")) {
-			lexer().skipPastMatch("(", ")");
-		}
-
-		if (lexer().peekOperator("@")) {
-			lexer().eatToken();
-			
-			/*
-			if (ch == '@') {
-				ch = skipWhite(get_ch());
-			}
-			 */
-			if (lexer().peekOperator("(")) {
-				lexer().skipPastMatch("(", ")");
-			}
-		}
-
-		// Skip statements
-		String id;
-		while ((id = scan_statement()) != null) {
-			fStartLocation = getStmtLocation();
-
-			if (id.equals("endgroup")) {
-				break;
-			} else {
-				// This is likely a coverpoint/coverpoint cross
-
-				if (lexer().peekOperator(":")) {
-					// yep...
-					String name = id;
-
-					String type = lexer().readKeyword("coverpoint", "cross");
-
-					// Now, skip forward and try to read the target
-					// read any expression character
-					lexer().startCapture();
-					while (!lexer().peekOperator("{", ";")) {
-						lexer().eatToken();
-					}
-					String target = lexer().endCapture();
-
-					/*
-					if (target != null) {
-						if (target.endsWith("{")) {
-							target = target.substring(0, target.length() - 1);
-						}
-						target = target.trim();
-					}
-					 */
-
-					String body = "";
-					if (lexer().peekOperator("{")) {
-						lexer().eatToken();
-						lexer().startCapture();
-						lexer().skipPastMatch("{", "}");
-						body = lexer().endCapture();
-
-						body = body.trim();
-						if (body.endsWith("}")) {
-							body = body.substring(0, body.length() - 1);
-						}
-					}
-
-					// Update the end location
-					setStmtLocation(getLocation());
-					
-					SVDBScopeItem it = null;
-
-					if (type != null) {
-						if (type.equals("coverpoint")) {
-							SVDBCoverPoint cp = new SVDBCoverPoint(name, target, body);
-							cp.setSuperClass(BuiltinClassConstants.Coverpoint);
-							it = cp;
-						} else if (type.equals("cross")) {
-							SVDBCoverpointCross cpc = new SVDBCoverpointCross(name, body); 
-							cpc.setSuperClass(BuiltinClassConstants.CoverpointCross);
-
-							for (String cp : target.split(",")) {
-								cp = cp.trim();
-								if (!cp.equals("")) {
-									if (cp.endsWith(";")) {
-										cp = cp.substring(0, cp.length() - 1).trim();
-									}
-									cpc.getCoverpointList().add(cp);
-								}
-							}
-						} else {
-							// System.out.println("unknown covergroup item: " + type);
-						}
-					}
-
-					if (it != null) {
-						setStartLocation(it);
-						setEndLocation(it);
-						fScopeStack.peek().addItem(it);
-					}
-					
-					fNewStatement = true;
-				}
-			}
-		}
-		
-		cg.setEndLocation(lexer().getStartLocation());
-		
-		lexer().readKeyword("endgroup");
-		if (lexer().peekOperator(":")) {
-			lexer().eatToken();
-			lexer().readId(); // labeled group
-		}
-
-		handle_leave_scope();
-	}
-
-	private void process_sequence() throws SVParseException {
-
-		lexer().readKeyword("sequence");
-		String name = lexer().readId();
-		fSemanticScopeStack.push("sequence");
-
-		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Sequence);
+		SVDBScopeItem it = new SVDBSequence(name);
 
 		setLocation(it);
-		fScopeStack.peek().addItem(it);
-		fScopeStack.push(it);
+		parent.addItem(it);
 		
 
 		String id;
@@ -502,21 +271,17 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				break;
 			}
 		}
-
-		handle_leave_scope();
 	}
 
-	private SVDBItem process_property() throws SVParseException {
-		lexer().readKeyword("property");
-		String name = lexer().readId();
-		fSemanticScopeStack.push("property");
+	public void process_property(ISVDBScopeItem parent) throws SVParseException {
+		fLexer.readKeyword("property");
+		String name = fLexer.readId();
 
-		SVDBScopeItem it = new SVDBScopeItem(name, SVDBItemType.Property);
+		SVDBScopeItem it = new SVDBProperty(name);
 
 		setLocation(it);
 
-		fScopeStack.peek().addItem(it);
-		fScopeStack.push(it);
+		parent.addItem(it);
 
 		String id;
 		while ((id = scan_statement()) != null) {
@@ -524,10 +289,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				break;
 			}
 		}
-
-		handle_leave_scope();
-
-		return it;
 	}
 
 	public int scan_qualifiers(boolean param)
@@ -537,11 +298,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				: fFieldQualifers;
 
 		String id;
-		while ((id = lexer().peek()) != null && qmap.containsKey(id)) {
+		while ((id = fLexer.peek()) != null && qmap.containsKey(id)) {
 			debug("item modified by \"" + id + "\"");
 			modifiers |= qmap.get(id);
 
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 
 		return modifiers;
@@ -551,177 +312,149 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		StringBuilder id = new StringBuilder();
 
 		if (!allow_keywords) {
-			id.append(lexer().readId());
-		} else if (lexer().peekKeyword() || lexer().peekId()) {
-			id.append(lexer().eatToken());
+			id.append(fLexer.readId());
+		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
+			id.append(fLexer.eatToken());
 		} else {
-			error("scopedIdentifier: starts with " + lexer().peek());
+			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		while (lexer().peekOperator("::")) {
+		while (fLexer.peekOperator("::")) {
 			id.append("::");
-			lexer().eatToken();
-			if (lexer().peekKeyword("new") ||
-					(allow_keywords && lexer().peekKeyword())) {
-				id.append(lexer().readKeyword());
+			fLexer.eatToken();
+			if (fLexer.peekKeyword("new") ||
+					(allow_keywords && fLexer.peekKeyword())) {
+				id.append(fLexer.readKeyword());
 			} else {
-				id.append(lexer().readId());
+				id.append(fLexer.readId());
 			}
 		}
 
 		return id.toString();
 	}
 
-	private void process_package(String id) throws SVParseException {
-		if (id.equals("package")) {
-			SVDBLocation start = lexer().getStartLocation();
-			lexer().readKeyword("package");
-			String pkg = readQualifiedIdentifier();
-			
-			SVDBPackageDecl pkg_decl = new SVDBPackageDecl(pkg);
-			pkg_decl.setLocation(start);
+	public List<SVToken> scopedIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
 
-			fScopeStack.peek().addItem(pkg_decl);
-			fScopeStack.push(pkg_decl);
+		if (!allow_keywords) {
+			ret.add(fLexer.readIdTok());
+		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
+			ret.add(fLexer.consumeToken());
 		} else {
-			SVDBLocation end = lexer().getStartLocation();
-			if (fScopeStack.size() > 0
-					&& fScopeStack.peek().getType() == SVDBItemType.PackageDecl) {
-				fScopeStack.peek().setEndLocation(end);
-				fScopeStack.pop();
-			}
-			lexer().readKeyword("endpackage");
-			setNewStatement();
-			
-			// Handled named package end-block
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				lexer().readId();
-			}
+			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
-	}
 
-	public void enter_scope(String type, SVDBScopeItem scope) {
-		fSemanticScopeStack.push(type);
-		fScopeStack.peek().addItem(scope);
-		fScopeStack.push(scope);
-	}
-	
-	public void handle_leave_scope() {
-		handle_leave_scope(1);
-	}
-
-	private void handle_leave_scope(int levels) {
-		fStmtLocation = getLocation();
-		for (int i = 0; i < levels; i++) {
-			String type = null;
-
-			if (fSemanticScopeStack.size() > 0) {
-				type = fSemanticScopeStack.pop();
+		while (fLexer.peekOperator("::",".")) {
+			ret.add(fLexer.consumeToken());
+			if (fLexer.peekKeyword("new") ||
+					(allow_keywords && fLexer.peekKeyword())) {
+				ret.add(fLexer.consumeToken());
 			} else {
-				System.out.println("[ERROR] attempting to leave scope @ "
-						+ getLocation().getFileName() + ":"
-						+ getLocation().getLineNo());
-			}
-
-			if (type != null) {
-				if (type.equals("module")) {
-					leave_module_decl();
-				} else if (type.equals("program")) {
-					leave_program_decl();
-				} else if (type.equals("interface")) {
-					leave_interface_decl();
-				} else if (type.equals("class")) {
-					leave_class_decl();
-				} else if (type.equals("struct")) {
-					leave_struct_decl("");
-				} else if (type.equals("task")) {
-					leave_task_decl();
-				} else if (type.equals("function")) {
-					leave_func_decl();
-				} else if (type.equals("covergroup")) {
-					leave_covergroup();
-				} else if (type.equals("sequence")) {
-					if (fScopeStack.size() > 0
-							&& fScopeStack.peek().getType() == SVDBItemType.Sequence) {
-						setEndLocation(fScopeStack.peek());
-						fScopeStack.pop();
-					}
-				} else if (type.equals("property")) {
-					if (fScopeStack.size() > 0
-							&& fScopeStack.peek().getType() == SVDBItemType.Property) {
-						setEndLocation(fScopeStack.peek());
-						fScopeStack.pop();
-					}
-				} else {
-					fScopeStack.pop();
-				}
+				ret.add(fLexer.readIdTok());
 			}
 		}
+
+		return ret;
 	}
 
-	private void process_export(String type) throws SVParseException {
-		String qualifier = lexer().read();
+	public List<SVToken> scopedStaticIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
 
-		if (qualifier != null && qualifier.equals("DPI")
-				|| qualifier.equals("DPI-C")) {
-
-			String kind = lexer().readId();
-			String id = lexer().readId();
-
-			if (kind != null && id != null) {
-
-			}
-		}
-	}
-
-	public List<SVDBTypedef> process_typedef(boolean have_typedef_kw) throws SVParseException {
-		List<SVDBTypedef> typedef_list = new ArrayList<SVDBTypedef>();
-
-		// typedef <type> <name>;
-
-		// SVTypeInfo type = readTypeName(false);
-		SVDBLocation start = lexer().getStartLocation();
-		// Don't try to read-ahead if we already know we've seen "typedef"
-		if (!have_typedef_kw) {
-			lexer().readKeyword("typedef");
-		}
-		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, lexer().eatToken());
-		
-		if (type.getDataType() != SVDBDataType.FwdDecl) {
-			while (lexer().peek() != null) {
-				String id = lexer().readId();
-				
-				if (lexer().peekOperator("[")) {
-					// TODO: dimension
-					lexer().skipPastMatch("[", "]");
-				}
-
-				SVDBTypedef typedef = new SVDBTypedef(type, id);
-
-				typedef_list.add(typedef);
-				typedef.setLocation(start);
-				/*
-				if (fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(typedef);
-				}
-				 */
-				
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
-				} else {
-					break;
-				}
-			}
+		if (!allow_keywords) {
+			ret.add(fLexer.readIdTok());
+		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
+			ret.add(fLexer.consumeToken());
 		} else {
-			SVDBTypedef typedef = new SVDBTypedef(type, type.getName());
-			typedef_list.add(typedef);
-			typedef.setLocation(start);
+			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		lexer().readOperator(";");
+		while (fLexer.peekOperator("::")) {
+			ret.add(fLexer.consumeToken());
+			if (allow_keywords && fLexer.peekKeyword()) {
+				ret.add(fLexer.consumeToken());
+			} else {
+				ret.add(fLexer.readIdTok());
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Tries to read a scoped static identifier list
+	 * 
+	 * @param allow_keywords
+	 * @return
+	 * @throws SVParseException
+	 */
+	public List<SVToken> peekScopedStaticIdentifier_l(boolean allow_keywords) throws SVParseException {
+		List<SVToken> ret = new ArrayList<SVToken>();
+
+		if (!allow_keywords) {
+			if (fLexer.peekId()) {
+				ret.add(fLexer.readIdTok());
+			} else {
+				return ret;
+			}
+		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
+			ret.add(fLexer.consumeToken());
+		} else {
+			return ret;
+		}
+
+		while (fLexer.peekOperator("::")) {
+			ret.add(fLexer.consumeToken());
+			if (allow_keywords && fLexer.peekKeyword()) {
+				ret.add(fLexer.consumeToken());
+			} else {
+				ret.add(fLexer.readIdTok());
+			}
+		}
+
+		return ret;
+	}
+
+	public String scopedIdentifierList2Str(List<SVToken> scoped_id) {
+		StringBuilder sb = new StringBuilder();
+		for (SVToken tok : scoped_id) {
+			sb.append(tok.getImage());
+		}
+		return sb.toString();
+	}
+
+	private void package_decl(ISVDBScopeItem parent) throws SVParseException {
+		if (fLexer.peekOperator("(*")) {
+			fSVParsers.attrParser().parse(parent);
+		}
+		SVDBPackageDecl pkg = new SVDBPackageDecl();
+		pkg.setLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("package");
+
+		if (fLexer.peekKeyword("static","automatic")) {
+			fLexer.eatToken();
+		}
+
+		String pkg_name = readQualifiedIdentifier();
+		pkg.setName(pkg_name);
+		fLexer.readOperator(";");
 		
-		return typedef_list;
+		parent.addItem(pkg);
+
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
+			top_level_item(pkg);
+			
+			if (fLexer.peekKeyword("endpackage")) {
+				break;
+			}
+		}
+		
+		pkg.setEndLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("endpackage");
+		// Handled named package end-block
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			fLexer.readId();
+		}
 	}
 
 	static private final Map<String, Integer> fFieldQualifers;
@@ -747,461 +480,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fTaskFuncParamQualifiers = new HashMap<String, Integer>();
 		fTaskFuncParamQualifiers.put("pure", 0); // TODO
 		fTaskFuncParamQualifiers.put("virtual",
-				SVDBParamPort.FieldAttr_Virtual);
+				SVDBParamPortDecl.FieldAttr_Virtual);
 		fTaskFuncParamQualifiers.put("input",
-				SVDBParamPort.Direction_Input);
+				SVDBParamPortDecl.Direction_Input);
 		fTaskFuncParamQualifiers.put("output",
-				SVDBParamPort.Direction_Output);
+				SVDBParamPortDecl.Direction_Output);
 		fTaskFuncParamQualifiers.put("inout",
-				SVDBParamPort.Direction_Inout);
-		fTaskFuncParamQualifiers.put("ref", SVDBParamPort.Direction_Ref);
-		fTaskFuncParamQualifiers.put("var", SVDBParamPort.Direction_Var);
-	}
-
-	private static SVDBItem fSpecialNonNull = new SVDBItem("SPECIAL_NON_NULL", SVDBItemType.Stmt);
-
-	public SVDBItem process_module_class_interface_body_item(String scope) throws SVParseException {
-		int ch = -1, modifiers = 0;
-		SVDBItem ret = null;
-		String id = lexer().peek();
-
-		debug("--> process_module_class_interface_body_item: \"" + id + 
-				"\" @ " + lexer().getStartLocation().getLine());
-
-		// Save the start location before qualifiers
-		SVDBLocation start = lexer().getStartLocation();
-		modifiers = scan_qualifiers(false);
-
-		id = lexer().peek();
-
-		if (id == null) {
-			System.out.println("[ERROR] id=null @ "
-					+ getStmtLocation().getFileName() + ":"
-					+ getStmtLocation().getLineNo());
-			return ret;
-		}
-
-		debug("body item is: " + id);
-
-		if (id.equals("function") || id.equals("task")) {
-			ret = parsers().functionParser().parse(start, modifiers);
-			fScopeStack.peek().addItem(ret);
-			fNewStatement = true;
-		} else if (id.equals("property")) {
-			ret = process_property();
-			fNewStatement = true;
-		
-		// Generate-block statements
-		} else if (id.equals("generate")) {
-			ret = parsers().generateBlockParser().generate_block();
-			fScopeStack.peek().addItem(ret);
-			fNewStatement = true;
-		} else if (id.equals("for")) {
-			ret = parsers().generateBlockParser().for_block();
-			fNewStatement = true;
-		} else if (id.equals("if")) {
-			ret = parsers().generateBlockParser().if_block();
-			fNewStatement = true;
-		} else if (id.equals("case")) {
-			ret = parsers().generateBlockParser().case_block();
-			fNewStatement = true;
-		} else if (id.equals("specify")) {
-			ret = parsers().specifyBlockParser().parse();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("default") || id.equals("global") || id.equals("clocking")) {
-			// Clocking block
-			ret = parsers().clockingBlockParser().parse();
-			fNewStatement = true;
-		} else if (id.equals(";")) {
-			// null statement
-			System.out.println("null statement");
-			lexer().eatToken();
-			fNewStatement = true;
-			ret = fSpecialNonNull;
-		} else if (id.equals("always") || id.equals("always_comb") ||
-				id.equals("always_latch") || id.equals("always_ff") ||
-				id.equals("initial")) {
-			process_initial_always();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("modport")) {
-			// TODO: shouldn't just skip
-			lexer().eatToken();
-			lexer().readId(); // modport name
-			
-			lexer().skipPastMatch("(", ")");
-			lexer().readOperator(";");
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("assign")) {
-			process_assign();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("constraint")) {
-			process_constraint();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("covergroup")) {
-			process_covergroup();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("sequence")) {
-			process_sequence();
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("import")) {
-			List<SVDBItem> items = parsers().importParser().parse();
-			
-			if (fScopeStack.size() > 0) {
-				for (SVDBItem item : items) {
-					fScopeStack.peek().addItem(item);
-				}
-			}
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.equals("clocking")) {
-			// Ignore this
-			while ((id = scan_statement()) != null) {
-				if (id.equals("endclocking")) {
-					break;
-				}
-			}
-			lexer().readKeyword("endclocking");
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if (id.startsWith("end") && SVKeywords.isSVKeyword(id)) {
-			// it's likely that we've encountered a parse error
-			// or incomplete text section.
-			if (fSemanticScopeStack.size() > 0) {
-				// We've hit end of our current section
-				if (("end" + fSemanticScopeStack.peek()).equals(id)) {
-					fSemanticScopeStack.pop();
-				}
-			}
-		} else if (id.equals("typedef")) {
-			for (SVDBTypedef td : process_typedef(false)) {
-				if (fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(td);
-				}
-			}
-			
-			ret = fSpecialNonNull;
-			fNewStatement = true;
-		} else if ((id.equals("class") && !scope.equals("class"))) {
-			SVDBModIfcClassDecl cls = null;
-			try {
-				cls = parsers().classParser().parse(modifiers);
-			} catch (SVParseException e) {
-//				System.out.println("ParseException: post-class-module()");
-//				e.printStackTrace();
-			}
-			ret = cls;
-			fNewStatement = true;
-		} else if (id.equals("module") || id.equals("program") ||
-				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
-			SVDBModIfcClassDecl m = null;
-			// enter module scope
-			// TODO: should probably add this item to the 
-			// File scope here
-			try {
-				m = parsers().modIfcProgParser().parse(modifiers);
-			} catch (SVParseException e) {
-			}
-			
-			ret = m;
-			fNewStatement = true;
-		} else if (isFirstLevelScope(id, modifiers)) {
-			// We've hit a first-level qualifier. This probably means that
-			// there is a missing
-			fNewStatement = true;
-			ret = null;
-		} else if (ch == ':') {
-			// Labeled statement -- often a cover
-			System.out.println("labeled statement: " + id);
-			System.out.println("    " + getLocation().getFileName() + ":"
-					+ getLocation().getLineNo());
-			fNewStatement = true;
-			ret = null;
-		} else if (id.equals("parameter") || id.equals("localparam")) {
-			// local parameter
-			lexer().eatToken();
-			
-			if (lexer().peekKeyword("type")) {
-				lexer().eatToken();
-			}
-			SVDBTypeInfo data_type = parsers().dataTypeParser().data_type(
-					0, lexer().eatToken());
-			String param_name;
-			
-			SVDBLocation it_start = lexer().getStartLocation();
-			
-			if (lexer().peekId()) {
-				// likely a typed parameter
-				param_name = lexer().readId();
-			} else {
-				// likely an untyped parameter
-				param_name = data_type.getName();
-				data_type = null;
-			}
-			
-			SVDBParamPort p;
-			while (true) {
-				if (lexer().peekOperator("=")) {
-					lexer().eatToken();
-					parsers().exprParser().expression();
-				}
-				
-				p = new SVDBParamPort(data_type, param_name);
-				p.setLocation(it_start);
-				
-				if (fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(p);
-				}
-				
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
-					it_start = lexer().getStartLocation();
-					param_name = lexer().readId();
-				} else {
-					break;
-				}
-			}
-			lexer().readOperator(";");
-			fNewStatement = true;
-			ret = fSpecialNonNull;
-		} else if (SVDataTypeParser.NetType.contains(id)) {
-			// net type
-			String net_type = lexer().eatToken();
-			String vector_dim = null;
-			SVDBVarDeclStmt var = null;
-			String net_name = null;
-			SVDBTypeInfoBuiltinNet type_info = null;
-			SVDBTypeInfo data_type = null;
-			
-			debug("Net Type: " + net_type + " @ " + 
-					lexer().getStartLocation().getLine());
-			
-			// vectored untyped net
-			if (lexer().peekOperator("[")) {
-				data_type = new SVDBTypeInfoBuiltin(net_type);
-				lexer().startCapture();
-				lexer().skipPastMatch("[", "]");
-				vector_dim = lexer().endCapture();
-				((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
-				net_name = lexer().readId();
-			} else {
-				String tmp = lexer().eatToken();
-				data_type = parsers().dataTypeParser().data_type(0, tmp);
-
-				// Now, based on what we see next, we determine whether the
-				// net is typed or untyped
-
-				if (lexer().peekOperator(",", ";", "=")) {
-					// The net was untyped
-					net_name = data_type.getName();
-					data_type = new SVDBTypeInfoBuiltin(net_type);
-				} else {
-					// Assume the net to be typed
-					net_name = lexer().readId();
-				}
-			}
-			type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
-			
-			while (true) {
-				var = new SVDBVarDeclStmt(type_info, net_name, 0);
-				var.setLocation(start);
-				
-				if (fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(var);
-				}
-				
-				if (lexer().peekOperator("[")) {
-					// Array type
-					lexer().startCapture();
-					lexer().skipPastMatch("[", "]");
-					String bounds = lexer().endCapture();
-
-					bounds = bounds.substring(1, bounds.length() - 1).trim();
-
-					if (bounds != null) {
-						// remove ']'
-						bounds = bounds.substring(0, bounds.length() - 1);
-						bounds = bounds.trim();
-						
-						if (bounds.startsWith("$")) {
-							var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_Queue);
-						} else if (bounds.equals("")) {
-							var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_DynamicArray);
-						} else {
-							if (bounds.equals("*")) {
-								var.setAttr(var.getAttr() | SVDBVarDeclStmt.VarAttr_AssocArray);
-							}
-						}
-						var.setArrayDim(bounds);
-					}
-				}
-				
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
-					net_name = lexer().readId();
-				} else if (lexer().peekOperator("=")) {
-					// Initialized wire
-					lexer().eatToken();
-					parsers().exprParser().expression();
-				} else {
-					break;
-				}
-			}
-			
-			lexer().readOperator(";");
-			fNewStatement = true;
-			ret = fSpecialNonNull;
-		} else if (lexer().peekKeyword(SVKeywords.fBuiltinGates)) {
-			List<SVDBModIfcInstItem> insts = parsers().gateInstanceParser().parse();
-			// TODO: add to hierarchy (?)
-			fNewStatement = true;
-			ret = fSpecialNonNull;
-		} else if (lexer().peekKeyword("defparam", "specparam")) {
-			// TODO: defparam doesn't appear in hierarchy
-			lexer().eatToken();
-			while (lexer().peek() != null && !lexer().peekOperator(";")) {
-				parsers().exprParser().expression();
-				if (lexer().peekOperator(",")) {
-					lexer().eatToken();
-				} else {
-					break;
-				}
-			}
-			lexer().readOperator(";");
-			fNewStatement = true;
-			ret = fSpecialNonNull;
-		} else if (!lexer().peekOperator()) {
-			// likely a variable or module declaration
-
-			debug("Likely VarDecl: " + id);
-
-			scanVariableDeclaration(modifiers);
-			ret = fSpecialNonNull;
-		}
-
-		debug("<-- process_module_class_interface_body_item - " + 
-				((ret != null)?ret.getName():"NULL"));
-
-		return ret;
-	}
-
-	/**
-	 * scanVariableDeclaration()
-	 * 
-	 * Scans through a list of variable declarations
-	 * 
-	 * Expects first string(s) read to be the type name
-	 */
-	private boolean scanVariableDeclaration(int modifiers)
-			throws SVParseException {
-		SVDBTypeInfo type;
-		boolean is_variable = true;
-
-		// TODO: need to modify this to be different for class and module/interface
-		// scopes
-		type = parsers().dataTypeParser().data_type(modifiers, lexer().eatToken());
-		
-		if (type == null) {
-			error("Failed to parse type");
-		}
-
-		// Not a variable declaration
-		if (lexer().peekOperator()) {
-			return false;
-		}
-
-		// Handle parameterization
-		do {
-
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
-			}
-
-			String inst_name_or_var = lexer().readIdOrKeyword();
-
-			if (inst_name_or_var == null) {
-				is_variable = false;
-				break;
-			}
-
-			debug("inst name or var: " + inst_name_or_var);
-
-			if (lexer().peekOperator("(")) {
-				type = new SVDBTypeInfoUserDef(type.getName(), SVDBDataType.ModuleIfc);
-				
-				// it's a module
-				debug("module instantiation - " + inst_name_or_var);
-				lexer().skipPastMatch("(", ")");
-				
-				SVDBModIfcInstItem item = new SVDBModIfcInstItem(
-						type, inst_name_or_var);
-				setLocation(item);
-				fScopeStack.peek().addItem(item);
-			} else {
-				int attr = 0;
-				String bounds = null;
-				
-				// non-module instance
-				if (lexer().peekOperator("[")) {
-					// Array type
-					lexer().startCapture();
-					lexer().skipPastMatch("[", "]");
-					bounds = lexer().endCapture();
-
-					if (bounds.length() >= 2) {
-						bounds = bounds.substring(1, bounds.length() - 1).trim();
-					} else {
-						bounds = null;
-					}
-
-					if (bounds != null) {
-						// remove ']'
-						// bounds = bounds.substring(0, bounds.length() - 1);
-						// bounds = bounds.trim();
-
-						if (bounds.startsWith("$")) {
-							attr |= SVDBVarDeclStmt.VarAttr_Queue;
-						} else if (bounds.equals("")) {
-							attr |= SVDBVarDeclStmt.VarAttr_DynamicArray;
-						} else {
-							// TODO: Don't really know. Could be a fixed-size array
-							// or
-							// a fixed-size array
-							if (bounds.equals("*")) {
-								attr |= SVDBVarDeclStmt.VarAttr_AssocArray;
-							}
-						}
-					}
-				}
-				
-				SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, inst_name_or_var, attr);
-				item.setArrayDim(bounds);
-				setLocation(item);
-
-				if (item.getName() == null || item.getName().equals("")) {
-					System.out.println("    " +
-							fFile.getFilePath() + ":"  + item.getLocation().getLine());
-				}
-				item.setAttr(attr);
-				fScopeStack.peek().addItem(item);
-			}
-
-			if (lexer().peekOperator("=")) {
-				lexer().eatToken();
-				/*String expr = */parsers().exprParser().expression();
-			}
-
-		} while (lexer().peekOperator(","));
-
-		fNewStatement = true;
-
-		return is_variable;
+				SVDBParamPortDecl.Direction_Inout);
+		fTaskFuncParamQualifiers.put("ref", SVDBParamPortDecl.Direction_Ref);
+		fTaskFuncParamQualifiers.put("var", SVDBParamPortDecl.Direction_Var);
 	}
 
 	public static boolean isFirstLevelScope(String id, int modifiers) {
@@ -1225,10 +512,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public String scan_statement() {
 		String id;
 
-		lexer().setNewlineAsOperator(true);
-		// System.out.println("--> scan_statement() " + lexer().peek() + "\n");
+		fLexer.setNewlineAsOperator(true);
+		// System.out.println("--> scan_statement() " + fLexer.peek() + "\n");
 
-		while ((id = lexer().peek()) != null) {
+		while ((id = fLexer.peek()) != null) {
 			/*
 			System.out.println("scan_statement: id=\"" + id
 					+ "\" ; NewStatement=" + fNewStatement);
@@ -1236,7 +523,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			if (!fNewStatement && (id.equals(";") || id.equals("\n")
 					|| (SVKeywords.isSVKeyword(id) && id.startsWith("end")))) {
 				fNewStatement = true;
-				lexer().eatToken();
+				fLexer.eatToken();
 			} else if (fNewStatement) {
 				fStmtLocation = getLocation();
 				if (SVCharacter.isSVIdentifierStart(id.charAt(0))) {
@@ -1248,11 +535,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 					fNewStatement = true;
 				}
 			}
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 
 		// System.out.println("<-- scan_statement() - " + id + "\n");
-		lexer().setNewlineAsOperator(false);
+		fLexer.setNewlineAsOperator(false);
 		return id;
 	}
 	
@@ -1271,20 +558,20 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	 */
 
 	private String readQualifiedIdentifier() throws SVParseException {
-		if (!lexer().peekId() && !lexer().peekKeyword()) {
+		if (!fLexer.peekId() && !fLexer.peekKeyword()) {
 			return null;
 		}
 		StringBuffer ret = new StringBuffer();
 
-		ret.append(lexer().eatToken());
+		ret.append(fLexer.eatToken());
 
-		while (lexer().peekOperator("::")) {
-			ret.append(lexer().eatToken());
-			ret.append(lexer().eatToken());
+		while (fLexer.peekOperator("::")) {
+			ret.append(fLexer.eatToken());
+			ret.append(fLexer.eatToken());
 		}
 		/*
-		while (lexer().peekId() || lexer().peekOperator("::") || lexer().peekKeyword()) {
-			ret.append(lexer().eatToken());
+		while (fLexer.peekId() || fLexer.peekOperator("::") || fLexer.peekKeyword()) {
+			ret.append(fLexer.eatToken());
 		}
 		 */
 
@@ -1294,7 +581,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private static final String RecognizedOps[];
 	
 	static {
-//		String misc[] = {":", "::", ":/", ":=", ".", "#", "'"};
 		String misc[] = {"::", ":/", ":=", ".", "#", "'"};
 		RecognizedOps = new String[SVLexer.RelationalOps.length + misc.length];
 		
@@ -1317,87 +603,87 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	};
 	
 	public String readExpression(boolean accept_colon) throws SVParseException {
-		lexer().startCapture();
-		while (lexer().peek() != null) {
-			debug("First Token: " + lexer().peek());
-			if (lexer().peekOperator(fPrefixOps)) {
-				while (lexer().peek() != null && lexer().peekOperator(fPrefixOps)) {
-					lexer().eatToken();
+		fLexer.startCapture();
+		while (fLexer.peek() != null) {
+			debug("First Token: " + fLexer.peek());
+			if (fLexer.peekOperator(fPrefixOps)) {
+				while (fLexer.peek() != null && fLexer.peekOperator(fPrefixOps)) {
+					fLexer.eatToken();
 				}
 			}
-			if (lexer().peekOperator("(")) {
-				lexer().skipPastMatch("(", ")");
-			} else if (lexer().peekOperator("{")) {
-				lexer().skipPastMatch("{", "}");
-			} else if (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
-			} else if (lexer().peekOperator("-")) {
-				lexer().eatToken();
-				if (lexer().peekOperator("(")) {
-					lexer().skipPastMatch("(", ")");
+			if (fLexer.peekOperator("(")) {
+				fLexer.skipPastMatch("(", ")");
+			} else if (fLexer.peekOperator("{")) {
+				fLexer.skipPastMatch("{", "}");
+			} else if (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
+			} else if (fLexer.peekOperator("-")) {
+				fLexer.eatToken();
+				if (fLexer.peekOperator("(")) {
+					fLexer.skipPastMatch("(", ")");
 				} else {
-					lexer().eatToken();
+					fLexer.eatToken();
 				}
-			} else if (lexer().peekNumber()) {
-				lexer().eatToken();
+			} else if (fLexer.peekNumber()) {
+				fLexer.eatToken();
 				// time unit
-				if (lexer().peek().equals("fs") || lexer().peek().equals("ps") ||
-						lexer().peek().equals("ns") || lexer().peek().equals("us") ||
-						lexer().peek().equals("ms") || lexer().peek().equals("s")) {
-					lexer().eatToken();
+				if (fLexer.peek().equals("fs") || fLexer.peek().equals("ps") ||
+						fLexer.peek().equals("ns") || fLexer.peek().equals("us") ||
+						fLexer.peek().equals("ms") || fLexer.peek().equals("s")) {
+					fLexer.eatToken();
 				}
-			} else if (!lexer().peekOperator()) {
-				lexer().eatToken();
+			} else if (!fLexer.peekOperator()) {
+				fLexer.eatToken();
 				// See if this is a task/function call
-				if (lexer().peekOperator("(")) {
-					lexer().skipPastMatch("(", ")");
-				} else if (lexer().peekOperator("[")) {
+				if (fLexer.peekOperator("(")) {
+					fLexer.skipPastMatch("(", ")");
+				} else if (fLexer.peekOperator("[")) {
 					// See if this is subscripting
-					lexer().skipPastMatch("[", "]");
+					fLexer.skipPastMatch("[", "]");
 				}
 			} else {
-				debug("Escape 1: " + lexer().peek());
+				debug("Escape 1: " + fLexer.peek());
 				break;
 			}
 
 			// Skip any subscripting
-			while (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
+			while (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
 			}
 			
-			debug("Second Token: " + lexer().peek());
+			debug("Second Token: " + fLexer.peek());
 
 			// Remove any suffix operators
-			if (lexer().peekOperator(fSuffixOps)) {
+			if (fLexer.peekOperator(fSuffixOps)) {
 				// Unary suffix operators, such as ++ and --
-				lexer().eatToken();
+				fLexer.eatToken();
 			}
 			
-			if ((lexer().peekOperator(":") && accept_colon) || lexer().peekOperator(RecognizedOps)) {
-				lexer().eatToken();
-			} else if (lexer().peekOperator("(")) {
-				lexer().skipPastMatch("(", ")");
-			} else if (lexer().peekOperator("[")) {
-				lexer().skipPastMatch("[", "]");
-			} else if (lexer().peekKeyword("with")) {
+			if ((fLexer.peekOperator(":") && accept_colon) || fLexer.peekOperator(RecognizedOps)) {
+				fLexer.eatToken();
+			} else if (fLexer.peekOperator("(")) {
+				fLexer.skipPastMatch("(", ")");
+			} else if (fLexer.peekOperator("[")) {
+				fLexer.skipPastMatch("[", "]");
+			} else if (fLexer.peekKeyword("with")) {
 				// randomize with
-				lexer().eatToken();
-				lexer().readOperator("{");
-				lexer().skipPastMatch("{", "}");
+				fLexer.eatToken();
+				fLexer.readOperator("{");
+				fLexer.skipPastMatch("{", "}");
 			} else {
-				debug("Escape 2: " + lexer().peek());
+				debug("Escape 2: " + fLexer.peek());
 				break;
 			}
 
 			/*
-			if (lexer().peekOperator(".", "::")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(".", "::")) {
+				fLexer.eatToken();
 			} else {
 				break;
 			}
 			 */
 		}
-		return lexer().endCapture();
+		return fLexer.endCapture();
 	}
 
 	public ScanLocation getLocation() {
@@ -1417,42 +703,42 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	public String delay3() throws SVParseException {
-		lexer().readOperator("#");
+		fLexer.readOperator("#");
 		
-		if (lexer().peekOperator("(")) {
-			lexer().eatToken();
+		if (fLexer.peekOperator("(")) {
+			fLexer.eatToken();
 			/* min / base */ parsers().exprParser().expression();
-			if (lexer().peekOperator(",")) {
-				lexer().eatToken();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
 				/* typ */ parsers().exprParser().expression();
 
-				lexer().readOperator(",");
+				fLexer.readOperator(",");
 				/* max */ parsers().exprParser().expression();
 			}
-			lexer().readOperator(")");
+			fLexer.readOperator(")");
 		} else {
 			parsers().exprParser().expression();
 		}
 		
-		return lexer().endCapture();
+		return fLexer.endCapture();
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {
-		SVDBMarkerItem marker = new SVDBMarkerItem(SVDBMarkerItem.MARKER_ERR,
-				SVDBMarkerItem.KIND_GENERIC, msg);
-		marker.setLocation(new SVDBLocation(lineno, linepos));
-
-		fFile.addItem(marker);
+		if (fMarkers != null) {
+			SVDBMarker marker = new SVDBMarker(
+					MarkerType.Error, MarkerKind.ParseError, msg);
+			marker.setLocation(new SVDBLocation(lineno, linepos));
+			fMarkers.add(marker);
+		}
 	}
 
-	public SVDBFile parse(InputStream in, String name) {
+	public SVDBFile parse(InputStream in, String name, List<SVDBMarker> markers) {
 		fScopeStack.clear();
-
 		
 		fFile = new SVDBFile(name);
 		fScopeStack.clear();
 		fScopeStack.push(fFile);
-		scan(in, name);
+		scan(in, name, markers);
 
 		return fFile;
 	}
@@ -1489,7 +775,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_interface_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Interface) {
+				&& fScopeStack.peek().getType() == SVDBItemType.InterfaceDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
@@ -1497,17 +783,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_class_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Class) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ClassDecl) {
 //			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
-		}
-	}
-
-	private void leave_struct_decl(String name) {
-		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Struct) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop().setName(name);
 		}
 	}
 
@@ -1527,13 +805,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public void init(ISVScanner scanner) {
-		// TODO Auto-generated method stub
-	}
+	public void init(ISVScanner scanner) {}
 
 	public void leave_module_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Module) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ModuleDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
@@ -1541,17 +817,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void leave_program_decl() {
 		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Program) {
+				&& fScopeStack.peek().getType() == SVDBItemType.ProgramDecl) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
-		}
-	}
-
-	private void setStartLocation(SVDBItem item) {
-		ScanLocation loc = getStartLocation();
-
-		if (loc != null) {
-			item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 		}
 	}
 
@@ -1585,16 +853,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fScopeStack.peek().addItem(inc);
 	}
 
-	public void enter_preproc_conditional(String type, String conditional) {
-
-	}
-
-	public void leave_preproc_conditional() {
-	}
-
-	public void comment(String comment) {
-
-	}
+	public void enter_preproc_conditional(String type, String conditional) {}
+	public void leave_preproc_conditional() {}
+	public void comment(String comment) {}
 
 	public void leave_covergroup() {
 		if (fScopeStack.size() > 0
@@ -1602,15 +863,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
-	}
-
-	public void constraint(String name, String expr) {
-		SVDBConstraint c = new SVDBConstraint(name, expr);
-		setLocation(c);
-		fScopeStack.peek().addItem(c);
-	}
-
-	public void enter_sequence(String name) {
 	}
 
 	public boolean error_limit_reached() {
@@ -1632,8 +884,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
 		
 		// Send the full error forward
-		fLog.debug("Parse Error: " + e.getMessage() + " " + 
-				e.getFilename() + ":" + e.getLineno(), e);
+		String msg = e.getMessage() + " " + 
+				e.getFilename() + ":" + e.getLineno();	
+		fLog.debug("Parse Error: " + msg, e);
 		
 		throw e;
 	}
