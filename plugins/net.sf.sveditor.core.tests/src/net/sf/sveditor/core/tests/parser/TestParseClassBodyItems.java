@@ -356,7 +356,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBClassDecl foobar = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBClassDecl)it;
 				break;
@@ -366,7 +366,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBTypedefStmt foobar_td = null;
 		ISVDBItemBase foobar_i = null;
 		
-		for (ISVDBItemBase it : foobar.getItems()) {
+		for (ISVDBItemBase it : foobar.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar_t")) {
 				foobar_i = it;
 			}
@@ -404,7 +404,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBClassDecl foobar = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBClassDecl)it;
 				break;
@@ -415,7 +415,7 @@ public class TestParseClassBodyItems extends TestCase {
 		ISVDBItemBase foobar_i = null;
 		ISVDBItemBase foobar_i1 = null;
 		
-		for (ISVDBItemBase it : foobar.getItems()) {
+		for (ISVDBItemBase it : foobar.getChildren()) {
 			if (SVDBItem.getName(it).equals("other_foo_t")) {
 				foobar_i = it;
 			} else if (SVDBItem.getName(it).equals("other_foo_t1")) {
@@ -464,7 +464,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
 		SVDBClassDecl foobar = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBClassDecl)it;
 				break;
@@ -474,7 +474,7 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(foobar);
 
 		SVDBCovergroup cg = null, cg2 = null;
-		for (ISVDBItemBase it : foobar.getItems()) {
+		for (ISVDBItemBase it : foobar.getChildren()) {
 			if (SVDBItem.getName(it).equals("cg")) {
 				cg = (SVDBCovergroup)it;
 			} else if (SVDBItem.getName(it).equals("cg2")) {
@@ -501,7 +501,7 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(content, "testEmptyConstraint");
 		
 		SVDBClassDecl foobar = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar")) {
 				foobar = (SVDBClassDecl)it;
 				break;
@@ -511,7 +511,7 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(foobar);
 
 		SVDBConstraint empty_c = null;
-		for (ISVDBItemBase it : foobar.getItems()) {
+		for (ISVDBItemBase it : foobar.getChildren()) {
 			if (SVDBItem.getName(it).equals("empty_c")) {
 				empty_c = (SVDBConstraint)it;
 			}

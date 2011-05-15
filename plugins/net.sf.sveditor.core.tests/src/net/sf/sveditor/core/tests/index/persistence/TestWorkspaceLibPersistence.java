@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -154,6 +156,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testFilelistChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testFilelistChangeDetected");
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -179,7 +182,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-			// System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -196,13 +199,13 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
-		System.out.println("[NOTE] pre-sleep");
+		log.debug("[NOTE] pre-sleep");
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("[NOTE] post-sleep");
+		log.debug("[NOTE] post-sleep");
 
 		// Change class1.svh
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

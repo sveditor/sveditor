@@ -1,4 +1,8 @@
 
+-- 0.6.0.ea4 Release --
+- (#3240224) Corrected issue with recursive inclusion of files
+- 
+
 -- 0.6.0.ea3 Release --
 
 - Correct a parse error with the '**' operator

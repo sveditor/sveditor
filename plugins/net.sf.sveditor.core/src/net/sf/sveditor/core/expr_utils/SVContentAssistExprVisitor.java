@@ -46,6 +46,7 @@ public class SVContentAssistExprVisitor {
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
 	private SVDBFindParameterizedClass	fFindParameterizedClass;
+	private boolean						fStaticAccess;
 	
 	private class SVAbortException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
@@ -100,7 +101,7 @@ public class SVContentAssistExprVisitor {
 				int idx;
 				if ((idx = name.indexOf("::")) != -1) {
 					String class_name = name.substring(0, idx);
-					System.out.println("class_name: " + class_name);
+					fLog.debug("class_name: " + class_name);
 					List<SVDBClassDecl> result = fFindNamedClass.find(class_name);
 					
 					if (result.size() > 0) {
@@ -208,6 +209,7 @@ public class SVContentAssistExprVisitor {
 	protected void field_access_expr(SVDBFieldAccessExpr expr) {
 		fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
 		visit(expr.getExpr());
+		fStaticAccess = expr.isStaticRef();
 		visit(expr.getLeaf());
 	}
 	
@@ -348,7 +350,7 @@ public class SVContentAssistExprVisitor {
 		SVDBTypeInfoUserDef target_type_info = null;
 		SVDBParamValueAssignList param_l = new SVDBParamValueAssignList();
 		
-		System.out.println("resolveArrayType: " + base + " " + base_type);
+		fLog.debug("resolveArrayType: " + base + " " + base_type);
 		
 		switch (var_dim.getDimType()) {
 			case Associative:
@@ -485,7 +487,7 @@ public class SVContentAssistExprVisitor {
 			throw new SVAbortException("Incorrect array-access expression at root");
 		}
 		ISVDBItemBase item = fResolveStack.peek();
-		System.out.println("item=" + item.getType());
+		fLog.debug("item=" + item.getType());
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
 			// Push a non-array version of the variable

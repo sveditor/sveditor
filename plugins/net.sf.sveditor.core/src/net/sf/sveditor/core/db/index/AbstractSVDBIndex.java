@@ -16,8 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
@@ -520,7 +522,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						new NullProgressMonitor(), path);
 				SVDBFileTree ft_root = new SVDBFileTree(
 						(SVDBFile) pp_file.duplicate());
-				buildPreProcFileMap(null, ft_root, missing_includes);
+				Set<String> included_files = new HashSet<String>();
+				buildPreProcFileMap(null, ft_root, missing_includes, included_files);
 			}
 		}
 		
@@ -535,7 +538,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private void buildPreProcFileMap(
 			SVDBFileTree 	parent, 
 			SVDBFileTree 	root,
-			List<String>	missing_includes) {
+			List<String>	missing_includes,
+			Set<String>		included_files) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 
 		fLog.debug("setFileTree " + root.getFilePath());
@@ -549,7 +553,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				createPreProcMacroProvider(root)));
 
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		addPreProcFileIncludeFiles(root, root.getSVDBFile(), markers, missing_includes);
+		included_files.add(root.getFilePath());
+		addPreProcFileIncludeFiles(root, root.getSVDBFile(), markers, 
+				missing_includes, included_files);
 
 		fCache.setFileTree(root.getFilePath(), root);
 		fCache.setMarkers(root.getFilePath(), markers);
@@ -559,7 +565,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			SVDBFileTree 		root,
 			ISVDBScopeItem 		scope,
 			List<SVDBMarker>	markers,
-			List<String>		missing_includes) {
+			List<String>		missing_includes,
+			Set<String>			included_files) {
 		for (int i = 0; i < scope.getItems().size(); i++) {
 			ISVDBItemBase it = scope.getItems().get(i);
 
@@ -582,7 +589,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					root.addIncludedFile(ft.getFilePath());
 					fLog.debug("    Now has " + ft.getIncludedFiles().size()
 							+ " included files");
-					buildPreProcFileMap(root, ft, missing_includes);
+					if (!included_files.contains(f.getItem().getFilePath())) {
+						buildPreProcFileMap(root, ft, missing_includes, included_files);
+					}
 				} else {
 					String missing_path = ((ISVDBNamedItem) it).getName(); 
 					fLog.error("Failed to find include file \""
@@ -604,7 +613,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					markers.add(err);
 				}
 			} else if (it instanceof ISVDBScopeItem) {
-				addPreProcFileIncludeFiles(root, (ISVDBScopeItem) it, markers, missing_includes);
+				addPreProcFileIncludeFiles(root, (ISVDBScopeItem) it, 
+						markers, missing_includes, included_files);
 			}
 		}
 	}
