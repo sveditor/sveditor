@@ -23,21 +23,4 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 		super(name, SVDBItemType.GenerateBlock);
 	}
 	
-	@Override
-	public void init(SVDBItemBase other) {
-		// TODO Auto-generated method stub
-		super.init(other);
-	}
-
-	/*
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBGenerateBlock) {
-			return super.equals(obj);
-		} else {
-			return false;
-		}
-	}
-	 */
-
 }

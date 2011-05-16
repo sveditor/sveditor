@@ -12,8 +12,6 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +29,9 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -44,7 +39,7 @@ import net.sf.sveditor.core.scanner.SVPreProcScanner;
 public class SVDBTestUtils {
 
 	public static void assertNoErrWarn(SVDBFile file) {
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)it;
 				
@@ -98,6 +93,19 @@ public class SVDBTestUtils {
 	}
 
 	public static SVDBFile parse(String content, String filename, boolean exp_err) {
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = parse(null, content, filename, markers);
+		if (!exp_err) {
+			TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		}
+		return file;
+	}
+	
+	public static SVDBFile parse(
+			LogHandle				log,
+			String 					content, 
+			String 					filename,
+			List<SVDBMarker>		markers) {
 		SVDBFile file = null;
 		SVPreProcScanner pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
@@ -112,7 +120,7 @@ public class SVDBTestUtils {
 			public void addMacro(SVDBMacroDef macro) {}
 			
 			public SVDBMacroDef findMacro(String name, int lineno) {
-				for (ISVDBItemBase it : pp_file.getItems()) {
+				for (ISVDBItemBase it : pp_file.getChildren()) {
 					if (it.getType() == SVDBItemType.MacroDef && 
 							SVDBItem.getName(it).equals(name)) {
 						return (SVDBMacroDef)it;
@@ -124,39 +132,16 @@ public class SVDBTestUtils {
 		};
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		file = factory.parse(new StringInputStream(content), filename, markers);
 		
 		for (SVDBMarker m : markers) {
-			System.out.println("[MARKER] " + m.getMessage());
+			if (log != null) {
+				log.debug("[MARKER] " + m.getMessage());
+			} else {
+				System.out.println("[MARKER] " + m.getMessage());
+			}
 		}
-		if (!exp_err) {
-			TestCase.assertEquals("Unexpected errors", 0, markers.size());
-		}
-
-		/*
-		// Test persistence
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		SVDBPersistenceWriter writer = new SVDBPersistenceWriter(bos);
-		try {
-			writer.writeSVDBItem(file);
-		} catch (DBWriteException e) {
-			TestCase.fail("Received DBWriteException: " + e.getMessage());
-		}
-		
-		writer.close();
-		
-		SVDBPersistenceReader reader = new SVDBPersistenceReader(
-				new ByteArrayInputStream(bos.toByteArray()));
-		
-		try {
-			reader.readSVDBItem(null);
-		} catch (DBFormatException e) {
-			e.printStackTrace();
-			TestCase.fail("Received DBFormatException: " + e.getMessage());
-		}
-		 */
 		
 		return file;
 	}
@@ -181,7 +166,7 @@ public class SVDBTestUtils {
 				} else if (name.equals("__LINE__")) {
 					return new SVDBMacroDef("__LINE__", new ArrayList<String>(), "0");
 				} else {
-					for (ISVDBItemBase it : pp_file.getItems()) {
+					for (ISVDBItemBase it : pp_file.getChildren()) {
 						if (it.getType() == SVDBItemType.MacroDef && 
 								SVDBItem.getName(it).equals(name)) {
 							return (SVDBMacroDef)it;

@@ -42,7 +42,7 @@ public class ModuleHierarchyTreeFactory {
 	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcDecl mod) {
 		HierarchyTreeNode ret = new HierarchyTreeNode(parent, mod.getName(), mod);
 		
-		for (ISVDBItemBase it : mod.getItems()) {
+		for (ISVDBItemBase it : mod.getChildren()) {
 			if (it.getType() == SVDBItemType.ModIfcInst) {
 				SVDBModIfcInst inst = (SVDBModIfcInst)it;
 				if (inst.getTypeInfo() == null) {

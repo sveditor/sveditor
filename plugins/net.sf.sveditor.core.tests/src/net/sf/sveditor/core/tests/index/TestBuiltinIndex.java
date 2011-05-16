@@ -24,7 +24,6 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -67,7 +66,8 @@ public class TestBuiltinIndex extends TestCase {
 	
 		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
 		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex("GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
+				rgy.findCreateIndex(new NullProgressMonitor(),
+						"GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());

@@ -17,7 +17,6 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;

@@ -12,8 +12,6 @@
 
 package net.sf.sveditor.ui.tests;
 
-import net.sf.sveditor.ui.tests.editor.SVEditorTester;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 

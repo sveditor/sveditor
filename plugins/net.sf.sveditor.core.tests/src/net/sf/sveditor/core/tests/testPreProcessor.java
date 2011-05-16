@@ -12,14 +12,11 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;

@@ -14,11 +14,9 @@ package net.sf.sveditor.ui.tests.explorer;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -26,12 +24,12 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.content_assist.ContentAssistIndex;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.explorer.PathTreeNode;
 import net.sf.sveditor.ui.explorer.PathTreeNodeFactory;
-import junit.framework.TestCase;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestExplorer extends TestCase {
 	private File 						fTmpDir;

@@ -94,7 +94,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		

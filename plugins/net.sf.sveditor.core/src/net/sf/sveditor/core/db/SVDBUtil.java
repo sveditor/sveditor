@@ -14,6 +14,15 @@ public class SVDBUtil {
 		return count;
 	}
 	
+	public static ISVDBChildItem getFirstChildItem(ISVDBChildParent p) {
+		Iterator<ISVDBChildItem> it = p.getChildren().iterator();
+		if (it.hasNext()) {
+			return it.next();
+		} else {
+			return null;
+		}
+	}
+	
 	public static void addAllChildren(ISVDBChildParent dest, ISVDBChildParent src) {
 		for (ISVDBChildItem c : src.getChildren()) {
 			dest.addChildItem(c);

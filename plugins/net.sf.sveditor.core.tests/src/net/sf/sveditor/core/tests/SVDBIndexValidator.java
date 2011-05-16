@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;

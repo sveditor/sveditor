@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
@@ -86,7 +85,7 @@ public class OverrideMethodsFinder {
 	private List<SVDBTask> getClassOverrideTargets(SVDBClassDecl cls) {
 		List<SVDBTask> ret = new ArrayList<SVDBTask>();
 		
-		for (ISVDBItemBase it : cls.getItems()) {
+		for (ISVDBItemBase it : cls.getChildren()) {
 			if (it.getType() == SVDBItemType.Function ||
 					it.getType() == SVDBItemType.Task) {
 				SVDBTask tf = (SVDBTask)it;
@@ -103,7 +102,7 @@ public class OverrideMethodsFinder {
 
 	private boolean existsInClass(ISVDBItemBase it, SVDBClassDecl cls) {
 		
-		for (ISVDBItemBase it_t : cls.getItems()) {
+		for (ISVDBItemBase it_t : cls.getChildren()) {
 			if (it instanceof ISVDBNamedItem &&
 					((ISVDBNamedItem)it_t).getName().equals(
 							((ISVDBNamedItem)it).getName())) {

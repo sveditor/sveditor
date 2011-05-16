@@ -14,8 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -31,7 +30,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBScopeItem parent, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		String id;
 		String module_type_name = null;
 		SVDBModIfcDecl module = null;
@@ -78,7 +77,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 
 		module.setLocation(start);
 		
-		parent.addItem(module);
+		parent.addChildItem(module);
 		
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
@@ -110,7 +109,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
 					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
-							fLexer.peekKeyword("end"+ type_name)) {
+							!fLexer.peekKeyword("end"+ type_name)) {
 						fLexer.eatToken();
 					}
 				}

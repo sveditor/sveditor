@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;

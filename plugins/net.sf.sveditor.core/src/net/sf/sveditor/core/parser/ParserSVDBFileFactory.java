@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -254,7 +255,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		 */
 	}
 
-	public void process_sequence(ISVDBScopeItem parent) throws SVParseException {
+	public void process_sequence(ISVDBAddChildItem parent) throws SVParseException {
 
 		fLexer.readKeyword("sequence");
 		String name = fLexer.readId();
@@ -262,7 +263,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVDBScopeItem it = new SVDBSequence(name);
 
 		setLocation(it);
-		parent.addItem(it);
+		parent.addChildItem(it);
 		
 
 		String id;
@@ -273,7 +274,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public void process_property(ISVDBScopeItem parent) throws SVParseException {
+	public void process_property(ISVDBAddChildItem parent) throws SVParseException {
 		fLexer.readKeyword("property");
 		String name = fLexer.readId();
 
@@ -281,7 +282,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		setLocation(it);
 
-		parent.addItem(it);
+		parent.addChildItem(it);
 
 		String id;
 		while ((id = scan_statement()) != null) {
@@ -438,7 +439,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		pkg.setName(pkg_name);
 		fLexer.readOperator(";");
 		
-		parent.addItem(pkg);
+		parent.addChildItem(pkg);
 
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
 			top_level_item(pkg);

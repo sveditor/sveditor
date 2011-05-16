@@ -6,11 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
-import javax.net.ssl.SSLEngineResult.Status;
-
-import org.eclipse.core.internal.jobs.JobStatus;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVEditorEclipseJobMgr implements ISVEditorJobMgr {
@@ -45,7 +43,7 @@ public class SVEditorEclipseJobMgr implements ISVEditorJobMgr {
 					}
 				}
 			}
-			return JobStatus.OK_STATUS;
+			return Status.OK_STATUS;
 		}
 	}
 	

@@ -669,11 +669,12 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/caps_extension_files/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(new TestIndexCacheFactory(project_dir));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "caps_extension_files");
-		ISVDBIndex index = rgy.findCreateIndex(path.getName(), path.getAbsolutePath(), 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -699,7 +700,7 @@ public class SrcCollectionBasics extends TestCase {
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());

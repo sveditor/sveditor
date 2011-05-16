@@ -1,7 +1,9 @@
 
 -- 0.6.0.ea4 Release --
 - (#3240224) Corrected issue with recursive inclusion of files
-- 
+- (#3302295) Correct bug in error-recovery logic, resulting in a parser hang
+- Correct a bug with parsing port-map wildcards: module_inst A(.*)
+
 
 -- 0.6.0.ea3 Release --
 

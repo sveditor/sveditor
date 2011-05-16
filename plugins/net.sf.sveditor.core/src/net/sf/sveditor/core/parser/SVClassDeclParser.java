@@ -13,7 +13,7 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
@@ -32,7 +32,7 @@ public class SVClassDeclParser extends SVParserBase {
 	 * @return
 	 * @throws SVParseException
 	 */
-	public void parse(ISVDBScopeItem parent, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		SVDBClassDecl cls = null;
 		SVDBTypeInfoClassType cls_type;
 		String cls_type_name = null;

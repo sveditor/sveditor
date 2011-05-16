@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SmokeTest extends TestCase {

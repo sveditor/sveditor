@@ -250,7 +250,7 @@ public class TestOvmBasics extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -305,7 +305,7 @@ public class TestOvmBasics extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		

@@ -16,25 +16,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.InputStreamCopier;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -107,7 +99,7 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 	
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+		/* ISVDBIndex index = */ rgy.findCreateIndex(new NullProgressMonitor(),
 				"GLOBAL", "org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
 
 		/* TEMP:
@@ -172,8 +164,8 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(tmpdir));
 	
-		ISVDBIndex index = rgy.findCreateIndex("GLOBAL", "org.vmmcentral.vmm", 
-					SVDBPluginLibIndexFactory.TYPE, null);
+		/*ISVDBIndex index = */rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 
+				"org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
 
 		/*
 		Map<String, SVDBFileTree> ft_map = ((SVDBLibIndex)index).getFileTreeMap(new NullProgressMonitor());
