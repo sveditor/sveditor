@@ -14,10 +14,8 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 

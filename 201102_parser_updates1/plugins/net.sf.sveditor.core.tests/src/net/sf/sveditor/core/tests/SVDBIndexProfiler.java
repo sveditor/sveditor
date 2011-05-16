@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.tests;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
@@ -24,8 +26,8 @@ public class SVDBIndexProfiler {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		
-		/* ISVDBIndex index = */ rgy.findCreateIndex("GENERIC", args[0],
-				SVDBSourceCollectionIndexFactory.TYPE, null);
+		/* ISVDBIndex index = */ rgy.findCreateIndex(new NullProgressMonitor(),
+				"GENERIC", args[0], SVDBSourceCollectionIndexFactory.TYPE, null);
 		
 		try {
 			Thread.sleep(30000);

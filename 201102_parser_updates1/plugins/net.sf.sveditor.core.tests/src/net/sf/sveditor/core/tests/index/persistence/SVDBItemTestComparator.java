@@ -19,7 +19,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBItemTestComparator {
 	private Stack<ISVDBScopeItem>			fScopeStack;

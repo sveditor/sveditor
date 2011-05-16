@@ -25,6 +25,7 @@ public class ParserTests extends TestSuite {
 		s.addTest(new TestSuite(TestParseInterfaceBodyItems.class));
 		s.addTest(new TestSuite(TestParseDataTypes.class));
 		s.addTest(new TestSuite(TestParseProgramBlocks.class));
+		s.addTest(new TestSuite(TestSystemParse.class));
 		
 		return s;
 	}

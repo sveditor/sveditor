@@ -1,35 +1,6 @@
 package net.sf.sveditor.core.tests.index.persistence;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestPersistenceUnit extends TestCase {
 	

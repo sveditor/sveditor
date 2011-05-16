@@ -1,7 +1,7 @@
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -40,7 +40,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBScopeItem parent, String typename) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, String typename) throws SVParseException {
 		int modifiers = 0;
 		if (fLexer.peekOperator("(*")) {
 			fParsers.attrParser().parse(parent);
@@ -97,21 +97,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		} else if (id.equals("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
 		} else if (id.equals("class")) {
-			try {
-				parsers().classParser().parse(parent, modifiers);
-			} catch (SVParseException e) {
-//				System.out.println("ParseException: post-class-module()");
-//				e.printStackTrace();
-			}
+			parsers().classParser().parse(parent, modifiers);
 		} else if (id.equals("module") || id.equals("program") ||
 				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
 			// enter module scope
-			// TODO: should probably add this item to the 
-			// File scope here
-			try {
-				parsers().modIfcProgParser().parse(parent, modifiers);
-			} catch (SVParseException e) {
-			}
+			parsers().modIfcProgParser().parse(parent, modifiers);
 		} else if (id.equals("parameter") || id.equals("localparam")) {
 			parse_parameter_decl(parent);
 		} else if (fLexer.peekKeyword("defparam")) {
@@ -167,7 +157,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		debug("<-- process_module_class_interface_body_item"); 
 	}
 	
-	public void parse_parameter_decl(ISVDBScopeItem parent) throws SVParseException {
+	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
 		// local parameter
 		fLexer.readKeyword("parameter", "localparam");
 		
@@ -191,7 +181,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBParamPortDecl p = new SVDBParamPortDecl(data_type);
 		SVDBVarDeclItem pi;
 		
-		parent.addItem(p);
+		parent.addChildItem(p);
 		
 		while (true) {
 			pi = new SVDBVarDeclItem(param_name);
@@ -218,7 +208,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		fLexer.readOperator(";");
 	}
 	
-	public void parse_assign(ISVDBScopeItem parent) throws SVParseException {
+	public void parse_assign(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("assign");
 		SVDBAssign assign = new SVDBAssign();
@@ -240,7 +230,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		parent.addChildItem(assign);
 	}
 	
-	private void parse_var_decl(ISVDBScopeItem parent) throws SVParseException {
+	private void parse_var_decl(ISVDBAddChildItem parent) throws SVParseException {
 		// net type
 		String net_type = fLexer.eatToken();
 		String vector_dim = null;
@@ -310,7 +300,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		fLexer.readOperator(";");
 	}
 	
-	public void parse_var_decl_module_inst(ISVDBScopeItem parent, int modifiers) throws SVParseException {
+	public void parse_var_decl_module_inst(ISVDBAddChildItem parent, int modifiers) throws SVParseException {
 		SVDBTypeInfo type;
 		SVDBLocation start = fLexer.getStartLocation(), item_start;
 
@@ -387,7 +377,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 	}
 	
-	private void parse_final(ISVDBScopeItem parent) throws SVParseException {
+	private void parse_final(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("final");
 		
@@ -399,13 +389,13 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		fParsers.behavioralBlockParser().statement(ret);
 	}
 	
-	private void modport_decl(ISVDBScopeItem parent) throws SVParseException {
+	private void modport_decl(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("modport");
 		SVDBModportDecl modport = new SVDBModportDecl();
 		modport.setLocation(start);
 		
-		parent.addItem(modport);
+		parent.addChildItem(modport);
 		
 		while (fLexer.peek() != null) {
 			start = fLexer.getStartLocation();
@@ -516,7 +506,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		return ret;
 	}
 	
-	private void parse_initial_always(ISVDBScopeItem parent) throws SVParseException {
+	private void parse_initial_always(ISVDBAddChildItem parent) throws SVParseException {
 		ISVDBChildItem ret = null;
 		SVDBLocation start = fLexer.getStartLocation();
 		String type = fLexer.readKeyword("initial", 

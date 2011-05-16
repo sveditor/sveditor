@@ -225,8 +225,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		TestUtils.copy(out, new File(project_dir, "basic_lib_missing_inc/class1_2.svh"));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;

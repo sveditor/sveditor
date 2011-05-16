@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
@@ -24,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -41,19 +43,15 @@ public class SVTaskFunctionParser extends SVParserBase {
 		SVDBScopeItem scope = new SVDBScopeItem();
 		parse(scope, null, true, 0);
 		
-		if (scope.getItems().size() > 0) {
-			return (SVDBTask)scope.getItems().get(0);
-		} else {
-			return null;
-		}
+		return (SVDBTask)SVDBUtil.getFirstChildItem(scope);
 	}
 
 	// Enter on 'function'
-	public void parse(ISVDBScopeItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
 		parse(parent, start, false, qualifiers);
 	}
 	
-	private void parse(ISVDBScopeItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
+	private void parse(ISVDBAddChildItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
 		SVDBTask func = null;
 		SVDBLocation end = null;
 		String tf_name;
@@ -147,7 +145,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		func.setAttr(qualifiers);
 		func.setLocation(start);
 		
-		parent.addItem(func);
+		parent.addChildItem(func);
 		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&

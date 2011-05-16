@@ -38,17 +38,16 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			boolean is_mapped = false;
 			boolean is_wildcard = false;
 			String name = null;
-			if (fLexer.peekOperator(".")) {
+			if (!is_parameter && fLexer.peekOperator(".*")) {
 				fLexer.eatToken();
-				if (!is_parameter && fLexer.peekOperator("*")) {
-					ret.addParameter(new SVDBParamValueAssign("*", (SVDBExpr)null));
-					is_wildcard = true;
-					is_mapped = true;
-				} else {
-					name = fLexer.readId();
-					fLexer.readOperator("(");
-					is_mapped = true;
-				}
+				ret.addParameter(new SVDBParamValueAssign("*", (SVDBExpr)null));
+				is_wildcard = true;
+				is_mapped = true;
+			} else if (fLexer.peekOperator(".")) {
+				fLexer.eatToken();
+				name = fLexer.readId();
+				fLexer.readOperator("(");
+				is_mapped = true;
 			}
 			
 			if (!is_wildcard) {

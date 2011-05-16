@@ -1,6 +1,6 @@
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
@@ -20,7 +20,7 @@ public class SVConstraintParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBScopeItem parent, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		SVDBConstraint c = new SVDBConstraint();
 		// TODO: handle extern constraints
 		c.setLocation(fLexer.getStartLocation());
@@ -30,7 +30,7 @@ public class SVConstraintParser extends SVParserBase {
 		
 		fLexer.readOperator("{");
 		
-		parent.addItem(c);
+		parent.addChildItem(c);
 		
 		while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
 			c.addChildItem(constraint_set_item());

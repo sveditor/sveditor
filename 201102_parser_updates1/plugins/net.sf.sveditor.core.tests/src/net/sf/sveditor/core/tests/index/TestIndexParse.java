@@ -78,7 +78,7 @@ public class TestIndexParse extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 
@@ -108,7 +108,7 @@ public class TestIndexParse extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/testbench.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 
@@ -138,7 +138,7 @@ public class TestIndexParse extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 

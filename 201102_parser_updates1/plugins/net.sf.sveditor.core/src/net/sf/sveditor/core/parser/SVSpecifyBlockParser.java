@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
 
 public class SVSpecifyBlockParser extends SVParserBase {
@@ -21,7 +21,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBItem parse(ISVDBScopeItem parent) throws SVParseException {
+	public SVDBItem parse(ISVDBAddChildItem parent) throws SVParseException {
 		fLexer.readKeyword("specify");
 		
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endspecify")) {

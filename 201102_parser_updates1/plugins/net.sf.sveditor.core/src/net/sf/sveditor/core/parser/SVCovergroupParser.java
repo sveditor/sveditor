@@ -3,8 +3,8 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBCovergroup.BinsKW;
 import net.sf.sveditor.core.db.SVDBCoverpoint;
@@ -28,7 +28,7 @@ public class SVCovergroupParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBScopeItem parent) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("covergroup");
 		String cg_name = fLexer.readId();
