@@ -61,6 +61,8 @@ import net.sf.sveditor.core.db.stmt.SVDBAssumeStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBLabeledStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBElemIterator {
 	private Stack<ISVDBItemBase>			fStack;
@@ -352,6 +354,7 @@ public class SVDBElemIterator {
 			case EventTriggerStmt:
 				event_trigger_stmt((SVDBEventTriggerStmt)item);
 				break;
+			 */
 		
 			case VarDeclStmt:
 				var_decl_stmt((SVDBVarDeclStmt)item);
@@ -359,6 +362,7 @@ public class SVDBElemIterator {
 			case VarDeclItem:
 				var_decl_item((SVDBVarDeclItem)item);
 				break;
+			 /*
 			case VarDimItem:
 				var_dim_item((SVDBVarDimItem)item);
 				break;
@@ -794,6 +798,19 @@ public class SVDBElemIterator {
 		}
 		fStack.pop();
 	}
+
+	protected void var_decl_stmt(SVDBVarDeclStmt stmt) {
+		visit(stmt.getTypeInfo());
+		
+		for (ISVDBChildItem c : stmt.getChildren()) {
+			visit(c);
+		}
+	}
 	
+	protected void var_decl_item(SVDBVarDeclItem item) {
+		if (item.getInitExpr() != null) {
+			visit(item.getInitExpr());
+		}
+	}
 	
 }

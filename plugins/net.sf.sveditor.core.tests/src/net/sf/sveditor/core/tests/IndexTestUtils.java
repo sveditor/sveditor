@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.tests;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -11,13 +12,16 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class IndexTestUtils {
 	
+	@Deprecated
 	public static void assertNoErrWarn(ISVDBIndexIterator index_it) {
 		ISVDBItemIterator item_it = index_it.getItemIterator(new NullProgressMonitor());
 		
@@ -42,6 +46,19 @@ public class IndexTestUtils {
 							file.getName() + ":" + m.getLocation().getLine());
 				}
 			}
+		}
+	}
+
+	public static void assertNoErrWarn(LogHandle log, ISVDBIndex index) {
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> markers = index.getMarkers(file);
+			for (SVDBMarker m : markers) {
+				log.debug(m.getKind() + m.getMessage());
+			}
+		}
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> markers = index.getMarkers(file);
+			TestCase.assertEquals("File " + file, 0, markers.size());
 		}
 	}
 

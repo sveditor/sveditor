@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -98,6 +99,14 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		};
 	}
 	
+	/*
+	@Override
+	public ITextDoubleClickStrategy getDoubleClickStrategy(
+			ISourceViewer sourceViewer, String contentType) {
+		return new SVDoubleClickStrategy();
+	}
+	 */
+
 	@Override
 	public IPresentationReconciler getPresentationReconciler(
 			ISourceViewer		viewer) {

@@ -25,7 +25,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBAddChildItem parent, SVDBLocation start) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start) throws SVParseException {
 		
 		if (fLexer.peekKeyword("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
@@ -50,7 +50,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(fLexer.peek())) && !fLexer.peekKeyword("void")) ||
 					!SVKeywords.isSVKeyword(fLexer.peek())) {
 				// Data declaration or statement
-				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+				if (type == null) {
+					type = parsers().dataTypeParser().data_type(0);
+				}
 				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
 				var_decl.setLocation(start);
 				parent.addChildItem(var_decl);

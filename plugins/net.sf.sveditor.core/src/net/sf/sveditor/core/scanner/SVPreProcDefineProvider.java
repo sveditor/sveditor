@@ -384,6 +384,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					if (fDebugEn) {
 						debug("    post-skip {}: ch=" + (char)ch);
 					}
+				} else if (ch == '"') {
+					while ((ch = scanner.get_ch()) != -1 && 
+							ch != '"' && ch != '\n') {}
+					if (ch == '"') {
+						ch = scanner.get_ch();
+					}
 				}
 			} while (ch != -1 && ch != ',' && ch != ')');
 			

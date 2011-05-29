@@ -10,18 +10,16 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.methodology_templates;
+package net.sf.sveditor.core.templates;
 
-public class MethodologyTemplate {
-	private String				fId;
-	private String				fName;
-	private String				fCategoryId;
-	private String				fTemplate;
+
+public class TemplateCategory {
+	private String							fId;
+	private String							fName;
 	
-	public MethodologyTemplate(String id, String name, String category_id) {
+	public TemplateCategory(String id, String name) {
 		fId = id;
 		fName = name;
-		fCategoryId = (category_id != null)?category_id:"";
 	}
 	
 	public String getId() {
@@ -30,18 +28,6 @@ public class MethodologyTemplate {
 	
 	public String getName() {
 		return fName;
-	}
-	
-	public String getCategoryId() {
-		return fCategoryId;
-	}
-	
-	public String getTemplate() {
-		return fTemplate;
-	}
-	
-	public void setTemplate(String template) {
-		fTemplate = template;
 	}
 
 }

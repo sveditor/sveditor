@@ -1,4 +1,19 @@
 
+-- 0.6.0.ea5 Release --
+
+- Correct parse bug related to parameterized static-reference expressions
+  (eg int a = foo #(A)::b;)
+
+- Correct parse bug related to parameterized static-assignment expressions
+  (eg foo #(A)::b = 2;)
+
+- Correct a macro-argument processing issue related to string macro arguments
+  that contain commas
+
+- Correct a bug in support for unbased, unsigned literals: '0, '1, 'z, 'x
+
+- Correct parse bug with initialized associative arrays
+
 -- 0.6.0.ea4 Release --
 - (#3240224) Corrected issue with recursive inclusion of files
 - (#3302295) Correct bug in error-recovery logic, resulting in a parser hang

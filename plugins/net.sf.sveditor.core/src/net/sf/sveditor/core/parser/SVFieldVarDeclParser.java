@@ -28,7 +28,7 @@ public class SVFieldVarDeclParser extends SVParserBase {
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");
 				}
-				parsers().blockItemDeclParser().parse(parent, null);
+				parsers().blockItemDeclParser().parse(parent, null, null);
 				return true;
 			} else {
 				// May be a declaration. Let's see
@@ -51,7 +51,7 @@ public class SVFieldVarDeclParser extends SVParserBase {
 						error("declaration in a non-declaration location");
 					}
 					
-					parsers().blockItemDeclParser().parse(parent, null);
+					parsers().blockItemDeclParser().parse(parent, null, null);
 				
 					// Bail for now
 					return true; 

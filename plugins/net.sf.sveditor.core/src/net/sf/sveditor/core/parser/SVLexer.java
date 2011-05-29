@@ -763,6 +763,9 @@ public class SVLexer extends SVToken {
 				
 				// TODO: probably should be more selective here
 				ch = readHexNumber(get_ch());
+			} else if (ch == '0' || ch == '1' || ch == 'z' || ch == 'x' || ch == 'Z' || ch == 'X') {
+				fStringBuffer.append((char)ch);
+				ch = -1; // ensure that we don't unget this char
 			} else {
 				ret = false;
 			}

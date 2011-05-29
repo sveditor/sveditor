@@ -19,11 +19,15 @@ import java.util.Set;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
@@ -58,7 +62,6 @@ import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVBehavioralBlockParser extends SVParserBase {
-	private SVDBScopeItem				fTmpScope;
 	
 	public static boolean isDeclAllowed(SVDBStmt stmt) {
 		return (stmt.getType() == SVDBItemType.VarDeclStmt || 
@@ -67,7 +70,6 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	public SVBehavioralBlockParser(ISVParser parser) {
 		super(parser);
-		fTmpScope = new SVDBScopeItem();
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent) throws SVParseException {
@@ -116,7 +118,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");
 				}
-				parsers().blockItemDeclParser().parse(parent, start);
+				parsers().blockItemDeclParser().parse(parent, null, start);
 				return decl_allowed;
 			} else {
 				// May be a declaration. Let's see
@@ -136,23 +138,33 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					for (int i=id_list.size()-1; i>=0; i--) {
 						fLexer.ungetToken(id_list.get(i));
 					}
-					debug("Pre-var parse: " + fLexer.peek());
-					if (!decl_allowed) {
-						error("declaration in a non-declaration location");
-					}
 					
-					parsers().blockItemDeclParser().parse(parent, start);
-				
-					// Bail for now
-					return decl_allowed; 
+					// First, try reading a type to see what's after
+					SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+					
+					if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
+						// behavioral statement
+						debug("Behavioral Statement: " + fLexer.peek());
+						expression_stmt(start, parent, convertTypeInfoToLVal(type));
+						return false;
+					} else {
+						debug("Pre-var parse: " + fLexer.peek());
+						if (!decl_allowed) {
+							error("declaration in a non-declaration location");
+						}
+						
+						parsers().blockItemDeclParser().parse(parent, type, start);
+					
+						// Bail for now
+						return decl_allowed; 
+					}
 				}
 			}
-		} else {
-			
-			// time to move on to the body
-			debug("non-declaration statement: " + fLexer.peek());
-			decl_allowed = false;
 		}
+		
+		// time to move on to the body
+		debug("non-declaration statement: " + fLexer.peek());
+		decl_allowed = false;
 
 		if (fLexer.peekKeyword("begin")) {
 			block_stmt(parent);
@@ -360,44 +372,68 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			} else {
 				fLexer.ungetToken(id);
 
-				// 
-				SVDBExpr lvalue = parsers().exprParser().variable_lvalue();
-
-				// If an assignment
-				if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
-					String op = fLexer.eatToken();
-					SVDBAssignStmt assign_stmt = new SVDBAssignStmt();
-					assign_stmt.setLocation(start);
-					assign_stmt.setLHS(lvalue);
-					assign_stmt.setOp(op);
-					
-					if (fLexer.peekOperator("#")) {
-						assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr());
-					} else if (fLexer.peekOperator("##")) {
-						// Clocking drive
-						assign_stmt.setDelayExpr(fParsers.exprParser().expression());
-					}
-
-					assign_stmt.setRHS(parsers().exprParser().expression());
-					parent.addChildItem(assign_stmt);
-				} else {
-					// Assume this is an expression of some sort
-					debug("  Parsing expression statement starting with \"" + fLexer.peek() + "\"");
-					SVDBExprStmt expr_stmt = new SVDBExprStmt(lvalue);
-					expr_stmt.setLocation(start);
-					parent.addChildItem(expr_stmt);
-				}
-				
-				fLexer.readOperator(";");
+				expression_stmt(start, parent, null);
 			}
-			
 		} else {
 			error("Unknown statement stem: " + fLexer.peek());
 		}
 		
 		debug("<-- statement " + fLexer.peek() + 
-				" @ " + fLexer.getStartLocation().getLine());
+				" @ " + fLexer.getStartLocation().getLine() + " " + decl_allowed);
 		return decl_allowed;
+	}
+	
+	private SVDBExpr convertTypeInfoToLVal(SVDBTypeInfo info) throws SVParseException {
+		if (info instanceof SVDBTypeInfoUserDef) {
+			SVDBTypeInfoUserDef ud = (SVDBTypeInfoUserDef)info;
+			if (ud.getParameters() != null && ud.getParameters().getParameters().size() > 0) {
+				SVDBParamIdExpr p_id = new SVDBParamIdExpr(ud.getName());
+				for (SVDBParamValueAssign pa : ud.getParameters().getParameters()) {
+					p_id.addParamExpr(pa.getValue());
+				}
+				return p_id;
+			} else {
+				return new SVDBIdentifierExpr(ud.getName());
+			}
+		} else {
+			error("Expecting user-defined type");
+			return new SVDBIdentifierExpr(info.getName());
+		}
+	}
+	
+	private void expression_stmt(SVDBLocation start, ISVDBAddChildItem parent, SVDBExpr lvalue) throws SVParseException {
+		debug("--> expression_stmt: " + fLexer.peek());
+		if (lvalue == null) {
+			lvalue = fParsers.exprParser().variable_lvalue();
+		}
+
+		// If an assignment
+		if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
+			String op = fLexer.eatToken();
+			SVDBAssignStmt assign_stmt = new SVDBAssignStmt();
+			assign_stmt.setLocation(start);
+			assign_stmt.setLHS(lvalue);
+			assign_stmt.setOp(op);
+			
+			if (fLexer.peekOperator("#")) {
+				assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr());
+			} else if (fLexer.peekOperator("##")) {
+				// Clocking drive
+				assign_stmt.setDelayExpr(fParsers.exprParser().expression());
+			}
+
+			assign_stmt.setRHS(parsers().exprParser().expression());
+			parent.addChildItem(assign_stmt);
+		} else {
+			// Assume this is an expression of some sort
+			debug("  Parsing expression statement starting with \"" + fLexer.peek() + "\"");
+			SVDBExprStmt expr_stmt = new SVDBExprStmt(lvalue);
+			expr_stmt.setLocation(start);
+			parent.addChildItem(expr_stmt);
+		}
+		
+		fLexer.readOperator(";");
+		debug("<-- expression_stmt: " + fLexer.peek());
 	}
 	
 	public void action_block(SVDBActionBlockStmt parent) throws SVParseException {

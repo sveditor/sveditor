@@ -10,20 +10,14 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.methodology_templates;
+package net.sf.sveditor.core.templates;
 
 import java.util.Map;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanner.SVCharacter;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -33,13 +27,13 @@ public class NewMethodologyClassGen {
 	public static final String			KEY_FILENAME    = "filename";
 	public static final String			KEY_FILENAME_ID = "filename_id";
 	
-	private MethodologyTemplate			fTemplate;
+	private TemplateInfo				fTemplate;
 	private Map<String, String>			fParameters;
 	
 	public void generate(
 			ISVDBIndexIterator			index_it,
 			final IFile					file_path,
-			MethodologyTemplate			template,
+			TemplateInfo			template,
 			Map<String, String>			parameters,
 			IProgressMonitor			monitor) {
 		fTemplate = template;
@@ -54,11 +48,12 @@ public class NewMethodologyClassGen {
 		set_parameter(KEY_FILENAME_ID, 
 				SVCharacter.toSVIdentifier(file_path.getName()));
 		
-		String content = expand(template.getTemplate());
+//		String content = expand(template.getTemplate());
 		
 		// 
 		
 		monitor.subTask("Indenting content");
+		/*
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
@@ -74,6 +69,7 @@ public class NewMethodologyClassGen {
 				file_path.create(in, true, new NullProgressMonitor());
 			}
 		} catch (CoreException e) {}
+		 */
 		
 		monitor.done();
 	}

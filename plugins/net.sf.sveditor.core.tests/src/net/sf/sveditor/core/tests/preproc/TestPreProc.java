@@ -52,7 +52,7 @@ public class TestPreProc extends TestCase {
 		super.tearDown();
 
 		if (fTmpDir != null) {
-//			TestUtils.delete(fTmpDir);
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -81,6 +81,38 @@ public class TestPreProc extends TestCase {
 		pp_scanner.scan();
 		
 		// A passing test does not cause an exception
+	}
+	
+	public void testCommaContainingStringMacroParam() {
+		String doc = 
+				"`define uvm_fatal(ID,MSG) \\\n" +
+				"	begin \\\n" +
+				"	if (uvm_report_enabled(UVM_NONE,UVM_FATAL,ID)) \\\n" +
+				"		uvm_report_fatal (ID, MSG, UVM_NONE, `uvm_file, `uvm_line); \\\n" +
+				"	end\n" +
+				"\n" +
+				"\n" +
+			    "`uvm_fatal(\"PH_BAD_ADD\",\n" +
+					"\"cannot add before begin node, after end node, or with end nodes\")\n" +
+			    "\n"
+				;
+			String expected =
+				"begin \n" +
+				"	if (uvm_report_enabled(UVM_NONE,UVM_FATAL,\"PH_BAD_ADD\")) \n" + 
+				"		uvm_report_fatal (\"PH_BAD_ADD\", \"cannot add before begin node, after end node, or with end nodes\", UVM_NONE, e, e); \n" + 
+				"	end\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle("testCommaContainingStringMacroParam");
+			String result = SVDBTestUtils.preprocess(doc, "testCommaContainingStringMacroParam");
+			SVCorePlugin.getDefault().enableDebug(true);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
 	}
 	
 

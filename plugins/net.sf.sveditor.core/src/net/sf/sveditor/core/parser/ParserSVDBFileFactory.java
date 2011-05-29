@@ -63,7 +63,6 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class ParserSVDBFileFactory implements ISVScanner,
 		IPreProcErrorListener, ISVDBFileFactory, ISVPreProcScannerObserver,
 		ISVParser {
-	private Stack<String> fSemanticScopeStack;
 	private SVScannerTextScanner fInput;
 	private SVLexer fLexer;
 
@@ -85,7 +84,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		setDefineProvider(dp);
 		fScopeStack = new Stack<SVDBScopeItem>();
-		fSemanticScopeStack = new Stack<String>();
 		fSVParsers = new SVParsers(this);
 
 		if (dp != null) {
@@ -163,8 +161,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		try {
 			process_file();
 		} catch (SVParseException e) {
-			System.out.println("ParseException: post-process()");
-			e.printStackTrace();
+			debug("ParseException: post-process()", e);
 		} catch (EOFException e) {
 			e.printStackTrace();
 		}
@@ -368,7 +365,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} else {
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
-
+		
 		while (fLexer.peekOperator("::")) {
 			ret.add(fLexer.consumeToken());
 			if (allow_keywords && fLexer.peekKeyword()) {

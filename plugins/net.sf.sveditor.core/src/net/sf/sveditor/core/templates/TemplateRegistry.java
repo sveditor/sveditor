@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.methodology_templates;
+package net.sf.sveditor.core.templates;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -27,29 +28,30 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 
-public class MethodologyTemplateRegistry {
-	private static MethodologyTemplateRegistry			fDefault;
-	private static LogHandle							fLog;
-	private List<MethodologyCategory>					fCategories;
-	private List<MethodologyTemplate>					fTemplates;
-	private Map<String, List<MethodologyTemplate>>		fCategoryMap;
+public class TemplateRegistry {
+	private static TemplateRegistry				fDefault;
+	private static LogHandle					fLog;
+	private List<TemplateCategory>				fCategories;
+	private List<TemplateInfo>					fTemplates;
+	private Map<String, List<TemplateInfo>>		fCategoryMap;
 	
 	static {
 		fLog = LogFactory.getLogHandle("MethodologyTemplateRegistry");
 	}
 	
-	public MethodologyTemplateRegistry() {
-		fCategories = new ArrayList<MethodologyCategory>();
-		fTemplates  = new ArrayList<MethodologyTemplate>();
-		fCategoryMap = new HashMap<String, List<MethodologyTemplate>>();
+	public TemplateRegistry() {
+		fCategories = new ArrayList<TemplateCategory>();
+		fTemplates  = new ArrayList<TemplateInfo>();
+		fCategoryMap = new HashMap<String, List<TemplateInfo>>();
 		
 		load_extensions();
 	}
 	
-	public static MethodologyTemplateRegistry getDefault() {
+	public static TemplateRegistry getDefault() {
 		if (fDefault == null) {
-			fDefault = new MethodologyTemplateRegistry();
+			fDefault = new TemplateRegistry();
 		}
 		return fDefault;
 	}
@@ -57,7 +59,7 @@ public class MethodologyTemplateRegistry {
 	public List<String> getCategoryNames() {
 		List<String> ret = new ArrayList<String>();
 		
-		for (MethodologyCategory c : fCategories) {
+		for (TemplateCategory c : fCategories) {
 			ret.add(c.getName());
 		}
 		
@@ -67,7 +69,7 @@ public class MethodologyTemplateRegistry {
 	public List<String> getCategoryIDs() {
 		List<String> ret = new ArrayList<String>();
 		
-		for (MethodologyCategory c : fCategories) {
+		for (TemplateCategory c : fCategories) {
 			ret.add(c.getId());
 		}
 		
@@ -80,19 +82,27 @@ public class MethodologyTemplateRegistry {
 	 * @param id
 	 * @return
 	 */
-	public List<MethodologyTemplate> getTemplates(String id) {
-		List<MethodologyTemplate> ret = new ArrayList<MethodologyTemplate>();
+	public List<TemplateInfo> getTemplates(String id) {
+		List<TemplateInfo> ret = new ArrayList<TemplateInfo>();
 		if (id == null) {
 			id = "";
 		}
 		
-		System.out.println("key=\"" + id + "\"");
 		if (fCategoryMap.containsKey(id)) {
-			System.out.println("    contains");
 			ret.addAll(fCategoryMap.get(id));
 		}
 		
 		return ret;
+	}
+	
+	public TemplateInfo findTemplate(String id) {
+		for (TemplateInfo info : fTemplates) {
+			if (info.getId().equals(id)) {
+				return info;
+			}
+		}
+		
+		return null;
 	}
 
 	private void load_extensions() {
@@ -121,8 +131,8 @@ public class MethodologyTemplateRegistry {
 		// Sort the categories
 		for (int i=0; i<fCategories.size(); i++) {
 			for (int j=i+1; j<fCategories.size(); j++) {
-				MethodologyCategory c_i = fCategories.get(i);
-				MethodologyCategory c_j = fCategories.get(j);
+				TemplateCategory c_i = fCategories.get(i);
+				TemplateCategory c_j = fCategories.get(j);
 				
 				if (c_j.getName().compareTo(c_i.getName()) < 0) {
 					fCategories.set(j, c_i);
@@ -131,23 +141,23 @@ public class MethodologyTemplateRegistry {
 			}
 		}
 		
-		for (MethodologyTemplate t : fTemplates) {
+		for (TemplateInfo t : fTemplates) {
 			if (!fCategoryMap.containsKey(t.getCategoryId())) {
-				fCategoryMap.put(t.getCategoryId(), new ArrayList<MethodologyTemplate>());
+				fCategoryMap.put(t.getCategoryId(), new ArrayList<TemplateInfo>());
 			}
 			fCategoryMap.get(t.getCategoryId()).add(t);
 		}
 		
 		// Now, sort the templates in each category
-		for (Entry<String, List<MethodologyTemplate>> c : fCategoryMap.entrySet()) {
-			List<MethodologyTemplate> t = c.getValue();
+		for (Entry<String, List<TemplateInfo>> c : fCategoryMap.entrySet()) {
+			List<TemplateInfo> t = c.getValue();
 			
 			System.out.println("Category \"" + c.getKey() + "\" has " + c.getValue().size());
 			
 			for (int i=0; i<t.size(); i++) {
 				for (int j=i+1; j<t.size(); j++) {
-					MethodologyTemplate t_i = t.get(i);
-					MethodologyTemplate t_j = t.get(j);
+					TemplateInfo t_i = t.get(i);
+					TemplateInfo t_j = t.get(j);
 					
 					if (t_j.getName().compareTo(t_i.getName()) < 0) {
 						t.set(i, t_j);
@@ -161,7 +171,7 @@ public class MethodologyTemplateRegistry {
 	private void addMethodologyCategory(IConfigurationElement ce) {
 		String id		= ce.getAttribute("id");
 		String name 	= ce.getAttribute("name");
-		MethodologyCategory c = new MethodologyCategory(id, name);
+		TemplateCategory c = new TemplateCategory(id, name);
 		
 		fCategories.add(c);
 	}
@@ -170,13 +180,27 @@ public class MethodologyTemplateRegistry {
 		String id				= ce.getAttribute("id");
 		String name				= ce.getAttribute("name");
 		String category			= ce.getAttribute("category");
-		String templateFile		= ce.getAttribute("templateFile");
+		String description		= "";
+		Bundle bundle 			= Platform.getBundle(ce.getContributor().getName());
 		
-		if (id != null && name != null && templateFile != null) {
-			StringBuilder sb = SVCorePlugin.readResourceFile(ce, "templateFile");
-			MethodologyTemplate t = new MethodologyTemplate(id, name, category);
-			t.setTemplate(sb.toString());
-			fTemplates.add(t);
+		for (IConfigurationElement ce_c : ce.getChildren()) {
+			if (ce_c.getName().equals("description")) {
+				description = ce_c.getValue();
+			}
+		}
+
+		TemplateInfo info = new TemplateInfo(id, name, category, description, 
+				new PluginInStreamProvider(bundle));
+		fTemplates.add(info);
+		
+		for (IConfigurationElement ce_c : ce.getChildren()) {
+			if (ce_c.getName().equals("templateFiles")) {
+				for (IConfigurationElement tmpl : ce_c.getChildren()) {
+					String template = tmpl.getAttribute("template");
+					String tmpl_name = tmpl.getAttribute("name");
+					info.addTemplate(new Tuple<String, String>(template, tmpl_name));
+				}
+			}
 		}
 	}
 }

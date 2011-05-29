@@ -226,6 +226,14 @@ public class SVDataTypeParser extends SVParserBase {
 			error("Invalid type name \"" + fLexer.peek() + "\"");
 		} else {
 			String id = fLexer.eatToken();
+			SVDBParamValueAssignList p_list = null;
+			
+			// Parameterized type?
+			if (fLexer.peekOperator("#")) {
+				fLexer.eatToken();
+				// Read in parameter list
+				p_list = parsers().paramValueAssignParser().parse(false);
+			}
 			// Should be a user-defined type
 			if (fLexer.peekOperator("::")) {
 				StringBuilder type_id = new StringBuilder();
@@ -262,6 +270,8 @@ public class SVDataTypeParser extends SVParserBase {
 			} else {
 				type = new SVDBTypeInfoUserDef(id);
 			}
+			
+			((SVDBTypeInfoUserDef)type).setParameters(p_list);
 			
 			if (fLexer.peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);

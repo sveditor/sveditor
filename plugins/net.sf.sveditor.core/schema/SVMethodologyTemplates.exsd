@@ -53,6 +53,7 @@
          <choice>
             <sequence minOccurs="0" maxOccurs="1">
                <element ref="description"/>
+               <element ref="templateFiles"/>
             </sequence>
          </choice>
          <attribute name="name" type="string" use="required">
@@ -73,30 +74,6 @@
             <annotation>
                <documentation>
                   
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="templateFile" type="string" use="required">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-               <appInfo>
-                  <meta.attribute kind="resource"/>
-               </appInfo>
-            </annotation>
-         </attribute>
-         <attribute name="superclass" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="superclass_selectable" type="boolean" use="default" value="true">
-            <annotation>
-               <documentation>
-                  Specifies whether the super class is user-specifiable.
                </documentation>
             </annotation>
          </attribute>
@@ -125,10 +102,34 @@
    <element name="description" type="string">
    </element>
 
-   <element name="template" type="string">
+   <element name="templateFile">
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="template" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
    </element>
 
-   <element name="new_element" type="string">
+   <element name="templateFiles">
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="templateFile"/>
+         </sequence>
+      </complexType>
    </element>
 
    <annotation>

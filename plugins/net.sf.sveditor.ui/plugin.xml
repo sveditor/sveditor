@@ -169,7 +169,7 @@
             wizardId="net.sf.sveditor.ui.svMethodologyClassWizard">
          <enablement></enablement>
       </commonWizard>
-       -->
+      -->
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -497,7 +497,7 @@
             name="SystemVerilog Methodology Class"
             project="false">
       </wizard>
-       -->
+      -->
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

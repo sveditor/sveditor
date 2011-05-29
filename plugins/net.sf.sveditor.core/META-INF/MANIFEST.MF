@@ -34,11 +34,12 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.fileset,
  net.sf.sveditor.core.indent,
  net.sf.sveditor.core.log,
- net.sf.sveditor.core.methodology_templates,
  net.sf.sveditor.core.open_decl,
  net.sf.sveditor.core.parser,
  net.sf.sveditor.core.scanner,
  net.sf.sveditor.core.scanutils,
  net.sf.sveditor.core.srcgen,
- net.sf.sveditor.core.svf_scanner
+ net.sf.sveditor.core.svf_scanner,
+ net.sf.sveditor.core.templates,
+ net.sf.sveditor.core.text
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

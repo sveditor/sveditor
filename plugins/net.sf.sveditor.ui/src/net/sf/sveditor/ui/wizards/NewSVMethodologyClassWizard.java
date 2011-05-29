@@ -58,6 +58,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	public IWizardPage getNextPage(IWizardPage page) {
 		IWizardPage p = super.getNextPage(page);
 		
+		System.out.println("getNextPage: " + p);
+		
 		if (p == fSpecificsPage) {
 			fSpecificsPage.setSourceFolder(fBasicsPage.getSourceFolder());
 			fSpecificsPage.setTemplate(fBasicsPage.getTemplate());
@@ -65,6 +67,14 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 		}
 		
 		return p;
+	}
+	
+	
+
+	@Override
+	public boolean canFinish() {
+		// TODO Auto-generated method stub
+		return super.canFinish();
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {

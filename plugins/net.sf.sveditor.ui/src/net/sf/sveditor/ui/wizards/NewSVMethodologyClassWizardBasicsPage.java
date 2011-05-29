@@ -19,9 +19,9 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.methodology_templates.MethodologyTemplate;
-import net.sf.sveditor.core.methodology_templates.MethodologyTemplateRegistry;
 import net.sf.sveditor.core.scanner.SVCharacter;
+import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
@@ -56,7 +56,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	
 	private Combo					fCategoryCombo;	
 	private Combo					fTemplateCombo;
-	private MethodologyTemplate		fTemplate;
+	private TemplateInfo		fTemplate;
 	
 	
 	public NewSVMethodologyClassWizardBasicsPage() {
@@ -80,7 +80,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		return fFileNameStr;
 	}
 	
-	public MethodologyTemplate getTemplate() {
+	public TemplateInfo getTemplate() {
 		return fTemplate;
 	}
 	
@@ -216,11 +216,11 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fTemplateCombo.setLayoutData(gd);
 		fTemplateCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				MethodologyTemplateRegistry rgy = 
-					MethodologyTemplateRegistry.getDefault();
+				TemplateRegistry rgy = 
+					TemplateRegistry.getDefault();
 				List<String> category_ids = rgy.getCategoryIDs();
 				String id = category_ids.get(fCategoryCombo.getSelectionIndex());
-				List<MethodologyTemplate> templates = rgy.getTemplates(id);
+				List<TemplateInfo> templates = rgy.getTemplates(id);
 				fTemplate = templates.get(fTemplateCombo.getSelectionIndex());
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -234,8 +234,8 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	}
 	
 	private void loadCategoryList() {
-		MethodologyTemplateRegistry rgy = 
-			MethodologyTemplateRegistry.getDefault();
+		TemplateRegistry rgy = 
+			TemplateRegistry.getDefault();
 		List<String> names = new ArrayList<String>();
 		names.addAll(rgy.getCategoryNames());
 		
@@ -257,11 +257,11 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	}
 	
 	private void updateTemplateList() {
-		MethodologyTemplateRegistry rgy = 
-			MethodologyTemplateRegistry.getDefault();
+		TemplateRegistry rgy = 
+			TemplateRegistry.getDefault();
 		List<String> category_ids = rgy.getCategoryIDs();
 		String id = category_ids.get(fCategoryCombo.getSelectionIndex());
-		List<MethodologyTemplate> templates = rgy.getTemplates(id);
+		List<TemplateInfo> templates = rgy.getTemplates(id);
 		
 		String items[] = new String[templates.size()];
 		for (int i=0; i<templates.size(); i++) {
