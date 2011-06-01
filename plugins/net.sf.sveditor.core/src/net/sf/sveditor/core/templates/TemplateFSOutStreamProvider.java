@@ -13,7 +13,6 @@ public class TemplateFSOutStreamProvider implements ITemplateOutStreamProvider {
 		fRoot = root;
 	}
 
-	@Override
 	public OutputStream openStream(String path) {
 		File target = new File(fRoot, path);
 		try {
@@ -23,7 +22,6 @@ public class TemplateFSOutStreamProvider implements ITemplateOutStreamProvider {
 		return null;
 	}
 
-	@Override
 	public void closeStream(OutputStream out) {
 		try {
 			out.close();

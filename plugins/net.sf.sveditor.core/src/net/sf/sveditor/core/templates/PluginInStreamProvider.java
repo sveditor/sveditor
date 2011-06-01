@@ -13,7 +13,6 @@ public class PluginInStreamProvider implements ITemplateInStreamProvider {
 		fBundle = bundle;
 	}
 
-	@Override
 	public InputStream openStream(String path) {
 		URL url = fBundle.getEntry(path);
 		InputStream in = null;
@@ -27,7 +26,6 @@ public class PluginInStreamProvider implements ITemplateInStreamProvider {
 		return in;
 	}
 
-	@Override
 	public void closeStream(InputStream in) {
 		try {
 			in.close();
