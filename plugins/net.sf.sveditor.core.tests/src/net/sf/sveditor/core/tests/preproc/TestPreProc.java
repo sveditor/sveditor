@@ -16,10 +16,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -115,6 +119,49 @@ public class TestPreProc extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 	
+	public void testMacroArgExpansion() {
+		String doc = 
+				"`define test(ID) int MY_``ID``_FIELD\n" +
+				"`test(A);\n"
+				;
+			String expected =
+				"int MY_A_FIELD;\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle("testMacroArgExpansion");
+			String result = SVDBTestUtils.preprocess(doc, "testMacroArgExpansion");
+			SVCorePlugin.getDefault().enableDebug(true);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testMacroArgMacroExpansion() {
+		String doc = 
+				"`define MY_A_FIELD foo\n" +
+				"`define MY_B_FIELD bar\n" +
+				"`define test(ID) int `MY_``ID``_FIELD\n" +
+				"`test(A);\n"
+				;
+			String expected = 
+				"int  foo;\n"
+				;
+				
+			SVCorePlugin.getDefault().enableDebug(true);
+			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
+			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
 
 	public void disabled_testPreProcVMM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -330,6 +377,119 @@ public class TestPreProc extends TestCase {
 		scanner.close();
 		
 		assertTrue((sb.indexOf("end )") == -1));
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testSingleLineCommentMacro() {
+		String doc = 
+				"`define test_comment(ID) \\\n" +
+				"	int LINE1;\\\n" +
+				"	// int LINE2;\\\n" +
+				"	int LINE3;\n" +
+				"\n" +
+				"`test_comment(A)\n"
+				;
+			String expected =
+				"int LINE1;\n" +
+				"	// int LINE2;\n" +
+				"	int LINE3;\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle("testSingleLineCommentMacro");
+			String result = SVDBTestUtils.preprocess(doc, "testSingleLineCommentMacro");
+			SVCorePlugin.getDefault().enableDebug(true);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testUVMFieldArrayIntExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle("testUVMFieldArrayIntExpansion");
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		
+		PrintStream ps;
+		
+		// Create uvm_fields.svh
+		ps = new PrintStream(new File(fTmpDir, "uvm_fields.svh"));
+		ps.println("`include \"uvm_macros.svh\"");
+		ps.println();
+		ps.println("class uvm_tlm_generic_payload extends uvm_sequence_item;");
+		ps.println("	`uvm_object_utils_begin(uvm_tlm_generic_payload)");
+//		ps.println("      `uvm_field_int(m_address, UVM_ALL_ON);");
+//		ps.println("      `uvm_field_enum(uvm_tlm_command_e, m_command, UVM_ALL_ON);");
+		ps.println("      `uvm_field_array_int(m_data, UVM_ALL_ON);");
+//		ps.println("      `uvm_field_int(m_length, UVM_ALL_ON);");
+//		ps.println("      `uvm_field_enum(uvm_tlm_response_status_e, m_response_status, UVM_ALL_ON);");
+//		ps.println("      `uvm_field_array_int(m_byte_enable, UVM_ALL_ON);");
+//		ps.println("      `uvm_field_int(m_streaming_width, UVM_ALL_ON);");
+		ps.println("	`uvm_object_utils_end");
+		ps.println("endclass");
+		ps.close();
+
+
+		// Create test.f
+		ps = new PrintStream(new File(fTmpDir, "test.f"));
+		ps.println("+incdir+./uvm/src");
+		ps.println("./uvm/src/uvm_pkg.sv");
+		ps.println("./uvm_fields.svh");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				new NullProgressMonitor(), "GLOBAL", 
+				new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		File target = new File(fTmpDir, "uvm_fields.svh");
+		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(scanner);
+		
+		StringBuilder sb = new StringBuilder();
+		int ch;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			sb.append((char)ch);
+		}
+		int lineno=1;
+		StringBuilder line = new StringBuilder();
+		for (int i=0; i<sb.length(); i++) {
+			while (i<sb.length() && sb.charAt(i) != '\n') {
+				if (sb.charAt(i) != '\r') {
+					line.append(sb.charAt(i));
+				}
+				i++;
+			}
+			if (sb.charAt(i) == '\n') {
+				i++;
+			}
+			log.debug(lineno + ": " + line.toString());
+			line.setLength(0);
+			lineno++;
+		}
+		scanner.close();
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = SVDBTestUtils.parse(log, sb.toString(), "uvm_fields.svh", markers);
+		
+		assertEquals("Errors", 0, markers.size());
+		
+//		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);
 	}
 

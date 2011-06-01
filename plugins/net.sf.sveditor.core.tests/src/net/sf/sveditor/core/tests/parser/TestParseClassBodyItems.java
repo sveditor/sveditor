@@ -290,7 +290,7 @@ public class TestParseClassBodyItems extends TestCase {
 
 		runTest("testBuiltinExternTasks", content, new String[] {"process"});
 	}
-	
+
 	public void testClassStringFields() {
 		String content = 
 			"class __sv_builtin_covergroup_options;\n" +

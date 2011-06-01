@@ -32,6 +32,7 @@ import net.sf.sveditor.core.tests.parser.ParserTests;
 import net.sf.sveditor.core.tests.preproc.TestPreProc;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
+import net.sf.sveditor.core.tests.templates.TemplateTests;
 
 public class CoreReleaseTests extends TestSuite {
 	
@@ -63,6 +64,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(SrcGenTests.suite());
 		addTest(OpenDeclTests.suite());
 		addTest(new TestSuite(FileSetTests.class));
+		addTest(TemplateTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {

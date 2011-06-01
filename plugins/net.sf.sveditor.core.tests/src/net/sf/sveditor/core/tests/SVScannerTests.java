@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
@@ -63,10 +64,10 @@ public class SVScannerTests extends TestCase {
 		for (SVDBMarker m : markers) {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
-		assertEquals(1, file.getItems().size());
-		assertTrue(file.getItems().get(0) instanceof SVDBModIfcDecl);
+		assertEquals(1, SVDBUtil.getChildrenSize(file));
+		assertTrue(SVDBUtil.getFirstChildItem(file) instanceof SVDBModIfcDecl);
 		
-		SVDBModIfcDecl m = (SVDBModIfcDecl)file.getItems().get(0);
+		SVDBModIfcDecl m = (SVDBModIfcDecl)SVDBUtil.getFirstChildItem(file);
 		assertEquals("foo", m.getName());
 		
 		for (ISVDBChildItem it : m.getChildren()) {

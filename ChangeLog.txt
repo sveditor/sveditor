@@ -14,6 +14,19 @@
 
 - Correct parse bug with initialized associative arrays
 
+- Correct parse bug involving a delay value derived from a field reference
+  (eg #obj.foo;)
+
+- Correct expansion of macros containing embedded parameter references
+  (eg `define MY_A_MACRO `define MY(P) `MY_``P``_MACRO)
+
+- Correct parse bug related to type parameters (foo #(unsigned int) bar;)
+
+- Enable macros with embedded single-line comments
+
+- Improve ability to distinguish between type declarations and 
+  type-based references
+
 -- 0.6.0.ea4 Release --
 - (#3240224) Corrected issue with recursive inclusion of files
 - (#3302295) Correct bug in error-recovery logic, resulting in a parser hang

@@ -36,7 +36,7 @@ public class testSVScannerLineNumbers implements IApplication {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile f =  factory.parse(in, "tlm_imps.svh", markers);
 		
-		for (ISVDBItemBase it : f.getItems()) {
+		for (ISVDBItemBase it : f.getChildren()) {
 			System.out.println("item \"" + SVDBItem.getName(it) + "\" @ line " + it.getLocation().getLine());
 		}
 		

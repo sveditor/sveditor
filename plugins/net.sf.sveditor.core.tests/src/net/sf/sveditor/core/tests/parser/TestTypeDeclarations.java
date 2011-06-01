@@ -49,12 +49,58 @@ public class TestTypeDeclarations extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "t", "item");
 	}
 
+	public void testTypeParameterizedClass() {
+		String content = 
+			"class t;\n" +
+			"	function f();\n" +
+			"		item_t #(int unsigned)::set(5);\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+	}
+
+	public void testBuiltinTypeCast() {
+		String content = 
+			"class t;\n" +
+			"	function f();\n" +
+			"		int i = int'(test_func());\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+	}
+
+	public void testVoidCast() {
+		String content = 
+			"class t;\n" +
+			"	function f();\n" +
+			"		void'(test_func());\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+	}
+
 	public void testParameterizedFieldInit() {
 		String content = 
 			"class t;\n" + 
 			"	function foo;\n" +
-			"		int i;\n" +
-			"		i = 4;\n" +
 			"		item_t #(P)::item = 5;\n" +
 			"	endfunction\n" +
 			"endclass\n"

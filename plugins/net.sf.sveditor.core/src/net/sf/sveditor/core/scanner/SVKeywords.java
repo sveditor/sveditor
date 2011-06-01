@@ -272,6 +272,7 @@ public class SVKeywords {
 	};
 	
 	public static final Set<String>					fBuiltinTypes;
+	public static final Set<String>					fBuiltinDeclTypes;
 	private static final Map<String, Boolean>		fKeywordMap;
 	public static final Set<String>					fBuiltinGates;
 	public static final Set<String>					fStrength0;
@@ -291,8 +292,12 @@ public class SVKeywords {
 		}
 		
 		fBuiltinTypes = new HashSet<String>();
+		fBuiltinDeclTypes = new HashSet<String>();
 		for (String n : fTypeStrings) {
 			fBuiltinTypes.add(n);
+			if (!n.equals("void")) {
+				fBuiltinDeclTypes.add(n);
+			}
 		}
 		
 		fBuiltinGates = new HashSet<String>();

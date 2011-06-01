@@ -492,6 +492,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			if (ch == '"' && last_ch != '`') {
 				// un-escaped string
 				while ((ch = scanner.get_ch()) != -1 && ch != '"') { }
+			} else if (ch == '`' && last_ch == '`') {
+				// Handle `` as a token separator
+				scanner.replace(scanner.getOffset()-2, scanner.getOffset(), "");
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				int p_start = scanner.getOffset()-1;
 				

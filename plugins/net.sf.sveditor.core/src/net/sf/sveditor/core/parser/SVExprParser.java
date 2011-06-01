@@ -768,6 +768,13 @@ public class SVExprParser extends SVParserBase {
 					return ctor_call();
 				} else if (peekKeyword("with")) {
 					return tf_noargs_with_call(null, id);
+				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
+					fLexer.startCapture();
+					fLexer.eatToken();
+					if (fLexer.peekKeyword("signed","unsigned")) {
+						fLexer.eatToken();
+					}
+					return new SVDBIdentifierExpr(fLexer.endCapture());
 				} else {
 					ret = new SVDBIdentifierExpr(id);
 					debug("  after id-read: " + peek());

@@ -10,23 +10,18 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.methodology_templates;
+package net.sf.sveditor.core.tests.templates;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
-import org.apache.tools.ant.taskdefs.optional.extension.LibFileSet;
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibIndex;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.templates.TemplateFSOutStreamProvider;
@@ -35,13 +30,12 @@ import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.TestNullIndexCache;
 import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.core.text.TagProcessor;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestMethodologyTemplates extends TestCase {
 	

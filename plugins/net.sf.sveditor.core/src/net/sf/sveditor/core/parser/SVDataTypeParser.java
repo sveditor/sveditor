@@ -96,6 +96,7 @@ public class SVDataTypeParser extends SVParserBase {
 	
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
 		SVDBTypeInfo type = null;
+		SVToken tok;
 		
 		if (fLexer.peekKeyword(IntegerVectorType)) {
 			// integer_vector_type [signing] { packed_dimension }
@@ -139,8 +140,8 @@ public class SVDataTypeParser extends SVParserBase {
 		} else if (fLexer.peekKeyword(NonIntegerType)) {
 			type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 		} else if (fLexer.peekKeyword("struct", "union")) {
-			String id = fLexer.readKeyword("struct", "union");
-			if (id.equals("union")) {
+			tok = fLexer.readKeywordTok("struct", "union");
+			if (tok.getImage().equals("union")) {
 				if (fLexer.peekKeyword("tagged")) {
 					fLexer.eatToken();
 				}
@@ -163,7 +164,8 @@ public class SVDataTypeParser extends SVParserBase {
 				// TODO: use this somehow (?)
 				fLexer.eatToken();
 			}
-			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(fLexer.readId());
+			tok = fLexer.readIdTok();
+			SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(tok.getImage());
 			if (fLexer.peekOperator("#")) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 				ud_type.setParameters(plist);

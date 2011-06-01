@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,6 @@ import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
@@ -106,13 +106,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 
 		// Try for a declaration here
-		if (fLexer.peekKeyword(decl_keywords) ||
-				(fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void")) ||
+		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 				fLexer.isIdentifier() || fLexer.peekKeyword("typedef")) {
-			boolean builtin_type = (fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void"));
+//			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
 			
-			if (fLexer.peekKeyword(decl_keywords) || 
-					(fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void")) ||
+			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 					fLexer.peekKeyword("typedef")) {
 				// Definitely a declaration
 				if (!decl_allowed) {
@@ -122,7 +120,53 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				return decl_allowed;
 			} else {
 				// May be a declaration. Let's see
+				// pkg::cls #(P)::field = 2; 
+				// pkg::cls #(P)::type var;
+				// field.foo
+				SVToken tok = fLexer.consumeToken();
 				
+				if (fLexer.peekOperator("::","#") || fLexer.peekId()) {
+					// Likely to be a declaration. Let's read a type
+					fLexer.ungetToken(tok);
+					final List<SVToken> tok_l = new ArrayList<SVToken>();
+					ISVTokenListener l = new ISVTokenListener() {
+						public void tokenConsumed(SVToken tok) {
+							tok_l.add(tok);
+						}
+						public void ungetToken(SVToken tok) {
+							tok_l.remove(tok_l.size()-1);
+						}
+					}; 
+					SVDBTypeInfo type = null;
+					try {
+						fLexer.addTokenListener(l);
+						type = parsers().dataTypeParser().data_type(0);
+					} finally {
+						fLexer.removeTokenListener(l);
+					}
+					
+					// Okay, what's next?
+					if (fLexer.peekId()) {
+						// Conclude that this is a declaration
+						debug("Assume a declaration @ " + fLexer.peek());
+						if (!decl_allowed) {
+							error("declaration in a non-declaration location");
+						}
+						
+						parsers().blockItemDeclParser().parse(parent, type, start);
+						return decl_allowed;
+					} else {
+						debug("Assume a typed reference @ " + fLexer.peek());
+						// Else, this is probably a typed reference
+						fLexer.ungetToken(tok_l);
+						// Fall through
+					}
+				} else {
+					// More likely to not be a type
+					fLexer.ungetToken(tok);
+				}
+				
+				/*
 				// Variable declarations
 				List<SVToken> id_list = parsers().SVParser().scopedStaticIdentifier_l(true);
 			
@@ -159,6 +203,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 						return decl_allowed; 
 					}
 				}
+				 */
 			}
 		}
 		

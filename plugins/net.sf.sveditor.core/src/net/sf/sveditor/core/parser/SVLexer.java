@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,8 @@ public class SVLexer extends SVToken {
 	private Set<String>					f3SeqPrefixes;
 	private Set<String>					fOperatorSet;
 	private Set<String>					fKeywordSet;
+	
+	private List<ISVTokenListener>		fTokenListeners;
 	
 	private boolean						fTokenConsumed;
 	private boolean						fNewlineAsOperator;
@@ -100,6 +103,8 @@ public class SVLexer extends SVToken {
 		
 		fUngetStack = new Stack<SVToken>();
 		
+		fTokenListeners = new ArrayList<ISVTokenListener>();
+		
 		for (String op : AllOperators) {
 			if (op.length() == 3) {
 				f3SeqPrefixes.add(op.substring(0, 1));
@@ -117,6 +122,14 @@ public class SVLexer extends SVToken {
 			fKeywordSet.add(kw);
 		}
 		fEOF = false;
+	}
+	
+	public void addTokenListener(ISVTokenListener l) {
+		fTokenListeners.add(l);
+	}
+	
+	public void removeTokenListener(ISVTokenListener l) {
+		fTokenListeners.remove(l);
 	}
 	
 	public void setNewlineAsOperator(boolean en) {
@@ -161,6 +174,9 @@ public class SVLexer extends SVToken {
 	}
 	
 	public void ungetToken(SVToken tok) {
+		if (fDebugEn) {
+			debug("ungetToken : \"" + tok.getImage() + "\"");
+		}
 		// If the current token is valid, then push it back
 		if (!fTokenConsumed) {
 			fUngetStack.push(this.duplicate());
@@ -176,6 +192,12 @@ public class SVLexer extends SVToken {
 				fCaptureBuffer.setLength(fCaptureBuffer.length()-1);
 			}
 			fCaptureLastToken = tok.duplicate();
+		}
+		
+		if (fTokenListeners.size() > 0) {
+			for (ISVTokenListener l : fTokenListeners) {
+				l.ungetToken(tok);
+			}
 		}
 		
 		fUngetStack.push(tok);
@@ -383,7 +405,26 @@ public class SVLexer extends SVToken {
 		
 		return eatToken();
 	}
-	
+
+	public SVToken readKeywordTok(String ... kw) throws SVParseException {
+		
+		if (!peekKeyword(kw)) {
+			StringBuilder sb = new StringBuilder();
+			
+			for (int i=0; i<kw.length; i++) {
+				sb.append(kw[i]);
+				if (i+1 < kw.length) {
+					sb.append(", ");
+				}
+			}
+			
+			error("Expecting one of keyword \"" + 
+					sb.toString() + "\" ; received \"" + fImage + "\"");
+		}
+		
+		return consumeToken();
+	}
+
 	public String eatToken() {
 		peek();
 		if (fCapture) {
@@ -394,6 +435,12 @@ public class SVLexer extends SVToken {
 			}
 			fCaptureBuffer.append(fImage);
 			fCaptureLastToken = duplicate(); // copy token
+		}
+		if (fTokenListeners.size() > 0) {
+			SVToken tok = this.duplicate();
+			for (ISVTokenListener l : fTokenListeners) {
+				l.tokenConsumed(tok);
+			}
 		}
 		fTokenConsumed = true;
 		return fImage;

@@ -639,7 +639,7 @@ public class SrcCollectionBasics extends TestCase {
 			log.debug("it_t: " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
 		
-		IndexTestUtils.assertNoErrWarn(index);
+		IndexTestUtils.assertNoErrWarn(log, index);
 		
 		IndexTestUtils.assertFileHasElements(index, "top", "xx", "xxx", "xxxx", "xxxxx");
 		
