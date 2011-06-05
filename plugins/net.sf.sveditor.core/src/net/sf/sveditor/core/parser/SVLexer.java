@@ -803,11 +803,17 @@ public class SVLexer extends SVToken {
 			if ((ch = get_ch()) == -1) {
 				error("unexpected EOF after \"'\"");
 			}
-
+			
 			if (isBaseDigit(ch)) {
 				// Append the base
 				fStringBuffer.append((char)ch);
 				
+				while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+
+				if (ch == -1) {
+					error("unexpected EOF after base digit");
+				}
+
 				// TODO: probably should be more selective here
 				ch = readHexNumber(get_ch());
 			} else if (ch == '0' || ch == '1' || ch == 'z' || ch == 'x' || ch == 'Z' || ch == 'X') {
@@ -821,15 +827,21 @@ public class SVLexer extends SVToken {
 			fStringBuffer.append((char)ch);
 
 			ch = readDecNumber(get_ch());
-			
+
+			while (ch != -1 && Character.isWhitespace(ch)) {
+				ch = get_ch();
+			}
+
 			if (ch == '\'') {
 				fStringBuffer.append((char)ch);
 				
 				// read the format character
 				fStringBuffer.append((char)get_ch());
 				
+				while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+				
 				// read balance of the number
-				ch = readHexNumber(get_ch());
+				ch = readHexNumber(ch);
 			} else {
 				// Not a based number
 				ch = readHexNumber(ch);

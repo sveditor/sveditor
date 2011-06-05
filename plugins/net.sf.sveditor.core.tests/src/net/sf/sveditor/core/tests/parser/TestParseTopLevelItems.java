@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class TestParseTopLevelItems extends TestCase {
 
 	public void testOvmPrinter() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"function automatic int ovm_num_characters (ovm_radix_enum radix, ovm_bitstream_t value,\n" + 
 				"		int size, string radix_str=\"\");\n" +

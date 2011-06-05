@@ -60,6 +60,21 @@ public class TestParseDataTypes extends TestCase {
 		runTest("testTypedefEnumFwdDecl", content,
 				new String [] {"foo", "my_var"});
 	}
+	
+	public void testVirtualInterfaceParameterizedClass() throws SVParseException {
+		String content =
+			"class my_class\n" + 
+			"	#(\n" +
+			"	type vif = virtual my_inteface, // causes parse error\n" +
+			"	type data = pkg_mypackage::my_datatype\n" +
+			"	) extends uvm_object;\n" +
+			"		// class internals\n" +
+			"	endclass\n"
+			;
+		
+		runTest("testVirtualInterfaceParameterizedClass", content,
+				new String[] {"my_class"});
+	}
 
 	private void runTest(
 			String			testname,

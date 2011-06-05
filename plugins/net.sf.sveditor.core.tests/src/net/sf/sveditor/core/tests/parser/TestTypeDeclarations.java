@@ -27,7 +27,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	item_t #(P) item = item_t #(P)::get();\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -41,7 +41,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	item_t #(P) item = item_t::get();\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -57,7 +57,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	endfunction\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -73,7 +73,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	endfunction\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -89,7 +89,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	endfunction\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -105,7 +105,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	endfunction\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);
@@ -120,7 +120,7 @@ public class TestTypeDeclarations extends TestCase {
 			"	int str_int_map2[string] = '{\"A\":5, \"B\":6};\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(content, "testAssociativeArrayInit");
 
 		SVDBTestUtils.assertNoErrWarn(file);

@@ -59,6 +59,29 @@ public class TestParseModuleBodyItems extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testDefineCaseItems() {
+		LogHandle log = LogFactory.getLogHandle("testDefineCaseItems");
+		String content =
+			"`define A 1\n" +
+			"module mymodule;\n" +
+			"	int b;\n" +
+			"	initial begin\n" +
+			"		case(b)\n" +
+			"			`A:begin\n" +
+			"			end\n" +
+			"		endcase\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testDefineCaseItems");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mymodule");
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testDelayedAssign() {
 		String content =
 			"module t;\n" +

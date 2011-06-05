@@ -253,6 +253,29 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 
+	private String readPreProcId_ll(int ci) {
+
+		fTmpBuffer.setLength(0);
+		
+		if (!Character.isJavaIdentifierStart(ci)) {
+			unget_ch(ci);
+			return null;
+		}
+
+		fTmpBuffer.append((char)ci);
+
+		while ((ci = get_ch_ll()) != -1 && (SVCharacter.isSVIdentifierPart(ci))) {
+			fTmpBuffer.append((char)ci);
+		}
+		unget_ch(ci);
+
+		if (fTmpBuffer.length() == 0) {
+			return null;
+		} else {
+			return fTmpBuffer.toString();
+		}
+	}
+
 	private String readLine_ll(int ci) {
 		int last_ch = -1;
 		
@@ -689,7 +712,7 @@ public class SVPreProcScanner implements ISVScanner {
 			} else if (ch == '`' && !fInString) {
 				ch = get_ch_ll();
 				
-				String type = readIdentifier_ll(ch);
+				String type = readPreProcId_ll(ch);
 				
 				if (type != null) {
 					handle_preproc_directive(type);

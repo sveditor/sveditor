@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -83,9 +84,9 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTask func = parse_tf(content, "testLocalVarsWithCast");
 
-		assertEquals(3, func.getItems().size());
+		assertEquals(3, SVDBUtil.getChildrenSize(func)); 
 		SVDBVarDeclItem a=null, b=null;
-		for (ISVDBItemBase it_t : func.getItems()) {
+		for (ISVDBItemBase it_t : func.getChildren()) {
 			if (it_t.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it_t;
 				for (ISVDBChildItem vi : v.getChildren()) {
@@ -114,9 +115,9 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTask func = parse_tf(content, "testLocalTimeVar");
 
-		assertEquals(2, func.getItems().size());
-		assertTrue(func.getItems().get(0).getType() == SVDBItemType.VarDeclStmt);
-		SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)func.getItems().get(0);
+		assertEquals(2, SVDBUtil.getChildrenSize(func));
+		assertTrue(SVDBUtil.getFirstChildItem(func).getType() == SVDBItemType.VarDeclStmt);
+		SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)SVDBUtil.getFirstChildItem(func);
 		SVDBVarDeclItem vi = (SVDBVarDeclItem)stmt.getChildren().iterator().next();
 		assertEquals("t", vi.getName());
 	}
@@ -131,12 +132,12 @@ public class TestParseFunction extends TestCase {
 			"    a = 5;\n" +
 			"endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+//		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		
 		SVDBTask func = parse_tf(content, "testLocalTypedef");
 		
 		SVDBVarDeclItem a=null;
-		for (ISVDBItemBase it : func.getItems()) {
+		for (ISVDBItemBase it : func.getChildren()) {
 			if (it.getType() == SVDBItemType.VarDeclStmt) {
 				for (ISVDBChildItem vi : ((SVDBVarDeclStmt)it).getChildren()) {
 					if (SVDBItem.getName(vi).equals("a")) {
@@ -146,8 +147,8 @@ public class TestParseFunction extends TestCase {
 			}
 		}
 
-		assertEquals(3, func.getItems().size());
-		assertEquals("foo_t", SVDBItem.getName(func.getItems().get(0)));
+		assertEquals(3, SVDBUtil.getChildrenSize(func));
+		assertEquals("foo_t", SVDBItem.getName(SVDBUtil.getFirstChildItem(func)));
 		assertNotNull(a);
 	}
 
@@ -158,7 +159,7 @@ public class TestParseFunction extends TestCase {
 			// "    a = 5;\n" +
 			"endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+//		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parse_tf(content, "testStaticFunction");
 	}
 	
@@ -189,7 +190,7 @@ public class TestParseFunction extends TestCase {
 			"    a = 5;\n" +
 			"endfunction\n";
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+//		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		
 		parse_tf(content, "testAutomaticFunction");
 	}

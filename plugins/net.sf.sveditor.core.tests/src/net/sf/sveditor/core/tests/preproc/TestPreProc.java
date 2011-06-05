@@ -109,7 +109,7 @@ public class TestPreProc extends TestCase {
 				
 			LogHandle log = LogFactory.getLogHandle("testCommaContainingStringMacroParam");
 			String result = SVDBTestUtils.preprocess(doc, "testCommaContainingStringMacroParam");
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			
 			log.debug("Result:\n" + result.trim());
 			log.debug("====");
@@ -130,7 +130,7 @@ public class TestPreProc extends TestCase {
 				
 			LogHandle log = LogFactory.getLogHandle("testMacroArgExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgExpansion");
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			
 			log.debug("Result:\n" + result.trim());
 			log.debug("====");
@@ -151,7 +151,7 @@ public class TestPreProc extends TestCase {
 				"int  foo;\n"
 				;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			
@@ -397,7 +397,7 @@ public class TestPreProc extends TestCase {
 				
 			LogHandle log = LogFactory.getLogHandle("testSingleLineCommentMacro");
 			String result = SVDBTestUtils.preprocess(doc, "testSingleLineCommentMacro");
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			
 			log.debug("Result:\n" + result.trim());
 			log.debug("====");
@@ -408,7 +408,7 @@ public class TestPreProc extends TestCase {
 	}
 
 	public void testUVMFieldArrayIntExpansion() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testUVMFieldArrayIntExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

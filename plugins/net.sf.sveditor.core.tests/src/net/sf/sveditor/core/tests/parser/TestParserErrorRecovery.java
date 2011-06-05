@@ -59,7 +59,7 @@ public class TestParserErrorRecovery extends TestCase {
 
 	public void testTFScopeError() {
 		LogHandle log = LogFactory.getLogHandle("testTFScopeError");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 			"class foo;\n" +
 			"	bit a;\n" +

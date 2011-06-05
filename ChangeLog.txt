@@ -1,4 +1,10 @@
 
+-- 0.6.0.ea6 Release --
+
+- Correct lexer bug with whitespace in based numbers, such as "32 'h 2A"
+
+- (#3243605) Correct bug with macro reference adjacent to ':' (eg `A:begin)
+
 -- 0.6.0.ea5 Release --
 
 - Correct parse bug related to parameterized static-reference expressions
