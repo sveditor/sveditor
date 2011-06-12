@@ -12,6 +12,9 @@
 
 package net.sf.sveditor.ui.wizards;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -29,17 +32,18 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	public static final String					ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
 	private NewSVMethodologyClassWizardBasicsPage		fBasicsPage;
-	private NewSVMethodologyClassWizardSpecificsPage	fSpecificsPage;
+	private ISVSubWizard								fSubWizard;
+	private Map<String, Object>							fOptions;
 
 	public NewSVMethodologyClassWizard() {
 		super();
+		fOptions = new HashMap<String, Object>();
 	}
 	
 	public void addPages() {
 		super.addPages();
 		
 		fBasicsPage = new NewSVMethodologyClassWizardBasicsPage();
-		fSpecificsPage = new NewSVMethodologyClassWizardSpecificsPage();
 		
 		Object sel = getSelection().getFirstElement();
 		if (sel != null && sel instanceof IResource) {
@@ -51,30 +55,40 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 			fBasicsPage.setSourceFolder(r.getFullPath().toOSString());
 		}
 		addPage(fBasicsPage);
-		addPage(fSpecificsPage);
+	}
+	
+	@Override
+	public boolean canFinish() {
+		if (fSubWizard != null) {
+			return fSubWizard.canFinish();
+		} else {
+			return super.canFinish();
+		}
 	}
 	
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
-		IWizardPage p = super.getNextPage(page);
-		
-		System.out.println("getNextPage: " + p);
-		
-		if (p == fSpecificsPage) {
-			fSpecificsPage.setSourceFolder(fBasicsPage.getSourceFolder());
-			fSpecificsPage.setTemplate(fBasicsPage.getTemplate());
-			// fSpecificsPage.
+		if (fSubWizard != null) {
+			return fSubWizard.getNextPage(page);
+		} else {
+			return super.getNextPage(page);
 		}
-		
-		return p;
 	}
 	
-	
-
 	@Override
-	public boolean canFinish() {
-		// TODO Auto-generated method stub
-		return super.canFinish();
+	public IWizardPage getPreviousPage(IWizardPage page) {
+		if (fSubWizard != null) {
+			return fSubWizard.getPreviousPage(page);
+		} else {
+			return super.getPreviousPage(page);
+		}
+	}
+	
+	public void setSubWizard(ISVSubWizard sub) {
+		fSubWizard = sub;
+		if (fSubWizard != null) {
+			fSubWizard.init(this, fOptions);
+		}
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {

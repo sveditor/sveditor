@@ -162,14 +162,12 @@
          </override>
           -->
       </navigatorContent>
-      <!--
       <commonWizard
             menuGroupId="net.sf.sveditor.ui.newSVWizards"
             type="new"
             wizardId="net.sf.sveditor.ui.svMethodologyClassWizard">
          <enablement></enablement>
       </commonWizard>
-      -->
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -488,7 +486,6 @@
             name="SystemVerilog Class"
             project="false">
       </wizard>
-      <!--
       <wizard
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
@@ -497,7 +494,6 @@
             name="SystemVerilog Methodology Class"
             project="false">
       </wizard>
-      -->
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -585,6 +581,4 @@ endclass
          </actionSet>
       </perspectiveExtension>
    </extension>
-   
-
 </plugin>

@@ -4,7 +4,8 @@
    <extension
          point="net.sf.sveditor.core.SVMethodologyTemplates">
       <methodologyCategory
-            name="org.uvmworld.uvm">
+            id="org.uvmworld.uvm"
+            name="Universal Verification Methodology">
       </methodologyCategory>
    </extension>
    <extension

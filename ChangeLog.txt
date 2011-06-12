@@ -1,4 +1,8 @@
 
+-- 0.6.0.ea7 Release --
+
+- Correct a problem with inclusion of the new UVM plug-in in the SVEditor feature
+
 -- 0.6.0.ea6 Release --
 
 - Correct lexer bug with whitespace in based numbers, such as "32 'h 2A"
