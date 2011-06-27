@@ -99,7 +99,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	@Override
 	public boolean performFinish() {
 		IContainer c = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
-		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
+		
+//		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
 		
 		/*
 		ISVDBIndexIterator index_it = null;
@@ -125,12 +126,14 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 			return false;
 		}
 		 */
-		
+	
+		/*
 		try {
 			SVEditorUtil.openEditor("${workspace_loc}/" + file_path.getFullPath());
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}
+		 */
 
 		return true;
 	}

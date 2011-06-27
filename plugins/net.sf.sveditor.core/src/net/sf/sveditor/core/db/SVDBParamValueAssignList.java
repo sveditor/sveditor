@@ -17,15 +17,24 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
-public class SVDBParamValueAssignList extends SVDBItem {
+public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocation {
 	
 	private boolean							fNamedMapping;
 	private List<SVDBParamValueAssign>		fParameters;
+	private SVDBLocation					fEndLocation;
 	
 	public SVDBParamValueAssignList() {
 		super("", SVDBItemType.ParamValueAssignList);
 		fNamedMapping = false;
 		fParameters = new ArrayList<SVDBParamValueAssign>();
+	}
+	
+	public void setEndLocation(SVDBLocation l) {
+		fEndLocation = l;
+	}
+	
+	public SVDBLocation getEndLocation() {
+		return fEndLocation;
 	}
 
 	public List<SVDBParamValueAssign> getParameters() {

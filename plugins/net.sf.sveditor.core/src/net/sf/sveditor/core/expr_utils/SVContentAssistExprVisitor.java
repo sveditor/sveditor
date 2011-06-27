@@ -427,6 +427,13 @@ public class SVContentAssistExprVisitor {
 		if (cls_l.size() > 0) {
 			return cls_l.get(0);
 		}
+		
+		SVDBFindByName name_finder = new SVDBFindByName(fIndexIt);
+		List<ISVDBItemBase> item_l = name_finder.find(id);
+		
+		if (item_l.size() > 0) {
+			return item_l.get(0);
+		}
 
 		return ret;
 	}

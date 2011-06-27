@@ -57,6 +57,11 @@ public class TemplateInfo {
 		return fDescription;
 	}
 	
+	/**
+	 * Returns a list of the template files
+	 * template path / filename
+	 * @return
+	 */
 	public Iterable<Tuple<String, String>> getTemplates() {
 		return new Iterable<Tuple<String,String>>() {
 			public Iterator<Tuple<String, String>> iterator() {
@@ -65,6 +70,10 @@ public class TemplateInfo {
 		};
 	}
 	
+	/**
+	 * Adds a tuple: template-path / filename
+	 * @param template
+	 */
 	public void addTemplate(Tuple<String, String> template) {
 		fTemplateList.add(template);
 	}

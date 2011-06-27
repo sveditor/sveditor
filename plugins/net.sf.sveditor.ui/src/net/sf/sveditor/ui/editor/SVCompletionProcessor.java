@@ -80,16 +80,18 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				viewer.getDocument(), offset);
 		scanner.setSkipComments(true);
 		
-		int lineno = -1;
+		int lineno = -1, linepos = -1;
+		
 		
 		try {
 			lineno = viewer.getDocument().getLineOfOffset(offset);
+			linepos = (offset-viewer.getDocument().getLineOffset(lineno));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 			return new ICompletionProposal[0];
 		}
 		
-		computeProposals(scanner, fEditor.getSVDBFile(), lineno);
+		computeProposals(scanner, fEditor.getSVDBFile(), lineno, linepos);
 		
 		// convert SVProposal list to ICompletionProposal list
 		for (SVCompletionProposal p : fCompletionProposals) {

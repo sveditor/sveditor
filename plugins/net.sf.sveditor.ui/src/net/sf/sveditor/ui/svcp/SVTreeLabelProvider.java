@@ -26,7 +26,6 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
-import net.sf.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -159,7 +158,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				
 				ret.append(" : " + mod_inst.getTypeName(), StyledString.QUALIFIER_STYLER);
 			} else if (ni.getType() == SVDBItemType.CoverageOptionStmt) {
-				SVDBCoverageOptionStmt option = (SVDBCoverageOptionStmt)ni;
+//				SVDBCoverageOptionStmt option = (SVDBCoverageOptionStmt)ni;
 				ret.append(" : option", StyledString.QUALIFIER_STYLER);
 			} else {
 //				ret = new StyledString("UNKNOWN NamedItem " + ((ISVDBNamedItem)element).getType());

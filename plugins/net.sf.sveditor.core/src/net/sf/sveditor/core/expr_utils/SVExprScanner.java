@@ -28,7 +28,7 @@ public class SVExprScanner {
 	 */
 
 	public SVExprScanner() {
-		fLog = LogFactory.getLogHandle("SVExpressionUtils");
+		fLog = LogFactory.getLogHandle("SVExprScanner");
 		/*
 		fNameMatcher = matcher;
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
@@ -140,6 +140,10 @@ public class SVExprScanner {
 					// Read an expression
 					ret.fType = ContextType.Triggered;
 					ret.fRoot = readExpression(scanner);
+					
+					if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
+						ret.fRoot = null;
+					}
 				} else if (ret.fTrigger == null) {
 					ret.fType = ContextType.Untriggered;
 						
@@ -285,7 +289,9 @@ public class SVExprScanner {
 			} else if (SVCharacter.isSVIdentifierPart(ch)) {
 				scanner.readIdentifier(ch);
 			} else {
-				fLog.error("unknown ch \"" + (char)ch + "\"");
+				fLog.debug("end readExpression: unknown ch \"" + (char)ch + "\"");
+				start_pos = (scanner.getPos()+2);
+				break;
 			}
 			start_pos = (scanner.getPos()+1);
 		} while ((trigger = readTriggerStr(scanner)) != null);

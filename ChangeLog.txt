@@ -1,4 +1,11 @@
 
+-- 0.6.0.ea8 Release --
+
+- Add initial support for module-port content assist. This feature helps in
+connecting ports of an instantiated module to the instantiating environment
+
+- Correct a bug with Open Declaration for a module type
+
 -- 0.6.0.ea7 Release --
 
 - Correct a problem with inclusion of the new UVM plug-in in the SVEditor feature

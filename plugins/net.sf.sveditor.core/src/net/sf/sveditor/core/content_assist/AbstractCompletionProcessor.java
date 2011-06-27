@@ -26,8 +26,12 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -39,6 +43,7 @@ import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -94,6 +99,14 @@ public abstract class AbstractCompletionProcessor {
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
+		computeProposals(scanner, active_file, lineno, -1);
+	}
+
+	public void computeProposals(
+			IBIDITextScanner 	scanner,
+			SVDBFile			active_file,
+			int					lineno,
+			int					linepos) {
 		SVExprScanner expr_scan = new SVExprScanner();
 //		SVExpressionUtils expr_utils = new SVExpressionUtils(
 //				new SVDBFindContentAssistNameMatcher());
@@ -126,7 +139,8 @@ public abstract class AbstractCompletionProcessor {
 		if (ctxt.fTrigger != null) {
 			if (ctxt.fTrigger.equals("`")) {
 				findMacroItems(ctxt, getIndexIterator());
-			} else if (ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::")) {
+			} else if (ctxt.fRoot != null &&
+					(ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::"))) {
 				SVDBExpr expr = null;
 				SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
 				try {
@@ -139,8 +153,10 @@ public abstract class AbstractCompletionProcessor {
 				// Traverse the expression to find the type of the leaf element 
 				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
 						src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
-//				ISVDBItemBase item = v.findItem(expr);
-				ISVDBItemBase item = v.findTypeItem(expr);
+				ISVDBItemBase item = null;
+				if (expr != null) {
+					item = v.findTypeItem(expr);
+				}
 				
 				if (item == null) {
 					fLog.debug("Failed to traverse the content-assist expression");
@@ -155,11 +171,11 @@ public abstract class AbstractCompletionProcessor {
 					// '=' trigger
 					findAssignTriggeredProposals(ctxt, src_scope, item);
 				}
-				/*
-				findTriggeredItems(expr_ctxt.fRoot, expr_ctxt.fTrigger, 
-						expr_ctxt.fLeaf, active_scope, index_it, max_matches, 
-						match_prefix, ret);
-				 */
+			} else if (ctxt.fTrigger.equals(".")) {
+				// null root and '.' -- likely a port completion
+				fLog.debug("likely port completion");
+
+				findPortCompletionProposals(ctxt, src_scope, lineno, linepos);
 			} else {
 				// Unknown trigger
 			}
@@ -487,6 +503,73 @@ public abstract class AbstractCompletionProcessor {
 				}
 			}
 		}
+	}
+	
+	private void findPortCompletionProposals(
+			SVExprContext			ctxt,
+			ISVDBChildParent		src_scope,
+			int						lineno,
+			int						linepos) {
+		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		// TODO: only provide content assist if we are in a module/interface scope
+		if (src_scope == null || 
+				(src_scope.getType() != SVDBItemType.ModuleDecl &&
+				src_scope.getType() != SVDBItemType.InterfaceDecl)) {
+			return;
+		}
+		// First, need to find module/interface instance in question
+		SVDBModIfcInst inst = findInst(src_scope, lineno, linepos);
+		
+		if (inst == null) {
+			fLog.debug("failed to find target module/interface instantiation");
+			return;
+		}
+		
+		fLog.debug("instance type: " + inst.getTypeName());
+		
+		SVDBModIfcDecl decl;
+		SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(getIndexIterator());
+		List<ISVDBChildItem> result = finder.find(inst.getTypeName());
+		
+		if (result.size() > 0 && 
+				(result.get(0).getType() == SVDBItemType.ModuleDecl ||
+				result.get(0).getType() == SVDBItemType.InterfaceDecl)) {
+			decl = (SVDBModIfcDecl)result.get(0); 
+		} else {
+			fLog.debug("failed to find module type \"" + inst.getTypeName() + "\"");
+			return;
+		}
+		
+		for (SVDBParamPortDecl p : decl.getPorts()) {
+			for (ISVDBChildItem pi : p.getChildren()) {
+				if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
+					addProposal(pi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
+			}
+		}
+	}
+	
+	private SVDBModIfcInst findInst(ISVDBChildParent p, int lineno, int linepos) {
+		SVDBModIfcInst last_inst = null;
+		
+		for (ISVDBChildItem c : p.getChildren()) {
+			if (c.getType() == SVDBItemType.ModIfcInst) {
+				last_inst = (SVDBModIfcInst)c;
+				if (c.getLocation().getLine() > lineno) {
+					break;
+				}
+			} else if (c instanceof ISVDBChildParent) {
+				// We're done if the start of this scope is beyond our current line
+				if (c.getLocation().getLine() > lineno) {
+					break;
+				}
+				if ((last_inst = findInst((ISVDBChildParent)c, lineno, linepos)) != null) {
+					break;
+				}
+			}
+		}
+		
+		return last_inst;
 	}
 
 	private void findUntriggeredProposals(
