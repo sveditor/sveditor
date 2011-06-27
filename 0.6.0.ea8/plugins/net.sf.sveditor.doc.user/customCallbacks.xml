@@ -1,0 +1,67 @@
+<project name="customCallbacks" default="post.compile">
+	<target name="post.compile">
+		<antcall target="docs"/>
+	</target>
+		
+	<target name="pre.build.jars"/>
+	
+	<target name="post.build.jars">
+		<antcall target="docs"/>
+	</target>
+
+	<target name="docs">
+		<taskdef name="assemble_toc" classname="net.sf.sveditor.doc.user.tasks.AssembleTocTask">
+			<classpath path="${basedir}/bin"/>
+			<classpath path="${basedir}/@dot"/>
+		</taskdef>
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
+					multipleOutputFiles="true"
+					navigationImages="true"
+					overwrite="true"
+					helpPrefix="preparing_sv_project"
+					file="${basedir}/preparing_sv_project/preparing_sv_project.mediawiki"/>
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
+					multipleOutputFiles="true"
+					navigationImages="true"
+					overwrite="true"
+					helpPrefix="editing_sv_files"
+					file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
+		
+		<assemble_toc files="${basedir}/preparing_sv_project/preparing_sv_project-toc.xml,
+							${basedir}/editing_sv_files/editing_sv_files-toc.xml"
+			output="${basedir}/toc.xml" label="SVEditor User Guide">
+		</assemble_toc>
+	</target>
+	
+	<target name="clean_docs">
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="toc.xml"/>
+				<include name="editing_sv_files/*.html"/>
+				<include name="editing_sv_files/*-toc.xml"/>
+				<include name="preparing_sv_project/*.html"/>
+				<include name="preparing_sv_project/*-toc.xml"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="pre.build.sources"/>
+	<target name="post.build.sources"/>
+	<target name="pre.name"/>
+	<target name="pre.@dot"/>
+	<target name="post.compile.name"/>
+	<target name="post.compile.@dot"/>
+	<target name="post.name"/>
+	<target name="post.@dot"/>
+	<target name="pre.gather.bin.parts"/>
+	<target name="post.gather.bin.parts"/>
+	<target name="pre.gather.sources"/>
+	<target name="post.gather.sources"/>
+	<target name="pre.gather.logs"/>
+	<target name="post.gather.logs"/>
+	<target name="pre.clean"/>
+	
+	<target name="post.clean">
+		<antcall target="clean_docs"/>
+	</target>
+</project> 
