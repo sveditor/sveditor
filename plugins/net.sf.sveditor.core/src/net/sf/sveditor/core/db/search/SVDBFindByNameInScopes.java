@@ -68,6 +68,9 @@ public class SVDBFindByNameInScopes {
 						}
 					}
 				} else {
+					if (SVDBItem.getName(it) == null) {
+						it = null;
+					}
 					if (SVDBItem.getName(it).equals(name)) {
 						boolean match = (types.length == 0);
 

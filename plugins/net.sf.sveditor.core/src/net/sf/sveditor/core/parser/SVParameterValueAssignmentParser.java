@@ -55,7 +55,8 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				if (!fLexer.peekOperator(")")) {
 					List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
 
-					if (fLexer.peekOperator("#") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
+					if (fLexer.peekOperator("#") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
+							fLexer.peekKeyword("virtual")) {
 						// This is actually a type reference
 						fLexer.ungetToken(id_list);
 						SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);

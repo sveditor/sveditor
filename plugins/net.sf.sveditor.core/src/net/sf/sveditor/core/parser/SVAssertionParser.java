@@ -22,6 +22,7 @@ public class SVAssertionParser extends SVParserBase {
 		} else {
 			assert_stmt = new SVDBAssumeStmt();
 		}
+		assert_stmt.setLocation(start);
 		debug("assertion_stmt - " + fLexer.peek());
 
 		if (fLexer.peekKeyword("property")) {

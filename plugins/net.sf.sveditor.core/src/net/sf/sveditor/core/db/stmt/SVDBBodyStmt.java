@@ -1,11 +1,17 @@
 package net.sf.sveditor.core.db.stmt;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.utils.SVDBSingleItemIterable;
 
-public class SVDBBodyStmt extends SVDBStmt implements ISVDBBodyStmt, ISVDBAddChildItem {
+public class SVDBBodyStmt extends SVDBStmt implements ISVDBBodyStmt, ISVDBAddChildItem, ISVDBChildParent {
 	private SVDBStmt			fBody;
 	
 	@SVDBDoNotSaveAttr
@@ -21,6 +27,11 @@ public class SVDBBodyStmt extends SVDBStmt implements ISVDBBodyStmt, ISVDBAddChi
 	
 	public SVDBStmt getBody() {
 		return fBody;
+	}
+
+	@Override
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new SVDBSingleItemIterable<ISVDBChildItem>(fBody);
 	}
 
 	public void addChildItem(ISVDBChildItem item) {

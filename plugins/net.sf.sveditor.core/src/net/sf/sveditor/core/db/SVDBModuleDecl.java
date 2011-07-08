@@ -11,3 +11,4 @@ public class SVDBModuleDecl extends SVDBModIfcDecl {
 	}
 
 }
+

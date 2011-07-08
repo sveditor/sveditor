@@ -35,6 +35,5 @@ public class TestParseInterfaceBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "foo");
 	}
 	
-
 }
 

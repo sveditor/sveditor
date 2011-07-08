@@ -64,7 +64,58 @@ public class TestOpenClass extends TestCase {
 		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
 		assertEquals("m_foo", SVDBItem.getName(ret.get(0).first()));
 	}
+	
+	public void testOpenVariableRefTaskScope() {
+		LogHandle log = LogFactory.getLogHandle("testOpenVariableRefTaskScope");
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class class_a;\n" +
+			"\n" +
+			"	task class_a_task(int arg1 = 0);\n" +
+			"\n" +
+			"	endtask\n" + 	// 5
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"class abc;\n" +
+			"\n" +				// 10
+			"	int a;\n" +
+			"	int b;\n" +
+			"	int c;\n" +
+			"\n" +
+			"	class_a ext_class;\n" +
+			"\n" +
+			"	task my_task;\n" +
+			"\n" +
+			"		assert(a == b) else $error(\"a != b\");\n" +
+			"		assert(a == c) else $error(\"a != c\");\n" +
+			"\n" +
+			"		ext_class.class_a_task(); //<<<--Open declaration on 'class_a_task' fails.\n" + // 22
+			"\n" +
+			"	endtask\n" +
+			"\n" +
+			"endclass\n"	
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, "testOpenVariableRefTaskScope");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "abc", "class_a");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("ext_class.class_a_task");
+		System.out.println("index: " + idx);
+		scanner.seek(idx+"ext_class.cl".length());
 
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, 22, scanner, target_index);
+		
+		System.out.println(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.Task, ret.get(0).first().getType());
+		assertEquals("class_a_task", SVDBItem.getName(ret.get(0).first()));
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testOpenVariableDottedRef() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =

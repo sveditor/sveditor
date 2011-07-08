@@ -1,4 +1,12 @@
 
+-- 0.6.0.ea9 Release --
+
+- (#3357222) Correct parse error on class type with a virtual-interface 
+  parameter.  
+  For example: class my_class extends my_super #(virtual my_interface)
+
+- (#3357305) Correct problem with open-declaration in a scope with an assert statement
+
 -- 0.6.0.ea8 Release --
 
 - Add initial support for module-port content assist. This feature helps in

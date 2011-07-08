@@ -272,6 +272,7 @@ public class SVKeywords {
 	};
 	
 	public static final Set<String>					fBuiltinTypes;
+	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
 	private static final Map<String, Boolean>		fKeywordMap;
 	public static final Set<String>					fBuiltinGates;
@@ -327,6 +328,10 @@ public class SVKeywords {
 		fBuiltinGates.add("rtran");
 		fBuiltinGates.add("pullup");
 		fBuiltinGates.add("pulldown");
+		
+		fTypePrefixes = new HashSet<String>();
+		fTypePrefixes.add("const");
+		fTypePrefixes.add("virtual");
 		
 		fStrength0 = new HashSet<String>();
 		fStrength0.add("supply0");

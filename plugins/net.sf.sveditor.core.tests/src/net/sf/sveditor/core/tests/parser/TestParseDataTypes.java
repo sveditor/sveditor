@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -73,6 +74,18 @@ public class TestParseDataTypes extends TestCase {
 			;
 		
 		runTest("testVirtualInterfaceParameterizedClass", content,
+				new String[] {"my_class"});
+	}
+	
+	public void testVirtualInterfaceClassParam() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"class my_class extends my_base_class #(virtual my_interface);\n" + 
+			"		// class internals\n" +
+			"	endclass\n"
+			;
+		
+		runTest("testVirtualInterfaceClassParam", content,
 				new String[] {"my_class"});
 	}
 

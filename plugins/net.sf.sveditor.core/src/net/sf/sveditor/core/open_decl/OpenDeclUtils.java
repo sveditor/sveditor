@@ -40,9 +40,7 @@ public class OpenDeclUtils {
 			IBIDITextScanner	scanner,
 			ISVDBIndexIterator	index_it) {
 		LogHandle log = LogFactory.getLogHandle("OpenDeclaration");
-//		SVExpressionUtils		expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		SVExprScanner			expr_scanner = new SVExprScanner();
-//		ISVDBItemBase 			it = null;
 		SVDBFile 				inc_file = null;
 		
 		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
