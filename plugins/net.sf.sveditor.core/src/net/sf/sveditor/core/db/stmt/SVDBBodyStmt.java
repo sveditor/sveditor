@@ -29,7 +29,6 @@ public class SVDBBodyStmt extends SVDBStmt implements ISVDBBodyStmt, ISVDBAddChi
 		return fBody;
 	}
 
-	@Override
 	public Iterable<ISVDBChildItem> getChildren() {
 		return new SVDBSingleItemIterable<ISVDBChildItem>(fBody);
 	}

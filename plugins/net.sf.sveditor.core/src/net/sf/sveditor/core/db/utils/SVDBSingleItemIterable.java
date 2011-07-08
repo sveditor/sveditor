@@ -13,12 +13,10 @@ public class SVDBSingleItemIterable<T> implements Iterable<T> {
 			fItem = item;
 		}
 
-		@Override
 		public boolean hasNext() {
 			return (fItem != null && fIdx == 0);
 		}
 
-		@Override
 		public T next() {
 			if (fIdx == 0) {
 				fIdx++;
@@ -35,7 +33,6 @@ public class SVDBSingleItemIterable<T> implements Iterable<T> {
 		fItem = item;
 	}
 
-	@Override
 	public Iterator<T> iterator() {
 		return new SVDBSingleItemIterator(fItem);
 	}
