@@ -76,6 +76,7 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVDBExpr delay_expr() throws SVParseException {
 		SVDBExpr expr = null;
+		debug("--> delay_expr - " + fLexer.peek());
 		
 		fLexer.readOperator("#");
 		
@@ -85,16 +86,19 @@ public class SVExprParser extends SVParserBase {
 			fLexer.readOperator(")");
 		} else {
 			if (fLexer.peekNumber()) {
+				debug("  isNumber - " + fLexer.peek());
 				expr = new SVDBLiteralExpr(fLexer.eatToken());
 			} else if (fLexer.peekOperator("1step")) {
 				expr = new SVDBLiteralExpr(fLexer.eatToken());
 			} else if (fLexer.peekId()) {
+				debug("  isExpression");
 				expr = expression();
 			} else {
 				error("Expect number, '1step', or identifier ; receive " + fLexer.peek());
 			}
 		}
 		
+		debug("<-- delay_expr - " + fLexer.peek());
 		return expr;
 	}
 	
@@ -141,6 +145,7 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVDBExpr variable_lvalue() throws SVParseException {
 		SVDBExpr lvalue;
+		debug("--> variable_lvalue - " + fLexer.peek());
 		if (fLexer.peekOperator("{")) {
 			SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
 			// {variable_lvalue, variable_lvalue, ...}
@@ -698,7 +703,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr primary() throws SVParseException {
-		debug("--> primary()");
+		debug("--> primary() - " + fLexer.peek());
 		SVDBExpr ret = null;
 		
 		if (peekOperator("(")) {
@@ -743,6 +748,10 @@ public class SVExprParser extends SVParserBase {
 					fLexer.peekKeyword("new","default")) {
 				debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				String id = fLexer.eatToken();
+				
+				if (fLexer.peekOperator("(*")) {
+					fParsers.attrParser().parse(null);
+				}
 				
 				if (peekOperator("#")) {
 					// Parameterized identifier
@@ -894,6 +903,10 @@ public class SVExprParser extends SVParserBase {
 			fLexer.peek();
 			if (fLexer.isIdentifier() || peekKeyword("new", "super", "this")) {
 				String id = fLexer.eatToken();
+				
+				if (fLexer.peekOperator("(*")) {
+					fParsers.attrParser().parse(null);
+				}
 				
 				if (peekOperator("(")) {
 					if (id.equals("randomize")) {

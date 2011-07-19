@@ -18,9 +18,10 @@ public class SVAttributeParser extends SVParserBase {
 				while (fLexer.peek() != null) {
 					fLexer.readId();
 
-					fLexer.readOperator("=");
-
-					fParsers.exprParser().expression();
+					if (fLexer.peekOperator("=")) {
+						fLexer.eatToken();
+						fParsers.exprParser().expression();
+					}
 
 					if (fLexer.peekOperator(",")) {
 						fLexer.eatToken();

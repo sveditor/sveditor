@@ -1106,11 +1106,11 @@ public class TestParseModuleBodyItems extends TestCase {
 	public void testAlwaysIfElse() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testAlwaysIfElse",
-				"module t;\n" +
-				"	always@(posedge clk or negedge rst)\n" +
-			    "	if(!rst)        state <= #1 grant0;\n" +
-			    "	else            state <= #1 next_state;\n" +
-				"endmodule\n",
+				"module t;\n" +										// 1
+				"	always@(posedge clk or negedge rst)\n" +		// 2
+			    "	if(!rst)        state <= #1 grant0;\n" +		// 3
+			    "	else            state <= #1 next_state;\n" +	// 4
+				"endmodule\n",										// 5
 				new String[] {"t"});
 	}
 	

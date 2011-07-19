@@ -180,9 +180,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		int modifiers = scan_qualifiers(false);
-		
-		if (fLexer.peekOperator("(*")) {
-			fSVParsers.attrParser().parse(parent);
+
+		try {
+			if (fLexer.peekOperator("(*")) {
+				fSVParsers.attrParser().parse(parent);
+			}
+		} catch (SVParseException e) {
+			// Ignore the error and allow another parser to deal with
 		}
 		
 		if (fLexer.peekKeyword("class")) {

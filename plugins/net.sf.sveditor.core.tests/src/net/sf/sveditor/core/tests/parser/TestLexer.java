@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.tests.parser;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -8,11 +9,11 @@ import junit.framework.TestCase;
 public class TestLexer extends TestCase {
 	
 	public void testSpaceContainingNumber() throws SVParseException {
-		
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 			"class c;\n" +
-			"	int a = 32 'h 0000_1111_2222_3333;\n" +
-			"	int b = 32'h 0000_1111_2222_3333;\n" +
+			"	int a = 32 'h 0000_1111_2222_3331;\n" +
+			"	int b = 32'h 0000_1111_2222_3332;\n" +
 			"endclass\n";
 		
 		runTest("testSpaceContainingNumber", content, new String[] {"c", "b"});

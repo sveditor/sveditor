@@ -78,7 +78,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 	
 	public void testVirtualInterfaceClassParam() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class my_class extends my_base_class #(virtual my_interface);\n" + 
 			"		// class internals\n" +

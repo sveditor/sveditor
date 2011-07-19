@@ -29,7 +29,7 @@ public class TestModuleContentAssist extends TestCase {
 
 	public void testModulePortAssist() {
 		LogHandle log = LogFactory.getLogHandle("testModulePortAssist");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"module m1(input AAAA, output BBBB);\n" +

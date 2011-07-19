@@ -1,4 +1,22 @@
 
+-- 0.6.0.ea10 Release --
+
+- Tighten up lexing of numbers. Ensure decimal numbers are not parsed as hex numbers. 
+  Ensure floating-point constants are parsed correctly.
+
+- (#3358145) Enhance parser to accept attributes on task/function calls
+
+? (#3362302) Multi-dimensional array parse error (string my_string[][2];)
+
+? (#3354142)
+It works in SVEditor 0.6.0.ea8 in my computer.
+However, I think it can be better:
+In SVEditor 0.6.0.ea8, Content Assist for Module Port only shows when
+user types a dot, several leading characters and then presses Ctrl+Space.
+User can't invoke the Content Assist by only typing a dot and pressing Ctrl+Space.
+Could SVEditor show all module ports for above case?
+
+
 -- 0.6.0.ea9 Release --
 
 - (#3357222) Correct parse error on class type with a virtual-interface 

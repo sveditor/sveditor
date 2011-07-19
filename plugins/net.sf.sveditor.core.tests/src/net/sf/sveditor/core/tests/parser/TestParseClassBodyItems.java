@@ -187,6 +187,48 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
+	public void testAttrTaggedRandomize() {
+		String content = 
+			"class foobar;\n" +
+			"	item_t item;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"		item.randomize (* solvefaildebug *) ();\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"endclass\n";
+		runTest("testAttrTaggedRandomize", content, 
+				new String[] {"foobar", "item", "foo_func"});
+	}
+
+	public void testAttrTaggedRandomize2() {
+		String content = 
+			"class foobar;\n" +
+			"	item_t item;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"		item.randomize (* solvefaildebug *);\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"endclass\n";
+		runTest("testAttrTaggedRandomize2", content, 
+				new String[] {"foobar", "item", "foo_func"});
+	}
+
+	public void testAttrTaggedTF() {
+		String content = 
+			"class foobar;\n" +
+			"	item_t item;\n" +
+			"\n" +
+			"    function void foo_func();\n" +
+			"		foo_func (* solvefaildebug *) ();\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"endclass\n";
+		runTest("testTaskFunction", content, 
+				new String[] {"foobar", "item", "foo_func"});
+	}
+
 	public void testFunctionVirtualIfcParam() {
 		String content = 
 			"class foobar;\n" +
