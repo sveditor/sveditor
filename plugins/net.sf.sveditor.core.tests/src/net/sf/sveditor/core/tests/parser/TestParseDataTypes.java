@@ -61,7 +61,18 @@ public class TestParseDataTypes extends TestCase {
 		runTest("testTypedefEnumFwdDecl", content,
 				new String [] {"foo", "my_var"});
 	}
-	
+
+	public void testMultiDimArrayDecl() throws SVParseException {
+		String content =
+			"class foo;\n" +
+			"    string				my_var[][2];\n" +
+			"endclass\n"
+			;
+		
+		runTest("testMultiDimArrayDecl", content,
+				new String [] {"foo", "my_var"});
+	}
+
 	public void testVirtualInterfaceParameterizedClass() throws SVParseException {
 		String content =
 			"class my_class\n" + 

@@ -171,7 +171,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 							collectMacroDefs(inc, inc.getSVDBFile(), null);
 						}
 					} else {
-						fLog.error("Failed to find \"" + SVDBItem.getName(it) + "\" in file-tree");
+						fLog.debug("Failed to find \"" + SVDBItem.getName(it) + "\" in file-tree");
 						if (fDebugEn) {
 							for (String inc_s : file.getIncludedFiles()) {
 								fLog.debug("    " + inc_s);

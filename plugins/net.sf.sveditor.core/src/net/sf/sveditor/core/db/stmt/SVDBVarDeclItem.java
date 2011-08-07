@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.db.stmt;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -13,7 +15,7 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 	protected String					fName;
 	protected int						fAttr;
 	protected int						fVarAttr;
-	protected SVDBVarDimItem			fArrayDim;
+	protected List<SVDBVarDimItem>		fArrayDim;
 	protected SVDBExpr					fInitExpr;
 	
 	public SVDBVarDeclItem() {
@@ -49,11 +51,11 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 		fAttr = attr;
 	}
 
-	public SVDBVarDimItem getArrayDim() {
+	public List<SVDBVarDimItem> getArrayDim() {
 		return fArrayDim;
 	}
 	
-	public void setArrayDim(SVDBVarDimItem dim) {
+	public void setArrayDim(List<SVDBVarDimItem> dim) {
 		fArrayDim = dim;
 	}
 	

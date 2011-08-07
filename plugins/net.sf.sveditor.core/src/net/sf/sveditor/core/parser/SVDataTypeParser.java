@@ -12,7 +12,9 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
@@ -399,51 +401,59 @@ public class SVDataTypeParser extends SVParserBase {
 		parent.addChildItem(typedef);
 	}
 	
-	public SVDBVarDimItem var_dim() throws SVParseException {
-		SVDBVarDimItem ret = new SVDBVarDimItem();
+	public List<SVDBVarDimItem> var_dim() throws SVParseException {
+		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
 		
-		fLexer.readOperator("[");
-		
-		if (fLexer.peekOperator("]")) {
-			ret.setDimType(DimType.Unsized);
-		} else if (fLexer.peekOperator("$")) {
-			fLexer.eatToken();
-			ret.setDimType(DimType.Queue);
-			if (fLexer.peekOperator(":")) {
+		while (fLexer.peek() != null) {
+			fLexer.readOperator("[");
+			SVDBVarDimItem dim = new SVDBVarDimItem();
+
+			if (fLexer.peekOperator("]")) {
+				dim.setDimType(DimType.Unsized);
+			} else if (fLexer.peekOperator("$")) {
 				fLexer.eatToken();
-				ret.setExpr(parsers().exprParser().expression());
-			}
-		} else if (fLexer.peekOperator("*")) {
-			fLexer.eatToken();
-			ret.setDimType(DimType.Associative);
-		} else {
-			SVToken first = fLexer.consumeToken();
-			// TODO: seems ambiguous
-			if (first.isNumber() || first.isOperator() || 
-					(fLexer.peekOperator() && !fLexer.peekOperator("#"))) {
-				// most likely a constant expression
-				fLexer.ungetToken(first);
-				ret.setDimType(DimType.Sized);
-				
-				// TODO: should be constant expression
-				SVDBExpr expr = parsers().exprParser().expression();
+				dim.setDimType(DimType.Queue);
 				if (fLexer.peekOperator(":")) {
-					// range
 					fLexer.eatToken();
-					ret.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
-				} else {
-					// single value
-					ret.setExpr(expr);
+					dim.setExpr(parsers().exprParser().expression());
 				}
+			} else if (fLexer.peekOperator("*")) {
+				fLexer.eatToken();
+				dim.setDimType(DimType.Associative);
 			} else {
-				// Assume this is a data-type
-				fLexer.ungetToken(first);
-				ret.setDimType(DimType.Associative);
-				ret.setTypeInfo(parsers().dataTypeParser().data_type(0));
+				SVToken first = fLexer.consumeToken();
+				// TODO: seems ambiguous
+				if (first.isNumber() || first.isOperator() || 
+						(fLexer.peekOperator() && !fLexer.peekOperator("#"))) {
+					// most likely a constant expression
+					fLexer.ungetToken(first);
+					dim.setDimType(DimType.Sized);
+
+					// TODO: should be constant expression
+					SVDBExpr expr = parsers().exprParser().expression();
+					if (fLexer.peekOperator(":")) {
+						// range
+						fLexer.eatToken();
+						dim.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
+					} else {
+						// single value
+						dim.setExpr(expr);
+					}
+				} else {
+					// Assume this is a data-type
+					fLexer.ungetToken(first);
+					dim.setDimType(DimType.Associative);
+					dim.setTypeInfo(parsers().dataTypeParser().data_type(0));
+				}
+			}
+			ret.add(dim);
+
+			fLexer.readOperator("]");
+			
+			if (!fLexer.peekOperator("[")) {
+				break;
 			}
 		}
-		
-		fLexer.readOperator("]");
 		
 		return ret;
 	}

@@ -594,7 +594,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					}
 				} else {
 					String missing_path = ((ISVDBNamedItem) it).getName(); 
-					fLog.error("Failed to find include file \""
+					fLog.debug("Failed to find include file \""
 							+ missing_path + "\" (from file " + root.getFilePath() + ")");
 					if (!missing_includes.contains(missing_path)) {
 						missing_includes.add(missing_path);

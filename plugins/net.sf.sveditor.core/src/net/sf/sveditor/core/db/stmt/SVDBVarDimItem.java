@@ -21,7 +21,7 @@ public class SVDBVarDimItem extends SVDBStmt {
 	
 	private DimType					fDimType;
 	// Used for unpacked_dimension, packed_dimension, queue_dimension (when upper bound specified)
-	private SVDBExpr					fExpr;
+	private SVDBExpr				fExpr;
 	// Used for associative_dimension when a type is specified
 	private SVDBTypeInfo			fTypeInfo;
 

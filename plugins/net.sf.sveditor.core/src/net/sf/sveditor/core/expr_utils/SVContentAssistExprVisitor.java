@@ -282,7 +282,7 @@ public class SVContentAssistExprVisitor {
 	 */
 	private ISVDBItemBase findType(ISVDBItemBase item) {
 		SVDBTypeInfo   type = null;
-		SVDBVarDimItem var_dim = null;
+		List<SVDBVarDimItem> var_dim = null;
 		fLog.debug("findType: " + SVDBItem.getName(item));
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
@@ -338,7 +338,8 @@ public class SVContentAssistExprVisitor {
 			if (var_dim != null) {
 				// TODO: should probably handle non-user base types
 				if (item != null) {
-					item = resolveArrayType(item, SVDBItem.getName(item), var_dim);
+					// TODO: handle multi-dim arrays?
+					item = resolveArrayType(item, SVDBItem.getName(item), var_dim.get(0));
 				}
 			}
 		}

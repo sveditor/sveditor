@@ -214,6 +214,10 @@ public class SVExprScanner {
 		
 		debug("<-- extractExprContext()");
 		
+		if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
+			ret.fRoot = null;
+		}
+		
 		if (ret.fRoot == null && ret.fTrigger == null && ret.fLeaf == null) {
 			ret.fLeaf = "";
 		}
