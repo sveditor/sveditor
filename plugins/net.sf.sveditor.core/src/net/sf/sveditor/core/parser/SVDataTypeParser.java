@@ -113,8 +113,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			while (fLexer.peekOperator("[")) {
-				// TODO: packed_dimension
-				fLexer.skipPastMatch("[", "]");
+				builtin_type.setArrayDim(var_dim());
 			}
 			type = builtin_type;
 		} else if (fLexer.peekKeyword(NetType)) {
@@ -254,11 +253,7 @@ public class SVDataTypeParser extends SVParserBase {
 				
 				if (fLexer.peekOperator("[")) {
 					// TODO: packed_dimension
-					
-					// TODO: handle multi-dimensional vectors
-					while (fLexer.peekOperator("[")) {
-						fLexer.skipPastMatch("[", "]");
-					}
+					type.setArrayDim(packed_dim());
 				}
 			} else if (fLexer.peekOperator(".")) {
 				// Interface type: interface.modport
@@ -284,7 +279,8 @@ public class SVDataTypeParser extends SVParserBase {
 			
 			// A sized enum is allowed to have a duplicate bit-width assigned
 			if (fLexer.peekOperator("[")) {
-				fLexer.skipPastMatch("[", "]");
+				// TODO: this is a bit lax, since var_dim allows '$', '*', '<type>' array dimension
+				type.setArrayDim(var_dim());
 			}
 		}
 		
@@ -381,7 +377,7 @@ public class SVDataTypeParser extends SVParserBase {
 
 			// TODO: dimension
 			if (fLexer.peekOperator("[")) {
-				fLexer.skipPastMatch("[", "]");
+				type.setArrayDim(var_dim());
 			}
 
 			typedef = new SVDBTypedefStmt(type, id);
@@ -445,6 +441,36 @@ public class SVDataTypeParser extends SVParserBase {
 					dim.setDimType(DimType.Associative);
 					dim.setTypeInfo(parsers().dataTypeParser().data_type(0));
 				}
+			}
+			ret.add(dim);
+
+			fLexer.readOperator("]");
+			
+			if (!fLexer.peekOperator("[")) {
+				break;
+			}
+		}
+		
+		return ret;
+	}
+
+	public List<SVDBVarDimItem> packed_dim() throws SVParseException {
+		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
+		
+		while (fLexer.peek() != null) {
+			fLexer.readOperator("[");
+			SVDBVarDimItem dim = new SVDBVarDimItem();
+
+			if (fLexer.peekOperator("]")) {
+				dim.setDimType(DimType.Unsized);
+			} else if (fLexer.peekOperator("$")) {
+				error("Unsupported packed dimension \"$\"");
+				fLexer.eatToken();
+			} else if (fLexer.peekOperator("*")) {
+				fLexer.eatToken();
+				error("Unsupported packed dimension \"*\"");
+			} else {
+				dim.setExpr(parsers().exprParser().expression());
 			}
 			ret.add(dim);
 

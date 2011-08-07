@@ -79,8 +79,7 @@ public class SVPortListParser extends SVParserBase {
 				bi_type.setVectorDim(vector_dim);
 				type = bi_type;
 
-				// Relax to allow use of SV keywords for Verilog ports
-				id = fLexer.readIdOrKeyword();
+				id = fLexer.readId();
 			} else {
 				type = parsers().dataTypeParser().data_type(0);
 

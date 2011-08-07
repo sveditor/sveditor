@@ -68,7 +68,10 @@ public class TestWorkspaceLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -82,7 +85,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -92,7 +95,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-//			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -130,7 +133,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1.svh")));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
@@ -145,10 +148,11 @@ public class TestWorkspaceLibPersistence extends TestCase {
 			}
 		}
 		
-		System.out.println("target_it=" + target_it);
+		log.debug("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
 		assertEquals("class1_1", SVDBItem.getName(target_it));
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**

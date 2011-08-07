@@ -1,4 +1,15 @@
 
+-- 0.6.1.ea01 Release --
+
+- Re-release of 0.6.0.ea10. Looks like Eclipse thinks version 'ea10' is less than 'ea9'
+
+- (#3358145) Enhance parser to accept attributes on task/function calls
+
+- (#3362302) Multi-dimensional array parse error (string my_string[][2];)
+
+- (#3354142) Enable module-port-connection content assist when only '.' is
+  specified
+
 -- 0.6.0.ea10 Release --
 
 - Tighten up lexing of numbers. Ensure decimal numbers are not parsed as hex numbers. 
