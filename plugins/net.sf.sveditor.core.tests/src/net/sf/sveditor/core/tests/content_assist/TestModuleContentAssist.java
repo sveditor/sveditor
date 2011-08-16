@@ -3,6 +3,8 @@ package net.sf.sveditor.core.tests.content_assist;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
@@ -25,6 +27,7 @@ public class TestModuleContentAssist extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(new TestNullIndexCacheFactory());
 		fIndex = new ContentAssistIndex();
+		fIndex.init(new NullProgressMonitor());
 	}
 
 	public void testModulePortAssist() {

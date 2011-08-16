@@ -16,11 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -40,26 +38,18 @@ public class SVDBFindNamedModIfcClassIfc {
 	}
 
 	public List<ISVDBChildItem> find(String type_name) {
-		ISVDBItemIterator item_it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+
+		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
+				new NullProgressMonitor(), type_name, fMatcher);
 		
-		while (item_it.hasNext()) {
-			boolean had_next = item_it.hasNext();
-			ISVDBItemBase it = item_it.nextItem();
-			
-			if (it == null) {
-				System.out.println("it == null ; hasNext=" + had_next);
-			}
-			
-			if ((it.getType() == SVDBItemType.ClassDecl ||
-					it.getType() == SVDBItemType.ModuleDecl ||
-					it.getType() == SVDBItemType.InterfaceDecl)) {
-				if (fMatcher.match((ISVDBNamedItem)it, type_name)) {
-					ret.add((ISVDBChildItem)it);
-				}
+		for (SVDBDeclCacheItem ci : found) {
+			if (ci.getType().isElemOf(SVDBItemType.ClassDecl, 
+					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl)) {
+				ret.add((ISVDBChildItem)ci.getSVDBItem());
 			}
 		}
-		
+
 		return ret;
 	}
 

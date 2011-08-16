@@ -1,6 +1,6 @@
 package net.sf.sveditor.core.db;
 
-public class SVDBModIfcInstItem extends SVDBItem {
+public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
 	private SVDBParamValueAssignList		fPortMap;
 	
 	

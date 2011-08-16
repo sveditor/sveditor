@@ -41,6 +41,7 @@ public class TestParamClassContentAssist extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fIndex = new ContentAssistIndex();
+		fIndex.init(new NullProgressMonitor());
 	}
 
 	public void testParameterizedField() {

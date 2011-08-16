@@ -65,7 +65,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
@@ -181,6 +181,7 @@ public class TestContentAssistStruct extends TestCase {
 	 */
 	public void testContentAssistStructInClassTypedef() {
 		LogHandle log = LogFactory.getLogHandle("testContentAssistStructInClassTypedef");
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -208,7 +209,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 

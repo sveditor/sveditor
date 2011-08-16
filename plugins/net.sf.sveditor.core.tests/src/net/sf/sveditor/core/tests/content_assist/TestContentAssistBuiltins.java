@@ -62,6 +62,7 @@ public class TestContentAssistBuiltins extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		fIndex = new ContentAssistIndex();
+		fIndex.init(new NullProgressMonitor());
 		fIndexMgr.addLibraryPath(fIndex);
 	}
 	

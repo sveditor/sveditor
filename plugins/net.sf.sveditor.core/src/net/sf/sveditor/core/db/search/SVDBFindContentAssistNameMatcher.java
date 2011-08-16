@@ -12,14 +12,7 @@
 
 package net.sf.sveditor.core.db.search;
 
-import java.util.List;
-
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 
 public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 
@@ -30,7 +23,7 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 
 			if (name.equals("") || it_lower.startsWith(n_lower)) {
 				return true;
-			} else if (SVDBStmt.isType(it, SVDBItemType.TypedefStmt) && 
+			} /* else if (it.getType() == SVDBItemType.TypedefStmt && 
 					((SVDBTypedefStmt)it).getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 				SVDBTypedefStmt td = (SVDBTypedefStmt)it;
 				SVDBTypeInfoEnum ti = (SVDBTypeInfoEnum)td.getTypeInfo();
@@ -42,7 +35,7 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 						return true;
 					}
 				}
-			}
+			} */
 		}
 		
 		return false;

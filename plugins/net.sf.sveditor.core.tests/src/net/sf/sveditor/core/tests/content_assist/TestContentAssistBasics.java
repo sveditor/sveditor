@@ -31,9 +31,11 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -66,6 +68,7 @@ public class TestContentAssistBasics extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(new TestNullIndexCacheFactory());
 		fIndex = new ContentAssistIndex();
+		fIndex.init(new NullProgressMonitor());
 
 		fIndexCollectionVMMMgr = new SVDBIndexCollectionMgr(pname);
 		fIndexCollectionVMMMgr.addLibraryPath(fIndex);
@@ -193,6 +196,14 @@ public class TestContentAssistBasics extends TestCase {
 		
 		SVDBClassDecl my_class2 = null;
 		
+		List<SVDBDeclCacheItem> found = index_it.findGlobalScopeDecl(
+				new NullProgressMonitor(), "my_class2", SVDBFindDefaultNameMatcher.getDefault());
+		assertEquals(1, found.size());
+		
+		my_class2 = (SVDBClassDecl)found.get(0).getSVDBItem();
+		assertNotNull(my_class2);
+		
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
@@ -200,6 +211,8 @@ public class TestContentAssistBasics extends TestCase {
 				my_class2 = (SVDBClassDecl)it_t;
 			}
 		}
+		 */
+		
 		
 		log.debug("[my_class2] " + my_class2.getItems().size() + " items");
 		for (ISVDBItemBase it_t : my_class2.getChildren()) {

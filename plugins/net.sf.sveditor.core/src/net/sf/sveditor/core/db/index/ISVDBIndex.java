@@ -21,7 +21,8 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider {
+public interface ISVDBIndex extends 
+	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache {
 	
 	public void init(IProgressMonitor monitor);
 
@@ -98,4 +99,5 @@ public interface ISVDBIndex extends ISVDBIndexIterator, ISVDBIncludeFileProvider
 	ISVDBIndexCache getCache();
 	
 	void loadIndex(IProgressMonitor monitor);
+	
 }

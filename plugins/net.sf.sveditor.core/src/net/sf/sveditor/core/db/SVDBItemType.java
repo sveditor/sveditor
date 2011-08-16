@@ -159,14 +159,22 @@ public enum SVDBItemType {
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {
-		if (type_list.length == 0) {
-			return true;
+		switch (type_list.length) {
+			case 0: return true;
+			case 1: return (type_list[0] == this);
+			case 2: return (type_list[0] == this || type_list[1] == this);
+			case 3: return (type_list[0] == this || type_list[1] == this ||
+							type_list[2] == this);
+			case 4: return (type_list[0] == this || type_list[1] == this ||
+							type_list[2] == this || type_list[3] == this);
+			default:
+				for (SVDBItemType t : type_list) {
+					if (this == t) {
+						return true;
+					}
+				}
 		}
-		for (SVDBItemType t : type_list) {
-			if (this == t) {
-				return true;
-			}
-		}
+				
 		return false;
 	}
 	

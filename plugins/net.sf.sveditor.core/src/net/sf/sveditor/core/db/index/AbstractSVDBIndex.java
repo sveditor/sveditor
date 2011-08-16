@@ -16,15 +16,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -35,8 +38,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -68,22 +73,25 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private String fResolvedBaseLocation;
 	private String fBaseLocationDir;
 
-	private SVDBBaseIndexCacheData 			fIndexCacheData;
-	private boolean							fCacheDataValid;
+	private SVDBBaseIndexCacheData 				fIndexCacheData;
+	private boolean								fCacheDataValid;
 
-	private ISVDBIncludeFileProvider 		fIncludeFileProvider;
+	private ISVDBIncludeFileProvider 			fIncludeFileProvider;
 
-	private List<ISVDBIndexChangeListener>	fIndexChageListeners;
+	private List<ISVDBIndexChangeListener>		fIndexChageListeners;
 
-	protected static Pattern 				fWinPathPattern;
-	protected static final List<String> 	fSVExtensions;
-	protected static final List<String> 	fIgnoreDirs;
-	protected LogHandle 					fLog;
-	private ISVDBFileSystemProvider 		fFileSystemProvider;
+	protected static Pattern 						fWinPathPattern;
+	protected static final List<String> 			fSVExtensions;
+	protected static final List<String> 			fIgnoreDirs;
+	protected LogHandle 							fLog;
+	private ISVDBFileSystemProvider 				fFileSystemProvider;
 
-	protected boolean 						fLoadUpToDate;
-	private ISVDBIndexCache 				fCache;
-	private Map<String, Object> 			fConfig;
+	protected boolean 								fLoadUpToDate;
+	private ISVDBIndexCache 						fCache;
+	private Map<String, Object> 					fConfig;
+	
+	private Map<String, List<SVDBDeclCacheItem>>	fPackageCacheMap;
+	
 //	private ISVEditorJob					fEnsureIndexStateJob;
 
 	/**
@@ -109,8 +117,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected AbstractSVDBIndex(String project) {
-//		fProjectName = project;
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
+		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
 	}
 
 	public AbstractSVDBIndex(String project, String base_location,
@@ -120,7 +129,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fBaseLocation = base_location;
 		fCache = cache;
 		fConfig = config;
-		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
 
 		setFileSystemProvider(fs_provider);
 	}
@@ -309,6 +317,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fIndexState = IndexState_AllInvalid;
 		fCacheDataValid = false;
 		fCache.clear();
+
+		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 
 	public void rebuildIndex() {
@@ -995,7 +1005,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
-
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
 
@@ -1029,13 +1038,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (svdb_f == null) {
 			return;
 		}
+		
+		cacheDeclarations(svdb_f);
 
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path
 				.getFilePath()));
 
 		fFileSystemProvider.clearMarkers(path_s);
 
-		// Reflect markers from pre-processor to index database
+		// Reflect markers from pre-processor to index databasecacheDeclarations
 		// propagateMarkersPreProc2DB(path, fPreProcFileMap.get(path_s),
 		// svdb_f);
 		// addMarkers(path_s, svdb_f);
@@ -1134,6 +1145,75 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (fFileSystemProvider != null) {
 			fFileSystemProvider.dispose();
 		}
+	}
+	
+	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+			IProgressMonitor		monitor,
+			String 					name,
+			ISVDBFindNameMatcher	matcher) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
+		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		
+		for (Entry<String, List<SVDBDeclCacheItem>> e : decl_cache.entrySet()) {
+			for (SVDBDeclCacheItem item : e.getValue()) {
+				if (matcher.match(item, name)) {
+					ret.add(item);
+				}
+			}
+		}
+		
+		return ret;
+	}
+
+	/**
+	 * Add the global declarations from the specified scope to the declaration cache
+	 *  
+	 * @param filename
+	 * @param scope
+	 */
+	protected void cacheDeclarations(SVDBFile file) {
+		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
+		
+		if (!decl_cache.containsKey(file.getFilePath())) {
+			decl_cache.put(file.getFilePath(), new ArrayList<SVDBDeclCacheItem>());
+		} else {
+			decl_cache.get(file.getFilePath()).clear();
+		}
+		
+		cacheDeclarations(file.getFilePath(), file);
+	}
+	
+	private void cacheDeclarations(String filename, ISVDBChildParent scope) {
+		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
+		
+		for (ISVDBChildItem item : scope.getChildren()) {
+			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
+				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+						((SVDBPackageDecl)item).getName(), item.getType()));
+				cacheDeclarations(filename, (SVDBPackageDecl)item);
+			} else if (item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task,
+					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
+					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
+					SVDBItemType.TypedefStmt)) {
+				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
+				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+						((ISVDBNamedItem)item).getName(), item.getType()));
+			}
+		}
+	}
+
+	public List<SVDBDeclCacheItem> findPackageDecl(
+			IProgressMonitor	monitor,
+			SVDBDeclCacheItem 	pkg_item) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		
+		return findFile(item.getFilename());
 	}
 
 	public SVPreProcScanner createPreProcScanner(String path) {

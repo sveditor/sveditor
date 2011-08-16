@@ -15,12 +15,10 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -40,21 +38,14 @@ public class SVDBFindNamedClass {
 	}
 
 	public List<SVDBClassDecl> find(String type_name) {
-		ISVDBItemIterator item_it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		List<SVDBClassDecl> ret = new ArrayList<SVDBClassDecl>();
 		
-		while (item_it.hasNext()) {
-			boolean had_next = item_it.hasNext();
-			ISVDBItemBase it = item_it.nextItem();
-			
-			if (it == null) {
-				System.out.println("it == null ; hasNext=" + had_next);
-			}
-			
-			if (it.getType() == SVDBItemType.ClassDecl) {
-				if (fMatcher.match((ISVDBNamedItem)it, type_name)) {
-					ret.add((SVDBClassDecl)it);
-				}
+		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
+				new NullProgressMonitor(), type_name, fMatcher);
+		
+		for (SVDBDeclCacheItem ci : found) {
+			if (ci.getType() == SVDBItemType.ClassDecl) {
+				ret.add((SVDBClassDecl)ci.getSVDBItem());
 			}
 		}
 		

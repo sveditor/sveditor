@@ -175,8 +175,10 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
 								writeItemList((List)field_value);
 							} else {
+								writeObjectList((List)field_value, c);
+							} /* else {
 								throw new DBWriteException("Type Arg: " + ((Class)args[0]).getName());
-							}
+							} */
 						} else {
 							throw new DBWriteException("Non-parameterized list is unsupported");
 						}
@@ -203,18 +205,40 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 						if (t instanceof ParameterizedType) {
 							ParameterizedType pt = (ParameterizedType)t;
 							Type args[] = pt.getActualTypeArguments();
-							Class key_c = (Class)args[0];
-							Class val_c = (Class)args[1];
+							Class key_c = null;
+							Class val_c = null;
+							if (args[0] instanceof Class) {
+								key_c = (Class)args[0];
+							} else {
+								throw new DBWriteException("Failed to write field " + f.getName() + " type " +
+										field_value.getClass().getName());
+							}
+							if (args[1] instanceof Class) {
+								val_c = (Class)args[1];
+							} else if (args[1] instanceof ParameterizedType) {
+								ParameterizedType pt_s = (ParameterizedType)args[1];
+								val_c = (Class)pt_s.getRawType();
+							} else {
+								throw new DBWriteException("Failed to write field " + f.getName() + " type " + 
+										field_value.getClass().getName());
+							}
+							
 							if (key_c == String.class && val_c == String.class) {
 								writeMapStringString((Map<String, String>)field_value);
+							} else if (key_c == String.class && val_c.isAssignableFrom(List.class)) {
+								ParameterizedType pt_s = (ParameterizedType)args[1];
+								writeMapStringList((Map<String, List>)field_value, 
+										(Class)pt_s.getActualTypeArguments()[0]);
 							} else {
-								throw new DBWriteException("Map<" + key_c.getName() + ", " + val_c.getName() + ">: Class " + cls.getName());
+								throw new DBWriteException("Map<" + key_c.getName() + ", " + val_c.getName() + ">: " +
+										"field " + f.getName() + " in class " + cls.getName());
 							}
 						} else {
 							throw new DBWriteException("Non-parameterized list is unsupported");
 						}
 					} else {
-						throw new DBWriteException("Unsupported field: " + field_class.getName() + " in " + cls.getName());
+						throw new DBWriteException("Unsupported field: " + f.getName() +
+								" in class " + cls.getName() + ": " + field_class.getName());
 					}
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
@@ -282,6 +306,17 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 			writeString(e.getValue());
 		}
 	}
+	
+	private void writeMapStringList(Map<String, List> map, Class list_c) throws DBWriteException {
+		writeRawType(TYPE_MAP);
+		
+		writeInt(map.size());
+		for (Entry<String, List> e : map.entrySet()) {
+			writeString(e.getKey());
+			writeObjectList(e.getValue(), list_c);
+		}
+	}
+
 	
 	public void writeLong(long val) throws DBWriteException {
 		try {
@@ -372,6 +407,19 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 		
 			for (Long v : items) {
 				writeLong(v.longValue());
+			}
+		}
+	}
+
+	public void writeObjectList(List items, Class obj_c) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_OBJECT_LIST);
+			writeInt(items.size());
+		
+			for (Object v : items) {
+				writeObject(obj_c, v);
 			}
 		}
 	}

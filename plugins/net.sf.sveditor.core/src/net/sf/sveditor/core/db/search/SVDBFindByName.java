@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -37,6 +38,20 @@ public class SVDBFindByName {
 	}
 	
 	public List<ISVDBItemBase> find(String name, SVDBItemType ... types) {
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		List<SVDBDeclCacheItem> found = fIndexIterator.findGlobalScopeDecl(
+				new NullProgressMonitor(), name, fMatcher);
+		
+		for (SVDBDeclCacheItem item : found) {
+			if (item.getType().isElemOf(types)) {
+				ret.add(item.getSVDBItem());
+			}
+		}
+		
+		return ret;
+	}
+	
+	private List<ISVDBItemBase> find_old(String name, SVDBItemType ... types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		ISVDBItemIterator item_it = fIndexIterator.getItemIterator(new NullProgressMonitor());

@@ -17,16 +17,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -80,7 +86,39 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public void clearGlobalDefines() {}
 					public void addChangeListener(ISVDBIndexChangeListener l) {}
 					public void loadIndex(IProgressMonitor monitor) {}
+					
+					public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+							IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) { return null; }
+					public List<SVDBDeclCacheItem> findPackageDecl(
+							IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) { return null; }
+					public SVDBFile getDeclFile(IProgressMonitor monitor,
+							SVDBDeclCacheItem item) { return null; }
+					
+					
 				});
+	}
+
+	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		for (Entry<String, SVDBFile> e : fFileMap.entrySet()) {
+			for (ISVDBChildItem c : e.getValue().getChildren()) {
+				if (matcher.match((ISVDBNamedItem)c, name)) {
+					ret.add(new SVDBDeclCacheItem(this, e.getKey(), 
+							((ISVDBNamedItem)c).getName(), c.getType()));
+				}
+			}
+		}
+		return ret;
+	}
+	
+	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
+			SVDBDeclCacheItem pkg_item) {
+		return null;
+	}
+	
+	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		return fFileMap.get(item.getFilename());
 	}
 
 }

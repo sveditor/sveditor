@@ -33,6 +33,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -42,6 +43,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -487,6 +489,21 @@ public class SVEditor extends TextEditor
 			} else {
 				return SVEmptyItemIterator;
 			}
+		}
+
+		public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+				IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
+			return null;
+		}
+
+		public List<SVDBDeclCacheItem> findPackageDecl(
+				IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) {
+			return null;
+		}
+
+		public SVDBFile getDeclFile(IProgressMonitor monitor,
+				SVDBDeclCacheItem item) {
+			return null;
 		}
 	};
 	

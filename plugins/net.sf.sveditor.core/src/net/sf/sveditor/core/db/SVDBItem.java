@@ -17,7 +17,7 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 
 
-public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem {
+public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem, ISVDBChildItem {
 	
 	@SVDBParentAttr
 	protected ISVDBChildItem		fParent;

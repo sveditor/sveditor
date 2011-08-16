@@ -76,6 +76,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		fInBuf = in;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void readObject(ISVDBChildItem parent, Class cls, Object target) throws DBFormatException {
 		if (fDebugEn) {
 			debug("--> " + (++fLevel) + " readObject: " + cls.getName());
@@ -148,10 +149,29 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 						if (t instanceof ParameterizedType) {
 							ParameterizedType pt = (ParameterizedType)t;
 							Type args[] = pt.getActualTypeArguments();
-							Class key_c = (Class)args[0];
-							Class val_c = (Class)args[1];
+							Class key_c = null;
+							Class val_c = null;
+							
+							if (args[0] instanceof Class) {
+								key_c = (Class)args[0];
+							} else {
+								throw new DBFormatException("Failed to deconstruct type for " +
+										"field " + f.getName()); 
+							}
+							
+							if (args[1] instanceof Class) {
+								val_c = (Class)args[0];
+							} else if (args[1] instanceof ParameterizedType) {
+								val_c = (Class)((ParameterizedType)args[1]).getRawType();
+							} else {
+								throw new DBFormatException("Failed to deconstruct type for " +
+										"field " + f.getName()); 
+							}
 							if (key_c == String.class && val_c == String.class) {
 								f.set(target, readMapStringString());
+							} else if (key_c == String.class && val_c.isAssignableFrom(List.class)) {
+								Class c = (Class)((ParameterizedType)args[1]).getActualTypeArguments()[0];
+								f.set(target, readMapStringList(c));
 							} else {
 								throw new DBFormatException("Map<" + key_c.getName() + ", " + val_c.getName() + ">: Class " + cls.getName());
 							}
@@ -244,6 +264,27 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 			String key = readString();
 			String val = readString();
 			ret.put(key, val);
+		}
+		
+		return ret;
+	}
+	
+	private Map<String, List> readMapStringList(Class val_c) throws DBFormatException {
+		Map<String, List> ret = new HashMap<String, List>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			ret.put(key, readObjectList(val_c));
 		}
 		
 		return ret;
@@ -343,6 +384,33 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		List ret = new ArrayList();
 		for (int i=0; i<size; i++) {
 			ret.add(readSVDBItem(parent));
+		}
+		
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List readObjectList(Class val_c) throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		} else if (type != TYPE_OBJECT_LIST) {
+			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type);
+		}
+		int size = readInt();
+		List ret = new ArrayList();
+		for (int i=0; i<size; i++) {
+			Object val = null;
+			try {
+				val = val_c.newInstance();
+			} catch (InstantiationException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			} catch (IllegalAccessException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			}
+			readObject(null, val_c, val);
+			ret.add(val);
 		}
 		
 		return ret;

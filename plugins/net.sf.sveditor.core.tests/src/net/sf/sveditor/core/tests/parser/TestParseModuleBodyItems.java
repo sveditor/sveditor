@@ -893,6 +893,34 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "test");
 	}
 	
+	public void testGenBeginEnd() {
+		String doc = 
+			"module gray2bin1 (bin, gray);\n" +
+			"	parameter SIZE = 8; // this module is parameterizable\n" +
+			"	output [SIZE-1:0] bin;\n" +
+			"	input [SIZE-1:0] gray;\n" +
+			"	genvar i;\n" +
+			"	generate\n" +
+			"	begin : my_gen_block\n" +
+			"	for (i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+			"		assign bin[i] = ^gray[SIZE-1:i];\n" +
+			"		// i refers to the implicitly defined localparam whose\n" +
+			"		// value in each instance of the generate block is\n" +
+			"		// the value of the genvar when it was elaborated.\n" +
+			"	end\n" + // 12
+			"	end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGenBeginEnd");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "gray2bin1");
+	}
+	
+	
 	public void testClocking_DR() {
 		String doc = 
 			"interface control_if;\n" +

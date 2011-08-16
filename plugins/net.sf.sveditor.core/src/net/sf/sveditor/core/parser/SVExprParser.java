@@ -147,6 +147,7 @@ public class SVExprParser extends SVParserBase {
 		SVDBExpr lvalue;
 		debug("--> variable_lvalue - " + fLexer.peek());
 		if (fLexer.peekOperator("{")) {
+/*			
 			SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
 			// {variable_lvalue, variable_lvalue, ...}
 			fLexer.eatToken();
@@ -159,7 +160,9 @@ public class SVExprParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator("}");
-			lvalue = ret;
+ */
+			
+			lvalue = concatenation_or_repetition();
 		} else {
 			lvalue = unaryExpression();
 		}
@@ -818,7 +821,13 @@ public class SVExprParser extends SVParserBase {
 			debug("<-- concatenation_or_repetition()");
 			return new SVDBConcatenationExpr();
 		} else {
-			SVDBExpr expr = expression();
+			SVDBExpr expr = null;
+			if (peekOperator("<<", ">>")) {
+				// TODO:
+				expr = new SVDBLiteralExpr(eatToken());
+			} else {
+				expr = expression();
+			}
 
 			if (fLexer.peekOperator("{")) {
 				fLexer.eatToken();

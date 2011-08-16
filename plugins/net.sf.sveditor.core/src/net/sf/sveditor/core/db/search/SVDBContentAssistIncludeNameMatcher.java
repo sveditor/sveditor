@@ -41,5 +41,4 @@ public class SVDBContentAssistIncludeNameMatcher extends SVDBFindContentAssistNa
 			return super.match(it, name);
 		}
 	}
-
 }

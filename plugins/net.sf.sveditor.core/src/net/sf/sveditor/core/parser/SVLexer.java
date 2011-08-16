@@ -911,14 +911,17 @@ public class SVLexer extends SVToken {
 
 	// Enter on time-unit char
 	private int readTimeUnit(int ch) throws SVParseException {
-		fStringBuffer.append((char) ch);
-		ch = get_ch();
-
+		fStringBuffer.append((char)ch);
+		
 		if (ch != 's') {
-			error("Malformed time unit n" + (char) ch);
-		}
-		fStringBuffer.append((char) ch);
+			ch = get_ch();
 
+			if (ch != 's') {
+				error("Malformed time unit n" + (char) ch);
+			}
+			fStringBuffer.append((char) ch);
+		}
+		
 		fIsTime = true;
 
 		return get_ch();

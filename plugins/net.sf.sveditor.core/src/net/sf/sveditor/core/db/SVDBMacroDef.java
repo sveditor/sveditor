@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SVDBMacroDef extends SVDBItem {
+public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
 	private List<String>			fParams;
 	private String					fDef;
 

@@ -44,7 +44,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 			((ISVDBChildItem)item).setParent(this);
 			fItems.add((ISVDBChildItem)item);
 		} else {
-			throw new RuntimeException("Failed to add non-child item");
+			throw new RuntimeException("Failed to add non-child item " + item.getClass().getName());
 		}
 	}
 	

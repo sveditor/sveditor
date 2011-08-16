@@ -100,6 +100,28 @@ public class TestParseDataTypes extends TestCase {
 				new String[] {"my_class"});
 	}
 
+	public void testTimeUnits() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class extends my_base_class #(virtual my_interface);\n" +
+			"\n" +
+			"	function do_something;\n" +
+			"		time t_s = 0.5s;\n" +
+			"		time t_ms = 0.5ms;\n" +
+			"		time t_us = 0.5us;\n" +
+			"		time t_ns = 0.5ns;\n" +
+			"		time t_ps = 0.5ps;\n" +
+			"		time t_fs = 0.5fs;\n" +
+			"		time t_1s = 1s;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTimeUnits", content,
+				new String[] {"my_class", "do_something", "t_s", "t_ms", "t_us",
+					"t_ns", "t_ps", "t_fs", "t_1s"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

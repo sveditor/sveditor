@@ -50,6 +50,7 @@ public class TestArrayContentAssist extends TestCase {
 		if (fIndexMgr == null) {
 			System.out.println("setUp");
 			fIndex = new ContentAssistIndex();
+			fIndex.init(new NullProgressMonitor());
 			fIndexMgr = new SVDBIndexCollectionMgr("GLOBAL");
 			fIndexMgr.addLibraryPath(fIndex);
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();

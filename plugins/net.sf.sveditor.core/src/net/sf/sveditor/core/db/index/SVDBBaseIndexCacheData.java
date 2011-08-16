@@ -6,12 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 public class SVDBBaseIndexCacheData {
-	private String							fVersion;
-	private String							fBaseLocation;
-	private List<String>					fIncludePathList;
-	private List<String>					fMissingIncludeFiles;
-	private Map<String, String>				fGlobalDefines;
-	private Map<String, String>				fDefineMap;
+	private String									fVersion;
+	private String									fBaseLocation;
+	private List<String>							fIncludePathList;
+	private List<String>							fMissingIncludeFiles;
+	private Map<String, String>						fGlobalDefines;
+	private Map<String, String>						fDefineMap;
+	private Map<String, List<SVDBDeclCacheItem>>	fDeclCacheMap;
 
 	public SVDBBaseIndexCacheData(String base) {
 		fBaseLocation = base;
@@ -19,6 +20,7 @@ public class SVDBBaseIndexCacheData {
 		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
+		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 	
 	public String getVersion() {
@@ -90,5 +92,9 @@ public class SVDBBaseIndexCacheData {
 	
 	public List<String> getIncludePaths() {
 		return fIncludePathList;
+	}
+	
+	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
+		return fDeclCacheMap;
 	}
 }

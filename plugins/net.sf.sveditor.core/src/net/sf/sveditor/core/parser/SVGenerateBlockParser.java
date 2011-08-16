@@ -45,12 +45,32 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(gen_blk);
 		while (fLexer.peek() != null && 
 				!fLexer.peekKeyword("endgenerate") && !fLexer.peekKeyword("endmodule")) {
-			fParsers.modIfcBodyItemParser().parse(gen_blk, "generate");
+			if (fLexer.peekKeyword("begin")) {
+				begin_end_block(gen_blk);
+			} else {
+				fParsers.modIfcBodyItemParser().parse(gen_blk, "generate");
+			}
 		}
 		
 		gen_blk.setEndLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("endgenerate");
 		
+	}
+	
+	private void begin_end_block(ISVDBAddChildItem parent) throws SVParseException {
+		fLexer.readKeyword("begin");
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			fLexer.readId();
+		}
+		while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+			fParsers.modIfcBodyItemParser().parse(parent, "generate");
+		}
+		fLexer.readKeyword("end");
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			fLexer.readId();
+		}
 	}
 	
 	public void if_block(ISVDBAddChildItem parent) throws SVParseException {
@@ -64,6 +84,8 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(if_blk);
 		
 		if (fLexer.peekKeyword("begin")) {
+			begin_end_block(if_blk);
+			/*
 			fLexer.eatToken();
 			if (fLexer.peekOperator(":")) {
 				fLexer.eatToken();
@@ -77,6 +99,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
+			 */
 		} else {
 			fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 		}

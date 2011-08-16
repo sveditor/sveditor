@@ -26,6 +26,7 @@ import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.SVFileSet;
@@ -287,6 +288,44 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		System.out.println("[TODO] SVDBIndexCollection.findIncParent()");
 		return null;
 	}
+	
+	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(monitor, name, matcher);
+				ret.addAll(tmp);
+			}
+		}
+		return ret;
+	}
+
+	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
+			SVDBDeclCacheItem pkg_item) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
+				ret.addAll(tmp);
+			}
+		}
+		return ret;
+	}
+
+	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				SVDBFile tmp = index.getDeclFile(monitor, item);
+				if (tmp != null) {
+					return tmp;
+				}
+			}
+		}
+		return null;
+	}
+
+
 
 	private class IncludeProvider implements ISVDBIncludeFileProvider {
 		ISVDBIndex					fIndex;
