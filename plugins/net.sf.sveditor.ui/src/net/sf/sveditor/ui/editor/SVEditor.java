@@ -493,17 +493,16 @@ public class SVEditor extends TextEditor
 
 		public List<SVDBDeclCacheItem> findGlobalScopeDecl(
 				IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
-			return null;
+			return fIndexMgr.findGlobalScopeDecl(monitor, name, matcher);
 		}
 
 		public List<SVDBDeclCacheItem> findPackageDecl(
 				IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) {
-			return null;
+			return fIndexMgr.findPackageDecl(monitor, pkg_item);
 		}
 
-		public SVDBFile getDeclFile(IProgressMonitor monitor,
-				SVDBDeclCacheItem item) {
-			return null;
+		public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+			return fIndexMgr.getDeclFile(monitor, item);
 		}
 	};
 	

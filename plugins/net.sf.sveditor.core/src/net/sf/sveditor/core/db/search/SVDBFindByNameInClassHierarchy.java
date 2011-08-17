@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -52,8 +53,7 @@ public class SVDBFindByNameInClassHierarchy {
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		fLog.debug("--> find(" + ((scope != null)?
-				((ISVDBNamedItem)scope).getName():null) + " \"" + id + "\")");
+		fLog.debug("--> find(" + ((scope != null)?SVDBItem.getName(scope):null) + " \"" + id + "\")");
 		for (SVDBItemType t : types) {
 			fLog.debug("    TYPE " + t);
 		}
@@ -78,7 +78,7 @@ public class SVDBFindByNameInClassHierarchy {
 					scope.getType() != SVDBItemType.Covergroup &&
 					scope.getType() != SVDBItemType.Coverpoint) {
 				fLog.debug("Searching up-scope (current is " + scope.getType() + 
-						" " + ((ISVDBNamedItem)scope).getName() + ")");
+						" " + SVDBItem.getName(scope) + ")");
 				if (scope.getType() == SVDBItemType.Task || scope.getType() == SVDBItemType.Function) {
 					findTFParamsLocals(ret, (SVDBTask)scope, id, types);
 				}

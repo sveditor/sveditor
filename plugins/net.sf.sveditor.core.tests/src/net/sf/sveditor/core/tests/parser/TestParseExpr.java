@@ -31,7 +31,7 @@ public class TestParseExpr extends TestCase {
 	}
 
 	public void testStreamOperators() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class my_class extends my_base_class #(virtual my_interface);\n" +
 			"\n" +
@@ -53,6 +53,38 @@ public class TestParseExpr extends TestCase {
 		runTest("testTimeUnits", content,
 				new String[] {"my_class", "do_something", 
 					"a", "b", "c", "up", "p1", "y"});
+	}
+
+	public void testStringEmbeddedBackslashes() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +
+			"\n" +
+			"	function do_something;\n" +
+			"		if (my_string == \"\\\\\")\n" +
+			"			$display(\"Hello World\");\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testStringEmbeddedBackslashes", content,
+				new String[] {"my_class", "do_something"});
+	}
+
+	public void testStringEmbeddedComment() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +
+			"\n" +
+			"	function do_something;\n" +
+			"		if (my_string == \"\\\\\")\n" +
+			"			$display(\"Hello World // this is a comment\");\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testStringEmbeddedComment", content,
+				new String[] {"my_class", "do_something"});
 	}
 
 	private void runTest(

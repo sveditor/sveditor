@@ -66,7 +66,7 @@ public class TestModuleContentAssist extends TestCase {
 
 	public void testModulePortAssistNoPrefix() {
 		LogHandle log = LogFactory.getLogHandle("testModulePortAssist");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"module m1(input AAAA, output BBBB);\n" +
@@ -95,6 +95,77 @@ public class TestModuleContentAssist extends TestCase {
 			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 			
 			validateResults(new String[] {"AAAA", "BBBB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testInitialBlockVariableAssist() {
+		LogHandle log = LogFactory.getLogHandle("testInitialBlockVariableAssist");
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 = 
+				"module m1(input AAAA, output BBBB);\n" +
+				"	initial begin\n" +
+				"		int AAAA, AABB, c;\n" +
+				"		c = A<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testInitialBlockVarFieldAssist() {
+		LogHandle log = LogFactory.getLogHandle("testInitialBlockVariableAssist");
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 = 
+				"	class foo;\n" +
+				"		int AAAA;\n" +
+				"		int AABB;\n" +
+				"	endclass\n" +
+				"\n" +
+				"module m1(input AAAA, output BBBB);\n" +
+				"	initial begin\n" +
+				"		foo c;\n" +
+				"		c.A<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB"}, proposals);
 			LogFactory.removeLogHandle(log);
 	}
 

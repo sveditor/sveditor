@@ -1,9 +1,5 @@
 package net.sf.sveditor.core.db.stmt;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;

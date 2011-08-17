@@ -112,7 +112,9 @@ public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem, ISVDBChild
 	}
 	
 	public static String getName(ISVDBItemBase item) {
-		if (item instanceof ISVDBNamedItem) {
+		if (item == null) {
+			return "null";
+		} else if (item instanceof ISVDBNamedItem) {
 			return ((ISVDBNamedItem)item).getName();
 		} else {
 			return "UNKNOWN " + item.getType();

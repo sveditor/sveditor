@@ -73,12 +73,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private String fResolvedBaseLocation;
 	private String fBaseLocationDir;
 
-	private SVDBBaseIndexCacheData 				fIndexCacheData;
-	private boolean								fCacheDataValid;
+	private SVDBBaseIndexCacheData 					fIndexCacheData;
+	private boolean									fCacheDataValid;
 
-	private ISVDBIncludeFileProvider 			fIncludeFileProvider;
+	private ISVDBIncludeFileProvider 				fIncludeFileProvider;
 
-	private List<ISVDBIndexChangeListener>		fIndexChageListeners;
+	private List<ISVDBIndexChangeListener>			fIndexChageListeners;
 
 	protected static Pattern 						fWinPathPattern;
 	protected static final List<String> 			fSVExtensions;
@@ -228,6 +228,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fLog.debug("Cache is valid");
 //			fIndexState = IndexState_AllFilesParsed;
 			fIndexState = IndexState_FileTreeValid;
+			
+			// If we've determined the index data is valid, then we need to fixup some index entries
+			if (fIndexCacheData.getDeclCacheMap() != null) {
+				for (Entry<String, List<SVDBDeclCacheItem>> e : 
+						fIndexCacheData.getDeclCacheMap().entrySet()) {
+					for (SVDBDeclCacheItem i : e.getValue()) {
+						i.init(e.getKey(), this);
+					}
+				}
+			}
 		} else {
 			fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			invalidateIndex();

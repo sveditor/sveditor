@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.ISVDBEndLocation;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
@@ -603,12 +605,16 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
-		
-		while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-			decl_allowed = statement_int(block, decl_allowed, true);
-//			decl_allowed = isDeclAllowed((SVDBStmt)block.getItems().get(block.getItems().size()-1));
+
+		try {
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
+				decl_allowed = statement_int(block, decl_allowed, true);
+				//			decl_allowed = isDeclAllowed((SVDBStmt)block.getItems().get(block.getItems().size()-1));
+			}
+		} finally {
+			block.setEndLocation(fLexer.getStartLocation());
 		}
-		block.setEndLocation(fLexer.getStartLocation());
+		
 		fLexer.readKeyword("end");
 		if (fLexer.peekOperator(":")) {
 			fLexer.eatToken();

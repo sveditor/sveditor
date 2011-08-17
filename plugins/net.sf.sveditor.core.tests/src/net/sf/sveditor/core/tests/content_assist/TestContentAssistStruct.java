@@ -160,7 +160,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
@@ -181,7 +181,7 @@ public class TestContentAssistStruct extends TestCase {
 	 */
 	public void testContentAssistStructInClassTypedef() {
 		LogHandle log = LogFactory.getLogHandle("testContentAssistStructInClassTypedef");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc1 =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -194,6 +194,54 @@ public class TestContentAssistStruct extends TestCase {
 			"    } my_struct_t;\n" +
 			"\n" +
 			"    my_struct_t              my_struct;\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        my_struct.my_<<MARK>>\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"my_int_field", "my_bit_field"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testContentAssistStructInClassTypedefRedirect() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistStructInClassTypedefRedirect");
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc1 =
+			"class foobar;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class;\n" +
+			"\n" +
+			"    typedef struct {\n" +
+			"        int             my_int_field;\n" +
+			"        bit             my_bit_field;\n" +
+			"    } my_struct_t;\n" +
+			"\n" +
+			"	typedef my_struct_t my_struct_t2;\n" +
+			"\n" +
+			"    my_struct_t2              my_struct;\n" +
 			"\n" +
 			"    function void foo();\n" +
 			"        my_struct.my_<<MARK>>\n" +
@@ -258,7 +306,7 @@ public class TestContentAssistStruct extends TestCase {
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 

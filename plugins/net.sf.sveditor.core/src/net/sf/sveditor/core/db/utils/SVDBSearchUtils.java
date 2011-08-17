@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBEndLocation;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -24,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
 
 public class SVDBSearchUtils {
 	
@@ -96,25 +99,33 @@ public class SVDBSearchUtils {
 	 * @param lineno
 	 * @return
 	 */
-	public static ISVDBScopeItem findActiveScope(ISVDBScopeItem scope, int lineno) {
-		debug("findActiveScope: " + ((ISVDBNamedItem)scope).getName() + " " + lineno);
+	public static ISVDBScopeItem findActiveScope(ISVDBChildParent scope, int lineno) {
+		debug("findActiveScope: " + SVDBItem.getName(scope) + " " + lineno);
 		for (ISVDBItemBase it : scope.getChildren()) {
 			debug("    Child: " + SVDBItem.getName(it) + " " + (it instanceof ISVDBScopeItem));
+			
+			if (it instanceof ISVDBBodyStmt && 
+					((ISVDBBodyStmt)it).getBody() != null &&
+					((ISVDBBodyStmt)it).getBody() instanceof ISVDBScopeItem) {
+				it = ((ISVDBBodyStmt)it).getBody();
+				System.out.println("body: " + it.getClass().getName());
+			}
+			
 			if (it instanceof ISVDBScopeItem) {
 				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
-				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
+				if (s_it.getLocation() != null && end_loc != null) {
 					debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
 							it.getLocation().getLine() + "-" + 
 							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 
-							lineno <= s_it.getEndLocation().getLine()) {
+							lineno <= end_loc.getLine()) {
 						ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
 						
 						if (s_it_p != null) {
 							return s_it_p;
 						} else {
-							return s_it;
+							return (ISVDBScopeItem)s_it;
 						}
 					}
 				}

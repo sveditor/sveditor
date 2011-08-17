@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -283,7 +284,8 @@ public class SVContentAssistExprVisitor {
 	private ISVDBItemBase findType(ISVDBItemBase item) {
 		SVDBTypeInfo   type = null;
 		List<SVDBVarDimItem> var_dim = null;
-		fLog.debug("findType: " + SVDBItem.getName(item));
+		ISVDBItemBase orig_item = item;
+		fLog.debug("findType: " + item.getType() + " " + SVDBItem.getName(item));
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
 			SVDBVarDeclItem var  = (SVDBVarDeclItem)item;
@@ -301,15 +303,9 @@ public class SVContentAssistExprVisitor {
 		}
 		
 		if (type != null) {
+			fLog.debug("    type is non-null: " + type.getType());
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
-				SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
-
-				List<ISVDBItemBase> item_l = finder_n.find(type.getName());
-			
-				// TODO: need to filter out forward-decl items?
-				if (item_l.size() > 0) {
-					item = item_l.get(0);
-				}
+				item = findTypedef(type.getName());
 			} else if (type.getType() == SVDBItemType.TypeInfoStruct) {
 				item = type;
 			}
@@ -324,14 +320,7 @@ public class SVContentAssistExprVisitor {
 					item = type;
 				} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 					// Lookup user-defined type name
-					SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
-
-					List<ISVDBItemBase> item_l = finder_n.find(type.getName());
-					
-					// TODO: need to filter out forward-decl items?
-					if (item_l.size() > 0) {
-						item = item_l.get(0);
-					}
+					item = findTypedef(type.getName());
 				}
 			}
 			
@@ -342,8 +331,56 @@ public class SVContentAssistExprVisitor {
 					item = resolveArrayType(item, SVDBItem.getName(item), var_dim.get(0));
 				}
 			}
+		} else {
+			fLog.debug("  type is null");
 		}
+		
+		fLog.debug("<-- findType: " + ((item!=null)?SVDBItem.getName(item):"NULL"));
 		return item;
+	}
+	
+	private ISVDBItemBase findTypedef(String name) {
+		ISVDBItemBase ret = null;
+		
+		if ((ret = findLocalTypedef(name)) == null) {
+			// Look globally
+			SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
+	
+			List<ISVDBItemBase> item_l = finder_n.find(name);
+	
+			// TODO: need to filter out forward-decl items?
+			if (item_l.size() > 0) {
+				ret = item_l.get(0);
+			}
+		}
+		
+		return ret;
+	}
+	
+	private ISVDBItemBase findLocalTypedef(String name) {
+		ISVDBItemBase ret = null;
+		fLog.debug("--> findLocalTypedef: " + name);
+		
+		ISVDBChildParent scope = fScope;
+		
+		while (scope != null && scope.getType() != SVDBItemType.File) {
+			fLog.debug("  search scope " + SVDBItem.getName(scope));
+			for (ISVDBChildItem c : scope.getChildren()) {
+				if (c.getType() == SVDBItemType.TypedefStmt &&
+						SVDBItem.getName(c).equals(name)) {
+					// TODO: should probably filter out forward declarations
+					ret = c;
+				}
+			}
+			if (scope.getParent() instanceof ISVDBChildParent) {
+				scope = (ISVDBChildParent)scope.getParent();
+			} else {
+				scope = null;
+			}
+		}
+		
+		fLog.debug("<-- findLocalTypedef: " + SVDBItem.getName(ret));
+		return ret;
 	}
 	
 	private ISVDBItemBase resolveArrayType(ISVDBItemBase base, String base_type, SVDBVarDimItem var_dim) {
@@ -412,7 +449,7 @@ public class SVContentAssistExprVisitor {
 			}
 		}
 		
-		// Check up the scopes in this class
+		// Check up the scopes in this class/module/interface
 		if ((ret = findInScopeHierarchy(id)) != null) {
 			return ret;
 		}

@@ -623,7 +623,12 @@ public class SVLexer extends SVToken {
 					break;
 				}
 				fStringBuffer.append((char) ch);
-				last_ch = ch;
+				if (last_ch == '\\' && ch == '\\') {
+					// Don't count a double quote
+					last_ch = -1;
+				} else {
+					last_ch = ch;
+				}
 			}
 
 			if (ch != '"') {

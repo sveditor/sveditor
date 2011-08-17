@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -29,8 +30,14 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBFindByNameInScopes {
+	private ISVDBFindNameMatcher			fMatcher;
 	
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it) {
+		fMatcher = SVDBFindDefaultNameMatcher.getDefault();
+	}
+	
+	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it, ISVDBFindNameMatcher matcher) {
+		fMatcher = matcher;
 	}
 	
 	public List<ISVDBItemBase> find(
@@ -48,7 +55,7 @@ public class SVDBFindByNameInScopes {
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
 				if (it instanceof SVDBVarDeclStmt) {
 					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getChildren()) {
-						if (SVDBItem.getName(it_t).equals(name)) {
+						if (it_t instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it_t, name)) {
 							boolean match = (types.length == 0);
 
 							for (SVDBItemType t : types) {
@@ -68,10 +75,12 @@ public class SVDBFindByNameInScopes {
 						}
 					}
 				} else {
+					/*
 					if (SVDBItem.getName(it) == null) {
 						it = null;
 					}
-					if (SVDBItem.getName(it).equals(name)) {
+					 */
+					if (it instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it, name)) {
 						boolean match = (types.length == 0);
 
 						for (SVDBItemType t : types) {

@@ -30,6 +30,11 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		fType = type;
 	}
 	
+	public void init(String filename, ISVDBDeclCache parent) {
+		fFileName = filename;
+		fParent = parent;
+	}
+	
 	public String getFilename() {
 		return fFileName;
 	}

@@ -688,7 +688,7 @@ public class SVPreProcScanner implements ISVScanner {
 				ch = get_ch_ll();
 			}
 			
-			if (ch == '/') {
+			if (ch == '/' && !fInString) {
 				int ch2 = get_ch_ll();
 
 				if (ch2 == '/') {
@@ -737,7 +737,11 @@ public class SVPreProcScanner implements ISVScanner {
 			break;
 		}
 
-		fLastChPP = ch;
+		if (fLastChPP == '\\' && ch == '\\') {
+			fLastChPP = ' ';
+		} else {
+			fLastChPP = ch;
+		}
 		
 		return ch;
 	}

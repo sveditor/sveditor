@@ -1,4 +1,24 @@
 
+-- 0.6.1.ea02 Release --
+
+- (#3392156) Correct a parse bug with time unit 's'
+
+- (#3392155) Implement parse support for stream operators (eg { << {...}})
+
+- Add a "Global-Declaration Cache" to the index. This permits searching for
+  global types (classes, modules, interfaces, functions, packages) without
+  iterating through the entire index data structures. 
+  The global declaration cache is stored along with the index persistence
+  data, and enables operations such as content assist and open declaration
+  to be much faster.
+
+- Enhance content assist to search within begin/end scopes -- for example:
+  initial begin
+    class_type e;
+    e.field<<CONTENT_ASSIST>>
+  end
+
+
 -- 0.6.1.ea01 Release --
 
 - Re-release of 0.6.0.ea10. Looks like Eclipse thinks version 'ea10' is less than 'ea9'

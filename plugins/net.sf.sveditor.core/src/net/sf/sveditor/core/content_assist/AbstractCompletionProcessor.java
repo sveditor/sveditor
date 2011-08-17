@@ -35,6 +35,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
@@ -384,18 +385,27 @@ public abstract class AbstractCompletionProcessor {
 		}
 	}
 	
-	private void findAssignTriggeredProposals(	
+	private void findAssignTriggeredProposals(
 			SVExprContext			ctxt,
 			ISVDBChildItem			src_scope,
 			ISVDBItemBase			item) {
 		fLog.debug("Looking for assign-triggered identifier \"" + ctxt.fLeaf + "\"");
-		List<ISVDBItemBase> result = null;
+		List<ISVDBItemBase> result = new ArrayList<ISVDBItemBase>();
+		List<ISVDBItemBase> tmp = null;
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		
+		SVDBFindByNameInScopes finder_s = 
+			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
+		tmp = finder_s.find(src_scope, ctxt.fLeaf, false);
+		
+		result.addAll(tmp);
 
 		SVDBFindByNameInClassHierarchy finder_h =
 			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
 
-		result = finder_h.find(src_scope, ctxt.fLeaf);
+		tmp = finder_h.find(src_scope, ctxt.fLeaf);
+		
+		result.addAll(tmp);
 
 		if (result.size() > 0) {
 			for (int i=0; i<result.size(); i++) {

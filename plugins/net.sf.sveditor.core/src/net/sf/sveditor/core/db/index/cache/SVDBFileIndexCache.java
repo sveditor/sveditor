@@ -22,7 +22,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private String							fBaseLocation;
@@ -175,12 +174,14 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 	
 	public void initLoad(IProgressMonitor monitor) {
+		/**
 		for (int i=0; i<fCacheSize && i<fFileList.size(); i++) {
 			String path = fFileList.get(i);
 			getPreProcFile(new NullProgressMonitor(), path);
 			getFileTree(new NullProgressMonitor(), path);
 			getFile(new NullProgressMonitor(), path);
 		}
+		 */
 	}
 
 	public List<String> getFileList() {
