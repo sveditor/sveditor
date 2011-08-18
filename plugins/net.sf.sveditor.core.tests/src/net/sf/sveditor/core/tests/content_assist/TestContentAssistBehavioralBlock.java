@@ -38,7 +38,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 	 */
 	public void testAssignRHS() {
 		LogHandle log = LogFactory.getLogHandle("testAssignRHS");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class foobar;\n" +

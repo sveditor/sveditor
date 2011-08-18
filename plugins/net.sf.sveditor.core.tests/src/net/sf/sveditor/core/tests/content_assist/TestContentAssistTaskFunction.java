@@ -38,7 +38,7 @@ public class TestContentAssistTaskFunction extends TestCase {
 	 */
 	public void testClassTFParam() {
 		LogHandle log = LogFactory.getLogHandle("testClassTFParam");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class foobar;\n" +
