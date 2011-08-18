@@ -151,7 +151,7 @@ public class SVContentAssistExprVisitor {
 				return findType(fResolveStack.peek());
 			}
 		} catch (SVAbortException e) {
-			e.printStackTrace();
+			fLog.debug("Failed to traverse expression", e);
 		}
 
 		return null;

@@ -108,7 +108,6 @@ public class SVDBSearchUtils {
 					((ISVDBBodyStmt)it).getBody() != null &&
 					((ISVDBBodyStmt)it).getBody() instanceof ISVDBScopeItem) {
 				it = ((ISVDBBodyStmt)it).getBody();
-				System.out.println("body: " + it.getClass().getName());
 			}
 			
 			if (it instanceof ISVDBScopeItem) {

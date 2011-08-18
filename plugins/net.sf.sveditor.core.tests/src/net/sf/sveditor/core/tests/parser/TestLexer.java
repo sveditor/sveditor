@@ -30,6 +30,25 @@ public class TestLexer extends TestCase {
 		
 		runTest("testSpaceContainingNumber", content, new String[] {"c", "b"});
 	}
+	
+	public void testParenContainingString() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"`define ovm_warning(region, msg) \\\n" +
+			"   begin \\\n" +
+			"		if (ovm_report_enabled(OVM_NONE,OVM_WARNING,ID)) \\\n" +
+			"			ovm_report_warning (ID, MSG, OVM_NONE, `ovm_file, `ovm_line); \\\n" +
+			"		end\n" +
+			"\n" +
+			"class c;\n" +
+			"	function void test();\n" +
+			"		`ovm_warning(\"WARN\", \"(\");\n" +
+			"	endfunction\n" +
+			"endclass\n";
+		
+		runTest("testParenContainingString", content, new String[] {"c", "test"});
+	}
+		
 
 	private void runTest(
 			String			testname,

@@ -109,11 +109,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		// Try for a declaration here
 		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-				fLexer.isIdentifier() || fLexer.peekKeyword("typedef")) {
+				fLexer.isIdentifier() || fLexer.peekKeyword("typedef", "struct", "enum")) {
 //			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
 			
 			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-					fLexer.peekKeyword("typedef")) {
+					fLexer.peekKeyword("typedef", "struct", "enum")) {
 				// Definitely a declaration
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");

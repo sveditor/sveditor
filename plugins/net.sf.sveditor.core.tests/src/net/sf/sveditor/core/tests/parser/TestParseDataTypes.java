@@ -62,6 +62,34 @@ public class TestParseDataTypes extends TestCase {
 				new String [] {"foo", "my_var"});
 	}
 
+	public void testEnumVarTFScope() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foo;\n" +
+			"	function void foobar;\n" +
+			"   	enum { A, B, C } enum_var;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTypedefEnumFwdDecl", content,
+				new String [] {"foo", "enum_var"});
+	}
+
+	public void testStructVarTFScope() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foo;\n" +
+			"	function void foobar;\n" +
+			"   	struct { int A; int B; int C; } struct_var;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTypedefEnumFwdDecl", content,
+				new String [] {"foo", "struct_var"});
+	}
+
 	public void testMultiDimArrayDecl() throws SVParseException {
 		String content =
 			"class foo;\n" +

@@ -18,6 +18,21 @@
     e.field<<CONTENT_ASSIST>>
   end
 
+- Correct a bug with content assist using task/function parameters. For example:
+  task my_task(class_type param);
+    param.field<<CONTENT_ASSIST>>
+  endtask
+
+- (#3392730) Correct bug in lexing strings containing parens
+
+- (#3392170) Correct bug with generate blocks containing named begin/end blocks
+
+- (#3392161) Correct bug involving strings with embedded comments and backslashes
+
+- (#3392721) Correct parse bug with struct/enum-type variables. For example:
+   class c;
+       enum {A, B, C} enum_field;
+   endclass
 
 -- 0.6.1.ea01 Release --
 

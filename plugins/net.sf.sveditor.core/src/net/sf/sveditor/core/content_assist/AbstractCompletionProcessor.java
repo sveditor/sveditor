@@ -140,34 +140,60 @@ public abstract class AbstractCompletionProcessor {
 				findMacroItems(ctxt, getIndexIterator());
 			} else if (ctxt.fRoot != null &&
 					(ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::"))) {
-				SVDBExpr expr = null;
-				SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
-				try {
-					expr = parser.parsers().exprParser().expression();
-				} catch (SVParseException e) {
-					fLog.debug("Failed to parse the content-assist expression", e);
-					return;
-				}
-				
-				// Traverse the expression to find the type of the leaf element 
-				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
-						src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
-				ISVDBItemBase item = null;
-				if (expr != null) {
-					item = v.findTypeItem(expr);
-				}
-				
-				if (item == null) {
-					fLog.debug("Failed to traverse the content-assist expression");
-					return;
-				}
-				debug("Item: " + item.getType() + " " + SVDBItem.getName(item));
-				
 				if (ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::")) {
+					SVDBExpr expr = null;
+					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
+					try {
+						expr = parser.parsers().exprParser().expression();
+					} catch (SVParseException e) {
+						fLog.debug("Failed to parse the content-assist expression", e);
+						return;
+					}
+
+					// Traverse the expression to find the type of the root element 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
+					ISVDBItemBase item = null;
+					if (expr != null) {
+						item = v.findTypeItem(expr);
+					}
+
+					if (item == null) {
+						fLog.debug("Failed to traverse the content-assist expression");
+						return;
+					}
+					debug("Item: " + item.getType() + " " + SVDBItem.getName(item));
+
 					// '.' or '::' trigger
 					findTriggeredProposals(ctxt, src_scope, item);
 				} else {
 					// '=' trigger
+					SVDBExpr expr = null;
+					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
+					try {
+						expr = parser.parsers().exprParser().expression();
+					} catch (SVParseException e) {
+						fLog.debug("Failed to parse the content-assist expression", e);
+						return;
+					}
+
+					// Traverse the expression to find the type of the root element 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
+					ISVDBItemBase item = null;
+					if (expr != null) {
+						try {
+							item = v.findTypeItem(expr);
+						} catch (RuntimeException e) {
+							// it's okay to ignore this, since it only might be helpful
+						}
+					}
+
+					if (item == null) {
+						fLog.debug("Failed to traverse the content-assist expression");
+					}
+					debug("Item: " + ((item != null)?(item.getType() + " " + SVDBItem.getName(item)):"null"));
+					
 					findAssignTriggeredProposals(ctxt, src_scope, item);
 				}
 			} else if (ctxt.fTrigger.equals(".")) {
@@ -496,8 +522,8 @@ public abstract class AbstractCompletionProcessor {
 		
 		// Special case: If this is a constructor call, then do a 
 		// context lookup on the LHS
-		fLog.debug("item is type " + item.getType());
-		if ((item.getType() == SVDBItemType.ClassDecl) &&
+		fLog.debug("item is type " + ((item != null)?item.getType():"null"));
+		if (item != null && (item.getType() == SVDBItemType.ClassDecl) &&
 				("new".startsWith(ctxt.fLeaf) || ctxt.fLeaf.equals(""))) {
 			SVDBClassDecl cls = (SVDBClassDecl)item;
 			
