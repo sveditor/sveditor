@@ -1,4 +1,12 @@
 
+-- 0.6.1.ea03 Release --
+
+- (#3393397) Correct non-blocking event trigger
+
+- (#3393386) Correct parse bug with packed and signed/unsigned structs
+
+- (#3392717) Add parse support for timeprecision / timeunit directives
+
 -- 0.6.1.ea02 Release --
 
 - (#3392156) Correct a parse bug with time unit 's'

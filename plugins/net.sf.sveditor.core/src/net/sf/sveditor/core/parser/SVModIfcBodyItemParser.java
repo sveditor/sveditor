@@ -42,6 +42,8 @@ import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -156,6 +158,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
+		} else if (fLexer.peekKeyword("timeprecision","timeunit")) {
+			parse_time_units_precision(parent);
 		} else if (!fLexer.peekOperator()) {
 			// likely a variable or module declaration
 
@@ -217,6 +221,28 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				break;
 			}
 		}
+		fLexer.readOperator(";");
+	}
+	
+	public void parse_time_units_precision(ISVDBAddChildItem parent) throws SVParseException {
+		String type = fLexer.readKeyword("timeprecision","timeunit");
+		
+		String num = fLexer.readNumber();
+		
+		if (type.equals("timeprecision")) {
+			SVDBTimePrecisionStmt precision = new SVDBTimePrecisionStmt();
+			precision.setArg1(num);
+			if (fLexer.peekOperator("/")) {
+				fLexer.eatToken();
+				precision.setArg2(fLexer.readNumber());
+			}
+			parent.addChildItem(precision);
+		} else {
+			SVDBTimeUnitsStmt units = new SVDBTimeUnitsStmt();
+			units.setUnits(num);
+			parent.addChildItem(units);
+		}
+		
 		fLexer.readOperator(";");
 	}
 	

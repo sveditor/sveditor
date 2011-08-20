@@ -127,6 +127,45 @@ public class TestParseDataTypes extends TestCase {
 		runTest("testVirtualInterfaceClassParam", content,
 				new String[] {"my_class"});
 	}
+	
+	public void testStructPackedSignedUnsigned() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"typedef struct packed {\n" +
+			"	int a;\n" +
+			"} my_packed_struct;\n" +
+			"typedef struct packed signed {\n" +
+			"	int a;\n" +
+			"} my_packed_signed_struct;\n" +
+			"typedef struct packed unsigned {\n" +
+			"	int a;\n" +
+			"} my_packed_unsigned_struct;\n"
+			;
+		
+		runTest("testStructPackedSignedUnsigned", content,
+				new String[] {"my_packed_struct", "my_packed_signed_struct", "my_packed_unsigned_struct"});
+	}
+
+	public void testUnionTaggedUntagged() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"typedef union {\n" +
+			"	int a;\n" +
+			"	int b;\n" +
+			"} my_untagged_union;\n" +
+			"typedef union tagged {\n" +
+			"	int a;\n" +
+			"	int b;\n" +
+			"} my_tagged_union;\n" +
+			"typedef union tagged packed unsigned {\n" +
+			"	int a;\n" +
+			"	int b;\n" +
+			"} my_tagged_packed_unsigned_union;\n"
+			;
+		
+		runTest("testStructPackedSignedUnsigned", content,
+				new String[] {"my_untagged_union", "my_tagged_union", "my_tagged_packed_unsigned_union"});
+	}
 
 	public void testTimeUnits() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);

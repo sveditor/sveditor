@@ -143,12 +143,24 @@ public class SVDataTypeParser extends SVParserBase {
 		} else if (fLexer.peekKeyword("struct", "union")) {
 			tok = fLexer.readKeywordTok("struct", "union");
 			if (tok.getImage().equals("union")) {
+				// TODO: preserve?
 				if (fLexer.peekKeyword("tagged")) {
 					fLexer.eatToken();
 				}
-			} else {
-				type = struct_body();
 			}
+			
+			if (fLexer.peekKeyword("packed")) {
+				// TODO: preserve?
+				fLexer.eatToken(); 
+			}
+			
+			if (fLexer.peekKeyword("signed", "unsigned")) {
+				// TODO: preserve?
+				fLexer.eatToken();
+			}
+			
+			type = struct_body();
+
 			// TODO:
 		} else if (fLexer.peekKeyword("enum")) {
 			type = enum_type();

@@ -851,7 +851,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = consume_expression();
 			
 			// (expr) -> [stmt | stmt_block]
-			if (tok.isOp("->")) {
+			if (tok.isOp("->") || tok.isOp("-->")) {
 				tok = next_s();
 				tok = indent_constraint_block_or_stmt();
 			}

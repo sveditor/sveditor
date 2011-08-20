@@ -329,9 +329,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					fLexer.readOperator(";");
 				}
 			}
-		} else if (fLexer.peekOperator("->", "->>")) {
+		} else if (fLexer.peekOperator("->", "->>", "-->")) {
 			SVDBEventTriggerStmt event_trigger = new SVDBEventTriggerStmt();
-			String tt = fLexer.eatToken();
+			/* String tt = */ fLexer.eatToken();
 			
 			// TODO: handle [delay_or_event_control] after ->>
 			

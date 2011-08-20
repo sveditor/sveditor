@@ -124,6 +124,8 @@ public enum SVDBItemType {
 	
 	CoverageOptionStmt,
 	CoverageCrossBinsSelectStmt,
+	TimePrecisionStmt,
+	TimeUnitsStmt,
 
 	// Expressions
 	ArrayAccessExpr,

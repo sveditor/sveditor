@@ -56,6 +56,37 @@ public class TestParseBehavioralStmts extends TestCase {
 		
 	}
 
+	public void testNonBlockingEventTrigger() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	event event_identifier;\n" +
+			"	initial begin\n" +
+			"		--> event_identifier;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testNonBlockingEventTrigger", doc, new String[] { "t" });
+		
+	}
+
+	public void testVirtualInterfaceParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(virtual interface_type_name)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest("testVirtualInterfaceParameterizedStaticCall", doc, new String[] { "t" });
+	}
+
+		
+	
+	
 	public void testVarDeclListForStmt() throws SVParseException {
 		String doc =
 			"module t;\n" +

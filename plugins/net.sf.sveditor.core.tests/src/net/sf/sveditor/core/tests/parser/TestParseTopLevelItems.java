@@ -18,6 +18,31 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase;
 
 public class TestParseTopLevelItems extends TestCase {
+	
+	public void testTimePrecisionUnits() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"package foo_pkg;\n" +
+			"	timeunit 1ns;\n" +
+			"	timeprecision 1ps;\n" +
+			"endpackage\n" +
+			"\n" +
+			"// Can occur outside, due to our parse methodology\n" +
+			"timeprecision 1ns/1ps;\n" +
+			"timeunit 1fs;\n" +
+			"\n" +
+			"module foo_module;\n" +
+			"	timeprecision 1ns/1ns;\n" +
+			"	timeunit 1fs;\n" +
+			"endmodule\n" +
+			"\n" +
+			"interface foo_interface;\n" +
+			"	timeprecision 1ns/1ns;\n" +
+			"	timeunit 1fs;\n" +
+			"endinterface\n" 
+			;
+		runTest("testTimePrecisionUnits", content, new String[] {"foo_pkg", "foo_module", "foo_interface"});
+	}
 
 	public void testOvmPrinter() {
 		SVCorePlugin.getDefault().enableDebug(false);
