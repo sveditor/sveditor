@@ -14,10 +14,11 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseLineNumbers extends TestCase {
@@ -34,11 +35,11 @@ public class TestParseLineNumbers extends TestCase {
 			;
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
-		SVDBModIfcDecl cls = null;
+		SVDBClassDecl cls = null;
 
-		assertEquals("Wrong number of file elements", 1, file.getItems().size());
+		assertEquals("Wrong number of file elements", 1, SVDBUtil.getChildrenSize(file));
 		
-		cls = (SVDBModIfcDecl)file.getItems().get(0);
+		cls = (SVDBClassDecl)SVDBUtil.getFirstChildItem(file);
 		
 		assertNotNull("Start location not specified", cls.getLocation());
 		assertNotNull("End location not specified", cls.getEndLocation());
@@ -69,11 +70,11 @@ public class TestParseLineNumbers extends TestCase {
 			;
 		SVDBFile file = SVDBTestUtils.parse(content, "testClassStringFields");
 		
-		SVDBModIfcDecl cls = null;
+		SVDBClassDecl cls = null;
 
-		assertEquals("Wrong number of file elements", 1, file.getItems().size());
+		assertEquals("Wrong number of file elements", 1, SVDBUtil.getChildrenSize(file));
 		
-		cls = (SVDBModIfcDecl)file.getItems().get(0);
+		cls = (SVDBClassDecl)SVDBUtil.getFirstChildItem(file);
 		
 		assertNotNull("Start location not specified", cls.getLocation());
 		assertNotNull("End location not specified", cls.getEndLocation());
@@ -83,7 +84,7 @@ public class TestParseLineNumbers extends TestCase {
 		
 		SVDBTask f1=null, f2=null;
 		
-		for (ISVDBItemBase it : cls.getItems()) {
+		for (ISVDBItemBase it : cls.getChildren()) {
 			if (SVDBItem.getName(it).equals("foobar_f")) {
 				f1 = (SVDBTask)it;
 			}

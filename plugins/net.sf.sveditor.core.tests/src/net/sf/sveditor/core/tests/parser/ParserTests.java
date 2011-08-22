@@ -19,16 +19,22 @@ public class ParserTests extends TestSuite {
 	public static TestSuite suite() {
 		TestSuite s = new TestSuite("ParserTests");
 		s.addTest(new TestSuite(TestLexer.class));
-		s.addTest(new TestSuite(TestParseTopLevelItems.class));
+		s.addTest(new TestSuite(TestParseBehavioralStmts.class));
 		s.addTest(new TestSuite(TestParseClassBodyItems.class));
-		s.addTest(new TestSuite(TestParseFunction.class));
-		s.addTest(new TestSuite(TestParseModuleBodyItems.class));
-		s.addTest(new TestSuite(TestParseInterfaceBodyItems.class));
 		s.addTest(new TestSuite(TestParseDataTypes.class));
+		s.addTest(new TestSuite(TestParseExpr.class));
+		s.addTest(new TestSuite(TestParseFunction.class));
+		s.addTest(new TestSuite(TestParseInterfaceBodyItems.class));
+		// LineNumbers
+		s.addTest(new TestSuite(TestParseLineNumbers.class));
+		s.addTest(new TestSuite(TestParseModuleBodyItems.class));
 		s.addTest(new TestSuite(TestParseProgramBlocks.class));
+		// ErrorRecovery
+		s.addTest(new TestSuite(TestParserErrorRecovery.class));
+		s.addTest(new TestSuite(TestParseStruct.class));
+		s.addTest(new TestSuite(TestParseTopLevelItems.class));
 		s.addTest(new TestSuite(TestSystemParse.class));
 		s.addTest(new TestSuite(TestTypeDeclarations.class));
-		s.addTest(new TestSuite(TestParseExpr.class));
 		
 		return s;
 	}
