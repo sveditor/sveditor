@@ -153,6 +153,7 @@ public enum SVDBItemType {
 	RangeExpr,
 	TFCallExpr,
 	UnaryExpr,
+	TypeExpr,
 	
 	StringExpr,
 	

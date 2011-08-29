@@ -29,6 +29,8 @@ import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -95,7 +97,7 @@ public class TestOpencoresProjects extends TestCase {
 			String				zipfile_path,
 			String				proj_path,
 			String				arg_file_paths[]) throws CoreException {
-		
+		LogHandle log = LogFactory.getLogHandle(testname);
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -134,7 +136,7 @@ public class TestOpencoresProjects extends TestCase {
 		p_data.setProjectFileWrapper(p_wrapper);
 		
 		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
-		assertNoErrors(project_index);
+		assertNoErrors(log, project_index);
 		
 		// force index loading
 		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
@@ -143,9 +145,10 @@ public class TestOpencoresProjects extends TestCase {
 		}
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
-	private void assertNoErrors(ISVDBIndexIterator index_it) {
+	private void assertNoErrors(LogHandle log, ISVDBIndexIterator index_it) {
 		ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
@@ -160,7 +163,7 @@ public class TestOpencoresProjects extends TestCase {
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage() + " @ " + ":" + m.getLocation().getLine());
+			log.debug("[ERROR] " + m.getMessage() + " @ " + ":" + m.getLocation().getLine());
 		}
 		
 		assertEquals(0, errors.size());

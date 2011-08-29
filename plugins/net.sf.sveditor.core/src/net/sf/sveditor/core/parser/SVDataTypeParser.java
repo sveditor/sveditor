@@ -99,7 +99,9 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
 		SVDBTypeInfo type = null;
 		SVToken tok;
-		
+
+		qualifiers |= parsers().SVParser().scan_qualifiers(false);
+
 		if (fLexer.peekKeyword(IntegerVectorType)) {
 			// integer_vector_type [signing] { packed_dimension }
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());

@@ -97,7 +97,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		} else if (id.equals("modport")) {
 			modport_decl(parent);
 		} else if (id.equals("assign")) {
-			parse_assign(parent);
+			parse_continuous_assign(parent);
 		} else if (id.equals("covergroup")) {
 			parsers().covergroupParser().parse(parent);
 		} else if (id.equals("constraint")) {
@@ -246,12 +246,35 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		fLexer.readOperator(";");
 	}
 	
-	public void parse_assign(ISVDBAddChildItem parent) throws SVParseException {
+	public void parse_continuous_assign(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("assign");
 		SVDBAssign assign = new SVDBAssign();
 		assign.setLocation(start);
 		
+		// [drive_strength] [delay3]
+
+		// TODO: discarded for now
+		if (fLexer.peekOperator("(")) {
+			fLexer.eatToken();
+			String s1=null, s2=null;
+			if (fLexer.peekKeyword("highz1", "highz0")) {
+				s1 = fLexer.eatToken();
+				fLexer.readOperator(",");
+				s2 = fLexer.readKeyword(SVKeywords.fStrength);
+			} else {
+				s1 = fLexer.readKeyword(SVKeywords.fStrength);
+				fLexer.readOperator(",");
+				if (fLexer.peekKeyword("highz1", "highz0")) {
+					s2 = fLexer.eatToken();
+				} else {
+					s2 = fLexer.readKeyword(SVKeywords.fStrength);
+				}
+			}
+			
+			fLexer.readOperator(")");
+		}
+
 		if (fLexer.peekOperator("#")) {
 			// Time expression
 			assign.setDelay(fParsers.exprParser().delay_expr());

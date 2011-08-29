@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVCoverageExpr;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
@@ -46,6 +47,7 @@ import net.sf.sveditor.core.db.expr.SVDBRangeDollarBoundExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
 import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
+import net.sf.sveditor.core.db.expr.SVDBTypeExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
 import net.sf.sveditor.core.db.expr.SVExprParseException;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -100,6 +102,22 @@ public class SVExprParser extends SVParserBase {
 		
 		debug("<-- delay_expr - " + fLexer.peek());
 		return expr;
+	}
+	
+	public SVDBExpr datatype_or_expression() throws SVParseException {
+		if (fLexer.peekKeyword("virtual","const") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
+			// Know this is a type
+			SVDBTypeExpr expr = new SVDBTypeExpr();
+			expr.setLocation(fLexer.getStartLocation());
+			
+			SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
+			expr.setTypeInfo(info);
+			
+			return expr;
+		} else {
+			return expression();
+		}
+		
 	}
 	
 	public SVDBExpr event_expression() throws SVParseException {
@@ -762,7 +780,7 @@ public class SVExprParser extends SVParserBase {
 					fLexer.eatToken(); // #
 					fLexer.readOperator("(");
 					while (fLexer.peek() != null) {
-						((SVDBParamIdExpr)ret).addParamExpr(expression());
+						((SVDBParamIdExpr)ret).addParamExpr(datatype_or_expression());
 						if (fLexer.peekOperator(",")) {
 							fLexer.eatToken();
 						} else {

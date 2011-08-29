@@ -7,6 +7,11 @@
 
 - (#3392717) Add parse support for timeprecision / timeunit directives
 
+- (#3398604) Correct parse error with strength-specified assign
+
+- (#3392733) Correct parse error with virtual interface-parameterized class
+  static method invocation
+
 -- 0.6.1.ea02 Release --
 
 - (#3392156) Correct a parse bug with time unit 's'

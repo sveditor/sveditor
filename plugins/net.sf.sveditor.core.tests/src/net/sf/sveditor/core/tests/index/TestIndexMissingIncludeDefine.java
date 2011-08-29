@@ -148,15 +148,6 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull("Failed to parse target file", file);
-		
-		/*
-		for (String err : fs_provider_m.getMarkers()) {
-			System.out.println("[MARKER] " + err);
-		}
-		
-		assertEquals("Expecting a total of " + expected_errors + " error(s)", 
-				expected_errors, fs_provider_m.getMarkers().size());
-		 */
 	}
 
 }

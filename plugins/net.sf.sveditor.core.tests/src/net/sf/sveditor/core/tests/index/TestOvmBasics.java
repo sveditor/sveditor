@@ -165,8 +165,6 @@ public class TestOvmBasics extends TestCase {
 					errors.add(m);
 				}
 			}
-			
-			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
 		for (SVDBMarker m : errors) {
@@ -217,8 +215,6 @@ public class TestOvmBasics extends TestCase {
 					errors.add(m);
 				}
 			}
-			
-			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
 		for (SVDBMarker m : errors) {
@@ -230,6 +226,7 @@ public class TestOvmBasics extends TestCase {
 	
 	public void testSequenceBasicReadWriteExample() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testSequenceBasicReadWriteExample");
 		
 		File test_dir = new File(fTmpDir, "testSequenceBasicReadWriteExample");
 		if (test_dir.exists()) {
@@ -271,20 +268,20 @@ public class TestOvmBasics extends TestCase {
 					SVDBItem.getName(tmp_it).equals("my_driver")) {
 				my_driver = (SVDBClassDecl)tmp_it;
 			}
-			
-			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
 		
 		assertNotNull(my_driver);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testSequenceSimpleExample() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testSequenceSimpleExample");
 		
 		File test_dir = new File(fTmpDir, "testSequenceSimpleExample");
 		if (test_dir.exists()) {
@@ -326,16 +323,15 @@ public class TestOvmBasics extends TestCase {
 					SVDBItem.getName(tmp_it).equals("simple_driver")) {
 				simple_driver = (SVDBClassDecl)tmp_it;
 			}
-			
-			//System.out.println("tmp_it=" + tmp_it.getName());
 		}
 		
 		for (SVDBMarker m : errors) {
-			System.out.println("[ERROR] " + m.getMessage());
+			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
 		
 		assertNotNull(simple_driver);
+		LogFactory.removeLogHandle(log);
 	}
 
 

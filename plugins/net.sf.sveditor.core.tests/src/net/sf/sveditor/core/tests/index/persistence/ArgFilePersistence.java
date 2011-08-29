@@ -193,17 +193,19 @@ public class ArgFilePersistence extends TestCase
 		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null);
 		log.debug("<-- Parse 1");
 
+		StringBuilder tmp = new StringBuilder();
 		// Display the 
 		int line=1, ch;
-		System.out.print("" + line + ": ");
+		tmp.append("" + line + ": ");
 		while ((ch = scanner.get_ch()) != -1) {
-			System.out.print((char)ch);
+			tmp.append((char)ch);
 			bos.write((char)ch);
 			if (ch == '\n') {
 				line++;
-				System.out.print("" + line + ": ");
+				tmp.append("" + line + ": ");
 			}
 		}
+		log.debug(tmp.toString());
 		scanner.close();
 		
 		in = new ByteArrayInputStream(bos.toByteArray());

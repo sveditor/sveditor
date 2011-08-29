@@ -79,13 +79,36 @@ public class TestParseBehavioralStmts extends TestCase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testVirtualInterfaceParameterizedStaticCall", doc, new String[] { "t" });
 	}
 
+	public void testConstIntParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(const int)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		
-	
+		runTest("testConstIntParameterizedStaticCall", doc, new String[] { "t" });
+	}
+		
+	public void testStringParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(string)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testStringParameterizedStaticCall", doc, new String[] { "t" });
+	}
 	
 	public void testVarDeclListForStmt() throws SVParseException {
 		String doc =

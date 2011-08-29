@@ -1431,6 +1431,18 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest("testModuleInst", doc, new String[] {"sub", "t"});
 	}
 	
+	public void testAssignStrength() {
+		String doc =
+			"module t;\n" +
+			"	wire a, b, clk;\n" +
+			"	assign (strong0,highz1) a = b;\n" +
+			"	assign (pull1,pull0) clk=1;\n" +
+			"endmodule"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testAssignStrength", doc, new String[] {"t"});
+	}
 
 	private void runTest(
 			String			testname,

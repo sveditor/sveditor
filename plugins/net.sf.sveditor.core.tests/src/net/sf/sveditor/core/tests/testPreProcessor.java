@@ -21,6 +21,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -32,6 +34,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 public class testPreProcessor implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testPreProcessor");
 		/*
 		SVDBFilesystemIndex ovm = new SVDBFilesystemIndex(
 				new File("/tools/ovm/ovm-2.0.1/src"), ISVDBIndex.IT_BuildPath);
@@ -51,16 +54,10 @@ public class testPreProcessor implements IApplication {
 		// ??
 		index.findPreProcFile(filename);
 		
-		System.out.println("--> createFileContext()");
+		log.debug("--> createFileContext()");
 		// TODO: need to provide IncludeProvider
 		SVDBFileTree scen_gen_ctxt = null; // ft_utils.createFileContext(scen_gen, null); 
-		System.out.println("<-- createFileContext()");
-		
-		/*
-		System.out.println("--> getFileTree");
-		Map<File, SVDBFileTree> tree_map = ovm.getFileTree();
-		System.out.println("<-- getFileTree");
-		 */
+		log.debug("<-- createFileContext()");
 		
 		mp.setFileContext(scen_gen_ctxt);
 		
@@ -69,7 +66,8 @@ public class testPreProcessor implements IApplication {
 		sc.setDefineProvider(dp);
 		
 		long start = System.currentTimeMillis();
-		System.out.println("--> Scanning");
+		log.debug("--> Scanning");
+		StringBuilder tmp = new StringBuilder();
 		try {
 			InputStream in = new FileInputStream(filename);
 			sc.init(in, filename);
@@ -77,13 +75,14 @@ public class testPreProcessor implements IApplication {
 			int ch;
 			do {
 				if ((ch = sc.get_ch()) != -1) {
-					System.out.print((char)ch);
+					tmp.append((char)ch);
 				}
 			} while (ch != -1);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("<-- Scanning");
+		log.debug(tmp.toString());
+		log.debug("<-- Scanning");
 
 		long end = System.currentTimeMillis();
 
