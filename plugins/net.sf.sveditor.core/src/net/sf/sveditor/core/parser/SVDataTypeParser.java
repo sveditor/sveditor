@@ -526,6 +526,11 @@ public class SVDataTypeParser extends SVParserBase {
 				if (fLexer.peekOperator("[")) {
 					vi.setArrayDim(var_dim());
 				}
+				
+				if (fLexer.peekOperator("=")) {
+					fLexer.eatToken();
+					vi.setInitExpr(fParsers.exprParser().expression());
+				}
 				var.addChildItem(vi);
 				
 				if (fLexer.peekOperator(",")) {

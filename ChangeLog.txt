@@ -1,4 +1,16 @@
 
+-- 0.6.1.ea04 Release --
+
+- (#3393396) Correct macro-expansion bug with string containing unbalanced paren
+
+- (#3400565) Correct parse error with name-mapped struct initialization
+
+- (#3403127) Correct parse error on a function with implicit vectored return 
+
+- (#3393383) Correct parse error with streaming operators with slice size specified
+
+- Correct a parse bug with initialized struct fields
+
 -- 0.6.1.ea03 Release --
 
 - (#3393397) Correct non-blocking event trigger

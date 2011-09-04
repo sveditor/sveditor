@@ -38,6 +38,7 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBIncDecExpr;
 import net.sf.sveditor.core.db.expr.SVDBInsideExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBNameMappedExpr;
 import net.sf.sveditor.core.db.expr.SVDBNamedArgExpr;
 import net.sf.sveditor.core.db.expr.SVDBNullExpr;
 import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
@@ -58,6 +59,7 @@ public class SVExprParser extends SVParserBase {
 //	private boolean							fDebugEn = false;
 	public static boolean					fUseFullExprParser = true;
 	private boolean							fEventExpr;
+	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -165,21 +167,6 @@ public class SVExprParser extends SVParserBase {
 		SVDBExpr lvalue;
 		debug("--> variable_lvalue - " + fLexer.peek());
 		if (fLexer.peekOperator("{")) {
-/*			
-			SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
-			// {variable_lvalue, variable_lvalue, ...}
-			fLexer.eatToken();
-			while (fLexer.peek() != null) {
-				ret.getElements().add(variable_lvalue());
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-				} else {
-					break;
-				}
-			}
-			fLexer.readOperator("}");
- */
-			
 			lvalue = concatenation_or_repetition();
 		} else {
 			lvalue = unaryExpression();
@@ -806,7 +793,13 @@ public class SVExprParser extends SVParserBase {
 					}
 					return new SVDBIdentifierExpr(fLexer.endCapture());
 				} else {
-					ret = new SVDBIdentifierExpr(id);
+					// ID or 'default'
+					if (fEnableNameMappedPrimary && fLexer.peekOperator(":")) {
+						fLexer.eatToken();
+						ret = new SVDBNameMappedExpr(id, expression());
+					} else {
+						ret = new SVDBIdentifierExpr(id);
+					}
 					debug("  after id-read: " + peek());
 				}
 			} else if (fLexer.peekOperator("{")) {
@@ -831,6 +824,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBExpr concatenation_or_repetition() throws SVParseException {
+		SVDBExpr expr = null;
 		debug("--> concatenation_or_repetition()");
 		readOperator("{");
 		if (peekOperator("}")) {
@@ -838,42 +832,86 @@ public class SVExprParser extends SVParserBase {
 			eatToken();
 			debug("<-- concatenation_or_repetition()");
 			return new SVDBConcatenationExpr();
-		} else {
-			SVDBExpr expr = null;
-			if (peekOperator("<<", ">>")) {
-				// TODO:
+		} else if (peekOperator("<<", ">>")) {
+			debug("streaming operator");
+			// TODO: preserve this portion of expression
+			fLexer.eatToken();
+			
+			if (fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
+				expr = new SVDBTypeExpr(fParsers.dataTypeParser().data_type(0));
+			} else if (!fLexer.peekOperator("{")) {
 				expr = new SVDBLiteralExpr(eatToken());
-			} else {
-				expr = expression();
 			}
-
-			if (fLexer.peekOperator("{")) {
-				fLexer.eatToken();
-				// repetition
-				SVDBAssignmentPatternRepeatExpr ret = new SVDBAssignmentPatternRepeatExpr(expr);
-
-				ret.getPatternList().add(expression());
-
-				while (fLexer.peekOperator(",")) {
+			
+			debug("post-datatype: " + fLexer.peek());
+			
+			fLexer.readOperator("{");
+			while (fLexer.peek() != null) {
+				expression();
+				
+				debug("pre-with: " + fLexer.peek());
+				if (fLexer.peekKeyword("with")) {
 					fLexer.eatToken();
-					ret.getPatternList().add(expression());
+					fLexer.readOperator("[");
+					expression();
+					if (fLexer.peekOperator(":", "+:", "-:")) {
+						fLexer.eatToken();
+						expression();
+					}
+					fLexer.readOperator("]");
 				}
-				fLexer.readOperator("}"); // end of inner expression
-				fLexer.readOperator("}");
-				return ret;
-			} else {
-				SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
-				ret.getElements().add(expr);
-
-				while (fLexer.peekOperator(",")) {
+				
+				if (fLexer.peekOperator(",")) {
 					fLexer.eatToken();
-					ret.getElements().add(expression());
+				} else {
+					break;
 				}
+			}
+			fLexer.readOperator("}");
+			fLexer.readOperator("}");
+				
+			return new SVDBConcatenationExpr();
+		} else {
+			try {
+				fEnableNameMappedPrimary = true;
+				SVDBExpr expr0 = expression();
 
-				fLexer.readOperator("}");
+				// concatenation or repetition
+				if (fLexer.peekOperator("{")) {
+					debug("repetition");
+					fLexer.eatToken();
+					// repetition
+					SVDBAssignmentPatternRepeatExpr ret = new SVDBAssignmentPatternRepeatExpr(expr);
+					ret.setRepeatExpr(expr0);
 
-				debug("<-- concatenation_or_repetition()");
-				return ret;
+					while (fLexer.peek() != null) {
+						ret.getPatternList().add(expression());
+						if (fLexer.peekOperator(",")) {
+							fLexer.eatToken();
+						} else {
+							break;
+						}
+					}
+					fLexer.readOperator("}"); // end of inner expression
+					fLexer.readOperator("}");
+					return ret;
+				} else {
+					debug("concatenation");
+					SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
+					ret.getElements().add(expr0);
+
+					while (fLexer.peekOperator(",")) {
+						fLexer.eatToken();
+						ret.getElements().add(expression());
+					}
+
+					fLexer.readOperator("}");
+
+					debug("<-- concatenation_or_repetition()");
+					return ret;
+				}
+			} finally {
+				fEnableNameMappedPrimary = false;
 			}
 		}
 	}
@@ -942,6 +980,7 @@ public class SVExprParser extends SVParserBase {
 						return tf_args_call(expr, id);
 					}
 				} else if (peekKeyword("with")) {
+					debug("triggering off with");
 					return tf_noargs_with_call(expr, id);
 				}
 				// '.' identifier
@@ -1028,11 +1067,22 @@ public class SVExprParser extends SVParserBase {
 	private SVDBTFCallExpr tf_noargs_with_call(SVDBExpr target, String id) throws SVParseException {
 		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, null);
 		
+		// TODO:
 		if (fLexer.peekKeyword("with")) {
 			fLexer.eatToken();
-			fLexer.readOperator("(");
-			tf.setWithExpr(expression());
-			fLexer.readOperator(")");
+			if (fLexer.peekOperator("[")) {
+				fLexer.readOperator("[");
+				tf.setWithExpr(expression());
+				if (fLexer.peekOperator(":", "+:","-:")) {
+					fLexer.eatToken();
+					expression();
+				}
+				fLexer.readOperator("]");
+			} else {
+				fLexer.readOperator("(");
+				tf.setWithExpr(expression());
+				fLexer.readOperator(")");
+			}
 		}
 		
 		return tf; 

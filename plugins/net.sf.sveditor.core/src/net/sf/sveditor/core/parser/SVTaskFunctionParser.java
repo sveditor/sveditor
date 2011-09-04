@@ -85,15 +85,15 @@ public class SVTaskFunctionParser extends SVParserBase {
 						SVKeywords.isBuiltInType(fLexer.peek())) {
 					data_type_or_implicit = new ArrayList<SVToken>();
 					data_type_or_implicit.add(fLexer.consumeToken());
-				} else {
+				} else if (fLexer.peekId()) {
 					data_type_or_implicit = parsers().SVParser().scopedIdentifier_l(true);
 				}
 
-				if (!fLexer.peekOperator(";", "(")) {
-					// probably data-type
+				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator("[")) {
+					// probably data-type or implicit data-type
 					// Un-get the tokens we have
-					for (int i=data_type_or_implicit.size()-1; i>=0; i--) {
-						fLexer.ungetToken(data_type_or_implicit.get(i));
+					if (data_type_or_implicit != null) {
+						fLexer.ungetToken(data_type_or_implicit);
 					}
 					return_type = parsers().dataTypeParser().data_type_or_void(0);
 					tf_name = parsers().SVParser().scopedIdentifier(false);

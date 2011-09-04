@@ -166,6 +166,42 @@ public class TestParseDataTypes extends TestCase {
 		runTest("testStructPackedSignedUnsigned", content,
 				new String[] {"my_untagged_union", "my_tagged_union", "my_tagged_packed_unsigned_union"});
 	}
+	
+	public void testIntAssignPackedStruct() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	int a;\n" +
+			"	typedef struct packed {\n" +
+			"		bit[15:0] a;\n" +
+			"		bit[15:0] b;\n" +
+    		"	} s;\n" +
+    		"	initial begin\n" +
+    		"		a = s'{5,10};\n" +
+    		"	end\n" +
+    		"endmodule\n" 
+    		;
+		runTest("testIntAssignPackedStruct", content,
+				new String[] {"t", "a", "s"});
+	}
+
+	public void testIntAssignPackedStructFieldQualified() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	int a;\n" +
+			"	typedef struct packed {\n" +
+			"		bit[15:0] a;\n" +
+			"		bit[15:0] b;\n" +
+    		"	} s;\n" +
+    		"	initial begin\n" +
+    		"		a = s'{a:5, b:10, default:'x};\n" +
+    		"	end\n" +
+    		"endmodule\n" 
+    		;
+		runTest("testIntAssignPackedStructFieldQualified", content,
+				new String[] {"t", "a", "s"});
+	}
 
 	public void testTimeUnits() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);

@@ -41,6 +41,7 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -69,7 +70,7 @@ public class ArgFilePersistence extends TestCase
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
+//			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -182,7 +183,9 @@ public class ArgFilePersistence extends TestCase
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
-		
+
+		IndexTestUtils.assertNoErrWarn(log, target_index);
+
 		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
 		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
 		SVPreProcScanner scanner = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
@@ -219,8 +222,82 @@ public class ArgFilePersistence extends TestCase
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testOvmWarningUnbalancedParen() throws DBFormatException {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testOvmWarningUnbalancedParen";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		File test_dir = new File(fTmpDir, testname);
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		System.out.println("test_dir: " + test_dir.getAbsolutePath());
+
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
+		utils.copyBundleDirToFS("/data/ovm_warning_unbalanced_paren", test_dir);
+		File test_proj = new File(test_dir, "ovm_warning_unbalanced_paren");
+		
+		assertTrue(test_proj.isDirectory());
+
+		IProject project_dir = TestUtils.createProject(test_proj.getName(), test_proj);
+
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+
+		ISVDBIndex target_index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/ovm_warning_unbalanced_paren/ovm_warning_unbalanced_paren.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		
+		String path = "${workspace_loc}/ovm_warning_unbalanced_paren/ovm_warning_unbalanced_paren.svh";
+		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
+		SVPreProcScanner scanner = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		InputStream in = fs.openStream(path);
+
+		log.debug("--> Parse 1");
+		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null);
+		log.debug("<-- Parse 1");
+
+		StringBuilder tmp = new StringBuilder();
+		// Display the 
+		int line=1, ch;
+		tmp.append("" + line + ": ");
+		while ((ch = scanner.get_ch()) != -1) {
+			tmp.append((char)ch);
+			bos.write((char)ch);
+			if (ch == '\n') {
+				line++;
+				tmp.append("" + line + ": ");
+			}
+		}
+		log.debug(tmp.toString());
+		scanner.close();
+		
+		in = new ByteArrayInputStream(bos.toByteArray());
+		log.debug("--> parse()");
+		file = target_index.parse(new NullProgressMonitor(), in, path, null);
+		log.debug("<-- parse()");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		IndexTestUtils.assertNoErrWarn(log, target_index);
+
+		TestUtils.deleteProject(project_dir);
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testWSArgFileTimestampChanged() {
-		ByteArrayOutputStream 	out;
+		ByteArrayOutputStream	 	out;
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileTimestampChanged");
@@ -240,7 +317,9 @@ public class ArgFilePersistence extends TestCase
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
-		
+
+		IndexTestUtils.assertNoErrWarn(log, index);
+
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
 		

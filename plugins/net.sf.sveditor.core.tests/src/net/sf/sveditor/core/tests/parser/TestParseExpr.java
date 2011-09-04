@@ -67,6 +67,48 @@ public class TestParseExpr extends TestCase {
 					"a", "b", "c", "up", "p1", "y"});
 	}
 
+	public void testStreamOperators2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class extends my_base_class #(virtual my_interface);\n" +
+			"\n" +
+			"	function do_something;\n" +
+			"		int variable_a, variable_b;\n" +
+			"		variable_b = { << 8 { variable_a }}; //swap byte order\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTimeUnits", content,
+				new String[] {"my_class", "do_something", "variable_a", "variable_b"});
+	}
+	
+	public void testStreamOperators3() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +														// 1
+			"function my_func;\n" +						
+			"	send: begin // Create random packet and transmit\n" +
+			"		byte q[$];\n" +
+			"		Packet p = new;\n" +												// 5
+			"		void'(p.randomize());\n" +
+			"		q = {<< byte{p.header, p.len, p.payload, p.crc}}; // pack\n" +
+			"		stream = {stream, q}; // append to stream\n" +
+			"	end\n" +
+			"\n" +																		// 10
+			"	receive: begin // Receive packet, unpack, and remove\n" +
+			"		byte q[$];\n" +
+			"		Packet p = new;\n" +
+			"		{<< byte{ p.header, p.len, p.payload with [0 +: p.len], p.crc }} = stream;\n" +
+			"		stream = stream[ $bits(p) / 8 : $ ]; // remove packet\n" +
+			"	end\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		runTest("testStreamOperators3", content,
+				new String[] {"my_class", "my_func"});
+	}
+
 	public void testStringEmbeddedBackslashes() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

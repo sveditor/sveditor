@@ -59,6 +59,7 @@ public class IndentTests extends TestCase {
 	}
 
 	public void testBasicClass() {
+		LogHandle log = LogFactory.getLogHandle("testBasicClass");
 		String content =
 			"\n" +
 			"class class1 #(type T=int);\n" +
@@ -95,12 +96,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testEmptyCaseStmt() throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testEmptyCaseStmt");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -120,8 +123,8 @@ public class IndentTests extends TestCase {
 			"endmodule\n"
 			;
 
-		System.out.println("--> testEmptyCaseStmt()");
 		SVCorePlugin.getDefault().enableDebug(false);
+		log.debug("--> testEmptyCaseStmt()");
 		try {
 			SVIndentScanner scanner = new SVIndentScanner(
 					new StringTextScanner(content));
@@ -132,18 +135,20 @@ public class IndentTests extends TestCase {
 
 			String result = indenter.indent();
 
-			System.out.println("Result:");
-			System.out.println(result);
+			log.debug("Result:");
+			log.debug(result);
 			IndentComparator.compare("testBasicClass", expected, result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			System.out.println("<-- testEmptyCaseStmt()");
+			log.debug("<-- testEmptyCaseStmt()");
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testInitialBlock() {
+		LogHandle log = LogFactory.getLogHandle("testInitialBlock");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -160,7 +165,7 @@ public class IndentTests extends TestCase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		System.out.println("--> testInitialBlock");
+		log.debug("--> testInitialBlock");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
@@ -171,13 +176,16 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
-		System.out.println("<-- testInitialBlock");
+		log.debug("<-- testInitialBlock");
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicModuleComment() {
+		LogHandle log = LogFactory.getLogHandle("testBasicModuleComment");
 		String content =
 			"module t; // Comment.\n" +
 			"logic a;\n" +
@@ -202,12 +210,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicModuleWire", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testNestedModule() {
+		LogHandle log = LogFactory.getLogHandle("testNestedModule");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -240,12 +250,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testNestedModule", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testIndentPostSingleComment() {
+		LogHandle log = LogFactory.getLogHandle("testIndentPostSingleComment");
 		String content =
 			"class foo;\n" +					// 1
 			"function void my_func();\n" +		// 2
@@ -278,12 +290,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testIndentPostSingleComment", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicModuleWire() {
+		LogHandle log = LogFactory.getLogHandle("testBasicModuleWire");
 		String content =
 			"module top;\n" +
 			"logic a;\n" +
@@ -306,12 +320,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicModuleWire", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNewLineIf() {
+		LogHandle log = LogFactory.getLogHandle("testNewLineIf");
 		String content =
 			"\n" +
 			"class class1 #(type T=int);\n" +
@@ -350,9 +366,10 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testModule() {
@@ -387,11 +404,11 @@ public class IndentTests extends TestCase {
 			
 			if (ref_line != null && ind_line != null) {
 				if (ref_line.equals(ind_line)) {
-					System.out.println("[OK ]:" + ref_line);
+					log.debug("[OK ]:" + ref_line);
 					pass_cnt++;
 				} else {
-					System.out.println("[ERR]:" + ref_line);
-					System.out.println("[   ]:" + ind_line);
+					log.debug("[ERR]:" + ref_line);
+					log.debug("[   ]:" + ind_line);
 					err_cnt++;
 				}
 			}

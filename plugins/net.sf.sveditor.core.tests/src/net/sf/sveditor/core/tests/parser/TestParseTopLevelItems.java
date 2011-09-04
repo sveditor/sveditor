@@ -51,11 +51,11 @@ public class TestParseTopLevelItems extends TestCase {
 				"		int size, string radix_str=\"\");\n" +
 				"		int chars;\n" +
 				"		int r;\n" +
-				"		ovm_bitstream_t mask;\n" +
+				"		ovm_bitstream_t mask;\n" + // 5
 				"		if(radix==OVM_NORADIX)\n" +
 				"			radix = OVM_HEX;\n" +
 				"\n" +
-				"		mask = {OVM_STREAMBITS{1'b1}};\n" +
+				"		mask = {OVM_STREAMBITS{1'b1}};\n" + // 9
 				"		mask <<= size;\n" +
 				"		mask = ~mask;\n" +
 				"		value &= mask;\n" +

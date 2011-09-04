@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
@@ -190,7 +191,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				 */
 
 				if (ch == '(') {
-					ch = scanner.skipPastMatch("()");
+					ch = skipPastMatchSkipStrings(scanner, '(', ')');
 					scanner.unget_ch(ch);
 				}
 				
@@ -268,6 +269,43 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		return 0;
+	}
+	
+	private int skipPastMatchSkipStrings(ITextScanner scanner, int ch1, int ch2) {
+		int ch;
+		int lcnt=1, rcnt=0;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (ch == ch1) {
+				lcnt++;
+			} else if (ch == ch2) {
+				rcnt++;
+			} else if (ch == '"') {
+				skipPastString(scanner);
+			}
+			if (lcnt == rcnt) {
+				break;
+			}
+		}
+		
+		return scanner.get_ch();
+	}
+	
+	private void skipPastString(ITextScanner scanner) {
+		int ch;
+		int last_ch = -1;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (ch == '"' && last_ch != '\\') {
+				break;
+			}
+			if (last_ch == '\\' && ch == '\\') {
+				// Don't count a double quote
+				last_ch = -1;
+			} else {
+				last_ch = ch;
+			}
+		}
 	}
 
 	/****************************************************************
@@ -374,13 +412,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				ch = scanner.get_ch();
 
 				if (ch == '(') {
-					ch = scanner.skipPastMatch("()");
+					ch = skipPastMatchSkipStrings(scanner, '(', ')');
 					
 					if (fDebugEn) {
 						debug("    post-skip (): ch=" + (char)ch);
 					}
 				} else if (ch == '{') {
-					ch = scanner.skipPastMatch("{}");
+					ch = skipPastMatchSkipStrings(scanner, '{', '}');
 					if (fDebugEn) {
 						debug("    post-skip {}: ch=" + (char)ch);
 					}

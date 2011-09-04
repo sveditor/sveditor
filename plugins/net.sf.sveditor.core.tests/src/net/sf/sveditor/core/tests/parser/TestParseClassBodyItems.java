@@ -52,6 +52,22 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
+	public void testImplicitVectoredReturnFunction() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"function [7:0] get_cmdname (\n" +
+			"		input integer command\n" +
+			");\n" +
+			"begin\n" +
+			"end\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		runTest("testBeginEndFunction", content, 
+				new String[] {"c", "get_cmdname"});
+	}
+
 	public void testEmptyClass() {
 		String content = 
 			"class class1;\n" +

@@ -333,6 +333,5 @@ public class TestOvmBasics extends TestCase {
 		assertNotNull(simple_driver);
 		LogFactory.removeLogHandle(log);
 	}
-
-
+	
 }

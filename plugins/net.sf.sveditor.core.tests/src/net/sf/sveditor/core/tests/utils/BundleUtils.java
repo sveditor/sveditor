@@ -91,6 +91,7 @@ public class BundleUtils {
 				if (!target.getParentFile().mkdirs()) {
 					System.out.println("[ERROR] Failed to create directory \"" + 
 							target.getParent() + "\"");
+					throw new RuntimeException("Failed to create directory \"" + target.getParent() + "\"");
 				}
 			}
 			
@@ -110,6 +111,7 @@ public class BundleUtils {
 				in.close();
 			} catch (Exception e) {
 				e.printStackTrace();
+				throw new RuntimeException("Failed to copy file " + target);
 			}
 		}
 	}

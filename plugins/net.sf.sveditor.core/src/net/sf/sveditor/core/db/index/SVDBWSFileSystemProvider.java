@@ -343,7 +343,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			IFile file = root.getFile(new Path(path));
 			
-			if (file != null) {
+			if (file != null && file.getLocation() != null &&
+					file.getLocation().toFile() != null) {
 				return file.getLocation().toFile().lastModified();
 				// return file.getModificationStamp();
 			} else {

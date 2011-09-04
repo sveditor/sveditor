@@ -325,9 +325,6 @@ public class SVLexer extends SVToken {
 		peek();
 
 		boolean found = false;
-		if (kw.length == 1 && kw[0].equals("return") && fImage.equals("return")) {
-			debug("RETURN: " + fIsKeyword);
-		}
 		if (fIsKeyword) {
 			if (kw.length == 0) {
 				found = true;

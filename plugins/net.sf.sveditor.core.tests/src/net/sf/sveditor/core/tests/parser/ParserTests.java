@@ -36,6 +36,8 @@ public class ParserTests extends TestSuite {
 		s.addTest(new TestSuite(TestSystemParse.class));
 		s.addTest(new TestSuite(TestTypeDeclarations.class));
 		
+		s.addTest(new TestSuite(TestParserSVStdExamples.class));
+		
 		return s;
 	}
 	
