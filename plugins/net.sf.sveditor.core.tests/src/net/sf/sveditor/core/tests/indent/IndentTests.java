@@ -184,6 +184,283 @@ public class IndentTests extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testInitialStmt() {
+		LogHandle log = LogFactory.getLogHandle("testInitialStmt");
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"initial\n" +
+			"a = 5;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	initial\n" +
+			"		a = 5;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> testInitialStmt");
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare("testInitialStmt", expected, result);
+		log.debug("<-- testInitialStmt");
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testStructVar() {
+		String testname = "testStructVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"struct {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} s;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	struct {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} s;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefStruct() {
+		String testname = "testTypedefStruct";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef struct {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef struct {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testUnionVar() {
+		String testname = "testUnionVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"union {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} s;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	union {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} s;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefUnion() {
+		String testname = "testTypedefUnion";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef union {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef union {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testEnumVar() {
+		String testname = "testEnumVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"enum {\n" +
+			"A,\n" +
+			"B\n" +
+			"} e;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	enum {\n" +
+			"		A,\n" +
+			"		B\n" +
+			"	} e;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefEnum() {
+		String testname = "testTypedefEnum";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef enum {\n" +
+			"A,\n" +
+			"B\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef enum {\n" +
+			"		A,\n" +
+			"		B\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testBasicModuleComment() {
 		LogHandle log = LogFactory.getLogHandle("testBasicModuleComment");
 		String content =

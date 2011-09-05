@@ -181,6 +181,7 @@ public class TestModuleContentAssist extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 
+	
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
