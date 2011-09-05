@@ -75,6 +75,8 @@ public class SVDBFindByNameInClassHierarchy {
 			// Assume we're in a containing scope
 			while (scope != null && 
 					scope.getType() != SVDBItemType.ClassDecl &&
+					scope.getType() != SVDBItemType.InterfaceDecl &&
+					scope.getType() != SVDBItemType.ModuleDecl &&
 					scope.getType() != SVDBItemType.Covergroup &&
 					scope.getType() != SVDBItemType.Coverpoint) {
 				fLog.debug("Searching up-scope (current is " + scope.getType() + 
@@ -121,19 +123,23 @@ public class SVDBFindByNameInClassHierarchy {
 			}
 
 			// Always match exact
-			SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
-			if (((SVDBClassDecl)scope).getSuperClass() != null) {
-				String super_name = ((SVDBClassDecl)scope).getSuperClass().getName();
-				fLog.debug("Searching for super-class \"" +  super_name + "\""); 
-				scope = finder.find((SVDBClassDecl)scope);
-				if (scope != null) {
-					fLog.debug("Find super-class \"" + 
-						((SVDBClassDecl)scope).getSuperClass() + "\" returns " + scope);
+			if (scope instanceof SVDBClassDecl) {
+				SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIterator, fDefaultMatcher);
+				if (((SVDBClassDecl)scope).getSuperClass() != null) {
+					String super_name = ((SVDBClassDecl)scope).getSuperClass().getName();
+					fLog.debug("Searching for super-class \"" +  super_name + "\""); 
+					scope = finder.find((SVDBClassDecl)scope);
+					if (scope != null) {
+						fLog.debug("Find super-class \"" + 
+								((SVDBClassDecl)scope).getSuperClass() + "\" returns " + scope);
+					} else {
+						fLog.debug("Failed to find super-class \"" +  super_name + "\""); 
+					}
 				} else {
-					fLog.debug("Failed to find super-class \"" +  super_name + "\""); 
+					fLog.debug("No super-class");
+					scope = null;
 				}
 			} else {
-				fLog.debug("No super-class");
 				scope = null;
 			}
 		}

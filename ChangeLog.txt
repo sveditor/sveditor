@@ -6,6 +6,8 @@
 
 - Correct an auto-indent bug with struct and union variables
 
+- Correct content-assist issue with scopes within interfaces and modules
+
 ------------------------------------------------------------------------------
 -- 0.6.1.ea04 Release --
 

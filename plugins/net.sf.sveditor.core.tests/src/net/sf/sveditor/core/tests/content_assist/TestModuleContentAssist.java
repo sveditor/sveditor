@@ -181,7 +181,44 @@ public class TestModuleContentAssist extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 
-	
+	public void testInterfaceTaskVarAssist() {
+		String testname = "testInterfaceTaskVarAssist";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 = 
+				"interface i1();\n" +
+				"\n" +
+				"\n" +
+				"	int			AAAA;\n" +
+				"	int			AABB;\n" +
+				"	int			BBBB;\n" +
+				"\n" +
+				"	task f;\n" +
+				"		AA<<MARK>>\n" +
+				"	endtask\n" +
+				"endinterface\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(testname, file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+		
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
