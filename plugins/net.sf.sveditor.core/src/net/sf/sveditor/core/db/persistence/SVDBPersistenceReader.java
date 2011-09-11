@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+* Copyright (c) 2008-2010 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -132,6 +132,8 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 								f.set(target, o);
 							} else if (c == Integer.class) {
 								f.set(target, readIntList());
+							} else if (c == Long.class) {
+								f.set(target, readLongList());
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
 								if (target instanceof ISVDBChildItem) {
 									f.set(target, readItemList((ISVDBChildItem)target));

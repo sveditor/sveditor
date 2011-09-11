@@ -172,6 +172,8 @@ public class SVDBPersistenceWriter implements IDBWriter, IDBPersistenceTypes {
 								writeStringList((List)field_value);
 							} else if (c == Integer.class) {
 								writeIntList((List)field_value);
+							} else if (c == Long.class) {
+								writeLongList((List)field_value);
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
 								writeItemList((List)field_value);
 							} else {

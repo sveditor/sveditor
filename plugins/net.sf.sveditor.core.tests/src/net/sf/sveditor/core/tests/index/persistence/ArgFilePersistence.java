@@ -392,8 +392,9 @@ public class ArgFilePersistence extends TestCase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		SVCorePlugin.getDefault().enableDebug(false);
-		LogHandle log = LogFactory.getLogHandle("testWSArgFileTimestampUnchanged");
+		String testname = "testWSArgFileTimestampUnchanged";
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
