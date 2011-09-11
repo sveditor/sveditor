@@ -214,9 +214,6 @@ public class SVEditor extends TextEditor
 		
 		// Hook into the SVDB management structure
 		initSVDBMgr();
-		
-		// Perform an initial parse of the file
-//		updateSVDBFile();
 	}
 
 	@Override
@@ -227,12 +224,6 @@ public class SVEditor extends TextEditor
 		// on validity.
 		
 	}
-
-	/*
-	public ITextViewer getTextViewer() {
-		return getSourceViewer();
-	}
-	 */
 
 	@Override
 	public void doSaveAs() {
