@@ -13,12 +13,11 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 
 

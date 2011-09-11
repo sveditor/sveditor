@@ -39,6 +39,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -1206,6 +1207,28 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
 					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
 					SVDBItemType.TypedefStmt)) {
+				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
+				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+						((ISVDBNamedItem)item).getName(), item.getType()));
+			} else if (item.getType() == SVDBItemType.PreProcCond) {
+				cacheDeclarations(filename, (SVDBPreProcCond)item);
+			} else if (item.getType() == SVDBItemType.MacroDef) {
+				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+						((ISVDBNamedItem)item).getName(), item.getType()));
+			}
+		}
+	}
+
+	private void cachePreProcDeclarations(String filename, ISVDBChildParent scope) {
+		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
+		
+		for (ISVDBChildItem item : scope.getChildren()) {
+			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
+				cachePreProcDeclarations(filename, (SVDBPackageDecl)item);
+			} else if (item.getType() == SVDBItemType.PreProcCond) {
+				SVDBPreProcCond c = (SVDBPreProcCond)item;
+				cachePreProcDeclarations(filename, c);
+			} else if (item.getType().isElemOf(SVDBItemType.MacroDef)) {
 				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
 				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
 						((ISVDBNamedItem)item).getName(), item.getType()));

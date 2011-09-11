@@ -19,8 +19,11 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
@@ -31,6 +34,8 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class OpenDeclUtils {
 	
@@ -54,9 +59,19 @@ public class OpenDeclUtils {
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
 
 		// If this is an include lookup, then use a different matching strategy
-		if (expr_ctxt.fTrigger != null && expr_ctxt.fRoot != null &&
-				expr_ctxt.fTrigger.equals("`") && expr_ctxt.fRoot.equals("include")) {
+		if (expr_ctxt.fTrigger != null && expr_ctxt.fTrigger.equals("`")) {
+			if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
 //			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
+			} else if (expr_ctxt.fRoot == null) {
+				for (SVDBDeclCacheItem it : index_it.findGlobalScopeDecl(
+						new NullProgressMonitor(), expr_ctxt.fLeaf, 
+						SVDBFindDefaultNameMatcher.getDefault())) {
+					if (it.getType() == SVDBItemType.MacroDef) {
+						// System.out.println("Add macro " + SVDBItem.getName(it.getSVDBItem()));
+						ret.add(new Tuple<ISVDBItemBase, SVDBFile>(it.getSVDBItem(), it.getFile())); 
+					}
+				}
+			}
 		} else {
 			SVExprUtilsParser expr_parser = new SVExprUtilsParser(expr_ctxt, true);
 			SVDBExpr expr = null;

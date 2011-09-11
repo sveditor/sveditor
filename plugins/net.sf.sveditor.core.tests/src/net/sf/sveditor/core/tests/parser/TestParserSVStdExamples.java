@@ -60,6 +60,111 @@ public class TestParserSVStdExamples extends TestCase {
 				new String[] {"c", "num", "tagged_st", "ts"});
 	}
 
+	public void test_13_5_3_tf_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_13_5_3_tf_1", 
+				"/data/parser/13.5.3_tf_1.svh", 
+				new String[] {"c", "read", "do_something"});
+	}
+
+	public void test_13_5_3_tf_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_13_5_3_tf_2", 
+				"/data/parser/13.5.3_tf_2.svh", 
+				new String[] {"m", "n"});
+	}
+
+	public void test_13_5_4_tf_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_13_5_4_tf_1", 
+				"/data/parser/13.5.4_tf_1.svh", 
+				new String[] {"c"});
+	}
+
+	public void test_16_3_0_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_3_0_assert_1", 
+				"/data/parser/16.3.0_assert_1.svh", 
+				new String[] {"c"});
+	}
+	
+	public void test_16_3_0_assert_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_3_0_assert_2", 
+				"/data/parser/16.3.0_assert_2.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_3_0_assert_3() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_3_0_assert_3", 
+				"/data/parser/16.3.0_assert_3.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_2_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_2_assert_1", 
+				"/data/parser/16.4.2_assert_1.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_2_assert_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_2_assert_2", 
+				"/data/parser/16.4.2_assert_2.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_2_assert_3() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_2_assert_3", 
+				"/data/parser/16.4.2_assert_3.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_3_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_3_assert_1", 
+				"/data/parser/16.4.3_assert_1.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_3_assert_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_3_assert_2", 
+				"/data/parser/16.4.3_assert_2.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_4_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_4_assert_1", 
+				"/data/parser/16.4.4_assert_1.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_4_assert_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_4_assert_2", 
+				"/data/parser/16.4.4_assert_2.svh", 
+				new String[] {"m"});
+	}
+
+	public void test_16_4_5_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_4_5_assert_1", 
+				"/data/parser/16.4.5_assert_1.svh", 
+				new String[] {"fsm"});
+	}
+
+	public void test_16_6_0_assert_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest("test_16_6_0_assert_1", 
+				"/data/parser/16.6.0_assert_1.svh", 
+				new String[] {"m"});
+	}
+
 	private void runTest(String testname, String data, String exp_items[]) throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -71,7 +176,7 @@ public class TestParserSVStdExamples extends TestCase {
 			fail("Failed to open " + data + ": " + e.getMessage());
 		}
 		
-		SVDBFile file = SVDBTestUtils.parse(log, in, data, markers);
+		SVDBFile file = SVDBTestUtils.parse(log, in, data, markers).second();
 		
 		try {
 			in.close();

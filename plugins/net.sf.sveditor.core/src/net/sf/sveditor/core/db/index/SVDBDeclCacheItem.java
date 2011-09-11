@@ -80,5 +80,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		
 		return null;
 	}
+
+	public SVDBFile getFile() {
+		return fParent.getDeclFile(new NullProgressMonitor(), this);
+	}
 	
 }
+

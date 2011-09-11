@@ -931,7 +931,7 @@ public class SVExprParser extends SVParserBase {
 		return arguments;
 	}
 	
-	public List<SVDBExpr>  argumentList() throws SVParseException {
+	private List<SVDBExpr>  argumentList() throws SVParseException {
 		List<SVDBExpr> arguments = new ArrayList<SVDBExpr>();
 		
 		for (;;) {
@@ -942,10 +942,15 @@ public class SVExprParser extends SVParserBase {
 				String name = readIdentifier();
 				arg_expr.setArgName(name);
 				readOperator("(");
-				arg_expr.setExpr(expression());
+				if (fLexer.peekOperator(")")) {
+					// empty argument specifier
+					arg_expr.setExpr(new SVDBLiteralExpr(""));
+				} else {
+					arg_expr.setExpr(expression());
+				}
 				readOperator(")");
 				arguments.add(arg_expr);
-			} else if (peekOperator(",")) {
+			} else if (peekOperator(",", ")")) {
 				// default value for this parameter
 				arguments.add(new SVDBLiteralExpr(""));
 			} else {
@@ -958,6 +963,7 @@ public class SVExprParser extends SVParserBase {
 				break;
 			}
 		}
+		
 		return arguments;
 	}
 	

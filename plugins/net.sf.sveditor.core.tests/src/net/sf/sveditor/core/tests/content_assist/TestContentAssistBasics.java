@@ -621,6 +621,39 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"get_config_object"}, proposals);
 	}
 
+	public void testEndFunctionLabel() {
+		String testname = "testEndFunctionLabel";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"class my_class extends ovm_component;\n" +
+			"\n" +
+			"	function void build();\n" +
+			"	endfunction : <<MARK>>\n" +
+			"\n" +
+			"endclass\n";
+		
+		
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(
+				ini.second().getStrippedData());
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("Proposal: " + p.getReplacement());
+		}
+		
+		validateResults(new String[] {"build"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
 	
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {

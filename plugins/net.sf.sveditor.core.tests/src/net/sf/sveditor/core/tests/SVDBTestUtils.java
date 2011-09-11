@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -76,7 +76,7 @@ public class SVDBTestUtils {
 		for (ISVDBItemBase it : scope.getItems()) {
 			if (SVDBItem.getName(it).equals(e)) {
 				return it;
-			} else if (it.getType() == SVDBItemType.VarDeclStmt) {
+			} else if (it instanceof SVDBVarDeclStmt) {
 				for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
 					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 					if (vi.getName().equals(e)) {
@@ -105,6 +105,15 @@ public class SVDBTestUtils {
 		return parse(content, filename, false);
 	}
 
+	public static Tuple<SVDBFile, SVDBFile> parsePreProc(String content, String filename, boolean exp_err) {
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		Tuple<SVDBFile, SVDBFile> file = parse(null, new StringInputStream(content), filename, markers);
+		if (!exp_err) {
+			TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		}
+		return file;
+	}
+
 	public static SVDBFile parse(String content, String filename, boolean exp_err) {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = parse(null, content, filename, markers);
@@ -119,10 +128,10 @@ public class SVDBTestUtils {
 			String 					content, 
 			String 					filename,
 			List<SVDBMarker>		markers) {
-		return parse(log, new StringInputStream(content), filename, markers);
+		return parse(log, new StringInputStream(content), filename, markers).second();
 	}
 	
-	public static SVDBFile parse(
+	public static Tuple<SVDBFile, SVDBFile> parse(
 			LogHandle				log,
 			InputStream				content_i, 
 			String 					filename,
@@ -173,7 +182,7 @@ public class SVDBTestUtils {
 			}
 		}
 		
-		return file;
+		return new Tuple<SVDBFile, SVDBFile>(pp_file, file);
 	}
 
 	public static String preprocess(String content, final String filename) {

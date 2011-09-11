@@ -34,6 +34,7 @@ public class SVFScanner {
 	private List<String>						fIncludePaths;
 	private Map<String, String>					fDefineMap;
 	private List<String>						fFilePaths;
+	private List<String>						fIncludedArgFiles;
 	private static final Map<String, Boolean>	fIgnoredSwitches;
 	
 	static {
@@ -53,6 +54,7 @@ public class SVFScanner {
 		fIncludePaths 	= new ArrayList<String>();
 		fDefineMap 		= new HashMap<String, String>();
 		fFilePaths 		= new ArrayList<String>();
+		fIncludedArgFiles = new ArrayList<String>();
 		
 		fLog = LogFactory.getLogHandle("SVArgFileScanner");
 	}
@@ -63,6 +65,10 @@ public class SVFScanner {
 	
 	public List<String> getFilePaths() {
 		return fFilePaths;
+	}
+	
+	public List<String> getArgFilePaths() {
+		return fIncludedArgFiles;
 	}
 	
 	public Map<String, String> getDefineMap() {
@@ -214,6 +220,19 @@ public class SVFScanner {
 					while ((ch = fScanner.get_ch()) != -1 && 
 							!Character.isWhitespace(ch)) {
 					}
+				} else if (key.equals("-f")) {
+					// Add the sub-included file to the list
+					
+					ch = fScanner.skipWhite(ch);
+					tmp.setLength(0);
+					
+					while (!Character.isWhitespace(ch)) {
+						tmp.append((char)ch);
+						ch = fScanner.get_ch();
+					}
+					fScanner.unget_ch(ch);
+					
+					fIncludedArgFiles.add(tmp.toString());
 				}
 			} else {
 				if (ch == '/') {

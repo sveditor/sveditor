@@ -140,6 +140,28 @@ public class TestParseExpr extends TestCase {
 		runTest("testStringEmbeddedComment", content,
 				new String[] {"my_class", "do_something"});
 	}
+	
+	public void testTFCallWithUnspecifiedParams() throws SVParseException {
+		String testname = "testTFCallWithUnspecifiedParams";
+		String content = 
+			"module m;\n" +
+			"\n" +
+			"task ommitted_param2(int a, int b=0);\n" +
+			"endtask\n" +
+			"\n" +
+			"task ommitted_param3(int a, int b=0,int c=1);\n" +
+			"endtask\n" +
+			"\n" +
+			"initial begin\n" +
+			"	ommitted_param2(1,);\n" +
+			"	ommitted_param3(1,,3);\n" +
+			"end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content,
+				new String[] {"m", "ommitted_param2", "ommitted_param3"});
+	}
 
 	private void runTest(
 			String			testname,

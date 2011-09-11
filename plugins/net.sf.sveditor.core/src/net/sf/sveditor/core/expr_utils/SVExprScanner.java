@@ -133,7 +133,7 @@ public class SVExprScanner {
 				debug("id=\"" + id + "\"");
 
 				// See if we're working with a triggered expression
-				ret.fTrigger = readTriggerStr(scanner);
+				ret.fTrigger = readTriggerStr(scanner, true);
 				debug("trigger=\"" + ret.fTrigger + "\"");
 				
 				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
@@ -171,7 +171,7 @@ public class SVExprScanner {
 				
 				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
 				
-				if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
+				if ((ret.fTrigger = readTriggerStr(scanner, true)) != null) {
 					ret.fType = ContextType.Triggered;
 					
 					if (scan_fwd) {
@@ -298,7 +298,7 @@ public class SVExprScanner {
 				break;
 			}
 			start_pos = (scanner.getPos()+1);
-		} while ((trigger = readTriggerStr(scanner)) != null);
+		} while ((trigger = readTriggerStr(scanner, false)) != null);
 		
 		fLog.debug("<-- readExpression");
 		
@@ -310,7 +310,7 @@ public class SVExprScanner {
 	 * @param scanner
 	 * @return
 	 */
-	private String readTriggerStr(IBIDITextScanner scanner) {
+	private String readTriggerStr(IBIDITextScanner scanner, boolean allow_colon) {
 		long start_pos = scanner.getPos();
 		scanner.setScanFwd(false);
 		int ch = scanner.skipWhite(scanner.get_ch());
@@ -322,6 +322,8 @@ public class SVExprScanner {
 			
 			if (ch2 == ':') {
 				return "::";
+			} else if (allow_colon) {
+				return ":";
 			}
 		}
 		

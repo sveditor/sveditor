@@ -1443,6 +1443,39 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testAssignStrength", doc, new String[] {"t"});
 	}
+	
+	public void testTimeUnitPrecision() {
+		String testname = "testTimeUnitPrecision";
+		String doc =
+			"module my_module #(  parameter PARAMETER_1 = 1, // this is parameter 1\n" +
+            "       parameter PARAMETER_2 = 10    // this is parameter 2\n" +
+            "                     )\n"+ 
+            "                      (\n"+
+            "                       input logic       clk    , // fixed 4MHz input clock\n" +
+            "                       input logic [1:0] write_enable, // write_enable\n" +
+            "                       input logic [1:0] read_enable, // read_enable\n" +
+            "                       input logic [15:0]write_data , // write data\n" +
+            "                       output logic [15:0] read_data  // read data\n" + 
+            "                     );\n" +
+            "\n" +
+            "	timeunit 1ns;            // ERROR: Not recognizing time\n" +
+            "	timeprecision 1ps;            // ERROR not recognizing time\n" +
+            "endmodule\n"
+            ;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"my_module"});
+	}
+	
+	public void testLocalParamAssign() {
+		String testname = "testLocalParamAssign";
+		String doc = 
+			"module my_module;\n" +
+			"	localparam logic [15:0]  TMR_SPB_ADDRL [PARAMETER_1 :0]  = { 16'h1600, 16'h1400 };      // ERROR: Crazy parameter construct\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"my_module", "TMR_SPB_ADDRL"});
+	}
 
 	private void runTest(
 			String			testname,

@@ -139,7 +139,8 @@ public abstract class AbstractCompletionProcessor {
 			if (ctxt.fTrigger.equals("`")) {
 				findMacroItems(ctxt, getIndexIterator());
 			} else if (ctxt.fRoot != null &&
-					(ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::"))) {
+					(ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || 
+							ctxt.fTrigger.equals("::") || ctxt.fTrigger.equals(":"))) {
 				if (ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::")) {
 					SVDBExpr expr = null;
 					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
@@ -166,7 +167,7 @@ public abstract class AbstractCompletionProcessor {
 
 					// '.' or '::' trigger
 					findTriggeredProposals(ctxt, src_scope, item);
-				} else {
+				} else if (ctxt.fTrigger.equals("=")) {
 					// '=' trigger
 					SVDBExpr expr = null;
 					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
@@ -195,6 +196,17 @@ public abstract class AbstractCompletionProcessor {
 					debug("Item: " + ((item != null)?(item.getType() + " " + SVDBItem.getName(item)):"null"));
 					
 					findAssignTriggeredProposals(ctxt, src_scope, item);
+				} else if (ctxt.fTrigger.equals(":")) {
+					// Trigger of ':' occurs when the user wishes content assist for 
+					// a labeled 
+					if (ctxt.fRoot.startsWith("end")) {
+						findEndLabelProposals(ctxt, src_scope);
+					} else {
+						// default to suggesting globals
+						findUntriggeredProposals(ctxt, src_scope);
+					}
+				} else {
+					// Unknown trigger
 				}
 			} else if (ctxt.fTrigger.equals(".")) {
 				// null root and '.' -- likely a port completion
@@ -604,6 +616,26 @@ public abstract class AbstractCompletionProcessor {
 		}
 		
 		return last_inst;
+	}
+
+	private void findEndLabelProposals(
+			SVExprContext			ctxt,
+			ISVDBChildItem			src_scope) {
+		fLog.debug("Looking for end-label proposal \"" + ctxt.fLeaf + "\"");
+		fLog.debug("    src_scope=" + SVDBItem.getName(src_scope));
+		
+		if (src_scope == null || !(src_scope instanceof ISVDBNamedItem)) {
+			return;
+		}
+		
+		ISVDBNamedItem item = (ISVDBNamedItem)src_scope;
+		
+		if (ctxt.fLeaf.equals("") || item.getName().startsWith(ctxt.fLeaf)) {
+			addProposal(new SVCompletionProposal(
+					((ISVDBNamedItem)src_scope).getName(), ctxt.fStart, ctxt.fLeaf.length()));
+		} else {
+			findUntriggeredProposals(ctxt, src_scope);
+		}
 	}
 
 	private void findUntriggeredProposals(

@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -39,8 +40,6 @@ public class TestArgFileIndex extends TestCase {
 	
 	private File				fTmpDir;
 	
-	
-
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -50,7 +49,7 @@ public class TestArgFileIndex extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		TestUtils.delete(fTmpDir);
+//		TestUtils.delete(fTmpDir);
 	}
 
 	public void testIncludePathPriority() {
@@ -220,6 +219,37 @@ public class TestArgFileIndex extends TestCase {
 		assertNotNull(class2);
 		assertNotNull(ext_pkg_1);
 		assertNotNull(ext_pkg_2);
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testMultiArgFile() throws IOException {
+		String testname = "testMultiArgFile";
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname + "_project");
+		
+		utils.copyBundleDirToWS("/data/multi_arg_file/", project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "_project/multi_arg_file/multi_arg_file.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		IndexTestUtils.assertFileHasElements(index, 
+				"top_package", "sub_package", "sub_sub_package");
+		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}

@@ -18,6 +18,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -265,6 +266,30 @@ public class SVContentAssistExprVisitor {
 			return null;
 		}
 	}
+
+	private ISVDBItemBase findInTypeInfo(SVDBTypeInfo root, String name) {
+		fLog.debug("findInTypeInfo: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		
+		if (root.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
+			ISVDBChildParent p = (ISVDBChildParent)root;
+			
+			for (ISVDBChildItem c : p.getChildren()) {
+				if (c.getType() == SVDBItemType.VarDeclStmt) {
+					for (ISVDBChildItem i : ((SVDBVarDeclStmt)c).getChildren()) {
+						if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
+							return i;
+						}
+					}
+				} else if (c instanceof ISVDBNamedItem) {
+					if (fNameMatcher.match((ISVDBNamedItem)c, name)) {
+						return c;
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
 	
 	private ISVDBItemBase findInPackage(SVDBPackageDecl pkg, String name) {
 		ISVDBItemBase ret = null;
@@ -318,7 +343,7 @@ public class SVContentAssistExprVisitor {
 			fLog.debug("    type is non-null: " + type.getType());
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 				item = findTypedef(type.getName());
-			} else if (type.getType() == SVDBItemType.TypeInfoStruct) {
+			} else if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 				item = type;
 			}
 			
@@ -327,12 +352,15 @@ public class SVContentAssistExprVisitor {
 				fLog.debug("Item " + SVDBItem.getName(item) + " is typedef");
 				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
 				type = td.getTypeInfo();
-				if (type.getType() == SVDBItemType.TypeInfoStruct) {
+				if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 					// Found something useful
 					item = type;
 				} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 					// Lookup user-defined type name
 					item = findTypedef(type.getName());
+				} else {
+					// gone as far as we can go
+					break;
 				}
 			}
 			
@@ -354,6 +382,8 @@ public class SVContentAssistExprVisitor {
 	private ISVDBItemBase findTypedef(String name) {
 		ISVDBItemBase ret = null;
 		
+		fLog.debug("--> findTypedef: " + name);
+		
 		if ((ret = findLocalTypedef(name)) == null) {
 			// Look globally
 			SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
@@ -366,6 +396,7 @@ public class SVContentAssistExprVisitor {
 			}
 		}
 		
+		fLog.debug("<-- findTypedef: " + ((ret != null)?SVDBItem.getName(ret):"null"));
 		return ret;
 	}
 	
@@ -509,6 +540,8 @@ public class SVContentAssistExprVisitor {
 			
 			if (item.getType() == SVDBItemType.PackageDecl) {
 				item = findInPackage((SVDBPackageDecl)item, expr.getId());
+			} else if (item.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
+				item = findInTypeInfo((SVDBTypeInfo)item, expr.getId());
 			} else {
 				item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
 			}

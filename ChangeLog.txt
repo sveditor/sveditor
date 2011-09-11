@@ -8,6 +8,21 @@
 
 - Correct content-assist issue with scopes within interfaces and modules
 
+- (#3404198) Correct a parse bug with task/function calls having unspecified
+  (default) parameters
+
+- (#3232422) Correct auto-complete issue with labeling end of blocks
+
+- Correct parse errors with empty named-mapped task/function parameters:
+  function void foo(int a=2, int b=3);
+  ...
+  foo(.a(), .b()); // same as foo(2, 3) or foo() 
+
+- (#3404207) Correct open-declaration support for struct and union fields
+
+- Add support for argument files that sub-include argument files using the
+  -f argument (eg -f sub_argument_file.f)
+
 ------------------------------------------------------------------------------
 -- 0.6.1.ea04 Release --
 

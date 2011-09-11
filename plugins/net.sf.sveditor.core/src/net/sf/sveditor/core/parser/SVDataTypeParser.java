@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
+import net.sf.sveditor.core.db.SVDBTypeInfoUnion;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
@@ -161,7 +162,8 @@ public class SVDataTypeParser extends SVParserBase {
 				fLexer.eatToken();
 			}
 			
-			type = struct_body();
+			type = (tok.getImage().equals("union"))?new SVDBTypeInfoUnion():new SVDBTypeInfoStruct();
+			struct_union_body((ISVDBAddChildItem)type);
 
 			// TODO:
 		} else if (fLexer.peekKeyword("enum")) {
@@ -498,8 +500,7 @@ public class SVDataTypeParser extends SVParserBase {
 		return ret;
 	}
 
-	private SVDBTypeInfoStruct struct_body() throws SVParseException {
-		SVDBTypeInfoStruct struct = new SVDBTypeInfoStruct();
+	private void struct_union_body(ISVDBAddChildItem parent) throws SVParseException {
 
 		if (fLexer.peekKeyword("packed")) {
 			fLexer.eatToken();
@@ -540,14 +541,12 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 			}
 			
-			struct.addChildItem(var);
+			parent.addChildItem(var);
 			fLexer.readOperator(";");
 							
 		} while (fLexer.peek() != null && !fLexer.peekOperator("}"));
 		
 		fLexer.readOperator("}");
-		
-		return struct;
 	}
 	
 	public SVDBTypeInfoClassType class_type() throws SVParseException {
