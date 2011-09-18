@@ -19,9 +19,11 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.expr.SVDBCondExpr;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 
 public class SVDBFileTreeUtils {
@@ -129,21 +131,22 @@ public class SVDBFileTreeUtils {
 				boolean defined = dp.isDefined(cond, it.getLocation().getLine());
 				if ((defined && c.getName().equals("ifdef")) ||
 						(!defined && c.getName().equals("ifndef"))) {
-					// Remove any 'else' section
-					if (i+1 < it_l.size()) {
-						ISVDBItemBase it_t = it_l.get(i+1);
-						if (it_t.getType() == SVDBItemType.PreProcCond &&
-								((ISVDBNamedItem)it_t).getName().equals("else")) {
-							debug("        removing else section");
-							it_l.remove(i+1);
-						}
+
+					// Remove any 'else' or 'elsif' sections
+					while (i+1 < it_l.size() && 
+							it_l.get(i+1).getType() == SVDBItemType.PreProcCond &&
+							(((ISVDBNamedItem)it_l.get(i+1)).getName().equals("else") ||
+							 ((ISVDBNamedItem)it_l.get(i+1)).getName().equals("elsif"))) {
+						debug("        removing else section");
+						it_l.remove(i+1);
 					}
 					
 					// pull this section up
+					// Remove the 'ifdef' block and merge in the sub items
 					it_l.remove(i);
 					if (fDebugEn) {
 						debug("        adding enabled items (" + c.getName() + ")");
-						for (ISVDBItemBase it_t : c.getItems()) {
+						for (ISVDBItemBase it_t : c.getChildren()) {
 							debug("            " + it_t.getType() + " " + 
 									(((it_t instanceof ISVDBNamedItem))?
 											((ISVDBNamedItem)it_t).getName():"UNNAMED"));
@@ -153,27 +156,66 @@ public class SVDBFileTreeUtils {
 					
 					i--;
 				} else {
-					// remove this section
+					boolean taken = false;
+					
+					// remove the 'ifdef'/'ifndef' block
 					it_l.remove(i);
 					
-					// If the following section is 'else', pull up contents
-					if (i < it_l.size()) {
+					// Step through any elsif statements searching for a 'taken' block
+					while (i < it_l.size() && 
+							it_l.get(i).getType() == SVDBItemType.PreProcCond &&
+							 ((ISVDBNamedItem)it_l.get(i)).getName().equals("elsif")) {
+						String elsif_cond = ((SVDBPreProcCond)it_l.get(i)).getConditional();
+						taken = dp.isDefined(elsif_cond, it.getLocation().getLine());
+						
+						if (taken) {
+							break;
+						}
+						
+						// Remove the un-taken elsif
+						it_l.remove(i);
+					}
+					
+					if (taken) {
+						// We found an elsif section where the conditional
+						// evaluated to 'true'
+						//
+						// Move up this section
+						// Eliminate all following else/elsif sections
 						ISVDBItemBase it_t = it_l.get(i);
-						debug("    following disabled section: " + 
-							((it_t instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_t).getName():"UNNAMED"));
-						if (it_t.getType() == SVDBItemType.PreProcCond &&
-								((ISVDBNamedItem)it_t).getName().equals("else")) {
+						it_l.remove(i);
+						it_l.addAll(i, ((SVDBPreProcCond)it_t).getItems());
+						
+						while (i < it_l.size() &&
+							it_l.get(i+1).getType() == SVDBItemType.PreProcCond &&
+							 (((ISVDBNamedItem)it_l.get(i)).getName().equals("elsif") ||
+								((ISVDBNamedItem)it_l.get(i)).getName().equals("else"))) {
 							it_l.remove(i);
-							if (fDebugEn) {
-								debug("    adding enabled items from 'else'");
-								for (ISVDBItemBase it_tt : ((SVDBPreProcCond)it_t).getItems()) {
-									debug("            " + it_tt.getType() + " " + 
-											((it_tt instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_tt).getName():"UNNAMED"));
+						}
+					} else {
+						// We didn't find an elsif section where the conditional
+						// evaluated to 'true'
+						//
+						// If an 'else' block exists, then move the content up
+						if (i < it_l.size()) {
+							ISVDBItemBase it_t = it_l.get(i);
+							debug("    following disabled section: " + SVDBItem.getName(it_t)); 
+							if (it_t.getType() == SVDBItemType.PreProcCond &&
+									((ISVDBNamedItem)it_t).getName().equals("else")) {
+								it_l.remove(i);
+								if (fDebugEn) {
+									debug("    adding enabled items from 'else'");
+									for (ISVDBItemBase it_tt : ((SVDBPreProcCond)it_t).getItems()) {
+										debug("            " + it_tt.getType() + " " + 
+												((it_tt instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_tt).getName():"UNNAMED"));
+									}
 								}
+								it_l.addAll(i, ((SVDBPreProcCond)it_t).getItems());
 							}
-							it_l.addAll(i, ((SVDBPreProcCond)it_t).getItems());
 						}
 					}
+					
+					// If the following section is 'else', pull up contents
 					i--;
 				}
 			} else if (it.getType() == SVDBItemType.Include) {

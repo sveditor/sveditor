@@ -89,4 +89,102 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testBlockLocalVariable() {
+		String testname = "testBlockLocalVariable";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"\n" +
+			"class my_class;\n" +
+			"	foobar		m_field;\n" +
+			"\n" +
+			"	task my_task();\n" +
+			"		int a;\n" +
+			"		begin\n" +
+			"			int AAAA;\n" +
+			"			int AABB;\n" +
+			"			int BBCC;\n" +
+			"\n" +
+			"			AA<<MARK>>\n" +
+			"		end\n" +
+			"	endtask\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testFieldRefBlockLocalVariable() {
+		String testname = "testFieldRefBlockLocalVariable";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"\n" +
+			"class my_type;\n" +
+			"	int AAAA;\n" +
+			"	int AABB;\n" +
+			"	int BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class;\n" +
+			"	foobar		m_field;\n" +
+			"\n" +
+			"	task my_task();\n" +
+			"		int a;\n" +
+			"		begin\n" +
+			"			my_type f;\n" +
+			"\n" +
+			"			f.AA<<MARK>>\n" +
+			"		end\n" +
+			"	endtask\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
 }

@@ -644,6 +644,21 @@ public abstract class AbstractCompletionProcessor {
 		fLog.debug("Looking for un-ctxt.fTriggered identifier \"" + ctxt.fLeaf + "\"");
 		List<ISVDBItemBase> result = null;
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		SVDBFindByNameInScopes finder_s =
+			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
+
+		fLog.debug("Searching in scope hierarchy");
+		result = finder_s.find(src_scope, ctxt.fLeaf, false);
+		
+		fLog.debug("    " + result.size() + " results");
+		for (int i=0; i<result.size(); i++) {
+			// It's possible that the local variable that we're declaring
+			// will appear in the proposals. Don't add these proposals. 
+			if (!(SVDBItem.getName(result.get(i)).equals(ctxt.fLeaf) &&
+					isSameScopeVarDecl(src_scope, result.get(i)))) {
+				addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		}
 
 		SVDBFindByNameInClassHierarchy finder_h =
 			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
@@ -752,6 +767,18 @@ public abstract class AbstractCompletionProcessor {
 					getIndexIterator(), max_matches, false, ret);
 		}
 		 */
+	}
+	
+	private boolean isSameScopeVarDecl(
+			ISVDBChildItem		src_scope,
+			ISVDBItemBase		proposal) {
+		if (proposal instanceof SVDBVarDeclItem) {
+			SVDBVarDeclItem v = (SVDBVarDeclItem)proposal;
+			if (v.getParent() != null && v.getParent().getParent() != null) {
+				return (v.getParent().getParent() == src_scope);
+			}
+		}
+		return false;
 	}
 
 	private void findMacroItems(

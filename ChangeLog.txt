@@ -6,13 +6,9 @@
   correctly now filters out the forward declarations when searching for 
   the target type
 
-? Ensure content assist on task/function local variables
+- (#3410621) Add support for `elsif pre-processor directive
 
-? Ensure content assist on block-local variables
-
-? Content assist on ovm_sequencer_base
-
-? Enable cross-project linking (P1 depends on P2)
+- Correct bugs involving content assist on begin/end-block-local variables
 
 ------------------------------------------------------------------------------
 -- 0.6.1.ea05 Release --

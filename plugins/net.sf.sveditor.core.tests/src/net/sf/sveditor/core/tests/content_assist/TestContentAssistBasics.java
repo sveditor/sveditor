@@ -367,6 +367,7 @@ public class TestContentAssistBasics extends TestCase {
 	}
 
 	public void testScopedInheritanceAssist() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"class my_class1;\n" +
 			"    int           my_field1_class1;\n" +
@@ -624,7 +625,7 @@ public class TestContentAssistBasics extends TestCase {
 	public void testEndFunctionLabel() {
 		String testname = "testEndFunctionLabel";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class my_class extends ovm_component;\n" +
 			"\n" +

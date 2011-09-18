@@ -98,7 +98,7 @@ public class TestOpenModIfc extends TestCase {
 	public void testStructFieldModuleScope() {
 		String testname = "testStructFieldModuleScope";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class MyClass;\n" +					// 1
 			"	int aaaa;\n" +
@@ -143,7 +143,7 @@ public class TestOpenModIfc extends TestCase {
 	public void testUnionFieldModuleScope() {
 		String testname = "testUnionFieldModuleScope";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class MyClass;\n" +					// 1
 			"	int aaaa;\n" +
@@ -189,7 +189,7 @@ public class TestOpenModIfc extends TestCase {
 	public void testStructUnionFieldModuleScope() {
 		String testname = "testStructUnionFieldModuleScope";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class MyClass;\n" +					// 1
 			"	int aaaa;\n" +

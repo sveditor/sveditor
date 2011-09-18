@@ -143,7 +143,7 @@ public class SVContentAssistExprVisitor {
 	}
 
 	public ISVDBItemBase findTypeItem(SVDBExpr expr) {
-		fLog.debug("findItemType");
+		fLog.debug("findItemType: fScope=" + SVDBItem.getName(fScope));
 		fResolveStack.clear();
 		
 		try {

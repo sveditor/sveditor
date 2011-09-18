@@ -29,7 +29,7 @@ import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
-import net.sf.sveditor.core.tests.preproc.TestPreProc;
+import net.sf.sveditor.core.tests.preproc.PreProcTests;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 import net.sf.sveditor.core.tests.templates.TemplateTests;
@@ -56,7 +56,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(ParserTests.suite());
 		addTest(new TestSuite(PreProcMacroTests.class));
-		addTest(new TestSuite(TestPreProc.class));
+		addTest(PreProcTests.suite());
 		addTest(IndentTests.suite());
 		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());

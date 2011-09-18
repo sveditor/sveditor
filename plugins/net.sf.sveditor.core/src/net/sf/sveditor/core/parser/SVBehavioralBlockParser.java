@@ -428,6 +428,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		return decl_allowed;
 	}
 	
+	/*
 	private SVDBExpr convertTypeInfoToLVal(SVDBTypeInfo info) throws SVParseException {
 		if (info instanceof SVDBTypeInfoUserDef) {
 			SVDBTypeInfoUserDef ud = (SVDBTypeInfoUserDef)info;
@@ -445,6 +446,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			return new SVDBIdentifierExpr(info.getName());
 		}
 	}
+	 */
 	
 	private void expression_stmt(SVDBLocation start, ISVDBAddChildItem parent, SVDBExpr lvalue) throws SVParseException {
 		debug("--> expression_stmt: " + fLexer.peek());
@@ -508,6 +510,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		stmt.setLocation(start);
 		if (fLexer.peek() != null && !fLexer.peekOperator(";")) {
 			SVToken first = fLexer.peekToken();
+			// TODO: 
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 			
 			if (fLexer.peekOperator()) {
@@ -515,6 +518,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				fLexer.ungetToken(first);
 				type = null;
 			}
+			
+			// TODO:
 			SVDBBlockStmt init_block = null;
 			SVDBStmt init_stmt;
 			while (true) {
@@ -610,6 +615,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				//			decl_allowed = isDeclAllowed((SVDBStmt)block.getItems().get(block.getItems().size()-1));
 			}
 		} finally {
+			debug("Setting block-end: " + fLexer.getStartLocation());
 			block.setEndLocation(fLexer.getStartLocation());
 		}
 		

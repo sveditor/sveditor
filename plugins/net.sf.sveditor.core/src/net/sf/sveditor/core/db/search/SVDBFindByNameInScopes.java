@@ -19,7 +19,6 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -131,7 +130,7 @@ public class SVDBFindByNameInScopes {
 			// Next, if we check the class parameters if we're in a class scope,
 			// or the module ports/parameters if we're in an interface/module scope
 			if (context.getType() == SVDBItemType.ClassDecl) {
-				SVDBClassDecl cls = (SVDBClassDecl)context;
+//				SVDBClassDecl cls = (SVDBClassDecl)context;
 				
 			} else if (context.getType() == SVDBItemType.ModuleDecl ||
 					context.getType() == SVDBItemType.InterfaceDecl) {

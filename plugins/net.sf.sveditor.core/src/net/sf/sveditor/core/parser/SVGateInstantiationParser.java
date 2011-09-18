@@ -274,6 +274,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 				item.addInst(inst);
 				
 				fLexer.readOperator("(");
+				// TODO:
 				SVDBExpr expr = parsers().exprParser().expression(); 
 				fLexer.readOperator(")");
 				

@@ -68,6 +68,14 @@ public class SVDBTestUtils {
 		}
 	}
 	
+	public static void assertFileDoesNotHaveElements(SVDBFile file, String ... elems) {
+		for (String e : elems) {
+			if (findElement(file, e) != null) {
+				TestCase.fail("Found unexpected element \"" + e + "\" in file " + file.getName());
+			}
+		}
+	}
+	
 	public static ISVDBItemBase findInFile(SVDBFile file, String name) {
 		return findElement(file, name);
 	}
@@ -141,12 +149,6 @@ public class SVDBTestUtils {
 		InputStream content = copier.copy();
 		SVPreProcScanner pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(content, filename);
-		
-		try {
-			content.reset();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		
 		SVDBPreProcObserver pp_observer = new SVDBPreProcObserver();
 		pp_scanner.setObserver(pp_observer);

@@ -157,6 +157,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 				parsers().tfBodyParser().parse(func, is_ansi);
 			} catch (SVParseException e) {
 				debug("Failed to parse function body", e);
+			} finally {
+				func.setEndLocation(fLexer.getStartLocation());
 			}
 
 			end = fLexer.getStartLocation();

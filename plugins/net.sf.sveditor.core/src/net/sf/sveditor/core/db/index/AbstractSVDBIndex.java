@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +90,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private ISVDBIndexCache 						fCache;
 	private Map<String, Object> 					fConfig;
 	
-	private Map<String, List<SVDBDeclCacheItem>>	fPackageCacheMap;
+//	private Map<String, List<SVDBDeclCacheItem>>	fPackageCacheMap;
 	
 //	private ISVEditorJob					fEnsureIndexStateJob;
 
@@ -119,7 +118,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	protected AbstractSVDBIndex(String project) {
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
-		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+//		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
 	}
 
@@ -329,7 +328,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fCacheDataValid = false;
 		fCache.clear();
 
-		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+//		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 
 	public void rebuildIndex() {
@@ -1219,6 +1218,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 	}
 
+	/*
 	private void cachePreProcDeclarations(String filename, ISVDBChildParent scope) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
 		
@@ -1235,6 +1235,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 	}
+	 */
 
 	public List<SVDBDeclCacheItem> findPackageDecl(
 			IProgressMonitor	monitor,

@@ -26,9 +26,16 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcScanner implements ISVScanner {
 	
-	private static final int    PP_DISABLED = 0;
-	private static final int    PP_ENABLED  = 1;
-	private static final int    PP_CARRY    = 2;
+	private static final int    PP_DISABLED 			= 0;
+	private static final int    PP_ENABLED  			= 1;
+	
+	// This bit is set when we are within a disabled section.
+	// It's impossible for anything in a sub-section to be enabled
+	private static final int    PP_CARRY    			= 2;
+	
+	// This bit is set when a block within this level of conditionals
+	// has been taken (ie `ifdef (true) ... ; `ifndef (false))
+	private static final int	PP_THIS_LEVEL_EN_BLOCK 	= 4;
 	
 	private InputStream			fInput;
 	private String				fFileName;
@@ -355,7 +362,7 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		fScanLocation.setLineNo(fLineno);
 
-		if (type.equals("ifdef") || type.equals("ifndef")) {
+		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
 			fPPBuffer.setLength(0);
 			
 			ch = skipWhite_ll(get_ch_ll());
@@ -371,12 +378,19 @@ public class SVPreProcScanner implements ISVScanner {
 					} else {
 						enter_ifdef(false);
 					}
-				} else {
+				} else if (type.equals("ifndef")) {
 					if (fDefineProvider != null) {
 						enter_ifdef(!fDefineProvider.isDefined(
 								remainder, fLineno));
 					} else {
 						enter_ifdef(true);
+					}
+				} else { // elsif
+					if (fDefineProvider != null) {
+						enter_elsif(fDefineProvider.isDefined(
+								remainder, fLineno));
+					} else {
+						enter_elsif(false);
 					}
 				}
 			} else {
@@ -386,7 +400,7 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 		} else if (type.equals("else")) {
 			if (fEvalConditionals) {
-				invert_ifdef();
+				enter_else();
 			} else {
 				if (fObserver != null) {
 					fObserver.leave_preproc_conditional();
@@ -599,6 +613,11 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 		}
 		
+		// Mark that we've taken one branch
+		if ((e & PP_ENABLED) == 1) {
+			e |= PP_THIS_LEVEL_EN_BLOCK;
+		}
+		
 		fPreProcEn.push(e);
 	}
 	
@@ -608,20 +627,45 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 	
-	private void invert_ifdef() {
+	private void enter_elsif(boolean enabled) {
+		if (fPreProcEn.size() > 0) {
+			int e = fPreProcEn.pop();
+
+			if (enabled) {
+				// Condition evaluates true
+				if ((e & PP_CARRY) != PP_CARRY && 
+						(e & PP_THIS_LEVEL_EN_BLOCK) != PP_THIS_LEVEL_EN_BLOCK) {
+					// Enable this branch
+					e |= (PP_ENABLED | PP_THIS_LEVEL_EN_BLOCK);
+				}
+			} else {
+				// Not enabled. Ensure the ENABLED flag is cleared
+				e &= ~PP_ENABLED;
+			}
+			
+			fPreProcEn.push(e);
+		}
+	}
+	
+	private void enter_else() {
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
 			
-			// Invert only if we're in an enabled scope
-			if (e != PP_CARRY) {
-				int e2 = ((e & PP_ENABLED) == PP_ENABLED)?PP_DISABLED:PP_ENABLED;
+			// Invert only if we're in an enabled scope and
+			// we haven't already 'taken' a branch in the 
+			// ifdef/elsif/else structure
+			if ((e & PP_CARRY) == 0) {
 				
-				if ((e & PP_CARRY) != 0) {
-					e2 |= PP_CARRY;
+				if ((e & PP_THIS_LEVEL_EN_BLOCK) != 0) {
+					// Disable any blocks beyond the 'taken' block
+					e &= ~PP_ENABLED;
+				} else {
+					// Enable this branch and set the BLOCK_ENABLED flag
+					e |= PP_ENABLED;
 				}
-				e = e2;
 			}
 			
+			// Flip to 'true' only if we aren't 
 			fPreProcEn.push(e);
 		}
 	}

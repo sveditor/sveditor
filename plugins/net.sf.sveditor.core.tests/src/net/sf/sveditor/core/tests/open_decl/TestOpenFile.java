@@ -105,7 +105,7 @@ public class TestOpenFile extends TestCase {
 
 	public void testOpenMacroDef() {
 		String testname = "testOpenMacroDef";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"`define MY_MACRO foo\n" +		// 1

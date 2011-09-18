@@ -184,7 +184,7 @@ public class TestModuleContentAssist extends TestCase {
 	public void testInterfaceTaskVarAssist() {
 		String testname = "testInterfaceTaskVarAssist";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1();\n" +

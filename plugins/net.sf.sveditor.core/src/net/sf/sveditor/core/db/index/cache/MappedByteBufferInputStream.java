@@ -24,7 +24,7 @@ public class MappedByteBufferInputStream extends InputStream {
 	private RandomAccessFile			fIn;
 	private ByteBuffer					fByteBuffer;
 	private int							fBufferIdx;
-	private int							fBufferMax;
+//	private int							fBufferMax;
 	private byte						fTmp[] = new byte[1];
 	
 	public MappedByteBufferInputStream(File path) throws IOException {
@@ -32,7 +32,7 @@ public class MappedByteBufferInputStream extends InputStream {
 
 		FileChannel channel = fIn.getChannel();
 		fByteBuffer = channel.map(MapMode.READ_ONLY, 0, channel.size());
-		fBufferMax = (int)channel.size();
+//		fBufferMax = (int)channel.size();
 		fBufferIdx = 0;
 	}
 
