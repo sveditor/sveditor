@@ -55,4 +55,8 @@ public class SVDBLocation {
 		}
 		return false;
 	}
+	
+	public String toString() {
+		return ":" + fLine;
+	}
 }

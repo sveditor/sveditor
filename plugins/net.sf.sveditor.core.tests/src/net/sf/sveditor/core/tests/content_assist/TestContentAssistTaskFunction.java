@@ -83,4 +83,103 @@ public class TestContentAssistTaskFunction extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	/**
+	 * Test we can find and use task/function local vars
+	 */
+	public void testClassTFLocal() {
+		String testname = "testClassTFLocal";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"class foobar;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	int		BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"\n" +
+			"class my_class;\n" +
+			"	foobar		m_field;\n" +
+			"\n" +
+			"	extern task my_task();\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"task my_class::my_task();\n" +
+			"	foobar param;\n" +
+			"	param.AA<<MARK>>\n" +
+			"endtask\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
+	/**
+	 * Test we can find and use task/function local vars
+	 */
+	public void testClassTFSameClassLocal() {
+		String testname = "testClassTFSameClassLocal";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"class foobar;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	int		BBCC;\n" +
+			"\n" +
+			"	static function int f();\n" +
+			"		foobar inst;\n" +
+			"\n" +
+			"		return inst.A<<MARK>>\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
 }

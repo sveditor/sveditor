@@ -72,7 +72,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		
 		if (file != null) {
 			for (ISVDBChildItem c : file.getChildren()) {
-				if (SVDBItem.getName(c).equals(fName)) {
+				if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
 					return c;
 				}
 			}

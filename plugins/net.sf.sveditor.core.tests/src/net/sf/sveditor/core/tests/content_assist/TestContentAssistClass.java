@@ -88,6 +88,54 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testIgnoreForwardDecl() {
+		String testname = "testIgnoreForwardDecl";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"typedef class foobar;\n" +
+			"\n" +
+			"class foobar;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	int		BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"\n" +
+			"class my_class;\n" +
+			"	task my_task();\n" +
+			"		foobar v;\n" +
+			"\n" +
+			"		v.A<<MARK>>\n" +
+			"	endtask\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testContentAssistExternTaskClassField() {
 		LogHandle log = LogFactory.getLogHandle("testContentAssistExternTaskClassField");
 		String doc1 =

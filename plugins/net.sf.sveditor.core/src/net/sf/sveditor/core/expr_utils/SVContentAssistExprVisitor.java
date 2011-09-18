@@ -321,7 +321,6 @@ public class SVContentAssistExprVisitor {
 	private ISVDBItemBase findType(ISVDBItemBase item) {
 		SVDBTypeInfo   type = null;
 		List<SVDBVarDimItem> var_dim = null;
-		ISVDBItemBase orig_item = item;
 		fLog.debug("findType: " + item.getType() + " " + SVDBItem.getName(item));
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
@@ -378,7 +377,7 @@ public class SVContentAssistExprVisitor {
 		fLog.debug("<-- findType: " + ((item!=null)?SVDBItem.getName(item):"NULL"));
 		return item;
 	}
-	
+		
 	private ISVDBItemBase findTypedef(String name) {
 		ISVDBItemBase ret = null;
 		
@@ -390,7 +389,18 @@ public class SVContentAssistExprVisitor {
 	
 			List<ISVDBItemBase> item_l = finder_n.find(name);
 	
-			// TODO: need to filter out forward-decl items?
+			// Filter out forward-decl items
+			for (int i=0; i<item_l.size(); i++) {
+				fLog.debug("item @ " + i + " : " + item_l.get(i).getType());
+				if (item_l.get(i).getType() == SVDBItemType.TypedefStmt) {
+					SVDBTypedefStmt td = (SVDBTypedefStmt)item_l.get(i);
+					if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoFwdDecl) {
+						fLog.debug("remove forward-declaration typedef @ " + item_l.get(i).getLocation());
+						item_l.remove(i);
+						i--;
+					}
+				}
+			}
 			if (item_l.size() > 0) {
 				ret = item_l.get(0);
 			}

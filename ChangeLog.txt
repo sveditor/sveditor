@@ -1,4 +1,20 @@
 
+-- 0.6.1.ea06 Release --
+
+- Correct bug involving content-assist on a field whose type was also a
+  forward-declaration typedef (eg typedef class my_class;). Content assist
+  correctly now filters out the forward declarations when searching for 
+  the target type
+
+? Ensure content assist on task/function local variables
+
+? Ensure content assist on block-local variables
+
+? Content assist on ovm_sequencer_base
+
+? Enable cross-project linking (P1 depends on P2)
+
+------------------------------------------------------------------------------
 -- 0.6.1.ea05 Release --
 
 - Correct an auto-indent bug with an initial statement with a single statement
