@@ -1,4 +1,7 @@
 
+-- 0.6.1.ea07 Release --
+
+------------------------------------------------------------------------------
 -- 0.6.1.ea06 Release --
 
 - Correct bug involving content-assist on a field whose type was also a
