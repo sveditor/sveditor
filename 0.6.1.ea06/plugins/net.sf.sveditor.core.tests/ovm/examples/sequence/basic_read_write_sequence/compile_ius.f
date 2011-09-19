@@ -1,3 +1,0 @@
--ovmhome ../../..
-
-top.sv
