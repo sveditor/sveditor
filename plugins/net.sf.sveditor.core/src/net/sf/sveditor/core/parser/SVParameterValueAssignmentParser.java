@@ -18,7 +18,6 @@ import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
-import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
 	

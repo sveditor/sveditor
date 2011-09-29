@@ -74,8 +74,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		if (id.equals("function") || id.equals("task")) {
 			parsers().taskFuncParser().parse(parent, start, modifiers);
+		} else if (fLexer.peekKeyword("assert","assume","cover","restrict")) {
+			parsers().assertionParser().parse(parent);
 		} else if (id.equals("property")) {
-			parsers().SVParser().process_property(parent);
+			fParsers.propertyParser().property(parent);
 		} else if (fLexer.peekKeyword("generate", "for", "if", "case")) {
 			// Generate-block statements
 			parsers().generateBlockParser().parse(parent);
@@ -103,7 +105,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		} else if (id.equals("constraint")) {
 			fParsers.constraintParser().parse(parent, modifiers);
 		} else if (id.equals("sequence")) {
-			fParsers.SVParser().process_sequence(parent);
+			fParsers.sequenceParser().sequence(parent);
 		} else if (id.equals("import")) {
 			parsers().impExpParser().parse_import(parent);
 		} else if (id.equals("clocking")) {
@@ -161,11 +163,24 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		} else if (fLexer.peekKeyword("timeprecision","timeunit")) {
 			parse_time_units_precision(parent);
 		} else if (!fLexer.peekOperator()) {
-			// likely a variable or module declaration
-
-			debug("Likely VarDecl: " + id);
-
-			parse_var_decl_module_inst(parent, modifiers);
+			if (fLexer.peekId()) {
+				SVToken tok = fLexer.consumeToken();
+				if (fLexer.peekOperator(":")) {
+					// Labeled assertion
+					// TODO: preserve label
+					fLexer.eatToken();
+					parsers().assertionParser().parse(parent);
+				} else {
+					fLexer.ungetToken(tok);
+					// likely a variable or module declaration
+					debug("Likely VarDecl: " + id);
+					parse_var_decl_module_inst(parent, modifiers);
+				}
+			} else {
+				// likely a variable or module declaration
+				debug("Likely VarDecl: " + id);
+				parse_var_decl_module_inst(parent, modifiers);
+			}
 		} else {
 			error("Unknown module/class/iterface body item: Operator " + fLexer.eatToken());
 		}

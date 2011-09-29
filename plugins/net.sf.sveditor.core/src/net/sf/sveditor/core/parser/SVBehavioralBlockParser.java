@@ -77,7 +77,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl) throws SVParseException {
-		return statement_int(parent, decl_allowed, ansi_decl);
+		return statement_int(parent, decl_allowed, ansi_decl, true);
 	}
 	
 	private static final Set<String> fDeclKeywordsANSI;
@@ -100,7 +100,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fDeclKeywordsNonANSI.add("ref");
 	}
 	
-	private boolean statement_int(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl) throws SVParseException {
+	private boolean statement_int(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl, boolean consume_terminator) throws SVParseException {
 		debug("--> statement " + fLexer.peek() + " @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
 		SVDBLocation start = fLexer.getStartLocation();
@@ -153,7 +153,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 							error("declaration in a non-declaration location");
 						}
 						
-						parsers().blockItemDeclParser().parse(parent, type, start);
+						parsers().blockItemDeclParser().parse(parent, type, start, consume_terminator);
 						return decl_allowed;
 					} else {
 						debug("Assume a typed reference @ " + fLexer.peek());
@@ -250,13 +250,13 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			repeat.setExpr(parsers().exprParser().expression());
 			fLexer.readOperator(")");
 			parent.addChildItem(repeat);
-			statement(repeat, false,false);
+			statement_int(repeat, false, false, consume_terminator);
 		} else if (fLexer.peekKeyword("forever")) {
 			SVDBForeverStmt forever = new SVDBForeverStmt();
 			forever.setLocation(start);
 			fLexer.eatToken();
 			parent.addChildItem(forever);
-			statement(forever, false,false);
+			statement_int(forever, false,false, consume_terminator);
 		} else if (fLexer.peekKeyword("for")) {
 			for_stmt(parent);
 		} else if (fLexer.peekKeyword("foreach")) {
@@ -267,7 +267,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			foreach.setCond(parsers().exprParser().expression());
 			fLexer.readOperator(")");
 			parent.addChildItem(foreach);
-			statement(foreach, false,false);
+			statement_int(foreach, false,false, consume_terminator);
 		} else if (fLexer.peekKeyword("fork")) {
 			SVDBForkStmt fork = new SVDBForkStmt();
 			fork.setLocation(start);
@@ -286,7 +286,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					!fLexer.peekKeyword("join", "join_none", "join_any")) {
 				debug("--> Fork Statement");
 				// Allow declarations at the root of the fork
-				decl_allowed = statement_int(fork, decl_allowed, true);
+				decl_allowed = statement_int(fork, decl_allowed, true, true);
 				debug("<-- Fork Statement");
 			}
 			fork.setEndLocation(fLexer.getStartLocation());
@@ -313,7 +313,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (fLexer.peekKeyword("fork")) {
 				wait_stmt = new SVDBWaitForkStmt();
 				fLexer.eatToken();
-				fLexer.readOperator(";");
+				if (consume_terminator) {
+					fLexer.readOperator(";");
+				}
 				parent.addChildItem(wait_stmt);
 			} else {
 				wait_stmt = new SVDBWaitStmt();
@@ -322,8 +324,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				fLexer.readOperator(")");
 				parent.addChildItem(wait_stmt);
 				if (!fLexer.peekOperator(";")) {
-					statement(wait_stmt, false,false);
-				} else {
+					statement_int(wait_stmt, false,false, consume_terminator);
+				} else if (consume_terminator) {
 					fLexer.readOperator(";");
 				}
 			}
@@ -334,7 +336,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			// TODO: handle [delay_or_event_control] after ->>
 			
 			event_trigger.setHierarchicalEventIdentifier(parsers().exprParser().expression());
-			fLexer.readOperator(";");
+			if (consume_terminator) {
+				fLexer.readOperator(";");
+			}
 			parent.addChildItem(event_trigger);
 		} else if (fLexer.peekOperator("@")) {
 			SVDBEventControlStmt event_stmt = new SVDBEventControlStmt();
@@ -343,12 +347,12 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			parent.addChildItem(event_stmt);
 
 			// statement_or_null
-			statement(event_stmt, decl_allowed, ansi_decl);
+			statement_int(event_stmt, decl_allowed, ansi_decl, consume_terminator);
 		} else if (fLexer.peekOperator("#")) {
 			SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
 			
 			delay_stmt.setExpr(fParsers.exprParser().delay_expr());
-			statement(delay_stmt, false, true);
+			statement_int(delay_stmt, false, true, consume_terminator);
 		} else if (fLexer.peekKeyword("disable")) {
 			SVDBDisableStmt disable_stmt;
 			fLexer.eatToken();
@@ -360,13 +364,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				disable_stmt.setHierarchicalId(parsers().exprParser().expression());
 			}
 			
-			fLexer.readOperator(";");
+			if (consume_terminator) {
+				fLexer.readOperator(";");
+			}
 			parent.addChildItem(disable_stmt);
 		} else if (fLexer.peekKeyword("end")) {
 			// An unmatched 'end' signals that we're missing some
 			// behavioral construct
 			error("Unexpected 'end' without matching 'begin'");
-		} else if (fLexer.peekKeyword("assert","assume")) {
+		} else if (fLexer.peekKeyword("assert","assume","cover")) {
 			parsers().assertionParser().parse(parent);
 		} else if (fLexer.peekKeyword("return")) {
 			debug("return statement");
@@ -377,19 +383,25 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (!fLexer.peekOperator(";")) {
 				return_stmt.setExpr(parsers().exprParser().expression());
 			}
-			fLexer.readOperator(";");
+			if (consume_terminator) {
+				fLexer.readOperator(";");
+			}
 			parent.addChildItem(return_stmt);
 		} else if (fLexer.peekKeyword("break")) {
 			SVDBBreakStmt break_stmt = new SVDBBreakStmt();
 			break_stmt.setLocation(fLexer.getStartLocation());
 			fLexer.eatToken();
-			fLexer.readOperator(";");
+			if (consume_terminator) {
+				fLexer.readOperator(";");
+			}
 			parent.addChildItem(break_stmt);
 		} else if (fLexer.peekKeyword("continue")) {
 			SVDBContinueStmt continue_stmt = new SVDBContinueStmt();
 			continue_stmt.setLocation(start);
 			fLexer.eatToken();
-			fLexer.readOperator(";");
+			if (consume_terminator) {
+				fLexer.readOperator(";");
+			}
 		} else if (fLexer.peekKeyword("assign", "deassign", "force", "release")) {
 			procedural_cont_assign(parent);
 		} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0) ||
@@ -417,7 +429,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			} else {
 				fLexer.ungetToken(id);
 
-				expression_stmt(start, parent, null);
+				expression_stmt(start, parent, null, consume_terminator);
 			}
 		} else {
 			error("Unknown statement stem: " + fLexer.peek());
@@ -448,7 +460,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	 */
 	
-	private void expression_stmt(SVDBLocation start, ISVDBAddChildItem parent, SVDBExpr lvalue) throws SVParseException {
+	private void expression_stmt(SVDBLocation start, ISVDBAddChildItem parent, SVDBExpr lvalue, boolean consume_terminator) throws SVParseException {
 		debug("--> expression_stmt: " + fLexer.peek());
 		if (lvalue == null) {
 			lvalue = fParsers.exprParser().variable_lvalue();
@@ -479,7 +491,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			parent.addChildItem(expr_stmt);
 		}
 		
-		fLexer.readOperator(";");
+		if (consume_terminator) {
+			fLexer.readOperator(";");
+		}
 		debug("<-- expression_stmt: " + fLexer.peek());
 	}
 	
@@ -492,12 +506,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			parent.addChildItem(stmt);
 		} else if (fLexer.peekKeyword("else")) {
 			fLexer.eatToken();
-			statement(parent, false, true);
+			statement_int(parent, false, true, true);
 		} else {
-			statement(parent, false, true);
+			statement_int(parent, false, true, true);
+
 			if (fLexer.peekKeyword("else")) {
 				fLexer.eatToken();
-				statement(parent, false, true);
+				statement_int(parent, false, true, true);
+			} else {
+				fLexer.readOperator(";");
 			}
 		}
 	}
@@ -611,7 +628,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		try {
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
-				decl_allowed = statement_int(block, decl_allowed, true);
+				decl_allowed = statement_int(block, decl_allowed, true, true);
 				//			decl_allowed = isDeclAllowed((SVDBStmt)block.getItems().get(block.getItems().size()-1));
 			}
 		} finally {

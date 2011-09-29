@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssumeStmt;
+import net.sf.sveditor.core.db.stmt.SVDBCoverStmt;
 
 public class SVAssertionParser extends SVParserBase {
 	
@@ -27,31 +28,45 @@ public class SVAssertionParser extends SVParserBase {
 	public SVDBAssertStmt parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		
-		String assert_type = fLexer.readKeyword("assert", "assume");
+		String assert_type = fLexer.readKeyword("assert", "assume", "cover");
 		SVDBAssertStmt assert_stmt;
 		if (assert_type.equals("assert")) {
 			assert_stmt = new SVDBAssertStmt();
-		} else {
+		} else if (assert_type.equals("assume")) {
 			assert_stmt = new SVDBAssumeStmt();
+		} else {
+			assert_stmt = new SVDBCoverStmt();
 		}
 		assert_stmt.setLocation(start);
 		debug("assertion_stmt - " + fLexer.peek());
 
 		if (fLexer.peekKeyword("property")) {
 			fLexer.eatToken();
-			// TODO: properly implement property expressions 
 			fLexer.readOperator("(");
-			fLexer.skipPastMatch("(", ")");
+			assert_stmt.setExpr(fParsers.propertyExprParser().property_spec());
+			fLexer.readOperator(")");
 		} else {
+			if (fLexer.peekOperator("#")) {
+				// TODO:
+				fLexer.eatToken();
+				fLexer.readNumber();
+			}
+			
 			fLexer.readOperator("(");
-			assert_stmt.setExpr(parsers().exprParser().expression());
+			assert_stmt.setExpr(parsers().exprParser().event_expression());
 			fLexer.readOperator(")");
 		}
 		
 		parent.addChildItem(assert_stmt);
-		assert_stmt.setActionBlock(new SVDBActionBlockStmt());
+		
+		if (assert_type.equals("cover")) {
+			// Only supports stmt_or_null
+//			assert_stmt.setActionBlock(
+		} else {
+			assert_stmt.setActionBlock(new SVDBActionBlockStmt());
 
-		parsers().behavioralBlockParser().action_block(assert_stmt.getActionBlock());
+			parsers().behavioralBlockParser().action_block(assert_stmt.getActionBlock());
+		}
 		
 		return assert_stmt;
 	}

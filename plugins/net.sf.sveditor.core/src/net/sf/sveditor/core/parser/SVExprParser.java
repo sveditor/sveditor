@@ -127,37 +127,6 @@ public class SVExprParser extends SVParserBase {
 		fEventExpr = true;
 		try {
 			return expression();
-			
-			/*
-			} else {
-				SVDBExpr ret = null;
-				if (fLexer.peekKeyword("posedge", "negedge", "edge")) {
-					ret = new SVDBUnaryExpr(fLexer.eatToken(), expression());
-					if (fLexer.peekKeyword("iff")) {
-						fLexer.eatToken();
-						ret = new SVDBBinaryExpr(ret, "iff", expression());
-					}
-				} else {
-					ret = expression();
-					if (fLexer.peekOperator("iff")) {
-						fLexer.eatToken();
-						ret = new SVDBBinaryExpr(ret, "iff", expression());
-					}
-				}
-
-				if (fLexer.peekKeyword("or")) {
-					debug("    event 'or' expression");
-					fLexer.eatToken();
-					ret = new SVDBBinaryExpr(ret, "or", event_expression());
-				} else if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-					ret = new SVDBBinaryExpr(ret, ",", event_expression());
-				}
-
-				debug("<-- event_expression()");
-				return ret;
-			}
-			 */
 		} finally {
 			fEventExpr = false;
 		}
@@ -814,6 +783,8 @@ public class SVExprParser extends SVParserBase {
 			} else if (peekKeyword("void")) {
 				eatToken();
 				return new SVDBIdentifierExpr("void");
+			} else if (fEventExpr && fLexer.peekOperator("@")) {
+				ret = clocking_event();
 			} else {
 				error("Unexpected token in primary: \"" + fLexer.getImage() + "\"");
 			}

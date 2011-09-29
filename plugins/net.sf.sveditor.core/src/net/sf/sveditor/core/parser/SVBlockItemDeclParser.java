@@ -24,8 +24,12 @@ public class SVBlockItemDeclParser extends SVParserBase {
 	public SVBlockItemDeclParser(ISVParser parser) {
 		super(parser);
 	}
-	
+
 	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start) throws SVParseException {
+		parse(parent, type, start, true);
+	}
+
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start, boolean consume_terminator) throws SVParseException {
 		
 		if (fLexer.peekKeyword("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
@@ -59,7 +63,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 
 				// Ensure we don't misinterpret a static reference
 				if (!fLexer.peekOperator("::")) {
-					while (true) {
+					while (fLexer.peek() != null) {
 						SVDBLocation it_start = fLexer.getStartLocation();
 						String name = fLexer.readId();
 
@@ -84,7 +88,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 							break;
 						}
 					}
-					fLexer.readOperator(";");
+					if (consume_terminator) {
+						fLexer.readOperator(";");
+					}
 				}
 			} else {
 				error("Unexpected variable-declaration stem token \"" + fLexer.peek() + "\"");

@@ -12,7 +12,10 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+
 public class SVDBSequence extends SVDBScopeItem {
+	private SVDBExpr			fExpr;
 	
 	public SVDBSequence() {
 		this("");
@@ -20,6 +23,14 @@ public class SVDBSequence extends SVDBScopeItem {
 	
 	public SVDBSequence(String name) {
 		super(name, SVDBItemType.Sequence);
+	}
+	
+	public SVDBExpr getExpr() {
+		return fExpr;
+	}
+	
+	public void setExpr(SVDBExpr expr) {
+		fExpr = expr;
 	}
 
 }

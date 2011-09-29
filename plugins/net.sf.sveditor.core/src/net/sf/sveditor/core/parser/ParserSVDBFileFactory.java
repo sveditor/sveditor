@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -33,9 +32,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBSequence;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -256,43 +253,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} catch (EOFException e) {
 		}
 		 */
-	}
-
-	public void process_sequence(ISVDBAddChildItem parent) throws SVParseException {
-
-		fLexer.readKeyword("sequence");
-		String name = fLexer.readId();
-
-		SVDBScopeItem it = new SVDBSequence(name);
-
-		setLocation(it);
-		parent.addChildItem(it);
-		
-
-		String id;
-		while ((id = scan_statement()) != null) {
-			if (id.equals("endsequence")) {
-				break;
-			}
-		}
-	}
-
-	public void process_property(ISVDBAddChildItem parent) throws SVParseException {
-		fLexer.readKeyword("property");
-		String name = fLexer.readId();
-
-		SVDBScopeItem it = new SVDBProperty(name);
-
-		setLocation(it);
-
-		parent.addChildItem(it);
-
-		String id;
-		while ((id = scan_statement()) != null) {
-			if (id.equals("endproperty")) {
-				break;
-			}
-		}
 	}
 
 	public int scan_qualifiers(boolean param)

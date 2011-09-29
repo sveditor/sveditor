@@ -83,6 +83,7 @@ public enum SVDBItemType {
 	ConstraintImplStmt,
 	ConstraintSetStmt,
 	ConstraintSolveBeforeStmt,
+	CoverStmt,
 	DisableStmt,
 	DisableForkStmt,
 	DefParamStmt,
@@ -156,6 +157,9 @@ public enum SVDBItemType {
 	UnaryExpr,
 	TypeExpr,
 	NameMappedExpr,
+	
+	// Property Expression Types
+	PropertySpecExpr,
 	
 	StringExpr,
 	

@@ -1,6 +1,6 @@
 
 module fsm();
-	function bit f (int a, int b)
+	function bit f (int a, int b);
 		// ...
 		a1: assert #0 (a == b);
 		// ...

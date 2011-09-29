@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssertStmt extends SVDBStmt {
 	private SVDBExpr				fExpr;
+	private SVDBExpr				fDelay;
 	private SVDBActionBlockStmt		fActionBlock;
 	
 	public SVDBAssertStmt() {
@@ -25,6 +26,14 @@ public class SVDBAssertStmt extends SVDBStmt {
 	
 	protected SVDBAssertStmt(SVDBItemType type) {
 		super(type);
+	}
+	
+	public void setDelay(SVDBExpr delay) {
+		fDelay = delay;
+	}
+	
+	public SVDBExpr getDelay() {
+		return fDelay;
 	}
 	
 	public void setExpr(SVDBExpr expr) {

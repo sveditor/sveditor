@@ -56,7 +56,9 @@ public class SVLexer extends SVToken {
 
 	public static final String MiscOps[] = { ":", "::", ":/", ":=", "+:", "-:", // array-index
 																				// operators
-			",", ";", ".", ".*", "'", "->", "-->", "#", "##", "@", "@@", "(*", "*)" };
+			",", ";", ".", ".*", "'", "->", "-->", "#", "##", "@", "@@", "(*", "*)",
+			// Assertion operators
+			"|=>", "|->", "#-#", "#=#", "##"};
 
 	private static final String AllOperators[];
 
