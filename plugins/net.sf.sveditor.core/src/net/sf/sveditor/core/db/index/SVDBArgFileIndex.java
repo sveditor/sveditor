@@ -87,7 +87,14 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	}
 	
 	private void processArgFile(IProgressMonitor monitor, String path) {
-		InputStream in = getFileSystemProvider().openStream(path);
+		InputStream in = null;
+		if (getFileSystemProvider().fileExists(path)) {
+			// Fully-specified path
+			in = getFileSystemProvider().openStream(path);
+		} else if (getFileSystemProvider().fileExists(getResolvedBaseLocationDir() + "/" + path)) {
+			// Try base location-relative
+			in = getFileSystemProvider().openStream(getResolvedBaseLocationDir() + "/" + path);
+		}
 		
 		monitor.beginTask("Process arg file " + path, 4);
 		
@@ -139,8 +146,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			for (String arg_file : scanner.getArgFilePaths()) {
 				arg_file = SVDBIndexUtil.expandVars(arg_file, true);
 				if (!cd.getArgFilePaths().contains(arg_file)) {
-					processArgFile(new SubProgressMonitor(monitor, 4), 
-							getResolvedBaseLocationDir() + "/" + arg_file);
+					processArgFile(new SubProgressMonitor(monitor, 4), arg_file); 
 				}
 			}
 			monitor.done();

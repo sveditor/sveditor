@@ -74,7 +74,8 @@ public class SVPropertyExprParser extends SVParserBase {
 		} else if (fLexer.peekOperator("(")) {
 			// ( sequence_expr {, sequence_match_item} ) [sequence_abbrev]
 		} else {
-			// sequence_or_dist 
+			// sequence_or_dist
+			expr = fParsers.exprParser().event_expression();
 		}
 		// TODO:
 		

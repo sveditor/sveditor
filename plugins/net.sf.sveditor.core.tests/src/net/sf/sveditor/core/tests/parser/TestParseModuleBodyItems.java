@@ -276,6 +276,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	
 	public void testPortList() {
 		LogHandle log = LogFactory.getLogHandle("testPortList");
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"module top(a, b, c, d);\n" +		// 1
 			"    input a;\n" +					// 2
@@ -292,7 +293,6 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"						// 13
 			;
 
-		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testPortList");
 		
 		for (ISVDBItemBase it : file.getChildren()) {
@@ -350,7 +350,8 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertEquals("input", a.getParent().getTypeName());
 		assertTrue(bus.getParent().getTypeInfo() instanceof SVDBTypeInfoBuiltinNet);
 		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)bus.getParent().getTypeInfo();
-		assertEquals("[12:0]", ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		log.debug("vectorDim: " + ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		assertEquals("", "[12:0]", ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
 		LogFactory.removeLogHandle(log);
 	}
 	

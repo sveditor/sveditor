@@ -270,4 +270,15 @@ public class BundleUtils {
 		
 		return ret;
 	}
+	
+	public boolean deleteWSFile(IContainer parent, String path) {
+		IFile file = parent.getFile(new Path(path));
+		
+		try {
+			file.delete(true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			return false;
+		}
+		return true;
+	}
 }

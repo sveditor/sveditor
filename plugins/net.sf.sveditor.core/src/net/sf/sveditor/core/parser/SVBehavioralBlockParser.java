@@ -519,6 +519,19 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 	}
 	
+	public void action_block_stmt(SVDBActionBlockStmt parent) throws SVParseException {
+		if (fLexer.peekOperator(";")) {
+			SVDBLocation start = fLexer.getStartLocation();
+			fLexer.eatToken();
+			SVDBStmt stmt = new SVDBNullStmt();
+			stmt.setLocation(start);
+			parent.addChildItem(stmt);
+		} else {
+			fLexer.eatToken();
+			statement_int(parent, false, true, true);
+		}
+	}
+	
 	private SVDBForStmt for_stmt(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.eatToken();

@@ -32,6 +32,7 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 public class TestParseClassBodyItems extends TestCase {
 	
 	public void testTaskFunction() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content = 
 			"class foobar;\n" +
 			"\n" +
@@ -73,6 +74,7 @@ public class TestParseClassBodyItems extends TestCase {
 			"class class1;\n" +
 			"\n" +
 			"endclass";
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("testTaskFunction", content, new String[] {"class1"});
 	}
 

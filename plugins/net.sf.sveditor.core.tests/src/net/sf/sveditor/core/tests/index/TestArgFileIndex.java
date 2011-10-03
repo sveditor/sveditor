@@ -254,4 +254,45 @@ public class TestArgFileIndex extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testMultiArgFileEnvVar() throws IOException {
+		String testname = "testMultiArgFileEnvVar";
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname + "_project");
+		File proj_subdir = new File(fTmpDir, "proj_subdir");
+		assertTrue(proj_subdir.mkdirs());
+		
+		SVCorePlugin.setenv("PROJ_SUBDIR", proj_subdir.getAbsolutePath());
+		
+		String data_root = "/data/multi_arg_file_env_var/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		for (String f : new String[] {"sub_arg_file.f", "sub_package.sv", "sub_sub_arg_file.f",
+					"sub_sub_package.sv"}) {
+			utils.copyBundleFileToFS(data_root + f, proj_subdir);
+			assertTrue(utils.deleteWSFile(project_dir, "multi_arg_file_env_var/"));
+		}
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "_project/multi_arg_file_env_var/multi_arg_file.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		IndexTestUtils.assertFileHasElements(index, 
+				"top_package", "sub_package", "sub_sub_package");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
+	}
+
 }

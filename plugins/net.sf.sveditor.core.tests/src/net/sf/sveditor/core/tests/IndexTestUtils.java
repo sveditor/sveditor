@@ -33,7 +33,7 @@ public class IndexTestUtils {
 		for (String file : index.getFileList(new NullProgressMonitor())) {
 			List<SVDBMarker> markers = index.getMarkers(file);
 			for (SVDBMarker m : markers) {
-				log.debug(m.getKind() + m.getMessage());
+				log.debug("[MARKER]" + m.getKind() + m.getMessage());
 			}
 		}
 		for (String file : index.getFileList(new NullProgressMonitor())) {

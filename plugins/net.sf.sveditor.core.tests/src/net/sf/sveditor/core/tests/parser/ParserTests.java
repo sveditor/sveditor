@@ -12,7 +12,21 @@
 
 package net.sf.sveditor.core.tests.parser;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class ParserTests extends TestSuite {
 	
@@ -37,9 +51,35 @@ public class ParserTests extends TestSuite {
 		s.addTest(new TestSuite(TestTypeDeclarations.class));
 		
 		s.addTest(new TestSuite(TestParserSVStdExamples.class));
+		s.addTest(new TestSuite(TestParseAssertions.class));
 		
 		return s;
 	}
-	
+
+	public static void runTest(String testname, String data, String exp_items[]) throws SVParseException {
+		LogHandle log = LogFactory.getLogHandle(testname);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		InputStream in = null;
+		try {
+			URL url = SVCoreTestsPlugin.getDefault().getBundle().getEntry(data);
+			in = url.openStream();
+		} catch (IOException e) {
+			TestCase.fail("Failed to open " + data + ": " + e.getMessage());
+		}
+		
+		SVDBFile file = SVDBTestUtils.parse(log, in, data, markers).second();
+		
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		TestCase.assertEquals(0, markers.size());
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
 
 }

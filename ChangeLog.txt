@@ -1,11 +1,8 @@
 
 -- 0.6.1.ea07 Release --
 
-? Indent support for sequence and property blocks
-
-? Improved parse support for assertions
-
-? Improved parse support for sequence and property blocks
+- Correct a bug with sub-including argument files. The Index was improperly
+  prepending the index base location to the argument file.
 
 ------------------------------------------------------------------------------
 -- 0.6.1.ea06 Release --

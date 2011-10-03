@@ -42,9 +42,12 @@ public class SVAssertionParser extends SVParserBase {
 
 		if (fLexer.peekKeyword("property")) {
 			fLexer.eatToken();
+			/* TODO: Ignoring body of property for now
 			fLexer.readOperator("(");
 			assert_stmt.setExpr(fParsers.propertyExprParser().property_spec());
 			fLexer.readOperator(")");
+			 */
+			fLexer.skipPastMatch("(", ")");
 		} else {
 			if (fLexer.peekOperator("#")) {
 				// TODO:
@@ -59,12 +62,11 @@ public class SVAssertionParser extends SVParserBase {
 		
 		parent.addChildItem(assert_stmt);
 		
+		assert_stmt.setActionBlock(new SVDBActionBlockStmt());
 		if (assert_type.equals("cover")) {
 			// Only supports stmt_or_null
-//			assert_stmt.setActionBlock(
+			parsers().behavioralBlockParser().action_block_stmt(assert_stmt.getActionBlock());
 		} else {
-			assert_stmt.setActionBlock(new SVDBActionBlockStmt());
-
 			parsers().behavioralBlockParser().action_block(assert_stmt.getActionBlock());
 		}
 		

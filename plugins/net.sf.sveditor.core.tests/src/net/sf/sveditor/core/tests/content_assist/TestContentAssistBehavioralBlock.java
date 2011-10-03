@@ -92,7 +92,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 	public void testBlockLocalVariable() {
 		String testname = "testBlockLocalVariable";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"\n" +
@@ -139,7 +139,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 	public void testFieldRefBlockLocalVariable() {
 		String testname = "testFieldRefBlockLocalVariable";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"\n" +

@@ -25,8 +25,8 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVLexer extends SVToken {
 	private ITextScanner fScanner;
-	private Set<String> f2SeqPrefixes;
-	private Set<String> f3SeqPrefixes;
+	// 2- and 3-character operator prefixes
+	private Set<String>	fSeqPrefixes[];
 	private Set<String> fOperatorSet;
 	private Set<String> fKeywordSet;
 
@@ -36,7 +36,7 @@ public class SVLexer extends SVToken {
 	private boolean fNewlineAsOperator;
 
 	private StringBuilder fStringBuffer;
-	private boolean fDebugEn = false;
+	private static final boolean fDebugEn = false;
 	private boolean fEOF;
 
 	private StringBuilder fCaptureBuffer;
@@ -80,10 +80,14 @@ public class SVLexer extends SVToken {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public SVLexer() {
-		f2SeqPrefixes = new HashSet<String>();
-		f3SeqPrefixes = new HashSet<String>();
 		fOperatorSet = new HashSet<String>();
+		fSeqPrefixes = new Set[] {
+			fOperatorSet,
+			new HashSet<String>(),
+			new HashSet<String>()
+		};
 
 		fKeywordSet = new HashSet<String>();
 
@@ -97,10 +101,10 @@ public class SVLexer extends SVToken {
 
 		for (String op : AllOperators) {
 			if (op.length() == 3) {
-				f3SeqPrefixes.add(op.substring(0, 1));
-				f3SeqPrefixes.add(op.substring(0, 2));
+				fSeqPrefixes[1].add(op.substring(0,2));
+				fSeqPrefixes[2].add(op.substring(0,3));
 			} else if (op.length() == 2) {
-				f2SeqPrefixes.add(op.substring(0, 1));
+				fSeqPrefixes[1].add(op.substring(0,2));
 			}
 			fOperatorSet.add(op);
 		}
@@ -194,8 +198,10 @@ public class SVLexer extends SVToken {
 
 		fUngetStack.push(tok);
 		peek();
-		debug("After un-get of token \"" + tok.getImage()
-				+ "\" next token is \"" + peek() + "\"");
+		if (fDebugEn) {
+			debug("After un-get of token \"" + tok.getImage()
+					+ "\" next token is \"" + peek() + "\"");
+		}
 	}
 
 	public void ungetToken(List<SVToken> tok_l) {
@@ -209,7 +215,9 @@ public class SVLexer extends SVToken {
 			if (fEOF || !next_token()) {
 				fImage = null;
 			}
-			debug("peek() -- \"" + fImage + "\" " + fEOF);
+			if (fDebugEn) {
+				debug("peek() -- \"" + fImage + "\" " + fEOF);
+			}
 		}
 		return fImage;
 	}
@@ -507,8 +515,10 @@ public class SVLexer extends SVToken {
 		}
 		try {
 			if (fUngetStack.size() > 0) {
-				debug("next_token: unget_stack top="
-						+ fUngetStack.peek().getImage());
+				if (fDebugEn) {
+					debug("next_token: unget_stack top="
+							+ fUngetStack.peek().getImage());
+				}
 				init(fUngetStack.pop());
 				fTokenConsumed = false;
 				return true;
@@ -600,7 +610,9 @@ public class SVLexer extends SVToken {
 			ch = get_ch();
 		}
 		fStringBuffer.setLength(0);
-		String tmp = "" + (char) ch;
+		if (ch != -1 && ch != 0xFFFF) {
+			append_ch(ch);
+		}
 
 		// TODO: should fix
 		ScanLocation loc = fScanner.getLocation();
@@ -612,16 +624,16 @@ public class SVLexer extends SVToken {
 			 * if (fEnableEOFException) { throw new EOFException(); }
 			 */
 		} else if (fNewlineAsOperator && ch == '\n') {
-			fStringBuffer.append('\n');
 			fIsOperator = true;
 		} else if (ch == '"') {
 			int last_ch = -1;
 			// String
+			fStringBuffer.setLength(0);
 			while ((ch = get_ch()) != -1) {
 				if (ch == '"' && last_ch != '\\') {
 					break;
 				}
-				fStringBuffer.append((char) ch);
+				append_ch(ch);
 				if (last_ch == '\\' && ch == '\\') {
 					// Don't count a double quote
 					last_ch = -1;
@@ -642,14 +654,11 @@ public class SVLexer extends SVToken {
 				if (isUnbasedUnsizedLiteralChar(ch2)) {
 					// unbased_unsigned_literal
 					// nothing more to do
-					fStringBuffer.append((char) ch);
-					fStringBuffer.append((char) ch2);
+					append_ch(ch2);
 				} else if (isBaseChar(ch2)) {
-					fStringBuffer.append((char) ch);
 					ch = readBasedNumber(ch2);
 					unget_ch(ch);
 				} else {
-					fStringBuffer.append((char) ch);
 					unget_ch(ch2);
 					fIsOperator = true;
 				}
@@ -665,16 +674,14 @@ public class SVLexer extends SVToken {
 			if (ch2 == '*') {
 				int ch3 = get_ch();
 				if (ch3 != ')') {
-					fStringBuffer.append("(*");
+					append_ch('*');
 					unget_ch(ch3);
 				} else {
 					unget_ch(ch3);
 					unget_ch(ch2);
-					fStringBuffer.append("(");
 				}
 			} else {
 				unget_ch(ch2);
-				fStringBuffer.append("(");
 			}
 			fIsOperator = true;
 		} else if (ch == '*') {
@@ -682,63 +689,23 @@ public class SVLexer extends SVToken {
 			ch2 = get_ch();
 
 			if (ch2 == ')' && fInAttr) {
-				fStringBuffer.append("*)");
+				append_ch(')');
 			} else if (ch2 == '*' || ch2 == '=') {
-				fStringBuffer.append("*" + (char) ch2);
+				append_ch(ch2);
 			} else {
-				fStringBuffer.append("*");
 				unget_ch(ch2);
 			}
 			fIsOperator = true;
-		} else if (fOperatorSet.contains(tmp) ||
-		// Operators that can have up to two elements
-				f2SeqPrefixes.contains(tmp) || f3SeqPrefixes.contains(tmp)) {
+		} else if (fOperatorSet.contains(fStringBuffer.toString()) ||
+				// Operators that can have up to three elements
+				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
+				fSeqPrefixes[2].contains(fStringBuffer.toString())) {
 			// Probably an operator in some form
-			if (f2SeqPrefixes.contains(tmp)) {
-				// Peek forward to see if the 2-wise sequence is present
-				if ((ch2 = get_ch()) != -1) {
-					String tmp2 = tmp + (char) ch2;
-					if (fOperatorSet.contains(tmp2)) {
-						if ((ch2 = get_ch()) != -1) {
-							String tmp3 = tmp2 + (char) ch2;
-							if (fOperatorSet.contains(tmp3)) {
-								fStringBuffer.append(tmp3);
-								fIsOperator = true;
-							} else {
-								unget_ch(ch2);
-								fStringBuffer.append(tmp2);
-								fIsOperator = true;
-							}
-						}
-					} else {
-						unget_ch(ch2);
-						tmp = "" + (char) ch;
-						if (fOperatorSet.contains(tmp)) {
-							fStringBuffer.append(tmp);
-							fIsOperator = true;
-						}
-					}
-				} else {
-					if (fOperatorSet.contains(tmp)) {
-						fStringBuffer.append(tmp);
-						fIsOperator = true;
-					}
-				}
-			} else if (fOperatorSet.contains(tmp)) {
-				// single-char operator
-				fIsOperator = true;
-				fStringBuffer.append(tmp);
-			}
-
-			if (!fIsOperator) {
-				error("Bad partial operator: " + tmp);
-			}
-
+			operator();
 		} else if (SVCharacter.isSVIdentifierStart(ch)) {
 			// Identifier or keyword
-			fStringBuffer.append((char) ch);
 			while ((ch = get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
-				fStringBuffer.append((char) ch);
+				append_ch(ch);
 			}
 			unget_ch(ch);
 			// Handle case where we received a single '$'
@@ -749,9 +716,8 @@ public class SVLexer extends SVToken {
 			}
 		} else if (ch == '\\') {
 			// Escaped identifier
-			fStringBuffer.append((char) ch);
 			while ((ch = get_ch()) != -1 && !Character.isWhitespace(ch)) {
-				fStringBuffer.append((char) ch);
+				append_ch(ch);
 			}
 			unget_ch(ch);
 		}
@@ -761,10 +727,11 @@ public class SVLexer extends SVToken {
 			/*
 			 * if (fEnableEOFException) { throw new EOFException(); }
 			 */
-			debug("EOF");
+			if (fDebugEn) {
+				debug("EOF - " + getStartLocation().toString());
+			}
 			return false;
 		} else {
-
 			fImage = fStringBuffer.toString();
 
 			if (fIsIdentifier) {
@@ -775,11 +742,114 @@ public class SVLexer extends SVToken {
 				}
 			}
 			fTokenConsumed = false;
-			debug("next_token(): \"" + fImage + "\"");
+			if (fDebugEn) {
+				debug("next_token(): \"" + fImage + "\"");
+			}
 			return true;
 		}
 	}
+	
+	private void append_ch(int ch) {
+		fStringBuffer.append((char)ch);
+		if (fDebugEn) {
+			debug("append_ch: " + (char)ch + " => " + fStringBuffer.toString());
+			if (ch == -1 || ch == 0xFFFF) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
+	private void operator() throws SVParseException {
+		int ch;
+		int op_idx=0; // index of the op prefix to check
+		
+		if (fDebugEn) {
+			debug("operator: " + fStringBuffer.toString());
+		}
+		while (op_idx < 2) {
+			// Add a character and check whether is a prefix for the next
+			// sequence
+			if ((ch = get_ch()) != -1) {
+				append_ch(ch);
+				if (fDebugEn) {
+					debug("  append: " + (char)ch + "  => " + fStringBuffer.toString());
+				}
+				if (!fSeqPrefixes[op_idx+1].contains(fStringBuffer.toString()) &&
+						!fOperatorSet.contains(fStringBuffer.toString())) {
+					// Doesn't match, so don't move forward
+					unget_ch(ch);
+					fStringBuffer.setLength(fStringBuffer.length()-1);
+					if (fDebugEn) {
+						debug("  \"" + (char)ch + "\" doesn't match");
+					}
+					break;
+				} else {
+					if (fDebugEn) {
+						debug("  " + (char)ch + " does match -- " + fStringBuffer.toString());
+					}
+				}
+			} else {
+				break;
+			}
+			
+			op_idx++;
+		}
+
+		if (fDebugEn) {
+			debug("< operator: " + fStringBuffer.toString());
+		}
+		fIsOperator = true;
+		if (!fOperatorSet.contains(fStringBuffer.toString())) {
+			error("Problem with operator: " + fStringBuffer.toString());
+		}
+		
+		/*
+		if (f2SeqPrefixes.contains(fStringBuffer.toString())) {
+			// Peek forward to see if the 2-wise sequence is present
+			if ((ch2 = get_ch()) != -1) {
+				fStringBuffer.append((char)ch2);
+				if (fOperatorSet.contains(fStringBuffer.toString())) {
+					if ((ch2 = get_ch()) != -1) {
+						fStringBuffer.append((char)ch2);
+						if (fOperatorSet.contains(fStringBuffer.toString())) {
+							fIsOperator = true;
+						} else {
+							unget_ch(ch2);
+							fStringBuffer.setLength(fStringBuffer.length()-1);
+							fIsOperator = true;
+						}
+					}
+				} else {
+					unget_ch(ch2);
+					fStringBuffer.append((char)ch)
+					tmp = "" + (char) ch;
+					if (fOperatorSet.contains(tmp)) {
+						fStringBuffer.append(tmp);
+						fIsOperator = true;
+					}
+				}
+			} else {
+				if (fOperatorSet.contains(tmp)) {
+					fStringBuffer.append(tmp);
+					fIsOperator = true;
+				}
+			}
+		} else if (fOperatorSet.contains(tmp)) {
+			// single-char operator
+			fIsOperator = true;
+			fStringBuffer.append(tmp);
+		}
+
+		if (!fIsOperator) {
+			error("Bad partial operator: " + tmp);
+		}
+		 */
+	}
+	
 	private static boolean isBaseChar(int ch) {
 		return (ch == 's' || ch == 'S' || ch == 'd' || ch == 'D' || ch == 'b'
 				|| ch == 'B' || ch == 'o' || ch == 'O' || ch == 'h' || ch == 'H');
@@ -797,10 +867,10 @@ public class SVLexer extends SVToken {
 	private int readBasedNumber(int ch) throws SVParseException {
 		int base;
 
-		fStringBuffer.append((char) ch);
+		append_ch(ch);
 		if (ch == 's' || ch == 'S') {
 			ch = get_ch();
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 		}
 
 		if (!isBaseChar(ch)) {
@@ -839,6 +909,9 @@ public class SVLexer extends SVToken {
 		// <size>'<base><number>
 		// <number>.<number>
 		// <number><time_unit>
+		
+		// Remove character that was already added
+		fStringBuffer.setLength(fStringBuffer.length()-1);
 		ch = readDecNumber(ch);
 
 		if (isTimeUnitChar(ch)) {
@@ -848,7 +921,7 @@ public class SVLexer extends SVToken {
 				if (SVCharacter.isSVIdentifierPart(ch2)) {
 					unget_ch(ch2);
 				} else {
-					fStringBuffer.append((char) ch);
+					append_ch(ch);
 					ch = ch2;
 				}
 			} else {
@@ -862,7 +935,7 @@ public class SVLexer extends SVToken {
 			}
 
 			if (ch == '\'') {
-				fStringBuffer.append((char) ch);
+				append_ch(ch);
 				ch = readBasedNumber(get_ch());
 			} else {
 				// Really just a decimal number
@@ -878,7 +951,7 @@ public class SVLexer extends SVToken {
 
 	private int readDecNumber(int ch) throws SVParseException {
 		while (ch >= '0' && ch <= '9') {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = get_ch();
 		}
 		return ch;
@@ -887,15 +960,15 @@ public class SVLexer extends SVToken {
 	// enter on post-'.'
 	private int readRealNumber(int ch) throws SVParseException {
 		if (ch == '.') {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = readDecNumber(get_ch());
 		}
 
 		if (ch == 'e' || ch == 'E') {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = get_ch();
 			if (ch == '-' || ch == '+') {
-				fStringBuffer.append((char) ch);
+				append_ch(ch);
 				ch = get_ch();
 			}
 
@@ -915,7 +988,7 @@ public class SVLexer extends SVToken {
 
 	// Enter on time-unit char
 	private int readTimeUnit(int ch) throws SVParseException {
-		fStringBuffer.append((char)ch);
+		append_ch(ch);
 		
 		if (ch != 's') {
 			ch = get_ch();
@@ -923,7 +996,7 @@ public class SVLexer extends SVToken {
 			if (ch != 's') {
 				error("Malformed time unit n" + (char) ch);
 			}
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 		}
 		
 		fIsTime = true;
@@ -936,7 +1009,7 @@ public class SVLexer extends SVToken {
 				&& ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f')
 						|| (ch >= 'A' && ch <= 'F') || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = get_ch();
 		}
 
@@ -947,7 +1020,7 @@ public class SVLexer extends SVToken {
 		while (ch != -1
 				&& ((ch >= '0' && ch <= '7') || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = get_ch();
 		}
 
@@ -958,7 +1031,7 @@ public class SVLexer extends SVToken {
 		while (ch != -1
 				&& (ch == '0' || ch == '1' || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
-			fStringBuffer.append((char) ch);
+			append_ch(ch);
 			ch = get_ch();
 		}
 
