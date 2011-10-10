@@ -68,6 +68,10 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 		return fTypeInfo.getName();
 	}
 	
+	public void setTypeInfo(SVDBTypeInfo ti) {
+		fTypeInfo = ti;
+	}
+	
 	public SVDBTypeInfo getTypeInfo() {
 		return fTypeInfo;
 	}

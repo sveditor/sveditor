@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.expr.SVDBCondExpr;
 import net.sf.sveditor.core.db.expr.SVDBCoverBinsExpr;
 import net.sf.sveditor.core.db.expr.SVDBCoverpointExpr;
 import net.sf.sveditor.core.db.expr.SVDBCtorExpr;
+import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
@@ -59,6 +60,7 @@ public class SVExprParser extends SVParserBase {
 //	private boolean							fDebugEn = false;
 	public static boolean					fUseFullExprParser = true;
 	private boolean							fEventExpr;
+	private boolean							fAssertionExpr;
 	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
@@ -70,11 +72,32 @@ public class SVExprParser extends SVParserBase {
 		SVDBClockingEventExpr expr = new SVDBClockingEventExpr();
 		fLexer.readOperator("@");
 		if (fLexer.peekOperator("(")) {
-			expr.setExpr(event_expression());
+			SVDBParenExpr p = new SVDBParenExpr();
+			p.setLocation(fLexer.getStartLocation());
+			fLexer.eatToken();
+			p.setExpr(event_expression());
+			fLexer.readOperator(")");
+			expr.setExpr(p);
 		} else {
 			expr.setExpr(idExpr());
 		}
 		
+		return expr;
+	}
+	
+	public SVDBExpr cycle_delay() throws SVParseException {
+		SVDBCycleDelayExpr expr = new SVDBCycleDelayExpr();
+		expr.setLocation(fLexer.getStartLocation());
+		fLexer.readOperator("##");
+		if (fLexer.peekNumber()) {
+			expr.setExpr(literalExpr());
+		} else if (fLexer.peekOperator("(")) {
+			fLexer.readOperator("(");
+			expr.setExpr(expression());
+			fLexer.readOperator(")");
+		} else {
+			expr.setExpr(idExpr());
+		}
 		return expr;
 	}
 	
@@ -120,6 +143,17 @@ public class SVExprParser extends SVParserBase {
 			return expression();
 		}
 		
+	}
+	
+	public SVDBExpr assert_expression() throws SVParseException {
+		fAssertionExpr = true;
+		fEventExpr = true;
+		try {
+			return expression();
+		} finally {
+			fAssertionExpr = false;
+			fEventExpr = false;
+		}
 	}
 	
 	public SVDBExpr event_expression() throws SVParseException {
@@ -580,7 +614,8 @@ public class SVExprParser extends SVParserBase {
 			}
 			return ret;
 		}
-		if (peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~")) {
+		if (peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~") ||
+				(fAssertionExpr && peekOperator("*"))) {
 			String op = readOperator();
 			SVDBUnaryExpr ret = new SVDBUnaryExpr(op, unaryExpression());
 			
@@ -785,6 +820,8 @@ public class SVExprParser extends SVParserBase {
 				return new SVDBIdentifierExpr("void");
 			} else if (fEventExpr && fLexer.peekOperator("@")) {
 				ret = clocking_event();
+			} else if (fEventExpr && fLexer.peekOperator("##")) {
+				ret = cycle_delay();
 			} else {
 				error("Unexpected token in primary: \"" + fLexer.getImage() + "\"");
 			}
@@ -1107,6 +1144,14 @@ public class SVExprParser extends SVParserBase {
 	public SVDBIdentifierExpr idExpr() throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		SVDBIdentifierExpr ret = new SVDBIdentifierExpr(fLexer.readId());
+		ret.setLocation(start);
+		
+		return ret;
+	}
+	
+	public SVDBLiteralExpr literalExpr() throws SVParseException {
+		SVDBLocation start = fLexer.getStartLocation();
+		SVDBLiteralExpr ret = new SVDBLiteralExpr(fLexer.readNumber());
 		ret.setLocation(start);
 		
 		return ret;

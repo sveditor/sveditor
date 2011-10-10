@@ -28,6 +28,10 @@ public class SVDBParenExpr extends SVDBExpr {
 		fExpr = expr;
 	}
 	
+	public void setExpr(SVDBExpr expr) {
+		fExpr = expr;
+	}
+	
 	public SVDBExpr getExpr() {
 		return fExpr;
 	}

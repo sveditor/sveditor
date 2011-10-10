@@ -84,6 +84,7 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 				
 				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
 				for (ISVDBIndex index : index_list) {
+					fLog.debug("rebuildIndex " + index.getBaseLocation());
 					index.rebuildIndex();
 				}
 				SVUiPlugin.getDefault().refreshIndexList(index_list);

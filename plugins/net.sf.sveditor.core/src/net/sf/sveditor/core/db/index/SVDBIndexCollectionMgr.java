@@ -298,6 +298,10 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				ret.addAll(tmp);
 			}
 		}
+		for (ISVDBIndex index : fShadowIndexList) {
+			List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(monitor, name, matcher);
+			ret.addAll(tmp);
+		}
 		return ret;
 	}
 
@@ -309,6 +313,10 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
 				ret.addAll(tmp);
 			}
+		}
+		for (ISVDBIndex index : fShadowIndexList) {
+			List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
+			ret.addAll(tmp);
 		}
 		return ret;
 	}

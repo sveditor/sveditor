@@ -38,6 +38,10 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 		super(SVDBItemType.VarDeclItem);
 		fName = name;
 	}
+
+	public void setName(String name) {
+		fName = name;
+	}
 	
 	public String getName() {
 		return fName;

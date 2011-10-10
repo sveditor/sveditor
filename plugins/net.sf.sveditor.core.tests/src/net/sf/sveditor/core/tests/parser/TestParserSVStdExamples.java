@@ -178,14 +178,14 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 	
 	public void test_16_8_0_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_0_sequence_1", 
 				"/data/parser/16.8.0_sequence_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_8_0_sequence_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_0_sequence_2", 
 				"/data/parser/16.8.0_sequence_2.svh", 
 				new String[] {"m"});
@@ -206,14 +206,14 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 	
 	public void test_16_8_0_sequence_5() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_0_sequence_5", 
 				"/data/parser/16.8.0_sequence_5.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_8_1_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_1_sequence_1", 
 				"/data/parser/16.8.1_sequence_1.svh", 
 				new String[] {"m"});
@@ -241,7 +241,7 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_8_1_sequence_5() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_1_sequence_5", 
 				"/data/parser/16.8.1_sequence_5.svh", 
 				new String[] {"m"});

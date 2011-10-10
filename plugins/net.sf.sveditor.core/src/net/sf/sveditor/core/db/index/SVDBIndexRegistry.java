@@ -182,7 +182,6 @@ public class SVDBIndexRegistry  {
 		}
 		
 		return ret;
-		
 	}
 
 	/**
@@ -207,7 +206,7 @@ public class SVDBIndexRegistry  {
 			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
 		}
 		
-		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
+		List<ISVDBIndex> project_index = fProjectIndexMap.get(project);
 		
 		for (ISVDBIndex index : project_index) {
 			if (index.getBaseLocation().equals(base_location) &&
@@ -305,7 +304,6 @@ public class SVDBIndexRegistry  {
 		}
 		
 		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
-			System.out.println("Rebuild index \"" + index.getBaseLocation() + "\"");
 			index.rebuildIndex();
 		}
 	}

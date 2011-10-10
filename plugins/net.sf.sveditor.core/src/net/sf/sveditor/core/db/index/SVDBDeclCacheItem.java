@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -74,10 +75,24 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 			for (ISVDBChildItem c : file.getChildren()) {
 				if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
 					return c;
+				} else if (c instanceof ISVDBChildParent) {
+					ISVDBItemBase i = getSVDBItem((ISVDBChildParent)c);
+					if (i != null) {
+						return i;
+					}
 				}
 			}
 		}
 		
+		return null;
+	}
+	
+	private ISVDBItemBase getSVDBItem(ISVDBChildParent p) {
+		for (ISVDBChildItem c : p.getChildren()) {
+			if (SVDBItem.getName(c).equals(fName) && c.getType() == fType) {
+				return c;
+			}
+		}
 		return null;
 	}
 

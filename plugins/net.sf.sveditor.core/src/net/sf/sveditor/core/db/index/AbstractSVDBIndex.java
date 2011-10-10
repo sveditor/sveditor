@@ -478,9 +478,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		List<SVDBMarker> ml = fCache.getMarkers(path);
 		getFileSystemProvider().clearMarkers(path);
 		
-		for (SVDBMarker m : ml) {
-			String type = null;
-			switch (m.getMarkerType()) {
+		if (ml != null) {
+			for (SVDBMarker m : ml) {
+				String type = null;
+				switch (m.getMarkerType()) {
 				case Info:
 					type = ISVDBFileSystemProvider.MARKER_TYPE_INFO;
 					break;
@@ -490,9 +491,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				case Error:
 					type = ISVDBFileSystemProvider.MARKER_TYPE_ERROR;
 					break;
+				}
+				getFileSystemProvider().addMarker(path, type, 
+						m.getLocation().getLine(), m.getMessage());
 			}
-			getFileSystemProvider().addMarker(path, type, 
-					m.getLocation().getLine(), m.getMessage());
 		}
 	}
 	
@@ -953,6 +955,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 //		fFileSystemProvider.clearMarkers(file_tree.getFilePath());
 		file_tree.setSVDBFile(svdb_pp);
 		// addIncludeFiles(file_tree, file_tree.getSVDBFile());
+		
+		if (file_tree.getFilePath() == null) {
+			System.out.println("file_tree path: " + path + " is null");
+		}
 
 		dp.setMacroProvider(createMacroProvider(file_tree));
 		SVDBFile svdb_f = factory.parse(copier.copy(), file_tree.getFilePath(),

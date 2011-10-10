@@ -276,7 +276,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	
 	public void testPortList() {
 		LogHandle log = LogFactory.getLogHandle("testPortList");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top(a, b, c, d);\n" +		// 1
 			"    input a;\n" +					// 2

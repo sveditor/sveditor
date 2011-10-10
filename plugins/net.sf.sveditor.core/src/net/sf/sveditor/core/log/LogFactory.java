@@ -66,10 +66,8 @@ public class LogFactory implements ILogListener {
 
 
 	public void message(ILogHandle handle, int type, int level, String message) {
-		synchronized (fLogListeners) {
-			for (ILogListener l : fLogListeners) {
-				l.message(handle, type, level, message);
-			}
+		for (ILogListener l : fLogListeners) {
+			l.message(handle, type, level, message);
 		}
 	}
 	

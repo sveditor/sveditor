@@ -20,14 +20,10 @@ import java.util.Set;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
-import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
-import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
@@ -165,45 +161,6 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					// More likely to not be a type
 					fLexer.ungetToken(tok);
 				}
-				
-				/*
-				// Variable declarations
-				List<SVToken> id_list = parsers().SVParser().scopedStaticIdentifier_l(true);
-			
-				if (!builtin_type && 
-					((fLexer.peekKeyword() && !fLexer.peekKeyword(fDeclKeywordsNonANSI)) ||
-							(fLexer.peekOperator() && !fLexer.peekOperator("#")))) {
-					// likely a statement
-					for (int i=id_list.size()-1; i>=0; i--) {
-						fLexer.ungetToken(id_list.get(i));
-					}
-					debug("non-declaration statement: " + fLexer.peek());
-				} else {
-					for (int i=id_list.size()-1; i>=0; i--) {
-						fLexer.ungetToken(id_list.get(i));
-					}
-					
-					// First, try reading a type to see what's after
-					SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
-					
-					if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
-						// behavioral statement
-						debug("Behavioral Statement: " + fLexer.peek());
-						expression_stmt(start, parent, convertTypeInfoToLVal(type));
-						return false;
-					} else {
-						debug("Pre-var parse: " + fLexer.peek());
-						if (!decl_allowed) {
-							error("declaration in a non-declaration location");
-						}
-						
-						parsers().blockItemDeclParser().parse(parent, type, start);
-					
-						// Bail for now
-						return decl_allowed; 
-					}
-				}
-				 */
 			}
 		}
 		

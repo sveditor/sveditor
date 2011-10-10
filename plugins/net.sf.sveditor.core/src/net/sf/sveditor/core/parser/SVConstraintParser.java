@@ -89,12 +89,7 @@ public class SVConstraintParser extends SVParserBase {
 			SVDBExpr expr = fParsers.exprParser().expression();
 			
 			if (fLexer.peekKeyword("dist")) {
-				SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
-				fLexer.eatToken();
-				dist_list(dist_stmt);
-				fLexer.readOperator(";");
-				
-				ret = dist_stmt;
+				ret = dist_expr();
 			} else if (fLexer.peekOperator(";")) {
 				// Done
 				fLexer.eatToken();
@@ -111,6 +106,14 @@ public class SVConstraintParser extends SVParserBase {
 		return ret;
 	}
 
+	public SVDBConstraintDistListStmt dist_expr() throws SVParseException {
+		SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
+		fLexer.readKeyword("dist");
+		dist_list(dist_stmt);
+		fLexer.readOperator(";");
+		
+		return dist_stmt;
+	}
 	private void dist_list(SVDBConstraintDistListStmt dist_stmt) throws SVParseException {
 		fLexer.readOperator("{");
 		SVDBConstraintDistListItem item = dist_item();

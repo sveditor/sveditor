@@ -142,7 +142,9 @@ public enum SVDBItemType {
 	CondExpr,
 	CrossBinsSelectConditionExpr,
 	CtorExpr,
+	CycleDelayExpr,
 	FieldAccessExpr,
+	FirstMatchExpr,
 	IdentifierExpr,
 	IncDecExpr,
 	InsideExpr,
@@ -161,6 +163,10 @@ public enum SVDBItemType {
 	// Property Expression Types
 	PropertySpecExpr,
 	
+	SequenceCycleDelayExpr,
+	SequenceClockingExpr,
+	SequenceMatchItemExpr,
+	SequenceDistExpr,
 	StringExpr,
 	
 	CoverpointExpr,

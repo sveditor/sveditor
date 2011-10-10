@@ -484,9 +484,12 @@ public abstract class AbstractCompletionProcessor {
 		// Try global task/function
 		SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
 
+		/*
 		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
 				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
 				SVDBItemType.PackageDecl);
+		 */
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
 		
 		// Remove any definitions of extern tasks/functions, 
 		// since the name prefix was incorrectly matched
@@ -529,7 +532,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		} else {
 			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
-			"\" returned no results");
+			"\" (1) returned no results");
 		}
 		
 		// Special case: If this is a constructor call, then do a 
@@ -711,7 +714,10 @@ public abstract class AbstractCompletionProcessor {
 
 		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
 				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
-				SVDBItemType.PackageDecl);
+				SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
+		/*
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
+		 */
 		
 		// Remove any definitions of extern tasks/functions, 
 		// since the name prefix was incorrectly matched
@@ -754,7 +760,7 @@ public abstract class AbstractCompletionProcessor {
 			}
 		} else {
 			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
-			"\" returned no results");
+			"\" (2) returned no results");
 		}
 		
 		// Special case: If this is a constructor call, then do a 

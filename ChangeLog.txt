@@ -1,4 +1,13 @@
 
+-- 0.6.1.ea08 Release --
+
+- Correct a bug with the global definition cache locating typedefs within
+  a package. This was producing a null-pointer exception when content
+  assist was invoked on a typedef.
+
+- Enhanced parsing of assertions and sequences. Still incomplete, but much better
+
+------------------------------------------------------------------------------
 -- 0.6.1.ea07 Release --
 
 - Correct a bug with sub-including argument files. The Index was improperly

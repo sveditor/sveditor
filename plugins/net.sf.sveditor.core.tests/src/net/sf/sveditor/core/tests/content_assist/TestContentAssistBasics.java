@@ -552,6 +552,7 @@ public class TestContentAssistBasics extends TestCase {
 			"class my_class;\n" +
 			"    ovm_com<<FIELD1>>\n" +
 			"endclass\n";
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(
 				ini.second().getStrippedData());

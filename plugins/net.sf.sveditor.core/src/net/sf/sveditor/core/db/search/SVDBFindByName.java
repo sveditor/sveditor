@@ -19,12 +19,15 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFindByName {
 	private ISVDBIndexIterator			fIndexIterator;
 	private ISVDBFindNameMatcher		fMatcher;
+	private LogHandle					fLog;
 	
 	public SVDBFindByName(ISVDBIndexIterator index_it) {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
@@ -33,6 +36,7 @@ public class SVDBFindByName {
 	public SVDBFindByName(ISVDBIndexIterator index_it, ISVDBFindNameMatcher matcher) {
 		fIndexIterator = index_it;
 		fMatcher = matcher;
+		fLog = LogFactory.getLogHandle("SVDBFindByName");
 	}
 	
 	public List<ISVDBItemBase> find(String name, SVDBItemType ... types) {
@@ -42,7 +46,15 @@ public class SVDBFindByName {
 		
 		for (SVDBDeclCacheItem item : found) {
 			if (item.getType().isElemOf(types)) {
-				ret.add(item.getSVDBItem());
+				if (item.getSVDBItem() != null) {
+					ret.add(item.getSVDBItem());
+				} else {
+					try {
+						throw new Exception();
+					} catch (Exception e) { 
+						fLog.debug("item " + item.getType() + " : " +  item.getName() + " is null", e);
+					}
+				}
 			}
 		}
 		

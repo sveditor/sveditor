@@ -33,7 +33,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"endmodule\n" +
 			"\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testModulePreBodyImport3", doc, new String[] {
 				"p", "t", "p::*", "p1::*", "p2::*"});

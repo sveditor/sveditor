@@ -3,10 +3,19 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBFirstMatchExpr;
+import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBPropertySpecExpr;
+import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
+import net.sf.sveditor.core.db.expr.SVDBSequenceClockingExpr;
+import net.sf.sveditor.core.db.expr.SVDBSequenceCycleDelayExpr;
+import net.sf.sveditor.core.db.expr.SVDBSequenceDistExpr;
+import net.sf.sveditor.core.db.expr.SVDBSequenceMatchItemExpr;
 
 public class SVPropertyExprParser extends SVParserBase {
 	
@@ -53,7 +62,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			// 
 		} else {
 			// TODO: property_statement, property_instance, clocking_event
-			ret = sequence_expression();
+			ret = sequence_expr();
 		}
 		
 		// Now, parse binary operators
@@ -65,19 +74,168 @@ public class SVPropertyExprParser extends SVParserBase {
 		return ret;
 	}
 	
-	public SVDBExpr sequence_expression() throws SVParseException {
+	public SVDBExpr sequence_expr() throws SVParseException {
 		SVDBExpr expr = null;
 		if (fLexer.peekOperator("##")) {
+			// cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }
+			while (fLexer.peekOperator("##")) {
+				// TODO:
+				SVDBSequenceCycleDelayExpr delay_expr = new SVDBSequenceCycleDelayExpr();
+				delay_expr.setLocation(fLexer.getStartLocation());
+				fLexer.eatToken();
+				delay_expr.setLhs(expr);
+				delay_expr.setDelay(cycle_delay_range());
+				delay_expr.setRhs(sequence_expr());
+				expr = delay_expr;
+			}
 		} else if (fLexer.peekOperator("@")) {
-			SVDBExpr clk = fParsers.exprParser().clocking_event();
-			expr = fParsers.exprParser().event_expression();
+			// clocking_event sequence_expr
+			SVDBSequenceClockingExpr clk_expr = new SVDBSequenceClockingExpr();
+			clk_expr.setLocation(fLexer.getStartLocation());
+			clk_expr.setClockingExpr(fParsers.exprParser().clocking_event());
+			clk_expr.setSequenceExpr(sequence_expr());
+			expr = clk_expr;
 		} else if (fLexer.peekOperator("(")) {
 			// ( sequence_expr {, sequence_match_item} ) [sequence_abbrev]
+			SVDBSequenceMatchItemExpr match_expr = new SVDBSequenceMatchItemExpr();
+			
+			fLexer.readOperator("(");
+			match_expr.setExpr(sequence_expr());
+			while (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+				match_expr.addMatchItemExpr(sequence_match_item());
+			}
+			fLexer.readOperator(")");
+			
+			if (fLexer.peekOperator("[")) {
+				match_expr.setSequenceAbbrev(sequence_abbrev());
+			}
+			expr = match_expr;
+		} else if (fLexer.peekKeyword("first_match")) {
+			// first_match ( sequence_expr {, sequence_match_item} )
+			SVDBFirstMatchExpr first_match = new SVDBFirstMatchExpr();
+			first_match.setLocation(fLexer.getStartLocation());
+			fLexer.eatToken();
+			
+			fLexer.readOperator("(");
+			first_match.setExpr(sequence_expr());
+			while (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+				first_match.addSequenceMatchItem(sequence_match_item());
+			}
+			fLexer.readOperator(")");
+			expr = first_match;
 		} else {
 			// sequence_or_dist
-			expr = fParsers.exprParser().event_expression();
+			expr = sequence_or_dist();
 		}
-		// TODO:
+		
+		// Trailing. sequence_expr 
+		// ... cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }
+		// ... and sequence_expr
+		// ... intersect sequence_expr
+		// ... or sequence_expr
+		// ... within sequence_expr
+		if (fLexer.peekOperator("##")) {
+			while (fLexer.peekOperator("##")) {
+				SVDBSequenceCycleDelayExpr delay_expr = new SVDBSequenceCycleDelayExpr();
+				delay_expr.setLocation(fLexer.getStartLocation());
+				fLexer.eatToken();
+				delay_expr.setLhs(expr);
+				delay_expr.setDelay(cycle_delay_range());
+				delay_expr.setRhs(sequence_expr());
+				expr = delay_expr;
+			}
+		} else if (fLexer.peekKeyword("and","intersect","or","within")) {
+			SVDBLocation start = fLexer.getStartLocation();
+			expr = new SVDBBinaryExpr(expr, fLexer.eatToken(), sequence_expr());
+			expr.setLocation(start);
+		}
+		
+		return expr;
+	}
+	
+	private SVDBExpr sequence_match_item() throws SVParseException {
+		// inc_or_dec_expression
+		//    <inc_or_dec_operator> variable_lval
+		//    variable_lval inc_or_dec_operator
+		// operator_assignment
+		//    variable_lval assignment_operator expression
+		// function_subroutine_call
+		/*
+		if (fLexer.peekOperator("--","++")) {
+			
+		} else {
+			// variable_lvalue
+			SVDBExpr lval = fParsers.exprParser().variable_lvalue();
+			if (fLexer.peekOperator("--","++")) {
+				// inc_dec_expr
+			}
+		}
+		 */
+		// TODO: for now, just return an expression
+		return fParsers.exprParser().expression();
+	}
+
+	private SVDBExpr sequence_or_dist() throws SVParseException {
+		SVDBExpr expr = fParsers.exprParser().assert_expression();
+		if (fLexer.peekKeyword("dist")) {
+			SVDBSequenceDistExpr dist = new SVDBSequenceDistExpr();
+			dist.setLocation(fLexer.getStartLocation());
+			dist.setDistExpr(fParsers.constraintParser().dist_expr());
+			dist.setExpr(expr);
+			expr = dist;
+		}
+		
+		return expr;
+	}
+	private SVDBExpr sequence_abbrev() throws SVParseException {
+		// TODO: may need a special-purpose expression for this	
+		SVDBExpr expr;
+		fLexer.readOperator("[");
+		if (fLexer.peekOperator("*")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator("]")) {
+				expr = new SVDBLiteralExpr("*");
+			} else {
+				expr = fParsers.exprParser().expression();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					expr = new SVDBRangeExpr(expr, fParsers.exprParser().expression());
+				}
+			}
+		} else {
+			fLexer.readOperator("+");
+			expr = new SVDBLiteralExpr("+");
+		}
+		fLexer.readOperator("]");
+		return expr;
+	}
+	
+	private SVDBCycleDelayExpr cycle_delay_range() throws SVParseException {
+		SVDBCycleDelayExpr expr = new SVDBCycleDelayExpr();
+		expr.setLocation(fLexer.getStartLocation());
+		
+		if (fLexer.peekOperator("[")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator("*","+")) {
+				String op = fLexer.eatToken();
+				expr.setExpr(new SVDBRangeExpr(
+						new SVDBLiteralExpr(op), new SVDBLiteralExpr(op)));
+			} else {
+				SVDBExpr expr1 = fParsers.exprParser().expression();
+				fLexer.readOperator(":");
+				if (fLexer.peekOperator("$")) {
+					fLexer.eatToken();
+					expr.setExpr(new SVDBRangeExpr(expr1, new SVDBLiteralExpr("$")));
+				} else {
+					expr.setExpr(new SVDBRangeExpr(expr1, fParsers.exprParser().expression()));
+				}
+			}
+			fLexer.readOperator("]");
+		} else {
+			expr.setExpr(fParsers.exprParser().assert_expression());
+		}
 		
 		return expr;
 	}
@@ -95,7 +253,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			fLexer.readOperator("(");
 
 			// TODO: should be expression or dist
-			expr.setDisableExpr(fParsers.exprParser().event_expression());
+			expr.setDisableExpr(fParsers.exprParser().assert_expression());
 			fLexer.readOperator(")");
 		}
 		expr.setExpr(fParsers.propertyExprParser().property_expression());

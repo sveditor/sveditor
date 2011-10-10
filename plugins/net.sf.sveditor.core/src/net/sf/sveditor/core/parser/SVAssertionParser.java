@@ -42,12 +42,12 @@ public class SVAssertionParser extends SVParserBase {
 
 		if (fLexer.peekKeyword("property")) {
 			fLexer.eatToken();
-			/* TODO: Ignoring body of property for now
 			fLexer.readOperator("(");
 			assert_stmt.setExpr(fParsers.propertyExprParser().property_spec());
 			fLexer.readOperator(")");
-			 */
+			/* TODO: Ignoring body of property for now
 			fLexer.skipPastMatch("(", ")");
+			 */
 		} else {
 			if (fLexer.peekOperator("#")) {
 				// TODO:

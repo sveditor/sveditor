@@ -12,10 +12,17 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBSequence extends SVDBScopeItem {
-	private SVDBExpr			fExpr;
+	private SVDBExpr					fExpr;
+	private List<SVDBParamPortDecl>		fPortList;
+	private List<SVDBVarDeclStmt>		fVarDeclList;
 	
 	public SVDBSequence() {
 		this("");
@@ -23,6 +30,8 @@ public class SVDBSequence extends SVDBScopeItem {
 	
 	public SVDBSequence(String name) {
 		super(name, SVDBItemType.Sequence);
+		fPortList = new ArrayList<SVDBParamPortDecl>();
+		fVarDeclList = new ArrayList<SVDBVarDeclStmt>();
 	}
 	
 	public SVDBExpr getExpr() {
@@ -33,4 +42,19 @@ public class SVDBSequence extends SVDBScopeItem {
 		fExpr = expr;
 	}
 
+	public void addPort(SVDBParamPortDecl port) {
+		fPortList.add(port);
+	}
+	
+	public List<SVDBParamPortDecl> getPortList() {
+		return fPortList;
+	}
+	
+	public void addVarDecl(SVDBVarDeclStmt decl) {
+		fVarDeclList.add(decl);
+	}
+	
+	public List<SVDBVarDeclStmt> getVarDeclList() {
+		return fVarDeclList;
+	}
 }
