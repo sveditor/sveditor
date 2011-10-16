@@ -257,10 +257,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 		
-//		if (valid) {
-//			fCache.initLoad(new SubProgressMonitor(monitor, 1));
-//		}
-
 		monitor.done();
 	}
 	

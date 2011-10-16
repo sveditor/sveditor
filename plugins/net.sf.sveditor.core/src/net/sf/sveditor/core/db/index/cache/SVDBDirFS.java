@@ -148,22 +148,28 @@ public class SVDBDirFS implements ISVDBFS {
 			p.delete();
 		} else {
 			if (p.exists()) {
-				for (File f : p.listFiles()) {
-					if (f.getName().equals("..") || f.getName().equals(".")) {
-						debug("[ERROR] " + f.getName());
-						continue;
-					}
-					if (f.isDirectory()) {
-						delete_tree(f);
+				File file_l[] = p.listFiles();
+				if (file_l != null) {
+					for (File f : file_l) {
+						if (f.getName().equals("..") || f.getName().equals(".")) {
+							debug("[ERROR] " + f.getName());
+							continue;
+						}
+						if (f.isDirectory()) {
+							delete_tree(f);
+						}
 					}
 				}
-				for (File f : p.listFiles()) {
-					if (f.getName().equals("..") || f.getName().equals(".")) {
-						debug("[ERROR] " + f.getName());
-						continue;
-					}
-					if (f.isFile()) {
-						f.delete();
+				file_l = p.listFiles();
+				if (file_l != null) {
+					for (File f : file_l) {
+						if (f.getName().equals("..") || f.getName().equals(".")) {
+							debug("[ERROR] " + f.getName());
+							continue;
+						}
+						if (f.isFile()) {
+							f.delete();
+						}
 					}
 				}
 

@@ -20,4 +20,11 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"xbus_if"});
 	}
 
+	public void testBasicProperties() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		ParserTests.runTest("testOvmXbusAssertions",
+				"/data/assertions/basic_properties.sv",
+				new String[] {"my_module"});
+	}
+
 }

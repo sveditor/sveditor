@@ -152,6 +152,7 @@ public enum SVDBItemType {
 	NamedArgExpr, // .ARG(value)
 	NullExpr,
 	ParenExpr,
+	PropertyWeakStrongExpr,
 	RandomizeCallExpr,
 	RangeDollarBoundExpr,
 	RangeExpr,
@@ -167,6 +168,7 @@ public enum SVDBItemType {
 	SequenceClockingExpr,
 	SequenceMatchItemExpr,
 	SequenceDistExpr,
+	SequenceRepetitionExpr,	
 	StringExpr,
 	
 	CoverpointExpr,

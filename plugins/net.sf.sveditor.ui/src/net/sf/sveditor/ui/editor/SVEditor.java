@@ -26,15 +26,12 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionItemIterator;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
@@ -43,7 +40,6 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -114,6 +110,7 @@ public class SVEditor extends TextEditor
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean							fPendingUpdateSVDBFile;
+	private SVDBFileOverrideIndexIterator	fIndexIterator;
 	
 	private class UpdateSVDBFileJob extends Job {
 		public UpdateSVDBFileJob() {
@@ -187,6 +184,7 @@ public class SVEditor extends TextEditor
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);
+		fIndexIterator = new SVDBFileOverrideIndexIterator(fSVDBFile);
 		
 		// Fixup documents that have \r and not \r\n
 		IDocument doc = getDocument();
@@ -255,6 +253,8 @@ public class SVEditor extends TextEditor
 			fProjectSettingsJob = null;
 			fSVDBIndex = index;
 			fIndexMgr = index_mgr;
+			fIndexIterator.setIndexIt(fIndexMgr);
+			fIndexIterator.setIndex(fSVDBIndex);
 		}
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
@@ -336,6 +336,8 @@ public class SVEditor extends TextEditor
 					
 					fSVDBIndex = result.first();
 					fIndexMgr  = result.second();
+					fIndexIterator.setIndex(fSVDBIndex);
+					fIndexIterator.setIndexIt(fIndexMgr);
 					fLog.debug("File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
 				}
 			}
@@ -463,6 +465,7 @@ public class SVEditor extends TextEditor
 		setAction(SVUiPlugin.PLUGIN_ID + ".override.tf", ov_tf_action);
 	}
 	
+	/*
 	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
 		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
 		public boolean hasNext(SVDBItemType... type_list) { return false; }
@@ -496,9 +499,10 @@ public class SVEditor extends TextEditor
 			return fIndexMgr.getDeclFile(monitor, item);
 		}
 	};
+	 */
 	
 	public ISVDBIndexIterator getIndexIterator() {
-		return SVEditorIndexIterator;
+		return fIndexIterator;
 	}
 	
 	public IDocument getDocument() {

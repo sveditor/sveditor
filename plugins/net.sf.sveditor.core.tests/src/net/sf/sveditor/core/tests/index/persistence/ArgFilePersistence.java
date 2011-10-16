@@ -158,7 +158,7 @@ public class ArgFilePersistence extends TestCase
 	public void testXbusTransferFileParse() throws DBFormatException {
 		String testname = "testXbusTransferFileParse";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		File test_dir = new File(fTmpDir, testname);

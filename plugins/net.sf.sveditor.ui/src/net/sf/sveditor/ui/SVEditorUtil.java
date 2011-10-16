@@ -65,6 +65,8 @@ public class SVEditorUtil {
 		
 		String file = ((SVDBFile)p).getFilePath();
 		
+		fLog.debug("Opening editor for file \"" + file + "\"");
+		
 		IEditorPart ed = openEditor(file);
 		if (ed instanceof SVEditor) {
 			((SVEditor)ed).setSelection(it, true);
@@ -110,15 +112,22 @@ public class SVEditorUtil {
 					IEditorInput in = null;
 
 					in = ed_r.getEditorInput();
+					
+					if (in == null) {
+						debug("Editor input is null");
+					}
 
 					if (in instanceof IURIEditorInput) {
 						IURIEditorInput in_uri = (IURIEditorInput)in;
+						if (in_uri.getURI() == null) {
+							debug("Editor " + ed_r.getName() + " has NULL URI");
+						} else {
+							debug("URI path: " + in_uri.getURI().getPath());
 
-						debug("URI path: " + in_uri.getURI().getPath());
-						
-						if (in_uri.getURI().getPath().equals(name)) {
-							ret = ed_r.getEditor(true);
-							break;
+							if (in_uri.getURI().getPath().equals(name)) {
+								ret = ed_r.getEditor(true);
+								break;
+							}
 						}
 					}
 				}

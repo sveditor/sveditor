@@ -23,7 +23,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.expr.SVDBCondExpr;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 
 public class SVDBFileTreeUtils {

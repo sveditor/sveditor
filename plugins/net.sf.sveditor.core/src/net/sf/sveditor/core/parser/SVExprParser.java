@@ -177,6 +177,15 @@ public class SVExprParser extends SVParserBase {
 		
 		return lvalue;
 	}
+	
+	public SVDBExpr const_or_range_expression() throws SVParseException {
+		SVDBExpr expr = expression();
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			expr = new SVDBRangeExpr(expr, expression());
+		}
+		return expr;
+	}
 
 	/**
 	 * Expression := AssignmentExpression
@@ -704,7 +713,20 @@ public class SVExprParser extends SVParserBase {
 		
 		debug("peek: " + fLexer.peek());
 		while (peekOperator("::", ".", "[")) {
-			a = selector(a);
+			SVToken t = fLexer.consumeToken();
+			// Don't move forward if this is likely to be an assertion sequence
+			if (fAssertionExpr) {
+				if (!fLexer.peekOperator()) {
+					fLexer.ungetToken(t);
+					a = selector(a);
+				} else {
+					fLexer.ungetToken(t);
+					break;
+				}
+			} else {
+				fLexer.ungetToken(t);
+				a = selector(a);
+			}
 		}
 		
 		while (peekOperator("++", "--")) {

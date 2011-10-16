@@ -18,6 +18,8 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -68,6 +70,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 		try {
 			if (target.first() != null) {
+				fLog.debug("Open file for item \"" + SVDBItem.getName(target.first())); 
 				SVEditorUtil.openEditor(target.first());
 			} else if (target.second() != null) {
 				SVEditorUtil.openEditor(target.second().getFilePath());

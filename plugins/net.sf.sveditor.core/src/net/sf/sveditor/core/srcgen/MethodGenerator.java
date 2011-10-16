@@ -47,8 +47,12 @@ public class MethodGenerator {
 		if (tf.getType() == SVDBItemType.Function) {
 			SVDBTypeInfo ti = ((SVDBFunction)tf).getReturnType();
 			new_tf.append("function ");
-			new_tf.append(ti.toString());
-			new_tf.append(" ");
+			
+			// An implcitly-typed function will have a null type
+			if (ti != null) {
+				new_tf.append(ti.toString());
+				new_tf.append(" ");
+			}
 		} else {
 			new_tf.append("task ");
 		}

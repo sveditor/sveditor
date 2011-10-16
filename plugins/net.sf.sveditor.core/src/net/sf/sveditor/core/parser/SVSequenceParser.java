@@ -44,8 +44,7 @@ public class SVSequenceParser extends SVParserBase {
 		
 		parent.addChildItem(seq);
 		
-		// TODO: data declarations
-		// Try for a declaration here
+		// data declarations
 		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
 			SVDBLocation start = fLexer.getStartLocation();
 			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {

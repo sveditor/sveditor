@@ -1,4 +1,21 @@
 
+-- 0.6.1.ea09 Release --
+
+- Add basic auto-indent support at block level for property and sequence
+
+- Add complete set of ignored arguments for Questa vlog compiler
+
+- Change implementation of the IndexIterator override that ensures that 
+  content-assist proprosals from the unsaved content of the active file are
+  properly supplied. This fixes a bug that was introduced with the addition
+  of a declaration cache.
+
+- Small improvements to property parsing 
+
+- Correct bug with Function/Task override dialog and functions with an 
+  implicit return type. These functions are now properly implemented.
+
+------------------------------------------------------------------------------
 -- 0.6.1.ea08 Release --
 
 - Correct a bug with the global definition cache locating typedefs within

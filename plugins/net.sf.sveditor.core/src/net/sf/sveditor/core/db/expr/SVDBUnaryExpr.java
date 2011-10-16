@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBUnaryExpr extends SVDBExpr {
-	private SVDBExpr					fExpr;
+	private SVDBExpr				fExpr;
 	private String					fOp;
 	
 	public SVDBUnaryExpr() {
@@ -30,8 +30,16 @@ public class SVDBUnaryExpr extends SVDBExpr {
 		fExpr = expr;
 	}
 	
+	public void setExpr(SVDBExpr expr) {
+		fExpr = expr;
+	}
+	
 	public SVDBExpr getExpr() {
 		return fExpr;
+	}
+	
+	public void setOp(String op) {
+		fOp = op;
 	}
 	
 	public String getOp() {
