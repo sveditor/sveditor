@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -45,6 +47,7 @@ public class SVLexer extends SVToken {
 	private ISVParser fParser;
 	private Stack<SVToken> fUngetStack;
 	private boolean fInAttr;
+	private LogHandle			fLog;
 
 	public static final String RelationalOps[] = { "&", "&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
@@ -83,6 +86,7 @@ public class SVLexer extends SVToken {
 
 	@SuppressWarnings("unchecked")
 	public SVLexer() {
+		fLog = LogFactory.getLogHandle("SVLexer");
 		fOperatorSet = new HashSet<String>();
 		fSeqPrefixes = new Set[] {
 			fOperatorSet,
@@ -1060,7 +1064,7 @@ public class SVLexer extends SVToken {
 
 	private void debug(String msg) {
 		if (fDebugEn) {
-			System.out.println(msg);
+			fLog.debug(msg);
 		}
 	}
 

@@ -118,8 +118,8 @@ public class SVExprParser extends SVParserBase {
 			} else if (fLexer.peekOperator("1step")) {
 				expr = new SVDBLiteralExpr(fLexer.eatToken());
 			} else if (fLexer.peekId()) {
-				debug("  isExpression");
-				expr = expression();
+				debug("  isIdExpression");
+				expr = hierarchical_identifier(); // idExpr();
 			} else {
 				error("Expect number, '1step', or identifier ; receive " + fLexer.peek());
 			}
@@ -195,7 +195,7 @@ public class SVExprParser extends SVParserBase {
 	 */
 	public SVDBExpr expression() throws SVParseException {
 		SVDBExpr expr = null;
-//		debug("--> expression()");
+		debug("--> expression()");
 		expr = assignmentExpression();
 		
 		if (fEventExpr && fLexer.peekKeyword("iff")) {
@@ -207,7 +207,7 @@ public class SVExprParser extends SVParserBase {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, ",", expression());
 		}
-//		debug("<-- expression() " + expr);
+		debug("<-- expression() after=" + fLexer.peek());
 		
 		return expr; 
 	}
@@ -215,7 +215,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr hierarchical_identifier() throws SVParseException {
 		String id = fLexer.readId();
 		
-		if (fLexer.peekOperator(".")) {
+		if (fLexer.peekOperator(".","::")) {
 			return new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), false, 
 					hierarchical_identifier_int());
 		} else {
@@ -224,11 +224,11 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBExpr hierarchical_identifier_int() throws SVParseException {
-		fLexer.readOperator(".");
+		fLexer.readOperator(".","::");
 
 		String id = fLexer.readId();
 		
-		if (fLexer.peekOperator(".")) {
+		if (fLexer.peekOperator(".","::")) {
 			return new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), 
 					false, hierarchical_identifier_int());
 		} else {

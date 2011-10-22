@@ -12,8 +12,14 @@
 
 package net.sf.sveditor.core.tests.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase;
@@ -162,14 +168,53 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content,
 				new String[] {"m", "ommitted_param2", "ommitted_param3"});
 	}
+	
+	public void testDelayExpressionTrailingAND() throws SVParseException {
+		String testname = "testDelayExpressionTrailingAND";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module m;\n" +
+			"	initial begin\n" +
+			"		if(DetectionWindow & ByteCntEq1)\n" +    
+			"			AddressOK <= #Tp (RxData[7:0] == ReservedMulticast[39:32] | RxData[7:0] == MAC[39:32]) & AddressOK;\n" +
+			"		\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		
+		runTest(testname, content, new String[] {"m"});
+	}
+
+	public void testWireAssignMacroExpr() throws SVParseException {
+		String testname = "testWireAssignMacroExpr";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"`define ETH_MODER_ADR         8'h0    // 0x0\n" + 
+			"`define ETH_INT_SOURCE_ADR    8'h1    // 0x4\n" +
+			"\n" +
+			"module m;\n" +
+			"	wire [3:0] Write =   Cs  & {4{Rw}};\n" +
+			"	wire       Read  = (|Cs) &   ~Rw;\n" +
+			"	wire MODER_Sel      = (Address == `ETH_MODER_ADR       );\n" +
+			"	wire INT_SOURCE_Sel = (Address == `ETH_INT_SOURCE_ADR  );\n" +
+			"endmodule\n"
+			;
+		
+		runTest(testname, content, new String[] {"m"});
+	}
 
 	private void runTest(
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
-		
-		SVDBTestUtils.assertNoErrWarn(file);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, markers);
+
+		for (SVDBMarker m : markers) {
+			log.debug("[MARKER] " + m.getMessage());
+		}
+		assertEquals(0, markers.size());
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
 }

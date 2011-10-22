@@ -16,9 +16,11 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.ui.SVUiPlugin;
+
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -34,6 +36,7 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	private SVEditor				fEditor;
@@ -43,6 +46,21 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		fEditor = editor;
 	}
 	
+	
+	
+	@Override
+	public int getTabWidth(ISourceViewer sourceViewer) {
+		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
+		boolean spaces_for_tabs = chainedPrefs.getBoolean(
+				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS);
+		int tab_width = chainedPrefs.getInt(
+				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
+
+		return tab_width;
+	}
+
+
+
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		if (fContentAssist == null) {

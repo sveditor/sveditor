@@ -220,7 +220,7 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_8_1_sequence_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_8_1_sequence_2", 
 				"/data/parser/16.8.1_sequence_2.svh", 
 				new String[] {"m"});
@@ -248,147 +248,147 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_10_0_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_property_1", 
 				"/data/parser/16.10.0_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_property_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_property_2", 
 				"/data/parser/16.10.0_property_2.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_1", 
 				"/data/parser/16.10.0_sequence_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_2", 
 				"/data/parser/16.10.0_sequence_2.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_3() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_3", 
 				"/data/parser/16.10.0_sequence_3.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_4() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_4", 
 				"/data/parser/16.10.0_sequence_4.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_5() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_5", 
 				"/data/parser/16.10.0_sequence_5.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_6() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_6", 
 				"/data/parser/16.10.0_sequence_6.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_10_0_sequence_7() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_10_0_sequence_7", 
 				"/data/parser/16.10.0_sequence_7.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_11_0_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_11_0_sequence_1", 
 				"/data/parser/16.11.0_sequence_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_0_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_0_property_1", 
 				"/data/parser/16.13.0_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_6_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_6_property_1", 
 				"/data/parser/16.13.6_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_6_property_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_6_property_2", 
 				"/data/parser/16.13.6_property_2.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_6_property_3() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_6_property_3", 
 				"/data/parser/16.13.6_property_3.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_6_property_4() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_6_property_4", 
 				"/data/parser/16.13.6_property_4.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_6_property_5() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_6_property_5", 
 				"/data/parser/16.13.6_property_5.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_7_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_7_property_1", 
 				"/data/parser/16.13.7_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_7_property_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_7_property_2", 
 				"/data/parser/16.13.7_property_2.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_10_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_10_property_1", 
 				"/data/parser/16.13.10_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_11_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_11_property_1", 
 				"/data/parser/16.13.11_property_1.svh", 
 				new String[] {"m"});
 	}
 
 	public void test_16_13_12_property_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_12_property_1", 
 				"/data/parser/16.13.12_property_1.svh", 
 				new String[] {"m"});

@@ -462,11 +462,18 @@ public class SVPreProcScanner implements ISVScanner {
 				define = ""; // define this macro as existing
 			}
 
-			/* We should carry-through the single-line comments 
-			if (define.indexOf("//") != -1) {
-				define = define.substring(0, define.indexOf("//"));
+			/* We should carry-through the single-line comments. However, this is only
+			 * true in the case of a single-line macro. Multi-line macros get to keep
+			 * their single-line comments
+			 */ 
+			int last_comment;
+			if ((last_comment = define.lastIndexOf("//")) != -1) {
+				int lr = define.indexOf('\n', last_comment);
+				if (lr == -1) {
+					// Nothing beyond this comment
+					define = define.substring(0, define.indexOf("//"));
+				}
 			}
-			 */
 			
 			if (ifdef_enabled()) {
 				if (fObserver != null) {

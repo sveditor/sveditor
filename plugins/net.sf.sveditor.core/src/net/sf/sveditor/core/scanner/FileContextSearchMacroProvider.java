@@ -151,8 +151,8 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
 				for (String inc_s : context.getIncludedFiles()) {
 					SVDBFileTree inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s); 
-					debug_s(indent(fIndent) + "    searching included file \"" + inc.getFilePath() + "\"");
-					if (inc.getSVDBFile() != null) {
+					debug_s(indent(fIndent) + "    searching included file \"" + ((inc !=null)?inc.getFilePath():"NULL") + "\"");
+					if (inc != null && inc.getSVDBFile() != null) {
 						if ((m = searchDown(boundary, inc, key)) != null) {
 							break;
 						}

@@ -90,6 +90,16 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fPluginLibraryList.clear();
 	}
 	
+	public List<ISVDBIndex> getIndexList() {
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		
+		for (List<ISVDBIndex> i_l : fFileSearchOrder) {
+			ret.addAll(i_l);
+		}
+		
+		return ret;
+	}
+	
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator(monitor);
 		

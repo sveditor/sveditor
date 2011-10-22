@@ -75,6 +75,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
 	private boolean									fCacheDataValid;
+	
+	protected Set<String>							fMissingIncludes;
 
 	private ISVDBIncludeFileProvider 				fIncludeFileProvider;
 
@@ -120,6 +122,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
+		fMissingIncludes = new HashSet<String>();
 	}
 
 	public AbstractSVDBIndex(String project, String base_location,
@@ -323,6 +326,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fIndexState = IndexState_AllInvalid;
 		fCacheDataValid = false;
 		fCache.clear();
+		fMissingIncludes.clear();
 
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
@@ -849,8 +853,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
-		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(fCache,
-				file_tree);
+		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(fCache, file_tree, fMissingIncludes);
 
 		for (Entry<String, String> entry : fIndexCacheData.getGlobalDefines()
 				.entrySet()) {

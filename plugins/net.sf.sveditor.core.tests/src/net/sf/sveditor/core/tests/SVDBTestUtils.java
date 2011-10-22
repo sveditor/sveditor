@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,6 +152,7 @@ public class SVDBTestUtils {
 		SVDBPreProcObserver pp_observer = new SVDBPreProcObserver();
 		pp_scanner.setObserver(pp_observer);
 		pp_scanner.scan();
+		
 		final SVDBFile pp_file = pp_observer.getFiles().get(0);
 		IPreProcMacroProvider macro_provider = new IPreProcMacroProvider() {
 
@@ -168,9 +168,29 @@ public class SVDBTestUtils {
 				}
 				return null;
 			}
-			
 		};
+		
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
+		if (log != null) {
+			InputStream in = copier.copy();
+			SVPreProcScanner pp = new SVPreProcScanner();
+			pp.setDefineProvider(dp);
+//			pp.setScanner(this);
+//			pp.setObserver(this);
+
+			pp.init(in, filename);
+			pp.setExpandMacros(true);
+			pp.setEvalConditionals(true);
+
+			StringBuilder sb = new StringBuilder();
+			int ch;
+			while ((ch = pp.get_ch()) != -1) {
+				sb.append((char)ch);
+			}
+			log.debug("Content:");
+			log.debug(sb.toString());
+		}
+		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
 		
 		content = copier.copy();

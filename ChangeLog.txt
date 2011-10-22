@@ -1,4 +1,21 @@
 
+-- 0.6.1.ea10 Release --
+
+- Hook up Tab Width preference to override default Eclipse behavior of  
+  always translating a tab to 4 spaces
+
+- Correct a bug involving single-line macros with a trailing comment. Correct 
+  behavior in this case is to trim the comment, while correct behavior in the 
+  multi-line case is to preserve the comments.
+
+- Track include files that cannot be located and only search once for them. 
+  This should improve the parse speed 
+
+- Correct a parse bug with delays involving a hierarchical identifier. For example:
+  #a.b;
+
+------------------------------------------------------------------------------
+
 -- 0.6.1.ea09 Release --
 
 - Add basic auto-indent support at block level for property and sequence
