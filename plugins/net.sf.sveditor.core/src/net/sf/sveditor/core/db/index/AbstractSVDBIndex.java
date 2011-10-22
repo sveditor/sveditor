@@ -386,8 +386,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public String getResolvedBaseLocation() {
 		if (fResolvedBaseLocation == null) {
-			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation,
-					true);
+			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation);
 		}
 
 		return fResolvedBaseLocation;

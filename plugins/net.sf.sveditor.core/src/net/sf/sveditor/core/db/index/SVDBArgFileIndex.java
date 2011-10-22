@@ -116,7 +116,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			
 			monitor.worked(1);
 			for (String f : scanner.getFilePaths()) {
-				String exp_f = SVDBIndexUtil.expandVars(f, true);
+				String exp_f = SVDBIndexUtil.expandVars(f);
 				fLog.debug("[FILE PATH] " + f + " (" + exp_f + ")");
 				String res_f = resolvePath(exp_f);
 				
@@ -129,7 +129,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			
 			monitor.worked(1);
 			for (String inc : scanner.getIncludePaths()) {
-				String inc_path = SVDBIndexUtil.expandVars(inc, true);
+				String inc_path = SVDBIndexUtil.expandVars(inc);
 				fLog.debug("[INC PATH] " + inc + " (" + inc_path + ")");
 				
 				addIncludePath(inc_path);
@@ -144,7 +144,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			getFileSystemProvider().closeStream(in);
 			
 			for (String arg_file : scanner.getArgFilePaths()) {
-				arg_file = SVDBIndexUtil.expandVars(arg_file, true);
+				arg_file = SVDBIndexUtil.expandVars(arg_file);
 				if (!cd.getArgFilePaths().contains(arg_file)) {
 					processArgFile(new SubProgressMonitor(monitor, 4), arg_file); 
 				}

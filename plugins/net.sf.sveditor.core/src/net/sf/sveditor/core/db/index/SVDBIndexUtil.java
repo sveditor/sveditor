@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +30,14 @@ import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.IValueVariable;
 import org.eclipse.core.variables.VariablesPlugin;
 
 
@@ -154,61 +157,82 @@ public class SVDBIndexUtil {
 		}
 	}
 
-	public static String expandVars(
-			String 			path,
-			boolean			expand_env_vars) {
+	public static String expandVars(String path) {
 		boolean workspace_prefix = path.startsWith("${workspace_loc}");
 		String exp_path = path;
 		
 		if (workspace_prefix) {
 			exp_path = exp_path.substring("${workspace_loc}".length());
 		}
-	
-		if (expand_env_vars) {
-			StringBuilder sb = new StringBuilder(exp_path);
-			StringBuilder tmp = new StringBuilder();
-			int idx = 0;
-			
-			while (idx < sb.length()) {
-				if (sb.charAt(idx) == '$') {
-					tmp.setLength(0);
-					
-					int start = idx, end;
-					String key, val=null;
+
+		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
+		IStringVariableManager svm = (VariablesPlugin.getDefault() != null)?VariablesPlugin.getDefault().getStringVariableManager():null;
+		StringBuilder sb = new StringBuilder(exp_path);
+		StringBuilder tmp = new StringBuilder();
+		int idx = 0;
+
+		while (idx < sb.length()) {
+			if (sb.charAt(idx) == '$') {
+				tmp.setLength(0);
+
+				int start = idx, end;
+				String key, val=null;
+				idx++;
+				if (sb.charAt(idx) == '{') {
 					idx++;
-					if (sb.charAt(idx) == '{') {
+
+					while (idx < sb.length() && sb.charAt(idx) != '}') {
+						tmp.append(sb.charAt(idx));
 						idx++;
-						
-						while (idx < sb.length() && sb.charAt(idx) != '}') {
-							tmp.append(sb.charAt(idx));
-							idx++;
-						}
-						if (idx < sb.length()) {
-							end = ++idx;
-						} else {
-							end = idx;
-						}
+					}
+					if (idx < sb.length()) {
+						end = ++idx;
 					} else {
-						while (idx < sb.length() && 
-								sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
-							tmp.append(sb.charAt(idx));
-							idx++;
-						}
 						end = idx;
 					}
-	
-					key = tmp.toString();
-					if ((val = SVCorePlugin.getenv(key)) != null) {
-						sb.replace(start, end, val);
-					}
 				} else {
-					idx++;
+					while (idx < sb.length() && 
+							sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
+						tmp.append(sb.charAt(idx));
+						idx++;
+					}
+					end = idx;
 				}
+
+				key = tmp.toString();
+				// Priority order is: 
+				// - Check Linked Resources
+				// - Check environment
+				// - Check Variables
+				val = null;
+				if (val == null) {
+					URI p = pvm.getURIValue(key);
+					if (p != null) {
+						val = p.getPath();
+					}
+				}
+				if (val == null) {
+					val = SVCorePlugin.getenv(key);
+				}
+				if (val == null && svm != null) {
+					IValueVariable v = svm.getValueVariable(key);
+					if (v != null) {
+						val = v.getValue();
+					}
+				}
+				if (val != null) {
+					sb.replace(start, end, val);
+				}
+			} else {
+				idx++;
 			}
-			
-			exp_path = sb.toString();
 		}
+			
+		exp_path = sb.toString();
+			
+		// VariablesPlugin.getDefault().getStringVariableManager().getValueVariable(name)
 	
+			
 		// Allow for outside-Eclipse run -- primarily for profiling
 		if (VariablesPlugin.getDefault() != null) {
 			IStringVariableManager mgr = VariablesPlugin.getDefault().getStringVariableManager();

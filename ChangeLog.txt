@@ -14,6 +14,10 @@
 - Correct a parse bug with delays involving a hierarchical identifier. For example:
   #a.b;
 
+- Hook up the Eclipse Linked Path Variable manager, which enables to user to
+  define variables using Preferences->General->Workspace->Linked Resources,
+  then refer to them in a .f file or other path used by SVEditor.
+
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea09 Release --

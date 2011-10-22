@@ -50,6 +50,37 @@ public class TestLexer extends TestCase {
 	}
 		
 
+	public void testDefinedMacroCallWithStatement() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testDefinedMacroCallWithStatement";
+		String content = 
+			"`define MY_ASSERT(stmt) assert(stmt)\n" +
+			"\n" +
+			"class c;\n" +
+			"	function void test();\n" +
+			"		`MY_ASSERT(foo.randomize() with {a == 2; b < 3; c > 5;});\n" +
+			"	endfunction\n" +
+			"endclass\n";
+		
+		runTest(testname, content, new String[] {"c", "test"});
+	}
+
+	public void testUnDefinedMacroCallWithStatement() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testDefinedMacroCallWithStatement";
+		String content = 
+			"class c;\n" +
+			"	function void test();\n" +
+			"		if (a)\n" + 
+			"			`MY_ASSERT(foo.randomize() with {a inside {[2:3]};})\n" +
+			"		else\n" +
+			"			`MY_ASSERT(foo.randomize() with {a inside {[2:3]};})\n" +
+			"	endfunction\n" +
+			"endclass\n";
+		
+		runTest(testname, content, new String[] {"c", "test"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,
