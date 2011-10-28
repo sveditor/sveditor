@@ -1,4 +1,9 @@
 
+-- 0.6.1.ea11 Release --
+
+- (#3427965) Add parse support for extern constraint declarations
+
+------------------------------------------------------------------------------
 -- 0.6.1.ea10 Release --
 
 - Hook up Tab Width preference to override default Eclipse behavior of  
