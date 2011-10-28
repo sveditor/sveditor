@@ -68,7 +68,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private static final int IndexState_FileTreeValid = (IndexState_FilesPreProcessed + 1);
 	private static final int IndexState_AllFilesParsed = (IndexState_FileTreeValid + 1);
 
-//	private String fProjectName;
+	public  String fProjectName;
 	private String fBaseLocation;
 	private String fResolvedBaseLocation;
 	private String fBaseLocationDir;
@@ -121,6 +121,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	protected AbstractSVDBIndex(String project) {
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+		fProjectName = project;
 		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
 		fMissingIncludes = new HashSet<String>();
 	}
@@ -386,7 +387,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public String getResolvedBaseLocation() {
 		if (fResolvedBaseLocation == null) {
-			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation);
+			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation, fProjectName);
 		}
 
 		return fResolvedBaseLocation;

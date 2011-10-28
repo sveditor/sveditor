@@ -2,6 +2,9 @@
 -- 0.6.1.ea11 Release --
 
 - (#3427965) Add parse support for extern constraint declarations
+- (#3426561) Environment Variables in files.f.  Corrected the file parser to
+  get environment variables from Project Properties > Resource > Linked
+  Resources > Path Variables
 
 ------------------------------------------------------------------------------
 -- 0.6.1.ea10 Release --

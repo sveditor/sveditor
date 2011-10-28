@@ -157,7 +157,8 @@ public class SVDBIndexUtil {
 		}
 	}
 
-	public static String expandVars(String path) {
+	public static String expandVars(String path, String projectname) {
+
 		boolean workspace_prefix = path.startsWith("${workspace_loc}");
 		String exp_path = path;
 		
@@ -166,65 +167,97 @@ public class SVDBIndexUtil {
 		}
 
 		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectname);
+		 
 		IStringVariableManager svm = (VariablesPlugin.getDefault() != null)?VariablesPlugin.getDefault().getStringVariableManager():null;
 		StringBuilder sb = new StringBuilder(exp_path);
 		StringBuilder tmp = new StringBuilder();
-		int idx = 0;
 
-		while (idx < sb.length()) {
-			if (sb.charAt(idx) == '$') {
-				tmp.setLength(0);
-
-				int start = idx, end;
-				String key, val=null;
-				idx++;
-				if (sb.charAt(idx) == '{') {
+		int found_var = 1;
+		
+		while (found_var == 1)  {
+			int idx = 0;
+			found_var = 0;
+	
+			while (idx < sb.length()) {
+				if (sb.charAt(idx) == '$') {
+					tmp.setLength(0);
+	
+					int start = idx, end;
+					String key, val=null;
 					idx++;
-
-					while (idx < sb.length() && sb.charAt(idx) != '}') {
-						tmp.append(sb.charAt(idx));
+					if (sb.charAt(idx) == '{') {
 						idx++;
-					}
-					if (idx < sb.length()) {
-						end = ++idx;
+	
+						while (idx < sb.length() && sb.charAt(idx) != '}') {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
+						if (idx < sb.length()) {
+							end = ++idx;
+						} else {
+							end = idx;
+						}
 					} else {
+						while (idx < sb.length() && 
+								sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
+							tmp.append(sb.charAt(idx));
+							idx++;
+						}
 						end = idx;
 					}
-				} else {
-					while (idx < sb.length() && 
-							sb.charAt(idx) != '/' && !Character.isWhitespace(sb.charAt(idx))) {
-						tmp.append(sb.charAt(idx));
-						idx++;
-					}
-					end = idx;
-				}
+	
+					key = tmp.toString();
+					// Priority order is: 
+					// - Check Linked Resources
+					// - Check environment
+					// - Check Variables
+					val = null;
 
-				key = tmp.toString();
-				// Priority order is: 
-				// - Check Linked Resources
-				// - Check environment
-				// - Check Variables
-				val = null;
-				if (val == null) {
-					URI p = pvm.getURIValue(key);
-					if (p != null) {
-						val = p.getPath();
+					// Check for project path variables
+					// These are typically set in  
+					// Project Properties > Resource > Linked Resources > Path Variables 
+					if (val == null) {
+						IPathVariableManager ppvm = project.getPathVariableManager();
+						String [] temp = ppvm.getPathVariableNames();
+						URI p = ppvm.getURIValue(key);
+						if (p != null) {
+							val = p.getPath();
+							if (val.matches("^/[a-zA-Z]:.*"))  {
+								// For some reason PROJECT_LOC will return:
+								// /L:\somepath
+								// instead of L:\somepath
+								// This seems to be pretty normal with "file" types of URI's, this code strips the leading 
+								val = val.replaceFirst("/", "");
+							}
+						}
 					}
-				}
-				if (val == null) {
-					val = SVCorePlugin.getenv(key);
-				}
-				if (val == null && svm != null) {
-					IValueVariable v = svm.getValueVariable(key);
-					if (v != null) {
-						val = v.getValue();
+					// Eclipse Project Variables
+					if (val == null) {
+						URI p = pvm.getURIValue(key);
+						if (p != null) {
+							val = p.getPath();
+						}
 					}
+					// Environment variables
+					if (val == null) {
+						val = SVCorePlugin.getenv(key);
+					}
+					// SVE Variables
+					if (val == null && svm != null) {
+						IValueVariable v = svm.getValueVariable(key);
+						if (v != null) {
+							val = v.getValue();
+						}
+					}
+					if (val != null) {
+						found_var = 1;
+						sb.replace(start, end, val);
+						break;	// need to break because our string has been changed, start again
+					}
+				} else {
+					idx++;
 				}
-				if (val != null) {
-					sb.replace(start, end, val);
-				}
-			} else {
-				idx++;
 			}
 		}
 			
