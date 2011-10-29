@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBAssign;
@@ -46,6 +48,7 @@ import net.sf.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVModIfcBodyItemParser extends SVParserBase {
@@ -393,10 +396,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		// SV allows modules to be arrayed
 		// some_module module_instance_name [5:0] ( .a (a), .y (y));
 		// so grab the dimentions here
-		SVDBVarDeclItem arraydims = new SVDBVarDeclItem(inst_name_or_var);
+		List<SVDBVarDimItem> arraydims = null;
 		if (fLexer.peekOperator("[")) {
 			// Array type
-			arraydims.setArrayDim(parsers().dataTypeParser().var_dim());
+			arraydims = parsers().dataTypeParser().var_dim();
 		}
 
 		// Check to see if we have an '(' - we have a module at this point
@@ -407,18 +410,16 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			SVDBModIfcInst inst = new SVDBModIfcInst(type);
 			inst.setLocation(start);
 			
-			// TODO: SGD - Need to look at arraydims to see if the module was arrayed, and do the appropriate thing with it
-			// Something like 
-			// if arraydims.getArrayDim != null... for i=0 to array_size { // instance the module N times per the code below
-			// or alternatively add the dimensions to the instance, the same as we do for a normal variable below.
-			// At this point I am not entirely sure how this stuff is used, and so I don't know how to go about
-			// it.
 			parent.addChildItem(inst);
 
 			while (fLexer.peek() != null) {
 				// it's a module
 				debug("module instantiation - " + inst_name_or_var);
 				SVDBModIfcInstItem item = new SVDBModIfcInstItem(inst_name_or_var);
+				if (arraydims != null) {
+					item.setArrayDim(arraydims);
+					arraydims = null;
+				}
 				item.setLocation(fLexer.getStartLocation());
 				inst.addChildItem(item);
 				
@@ -429,6 +430,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					fLexer.eatToken();
 					start = fLexer.getStartLocation();
 					inst_name_or_var = fLexer.readId();
+					// Check to see if the instance is arrayed
+					if (fLexer.peekOperator("[")) {
+						arraydims = fParsers.dataTypeParser().var_dim();
+					}
 				} else {
 					break;
 				}
@@ -448,7 +453,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				vi.setLocation(item_start);
 
 				// Set the array dimensions that we grabbed earlier in case there were any
-				vi.setArrayDim(arraydims.getArrayDim());
+				if (arraydims != null) {
+					vi.setArrayDim(arraydims);
+					arraydims = null;
+				}
 
 				item.addChildItem(vi);
 
@@ -461,6 +469,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					fLexer.eatToken();
 					start = fLexer.getStartLocation();
 					inst_name_or_var = fLexer.readId();
+					// Parse the next array dimension
+					if (fLexer.peekOperator("[")) {
+						arraydims = fParsers.dataTypeParser().var_dim();
+					}
 				} else {
 					break;
 				}

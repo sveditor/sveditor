@@ -12,8 +12,13 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.List;
+
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+
 public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
 	private SVDBParamValueAssignList		fPortMap;
+	private List<SVDBVarDimItem>			fArrayDim;
 	
 	
 	public SVDBModIfcInstItem() {
@@ -30,6 +35,14 @@ public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
 	
 	public void setPortMap(SVDBParamValueAssignList map) {
 		fPortMap = map;
+	}
+	
+	public void setArrayDim(List<SVDBVarDimItem> dim) {
+		fArrayDim = dim;
+	}
+	
+	public List<SVDBVarDimItem> getArrayDim() {
+		return fArrayDim;
 	}
 
 }

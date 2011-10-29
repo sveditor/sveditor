@@ -1480,6 +1480,18 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"my_module", "TMR_SPB_ADDRL"});
 	}
 
+	public void testModInstArray() {
+		String testname = "testModInstArray";
+		String doc = 
+			"module top_module;\n" +
+			"	mymodule m1 [10:0] (a,b);\n" +
+			"	mymodule m2[10:0] (c,d), m3[2:0] (e,f);\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"top_module", "m1", "m2", "m3"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,
