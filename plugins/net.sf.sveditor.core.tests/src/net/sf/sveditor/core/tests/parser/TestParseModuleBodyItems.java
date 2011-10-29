@@ -1424,7 +1424,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			"\n" +
 			"module t;\n" +
 			"	sub #(.P1(2), .P2(3)) sub_1(.clk(1), .dat(2));\n" +
+			"	sub #(.P1(2), .P2(3)) sub_1_1 (.clk, .dat);\n" +
 			"	sub #(.P1(3), .P2(4)) sub_2_1(1, 2), sub_2_2(2, 3);\n" +
+			"	sub #(.P1(3), .P2(4)) sub_2_3 [5:0] (1, 2), sub_2_4(2, 3);\n" +
 			"endmodule"
 			;
 		
