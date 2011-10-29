@@ -389,6 +389,17 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		debug("inst name or var: " + inst_name_or_var);
 
+
+		// SV allows modules to be arrayed
+		// some_module module_instance_name [5:0] ( .a (a), .y (y));
+		// so grab the dimentions here
+		SVDBVarDeclItem arraydims = new SVDBVarDeclItem(inst_name_or_var);
+		if (fLexer.peekOperator("[")) {
+			// Array type
+			arraydims.setArrayDim(parsers().dataTypeParser().var_dim());
+		}
+
+		// Check to see if we have an '(' - we have a module at this point
 		if (fLexer.peekOperator("(")) {
 			// TODO: hopefully this is a user-defined type?
 			debug("Module instance type: " + type.getClass().getName());
@@ -396,6 +407,12 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			SVDBModIfcInst inst = new SVDBModIfcInst(type);
 			inst.setLocation(start);
 			
+			// TODO: SGD - Need to look at arraydims to see if the module was arrayed, and do the appropriate thing with it
+			// Something like 
+			// if arraydims.getArrayDim != null... for i=0 to array_size { // instance the module N times per the code below
+			// or alternatively add the dimensions to the instance, the same as we do for a normal variable below.
+			// At this point I am not entirely sure how this stuff is used, and so I don't know how to go about
+			// it.
 			parent.addChildItem(inst);
 
 			while (fLexer.peek() != null) {
@@ -417,7 +434,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 			}
 			fLexer.readOperator(";");
-		} else {
+		} 
+		// non-module instance
+		else {
 			SVDBVarDeclStmt item = new SVDBVarDeclStmt(type, 0);
 			item.setAttr(modifiers);
 			item.setLocation(start);
@@ -428,11 +447,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				SVDBVarDeclItem vi = new SVDBVarDeclItem(inst_name_or_var);
 				vi.setLocation(item_start);
 
-				// non-module instance
-				if (fLexer.peekOperator("[")) {
-					// Array type
-					vi.setArrayDim(parsers().dataTypeParser().var_dim());
-				}
+				// Set the array dimensions that we grabbed earlier in case there were any
+				vi.setArrayDim(arraydims.getArrayDim());
 
 				item.addChildItem(vi);
 
