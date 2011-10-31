@@ -113,7 +113,7 @@ public class SVDBFileTreeUtils {
 			IDefineProvider			dp,
 			SVDBFileTree 			file, 
 			List<SVDBFileTree> 		file_l) {
-		List<ISVDBItemBase> it_l = scope.getItems(); 
+		List<ISVDBItemBase> it_l = scope.getItems();
 		debug("processScope: " + scope.getName());
 		
 		for (int i=0; i<it_l.size(); i++) {

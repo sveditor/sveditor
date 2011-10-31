@@ -29,7 +29,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.InputStreamCopier;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -88,6 +90,13 @@ public class SVDBTestUtils {
 					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 					if (vi.getName().equals(e)) {
 						return vi;
+					}
+				}
+			} else if (it instanceof SVDBModIfcInst) {
+				for (ISVDBChildItem c : ((SVDBModIfcInst)it).getChildren()) {
+					SVDBModIfcInstItem mi = (SVDBModIfcInstItem)c;
+					if (mi.getName().equals(e)) {
+						return mi;
 					}
 				}
 			} else if (it.getType() == SVDBItemType.ImportStmt) {

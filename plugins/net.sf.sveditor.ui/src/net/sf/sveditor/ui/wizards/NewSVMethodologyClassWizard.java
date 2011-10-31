@@ -15,18 +15,13 @@ package net.sf.sveditor.ui.wizards;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
@@ -98,7 +93,7 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 
 	@Override
 	public boolean performFinish() {
-		IContainer c = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
+//		IContainer c = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
 		
 //		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
 		

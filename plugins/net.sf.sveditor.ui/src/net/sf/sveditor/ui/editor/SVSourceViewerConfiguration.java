@@ -51,7 +51,7 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	@Override
 	public int getTabWidth(ISourceViewer sourceViewer) {
 		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
-		boolean spaces_for_tabs = chainedPrefs.getBoolean(
+		/* boolean spaces_for_tabs = */ chainedPrefs.getBoolean(
 				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS);
 		int tab_width = chainedPrefs.getInt(
 				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);

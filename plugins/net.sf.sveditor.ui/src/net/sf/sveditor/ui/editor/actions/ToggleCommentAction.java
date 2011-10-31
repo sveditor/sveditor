@@ -116,7 +116,7 @@ public class ToggleCommentAction extends TextEditorAction {
 			IRegion block= getTextBlockFromSelection(textSelection, document);
 			ITypedRegion[] regions= TextUtilities.computePartitioning(document, fDocumentPartitioning, block.getOffset(), block.getLength(), false);
 
-			int lineCount= 0;
+//			int lineCount= 0;
 			int[] lines= new int[regions.length * 2]; // [startline, endline, startline, endline, ...]
 			
 			//For each partition in the text selection, figure out what are the startlines and endlines for
@@ -136,7 +136,7 @@ public class ToggleCommentAction extends TextEditorAction {
 				lines[j + 1]= (lines[j] == -1 ? -1 : document.getLineOfOffset(offset));
 				
 				//count the number of lines that are selected in this region
-				lineCount += lines[j + 1] - lines[j] + 1;
+//				lineCount += lines[j + 1] - lines[j] + 1;
 				
 				assert i < regions.length;
 				assert j < regions.length * 2;

@@ -60,7 +60,7 @@ public class SVContentAssistExprVisitor {
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
 	private SVDBFindParameterizedClass	fFindParameterizedClass;
-	private boolean						fStaticAccess;
+//	private boolean						fStaticAccess;
 	
 	private class SVAbortException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
@@ -223,7 +223,7 @@ public class SVContentAssistExprVisitor {
 	protected void field_access_expr(SVDBFieldAccessExpr expr) {
 		fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
 		visit(expr.getExpr());
-		fStaticAccess = expr.isStaticRef();
+// 		fStaticAccess = expr.isStaticRef();
 		visit(expr.getLeaf());
 	}
 	

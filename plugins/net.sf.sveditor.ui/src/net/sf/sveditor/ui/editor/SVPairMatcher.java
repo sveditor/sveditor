@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.ui.editor;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
 
 public class SVPairMatcher extends DefaultCharacterPairMatcher {

@@ -580,6 +580,22 @@ public class TestParseClassBodyItems extends TestCase {
 		assertNotNull(empty_c);
 	}
 
+	public void testExternConstraint() {
+		String testname = "testExternConstraint";
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	constraint i_cons; ///< Error reported here even though this is a legal system verilog constraint body declaration\n" +
+				"endclass\n" +
+				"\n" +
+				"constraint my_class::i_cons {\n" +
+				"	i>0;\n" +
+				"}\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

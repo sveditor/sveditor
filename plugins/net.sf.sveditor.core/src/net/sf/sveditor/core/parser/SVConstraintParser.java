@@ -34,21 +34,25 @@ public class SVConstraintParser extends SVParserBase {
 	
 	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		SVDBConstraint c = new SVDBConstraint();
-		// TODO: handle extern constraints
 		c.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("constraint");
 		
-		c.setName(fLexer.readId());
-		
-		fLexer.readOperator("{");
-		
-		parent.addChildItem(c);
-		
-		while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
-			c.addChildItem(constraint_set_item());
+		c.setName(fParsers.SVParser().scopedIdentifier(false));
+
+		// Forward declaration
+		if (fLexer.peekOperator(";")) {
+			fLexer.eatToken();
+		} else {
+			fLexer.readOperator("{");
+
+			parent.addChildItem(c);
+
+			while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
+				c.addChildItem(constraint_set_item());
+			}
+
+			fLexer.readOperator("}");
 		}
-		
-		fLexer.readOperator("}");
 	}
 	
 	public SVDBStmt constraint_set(boolean force_braces) throws SVParseException {

@@ -67,6 +67,15 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		return fProject;
 	}
 	
+	public void rebuildIndex() {
+		for (ISVDBIndex i : getIndexList()) {
+			i.rebuildIndex();
+		}
+		for (ISVDBIndex i : fShadowIndexList) {
+			i.rebuildIndex();
+		}
+	}
+	
 	public void clear() {
 		fLog.debug("clear");
 		for (ISVDBIndex index : fSourceCollectionList) {

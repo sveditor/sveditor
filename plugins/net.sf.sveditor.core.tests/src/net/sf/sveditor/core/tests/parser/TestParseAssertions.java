@@ -13,7 +13,7 @@
 package net.sf.sveditor.core.tests.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.parser.SVParseException; 
 import junit.framework.TestCase;
 
 public class TestParseAssertions extends TestCase {

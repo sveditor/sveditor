@@ -97,6 +97,8 @@ public class SVProjectProps extends PropertyPage implements
 		
 		fProjectData.setProjectFileWrapper(fProjectFileWrapper);
 		
+		fProjectData.getProjectIndexMgr().rebuildIndex();
+		
 		return true;
 	}
 
