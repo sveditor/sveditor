@@ -187,6 +187,15 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	public IAnnotationHover getAnnotationHover(ISourceViewer viewer) {
 		return new DefaultAnnotationHover();
 	}
+
+
+
+	@Override
+	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
+		return new String[] {"//", ""};
+	}
+	
+	
 	
 	/** Text hover disabled
 	@Override
