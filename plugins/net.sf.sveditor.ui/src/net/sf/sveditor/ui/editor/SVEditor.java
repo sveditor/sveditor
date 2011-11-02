@@ -455,7 +455,7 @@ public class SVEditor extends TextEditor
 		ToggleCommentAction toggle_comment = new ToggleCommentAction(bundle, "ToggleComment.", this);
 		toggle_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
 		// TODO: Toggle requires more investigation on how to implement
-		toggle_comment.setEnabled(false);
+		toggle_comment.setEnabled(true);
 		toggle_comment.configure(getSourceViewer(), getSourceViewerConfiguration());
 		setAction(SVUiPlugin.PLUGIN_ID + ".svToggleCommentAction", toggle_comment);
 		
