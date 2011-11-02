@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -36,6 +37,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		while (fLexer.peek() != null && !fLexer.peekOperator(")")) {
 			boolean is_mapped = false;
 			boolean is_wildcard = false;
+			boolean is_implicit_connection = false;
 			String name = null;
 			if (!is_parameter && fLexer.peekOperator(".*")) {
 				fLexer.eatToken();
@@ -45,13 +47,36 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			} else if (fLexer.peekOperator(".")) {
 				fLexer.eatToken();
 				name = fLexer.readId();
-				fLexer.readOperator("(");
-				is_mapped = true;
+				// Check to see if the port has an ( as in ...
+				// .portname (signal_connected),
+				if (fLexer.peekOperator("("))  {
+					fLexer.readOperator("(");
+					is_mapped = true;
+				}
+				// Check to see if we have an implicit port connection, as in
+				// .portname ,
+				else if (fLexer.peekOperator(","))  {
+					is_implicit_connection = true;
+					is_mapped = true;
+					// Grab name and put it into the DB as the same name as the port
+					SVDBTypeInfo typ = new SVDBTypeInfo(name, SVDBItemType.IdentifierExpr);
+					ret.addParameter(new SVDBParamValueAssign(name, typ));
+				}
 			}
 			
-			if (!is_wildcard) {
+			// Not an implicit connection or a wild card, we either have:
+			// .portname ()
+			// or
+			// .portname (wirename)... handle both
+			if (!is_wildcard && !is_implicit_connection) {
 				// Allow an empty port-mapping entry: .foo()
-				if (!fLexer.peekOperator(")")) {
+				if (fLexer.peekOperator(")")) {
+					// Fill in a dummy name for the connection name
+					// TODO: Check on the identifier type - guessing NullExpr
+					SVDBTypeInfo typ = new SVDBTypeInfo("", SVDBItemType.NullExpr);
+					ret.addParameter(new SVDBParamValueAssign(name, typ));
+				}
+				else if (!fLexer.peekOperator(")")) {
 					List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
 
 					if (fLexer.peekOperator("#") /*|| fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
