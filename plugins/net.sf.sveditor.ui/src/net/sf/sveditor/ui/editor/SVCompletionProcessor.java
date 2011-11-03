@@ -231,8 +231,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
 		
-		StringBuilder d = new StringBuilder();
-		StringBuilder r = new StringBuilder();
+		StringBuilder d = new StringBuilder();		// template
+		StringBuilder r = new StringBuilder();		// pattern
 		SVDBTask tf = (SVDBTask)it;
 		
 		d.append(SVDBItem.getName(it) + "(");
@@ -244,21 +244,24 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				d.append(param.getTypeName() + " " + vi.getName());
-				r.append("${");
+				r.append(".");
 				r.append(vi.getName());
-				r.append("}");
+				r.append(" (${");
+				r.append(vi.getName());
+				r.append("})");
 
 				d.append(", ");
 				r.append(", ");
 				has_params = true;
 			}
 		}
+		// The following removes the trailing ", "
 		if (has_params) {
 			d.setLength(d.length()-2);
 			r.setLength(r.length()-2);
 		}
-		d.append(")");
-		r.append(")");
+		d.append(");");
+		r.append(");");
 		
 		if (it.getType() == SVDBItemType.Function) {
 			SVDBFunction f = (SVDBFunction)tf;
@@ -318,27 +321,29 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		d.append(SVDBItem.getName(it));
 		r.append(SVDBItem.getName(it));
 		if (md.getParameters().size() > 0) {
-			d.append("(");
-			r.append("(");
+			d.append(" (");
+			r.append(" (");
 		}
 		
 		for (int i=0; i<md.getParameters().size(); i++) {
 			String param = md.getParameters().get(i);
 			
 			d.append(param);
-			r.append("${");
+			r.append(".");
 			r.append(param);
-			r.append("}");
+			r.append("(${");
+			r.append(param);
+			r.append("})");
 			
 			if (i+1 < md.getParameters().size()) {
 				d.append(", ");
-				r.append(", ");
+				r.append(",\n");
 			}
 		}
 		
 		if (md.getParameters().size() > 0) {
-			d.append(")");
-			r.append(")");
+			d.append(");");
+			r.append(");");
 		}
 		
 		Template t = new Template(d.toString(), "", "CONTEXT",
