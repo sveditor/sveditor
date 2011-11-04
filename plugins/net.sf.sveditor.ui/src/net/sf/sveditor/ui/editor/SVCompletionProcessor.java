@@ -63,6 +63,10 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	private SVEditor 	fEditor;
 
 	private static final char[] PROPOSAL_ACTIVATION_CHARS = { '.', ':' };
+	// TODO: Need to have these parameters come from some sort of configuration file
+	private static final int     TSK_FCTN_MAX_CHARS      = 80;			// Number of characters before switching to multi-line mode
+	private static final int     TSK_FCTN_PORTS_PER_LINE = 1;			// Number of ports per line in multi-line mode
+	private static final boolean TSK_FCTN_NAMED_PORTS = true;			// When set, will have named ports, otherwise will just have names
 	private final IContextInformation NO_CONTEXTS[] = new IContextInformation[0];
 	
 	private List<ICompletionProposal>				fProposals = 
@@ -231,35 +235,72 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
 		
-		StringBuilder d = new StringBuilder();		// template
-		StringBuilder r = new StringBuilder();		// pattern
+		StringBuilder d = new StringBuilder();		// help text
+		StringBuilder r = new StringBuilder();		// template text
 		SVDBTask tf = (SVDBTask)it;
 		
 		d.append(SVDBItem.getName(it) + "(");
 		r.append(escapeId(SVDBItem.getName(it)) + "(");
 		
-		boolean has_params = false;
+		int longest_string = 0;		// used to keep code nice and neat
+		int total_length   = 0;		// used to keep code nice and neat
+		int param_count    = 0;		// used to keep code nice and neat
+		ArrayList<String> all_ports = new ArrayList<String> ();
+		ArrayList<String> all_types = new ArrayList<String> ();
 		for (int i=0; i<tf.getParams().size(); i++) {
 			SVDBParamPortDecl param = tf.getParams().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
-				d.append(param.getTypeName() + " " + vi.getName());
-				r.append(".");
-				r.append(vi.getName());
-				r.append(" (${");
-				r.append(vi.getName());
-				r.append("})");
-
-				d.append(", ");
-				r.append(", ");
-				has_params = true;
+				all_ports.add(vi.getName());
+				all_types.add(param.getTypeName());
+				param_count ++;		// found another parameter
+				total_length += vi.getName().length();		// keep track of the length of the portlist
+				if (vi.getName().length() > longest_string)  {
+					longest_string = vi.getName().length();	// update the longest string
+				}
 			}
 		}
-		// The following removes the trailing ", "
-		if (has_params) {
-			d.setLength(d.length()-2);
-			r.setLength(r.length()-2);
+
+		boolean multi_line_instantiation = false;
+		if ((longest_string * param_count)> TSK_FCTN_MAX_CHARS/2)  {
+			multi_line_instantiation = true;
+			r.append("\n");	// start ports on next line
 		}
+		// Now create the string & port list - note that we are padding to the longest string with spaces
+		for (int i=0; i<param_count; i++)  {
+			StringBuilder padded_name = new StringBuilder(all_ports.get(i));
+			String unpadded_name = all_ports.get(i);
+			if (multi_line_instantiation)  {
+				// TODO: is there a better way of adding padding?
+				for (int cnt=padded_name.length(); cnt<longest_string+1; cnt++)  {
+					padded_name.append(" ");
+				}
+			}
+			d.append(all_types.get(i) + " " + unpadded_name);
+			// Only instantiate named ports if we need to
+			if (TSK_FCTN_NAMED_PORTS == true)  {
+				// append .portname (
+				r.append("." + padded_name   + " (");
+			}
+			// append ${porntmame} which will be replaced
+			r.append("${" + padded_name   + "}");
+			if (TSK_FCTN_NAMED_PORTS == true)  {
+				r.append(")");
+			}
+	
+			// Only add ", " on all but the last parameters
+			if (i < (param_count -1))  {
+				d.append(", ");
+				r.append(", ");
+				// Add \n if we have met the number of ports per line
+				if (multi_line_instantiation && (((i+1) % TSK_FCTN_PORTS_PER_LINE) == 0))  {
+					// ML gets a CR after every port is instantiated
+					r.append("\n");
+				}
+			}
+		}
+		
+		// Close the function instantiation
 		d.append(");");
 		r.append(");");
 		
