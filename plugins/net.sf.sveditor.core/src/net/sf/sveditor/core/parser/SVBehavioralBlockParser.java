@@ -112,7 +112,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");
 				}
-				parsers().blockItemDeclParser().parse(parent, null, start);
+				parsers().blockItemDeclParser().parse(parent, null, start, consume_terminator);
 				return decl_allowed;
 			} else {
 				// May be a declaration. Let's see
@@ -433,6 +433,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			
 			if (fLexer.peekOperator("#")) {
 				assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr());
+			} else if (fLexer.peekOperator("@")) {
+				assign_stmt.setDelayExpr(fParsers.exprParser().clocking_event());
 			} else if (fLexer.peekOperator("##")) {
 				// Clocking drive
 				assign_stmt.setDelayExpr(fParsers.exprParser().expression());
@@ -496,36 +498,28 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBForStmt stmt = new SVDBForStmt();
 		stmt.setLocation(start);
 		if (fLexer.peek() != null && !fLexer.peekOperator(";")) {
-			SVToken first = fLexer.peekToken();
-			// TODO: 
-			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
+			SVDBBlockStmt init_stmt = new SVDBBlockStmt();
 			
-			if (fLexer.peekOperator()) {
-				// If an operator, then likely not a declaration
-				fLexer.ungetToken(first);
-				type = null;
-			}
+			statement_int(init_stmt, true, true, false);
 			
-			// TODO:
-			SVDBBlockStmt init_block = null;
-			SVDBStmt init_stmt;
-			while (true) {
-				SVDBExpr expr = parsers().exprParser().expression();
-				
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-				} else {
-					break;
-				}
+			while (fLexer.peekOperator(",")) {
+				fLexer.readOperator(",");
+				statement_int(init_stmt, true, true, false);
 			}
 		}
 		fLexer.readOperator(";");
 		
 		if (!fLexer.peekOperator(";")) {
+			SVDBBlockStmt cond_stmt = new SVDBBlockStmt();
+			stmt.setTestStmt(cond_stmt);
 			
-			while (true) {
-				SVDBExpr expr = parsers().exprParser().expression();
-				
+			while (fLexer.peek() != null) {
+				SVDBExprStmt expr_stmt = new SVDBExprStmt();
+				expr_stmt.setLocation(fLexer.getStartLocation());
+				SVDBExpr expr = fParsers.exprParser().expression();
+				expr_stmt.setExpr(expr);
+				cond_stmt.addChildItem(expr_stmt);
+
 				if (fLexer.peekOperator(",")) {
 					fLexer.eatToken();
 				} else {
@@ -536,8 +530,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.readOperator(";");
 		
 		if (!fLexer.peekOperator(")")) {
-			while (true) {
-				SVDBExpr expr = parsers().exprParser().expression();
+			SVDBBlockStmt incr_stmt = new SVDBBlockStmt();
+			stmt.setIncrstmt(incr_stmt);
+			
+			while (fLexer.peek() != null) {
+				SVDBExprStmt expr_stmt = new SVDBExprStmt();
+				expr_stmt.setLocation(fLexer.getStartLocation());
+				SVDBExpr expr = fParsers.exprParser().expression();
+				expr_stmt.setExpr(expr);
+				incr_stmt.addChildItem(expr_stmt);
 				
 				if (fLexer.peekOperator(",")) {
 					fLexer.eatToken();

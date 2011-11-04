@@ -167,7 +167,11 @@ public class SVDBIndexUtil {
 		}
 
 		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
-		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectname);
+		IProject project = null;
+		
+		if (projectname != null) {
+			project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectname);
+		}
 		 
 		IStringVariableManager svm = (VariablesPlugin.getDefault() != null)?VariablesPlugin.getDefault().getStringVariableManager():null;
 		StringBuilder sb = new StringBuilder(exp_path);
@@ -217,7 +221,7 @@ public class SVDBIndexUtil {
 					// Check for project path variables
 					// These are typically set in  
 					// Project Properties > Resource > Linked Resources > Path Variables 
-					if (val == null) {
+					if (val == null && project != null) {
 						IPathVariableManager ppvm = project.getPathVariableManager();
 						String [] temp = ppvm.getPathVariableNames();
 						URI p = ppvm.getURIValue(key);

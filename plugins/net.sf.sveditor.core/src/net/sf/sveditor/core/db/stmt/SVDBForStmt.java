@@ -14,12 +14,11 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBForStmt extends SVDBBodyStmt {
-	private SVDBStmt		fInitExpr;
-	private SVDBExpr			fTestExpr;
-	private SVDBExpr			fIncrExpr;
+	private SVDBStmt			fInitExpr;
+	private SVDBStmt			fTestStmt;
+	private SVDBStmt			fIncrStmt;
 	
 	public SVDBForStmt() {
 		super(SVDBItemType.ForStmt);
@@ -33,20 +32,20 @@ public class SVDBForStmt extends SVDBBodyStmt {
 		fInitExpr = stmt;
 	}
 	
-	public SVDBExpr getTestExpr() {
-		return fTestExpr;
+	public SVDBStmt getTestExpr() {
+		return fTestStmt;
 	}
 	
-	public void setTestExpr(SVDBExpr expr) {
-		fTestExpr = expr;
+	public void setTestStmt(SVDBStmt stmt) {
+		fTestStmt = stmt;
 	}
 	
-	public SVDBExpr getIncrExpr() {
-		return fIncrExpr;
+	public SVDBStmt getIncrStmt() {
+		return fIncrStmt;
 	}
 	
-	public void setIncrExpr(SVDBExpr expr) {
-		fIncrExpr = expr;
+	public void setIncrstmt(SVDBStmt stmt) {
+		fIncrStmt = stmt;
 	}
 	
 	public SVDBForStmt duplicate() {
@@ -57,16 +56,16 @@ public class SVDBForStmt extends SVDBBodyStmt {
 		super.init(other);
 		
 		SVDBForStmt o = (SVDBForStmt)other;
-		if (o.fIncrExpr != null) {
-			fIncrExpr = o.fIncrExpr.duplicate();
+		if (o.fIncrStmt != null) {
+			fIncrStmt = o.fIncrStmt.duplicate();
 		} else {
-			fIncrExpr = null;
+			fIncrStmt = null;
 		}
 		
-		if (o.fTestExpr != null) {
-			fTestExpr = o.fTestExpr.duplicate();
+		if (o.fTestStmt != null) {
+			fTestStmt = o.fTestStmt.duplicate();
 		} else {
-			fTestExpr = null;
+			fTestStmt = null;
 		}
 
 		if (o.fInitExpr != null) {
@@ -97,16 +96,16 @@ public class SVDBForStmt extends SVDBBodyStmt {
 				ret &= fInitExpr.equals(o.fInitExpr);
 			}
 			
-			if (fTestExpr == null || o.getTestExpr() == null) {
-				ret &= (fTestExpr == o.getTestExpr());
+			if (fTestStmt == null || o.getTestExpr() == null) {
+				ret &= (fTestStmt == o.getTestExpr());
 			} else {
-				ret &= fTestExpr.equals(o.getTestExpr());
+				ret &= fTestStmt.equals(o.getTestExpr());
 			}
 			
-			if (fIncrExpr == null || o.getIncrExpr() == null) {
-				ret &= (fIncrExpr == o.getIncrExpr());
+			if (fIncrStmt == null || o.getIncrStmt() == null) {
+				ret &= (fIncrStmt == o.getIncrStmt());
 			} else {
-				ret &= fIncrExpr.equals(o.getIncrExpr());
+				ret &= fIncrStmt.equals(o.getIncrStmt());
 			}
 		} 
 		

@@ -54,6 +54,21 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testVarDeclForStmt", doc, new String[] { "t" });
 		
 	}
+	
+	public void testMultiVarDeclForStmt() throws SVParseException {
+		String doc = 
+			"module a;\n" +
+			"	initial\n" + 
+			"		for(int i=0, long j=5;\n" +
+			"			i<10, j<20;\n" +
+			"			i++, j++)\n" +
+			"			$display(\"asdf\");\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testVarDeclForStmt", doc, new String[] { "a" });
+	}
 
 	public void testNonBlockingEventTrigger() throws SVParseException {
 		String doc =
@@ -61,6 +76,22 @@ public class TestParseBehavioralStmts extends TestCase {
 			"	event event_identifier;\n" +
 			"	initial begin\n" +
 			"		--> event_identifier;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testNonBlockingEventTrigger", doc, new String[] { "t" });
+		
+	}
+
+	public void testEventDelayedNonBlockingAssign() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	bit clk;\n" +
+			"	int a;\n" +
+			"	initial begin\n" +
+			"		a <= @(posedge clk) 1;\n" +
 			"	end\n" +
 			"endmodule\n"
 			;

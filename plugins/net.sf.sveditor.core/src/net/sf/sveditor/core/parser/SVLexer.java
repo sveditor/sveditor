@@ -38,7 +38,7 @@ public class SVLexer extends SVToken {
 	private boolean fNewlineAsOperator;
 
 	private StringBuilder fStringBuffer;
-	private static final boolean fDebugEn = false;
+	private static final boolean fDebugEn = true;
 	private boolean fEOF;
 
 	private StringBuilder fCaptureBuffer;
@@ -955,7 +955,7 @@ public class SVLexer extends SVToken {
 	}
 
 	private int readDecNumber(int ch) throws SVParseException {
-		while (ch >= '0' && ch <= '9') {
+		while (ch >= '0' && ch <= '9' || ch == '_') {
 			append_ch(ch);
 			ch = get_ch();
 		}

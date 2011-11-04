@@ -39,4 +39,24 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 		return index;
 	}
 
+	public ISVDBIndex createSVDBIndex(
+			String 					projectName, 
+			String 					base_location,
+			StringBuilder			arguments,
+			ISVDBIndexCache			cache,
+			Map<String, Object> 	config) {
+		ISVDBFileSystemProvider fs_provider;
+		
+		if (base_location.startsWith("${workspace_loc}")) {
+			fs_provider = new SVDBWSFileSystemProvider();
+		} else {
+			fs_provider = new SVDBFSFileSystemProvider();
+		}
+
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
+				projectName, base_location, arguments, fs_provider, cache, config);
+		
+		return index;
+	}
+
 }

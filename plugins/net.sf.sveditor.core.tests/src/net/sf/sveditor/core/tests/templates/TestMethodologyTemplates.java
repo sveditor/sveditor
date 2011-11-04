@@ -53,7 +53,7 @@ public class TestMethodologyTemplates extends TestCase {
 
 	public void testUvmAgent() {
 		LogHandle log = LogFactory.getLogHandle("testUvmAgent");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		TemplateRegistry rgy = TemplateRegistry.getDefault();
 		TemplateInfo tmpl = rgy.findTemplate("org.uvmworld.uvm.uvm_agent");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

@@ -26,9 +26,11 @@ public class TestLexer extends TestCase {
 			"class c;\n" +
 			"	int a = 32 'h 0000_1111_2222_3331;\n" +
 			"	int b = 32'h 0000_1111_2222_3332;\n" +
+			"	int d = 32'd 0000_1111;\n" +
+			"	int e = 3_2'd 123;\n" +
 			"endclass\n";
 		
-		runTest("testSpaceContainingNumber", content, new String[] {"c", "b"});
+		runTest("testSpaceContainingNumber", content, new String[] {"c", "b", "d", "e"});
 	}
 	
 	public void testParenContainingString() throws SVParseException {

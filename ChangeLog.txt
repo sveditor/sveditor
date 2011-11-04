@@ -9,6 +9,10 @@
 - (#no bug) Have auto instantiated functions instantiate named ports. i.e.
         myfunction (.a(a), .b(b)); vs myfunction (a, b);
 
+- (#3432503) Correct lexing bug involving underscore-containing decimal literals
+
+- (#3433089) Correct parser bug involving event-delayed assignment (a <= @(posedge clk) 10)
+
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea11 Release --

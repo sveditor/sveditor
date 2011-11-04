@@ -83,7 +83,26 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						}
 
 						if (fLexer.peekOperator(",")) {
-							fLexer.eatToken();
+							// Could be:
+							// => , <var_id>
+							// => <type_id> <var_id>
+							// => 
+							// Want to continue only if post-comma token is an identifer and 
+							// post-post token is not an identifier
+							SVToken comma_tok = fLexer.consumeToken();
+							SVToken post_var = fLexer.consumeToken();
+							SVToken post_post_var = fLexer.consumeToken();
+							
+							if (post_var != null && post_var.isIdentifier() &&
+									post_post_var != null && !post_post_var.isIdentifier()) {
+								fLexer.ungetToken(post_post_var);
+								fLexer.ungetToken(post_var);
+							} else {
+								fLexer.ungetToken(post_post_var);
+								fLexer.ungetToken(post_var);
+								fLexer.ungetToken(comma_tok);
+								break;
+							}
 						} else {
 							break;
 						}

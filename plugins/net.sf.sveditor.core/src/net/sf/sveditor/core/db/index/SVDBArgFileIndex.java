@@ -22,10 +22,12 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
+import org.apache.tools.ant.filters.StringInputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileIndex extends AbstractSVDBIndex {
+	private StringBuilder				fArguments;
 	
 	public SVDBArgFileIndex(
 			String						project,
@@ -36,7 +38,19 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		super(project, root, fs_provider, cache, config);
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
 	}
-	
+
+	public SVDBArgFileIndex(
+			String						project,
+			String						root,
+			StringBuilder				arguments,
+			ISVDBFileSystemProvider		fs_provider,
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
+		super(project, root, fs_provider, cache, config);
+		fArguments = arguments;
+		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
+	}
+
 	public String getTypeID() {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
@@ -88,7 +102,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	
 	private void processArgFile(IProgressMonitor monitor, String path) {
 		InputStream in = null;
-		if (getFileSystemProvider().fileExists(path)) {
+		if (fArguments != null) {
+			in = new StringInputStream(fArguments.toString());
+		} else if (getFileSystemProvider().fileExists(path)) {
 			// Fully-specified path
 			in = getFileSystemProvider().openStream(path);
 		} else if (getFileSystemProvider().fileExists(getResolvedBaseLocationDir() + "/" + path)) {
