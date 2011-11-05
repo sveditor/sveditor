@@ -13,6 +13,9 @@
 
 - (#3433089) Correct parser bug involving event-delayed assignment (a <= @(posedge clk) 10)
 
+- Add beginnings of a 'batch' plug-in to facilitate accessing SVEditor functionality
+  from scripts. Currently python scripts are supported.
+
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea11 Release --

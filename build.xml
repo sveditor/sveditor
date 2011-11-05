@@ -139,10 +139,19 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
         <unzip src="${buildDirectory}/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
                dest="${basedir}/archive_tmp"/>
 
+        <!-- Correctly format the feature plugin as a .jar -->
         <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 
              basedir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"
              includes="**/*"/>
         <delete dir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"/>
+
+        <!-- Correctly format the batch plugin as a .jar -->
+        <jar destfile="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}.jar" 
+             basedir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"
+             manifest="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}/META-INF/MANIFEST.MF"
+             includes="**/*"/>
+        <delete dir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"/>
+
         <jar destfile="${basedir}/sveditor-${feature.version}.jar"
              basedir="${basedir}/archive_tmp"
              includes="site.xml, features/**, plugins/**"/>
