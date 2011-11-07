@@ -75,7 +75,6 @@ public class SVBatchPlugin implements BundleActivator {
 		
 		for (int i=1; i<10000; i++) {
 			File tmp = new File(tmpdir, "sveditor_tmp_" + i);
-			System.out.println("Try directory: " + tmp.getAbsolutePath());
 			if (!tmp.isDirectory()) {
 				tmp.mkdirs();
 				ret = tmp;
