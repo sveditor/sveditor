@@ -560,24 +560,73 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 	
-	public String delay3() throws SVParseException {
+	public String strengths(int max_strengths		// maximum number of strengths that can be here
+			) throws SVParseException {
+		boolean done = false;
+		int num_strengths = 0;
+		while (done == false)  {
+			if (fLexer.peekKeyword(SVKeywords.fStrength))  {
+				// TODO: Read these until done ... don't know what we are going to do with them but anyway
+				fLexer.readKeyword(SVKeywords.fStrength);
+				num_strengths ++; 
+			}
+			if (fLexer.peekOperator(")"))  {
+				fLexer.readOperator(")");
+				done = true;
+			}
+			else  {
+				// must be separated by comma's
+				fLexer.readOperator(",");
+			}
+		}
+		if (max_strengths < num_strengths)  {
+			error("[Internal Error] Number of drive strengths '" + num_strengths + "' greater than maximum strengths '" + max_strengths + "' for this gate type");
+		}
+		return fLexer.endCapture();
+	}
+	public String delay_n(int max_delays) throws SVParseException {
 		fLexer.readOperator("#");
+		boolean has_min_max_typ = false;	    // is formatted as nnn:nnn:nnn
+		boolean done_with_params = false;		// Done with delay params
+		int num_delays= 0;						// Number of delay parameters
+		
 		
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
-			/* min / base */ parsers().exprParser().expression();
-			if (fLexer.peekOperator(",")) {
-				fLexer.eatToken();
-				/* typ */ parsers().exprParser().expression();
-
-				fLexer.readOperator(",");
-				/* max */ parsers().exprParser().expression();
+			while (done_with_params == false)  {
+				num_delays ++;
+				// Can have up to max_delays delay operators
+				// #(Delay_construct) - Normal delay
+				// #(Rising_Delay_construct, Falling_Delay Construct) // Rising delay, falling delay
+				// #(Rising_Delay_construct, Falling_Delay Construct, Decay_Delay_Construct) // Rising delay, falling delay
+				// Where xxx_Delay_Construct is either:
+				// <generic_delay>
+				// <min_delay>:<typ_delay>:<max_delay>
+				parsers().exprParser().expression();			// min or base
+				if (fLexer.peekOperator(":")) {
+					has_min_max_typ = true;	// is formatted as nnn:nnn:nnn
+					fLexer.eatToken();
+					/* typ */ parsers().exprParser().expression();
+	
+					fLexer.readOperator(":");
+					/* max */ parsers().exprParser().expression();
+				}
+				if (fLexer.peekOperator(")"))  {
+					fLexer.readOperator(")");
+					done_with_params = true;
+				}
+				else if (fLexer.peekOperator(","))  {
+					fLexer.readOperator(",");
+					
+				}
 			}
-			fLexer.readOperator(")");
 		} else {
 			parsers().exprParser().expression();
 		}
 		
+		if (num_delays > max_delays)  {
+			error("[Internal Error] Number of delay parameters '" + num_delays + "' greater than maximum delay parameters'" + max_delays + "' for this gate type");
+		}
 		return fLexer.endCapture();
 	}
 

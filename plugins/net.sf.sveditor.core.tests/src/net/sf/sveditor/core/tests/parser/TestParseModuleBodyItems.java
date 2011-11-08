@@ -1386,9 +1386,21 @@ public class TestParseModuleBodyItems extends TestCase {
 			"\n" +
 			"	wire  net1, net2, net3;\n" +
 			"	wire  net4, net5, net6;\n" +
+			"	wire  out, a, b, c, d, e;\n" +
 			"\n" +
 			"	tranif0 my_gate1 (net1, net2, net3);\n" +
 			"	rtranif1 my_gate2 (net4, net5, net6);\n" +
+			"	rtranif1 my_gate3 (net4, net5, net6);\n" +
+			"	rtranif1 #(1, 2, 3) my_gate4 (net4, net5, net6);\n" +
+			"	rtranif1 #(1:2:3, 2:3:4, 3:4:5) my_gate5 (net4, net5, net6);\n" +
+			"   nor  (highz1,  strong0) #(2:3:5) (out, in1, in2);\n" +
+			"   nand (strong1, strong0) #(6:7:8, 5:6:7) (out, a, b);\n" +
+			"   and  (strong1, strong0) #(6:7:8) (out, a, b);\n" +
+			"   xor  (strong1, strong0) #(6:7:8, 5:6:7) (out, a, b, c, d, e);\n" +
+			"   xnor (strong1, strong0) #(5) (out, a, b, c, d, e);\n" +
+			"   or   (strong1, strong0) #(5, 6) (out, a, b, c, d, e);\n" +
+			"   nand (strong1, strong0) (out, a, b, c, d, e);\n" +
+			"   nand (strong1, strong0) my_gate6 (out, a, b, c, d, e);\n" +
 			"\n" +
 			"endmodule\n"
 			;
