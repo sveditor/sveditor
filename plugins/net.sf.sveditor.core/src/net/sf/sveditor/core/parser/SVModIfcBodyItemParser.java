@@ -633,15 +633,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			// TODO: Store always types in SVDBItem 
 			if (lexer().peekOperator("@")) {
 				lexer().eatToken();
-				lexer().readOperator("(");
+				// Check for @*
 				if (lexer().peekOperator("*")) {
 					lexer().eatToken();
 					always_stmt.setAlwaysEventType(AlwaysEventType.Any);
-				} else {
-					always_stmt.setEventExpr(fParsers.exprParser().event_expression());
-					always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
 				}
-				lexer().readOperator(")");
+				else if (lexer().peekOperator("("))  {
+					lexer().readOperator("(");
+					if (lexer().peekOperator("*")) {
+						lexer().eatToken();
+						always_stmt.setAlwaysEventType(AlwaysEventType.Any);
+					} else {
+						always_stmt.setEventExpr(fParsers.exprParser().event_expression());
+						always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
+					}
+					lexer().readOperator(")");
+				}
 			} else {
 				always_stmt.setAlwaysEventType(AlwaysEventType.None);
 			}

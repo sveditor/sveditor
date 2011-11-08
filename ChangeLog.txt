@@ -3,6 +3,7 @@
 - (#3434561) Drive strengths of Primitives not supported
   - Significant update to primitive support including drive strength support,
     improved error messaging, and better parameter checking
+- (#nobug)  Added support for always @*
 
 
 -- 0.6.1.ea12 Release --

@@ -428,6 +428,14 @@ public class TestParseModuleBodyItems extends TestCase {
 			"        b = ~a;\n" +
 			"    end\n" +
 			"\n" +
+			"    always @ (*) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @* begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
 			"endmodule\n"
 			;
 
