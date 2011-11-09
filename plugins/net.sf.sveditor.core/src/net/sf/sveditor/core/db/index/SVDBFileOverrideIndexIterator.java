@@ -53,6 +53,18 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 
 		// First, remove any results from this file
 		for (int i=0; i<ret.size(); i++) {
+			if (ret.get(i) == null) {
+				System.out.println("Element " + i + " is null");
+			}
+			if (ret.get(i).getFile() == null) {
+				System.out.println("Element " + i + " has null file");
+			}
+			if (fFile == null) {
+				System.out.println("fFile == null");
+			}
+			if (fFile.getFilePath() == null) {
+				System.out.println("getFilePath == null");
+			}
 			if (ret.get(i).getFile().getFilePath().equals(fFile.getFilePath())) {
 				fLog.debug("Remove item \"" + ret.get(i).getName() + "\" because from active file");
 				ret.remove(i);

@@ -213,7 +213,7 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_8_1_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_8_1_sequence_1", 
 				"/data/parser/16.8.1_sequence_1.svh", 
 				new String[] {"m"});
@@ -346,7 +346,7 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_13_6_property_4() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		runTest("test_16_13_6_property_4", 
 				"/data/parser/16.13.6_property_4.svh", 
 				new String[] {"m"});

@@ -49,7 +49,7 @@ public class TestParseInterfaceBodyItems extends TestCase {
 	
 // TODO: This should pass, it is passing in a normal verilog file...	
 	public void testInterfaceWithParam() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc = 
 			"interface pb_if (input pb_clk, input logic inst=1'b1);\n" +
@@ -58,7 +58,7 @@ public class TestParseInterfaceBodyItems extends TestCase {
 			"endinterface\n"
 			;
 		SVDBFile file = SVDBTestUtils.parse(doc, "testModportBasic");
-		SVDBTestUtils.assertFileHasElements(file, "foo");
+		SVDBTestUtils.assertFileHasElements(file, "pb_if");
 	}
 	
 }

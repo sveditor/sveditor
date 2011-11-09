@@ -7,6 +7,8 @@
 - (#nobug)  Added "disable iff" support to property parsing
 - (#nobug)  Added support for interface ports with default values
 
+------------------------------------------------------------------------------
+
 -- 0.6.1.ea12 Release --
 
 - (#no bug) Fixed "Toggle Block Comment" - Ctrl-/

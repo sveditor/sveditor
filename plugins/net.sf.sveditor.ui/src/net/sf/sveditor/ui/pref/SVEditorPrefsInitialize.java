@@ -47,6 +47,10 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_ENABLED_S, false);
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
+		
+		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_NAMED_PORTS_EN, false);
+		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_LINE_WRAP_LIMIT, 80);
+		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE, 0);
 	}
 
 }

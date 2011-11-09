@@ -452,6 +452,12 @@
             id="net.sf.sveditor.ui.svEditorTemplates"
             name="Templates">
       </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVContentAssistPrefsPage"
+            id="net.sf.sveditor.ui.contentAssist"
+            name="Content Assist">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

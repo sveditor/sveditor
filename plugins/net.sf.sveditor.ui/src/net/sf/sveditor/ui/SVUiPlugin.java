@@ -173,8 +173,6 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
-	
-
 	public ResourceBundle getResources() {
 		if (fResources == null) {
 			try {
@@ -327,4 +325,19 @@ public class SVUiPlugin extends AbstractUIPlugin
 			}
 		}
 	}
+	
+	public boolean getBooleanPref(String id) {
+		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
+		boolean val = chainedPrefs.getBoolean(id);
+
+		return val;
+	}
+	
+	public int getIntegerPref(String id) {
+		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
+		int val = chainedPrefs.getInt(id);
+
+		return val;
+	}
+	
 }

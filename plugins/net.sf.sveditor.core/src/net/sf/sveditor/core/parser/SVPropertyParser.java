@@ -20,11 +20,9 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
-import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysEventType;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVPropertyParser extends SVParserBase {
@@ -206,7 +204,9 @@ public class SVPropertyParser extends SVParserBase {
 
 	private void property_statement_spec(SVDBProperty prop) throws SVParseException {
 		if (fLexer.peekKeyword("case")) {
+			// TODO:
 		} else if (fLexer.peekKeyword("if")) {
+			// TODO:
 		} else {
 			// Expression
 			SVDBExprStmt stmt = new SVDBExprStmt();

@@ -19,6 +19,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
+import net.sf.sveditor.core.content_assist.SVCompletionProposalUtils;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -39,6 +40,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -60,13 +62,10 @@ import org.eclipse.jface.text.templates.TemplateProposal;
 public class SVCompletionProcessor extends AbstractCompletionProcessor 
 		implements IContentAssistProcessor {
 
-	private SVEditor 	fEditor;
+	private SVEditor 						fEditor;
+	private SVCompletionProposalUtils		fProposalUtils;
 
 	private static final char[] PROPOSAL_ACTIVATION_CHARS = { '.', ':' };
-	// TODO: Need to have these parameters come from some sort of configuration file
-	private static final int     TSK_FCTN_MAX_CHARS      = 80;			// Number of characters before switching to multi-line mode
-	private static final int     TSK_FCTN_PORTS_PER_LINE = 1;			// Number of ports per line in multi-line mode
-	private static final boolean TSK_FCTN_NAMED_PORTS = true;			// When set, will have named ports, otherwise will just have names
 	private final IContextInformation NO_CONTEXTS[] = new IContextInformation[0];
 	
 	private List<ICompletionProposal>				fProposals = 
@@ -75,10 +74,18 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	public SVCompletionProcessor(SVEditor editor) {
 		fLog = LogFactory.getLogHandle("SVCompletionProcessor");
 		fEditor = editor;
+		fProposalUtils = new SVCompletionProposalUtils();
 	}
 	
 	public ICompletionProposal[] computeCompletionProposals(
 			ITextViewer viewer, int offset) {
+		fProposalUtils.setMaxCharsPerLine(SVUiPlugin.getDefault().getIntegerPref(
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE));
+		fProposalUtils.setNamedPorts(SVUiPlugin.getDefault().getBooleanPref(
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_NAMED_PORTS_EN));
+		fProposalUtils.setPortsPerLine(SVUiPlugin.getDefault().getIntegerPref(
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE));
+		
 		fProposals.clear();
 		SVDocumentTextScanner scanner = new SVDocumentTextScanner(
 				viewer.getDocument(), offset);
@@ -122,13 +129,23 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			replacementOffset = doc.getLength();
 		}
 		
+		String doc_str = "";
+		try {
+			doc_str = doc.get(0, replacementOffset);
+		} catch (BadLocationException e) {}
+		
+		String next_line_indent = SVCompletionProposalUtils.getLineIndent(
+				doc_str, SVUiPlugin.getDefault().getIndentIncr());
+		next_line_indent += SVUiPlugin.getDefault().getIndentIncr();
+		
 		if (p.getItem() != null) {
 			ISVDBItemBase it = p.getItem();
 			switch (p.getItem().getType()) {
 				case Function:
 				case Task: 
 					cp = createTaskFuncProposal(
-							it, doc, replacementOffset, replacementLength);
+							it, doc, replacementOffset, replacementLength,
+							next_line_indent);
 					break;
 		
 				case MacroDef:
@@ -215,94 +232,44 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		return ret;
 	}
 	
-	private String escapeId(String id) {
-		StringBuilder sb = new StringBuilder(id);
-		for (int i=0; i<sb.length(); i++) {
-			if (sb.charAt(i) == '$') {
-				sb.insert(i, '$');
-				i++;
-			}
-		}
-		return sb.toString();
-	}
-	
 	private ICompletionProposal createTaskFuncProposal(
 			ISVDBItemBase 				it,
 			IDocument					doc,
 			int							replacementOffset,
-			int							replacementLength) {
+			int							replacementLength,
+			String						next_line_indent) {
 		TemplateContext ctxt = new DocumentTemplateContext(
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
 		
 		StringBuilder d = new StringBuilder();		// help text
-		StringBuilder r = new StringBuilder();		// template text
 		SVDBTask tf = (SVDBTask)it;
 		
 		d.append(SVDBItem.getName(it) + "(");
-		r.append(escapeId(SVDBItem.getName(it)) + "(");
 		
-		int longest_string = 0;		// used to keep code nice and neat
-		int total_length   = 0;		// used to keep code nice and neat
-		int param_count    = 0;		// used to keep code nice and neat
-		ArrayList<String> all_ports = new ArrayList<String> ();
 		ArrayList<String> all_types = new ArrayList<String> ();
+		ArrayList<String> all_ports = new ArrayList<String> ();
 		for (int i=0; i<tf.getParams().size(); i++) {
 			SVDBParamPortDecl param = tf.getParams().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());
 				all_types.add(param.getTypeName());
-				param_count ++;		// found another parameter
-				total_length += vi.getName().length();		// keep track of the length of the portlist
-				if (vi.getName().length() > longest_string)  {
-					longest_string = vi.getName().length();	// update the longest string
-				}
 			}
 		}
 
-		boolean multi_line_instantiation = false;
-		if ((longest_string * param_count)> TSK_FCTN_MAX_CHARS/2)  {
-			multi_line_instantiation = true;
-			r.append("\n");	// start ports on next line
-		}
 		// Now create the string & port list - note that we are padding to the longest string with spaces
-		for (int i=0; i<param_count; i++)  {
-			StringBuilder padded_name = new StringBuilder(all_ports.get(i));
-			String unpadded_name = all_ports.get(i);
-			if (multi_line_instantiation)  {
-				// TODO: is there a better way of adding padding?
-				for (int cnt=padded_name.length(); cnt<longest_string+1; cnt++)  {
-					padded_name.append(" ");
-				}
-			}
-			d.append(all_types.get(i) + " " + unpadded_name);
-			// Only instantiate named ports if we need to
-			if (TSK_FCTN_NAMED_PORTS == true)  {
-				// append .portname (
-				r.append("." + padded_name   + " (");
-			}
-			// append ${porntmame} which will be replaced
-			r.append("${" + padded_name   + "}");
-			if (TSK_FCTN_NAMED_PORTS == true)  {
-				r.append(")");
-			}
+		for (int i=0; i<all_ports.size(); i++)  {
+			d.append(all_types.get(i) + " " + all_ports.get(i));
 	
 			// Only add ", " on all but the last parameters
-			if (i < (param_count -1))  {
+			if (i+1 < all_ports.size())  {
 				d.append(", ");
-				r.append(", ");
-				// Add \n if we have met the number of ports per line
-				if (multi_line_instantiation && (((i+1) % TSK_FCTN_PORTS_PER_LINE) == 0))  {
-					// ML gets a CR after every port is instantiated
-					r.append("\n");
-				}
 			}
 		}
 		
 		// Close the function instantiation
-		d.append(");");
-		r.append(");");
+		d.append(")");
 		
 		if (it.getType() == SVDBItemType.Function) {
 			SVDBFunction f = (SVDBFunction)tf;
@@ -334,10 +301,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				cls_name = cls_name.substring("__sv_builtin".length());
 			}
 		}
+		
+		String template_str = fProposalUtils.createTFTemplate(tf, next_line_indent);
 
 		Template t = new Template(d.toString(), 
 				(cls_name != null)?cls_name:"", "CONTEXT",
-				r.toString(), (tf.getParams().size() == 0));
+				template_str, (tf.getParams().size() == 0));
 		
 		return new TemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
@@ -383,8 +352,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 		
 		if (md.getParameters().size() > 0) {
-			d.append(");");
-			r.append(");");
+			d.append(")");
+			r.append(")");
 		}
 		
 		Template t = new Template(d.toString(), "", "CONTEXT",
