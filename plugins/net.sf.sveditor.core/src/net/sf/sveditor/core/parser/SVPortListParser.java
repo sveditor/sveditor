@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
@@ -123,15 +124,14 @@ public class SVPortListParser extends SVParserBase {
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
-			ports.add(param_r);
-
-			/*
+			// Read in default value
 			if (fLexer.peekOperator("=")) {
 				fLexer.eatToken();
-				// TODO: read expression
-				parsers().SVParser().readExpression();
+				param.setInitExpr(parsers().exprParser().expression());
+				debug("parameter default: " + param.getInitExpr());
 			}
-			 */
+			 
+			ports.add(param_r);
 			
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
