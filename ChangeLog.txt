@@ -4,6 +4,7 @@
   - Significant update to primitive support including drive strength support,
     improved error messaging, and better parameter checking
 - (#nobug)  Added support for always @*
+- (#nobug)  Added "disable iff" support to property parsing
 
 
 -- 0.6.1.ea12 Release --

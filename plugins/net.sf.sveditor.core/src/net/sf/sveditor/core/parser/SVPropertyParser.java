@@ -20,9 +20,11 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysEventType;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVPropertyParser extends SVParserBase {
@@ -30,11 +32,39 @@ public class SVPropertyParser extends SVParserBase {
 	public SVPropertyParser(ISVParser parser) {
 		super(parser);
 	}
-	
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+	//	property_declaration ::= 
+	//			property property_identifier [ ( [ tf_port_list ] ) ] ; 
+	//			{ assertion_variable_declaration } 
+	//			property_spec ; 
+	//			endproperty [ : property_identifier ] 
+	//			list_of_formals ::= formal_list_item { , formal_list_item } 
+	//			property_spec ::= 
+	//			[clocking_event ] [ disable iff ( expression_or_dist ) ] property_expr 
+	//			property_expr ::= 
+	//			sequence_expr 
+	//			| ( property_expr ) 
+	//			| not property_expr 
+	//			| property_expr or property_expr 
+	//			| property_expr and property_expr 
+	//			| sequence_expr |-> property_expr 
+	//			| sequence_expr |=> property_expr 
+	//			| if ( expression_or_dist ) property_expr [ else property_expr ] 
+	//			| property_instance 
+	//			| clocking_event property_expr 
+	//			assertion_variable_declaration ::= 
+	//			var_data_type list_of_variable_identifiers ; 
+	//			property_instance::= 
+	//			ps_property_identifier [ ( [ list_of_arguments ] ) ] 
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	public void property(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBProperty prop = new SVDBProperty();
+		
+		// Parse the following:
+		// property property_name [(some_parameter_list, and_another_parameter)];
 		fLexer.readKeyword("property");
-
+		
 		prop.setName(fLexer.readId());
 		
 		if (fLexer.peekOperator("(")) {
@@ -89,7 +119,7 @@ public class SVPropertyParser extends SVParserBase {
 					} finally {
 						fLexer.removeTokenListener(l);
 					}
-					
+
 					// Okay, what's next?
 					if (fLexer.peekId()) {
 						// Conclude that this is a declaration
@@ -107,6 +137,57 @@ public class SVPropertyParser extends SVParserBase {
 					break;
 				}
 			}
+		}
+
+		// Possibly a clocking event which is @
+		// TODO: Store always types in SVDBItem
+		// This has been copied from "parse_initial_always" ... this should be a common parser type
+		// --- clocking event start ----
+//					SVDBAlwaysStmt always_stmt = new SVDBAlwaysStmt(always_type);
+		
+		// TODO: Store always types in SVDBItem 
+		// Can have the following formats:
+		// @*
+		// @(*)
+		// @ expression
+		// @ (expression)
+		if (lexer().peekOperator("@")) {
+			lexer().eatToken();
+			// Just kill the open brace
+			if (lexer().peekOperator("("))  {
+				lexer().readOperator("(");
+			}
+			// Check for @*
+			if (lexer().peekOperator("*")) {
+				lexer().eatToken();
+//							always_stmt.setAlwaysEventType(AlwaysEventType.Any);
+			}
+			// Suck in the expression itself
+			else {
+				fParsers.exprParser().event_expression();
+//							always_stmt.setEventExpr(fParsers.exprParser().event_expression());
+//							always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
+			}
+			// blindly eat the closing brace if it exists
+			if (lexer().peekOperator(")"))  {
+				lexer().readOperator(")");
+			}
+		} else {
+//						always_stmt.setAlwaysEventType(AlwaysEventType.None);
+		}
+		// TODO: Do something with always_stmt
+		// --- clocking event end ---
+
+		// Check for disable iff (...)
+		if (fLexer.peekKeyword("disable"))  {
+			fLexer.readKeyword("disable");
+			fLexer.readKeyword("iff");
+			fLexer.readOperator("(");
+			// TODO: Figure out what to do with this
+			SVDBExprStmt stmt = new SVDBExprStmt();
+			stmt.setLocation(fLexer.getStartLocation());
+			stmt.setExpr(parsers().exprParser().expression());
+			fLexer.readOperator(")");
 		}
 		
 		try {
