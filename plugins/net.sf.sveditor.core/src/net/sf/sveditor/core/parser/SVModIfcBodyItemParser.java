@@ -631,22 +631,29 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			SVDBAlwaysStmt always_stmt = new SVDBAlwaysStmt(always_type);
 			
 			// TODO: Store always types in SVDBItem 
+			// Can have the following formats:
+			// @*
+			// @(*)
+			// @ expression
+			// @ (expression)
 			if (lexer().peekOperator("@")) {
 				lexer().eatToken();
+				// Just kill the open brace
+				if (lexer().peekOperator("("))  {
+					lexer().readOperator("(");
+				}
 				// Check for @*
 				if (lexer().peekOperator("*")) {
 					lexer().eatToken();
 					always_stmt.setAlwaysEventType(AlwaysEventType.Any);
 				}
-				else if (lexer().peekOperator("("))  {
-					lexer().readOperator("(");
-					if (lexer().peekOperator("*")) {
-						lexer().eatToken();
-						always_stmt.setAlwaysEventType(AlwaysEventType.Any);
-					} else {
-						always_stmt.setEventExpr(fParsers.exprParser().event_expression());
-						always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
-					}
+				// Suck in the expression itself
+				else {
+					always_stmt.setEventExpr(fParsers.exprParser().event_expression());
+					always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
+				}
+				// blindly eat the closing brace if it exists
+				if (lexer().peekOperator(")"))  {
 					lexer().readOperator(")");
 				}
 			} else {
