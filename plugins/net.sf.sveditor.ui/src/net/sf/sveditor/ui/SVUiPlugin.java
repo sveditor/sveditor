@@ -326,6 +326,13 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
+	public int getTabWidth() {
+		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
+		int tab_width = chainedPrefs.getInt(
+				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
+		return tab_width;
+	}
+	
 	public boolean getBooleanPref(String id) {
 		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
 		boolean val = chainedPrefs.getBoolean(id);

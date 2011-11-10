@@ -7,6 +7,10 @@
 - (#nobug)  Added "disable iff" support to property parsing
 - (#nobug)  Added support for interface ports with default values
 
+- (#nobug)  Ensure parameter declarations are correctly displayed in the outline
+
+- Add preferences page for content assist to control formatting of tasks/functions
+
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea12 Release --

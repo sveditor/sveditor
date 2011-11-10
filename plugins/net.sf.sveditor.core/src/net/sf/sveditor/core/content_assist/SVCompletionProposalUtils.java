@@ -2,13 +2,11 @@ package net.sf.sveditor.core.content_assist;
 
 import java.util.ArrayList;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.indent.ISVIndenter;
 
 public class SVCompletionProposalUtils {
 	// TODO: Need to have these parameters come from some sort of configuration file
@@ -68,11 +66,22 @@ public class SVCompletionProposalUtils {
 		return indent;
 	}
 
+	/**
+	 * 
+	 * @param tf
+	 * @param subseq_line_indent -- Indent string for subsequent lines
+	 * @param first_line_pos	 -- 
+	 * @param subseq_line_pos
+	 * @return
+	 */
 	public String createTFTemplate(
 			SVDBTask 		tf,
-			String			next_line_indent) {
-		String newline = "\n" + next_line_indent;
+			String			subseq_line_indent,
+			int				first_line_pos,
+			int				subseq_line_pos) {
+		String newline = "\n" + subseq_line_indent;
 		StringBuilder r = new StringBuilder();		// template text
+		int curr_pos = first_line_pos;
 		
 		r.append(escapeId(SVDBItem.getName(tf)) + "(");
 		
@@ -97,39 +106,62 @@ public class SVCompletionProposalUtils {
 		}
 		
 		boolean multi_line_instantiation = false;
-		if ((longest_string * param_count)> fTFMaxCharsPerLine/2)  {
+		if (
+			(fTFMaxCharsPerLine != 0 && (first_line_pos + (longest_string * param_count)) > (fTFMaxCharsPerLine*7)/8) ||
+			(fTFPortsPerLine != 0 && param_count > fTFPortsPerLine)
+			) {
 			multi_line_instantiation = true;
 			r.append(newline);	// start ports on next line
+			curr_pos = subseq_line_pos;
 		}
 		
 		// Now create the string & port list - note that we are padding to the longest string with spaces
 		for (int i=0; i<param_count; i++)  {
-			StringBuilder padded_name = new StringBuilder(all_ports.get(i));
-			if (multi_line_instantiation)  {
+			StringBuilder padded_name = null;
+			String name_str;
+			// Padding is enabled if multi-line is triggered and
+			// named ports are being used
+			if (multi_line_instantiation && fTFNamedPorts)  {
+				padded_name = new StringBuilder(all_ports.get(i));
 				// TODO: is there a better way of adding padding?
 				for (int cnt=padded_name.length(); cnt<longest_string+1; cnt++)  {
 					padded_name.append(" ");
 				}
+				name_str = padded_name.toString();
+			} else {
+				name_str = all_ports.get(i);
 			}
 
 			// Only instantiate named ports if we need to
 			if (fTFNamedPorts == true)  {
 				// append .portname (
-				r.append("." + padded_name   + " (");
+				r.append(".");
+				r.append(name_str);
+				r.append(" (");
+				curr_pos += 3 + name_str.length(); 
 			}
 			// append ${porntmame} which will be replaced
-			r.append("${" + padded_name   + "}");
+//			r.append("${" + padded_name   + "}");
+			r.append("${" + all_ports.get(i) + "}");
+			curr_pos += 3 + all_ports.get(i).length();
 			if (fTFNamedPorts == true)  {
 				r.append(")");
+				curr_pos++;
 			}
 	
 			// Only add ", " on all but the last parameters
-			if (i < (param_count -1))  {
+			if (i+1 < param_count)  {
 				r.append(", ");
+				curr_pos += 2;
+				
 				// Add \n if we have met the number of ports per line
-				if (fTFPortsPerLine > 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0))  { 
+				// or if we've exceeded the line max
+				if ((fTFPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0)) ||
+						(curr_pos > (7*fTFMaxCharsPerLine)/8)
+						){ 
 					// ML gets a CR after every port is instantiated
 					r.append(newline);
+					curr_pos = subseq_line_pos;
 				}
 			}
 		}

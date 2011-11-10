@@ -80,7 +80,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	public ICompletionProposal[] computeCompletionProposals(
 			ITextViewer viewer, int offset) {
 		fProposalUtils.setMaxCharsPerLine(SVUiPlugin.getDefault().getIntegerPref(
-				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE));
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_LINE_WRAP_LIMIT));
 		fProposalUtils.setNamedPorts(SVUiPlugin.getDefault().getBooleanPref(
 				SVEditorPrefsConstants.P_CONTENT_ASSIST_NAMED_PORTS_EN));
 		fProposalUtils.setPortsPerLine(SVUiPlugin.getDefault().getIntegerPref(
@@ -115,6 +115,18 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
 	}
 	
+	private static int getIndentStringSize(String indent) {
+		int size=0;
+		for (int i=0; i<indent.length(); i++) {
+			if (indent.charAt(i) == '\t') {
+				size += SVUiPlugin.getDefault().getTabWidth();
+			} else {
+				size++;
+			}
+		}
+		return size;
+	}
+	
 	protected List<ICompletionProposal> convertToProposal(
 			SVCompletionProposal		p,
 			IDocument					doc) {
@@ -136,7 +148,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		String next_line_indent = SVCompletionProposalUtils.getLineIndent(
 				doc_str, SVUiPlugin.getDefault().getIndentIncr());
+		int first_line_pos = getIndentStringSize(next_line_indent);
 		next_line_indent += SVUiPlugin.getDefault().getIndentIncr();
+		int subseq_line_pos = getIndentStringSize(next_line_indent);
 		
 		if (p.getItem() != null) {
 			ISVDBItemBase it = p.getItem();
@@ -145,7 +159,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				case Task: 
 					cp = createTaskFuncProposal(
 							it, doc, replacementOffset, replacementLength,
-							next_line_indent);
+							next_line_indent, first_line_pos, subseq_line_pos);
 					break;
 		
 				case MacroDef:
@@ -237,7 +251,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			IDocument					doc,
 			int							replacementOffset,
 			int							replacementLength,
-			String						next_line_indent) {
+			String						next_line_indent,
+			int							first_line_pos,
+			int							subseq_line_pos) {
 		TemplateContext ctxt = new DocumentTemplateContext(
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
@@ -302,7 +318,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			}
 		}
 		
-		String template_str = fProposalUtils.createTFTemplate(tf, next_line_indent);
+		// TODO:
+		String template_str = fProposalUtils.createTFTemplate(tf, 
+				next_line_indent, first_line_pos, subseq_line_pos);
 
 		Template t = new Template(d.toString(), 
 				(cls_name != null)?cls_name:"", "CONTEXT",
