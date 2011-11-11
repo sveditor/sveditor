@@ -14,6 +14,8 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr;
+import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAlwaysStmt extends SVDBBodyStmt {
@@ -25,43 +27,46 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 		AlwaysFF
 	};
 	
-	public enum AlwaysEventType {
-		None, // always ... 
-		Any,  // @(*)
-		Expr // always @(a or b or c)
-	}
-	
-	private AlwaysType			fAlwaysType;
-	private AlwaysEventType		fAlwaysEventType;
-	private SVDBExpr			fAlwaysEventExpr;
+	private AlwaysType				fAlwaysType;
+	private SVDBClockingEventExpr 	fAlwaysEventExprType;
 	
 	public SVDBAlwaysStmt() {
 		this(AlwaysType.Always);
+		fAlwaysEventExprType = new SVDBClockingEventExpr();
 	}
 	
 	public SVDBAlwaysStmt(AlwaysType type) {
 		super(SVDBItemType.AlwaysStmt);
 		fAlwaysType = type;
+		fAlwaysEventExprType = new SVDBClockingEventExpr();
 	}
 	
 	public AlwaysType getAlwaysType() {
 		return fAlwaysType;
 	}
 	
-	public AlwaysEventType getAlwaysEventType() {
-		return fAlwaysEventType;
+	public ClockingEventType getAlwaysEventType() {
+		return fAlwaysEventExprType.getClockingEventType();
 	}
 	
-	public void setAlwaysEventType(AlwaysEventType type) {
-		fAlwaysEventType = type;
+	public void setAlwaysEventType(ClockingEventType type) {
+		fAlwaysEventExprType.setClockingEventType(type);
 	}
 	
 	public SVDBExpr getEventExpr() {
-		return fAlwaysEventExpr;
+		return fAlwaysEventExprType.getExpr();
 	}
 	
 	public void setEventExpr(SVDBExpr expr) {
-		fAlwaysEventExpr = expr;
+		fAlwaysEventExprType.setExpr(expr);
+	}
+	
+	public SVDBClockingEventExpr getCBEventExpr() {
+		return fAlwaysEventExprType;
+	}
+	
+	public void setCBEventExpr(SVDBClockingEventExpr cbExpr) {
+		fAlwaysEventExprType = cbExpr;
 	}
 	
 	@Override

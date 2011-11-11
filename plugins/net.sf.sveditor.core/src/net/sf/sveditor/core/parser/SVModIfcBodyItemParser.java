@@ -34,8 +34,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
+import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
-import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysEventType;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
@@ -629,35 +629,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				always_type = AlwaysType.AlwaysFF;
 			}
 			SVDBAlwaysStmt always_stmt = new SVDBAlwaysStmt(always_type);
-			
-			// TODO: Store always types in SVDBItem 
-			// Can have the following formats:
-			// @*
-			// @(*)
-			// @ expression
-			// @ (expression)
-			if (lexer().peekOperator("@")) {
-				lexer().eatToken();
-				// Just kill the open brace
-				if (lexer().peekOperator("("))  {
-					lexer().readOperator("(");
+			if ((always_type == AlwaysType.AlwaysFF) || (always_type == AlwaysType.Always))  {
+				
+				// TODO: Store always types in SVDBItem 
+				// Can have the following formats:
+				// @*
+				// @(*)
+				// @ expression
+				// @ (expression)
+				if (lexer().peekOperator("@")) {
+					always_stmt.setCBEventExpr(parsers().exprParser().clocking_event());
+				} else {
+					always_stmt.setAlwaysEventType(ClockingEventType.None);
 				}
-				// Check for @*
-				if (lexer().peekOperator("*")) {
-					lexer().eatToken();
-					always_stmt.setAlwaysEventType(AlwaysEventType.Any);
-				}
-				// Suck in the expression itself
-				else {
-					always_stmt.setEventExpr(fParsers.exprParser().event_expression());
-					always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
-				}
-				// blindly eat the closing brace if it exists
-				if (lexer().peekOperator(")"))  {
-					lexer().readOperator(")");
-				}
+			// Remaining always types don't have clocking blocks
 			} else {
-				always_stmt.setAlwaysEventType(AlwaysEventType.None);
+				always_stmt.setAlwaysEventType(ClockingEventType.None);
 			}
 			ret = always_stmt;
 		} else {
