@@ -11,6 +11,7 @@
 
 - Add preferences page for content assist to control formatting of tasks/functions
 
+- Added Content assist for module instantiation
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea12 Release --

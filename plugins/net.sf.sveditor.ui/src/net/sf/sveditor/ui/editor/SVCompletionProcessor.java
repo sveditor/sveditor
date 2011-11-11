@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -162,6 +163,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							next_line_indent, first_line_pos, subseq_line_pos);
 					break;
 		
+				case ModuleDecl:
+					cp = createModuleProposal(
+							it, doc, replacementOffset, replacementLength,
+							next_line_indent, first_line_pos, subseq_line_pos);
+					break;
+
 				case MacroDef:
 					cp = createMacroProposal(
 							it, doc, replacementOffset, replacementLength);
@@ -325,6 +332,91 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		Template t = new Template(d.toString(), 
 				(cls_name != null)?cls_name:"", "CONTEXT",
 				template_str, (tf.getParams().size() == 0));
+		
+		return new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+	}
+
+	private ICompletionProposal createModuleProposal(
+			ISVDBItemBase 				it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength,
+			String						next_line_indent,
+			int							first_line_pos,
+			int							subseq_line_pos) {
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+		StringBuilder d = new StringBuilder();		// help text
+		SVDBModIfcDecl tf = (SVDBModIfcDecl)it;
+
+		d.append(SVDBItem.getName(it) + "(");
+		
+		ArrayList<String> all_types = new ArrayList<String> ();
+		ArrayList<String> all_ports = new ArrayList<String> ();
+		for (int i=0; i<tf.getPorts().size(); i++) {
+			SVDBParamPortDecl param = tf.getPorts().get(i);
+			for (ISVDBChildItem c : param.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				all_ports.add(vi.getName());
+				all_types.add(param.getTypeName());
+			}
+		}
+
+		// Now create the string & port list - note that we are padding to the longest string with spaces
+		for (int i=0; i<all_ports.size(); i++)  {
+			d.append(all_types.get(i) + " " + all_ports.get(i));
+	
+			// Only add ", " on all but the last parameters
+			if (i+1 < all_ports.size())  {
+				d.append(", ");
+			}
+		}
+		
+		// Close the function instantiation
+		d.append(")");
+		
+//		if (it.getType() == SVDBItemType.Function) {
+//			SVDBFunction f = (SVDBFunction)tf;
+//			if (f.getReturnType() != null &&
+//				!f.getReturnType().equals("void") &&
+//				!SVDBItem.getName(it).equals("new")) {
+//				d.append(" : ");
+//				d.append(f.getReturnType());
+//			}
+//		}
+		
+//		// Find the class that this function belongs to (if any)
+//		ISVDBChildItem class_it = (ISVDBChildItem)it;
+//		
+//		while (class_it != null && class_it.getType() != SVDBItemType.ClassDecl) {
+//			class_it = class_it.getParent();
+//		}
+//		
+//		String cls_name = null;
+//		if (class_it != null && class_it instanceof ISVDBNamedItem) {
+//			cls_name = ((ISVDBNamedItem)class_it).getName();
+//			if (cls_name.equals("__sv_builtin_queue")) {
+//				cls_name = "[$]";
+//			} else if (cls_name.equals("__sv_builtin_array")) {
+//				cls_name = "[]";
+//			} else if (cls_name.equals("__sv_builtin_assoc_array")) {
+//				cls_name = "[*]";
+//			} else if (cls_name.startsWith("__sv_builtin")) {
+//				cls_name = cls_name.substring("__sv_builtin".length());
+//			}
+//		}
+		
+		// TODO:
+		String template_str = fProposalUtils.createModuleTemplate(tf, 
+				next_line_indent, first_line_pos, subseq_line_pos);
+
+		Template t = new Template(d.toString(), 
+				"steven was here", "CONTEXT",
+				template_str, (tf.getPorts().size() == 0));
 		
 		return new TemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 

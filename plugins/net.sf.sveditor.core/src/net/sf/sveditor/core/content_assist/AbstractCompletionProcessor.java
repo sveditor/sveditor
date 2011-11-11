@@ -1198,7 +1198,8 @@ public abstract class AbstractCompletionProcessor {
 			int 			replacementOffset, 
 			int 			replacementLength) {
 		boolean found = false;
-		
+
+		// Check if we already have it in the proposal list?
 		for (SVCompletionProposal p : fCompletionProposals) {
 			if (p.getItem() != null && p.getItem() == it) {
 				found = true;
