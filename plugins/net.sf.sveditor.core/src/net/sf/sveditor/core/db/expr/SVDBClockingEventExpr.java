@@ -15,8 +15,16 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBClockingEventExpr extends SVDBExpr {
+	public enum ClockingEventType {
+		None, // always ... 
+		Any,  // @(*)
+		Expr // always @(a or b or c)
+	}
+
 	private SVDBExpr			fExpr;
-	
+	private ClockingEventType   fEventType;
+
+
 	public SVDBClockingEventExpr() {
 		super(SVDBItemType.ClockingEventExpr);
 	}
@@ -27,6 +35,14 @@ public class SVDBClockingEventExpr extends SVDBExpr {
 	
 	public SVDBExpr getExpr() {
 		return fExpr;
+	}
+
+	public void setClockingEventType(ClockingEventType type) {
+		fEventType = type;
+	}
+	
+	public ClockingEventType getClockingEventType() {
+		return fEventType;
 	}
 
 }

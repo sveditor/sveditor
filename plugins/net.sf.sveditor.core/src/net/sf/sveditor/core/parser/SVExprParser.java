@@ -52,6 +52,7 @@ import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.expr.SVDBTypeExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
 import net.sf.sveditor.core.db.expr.SVExprParseException;
+import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 
@@ -68,17 +69,49 @@ public class SVExprParser extends SVParserBase {
 //		fExprDump = new SVExprDump(System.out);
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// This routine is used to parse an "@(xxx)"  
+	// Formats supported are:
+	// @*
+	// @(*)
+	// @(some_series_of_events)
+	// @some event
+	// Before calling fLexer.peekOperator("@") to prevent an exception
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	public SVDBClockingEventExpr clocking_event() throws SVParseException {
 		SVDBClockingEventExpr expr = new SVDBClockingEventExpr();
 		fLexer.readOperator("@");
+		// Check if there is an open brace - kill it if so
 		if (fLexer.peekOperator("(")) {
 			SVDBParenExpr p = new SVDBParenExpr();
 			p.setLocation(fLexer.getStartLocation());
 			fLexer.eatToken();
-			p.setExpr(event_expression());
+			// Handle @(*)
+			if (fLexer.peekOperator("*"))  {
+				// swallow the *
+				fLexer.readOperator("*");
+				expr.setClockingEventType(ClockingEventType.Any);
+				// TODO: How do I set the expression?
+			}
+			// grab the event expression
+			else  {
+				expr.setClockingEventType(ClockingEventType.Expr);
+				p.setExpr(event_expression());
+			}
 			fLexer.readOperator(")");
 			expr.setExpr(p);
-		} else {
+		}
+		// handle @*
+		else  if (fLexer.peekOperator("*"))  {
+			expr.setClockingEventType(ClockingEventType.Any);
+			// swallow the *
+			fLexer.readOperator("*");
+			// TODO: How do I set the expression?
+//			expr.setExpr(idExpr());
+		}
+		// Handle @ some_event_name
+		else  {
+			expr.setClockingEventType(ClockingEventType.Expr);
 			expr.setExpr(idExpr());
 		}
 		

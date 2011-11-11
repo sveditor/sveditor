@@ -137,44 +137,11 @@ public class SVPropertyParser extends SVParserBase {
 			}
 		}
 
-		// Possibly a clocking event which is @
-		// TODO: Store always types in SVDBItem
-		// This has been copied from "parse_initial_always" ... this should be a common parser type
-		// --- clocking event start ----
-//					SVDBAlwaysStmt always_stmt = new SVDBAlwaysStmt(always_type);
-		
-		// TODO: Store always types in SVDBItem 
-		// Can have the following formats:
-		// @*
-		// @(*)
-		// @ expression
-		// @ (expression)
+		// Check if property has an clocking / event term
 		if (lexer().peekOperator("@")) {
-			lexer().eatToken();
-			// Just kill the open brace
-			if (lexer().peekOperator("("))  {
-				lexer().readOperator("(");
-			}
-			// Check for @*
-			if (lexer().peekOperator("*")) {
-				lexer().eatToken();
-//							always_stmt.setAlwaysEventType(AlwaysEventType.Any);
-			}
-			// Suck in the expression itself
-			else {
-				fParsers.exprParser().event_expression();
-//							always_stmt.setEventExpr(fParsers.exprParser().event_expression());
-//							always_stmt.setAlwaysEventType(AlwaysEventType.Expr);
-			}
-			// blindly eat the closing brace if it exists
-			if (lexer().peekOperator(")"))  {
-				lexer().readOperator(")");
-			}
-		} else {
-//						always_stmt.setAlwaysEventType(AlwaysEventType.None);
+			// Possibly a clocking event which is @
+			parsers().exprParser().clocking_event();
 		}
-		// TODO: Do something with always_stmt
-		// --- clocking event end ---
 
 		// Check for disable iff (...)
 		if (fLexer.peekKeyword("disable"))  {
