@@ -428,11 +428,27 @@ public class TestParseModuleBodyItems extends TestCase {
 			"        b = ~a;\n" +
 			"    end\n" +
 			"\n" +
+			"    always @ (posedge a or negedge b) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always_ff @ (posedge a or negedge b) begin\n" +		// Throw in an always_ff for the fun of it
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ (posedge a, negedge b) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
 			"    always @ (*) begin\n" +
 			"        b = ~a;\n" +
 			"    end\n" +
 			"\n" +
 			"    always @* begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ someevent begin\n" +
 			"        b = ~a;\n" +
 			"    end\n" +
 			"\n" +
