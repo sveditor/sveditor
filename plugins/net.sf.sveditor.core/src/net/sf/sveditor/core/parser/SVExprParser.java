@@ -97,9 +97,9 @@ public class SVExprParser extends SVParserBase {
 			else  {
 				expr.setClockingEventType(ClockingEventType.Expr);
 				p.setExpr(event_expression());
+				expr.setExpr(p);
 			}
 			fLexer.readOperator(")");
-			expr.setExpr(p);
 		}
 		// handle @*
 		else  if (fLexer.peekOperator("*"))  {
