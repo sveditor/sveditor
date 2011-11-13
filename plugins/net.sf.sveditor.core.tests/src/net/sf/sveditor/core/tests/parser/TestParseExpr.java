@@ -202,7 +202,23 @@ public class TestParseExpr extends TestCase {
 		
 		runTest(testname, content, new String[] {"m"});
 	}
-
+	
+	public void testConcatTernaryStringExpr() throws SVParseException {
+		String testname = "testConcatTernaryStringExpr";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String content =
+			"class c;\n" +
+			"	function f;\n" +
+			"		string msg;\n" +
+			"		msg = {msg, (i == 1) ? str1 : str2, \"str3\" };\n" +
+			"		msg = {msg, (i == 1) ? \"str1\" : str2, \"str3\" };\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(testname, content, new String[] {"c"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

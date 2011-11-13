@@ -12,6 +12,9 @@
 - Add preferences page for content assist to control formatting of tasks/functions
 
 - Added Content assist for module instantiation
+
+- (#3436267) Correct parser bug involving concatenation and ternary operator
+
 ------------------------------------------------------------------------------
 
 -- 0.6.1.ea12 Release --

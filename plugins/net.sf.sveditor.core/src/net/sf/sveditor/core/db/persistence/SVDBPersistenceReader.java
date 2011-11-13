@@ -30,6 +30,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 @SuppressWarnings("rawtypes")
 public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
@@ -37,14 +39,16 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	private byte									fTmp[];
 	private static Map<Class, Map<Integer, Enum>>	fEnumMap;
 	private static Map<SVDBItemType, Class>			fClassMap;
-	private static final boolean					fDebugEn = false;
+	private static final boolean					fDebugEn = true;
 	private int										fLevel = 0;
+	private LogHandle								fLog;
 	
 	static {
 		fEnumMap = new HashMap<Class, Map<Integer,Enum>>();
 	}
 	
 	public SVDBPersistenceReader() {
+		fLog = LogFactory.getLogHandle("SVDBPersistenceReader");
 		synchronized (getClass()) {
 			if (fClassMap == null) {
 				fClassMap 	= new HashMap<SVDBItemType, Class>();
@@ -583,7 +587,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		SVDBItemType item_type   = readItemType();
 		
 		if (fDebugEn) {
-			debug("readSVDBItem: " + item_type);
+			debug("--> readSVDBItem: " + item_type);
 		}
 		
 		ISVDBItemBase ret = null;
@@ -602,7 +606,11 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 		} else {
 			throw new DBFormatException("Unsupported SVDBItemType " + item_type);
 		}
-		
+
+		if (fDebugEn) {
+			debug("<-- readSVDBItem: " + item_type);
+		}
+
 		return ret;
 	}
 
@@ -636,7 +644,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	
 	private void debug(String msg) {
 		if (fDebugEn) {
-			System.out.println(msg);
+			fLog.debug(msg);
 		}
 	}
 }

@@ -188,14 +188,14 @@ public class TestParseDataTypes extends TestCase {
 	public void testIntAssignPackedStructFieldQualified() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
-			"module t;\n" +
-			"	int a;\n" +
+			"module t;\n" +											// 1
+			"	int a;\n" +											
 			"	typedef struct packed {\n" +
 			"		bit[15:0] a;\n" +
-			"		bit[15:0] b;\n" +
+			"		bit[15:0] b;\n" +								// 5
     		"	} s;\n" +
     		"	initial begin\n" +
-    		"		a = s'{a:5, b:10, default:'x};\n" +
+    		"		a = s'{a:5, b:10, default:'x};\n" +				// 8
     		"	end\n" +
     		"endmodule\n" 
     		;
