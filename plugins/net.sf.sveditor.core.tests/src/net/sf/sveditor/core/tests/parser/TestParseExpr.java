@@ -203,6 +203,19 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"m"});
 	}
 	
+	public void testWireAssignMiscOperators () throws SVParseException {
+		String testname = "testWireAssignMacroExpr";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+						"module m;\n" +
+					    "  wire a, b, c;\n" +
+				        "  assign c =  (a ~^ b);		// XNOR\n"+
+						"endmodule\n"
+						;
+		
+		runTest(testname, content, new String[] {"m"});
+	}
+	
 	public void testConcatTernaryStringExpr() throws SVParseException {
 		String testname = "testConcatTernaryStringExpr";
 		SVCorePlugin.getDefault().enableDebug(false);
