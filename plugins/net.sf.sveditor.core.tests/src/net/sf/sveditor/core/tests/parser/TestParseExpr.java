@@ -210,6 +210,7 @@ public class TestParseExpr extends TestCase {
 						"module m;\n" +
 					    "  wire a, b, c;\n" +
 				        "  assign c =  (a ~^ b);		// XNOR\n"+
+				        "  assign c =  (a ^~ b);		// XNOR\n"+
 						"endmodule\n"
 						;
 		

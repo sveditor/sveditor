@@ -554,14 +554,40 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVDBExpr exclusiveOrExpression() throws SVParseException {
 		debug("--> exclusiveOrExpression");
-		SVDBExpr a = andExpression();
+		SVDBExpr a = exclusiveNorExpression1();
 		
 		while (peekOperator("^")) {
 			eatToken();
-			a = new SVDBBinaryExpr(a, "^", andExpression());
+			a = new SVDBBinaryExpr(a, "^", exclusiveNorExpression1());
 		}
 		
 		debug("<-- exclusiveOrExpression");
+		return a;
+	}
+	
+	public SVDBExpr exclusiveNorExpression1() throws SVParseException {
+		debug("--> exclusiveNorExpression1");
+		SVDBExpr a = exclusiveNorExpression2();
+		
+		while (peekOperator("^~")) {
+			eatToken();
+			a = new SVDBBinaryExpr(a, "^~", exclusiveNorExpression2());
+		}
+		
+		debug("<-- exclusiveNorExpression1");
+		return a;
+	}
+	
+	public SVDBExpr exclusiveNorExpression2() throws SVParseException {
+		debug("--> exclusiveNorExpression2");
+		SVDBExpr a = andExpression();
+		
+		while (peekOperator("~^")) {
+			eatToken();
+			a = new SVDBBinaryExpr(a, "~^", andExpression());
+		}
+		
+		debug("<-- exclusiveNorExpression2");
 		return a;
 	}
 	
