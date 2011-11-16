@@ -84,11 +84,10 @@ public class SVCompletionProposalUtils {
 		StringBuilder r = new StringBuilder();		// template text
 		int curr_pos = first_line_pos;
 		
-		r.append(escapeId(SVDBItem.getName(tf)) + "(");
 		
 		int longest_string = 0;		// used to keep code nice and neat
-//		int total_length   = 0;		// used to keep code nice and neat
-		int param_count    = 0;		// used to keep code nice and neat
+		int port_length   = 0;		// used to keep code nice and neat
+		int port_count    = 0;		// used to keep code nice and neat
 		
 		ArrayList<String> all_ports = new ArrayList<String> ();
 		ArrayList<String> all_types = new ArrayList<String> ();
@@ -98,8 +97,8 @@ public class SVCompletionProposalUtils {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());
 				all_types.add(param.getTypeName());
-				param_count ++;		// found another parameter
-//				total_length += vi.getName().length();		// keep track of the length of the portlist
+				port_count ++;		// found another parameter
+				port_length += vi.getName().length();		// keep track of the length of the portlist
 				if (vi.getName().length() > longest_string)  {
 					longest_string = vi.getName().length();	// update the longest string
 				}
@@ -107,51 +106,51 @@ public class SVCompletionProposalUtils {
 		}
 		
 		boolean multi_line_instantiation = false;
-		if (
-			(fTFMaxCharsPerLine != 0 && (first_line_pos + (longest_string * param_count)) > (fTFMaxCharsPerLine*7)/8) ||
-			(fTFPortsPerLine != 0 && param_count > fTFPortsPerLine)
+		int multiplier = fTFNamedPorts ? 2 : 1;
+		// Multi-line instantiation rules
+		if	(((fTFMaxCharsPerLine != 0) && ((first_line_pos + (port_length*multiplier)+(2/*, */*multiplier)) > ((fTFMaxCharsPerLine*7)/8))) ||		// have a line length and we are probably longer than that line
+			 ((fTFPortsPerLine != 0) && (port_count > fTFPortsPerLine))								// have a ports per line & param or port list > that that number
 			) {
 			multi_line_instantiation = true;
-			r.append(newline);	// start ports on next line
 			curr_pos = subseq_line_pos;
 		}
-		
+		else  {
+			newline = "";
+		}
+
+		// Instantiate name
+		r.append(escapeId(SVDBItem.getName(tf)) + "(" + newline);
 		// Now create the string & port list - note that we are padding to the longest string with spaces
-		for (int i=0; i<param_count; i++)  {
-			StringBuilder padded_name = null;
-			String name_str;
+		for (int i=0; i<port_count; i++)  {
+			StringBuilder padding = new StringBuilder("");
+			String name_str = all_ports.get(i);
 			// Padding is enabled if multi-line is triggered and
 			// named ports are being used
-			if (multi_line_instantiation && fTFNamedPorts)  {
-				padded_name = new StringBuilder(all_ports.get(i));
+			if (multi_line_instantiation)  {
 				// TODO: is there a better way of adding padding?
-				for (int cnt=padded_name.length(); cnt<longest_string+1; cnt++)  {
-					padded_name.append(" ");
+				for (int cnt=name_str.length(); cnt<longest_string+1; cnt++)  {
+					padding.append(" ");
 				}
-				name_str = padded_name.toString();
-			} else {
-				name_str = all_ports.get(i);
 			}
-
+	
 			// Only instantiate named ports if we need to
 			if (fTFNamedPorts == true)  {
 				// append .portname (
 				r.append(".");
-				r.append(name_str);
+				r.append(name_str + padding.toString());
 				r.append(" (");
-				curr_pos += 3 + name_str.length(); 
+				curr_pos += 3 + name_str.length() + padding.toString().length(); 
 			}
 			// append ${porntmame} which will be replaced
-//			r.append("${" + padded_name   + "}");
-			r.append("${" + all_ports.get(i) + "}");
-			curr_pos += 3 + all_ports.get(i).length();
+			r.append("${" + all_ports.get(i) + "}" + padding.toString());
+			curr_pos += 3 + all_ports.get(i).length() + padding.toString().length();
 			if (fTFNamedPorts == true)  {
 				r.append(")");
 				curr_pos++;
 			}
 	
 			// Only add ", " on all but the last parameters
-			if (i+1 < param_count)  {
+			if (i+1 < port_count)  {
 				r.append(", ");
 				curr_pos += 2;
 				
@@ -190,74 +189,150 @@ public class SVCompletionProposalUtils {
 		StringBuilder r = new StringBuilder();		// template text
 		int curr_pos = first_line_pos;
 		
-		r.append(escapeId(SVDBItem.getName(tf)) + " ${" + escapeId(SVDBItem.getName(tf)) + "}" + " (");
 		
 		int longest_string = 0;		// used to keep code nice and neat
-	//	int total_length   = 0;		// used to keep code nice and neat
+		int port_len       = 0;		// used to keep code nice and neat
+		int param_len      = 0;		// used to keep code nice and neat
+		int port_count     = 0;		// used to keep code nice and neat
 		int param_count    = 0;		// used to keep code nice and neat
 		
-		ArrayList<String> all_ports = new ArrayList<String> ();
-		ArrayList<String> all_types = new ArrayList<String> ();
+		ArrayList<String> all_ports  = new ArrayList<String> ();
+		ArrayList<String> all_types  = new ArrayList<String> ();
+		ArrayList<String> all_params = new ArrayList<String> ();
+		
+		
+		// Get a list of all parameters in the module
+		for (int i=0; i<tf.getParameters().size(); i++) {
+			String param_name = tf.getParameters().get(i).getName();
+			all_params.add(param_name);
+			param_count ++;		// found another parameter
+			int len = param_name.length();
+			param_len += len;		// keep track of length of parameter string
+			if (len > longest_string)  {
+				longest_string = len;	// update the longest string
+			}
+		}
+		
+		// Get a list of all ports in the module
 		for (int i=0; i<tf.getPorts().size(); i++) {
 			SVDBParamPortDecl param = tf.getPorts().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());
 				all_types.add(param.getTypeName());
-				param_count ++;		// found another parameter
-	//			total_length += vi.getName().length();		// keep track of the length of the portlist
-				if (vi.getName().length() > longest_string)  {
-					longest_string = vi.getName().length();	// update the longest string
+				port_count ++;		// found another parameter
+				int len = vi.getName().length();
+				port_len += len;			// keep track of total length of ports
+				if (len > longest_string)  {
+					longest_string = len;	// update the longest string
 				}
 			}
 		}
 		
 		boolean multi_line_instantiation = false;
-		if (
-			(fTFMaxCharsPerLine != 0 && (first_line_pos + (longest_string * param_count)) > (fTFMaxCharsPerLine*7)/8) ||
-			(fTFPortsPerLine != 0 && param_count > fTFPortsPerLine)
+		int multiplier = fTFNamedPorts ? 2 : 1;
+		// Multi-line instantiation rules
+		if	(((fTFMaxCharsPerLine != 0) && ((first_line_pos + ((port_len + param_len)*multiplier)+(2/*, */*multiplier)) > ((fTFMaxCharsPerLine*7)/8))) ||		// have a line length and we are probably longer than that line
+			 ((fTFPortsPerLine != 0) && ((port_count > fTFPortsPerLine) || (param_count > fTFPortsPerLine)))								// have a ports per line & param or port list > that that number
 			) {
 			multi_line_instantiation = true;
-			r.append(newline);	// start ports on next line
 			curr_pos = subseq_line_pos;
 		}
+		else  {
+			newline = "";
+		}
 		
+		// Drop the module name
+		r.append(escapeId(SVDBItem.getName(tf)));
+		
+		// Now add parameters
+		if (param_count != 0)  {
+			r.append(" #(" + newline);
+			
+			for (int i=0; i<param_count; i++)  {
+				StringBuilder padding = new StringBuilder ("");
+				String name_str = all_params.get(i);
+				// Padding is enabled if multi-line is triggered and
+				// named ports are being used
+				if (multi_line_instantiation)  {
+					// TODO: is there a better way of adding padding?
+					for (int cnt=name_str.length(); cnt<longest_string+1; cnt++)  {
+						padding.append(" ");
+					}
+				}
+		
+				// Only instantiate named ports if we need to
+				if (fTFNamedPorts == true)  {
+					r.append(".");
+					r.append(name_str + padding.toString());
+					r.append(" (");
+					curr_pos += 3 + name_str.length() + padding.toString().length(); 
+				}
+				// append ${porntmame} which will be replaced
+				r.append("${" + name_str + "}" + padding.toString());
+				curr_pos += 3 + name_str.length() + padding.toString().length();
+				if (fTFNamedPorts == true)  {
+					r.append(")");
+					curr_pos++;
+				}
+		
+				// Only add ", " on all but the last parameters
+				if (i+1 < param_count)  {
+					r.append(", ");
+					curr_pos += 2;
+					
+					// Add \n if we have met the number of ports per line
+					// or if we've exceeded the line max
+					if ((fTFPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0)) ||
+							(curr_pos > (7*fTFMaxCharsPerLine)/8)
+							){ 
+						// ML gets a CR after every port is instantiated
+						r.append(newline);
+						curr_pos = subseq_line_pos;
+					}
+				}
+			}
+			// Close param list
+			r.append(escapeId(newline + ")"));
+		}
+
+		// Add the instance name
+		r.append(" ${" + escapeId(SVDBItem.getName(tf)) + "}" + " (" + newline);
+		// if we have a newline, reset the current position
+		if (!newline.isEmpty())
+			curr_pos = subseq_line_pos;
+
 		// Now create the string & port list - note that we are padding to the longest string with spaces
-		for (int i=0; i<param_count; i++)  {
-			StringBuilder padded_name = null;
-			String name_str;
+		for (int i=0; i<port_count; i++)  {
+			StringBuilder padding = new StringBuilder("");
+			String name_str = all_ports.get(i);
 			// Padding is enabled if multi-line is triggered and
 			// named ports are being used
-			if (multi_line_instantiation && fTFNamedPorts)  {
-				padded_name = new StringBuilder(all_ports.get(i));
+			if (multi_line_instantiation)  {
 				// TODO: is there a better way of adding padding?
-				for (int cnt=padded_name.length(); cnt<longest_string+1; cnt++)  {
-					padded_name.append(" ");
+				for (int cnt=name_str.length(); cnt<longest_string+1; cnt++)  {
+					padding.append(" ");
 				}
-				name_str = padded_name.toString();
-			} else {
-				name_str = all_ports.get(i);
 			}
 	
 			// Only instantiate named ports if we need to
 			if (fTFNamedPorts == true)  {
 				// append .portname (
 				r.append(".");
-				r.append(name_str);
+				r.append(name_str + padding.toString());
 				r.append(" (");
-				curr_pos += 3 + name_str.length(); 
+				curr_pos += 3 + name_str.length() + padding.toString().length(); 
 			}
 			// append ${porntmame} which will be replaced
-	//		r.append("${" + padded_name   + "}");
-			r.append("${" + all_ports.get(i) + "}");
-			curr_pos += 3 + all_ports.get(i).length();
+			r.append("${" + all_ports.get(i) + "}" + padding.toString());
+			curr_pos += 3 + all_ports.get(i).length() + padding.toString().length();
 			if (fTFNamedPorts == true)  {
 				r.append(")");
 				curr_pos++;
 			}
 	
 			// Only add ", " on all but the last parameters
-			if (i+1 < param_count)  {
+			if (i+1 < port_count)  {
 				r.append(", ");
 				curr_pos += 2;
 				
