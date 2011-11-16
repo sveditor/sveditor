@@ -9,6 +9,8 @@
 
    <archive path="plugins/net.sf.sveditor.core_1.2.3.jar"
     url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.core_1.2.3.jar/download"/>
+   <archive path="plugins/net.sf.sveditor.core.batch_1.2.3.jar"
+    url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.core.batch_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.ui_1.2.3.jar"
     url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.ui_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.doc.dev_1.2.3.jar"
