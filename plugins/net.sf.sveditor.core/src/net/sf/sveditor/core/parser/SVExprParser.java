@@ -139,6 +139,7 @@ public class SVExprParser extends SVParserBase {
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
 			expr = fParsers.exprParser().expression();
+			// TODO: save expression
 			// Check for (min:typ:max) type of layout 
 			if (fLexer.peekOperator(":"))  {
 				fLexer.readOperator(":");
@@ -823,6 +824,17 @@ public class SVExprParser extends SVParserBase {
 			//
 			
 			SVDBExpr a = expression();
+			
+			// TODO: save expression
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				SVDBExpr expr = fParsers.exprParser().expression();
+				if (fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					expr = fParsers.exprParser().expression();
+				}
+			}
+			
 			readOperator(")");
 			
 			// cast

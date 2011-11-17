@@ -52,7 +52,7 @@ public class SVDocumentSetupParticipant implements IDocumentSetupParticipant {
 		rules.add(new EndOfLineRule("//", slc));
 		rules.add(new CCommentRule(mlc));
 		//rules.add(new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'));
-		
+
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
 		scanner.setDefaultReturnToken(new Token(IDocument.DEFAULT_CONTENT_TYPE));
 		scanner.setPredicateRules(rulesArr);
