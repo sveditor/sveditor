@@ -1,3 +1,6 @@
+- (#nobug) Added support for delay operators formatted:
+  #(min_time:type_time:max_time)
+
 - (#nobug) Added support for bitwise XNOR '~^' and '^~'  This is arguably not
   a distinct operator
 

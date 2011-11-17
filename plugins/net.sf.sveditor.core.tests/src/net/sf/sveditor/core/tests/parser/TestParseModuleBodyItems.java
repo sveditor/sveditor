@@ -86,7 +86,16 @@ public class TestParseModuleBodyItems extends TestCase {
 		String content =
 			"module t;\n" +
 			"	logic a;\n" +
+			"	real tmin, ttyp, tmax;\n" +
+			"	real some_delay_time;\n" +
 			"	assign #1 a = 1; // Error.\n" +
+			"	always" +
+			"	begin " +
+			"		#(1:2:3) a = 1; // Error.\n" +
+			"	    #(tmin: ttyp: tmax) a = 1; // Error.\n" +
+			"	    some_delay_time = (1.0: 2.2: 3.456); // Error.\n" +
+			"	    some_delay_time = (tmin: ttyp: tmax); // Error.\n" +
+			"	end\n" +
 			"endmodule\n"
 			;
 

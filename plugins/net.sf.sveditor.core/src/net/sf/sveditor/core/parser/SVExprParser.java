@@ -134,12 +134,19 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr delay_expr() throws SVParseException {
 		SVDBExpr expr = null;
 		debug("--> delay_expr - " + fLexer.peek());
-		
+
 		fLexer.readOperator("#");
-		
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
 			expr = fParsers.exprParser().expression();
+			// Check for (min:typ:max) type of layout 
+			if (fLexer.peekOperator(":"))  {
+				fLexer.readOperator(":");
+				expr = fParsers.exprParser().expression();
+				// This should be another :, not going to test... going to assume that the parser will detect that this isn't a token
+				fLexer.readOperator(":");
+				expr = fParsers.exprParser().expression();
+			}
 			fLexer.readOperator(")");
 		} else {
 			if (fLexer.peekNumber()) {
