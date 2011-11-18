@@ -8,10 +8,10 @@ import net.sf.sveditor.ui.editor.SVEditor;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-public class NextWordAction extends TextEditorAction {
+public class PrevWordAction extends TextEditorAction {
 	private SVEditor				fEditor;
 	
-	public NextWordAction(
+	public PrevWordAction(
 			ResourceBundle			bundle,
 			String					prefix,
 			SVEditor				editor) {
@@ -25,33 +25,31 @@ public class NextWordAction extends TextEditorAction {
 		int offset = text.getCaretOffset();
 		
 		String str = text.getText();
-		int len = str.length();
 		
 		int ch = str.charAt(offset);
 		if (SVCharacter.isSVIdentifierPart(ch)) {
 			// scan forward to end or next non-id_part
-			while (offset < len) {
+			while (offset >= 0) {
 				ch = str.charAt(offset);
 				if (!SVCharacter.isSVIdentifierPart(ch)) {
 					break;
 				}
-				offset++;
+				offset--;
 			}
 		} else {
 			// scan forward to end or next identifier
-			while (offset < len) {
+			while (offset >= 0) {
 				ch = str.charAt(offset);
 				if (SVCharacter.isSVIdentifierPart(ch)) {
 					break;
 				}
-				offset++;
+				offset--;
 			}
 		}
 		
-		if (offset >= len) {
-			offset = len-1;
+		if (offset < 0) {
+			offset = 0;
 		}
-		
 		text.setCaretOffset(offset);
 	}
 }

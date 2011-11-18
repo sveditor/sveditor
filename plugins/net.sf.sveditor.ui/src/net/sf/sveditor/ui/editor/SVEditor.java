@@ -50,6 +50,7 @@ import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
+import net.sf.sveditor.ui.editor.actions.PrevWordAction;
 import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
@@ -469,6 +470,11 @@ public class SVEditor extends TextEditor
 				bundle, "NextWordAction.", this);
 		nw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
 		setAction(ITextEditorActionDefinitionIds.WORD_NEXT, nw_action);
+		
+		PrevWordAction pw_action = new PrevWordAction(
+				bundle, "PrevWordAction.", this);
+		pw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
+		setAction(ITextEditorActionDefinitionIds.WORD_PREVIOUS, pw_action);
 	}
 	
 	/*

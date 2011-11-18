@@ -39,6 +39,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
 	protected RetargetTextEditorAction fToggleCommentAction;
 	protected RetargetTextEditorAction fNextWordAction;
+	protected RetargetTextEditorAction fPrevWordAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -80,6 +81,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 		
 		fNextWordAction = new RetargetTextEditorAction(bundle, "NextWordAction.");
 		fNextWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
+		
+		fPrevWordAction = new RetargetTextEditorAction(bundle, "PrevWordAction.");
+		fPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -131,6 +135,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fRemoveBlockCommentAction.setAction(getAction(editor, "RemoveBlockComment"));
 		fToggleCommentAction.setAction(getAction(editor, "ToggleComment"));
 		fNextWordAction.setAction(getAction(editor, "NextWord"));
+		fPrevWordAction.setAction(getAction(editor, "PrevWord"));
 	}
 
 	/*
