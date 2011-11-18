@@ -26,6 +26,12 @@ public class PrevWordAction extends TextEditorAction {
 		
 		String str = text.getText();
 		
+		offset--;
+		if (offset < 0) {
+			return;
+		}
+		
+		
 		int ch = str.charAt(offset);
 		if (SVCharacter.isSVIdentifierPart(ch)) {
 			// scan forward to end or next non-id_part
