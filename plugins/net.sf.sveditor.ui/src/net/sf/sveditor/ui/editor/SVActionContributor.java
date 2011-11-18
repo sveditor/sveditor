@@ -38,6 +38,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fAddBlockCommentAction;
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
 	protected RetargetTextEditorAction fToggleCommentAction;
+	protected RetargetTextEditorAction fNextWordAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -76,6 +77,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 		
 		fToggleCommentAction = new RetargetTextEditorAction(bundle, "ToggleComment.");
 		fToggleCommentAction.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
+		
+		fNextWordAction = new RetargetTextEditorAction(bundle, "NextWordAction.");
+		fNextWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -126,6 +130,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));
 		fRemoveBlockCommentAction.setAction(getAction(editor, "RemoveBlockComment"));
 		fToggleCommentAction.setAction(getAction(editor, "ToggleComment"));
+		fNextWordAction.setAction(getAction(editor, "NextWord"));
 	}
 
 	/*

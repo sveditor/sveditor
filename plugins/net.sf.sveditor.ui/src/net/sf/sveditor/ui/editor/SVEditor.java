@@ -46,6 +46,7 @@ import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
+import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
@@ -213,7 +214,7 @@ public class SVEditor extends TextEditor
 		// Hook into the SVDB management structure
 		initSVDBMgr();
 	}
-
+	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
 		super.doSave(progressMonitor);
@@ -463,6 +464,11 @@ public class SVEditor extends TextEditor
 				bundle, "OverrideTaskFunc.", this);
 		ov_tf_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".override.tf.command");
 		setAction(SVUiPlugin.PLUGIN_ID + ".override.tf", ov_tf_action);
+		
+		NextWordAction nw_action = new NextWordAction(
+				bundle, "NextWordAction.", this);
+		nw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
+		setAction(ITextEditorActionDefinitionIds.WORD_NEXT, nw_action);
 	}
 	
 	/*
@@ -667,6 +673,10 @@ public class SVEditor extends TextEditor
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public ISourceViewer sourceViewer() {
+		return getSourceViewer();
 	}
 	
 	/**
