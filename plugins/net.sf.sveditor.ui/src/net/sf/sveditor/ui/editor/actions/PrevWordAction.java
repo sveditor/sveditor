@@ -56,6 +56,6 @@ public class PrevWordAction extends TextEditorAction {
 		if (offset < 0) {
 			offset = 0;
 		}
-		text.setCaretOffset(offset);
+		text.setCaretOffset(++offset);
 	}
 }
