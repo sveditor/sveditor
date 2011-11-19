@@ -69,6 +69,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 		try {
 			if (target.first() != null) {
+				fLog.debug("Open file for item \"" + SVDBItem.getName(target.first())); 
 				SVEditorUtil.openEditor(target.first());
 			} else if (target.second() != null) {
 				SVEditorUtil.openEditor(target.second().getFilePath());

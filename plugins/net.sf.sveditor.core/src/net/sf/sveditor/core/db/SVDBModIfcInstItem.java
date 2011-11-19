@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2011 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,70 +12,37 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import java.util.List;
 
-public class SVDBModIfcInstItem extends SVDBFieldItem {
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+
+public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
+	private SVDBParamValueAssignList		fPortMap;
+	private List<SVDBVarDimItem>			fArrayDim;
 	
-	private SVDBTypeInfo				fTypeInfo;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBModIfcInstItem(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ModIfcInst); 
+	public SVDBModIfcInstItem() {
+		super("", SVDBItemType.ModIfcInstItem);
 	}
 	
-	public SVDBModIfcInstItem(SVDBTypeInfo type, String name) {
-		super(name, SVDBItemType.ModIfcInst);
-		fTypeInfo = type;
+	public SVDBModIfcInstItem(String name) {
+		super(name, SVDBItemType.ModIfcInstItem);
 	}
 	
-	public SVDBModIfcInstItem(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fTypeInfo = SVDBTypeInfo.readTypeInfo(reader);
+	public SVDBParamValueAssignList getPortMap() {
+		return fPortMap;
 	}
 	
-	public SVDBTypeInfo getTypeInfo() {
-		return fTypeInfo;
+	public void setPortMap(SVDBParamValueAssignList map) {
+		fPortMap = map;
 	}
 	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		SVDBTypeInfo.writeTypeInfo(fTypeInfo, writer);
+	public void setArrayDim(List<SVDBVarDimItem> dim) {
+		fArrayDim = dim;
 	}
 	
-	public String getTypeName() {
-		if (fTypeInfo == null) {
-			return "NULL";
-		} else {
-			return fTypeInfo.getName();
-		}
+	public List<SVDBVarDimItem> getArrayDim() {
+		return fArrayDim;
 	}
-	
-	public SVDBModIfcInstItem duplicate() {
-		SVDBModIfcInstItem ret = new SVDBModIfcInstItem(fTypeInfo, getName());
-		
-		init(ret);
-		
-		return ret;
-	}
-	
-	public void init(ISVDBItemBase other) {
-		super.init(other);
-		
-		SVDBModIfcInstItem o = (SVDBModIfcInstItem)other;
-		if (o.fTypeInfo == null) {
-			fTypeInfo = null; 
-		} else {
-			fTypeInfo = o.fTypeInfo.duplicate();
-		}
-	}
+
 }

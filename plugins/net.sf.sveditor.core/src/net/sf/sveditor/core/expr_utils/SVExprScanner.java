@@ -28,7 +28,7 @@ public class SVExprScanner {
 	 */
 
 	public SVExprScanner() {
-		fLog = LogFactory.getLogHandle("SVExpressionUtils");
+		fLog = LogFactory.getLogHandle("SVExprScanner");
 		/*
 		fNameMatcher = matcher;
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
@@ -133,13 +133,17 @@ public class SVExprScanner {
 				debug("id=\"" + id + "\"");
 
 				// See if we're working with a triggered expression
-				ret.fTrigger = readTriggerStr(scanner);
+				ret.fTrigger = readTriggerStr(scanner, true);
 				debug("trigger=\"" + ret.fTrigger + "\"");
 				
 				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
 					// Read an expression
 					ret.fType = ContextType.Triggered;
 					ret.fRoot = readExpression(scanner);
+					
+					if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
+						ret.fRoot = null;
+					}
 				} else if (ret.fTrigger == null) {
 					ret.fType = ContextType.Untriggered;
 						
@@ -167,7 +171,7 @@ public class SVExprScanner {
 				
 				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
 				
-				if ((ret.fTrigger = readTriggerStr(scanner)) != null) {
+				if ((ret.fTrigger = readTriggerStr(scanner, true)) != null) {
 					ret.fType = ContextType.Triggered;
 					
 					if (scan_fwd) {
@@ -209,6 +213,10 @@ public class SVExprScanner {
 		}
 		
 		debug("<-- extractExprContext()");
+		
+		if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
+			ret.fRoot = null;
+		}
 		
 		if (ret.fRoot == null && ret.fTrigger == null && ret.fLeaf == null) {
 			ret.fLeaf = "";
@@ -285,10 +293,12 @@ public class SVExprScanner {
 			} else if (SVCharacter.isSVIdentifierPart(ch)) {
 				scanner.readIdentifier(ch);
 			} else {
-				fLog.error("unknown ch \"" + (char)ch + "\"");
+				fLog.debug("end readExpression: unknown ch \"" + (char)ch + "\"");
+				start_pos = (scanner.getPos()+2);
+				break;
 			}
 			start_pos = (scanner.getPos()+1);
-		} while ((trigger = readTriggerStr(scanner)) != null);
+		} while ((trigger = readTriggerStr(scanner, false)) != null);
 		
 		fLog.debug("<-- readExpression");
 		
@@ -300,7 +310,7 @@ public class SVExprScanner {
 	 * @param scanner
 	 * @return
 	 */
-	private String readTriggerStr(IBIDITextScanner scanner) {
+	private String readTriggerStr(IBIDITextScanner scanner, boolean allow_colon) {
 		long start_pos = scanner.getPos();
 		scanner.setScanFwd(false);
 		int ch = scanner.skipWhite(scanner.get_ch());
@@ -312,6 +322,8 @@ public class SVExprScanner {
 			
 			if (ch2 == ':') {
 				return "::";
+			} else if (allow_colon) {
+				return ":";
 			}
 		}
 		

@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.index;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 
-public interface ISVDBIndexIterator {
+public interface ISVDBIndexIterator extends ISVDBDeclCache {
 	
 	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
 	

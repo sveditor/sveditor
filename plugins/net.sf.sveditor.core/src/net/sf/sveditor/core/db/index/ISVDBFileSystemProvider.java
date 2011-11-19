@@ -42,6 +42,8 @@ public interface ISVDBFileSystemProvider {
 	
 	boolean fileExists(String path);
 	
+	boolean isDir(String path);
+	
 	InputStream openStream(String path);
 	
 	void closeStream(InputStream in);

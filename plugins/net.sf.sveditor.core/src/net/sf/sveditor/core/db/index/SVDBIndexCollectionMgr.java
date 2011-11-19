@@ -19,11 +19,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.fileset.SVFileSet;
@@ -64,6 +67,15 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		return fProject;
 	}
 	
+	public void rebuildIndex() {
+		for (ISVDBIndex i : getIndexList()) {
+			i.rebuildIndex();
+		}
+		for (ISVDBIndex i : fShadowIndexList) {
+			i.rebuildIndex();
+		}
+	}
+	
 	public void clear() {
 		fLog.debug("clear");
 		for (ISVDBIndex index : fSourceCollectionList) {
@@ -85,6 +97,16 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			index.setIncludeFileProvider(null);
 		}
 		fPluginLibraryList.clear();
+	}
+	
+	public List<ISVDBIndex> getIndexList() {
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		
+		for (List<ISVDBIndex> i_l : fFileSearchOrder) {
+			ret.addAll(i_l);
+		}
+		
+		return ret;
 	}
 	
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
@@ -227,7 +249,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	 * Parse content from the input stream in the context 
 	 * of this index.
 	 */
-	public SVDBFile parse(InputStream in, String path, IProgressMonitor monitor) {
+	public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 		SVDBFile ret = null;
 		
 		path = SVFileUtils.normalize(path);
@@ -242,7 +264,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		
 		if (result.size() > 0) {
 			// Use the parser from the associated index
-			ret = result.get(0).getIndex().parse(in, path, monitor);
+			ret = result.get(0).getIndex().parse(monitor, in, path, markers);
 		} else {
 			// Create a shadow index using the current directory
 			String dir = SVFileUtils.getPathParent(path);
@@ -265,7 +287,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 					Map<String, Object> config = new HashMap<String, Object>();
 					config.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 					
-					index = rgy.findCreateIndex(
+					index = rgy.findCreateIndex(new NullProgressMonitor(),
 						fProject, dir, SVDBSourceCollectionIndexFactory.TYPE, config);
 				} else {
 					System.out.println("[TODO] create shadow index for " +
@@ -275,7 +297,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				addShadowIndex(dir, index);
 			}
 			
-			ret = fShadowIndexMap.get(dir).parse(in, path, monitor);
+			ret = fShadowIndexMap.get(dir).parse(monitor, in, path, markers);
 		}
 		
 		return ret;
@@ -285,6 +307,52 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		System.out.println("[TODO] SVDBIndexCollection.findIncParent()");
 		return null;
 	}
+	
+	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
+			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(monitor, name, matcher);
+				ret.addAll(tmp);
+			}
+		}
+		for (ISVDBIndex index : fShadowIndexList) {
+			List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(monitor, name, matcher);
+			ret.addAll(tmp);
+		}
+		return ret;
+	}
+
+	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
+			SVDBDeclCacheItem pkg_item) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
+				ret.addAll(tmp);
+			}
+		}
+		for (ISVDBIndex index : fShadowIndexList) {
+			List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
+			ret.addAll(tmp);
+		}
+		return ret;
+	}
+
+	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				SVDBFile tmp = index.getDeclFile(monitor, item);
+				if (tmp != null) {
+					return tmp;
+				}
+			}
+		}
+		return null;
+	}
+
+
 
 	private class IncludeProvider implements ISVDBIncludeFileProvider {
 		ISVDBIndex					fIndex;

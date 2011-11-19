@@ -14,16 +14,15 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 
 public class ExpressionUtils extends TestCase {
 	
 	
+	/*
 	public void testExtractPreTriggerPortion() {
 		SVExpressionUtils expr_utils = new SVExpressionUtils(
 				new SVDBFindContentAssistNameMatcher());
@@ -56,6 +55,7 @@ public class ExpressionUtils extends TestCase {
 		System.out.println("pre_trigger=\"" + pre_trigger + "\"");
 		assertEquals("(type'(m_data.foo().bar())).pre_", pre_trigger);
 	}
+	 */
 	
 	public void testExtractPreTriggerPortionUntriggered() {
 		String content = 

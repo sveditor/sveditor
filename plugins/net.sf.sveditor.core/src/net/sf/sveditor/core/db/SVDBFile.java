@@ -14,25 +14,12 @@ package net.sf.sveditor.core.db;
 
 import java.io.File;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-
 public class SVDBFile extends SVDBScopeItem {
-	private long						fLastModified;
 	private String						fFile;
+	private long						fLastModified;
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBFile(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.File); 
+	public SVDBFile() {
+		super("", SVDBItemType.File);
 	}
 	
 	public SVDBFile(String file) {
@@ -41,29 +28,6 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	public SVDBFile(String file, long lastModified) {
-		this(file);
-		
-		fLastModified = lastModified;
-		setLocation(new SVDBLocation(-1, -1));
-	}
-
-	public SVDBFile(
-			SVDBFile file, 
-			SVDBScopeItem parent, 
-			SVDBItemType type, 
-			IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fFile               = reader.readString();
-		fLastModified 		= reader.readLong();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fFile);
-		writer.writeLong(fLastModified);
-	}
-	
 	public long getLastModified() {
 		return fLastModified;
 	}
@@ -80,21 +44,11 @@ public class SVDBFile extends SVDBScopeItem {
 		fFile = file;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBFile ret = new SVDBFile(fFile);
-		
-		ret.init(this);
-		
-		return ret;
+	public void clearChildren() {
+		fItems.clear();
 	}
 	
-	public void init(SVDBItemBase other) {
-		super.init(other);
-
-		fFile               = ((SVDBFile)other).fFile;
-		fLastModified = ((SVDBFile)other).fLastModified;
-	}
-
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBFile) {
@@ -109,4 +63,5 @@ public class SVDBFile extends SVDBScopeItem {
 		}
 		return false;
 	}
+	 */
 }

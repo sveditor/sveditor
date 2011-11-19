@@ -162,14 +162,12 @@
          </override>
           -->
       </navigatorContent>
-      <!--
       <commonWizard
             menuGroupId="net.sf.sveditor.ui.newSVWizards"
             type="new"
             wizardId="net.sf.sveditor.ui.svMethodologyClassWizard">
          <enablement></enablement>
       </commonWizard>
-       -->
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -248,6 +246,12 @@
             description="Open Declaration"
             id="net.sf.sveditor.ui.editor.open.declaration"
             name="Open Declaration">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Find References"
+            id="net.sf.sveditor.ui.editor.find.references"
+            name="Find References">
       </command>
       <command
             id="net.sf.sveditor.ui.override.tf.command"
@@ -331,6 +335,12 @@
                definitionId="net.sf.sveditor.ui.editor.open.declaration"
                id="net.sf.sveditor.ui.svOpenEditorAction"
                label="Open Declaration"
+               retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.find.references"
+               id="net.sf.sveditor.ui.svFindReferencesAction"
+               label="Find References"
                retarget="true">
          </action>
          <action
@@ -442,6 +452,12 @@
             id="net.sf.sveditor.ui.svEditorTemplates"
             name="Templates">
       </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVContentAssistPrefsPage"
+            id="net.sf.sveditor.ui.contentAssist"
+            name="Content Assist">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -476,7 +492,6 @@
             name="SystemVerilog Class"
             project="false">
       </wizard>
-      <!--
       <wizard
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
@@ -485,7 +500,6 @@
             name="SystemVerilog Methodology Class"
             project="false">
       </wizard>
-       -->
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -573,6 +587,4 @@ endclass
          </actionSet>
       </perspectiveExtension>
    </extension>
-   
-
 </plugin>

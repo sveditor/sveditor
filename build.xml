@@ -23,11 +23,16 @@
 
 
     <!-- Compiler Options -->
-    <property name="javacDebugInfo"   value="false"/>
+    <property name="javacDebugInfo"   value="true"/>
+<!--
+  -->
     <property name="javacFailOnError" value="true"/>
     <property name="javacSource"      value="1.5"/>
     <property name="javacTarget"      value="1.5"/>
+    <property name="compilerarg"      value="-g"/>
+<!--
     <property name="compilerArg"      value="-warn:-discouraged -g:lines"/>
+  -->
 
     <property name="srcdir" value="${basedir}"/>
 
@@ -62,6 +67,9 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
                 includes="new_release_fragment.xml"/>
             <filterset begintoken="1" endtoken="3">
                 <filter token=".2." value="${feature.version}"/>
+            </filterset>
+            <filterset>
+                <filter token="frs_update_site_dir" value="${frs_update_site_dir}"/>
             </filterset>
         </copy>
 
@@ -131,10 +139,19 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
         <unzip src="${buildDirectory}/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
                dest="${basedir}/archive_tmp"/>
 
+        <!-- Correctly format the feature plugin as a .jar -->
         <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 
              basedir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"
              includes="**/*"/>
         <delete dir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"/>
+
+        <!-- Correctly format the batch plugin as a .jar -->
+        <jar destfile="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}.jar" 
+             basedir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"
+             manifest="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}/META-INF/MANIFEST.MF"
+             includes="**/*"/>
+        <delete dir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"/>
+
         <jar destfile="${basedir}/sveditor-${feature.version}.jar"
              basedir="${basedir}/archive_tmp"
              includes="site.xml, features/**, plugins/**"/>

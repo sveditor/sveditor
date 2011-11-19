@@ -17,9 +17,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
@@ -59,7 +60,7 @@ public class BrowseClasses extends SelectionStatusDialog
 	private boolean					fModifyInProgress;
 	
 	private TableViewer				fClassList;
-	private SVDBModIfcClassDecl		fSelectedClass;
+	private SVDBModIfcDecl		fSelectedClass;
 	private ISVDBIndexIterator		fIndexIt;
 	private List<SVDBItem>			fProposals;
 	
@@ -82,7 +83,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		}
 	}
 	
-	public SVDBModIfcClassDecl getSelectedClass() {
+	public SVDBModIfcDecl getSelectedClass() {
 		return fSelectedClass;
 	}
 	
@@ -127,7 +128,7 @@ public class BrowseClasses extends SelectionStatusDialog
 					fSelectedClass = null;
 					updateStatus(new Status(IStatus.ERROR, SVUiPlugin.PLUGIN_ID, "No class selected"));
 				} else {
-					fSelectedClass = (SVDBModIfcClassDecl)sel.getFirstElement();
+					fSelectedClass = (SVDBModIfcDecl)sel.getFirstElement();
 					updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
 							"Selected class \"" + fSelectedClass.getName() + "\""));
 				}
@@ -160,7 +161,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		if (fClassNameStr == null) {
 			fClassNameStr = "";
 		}
-		proposals = finder.find(fClassNameStr, SVDBItemType.Class);
+		proposals = finder.find(fClassNameStr, SVDBItemType.ClassDecl);
 		for (ISVDBItemBase p : proposals) {
 			fProposals.add((SVDBItem)p);
 		}
@@ -179,7 +180,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		
 		sel = (IStructuredSelection)fClassList.getSelection();
 		if (sel != null && sel.getFirstElement() != null) {
-			fSelectedClass = (SVDBModIfcClassDecl)sel.getFirstElement();
+			fSelectedClass = (SVDBModIfcDecl)sel.getFirstElement();
 			updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
 					"Selected class \"" + fSelectedClass.getName() + "\""));
 		} else {
@@ -191,13 +192,13 @@ public class BrowseClasses extends SelectionStatusDialog
 		SVDBFindSuperClass finder = new SVDBFindSuperClass(fIndexIt);
 		
 		for (int i=0; i<fProposals.size(); i++) {
-			SVDBModIfcClassDecl cls = (SVDBModIfcClassDecl)fProposals.get(i);
+			SVDBClassDecl cls = (SVDBClassDecl)fProposals.get(i);
 			boolean found = false;
 			
 			// Search each class' super-class hierarchy looking for
 			// the desired super-class
 			while (cls != null) {
-				SVDBModIfcClassDecl super_cls = finder.find(cls);
+				SVDBClassDecl super_cls = finder.find(cls);
 				if (super_cls != null && super_cls.getName().equals(fSuperClass)) {
 					found = true;
 					break;

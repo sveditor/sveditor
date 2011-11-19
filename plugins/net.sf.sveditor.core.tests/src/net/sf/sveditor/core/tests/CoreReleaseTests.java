@@ -23,16 +23,16 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
-import net.sf.sveditor.core.tests.db.DBTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
-import net.sf.sveditor.core.tests.preproc.TestPreProc;
+import net.sf.sveditor.core.tests.preproc.PreProcTests;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
+import net.sf.sveditor.core.tests.templates.TemplateTests;
 
 public class CoreReleaseTests extends TestSuite {
 	
@@ -56,7 +56,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(ParserTests.suite());
 		addTest(new TestSuite(PreProcMacroTests.class));
-		addTest(new TestSuite(TestPreProc.class));
+		addTest(PreProcTests.suite());
 		addTest(IndentTests.suite());
 		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());
@@ -64,7 +64,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(SrcGenTests.suite());
 		addTest(OpenDeclTests.suite());
 		addTest(new TestSuite(FileSetTests.class));
-		addTest(DBTests.suite());
+		addTest(TemplateTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {

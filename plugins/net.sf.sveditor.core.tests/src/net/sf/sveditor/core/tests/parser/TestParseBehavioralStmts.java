@@ -1,3 +1,15 @@
+/****************************************************************************
+ * Copyright (c) 2008-2011 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.tests.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -21,7 +33,6 @@ public class TestParseBehavioralStmts extends TestCase {
 			"endmodule\n" +
 			"\n"
 			;
-		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testModulePreBodyImport3", doc, new String[] {
@@ -43,7 +54,92 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testVarDeclForStmt", doc, new String[] { "t" });
 		
 	}
+	
+	public void testMultiVarDeclForStmt() throws SVParseException {
+		String doc = 
+			"module a;\n" +
+			"	initial\n" + 
+			"		for(int i=0, long j=5;\n" +
+			"			i<10, j<20;\n" +
+			"			i++, j++)\n" +
+			"			$display(\"asdf\");\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testVarDeclForStmt", doc, new String[] { "a" });
+	}
 
+	public void testNonBlockingEventTrigger() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	event event_identifier;\n" +
+			"	initial begin\n" +
+			"		--> event_identifier;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testNonBlockingEventTrigger", doc, new String[] { "t" });
+		
+	}
+
+	public void testEventDelayedNonBlockingAssign() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	bit clk;\n" +
+			"	int a;\n" +
+			"	initial begin\n" +
+			"		a <= @(posedge clk) 1;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testNonBlockingEventTrigger", doc, new String[] { "t" });
+		
+	}
+
+	public void testVirtualInterfaceParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(virtual interface_type_name)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testVirtualInterfaceParameterizedStaticCall", doc, new String[] { "t" });
+	}
+
+	public void testConstIntParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(const int)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testConstIntParameterizedStaticCall", doc, new String[] { "t" });
+	}
+		
+	public void testStringParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #(string)::static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testStringParameterizedStaticCall", doc, new String[] { "t" });
+	}
+	
 	public void testVarDeclListForStmt() throws SVParseException {
 		String doc =
 			"module t;\n" +

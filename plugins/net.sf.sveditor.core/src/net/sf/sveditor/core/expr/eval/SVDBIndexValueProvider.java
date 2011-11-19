@@ -13,15 +13,15 @@
 package net.sf.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypedef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -39,17 +39,21 @@ public class SVDBIndexValueProvider implements IValueProvider {
 		while (item_it.hasNext()) {
 			ISVDBItemBase it = item_it.nextItem();
 			
-			if (it.getType() == SVDBItemType.Typedef) {
-				SVDBTypedef typedef = (SVDBTypedef)it;
-				if (typedef.getTypeInfo().getDataType() == SVDBDataType.Enum) {
+			if (it.getType() == SVDBItemType.TypedefStmt) {
+				SVDBTypedefStmt typedef = (SVDBTypedefStmt)it;
+				if (typedef.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 					SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)typedef.getTypeInfo();
 				
-					for (Tuple<String, String> n : enum_t.getEnumValues()) {
-						if (n.first().equals(name)) {
+					Tuple<List<String>, List<String>> enums = enum_t.getEnumValues();
+					for (int i=0; i<enums.first().size(); i++) {
+						String key = enums.first().get(i);
+						String val = enums.second().get(i);
+						
+						if (key.equals(name)) {
 							long lv = -1;
 							// TODO: parse ? 
 							try {
-								lv = Long.parseLong(n.second());
+								lv = Long.parseLong(val);
 							} catch (NumberFormatException e) {}
 							
 							return BigInteger.valueOf(lv);

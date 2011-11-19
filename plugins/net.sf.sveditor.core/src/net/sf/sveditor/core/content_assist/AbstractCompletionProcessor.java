@@ -12,26 +12,49 @@
 
 package net.sf.sveditor.core.content_assist;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.IFieldItemAttr;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.search.SVDBContentAssistIncludeNameMatcher;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.search.SVDBFindByName;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
+import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
+import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.SVKeywords;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 
 public abstract class AbstractCompletionProcessor {
@@ -75,9 +98,17 @@ public abstract class AbstractCompletionProcessor {
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
+		computeProposals(scanner, active_file, lineno, -1);
+	}
+
+	public void computeProposals(
+			IBIDITextScanner 	scanner,
+			SVDBFile			active_file,
+			int					lineno,
+			int					linepos) {
 		SVExprScanner expr_scan = new SVExprScanner();
-		SVExpressionUtils expr_utils = new SVExpressionUtils(
-				new SVDBFindContentAssistNameMatcher());
+//		SVExpressionUtils expr_utils = new SVExpressionUtils(
+//				new SVDBFindContentAssistNameMatcher());
 		
 		fCompletionProposals.clear();
 		
@@ -87,6 +118,10 @@ public abstract class AbstractCompletionProcessor {
 
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
+		
+		if (src_scope != null) {
+			debug("src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
+		}
 
 		/*
 		if (src_scope == null) {
@@ -99,7 +134,94 @@ public abstract class AbstractCompletionProcessor {
 		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
 		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
-		
+
+		if (ctxt.fTrigger != null) {
+			if (ctxt.fTrigger.equals("`")) {
+				findMacroItems(ctxt, getIndexIterator());
+			} else if (ctxt.fRoot != null &&
+					(ctxt.fTrigger.equals("=") || ctxt.fTrigger.equals(".") || 
+							ctxt.fTrigger.equals("::") || ctxt.fTrigger.equals(":"))) {
+				if (ctxt.fTrigger.equals(".") || ctxt.fTrigger.equals("::")) {
+					SVDBExpr expr = null;
+					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
+					try {
+						expr = parser.parsers().exprParser().expression();
+					} catch (SVParseException e) {
+						fLog.debug("Failed to parse the content-assist expression", e);
+						return;
+					}
+
+					// Traverse the expression to find the type of the root element 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
+					ISVDBItemBase item = null;
+					if (expr != null) {
+						item = v.findTypeItem(expr);
+					}
+
+					if (item == null) {
+						fLog.debug("Failed to traverse the content-assist expression");
+						return;
+					}
+					debug("Item: " + item.getType() + " " + SVDBItem.getName(item));
+
+					// '.' or '::' trigger
+					findTriggeredProposals(ctxt, src_scope, item);
+				} else if (ctxt.fTrigger.equals("=")) {
+					// '=' trigger
+					SVDBExpr expr = null;
+					SVExprUtilsParser parser = new SVExprUtilsParser(ctxt);
+					try {
+						expr = parser.parsers().exprParser().expression();
+					} catch (SVParseException e) {
+						fLog.debug("Failed to parse the content-assist expression", e);
+						return;
+					}
+
+					// Traverse the expression to find the type of the root element 
+					SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+							src_scope, SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
+					ISVDBItemBase item = null;
+					if (expr != null) {
+						try {
+							item = v.findTypeItem(expr);
+						} catch (RuntimeException e) {
+							// it's okay to ignore this, since it only might be helpful
+						}
+					}
+
+					if (item == null) {
+						fLog.debug("Failed to traverse the content-assist expression");
+					}
+					debug("Item: " + ((item != null)?(item.getType() + " " + SVDBItem.getName(item)):"null"));
+					
+					findAssignTriggeredProposals(ctxt, src_scope, item);
+				} else if (ctxt.fTrigger.equals(":")) {
+					// Trigger of ':' occurs when the user wishes content assist for 
+					// a labeled 
+					if (ctxt.fRoot.startsWith("end")) {
+						findEndLabelProposals(ctxt, src_scope);
+					} else {
+						// default to suggesting globals
+						findUntriggeredProposals(ctxt, src_scope);
+					}
+				} else {
+					// Unknown trigger
+				}
+			} else if (ctxt.fTrigger.equals(".")) {
+				// null root and '.' -- likely a port completion
+				fLog.debug("likely port completion");
+
+				findPortCompletionProposals(ctxt, src_scope, lineno, linepos);
+			} else {
+				// Unknown trigger
+			}
+		} else {
+			// Trigger is null
+			findUntriggeredProposals(ctxt, src_scope);
+		}
+
+		/*
 		// If this is an include lookup, then use a different matching strategy
 		if (ctxt.fTrigger != null && ctxt.fRoot != null &&
 				ctxt.fTrigger.equals("`") && ctxt.fRoot.equals("include")) {
@@ -146,7 +268,7 @@ public abstract class AbstractCompletionProcessor {
 				}
 			}
 		}
-		
+		 */
 		
 		order_proposals(ctxt.fLeaf, fCompletionProposals);
 	}
@@ -243,6 +365,501 @@ public abstract class AbstractCompletionProcessor {
 		}
 	}
 	 */
+	
+	private void findTriggeredProposals(
+			SVExprContext			ctxt,
+			ISVDBChildItem			src_scope,
+			ISVDBItemBase			leaf_item) {
+		// Determine the type of the leaf item
+		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
+
+		// TODO: search up hierarchy ?
+		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
+				leaf_item.getType() == SVDBItemType.TypeInfoStruct) {
+			// Look for matching names in the target class
+			ISVDBChildParent si = (ISVDBChildParent)leaf_item;
+			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+			
+			for (ISVDBChildItem it : si.getChildren()) {
+				if (it.getType() == SVDBItemType.VarDeclStmt) {
+					for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
+						debug("VarDeclItem: " + SVDBItem.getName(it_1));
+						if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+							addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						}
+					}
+				} else if (it instanceof ISVDBNamedItem) {
+					if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
+						addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+				}
+			}
+		} else if (leaf_item.getType() == SVDBItemType.VarDeclItem) {
+			// Get the field type
+			ISVDBItemBase item_type = getItemType(leaf_item);
+
+			if (item_type != null && item_type.getType().isElemOf(SVDBItemType.ClassDecl)) {
+				// Look for matching names in the target class
+				ISVDBScopeItem si = (ISVDBScopeItem)item_type;
+				SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+				
+				for (ISVDBItemBase it : si.getChildren()) {
+					if (it.getType() == SVDBItemType.VarDeclStmt) {
+						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
+							debug("VarDeclItem: " + SVDBItem.getName(it_1));
+							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
+					} else if (it instanceof ISVDBNamedItem) {
+						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
+							addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						}
+					}
+				}
+			}
+		} else if (leaf_item.getType() == SVDBItemType.ModportDecl) {
+			
+		}
+	}
+	
+	private void findAssignTriggeredProposals(
+			SVExprContext			ctxt,
+			ISVDBChildItem			src_scope,
+			ISVDBItemBase			item) {
+		fLog.debug("Looking for assign-triggered identifier \"" + ctxt.fLeaf + "\"");
+		List<ISVDBItemBase> result = new ArrayList<ISVDBItemBase>();
+		List<ISVDBItemBase> tmp = null;
+		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		
+		SVDBFindByNameInScopes finder_s = 
+			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
+		tmp = finder_s.find(src_scope, ctxt.fLeaf, false);
+		
+		result.addAll(tmp);
+
+		SVDBFindByNameInClassHierarchy finder_h =
+			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
+
+		tmp = finder_h.find(src_scope, ctxt.fLeaf);
+		
+		result.addAll(tmp);
+
+		if (result.size() > 0) {
+			for (int i=0; i<result.size(); i++) {
+				boolean add = true;
+				
+				if (result.get(i).getType() == SVDBItemType.Function &&
+						((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
+					add = false;
+				}
+				
+				if (add) {
+					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
+			}
+		}
+
+		// Try type names
+		SVDBFindNamedModIfcClassIfc finder_cls =
+			new SVDBFindNamedModIfcClassIfc(getIndexIterator(), matcher);
+
+		List<ISVDBChildItem> cl_l = finder_cls.find(ctxt.fLeaf);
+
+		if (cl_l.size() > 0) {
+			fLog.debug("Global type search for \"" + ctxt.fLeaf + 
+					"\" returned " + cl_l.size());
+			for (ISVDBChildItem cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
+			}
+			
+			for (ISVDBItemBase it : cl_l){
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		} else {
+			fLog.debug("Global class find for \"" + ctxt.fLeaf + 
+			"\" returned no results");
+		}
+
+		// Try global task/function
+		SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
+
+		/*
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
+				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
+				SVDBItemType.PackageDecl);
+		 */
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
+		
+		// Remove any definitions of extern tasks/functions, 
+		// since the name prefix was incorrectly matched
+		for (int i=0; i<it_l.size(); i++) {
+			if (it_l.get(i).getType() == SVDBItemType.Function || 
+					it_l.get(i).getType() == SVDBItemType.Task) {
+				SVDBTask tf = (SVDBTask)it_l.get(i);
+				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
+						tf.getName().contains("::")) {
+					it_l.remove(i);
+					i--;
+				}
+				
+				// Do not include tasks/functions unless they are completely
+				// global or members of a package
+				ISVDBItemBase scope_t = tf;
+				while (scope_t != null && 
+						scope_t.getType() != SVDBItemType.ClassDecl &&
+						scope_t.getType() != SVDBItemType.ModuleDecl) {
+					scope_t = ((ISVDBChildItem)scope_t).getParent();
+				}
+
+				if (scope_t != null && 
+						(scope_t.getType() == SVDBItemType.ClassDecl ||
+						scope_t.getType() == SVDBItemType.ModuleDecl)) {
+					it_l.remove(i);
+					i--;
+				}
+			}
+		}
+		
+		if (it_l != null && it_l.size() > 0) {
+			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + "\" returned:");
+			for (ISVDBItemBase it : it_l) {
+				fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
+			}
+
+			for (ISVDBItemBase it : it_l) {
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		} else {
+			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
+			"\" (1) returned no results");
+		}
+		
+		// Special case: If this is a constructor call, then do a 
+		// context lookup on the LHS
+		fLog.debug("item is type " + ((item != null)?item.getType():"null"));
+		if (item != null && (item.getType() == SVDBItemType.ClassDecl) &&
+				("new".startsWith(ctxt.fLeaf) || ctxt.fLeaf.equals(""))) {
+			SVDBClassDecl cls = (SVDBClassDecl)item;
+			
+			fLog.debug("Looking for 'new' in root=" + SVDBItem.getName(item));
+			for (ISVDBChildItem c : cls.getChildren()) {
+				if (c.getType() == SVDBItemType.Function) {
+					SVDBFunction f = (SVDBFunction)c;
+					if (f.getName().equals("new")) {
+						addProposal(c, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+				}
+			}
+		}
+	}
+	
+	private void findPortCompletionProposals(
+			SVExprContext			ctxt,
+			ISVDBChildParent		src_scope,
+			int						lineno,
+			int						linepos) {
+		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		// TODO: only provide content assist if we are in a module/interface scope
+		if (src_scope == null || 
+				(src_scope.getType() != SVDBItemType.ModuleDecl &&
+				src_scope.getType() != SVDBItemType.InterfaceDecl)) {
+			return;
+		}
+		// First, need to find module/interface instance in question
+		SVDBModIfcInst inst = findInst(src_scope, lineno, linepos);
+		
+		if (inst == null) {
+			fLog.debug("failed to find target module/interface instantiation");
+			return;
+		}
+		
+		fLog.debug("instance type: " + inst.getTypeName());
+		
+		SVDBModIfcDecl decl;
+		SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(getIndexIterator());
+		List<ISVDBChildItem> result = finder.find(inst.getTypeName());
+		
+		if (result.size() > 0 && 
+				(result.get(0).getType() == SVDBItemType.ModuleDecl ||
+				result.get(0).getType() == SVDBItemType.InterfaceDecl)) {
+			decl = (SVDBModIfcDecl)result.get(0); 
+		} else {
+			fLog.debug("failed to find module type \"" + inst.getTypeName() + "\"");
+			return;
+		}
+		
+		for (SVDBParamPortDecl p : decl.getPorts()) {
+			for (ISVDBChildItem pi : p.getChildren()) {
+				if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
+					addProposal(pi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
+			}
+		}
+	}
+	
+	private SVDBModIfcInst findInst(ISVDBChildParent p, int lineno, int linepos) {
+		SVDBModIfcInst last_inst = null;
+		
+		for (ISVDBChildItem c : p.getChildren()) {
+			if (c.getType() == SVDBItemType.ModIfcInst) {
+				last_inst = (SVDBModIfcInst)c;
+				if (c.getLocation().getLine() > lineno) {
+					break;
+				}
+			} else if (c instanceof ISVDBChildParent) {
+				// We're done if the start of this scope is beyond our current line
+				if (c.getLocation().getLine() > lineno) {
+					break;
+				}
+				if ((last_inst = findInst((ISVDBChildParent)c, lineno, linepos)) != null) {
+					break;
+				}
+			}
+		}
+		
+		return last_inst;
+	}
+
+	private void findEndLabelProposals(
+			SVExprContext			ctxt,
+			ISVDBChildItem			src_scope) {
+		fLog.debug("Looking for end-label proposal \"" + ctxt.fLeaf + "\"");
+		fLog.debug("    src_scope=" + SVDBItem.getName(src_scope));
+		
+		if (src_scope == null || !(src_scope instanceof ISVDBNamedItem)) {
+			return;
+		}
+		
+		ISVDBNamedItem item = (ISVDBNamedItem)src_scope;
+		
+		if (ctxt.fLeaf.equals("") || item.getName().startsWith(ctxt.fLeaf)) {
+			addProposal(new SVCompletionProposal(
+					((ISVDBNamedItem)src_scope).getName(), ctxt.fStart, ctxt.fLeaf.length()));
+		} else {
+			findUntriggeredProposals(ctxt, src_scope);
+		}
+	}
+
+	private void findUntriggeredProposals(
+			SVExprContext			ctxt,
+			ISVDBChildItem			src_scope) {
+		fLog.debug("Looking for un-ctxt.fTriggered identifier \"" + ctxt.fLeaf + "\"");
+		List<ISVDBItemBase> result = null;
+		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		SVDBFindByNameInScopes finder_s =
+			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
+
+		fLog.debug("Searching in scope hierarchy");
+		result = finder_s.find(src_scope, ctxt.fLeaf, false);
+		
+		fLog.debug("    " + result.size() + " results");
+		for (int i=0; i<result.size(); i++) {
+			// It's possible that the local variable that we're declaring
+			// will appear in the proposals. Don't add these proposals. 
+			if (!(SVDBItem.getName(result.get(i)).equals(ctxt.fLeaf) &&
+					isSameScopeVarDecl(src_scope, result.get(i)))) {
+				addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		}
+
+		SVDBFindByNameInClassHierarchy finder_h =
+			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
+
+		result = finder_h.find(src_scope, ctxt.fLeaf);
+
+		if (result.size() > 0) {
+			for (int i=0; i<result.size(); i++) {
+				boolean add = true;
+				
+				if (ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
+						"new".startsWith(ctxt.fLeaf)) {
+					// This is possibly a call to 'new'. We'll add
+					// a proposal for this later based on the base type
+					if (result.get(i).getType() == SVDBItemType.Function &&
+							((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
+						add = false;
+					}
+				}
+				
+				if (add) {
+					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
+			}
+		}
+
+		// Try type names
+		SVDBFindNamedModIfcClassIfc finder_cls =
+			new SVDBFindNamedModIfcClassIfc(getIndexIterator(), matcher);
+
+		List<ISVDBChildItem> cl_l = finder_cls.find(ctxt.fLeaf);
+
+		if (cl_l.size() > 0) {
+			fLog.debug("Global type search for \"" + ctxt.fLeaf + 
+					"\" returned " + cl_l.size());
+			for (ISVDBChildItem cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
+			}
+			
+			for (ISVDBItemBase it : cl_l){
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		} else {
+			fLog.debug("Global class find for \"" + ctxt.fLeaf + 
+			"\" returned no results");
+		}
+
+		// Try global task/function
+		SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
+
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
+				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
+				SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
+		/*
+		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
+		 */
+		
+		// Remove any definitions of extern tasks/functions, 
+		// since the name prefix was incorrectly matched
+		for (int i=0; i<it_l.size(); i++) {
+			if (it_l.get(i).getType() == SVDBItemType.Function || 
+					it_l.get(i).getType() == SVDBItemType.Task) {
+				SVDBTask tf = (SVDBTask)it_l.get(i);
+				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
+						tf.getName().contains("::")) {
+					it_l.remove(i);
+					i--;
+				}
+				
+				// Do not include tasks/functions unless they are completely
+				// global or members of a package
+				ISVDBItemBase scope_t = tf;
+				while (scope_t != null && 
+						scope_t.getType() != SVDBItemType.ClassDecl &&
+						scope_t.getType() != SVDBItemType.ModuleDecl) {
+					scope_t = ((ISVDBChildItem)scope_t).getParent();
+				}
+
+				if (scope_t != null && 
+						(scope_t.getType() == SVDBItemType.ClassDecl ||
+						scope_t.getType() == SVDBItemType.ModuleDecl)) {
+					it_l.remove(i);
+					i--;
+				}
+			}
+		}
+		
+		if (it_l != null && it_l.size() > 0) {
+			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + "\" returned:");
+			for (ISVDBItemBase it : it_l) {
+				fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
+			}
+
+			for (ISVDBItemBase it : it_l) {
+				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		} else {
+			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
+			"\" (2) returned no results");
+		}
+		
+		// Special case: If this is a constructor call, then do a 
+		// context lookup on the LHS
+		/*
+		if (root != null && ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
+				ctxt.fLeaf != null && "new".startsWith(ctxt.fLeaf)) {
+			fLog.debug("Looking for new in root=" + root);
+			findctxt.fTriggeredItems(root, "=", "new", src_scope, 
+					getIndexIterator(), max_matches, false, ret);
+		}
+		 */
+	}
+	
+	private boolean isSameScopeVarDecl(
+			ISVDBChildItem		src_scope,
+			ISVDBItemBase		proposal) {
+		if (proposal instanceof SVDBVarDeclItem) {
+			SVDBVarDeclItem v = (SVDBVarDeclItem)proposal;
+			if (v.getParent() != null && v.getParent().getParent() != null) {
+				return (v.getParent().getParent() == src_scope);
+			}
+		}
+		return false;
+	}
+
+	private void findMacroItems(
+			SVExprContext 			ctxt,
+			ISVDBIndexIterator		index_it) {
+		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		
+		if (ctxt.fRoot != null && ctxt.fRoot.equals("include")) {
+			SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
+					index_it, matcher);
+			List<SVDBFile> it_l = finder.find(ctxt.fLeaf);
+
+			if (it_l.size() > 0) {
+				addProposal(it_l.get(0), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			}
+		} else {
+			// most likely a macro call
+			ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
+			while (it_i.hasNext()) {
+				ISVDBItemBase it_t = it_i.nextItem();
+
+				if (it_t.getType() == SVDBItemType.MacroDef) {
+					if (ctxt.fLeaf.equals("") || 
+							((ISVDBNamedItem)it_t).getName().startsWith(ctxt.fLeaf)) {
+						addProposal(it_t, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+				}
+			}
+		}
+	}
+
+	private ISVDBItemBase getItemType(ISVDBItemBase item) {
+		SVDBTypeInfo ti = null;
+		if (item.getType() == SVDBItemType.VarDeclStmt) {
+			ti = ((SVDBVarDeclStmt)item).getTypeInfo();
+		} else if (item.getType() == SVDBItemType.VarDeclItem) {
+			SVDBVarDeclItem vi = (SVDBVarDeclItem)item;
+			if (vi.getParent() != null) {
+				ti = vi.getParent().getTypeInfo();
+			}
+		}
+		
+		if (ti != null) {
+			ISVDBItemBase target = resolveType(ti);
+			
+			if (target != null) {
+				return target;
+			}
+		}
+		
+		return ti;
+	}
+	
+	private ISVDBItemBase resolveType(SVDBTypeInfo ti) {
+		ISVDBItemBase target = null;
+		
+		if (ti.getType() == SVDBItemType.TypeInfoUserDef) {
+			SVDBFindByName finder = new SVDBFindByName(getIndexIterator());
+			List<ISVDBItemBase> ret = finder.find(ti.getName());
+			if (ret.size() > 0) {
+				target = ret.get(0);
+			}
+		} else if (ti.getType() == SVDBItemType.TypeInfoStruct) {
+			// null
+		} else {
+		}
+		
+		if (target != null) {
+			if (target.getType() == SVDBItemType.TypedefStmt) {
+				target = resolveType(((SVDBTypedefStmt)target).getTypeInfo());
+			}
+		}
+		
+		return target;
+	}
 
 	/**
 	 * Find proposals that result from a triggered content-assist request
@@ -504,7 +1121,7 @@ public abstract class AbstractCompletionProcessor {
 		// First eliminate any class typedefs for which the actual class is available
 		for (int i=0; i<proposals.size(); i++) {
 			SVCompletionProposal p = proposals.get(i);
-			if (p.getItem() != null && p.getItem().getType() == SVDBItemType.Typedef) {
+			if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
 				boolean found = false;
 				
 				for (SVCompletionProposal p_t : proposals) {
@@ -581,9 +1198,10 @@ public abstract class AbstractCompletionProcessor {
 			int 			replacementOffset, 
 			int 			replacementLength) {
 		boolean found = false;
-		
+
+		// Check if we already have it in the proposal list?
 		for (SVCompletionProposal p : fCompletionProposals) {
-			if (p.getItem() != null && p.getItem().equals(it)) {
+			if (p.getItem() != null && p.getItem() == it) {
 				found = true;
 				break;
 			}

@@ -12,20 +12,28 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+
 
 
 public class SVDBItemBase implements ISVDBItemBase {
+	
+	@SVDBDoNotSaveAttr
 	protected SVDBItemType			fType;
+	
 	protected SVDBLocation			fLocation;
 	
 	public SVDBItemBase(SVDBItemType type) {
 		fType = type;
 		fLocation = null;
 	}
-
+	
 	public SVDBItemType getType() {
 		return fType;
+	}
+	
+	public void setType(SVDBItemType type) {
+		fType = type;
 	}
 
 	public SVDBLocation getLocation() {
@@ -36,19 +44,12 @@ public class SVDBItemBase implements ISVDBItemBase {
 		fLocation = location;
 	}
 
-	public void dump(IDBWriter writer) {
-		writer.writeItemType(fType);
-	}
-
-	public SVDBItemBase duplicate() {
-		SVDBItemBase ret = new SVDBItemBase(getType());
-		ret.init(this);
-		
-		return ret;
+	public ISVDBItemBase duplicate() {
+		return SVDBItemUtils.duplicate(this);
 	}
 
 	public void init(ISVDBItemBase other) {
-		fType = other.getType();
+		// Treat fType as immutable: fType = other.getType();
 		if (other.getLocation() != null) {
 			fLocation = other.getLocation().duplicate();
 		} else {
@@ -58,7 +59,8 @@ public class SVDBItemBase implements ISVDBItemBase {
 	
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBItemBase) {
-			return equals((ISVDBItemBase)obj, true);
+			SVDBItemBase o = (SVDBItemBase)obj;
+			return (o.fType == fType);
 		} else {
 			return false;
 		}

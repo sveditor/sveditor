@@ -14,12 +14,15 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
+import net.sf.sveditor.core.db.SVDBProgramDecl;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVModIfcProgDeclParser extends SVParserBase {
 	
@@ -27,107 +30,109 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public SVDBModIfcClassDecl parse(int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		String id;
 		String module_type_name = null;
-		SVDBModIfcClassDecl module = null;
+		SVDBModIfcDecl module = null;
 
 		debug("--> process_mod_ifc_prog()");
 		
-		SVDBLocation start = lexer().getStartLocation();
-		String type_name = lexer().readKeyword("module", "macromodule",
+		SVDBLocation start = fLexer.getStartLocation();
+		String type_name = fLexer.readKeyword("module", "macromodule",
 				"interface", "program");
 		SVDBItemType type = null;
 		if (type_name.equals("module") || type_name.equals("macromodule")) {
-			type = SVDBItemType.Module;
+			type = SVDBItemType.ModuleDecl;
 		} else if (type_name.equals("interface")) {
-			type = SVDBItemType.Interface;
+			type = SVDBItemType.InterfaceDecl;
 		} else if (type_name.equals("program")) {
-			type = SVDBItemType.Program;
+			type = SVDBItemType.ProgramDecl;
 		} else {
 			error("Unsupported module/interface/program type-name " + type_name);
 		}
 		
-		if (lexer().peekKeyword("static", "automatic")) {
+		if (fLexer.peekKeyword("static", "automatic")) {
 			// TODO: tag with lifetime
-			lexer().eatToken();
+			fLexer.eatToken();
 		}
 		
-		if (type == SVDBItemType.Program && lexer().peekOperator(";")) {
+		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(";")) {
 			// anonymous program block
 			module_type_name = "";
 		} else {
-			module_type_name = lexer().readId();
+			module_type_name = fLexer.readId();
 		}
-		
 
-		module = new SVDBModIfcClassDecl(module_type_name, type);
+		switch (type) {
+			case ModuleDecl:
+				module = new SVDBModuleDecl(module_type_name);
+				break;
+			case InterfaceDecl:
+				module = new SVDBInterfaceDecl(module_type_name);
+				break;
+			case ProgramDecl:
+				module = new SVDBProgramDecl(module_type_name);
+				break;
+		}
+
 		module.setLocation(start);
 		
-		// TODO: Should remove this later
-		parsers().SVParser().enter_scope(type_name, module);
-
-		if (type != SVDBItemType.Program) {
+		parent.addChildItem(module);
+		
+		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
-			while (lexer().peekKeyword("import")) {
+			while (fLexer.peekKeyword("import")) {
 				// Import statement
-				List<SVDBItem> items = parsers().importParser().parse();
-				for (SVDBItem item : items) {
-					module.addItem(item);
-				}
+				parsers().impExpParser().parse_import(module);
 			}
 		}
 
 		// Handle modules with parameters
-		if (lexer().peekOperator("#")) {
+		if (fLexer.peekOperator("#")) {
 			// Handle in-line parameter declarations
 			module.getParameters().addAll(parsers().paramPortListParser().parse());
 		}
 
-		if (lexer().peekOperator("(")) {
+		if (fLexer.peekOperator("(")) {
 			// port-list
-			List<SVDBParamPort> ports = parsers().portListParser().parse();
+			List<SVDBParamPortDecl> ports = parsers().portListParser().parse();
 			module.getPorts().addAll(ports);
 		}
-		lexer().readOperator(";");
+		fLexer.readOperator(";");
 		
-		// TODO: should be cleaned up
-		parsers().SVParser().setNewStatement();
-
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
-			while ((id = parsers().SVParser().scan_statement()) != null) {
-				debug("id=" + id);
-				if (id.equals("end" + type_name)) {
-					break;
-				}
+			while (fLexer.peek() != null && !fLexer.peekKeyword("end" + type_name)) {
 				try {
-					SVDBItem item = parsers().SVParser().process_module_class_interface_body_item(type_name);
-
-					// Check whether we aborted parsing the body because
-					// we found a 1st-level scope keyword
-					if (item == null) {
-						break;
-					}
+					fParsers.modIfcBodyItemParser().parse(module, type_name);
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					debug("Module body item parse failed", e);
+					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
+							!fLexer.peekKeyword("end"+ type_name)) {
+						fLexer.eatToken();
+					}
 				}
 
 				// TODO: Should have already been added ?
 				// fScopeStack.peek().addItem(item);
 			}
+			
+			SVDBLocation end = fLexer.getStartLocation();
+			module.setEndLocation(end);
+			fLexer.readKeyword("end" + type_name);
+			
+			// Optional labeled end
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
+			}
+		} else {
+			SVDBLocation end = fLexer.getStartLocation();
+			module.setEndLocation(end);
 		}
-		
-		SVDBLocation end = lexer().getStartLocation();
-		module.setEndLocation(end);
-		lexer().readKeyword("end" + type_name);
-
-		// Pop the first-level scope
-		parsers().SVParser().handle_leave_scope();
 
 		debug("<-- process_mod_ifc_prog()");
-		return module;
 	}
 
 }

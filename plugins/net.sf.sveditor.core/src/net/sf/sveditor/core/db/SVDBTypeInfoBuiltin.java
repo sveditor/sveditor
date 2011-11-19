@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public static final int				TypeAttr_Signed				= (1 << 7);
@@ -23,25 +20,16 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	private int						fAttr;
 	private String					fVectorDim;
 	
-	public SVDBTypeInfoBuiltin(String typename) {
-		super(typename, SVDBDataType.BuiltIn);
-	}
-
-	public SVDBTypeInfoBuiltin(String typename, SVDBDataType type) {
-		super(typename, type);
-	}
-
-	public SVDBTypeInfoBuiltin(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(SVDBDataType.BuiltIn, file, parent, type, reader);
-		fAttr = reader.readInt();
-		fVectorDim = reader.readString();
+	public SVDBTypeInfoBuiltin() {
+		this("");
 	}
 	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeInt(fAttr);
-		writer.writeString(fVectorDim);
+	public SVDBTypeInfoBuiltin(String typename) {
+		super(typename, SVDBItemType.TypeInfoBuiltin);
+	}
+
+	public SVDBTypeInfoBuiltin(String typename, SVDBItemType type) {
+		super(typename, type);
 	}
 
 	public int getAttr() {

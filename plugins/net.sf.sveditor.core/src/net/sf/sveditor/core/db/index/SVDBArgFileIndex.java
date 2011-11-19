@@ -13,205 +13,116 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
-public class SVDBArgFileIndex extends SVDBLibIndex {
-	private long						fArgFileLastModified;
-	protected List<String>				fFilePaths;
-	protected Map<String, String>		fDefineMap;
+import org.apache.tools.ant.filters.StringInputStream;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
+public class SVDBArgFileIndex extends AbstractSVDBIndex {
+	private StringBuilder				fArguments;
 	
 	public SVDBArgFileIndex(
 			String						project,
 			String						root,
-			ISVDBFileSystemProvider		fs_provider) {
-		super(project, root, fs_provider);
+			ISVDBFileSystemProvider		fs_provider,
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
+		super(project, root, fs_provider, cache, config);
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
-		
-		fFilePaths 			= new ArrayList<String>();
-		fIncludePaths 		= new ArrayList<String>();
-		fDefineMap			= new HashMap<String, String>();
 	}
-	
+
+	public SVDBArgFileIndex(
+			String						project,
+			String						root,
+			StringBuilder				arguments,
+			ISVDBFileSystemProvider		fs_provider,
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
+		super(project, root, fs_provider, cache, config);
+		fArguments = arguments;
+		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
+	}
+
 	public String getTypeID() {
 		return SVDBArgFileIndexFactory.TYPE;
 	}
 	
 	@Override
-	public String getTypeName() {
-		return "ArgFileIndex";
+	protected SVDBBaseIndexCacheData createIndexCacheData() {
+		return new SVDBArgFileIndexCacheData(getBaseLocation());
 	}
-
-
+	
 	@Override
-	public void dump(IDBWriter index_data) {
-		// Save the last-modified time for the arg file
-		long last_modified = fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation());
-		index_data.writeLong(last_modified);
-		
-		super.dump(index_data);
-	}
+	protected boolean checkCacheValid() {
+		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
 
-	@Override
-	public void load(
-			IDBReader 		index_data, 
-			List<SVDBFile> 	pp_files,
-			List<SVDBFile> 	db_files) throws DBFormatException {
-		fArgFileLastModified = index_data.readLong();
-		fLoadUpToDate = true;
-		
-		fLog.debug("load - pp_files.size=" + pp_files.size() + " db_files.size=" + db_files.size());
-		
-		// Read back the Global Defines. Project settings will already
-		// be set.  
-		int n_defines = index_data.readInt();
-		for (int i=0; i<n_defines; i++) {
-			String key = index_data.readString();
-			String val = index_data.readString();
-			
-			if (fGlobalDefines.containsKey(key) ||
-					!fGlobalDefines.get(key).equals(val)) {
-				fGlobalDefines.remove(key);
-				fGlobalDefines.put(key, val);
-				fLog.debug("Invalidating load, since key " + key + " changed value");
-				fLoadUpToDate = false;
+		int i=0;
+		for (String arg_file : cd.getArgFilePaths()) {
+			long ts = getFileSystemProvider().getLastModifiedTime(arg_file);
+			long ts_c = cd.getArgFileTimestamps().get(i);
+			if (ts > ts_c) {
+				fLog.debug("    arg_file " + arg_file + " ts=" + ts + " cached ts=" + ts_c);
+				return false;
 			}
+			i++;
 		}
 
-		// Load up file paths from the .f target 
-		initPaths();
-
-		load_base(index_data, pp_files, db_files);
-		
-		if (isLoaded()) {
-			fLog.debug("Index is loaded... Loading markers and FileTreeMap");
-
-			// re-build the FileTree structure
-			for (String file : fFilePaths) {
-				file = resolvePath(file);
-				SVDBFile pp_file = findPreProcFile(file);
-				
-				fLog.debug("    Building FileTree for \"" + file + "\"");
-				
-				if (pp_file == null) {
-					fLog.error("Failed to find pre-proc file \"" + file + "\"");
-					continue;
-				}
-				
-				SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-				buildPreProcFileMap(null, ft_root);
-			}
-			
-			loadMarkers();
-		} else {
-			fLog.debug("Index is not loaded...");
-		}
+		return super.checkCacheValid();
 	}
 
 	@Override
-	protected boolean isLoadUpToDate() {
-		fLog.debug("BaseLocation Exists: " + 
-				fFileSystemProvider.fileExists(getResolvedBaseLocation()) + 
-				" ArgFileLastModified (saved): " + fArgFileLastModified + 
-				" ArgFileLastModified (current): " + fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation()));
-		if (fFileSystemProvider.fileExists(getResolvedBaseLocation()) &&
-				fArgFileLastModified >= fFileSystemProvider.getLastModifiedTime(getResolvedBaseLocation())) {
-			return super.isLoadUpToDate();
-		}
-		return false;
-	}
-	
-	@Override
-	public void fileChanged(String path) {
-		if (path.equals(getResolvedBaseLocation())) {
-			rebuildIndex();
-		} else {
-			super.fileChanged(path);
-		}
-	}
-
-	@Override
-	protected void buildPreProcFileMap() {
-		initPaths();
+	protected void discoverRootFiles(IProgressMonitor monitor) {
+		fLog.debug("discoverRootFiles - " + getBaseLocation());
 		
-		// Say the index is already valid
-		fPreProcFileMapValid = true;
+		clearFilesList();
+		clearIncludePaths();
+		clearDefines();
 		
-		for (String file : fFilePaths) {
-			String r_file = resolvePath(file);
-			fLog.debug("Resolved path for \"" + file + "\" is \"" + r_file + "\"");
-			SVDBFile pp_file = processPreProcFile(r_file, true);
-			
-			if (pp_file == null) {
-				fLog.error("Failed to find file \"" + r_file + "\"");
-				return;
-			}
-			
-			SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
-			buildPreProcFileMap(null, ft_root);
-		}
-	}
-	
-	@Override
-	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree fileTree) {
+		monitor.beginTask("Discover Root Files", 4);
 		
-		IPreProcMacroProvider mp = super.createMacroProvider(fileTree); 
-		for (Entry<String, String> entry : fDefineMap.entrySet()) {
-			mp.setMacro(entry.getKey(), entry.getValue());
-		}
-			
-		return mp; 
-	}
-	
-	public IPreProcMacroProvider pub_createMacroProvider(SVDBFileTree ft) {
-		return createMacroProvider(ft);
-	}
-	
-	@Override
-	protected IPreProcMacroProvider createPreProcMacroProvider(SVDBFileTree file) {
-		IPreProcMacroProvider mp = super.createPreProcMacroProvider(file);
-		
-		for (Entry<String, String> entry : fDefineMap.entrySet()) {
-			mp.setMacro(entry.getKey(), entry.getValue());
-		}
-		
-		return mp;
-	}
-
-	@Override
-	protected void initPaths() {
-		fFilePaths.clear();
-		fIncludePaths.clear();
-		fDefineMap.clear();
-		fDefineMap.putAll(fGlobalDefines);
+		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+		cd.getArgFileTimestamps().clear();
+		cd.getArgFilePaths().clear();
 		
 		// Add an include path for the arg file location
-		fIncludePaths.add(SVFileUtils.getPathParent(getResolvedBaseLocation()));
+		addIncludePath(getResolvedBaseLocationDir());
 		
-		InputStream in = fFileSystemProvider.openStream(getResolvedBaseLocation());
+		processArgFile(new SubProgressMonitor(monitor, 4), getResolvedBaseLocation());
+		
+		monitor.done();
+	}
+	
+	private void processArgFile(IProgressMonitor monitor, String path) {
+		InputStream in = null;
+		if (fArguments != null) {
+			in = new StringInputStream(fArguments.toString());
+		} else if (getFileSystemProvider().fileExists(path)) {
+			// Fully-specified path
+			in = getFileSystemProvider().openStream(path);
+		} else if (getFileSystemProvider().fileExists(getResolvedBaseLocationDir() + "/" + path)) {
+			// Try base location-relative
+			in = getFileSystemProvider().openStream(getResolvedBaseLocationDir() + "/" + path);
+		}
+		
+		monitor.beginTask("Process arg file " + path, 4);
 		
 		if (in != null) {
-			ITextScanner sc = new InputStreamTextScanner(in, getResolvedBaseLocation());
-			SVFScanner scanner = new SVFScanner();
+			SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+			cd.getArgFilePaths().add(path);
+			cd.getArgFileTimestamps().add(getFileSystemProvider().getLastModifiedTime(path));
 			
+			ITextScanner sc = new InputStreamTextScanner(in, path);
+			SVFScanner scanner = new SVFScanner();
+		
+			monitor.worked(1);
 			try {
 				scanner.scan(sc);
 			} catch (Exception e) {
@@ -219,78 +130,68 @@ public class SVDBArgFileIndex extends SVDBLibIndex {
 						getResolvedBaseLocation() + "\"", e);
 			}
 			
+			monitor.worked(1);
 			for (String f : scanner.getFilePaths()) {
-				String exp_f = SVDBIndexUtil.expandVars(f, true);
+				String exp_f = SVDBIndexUtil.expandVars(f, fProjectName);
 				fLog.debug("[FILE PATH] " + f + " (" + exp_f + ")");
-				fFilePaths.add(exp_f);
+				String res_f = resolvePath(exp_f);
+				
+				if (getFileSystemProvider().fileExists(res_f)) {
+					addFile(res_f);
+				} else {
+					fLog.error("Expanded path \"" + exp_f + "\" does not exist");
+				}
 			}
 			
+			monitor.worked(1);
 			for (String inc : scanner.getIncludePaths()) {
-				fLog.debug("[INC PATH] " + inc + " (" + SVDBIndexUtil.expandVars(inc, true) + ")");
-				fIncludePaths.add(SVDBIndexUtil.expandVars(inc, true));
+				String inc_path = SVDBIndexUtil.expandVars(inc, fProjectName);
+				fLog.debug("[INC PATH] " + inc + " (" + inc_path + ")");
+				
+				addIncludePath(inc_path);
 			}
 			
+			monitor.worked(1);
 			for (Entry<String, String> entry : scanner.getDefineMap().entrySet()) {
 				fLog.debug("[DEFINE] " + entry.getKey() + "=" + entry.getValue());
-				fDefineMap.put(entry.getKey(), entry.getValue());
+				addDefine(entry.getKey(), entry.getValue());
 			}
 			
-			fFileSystemProvider.closeStream(in);
+			getFileSystemProvider().closeStream(in);
+			
+			for (String arg_file : scanner.getArgFilePaths()) {
+				arg_file = SVDBIndexUtil.expandVars(arg_file, fProjectName);
+				if (!cd.getArgFilePaths().contains(arg_file)) {
+					processArgFile(new SubProgressMonitor(monitor, 4), arg_file); 
+				}
+			}
+			monitor.done();
 		} else {
-			fLog.error("failed to open file \"" + getResolvedBaseLocation() + "\"");
+			monitor.done();
+			fLog.error("failed to open file \"" + path + "\"");
 		}
-	}
-	
-	@Override
-	protected void buildIndex(IProgressMonitor monitor) {
-		getPreProcFileMap(monitor); // force pre-proc info to be built
-
-		SubProgressMonitor sub_monitor = new SubProgressMonitor(monitor, 1);
-		sub_monitor.beginTask("Processing Top-Level Files", fFilePaths.size());
-		for (String file : fFilePaths) {
-			file = resolvePath(file);
-			SVDBFile pp_file = findPreProcFile(file);
-			
-			if (pp_file == null) {
-				fLog.error("Failed to find file \"" + file + "\"");
-				return;
-			}
-			
-			SVDBFileTree ft_root = fFileTreeMap.get(file);
-			IPreProcMacroProvider mp = createMacroProvider(ft_root);
-			
-			sub_monitor.subTask("Processing " + file);
-			processFile(ft_root, mp);
-			sub_monitor.worked(1);
-		}
-		
-		fIndexFileMapValid = true;
-		
-		signalIndexRebuilt();
-	}
-	
-	@Override
-	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
-		SVDBSearchResult<SVDBFile> ret = null;
-		
-		if ((ret = super.findIncludedFile(path)) != null) {
-			return ret;
-		}
-		
-		// Otherwise, search through each include path
-		for (String inc : fIncludePaths) {
-			inc = resolvePath(inc);
-			inc = inc + "/" + path;
-			
-			if (fFileSystemProvider.fileExists(inc)) {
-				SVDBFile pp_file = processPreProcFile(inc, true);
-				
-				ret = new SVDBSearchResult<SVDBFile>(pp_file, this);
-				break;
-			}
-		}
-		
-		return ret;
 	}
 
+	@Override
+	public void dispose() {
+		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+		cd.getArgFileTimestamps().clear();
+		for (String arg_file : cd.getArgFilePaths()) {
+			long ts = getFileSystemProvider().getLastModifiedTime(arg_file);
+			fLog.debug("Setting ArgFile Timestamp: " + arg_file + "=" + ts);
+			cd.getArgFileTimestamps().add(ts);
+		}
+		
+		super.dispose();
+	}
+
+	@Override
+	public void fileChanged(String path) {
+		fLog.debug("File changed: " + path);
+		if (path.equals(getResolvedBaseLocation())) {
+			// Invalidate, since this is the root file
+			invalidateIndex();
+		}
+		super.fileChanged(path);
+	}
 }

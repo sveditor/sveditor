@@ -21,12 +21,10 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -49,7 +47,6 @@ public class SVFileNavigatorContentProvider
 		fLog = LogFactory.getLogHandle("SVFileNavigatorContentProvider");
 	}
 	
-	
 	public void SVDBFileChanged(
 			SVDBFile 			file, 
 			List<SVDBItem> 		adds,
@@ -69,13 +66,14 @@ public class SVFileNavigatorContentProvider
 
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IFile) {
-			IFile file = (IFile)parentElement;
-			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
-			SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
-			SVDBIndexCollectionMgr index_mgr = pdata.getProjectIndexMgr();
+//			IFile file = (IFile)parentElement;
+//			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+//			SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
+//			SVDBIndexCollectionMgr index_mgr = pdata.getProjectIndexMgr();
 			
-			List<SVDBSearchResult<SVDBFile>> res = 
-				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
+			List<SVDBSearchResult<SVDBFile>> res = new ArrayList<SVDBSearchResult<SVDBFile>>();
+// TODO: File-structure display disabled for now
+//				index_mgr.findFile("${workspace_loc}" + file.getFullPath());
 			
 			SVDBFile svdb_file = null;
 			if (res.size() == 0) {
@@ -106,7 +104,7 @@ public class SVFileNavigatorContentProvider
 			if (svdb_file != null) {
 				List<SVDBItem> ret = new ArrayList<SVDBItem>();
 				
-				for (ISVDBItemBase it : svdb_file.getItems()) {
+				for (ISVDBItemBase it : svdb_file.getChildren()) {
 					if (it.getType() != SVDBItemType.Marker) {
 						ret.add((SVDBItem)it);
 					}
@@ -117,7 +115,7 @@ public class SVFileNavigatorContentProvider
 				return new Object[0];
 			}
 		} else if (parentElement instanceof ISVDBScopeItem &&
-				!(parentElement instanceof SVDBTaskFuncScope)) {
+				!(parentElement instanceof SVDBTask)) {
 			return ((ISVDBScopeItem)parentElement).getItems().toArray();
 		}
 		

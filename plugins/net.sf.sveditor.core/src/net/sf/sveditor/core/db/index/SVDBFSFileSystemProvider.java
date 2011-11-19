@@ -37,6 +37,11 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		File f = new File(path);
 		return f.isFile();
 	}
+	
+	public boolean isDir(String path) {
+		File f = new File(path);
+		return f.isDirectory();
+	}
 
 	public long getLastModifiedTime(String path) {
 		File f = new File(path);

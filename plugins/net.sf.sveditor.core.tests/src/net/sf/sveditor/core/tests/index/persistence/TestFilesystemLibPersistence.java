@@ -15,18 +15,22 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -48,7 +52,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -59,22 +63,23 @@ public class TestFilesystemLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
 		if (project_dir.exists()) {
-			project_dir.delete();
+			TestUtils.delete(project_dir);
 		}
 		
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_project/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
@@ -82,7 +87,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -96,7 +101,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		System.out.println("*** SLEEPING");
 		// Sleep to ensure that the timestamp is different
@@ -121,7 +126,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		TestUtils.copy(out, new File(project_dir, "basic_lib_project/class1.svh"));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
+		index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
 		
@@ -135,10 +141,12 @@ public class TestFilesystemLibPersistence extends TestCase {
 			}
 		}
 		
-		System.out.println("target_it=" + target_it);
+		log.debug("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
 		assertEquals("class1_1", SVDBItem.getName(target_it));
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -157,15 +165,15 @@ public class TestFilesystemLibPersistence extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_lib_missing_inc/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "basic_lib_missing_inc/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase target_it = null;
-		SVDBMarkerItem missing_inc = null;
+		SVDBMarker missing_inc = null;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
@@ -173,7 +181,14 @@ public class TestFilesystemLibPersistence extends TestCase {
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
 			} else if (tmp_it.getType() == SVDBItemType.Marker) {
-				missing_inc = (SVDBMarkerItem)tmp_it;
+				missing_inc = (SVDBMarker)tmp_it;
+			}
+		}
+		
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> markers = index.getMarkers(file);
+			for (SVDBMarker m : markers) {
+				missing_inc = m;
 			}
 		}
 
@@ -185,7 +200,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 
 		System.out.println("** RESET **");
 		// Now, reset the registry
-		rgy.init(project_dir);
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {
@@ -210,8 +225,8 @@ public class TestFilesystemLibPersistence extends TestCase {
 		TestUtils.copy(out, new File(project_dir, "basic_lib_missing_inc/class1_2.svh"));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;

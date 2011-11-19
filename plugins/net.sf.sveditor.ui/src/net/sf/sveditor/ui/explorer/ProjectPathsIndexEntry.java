@@ -17,8 +17,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 public class ProjectPathsIndexEntry implements IProjectPathsData {
 	private String					fType;
 	private ISVDBIndex				fIndex;
@@ -31,8 +29,9 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		
 		fRoots = new ArrayList<PathTreeNode>();
 
-		PathTreeNodeFactory f = new PathTreeNodeFactory();
-		fRoots.addAll(f.build(index.getPreProcFileMap(new NullProgressMonitor()).values()));
+//		PathTreeNodeFactory f = new PathTreeNodeFactory();
+		System.out.println("[TODO] ProjectPathsIndexEntry");
+		// TEMP: fRoots.addAll(f.build(index.getPreProcFileMap(new NullProgressMonitor()).values()));
 	}
 	
 	public String getType() {

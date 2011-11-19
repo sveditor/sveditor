@@ -15,31 +15,31 @@ package net.sf.sveditor.core.db.persistence;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface IDBWriter {
 	
-	void writeInt(int val);
+	void writeInt(int val) throws DBWriteException;
 	
-	void writeLong(long val);
+	void writeLong(long val) throws DBWriteException;
 	
-	void writeByteArray(byte data[]);
+	void writeByteArray(byte data[]) throws DBWriteException;
 	
-	void writeString(String val);
+	void writeString(String val) throws DBWriteException;
 	
-	void writeItemType(SVDBItemType type);
-	
-	@SuppressWarnings("rawtypes")
-	void writeEnumType(Class enum_type, Enum value);
+	void writeItemType(SVDBItemType type) throws DBWriteException;
 	
 	@SuppressWarnings("rawtypes")
-	void writeItemList(Collection items);
+	void writeEnumType(Class enum_type, Enum value) throws DBWriteException;
 	
-	void writeSVDBItem(SVDBItem item);
+	@SuppressWarnings("rawtypes")
+	void writeItemList(Collection items) throws DBWriteException;
 	
-	void writeStringList(List<String> items);
+	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 	
-	void writeIntList(List<Integer> items);
+	void writeStringList(List<String> items) throws DBWriteException;
+	
+	void writeIntList(List<Integer> items) throws DBWriteException;
 	
 }

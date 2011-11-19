@@ -12,13 +12,10 @@
 
 package net.sf.sveditor.core.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.SVDBTypedef;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -27,78 +24,96 @@ public class SVBlockItemDeclParser extends SVParserBase {
 	public SVBlockItemDeclParser(ISVParser parser) {
 		super(parser);
 	}
-	
-	public List<ISVDBChildItem> parse(String id) throws SVParseException {
-		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start) throws SVParseException {
+		parse(parent, type, start, true);
+	}
+
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start, boolean consume_terminator) throws SVParseException {
 		
-		if (id.equals("const")) {
-			id = lexer().eatToken();
-		}
-		if (id.equals("var")) {
-			id = lexer().eatToken();
-		}
+		if (fLexer.peekKeyword("typedef")) {
+			parsers().dataTypeParser().typedef(parent);
+		} else {
+			if (start == null) {
+				start = fLexer.getStartLocation();
+			}
+			// TODO: add qualifiers to variable
+			if (fLexer.peekKeyword("const")) {
+				fLexer.eatToken();
+			}
+			if (fLexer.peekKeyword("var")) {
+				fLexer.eatToken();
+			}
 
-		if (id.equals("static") || id.equals("automatic")) {
-			id = lexer().eatToken();
-		}
-		
-		// Should be the data-type
-		// String id = lexer().eatToken();
-		if (((SVKeywords.isBuiltInType(id) || SVKeywords.isDir(id)) && !id.equals("void")) ||
-				!SVKeywords.isSVKeyword(id)) {
-			// Data declaration or statement
-			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0, id);
+			if (fLexer.peekKeyword("static", "automatic")) {
+				fLexer.eatToken();
+			}
 
-			// Ensure we don't misinterpret a static reference
-			if (!lexer().peekOperator("::")) {
-				while (true) {
-					SVDBLocation it_start = lexer().getStartLocation();
-					String name = lexer().readId();
-				
-					SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, name, 0);
-					var.setLocation(it_start);
-				
-					ret.add(var);
+			// Should be the data-type
+			// String id = fLexer.eatToken();
+			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(fLexer.peek())) && !fLexer.peekKeyword("void")) ||
+					!SVKeywords.isSVKeyword(fLexer.peek()) || fLexer.peekKeyword("struct", "enum")) {
+				// Data declaration or statement
+				if (type == null) {
+					type = parsers().dataTypeParser().data_type(0);
+				}
+				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
+				var_decl.setLocation(start);
+				parent.addChildItem(var_decl);
 
-					// TODO: handle array, queue, etc
-					if (lexer().peekOperator("[")) {
-						lexer().eatToken();
-						
-						// array or queue
-						if (lexer().peekOperator("$")) {
-							// queue
-							lexer().eatToken();
-							lexer().readOperator("]");
-						} else if (lexer().peekOperator("]")) {
-							lexer().readOperator("]");
+				// Ensure we don't misinterpret a static reference
+				if (!fLexer.peekOperator("::")) {
+					while (fLexer.peek() != null) {
+						SVDBLocation it_start = fLexer.getStartLocation();
+						String name = fLexer.readId();
+
+						SVDBVarDeclItem var = new SVDBVarDeclItem(name);
+						var.setLocation(it_start);
+
+						var_decl.addChildItem(var);
+
+						// TODO: handle array, queue, etc
+						if (fLexer.peekOperator("[")) {
+							var.setArrayDim(parsers().dataTypeParser().var_dim());
+						}
+
+						if (fLexer.peekOperator("=")) {
+							fLexer.eatToken();
+							var.setInitExpr(parsers().exprParser().expression());
+						}
+
+						if (fLexer.peekOperator(",")) {
+							// Could be:
+							// => , <var_id>
+							// => <type_id> <var_id>
+							// => 
+							// Want to continue only if post-comma token is an identifer and 
+							// post-post token is not an identifier
+							SVToken comma_tok = fLexer.consumeToken();
+							SVToken post_var = fLexer.consumeToken();
+							SVToken post_post_var = fLexer.consumeToken();
+							
+							if (post_var != null && post_var.isIdentifier() &&
+									post_post_var != null && !post_post_var.isIdentifier()) {
+								fLexer.ungetToken(post_post_var);
+								fLexer.ungetToken(post_var);
+							} else {
+								fLexer.ungetToken(post_post_var);
+								fLexer.ungetToken(post_var);
+								fLexer.ungetToken(comma_tok);
+								break;
+							}
 						} else {
-							// bounded array
-							lexer().skipPastMatch("[", "]");
+							break;
 						}
 					}
-
-					if (lexer().peekOperator("=")) {
-						// TODO: eat tokens until ',' or ';'
-						lexer().eatToken();
-						parsers().exprParser().expression();
-					}
-				
-					if (lexer().peekOperator(",")) {
-						lexer().eatToken();
-					} else {
-						break;
+					if (consume_terminator) {
+						fLexer.readOperator(";");
 					}
 				}
-				lexer().readOperator(";");
+			} else {
+				error("Unexpected variable-declaration stem token \"" + fLexer.peek() + "\"");
 			}
-		} else if (id.equals("typedef")) {
-			for (SVDBTypedef td : parsers().SVParser().process_typedef(true)) {
-				ret.add(td);
-			}
-		} else {
-			error("Unexpected variable-declaration stem token \"" + id + "\"");
 		}
-		
-		return ret;
 	}
 }

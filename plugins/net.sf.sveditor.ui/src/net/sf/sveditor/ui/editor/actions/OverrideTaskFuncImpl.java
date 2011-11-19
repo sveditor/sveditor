@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
@@ -64,22 +64,22 @@ public class OverrideTaskFuncImpl {
 		// Make the default insert point the current cursor location
 		int insert_point_line = fEditor.getTextSel().getStartLine();
 		
-		if (insert_point.getType() != SVDBItemType.Class) {
+		if (insert_point.getType() != SVDBItemType.ClassDecl) {
 			
 			
 			// If the active scope isn't a class, try to make it a class..
 			
 			while (insert_point != null && 
-					insert_point.getType() != SVDBItemType.Class &&
+					insert_point.getType() != SVDBItemType.ClassDecl &&
 					insert_point.getParent() != null &&
-					insert_point.getParent().getType() != SVDBItemType.Class) {
+					insert_point.getParent().getType() != SVDBItemType.ClassDecl) {
 				insert_point = insert_point.getParent();
 			}
 			
 			if (insert_point.getParent() != null && 
-					insert_point.getParent().getType() == SVDBItemType.Class) {
+					insert_point.getParent().getType() == SVDBItemType.ClassDecl) {
 				// insert the new code after the element
-				insert_point_line = ((SVDBModIfcClassDecl)insert_point).getEndLocation().getLine();
+				insert_point_line = ((SVDBModIfcDecl)insert_point).getEndLocation().getLine();
 			} else {
 				// Odd... Not quite sure what to do here
 				System.out.println("[ERROR] problem finding correct insert point");
@@ -88,7 +88,7 @@ public class OverrideTaskFuncImpl {
 		}
 
 		while (active_scope != null && 
-				active_scope.getType() != SVDBItemType.Class) {
+				active_scope.getType() != SVDBItemType.ClassDecl) {
 			active_scope = active_scope.getParent();
 		}
 		
@@ -96,7 +96,7 @@ public class OverrideTaskFuncImpl {
 			return;
 		}
 		
-		List<SVDBTaskFuncScope> targets = null;
+		List<SVDBTask> targets = null;
 		
 		if (active_scope instanceof ISVDBScopeItem) {
 			targets = fTargetProvider.getTargets((ISVDBScopeItem)active_scope);
@@ -115,7 +115,7 @@ public class OverrideTaskFuncImpl {
 			// Add a little white-space at the top
 			new_tf.append("\n\n");
 			
-			for (SVDBTaskFuncScope tf : targets) {
+			for (SVDBTask tf : targets) {
 				new_tf.append(gen.generate(tf));
 			}
 			

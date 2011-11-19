@@ -19,7 +19,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBItemTestComparator {
 	private Stack<ISVDBScopeItem>			fScopeStack;
@@ -62,11 +61,7 @@ public class SVDBItemTestComparator {
 					System.out.println("    i1: " + i1_t.getLocation() + " i2: " + i2_t.getLocation());
 					SVDBItemType it = i1.getItems().get(i).getType();
 					String type_name;
-					if (it == SVDBItemType.Stmt) {
-						type_name = "Stmt " + ((SVDBStmt)i1.getItems().get(i)).getStmtType();
-					} else {
-						type_name = "" + it;
-					}
+					type_name = "" + it;
 					type_name += " " + SVDBItem.getName(i1.getItems().get(i));
 					TestCase.assertTrue("Element " + type_name  + 
 							" is different @ " + getScope(i1.getItems().get(i)),

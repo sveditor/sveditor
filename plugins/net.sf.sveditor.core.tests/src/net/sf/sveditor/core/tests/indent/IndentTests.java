@@ -20,6 +20,8 @@ import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -57,6 +59,7 @@ public class IndentTests extends TestCase {
 	}
 
 	public void testBasicClass() {
+		LogHandle log = LogFactory.getLogHandle("testBasicClass");
 		String content =
 			"\n" +
 			"class class1 #(type T=int);\n" +
@@ -93,12 +96,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testEmptyCaseStmt() throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testEmptyCaseStmt");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -118,8 +123,8 @@ public class IndentTests extends TestCase {
 			"endmodule\n"
 			;
 
-		System.out.println("--> testEmptyCaseStmt()");
 		SVCorePlugin.getDefault().enableDebug(false);
+		log.debug("--> testEmptyCaseStmt()");
 		try {
 			SVIndentScanner scanner = new SVIndentScanner(
 					new StringTextScanner(content));
@@ -130,18 +135,20 @@ public class IndentTests extends TestCase {
 
 			String result = indenter.indent();
 
-			System.out.println("Result:");
-			System.out.println(result);
+			log.debug("Result:");
+			log.debug(result);
 			IndentComparator.compare("testBasicClass", expected, result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			System.out.println("<-- testEmptyCaseStmt()");
+			log.debug("<-- testEmptyCaseStmt()");
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testInitialBlock() {
+		LogHandle log = LogFactory.getLogHandle("testInitialBlock");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -158,7 +165,7 @@ public class IndentTests extends TestCase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		System.out.println("--> testInitialBlock");
+		log.debug("--> testInitialBlock");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
@@ -169,13 +176,293 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
-		System.out.println("<-- testInitialBlock");
+		log.debug("<-- testInitialBlock");
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testInitialStmt() {
+		LogHandle log = LogFactory.getLogHandle("testInitialStmt");
+		String content =
+			"module t;\n" +
+			"logic a;\n" +
+			"initial\n" +
+			"a = 5;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	initial\n" +
+			"		a = 5;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> testInitialStmt");
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare("testInitialStmt", expected, result);
+		log.debug("<-- testInitialStmt");
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testStructVar() {
+		String testname = "testStructVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"struct {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} s;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	struct {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} s;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefStruct() {
+		String testname = "testTypedefStruct";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef struct {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef struct {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testUnionVar() {
+		String testname = "testUnionVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"union {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} s;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	union {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} s;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefUnion() {
+		String testname = "testTypedefUnion";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef union {\n" +
+			"int a;\n" +
+			"int b;\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef union {\n" +
+			"		int a;\n" +
+			"		int b;\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testEnumVar() {
+		String testname = "testEnumVar";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"enum {\n" +
+			"A,\n" +
+			"B\n" +
+			"} e;\n" +
+			"logic b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	enum {\n" +
+			"		A,\n" +
+			"		B\n" +
+			"	} e;\n" +
+			"	logic b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testTypedefEnum() {
+		String testname = "testTypedefEnum";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"module t;\n" +
+			"typedef enum {\n" +
+			"A,\n" +
+			"B\n" +
+			"} foo_t;\n" +
+			"foo_t b;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef enum {\n" +
+			"		A,\n" +
+			"		B\n" +
+			"	} foo_t;\n" +
+			"	foo_t b;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicModuleComment() {
+		LogHandle log = LogFactory.getLogHandle("testBasicModuleComment");
 		String content =
 			"module t; // Comment.\n" +
 			"logic a;\n" +
@@ -200,12 +487,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicModuleWire", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testNestedModule() {
+		LogHandle log = LogFactory.getLogHandle("testNestedModule");
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -238,12 +527,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testNestedModule", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testIndentPostSingleComment() {
+		LogHandle log = LogFactory.getLogHandle("testIndentPostSingleComment");
 		String content =
 			"class foo;\n" +					// 1
 			"function void my_func();\n" +		// 2
@@ -276,12 +567,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testIndentPostSingleComment", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testBasicModuleWire() {
+		LogHandle log = LogFactory.getLogHandle("testBasicModuleWire");
 		String content =
 			"module top;\n" +
 			"logic a;\n" +
@@ -304,12 +597,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicModuleWire", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNewLineIf() {
+		LogHandle log = LogFactory.getLogHandle("testNewLineIf");
 		String content =
 			"\n" +
 			"class class1 #(type T=int);\n" +
@@ -348,9 +643,10 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testModule() {
@@ -385,11 +681,11 @@ public class IndentTests extends TestCase {
 			
 			if (ref_line != null && ind_line != null) {
 				if (ref_line.equals(ind_line)) {
-					System.out.println("[OK ]:" + ref_line);
+					log.debug("[OK ]:" + ref_line);
 					pass_cnt++;
 				} else {
-					System.out.println("[ERR]:" + ref_line);
-					System.out.println("[   ]:" + ind_line);
+					log.debug("[ERR]:" + ref_line);
+					log.debug("[   ]:" + ind_line);
 					err_cnt++;
 				}
 			}
@@ -404,6 +700,7 @@ public class IndentTests extends TestCase {
 	}
 
 	public void testMultiBlankLine() {
+		LogHandle log = LogFactory.getLogHandle("testMultiBlankLine");
 		String ref = 
 		"class my_component1 extends ovm_component;\n" +
 		"	\n" +
@@ -423,14 +720,14 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:");
+		log.debug(result);
+		log.debug("====");
 		
-		IndentComparator.compare("testMultiBlankLine", ref, result);
+		IndentComparator.compare(log, "testMultiBlankLine", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testFunctionComment() {
@@ -447,7 +744,8 @@ public class IndentTests extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-			
+
+			LogHandle log = LogFactory.getLogHandle("testFunctionComment");
 			SVCorePlugin.getDefault().enableDebug(false);
 			
 			// Run the indenter over the reference source
@@ -458,14 +756,14 @@ public class IndentTests extends TestCase {
 			
 			String result = indenter.indent(-1, -1);
 			
-			System.out.println("Ref:");
-			System.out.print(ref);
-			System.out.println("====");
-			System.out.println("Result:");
-			System.out.print(result);
-			System.out.println("====");
+			log.debug("Ref:\n" + ref);
+			log.debug("====");
+			log.debug("Result:");
+			log.debug(result);
+			log.debug("====");
 			
-			IndentComparator.compare("testFunctionComment", ref, result);
+			IndentComparator.compare(log, "testFunctionComment", ref, result);
+			LogFactory.removeLogHandle(log);
 	}
 
 	public void testModuleFirstItemComment() {
@@ -477,6 +775,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testModuleFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -486,14 +785,13 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testModuleFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testModuleFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testInitialFirstItemComment() {
@@ -508,6 +806,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testInitialFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -517,14 +816,13 @@ public class IndentTests extends TestCase {
 
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testInitialFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testInitialFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testFunctionFirstItemComment() {
@@ -539,6 +837,7 @@ public class IndentTests extends TestCase {
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testFunctionFirstItemComment");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -548,14 +847,13 @@ public class IndentTests extends TestCase {
 		
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testFunctionFirstItemComment", ref, result);
+		IndentComparator.compare(log, "testFunctionFirstItemComment", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testIfInFunction() {
@@ -582,6 +880,7 @@ public class IndentTests extends TestCase {
         ;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testIfInFunction");
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -593,14 +892,13 @@ public class IndentTests extends TestCase {
 		indenter.setAdaptiveIndentEnd(5);
 		String result = indenter.indent(-1, -1);
 		
-		System.out.println("Ref:");
-		System.out.print(ref);
-		System.out.println("====");
-		System.out.println("Result:");
-		System.out.print(result);
-		System.out.println("====");
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
 		
-		IndentComparator.compare("testIfInFunction", ref, result);
+		IndentComparator.compare(log, "testIfInFunction", ref, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	private StringBuilder removeLeadingWS(String ref) {

@@ -1,119 +1,77 @@
+/****************************************************************************
+ * Copyright (c) 2008-2011 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
 package net.sf.sveditor.core.db.stmt;
 
-import java.util.List;
-
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.expr.SVExpr;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBForStmt extends SVDBStmt {
-	private SVExpr			fInitExpr;
-	private SVExpr			fTestExpr;
-	private SVExpr			fIncrExpr;
-	private SVDBStmt		fBodyStmt;
-	
-	public static void init() {
-		SVDBStmt.registerPersistenceFactory(new ISVDBStmtPersistenceFactory() {
-			public SVDBStmt readSVDBStmt(ISVDBChildItem parent, SVDBStmtType stmt_type,
-					IDBReader reader) throws DBFormatException {
-				return new SVDBForStmt(parent, stmt_type, reader);
-			}
-		}, SVDBStmtType.ForStmt);
-	}
+public class SVDBForStmt extends SVDBBodyStmt {
+	private SVDBStmt			fInitExpr;
+	private SVDBStmt			fTestStmt;
+	private SVDBStmt			fIncrStmt;
 	
 	public SVDBForStmt() {
-		super(SVDBStmtType.ForStmt);
+		super(SVDBItemType.ForStmt);
 	}
 	
-	public SVDBForStmt(ISVDBItemBase parent, SVDBStmtType stmt_type, IDBReader reader)
-		throws DBFormatException {
-		super(SVDBStmtType.ForStmt);
-		
-		fInitExpr = SVExpr.readExpr(reader);
-		fTestExpr = SVExpr.readExpr(reader);
-		fIncrExpr = SVExpr.readExpr(reader);
-		
-		fBodyStmt = SVDBStmt.readStmt(this, reader);
-	}
-	
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		SVExpr.writeExpr(fInitExpr, writer);
-		SVExpr.writeExpr(fTestExpr, writer);
-		SVExpr.writeExpr(fIncrExpr, writer);
-		
-		SVDBStmt.writeStmt(fBodyStmt, writer);
-	}
-	
-	public SVExpr getInitExpr() {
+	public SVDBStmt getInitExpr() {
 		return fInitExpr;
 	}
 	
-	public void setInitExpr(SVExpr expr) {
-		fInitExpr = expr;
+	public void setInitStmt(SVDBStmt stmt) {
+		fInitExpr = stmt;
 	}
 	
-	public SVExpr getTestExpr() {
-		return fTestExpr;
+	public SVDBStmt getTestExpr() {
+		return fTestStmt;
 	}
 	
-	public void setTestExpr(SVExpr expr) {
-		fTestExpr = expr;
+	public void setTestStmt(SVDBStmt stmt) {
+		fTestStmt = stmt;
 	}
 	
-	public SVExpr getIncrExpr() {
-		return fIncrExpr;
+	public SVDBStmt getIncrStmt() {
+		return fIncrStmt;
 	}
 	
-	public void setIncrExpr(SVExpr expr) {
-		fIncrExpr = expr;
+	public void setIncrstmt(SVDBStmt stmt) {
+		fIncrStmt = stmt;
 	}
 	
-	public SVDBStmt getBodyStmt() {
-		return fBodyStmt;
-	}
-	
-	public void setBodyStmt(SVDBStmt body) {
-		fBodyStmt = body;
-	}
-
 	public SVDBForStmt duplicate() {
-		SVDBForStmt ret = new SVDBForStmt();
-		ret.init(this);
-		
-		return ret;
+		return (SVDBForStmt)super.duplicate();
 	}
 	
 	public void init(ISVDBItemBase other) {
 		super.init(other);
 		
 		SVDBForStmt o = (SVDBForStmt)other;
-		if (o.fIncrExpr != null) {
-			fIncrExpr = o.fIncrExpr.duplicate();
+		if (o.fIncrStmt != null) {
+			fIncrStmt = o.fIncrStmt.duplicate();
 		} else {
-			fIncrExpr = null;
+			fIncrStmt = null;
 		}
 		
-		if (o.fTestExpr != null) {
-			fTestExpr = o.fTestExpr.duplicate();
+		if (o.fTestStmt != null) {
+			fTestStmt = o.fTestStmt.duplicate();
 		} else {
-			fTestExpr = null;
+			fTestStmt = null;
 		}
-		
+
 		if (o.fInitExpr != null) {
 			fInitExpr = o.fInitExpr.duplicate();
 		} else {
 			fInitExpr = null;
-		}
-		
-		if (o.fBodyStmt == null) {
-			fBodyStmt = null;
-		} else {
-			fBodyStmt = o.fBodyStmt.duplicate();
 		}
 	}
 
@@ -132,22 +90,22 @@ public class SVDBForStmt extends SVDBStmt {
 		boolean ret = true;
 		
 		if (full) {
-			if (fInitExpr == null || o.getInitExpr() == null) {
-				ret &= (fInitExpr == o.getInitExpr());
+			if (fInitExpr == null || o.fInitExpr == null) {
+				ret &= (fInitExpr == o.fInitExpr);
 			} else {
-				ret &= fInitExpr.equals(o.getInitExpr());
+				ret &= fInitExpr.equals(o.fInitExpr);
 			}
 			
-			if (fTestExpr == null || o.getTestExpr() == null) {
-				ret &= (fTestExpr == o.getTestExpr());
+			if (fTestStmt == null || o.getTestExpr() == null) {
+				ret &= (fTestStmt == o.getTestExpr());
 			} else {
-				ret &= fTestExpr.equals(o.getTestExpr());
+				ret &= fTestStmt.equals(o.getTestExpr());
 			}
 			
-			if (fIncrExpr == null || o.getIncrExpr() == null) {
-				ret &= (fIncrExpr == o.getIncrExpr());
+			if (fIncrStmt == null || o.getIncrStmt() == null) {
+				ret &= (fIncrStmt == o.getIncrStmt());
 			} else {
-				ret &= fIncrExpr.equals(o.getIncrExpr());
+				ret &= fIncrStmt.equals(o.getIncrStmt());
 			}
 		} 
 		

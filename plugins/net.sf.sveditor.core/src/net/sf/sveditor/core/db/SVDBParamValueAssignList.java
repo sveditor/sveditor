@@ -15,42 +15,28 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
-public class SVDBParamValueAssignList extends SVDBItem {
+public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocation {
 	
 	private boolean							fNamedMapping;
 	private List<SVDBParamValueAssign>		fParameters;
+	private SVDBLocation					fEndLocation;
 	
 	public SVDBParamValueAssignList() {
-		super("", SVDBItemType.ParamValueList);
+		super("", SVDBItemType.ParamValueAssignList);
 		fNamedMapping = false;
 		fParameters = new ArrayList<SVDBParamValueAssign>();
 	}
+	
+	public void setEndLocation(SVDBLocation l) {
+		fEndLocation = l;
+	}
+	
+	public SVDBLocation getEndLocation() {
+		return fEndLocation;
+	}
 
-	@SuppressWarnings("unchecked")
-	public SVDBParamValueAssignList(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fNamedMapping = (reader.readInt() != 0)?true:false;
-		fParameters = (List<SVDBParamValueAssign>)reader.readItemList(file, null);
-	}
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBParamValueAssignList(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(
-				f, SVDBItemType.ParamValueList); 
-	}
-	
 	public List<SVDBParamValueAssign> getParameters() {
 		return fParameters;
 	}
@@ -58,7 +44,12 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	public void addParameter(SVDBParamValueAssign assign) {
 		fParameters.add(assign);
 	}
-	
+
+	public void addParameter(String name, String val) {
+		SVDBParamValueAssign assign = new SVDBParamValueAssign(name, new SVDBIdentifierExpr(val));
+		fParameters.add(assign);
+	}
+
 	public boolean getIsNamedMapping() {
 		return fNamedMapping;
 	}
@@ -68,19 +59,8 @@ public class SVDBParamValueAssignList extends SVDBItem {
 	}
 	
 	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeInt((fNamedMapping)?1:0);
-		writer.writeItemList(fParameters);
-	}
-
-	@Override
-	public SVDBItemBase duplicate() {
-		SVDBParamValueAssignList ret = new SVDBParamValueAssignList();
-		
-		ret.init(this);
-		
-		return ret;
+	public SVDBParamValueAssignList duplicate() {
+		return (SVDBParamValueAssignList)super.duplicate();
 	}
 
 	@Override

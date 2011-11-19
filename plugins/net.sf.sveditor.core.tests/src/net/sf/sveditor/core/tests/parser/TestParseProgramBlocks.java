@@ -17,7 +17,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseProgramBlocks extends TestCase {
@@ -43,7 +43,7 @@ public class TestParseProgramBlocks extends TestCase {
 		
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 
@@ -71,7 +71,7 @@ public class TestParseProgramBlocks extends TestCase {
 		
 		for (ISVDBItemBase it : file.getItems()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 

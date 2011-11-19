@@ -21,6 +21,8 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
@@ -36,6 +38,7 @@ public class NoHangIndentTests extends TestCase {
 	 */
 	@SuppressWarnings("unchecked")
 	public void testIndentNoHang() {
+		LogHandle log = LogFactory.getLogHandle("testIndentNoHang");
 		Bundle bundle = SVCoreTestsPlugin.getDefault().getBundle();
 		
 		Enumeration<URL> sv_entries = (Enumeration<URL>)bundle.findEntries("ovm", "*.sv", true);
@@ -59,8 +62,9 @@ public class NoHangIndentTests extends TestCase {
 				failures++;
 			}
 		}
-		System.out.println("testIndentNoHang: " + passes + " pass " + failures + " fail");
+		log.note("testIndentNoHang: " + passes + " pass " + failures + " fail");
 		assertEquals("Check for no failures", failures, 0);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	private boolean noHangTestInt(final URL url) {

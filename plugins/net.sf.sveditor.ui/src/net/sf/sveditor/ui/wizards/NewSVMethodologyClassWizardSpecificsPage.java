@@ -15,9 +15,10 @@ package net.sf.sveditor.ui.wizards;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.methodology_templates.MethodologyTemplate;
+import net.sf.sveditor.core.scanner.SVCharacter;
+import net.sf.sveditor.core.templates.TemplateInfo;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -55,7 +56,7 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		fSourceFolderStr = folder;
 	}
 	
-	public void setTemplate(MethodologyTemplate template) {
+	public void setTemplate(TemplateInfo template) {
 		// fTemplate = template;
 	}
 	
@@ -63,6 +64,15 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		return fSuperClassStr;
 	}
 	
+	
+	
+	@Override
+	public boolean isPageComplete() {
+		// TODO Auto-generated method stub
+		System.out.println("isPageComplete: " +  super.isPageComplete());
+		return super.isPageComplete();
+	}
+
 	//
 	// Source Folder
 	// 
@@ -120,11 +130,11 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 	
 	private void validate() {
 		setErrorMessage(null);
-		/*
-		if (!SVCharacter.isSVIdentifier(fNameStr)) {
+		if (!SVCharacter.isSVIdentifier(fSuperClassStr)) {
 			setErrorMessage("Invalid class name format");
 		}
 		
+		/*
 		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
 		if (c != null) {
 			if (fFileNameStr != null && !fFileNameStr.equals("")) {
@@ -138,8 +148,8 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 					fSourceFolderStr + "\" does not exist");
 		}
 		
-		setPageComplete((getErrorMessage() == null));
 		 */
+		setPageComplete((getErrorMessage() == null));
 	}
 	
 	/*
@@ -180,7 +190,7 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		dlg.setClassName(fSuperClassStr);
 		
 		if (dlg.open() == Window.OK) {
-			SVDBModIfcClassDecl cls = dlg.getSelectedClass();
+			SVDBModIfcDecl cls = dlg.getSelectedClass();
 			if (cls != null) {
 				fSuperClass.setText(cls.getName());
 			}

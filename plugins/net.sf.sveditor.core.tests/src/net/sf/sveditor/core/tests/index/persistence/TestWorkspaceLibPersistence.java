@@ -24,7 +24,10 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -55,7 +58,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -65,7 +68,10 @@ public class TestWorkspaceLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
@@ -77,9 +83,9 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -89,7 +95,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-//			System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -103,7 +109,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
 		try {
@@ -127,7 +133,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1.svh")));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());
@@ -142,10 +148,11 @@ public class TestWorkspaceLibPersistence extends TestCase {
 			}
 		}
 		
-		System.out.println("target_it=" + target_it);
+		log.debug("target_it=" + target_it);
 		
 		assertNotNull("located class1_1", target_it);
 		assertEquals("class1_1", SVDBItem.getName(target_it));
+		LogFactory.removeLogHandle(log);
 	}
 
 	/**
@@ -153,6 +160,8 @@ public class TestWorkspaceLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testFilelistChangeDetected() {
+		LogHandle log = LogFactory.getLogHandle("testFilelistChangeDetected");
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -165,9 +174,9 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -177,7 +186,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
-			// System.out.println("tmp_it=" + SVDBItem.getName(tmp_it));
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				target_it = tmp_it;
@@ -191,16 +200,16 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		rgy.save_state();
 
 		// Now, reset the registry
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		// Sleep to ensure that the timestamp is different
-		System.out.println("[NOTE] pre-sleep");
+		log.debug("[NOTE] pre-sleep");
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println("[NOTE] post-sleep");
+		log.debug("[NOTE] post-sleep");
 
 		// Change class1.svh
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -216,7 +225,7 @@ public class TestWorkspaceLibPersistence extends TestCase {
 		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex("GENERIC",
+		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 		it = index.getItemIterator(new NullProgressMonitor());

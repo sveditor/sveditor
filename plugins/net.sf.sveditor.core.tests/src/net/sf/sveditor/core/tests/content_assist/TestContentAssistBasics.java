@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -22,21 +23,27 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
+import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -46,6 +53,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestContentAssistBasics extends TestCase {
 	private SVDBIndexCollectionMgr		fIndexCollectionOVMMgr;
 	private SVDBIndexCollectionMgr		fIndexCollectionVMMMgr;
+	private SVDBIndexCollectionMgr		fIndexCollectionStandalone;
 	private ContentAssistIndex			fIndex;
 	private File						fTmpDir;
 	
@@ -53,35 +61,49 @@ public class TestContentAssistBasics extends TestCase {
 	public void setUp() {
 		fTmpDir = TestUtils.createTempDir();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
+
 		utils.copyBundleDirToFS("/data/basic_content_assist_project", fTmpDir);
 
 		String pname = "basic_content_assist_project";
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		fIndexCollectionOVMMgr = new SVDBIndexCollectionMgr(pname);
+		rgy.init(new TestNullIndexCacheFactory());
 		fIndex = new ContentAssistIndex();
-		fIndexCollectionOVMMgr.addLibraryPath(fIndex);
-		fIndexCollectionOVMMgr.addPluginLibrary(
-				rgy.findCreateIndex(pname, SVCoreTestsPlugin.OVM_LIBRARY_ID, 
-						SVDBPluginLibIndexFactory.TYPE, null));
+		fIndex.init(new NullProgressMonitor());
 
 		fIndexCollectionVMMMgr = new SVDBIndexCollectionMgr(pname);
 		fIndexCollectionVMMMgr.addLibraryPath(fIndex);
 		fIndexCollectionVMMMgr.addPluginLibrary(
-				rgy.findCreateIndex(pname, SVCoreTestsPlugin.VMM_LIBRARY_ID, 
+				rgy.findCreateIndex(new NullProgressMonitor(), pname, 
+						SVCoreTestsPlugin.VMM_LIBRARY_ID, 
 						SVDBPluginLibIndexFactory.TYPE, null));
+	}
+	
+	private SVDBIndexCollectionMgr createStandaloneIndexMgr() {
+		if (fIndexCollectionStandalone == null) {
+			fIndexCollectionStandalone = new SVDBIndexCollectionMgr("GLOBAL");
+			fIndexCollectionStandalone.addLibraryPath(fIndex);
+		}
+		return fIndexCollectionStandalone;
+	}
 
-		// Force database loading
-		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
-		fIndexCollectionVMMMgr.getItemIterator(new NullProgressMonitor());
-				
+	private SVDBIndexCollectionMgr createOVMIndexMgr() {
+		if (fIndexCollectionOVMMgr == null) {
+			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			fIndexCollectionOVMMgr = new SVDBIndexCollectionMgr("GLOBAL");
+			fIndexCollectionOVMMgr.addLibraryPath(fIndex);
+			fIndexCollectionOVMMgr.addPluginLibrary(
+					rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 
+							SVCoreTestsPlugin.OVM_LIBRARY_ID, 
+							SVDBPluginLibIndexFactory.TYPE, null));
+		}
+		return fIndexCollectionOVMMgr;
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		fTmpDir.delete();
+		TestUtils.delete(fTmpDir);
 	}
 	
 	
@@ -94,13 +116,16 @@ public class TestContentAssistBasics extends TestCase {
 			"    `ovm_componen<<FIELD1>>\n" +
 			"endclass\n";
 		
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+		TextTagPosUtils tt_utils = ini.second();
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				"testOVMMacroContentAssist", file, createOVMIndexMgr());
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
 
@@ -120,13 +145,16 @@ public class TestContentAssistBasics extends TestCase {
 			"    `vmm_err<<FIELD1>>\n" +
 			"endclass\n";
 
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+		TextTagPosUtils tt_utils = ini.second();
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(file, fIndexCollectionVMMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				"testVMMMacroContentAssist", file, fIndexCollectionVMMMgr);
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
 
@@ -137,6 +165,7 @@ public class TestContentAssistBasics extends TestCase {
 	}
 
 	public void testScopedNonInheritanceAssist() {
+		LogHandle log = LogFactory.getLogHandle("testScopedNonInheritanceAssist");
 		String doc =
 			"class my_class1;\n" +							// 1
 			"    int           my_field1_class1;\n" +		// 2
@@ -151,11 +180,11 @@ public class TestContentAssistBasics extends TestCase {
 			"        int v = my_<<MARK>>\n" +				// 11
 			"    endfunction\n" +							// 12
 			"endclass\n";									// 13
-		// SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -165,22 +194,30 @@ public class TestContentAssistBasics extends TestCase {
 		
 		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
 		
-		SVDBModIfcClassDecl my_class2 = null;
+		SVDBClassDecl my_class2 = null;
 		
+		List<SVDBDeclCacheItem> found = index_it.findGlobalScopeDecl(
+				new NullProgressMonitor(), "my_class2", SVDBFindDefaultNameMatcher.getDefault());
+		assertEquals(1, found.size());
+		
+		my_class2 = (SVDBClassDecl)found.get(0).getSVDBItem();
+		assertNotNull(my_class2);
+		
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
+			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
 			if (SVDBItem.getName(it_t).equals("my_class2")) {
-				my_class2 = (SVDBModIfcClassDecl)it_t;
+				my_class2 = (SVDBClassDecl)it_t;
 			}
 		}
+		 */
 		
-		System.out.println("[my_class2] " + my_class2.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class2.getItems()) {
-			System.out.println("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
+		
+		log.debug("[my_class2] " + my_class2.getItems().size() + " items");
+		for (ISVDBItemBase it_t : my_class2.getChildren()) {
+			log.debug("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
-		
-		
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -191,6 +228,7 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"my_class1", "my_class2",
 				"my_field1_class2", "my_field2_class2"
 				}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testScopedFieldContentAssist() {
@@ -212,10 +250,44 @@ public class TestContentAssistBasics extends TestCase {
 			"endclass\n";
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createStandaloneIndexMgr());
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+		
+		
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		validateResults(new String[] {"my_field1_class1", "my_field2_class1"}, proposals);
+	}
+
+	public void testScopedFieldDerefContentAssist() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class my_class1;\n" +
+			"    int           my_field1_class1;\n" +
+			"    int           my_field2_class1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class1_1;\n" +
+			"    my_class1     m_cls;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class2;\n" +
+			"    int           my_field1_class2;\n" +
+			"    int           my_field2_class2;\n" +
+			"    my_class1_1   v1;\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        v1.m_cls.my_field<<MARK>>\n" +
+			"    endfunction\n" +
+			"endclass\n";
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -249,7 +321,7 @@ public class TestContentAssistBasics extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -282,7 +354,7 @@ public class TestContentAssistBasics extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -295,6 +367,7 @@ public class TestContentAssistBasics extends TestCase {
 	}
 
 	public void testScopedInheritanceAssist() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class my_class1;\n" +
 			"    int           my_field1_class1;\n" +
@@ -313,7 +386,7 @@ public class TestContentAssistBasics extends TestCase {
 		
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -333,6 +406,7 @@ public class TestContentAssistBasics extends TestCase {
 	 * Test that constructor completion works properly
 	 */
 	public void testConstructorCompletion() {
+		LogHandle log = LogFactory.getLogHandle("testConstructorCompletion");
 		String doc =
 			"class my_class1;\n" +
 			"    int           my_field1_class1;\n" +
@@ -358,7 +432,7 @@ public class TestContentAssistBasics extends TestCase {
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
@@ -368,23 +442,23 @@ public class TestContentAssistBasics extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		for (SVCompletionProposal p : proposals) {
-			System.out.println("Proposal: \"" + p.getReplacement() + "\"");
+			log.debug("Proposal: \"" + p.getReplacement() + "\"");
 		}
 		
-		assertEquals("Expecting two proposals", 2, proposals.size());
+		assertEquals("Expecting one proposal", 2, proposals.size());
 
-		SVDBTaskFuncScope 	new_f;
-		SVDBVarDeclStmt		new_field;
+		SVDBTask 	new_f;
+		SVDBVarDeclItem		new_field;
 
 		if (proposals.get(0).getItem().getType() == SVDBItemType.Function) {
-			new_f = (SVDBTaskFuncScope)proposals.get(0).getItem();
-			new_field = (SVDBVarDeclStmt)proposals.get(1).getItem();
+			new_f = (SVDBTask)proposals.get(0).getItem();
+			new_field = (SVDBVarDeclItem)proposals.get(1).getItem();
 		} else {
-			new_f = (SVDBTaskFuncScope)proposals.get(1).getItem();
-			new_field = (SVDBVarDeclStmt)proposals.get(0).getItem();
+			new_f = (SVDBTask)proposals.get(1).getItem();
+			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
 		}
 		
-		System.out.println("new_f parent is " + new_f.getParent().getType() + " " + 
+		log.debug("new_f parent is " + new_f.getParent().getType() + " " + 
 				SVDBItem.getName(new_f.getParent()));
 
 		/*
@@ -401,12 +475,14 @@ public class TestContentAssistBasics extends TestCase {
 		 */
 		
 		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
-		assertEquals("Expect field name to be 'new_field'", "new_field", new_field.getName());
+		assertEquals("Expect field name to be 'new_field'", "new_field", 
+				SVDBItem.getName(new_field));
 		
 		assertEquals("Expect to get 'new' from class1", 
 				"my_class1", SVDBItem.getName(new_f.getParent()));
 		assertEquals("Expect to get 'new_field' from class2", 
-				"my_class2", SVDBItem.getName(new_field.getParent()));
+				"my_class2", SVDBItem.getName(new_field.getParent().getParent()));
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testUntriggeredClassAssist() {
@@ -476,12 +552,13 @@ public class TestContentAssistBasics extends TestCase {
 			"class my_class;\n" +
 			"    ovm_com<<FIELD1>>\n" +
 			"endclass\n";
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(
 				ini.second().getStrippedData());
 
 		// We only look at the local index here (no OVM)
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("FIELD1"));
 
@@ -504,7 +581,7 @@ public class TestContentAssistBasics extends TestCase {
 				ini.second().getStrippedData());
 
 		// We only look at the local index here (no OVM)
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 
@@ -531,7 +608,7 @@ public class TestContentAssistBasics extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(
 				ini.second().getStrippedData());
 
-		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), fIndexCollectionOVMMgr);
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
 		
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 
@@ -546,13 +623,47 @@ public class TestContentAssistBasics extends TestCase {
 		validateResults(new String[] {"get_config_object"}, proposals);
 	}
 
+	public void testEndFunctionLabel() {
+		String testname = "testEndFunctionLabel";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class my_class extends ovm_component;\n" +
+			"\n" +
+			"	function void build();\n" +
+			"	endfunction : <<MARK>>\n" +
+			"\n" +
+			"endclass\n";
+		
+		
+		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(
+				ini.second().getStrippedData());
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
+		
+		scanner.seek(ini.second().getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, ini.first(), 
+				ini.second().getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("Proposal: " + p.getReplacement());
+		}
+		
+		validateResults(new String[] {"build"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
 	
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc");
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);
 		fIndex.setFile(file);
 
 		return new Tuple<SVDBFile, TextTagPosUtils>(file, tt_utils);

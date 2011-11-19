@@ -16,24 +16,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBSearchUtils {
 	
-	private static boolean			fDebugEn = false;
+	private static final LogHandle		fLog;
+	
+	static {
+		fLog = LogFactory.getLogHandle("SVDBSearchUtils");
+	}
 	
 	public static List<ISVDBItemBase> findItemsByType(
 			SVDBScopeItem			scope,
 			SVDBItemType	...		types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (ISVDBItemBase it : scope.getItems()) {
+		for (ISVDBItemBase it : scope.getChildren()) {
 			boolean match = (types.length == 0);
 			
 			for (SVDBItemType t : types) {
@@ -51,12 +60,12 @@ public class SVDBSearchUtils {
 		return ret;
 	}
 	
-	public static SVDBModIfcClassDecl findClassScope(ISVDBChildItem scope) {
-		while (scope != null && scope.getType() != SVDBItemType.Class) {
+	public static SVDBModIfcDecl findClassScope(ISVDBChildItem scope) {
+		while (scope != null && scope.getType() != SVDBItemType.ClassDecl) {
 			scope = scope.getParent();
 		}
 		
-		return (SVDBModIfcClassDecl)scope;
+		return (SVDBModIfcDecl)scope;
 	}
 
 	public static List<ISVDBItemBase> findItemsByName(
@@ -95,24 +104,34 @@ public class SVDBSearchUtils {
 	 * @param lineno
 	 * @return
 	 */
-	public static ISVDBScopeItem findActiveScope(ISVDBScopeItem scope, int lineno) {
-		debug("findActiveScope: " + ((ISVDBNamedItem)scope).getName() + " " + lineno);
-		for (ISVDBItemBase it : scope.getItems()) {
+	public static ISVDBScopeItem findActiveScope(ISVDBChildParent scope, int lineno) {
+		debug("findActiveScope: " + SVDBItem.getName(scope) + " " + lineno);
+		for (ISVDBItemBase it : scope.getChildren()) {
+			debug("    Child: " + SVDBItem.getName(it) + " " + (it instanceof ISVDBScopeItem));
+			
+			if (it instanceof ISVDBBodyStmt && 
+					((ISVDBBodyStmt)it).getBody() != null &&
+					((ISVDBBodyStmt)it).getBody() instanceof ISVDBScopeItem) {
+				it = ((ISVDBBodyStmt)it).getBody();
+				debug("        instanceof ISVDBBodyStmt: child=" + SVDBItem.getName(it));
+			}
+			
 			if (it instanceof ISVDBScopeItem) {
 				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
-				if (s_it.getLocation() != null && s_it.getEndLocation() != null) {
-					debug("    sub-scope " + ((ISVDBNamedItem)it).getName() + " @ " + 
+				debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
+				if (s_it.getLocation() != null && end_loc != null) {
+					debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
 							it.getLocation().getLine() + "-" + 
 							((end_loc != null)?end_loc.getLine():-1));
 					if (lineno >= s_it.getLocation().getLine() && 
-							lineno <= s_it.getEndLocation().getLine()) {
+							lineno <= end_loc.getLine()) {
 						ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
 						
 						if (s_it_p != null) {
 							return s_it_p;
 						} else {
-							return s_it;
+							return (ISVDBScopeItem)s_it;
 						}
 					}
 				}
@@ -124,8 +143,6 @@ public class SVDBSearchUtils {
 
 
 	private static void debug(String msg) {
-		if (fDebugEn) {
-			System.out.println(msg);
-		}
+		fLog.debug(msg);
 	}
 }

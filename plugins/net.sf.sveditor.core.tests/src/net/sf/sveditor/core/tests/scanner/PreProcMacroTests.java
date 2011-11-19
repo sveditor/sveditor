@@ -20,6 +20,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -29,6 +31,7 @@ import org.apache.tools.ant.filters.StringInputStream;
 public class PreProcMacroTests extends TestCase {
 	
 	public void testMultiTokenGlue() {
+		LogHandle log = LogFactory.getLogHandle("testMultiTokenGlue");
 		String text = 
 			"`define analysis_closure_imp(data_type, target, func) \\\n" +
 			"typedef class target; \\\n" +
@@ -85,7 +88,7 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		mp.setFileContext(ft_root);
 		
@@ -94,13 +97,16 @@ public class PreProcMacroTests extends TestCase {
 		
 		String result = dp.expandMacro("`analysis_closure_imp(foo, bar, write_func)", "text", 1);
 		
-		System.out.println("expected: \"" + expected.trim() + "\"");
-		System.out.println("====");
-		System.out.println("result: \"" + result.trim() + "\"");
+		log.debug("expected: \"" + expected.trim() + "\"");
+		log.debug("====");
+		log.debug("result: \"" + result.trim() + "\"");
 		assertEquals(expected, result.trim());
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNestedExpansion() {
+		LogHandle log = LogFactory.getLogHandle("testNestedExpansion");
 		String text = 
 			"`define vmm_channel_( T ) T``_channel\n" +
 			"\n" +
@@ -118,7 +124,7 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		mp.setFileContext(ft_root);
 		
@@ -127,11 +133,14 @@ public class PreProcMacroTests extends TestCase {
 		
 		String result = dp.expandMacro("`vmm_channel( foo )", "text", 1);
 		
-		System.out.println("result: \"" + result + "\"");
+		log.debug("result: \"" + result + "\"");
 		assertEquals("class  foo_channel extends vmm_channel;", result.trim());
+		
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testMacroContainingIfdef() {
+		LogHandle log = LogFactory.getLogHandle("testMacroContainingIfdef");
 		String content =
 			"int MARKER=1;\n" +
 			"`define macro \\\n" +
@@ -155,13 +164,15 @@ public class PreProcMacroTests extends TestCase {
 		pp_scanner.scan();
 		
 		SVDBFileTree ft = new SVDBFileTree(observer.getFiles().get(0));
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider();
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		
 		String out = dp.expandMacro("`macro", "content", 20);
-		System.out.println("Result:\n" + out);
+		log.debug("Result:\n" + out);
 		assertEquals("int A1;", out.trim());
+		
+		LogFactory.removeLogHandle(log);
 	}
 	
 }

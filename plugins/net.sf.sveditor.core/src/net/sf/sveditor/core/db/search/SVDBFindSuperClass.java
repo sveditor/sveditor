@@ -14,7 +14,8 @@ package net.sf.sveditor.core.db.search;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindSuperClass {
@@ -34,12 +35,12 @@ public class SVDBFindSuperClass {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 
-	public SVDBModIfcClassDecl find(SVDBModIfcClassDecl cls) {
+	public SVDBClassDecl find(SVDBClassDecl cls) {
 		if (cls.getSuperClass() != null) {
-			SVDBFindNamedModIfcClassIfc finder = 
-				new SVDBFindNamedModIfcClassIfc(fIndexIterator, fMatcher);
+			SVDBFindNamedClass finder = new SVDBFindNamedClass(fIndexIterator, fMatcher);
+			SVDBTypeInfoClassType cls_type = cls.getSuperClass();
 			
-			List<SVDBModIfcClassDecl> ret = finder.find(cls.getSuperClass());
+			List<SVDBClassDecl> ret = finder.find(cls_type.getName());
 			
 			return (ret.size() > 0)?ret.get(0):null;
 		} else {

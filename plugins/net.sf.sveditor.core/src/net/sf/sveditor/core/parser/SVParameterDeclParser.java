@@ -27,18 +27,18 @@ public class SVParameterDeclParser extends SVParserBase {
 	
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
 		List<SVDBModIfcClassParam> param_l = new ArrayList<SVDBModIfcClassParam>();
-		lexer().readOperator("(");
+		fLexer.readOperator("(");
 		
-		while (lexer().peekKeyword("type") || lexer().peekId()) {
-			if (lexer().peekKeyword("type")) {
+		while (fLexer.peekKeyword("type") || fLexer.peekId()) {
+			if (fLexer.peekKeyword("type")) {
 				// TODO: recognize parameters as typed
-				lexer().eatToken();
+				fLexer.eatToken();
 			}
-			// SVDBModIfcClassParam p = new SVDBModIfcClassParam(lexer().getImage());
+			// SVDBModIfcClassParam p = new SVDBModIfcClassParam(fLexer.getImage());
 			
 			// TODO: {unpacked dimension}
 			
-			lexer().readOperator("=");
+			fLexer.readOperator("=");
 			
 			
 		}

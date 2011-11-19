@@ -12,70 +12,32 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBParamValueAssign extends SVDBItem {
-	private String						fValue;
+	private SVDBExpr					fValue;
+	private SVDBTypeInfo				fType;
+
+	public SVDBParamValueAssign() {
+		super("", SVDBItemType.ParamValueAssign);
+	}
 	
-	public SVDBParamValueAssign(String name, String value) {
-		super(name, SVDBItemType.ParamValue);
+	public SVDBParamValueAssign(String name, SVDBExpr value) {
+		super(name, SVDBItemType.ParamValueAssign);
 		fValue = value;
 	}
-	
-	public SVDBParamValueAssign(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		fValue = reader.readString();
-	}
-	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBParamValueAssign(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(
-				f, SVDBItemType.ParamValue); 
+
+	public SVDBParamValueAssign(String name, SVDBTypeInfo type) {
+		super(name, SVDBItemType.ParamValueAssign);
+		fType = type;
 	}
 
-	@Override
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		writer.writeString(fValue);
-	}
-	
-	public String getValue() {
+	public SVDBExpr getValue() {
 		return fValue;
 	}
-
-	@Override
-	public SVDBItemBase duplicate() {
-		SVDBParamValueAssign ret = new SVDBParamValueAssign(getName(), fValue);
-		ret.init(this);
-		
-		return ret;
-	}
-
-	@Override
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		fValue = ((SVDBParamValueAssign)other).fValue;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBParamValueAssign) {
-			return (fValue.equals(((SVDBParamValueAssign)obj).fValue) &&
-					super.equals(obj));
-		}
-		
-		return false;
-	}
 	
+	public SVDBTypeInfo getTypeInfo() {
+		return fType;
+	}
+
 }

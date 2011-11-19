@@ -135,7 +135,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						tok = next();
 					} else if (tok.isId("class") || tok.isId("module") ||
 							tok.isId("interface") || tok.isId("program") ||
-							tok.isId("package")) {
+							tok.isId("package") || tok.isId("sequence") ||
+							tok.isId("property")) {
 						tok = indent_ifc_module_class(tok.getImage());
 						fQualifiers = 0;
 					} else if (tok.isId("covergroup")) {
@@ -367,6 +368,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken indent_typedef() {
 		SVIndentToken tok = current();
+		boolean enum_struct = false;
 		
 		start_of_scope(tok);
 		
@@ -376,24 +378,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		tok = next_s();
 		
-		if (tok.isId("enum") || tok.isId("struct")) {
-			while (!tok.isOp("{", ";")) {
-				tok = next_s();
-			}
-			
-			if (tok.isOp("{")) {
-				// Not a forward declaration
-				tok = next_s();
-				if (!tok.isOp("}")) {
-					enter_scope(tok);
-				}
-
-				while (!tok.isOp("}")) {
-					tok = next_s();
-				}
-			}
-			// Leave on the closing brace
-			leave_scope(tok);
+		if (tok.isId("enum") || tok.isId("struct") || tok.isId("union")) {
+			tok = indent_struct_union_enum("typedef");
+			enum_struct = true;
 		}
 
 		// read to the end of the statement
@@ -405,8 +392,44 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (fDebugEn) {
 			debug("<-- indent_typedef()");
 		}
+
+		if (!enum_struct) {
+			// We've already left the scope (adjusting the closing brace) 
+			// in the case of an enum or struct
+			leave_scope();
+		}
+		return tok;
+	}
+
+	private SVIndentToken indent_struct_union_enum(String parent) {
+		SVIndentToken tok = next_s(); // advance beyond struct/union
 		
-		leave_scope();
+		if (!parent.equals("typedef")) {
+			start_of_scope(tok);
+		}
+		
+		while (!tok.isOp("{", ";")) {
+			tok = next_s();
+		}
+		
+		if (tok.isOp("{")) {
+			// Not a forward declaration
+			tok = next_s();
+			if (!tok.isOp("}")) {
+				enter_scope(tok);
+			}
+
+			while (!tok.isOp("}")) {
+				tok = next_s();
+			}
+		}
+		// Leave on the closing brace
+//		if (!parent.equals("typedef")) {
+			leave_scope(tok);
+//		}
+		
+//		tok = next_s();
+		
 		return tok;
 	}
 	
@@ -458,19 +481,29 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("function") || tok.isId("task")) {
 				tok = indent_task_function(tok.getImage());
 				fQualifiers = 0;
-			} else if (tok.isId("class") || tok.isId("module") || tok.isId("interface")) {
+			} else if (tok.isId("class") || tok.isId("module") || tok.isId("interface") ||
+					tok.isId("property") || tok.isId("sequence")) {
 				tok = indent_ifc_module_class(tok.getImage());
 				fQualifiers = 0;
+			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
+				tok = indent_struct_union_enum("");
+				fQualifiers = 0;
 			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final")) {
-				enter_scope(tok);
+				// enter_scope(tok);
 				tok = next_s();
 				
 				if (tok.isOp("@")) {
 					tok = next_s(); // paren
 					tok = consume_expression();
 				}
+
+				if (current().getImage().equals("begin")) {
+					tok = indent_block_or_statement(null, false);
+				} else {
+					tok = indent_block_or_statement(null, false);
+//					leave_scope();
+				}
 				
-				tok = indent_block_or_statement(null, false);
 				fQualifiers = 0;
 			} else if (tok.isId("covergroup")) {
 				tok = indent_covergroup();
@@ -703,7 +736,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_stmt(parent);
 			
 			if (!parent_is_block) {
-				leave_scope();
+				leave_scope(tok);
 			}
 		}
 
@@ -851,7 +884,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = consume_expression();
 			
 			// (expr) -> [stmt | stmt_block]
-			if (tok.isOp("->")) {
+			if (tok.isOp("->") || tok.isOp("-->")) {
 				tok = next_s();
 				tok = indent_constraint_block_or_stmt();
 			}
@@ -982,7 +1015,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * enter_scope()
 	 * 
 	 * Called with the first token of the new scope.
-	 * In adaptive-indent mode, updates the  
+	 * In adaptive-indent mode, updates the current indent level
 	 * 
 	 * @param tok
 	 */

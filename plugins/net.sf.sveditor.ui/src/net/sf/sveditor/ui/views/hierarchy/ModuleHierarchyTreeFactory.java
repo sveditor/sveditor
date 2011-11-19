@@ -17,8 +17,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.log.LogFactory;
@@ -35,24 +35,24 @@ public class ModuleHierarchyTreeFactory {
 		fLog = LogFactory.getLogHandle("ModuleHierarchyTreeFactory");
 	}
 	
-	public HierarchyTreeNode build(SVDBModIfcClassDecl mod) {
+	public HierarchyTreeNode build(SVDBModIfcDecl mod) {
 		return build_s(null, mod);
 	}
 	
-	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcClassDecl mod) {
+	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcDecl mod) {
 		HierarchyTreeNode ret = new HierarchyTreeNode(parent, mod.getName(), mod);
 		
-		for (ISVDBItemBase it : mod.getItems()) {
+		for (ISVDBItemBase it : mod.getChildren()) {
 			if (it.getType() == SVDBItemType.ModIfcInst) {
-				SVDBModIfcInstItem inst = (SVDBModIfcInstItem)it;
+				SVDBModIfcInst inst = (SVDBModIfcInst)it;
 				if (inst.getTypeInfo() == null) {
 					fLog.error("module instance \"" + inst.getName() + "\" has null type");
 				}
 				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
-						SVDBItemType.Module, SVDBItemType.Interface);
+						SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl);
 				
 				if (it_l.size() > 0) {
-					HierarchyTreeNode n = build_s(ret, (SVDBModIfcClassDecl)it_l.get(0));
+					HierarchyTreeNode n = build_s(ret, (SVDBModIfcDecl)it_l.get(0));
 					n.setItemDecl(inst);
 					ret.addChild(n);
 				} else if (it instanceof ISVDBNamedItem) {

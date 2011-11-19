@@ -19,9 +19,9 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
@@ -29,7 +29,10 @@ import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -55,7 +58,7 @@ public class TestOpencoresProjects extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 		}
 	}
 	
@@ -95,7 +98,7 @@ public class TestOpencoresProjects extends TestCase {
 			String				zipfile_path,
 			String				proj_path,
 			String				arg_file_paths[]) throws CoreException {
-		
+		LogHandle log = LogFactory.getLogHandle(testname);
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -134,34 +137,36 @@ public class TestOpencoresProjects extends TestCase {
 		p_data.setProjectFileWrapper(p_wrapper);
 		
 		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
-		assertNoErrors(project_index);
+		assertNoErrors(log, project_index);
 		
 		// force index loading
 		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			it.nextItem();
 		}
+		
+		IndexTestUtils.assertNoErrWarn(log, project_index);
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
 	}
 
-	private void assertNoErrors(ISVDBIndexIterator index_it) {
+	private void assertNoErrors(LogHandle log, ISVDBIndexIterator index_it) {
 		ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it_i.hasNext()) {
 			ISVDBItemBase it = it_i.nextItem();
 			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarkerItem marker = (SVDBMarkerItem)it;
-				if (marker.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				SVDBMarker marker = (SVDBMarker)it;
+				if (marker.getMarkerType() == MarkerType.Error) {
 					errors.add(marker);
 				}
 			}
 		}
 		
-		for (SVDBMarkerItem m : errors) {
-			System.out.println("[ERROR] " + m.getMessage() + " @ " + 
-					SVDBItem.getName(m.getParent()) + ":" + m.getLocation().getLine());
+		for (SVDBMarker m : errors) {
+			log.debug("[ERROR] " + m.getMessage() + " @ " + ":" + m.getLocation().getLine());
 		}
 		
 		assertEquals(0, errors.size());
@@ -176,5 +181,4 @@ public class TestOpencoresProjects extends TestCase {
 			p.delete(true, new NullProgressMonitor());
 		}
 	}
-
 }

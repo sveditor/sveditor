@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -32,13 +33,14 @@ public class ProfileIndexLoad {
 		SVDBIndexCollectionMgr mgr = new SVDBIndexCollectionMgr(pname);
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		
-		rgy.init(fTmpDir);
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		String lib_path = ovm_home + "/src/ovm_pkg.sv";
 		
 		System.out.println("Library Path: " + lib_path);
 		SVDBLibPathIndexFactory f = new SVDBLibPathIndexFactory();
-		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null);
+		// TODO: provide cache
+		ISVDBIndex index = f.createSVDBIndex(pname, lib_path, null, null);
 		mgr.addLibraryPath(index);
 		
 		ISVDBItemIterator item_it = mgr.getItemIterator(new NullProgressMonitor());
@@ -65,7 +67,7 @@ public class ProfileIndexLoad {
 			long end_time = System.currentTimeMillis();
 			
 			System.out.println("Parse Time: " + (end_time - start_time));
-			t.fTmpDir.delete();
+			TestUtils.delete(t.fTmpDir);
 		}
 	}
 

@@ -12,58 +12,39 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBModIfcClassParam extends SVDBItem {
 	
-	private String					fDefault;
-
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBModIfcClassParam(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.ModIfcClassParam); 
+	private SVDBExpr					fDefault;
+	private SVDBTypeInfo				fDefaultType;
+	
+	public SVDBModIfcClassParam() {
+		super("", SVDBItemType.ModIfcClassParam);
 	}
 
 	public SVDBModIfcClassParam(String name) {
 		super(name, SVDBItemType.ModIfcClassParam);
-		fDefault = "";
 	}
 	
-	public SVDBModIfcClassParam(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-		
-		fDefault = reader.readString();
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-		
-		writer.writeString(fDefault);
-	}
-	
-	public String getDefault() {
+	public SVDBExpr getDefault() {
 		return fDefault;
 	}
 	
-	public void setDefault(String dflt) {
+	public void setDefault(SVDBExpr dflt) {
 		fDefault = dflt;
 	}
 	
-	public SVDBItemBase duplicate() {
-		SVDBItem ret = new SVDBModIfcClassParam(getName());
-		
-		init(ret);
-		
-		return ret;
+	public SVDBTypeInfo getDefaultType() {
+		return fDefaultType;
+	}
+	
+	public void setDefaultType(SVDBTypeInfo type) {
+		fDefaultType = type;
+	}
+	
+	public SVDBModIfcClassParam duplicate() {
+		return (SVDBModIfcClassParam)super.duplicate();
 	}
 	
 	public void init(SVDBItemBase other) {
@@ -72,6 +53,7 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		fDefault = ((SVDBModIfcClassParam)other).fDefault;
 	}
 
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof SVDBModIfcClassParam) {
@@ -83,5 +65,6 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		
 		return false;
 	}
+	 */
 	
 }

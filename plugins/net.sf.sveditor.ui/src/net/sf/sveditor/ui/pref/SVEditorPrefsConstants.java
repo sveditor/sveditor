@@ -32,4 +32,9 @@ public class SVEditorPrefsConstants {
 	
 	public static final String P_DEBUG_ENABLED_S = "debugEnabled";
 	
+	public static final String P_CONTENT_ASSIST_NAMED_PORTS_EN = "contentAssistNamedPortsEn";
+	public static final String P_CONTENT_ASSIST_LINE_WRAP_LIMIT = "contentAssistLineWrapLimit";
+	public static final String P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE = "contentAssistTaskFuncParamsPerLine";
+	
+	
 }

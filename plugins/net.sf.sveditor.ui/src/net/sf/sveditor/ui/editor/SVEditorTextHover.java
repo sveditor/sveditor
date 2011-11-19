@@ -12,16 +12,9 @@
 
 package net.sf.sveditor.ui.editor;
 
-import java.util.List;
-
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.expr_utils.SVExpressionUtils;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -43,10 +36,10 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
 		SVDocumentTextScanner scanner = 
 			new SVDocumentTextScanner(textViewer.getDocument(), hoverRegion.getOffset()+1);
-		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
+//		SVExpressionUtils expr_utils = new SVExpressionUtils(new SVDBFindDefaultNameMatcher());
 		SVExprScanner expr_scanner = new SVExprScanner();
 		
-		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
+		/* SVExprContext expr_ctxt = */ expr_scanner.extractExprContext(scanner, true);
 		
 		int lineno = -1;
 		try {
@@ -64,7 +57,6 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 			/*
 			List<SVDBItem> info = expr_utils.processPreTriggerPortion(
 					fEditor.getIndexIterator(), src_scope, expr_ctxt.fRoot, true);
-			 */
 			List<ISVDBItemBase> info = expr_utils.findItems(
 					fEditor.getIndexIterator(), src_scope, expr_ctxt, false);
 			
@@ -75,6 +67,7 @@ public class SVEditorTextHover implements ITextHover /*, ITextHoverExtension */ 
 					str += ((ISVDBNamedItem)it).getName();
 				}
 			}
+			 */
 		}
 		
 		return str;

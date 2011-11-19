@@ -26,9 +26,16 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcScanner implements ISVScanner {
 	
-	private static final int    PP_DISABLED = 0;
-	private static final int    PP_ENABLED  = 1;
-	private static final int    PP_CARRY    = 2;
+	private static final int    PP_DISABLED 			= 0;
+	private static final int    PP_ENABLED  			= 1;
+	
+	// This bit is set when we are within a disabled section.
+	// It's impossible for anything in a sub-section to be enabled
+	private static final int    PP_CARRY    			= 2;
+	
+	// This bit is set when a block within this level of conditionals
+	// has been taken (ie `ifdef (true) ... ; `ifndef (false))
+	private static final int	PP_THIS_LEVEL_EN_BLOCK 	= 4;
 	
 	private InputStream			fInput;
 	private String				fFileName;
@@ -39,6 +46,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private int					fInputBufferIdx = 0;
 	private int					fInputBufferMax = 0;
 	private int					fUngetCh = -1;
+	private int					fUngetCh2 = -1;
 	private int					fLastCh  = -1;
 	private int					fLineno;
 	private StringBuffer		fPPBuffer;
@@ -137,6 +145,14 @@ public class SVPreProcScanner implements ISVScanner {
 		fFileName = name;
 		
 		fScanLocation.setFileName(name);
+	}
+	
+	public void close() {
+		try {
+			if (fInput != null) {
+				fInput.close();
+			}
+		} catch (IOException e) {}
 	}
 
 	public void scan() {
@@ -244,6 +260,29 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 
+	private String readPreProcId_ll(int ci) {
+
+		fTmpBuffer.setLength(0);
+		
+		if (!Character.isJavaIdentifierStart(ci)) {
+			unget_ch(ci);
+			return null;
+		}
+
+		fTmpBuffer.append((char)ci);
+
+		while ((ci = get_ch_ll()) != -1 && (SVCharacter.isSVIdentifierPart(ci))) {
+			fTmpBuffer.append((char)ci);
+		}
+		unget_ch(ci);
+
+		if (fTmpBuffer.length() == 0) {
+			return null;
+		} else {
+			return fTmpBuffer.toString();
+		}
+	}
+
 	private String readLine_ll(int ci) {
 		int last_ch = -1;
 		
@@ -323,7 +362,7 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		fScanLocation.setLineNo(fLineno);
 
-		if (type.equals("ifdef") || type.equals("ifndef")) {
+		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
 			fPPBuffer.setLength(0);
 			
 			ch = skipWhite_ll(get_ch_ll());
@@ -339,12 +378,19 @@ public class SVPreProcScanner implements ISVScanner {
 					} else {
 						enter_ifdef(false);
 					}
-				} else {
+				} else if (type.equals("ifndef")) {
 					if (fDefineProvider != null) {
 						enter_ifdef(!fDefineProvider.isDefined(
 								remainder, fLineno));
 					} else {
 						enter_ifdef(true);
+					}
+				} else { // elsif
+					if (fDefineProvider != null) {
+						enter_elsif(fDefineProvider.isDefined(
+								remainder, fLineno));
+					} else {
+						enter_elsif(false);
 					}
 				}
 			} else {
@@ -354,7 +400,7 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 		} else if (type.equals("else")) {
 			if (fEvalConditionals) {
-				invert_ifdef();
+				enter_else();
 			} else {
 				if (fObserver != null) {
 					fObserver.leave_preproc_conditional();
@@ -416,9 +462,17 @@ public class SVPreProcScanner implements ISVScanner {
 				define = ""; // define this macro as existing
 			}
 
-			// 
-			if (define.indexOf("//") != -1) {
-				define = define.substring(0, define.indexOf("//"));
+			/* We should carry-through the single-line comments. However, this is only
+			 * true in the case of a single-line macro. Multi-line macros get to keep
+			 * their single-line comments
+			 */ 
+			int last_comment;
+			if ((last_comment = define.lastIndexOf("//")) != -1) {
+				int lr = define.indexOf('\n', last_comment);
+				if (lr == -1) {
+					// Nothing beyond this comment
+					define = define.substring(0, define.indexOf("//"));
+				}
 			}
 			
 			if (ifdef_enabled()) {
@@ -489,10 +543,16 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ifdef_enabled()) {
 				// Read the full string
 
-				if (fDefineProvider != null && fDefineProvider.hasParameters(type, fLineno)) {
+				boolean is_defined = (fDefineProvider != null)?fDefineProvider.isDefined(type, fLineno):false;
+				if (fDefineProvider != null && 
+						(fDefineProvider.hasParameters(type, fLineno) || !is_defined)) {
 					// Try to read the parameter list
 					ch = get_ch_ll();
-					ch = skipWhite_ll(ch);
+					// skip up to new-line or non-whitespace
+					while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+						ch = get_ch_ll();
+					}
+					// ch = skipWhite_ll(ch);
 
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
@@ -512,7 +572,7 @@ public class SVPreProcScanner implements ISVScanner {
 								fTmpBuffer.append((char)ch);
 							}
 						} while (ch != -1 && matchLevel > 0);
-					} else {
+					} else if (is_defined) {
 						fDefineProvider.error("macro \"" + type +
 								"\" should have parameters, but doesn't", 
 								fScanLocation.getFileName(),
@@ -521,6 +581,8 @@ public class SVPreProcScanner implements ISVScanner {
 						"\" should have parameters, but doesn't @ " +
 							fScanLocation.getFileName() + ":" + 
 							fScanLocation.getLineNo());
+						unget_ch(ch);
+					} else {
 						unget_ch(ch);
 					}
 				}
@@ -558,6 +620,11 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 		}
 		
+		// Mark that we've taken one branch
+		if ((e & PP_ENABLED) == 1) {
+			e |= PP_THIS_LEVEL_EN_BLOCK;
+		}
+		
 		fPreProcEn.push(e);
 	}
 	
@@ -567,20 +634,45 @@ public class SVPreProcScanner implements ISVScanner {
 		}
 	}
 	
-	private void invert_ifdef() {
+	private void enter_elsif(boolean enabled) {
+		if (fPreProcEn.size() > 0) {
+			int e = fPreProcEn.pop();
+
+			if (enabled) {
+				// Condition evaluates true
+				if ((e & PP_CARRY) != PP_CARRY && 
+						(e & PP_THIS_LEVEL_EN_BLOCK) != PP_THIS_LEVEL_EN_BLOCK) {
+					// Enable this branch
+					e |= (PP_ENABLED | PP_THIS_LEVEL_EN_BLOCK);
+				}
+			} else {
+				// Not enabled. Ensure the ENABLED flag is cleared
+				e &= ~PP_ENABLED;
+			}
+			
+			fPreProcEn.push(e);
+		}
+	}
+	
+	private void enter_else() {
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
 			
-			// Invert only if we're in an enabled scope
-			if (e != PP_CARRY) {
-				int e2 = ((e & PP_ENABLED) == PP_ENABLED)?PP_DISABLED:PP_ENABLED;
+			// Invert only if we're in an enabled scope and
+			// we haven't already 'taken' a branch in the 
+			// ifdef/elsif/else structure
+			if ((e & PP_CARRY) == 0) {
 				
-				if ((e & PP_CARRY) != 0) {
-					e2 |= PP_CARRY;
+				if ((e & PP_THIS_LEVEL_EN_BLOCK) != 0) {
+					// Disable any blocks beyond the 'taken' block
+					e &= ~PP_ENABLED;
+				} else {
+					// Enable this branch and set the BLOCK_ENABLED flag
+					e |= PP_ENABLED;
 				}
-				e = e2;
 			}
 			
+			// Flip to 'true' only if we aren't 
 			fPreProcEn.push(e);
 		}
 	}
@@ -647,7 +739,7 @@ public class SVPreProcScanner implements ISVScanner {
 				ch = get_ch_ll();
 			}
 			
-			if (ch == '/') {
+			if (ch == '/' && !fInString) {
 				int ch2 = get_ch_ll();
 
 				if (ch2 == '/') {
@@ -671,7 +763,7 @@ public class SVPreProcScanner implements ISVScanner {
 			} else if (ch == '`' && !fInString) {
 				ch = get_ch_ll();
 				
-				String type = readIdentifier_ll(ch);
+				String type = readPreProcId_ll(ch);
 				
 				if (type != null) {
 					handle_preproc_directive(type);
@@ -696,58 +788,64 @@ public class SVPreProcScanner implements ISVScanner {
 			break;
 		}
 
-		fLastChPP = ch;
+		if (fLastChPP == '\\' && ch == '\\') {
+			fLastChPP = ' ';
+		} else {
+			fLastChPP = ch;
+		}
 		
 		return ch;
 	}
 	
 	private int get_ch_ll() {
-		int ch = get_ch_ll_1();
-		
-		if (ch == '\r') {
-			int ch2 = get_ch_ll_1();
-			if (ch2 != '\n') {
-				unget_ch(ch2);
-			}
-			ch = '\n';
-		}
-		
-		return ch;
-	}
-	
-	private int get_ch_ll_1() {
 		int ch = -1;
-		
-		if (fUngetCh != -1) {
-			ch = fUngetCh;
-			fUngetCh = -1;
-			return ch;
-		}
-		
-		if (fInputBufferIdx >= fInputBufferMax) {
-			fInputBufferIdx = 0;
-			fInputBufferMax = -1;
-			try {
-				fInputBufferMax = fInput.read(
-						fInputBuffer, 0, fInputBuffer.length);
-			} catch (IOException e) {
+		int ch_l = -1;
+		for (int i=0; i<2; i++) {
+			
+			if (fUngetCh != -1) {
+				ch = fUngetCh;
+				fUngetCh = fUngetCh2;
+				fUngetCh2 = -1;
+				return ch;
 			}
+			
+			if (fInputBufferIdx >= fInputBufferMax) {
+				fInputBufferIdx = 0;
+				fInputBufferMax = -1;
+				try {
+					fInputBufferMax = fInput.read(
+							fInputBuffer, 0, fInputBuffer.length);
+				} catch (IOException e) {
+				}
+			}
+			
+			if (fInputBufferIdx < fInputBufferMax) {
+				ch = fInputBuffer[fInputBufferIdx++];
+			}
+			
+			if (fLastCh == '\n') {
+				fLineno++;
+			}
+			fLastCh = ch;
+			
+			if (ch != '\r' && ch_l != '\r') {
+				break;
+			} else if (ch_l == '\r' && ch != '\n') {
+				unget_ch(ch);
+				ch = '\n';
+			}
+			ch_l = ch;
 		}
-		
-		if (fInputBufferIdx < fInputBufferMax) {
-			ch = fInputBuffer[fInputBufferIdx++];
-		}
-		
-		if (fLastCh == '\n') {
-			fLineno++;
-		}
-		fLastCh = ch;
-		
 		return ch;
 	}
 	
 	private void unget_ch(int ch) {
-		fUngetCh = ch;
+		if (fUngetCh == -1) {
+			fUngetCh = ch;
+		} else {
+			fUngetCh2 = fUngetCh;
+			fUngetCh = ch;
+		}
 	}
 	
 	private void push_unacc(String str) {

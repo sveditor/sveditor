@@ -33,10 +33,13 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
 	protected RetargetTextEditorAction fAddBlockCommentAction;
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
 	protected RetargetTextEditorAction fToggleCommentAction;
+	protected RetargetTextEditorAction fNextWordAction;
+	protected RetargetTextEditorAction fPrevWordAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -53,6 +56,11 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
+		
+		fFindReferencesAction = new RetargetTextEditorAction(
+				bundle, "FindReferences.");
+		fFindReferencesAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.find.references");
 
 		fOpenTypeHierarchyAction = new RetargetTextEditorAction(
 				bundle, "OpenTypeHierarchy.");
@@ -70,6 +78,12 @@ public class SVActionContributor extends TextEditorActionContributor {
 		
 		fToggleCommentAction = new RetargetTextEditorAction(bundle, "ToggleComment.");
 		fToggleCommentAction.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
+		
+		fNextWordAction = new RetargetTextEditorAction(bundle, "NextWordAction.");
+		fNextWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_NEXT);
+		
+		fPrevWordAction = new RetargetTextEditorAction(bundle, "PrevWordAction.");
+		fPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -80,6 +94,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}
 	}
@@ -99,6 +114,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}	
 	}
@@ -113,10 +129,13 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
+		fFindReferencesAction.setAction(getAction(editor, "FindReferences"));
 		fIndentAction.setAction(getAction(editor, "Indent"));
 		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));
 		fRemoveBlockCommentAction.setAction(getAction(editor, "RemoveBlockComment"));
 		fToggleCommentAction.setAction(getAction(editor, "ToggleComment"));
+		fNextWordAction.setAction(getAction(editor, "NextWord"));
+		fPrevWordAction.setAction(getAction(editor, "PrevWord"));
 	}
 
 	/*

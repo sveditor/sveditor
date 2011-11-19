@@ -23,15 +23,22 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -41,8 +48,10 @@ public class TestOpenFile extends TestCase {
 	
 	
 	public void testRelPathOpenDecl() throws IOException {
+		String testname = "testRelPathOpenDecl";
 		File tmpdir = TestUtils.createTempDir();
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		try {
 			BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -54,10 +63,10 @@ public class TestOpenFile extends TestCase {
 			TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.init(null);
+			rgy.init(TestIndexCacheFactory.instance(null));
 			
-			ISVDBIndex target_index = rgy.findCreateIndex("subdir2",
-					"${workspace_loc}/subdir2/pkg_rel_path_include.sv",
+			ISVDBIndex target_index = rgy.findCreateIndex(new NullProgressMonitor(),
+					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
 			ISVDBItemIterator it = target_index.getItemIterator(new NullProgressMonitor());
@@ -83,14 +92,46 @@ public class TestOpenFile extends TestCase {
 			
 			assertEquals(1, ret.size());
 			
-			System.out.println("ret.size=" + ret.size());
+			log.debug("ret.size=" + ret.size());
 			
-			System.out.println("File Path: " + SVDBItem.getName(ret.get(0).first()));
+			log.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
 			
 			
 		} finally {
-			tmpdir.delete();
+			TestUtils.delete(tmpdir);
 		}
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testOpenMacroDef() {
+		String testname = "testOpenMacroDef";
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc =
+			"`define MY_MACRO foo\n" +		// 1
+			"\n" +
+			"class c;\n" +
+			"	int			`MY_MACRO;\n" +	// 4
+			"endclass\n"					// 5
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "c", "foo");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("`MY_MACRO");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"`MY_".length());
+
+		int lineno = 4;
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, lineno, scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.MacroDef, ret.get(0).first().getType());
+		assertEquals("MY_MACRO", SVDBItem.getName(ret.get(0).first()));
 	}
 
 }

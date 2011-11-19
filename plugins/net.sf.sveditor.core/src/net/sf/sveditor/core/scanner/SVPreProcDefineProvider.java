@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemPrint;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
@@ -109,7 +109,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			return "";
 		}
 
-		fMacroProvider.setMacro("__FILE__", fFilename);
+		fMacroProvider.setMacro("__FILE__", "\"" + fFilename + "\"");
 		fMacroProvider.setMacro("__LINE__", "" + fLineno);
 		fExpandStack.clear();
 		fEnableOutputStack.clear();
@@ -191,8 +191,27 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				 */
 
 				if (ch == '(') {
-					ch = scanner.skipPastMatch("()");
+					ch = skipPastMatchSkipStrings(scanner, '(', ')');
 					scanner.unget_ch(ch);
+				}
+				
+				// TODO: replace text with appropriate number of new-line characters?
+				int newline_count = 0;
+				for (int i=macro_start; i<scanner.getOffset(); i++) {
+					if (scanner.charAt(i) == '\n') {
+						newline_count++;
+					}
+				}
+				if (newline_count > 0) {
+					StringBuilder replace = new StringBuilder();
+					while (newline_count > 0) {
+						replace.append("\n");
+						newline_count--;
+					}
+					scanner.replace(macro_start, scanner.getOffset(), replace.toString());
+				} else {
+					// Replace text of the undefined macro with whitespace
+					scanner.replace(macro_start, scanner.getOffset(), "");
 				}
 				
 				// TODO: ?
@@ -250,6 +269,43 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		return 0;
+	}
+	
+	private int skipPastMatchSkipStrings(ITextScanner scanner, int ch1, int ch2) {
+		int ch;
+		int lcnt=1, rcnt=0;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (ch == ch1) {
+				lcnt++;
+			} else if (ch == ch2) {
+				rcnt++;
+			} else if (ch == '"') {
+				skipPastString(scanner);
+			}
+			if (lcnt == rcnt) {
+				break;
+			}
+		}
+		
+		return scanner.get_ch();
+	}
+	
+	private void skipPastString(ITextScanner scanner) {
+		int ch;
+		int last_ch = -1;
+		
+		while ((ch = scanner.get_ch()) != -1) {
+			if (ch == '"' && last_ch != '\\') {
+				break;
+			}
+			if (last_ch == '\\' && ch == '\\') {
+				// Don't count a double quote
+				last_ch = -1;
+			} else {
+				last_ch = ch;
+			}
+		}
 	}
 
 	/****************************************************************
@@ -356,15 +412,21 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				ch = scanner.get_ch();
 
 				if (ch == '(') {
-					ch = scanner.skipPastMatch("()");
+					ch = skipPastMatchSkipStrings(scanner, '(', ')');
 					
 					if (fDebugEn) {
 						debug("    post-skip (): ch=" + (char)ch);
 					}
 				} else if (ch == '{') {
-					ch = scanner.skipPastMatch("{}");
+					ch = skipPastMatchSkipStrings(scanner, '{', '}');
 					if (fDebugEn) {
 						debug("    post-skip {}: ch=" + (char)ch);
+					}
+				} else if (ch == '"') {
+					while ((ch = scanner.get_ch()) != -1 && 
+							ch != '"' && ch != '\n') {}
+					if (ch == '"') {
+						ch = scanner.get_ch();
 					}
 				}
 			} while (ch != -1 && ch != ',' && ch != ')');
@@ -468,6 +530,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			if (ch == '"' && last_ch != '`') {
 				// un-escaped string
 				while ((ch = scanner.get_ch()) != -1 && ch != '"') { }
+			} else if (ch == '`' && last_ch == '`') {
+				// Handle `` as a token separator
+				scanner.replace(scanner.getOffset()-2, scanner.getOffset(), "");
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				int p_start = scanner.getOffset()-1;
 				

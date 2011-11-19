@@ -17,10 +17,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBStmtType;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -62,14 +61,14 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 			ISVDBItemBase it = (ISVDBItemBase)element;
 			
 			if (!fShowInheritedMembers) {
-				if (fTarget.getItemDecl().getType() == SVDBItemType.Class) {
-					if (!isInScope((SVDBModIfcClassDecl)fTarget.getItemDecl(), it)) {
+				if (fTarget.getItemDecl().getType() == SVDBItemType.ClassDecl) {
+					if (!isInScope((SVDBModIfcDecl)fTarget.getItemDecl(), it)) {
 						return false;
 					}
 				}
 			}
 			
-			if (fHideFields && SVDBStmt.isType(it, SVDBStmtType.VarDecl)) {
+			if (fHideFields && SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				return false;
 			}
 
@@ -77,8 +76,8 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 				if (it instanceof SVDBFieldItem &&
 						(((SVDBFieldItem)it).getAttr() & IFieldItemAttr.FieldAttr_Static) != 0) {
 					return false;
-				} else if (it instanceof SVDBTaskFuncScope &&
-						(((SVDBTaskFuncScope)it).getAttr() & IFieldItemAttr.FieldAttr_Static) != 0) {
+				} else if (it instanceof SVDBTask &&
+						(((SVDBTask)it).getAttr() & IFieldItemAttr.FieldAttr_Static) != 0) {
 					return false;
 				}
 			}
@@ -88,9 +87,9 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 						((((SVDBFieldItem)it).getAttr() & IFieldItemAttr.FieldAttr_Local) != 0 || 
 						 (((SVDBFieldItem)it).getAttr() & IFieldItemAttr.FieldAttr_Protected) != 0)) {
 					return false;
-				} else if (it instanceof SVDBTaskFuncScope &&
-						((((SVDBTaskFuncScope)it).getAttr() & IFieldItemAttr.FieldAttr_Local) != 0 ||
-						 (((SVDBTaskFuncScope)it).getAttr() & IFieldItemAttr.FieldAttr_Protected) != 0)) {
+				} else if (it instanceof SVDBTask &&
+						((((SVDBTask)it).getAttr() & IFieldItemAttr.FieldAttr_Local) != 0 ||
+						 (((SVDBTask)it).getAttr() & IFieldItemAttr.FieldAttr_Protected) != 0)) {
 					return false;
 				}
 			}

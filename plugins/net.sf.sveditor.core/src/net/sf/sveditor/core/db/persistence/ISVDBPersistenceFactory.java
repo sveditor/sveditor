@@ -12,17 +12,15 @@
 
 package net.sf.sveditor.core.db.persistence;
 
-import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public interface ISVDBPersistenceFactory {
 	
 	SVDBItemBase readSVDBItem(
-			IDBReader		reader,
+			ISVDBChildItem	parent,
 			SVDBItemType 	type,
-			SVDBFile		file,
-			SVDBScopeItem	parent) throws DBFormatException;
+			IDBReader		reader) throws DBFormatException;
 
 }

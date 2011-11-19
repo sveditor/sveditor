@@ -15,13 +15,18 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.SVDBUtil;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVTaskFunctionParser extends SVParserBase {
@@ -30,93 +35,120 @@ public class SVTaskFunctionParser extends SVParserBase {
 		super(parser);
 	}
 	
+	public void parse_method_decl(ISVDBScopeItem parent) throws SVParseException {
+		parse(parent, null, true, 0);
+	}
+
+	public SVDBTask parse_method_decl() throws SVParseException {
+		SVDBScopeItem scope = new SVDBScopeItem();
+		parse(scope, null, true, 0);
+		
+		return (SVDBTask)SVDBUtil.getFirstChildItem(scope);
+	}
+
 	// Enter on 'function'
-	public SVDBTaskFuncScope parse(SVDBLocation start, int qualifiers) throws SVParseException {
-		SVDBTaskFuncScope func = null;
+	public void parse(ISVDBAddChildItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
+		parse(parent, start, false, qualifiers);
+	}
+	
+	private void parse(ISVDBAddChildItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
+		SVDBTask func = null;
 		SVDBLocation end = null;
 		String tf_name;
 		
 		if (start == null) {
-			start = lexer().getStartLocation();
+			start = fLexer.getStartLocation();
 		}
 		
-		String type = lexer().readKeyword("task", "function");
+		String type = fLexer.readKeyword("task", "function");
 	
 		// ??
-		// lexer().eatToken();
+		// fLexer.eatToken();
 		
 		SVDBTypeInfo return_type = null;
 		if (type.equals("function")) {
-			if (lexer().peekKeyword("new")) {
+			if (fLexer.peekKeyword("new")) {
 				// constructor, so no return type
-				tf_name = lexer().eatToken();
+				tf_name = fLexer.eatToken();
 				return_type = new SVDBTypeInfoBuiltin("");
 			} else {
-				if (lexer().peekKeyword("static", "automatic")) {
+				if (fLexer.peekKeyword("static", "automatic")) {
 				// 	TODO: should add this as a qualifier
-					if (lexer().eatToken().equals("static")) {
+					if (fLexer.eatToken().equals("static")) {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
 					}
 				}
-			
+				
 				// data-type or implicit
-				String data_type_or_implicit;
-				if (lexer().peekKeyword("void") || 
-						SVKeywords.isBuiltInType(lexer().peek())) {
-					data_type_or_implicit = lexer().eatToken();
-				} else {
-					data_type_or_implicit = parsers().SVParser().scopedIdentifier(true);
+				List<SVToken> data_type_or_implicit = null;
+				if (fLexer.peekKeyword("void") || 
+						SVKeywords.isBuiltInType(fLexer.peek())) {
+					data_type_or_implicit = new ArrayList<SVToken>();
+					data_type_or_implicit.add(fLexer.consumeToken());
+				} else if (fLexer.peekId()) {
+					data_type_or_implicit = parsers().SVParser().scopedIdentifier_l(true);
 				}
 
-				if (!lexer().peekOperator(";", "(")) {
-					// probably data-type
-					return_type = parsers().dataTypeParser().data_type_or_void(0, data_type_or_implicit);
+				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator("[")) {
+					// probably data-type or implicit data-type
+					// Un-get the tokens we have
+					if (data_type_or_implicit != null) {
+						fLexer.ungetToken(data_type_or_implicit);
+					}
+					return_type = parsers().dataTypeParser().data_type_or_void(0);
 					tf_name = parsers().SVParser().scopedIdentifier(false);
 				} else {
 					// function with no return type
-					tf_name = data_type_or_implicit;
+					tf_name = parsers().SVParser().scopedIdentifierList2Str(data_type_or_implicit);
 
 					// TODO: This is a SystemVerilog warning
 				}
 			}
 		} else {
 			// task
-			if (lexer().peekKeyword("static", "automatic")) {
+			if (fLexer.peekKeyword("static", "automatic")) {
 				// 	TODO: should add this as a qualifier
-				if (lexer().eatToken().equals("static")) {
+				if (fLexer.eatToken().equals("static")) {
 					qualifiers |= SVDBFieldItem.FieldAttr_Static;
 				}
 			}
 			tf_name = parsers().SVParser().scopedIdentifier(false);
 		}
 		
-		List<SVDBParamPort> params = null;
+		List<SVDBParamPortDecl> params = null;
 		boolean is_ansi = true;
-		debug("Function Terminator: " + lexer().peek());
-		if (lexer().peekOperator("(")) {
+		debug("Function Terminator: " + fLexer.peek());
+		// method declarations are required to have parens
+		if (is_decl || fLexer.peekOperator("(")) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
 			is_ansi = true;
-		} else if (lexer().peekOperator(";")) {
+		} else if (fLexer.peekOperator(";")) {
 			// non-ANSI (?)
-			params = new ArrayList<SVDBParamPort>();
+			params = new ArrayList<SVDBParamPortDecl>();
 			is_ansi = false;
 		}
-		lexer().readOperator(";");
+		
+		// Method declaration is not terminated with a semi-colon
+		if (!is_decl) {
+			fLexer.readOperator(";");
+		}
 		
 		debug("Procesing " + type + " " + tf_name);
 		
 		if (type.equals("function")) {
-			func = new SVDBTaskFuncScope(tf_name, return_type);
+			func = new SVDBFunction(tf_name, return_type);
 		} else {
-			func = new SVDBTaskFuncScope(tf_name, SVDBItemType.Task);
+			func = new SVDBTask(tf_name, SVDBItemType.Task);
 		}
 		func.setParams(params);
 		func.setAttr(qualifiers);
 		func.setLocation(start);
 		
+		parent.addChildItem(func);
+		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
-		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
+		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
 				(qualifiers & (SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) !=
 					(SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual) &&
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
@@ -125,18 +157,20 @@ public class SVTaskFunctionParser extends SVParserBase {
 				parsers().tfBodyParser().parse(func, is_ansi);
 			} catch (SVParseException e) {
 				debug("Failed to parse function body", e);
+			} finally {
+				func.setEndLocation(fLexer.getStartLocation());
 			}
 
-			end = lexer().getStartLocation();
+			end = fLexer.getStartLocation();
 			if  (type.equals("task")) {
-				lexer().readKeyword("endtask");
+				fLexer.readKeyword("endtask");
 			} else {
-				lexer().readKeyword("endfunction");
+				fLexer.readKeyword("endfunction");
 			}
 
-			if (lexer().peekOperator(":")) {
-				lexer().eatToken();
-				String id = lexer().readIdOrKeyword(); // could be :new
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				String id = fLexer.readIdOrKeyword(); // could be :new
 
 				if (!id.equals(func.getName())) {
 					// TODO: endfunction label must match function name
@@ -145,12 +179,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		
 		if (end == null) {
-			end = lexer().getStartLocation();
+			end = fLexer.getStartLocation();
 		}
 		
 		func.setEndLocation(end);
-		
-		return func;
 	}
 
 }

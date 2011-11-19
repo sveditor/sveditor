@@ -13,7 +13,6 @@
 package net.sf.sveditor.ui.search;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.runtime.IAdaptable;

@@ -16,11 +16,14 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class TestAdaptiveIndent extends TestCase {
 	
 	public void testAdaptiveSecondLevel() {
+		LogHandle log = LogFactory.getLogHandle("testAdaptiveSecondLevel");
 		String content =
 			"/****************************************************************************\n" +		// 1
 			" * my_component1.svh\n" +																// 2
@@ -59,9 +62,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare("testAdaptiveSecondLevel", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testPostComment() {
@@ -118,6 +122,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"  \n" +
 			"endmodule\n";
 		
+		LogHandle log = LogFactory.getLogHandle("testBasicModule");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -129,9 +134,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testBasicModule", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testBasicModule", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testModuleContainingClass() {
@@ -158,7 +164,8 @@ public class TestAdaptiveIndent extends TestCase {
 			"  endclass\n" +	// 8
 			"	\n" +			// 9
 			"endmodule\n";
-		
+
+		LogHandle log = LogFactory.getLogHandle("testModuleContainingClass");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -169,9 +176,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testBasicModule", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testBasicModule", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testAdaptiveIf() {
@@ -208,6 +216,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"endfunction\n" +																		// 14
 			"\n";
 		
+		LogHandle log = LogFactory.getLogHandle("testAdaptiveIf");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -219,9 +228,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testAdaptiveIf", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testAdaptiveIf", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testPostSysTfIfPartial() {
@@ -248,6 +258,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"		end\n"
 			;
 		
+		LogHandle log = LogFactory.getLogHandle("testPostSysTfIfPartial");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -258,9 +269,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent(12, 14);
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testPostSysTfIf", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testPostSysTfIf", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testPostSysTfIfFull() {
@@ -299,6 +311,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"	endfunction\n" +
 			"\n";
 		
+		LogHandle log = LogFactory.getLogHandle("testPostSysTfIfFull");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -309,9 +322,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testPostSysTfIfFull", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testPostSysTfIfFull", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 
@@ -344,6 +358,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testAdaptiveFirstLevelScope");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
@@ -356,9 +371,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
-		IndentComparator.compare("testAdaptiveFirstLevelScope", expected, result);
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, "testAdaptiveFirstLevelScope", expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	private void coreAutoIndentTest(
@@ -366,6 +382,7 @@ public class TestAdaptiveIndent extends TestCase {
 			String content,
 			int adaptive_end,
 			String expected) {
+		LogHandle log = LogFactory.getLogHandle(testname);
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));
 		
@@ -376,9 +393,10 @@ public class TestAdaptiveIndent extends TestCase {
 
 		String result = indenter.indent();
 		
-		System.out.println("Result:");
-		System.out.println(result);
+		log.debug("Result:");
+		log.debug(result);
 		IndentComparator.compare(testname, expected, result);
+		LogFactory.removeLogHandle(log);
 	}
 	
 //	public void test

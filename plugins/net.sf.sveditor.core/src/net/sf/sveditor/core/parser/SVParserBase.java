@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 
 
@@ -22,9 +23,13 @@ public class SVParserBase implements ISVParser {
 	
 	protected static final boolean			fDebugEn = false;
 	protected ISVParser						fParser;
+	protected SVLexer						fLexer;
+	protected SVParsers						fParsers;
 	
 	protected SVParserBase(ISVParser parser) {
 		fParser = parser;
+		fLexer = parser.lexer();
+		fParsers = parser.parsers();
 	}
 	
 	public boolean error_limit_reached() {
@@ -42,6 +47,10 @@ public class SVParserBase implements ISVParser {
 	public SVLexer lexer() {
 		return fParser.lexer();
 	}
+	
+	protected SVDBIdentifierExpr readId() throws SVParseException {
+		return fParsers.exprParser().idExpr();
+	}
 
 	public void warning(String msg, int lineno) {
 		fParser.warning(msg, lineno);
@@ -52,7 +61,7 @@ public class SVParserBase implements ISVParser {
 	}
 	
 	public SVDBLocation getLocation() {
-		return fParser.lexer().getStartLocation();
+		return fLexer.getStartLocation();
 	}
 
 	public void debug(String msg) {

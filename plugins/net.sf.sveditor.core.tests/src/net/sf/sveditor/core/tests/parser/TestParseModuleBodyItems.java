@@ -17,34 +17,37 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBDataType;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileMerger;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
-import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {
 	
 	public void testPackageModule() {
+		LogHandle log = LogFactory.getLogHandle("testPackageModule");
 		String content =
-			"package p;\r\n" +
-		    "typedef enum logic[1:0] {\r\n" +
-		    "    e0, e1, e2, e3\r    } e;" +
-			"endpackage\r\n" +
-			"\r\n" +
-			"module t1\r\n" +
-			"	(\r\n" +
-		    "    input e [1:0] eee // No parse error.\r    );\r\n" +
+			"package p;\r\n" +						// 1
+		    "typedef enum logic[1:0] {\r\n" +		// 2
+		    "    e0, e1, e2, e3\r    } e;" +		// 3
+			"endpackage\r\n" +						// 4
+			"\r\n" +								// 5
+			"module t1\r\n" +						// 6
+			"	(\r\n" +							// 7
+		    "    input e [1:0] eee // No parse error.\r    );\r\n" +	// 8
 		    "endmodule\r\n"
 		    ;
 
@@ -53,13 +56,46 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "p", "t1");
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testDefineCaseItems() {
+		LogHandle log = LogFactory.getLogHandle("testDefineCaseItems");
+		String content =
+			"`define A 1\n" +
+			"module mymodule;\n" +
+			"	int b;\n" +
+			"	initial begin\n" +
+			"		case(b)\n" +
+			"			`A:begin\n" +
+			"			end\n" +
+			"		endcase\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testDefineCaseItems");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mymodule");
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testDelayedAssign() {
 		String content =
 			"module t;\n" +
 			"	logic a;\n" +
+			"	real tmin, ttyp, tmax;\n" +
+			"	real some_delay_time;\n" +
 			"	assign #1 a = 1; // Error.\n" +
+			"	always" +
+			"	begin " +
+			"		#(1:2:3) a = 1; // Error.\n" +
+			"	    #(tmin: ttyp: tmax) a = 1; // Error.\n" +
+			"	    some_delay_time = (1.0: 2.2: 3.456); // Error.\n" +
+			"	    some_delay_time = (tmin: ttyp: tmax); // Error.\n" +
+			"	end\n" +
 			"endmodule\n"
 			;
 
@@ -226,20 +262,20 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBFile file = SVDBTestUtils.parse(doc, "testInitialBlock");
 		
-		SVDBModIfcClassDecl top = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl top = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 		
-		SVDBScopeItem initial = null;
-		for (ISVDBItemBase it : top.getItems()) {
-			if (it.getType() == SVDBItemType.InitialBlock) {
-				initial = (SVDBScopeItem)it;
+		ISVDBItemBase initial = null;
+		for (ISVDBItemBase it : top.getChildren()) {
+			if (it.getType() == SVDBItemType.InitialStmt) {
+				initial = it;
 				break;
 			}
 		}
@@ -248,6 +284,8 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testPortList() {
+		LogHandle log = LogFactory.getLogHandle("testPortList");
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top(a, b, c, d);\n" +		// 1
 			"    input a;\n" +					// 2
@@ -264,43 +302,50 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"						// 13
 			;
 
-		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testPortList");
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				log.debug("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl top = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl top = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 		
-		for (SVDBParamPort p : top.getPorts()) {
-			System.out.println("Port: " + p.getName());
+		for (SVDBParamPortDecl p : top.getPorts()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				log.debug("Port: " + SVDBItem.getName(c));
+			}
 		}
 
-		ISVDBItemBase a=null, b=null, c=null, d=null, bus=null;
-		for (ISVDBItemBase it : top.getItems()) {
+		SVDBVarDeclItem a=null, b=null, c=null, d=null, bus=null;
+		for (ISVDBItemBase it : top.getChildren()) {
 			String name = SVDBItem.getName(it);
-			System.out.println("[Item] " + it.getType() + " " + name);
-			if (name.equals("a")) {
-				a = it;
-			} else if (name.equals("b")) {
-				b = it;
-			} else if (name.equals("c")) {
-				c = it;
-			} else if (name.equals("d")) {
-				d = it;
-			} else if (name.equals("bus")) {
-				bus = it;
+			log.debug("[Item] " + it.getType() + " " + name);
+			if (it.getType() == SVDBItemType.VarDeclStmt) {
+				for (ISVDBChildItem ci : ((SVDBVarDeclStmt)it).getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)ci;
+					log.debug("    vi=" + vi.getName());
+					if (vi.getName().equals("a")) {
+						a = vi;
+					} else if (vi.getName().equals("b")) {
+						b = vi;
+					} else if (vi.getName().equals("c")) {
+						c = vi;
+					} else if (vi.getName().equals("d")) {
+						d = vi;
+					} else if (vi.getName().equals("bus")) {
+						bus = vi;
+					}
+				}
 			}
 		}
 		
@@ -310,18 +355,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(d);
 		assertNotNull(bus);
 		
-		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
-		assertEquals("input", ((SVDBVarDeclStmt)a).getTypeName());
-		assertTrue((bus instanceof SVDBVarDeclStmt));
-		SVDBVarDeclStmt v = (SVDBVarDeclStmt)bus;
-		System.out.println("bus.type.class=" + v.getTypeInfo().getClass().getName());
-		assertTrue((((SVDBVarDeclStmt)bus).getTypeInfo() instanceof SVDBTypeInfoBuiltinNet));
-		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)((SVDBVarDeclStmt)bus).getTypeInfo();
-		assertEquals("[12:0]", 
-				((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		assertEquals("input", a.getParent().getTypeName());
+		assertEquals("input", a.getParent().getTypeName());
+		assertTrue(bus.getParent().getTypeInfo() instanceof SVDBTypeInfoBuiltinNet);
+		SVDBTypeInfoBuiltinNet net_type = (SVDBTypeInfoBuiltinNet)bus.getParent().getTypeInfo();
+		log.debug("vectorDim: " + ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		assertEquals("", "[12:0]", ((SVDBTypeInfoBuiltin)net_type.getTypeInfo()).getVectorDim());
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testTypedPortList() {
+		LogHandle log = LogFactory.getLogHandle("testTypedPortList");
 		String doc =
 			"typedef struct {\n" +
 			"    int a;\n" +
@@ -344,31 +388,34 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testTypedPortList");
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
+				log.debug("Marker: " + ((SVDBMarker)it).getMessage());
 			}
 		}
 
-		SVDBModIfcClassDecl top = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl top = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 				break;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 
-		SVDBParamPort a=null, b=null, bar=null;
-		for (SVDBParamPort p : top.getPorts()) {
-			System.out.println("Port: " + p.getName());
-			if (p.getName().equals("a")) {
-				a = p;
-			} else if (p.getName().equals("b")) {
-				b = p;
-			} else if (p.getName().equals("bar")) {
-				bar = p;
+		SVDBVarDeclItem a=null, b=null, bar=null;
+		for (SVDBParamPortDecl p : top.getPorts()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
+				log.debug("Port: " + pi.getName());
+				if (pi.getName().equals("a")) {
+					a = pi;
+				} else if (pi.getName().equals("b")) {
+					b = pi;
+				} else if (pi.getName().equals("bar")) {
+					bar = pi;
+				}
 			}
 		}
 		
@@ -376,15 +423,41 @@ public class TestParseModuleBodyItems extends TestCase {
 		assertNotNull(b);
 		assertNotNull(bar);
 
-		assertEquals(SVDBDataType.UserDefined, b.getTypeInfo().getDataType());
-		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getTypeInfo()).getName());
+		assertEquals(SVDBItemType.TypeInfoUserDef, b.getParent().getTypeInfo().getType());
+		assertEquals("foo_t", ((SVDBTypeInfoUserDef)b.getParent().getTypeInfo()).getName());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testAlwaysBlock() {
+		LogHandle log = LogFactory.getLogHandle("testAlwaysBlock");
 		String doc =
 			"module top;\n" +
 			"\n" +
 			"    always @ (posedge a) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ (posedge a or negedge b) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always_ff @ (posedge a or negedge b) begin\n" +		// Throw in an always_ff for the fun of it
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ (posedge a, negedge b) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ (*) begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @* begin\n" +
+			"        b = ~a;\n" +
+			"    end\n" +
+			"\n" +
+			"    always @ someevent begin\n" +
 			"        b = ~a;\n" +
 			"    end\n" +
 			"\n" +
@@ -393,13 +466,13 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysBlock");
-		List<SVDBMarkerItem> errors = new ArrayList<SVDBMarkerItem>();
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		for (ISVDBItemBase it : file.getItems()) {
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.Marker) {
-				System.out.println("Marker: " + ((SVDBMarkerItem)it).getMessage());
-				SVDBMarkerItem m = (SVDBMarkerItem)it;
-				if (m.getName().equals(SVDBMarkerItem.MARKER_ERR)) {
+				log.debug("Marker: " + ((SVDBMarker)it).getMessage());
+				SVDBMarker m = (SVDBMarker)it;
+				if (m.getMarkerType() == MarkerType.Error) {
 					errors.add(m);
 				}
 			}
@@ -408,9 +481,11 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "top");
 		
 		assertEquals("No Errors", 0, errors.size());
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testNestedModule() {
+		LogHandle log = LogFactory.getLogHandle("testNestedModule");
 		String doc =
 			"module top;\n" +
 			"\n" +
@@ -428,23 +503,24 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl top = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl top = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("top")) {
-				top = (SVDBModIfcClassDecl)it;
+				top = (SVDBModIfcDecl)it;
 			}
 		}
 		
 		assertNotNull("Failed to find module top", top);
 		
-		SVDBModIfcClassDecl inner = null;
-		for (ISVDBItemBase it : top.getItems()) {
+		SVDBModIfcDecl inner = null;
+		for (ISVDBItemBase it : top.getChildren()) {
 			if (SVDBItem.getName(it).equals("inner")) {
-				inner = (SVDBModIfcClassDecl)it;
+				inner = (SVDBModIfcDecl)it;
 			}
 		}
 
 		assertNotNull("Failed to find module inner", inner);
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testEmptyParamList() {
@@ -471,19 +547,24 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testParameterDeclaration");
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t1 = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl t1 = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("t1")) {
-				t1 = (SVDBModIfcClassDecl)it;
+				t1 = (SVDBModIfcDecl)it;
 			}
 		}
 		
 		assertNotNull("Failed to find module t1", t1);
 		
-		SVDBParamPort c = null;
-		for (ISVDBItemBase it : t1.getItems()) {
-			if (SVDBItem.getName(it).equals("c")) {
-				c = (SVDBParamPort)it;
+		SVDBVarDeclItem c = null;
+		for (ISVDBItemBase it : t1.getChildren()) {
+			if (it.getType() == SVDBItemType.ParamPortDecl) {
+				for (ISVDBChildItem ci : ((SVDBParamPortDecl)it).getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)ci;
+					if (vi.getName().equals("c")) {
+						c = vi;
+					}
+				}
 			}
 		}
 		assertNotNull(c);
@@ -502,21 +583,26 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBModIfcClassDecl t = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl t = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
+				t = (SVDBModIfcDecl)it;
 			}
 		}
 		
 		assertNotNull("Failed to find module t", t);
 		
-		SVDBParamPort a = null, b = null;
-		for (ISVDBItemBase it : t.getItems()) {
-			if (SVDBItem.getName(it).equals("a")) {
-				a = (SVDBParamPort)it;
-			} else if (SVDBItem.getName(it).equals("b")) {
-				b = (SVDBParamPort)it;
+		SVDBVarDeclItem a = null, b = null;
+		for (ISVDBItemBase it : t.getChildren()) {
+			if (it.getType() == SVDBItemType.ParamPortDecl) {
+				for (ISVDBChildItem c : ((SVDBParamPortDecl)it).getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+					if (vi.getName().equals("a")) {
+						a = vi;
+					} else if (vi.getName().equals("b")) {
+						b = vi;
+					}
+				}
 			}
 		}
 		assertNotNull(a);
@@ -524,7 +610,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testAlwaysVariants() {
-		
+		LogHandle log = LogFactory.getLogHandle("testAlwaysVariants");
 		String doc =
 			"module t3(input clock);\n" +
 			"    always_ff@(posedge clock) begin\n" +
@@ -537,19 +623,20 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBFile file = SVDBTestUtils.parse(doc, "testAlwaysVariants");
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t3 = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl t3 = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("t3")) {
-				t3 = (SVDBModIfcClassDecl)it;
+				t3 = (SVDBModIfcDecl)it;
 			}
 		}
 		
 		assertNotNull("Failed to find module t3", t3);
 		
 		// SVDBAlwaysBlock always_ff = null, always_comb = null;
-		for (ISVDBItemBase it : t3.getItems()) {
-			System.out.println("it: " + it.getType() + " " + SVDBItem.getName(it));
+		for (ISVDBItemBase it : t3.getChildren()) {
+			log.debug("it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
+		LogFactory.removeLogHandle(log);
 	}
 
 	// EXPECTED_ERROR: Generate blocks not currently supported
@@ -840,6 +927,34 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "test");
 	}
 	
+	public void testGenBeginEnd() {
+		String doc = 
+			"module gray2bin1 (bin, gray);\n" +
+			"	parameter SIZE = 8; // this module is parameterizable\n" +
+			"	output [SIZE-1:0] bin;\n" +
+			"	input [SIZE-1:0] gray;\n" +
+			"	genvar i;\n" +
+			"	generate\n" +
+			"	begin : my_gen_block\n" +
+			"	for (i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+			"		assign bin[i] = ^gray[SIZE-1:i];\n" +
+			"		// i refers to the implicitly defined localparam whose\n" +
+			"		// value in each instance of the generate block is\n" +
+			"		// the value of the genvar when it was elaborated.\n" +
+			"	end\n" + // 12
+			"	end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, "testGenBeginEnd");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "gray2bin1");
+	}
+	
+	
 	public void testClocking_DR() {
 		String doc = 
 			"interface control_if;\n" +
@@ -885,23 +1000,26 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl t = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("t")) {
-				t = (SVDBModIfcClassDecl)it;
+				t = (SVDBModIfcDecl)it;
 			}
 		}
 		assertNotNull("Failed to find module t", t);
 		
-		SVDBParamPort out=null, in=null, in2=null;
+		SVDBVarDeclItem out=null, in=null, in2=null;
 		
-		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t).getPorts()) {
-			if (p.getName().equals("out")) {
-				out = p;
-			} else if (p.getName().equals("in")) {
-				in = p;
-			} else if (p.getName().equals("in2")) {
-				in2 = p;
+		for (SVDBParamPortDecl p : ((SVDBModIfcDecl)t).getPorts()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
+				if (pi.getName().equals("out")) {
+					out = pi;
+				} else if (pi.getName().equals("in")) {
+					in = pi;
+				} else if (pi.getName().equals("in2")) {
+					in2 = pi;
+				}
 			}
 		}
 		assertNotNull("Failed to find \"out\"", out);
@@ -923,19 +1041,22 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		
-		SVDBModIfcClassDecl t2 = null;
-		for (ISVDBItemBase it : file.getItems()) {
+		SVDBModIfcDecl t2 = null;
+		for (ISVDBItemBase it : file.getChildren()) {
 			if (SVDBItem.getName(it).equals("t2")) {
-				t2 = (SVDBModIfcClassDecl)it;
+				t2 = (SVDBModIfcDecl)it;
 			}
 		}
 		assertNotNull("Failed to find module t2", t2);
 		
-		SVDBParamPort mp=null;
+		SVDBVarDeclItem mp=null;
 		
-		for (SVDBParamPort p : ((SVDBModIfcClassDecl)t2).getPorts()) {
-			if (p.getName().equals("mp")) {
-				mp = p;
+		for (SVDBParamPortDecl p : ((SVDBModIfcDecl)t2).getPorts()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
+				if (pi.getName().equals("mp")) {
+					mp = pi;
+				}
 			}
 		}
 		assertNotNull("Failed to find \"mp\"", mp);
@@ -1037,14 +1158,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	end\n" +
 			"endmodule\n";
 
-		SVDBFile target_file = new SVDBFile("testMappedParameterizedModule");
 		SVDBFile file = SVDBTestUtils.parse(doc, "testMappedParameterizedModule");
-		
-		SVDBFileMerger.merge(target_file, file, null, null, null);
-		
-		// Merge twice for good measure. The first time actually does something.
-		// The second time ensures maximum compares
-		SVDBFileMerger.merge(target_file, file, null, null, null);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		
@@ -1054,11 +1168,11 @@ public class TestParseModuleBodyItems extends TestCase {
 	public void testAlwaysIfElse() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testAlwaysIfElse",
-				"module t;\n" +
-				"	always@(posedge clk or negedge rst)\n" +
-			    "	if(!rst)        state <= #1 grant0;\n" +
-			    "	else            state <= #1 next_state;\n" +
-				"endmodule\n",
+				"module t;\n" +										// 1
+				"	always@(posedge clk or negedge rst)\n" +		// 2
+			    "	if(!rst)        state <= #1 grant0;\n" +		// 3
+			    "	else            state <= #1 next_state;\n" +	// 4
+				"endmodule\n",										// 5
 				new String[] {"t"});
 	}
 	
@@ -1170,6 +1284,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testMultiModuleInstantiation() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module t;\n" +
 			"\n" +
@@ -1222,6 +1337,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	#()();\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testModulePreBodyImport", doc, new String[] {"p", "t"});
 	}
@@ -1242,7 +1358,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t", "p::*"});
+		runTest("testModulePreBodyImport2", doc, new String[] {"p", "t"});
 	}
 
 	public void testModulePreBodyImport3() {
@@ -1261,8 +1377,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		runTest("testModulePreBodyImport3", doc, new String[] {
-				"p", "t", "p::*", "p1::*", "p2::*"});
+		runTest("testModulePreBodyImport3", doc, new String[] {"p", "t"});
 	}
 	
 	public void testGatePrimitives1() {
@@ -1304,28 +1419,122 @@ public class TestParseModuleBodyItems extends TestCase {
 			"\n" +
 			"	wire  net1, net2, net3;\n" +
 			"	wire  net4, net5, net6;\n" +
+			"	wire  out, a, b, c, d, e;\n" +
 			"\n" +
 			"	tranif0 my_gate1 (net1, net2, net3);\n" +
 			"	rtranif1 my_gate2 (net4, net5, net6);\n" +
+			"	rtranif1 my_gate3 (net4, net5, net6);\n" +
+			"	rtranif1 #(1, 2, 3) my_gate4 (net4, net5, net6);\n" +
+			"	rtranif1 #(1:2:3, 2:3:4, 3:4:5) my_gate5 (net4, net5, net6);\n" +
+			"   nor  (highz1,  strong0) #(2:3:5) (out, in1, in2);\n" +
+			"   nand (strong1, strong0) #(6:7:8, 5:6:7) (out, a, b);\n" +
+			"   and  (strong1, strong0) #(6:7:8) (out, a, b);\n" +
+			"   xor  (strong1, strong0) #(6:7:8, 5:6:7) (out, a, b, c, d, e);\n" +
+			"   xnor (strong1, strong0) #(5) (out, a, b, c, d, e);\n" +
+			"   or   (strong1, strong0) #(5, 6) (out, a, b, c, d, e);\n" +
+			"   nand (strong1, strong0) (out, a, b, c, d, e);\n" +
+			"   nand (strong1, strong0) my_gate6 (out, a, b, c, d, e);\n" +
 			"\n" +
 			"endmodule\n"
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testGatePrimitives2", doc, new String[] {"switch_primitives"});
 	}
 	
-	public void testEscapedIdentifiers() {
-		String doc = 
-			"module a(\n" +
-			"	input \\escaped_port ,\n" +
-			"	output \\**foo_bar**+n\n" +
-			"	);\n" +
+	public void testCovergroup() {
+		String doc =
+			"module t;\n" +
+			"	covergroup foobar;\n" +
+			"		foo_cp : coverpoint (foo);\n" +
+			"		foo2_cp : coverpoint foo2;\n" +
+			"		foo_cross : cross foo_cp, foo2_cp {\n" +
+			"			ignore_bins foo = binsof(foo_cp) intersect {0};\n" +
+			"		}\n" +
+			"	endgroup\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testCovergroup", doc, new String[] {"t", "foobar"});
+	}
+	
+	public void testModuleInst() {
+		String doc =
+			"module sub #(parameter P1=1, parameter P2=2) (\n" +
+			"        input clk,\n" +
+			"        output dat);\n" +
+			"endmodule\n" +
+			"\n" +
+			"module t;\n" +
+			"	sub #(.P1(2), .P2(3)) sub_1(.clk(1), .dat(2));\n" +
+			"	sub #(.P1(2), .P2(3)) sub_1_1 (.clk, .dat);\n" +
+			"	sub #(.P1(3), .P2(4)) sub_2_1(1, 2), sub_2_2(2, 3);\n" +
+			"	sub #(.P1(3), .P2(4)) sub_2_3 [5:0] (1, 2), sub_2_4(2, 3);\n" +
 			"endmodule"
 			;
 		
-		runTest("testEscapedIdentifiers", doc, new String[] {"a"});
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testModuleInst", doc, new String[] {"sub", "t"});
+	}
+	
+	public void testAssignStrength() {
+		String doc =
+			"module t;\n" +
+			"	wire a, b, clk;\n" +
+			"	assign (strong0,highz1) a = b;\n" +
+			"	assign (pull1,pull0) clk=1;\n" +
+			"endmodule"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("testAssignStrength", doc, new String[] {"t"});
+	}
+	
+	public void testTimeUnitPrecision() {
+		String testname = "testTimeUnitPrecision";
+		String doc =
+			"module my_module #(  parameter PARAMETER_1 = 1, // this is parameter 1\n" +
+            "       parameter PARAMETER_2 = 10    // this is parameter 2\n" +
+            "                     )\n"+ 
+            "                      (\n"+
+            "                       input logic       clk    , // fixed 4MHz input clock\n" +
+            "                       input logic [1:0] write_enable, // write_enable\n" +
+            "                       input logic [1:0] read_enable, // read_enable\n" +
+            "                       input logic [15:0]write_data , // write data\n" +
+            "                       output logic [15:0] read_data  // read data\n" + 
+            "                     );\n" +
+            "\n" +
+            "	timeunit 1ns;            // ERROR: Not recognizing time\n" +
+            "	timeprecision 1ps;            // ERROR not recognizing time\n" +
+            "endmodule\n"
+            ;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"my_module"});
+	}
+	
+	public void testLocalParamAssign() {
+		String testname = "testLocalParamAssign";
+		String doc = 
+			"module my_module;\n" +
+			"	localparam logic [15:0]  TMR_SPB_ADDRL [PARAMETER_1 :0]  = { 16'h1600, 16'h1400 };      // ERROR: Crazy parameter construct\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"my_module", "TMR_SPB_ADDRL"});
+	}
+
+	public void testModInstArray() {
+		String testname = "testModInstArray";
+		String doc = 
+			"module top_module;\n" +
+			"	mymodule m1 [10:0] (a,b);\n" +
+			"	mymodule m2[10:0] (c,d), m3[2:0] (e,f);\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"top_module", "m1", "m2", "m3"});
 	}
 
 	private void runTest(

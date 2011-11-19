@@ -14,6 +14,8 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.Map;
 
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+
 
 public interface ISVDBIndexFactory {
 	
@@ -22,6 +24,7 @@ public interface ISVDBIndexFactory {
 	ISVDBIndex createSVDBIndex(
 			String 					project_name, 
 			String 					base_location,
+			ISVDBIndexCache			cache,
 			Map<String, Object>		config);
 
 }

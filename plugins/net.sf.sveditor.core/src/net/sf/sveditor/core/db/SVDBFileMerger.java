@@ -61,11 +61,15 @@ public class SVDBFileMerger {
 							((ISVDBScopeItem)it_2).getEndLocation());
 				}
 				
-				if (it_1 instanceof SVDBTaskFuncScope) {
-					SVDBTaskFuncScope tf_1 = (SVDBTaskFuncScope)it_1;
-					SVDBTaskFuncScope tf_2 = (SVDBTaskFuncScope)it_2;
+				if (it_1 instanceof SVDBTask) {
+					SVDBTask tf_1 = (SVDBTask)it_1;
+					SVDBTask tf_2 = (SVDBTask)it_2;
 					tf_1.getParams().clear();
 					tf_1.getParams().addAll(tf_2.getParams());
+				} 
+				if (it_1 instanceof SVDBFunction) {
+					SVDBFunction tf_1 = (SVDBFunction)it_1;
+					SVDBFunction tf_2 = (SVDBFunction)it_2;
 					tf_1.setReturnType(tf_2.getReturnType());
 				}
 				temp.add(it_1);

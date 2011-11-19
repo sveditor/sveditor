@@ -14,10 +14,9 @@ package net.sf.sveditor.core.db.persistence;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 
 public interface IDBReader {
 	
@@ -36,9 +35,9 @@ public interface IDBReader {
 	Enum readEnumType(Class enum_type) throws DBFormatException;
 	
 	@SuppressWarnings("rawtypes")
-	List readItemList(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;
+	List readItemList(ISVDBChildItem parent) throws DBFormatException;
 	
-	SVDBItemBase readSVDBItem(SVDBFile file, SVDBScopeItem parent) throws DBFormatException;
+	ISVDBItemBase readSVDBItem(ISVDBChildItem parent) throws DBFormatException;
 	
 	List<String> readStringList() throws DBFormatException;
 	

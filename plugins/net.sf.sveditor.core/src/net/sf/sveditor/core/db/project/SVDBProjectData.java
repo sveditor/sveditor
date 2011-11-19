@@ -37,6 +37,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBProjectData {
 	private IPath 									fSVProjFilePath;
@@ -175,7 +176,7 @@ public class SVDBProjectData {
 
 		// Add enabled plugin paths
 		for (SVDBPath path : fw.getPluginPaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(
+			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				SVDBIndexRegistry.GLOBAL_PROJECT, path.getPath(), 
 				SVDBPluginLibIndexFactory.TYPE, null);
 			
@@ -191,7 +192,7 @@ public class SVDBProjectData {
 		args.clear();
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getLibraryPaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(
+			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 					fProjectName, path.getPath(), 
 					SVDBLibPathIndexFactory.TYPE, args);
 			
@@ -207,7 +208,7 @@ public class SVDBProjectData {
 		args.clear();
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getArgFilePaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(
+			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 					fProjectName, path.getPath(),
 					SVDBArgFileIndexFactory.TYPE, args);
 			
@@ -227,7 +228,7 @@ public class SVDBProjectData {
 			FileSet fs = new FileSet();
 			params.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 			 */
-			ISVDBIndex index = rgy.findCreateIndex(
+			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 					fProjectName, srcc.getBaseLocation(),
 					SVDBSourceCollectionIndexFactory.TYPE, params);
 			

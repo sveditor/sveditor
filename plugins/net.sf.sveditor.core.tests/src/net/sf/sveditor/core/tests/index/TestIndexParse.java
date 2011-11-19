@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -56,7 +57,7 @@ public class TestIndexParse extends TestCase {
 		super.tearDown();
 		
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -74,10 +75,10 @@ public class TestIndexParse extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 
@@ -104,10 +105,10 @@ public class TestIndexParse extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/testbench.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 
@@ -134,10 +135,10 @@ public class TestIndexParse extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 
@@ -158,7 +159,7 @@ public class TestIndexParse extends TestCase {
 		
 		assertNotNull("Failed to open path \"" + path + "\"", in);
 		
-		SVDBFile file = index.parse(in, path, new NullProgressMonitor());
+		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null);
 		
 		assertNotNull("Failed to parse path \"" + path + "\"", file);
 		
@@ -171,7 +172,7 @@ public class TestIndexParse extends TestCase {
 			
 			assertNotNull("Failed to open path \"" + path_n + "\"", in);
 			
-			file = index.parse(in, path_n, new NullProgressMonitor());
+			file = index.parse(new NullProgressMonitor(), in, path_n, null);
 			
 			assertNotNull("Failed to parse path \"" + path_n + "\"", file);
 			

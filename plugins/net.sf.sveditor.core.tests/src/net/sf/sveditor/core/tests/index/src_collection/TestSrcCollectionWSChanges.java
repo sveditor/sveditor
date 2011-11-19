@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarkerItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -48,7 +49,6 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 	@Override
 	protected void setUp() throws Exception {
-		System.out.println("setUp");
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
@@ -56,11 +56,10 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 	@Override
 	protected void tearDown() throws Exception {
-		System.out.println("tearDown");
 		super.tearDown();
 
 		if (fTmpDir != null) {
-			fTmpDir.delete();
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -79,7 +78,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
@@ -112,9 +111,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 
 		try {
-			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			index.parse(new NullProgressMonitor(), class_1_2_file.getContents(), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -150,7 +148,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -193,7 +191,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(db);
+		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex("project", 
@@ -207,9 +205,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		p_data.getProjectIndexMgr().getItemIterator(new NullProgressMonitor());
 		
 		try {
-			index.parse(class_1_2_file.getContents(), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			index.parse(new NullProgressMonitor(), class_1_2_file.getContents(), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -243,7 +240,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());
@@ -266,9 +263,9 @@ public class TestSrcCollectionWSChanges extends TestCase
 		// The goal is to ensure that no exceptions are thrown
 		SVDBFile class_1_2_db = null;
 		try {
-			class_1_2_db = index.parse(new StringInputStream(class_str), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(),
-					new NullProgressMonitor());
+			class_1_2_db = index.parse(new NullProgressMonitor(), 
+					new StringInputStream(class_str), 
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());
@@ -306,7 +303,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 
 		for (ISVDBItemBase warn : markers) {
 			System.out.println("SVDBMarkerItem: " + 
-					((SVDBMarkerItem)warn).getMessage());
+					((SVDBMarker)warn).getMessage());
 		}
 		
 		assertEquals("Confirm no warnings", 0, markers.size());

@@ -12,20 +12,23 @@
 
 package net.sf.sveditor.core.srcgen;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTaskFuncScope;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
-import net.sf.sveditor.core.db.stmt.SVDBParamPort;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class MethodGenerator {
 	
-	public String generate(SVDBTaskFuncScope tf) {
+	public String generate(SVDBTask tf) {
 		StringBuilder new_tf = new StringBuilder();
 		String classname = "";
 		
-		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.Class) {
+		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.ClassDecl) {
 			classname = ((ISVDBNamedItem)tf.getParent()).getName();
 		}
 		
@@ -42,10 +45,14 @@ public class MethodGenerator {
 		}
 		
 		if (tf.getType() == SVDBItemType.Function) {
-			SVDBTypeInfo ti = tf.getReturnType();
+			SVDBTypeInfo ti = ((SVDBFunction)tf).getReturnType();
 			new_tf.append("function ");
-			new_tf.append(ti.toString());
-			new_tf.append(" ");
+			
+			// An implcitly-typed function will have a null type
+			if (ti != null) {
+				new_tf.append(ti.toString());
+				new_tf.append(" ");
+			}
 		} else {
 			new_tf.append("task ");
 		}
@@ -54,31 +61,36 @@ public class MethodGenerator {
 		new_tf.append("(");
 		
 		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPort p = tf.getParams().get(i);
+			SVDBParamPortDecl p = tf.getParams().get(i);
 			SVDBTypeInfo ti = p.getTypeInfo();
 			
-			if ((p.getDir() & SVDBParamPort.Direction_Const) != 0) {
+			if ((p.getDir() & SVDBParamPortDecl.Direction_Const) != 0) {
 				new_tf.append("const ");
 			}
-			if ((p.getDir() & SVDBParamPort.Direction_Ref) != 0) {
+			if ((p.getDir() & SVDBParamPortDecl.Direction_Ref) != 0) {
 				new_tf.append("ref ");
-			} else if ((p.getDir() & SVDBParamPort.Direction_Var) != 0) {
+			} else if ((p.getDir() & SVDBParamPortDecl.Direction_Var) != 0) {
 				new_tf.append("var ");
-			} else if ((p.getDir() & SVDBParamPort.Direction_Input) != 0) {
+			} else if ((p.getDir() & SVDBParamPortDecl.Direction_Input) != 0) {
 				new_tf.append("input ");
-			} else if ((p.getDir() & SVDBParamPort.Direction_Output) != 0) {
+			} else if ((p.getDir() & SVDBParamPortDecl.Direction_Output) != 0) {
 				new_tf.append("output ");
-			} else if ((p.getDir() & SVDBParamPort.Direction_Inout) != 0) {
+			} else if ((p.getDir() & SVDBParamPortDecl.Direction_Inout) != 0) {
 				new_tf.append("inout ");
 			}
 			
 			new_tf.append(ti.toString());
 			new_tf.append(" ");
-			new_tf.append(p.getName());
-			
-			if (i+1 < tf.getParams().size()) {
+			for (ISVDBChildItem c : p.getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				new_tf.append(vi.getName());
+				
 				new_tf.append(", ");
 			}
+		}
+
+		if (tf.getParams().size() > 0) {
+			new_tf.setLength(new_tf.length()-2);
 		}
 		
 		new_tf.append(");\n");

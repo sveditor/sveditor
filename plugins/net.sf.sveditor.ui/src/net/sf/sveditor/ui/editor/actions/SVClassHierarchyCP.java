@@ -17,8 +17,9 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 
@@ -28,20 +29,20 @@ import org.eclipse.jface.viewers.Viewer;
 public class SVClassHierarchyCP implements ITreeContentProvider {
 	
 	private SVDBIndexSearcher				fIndexSearcher;
-	private SVDBModIfcClassDecl				fLeafClass;
+	private SVDBClassDecl					fLeafClass;
 	private Object							fEmptyList[] = new Object[0];
 	
 	public SVClassHierarchyCP(
-			SVDBModIfcClassDecl		leaf_class,
+			SVDBClassDecl			leaf_class,
 			SVDBIndexSearcher		index_searcher) {
 		fLeafClass = leaf_class;
 		fIndexSearcher = index_searcher;
 	}
 
 	public Object[] getElements(Object inputElement) {
-		List<SVDBModIfcClassDecl> ret = new ArrayList<SVDBModIfcClassDecl>();
+		List<SVDBClassDecl> ret = new ArrayList<SVDBClassDecl>();
 
-		SVDBModIfcClassDecl cl = fLeafClass;
+		SVDBClassDecl cl = fLeafClass;
 
 		while (cl != null) {
 			cl = fIndexSearcher.findSuperClass(cl);
@@ -55,9 +56,9 @@ public class SVClassHierarchyCP implements ITreeContentProvider {
 	}
 
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof SVDBModIfcClassDecl) {
+		if (parentElement instanceof SVDBModIfcDecl) {
 			List<ISVDBItemBase> ret = SVDBSearchUtils.findItemsByType(
-					(SVDBModIfcClassDecl)parentElement,
+					(SVDBModIfcDecl)parentElement,
 					SVDBItemType.Function, SVDBItemType.Task);
 			
 			return ret.toArray();

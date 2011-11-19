@@ -12,44 +12,20 @@
 
 package net.sf.sveditor.core.db;
 
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.ISVDBPersistenceFactory;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
 
 public class SVDBInclude extends SVDBItem {
 	
-	public static void init() {
-		ISVDBPersistenceFactory f = new ISVDBPersistenceFactory() {
-			public SVDBItemBase readSVDBItem(IDBReader reader, SVDBItemType type, 
-					SVDBFile file, SVDBScopeItem parent) throws DBFormatException {
-				return new SVDBInclude(file, parent, type, reader);
-			}
-		};
-		
-		SVDBPersistenceReader.registerPersistenceFactory(f, SVDBItemType.Include); 
+	public SVDBInclude() {
+		super("", SVDBItemType.Include);
 	}
 	
 	public SVDBInclude(String name) {
 		super(name, SVDBItemType.Include);
 	}
 	
-	public SVDBInclude(SVDBFile file, SVDBScopeItem parent, SVDBItemType type, IDBReader reader) throws DBFormatException {
-		super(file, parent, type, reader);
-	}
-	
-	public void dump(IDBWriter writer) {
-		super.dump(writer);
-	}
-
 	@Override
 	public SVDBInclude duplicate() {
-		SVDBInclude ret = new SVDBInclude(getName());
-		
-		ret.init(this);
-		
-		return ret;
+		return (SVDBInclude)super.duplicate();
 	}
 
 	@Override
