@@ -34,7 +34,7 @@ public class PrevWordAction extends TextEditorAction {
 		
 		int ch = str.charAt(offset);
 		if (SVCharacter.isSVIdentifierPart(ch)) {
-			// scan forward to end or next non-id_part
+			// scan back to end or next non-id_part
 			while (offset >= 0) {
 				ch = str.charAt(offset);
 				if (!SVCharacter.isSVIdentifierPart(ch)) {
@@ -43,7 +43,7 @@ public class PrevWordAction extends TextEditorAction {
 				offset--;
 			}
 		} else {
-			// scan forward to end or next identifier
+			// scan back to end or next identifier
 			while (offset >= 0) {
 				ch = str.charAt(offset);
 				if (SVCharacter.isSVIdentifierPart(ch)) {
