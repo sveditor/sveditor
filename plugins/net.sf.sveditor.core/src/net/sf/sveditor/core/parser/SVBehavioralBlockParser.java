@@ -108,6 +108,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			
 			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 					fLexer.peekKeyword("typedef", "struct", "enum")) {
+				System.out.println("pre-block: " + fLexer.peek());
 				// Definitely a declaration
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");

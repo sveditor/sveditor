@@ -233,6 +233,30 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"c"});
 	}
 	
+	public void testAssignTLeftShift() throws SVParseException {
+		String testname = "testAssignTLeftShift";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	assign a = 1 <<< 2; // error.\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"t"});
+	}
+
+	public void testAssignTRightShift() throws SVParseException {
+		String testname = "testAssignTRightShift";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	logic a;\n" +
+			"	assign a = 'h1000 >>> 2; // error.\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"t"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

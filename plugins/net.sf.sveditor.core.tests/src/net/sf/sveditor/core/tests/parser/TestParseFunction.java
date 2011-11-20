@@ -69,6 +69,19 @@ public class TestParseFunction extends TestCase {
 			;
 		parse_class(content, "testReturnOnlyFunction");
 	}
+	
+	public void testKRParameters() throws SVParseException {
+		String testname = "testKRParameters";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"function automatic integer f;\n" +
+			"	input integer in; // error.\n" +
+			"begin\n" +
+			"end\n" +
+			"endfunction\n"
+			;
+		parse_tf(content, testname);
+	}
 
 	// Tests that local variables are correctly recognized and that 
 	// cast expressions are skipped appropriately

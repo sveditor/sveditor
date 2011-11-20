@@ -1,4 +1,16 @@
 
+-- 0.7.1 Release --
+
+- (#3440393) Correct parse bug involving >>> operator
+
+- (#3440393) Correct parse bug involving K&R-style function prototype:
+function void myfunc;
+  input a, b;
+  output c, d;
+  // ...
+endfunction
+
+------------------------------------------------------------------------------
 -- 0.7.0 Release --
 
 - (#nobug) Added support for delay operators formatted:

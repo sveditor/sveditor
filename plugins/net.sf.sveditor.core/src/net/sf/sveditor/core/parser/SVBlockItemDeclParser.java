@@ -37,6 +37,10 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			if (start == null) {
 				start = fLexer.getStartLocation();
 			}
+			if (fLexer.peekKeyword("input","output","inout")) {
+				// TODO: add qualifiers to variable
+				fLexer.eatToken();
+			}
 			// TODO: add qualifiers to variable
 			if (fLexer.peekKeyword("const")) {
 				fLexer.eatToken();

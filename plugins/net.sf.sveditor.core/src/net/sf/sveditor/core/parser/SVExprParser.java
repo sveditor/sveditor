@@ -640,7 +640,7 @@ public class SVExprParser extends SVParserBase {
 		debug("--> shiftExpression");
 		SVDBExpr a = additiveExpression();
 		
-		while (peekOperator("<<", ">>", ">>>")) {
+		while (peekOperator("<<", "<<<", ">>", ">>>")) {
 			a = new SVDBBinaryExpr(a, readOperator(), additiveExpression());
 		}
 		
