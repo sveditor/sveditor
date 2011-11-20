@@ -10,6 +10,12 @@ function void myfunc;
   // ...
 endfunction
 
+- (#3428296) Correct parse bug involving modport-type field
+
+- (#3421265) Implement support for library paths (-y switch). The index will
+  add all files with SV extensions (.sv, .v, .vl) in the specified directory
+  to the index file list
+
 ------------------------------------------------------------------------------
 -- 0.7.0 Release --
 

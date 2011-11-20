@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -39,7 +41,9 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 				// Unsure
 				return false;
 			}
-			
+			public List<String> getFiles(String path) {
+				return new ArrayList<String>();
+			}
 			public void init(String root) {}
 			public long getLastModifiedTime(String path) {return 0;}
 			public String resolvePath(String path) {return path;}

@@ -15,6 +15,8 @@ package net.sf.sveditor.core.db.index.plugin_lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
@@ -138,6 +140,11 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		} else {
 			return false;
 		}
+	}
+	
+	public List<String> getFiles(String path) {
+		// TODO: Don't support this currently for plugin library
+		return new ArrayList<String>();
 	}
 
 	public void addMarker(String path, String type, int lineno, String msg) {}

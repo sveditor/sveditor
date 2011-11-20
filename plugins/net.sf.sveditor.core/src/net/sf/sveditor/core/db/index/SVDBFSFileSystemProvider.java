@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 	
@@ -41,6 +43,24 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 	public boolean isDir(String path) {
 		File f = new File(path);
 		return f.isDirectory();
+	}
+	
+	public List<String> getFiles(String path) {
+		File p = new File(path);
+		List<String> ret = new ArrayList<String>();
+		
+		if (p.isDirectory()) {
+			File f_l[] = p.listFiles();
+			if (f_l != null) {
+				for (File f : p.listFiles()) {
+					if (!f.getName().equals(".") && !f.getName().equals("..")) {
+						ret.add(f.getAbsolutePath());
+					}
+				}
+			}
+		}
+		
+		return ret;
 	}
 
 	public long getLastModifiedTime(String path) {

@@ -35,6 +35,7 @@ import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
@@ -196,6 +197,58 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			// Also look at the filesystem
 			return new File(path).isDirectory();
 		}
+	}
+	
+	public List<String> getFiles(String path) {
+		List<String> ret = new ArrayList<String>();
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			if (path.startsWith("/")) {
+				path = path.substring(1);
+			}
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer c = null;
+			
+			try {
+				c = root.getFolder(new Path(path));
+			} catch (IllegalArgumentException e) {
+				// Likely because the path is a project-only path (eg /a)
+				// e.printStackTrace();
+			}
+			
+			// Try project
+			if (c == null) {
+				try {
+					c = root.getProject(path);
+				} catch (IllegalArgumentException e) {}
+			}
+			
+			if (c != null) {
+				try {
+					for (IResource m : c.members()) {
+						IPath p = m.getFullPath();
+						ret.add("${workspace_loc}" + p.toString());
+					}
+				} catch (CoreException e) { }
+			}
+		} else {
+			File p = new File(path);
+			
+			if (p.isDirectory()) {
+				File f_l[] = p.listFiles();
+				if (f_l != null) {
+					for (File f : p.listFiles()) {
+						if (!f.getName().equals(".") && !f.getName().equals("..")) {
+							ret.add(f.getAbsolutePath());
+						}
+					}
+				}
+			}
+		}
+		
+		return ret;
 	}
 
 	public void closeStream(InputStream in) {

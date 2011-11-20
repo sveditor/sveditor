@@ -15,6 +15,7 @@ package net.sf.sveditor.core.tests.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -23,7 +24,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
@@ -93,6 +96,41 @@ public class TestArgFileIndex extends TestCase {
 		
 		assertNull("Incorrectly found class1_dir2", class1_dir2);
 		assertNotNull("Failed to find class1_dir1", class1_dir1);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testWSLibPath() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testWSLibPath");
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject("project");
+		
+		utils.copyBundleDirToWS("/data/arg_file_libpath/", project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/project/arg_file_libpath/arg_file_libpath.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		String names[] = {"a","b","arg_file_libpath_1","arg_file_libpath_2"};
+	
+		for (String n : names) {
+			List<SVDBDeclCacheItem> res = index.findGlobalScopeDecl(
+					new NullProgressMonitor(), n, 
+					SVDBFindDefaultNameMatcher.getDefault());
+			assertEquals("Find of \"" + n + "\" failed: ", 1, res.size());
+		}
+		
 		LogFactory.removeLogHandle(log);
 	}
 

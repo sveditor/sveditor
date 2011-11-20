@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -140,6 +142,28 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					addFile(res_f);
 				} else {
 					fLog.error("Expanded path \"" + exp_f + "\" does not exist");
+				}
+			}
+			
+			for (String lib_p : scanner.getLibPaths()) {
+				String exp_p = SVDBIndexUtil.expandVars(lib_p, fProjectName);
+				fLog.debug("[LIB PATH] " + lib_p + " (" + exp_p + ")");
+				String res_p = resolvePath(exp_p);
+				
+				if (getFileSystemProvider().isDir(res_p)) {
+					List<String> paths = getFileSystemProvider().getFiles(res_p);
+					Set<String> exts = scanner.getSrcExts();
+					for (String file_p : paths) {
+						int last_dot = file_p.lastIndexOf('.');
+						if (last_dot != -1) {
+							String ext = file_p.substring(last_dot);
+							if (exts.contains(ext)) {
+								addFile(file_p);
+							}
+						}
+					}
+				} else {
+					fLog.error("Expanded library path \"" + exp_p + "\" does not exist");
 				}
 			}
 			

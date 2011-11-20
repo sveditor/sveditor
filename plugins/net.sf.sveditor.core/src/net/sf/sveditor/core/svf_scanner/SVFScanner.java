@@ -14,8 +14,10 @@ package net.sf.sveditor.core.svf_scanner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -34,6 +36,8 @@ public class SVFScanner {
 	private List<String>						fIncludePaths;
 	private Map<String, String>					fDefineMap;
 	private List<String>						fFilePaths;
+	private List<String>						fLibPaths;
+	private Set<String>							fSrcExtensions;
 	private List<String>						fIncludedArgFiles;
 	private static final Map<String, Integer>	fIgnoredSwitches;
 	
@@ -146,14 +150,21 @@ public class SVFScanner {
 		fIgnoredSwitches.put("-vopt", 0);
 		fIgnoredSwitches.put("-vmake", 0);
 		fIgnoredSwitches.put("-writetoplevels", 0);
-		fIgnoredSwitches.put("-y", 1);
+//		fIgnoredSwitches.put("-y", 1);
 	}
 	
 	public SVFScanner() {
-		fIncludePaths 	= new ArrayList<String>();
-		fDefineMap 		= new HashMap<String, String>();
-		fFilePaths 		= new ArrayList<String>();
-		fIncludedArgFiles = new ArrayList<String>();
+		fIncludePaths 		= new ArrayList<String>();
+		fDefineMap 			= new HashMap<String, String>();
+		fFilePaths 			= new ArrayList<String>();
+		fLibPaths			= new ArrayList<String>();
+		fIncludedArgFiles 	= new ArrayList<String>();
+		fSrcExtensions		= new HashSet<String>();
+		
+		fSrcExtensions.add(".sv");
+		fSrcExtensions.add(".v");
+		fSrcExtensions.add(".vl");
+		fSrcExtensions.add(".vlog");
 		
 		fLog = LogFactory.getLogHandle("SVArgFileScanner");
 	}
@@ -164,6 +175,14 @@ public class SVFScanner {
 	
 	public List<String> getFilePaths() {
 		return fFilePaths;
+	}
+	
+	public List<String> getLibPaths() {
+		return fLibPaths;
+	}
+	
+	public Set<String> getSrcExts() {
+		return fSrcExtensions;
 	}
 	
 	public List<String> getArgFilePaths() {
@@ -336,9 +355,19 @@ public class SVFScanner {
 					}
 					fScanner.unget_ch(ch);
 					fFilePaths.add(tmp.toString());
-				}// TODO: else if (key.equals("-y")) {
+				} else if (key.equals("-y")) {
 					
-				// }
+					ch = fScanner.skipWhite(ch);
+					tmp.setLength(0);
+					tmp.append((char)ch);
+					
+					while ((ch = fScanner.get_ch()) != -1 &&
+							!Character.isWhitespace(ch)) {
+						tmp.append((char)ch);
+					}
+					
+					fLibPaths.add(tmp.toString());
+				}
 			} else {
 				if (ch == '/') {
 					int ch2 = fScanner.get_ch();

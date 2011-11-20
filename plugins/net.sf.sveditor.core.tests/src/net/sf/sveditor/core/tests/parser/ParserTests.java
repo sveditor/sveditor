@@ -81,5 +81,20 @@ public class ParserTests extends TestSuite {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public static void runTestStrDoc(
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, markers);
+
+		for (SVDBMarker m : markers) {
+			log.debug("[MARKER] " + m.getMessage());
+		}
+		TestCase.assertEquals(0, markers.size());
+		SVDBTestUtils.assertFileHasElements(file, exp_items);
+	}
+
 
 }

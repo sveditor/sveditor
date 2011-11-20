@@ -77,6 +77,10 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	public boolean isDir(String path) {
 		return fFSProvider.isDir(path);
 	}
+	
+	public List<String> getFiles(String path) {
+		return fFSProvider.getFiles(path);
+	}
 
 	public long getLastModifiedTime(String path) {
 		return fFSProvider.getLastModifiedTime(path);

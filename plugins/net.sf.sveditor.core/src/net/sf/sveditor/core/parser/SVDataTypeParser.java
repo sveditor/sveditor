@@ -187,6 +187,14 @@ public class SVDataTypeParser extends SVParserBase {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 				ud_type.setParameters(plist);
 			}
+			
+			// May be referring to the modport
+			if (fLexer.peekOperator(".")) {
+				fLexer.eatToken();
+				String id = fLexer.readId();
+				ud_type.setName(ud_type.getName() + "." + id);
+			}
+			
 			type = ud_type;
 		} else if (fLexer.peekKeyword("type")) {
 			// type_reference ::=

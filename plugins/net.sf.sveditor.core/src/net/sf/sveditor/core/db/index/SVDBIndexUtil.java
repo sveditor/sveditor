@@ -223,7 +223,6 @@ public class SVDBIndexUtil {
 					// Project Properties > Resource > Linked Resources > Path Variables 
 					if (val == null && project != null) {
 						IPathVariableManager ppvm = project.getPathVariableManager();
-						String [] temp = ppvm.getPathVariableNames();
 						URI p = ppvm.getURIValue(key);
 						if (p != null) {
 							val = p.getPath();

@@ -204,7 +204,7 @@ public class SVDBFileTreeUtils {
 								it_l.remove(i);
 								if (fDebugEn) {
 									debug("    adding enabled items from 'else'");
-									for (ISVDBItemBase it_tt : ((SVDBPreProcCond)it_t).getItems()) {
+									for (ISVDBItemBase it_tt : ((SVDBPreProcCond)it_t).getChildren()) {
 										debug("            " + it_tt.getType() + " " + 
 												((it_tt instanceof ISVDBNamedItem)?((ISVDBNamedItem)it_tt).getName():"UNNAMED"));
 									}

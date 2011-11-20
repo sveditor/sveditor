@@ -61,5 +61,27 @@ public class TestParseInterfaceBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "pb_if");
 	}
 	
+	public void testInterfaceModportTypeField() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String testname = "testInterfaceModportTypeField";
+		String content =
+			"interface ifa;\n" +
+			"	logic a;\n" +
+			"	modport slave(\n" +
+			"		input a\n" +
+			"	);\n" +
+			"endinterface\n" +
+			"\n" +
+			"class myclass;\n" +
+			"	virtual interface ifa.slave iface;\n" +
+			"\n" +
+			"	function void assign_vi (virtual interface ifa.slave a);\n" +
+			"		iface=a;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		ParserTests.runTestStrDoc(testname, content, new String[] {"ifa", "myclass"});
+	}
+	
 }
 

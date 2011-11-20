@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.util.List;
 
 public interface ISVDBFileSystemProvider {
 	
@@ -43,6 +44,8 @@ public interface ISVDBFileSystemProvider {
 	boolean fileExists(String path);
 	
 	boolean isDir(String path);
+	
+	List<String> getFiles(String path);
 	
 	InputStream openStream(String path);
 	
