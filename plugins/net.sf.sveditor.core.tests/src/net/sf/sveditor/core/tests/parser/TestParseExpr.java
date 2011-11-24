@@ -257,6 +257,18 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"t"});
 	}
 
+	public void testDelayControlAdjacentBasedNumber() throws SVParseException {
+		String testname = "testDelayControlAdjacentBasedNumber";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	logic a,b;\n" +
+			"	always @ (posedge a) b <= #1 'b1; // error.\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"t"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

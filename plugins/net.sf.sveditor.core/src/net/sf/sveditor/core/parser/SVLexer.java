@@ -36,6 +36,7 @@ public class SVLexer extends SVToken {
 
 	private boolean fTokenConsumed;
 	private boolean fNewlineAsOperator;
+	private boolean fIsDelayControl;
 
 	private StringBuilder fStringBuffer;
 	private static final boolean fDebugEn = false;
@@ -580,6 +581,8 @@ public class SVLexer extends SVToken {
 		fIsIdentifier = false;
 		fIsKeyword = false;
 		fIsString = false;
+		boolean local_is_delay_ctrl = fIsDelayControl;
+		fIsDelayControl = false;
 
 		// Skip whitespace and comments
 		while (true) {
@@ -668,7 +671,7 @@ public class SVLexer extends SVToken {
 					fIsOperator = true;
 				}
 			} else {
-				readNumber(ch);
+				readNumber(ch, local_is_delay_ctrl);
 			}
 
 			fImage = fStringBuffer.toString();
@@ -808,51 +811,20 @@ public class SVLexer extends SVToken {
 			debug("< operator: " + fStringBuffer.toString());
 		}
 		fIsOperator = true;
-		if (!fOperatorSet.contains(fStringBuffer.toString())) {
+		String val = fStringBuffer.toString();
+		if (!fOperatorSet.contains(val)) {
 			error("Problem with operator: " + fStringBuffer.toString());
 		}
 		
-		/*
-		if (f2SeqPrefixes.contains(fStringBuffer.toString())) {
-			// Peek forward to see if the 2-wise sequence is present
-			if ((ch2 = get_ch()) != -1) {
-				fStringBuffer.append((char)ch2);
-				if (fOperatorSet.contains(fStringBuffer.toString())) {
-					if ((ch2 = get_ch()) != -1) {
-						fStringBuffer.append((char)ch2);
-						if (fOperatorSet.contains(fStringBuffer.toString())) {
-							fIsOperator = true;
-						} else {
-							unget_ch(ch2);
-							fStringBuffer.setLength(fStringBuffer.length()-1);
-							fIsOperator = true;
-						}
-					}
-				} else {
-					unget_ch(ch2);
-					fStringBuffer.append((char)ch)
-					tmp = "" + (char) ch;
-					if (fOperatorSet.contains(tmp)) {
-						fStringBuffer.append(tmp);
-						fIsOperator = true;
-					}
-				}
-			} else {
-				if (fOperatorSet.contains(tmp)) {
-					fStringBuffer.append(tmp);
-					fIsOperator = true;
-				}
+		if (val.equals("#")) {
+			// May be a delay-control expression
+			while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+			if (ch >= '0' && ch <= '9') {
+				// delay-control
+				fIsDelayControl = true;
 			}
-		} else if (fOperatorSet.contains(tmp)) {
-			// single-char operator
-			fIsOperator = true;
-			fStringBuffer.append(tmp);
+			unget_ch(ch);
 		}
-
-		if (!fIsOperator) {
-			error("Bad partial operator: " + tmp);
-		}
-		 */
 	}
 	
 	private static boolean isBaseChar(int ch) {
@@ -907,7 +879,7 @@ public class SVLexer extends SVToken {
 	 * @return
 	 * @throws SVParseException
 	 */
-	private void readNumber(int ch) throws SVParseException {
+	private void readNumber(int ch, boolean is_delay_ctrl) throws SVParseException {
 
 		// Could be:
 		// <number>
@@ -934,6 +906,9 @@ public class SVLexer extends SVToken {
 			}
 		} else if (ch == '.' || ch == 'e' || ch == 'E') {
 			ch = readRealNumber(ch);
+		} else if (is_delay_ctrl) {
+			// do nothing. We do not want to accidentally 
+			// continue across a number boundary
 		} else {
 			while (ch != -1 && Character.isWhitespace(ch)) {
 				ch = get_ch();

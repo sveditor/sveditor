@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.net.URI;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,10 +35,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.IValueVariable;
 import org.eclipse.core.variables.VariablesPlugin;
+
 
 
 public class SVDBIndexUtil {
@@ -222,10 +224,24 @@ public class SVDBIndexUtil {
 					// These are typically set in  
 					// Project Properties > Resource > Linked Resources > Path Variables 
 					if (val == null && project != null) {
-						IPathVariableManager ppvm = project.getPathVariableManager();
-						URI p = ppvm.getURIValue(key);
+						IPath p = null;
+						// Eclipse 3.5.2
+						// PathVariableManager was added in 3.6.2. We still want
+						// to support 3.5.2, so this is the workaround for the following code:
+						// IPathVariableManager ppvm = project.getPathVariableManager();
+						try {
+							Class<? extends IProject> c = project.getClass();
+							Method get_path_variable_manager = c.getMethod("getPathVariableManager");
+							
+							if (get_path_variable_manager != null) {
+								pvm = (IPathVariableManager)get_path_variable_manager.invoke(project);
+								p = pvm.getValue(key);
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 						if (p != null) {
-							val = p.getPath();
+							val = p.toString();
 							if (val.matches("^/[a-zA-Z]:.*"))  {
 								// For some reason PROJECT_LOC will return:
 								// /L:\somepath
@@ -235,11 +251,13 @@ public class SVDBIndexUtil {
 							}
 						}
 					}
+					
 					// Eclipse Project Variables
 					if (val == null) {
-						URI p = pvm.getURIValue(key);
+						IPath p = pvm.getValue(key);
+						// URI p = pvm.getURIValue(key);
 						if (p != null) {
-							val = p.getPath();
+							val = p.toString();
 						}
 					}
 					// Environment variables

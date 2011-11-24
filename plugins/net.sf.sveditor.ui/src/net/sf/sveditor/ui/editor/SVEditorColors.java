@@ -40,14 +40,14 @@ public enum SVEditorColors {
 		
 		fColorMap.put(DEFAULT, SVEditorPrefsConstants.P_DEFAULT_C);
 		fColorMap.put(STRING, SVEditorPrefsConstants.P_STRING_C);
-		fColorMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_SL_COMMENT_C);
-		fColorMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_ML_COMMENT_C);
+		fColorMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_C);
+		fColorMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_C);
 		fColorMap.put(KEYWORD, SVEditorPrefsConstants.P_KEYWORD_C);
 		
 		fStyleMap.put(DEFAULT, SVEditorPrefsConstants.P_DEFAULT_S);
 		fStyleMap.put(STRING, SVEditorPrefsConstants.P_STRING_S);
-		fStyleMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_SL_COMMENT_S);
-		fStyleMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_ML_COMMENT_S);
+		fStyleMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_S);
+		fStyleMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_S);
 		fStyleMap.put(KEYWORD, SVEditorPrefsConstants.P_KEYWORD_S);
 	}
 

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -34,12 +35,13 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		if (fLexer.peekKeyword("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
 		} else {
+			String dir = null;
 			if (start == null) {
 				start = fLexer.getStartLocation();
 			}
 			if (fLexer.peekKeyword("input","output","inout")) {
 				// TODO: add qualifiers to variable
-				fLexer.eatToken();
+				dir = fLexer.eatToken();
 			}
 			// TODO: add qualifiers to variable
 			if (fLexer.peekKeyword("const")) {
@@ -55,12 +57,20 @@ public class SVBlockItemDeclParser extends SVParserBase {
 
 			// Should be the data-type
 			// String id = fLexer.eatToken();
-			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) || SVKeywords.isDir(fLexer.peek())) && !fLexer.peekKeyword("void")) ||
+			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) && !fLexer.peekKeyword("void")) ||
 					!SVKeywords.isSVKeyword(fLexer.peek()) || fLexer.peekKeyword("struct", "enum")) {
+				String name = null;
 				// Data declaration or statement
 				if (type == null) {
 					type = parsers().dataTypeParser().data_type(0);
 				}
+				
+				// Allow for untyped parameters
+				if (dir != null && fLexer.peekOperator()) {
+					name = type.getName();
+					type = new SVDBTypeInfoBuiltin(dir);
+				}
+				
 				SVDBVarDeclStmt var_decl = new SVDBVarDeclStmt(type, 0);
 				var_decl.setLocation(start);
 				parent.addChildItem(var_decl);
@@ -69,7 +79,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				if (!fLexer.peekOperator("::")) {
 					while (fLexer.peek() != null) {
 						SVDBLocation it_start = fLexer.getStartLocation();
-						String name = fLexer.readId();
+						if (name == null) {
+							name = fLexer.readId();
+						}
 
 						SVDBVarDeclItem var = new SVDBVarDeclItem(name);
 						var.setLocation(it_start);
@@ -110,6 +122,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						} else {
 							break;
 						}
+						name = null;
 					}
 					if (consume_terminator) {
 						fLexer.readOperator(";");

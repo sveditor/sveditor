@@ -1,4 +1,17 @@
 
+-- 0.7.2 Release --
+
+- Implement a workaround to maintain support for Eclipse 3.5.x. Eclipse 3.6
+introduced support for linked resources at the project level. We want to
+maintain support for this, while also allowing SVEditor to run with 3.5. 
+
+- (#3441833) Correct an issue with preferences where the comment-color preference did not
+  properly control the color of multi-line comments
+
+- (#3441287) Correct parse bug involving a delay specifier with a trailing based number:
+  a <= #1 'd1;
+
+------------------------------------------------------------------------------
 -- 0.7.1 Release --
 
 - (#3440393) Correct parse bug involving >>> operator

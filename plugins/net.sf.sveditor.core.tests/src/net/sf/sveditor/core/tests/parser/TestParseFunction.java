@@ -83,6 +83,30 @@ public class TestParseFunction extends TestCase {
 		parse_tf(content, testname);
 	}
 
+	public void testKRParameters2() throws SVParseException {
+		String testname = "testKRParameters2";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"	task send_rx_packet;\n" +
+			"		input  [(8*8)-1:0] preamble_data;\n" +   
+			"		input   [3:0] preamble_len;\n" + 
+			"		input   [7:0] sfd_data;\n" +
+			"		input  [31:0] start_addr;\n" +
+			"		input  [31:0] len;\n" +
+			"		input         plus_drible_nibble;\n" +
+			"		integer       rx_cnt;\n" +
+			"		reg    [31:0] rx_mem_addr_in;\n" +       
+			"		reg     [7:0] rx_mem_data_out;\n" +
+			"	begin\n" + 
+		    "		@(posedge mrx_clk_o);\n" +
+			"	end\n" +
+		    "	endtask\n"
+		    ;
+		parse_tf(content, testname);
+	}
+
+
+
 	// Tests that local variables are correctly recognized and that 
 	// cast expressions are skipped appropriately
 	public void testLocalVarsWithCast() throws SVParseException {

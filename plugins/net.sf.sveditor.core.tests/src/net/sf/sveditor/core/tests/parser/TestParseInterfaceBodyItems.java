@@ -62,7 +62,7 @@ public class TestParseInterfaceBodyItems extends TestCase {
 	}
 	
 	public void testInterfaceModportTypeField() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testInterfaceModportTypeField";
 		String content =
 			"interface ifa;\n" +
