@@ -16,20 +16,33 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
 
 
 
-public class SVParserBase implements ISVParser {
+public class SVParserBase implements ISVParser, ILogLevelListener {
 	
-	protected static final boolean			fDebugEn = false;
-	protected ISVParser						fParser;
-	protected SVLexer						fLexer;
-	protected SVParsers						fParsers;
+	protected boolean			fDebugEn = false;
+	protected ISVParser			fParser;
+	protected SVLexer			fLexer;
+	protected SVParsers			fParsers;
 	
 	protected SVParserBase(ISVParser parser) {
 		fParser = parser;
 		fLexer = parser.lexer();
 		fParsers = parser.parsers();
+		
+		fDebugEn = getLogHandle().isEnabled();
+		getLogHandle().addLogLevelListener(this);
+	}
+	
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = getLogHandle().isEnabled();
+	}
+	
+	public ILogHandle getLogHandle() {
+		return fParser.getLogHandle();
 	}
 	
 	public boolean error_limit_reached() {

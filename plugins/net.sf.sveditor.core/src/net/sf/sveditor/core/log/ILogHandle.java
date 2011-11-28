@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.log;
 
 public interface ILogHandle {
+	String				LOG_CAT_DEFAULT = "DEFAULT";
+	String				LOG_CAT_PARSER  = "Parser";
 	
 	String getName();
 	
@@ -21,5 +23,13 @@ public interface ILogHandle {
 	void print(int type, int level, String msg);
 	
 	void println(int type, int level, String msg);
+	
+	boolean isEnabled();
+	
+	int getDebugLevel();
+	
+	void setDebugLevel(int level);
+	
+	void addLogLevelListener(ILogLevelListener l);
 	
 }

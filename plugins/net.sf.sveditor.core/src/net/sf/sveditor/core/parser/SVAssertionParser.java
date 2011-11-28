@@ -38,7 +38,7 @@ public class SVAssertionParser extends SVParserBase {
 			assert_stmt = new SVDBCoverStmt();
 		}
 		assert_stmt.setLocation(start);
-		debug("assertion_stmt - " + fLexer.peek());
+		if (fDebugEn) {debug("assertion_stmt - " + fLexer.peek());}
 
 		if (fLexer.peekKeyword("property")) {
 			fLexer.eatToken();

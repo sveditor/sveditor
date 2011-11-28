@@ -64,7 +64,7 @@ public class SVPropertyExprParser extends SVParserBase {
 	
 	public SVDBExpr property_expr() throws SVParseException {
 		SVDBExpr ret = null;
-		debug("--> property_expr()");
+		if (fDebugEn) {debug("--> property_expr()");}
 		if (fLexer.peekKeyword("strong","weak")) {
 			// weak_strong_expr
 			SVDBPropertyWeakStrongExpr ws_expr = new SVDBPropertyWeakStrongExpr();
@@ -105,7 +105,7 @@ public class SVPropertyExprParser extends SVParserBase {
 		// Now, parse binary operators
 		if (fLexer.peekKeyword(BinaryOpKW) || fLexer.peekOperator(BinaryOp)) {
 			String op = fLexer.eatToken();
-			debug("Property binary operator: " + op);
+			if (fDebugEn) {debug("Property binary operator: " + op);}
 			ret = new SVDBBinaryExpr(ret, op, property_expr());
 		} else if (fLexer.peekOperator("##")) {
 //			SVDBExpr expr = sequence_expr();
@@ -114,19 +114,19 @@ public class SVPropertyExprParser extends SVParserBase {
 			
 			if (fLexer.peekKeyword(BinaryOpKW) || fLexer.peekOperator(BinaryOp)) {
 				op = fLexer.eatToken();
-				debug("Property binary operator: " + op);
+				if (fDebugEn) {debug("Property binary operator: " + op);}
 				ret = new SVDBBinaryExpr(ret, op, property_expr());
 			}
 		}
 		
-		debug("<-- property_expr()");
+		if (fDebugEn) {debug("<-- property_expr()");}
 		
 		return ret;
 	}
 	
 	public SVDBExpr sequence_expr() throws SVParseException {
 		SVDBExpr expr = null;
-		debug("--> sequence_expr()");
+		if (fDebugEn) {debug("--> sequence_expr()");}
 		if (fLexer.peekOperator("##")) {
 			// cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }
 			while (fLexer.peekOperator("##")) {
@@ -208,7 +208,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			expr.setLocation(start);
 		}
 		
-		debug("<-- sequence_expr() -- " + fLexer.peek());
+		if (fDebugEn) {debug("<-- sequence_expr() -- " + fLexer.peek());}
 		
 		return expr;
 	}

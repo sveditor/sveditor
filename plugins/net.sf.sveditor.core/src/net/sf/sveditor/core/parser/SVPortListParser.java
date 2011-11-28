@@ -128,7 +128,9 @@ public class SVPortListParser extends SVParserBase {
 			if (fLexer.peekOperator("=")) {
 				fLexer.eatToken();
 				param.setInitExpr(parsers().exprParser().expression());
-				debug("parameter default: " + param.getInitExpr());
+				if (fDebugEn) {
+					debug("parameter default: " + param.getInitExpr());
+				}
 			}
 			 
 			ports.add(param_r);

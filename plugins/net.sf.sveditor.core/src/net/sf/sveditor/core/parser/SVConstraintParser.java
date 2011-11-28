@@ -56,7 +56,7 @@ public class SVConstraintParser extends SVParserBase {
 	}
 	
 	public SVDBStmt constraint_set(boolean force_braces) throws SVParseException {
-		debug("--> constraint_set()");
+		if (fDebugEn) {debug("--> constraint_set()");}
 		
 		if (force_braces || fLexer.peekOperator("{")) {
 			SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt(); 
@@ -66,10 +66,10 @@ public class SVConstraintParser extends SVParserBase {
 				ret.addConstraintStmt(c_stmt);
 			}
 			fLexer.readOperator("}");
-			debug("<-- constraint_set()");
+			if (fDebugEn) {debug("<-- constraint_set()");}
 			return ret;
 		} else {
-			debug("<-- constraint_set()");
+			if (fDebugEn) {debug("<-- constraint_set()");}
 			return constraint_set_item();
 		}
 	}
@@ -154,7 +154,7 @@ public class SVConstraintParser extends SVParserBase {
 
 	private SVDBConstraintIfStmt constraint_if_expression() throws SVParseException {
 		SVDBConstraintIfStmt ret;
-		debug("--> constraint_if_expression");
+		if (fDebugEn) {debug("--> constraint_if_expression");}
 		
 		fLexer.eatToken(); // 'if'
 		
@@ -177,7 +177,7 @@ public class SVConstraintParser extends SVParserBase {
 			ret = new SVDBConstraintIfStmt(if_expr, constraint, null, false);
 		}
 		
-		debug("<-- constraint_if_expression");
+		if (fDebugEn) {debug("<-- constraint_if_expression");}
 		return ret;
 	}
 	

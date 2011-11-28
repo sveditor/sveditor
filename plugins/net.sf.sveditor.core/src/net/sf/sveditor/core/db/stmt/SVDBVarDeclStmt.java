@@ -19,6 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -65,7 +66,11 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 	}
 	
 	public String getTypeName() {
-		return fTypeInfo.getName();
+		if (fTypeInfo != null) {
+			return fTypeInfo.getName();
+		} else {
+			return null;
+		}
 	}
 	
 	public void setTypeInfo(SVDBTypeInfo ti) {

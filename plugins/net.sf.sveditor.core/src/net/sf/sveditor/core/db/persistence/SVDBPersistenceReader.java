@@ -39,7 +39,7 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	private byte									fTmp[];
 	private static Map<Class, Map<Integer, Enum>>	fEnumMap;
 	private static Map<SVDBItemType, Class>			fClassMap;
-	private static final boolean					fDebugEn = true;
+	private static final boolean					fDebugEn = false;
 	private int										fLevel = 0;
 	private LogHandle								fLog;
 	
@@ -644,7 +644,8 @@ public class SVDBPersistenceReader implements IDBReader, IDBPersistenceTypes {
 	
 	private void debug(String msg) {
 		if (fDebugEn) {
-			fLog.debug(msg);
+			// fLog.debug(msg);
+			System.out.println(msg);
 		}
 	}
 }

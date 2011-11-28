@@ -34,6 +34,8 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -59,7 +61,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
  */
 public class ParserSVDBFileFactory implements ISVScanner,
 		IPreProcErrorListener, ISVDBFileFactory, ISVPreProcScannerObserver,
-		ISVParser {
+		ISVParser, ILogLevelListener {
 	private SVScannerTextScanner fInput;
 	private SVLexer fLexer;
 
@@ -76,6 +78,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private List<SVParseException> 		fParseErrors;
 	private int							fParseErrorMax;
 	private LogHandle					fLog;
+	private boolean						fDebugEn;
 	private List<SVDBMarker>			fMarkers;
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
@@ -89,7 +92,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		fParseErrors = new ArrayList<SVParseException>();
 		fParseErrorMax = 5;
-		fLog = LogFactory.getLogHandle("ParserSVDBFileFactory");
+		fLog = LogFactory.getLogHandle(
+				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
+		fLog.addLogLevelListener(this);
+		logLevelChanged(fLog);
 	}
 
 	public void setDefineProvider(IDefineProvider p) {
@@ -158,7 +164,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		try {
 			process_file();
 		} catch (SVParseException e) {
-			debug("ParseException: post-process()", e);
+			if (fDebugEn) {
+				debug("ParseException: post-process()", e);
+			}
 		} catch (EOFException e) {
 			e.printStackTrace();
 		}
@@ -265,7 +273,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		String id;
 		while ((id = fLexer.peek()) != null && qmap.containsKey(id)) {
-			debug("item modified by \"" + id + "\"");
+			if (fDebugEn) {
+				debug("item modified by \"" + id + "\"");
+			}
 			modifiers |= qmap.get(id);
 
 			fLexer.eatToken();
@@ -560,6 +570,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 	
+	public ILogHandle getLogHandle() {
+		return fLog;
+	}
+	
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = fLog.isEnabled();
+	}
+	
 	public String strengths(int max_strengths		// maximum number of strengths that can be here
 			) throws SVParseException {
 		boolean done = false;
@@ -792,8 +810,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		// Send the full error forward
 		String msg = e.getMessage() + " " + 
-				e.getFilename() + ":" + e.getLineno();	
-		fLog.debug("Parse Error: " + msg, e);
+				e.getFilename() + ":" + e.getLineno();
+		if (fDebugEn) {
+			fLog.debug("Parse Error: " + msg, e);
+		}
 		
 		throw e;
 	}

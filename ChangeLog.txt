@@ -1,4 +1,7 @@
 
+-- 0.7.3 Release --
+
+------------------------------------------------------------------------------
 -- 0.7.2 Release --
 
 - Implement a workaround to maintain support for Eclipse 3.5.x. Eclipse 3.6

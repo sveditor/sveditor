@@ -14,6 +14,7 @@ package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -183,7 +184,9 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		debug_s(indent(fIndent++) + "--> searchUp(" + context.getFilePath() + ", " + key + ")");
 		
 		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			for (String is_s : context.getIncludedFiles()) {
+			List<String> inc_files = context.getIncludedFiles();
+			synchronized (inc_files) {
+			for (String is_s : inc_files) {
 				SVDBFileTree is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s);
 				
 				if (is == null) {
@@ -210,6 +213,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 				if (m != null) {
 					break;
 				}
+			}
 			}
 		}
 

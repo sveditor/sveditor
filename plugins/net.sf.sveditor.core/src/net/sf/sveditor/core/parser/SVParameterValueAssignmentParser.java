@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBNullExpr;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
 	
@@ -73,8 +74,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				if (fLexer.peekOperator(")")) {
 					// Fill in a dummy name for the connection name
 					// TODO: Check on the identifier type - guessing NullExpr
-					SVDBTypeInfo typ = new SVDBTypeInfo("", SVDBItemType.NullExpr);
-					ret.addParameter(new SVDBParamValueAssign(name, typ));
+					ret.addParameter(new SVDBParamValueAssign(name, new SVDBNullExpr()));
 				}
 				else if (!fLexer.peekOperator(")")) {
 					List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);

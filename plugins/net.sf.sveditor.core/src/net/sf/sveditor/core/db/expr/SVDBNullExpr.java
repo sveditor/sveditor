@@ -20,8 +20,4 @@ public class SVDBNullExpr extends SVDBExpr {
 		super(SVDBItemType.NullExpr);
 	}
 	
-	public SVDBNullExpr duplicate() {
-		return (SVDBNullExpr)super.duplicate();
-	}
-
 }

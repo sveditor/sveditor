@@ -16,40 +16,92 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class LogFactory implements ILogListener {
 	
-	private static LogFactory			fDefault;
-	private Map<String, LogHandle>		fLogHandleMap;
-	private List<ILogListener> 			fLogListeners;
+	private static LogFactory					fDefault;
+	private Map<String, LogHandle>				fLogHandleMap;
+	private int									fLogLevel = 0;
+	private Map<String, LogCategory>			fLogHandleCategoryMap;
+	private List<ILogListener> 					fLogListeners;
 	
 	public LogFactory() {
 		fLogHandleMap = new HashMap<String, LogHandle>();
+		fLogHandleCategoryMap = new HashMap<String, LogCategory>();
 		fLogListeners = new ArrayList<ILogListener>();
 	}
 	
-	
-	public static LogFactory getDefault() {
+	public synchronized static LogFactory getDefault() {
 		if (fDefault == null) {
 			fDefault = new LogFactory();
 		}
 		return fDefault;
 	}
 	
-	public static LogHandle getLogHandle(String name) {
-		LogFactory f = getDefault();
-		
-		if (!f.fLogHandleMap.containsKey(name)) {
-			LogHandle handle = new LogHandle(name);
-			handle.init(f);
-			f.fLogHandleMap.put(name, handle);
-		}
-		return f.fLogHandleMap.get(name);
+	public static synchronized LogHandle getLogHandle(String name) {
+		return getLogHandle(name, ILogHandle.LOG_CAT_DEFAULT);
 	}
 	
+	public void setLogLevel(String category, int level) {
+		if (category == null) {
+			// all categories
+			fLogLevel = level;
+			for (Entry<String, LogCategory> e : fLogHandleCategoryMap.entrySet()) {
+				e.getValue().setLogLevel(level);
+			}
+		} else {
+			LogCategory cat;
+			if (fLogHandleCategoryMap.containsKey(category)) {
+				cat = new LogCategory(category, level);
+				fLogHandleCategoryMap.put(category, cat);
+			} else {
+				cat = fLogHandleCategoryMap.get(category);
+			}
+			cat.setLogLevel(level);
+		}
+	}
+
+	public static synchronized LogHandle getLogHandle(String name, String category) {
+		LogFactory f = getDefault();
+		boolean created = false;
+		LogHandle handle = null;
+		
+		synchronized (f.fLogHandleMap) {
+			if (!f.fLogHandleMap.containsKey(name)) {
+				handle = new LogHandle(name, category);
+				handle.init(f);
+				f.fLogHandleMap.put(name, handle);
+				created = true;
+			} else {
+				handle = f.fLogHandleMap.get(name);
+			}
+		}
+		
+		if (created) {
+			synchronized (f.fLogHandleCategoryMap) {
+				LogCategory cat;
+				if (!f.fLogHandleCategoryMap.containsKey(handle.getCategory())) {
+					cat = new LogCategory(handle.getCategory(), f.fLogLevel);
+					f.fLogHandleCategoryMap.put(handle.getCategory(), cat);
+				} else {
+					cat = f.fLogHandleCategoryMap.get(handle.getCategory());
+				}
+				cat.addLogHandle(handle);
+			}
+		}
+
+		return handle;
+	}
+
 	public static void removeLogHandle(LogHandle log) {
 		LogFactory f = getDefault();
-		f.fLogHandleMap.remove(log.getName());
+		synchronized (f.fLogHandleMap) {
+			f.fLogHandleMap.remove(log.getName());
+		}
+		synchronized (f.fLogHandleCategoryMap) {
+			f.fLogHandleCategoryMap.get(log.getCategory()).removeLogHandle(log);
+		}
 	}
 
 	public void addLogListener(ILogListener l) {

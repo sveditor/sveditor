@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.log.ILogHandle;
+
 
 
 public interface ISVParser {
@@ -31,5 +33,7 @@ public interface ISVParser {
 	SVParsers parsers();
 	
 	void debug(String msg, Exception e);
+	
+	ILogHandle getLogHandle();
 	
 }

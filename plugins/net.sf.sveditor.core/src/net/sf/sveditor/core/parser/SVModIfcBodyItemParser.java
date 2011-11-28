@@ -64,8 +64,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 		String id = fLexer.peek();
 
-		debug("--> process_module_class_interface_body_item: \"" + id + 
-				"\" @ " + fLexer.getStartLocation().getLine());
+		if (fDebugEn) {
+			debug("--> process_module_class_interface_body_item: \"" + id + 
+					"\" @ " + fLexer.getStartLocation().getLine());
+		}
 
 		// Save the start location before qualifiers
 		SVDBLocation start = fLexer.getStartLocation();
@@ -73,7 +75,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		id = fLexer.peek();
 
-		debug("body item is: " + id);
+		if (fDebugEn) {
+			debug("body item is: " + id);
+		}
 
 		if (id.equals("function") || id.equals("task")) {
 			parsers().taskFuncParser().parse(parent, start, modifiers);
@@ -176,19 +180,25 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				} else {
 					fLexer.ungetToken(tok);
 					// likely a variable or module declaration
-					debug("Likely VarDecl: " + id);
+					if (fDebugEn) {
+						debug("Likely VarDecl: " + id);
+					}
 					parse_var_decl_module_inst(parent, modifiers);
 				}
 			} else {
 				// likely a variable or module declaration
-				debug("Likely VarDecl: " + id);
+				if (fDebugEn) {
+					debug("Likely VarDecl: " + id);
+				}
 				parse_var_decl_module_inst(parent, modifiers);
 			}
 		} else {
 			error("Unknown module/class/iterface body item: Operator " + fLexer.eatToken());
 		}
 
-		debug("<-- process_module_class_interface_body_item"); 
+		if (fDebugEn) {
+			debug("<-- process_module_class_interface_body_item");
+		}
 	}
 	
 	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
@@ -319,8 +329,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBTypeInfoBuiltinNet type_info = null;
 		SVDBTypeInfo data_type = null;
 		
-		debug("Net Type: " + net_type + " @ " + 
-				fLexer.getStartLocation().getLine());
+		if (fDebugEn) {
+			debug("Net Type: " + net_type + " @ " + 
+					fLexer.getStartLocation().getLine());
+		}
 		
 		// vectored untyped net
 		if (fLexer.peekOperator("[")) {
@@ -390,7 +402,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		item_start = fLexer.getStartLocation();
 		String inst_name_or_var = fLexer.readIdOrKeyword();
 
-		debug("inst name or var: " + inst_name_or_var);
+		if (fDebugEn) {
+			debug("inst name or var: " + inst_name_or_var);
+		}
 
 
 		// SV allows modules to be arrayed
@@ -405,7 +419,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		// Check to see if we have an '(' - we have a module at this point
 		if (fLexer.peekOperator("(")) {
 			// TODO: hopefully this is a user-defined type?
-			debug("Module instance type: " + type.getClass().getName());
+			if (fDebugEn) {
+				debug("Module instance type: " + type.getClass().getName());
+			}
 			type = new SVDBTypeInfoModuleIfc(type.getName());
 			SVDBModIfcInst inst = new SVDBModIfcInst(type);
 			inst.setLocation(start);
@@ -414,7 +430,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 			while (fLexer.peek() != null) {
 				// it's a module
-				debug("module instantiation - " + inst_name_or_var);
+				if (fDebugEn) {
+					debug("module instantiation - " + inst_name_or_var);
+				}
 				SVDBModIfcInstItem item = new SVDBModIfcInstItem(inst_name_or_var);
 				if (arraydims != null) {
 					item.setArrayDim(arraydims);

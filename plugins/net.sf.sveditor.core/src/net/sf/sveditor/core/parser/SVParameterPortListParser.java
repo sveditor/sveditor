@@ -92,7 +92,9 @@ public class SVParameterPortListParser extends SVParserBase {
 					p.setDefaultType(type);
 				} else {
 					SVDBExpr dflt = parsers().exprParser().expression();
-					debug("parameter default: " + id);
+					if (fDebugEn) {
+						debug("parameter default: " + id);
+					}
 					p.setDefault(dflt);
 				}
 			}

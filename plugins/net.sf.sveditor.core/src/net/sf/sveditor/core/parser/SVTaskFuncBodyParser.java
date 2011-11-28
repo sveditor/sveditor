@@ -23,9 +23,11 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 	
 	public void parse(SVDBTask tf, boolean is_ansi) throws SVParseException {
 		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
-		debug("--> SVTaskFuncBodyParser: " + fLexer.peek());
+		if (fDebugEn) {
+			debug("--> SVTaskFuncBodyParser: " + fLexer.peek());
+			debug("SVTaskFuncBodyParse: is_ansi=" + is_ansi);
+		}
 		
-		debug("SVTaskFuncBodyParse: is_ansi=" + is_ansi);
 		
 		// Parse the task/function body, including declarations
 		// decl_allowed tracks the 
@@ -40,6 +42,8 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			}
 		}
 		
-		debug("<-- SVTaskFuncBodyParser: " + fLexer.peek());
+		if (fDebugEn) {
+			debug("<-- SVTaskFuncBodyParser: " + fLexer.peek());
+		}
 	}
 }

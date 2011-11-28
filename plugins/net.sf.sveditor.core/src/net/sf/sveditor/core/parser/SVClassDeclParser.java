@@ -37,7 +37,9 @@ public class SVClassDeclParser extends SVParserBase {
 		SVDBTypeInfoClassType cls_type;
 		String cls_type_name = null;
 		
-		debug("--> process_class()");
+		if (fDebugEn) {
+			debug("--> process_class()");
+		}
 		
 		// Expect to enter on 'class'
 		SVDBLocation start_loc = fLexer.getStartLocation();

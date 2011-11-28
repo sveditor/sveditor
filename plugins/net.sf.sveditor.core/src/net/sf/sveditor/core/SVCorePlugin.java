@@ -116,6 +116,7 @@ public class SVCorePlugin extends Plugin
 	
 	public void enableDebug(boolean en) {
 		fDebugEn = en;
+		LogFactory.getDefault().setLogLevel(null, (en)?10:0);
 	}
 	
 	public boolean getDebugEn() {

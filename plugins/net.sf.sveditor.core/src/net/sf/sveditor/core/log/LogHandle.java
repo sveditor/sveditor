@@ -12,22 +12,67 @@
 
 package net.sf.sveditor.core.log;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+
 public class LogHandle implements ILogHandle {
-	private String			fName;
-	private ILogListener	fListener;
-	private int				fDebugLevel = 10;
-	private int				fIndent;
+	private String						fName;
+	private String						fCategory;
+	private ILogListener				fListener;
+	private int							fDebugLevel = 10;
+	private int							fIndent;
+	private List<WeakReference<ILogLevelListener>>		fLogLevelListeners;
 	
 	public LogHandle(String name) {
-		fName = name;
+		this(name, LOG_CAT_DEFAULT);
 	}
-	
+
+	public LogHandle(String name, String category) {
+		fName = name;
+		fCategory = category;
+		fLogLevelListeners = new ArrayList<WeakReference<ILogLevelListener>>();
+	}
+
 	public void init(ILogListener parent) {
 		fListener = parent;
 	}
 	
 	public String getName() {
 		return fName;
+	}
+	
+	public String getCategory() {
+		return fCategory;
+	}
+	
+	public void addLogLevelListener(ILogLevelListener l) {
+		fLogLevelListeners.add(new WeakReference<ILogLevelListener>(l));
+	}
+	
+	public void setDebugLevel(int level) {
+		if (fDebugLevel != level) {
+			fDebugLevel = level;
+			// notify listeners
+			for (int i=0; i<fLogLevelListeners.size(); i++) {
+				WeakReference<ILogLevelListener> l = fLogLevelListeners.get(i);
+				if (l.get() == null) {
+					fLogLevelListeners.remove(i);
+					i--;
+				} else {
+					l.get().logLevelChanged(this);
+				}
+			}
+		}
+		fDebugLevel = level;
+	}
+	
+	public int getDebugLevel() {
+		return fDebugLevel;
+	}
+
+	public boolean isEnabled() {
+		return (fDebugLevel > 0);
 	}
 
 	public void print(int type, int level, String msg) {

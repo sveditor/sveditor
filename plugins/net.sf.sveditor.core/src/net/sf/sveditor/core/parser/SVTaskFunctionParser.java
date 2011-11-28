@@ -117,7 +117,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		List<SVDBParamPortDecl> params = null;
 		boolean is_ansi = true;
-		debug("Function Terminator: " + fLexer.peek());
+		if (fDebugEn) {
+			debug("Function Terminator: " + fLexer.peek());
+		}
 		// method declarations are required to have parens
 		if (is_decl || fLexer.peekOperator("(")) {
 			// parameter list or empty
@@ -134,7 +136,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 			fLexer.readOperator(";");
 		}
 		
-		debug("Procesing " + type + " " + tf_name);
+		if (fDebugEn) {
+			debug("Procesing " + type + " " + tf_name);
+		}
 		
 		if (type.equals("function")) {
 			func = new SVDBFunction(tf_name, return_type);
@@ -156,7 +160,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 			try {
 				parsers().tfBodyParser().parse(func, is_ansi);
 			} catch (SVParseException e) {
-				debug("Failed to parse function body", e);
+				if (fDebugEn) {
+					debug("Failed to parse function body", e);
+				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
 			}

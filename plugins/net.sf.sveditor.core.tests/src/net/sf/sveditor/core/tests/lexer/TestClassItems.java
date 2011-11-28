@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.lexer;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ISVParser;
@@ -59,6 +60,8 @@ public class TestClassItems extends TestCase {
 			public SVLexer lexer() {
 				return lexer;
 			}
+			
+			public ILogHandle getLogHandle() { return log; }
 			
 			public boolean error_limit_reached() {return false;}
 			

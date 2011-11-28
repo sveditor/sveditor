@@ -121,10 +121,14 @@ public class SVPropertyParser extends SVParserBase {
 					// Okay, what's next?
 					if (fLexer.peekId()) {
 						// Conclude that this is a declaration
-						debug("Assume a declaration @ " + fLexer.peek());
+						if (fDebugEn) {
+							debug("Assume a declaration @ " + fLexer.peek());
+						}
 						parsers().blockItemDeclParser().parse(prop, type, start);
 					} else {
-						debug("Assume a typed reference @ " + fLexer.peek());
+						if (fDebugEn) {
+							debug("Assume a typed reference @ " + fLexer.peek());
+						}
 						// Else, this is probably a typed reference
 						fLexer.ungetToken(tok_l);
 						break;

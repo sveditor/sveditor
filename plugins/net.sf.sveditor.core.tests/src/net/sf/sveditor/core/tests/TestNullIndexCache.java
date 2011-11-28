@@ -43,6 +43,10 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
 	
+	public long numFilesRead() {
+		return 0;
+	}
+	
 	public void removeStoragePath(List<File> db_path_list) {}
 
 	public void setIndexData(Object data) {

@@ -23,6 +23,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndexCache {
 	
+	long numFilesRead();
+	
 	/**
 	 * The cache must remove the path corresponding to this cache
 	 * instance from the supplied list. This method is used in the

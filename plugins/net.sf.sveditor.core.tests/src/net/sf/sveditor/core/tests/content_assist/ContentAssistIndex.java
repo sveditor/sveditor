@@ -42,9 +42,11 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 	
 	@Override
-	public synchronized List<String> getFileList(IProgressMonitor monitor) {
+	public List<String> getFileList(IProgressMonitor monitor) {
 		List<String> ret = new ArrayList<String>();
-		ret.add(fFile.getFilePath());
+		synchronized (fFile) {
+			ret.add(fFile.getFilePath());
+		}
 		return ret;
 	}
 

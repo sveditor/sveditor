@@ -35,7 +35,9 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		String module_type_name = null;
 		SVDBModIfcDecl module = null;
 
-		debug("--> process_mod_ifc_prog()");
+		if (fDebugEn) {
+			debug("--> process_mod_ifc_prog()");
+		}
 		
 		SVDBLocation start = fLexer.getStartLocation();
 		String type_name = fLexer.readKeyword("module", "macromodule",
@@ -96,6 +98,9 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		if (fLexer.peekOperator("(")) {
 			// port-list
 			List<SVDBParamPortDecl> ports = parsers().portListParser().parse();
+			for (SVDBParamPortDecl p : ports) {
+				p.setParent(module);
+			}
 			module.getPorts().addAll(ports);
 		}
 		fLexer.readOperator(";");
@@ -107,7 +112,9 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					fParsers.modIfcBodyItemParser().parse(module, type_name);
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
-					debug("Module body item parse failed", e);
+					if (fDebugEn) {
+						debug("Module body item parse failed", e);
+					}
 					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
 							!fLexer.peekKeyword("end"+ type_name)) {
 						fLexer.eatToken();
@@ -132,7 +139,9 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			module.setEndLocation(end);
 		}
 
-		debug("<-- process_mod_ifc_prog()");
+		if (fDebugEn) {
+			debug("<-- process_mod_ifc_prog()");
+		}
 	}
 
 }

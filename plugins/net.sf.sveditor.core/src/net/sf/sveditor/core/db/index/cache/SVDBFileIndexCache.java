@@ -46,9 +46,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private ISVDBFS							fSVDBFS;
 	private Object							fIndexData;
 	private LogHandle						fLog;
-	private	SVDBPersistenceReader 			fPersistenceRdr;
-	private SVDBPersistenceWriter			fPersistenceWriter;
+	private List<SVDBPersistenceReader>		fPersistenceRdrSet;
+//	private	SVDBPersistenceReader 			fPersistenceRdr;
+//	private SVDBPersistenceWriter			fPersistenceWriter;
+	private List<SVDBPersistenceWriter>		fPersistenceWriterSet;
 	private static final int				fCacheSize = 100000;
+	private long							fNumFilesRead = 0;
 
 	
 	public SVDBFileIndexCache(ISVDBFS fs) {
@@ -60,8 +63,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fFileMap = new WeakHashMap<String, SVDBFile>(fCacheSize);
 		fMarkerMap = new WeakHashMap<String, List<SVDBMarker>>(fCacheSize);
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
-		fPersistenceRdr = new SVDBPersistenceReader();
-		fPersistenceWriter = new SVDBPersistenceWriter();
+		fPersistenceRdrSet = new ArrayList<SVDBPersistenceReader>(); 
+		fPersistenceWriterSet = new ArrayList<SVDBPersistenceWriter>();
 	}
 
 	public SVDBFileIndexCache(ISVDBFS fs, int cache_sz) {
@@ -75,6 +78,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 		
 		debug("Create Cache: " + fs.getRoot());
+	}
+	
+	public long numFilesRead() {
+		return fNumFilesRead;
 	}
 
 	public void removeStoragePath(List<File> db_path_list) {
@@ -107,8 +114,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void addFile(String path) {
-		if (!fFileList.contains(path)) {
-			fFileList.add(path);
+		synchronized (fFileList) {
+			if (!fFileList.contains(path)) {
+				fFileList.add(path);
+			}
 		}
 	}
 	
@@ -147,6 +156,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fFileList.clear();
 		fBaseLocation = "";
 		fIndexData = index_data;
+		SVDBPersistenceReader rdr = allocReader();
 
 		// Read the file list from the backing file
 		try {
@@ -155,10 +165,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			in = fSVDBFS.openChannelRead("index");
 			
 			if (in != null) {
-				fPersistenceRdr.init(in);
-				fBaseLocation = fPersistenceRdr.readString();
-				fFileList = fPersistenceRdr.readStringList();
-				List<Long> timestamp_list = fPersistenceRdr.readLongList();
+				
+				rdr.init(in);
+				fBaseLocation = rdr.readString();
+				fFileList = rdr.readStringList();
+				List<Long> timestamp_list = rdr.readLongList();
 				for (int i=0; i<fFileList.size() && i<timestamp_list.size(); i++) {
 					fLastModifiedMap.put(fFileList.get(i), timestamp_list.get(i));
 				}
@@ -168,8 +179,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			
 			in = fSVDBFS.openChannelRead("index_data");
 			if (in != null) {
-				fPersistenceRdr.init(in);
-				fPersistenceRdr.readObject(null, index_data.getClass(), index_data);
+				rdr.init(in);
+				rdr.readObject(null, index_data.getClass(), index_data);
 				debug("Cache " + fSVDBFS.getRoot() + " has base " + 
 						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
 				fSVDBFS.closeChannel(in);
@@ -180,6 +191,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 //		} catch (IOException e) {}
 		} catch (DBFormatException e) {
 			  e.printStackTrace();
+		} finally {
+			freeReader(rdr);
 		}
 		
 		return valid;
@@ -245,6 +258,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			f = readFile(in, path);
 			fSVDBFS.closeChannel(in);
 			fFileMap.put(path, f);
+			fNumFilesRead++;
 			return f;
 		} else {
 			debug("Target dir does not exist: " + target_dir);
@@ -254,6 +268,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void setPreProcFile(String path, SVDBFile file) {
+		SVDBPersistenceWriter writer = allocWriter();
 		if (file == null) {
 			try {
 				throw new Exception("SVDBFile for path \"" + path + "\" is null");
@@ -273,12 +288,14 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		try {
 			RandomAccessFile out = fSVDBFS.openChannelWrite(target_dir + "/preProcFile");
 			
-			fPersistenceWriter.init(out);
-			fPersistenceWriter.writeObject(file.getClass(), file);
-			fPersistenceWriter.close();
+			writer.init(out);
+			writer.writeObject(file.getClass(), file);
+			writer.close();
 			fSVDBFS.closeChannel(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
+		} finally {
+			freeWriter(writer);
 		}
 	}
 
@@ -289,6 +306,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			String target_dir = computePathDir(path);
 			fSVDBFS.delete(target_dir + "/file");
 		} else {
+			SVDBPersistenceWriter writer = allocWriter();
 			if (fFileMap.containsKey(path)) {
 				fFileMap.remove(path);
 			}
@@ -299,14 +317,17 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			
 			try {
 				RandomAccessFile out = fSVDBFS.openChannelWrite(target_dir + "/file");
-				fPersistenceWriter.init(out);
-				fPersistenceWriter.writeObject(file.getClass(), file);
-				fPersistenceWriter.close();
+				writer.init(out);
+				writer.writeObject(file.getClass(), file);
+				writer.close();
 				out.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (DBWriteException e) {
+				System.out.println("Processing file \"" + path + "\"");
 				e.printStackTrace();
+			} finally {
+				freeWriter(writer);
 			}
 		}
 	}
@@ -320,16 +341,20 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		String target_dir = computePathDir(path);
 		fSVDBFS.mkdirs(target_dir);
 		
+		SVDBPersistenceWriter writer = allocWriter();
+		
 		try {
 			RandomAccessFile out = fSVDBFS.openChannelWrite(target_dir + "/fileTreeMap");
-			fPersistenceWriter.init(out);
-			fPersistenceWriter.writeObject(file_tree.getClass(), file_tree);
-			fPersistenceWriter.close();
+			writer.init(out);
+			writer.writeObject(file_tree.getClass(), file_tree);
+			writer.close();
 			out.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (DBWriteException e) {
 			e.printStackTrace();
+		} finally {
+			freeWriter(writer);
 		}
 	}
 	
@@ -380,13 +405,16 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	
 	private SVDBFile readFile(RandomAccessFile in, String path) {
 //		debug("readFile " + path);
-		fPersistenceRdr.init(in);
+		SVDBPersistenceReader reader = allocReader();
+		reader.init(in);
 		
 		SVDBFile ret = new SVDBFile();
 		try {
-			fPersistenceRdr.readObject(null, ret.getClass(), ret);
+			reader.readObject(null, ret.getClass(), ret);
 		} catch (DBFormatException e) {
 			e.printStackTrace();
+		} finally {
+			freeReader(reader);
 		}
 
 		return ret;
@@ -394,13 +422,16 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 
 	private SVDBFileTree readFileTree(RandomAccessFile in) {
 //		debug("readFileTree");
-		fPersistenceRdr.init(in);
+		SVDBPersistenceReader reader = allocReader();
+		reader.init(in);
 		
 		SVDBFileTree ret = new SVDBFileTree();
 		try {
-			fPersistenceRdr.readObject(null, ret.getClass(), ret);
+			reader.readObject(null, ret.getClass(), ret);
 		} catch (DBFormatException e) {
 			e.printStackTrace();
+		} finally {
+			freeReader(reader);
 		}
 		
 		return ret;
@@ -410,14 +441,17 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private List<SVDBMarker> readMarkerList(String path) {
 //		InputStream in = null;
 		RandomAccessFile in = fSVDBFS.openChannelRead(path);
-		fPersistenceRdr.init(in);
+		SVDBPersistenceReader reader = allocReader();
+		reader.init(in);
 		
 		List<SVDBMarker> ret = null;
 		
 		try {
-			ret = (List<SVDBMarker>)fPersistenceRdr.readItemList(null);
+			ret = (List<SVDBMarker>)reader.readItemList(null);
 		} catch (DBFormatException e) {
 			e.printStackTrace();
+		} finally {
+			freeReader(reader);
 		}
 
 		fSVDBFS.closeChannel(in);
@@ -426,27 +460,32 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 	
 	private void writeMarkerList(String path, List<SVDBMarker> marker_list) {
+		SVDBPersistenceWriter writer = allocWriter();
 		try {
 			RandomAccessFile out = fSVDBFS.openChannelWrite(path);
-			fPersistenceWriter.init(out);
-			fPersistenceWriter.writeItemList(marker_list);
-			fPersistenceWriter.close();
+			writer.init(out);
+			writer.writeItemList(marker_list);
+			writer.close();
 			fSVDBFS.closeChannel(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
+		} finally {
+			freeWriter(writer);
 		}
 	}
 
 	public void sync() {
+		
+		SVDBPersistenceWriter writer = allocWriter();
 		
 		try {
 			RandomAccessFile out = fSVDBFS.openChannelWrite("index");
 			if (out == null) {
 				throw new DBWriteException("Failed to open file \"index\" for writing");
 			}
-			fPersistenceWriter.init(out);
-			fPersistenceWriter.writeString(fBaseLocation);
-			fPersistenceWriter.writeStringList(fFileList);
+			writer.init(out);
+			writer.writeString(fBaseLocation);
+			writer.writeStringList(fFileList);
 			List<Long> timestamp_list = new ArrayList<Long>();
 			for (String path : fFileList) {
 				if (fLastModifiedMap.containsKey(path)) {
@@ -456,18 +495,59 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 					fLog.error("LastModifiedList does not contain \"" + path + "\"");
 				}
 			}
-			fPersistenceWriter.writeLongList(timestamp_list);
+			writer.writeLongList(timestamp_list);
 			
-			fPersistenceWriter.close();
+			writer.close();
 			fSVDBFS.closeChannel(out);
 			
 			out = fSVDBFS.openChannelWrite("index_data");
-			fPersistenceWriter.init(out);
-			fPersistenceWriter.writeObject(fIndexData.getClass(), fIndexData);
-			fPersistenceWriter.close();
+			writer.init(out);
+			writer.writeObject(fIndexData.getClass(), fIndexData);
+			writer.close();
 			fSVDBFS.closeChannel(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
+		} finally {
+			freeWriter(writer);
+		}
+	}
+	
+	private SVDBPersistenceReader allocReader() {
+		SVDBPersistenceReader reader = null;
+		synchronized (fPersistenceRdrSet) {
+			if (fPersistenceRdrSet.size() > 0) {
+				reader = fPersistenceRdrSet.remove(fPersistenceRdrSet.size()-1);
+			}
+		}
+		if (reader == null) {
+			reader = new SVDBPersistenceReader();
+		}
+		
+		return reader;
+	}
+	
+	private void freeReader(SVDBPersistenceReader reader) {
+		synchronized (fPersistenceRdrSet) {
+			fPersistenceRdrSet.add(reader);
+		}
+	}
+	
+	private SVDBPersistenceWriter allocWriter() {
+		SVDBPersistenceWriter writer = null;
+		synchronized (fPersistenceWriterSet) {
+			if (fPersistenceWriterSet.size() > 0) {
+				writer = fPersistenceWriterSet.remove(fPersistenceWriterSet.size()-1);
+			}
+		}
+		if (writer == null) {
+			writer = new SVDBPersistenceWriter();
+		}
+		return writer;
+	}
+	
+	private void freeWriter(SVDBPersistenceWriter writer) {
+		synchronized (fPersistenceWriterSet) {
+			fPersistenceWriterSet.add(writer);
 		}
 	}
 	

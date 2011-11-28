@@ -95,6 +95,45 @@ public class TestOpenModIfc extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	/** NOTE: this cannot be tested with the current StringBIDITextScanner()
+	 * 
+	 */
+	public void disabled_testOpenModuleDeclwPreComment() {
+		String testname = "testOpenModuleDeclwPreComment";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module a(output o, input i);\n" +		// 1
+			"	assign o = i;\n" +
+			"endmodule\n" +
+			"\n" +					
+			"module b(output o, input i);\n" +		// 5
+			"	// a.\n" +
+			"	a a0(o, i);\n" +					// 7
+			"endmodule\n" +
+			"\n"
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "a", "b");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("a a0");
+//		log.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, 7, scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.ModuleDecl, ret.get(0).first().getType());
+		assertEquals("a", SVDBItem.getName(ret.get(0).first()));
+
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testStructFieldModuleScope() {
 		String testname = "testStructFieldModuleScope";
 		LogHandle log = LogFactory.getLogHandle(testname);
