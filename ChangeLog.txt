@@ -1,6 +1,22 @@
 
 -- 0.7.3 Release --
 
+- (#3442021) Correct a bug in the Open Declaration implementation that is triggered when
+  the line before the open-declaration context contains a comment. For example:
+  module a;
+  endmodule
+  module b;
+    // a.
+    a a0();
+  endmodule
+
+  In this case, the previously-used text analysis would attempt to analyze a.a for open 
+  declaration rather than just 'a'.
+
+- (#3442016) Correct a parse bug involving an `include directive with an unterminated
+  string without a trailing \n:
+  `include "a
+
 ------------------------------------------------------------------------------
 -- 0.7.2 Release --
 

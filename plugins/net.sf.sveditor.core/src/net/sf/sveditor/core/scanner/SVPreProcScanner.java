@@ -327,7 +327,7 @@ public class SVPreProcScanner implements ISVScanner {
 		fTmpBuffer.append((char)ci);
 		
 		ci = get_ch_ll();
-		while ((ci != '"' && ci != '\n') || last_ch == '\\') {
+		while ((ci != '"' && ci != '\n' && ci != -1) || last_ch == '\\') {
 			if (last_ch == '\\' && ci == '"') {
 				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
 					fTmpBuffer.setCharAt(fTmpBuffer.length()-1, '"');
