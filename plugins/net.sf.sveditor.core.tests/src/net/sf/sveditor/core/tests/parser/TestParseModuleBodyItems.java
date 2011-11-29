@@ -1422,8 +1422,10 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	wire  out, a, b, c, d, e;\n" +
 			"\n" +
 			"	tranif0 my_gate1 (net1, net2, net3);\n" +
+			"	tran    my_gate5 (net1, net2);\n" +
 			"	rtranif1 my_gate2 (net4, net5, net6);\n" +
 			"	rtranif1 my_gate3 (net4, net5, net6);\n" +
+			"	rtranif1 my_gate3[1:0] ({net4,net5}, {net5,net6}, {net6,net7});\n" +
 			"	rtranif1 #(1, 2, 3) my_gate4 (net4, net5, net6);\n" +
 			"	rtranif1 #(1:2:3, 2:3:4, 3:4:5) my_gate5 (net4, net5, net6);\n" +
 			"   nor  (highz1,  strong0) #(2:3:5) (out, in1, in2);\n" +

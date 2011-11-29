@@ -1,4 +1,10 @@
 
+- #(3445549) 	Number of paramters for tran and rtran incorrect
+
+- #(3445551) 	Array'ed instances of primitives not recognized
+      rtranif1 my_gate3[1:0] ({net4,net5}, {net5,net6}, {net6,net7});
+
+------------------------------------------------------------------------------
 -- 0.7.3 Release --
 
 - (#3442021) Correct a bug in the Open Declaration implementation that is triggered when

@@ -12,10 +12,13 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVGateInstantiationParser extends SVParserBase {
@@ -107,15 +110,21 @@ public class SVGateInstantiationParser extends SVParserBase {
 			max_delays    = 3;      // max number of delays
 		}
 		// These primitive have the following format
-		// tran (inout, inout, control)
+		// tranif (inout, inout, control)
 		else if ((primitive_name.equals("tranif0" )) ||
 	             (primitive_name.equals("tranif1" )) ||
-		         (primitive_name.equals("tran"    )) ||
 		         (primitive_name.equals("rtranif0")) ||
-		         (primitive_name.equals("rtranif1")) ||
-		         (primitive_name.equals("rtran"   )))  {
+		         (primitive_name.equals("rtranif1")))  {
 			min_ports = 3;
 			max_ports = 3;
+			max_delays    = 3;      // max number of delays
+		}
+		// These primitive have the following format
+		// tran (inout, inout, control)
+		else if ((primitive_name.equals("tran"    )) ||
+				(primitive_name.equals("rtran"   )))  {
+			min_ports = 2;
+			max_ports = 2;
 			max_delays    = 3;      // max number of delays
 		}
 		// These primitive have the following format
@@ -160,6 +169,12 @@ public class SVGateInstantiationParser extends SVParserBase {
 				name = fLexer.eatToken();
 			}
 			SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
+			List<SVDBVarDimItem> arraydims = null;
+			if (fLexer.peekOperator("["))  {
+				// Array type
+				// TODO: What should we do with the array dimensions?
+				arraydims = parsers().dataTypeParser().var_dim();
+			}
 			item.addInst(inst);
 			
 			fLexer.readOperator("(");
