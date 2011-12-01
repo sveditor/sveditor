@@ -70,6 +70,8 @@ public class SVPreProcScanner implements ISVScanner {
 		fIgnoredDirectives.add("default_nettype");
 		fIgnoredDirectives.add("end_keywords");
 		fIgnoredDirectives.add("endcelldefine");
+		fIgnoredDirectives.add("protect");
+		fIgnoredDirectives.add("endprotect");
 		// Ignored for now
 		fIgnoredDirectives.add("line");
 		fIgnoredDirectives.add("nounconnected_drive");
