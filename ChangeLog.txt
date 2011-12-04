@@ -1,4 +1,10 @@
+
+-- 0.7.5 Release --
+
 - #(3447506) 	Processor directives protect and endprotect not recognized
+
+- #(nobug) Correct an issue with pre-processor `elsif and subsequent macro 
+  defines. 
 
 ------------------------------------------------------------------------------
 -- 0.7.4 Release --

@@ -138,6 +138,35 @@ public class TestConditionalEval extends TestCase {
 			;
 		runTest(testname, content, new String[] {"c", "e"});
 	}
+	
+	public void testIfNotTakenElsifTakenPostDefine() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testIfNotTakenElsifTakenPostDefine";
+		String content =
+			"module top;\n" +
+			"`define SOME_DEFINE 1'b1\n" +
+			"`define MACRO1_REV macro1\n" +
+			"`define BOB bob\n" +
+			"`define JANE `BOB.the\n" +
+			"`define THING2 1'b1\n" +
+			"//`define THING1 1'b1\n" +
+			"\n" +
+			"`ifdef UNDEFINED1\n" +
+			"	`define THING1 1'b0\n" +
+			"`elsif BOB       // Commenting this line out makes THING3 in top.sv defined\n" +
+			"	`define THING1 1'b0\n" +
+			"`endif\n" + 
+			"\n" +
+			"`define THING3 1'b0\n" +
+			"`define THING3_1 1'b0\n" +
+			"`define THING3_2 1'b0\n" +
+			"\n" +
+			"int a = `THING3;\n" +
+			"int b = `THING3_1 ;\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"top", "a", "b"});
+	}
 
 	private void runTest(String testname, String data, String exp_items[]) throws SVParseException {
 		runTest(testname, data, exp_items, null);

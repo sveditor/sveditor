@@ -370,7 +370,14 @@ public class SVPreProcScanner implements ISVScanner {
 			ch = skipWhite_ll(get_ch_ll());
 			
 			// TODO: evaluate the expression?
-			String remainder = readLine_ll(ch).trim();
+			// String remainder = readLine_ll(ch).trim();
+			String remainder = readIdentifier_ll(ch);
+			
+			if (remainder != null) {
+				remainder = remainder.trim();
+			} else {
+				remainder = "";
+			}
 			
 			if (fEvalConditionals) {
 				if (type.equals("ifdef")) {
@@ -397,6 +404,9 @@ public class SVPreProcScanner implements ISVScanner {
 				}
 			} else {
 				if (fObserver != null) {
+					if (type.equals("elsif")) {
+						fObserver.leave_preproc_conditional();
+					}
 					fObserver.enter_preproc_conditional(type, remainder);
 				}
 			}
@@ -479,10 +489,6 @@ public class SVPreProcScanner implements ISVScanner {
 			
 			if (ifdef_enabled()) {
 				if (fObserver != null) {
-					/*
-					System.out.println(getLocation().getFileName() + ":" + 
-							getLocation().getLineNo() + " Define \"" + def_id + "\"");
-					 */
 					fObserver.preproc_define(def_id, fParamList, define);
 				}
 			}
