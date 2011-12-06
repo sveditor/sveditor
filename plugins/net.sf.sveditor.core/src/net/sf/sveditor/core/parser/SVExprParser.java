@@ -131,6 +131,11 @@ public class SVExprParser extends SVParserBase {
 		return expr;
 	}
 	
+	// Checks for following:
+	// #(delay)
+	// #(rise_delay,fall_delay)
+	// #(min_rise_delay:typ_rise_delay:max_rise_delay,min_fall_delay:typ_fall_delay:max_fall_delay)
+	// #(min_delay:typ_delay:max_delay)
 	public SVDBExpr delay_expr() throws SVParseException {
 		SVDBExpr expr = null;
 		if (fDebugEn) {debug("--> delay_expr - " + fLexer.peek());}
@@ -147,6 +152,20 @@ public class SVExprParser extends SVParserBase {
 				// This should be another :, not going to test... going to assume that the parser will detect that this isn't a token
 				fLexer.readOperator(":");
 				expr = fParsers.exprParser().expression();
+			}
+			// Check for "," which implies a falling edge delay
+			if (fLexer.peekOperator(","))  {
+				fLexer.eatToken();
+				expr = fParsers.exprParser().expression();
+				// TODO: save expression
+				// Check for (min:typ:max) type of layout 
+				if (fLexer.peekOperator(":"))  {
+					fLexer.readOperator(":");
+					expr = fParsers.exprParser().expression();
+					// This should be another :, not going to test... going to assume that the parser will detect that this isn't a token
+					fLexer.readOperator(":");
+					expr = fParsers.exprParser().expression();
+				}
 			}
 			fLexer.readOperator(")");
 		} else {

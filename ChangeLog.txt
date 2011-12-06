@@ -1,4 +1,6 @@
+- #(3452563) 	Rise and fall delays in assign statements not supported
 
+------------------------------------------------------------------------------
 -- 0.7.5 Release --
 
 - #(3447506) 	Processor directives protect and endprotect not recognized

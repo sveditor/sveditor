@@ -121,6 +121,23 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 	
+	public void testDelayedExprAssignRiseFall() {
+		String content =
+				"module t;\n" +
+						"	logic a;\n" +
+						"	logic b;\n" +
+						"	assign #(1,2) a = b; // rise, fall\n" +
+						"	assign #(1:2:3,2:3:4) a = b; // #(min_rise:typ_rise:max_rise,min_fall:typ_fall:max_fall)\n" +
+						"endmodule\n"
+						;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testDelayedExprAssignRiseFall");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
+	}
+	
 	public void testModuleSizedParameter() {
 		String content = 
 			"module t\n" +
