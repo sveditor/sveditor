@@ -82,6 +82,28 @@ public class TestParseModuleBodyItems extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testRandCase() {
+		LogHandle log = LogFactory.getLogHandle("testDefineCaseItems");
+		String content =
+		                "module mymodule;           \n" +
+		                "   logic a;                \n" +
+		                "   task sometask();        \n" +
+		                "      randcase             \n" +
+		                "         100: a = 1'b0;    \n" +
+		                "         100: a = 1'b1;    \n" +
+		                "      endcase              \n" +
+		                "   endtask                 \n" +
+		                "endmodule\n"
+						;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testRandCase");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "mymodule");
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testDelayedAssign() {
 		String content =
 			"module t;\n" +
