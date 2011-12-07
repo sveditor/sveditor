@@ -1,20 +1,19 @@
-- #(3452563) 	Rise and fall delays in assign statements not supported
 
-------------------------------------------------------------------------------
--- 0.7.5 Release --
-
-- #(3447506) 	Processor directives protect and endprotect not recognized
-
-- #(nobug) Correct an issue with pre-processor `elsif and subsequent macro 
-  defines. 
-
-------------------------------------------------------------------------------
 -- 0.7.4 Release --
 
 - #(3445549) 	Number of paramters for tran and rtran incorrect
 
 - #(3445551) 	Array'ed instances of primitives not recognized
       rtranif1 my_gate3[1:0] ({net4,net5}, {net5,net6}, {net6,net7});
+
+- #(3447506) 	Processor directives protect and endprotect not recognized
+
+- #(nobug) Correct an issue with pre-processor `elsif and subsequent macro 
+  defines. 
+
+- #(3452563) 	Rise and fall delays in assign statements not supported
+
+- #(nobug) Correct a build issue with the documentation plugins
 
 ------------------------------------------------------------------------------
 -- 0.7.3 Release --
