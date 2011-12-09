@@ -686,14 +686,10 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		
 		// TODO randcase doesn't have a switch expression
 		SVDBCaseStmt case_stmt = new SVDBCaseStmt(type);
-		if (type.equals(CaseType.Randcase))  {
-		}
-		else  {
-			fLexer.readOperator("(");
-			case_stmt.setExpr(parsers().exprParser().expression());
-			fLexer.readOperator(")");
-			parent.addChildItem(case_stmt);
-		}
+		fLexer.readOperator("(");
+		case_stmt.setExpr(parsers().exprParser().expression());
+		fLexer.readOperator(")");
+		parent.addChildItem(case_stmt);
 		
 		if (fLexer.peekKeyword("matches", "inside")) {
 			// TODO: ignore for now
