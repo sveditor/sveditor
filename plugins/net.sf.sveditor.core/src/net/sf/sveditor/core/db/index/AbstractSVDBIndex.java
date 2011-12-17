@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,8 @@ import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -61,7 +64,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public abstract class AbstractSVDBIndex implements ISVDBIndex,
-		ISVDBFileSystemChangeListener {
+		ISVDBFileSystemChangeListener, ILogLevelListener {
 	private static final int IndexState_AllInvalid = 0;
 	private static final int IndexState_RootFilesDiscovered = (IndexState_AllInvalid + 1);
 	private static final int IndexState_FilesPreProcessed = (IndexState_RootFilesDiscovered + 1);
@@ -93,7 +96,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private Map<String, Object> 					fConfig;
 	
 	// Controls indexing parallelism
-	private int										fMaxIndexThreads = 1;
+	private int										fMaxIndexThreads = 0;
+	protected boolean								fDebugEn;
 	
 //	private Map<String, List<SVDBDeclCacheItem>>	fPackageCacheMap;
 	
@@ -125,7 +129,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fProjectName = project;
-		fLog = LogFactory.getLogHandle("AbstractSVDBIndex");
+		fLog = LogFactory.getLogHandle(getLogName());
+		fLog.addLogLevelListener(this);
+		fDebugEn = fLog.isEnabled();
 		fMissingIncludes = new HashSet<String>();
 	}
 
@@ -139,6 +145,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		setFileSystemProvider(fs_provider);
 	}
+	
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = handle.isEnabled();
+	}
+
+	protected abstract String getLogName();
 
 	/**
 	 * Called when the index is initialized to determine whether the cached
@@ -150,7 +162,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		boolean valid = true;
 		String version = SVCorePlugin.getDefault().getVersion();
 		
-		fLog.debug("Cached version=" + fIndexCacheData.getVersion() + " version=" + version);
+		if (fDebugEn) {
+			fLog.debug("Cached version=" + fIndexCacheData.getVersion() + " version=" + version);
+		}
 		
 		if (fIndexCacheData.getVersion() == null ||
 				!fIndexCacheData.getVersion().equals(version)) {
@@ -181,32 +195,42 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				long cache_timestamp = fCache.getLastModified(path);
 				if (fs_timestamp != cache_timestamp) {
 					
-					fLog.debug("Cache " + getBaseLocation() + 
-							" is invalid : path " + path + " fs_timestamp="
-							+ fs_timestamp + " cache_timestamp=" + cache_timestamp);
+					if (fDebugEn) {
+						fLog.debug("Cache " + getBaseLocation() + 
+								" is invalid : path " + path + " fs_timestamp="
+								+ fs_timestamp + " cache_timestamp=" + cache_timestamp);
+					}
 					valid = false;
 					break;
 				}
 			}
 		} else {
-			fLog.debug("Cache " + getBaseLocation() + " is invalid -- 0 entries");
+			if (fDebugEn) {
+				fLog.debug("Cache " + getBaseLocation() + " is invalid -- 0 entries");
+			}
 			SVDBIndexFactoryUtils.setBaseProperties(fConfig, this);
 			valid = false;
 		}
 		
 		if (getCacheData().getMissingIncludeFiles().size() > 0 && valid) {
-			fLog.debug("Checking missing-include list added files");
+			if (fDebugEn) {
+				fLog.debug("Checking missing-include list added files");
+			}
 			for (String path : getCacheData().getMissingIncludeFiles()) {
 				SVDBSearchResult<SVDBFile> res = findIncludedFile(path);
 				if (res != null) {
-					fLog.debug("    Found previously-missing include file \"" + path + "\"");
+					if (fDebugEn) {
+						fLog.debug("    Found previously-missing include file \"" + path + "\"");
+					}
 					valid = false;
 					break;
 				}
 			}
 		}
 		
-		fLog.debug("Cache " + getBaseLocation() + " is " + ((valid)?"valid":"invalid"));
+		if (fDebugEn) {
+			fLog.debug("Cache " + getBaseLocation() + " is " + ((valid)?"valid":"invalid"));
+		}
 
 		return valid;
 	}
@@ -232,7 +256,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 
 		if (fCacheDataValid) {
-			fLog.debug("Cache is valid");
+			if (fDebugEn) {
+				fLog.debug("Cache is valid");
+			}
 //			fIndexState = IndexState_AllFilesParsed;
 			fIndexState = IndexState_FileTreeValid;
 			
@@ -246,7 +272,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 			}
 		} else {
-			fLog.debug("Cache " + getBaseLocation() + " is invalid");
+			if (fDebugEn) {
+				fLog.debug("Cache " + getBaseLocation() + " is invalid");
+			}
 			invalidateIndex();
 		}
 		// set the version to check later
@@ -279,8 +307,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 		if (fIndexState < IndexState_RootFilesDiscovered
 				&& state >= IndexState_RootFilesDiscovered) {
-			fLog.debug("Moving index to state RootFilesDiscovered from "
-					+ fIndexState);
+			if (fDebugEn) {
+				fLog.debug("Moving index to state RootFilesDiscovered from "
+						+ fIndexState);
+			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			discoverRootFiles(m);
 			// Flush file-list back to backing store
@@ -289,16 +319,20 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
-			fLog.debug("Moving index to state FilesPreProcessed from "
-					+ fIndexState);
+			if (fDebugEn) {
+				fLog.debug("Moving index to state FilesPreProcessed from "
+						+ fIndexState);
+			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			preProcessFiles(m);
 			fIndexState = IndexState_FilesPreProcessed;
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
-			fLog.debug("Moving index to state FileTreeValid from "
-					+ fIndexState);
+			if (fDebugEn) {
+				fLog.debug("Moving index to state FileTreeValid from "
+						+ fIndexState);
+			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			buildFileTree(m);
 			fIndexState = IndexState_FileTreeValid;
@@ -351,6 +385,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						parseFilesJob(paths, m);
 					}
 				}, "parse_" + getBaseLocation() + "_" + i);
+				threads[i].setPriority(Thread.MAX_PRIORITY);
 				threads[i].start();
 			}
 			
@@ -397,9 +432,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					try {
 						throw new Exception();
 					} catch (Exception e) {
-						fLog.error("File Path \"" + path + "\" not in index", e);
+						fLog.error("File Path \"" + path + "\" not in index " +
+								getBaseLocation(), 
+								e);
 						for (String p : getFileList(new NullProgressMonitor())) {
-							System.out.println("path: " + p);
+							fLog.error("path: " + p);
 						}
 					}
 						
@@ -488,7 +525,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public void fileAdded(String path) {
 		// TODO: Not sure what to do with this one
 		// Just for safety, invalidate the index when files are added
-		fLog.debug("fileAdded: " + path);
+		if (fDebugEn) {
+			fLog.debug("fileAdded: " + path);
+		}
 		invalidateIndex();
 	}
 
@@ -507,24 +546,34 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public String getResolvedBaseLocationDir() {
 		if (fBaseLocationDir == null) {
 			String base_location = getResolvedBaseLocation();
-			fLog.debug("   base_location: " + base_location);
+			if (fDebugEn) {
+				fLog.debug("   base_location: " + base_location);
+			}
 			if (fFileSystemProvider.isDir(base_location)) {
-				fLog.debug("       base_location + " + base_location
-						+ " is_dir");
+				if (fDebugEn) {
+					fLog.debug("       base_location + " + base_location
+							+ " is_dir");
+				}
 				fBaseLocationDir = base_location;
 			} else {
-				fLog.debug("       base_location + " + base_location
-						+ " not_dir");
+				if (fDebugEn) {
+					fLog.debug("       base_location + " + base_location
+							+ " not_dir");
+				}
 				fBaseLocationDir = SVFileUtils.getPathParent(base_location);
-				fLog.debug("   getPathParent " + base_location + ": "
-						+ fBaseLocationDir);
+				if (fDebugEn) {
+					fLog.debug("   getPathParent " + base_location + ": "
+							+ fBaseLocationDir);
+				}
 			}
 		}
 		return fBaseLocationDir;
 	}
 
 	public void setGlobalDefine(String key, String val) {
-		fLog.debug("setGlobalDefine(" + key + ", " + val + ")");
+		if (fDebugEn) {
+			fLog.debug("setGlobalDefine(" + key + ", " + val + ")");
+		}
 		fIndexCacheData.setGlobalDefine(key, val);
 
 		// Rebuild the index when something changes
@@ -558,7 +607,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * getFileList() -- returns a list of files handled by this index The file
 	 * list is valid after: - Root File discovery - Pre-processor parse
 	 */
-	public List<String> getFileList(IProgressMonitor monitor) {
+	public Set<String> getFileList(IProgressMonitor monitor) {
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList();
 	}
@@ -579,7 +628,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void propagateAllMarkers() {
-		List<String> file_list = fCache.getFileList();
+		Set<String> file_list = fCache.getFileList();
 		for (String path : file_list) {
 			propagateMarkers(path);
 		}
@@ -808,36 +857,54 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 			SVDBFile pp_file = fCache.getPreProcFile(
 					new NullProgressMonitor(), path);
+			
+			if (pp_file == null) {
+				System.out.println("Failed to get pp_file \"" + path + "\" from cache");
+			}
 			SVDBFileTree ft_root = new SVDBFileTree(
 					(SVDBFile) pp_file.duplicate());
 			Set<String> included_files = new HashSet<String>();
-			buildPreProcFileMap(null, ft_root, missing_includes, included_files);
+			Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
+			buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
 		}
 	}
 
 	private void buildPreProcFileMap(
-			SVDBFileTree 	parent, 
-			SVDBFileTree 	root,
-			List<String>	missing_includes,
-			Set<String>		included_files) {
+			SVDBFileTree 				parent, 
+			SVDBFileTree 				root,
+			List<String>				missing_includes,
+			Set<String>					included_files,
+			Map<String, SVDBFileTree>	working_set) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 
-		fLog.debug("setFileTree " + root.getFilePath());
+		if (fDebugEn) {
+			fLog.debug("setFileTree " + root.getFilePath());
+		}
+		if (!working_set.containsKey(root.getFilePath())) {
+			working_set.put(root.getFilePath(), root);
+		}
+//		/** TMP
 		synchronized (fCache) {
+			if (!working_set.containsKey(root.getFilePath())) {
+				System.out.println("FileTree " + root.getFilePath() + " not in working set");
+			}
 			fCache.setFileTree(root.getFilePath(), root);
 		}
+//		 */
 
 		if (parent != null) {
 			root.getIncludedByFiles().add(parent.getFilePath());
 		}
 
-		ft_utils.resolveConditionals(root, new SVPreProcDefineProvider(
-				createPreProcMacroProvider(root)));
+		synchronized (root) {
+			ft_utils.resolveConditionals(root, new SVPreProcDefineProvider(
+					createPreProcMacroProvider(root, working_set)));
+		}
 
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		included_files.add(root.getFilePath());
 		addPreProcFileIncludeFiles(root, root.getSVDBFile(), markers, 
-				missing_includes, included_files);
+				missing_includes, included_files, working_set);
 
 		synchronized (fCache) {
 			fCache.setFileTree(root.getFilePath(), root);
@@ -850,36 +917,47 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			ISVDBScopeItem 		scope,
 			List<SVDBMarker>	markers,
 			List<String>		missing_includes,
-			Set<String>			included_files) {
+			Set<String>			included_files,
+			Map<String, SVDBFileTree>	working_set) {
 		for (int i = 0; i < scope.getItems().size(); i++) {
 			ISVDBItemBase it = scope.getItems().get(i);
 
 			if (it.getType() == SVDBItemType.Include) {
-				fLog.debug("Include file: " + ((ISVDBNamedItem) it).getName());
+				if (fDebugEn) {
+					fLog.debug("Include file: " + ((ISVDBNamedItem) it).getName());
+				}
 
 				// Look local first
 				SVDBSearchResult<SVDBFile> f = findIncludedFileGlobal(((ISVDBNamedItem) it)
 						.getName());
 
 				if (f != null) {
-					fLog.debug("Found include file \""
-							+ ((ISVDBNamedItem) it).getName()
-							+ "\" in index \"" + f.getIndex().getBaseLocation()
-							+ "\"");
+					if (fDebugEn) {
+						fLog.debug("Found include file \""
+								+ ((ISVDBNamedItem) it).getName()
+								+ "\" in index \"" + f.getIndex().getBaseLocation()
+								+ "\"");
+					}
 					String file_path = f.getItem().getFilePath();
-					fLog.debug("Adding included file \"" + file_path
-							+ " to FileTree \"" + root.getFilePath() + "\"");
+					if (fDebugEn) {
+						fLog.debug("Adding included file \"" + file_path
+								+ " to FileTree \"" + root.getFilePath() + "\"");
+					}
 					SVDBFileTree ft = new SVDBFileTree((SVDBFile) f.getItem().duplicate());
 					root.addIncludedFile(ft.getFilePath());
-					fLog.debug("    Now has " + ft.getIncludedFiles().size()
-							+ " included files");
+					if (fDebugEn) {
+						fLog.debug("    Now has " + ft.getIncludedFiles().size()
+								+ " included files");
+					}
 					if (!included_files.contains(f.getItem().getFilePath())) {
-						buildPreProcFileMap(root, ft, missing_includes, included_files);
+						buildPreProcFileMap(root, ft, missing_includes, included_files, working_set);
 					}
 				} else {
-					String missing_path = ((ISVDBNamedItem) it).getName(); 
-					fLog.debug("Failed to find include file \""
-							+ missing_path + "\" (from file " + root.getFilePath() + ")");
+					String missing_path = ((ISVDBNamedItem) it).getName();
+					if (fDebugEn) {
+						fLog.debug("Failed to find include file \""
+								+ missing_path + "\" (from file " + root.getFilePath() + ")");
+					}
 					synchronized (missing_includes) {
 						if (!missing_includes.contains(missing_path)) {
 							missing_includes.add(missing_path);
@@ -900,35 +978,46 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 			} else if (it instanceof ISVDBScopeItem) {
 				addPreProcFileIncludeFiles(root, (ISVDBScopeItem) it, 
-						markers, missing_includes, included_files);
+						markers, missing_includes, included_files,
+						working_set);
 			}
 		}
 	}
 
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
-		fLog.debug("findIncludedFile: " + path);
+		if (fDebugEn) {
+			fLog.debug("findIncludedFile: " + path);
+		}
 		for (String inc_dir : fIndexCacheData.getIncludePaths()) {
 			String inc_path = resolvePath(inc_dir + "/" + path);
 			SVDBFile file = null;
 
-			fLog.debug("Include Path: \"" + inc_path + "\"");
+			if (fDebugEn) {
+				fLog.debug("Include Path: \"" + inc_path + "\"");
+			}
 
 			if ((file = fCache.getPreProcFile(new NullProgressMonitor(),
 					inc_path)) != null) {
-				fLog.debug("findIncludedFile: \"" + inc_path
-						+ "\" already in map");
+				if (fDebugEn) {
+					fLog.debug("findIncludedFile: \"" + inc_path
+							+ "\" already in map");
+				}
 			} else {
 				if (fFileSystemProvider.fileExists(inc_path)) {
-					fLog.debug("findIncludedFile: building entry for \""
-							+ inc_path + "\"");
+					if (fDebugEn) {
+						fLog.debug("findIncludedFile: building entry for \""
+								+ inc_path + "\"");
+					}
 
 					file = processPreProcFile(inc_path);
 					addFile(inc_path);
 					fCache.setPreProcFile(inc_path, file);
 					fCache.setLastModified(inc_path, file.getLastModified());
 				} else {
-					fLog.debug("findIncludedFile: file \"" + inc_path
-							+ "\" does not exist");
+					if (fDebugEn) {
+						fLog.debug("findIncludedFile: file \"" + inc_path
+								+ "\" does not exist");
+					}
 				}
 			}
 
@@ -942,7 +1031,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (fFileSystemProvider.fileExists(res_path)) {
 			SVDBFile pp_file = null;
 			if ((pp_file = processPreProcFile(res_path)) != null) {
-				fLog.debug("findIncludedFile: adding file \"" + path + "\"");
+				if (fDebugEn) {
+					fLog.debug("findIncludedFile: adding file \"" + path + "\"");
+				}
 				addFile(res_path);
 				return new SVDBSearchResult<SVDBFile>(pp_file, this);
 			}
@@ -955,21 +1046,29 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		String path = path_orig;
 		String norm_path = null;
 
-		fLog.debug("resolvePath: " + path_orig);
+		if (fDebugEn) {
+			fLog.debug("resolvePath: " + path_orig);
+		}
 
 		// relative to the base location or one of the include paths
 		if (path.startsWith("..")) {
-			fLog.debug("    path starts with ..");
+			if (fDebugEn) {
+				fLog.debug("    path starts with ..");
+			}
 			if ((norm_path = resolveRelativePath(getResolvedBaseLocationDir(),
 					path)) == null) {
 				for (String inc_path : fIndexCacheData.getIncludePaths()) {
-					fLog.debug("    Check: " + inc_path + " ; " + path);
+					if (fDebugEn) {
+						fLog.debug("    Check: " + inc_path + " ; " + path);
+					}
 					if ((norm_path = resolveRelativePath(inc_path, path)) != null) {
 						break;
 					}
 				}
 			} else {
-				fLog.debug("norm_path=" + norm_path);
+				if (fDebugEn) {
+					fLog.debug("norm_path=" + norm_path);
+				}
 			}
 		} else {
 			if (path.equals(".")) {
@@ -997,8 +1096,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		// path = getResolvedBaseLocationDir() + "/" + path;
 		String norm_path = normalizePath(base + "/" + path);
 
-		fLog.debug("    Checking normalizedPath: " + norm_path
-				+ " ; ResolvedBaseLocation: " + getResolvedBaseLocationDir());
+		if (fDebugEn) {
+			fLog.debug("    Checking normalizedPath: " + norm_path
+					+ " ; ResolvedBaseLocation: " + getResolvedBaseLocationDir());
+		}
 
 		if (fFileSystemProvider.fileExists(norm_path)) {
 			return norm_path;
@@ -1007,10 +1108,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			// whether we should reference this as a filesystem path
 			// by computing the absolute path
 			String base_loc = getResolvedBaseLocationDir();
-			fLog.debug("Possible outside-workspace path: " + base_loc);
+			if (fDebugEn) {
+				fLog.debug("Possible outside-workspace path: " + base_loc);
+			}
 			base_loc = base_loc.substring("${workspace_loc}".length());
 
-			fLog.debug("    base_loc: " + base_loc);
+			if (fDebugEn) {
+				fLog.debug("    base_loc: " + base_loc);
+			}
 
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IContainer base_dir = null;
@@ -1025,7 +1130,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 			}
 
-			fLog.debug("base_dir=" + base_dir);
+			if (fDebugEn) {
+				fLog.debug("base_dir=" + base_dir);
+			}
 
 			if (base_dir != null && base_dir.exists()) {
 				IPath base_dir_p = base_dir.getLocation();
@@ -1033,8 +1140,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					File path_f_t = new File(base_dir_p.toFile(), path);
 					try {
 						if (path_f_t.exists()) {
-							fLog.debug("Path does exist outside the project: "
-									+ path_f_t.getCanonicalPath());
+							if (fDebugEn) {
+								fLog.debug("Path does exist outside the project: "
+										+ path_f_t.getCanonicalPath());
+							}
 							norm_path = SVFileUtils.normalize(path_f_t
 									.getCanonicalPath());
 							return norm_path;
@@ -1131,9 +1240,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		return mp;
 	}
 
-	protected IPreProcMacroProvider createPreProcMacroProvider(SVDBFileTree file) {
+	protected IPreProcMacroProvider createPreProcMacroProvider(
+			SVDBFileTree 					file,
+			Map<String, SVDBFileTree>		working_set) {
 		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(
-				fCache);
+				fCache, working_set);
 		mp.setFileContext(file);
 
 		for (Entry<String, String> entry : fIndexCacheData.getGlobalDefines()
@@ -1154,10 +1265,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (ret == null) {
 			if (fIncludeFileProvider != null) {
 				ret = fIncludeFileProvider.findIncludedFile(leaf);
-				fLog.debug("Searching for \"" + leaf + "\" in global (ret="
-						+ ret + ")");
+				if (fDebugEn) {
+					fLog.debug("Searching for \"" + leaf + "\" in global (ret="
+							+ ret + ")");
+				}
 			} else {
-				fLog.debug("IncludeFileProvider not set");
+				if (fDebugEn) {
+					fLog.debug("IncludeFileProvider not set");
+				}
 			}
 		}
 
@@ -1213,7 +1328,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		SVDBFile svdb_pp = ob.getFiles().get(0);
 
-		fLog.debug("Processed pre-proc file");
+		if (fDebugEn) {
+			fLog.debug("Processed pre-proc file");
+		}
 
 //		fFileSystemProvider.clearMarkers(file_tree.getFilePath());
 		file_tree.setSVDBFile(svdb_pp);
@@ -1254,8 +1371,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			synchronized (fCache) {
 				ft_root = fCache.getFileTree(new NullProgressMonitor(), path);
 			}
-			
-			if (ft_root == null) {
+
+			if (ft_root != null) {
+				IPreProcMacroProvider mp = createMacroProvider(ft_root);
+				processFile(ft_root, mp);
+				
+				synchronized (fCache) {
+					ret = fCache.getFile(new NullProgressMonitor(), path);
+				}
+			} else {
 				try {
 					throw new Exception();
 				} catch (Exception e) {
@@ -1264,13 +1388,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						System.out.println("path: " + p);
 					}
 				}
-					
-			}
-			IPreProcMacroProvider mp = createMacroProvider(ft_root);
-			processFile(ft_root, mp);
-			
-			synchronized (fCache) {
-				ret = fCache.getFile(new NullProgressMonitor(), path);
 			}
 			
 			/*

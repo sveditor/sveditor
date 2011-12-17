@@ -122,6 +122,7 @@ public class TestOvmBasics extends TestCase {
 		assertEquals("Check that no errors were found", 0, markers.size());
 		assertNotNull("Check found ovm_sequence", ovm_sequence);
 		assertNotNull("Check found ovm_component", ovm_component);
+		index_mgr.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 	
@@ -172,6 +173,7 @@ public class TestOvmBasics extends TestCase {
 		}
 		assertEquals("No errors", 0, errors.size());
 		
+		index.dispose();
 		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 	}
@@ -221,6 +223,7 @@ public class TestOvmBasics extends TestCase {
 			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 	
@@ -331,6 +334,7 @@ public class TestOvmBasics extends TestCase {
 		assertEquals("No errors", 0, errors.size());
 		
 		assertNotNull(simple_driver);
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 	

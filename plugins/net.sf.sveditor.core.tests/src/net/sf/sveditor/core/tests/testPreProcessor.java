@@ -48,7 +48,7 @@ public class testPreProcessor implements IApplication {
 		
 		// ovm.getFileTree();
 		
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null, null);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
 		// ??

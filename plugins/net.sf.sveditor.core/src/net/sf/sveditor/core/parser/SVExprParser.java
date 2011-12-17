@@ -890,7 +890,7 @@ public class SVExprParser extends SVParserBase {
 				ret = new SVDBNullExpr();
 			} else if (fLexer.isIdentifier() || 
 					SVKeywords.isBuiltInType(fLexer.peek()) ||
-					fLexer.peekKeyword("new","default")) {
+					fLexer.peekKeyword("new","default","local")) {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}

@@ -130,6 +130,7 @@ public class WSArgFileIndexChanges extends TestCase {
 
 		assertNotNull("Expect to find class1", class1_it);
 		assertNotNull("Expect to find class1_2", class1_2_it);
+		index.dispose();
 	}
 
 }

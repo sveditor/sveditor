@@ -16,7 +16,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -124,7 +126,7 @@ public class SVDBProjectManager implements IResourceChangeListener {
 				}
 			}
 			
-			ret = new SVDBProjectData(proj.getName(), f_wrapper, svproject.getFullPath());
+			ret = new SVDBProjectData(proj, f_wrapper, svproject.getFullPath());
 			
 			fProjectMap.put(proj.getFullPath(), ret);
 		}
@@ -149,7 +151,7 @@ public class SVDBProjectManager implements IResourceChangeListener {
 	}
 	
 	public void resourceChanged(IResourceChangeEvent event) {
-		final List<IProject> changed_projects = new ArrayList<IProject>();
+		final Set<IProject> changed_project = new HashSet<IProject>();
 		
 		if (event.getDelta() != null) {
 			try {
@@ -158,10 +160,12 @@ public class SVDBProjectManager implements IResourceChangeListener {
 					public boolean visit(IResourceDelta delta)
 							throws CoreException {
 						IProject p = delta.getResource().getProject();
-						if (p != null && 
-								fProjectMap.containsKey(p.getFullPath()) &&
-								!changed_projects.contains(p)) {
-							changed_projects.add(p);
+						if (p != null && fProjectMap.containsKey(p.getFullPath())) {
+							if (delta.getResource().equals(".project") && delta.getKind() == IResourceDelta.CHANGED) {
+								if (!changed_project.contains(p)) {
+									changed_project.add(p);
+								}
+							}
 						}
 						return true;
 					}
@@ -170,16 +174,15 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			}
 		}
 		
-		/*
-		for (IProject p : changed_projects) {
+		for (IProject p : changed_project) {
 			SVDBProjectData pd = fProjectMap.get(p.getFullPath());
 			
+			// Only refresh if the project-file wrapper detects
+			// that something has changed
+			pd.setProjectFileWrapper(pd.getProjectFileWrapper(), false);
 			// re-scan project data file
-			pd.refreshProjectFile();
+//			pd.refreshProjectFile();
 		}
-		 */
-		
-		// TODO: Now, iterate through the projects and re-scan the files
 	}
 	
 	public void dispose() {

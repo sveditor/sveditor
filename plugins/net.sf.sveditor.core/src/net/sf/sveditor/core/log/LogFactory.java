@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.log;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +25,12 @@ public class LogFactory implements ILogListener {
 	private Map<String, LogHandle>				fLogHandleMap;
 	private int									fLogLevel = 0;
 	private Map<String, LogCategory>			fLogHandleCategoryMap;
-	private List<ILogListener> 					fLogListeners;
+	private List<WeakReference<ILogListener>>	fLogListeners;
 	
 	public LogFactory() {
 		fLogHandleMap = new HashMap<String, LogHandle>();
 		fLogHandleCategoryMap = new HashMap<String, LogCategory>();
-		fLogListeners = new ArrayList<ILogListener>();
+		fLogListeners = new ArrayList<WeakReference<ILogListener>>();
 	}
 	
 	public synchronized static LogFactory getDefault() {
@@ -106,20 +107,31 @@ public class LogFactory implements ILogListener {
 
 	public void addLogListener(ILogListener l) {
 		synchronized (fLogListeners) {
-			fLogListeners.add(l);
+			fLogListeners.add(new WeakReference<ILogListener>(l));
 		}
 	}
 	
 	public void removeLogListener(ILogListener l) {
 		synchronized (fLogListeners) {
-			fLogListeners.remove(l);
+			for (int i=0; i<fLogListeners.size(); i++) {
+				if (fLogListeners.get(i).get() == l) {
+					fLogListeners.remove(i);
+				}
+			}
 		}
 	}
 
 
 	public void message(ILogHandle handle, int type, int level, String message) {
-		for (ILogListener l : fLogListeners) {
-			l.message(handle, type, level, message);
+		for (int i=0; i<fLogListeners.size(); i++) {
+			WeakReference<ILogListener> lr = fLogListeners.get(i);
+			
+			if (lr.get() == null) {
+				fLogListeners.remove(i);
+				i--;
+			} else {
+				lr.get().message(handle, type, level, message);
+			}
 		}
 	}
 	

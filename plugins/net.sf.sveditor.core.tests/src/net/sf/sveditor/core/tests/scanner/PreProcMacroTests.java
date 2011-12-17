@@ -88,7 +88,7 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null, null);
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		mp.setFileContext(ft_root);
 		
@@ -124,7 +124,7 @@ public class PreProcMacroTests extends TestCase {
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
 
 		SVDBFileTreeUtils	ft_utils = new SVDBFileTreeUtils();
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null, null);
 		SVPreProcDefineProvider		dp = new SVPreProcDefineProvider(mp);
 		mp.setFileContext(ft_root);
 		
@@ -164,7 +164,7 @@ public class PreProcMacroTests extends TestCase {
 		pp_scanner.scan();
 		
 		SVDBFileTree ft = new SVDBFileTree(observer.getFiles().get(0));
-		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null);
+		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null, null);
 		mp.setFileContext(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		

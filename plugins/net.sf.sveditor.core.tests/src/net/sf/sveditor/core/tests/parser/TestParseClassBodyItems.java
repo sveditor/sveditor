@@ -595,6 +595,36 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(testname, content, new String[] {"my_class"});
 	}
+	
+	public void testRandomizeLocalVarRef() {
+		String testname = "testRandomizeLocalVarRef";
+		String content =
+			"class myclass;\n" +
+			"	typedef enum bit {\n" +
+			"		ON,\n" +
+			"		OFF\n" +
+			"	}  on_off_e;\n" +
+			"\n" +
+			"	rand bit is_on_off_local;\n" +
+			"	rand on_off_e is_on_off_enum;\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"module mymodule;\n" +
+			"	logic a;\n" +
+			"\n" +
+			"	task sometask(input bit on);\n" +
+			"		myclass mc;\n" +
+			"			mc = new();\n" +
+			"			void'(mc.randomize () with {\n" +
+			"				is_on_off_local == local::on;\n" + // 19
+			"				is_on_off_enum  == myclass::ON;\n" +
+      		"			});\n" +
+       		"	endtask\n" +
+       		"endmodule\n"
+       		;
+		runTest(testname, content, new String[] {"myclass","mymodule"});
+	}
 
 	private void runTest(
 			String			testname,

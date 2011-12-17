@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -34,7 +35,7 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBIndexSearcher {
-	private Map<ISVDBIndex, List<String>>	fIndexMap;
+	private Map<ISVDBIndex, Set<String>>	fIndexMap;
 
 	public SVDBIndexSearcher() {
 	}
@@ -62,7 +63,7 @@ public class SVDBIndexSearcher {
 	public SVDBClassDecl findNamedClass(String name) {
 		SVDBClassDecl c;
 		
-		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+		for (Entry<ISVDBIndex, Set<String>> e : fIndexMap.entrySet()) {
 			for (String fname : e.getValue()) {
 				SVDBFile f = e.getKey().findFile(fname);
 				if ((c= findNamedClass(name, f)) != null) {
@@ -238,7 +239,7 @@ public class SVDBIndexSearcher {
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
-		for (Entry<ISVDBIndex, List<String>> e : fIndexMap.entrySet()) {
+		for (Entry<ISVDBIndex, Set<String>> e : fIndexMap.entrySet()) {
 			for (String fname : e.getValue()) {
 				SVDBFile f = e.getKey().findFile(fname);
 				List<ISVDBItemBase> r = SVDBSearchUtils.findItemsByName(f, name, types);

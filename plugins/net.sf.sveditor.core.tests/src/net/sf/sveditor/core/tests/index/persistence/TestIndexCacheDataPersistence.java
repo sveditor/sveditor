@@ -25,8 +25,9 @@ import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 
 public class TestIndexCacheDataPersistence extends TestCase {
 	
@@ -36,8 +37,8 @@ public class TestIndexCacheDataPersistence extends TestCase {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(bos);
 
-		SVDBPersistenceWriter writer = new SVDBPersistenceWriter();
-		SVDBPersistenceReader reader = new SVDBPersistenceReader();
+		IDBWriter writer = new SVDBPersistenceRW();
+		IDBReader reader = new SVDBPersistenceRW();
 
 		writer.init(dos);
 		writer.writeObject(data.getClass(), data);

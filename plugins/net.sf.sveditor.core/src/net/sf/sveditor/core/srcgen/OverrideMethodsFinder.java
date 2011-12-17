@@ -103,7 +103,7 @@ public class OverrideMethodsFinder {
 	private boolean existsInClass(ISVDBItemBase it, SVDBClassDecl cls) {
 		
 		for (ISVDBItemBase it_t : cls.getChildren()) {
-			if (it instanceof ISVDBNamedItem &&
+			if (it instanceof ISVDBNamedItem && it_t instanceof ISVDBNamedItem && 
 					((ISVDBNamedItem)it_t).getName().equals(
 							((ISVDBNamedItem)it).getName())) {
 				return true;

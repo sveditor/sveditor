@@ -26,6 +26,7 @@ import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
+import net.sf.sveditor.core.tests.index.cache.IndexCacheTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
@@ -61,6 +62,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(ContentAssistTests.suite());
 		addTest(PersistenceTests.suite());
 		addTest(IndexTests.suite());
+		addTest(IndexCacheTests.suite());
 		addTest(SrcGenTests.suite());
 		addTest(OpenDeclTests.suite());
 		addTest(new TestSuite(FileSetTests.class));

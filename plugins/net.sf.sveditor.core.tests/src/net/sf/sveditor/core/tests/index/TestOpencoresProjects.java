@@ -148,6 +148,7 @@ public class TestOpencoresProjects extends TestCase {
 		IndexTestUtils.assertNoErrWarn(log, project_index);
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		project_index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 

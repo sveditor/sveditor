@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -61,7 +62,7 @@ public interface ISVDBIndex extends
 	 */
 	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
-	List<String> getFileList(IProgressMonitor monitor);
+	Set<String> getFileList(IProgressMonitor monitor);
 	
 	List<SVDBMarker> getMarkers(String path);
 

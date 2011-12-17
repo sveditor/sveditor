@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataOutput;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,9 +21,17 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface IDBWriter {
 	
+	void init(DataOutput out);
+	
+	void setDebugEn(boolean en);
+
+	void close();
+	
 	void writeInt(int val) throws DBWriteException;
 	
 	void writeLong(long val) throws DBWriteException;
+	
+	void writeObject(Class cls, Object obj) throws DBWriteException;
 	
 	void writeByteArray(byte data[]) throws DBWriteException;
 	
@@ -38,8 +47,10 @@ public interface IDBWriter {
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 	
-	void writeStringList(List<String> items) throws DBWriteException;
+	void writeStringList(Collection<String> items) throws DBWriteException;
 	
 	void writeIntList(List<Integer> items) throws DBWriteException;
-	
+
+	void writeLongList(List<Long> items) throws DBWriteException;
+
 }

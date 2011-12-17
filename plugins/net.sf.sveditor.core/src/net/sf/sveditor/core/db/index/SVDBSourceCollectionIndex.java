@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -45,8 +46,6 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 			Map<String, Object>		config) {
 		super(project, root, fs_provider, cache, config);
 		
-		fLog = LogFactory.getLogHandle("Index.SourceCollectionIndex");
-		
 		fFileMatcher = matcher;
 		/*
 		fModIfcClsFiles = new HashSet<SVDBFile>();
@@ -55,12 +54,19 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	}
 	
 	@Override
+	protected String getLogName() {
+		return "SourceCollectionIndex";
+	}
+
+
+
+	@Override
 	protected boolean checkCacheValid() {
 		boolean valid = super.checkCacheValid();
 		
 		if (valid) {
 			List<String> file_paths = fFileMatcher.findIncludedPaths();
-			List<String> cache_files = getCache().getFileList();
+			Set<String> cache_files = getCache().getFileList();
 			List<String> tmp_cache_files = new ArrayList<String>();
 			
 			tmp_cache_files.addAll(cache_files);

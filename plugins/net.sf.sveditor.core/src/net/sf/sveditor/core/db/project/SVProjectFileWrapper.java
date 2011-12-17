@@ -44,6 +44,7 @@ public class SVProjectFileWrapper {
 	private List<SVDBPath>				fPluginPaths;
 	private List<SVDBPath>				fArgFilePaths;
 	private List<SVDBSourceCollection>	fSourceCollections;
+	private List<SVDBPath>				fProjectReferences;
 	
 	public SVProjectFileWrapper() {
 		
@@ -54,6 +55,7 @@ public class SVProjectFileWrapper {
 		fPluginPaths 		= new ArrayList<SVDBPath>();
 		fArgFilePaths		= new ArrayList<SVDBPath>();
 		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
+		fProjectReferences	= new ArrayList<SVDBPath>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 		DocumentBuilder b = null;
@@ -76,6 +78,7 @@ public class SVProjectFileWrapper {
 		fPluginPaths 		= new ArrayList<SVDBPath>();
 		fArgFilePaths		= new ArrayList<SVDBPath>();
 		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
+		fProjectReferences	= new ArrayList<SVDBPath>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 		DocumentBuilder b = f.newDocumentBuilder();
@@ -107,6 +110,7 @@ public class SVProjectFileWrapper {
 		change |= init_paths(svproject, "argFilePaths", "argFilePath", fArgFilePaths);
 		change |= init_source_collections(svproject, "sourceCollections", 
 				"sourceCollection", fSourceCollections);
+		change |= init_paths(svproject, "projectRefs", "projectRef", fProjectReferences);
 		
 		return change;
 	}
@@ -288,6 +292,7 @@ public class SVProjectFileWrapper {
 		marshall_paths(svproject, "pluginPaths", "pluginPath", fPluginPaths);
 		marshall_paths(svproject, "argFilePaths", "argFilePath", fArgFilePaths);
 		marshall_source_collections(svproject, fSourceCollections);
+		marshall_paths(svproject, "projectRefs", "projectRef", fProjectReferences);
 	}
 	
 	private void marshall_paths(
@@ -425,6 +430,15 @@ public class SVProjectFileWrapper {
 		return fSourceCollections;
 	}
 	
+	public List<SVDBPath> getProjectRefs() {
+		return fProjectReferences;
+	}
+	
+	public void addProjectRef(String ref) {
+		SVDBPath p = new SVDBPath(ref);
+		fProjectReferences.add(p);
+	}
+	
 	public void toStream(OutputStream out) {
 		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
 		// Transformer t = null;
@@ -472,6 +486,7 @@ public class SVProjectFileWrapper {
 		fPluginPaths.clear();
 		fLibraryPaths.clear();
 		fArgFilePaths.clear();
+		fProjectReferences.clear();
 		fSourceCollections.clear();
 		fBuildPaths.clear();
 		fGlobalDefines.clear();
@@ -494,6 +509,10 @@ public class SVProjectFileWrapper {
 		
 		for (SVDBPath p : fw.getArgFilePaths()) {
 			fArgFilePaths.add(p.duplicate());
+		}
+		
+		for (SVDBPath p : fw.getProjectRefs()) {
+			fProjectReferences.add(p.duplicate());
 		}
 		
 		for (SVDBPath p : fw.fBuildPaths) {
@@ -536,6 +555,15 @@ public class SVProjectFileWrapper {
 			
 			for (int i=0; i<fArgFilePaths.size(); i++) {
 				if (!p.fArgFilePaths.get(i).equals(fArgFilePaths.get(i))) {
+					return false;
+				}
+			}
+
+			if (p.fProjectReferences.size() != fProjectReferences.size()) {
+				return false;
+			}
+			for (int i=0; i<fProjectReferences.size(); i++) {
+				if (!p.fProjectReferences.get(i).equals(fProjectReferences.get(i))) {
 					return false;
 				}
 			}

@@ -27,8 +27,9 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceReader;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceWriter;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -38,8 +39,8 @@ import org.osgi.framework.Bundle;
 public class TestPersistencePerformance extends TestCase {
 	
 	public void testInMemPersistence() throws IOException, CoreException, DBFormatException, DBWriteException {
-		SVDBPersistenceWriter writer = new SVDBPersistenceWriter();
-		SVDBPersistenceReader reader = new SVDBPersistenceReader();
+		IDBWriter writer = new SVDBPersistenceRW();
+		IDBReader reader = new SVDBPersistenceRW();
 		
 		ByteArrayOutputStream bos = null;
 		Bundle bundle = SVCorePlugin.getDefault().getBundle(); 

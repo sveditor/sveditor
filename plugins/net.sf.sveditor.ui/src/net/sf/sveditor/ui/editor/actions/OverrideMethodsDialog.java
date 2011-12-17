@@ -16,6 +16,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -118,7 +119,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 					if (parentElement == fLeafClass) {
 						return fMethodsFinder.getClassSet().toArray();
 					}
-					System.out.println("Class \"" + ((SVDBModIfcDecl)parentElement).getName() + "\" not in MethodsFinder");
+					System.out.println("Class \"" + SVDBItem.getName((SVDBItemBase)parentElement) + "\" not in MethodsFinder");
 					return fEmptyList;
 				} else {
 					return methods.toArray();

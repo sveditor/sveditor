@@ -489,6 +489,8 @@ public class TestPreProc extends TestCase {
 		
 		assertEquals("Errors", 0, markers.size());
 		
+		index.dispose();
+		
 //		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);
 	}

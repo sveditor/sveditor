@@ -15,8 +15,10 @@ package net.sf.sveditor.core.db.index;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -41,6 +43,8 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	private List<ISVDBIndex>				fPluginLibraryList;
 	private List<ISVDBIndex>				fShadowIndexList;
 	private List<List<ISVDBIndex>>			fFileSearchOrder;
+	private Set<String>						fProjectRefs;
+	private ISVDBProjectRefProvider			fProjectRefProvider;
 	private Map<String, ISVDBIndex>			fShadowIndexMap;
 	private LogHandle						fLog;
 	
@@ -51,6 +55,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fLibraryPathList 		= new ArrayList<ISVDBIndex>();
 		fPluginLibraryList 		= new ArrayList<ISVDBIndex>();
 		fShadowIndexList		= new ArrayList<ISVDBIndex>();
+		fProjectRefs			= new HashSet<String>();
 
 		fShadowIndexMap			= new HashMap<String, ISVDBIndex>();
 		
@@ -61,6 +66,12 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		fFileSearchOrder.add(fPluginLibraryList);
 		
 		fLog = LogFactory.getLogHandle("IndexCollectionMgr");
+	}
+	
+	public void dispose() {
+		for (ISVDBIndex i : getIndexList()) {
+			i.dispose();
+		}
 	}
 	
 	public String getProject() {
@@ -97,6 +108,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			index.setIncludeFileProvider(null);
 		}
 		fPluginLibraryList.clear();
+		fProjectRefs.clear();
 	}
 	
 	public List<ISVDBIndex> getIndexList() {
@@ -125,7 +137,25 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		
 		return ret;
 	}
+	
+	public void addProjectRef(String ref) {
+		if (!fProjectRefs.contains(ref)) {
+			fProjectRefs.add(ref);
+		}
+	}
+	
+	public Set<String> getProjectRefs() {
+		return fProjectRefs;
+	}
+	
+	public void setProjectRefProvider(ISVDBProjectRefProvider p) {
+		fProjectRefProvider = p;
+	}
 
+	public ISVDBProjectRefProvider getProjectRefProvider() {
+		return fProjectRefProvider;
+	}
+	
 	public void addSourceCollection(ISVDBIndex index) {
 		fLog.debug("addSourceCollection: " + index.getBaseLocation());
 		
@@ -317,11 +347,45 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 				ret.addAll(tmp);
 			}
 		}
+		Set<SVDBIndexCollectionMgr>	already_searched = new HashSet<SVDBIndexCollectionMgr>();
+		findGlobalScopeDeclProjRef(ret, name, matcher, already_searched, false);
+		
 		for (ISVDBIndex index : fShadowIndexList) {
 			List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(monitor, name, matcher);
 			ret.addAll(tmp);
 		}
 		return ret;
+	}
+	
+	private void findGlobalScopeDeclProjRef(
+			List<SVDBDeclCacheItem>			ret,
+			String							name,
+			ISVDBFindNameMatcher			matcher,
+			Set<SVDBIndexCollectionMgr>		already_searched,
+			boolean							search_local) {
+		if (!already_searched.contains(this)) {
+			already_searched.add(this);
+		}
+		
+		if (search_local) {
+			// Search for matches in the local indexes
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					List<SVDBDeclCacheItem> tmp = index.findGlobalScopeDecl(
+							new NullProgressMonitor(), name, matcher);
+					ret.addAll(tmp);
+				}
+			}
+		}
+		
+		if (fProjectRefProvider != null) {
+			for (String ref : fProjectRefs) {
+				SVDBIndexCollectionMgr mgr_t = fProjectRefProvider.resolveProjectRef(ref);
+				if (mgr_t != null && !already_searched.contains(mgr_t)) {
+					mgr_t.findGlobalScopeDeclProjRef(ret, name, matcher, already_searched, true);
+				}
+			}
+		}
 	}
 
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
@@ -352,8 +416,6 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		return null;
 	}
 
-
-
 	private class IncludeProvider implements ISVDBIncludeFileProvider {
 		ISVDBIndex					fIndex;
 		List<List<ISVDBIndex>>		fSearchPath;
@@ -378,7 +440,53 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 						fLog.debug("Search index \"" + index.getBaseLocation() + "\" for \"" + leaf + "\" (" + ret + ")");
 						
 						if (ret != null) {
-							return ret;
+							break;
+						}
+					}
+				}
+				if (ret != null) {
+					break;
+				}
+			}
+			
+			if (ret == null) {
+				Set<SVDBIndexCollectionMgr> searched_projects = new HashSet<SVDBIndexCollectionMgr>();
+				ret = findIncludedFileProjRefs(SVDBIndexCollectionMgr.this, leaf, searched_projects);
+			}
+			
+			return ret;
+		}
+		
+		private SVDBSearchResult<SVDBFile> findIncludedFileProjRefs(
+				SVDBIndexCollectionMgr		mgr,
+				String						leaf,
+				Set<SVDBIndexCollectionMgr>	searched_projects) {
+			ISVDBProjectRefProvider p = mgr.getProjectRefProvider();
+			SVDBSearchResult<SVDBFile> ret = null;
+			
+			searched_projects.add(mgr);
+			
+			if (mgr != SVDBIndexCollectionMgr.this) {
+				// Only re-search if we're looking at another index
+				for (ISVDBIndex index : mgr.getIndexList()) {
+					ret = index.findIncludedFile(leaf);
+					
+					fLog.debug("Search index \"" + index.getBaseLocation() + "\" for \"" + leaf + "\" (" + ret + ")");
+					
+					if (ret != null) {
+						break;
+					}
+				}
+			}
+			
+			if (ret == null && p != null) {
+				for (String ref : mgr.getProjectRefs()) {
+					SVDBIndexCollectionMgr mgr_t = p.resolveProjectRef(ref);
+					if (mgr_t != null && !searched_projects.contains(mgr_t)) {
+						ret = findIncludedFileProjRefs(mgr_t, leaf, searched_projects);
+						
+						if (ret != null) {
+							break;
 						}
 					}
 				}

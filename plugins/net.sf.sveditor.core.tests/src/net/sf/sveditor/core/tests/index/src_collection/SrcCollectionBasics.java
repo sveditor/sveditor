@@ -124,6 +124,7 @@ public class SrcCollectionBasics extends TestCase {
 		
 		// rgy.save_state();
 
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 	
@@ -189,6 +190,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertEquals("class1", SVDBItem.getName(class1));
 		
 		// rgy.save_state();
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -262,6 +264,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located sub", sub);
 		assertNotNull("located def_function", def_function);
 		assertEquals("class1", SVDBItem.getName(class1));
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -400,6 +403,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -456,6 +460,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -512,6 +517,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -595,6 +601,7 @@ public class SrcCollectionBasics extends TestCase {
 		SVDBFile new_class_file = index.parse(new NullProgressMonitor(), in, new_class_path, null);
 		
 		assertNotNull(new_class_file);
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -708,6 +715,7 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located class2", class2);
 		assertNotNull("located class3", class3);
 		assertEquals("class1", SVDBItem.getName(class1));
+		index.dispose();
 	}
 
 }

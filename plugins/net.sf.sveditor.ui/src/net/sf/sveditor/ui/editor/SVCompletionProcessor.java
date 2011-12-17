@@ -65,6 +65,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 
 	private SVEditor 						fEditor;
 	private SVCompletionProposalUtils		fProposalUtils;
+	private static final boolean			fShowModulePorts = false;
 
 	private static final char[] PROPOSAL_ACTIVATION_CHARS = { '.', ':' };
 	private final IContextInformation NO_CONTEXTS[] = new IContextInformation[0];
@@ -352,32 +353,45 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		
 		StringBuilder d = new StringBuilder();		// help text
 		SVDBModIfcDecl tf = (SVDBModIfcDecl)it;
-
-		d.append(SVDBItem.getName(it) + "(");
 		
-		ArrayList<String> all_types = new ArrayList<String> ();
-		ArrayList<String> all_ports = new ArrayList<String> ();
-		for (int i=0; i<tf.getPorts().size(); i++) {
-			SVDBParamPortDecl param = tf.getPorts().get(i);
-			for (ISVDBChildItem c : param.getChildren()) {
-				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
-				all_ports.add(vi.getName());
-				all_types.add(param.getTypeName());
-			}
-		}
+		d.append(SVDBItem.getName(it));
 
-		// Now create the string & port list - note that we are padding to the longest string with spaces
-		for (int i=0; i<all_ports.size(); i++)  {
-			d.append(all_types.get(i) + " " + all_ports.get(i));
-	
-			// Only add ", " on all but the last parameters
-			if (i+1 < all_ports.size())  {
-				d.append(", ");
-			}
-		}
+		if (fShowModulePorts) {
+			d.append("(");
 		
-		// Close the function instantiation
-		d.append(")");
+			ArrayList<String> all_types = new ArrayList<String> ();
+			ArrayList<String> all_ports = new ArrayList<String> ();
+			for (int i=0; i<tf.getPorts().size(); i++) {
+				SVDBParamPortDecl param = tf.getPorts().get(i);
+				for (ISVDBChildItem c : param.getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+					all_ports.add(vi.getName());
+
+					if (param.getTypeInfo() == null) {
+						all_types.add(null);
+					} else {
+						all_types.add(param.getTypeName());
+					}
+				}
+			}
+
+			// Now create the string & port list - note that we are padding to the longest string with spaces
+			for (int i=0; i<all_ports.size(); i++)  {
+				if (all_types.get(i) == null) {
+					d.append(all_ports.get(i));
+				} else {
+					d.append(all_types.get(i) + " " + all_ports.get(i));
+				}
+
+				// Only add ", " on all but the last parameters
+				if (i+1 < all_ports.size())  {
+					d.append(", ");
+				}
+			}
+
+			// Close the function instantiation
+			d.append(")");
+		}
 		
 //		if (it.getType() == SVDBItemType.Function) {
 //			SVDBFunction f = (SVDBFunction)tf;
@@ -414,8 +428,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		String template_str = fProposalUtils.createModuleTemplate(tf, 
 				next_line_indent, first_line_pos, subseq_line_pos);
 
-		Template t = new Template(d.toString(), 
-				"steven was here", "CONTEXT",
+		
+		Template t = new Template(d.toString(), "", "CONTEXT",
 				template_str, (tf.getPorts().size() == 0));
 		
 		return new TemplateProposal(t, ctxt,

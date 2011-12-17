@@ -13,8 +13,8 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
@@ -34,6 +34,11 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 	
 	@Override
+	protected String getLogName() {
+		return "ContentAssistIndex";
+	}
+
+	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) { }
 
 	public void setFile(SVDBFile file) {
@@ -42,8 +47,8 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	}
 	
 	@Override
-	public List<String> getFileList(IProgressMonitor monitor) {
-		List<String> ret = new ArrayList<String>();
+	public Set<String> getFileList(IProgressMonitor monitor) {
+		Set<String> ret = new HashSet<String>();
 		synchronized (fFile) {
 			ret.add(fFile.getFilePath());
 		}

@@ -32,6 +32,12 @@ public class SVDBIdentifierExpr extends SVDBExpr {
 		fId = id;
 	}
 
+	public SVDBIdentifierExpr(SVDBItemType type, String id) {
+		super(type);
+		
+		fId = id;
+	}
+
 	public String getId() {
 		return fId;
 	}

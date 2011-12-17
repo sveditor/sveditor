@@ -146,6 +146,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		assertNotNull("located class1_1", target_it);
 		assertEquals("class1_1", SVDBItem.getName(target_it));
 		
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -154,6 +155,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 	 * and checking whether the changed file list is detected on reload
 	 */
 	public void testFSLibIndexFilelistChangeDetected() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -241,6 +243,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", SVDBItem.getName(target_it));
+		index.dispose();
 	}
 
 	

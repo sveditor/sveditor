@@ -28,9 +28,15 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 			ISVDBIndexCache			cache,
 			Map<String, Object>		config) {
 		super(project, root, fs_provider, cache, config);
-		fLog = LogFactory.getLogHandle("SVDBLibIndex");
 	}
 	
+	@Override
+	protected String getLogName() {
+		return "SVDBLibIndex";
+	}
+
+
+
 	public String getTypeID() {
 		return SVDBLibPathIndexFactory.TYPE;
 	}

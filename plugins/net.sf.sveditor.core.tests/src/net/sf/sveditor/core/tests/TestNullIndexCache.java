@@ -13,10 +13,11 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -27,7 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class TestNullIndexCache implements ISVDBIndexCache {
 	private Object						fData;
-	private List<String>				fFileList;
+	private Set<String>					fFileList;
 	private Map<String, Long>			fLastModifiedMap;
 	private Map<String, SVDBFile>		fPreProcFileMap;
 	private Map<String, SVDBFile>		fFileMap;
@@ -35,7 +36,7 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	
 	public TestNullIndexCache() {
-		fFileList = new ArrayList<String>();
+		fFileList = new HashSet<String>();
 		fLastModifiedMap = new HashMap<String, Long>();
 		fPreProcFileMap = new HashMap<String, SVDBFile>();
 		fFileMap = new HashMap<String, SVDBFile>();
@@ -74,7 +75,7 @@ public class TestNullIndexCache implements ISVDBIndexCache {
 		fMarkerMap.clear();
 	}
 
-	public List<String> getFileList() {
+	public Set<String> getFileList() {
 		return fFileList;
 	}
 	

@@ -15,11 +15,10 @@ package net.sf.sveditor.core.db.index;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
@@ -38,7 +37,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			ISVDBIndexCache				cache,
 			Map<String, Object>			config) {
 		super(project, root, fs_provider, cache, config);
-		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
 	}
 
 	public SVDBArgFileIndex(
@@ -50,7 +48,11 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			Map<String, Object>			config) {
 		super(project, root, fs_provider, cache, config);
 		fArguments = arguments;
-		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
+	}
+	
+	@Override
+	protected String getLogName() {
+		return "SVDBArgFileIndex";
 	}
 
 	public String getTypeID() {

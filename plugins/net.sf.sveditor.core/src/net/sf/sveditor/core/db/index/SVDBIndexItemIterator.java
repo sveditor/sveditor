@@ -12,8 +12,9 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -30,8 +31,9 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 	private SVDBFile						fOverrideFile;
 	private ISVDBItemBase					fCurrent;
 	
-	public SVDBIndexItemIterator(List<String> file_list, ISVDBIndex index) {
-		fFilePathIterator = file_list.iterator();
+	public SVDBIndexItemIterator(Set<String> file_list, ISVDBIndex index) {
+		Set<String> set_t = new HashSet<String>(file_list);
+		fFilePathIterator = set_t.iterator();
 		fScopeStack = new Stack<Iterator<ISVDBChildItem>>();
 		fIndex = index;
 	}
@@ -103,6 +105,10 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 				if (fOverrideFile != null &&
 						file.getFilePath().equals(fOverrideFile.getFilePath())) {
 					file = fOverrideFile;
+				}
+				
+				if (file == null) {
+					continue;
 				}
 				
 				// System.out.println("Switch to next file: " + file.getName());

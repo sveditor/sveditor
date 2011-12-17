@@ -1,4 +1,26 @@
 
+-- 0.7.5 Release --
+
+- #(3452746) Correct parse bug involving randcase. randcase does not 
+  accept a switch expression
+
+- #(nobug) Support local::-qualified variable references in a randomize call
+
+- #(nobug) Add initial support for cross-project references. Any element 
+  referenced by the index setup for a project (include files, declarations)
+  can be made available to the index of another project by referencing the
+  declaring project
+
+- #(nobug) remove portlist from description of Module content assist. 
+  Presenting the portlist in the content assist description seems to clutter up 
+  the description and doesn't seem to add much value
+
+- #(nobug) Correct a bug with content assist across a class extension 
+  hierarchy. Now, content assist properly searches up the class hierarchy
+
+- #(nobug) Correct dump/restore issue involving the UVM library
+
+------------------------------------------------------------------------------
 -- 0.7.4 Release --
 
 - #(3445549) 	Number of paramters for tran and rtran incorrect

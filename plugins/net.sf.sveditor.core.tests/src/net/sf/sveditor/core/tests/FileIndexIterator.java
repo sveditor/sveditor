@@ -15,9 +15,11 @@ package net.sf.sveditor.core.tests;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -46,7 +48,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		List<String> path = new ArrayList<String>();
+		Set<String> path = new HashSet<String>();
 		for (String elem : fFileMap.keySet()) {
 			path.add(elem);
 		}
@@ -67,7 +69,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public String getTypeID() {
 						return null;
 					}
-					public List<String> getFileList(IProgressMonitor monitor) {
+					public Set<String> getFileList(IProgressMonitor monitor) {
 						return null;
 					}
 					public List<SVDBMarker> getMarkers(String path ) {

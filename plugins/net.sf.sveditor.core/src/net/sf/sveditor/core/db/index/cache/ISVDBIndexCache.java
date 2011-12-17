@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index.cache;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -74,7 +75,7 @@ public interface ISVDBIndexCache {
 	 * 
 	 * @return
 	 */
-	List<String> getFileList();
+	Set<String> getFileList();
 	
 	long getLastModified(String path);
 	

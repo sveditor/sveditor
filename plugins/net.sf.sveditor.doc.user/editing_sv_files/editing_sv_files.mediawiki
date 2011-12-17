@@ -62,7 +62,7 @@ Classes that are accessible from the index of the containing project are availab
 
 It is often necessary to implement the constructor of a class, especially if there is a super-class. Leaving 'Implement new()' checked causes the new class to implement the constructor. If a super-class is specified and that class has a constructor, a call to the super-constructor is made. In the case of our new test-case class, the following code is generated.
 
-[[Image:/usr1/fun/sveditor/docs/getting_started_imgs/new_sv_class_code.gif|New SystemVerilog Class generated code]]
+[[Image:imgs/new_sv_class_code.gif|New SystemVerilog Class generated code]]
 
 
 

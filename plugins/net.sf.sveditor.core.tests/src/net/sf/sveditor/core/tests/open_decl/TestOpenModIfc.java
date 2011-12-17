@@ -101,7 +101,7 @@ public class TestOpenModIfc extends TestCase {
 	public void disabled_testOpenModuleDeclwPreComment() {
 		String testname = "testOpenModuleDeclwPreComment";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module a(output o, input i);\n" +		// 1
 			"	assign o = i;\n" +

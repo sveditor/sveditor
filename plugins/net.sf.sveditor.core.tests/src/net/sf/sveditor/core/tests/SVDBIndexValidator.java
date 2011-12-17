@@ -34,7 +34,7 @@ public class SVDBIndexValidator extends TestCase {
 				for (ISVDBChildItem c : v.getChildren()) {
 					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 //					assertNotNull(v.getParent());
-					assertNotNull(vi.getParent());
+					assertNotNull("Parent for variable " + vi.getName() + " is null", vi.getParent());
 					assertNotNull("TypeInfo for variable " + vi.getName() + " is null",
 							v.getTypeInfo());
 				}

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -20,9 +21,15 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public interface IDBReader {
 	
+	void init(DataInput in);
+	
+	void setDebugEn(boolean en);
+	
 	int readInt() throws DBFormatException;
 	
 	long readLong() throws DBFormatException;
+	
+	void readObject(ISVDBChildItem parent, Class cls, Object obj) throws DBFormatException;
 	
 	byte [] readByteArray() throws DBFormatException;
 	
@@ -42,5 +49,7 @@ public interface IDBReader {
 	List<String> readStringList() throws DBFormatException;
 	
 	List<Integer> readIntList() throws DBFormatException;
+
+	List<Long> readLongList() throws DBFormatException;
 
 }

@@ -40,6 +40,7 @@ import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -372,26 +373,37 @@ public abstract class AbstractCompletionProcessor {
 			ISVDBItemBase			leaf_item) {
 		// Determine the type of the leaf item
 		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
+		
 
-		// TODO: search up hierarchy ?
+		// Search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct) {
 			// Look for matching names in the target class
-			ISVDBChildParent si = (ISVDBChildParent)leaf_item;
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator(), matcher);
+			ISVDBChildParent si = (ISVDBChildParent)leaf_item;
 			
-			for (ISVDBChildItem it : si.getChildren()) {
-				if (it.getType() == SVDBItemType.VarDeclStmt) {
-					for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
-						debug("VarDeclItem: " + SVDBItem.getName(it_1));
-						if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-							addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			while (si != null) {
+				for (ISVDBChildItem it : si.getChildren()) {
+					if (it.getType() == SVDBItemType.VarDeclStmt) {
+						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
+							debug("VarDeclItem: " + SVDBItem.getName(it_1));
+							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
+					} else if (it instanceof ISVDBNamedItem) {
+						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
+							addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					}
-				} else if (it instanceof ISVDBNamedItem) {
-					if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
-						addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
-					}
+				}
+				
+				if (si.getType() == SVDBItemType.ClassDecl) {
+					SVDBClassDecl cls_decl = (SVDBClassDecl)si;
+					si = super_finder.find(cls_decl);
+				} else {
+					si = null;
 				}
 			}
 		} else if (leaf_item.getType() == SVDBItemType.VarDeclItem) {

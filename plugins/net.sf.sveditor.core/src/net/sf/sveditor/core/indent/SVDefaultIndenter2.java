@@ -760,7 +760,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_if(false);
 		} else if (tok.isId("fork")) {
 			tok = indent_fork();
-		} else if (tok.isId("case")) {
+		} else if (tok.isId("case") || tok.isId("randcase")) {
 			tok = indent_case();
 		} else if (is_always(tok) || tok.isId("initial") || tok.isId("final")) {
 			enter_scope(tok);
@@ -941,13 +941,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken indent_case() {
 		SVIndentToken tok = current();
+		String type = tok.getImage();
 		// Synchronize the indent on 'case'
 		enter_scope(tok);
 
 		// Push a new scope for the body of the case
 		start_of_scope(tok);
 
-		tok = next_s(); // should be expression
+		// randcase does not have an expression
+		if (type.equals("case")) {
+			tok = next_s(); // should be expression
+		}
 
 		tok = next_s();
 		

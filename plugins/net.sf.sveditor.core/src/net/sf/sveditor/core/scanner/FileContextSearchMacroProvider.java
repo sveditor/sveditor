@@ -32,14 +32,18 @@ import net.sf.sveditor.core.log.LogHandle;
 public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	private Map<String, SVDBMacroDef>	fMacroCache;
 	private ISVDBIndexCache				fIndexCache;
+	private Map<String, SVDBFileTree>	fWorkingSet;
 	private SVDBFileTree				fContext;
 	private boolean						fDebugEnS = false;
 	private int							fIndent = 0;
 	private LogHandle					fLog;
 	
 	
-	public FileContextSearchMacroProvider(ISVDBIndexCache cache) {
+	public FileContextSearchMacroProvider(
+			ISVDBIndexCache 				cache,
+			Map<String, SVDBFileTree>		working_set) {
 		fIndexCache = cache;
+		fWorkingSet = working_set;
 		fMacroCache = new HashMap<String, SVDBMacroDef>();
 		fLog = LogFactory.getLogHandle("FileContextSearchMacroProvider");
 	}
@@ -92,9 +96,15 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		if ((ret = fMacroCache.get(key)) == null) {
 			if ((ret = searchDown(context, context, key)) == null) {
 				for (String ib_s : context.getIncludedByFiles()) {
-					SVDBFileTree ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+					SVDBFileTree ib; 
+					if (fWorkingSet.containsKey(ib_s)) {
+						ib = fWorkingSet.get(ib_s);
+					} else {
+						ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+					}
 					if (ib == null) {
 						fLog.error("Failed to obtain path \"" + ib_s + "\" from the FileTree Cache");
+						fLog.error("    File context is: " + fContext.getFilePath());
 						continue;
 					}
 					ret = searchUp(context, ib, context, key);
@@ -151,7 +161,13 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		if (context.getSVDBFile() != null) {
 			if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
 				for (String inc_s : context.getIncludedFiles()) {
-					SVDBFileTree inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s); 
+					SVDBFileTree inc;
+					if (fWorkingSet.containsKey(inc_s)) {
+						inc = fWorkingSet.get(inc_s);
+					} else {
+						inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
+					}
+					 
 					debug_s(indent(fIndent) + "    searching included file \"" + ((inc !=null)?inc.getFilePath():"NULL") + "\"");
 					if (inc != null && inc.getSVDBFile() != null) {
 						if ((m = searchDown(boundary, inc, key)) != null) {
@@ -187,7 +203,12 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			List<String> inc_files = context.getIncludedFiles();
 			synchronized (inc_files) {
 			for (String is_s : inc_files) {
-				SVDBFileTree is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s);
+				SVDBFileTree is;
+				if (fWorkingSet.containsKey(is_s)) {
+					is = fWorkingSet.get(is_s);
+				} else {
+					is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s);
+				}
 				
 				if (is == null) {
 					// File doesn't exist
@@ -199,7 +220,12 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 				
 					if ((m = searchDown(boundary, is, key)) == null) {
 						for (String ib_s : context.getIncludedByFiles()) {
-							SVDBFileTree ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+							SVDBFileTree ib;
+							if (fWorkingSet.containsKey(ib_s)) {
+								ib = fWorkingSet.get(ib_s);
+							} else {
+								ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+							}
 							if ((m = searchUp(boundary, ib, context, key)) != null) {
 								break;
 							}

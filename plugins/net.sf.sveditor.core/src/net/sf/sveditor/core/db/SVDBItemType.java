@@ -146,6 +146,7 @@ public enum SVDBItemType {
 	FieldAccessExpr,
 	FirstMatchExpr,
 	IdentifierExpr,
+	ParamIdExpr,	
 	IncDecExpr,
 	InsideExpr,
 	LiteralExpr,

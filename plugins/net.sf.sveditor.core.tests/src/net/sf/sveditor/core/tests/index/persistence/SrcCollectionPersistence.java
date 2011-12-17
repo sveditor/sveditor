@@ -321,7 +321,8 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		assertEquals("index not rebuilt (target_it=" + target_it + ")", 1, fIndexRebuildCnt);
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", SVDBItem.getName(target_it));
-		
+
+		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 

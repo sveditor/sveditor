@@ -15,16 +15,17 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBItemType;
+
 public class SVDBParamIdExpr extends SVDBIdentifierExpr {
 	private List<SVDBExpr>				fParamExpr;
 	
 	public SVDBParamIdExpr() {
-		super();
-		fParamExpr = new ArrayList<SVDBExpr>();
+		this(null);
 	}
 
 	public SVDBParamIdExpr(String id) {
-		super(id);
+		super(SVDBItemType.ParamIdExpr, id);
 		fParamExpr = new ArrayList<SVDBExpr>();
 	}
 
