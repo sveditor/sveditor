@@ -204,7 +204,6 @@ public class SVDBPersistenceRW implements IDBReader, IDBWriter,
 									if (target instanceof ISVDBChildItem) {
 										f.set(target, readItemList((ISVDBChildItem)target));
 									} else {
-										System.out.println("target not childItem: " + target.getClass());
 										f.set(target, readItemList(null));
 									}
 								}

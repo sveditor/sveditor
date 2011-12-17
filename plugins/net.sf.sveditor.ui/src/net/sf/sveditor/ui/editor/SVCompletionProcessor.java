@@ -81,13 +81,23 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	
 	public ICompletionProposal[] computeCompletionProposals(
 			ITextViewer viewer, int offset) {
-		fProposalUtils.setMaxCharsPerLine(SVUiPlugin.getDefault().getIntegerPref(
-				SVEditorPrefsConstants.P_CONTENT_ASSIST_LINE_WRAP_LIMIT));
-		fProposalUtils.setNamedPorts(SVUiPlugin.getDefault().getBooleanPref(
-				SVEditorPrefsConstants.P_CONTENT_ASSIST_NAMED_PORTS_EN));
-		fProposalUtils.setPortsPerLine(SVUiPlugin.getDefault().getIntegerPref(
+		fProposalUtils.setTFMaxCharsPerLine(SVUiPlugin.getDefault().getIntegerPref(
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT));
+		fProposalUtils.setTFNamedPorts(SVUiPlugin.getDefault().getBooleanPref(
+				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN));
+		fProposalUtils.setTFPortsPerLine(SVUiPlugin.getDefault().getIntegerPref(
 				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE));
-		
+
+		fProposalUtils.setModIfcInstMaxCharsPerLine(
+				SVUiPlugin.getDefault().getIntegerPref(
+						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT));
+		fProposalUtils.setModIfcInstNamedPorts(
+				SVUiPlugin.getDefault().getBooleanPref(
+						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN));
+		fProposalUtils.setModIfcInstPortsPerLine(
+				SVUiPlugin.getDefault().getIntegerPref(
+						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE));
+
 		fProposals.clear();
 		SVDocumentTextScanner scanner = new SVDocumentTextScanner(
 				viewer.getDocument(), offset);
@@ -392,37 +402,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			// Close the function instantiation
 			d.append(")");
 		}
-		
-//		if (it.getType() == SVDBItemType.Function) {
-//			SVDBFunction f = (SVDBFunction)tf;
-//			if (f.getReturnType() != null &&
-//				!f.getReturnType().equals("void") &&
-//				!SVDBItem.getName(it).equals("new")) {
-//				d.append(" : ");
-//				d.append(f.getReturnType());
-//			}
-//		}
-		
-//		// Find the class that this function belongs to (if any)
-//		ISVDBChildItem class_it = (ISVDBChildItem)it;
-//		
-//		while (class_it != null && class_it.getType() != SVDBItemType.ClassDecl) {
-//			class_it = class_it.getParent();
-//		}
-//		
-//		String cls_name = null;
-//		if (class_it != null && class_it instanceof ISVDBNamedItem) {
-//			cls_name = ((ISVDBNamedItem)class_it).getName();
-//			if (cls_name.equals("__sv_builtin_queue")) {
-//				cls_name = "[$]";
-//			} else if (cls_name.equals("__sv_builtin_array")) {
-//				cls_name = "[]";
-//			} else if (cls_name.equals("__sv_builtin_assoc_array")) {
-//				cls_name = "[*]";
-//			} else if (cls_name.startsWith("__sv_builtin")) {
-//				cls_name = cls_name.substring("__sv_builtin".length());
-//			}
-//		}
 		
 		// TODO:
 		String template_str = fProposalUtils.createModuleTemplate(tf, 

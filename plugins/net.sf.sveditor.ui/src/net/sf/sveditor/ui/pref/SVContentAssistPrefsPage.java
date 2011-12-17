@@ -17,6 +17,10 @@ import net.sf.sveditor.ui.SVUiPlugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -35,12 +39,33 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 
 	@Override
 	protected void createFieldEditors() {
-		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_NAMED_PORTS_EN, 
-				"Enable Named Task/Function Parameters:", getFieldEditorParent()));
-		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_LINE_WRAP_LIMIT, 
-				"Content Assist Line-Wrap Limit: ", getFieldEditorParent()));
+		GridData gd;
+		
+		Group tf_group = new Group(getFieldEditorParent(), SWT.NONE);
+		gd = new GridData(GridData.FILL, GridData.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		tf_group.setLayout(new GridLayout(2, false));
+		tf_group.setText("Task/Function Settings");
+		tf_group.setLayoutData(gd);
+		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN, 
+				"Enable Named Parameters:", tf_group));
+		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT, 
+				"Line-Wrap Limit: ", tf_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE, 
-				"Max Task/Function Parameters Per Line:", getFieldEditorParent()));
+				"Max Parameters Per Line:", tf_group));
+		
+		Group mod_ifc_group = new Group(getFieldEditorParent(), SWT.NONE);
+		gd = new GridData(GridData.FILL, GridData.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		mod_ifc_group.setLayout(new GridLayout(2, false));
+		mod_ifc_group.setText("Module/Interface Settings");
+		mod_ifc_group.setLayoutData(gd);
+		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN, 
+				"Enable Named Port Map:", mod_ifc_group));
+		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT, 
+				"Line-Wrap Limit: ", mod_ifc_group));
+		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE, 
+				"Max Ports Per Line:", mod_ifc_group));
 	}
 
 }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 
 public class SVCompletionProposalUtils {
 	// TODO: Need to have these parameters come from some sort of configuration file
@@ -15,22 +15,38 @@ public class SVCompletionProposalUtils {
 	private int     				fTFPortsPerLine 		= 0;			// Number of ports per line in multi-line mode
 	private boolean 				fTFNamedPorts 			= true;			// When set, will have named ports, otherwise will just have names
 	
+	private int     				fModIfcInstMaxCharsPerLine	= 80;			// Number of characters before switching to multi-line mode
+	private int     				fModIfcInstPortsPerLine 	= 1;			// Number of ports per line in multi-line mode
+	private boolean					fModIfcInstNamedPorts		= true;
+	
 	public SVCompletionProposalUtils() {
 		
 	}
 	
-	public void setMaxCharsPerLine(int max) {
+	public void setTFMaxCharsPerLine(int max) {
 		fTFMaxCharsPerLine = max;
 	}
 	
-	public void setPortsPerLine(int max) {
+	public void setTFPortsPerLine(int max) {
 		fTFPortsPerLine = max;
 	}
 	
-	public void setNamedPorts(boolean named) {
+	public void setTFNamedPorts(boolean named) {
 		fTFNamedPorts = named;
 	}
+
+	public void setModIfcInstMaxCharsPerLine(int max) {
+		fModIfcInstMaxCharsPerLine = max;
+	}
 	
+	public void setModIfcInstPortsPerLine(int max) {
+		fModIfcInstPortsPerLine = max;
+	}
+	
+	public void setModIfcInstNamedPorts(boolean named) {
+		fModIfcInstNamedPorts = named;
+	}
+
 	private static String escapeId(String id) {
 		StringBuilder sb = new StringBuilder(id);
 		for (int i=0; i<sb.length(); i++) {
@@ -230,10 +246,10 @@ public class SVCompletionProposalUtils {
 		}
 		
 		boolean multi_line_instantiation = false;
-		int multiplier = fTFNamedPorts ? 2 : 1;
+		int multiplier = fModIfcInstNamedPorts ? 2 : 1;
 		// Multi-line instantiation rules
-		if	(((fTFMaxCharsPerLine != 0) && ((first_line_pos + ((port_len + param_len)*multiplier)+(2/*, */*multiplier)) > ((fTFMaxCharsPerLine*7)/8))) ||		// have a line length and we are probably longer than that line
-			 ((fTFPortsPerLine != 0) && ((port_count > fTFPortsPerLine) || (param_count > fTFPortsPerLine)))								// have a ports per line & param or port list > that that number
+		if	(((fModIfcInstMaxCharsPerLine != 0) && ((first_line_pos + ((port_len + param_len)*multiplier)+(2/*, */*multiplier)) > ((fModIfcInstMaxCharsPerLine*7)/8))) ||		// have a line length and we are probably longer than that line
+			 ((fModIfcInstPortsPerLine != 0) && ((port_count > fModIfcInstPortsPerLine) || (param_count > fModIfcInstPortsPerLine)))								// have a ports per line & param or port list > that that number
 			) {
 			multi_line_instantiation = true;
 			curr_pos = subseq_line_pos;
@@ -262,7 +278,7 @@ public class SVCompletionProposalUtils {
 				}
 		
 				// Only instantiate named ports if we need to
-				if (fTFNamedPorts == true)  {
+				if (fModIfcInstNamedPorts == true)  {
 					r.append(".");
 					r.append(name_str + padding.toString());
 					r.append(" (");
@@ -271,7 +287,7 @@ public class SVCompletionProposalUtils {
 				// append ${porntmame} which will be replaced
 				r.append("${" + name_str + "}" + padding.toString());
 				curr_pos += 3 + name_str.length() + padding.toString().length();
-				if (fTFNamedPorts == true)  {
+				if (fModIfcInstNamedPorts == true)  {
 					r.append(")");
 					curr_pos++;
 				}
@@ -283,8 +299,8 @@ public class SVCompletionProposalUtils {
 					
 					// Add \n if we have met the number of ports per line
 					// or if we've exceeded the line max
-					if ((fTFPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0)) ||
-							(curr_pos > (7*fTFMaxCharsPerLine)/8)
+					if ((fModIfcInstPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fModIfcInstPortsPerLine) == 0)) ||
+							(curr_pos > (7*fModIfcInstMaxCharsPerLine)/8)
 							){ 
 						// ML gets a CR after every port is instantiated
 						r.append(newline);
@@ -316,7 +332,7 @@ public class SVCompletionProposalUtils {
 			}
 	
 			// Only instantiate named ports if we need to
-			if (fTFNamedPorts == true)  {
+			if (fModIfcInstNamedPorts == true)  {
 				// append .portname (
 				r.append(".");
 				r.append(name_str + padding.toString());
@@ -326,7 +342,7 @@ public class SVCompletionProposalUtils {
 			// append ${porntmame} which will be replaced
 			r.append("${" + all_ports.get(i) + "}" + padding.toString());
 			curr_pos += 3 + all_ports.get(i).length() + padding.toString().length();
-			if (fTFNamedPorts == true)  {
+			if (fModIfcInstNamedPorts == true)  {
 				r.append(")");
 				curr_pos++;
 			}
@@ -338,8 +354,8 @@ public class SVCompletionProposalUtils {
 				
 				// Add \n if we have met the number of ports per line
 				// or if we've exceeded the line max
-				if ((fTFPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0)) ||
-						(curr_pos > (7*fTFMaxCharsPerLine)/8)
+				if ((fModIfcInstPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fModIfcInstPortsPerLine) == 0)) ||
+						(curr_pos > (7*fModIfcInstMaxCharsPerLine)/8)
 						){ 
 					// ML gets a CR after every port is instantiated
 					r.append(newline);

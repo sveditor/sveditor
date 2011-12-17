@@ -30,9 +30,12 @@ public class SVEditorPrefsConstants {
 	
 	public static final String P_DEBUG_ENABLED_S = "debugEnabled";
 	
-	public static final String P_CONTENT_ASSIST_NAMED_PORTS_EN = "contentAssistNamedPortsEn";
-	public static final String P_CONTENT_ASSIST_LINE_WRAP_LIMIT = "contentAssistLineWrapLimit";
-	public static final String P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE = "contentAssistTaskFuncParamsPerLine";
+	public static final String P_CONTENT_ASSIST_TF_NAMED_PORTS_EN 				= "contentAssistTFNamedPortsEn";
+	public static final String P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT 				= "contentAssistTFLineWrapLimit";
+	public static final String P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE			= "contentAssistTFParamsPerLine";
 	
+	public static final String P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN 		= "contentAssistModIfcInstNamedPortsEn";
+	public static final String P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT 		= "contentAssistModIfcInstLineWrapLimit";
+	public static final String P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE 	= "contentAssistModIfcInstPortsPerLine";
 	
 }
