@@ -20,6 +20,9 @@
 
 - #(nobug) Correct dump/restore issue involving the UVM library
 
+- #(enh) Add preferences to control how module/instance instantiations are presented
+  by content assist. 
+
 ------------------------------------------------------------------------------
 -- 0.7.4 Release --
 
