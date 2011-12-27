@@ -422,6 +422,13 @@ public class SVProjectFileWrapper {
 		return fArgFilePaths;
 	}
 	
+	public void addArgFilePath(String path) {
+		SVDBPath arg_path = new SVDBPath(path);
+		if (!fArgFilePaths.contains(arg_path)) {
+			fArgFilePaths.add(arg_path);
+		}
+	}
+	
 	public List<Tuple<String, String>> getGlobalDefines() {
 		return fGlobalDefines;
 	}

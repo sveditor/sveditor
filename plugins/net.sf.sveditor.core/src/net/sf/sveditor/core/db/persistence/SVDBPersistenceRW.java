@@ -977,6 +977,9 @@ public class SVDBPersistenceRW implements IDBReader, IDBWriter,
 
 	private int readRawType() throws DBFormatException {
 		int ret = -1;
+		if (fInBuf == null) {
+			throw new DBFormatException("fInBuf==null ; fBuf==" + fBuf);
+		}
 		try {
 			ret = fInBuf.readByte();
 		} catch (IOException e) {

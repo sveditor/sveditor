@@ -18,6 +18,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -76,6 +77,13 @@ public class IndexTestUtils {
 		for (String e : exp) {
 			TestCase.fail("Failed to find element \"" + e + "\"");
 		}
+	}
+	
+	public static ISVDBIndexIterator buildIndex(String doc, String filename) {
+		SVDBFile file = SVDBTestUtils.parse(doc, filename);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		
+		return target_index;
 	}
 	
 }

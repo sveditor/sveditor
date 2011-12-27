@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.views.hierarchy;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;

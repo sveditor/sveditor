@@ -301,6 +301,43 @@ public class IndentTests extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testTypedefNonStructUnion() {
+		String testname = "testTypedefNonStructUnion";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"typedef int unsigned uint32_t;\n" +
+			"typedef short unsigned uint16_t;\n" +
+			"uint32_t foo;\n" +
+			"endmodule\n"
+			;
+		String expected =
+			"module t;\n" +
+			"	typedef int unsigned uint32_t;\n" +
+			"	typedef short unsigned uint16_t;\n" +
+			"	uint32_t foo;\n" +
+			"endmodule\n"
+			;
+		log.debug("--> " + testname);
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(testname, expected, result);
+		log.debug("<-- " + testname);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testUnionVar() {
 		String testname = "testUnionVar";
 		LogHandle log = LogFactory.getLogHandle(testname);

@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
+
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

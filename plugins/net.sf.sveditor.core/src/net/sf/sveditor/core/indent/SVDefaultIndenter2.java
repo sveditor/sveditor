@@ -396,7 +396,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (!enum_struct) {
 			// We've already left the scope (adjusting the closing brace) 
 			// in the case of an enum or struct
-			leave_scope();
+			leave_scope(tok);
 		}
 		return tok;
 	}

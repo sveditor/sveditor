@@ -24,6 +24,7 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
+import net.sf.sveditor.core.tests.hierarchy.HierarchyTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.cache.IndexCacheTests;
@@ -67,6 +68,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(OpenDeclTests.suite());
 		addTest(new TestSuite(FileSetTests.class));
 		addTest(TemplateTests.suite());
+		addTest(HierarchyTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {

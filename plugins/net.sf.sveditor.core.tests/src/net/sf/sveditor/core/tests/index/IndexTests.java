@@ -16,12 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.index.libIndex.WSArgFileIndexChanges;
 import net.sf.sveditor.core.tests.index.libIndex.WSLibIndexFileChanges;
 import net.sf.sveditor.core.tests.index.src_collection.SrcCollectionBasics;
@@ -45,6 +48,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestArgFileIndex.class));
 		suite.addTest(new TestSuite(TestIndexPersistance.class));
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
+		suite.addTest(new TestSuite(TestCrossIndexReferences.class));
 		
 		return suite;
 	}
@@ -62,5 +66,15 @@ public class IndexTests extends TestSuite {
 		
 		return ret;
 	}
+	
+	public static void assertContains(ISVDBIndexIterator index_it, String name, SVDBItemType type) {
+		List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), name, 
+				SVDBFindDefaultNameMatcher.getDefault());
+		TestCase.assertEquals("Failed to find " + name, 1, result.size());
+		SVDBDeclCacheItem item_c = result.get(0);
+		TestCase.assertNotNull(item_c.getSVDBItem());
+		TestCase.assertEquals("item is not of type " + type, item_c.getSVDBItem().getType());
+	}
 
 }
+

@@ -15,11 +15,12 @@ package net.sf.sveditor.ui.views.hierarchy;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -62,7 +63,7 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 			
 			if (!fShowInheritedMembers) {
 				if (fTarget.getItemDecl().getType() == SVDBItemType.ClassDecl) {
-					if (!isInScope((SVDBModIfcDecl)fTarget.getItemDecl(), it)) {
+					if (!isInScope((SVDBClassDecl)fTarget.getItemDecl(), it)) {
 						return false;
 					}
 				}

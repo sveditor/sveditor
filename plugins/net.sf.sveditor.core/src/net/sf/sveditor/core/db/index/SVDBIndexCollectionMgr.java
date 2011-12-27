@@ -241,9 +241,11 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 
 		if (ret.size() == 0) {
-			for (ISVDBIndex index : fShadowIndexMap.values()) {
-				if ((result = index.findPreProcFile(path)) != null) {
-					ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+			synchronized (fShadowIndexMap) {
+				for (ISVDBIndex index : fShadowIndexMap.values()) {
+					if ((result = index.findPreProcFile(path)) != null) {
+						ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+					}
 				}
 			}
 		}

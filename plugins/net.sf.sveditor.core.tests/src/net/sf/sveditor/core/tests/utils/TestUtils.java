@@ -23,6 +23,11 @@ import java.net.URI;
 
 import junit.framework.TestCase;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -30,6 +35,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.osgi.framework.Bundle;
 
 public class TestUtils {
 	
@@ -120,6 +126,37 @@ public class TestUtils {
 
 	public static IProject createProject(String name) {
 		return createProject(name, null);
+	}
+	
+	public static IProject setupIndexWSProject(
+			Bundle				bundle,
+			File				tmpdir,
+			String 				name,
+			String				data_file) {
+		if (bundle == null) {
+			bundle = SVCoreTestsPlugin.getDefault().getBundle();
+		}
+		BundleUtils utils = new BundleUtils(bundle);
+		IProject project = TestUtils.createProject(name, 
+				new File(tmpdir, name));
+		
+		if (data_file.endsWith(".zip")) {
+			TestCase.fail(".zip file unsupported");
+			utils.copyBundleDirToWS(data_file, project);
+		} else {
+			utils.copyBundleDirToWS(data_file, project);
+		}
+		
+		File db = new File(tmpdir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+		TestCase.assertTrue(db.mkdirs());
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+	
+		return project;
 	}
 
 	public static IProject createProject(String name, File path) {

@@ -19,6 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
+@SuppressWarnings("rawtypes")
 public interface IDBWriter {
 	
 	void init(DataOutput out);
@@ -39,10 +40,8 @@ public interface IDBWriter {
 	
 	void writeItemType(SVDBItemType type) throws DBWriteException;
 	
-	@SuppressWarnings("rawtypes")
 	void writeEnumType(Class enum_type, Enum value) throws DBWriteException;
 	
-	@SuppressWarnings("rawtypes")
 	void writeItemList(Collection items) throws DBWriteException;
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;

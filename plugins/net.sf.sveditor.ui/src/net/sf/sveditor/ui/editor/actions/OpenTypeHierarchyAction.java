@@ -23,12 +23,12 @@ import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
+import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
+import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
-import net.sf.sveditor.ui.views.hierarchy.ClassHierarchyTreeFactory;
-import net.sf.sveditor.ui.views.hierarchy.HierarchyTreeNode;
-import net.sf.sveditor.ui.views.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.ui.views.hierarchy.SVHierarchyView;
 
 import org.eclipse.jface.text.IDocument;

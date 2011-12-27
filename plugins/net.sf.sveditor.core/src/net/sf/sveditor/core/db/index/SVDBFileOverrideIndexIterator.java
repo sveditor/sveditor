@@ -58,9 +58,10 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 			}
 			if (ret.get(i).getFile() == null) {
 				System.out.println("Element " + i + " has null file");
-			}
-			if (ret.get(i).getFile().getFilePath() == null) {
+				continue;
+			} else if (ret.get(i).getFile().getFilePath() == null) {
 				System.out.println("Element filepath " + i + " has null file");
+				continue;
 			}
 			if (fFile == null) {
 				System.out.println("fFile == null");

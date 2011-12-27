@@ -1,4 +1,16 @@
 
+-- 0.7.6 Release --
+
+- #(nobug) Correct indent for non-struct/union typedef 
+
+- #(3464258) Correct null-pointer exception while constructing class hierarchy.
+
+- #(3464297) Correct class-cast exception while browsing hierarchy
+
+? #(nobug) Seems fields from class hierarchy are not correctly computed
+
+
+------------------------------------------------------------------------------
 -- 0.7.5 Release --
 
 - #(3452746) Correct parse bug involving randcase. randcase does not 
