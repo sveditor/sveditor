@@ -122,7 +122,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"  \n" +
 			"endmodule\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testBasicModule");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(content));

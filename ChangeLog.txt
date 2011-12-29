@@ -7,7 +7,18 @@
 
 - #(3464297) Correct class-cast exception while browsing hierarchy
 
+- #(nobug) Implement parse support for SV binds
+
+- #(nobug) Correct parse error with iff-conditional cross coverpoints
+
+- #(nobug) Implement parsing for coverpoint transition bins
+
+- #(nobug) Correct parse bug involving conflict between property paren
+  expression and sequence match item expression
+
 ? #(nobug) Seems fields from class hierarchy are not correctly computed
+
+? #(enh) Implement colorizing support for Eclipse 'diff' editor
 
 
 ------------------------------------------------------------------------------

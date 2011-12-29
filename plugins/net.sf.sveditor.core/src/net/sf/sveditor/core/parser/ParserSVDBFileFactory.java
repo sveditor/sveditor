@@ -74,7 +74,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	private SVDBFile fFile;
 	private Stack<SVDBScopeItem> fScopeStack;
-	private SVParsers fSVParsers;
+	private SVParsers 					fSVParsers;
 	private List<SVParseException> 		fParseErrors;
 	private int							fParseErrorMax;
 	private LogHandle					fLog;
@@ -82,9 +82,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private List<SVDBMarker>			fMarkers;
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
+		// Setup logging
+		fLog = LogFactory.getLogHandle(
+				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
+		fLog.addLogLevelListener(this);
+		logLevelChanged(fLog);
+		
 		setDefineProvider(dp);
 		fScopeStack = new Stack<SVDBScopeItem>();
-		fSVParsers = new SVParsers(this);
 
 		if (dp != null) {
 			setDefineProvider(dp);
@@ -92,10 +97,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		fParseErrors = new ArrayList<SVParseException>();
 		fParseErrorMax = 5;
-		fLog = LogFactory.getLogHandle(
-				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
-		fLog.addLogLevelListener(this);
-		logLevelChanged(fLog);
 	}
 
 	public void setDefineProvider(IDefineProvider p) {
@@ -160,6 +161,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fInput = new SVScannerTextScanner(pp);
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
+		fSVParsers = new SVParsers();
+		fSVParsers.init(this);
 
 		try {
 			process_file();
@@ -194,13 +197,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			// Ignore the error and allow another parser to deal with
 		}
 		
-		if (fLexer.peekKeyword("class")) {
+		if (fLexer.peekKeyword("bind")) {
+			parsers().modIfcBodyItemParser().parse_bind(parent);
+		} else if (fLexer.peekKeyword("class")) {
 			parsers().classParser().parse(parent, modifiers);
 			fNewStatement = true;
 		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
 			// enter module scope
-			// TODO: should probably add this item to the 
-			// File scope here
 			parsers().modIfcProgParser().parse(parent, modifiers);
 		} else if (fLexer.peekKeyword("package")) {
 			package_decl(parent);
@@ -238,31 +241,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		while (fLexer.peek() != null) {
 			top_level_item(fFile);
 		}
-
-		/*
-		try {
-			while ((id = scan_statement()) != null) {
-				ISVDBChildItem item = null;
-				id = fLexer.peek();
-
-				if (id != null) {
-					try {
-					} catch (SVParseException e) {
-						fLog.debug("parse error at top-level", e);
-					}
-				} else {
-					System.out.println("[WARN] id @ top-level is null");
-					System.out.println("    " + getLocation().getFileName()
-							+ ":" + getLocation().getLineNo());
-				}
-				
-				if (item != null && fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(item);
-				}
-			}
-		} catch (EOFException e) {
-		}
-		 */
 	}
 
 	public int scan_qualifiers(boolean param)
@@ -691,6 +669,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fInput = new SVScannerTextScanner(pp);
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
+		fSVParsers = new SVParsers();
+		fSVParsers.init(this);
 	}
 
 	// Leftover from pre-processor parser

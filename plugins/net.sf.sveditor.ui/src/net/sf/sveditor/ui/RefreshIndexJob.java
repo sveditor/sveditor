@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -26,11 +28,13 @@ import org.eclipse.core.runtime.jobs.Job;
 public class RefreshIndexJob extends Job {
 	private List<ISVDBIndex>			fIndexRebuildList;
 	private SVUiPlugin					fParent;
+	private LogHandle					fLog;
 	
 	public RefreshIndexJob(SVUiPlugin parent) {
 		super("Refresh Index");
 		fIndexRebuildList = new ArrayList<ISVDBIndex>();
 		fParent = parent;
+		fLog = LogFactory.getLogHandle("RefreshIndexJob");
 	}
 	
 	public void addIndex(ISVDBIndex index) {
@@ -60,9 +64,13 @@ public class RefreshIndexJob extends Job {
 					index = fIndexRebuildList.remove(0);
 				}
 			}
-			
-			SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
-			index.loadIndex(sub);
+		
+			try {
+				SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
+				index.loadIndex(sub);
+			} catch (Exception e) {
+				fLog.error("Exception during index refresh: " + e.getMessage(), e);
+			}
 		}
 		monitor.done();
 		fParent.refreshJobComplete();

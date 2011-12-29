@@ -206,6 +206,8 @@ public class SVCovergroupParser extends SVParserBase {
 							parsers().exprParser().open_range_list(l);
 						} else if (fLexer.peekOperator("(")) {
 							bins.setBinsType(BinsType.TransList);
+							// TODO:
+							trans_list();
 						} else {
 							fLexer.readOperator("{", "(");
 						}
@@ -227,6 +229,74 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 	}
 	
+	private void trans_list() throws SVParseException {
+		
+		while (fLexer.peek() != null) {
+			fLexer.readOperator("(");
+			// TODO:
+			trans_set();
+			fLexer.readOperator(")");
+			
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
+		}
+	}
+	
+	private void trans_set() throws SVParseException {
+		// TODO:
+		trans_range_list();
+		
+		if (fLexer.peekOperator("=>")) {
+			// TODO:
+			fLexer.eatToken();
+			trans_range_list();
+		}
+	}
+	
+	private void trans_range_list() throws SVParseException {
+		// TODO:
+		range_list();
+		
+		if (fLexer.peekOperator("[")) {
+			fLexer.eatToken();
+			// TODO:
+			fLexer.readOperator("*", "=", "->");
+			// TODO:
+			repeat_range();
+			fLexer.readOperator("]");
+		}
+	}
+	
+	private void range_list() throws SVParseException {
+		// TODO:
+		while (fLexer.peek() != null) {
+			if (fLexer.peekOperator("[")) {
+				fParsers.exprParser().parse_range();
+			} else {
+				fParsers.exprParser().expression();
+			}
+			
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
+		}
+	}
+	
+	private void repeat_range() throws SVParseException {
+		// TODO:
+		fParsers.exprParser().expression();
+		
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			fParsers.exprParser().expression();
+		}
+	}
+	
 	private void cover_cross(SVDBCoverpointCross cp) throws SVParseException {
 		while (fLexer.peek() != null) {
 			SVDBIdentifierExpr id = fParsers.exprParser().idExpr();
@@ -240,6 +310,7 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 		
 		if (fLexer.peekKeyword("iff")) {
+			fLexer.eatToken();
 			fLexer.readOperator("(");
 			cp.setIFF(parsers().exprParser().expression());
 			fLexer.readOperator(")");

@@ -62,7 +62,7 @@ public class SVLexer extends SVToken {
 																				// operators
 			",", ";", ".", ".*", "'", "->", "-->", "#", "##", "@", "@@", "(*", "*)",
 			// Assertion operators
-			"|=>", "|->", "#-#", "#=#", "##",
+			"=>", "|=>", "|->", "#-#", "#=#", "##",
 			"--", "++"};
 
 	private static final String AllOperators[];

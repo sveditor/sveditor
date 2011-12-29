@@ -103,7 +103,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		// Now, reset the registry
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
-		System.out.println("*** SLEEPING");
+		log.debug("*** SLEEPING");
 		// Sleep to ensure that the timestamp is different
 		try {
 			Thread.sleep(2000);
@@ -157,6 +157,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 	public void testFSLibIndexFilelistChangeDetected() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testFSLibIndexFilelistChangeDetected");
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
@@ -200,7 +201,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		
 		rgy.save_state();
 
-		System.out.println("** RESET **");
+		log.debug("** RESET **");
 		// Now, reset the registry
 		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
@@ -223,7 +224,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		System.out.println("** Create class1_2.svh **");
+		log.debug("** Create class1_2.svh **");
 		TestUtils.copy(out, new File(project_dir, "basic_lib_missing_inc/class1_2.svh"));
 		
 		// Now, re-create the index

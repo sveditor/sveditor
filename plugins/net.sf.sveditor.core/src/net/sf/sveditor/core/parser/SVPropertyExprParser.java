@@ -78,8 +78,32 @@ public class SVPropertyExprParser extends SVParserBase {
 			ret = ws_expr;
 		} else if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
-			ret = new SVDBParenExpr(property_expr());
+			
+			SVDBExpr p_expr = property_expr();
 			fLexer.readOperator(")");
+
+			debug("inner expr: " + p_expr.getClass().getName());
+
+			// Some ambiguity between sequence-match expression
+			// and a paren property expression
+			if (fLexer.peekOperator(",")) {
+				SVDBSequenceMatchItemExpr match_expr = new SVDBSequenceMatchItemExpr();
+				match_expr.setExpr(p_expr);
+				while (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
+					match_expr.addMatchItemExpr(sequence_match_item());
+				}
+				/*
+				fLexer.readOperator(")");
+				
+				if (fLexer.peekOperator("[")) {
+					match_expr.setSequenceAbbrev(sequence_abbrev());
+				}
+				 */
+				ret = match_expr;
+			} else {
+				ret = new SVDBParenExpr(p_expr);
+			}
 		} else if (fLexer.peekKeyword("not")) {
 			// not expression
 			SVDBUnaryExpr unary_expr = new SVDBUnaryExpr();
@@ -148,6 +172,9 @@ public class SVPropertyExprParser extends SVParserBase {
 			expr = clk_expr;
 		} else if (fLexer.peekOperator("(")) {
 			// ( sequence_expr {, sequence_match_item} ) [sequence_abbrev]
+			if (fDebugEn) {
+				debug("entering sequence_expr {...}");
+			}
 			SVDBSequenceMatchItemExpr match_expr = new SVDBSequenceMatchItemExpr();
 			
 			fLexer.readOperator("(");

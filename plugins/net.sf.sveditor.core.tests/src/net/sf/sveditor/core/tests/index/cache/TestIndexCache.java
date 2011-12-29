@@ -270,7 +270,7 @@ public class TestIndexCache extends TestCase {
 		SVDBFile file = 
 				index.findFile("${workspace_loc}/uvm/src/base/uvm_resource_specializations.svh");
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(bos);

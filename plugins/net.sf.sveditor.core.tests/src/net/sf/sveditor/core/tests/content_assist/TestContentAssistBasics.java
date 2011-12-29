@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -214,7 +215,7 @@ public class TestContentAssistBasics extends TestCase {
 		 */
 		
 		
-		log.debug("[my_class2] " + my_class2.getItems().size() + " items");
+		log.debug("[my_class2] " + SVDBUtil.getChildrenSize(my_class2) + " items");
 		for (ISVDBItemBase it_t : my_class2.getChildren()) {
 			log.debug("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
 		}
@@ -603,6 +604,7 @@ public class TestContentAssistBasics extends TestCase {
 			"endclass\n";
 		
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testFunctionNonVoidReturn");
 		
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(
@@ -617,10 +619,11 @@ public class TestContentAssistBasics extends TestCase {
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		for (SVCompletionProposal p : proposals) {
-			System.out.println("Proposal: " + p.getReplacement());
+			log.debug("Proposal: " + p.getReplacement());
 		}
 		
 		validateResults(new String[] {"get_config_object"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testEndFunctionLabel() {

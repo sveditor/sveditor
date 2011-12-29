@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -60,8 +59,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 					is_implicit_connection = true;
 					is_mapped = true;
 					// Grab name and put it into the DB as the same name as the port
-					SVDBTypeInfo typ = new SVDBTypeInfo(name, SVDBItemType.IdentifierExpr);
-					ret.addParameter(new SVDBParamValueAssign(name, typ));
+					ret.addParameter(new SVDBParamValueAssign(name, (SVDBExpr)null));
 				}
 			}
 			

@@ -17,6 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBBind;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
@@ -107,6 +108,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			modport_decl(parent);
 		} else if (id.equals("assign")) {
 			parse_continuous_assign(parent);
+		} else if (id.equals("bind")) {
+			parse_bind(parent);
 		} else if (id.equals("covergroup")) {
 			parsers().covergroupParser().parse(parent);
 		} else if (id.equals("constraint")) {
@@ -389,6 +392,33 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
+	}
+	
+	public void parse_bind(ISVDBAddChildItem parent) throws SVParseException {
+		SVDBBind bind = new SVDBBind();
+		bind.setLocation(fLexer.getStartLocation());
+		
+		fLexer.readKeyword("bind");
+		
+		bind.setTargetTypeName(fLexer.readId());
+		parent.addChildItem(bind);
+		
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			// Have a list of instance names
+			while (fLexer.peek() != null) {
+				bind.addTargetInstName(fLexer.readId());
+				if (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
+				} else {
+					break;
+				}
+			}
+		}
+
+		// Parse the module instantiation
+		// Note: module instantiation includes the trailing ';'
+		fParsers.modIfcBodyItemParser().parse_var_decl_module_inst(bind, 0);
 	}
 	
 	public void parse_var_decl_module_inst(ISVDBAddChildItem parent, int modifiers) throws SVParseException {

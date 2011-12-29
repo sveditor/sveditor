@@ -630,7 +630,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	protected void propagateAllMarkers() {
 		Set<String> file_list = fCache.getFileList();
 		for (String path : file_list) {
-			propagateMarkers(path);
+			if (path != null) {
+				propagateMarkers(path);
+			}
 		}
 	}
 	

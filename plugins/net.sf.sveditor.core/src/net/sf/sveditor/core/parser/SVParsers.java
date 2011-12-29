@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+
 /**
  * Collects the various SVParser classes together to provide easy access
  * 
@@ -49,198 +50,154 @@ public class SVParsers {
 	private SVSequenceParser					fSequenceParser;
 	private SVPropertyParser					fPropertyParser;
 	
-	public SVParsers(ParserSVDBFileFactory sv_parser) {
-		fSVParser = sv_parser;
-		fSVDBFileFactory = sv_parser;
+	public SVParsers() {
 	}
 	
 	public SVParsers(ISVParser parser) {
 		fSVParser = parser;
 	}
 	
+	public void init(ParserSVDBFileFactory sv_parser) {
+		fSVDBFileFactory = sv_parser;
+		init((ISVParser)sv_parser);
+	}
+	
+	public void init(ISVParser parser) {
+		fSVParser = parser;
+		fClassParser = new SVClassDeclParser(fSVParser);
+		fParamDeclParser = new SVParameterDeclParser(fSVParser);
+		fParamPortParser = new SVParameterPortListParser(fSVParser);
+		fDataTypeParser = new SVDataTypeParser(fSVParser);
+		fFunctionParser = new SVTaskFunctionParser(fSVParser);
+		fTFPortListParser = new SVTaskFunctionPortListParser(fSVParser);
+		fTFBodyParser = new SVTaskFuncBodyParser(fSVParser);
+		fBlockItemDeclParser = new SVBlockItemDeclParser(fSVParser);
+		fParamValueAssignParser = new SVParameterValueAssignmentParser(fSVParser);
+		fBehavioralBlockParser = new SVBehavioralBlockParser(fSVParser);
+		fModIfcProgParser = new SVModIfcProgDeclParser(fSVParser);
+		fPortListParser = new SVPortListParser(fSVParser);
+		fGenBlockParser = new SVGenerateBlockParser(fSVParser);
+		fClkBlockParser = new SVClockingBlockParser(fSVParser);
+		fSpecifyBlockParser = new SVSpecifyBlockParser(fSVParser);
+		fImportParser = new SVImpExpStmtParser(fSVParser);
+		fExprParser = new SVExprParser(fSVParser);
+		fGateInstanceParser = new SVGateInstantiationParser(fSVParser);
+		fAssertionParser = new SVAssertionParser(fSVParser);
+		fCovergroupParser = new SVCovergroupParser(fSVParser);
+		fModIfcBodyItemParser = new SVModIfcBodyItemParser(fSVParser);
+		fConstraintParser = new SVConstraintParser(fSVParser);
+		fAttrParser = new SVAttributeParser(fSVParser);
+		fPropertyExprParser = new SVPropertyExprParser(fSVParser);
+		fSequenceParser = new SVSequenceParser(fSVParser);
+		fPropertyParser = new SVPropertyParser(fSVParser);
+	}
+	
 	public ParserSVDBFileFactory SVParser() {
 		return fSVDBFileFactory;
 	}
 	
-	public SVClassDeclParser classParser() {
-		if (fClassParser == null) {
-			fClassParser = new SVClassDeclParser(fSVParser);
-		}
+	public final SVClassDeclParser classParser() {
 		return fClassParser;
 	}
 	
 	public SVParameterDeclParser paramDeclParser() {
-		if (fParamDeclParser == null) {
-			fParamDeclParser = new SVParameterDeclParser(fSVParser);
-		}
 		return fParamDeclParser;
 	}
 	
 	public SVParameterPortListParser paramPortListParser() {
-		if (fParamPortParser == null) {
-			fParamPortParser = new SVParameterPortListParser(fSVParser);
-		}
 		return fParamPortParser;
 	}
 	
 	public SVDataTypeParser dataTypeParser() {
-		if (fDataTypeParser == null) {
-			fDataTypeParser = new SVDataTypeParser(fSVParser);
-		}
 		return fDataTypeParser;
 	}
 	
 	public SVTaskFunctionParser taskFuncParser() {
-		if (fFunctionParser == null) {
-			fFunctionParser = new SVTaskFunctionParser(fSVParser);
-		}
 		return fFunctionParser;
 	}
 	
 	public SVTaskFunctionPortListParser tfPortListParser() {
-		if (fTFPortListParser == null) {
-			fTFPortListParser = new SVTaskFunctionPortListParser(fSVParser);
-		}
 		return fTFPortListParser;
 	}
 	
 	public SVTaskFuncBodyParser tfBodyParser() {
-		if (fTFBodyParser == null) {
-			fTFBodyParser = new SVTaskFuncBodyParser(fSVParser);
-		}
 		return fTFBodyParser;
 	}
 	
 	public SVBlockItemDeclParser blockItemDeclParser() {
-		if (fBlockItemDeclParser == null) {
-			fBlockItemDeclParser = new SVBlockItemDeclParser(fSVParser);
-		}
 		return fBlockItemDeclParser;
 	}
 	
 	public SVParameterValueAssignmentParser paramValueAssignParser() {
-		if (fParamValueAssignParser == null) {
-			fParamValueAssignParser = new SVParameterValueAssignmentParser(fSVParser);
-		}
 		return fParamValueAssignParser;
 	}
 	
 	public SVBehavioralBlockParser behavioralBlockParser() {
-		if (fBehavioralBlockParser == null) {
-			fBehavioralBlockParser = new SVBehavioralBlockParser(fSVParser);
-		}
 		return fBehavioralBlockParser;
 	}
 	
 	public SVModIfcProgDeclParser modIfcProgParser() {
-		if (fModIfcProgParser == null) {
-			fModIfcProgParser = new SVModIfcProgDeclParser(fSVParser);
-		}
 		return fModIfcProgParser;
 	}
 	
 	public SVPortListParser portListParser() {
-		if (fPortListParser == null) {
-			fPortListParser = new SVPortListParser(fSVParser);
-		}
 		return fPortListParser;
 	}
 	
 	public SVGenerateBlockParser generateBlockParser() {
-		if (fGenBlockParser == null) {
-			fGenBlockParser = new SVGenerateBlockParser(fSVParser);
-		}
 		return fGenBlockParser;
 	}
 	
 	public SVClockingBlockParser clockingBlockParser() {
-		if (fClkBlockParser == null) {
-			fClkBlockParser = new SVClockingBlockParser(fSVParser);
-		}
 		return fClkBlockParser;
 	}
 	
 	public SVSpecifyBlockParser specifyBlockParser() {
-		if (fSpecifyBlockParser == null) {
-			fSpecifyBlockParser = new SVSpecifyBlockParser(fSVParser);
-		}
 		return fSpecifyBlockParser;
 	}
 	
 	public SVImpExpStmtParser impExpParser() {
-		if (fImportParser == null) {
-			fImportParser = new SVImpExpStmtParser(fSVParser);
-		}
 		return fImportParser;
 	}
 	
 	public SVExprParser exprParser() {
-		if (fExprParser == null) {
-			fExprParser = new SVExprParser(fSVParser);
-		}
 		return fExprParser;
 	}
 	
 	public SVGateInstantiationParser gateInstanceParser() {
-		if (fGateInstanceParser == null) {
-			fGateInstanceParser = new SVGateInstantiationParser(fSVParser);
-		}
 		return fGateInstanceParser;
 	}
 	
 	public SVAssertionParser assertionParser() {
-		if (fAssertionParser == null) {
-			fAssertionParser = new SVAssertionParser(fSVParser);
-		}
 		return fAssertionParser;
 	}
 	
 	public SVCovergroupParser covergroupParser() {
-		if (fCovergroupParser == null) {
-			fCovergroupParser = new SVCovergroupParser(fSVParser);
-		}
 		return fCovergroupParser;
 	}
 	
 	public SVModIfcBodyItemParser modIfcBodyItemParser() {
-		if (fModIfcBodyItemParser == null) {
-			fModIfcBodyItemParser = new SVModIfcBodyItemParser(fSVParser);
-		}
 		return fModIfcBodyItemParser;
 	}
 	
 	public SVConstraintParser constraintParser() {
-		if (fConstraintParser == null) {
-			fConstraintParser = new SVConstraintParser(fSVParser);
-		}
 		return fConstraintParser;
 	}
 	
 	public SVAttributeParser attrParser() {
-		if (fAttrParser == null) {
-			fAttrParser = new SVAttributeParser(fSVParser);
-		}
 		return fAttrParser;
 	}
 
 	public SVPropertyExprParser propertyExprParser() {
-		if (fPropertyExprParser == null) {
-			fPropertyExprParser = new SVPropertyExprParser(fSVParser);
-		}
 		return fPropertyExprParser;
 	}
 
 	public SVSequenceParser sequenceParser() {
-		if (fSequenceParser == null) {
-			fSequenceParser = new SVSequenceParser(fSVParser);
-		}
 		return fSequenceParser;
 	}
 	
 	public SVPropertyParser propertyParser() {
-		if (fPropertyParser == null) {
-			fPropertyParser = new SVPropertyParser(fSVParser);
-		}
 		return fPropertyParser;
 	}
+	
 }

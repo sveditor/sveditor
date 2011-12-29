@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBBind;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -83,40 +84,60 @@ public class SVDBTestUtils {
 	
 	private static ISVDBItemBase findElement(ISVDBScopeItem scope, String e) {
 		for (ISVDBItemBase it : scope.getItems()) {
-			if (SVDBItem.getName(it).equals(e)) {
-				return it;
-			} else if (it instanceof SVDBVarDeclStmt) {
-				for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
-					SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
-					if (vi.getName().equals(e)) {
-						return vi;
-					}
-				}
-			} else if (it instanceof SVDBModIfcInst) {
-				for (ISVDBChildItem c : ((SVDBModIfcInst)it).getChildren()) {
-					SVDBModIfcInstItem mi = (SVDBModIfcInstItem)c;
-					if (mi.getName().equals(e)) {
-						return mi;
-					}
-				}
-			} else if (it.getType() == SVDBItemType.ImportStmt) {
-				for (ISVDBChildItem c : ((SVDBImportStmt)it).getChildren()) {
-					SVDBImportItem ii = (SVDBImportItem)c;
-					if (ii.getImport().equals(e)) {
-						return ii;
-					}
-				}
-			} else if (it instanceof ISVDBScopeItem) {
-				ISVDBItemBase t;
-				if ((t = findElement((ISVDBScopeItem)it, e)) != null) {
-					return t;
-				}
+			ISVDBItemBase ret = findElement(it, e);
+			if (ret != null) {
+				return ret;
 			}
 		}
 		
 		return null;
 	}
-	
+
+	private static ISVDBItemBase findElement(ISVDBItemBase it, String e) {
+		if (SVDBItem.getName(it).equals(e)) {
+			return it;
+		} else if (it instanceof SVDBVarDeclStmt) {
+			for (ISVDBChildItem c : ((SVDBVarDeclStmt)it).getChildren()) {
+				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
+				if (vi.getName().equals(e)) {
+					return vi;
+				}
+			}
+		} else if (it instanceof SVDBModIfcInst) {
+			for (ISVDBChildItem c : ((SVDBModIfcInst)it).getChildren()) {
+				SVDBModIfcInstItem mi = (SVDBModIfcInstItem)c;
+				if (mi.getName().equals(e)) {
+					return mi;
+				}
+			}
+		} else if (it.getType() == SVDBItemType.ImportStmt) {
+			for (ISVDBChildItem c : ((SVDBImportStmt)it).getChildren()) {
+				SVDBImportItem ii = (SVDBImportItem)c;
+				if (ii.getImport().equals(e)) {
+					return ii;
+				}
+			}
+		} else if (it instanceof ISVDBScopeItem) {
+			ISVDBItemBase t;
+			if ((t = findElement((ISVDBScopeItem)it, e)) != null) {
+				return t;
+			}
+		} else {
+			// Special-case handling
+			switch (it.getType()) {
+				case Bind: {
+					SVDBModIfcInst inst = ((SVDBBind)it).getBindInst();
+					System.out.println("bind inst: " + inst);
+					if (inst != null) {
+						return findElement(inst, e);
+					}
+					} break;
+			}
+		}
+		
+		return null;
+	}
+
 	public static SVDBFile parse(String content, String filename) {
 		return parse(content, filename, false);
 	}
@@ -184,8 +205,6 @@ public class SVDBTestUtils {
 			InputStream in = copier.copy();
 			SVPreProcScanner pp = new SVPreProcScanner();
 			pp.setDefineProvider(dp);
-//			pp.setScanner(this);
-//			pp.setObserver(this);
 
 			pp.init(in, filename);
 			pp.setExpandMacros(true);
@@ -208,9 +227,12 @@ public class SVDBTestUtils {
 		for (SVDBMarker m : markers) {
 			if (log != null) {
 				log.debug("[MARKER] " + m.getMessage());
-			} else {
+			}
+			/*
+			else {
 				System.out.println("[MARKER] " + m.getMessage());
 			}
+			 */
 		}
 		
 		return new Tuple<SVDBFile, SVDBFile>(pp_file, file);

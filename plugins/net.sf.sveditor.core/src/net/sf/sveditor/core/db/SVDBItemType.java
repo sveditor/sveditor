@@ -22,6 +22,7 @@ public enum SVDBItemType {
 	ClassDecl,
 	InterfaceDecl,
 	ProgramDecl,
+	Bind,
 	Task,
 	Function,
 	ModIfcInst,
