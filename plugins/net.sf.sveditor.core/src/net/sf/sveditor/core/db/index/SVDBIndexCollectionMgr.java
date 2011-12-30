@@ -122,22 +122,43 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 	}
 	
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		SVDBIndexCollectionItemIterator ret = new SVDBIndexCollectionItemIterator(monitor);
+		List<String> referenced_projects = new ArrayList<String>();
+		List<ISVDBIndexIterator> iterator_list = new ArrayList<ISVDBIndexIterator>();
+		
+		getItemIterators(referenced_projects, iterator_list);
+		
+		return new SVDBIndexItemItIterator(iterator_list.iterator(), monitor);
+	}
+	
+	private void getItemIterators(
+			List<String>				referenced_projects,
+			List<ISVDBIndexIterator>	iterator_list) {
+		if (referenced_projects.contains(fProject)) {
+			return;
+		}
+		referenced_projects.add(fProject);
 		
 		for (List<ISVDBIndex> i_l : fFileSearchOrder) {
 			for (ISVDBIndex index : i_l){
-				ret.addIndex(index);
+				iterator_list.add(index);
 			}
 		}
 		
 		// Finally, add the shadow indexes
 		for (ISVDBIndex index : fShadowIndexList) {
-			ret.addIndex(index);
+			iterator_list.add(index);
 		}
-		
-		return ret;
+
+		if (fProjectRefProvider != null) {
+			for (String proj : fProjectRefs) {
+				if (!referenced_projects.contains(proj)) {
+					SVDBIndexCollectionMgr mgr_t = fProjectRefProvider.resolveProjectRef(proj);
+					mgr_t.getItemIterators(referenced_projects, iterator_list);
+				}
+			}
+		}
 	}
-	
+		
 	public void addProjectRef(String ref) {
 		if (!fProjectRefs.contains(ref)) {
 			fProjectRefs.add(ref);
@@ -240,7 +261,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			}
 		}
 
-		if (ret.size() == 0) {
+		if (ret.size() == 0 && search_shadow) {
 			synchronized (fShadowIndexMap) {
 				for (ISVDBIndex index : fShadowIndexMap.values()) {
 					if ((result = index.findPreProcFile(path)) != null) {
@@ -304,6 +325,7 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 			if (!fShadowIndexMap.containsKey(dir)) {
 				ISVDBIndex index = null;
 				
+				System.out.println("Creating shadow index for \"" + dir + "\" due to file \"" + path + "\"");
 				if (fProject != null) {
 					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 					SVFileSet fs = new SVFileSet(dir);

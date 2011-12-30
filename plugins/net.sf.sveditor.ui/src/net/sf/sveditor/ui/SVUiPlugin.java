@@ -28,6 +28,7 @@ import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -198,7 +199,12 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		return p.fImageMap.get(resource);
 	}
-	
+
+	public static ImageDescriptor getImageDescriptor(String resource) {
+		return SVUiPlugin.imageDescriptorFromPlugin(
+				SVUiPlugin.PLUGIN_ID, resource);
+	}
+
 	public MessageConsole getConsole() {
 		
 		if (fConsole == null) {

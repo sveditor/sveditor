@@ -21,7 +21,7 @@ public class SVEditorVlogIndexFactory {
 		StringBuilder sb = new StringBuilder();
 		
 		for (String arg : args) {
-			arg = SVDBIndexUtil.expandVars(arg, null);
+			arg = SVDBIndexUtil.expandVars(arg, null, false);
 			if (arg.indexOf(' ') != -1 || arg.indexOf('\t') != -1) {
 				sb.append("\"" + arg + "\"\n");
 			} else {

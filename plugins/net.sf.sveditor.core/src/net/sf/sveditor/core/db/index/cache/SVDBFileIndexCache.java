@@ -276,11 +276,21 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		
 		if (cfi != null) {
 			return cfi.fLastModified;
+		} else {
+			System.out.println("File \"" + path + "\" not in cache");
 		}
 		return -1;
 	}
 	
 	public void setLastModified(String path, long timestamp) {
+		if (timestamp == -1) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				System.out.println("NEG timestamp");
+				e.printStackTrace();
+			}
+		}
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 		cfi.fLastModified = timestamp;
 	}

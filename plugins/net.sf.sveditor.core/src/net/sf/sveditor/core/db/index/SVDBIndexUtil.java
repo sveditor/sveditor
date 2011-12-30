@@ -30,6 +30,7 @@ import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -37,6 +38,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.IValueVariable;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -123,6 +125,7 @@ public class SVDBIndexUtil {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			
 			fLog.debug("Create a shadow index for \"" + path + "\"");
+			System.out.println("Create a shadow index for \"" + path + "\"");
 			if (project != null) {
 				SVDBProjectData   pdata = p_mgr.getProjectData(projects.get(0));
 			
@@ -159,7 +162,7 @@ public class SVDBIndexUtil {
 		}
 	}
 
-	public static String expandVars(String path, String projectname) {
+	public static String expandVars(String path, String projectname, boolean in_workspace_ok) {
 
 		boolean workspace_prefix = path.startsWith("${workspace_loc}");
 		String exp_path = path;
@@ -295,6 +298,19 @@ public class SVDBIndexUtil {
 				exp_path = mgr.performStringSubstitution(exp_path);
 			} catch (CoreException e) {
 				e.printStackTrace();
+			}
+		}
+		
+		// It's possible that the expanded path is actually within 
+		// the workspace, even though the path is an absolute path.
+		// See if this is the case
+		if (!workspace_prefix && in_workspace_ok) {
+			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = ws_root.getFileForLocation(new Path(exp_path));
+			if (file != null && file.exists()) {
+				workspace_prefix = true;
+				exp_path = file.getFullPath().toOSString();
 			}
 		}
 		

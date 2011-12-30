@@ -22,6 +22,7 @@ import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -96,9 +97,10 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				Object elem = sel.getFirstElement();
 				if (elem instanceof HierarchyTreeNode) {
-					fViewerFilter.setTarget((HierarchyTreeNode)elem);
-					fSelectedClass.setText(((HierarchyTreeNode)elem).getName());
-					fMemberList.setInput(((HierarchyTreeNode)elem).getItemDecl());
+					HierarchyTreeNode hn = (HierarchyTreeNode)elem;
+					fViewerFilter.setTarget(hn);
+					fSelectedClass.setText(hn.getName());
+					fMemberList.setInput(hn.getItemDecl());
 				} else {
 					fMemberList.setInput(null);
 					fSelectedClass.setText("");
@@ -169,6 +171,17 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		fMemberList.setContentProvider(fMemberContentProvider);
 		fMemberList.setLabelProvider(new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
+		fMemberList.setComparer(new IElementComparer() {
+			
+			public int hashCode(Object element) {
+				return element.hashCode();
+			}
+			
+			public boolean equals(Object a, Object b) {
+				return (a == b);
+			}
+		});
+		
 		fMemberList.addDoubleClickListener(new IDoubleClickListener() {
 			
 			public void doubleClick(DoubleClickEvent event) {
@@ -202,6 +215,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 		while (fRoot.getParent() != null) {
 			fRoot = fRoot.getParent();
 		}
+		
 		// Add an empty node to contain the tree
 		target = new HierarchyTreeNode(null, "");
 		fRoot.setParent(target);
@@ -209,7 +223,6 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 		fRoot = target;
 		
 		Display.getDefault().asyncExec(new Runnable() {
-			
 			public void run() {
 				fClassTree.setInput(fRoot);
 				fClassTree.setSelection(new StructuredSelection(fTarget), true);

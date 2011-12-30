@@ -16,7 +16,6 @@ import java.io.File;
 
 public class SVDBFile extends SVDBScopeItem {
 	private String						fFile;
-	private long						fLastModified;
 	
 	public SVDBFile() {
 		super("", SVDBItemType.File);
@@ -28,14 +27,6 @@ public class SVDBFile extends SVDBScopeItem {
 		setLocation(new SVDBLocation(-1, -1));
 	}
 
-	public long getLastModified() {
-		return fLastModified;
-	}
-	
-	public void setLastModified(long lastModified) {
-		fLastModified = lastModified;
-	}
-	
 	public String getFilePath() {
 		return fFile;
 	}

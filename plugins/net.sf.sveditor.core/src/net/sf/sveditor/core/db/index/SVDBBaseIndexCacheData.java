@@ -109,4 +109,8 @@ public class SVDBBaseIndexCacheData {
 	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
 		return fDeclCacheMap;
 	}
+	
+	public void clear() {
+		fDeclCacheMap.clear();
+	}
 }

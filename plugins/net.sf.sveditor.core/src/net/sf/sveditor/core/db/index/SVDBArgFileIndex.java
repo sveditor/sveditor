@@ -37,6 +37,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			ISVDBIndexCache				cache,
 			Map<String, Object>			config) {
 		super(project, root, fs_provider, cache, config);
+		fInWorkspaceOk = (root.startsWith("${workspace_loc}"));
 	}
 
 	public SVDBArgFileIndex(
@@ -48,6 +49,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			Map<String, Object>			config) {
 		super(project, root, fs_provider, cache, config);
 		fArguments = arguments;
+		fInWorkspaceOk = (root.startsWith("${workspace_loc}"));
 	}
 	
 	@Override
@@ -136,9 +138,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			
 			monitor.worked(1);
 			for (String f : scanner.getFilePaths()) {
-				String exp_f = SVDBIndexUtil.expandVars(f, fProjectName);
+				String exp_f = SVDBIndexUtil.expandVars(f, fProjectName, fInWorkspaceOk);
 				fLog.debug("[FILE PATH] " + f + " (" + exp_f + ")");
-				String res_f = resolvePath(exp_f);
+				String res_f = resolvePath(exp_f, fInWorkspaceOk);
 				
 				if (getFileSystemProvider().fileExists(res_f)) {
 					addFile(res_f);
@@ -148,9 +150,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			}
 			
 			for (String lib_p : scanner.getLibPaths()) {
-				String exp_p = SVDBIndexUtil.expandVars(lib_p, fProjectName);
+				String exp_p = SVDBIndexUtil.expandVars(lib_p, fProjectName, fInWorkspaceOk);
 				fLog.debug("[LIB PATH] " + lib_p + " (" + exp_p + ")");
-				String res_p = resolvePath(exp_p);
+				String res_p = resolvePath(exp_p, fInWorkspaceOk);
 				
 				if (getFileSystemProvider().isDir(res_p)) {
 					List<String> paths = getFileSystemProvider().getFiles(res_p);
@@ -171,7 +173,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			
 			monitor.worked(1);
 			for (String inc : scanner.getIncludePaths()) {
-				String inc_path = SVDBIndexUtil.expandVars(inc, fProjectName);
+				String inc_path = SVDBIndexUtil.expandVars(inc, fProjectName, fInWorkspaceOk);
 				fLog.debug("[INC PATH] " + inc + " (" + inc_path + ")");
 				
 				addIncludePath(inc_path);
@@ -186,7 +188,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			getFileSystemProvider().closeStream(in);
 			
 			for (String arg_file : scanner.getArgFilePaths()) {
-				arg_file = SVDBIndexUtil.expandVars(arg_file, fProjectName);
+				arg_file = SVDBIndexUtil.expandVars(arg_file, fProjectName, fInWorkspaceOk);
 				if (!cd.getArgFilePaths().contains(arg_file)) {
 					processArgFile(new SubProgressMonitor(monitor, 4), arg_file); 
 				}

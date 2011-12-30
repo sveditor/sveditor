@@ -13,12 +13,9 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,56 +30,6 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 	
 	private List<ISVDBIndexIterator>			fIndexIteratorList;
 	
-	private static final class IteratorListItemIterator implements ISVDBItemIterator {
-		
-		private Iterator<ISVDBIndexIterator>		fIterator;
-		private ISVDBItemIterator					fCurrent;
-		private IProgressMonitor					fMonitor;
-		
-		public IteratorListItemIterator(Iterator<ISVDBIndexIterator> it, IProgressMonitor monitor) {
-			fIterator = it;
-			fMonitor = monitor;
-		}
-
-		public boolean hasNext(SVDBItemType... type_list) {
-			while (fCurrent != null || fIterator.hasNext()) {
-				
-				if (fCurrent == null) {
-					fCurrent = fIterator.next().getItemIterator(fMonitor);
-				}
-				
-				if (!fCurrent.hasNext(type_list)) {
-					fCurrent = null;
-					continue;
-				} else {
-					break;
-				}
-			}
-			
-			return (fCurrent != null && fCurrent.hasNext(type_list));
-		}
-
-		public ISVDBItemBase nextItem(SVDBItemType... type_list) {
-			ISVDBItemBase ret = null;
-			
-			while (fCurrent != null || fIterator.hasNext()) {
-				
-				if (fCurrent == null) {
-					fCurrent = fIterator.next().getItemIterator(fMonitor);
-				}
-				
-				if ((ret = fCurrent.nextItem(type_list)) == null) {
-					fCurrent = null;
-					continue;
-				} else {
-					break;
-				}
-			}
-			
-			return ret;
-		}
-	}
-	
 	public SVDBIndexListIterator() {
 		fIndexIteratorList = new ArrayList<ISVDBIndexIterator>();
 	}
@@ -92,7 +39,7 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		return new IteratorListItemIterator(fIndexIteratorList.iterator(), monitor);
+		return new SVDBIndexItemItIterator(fIndexIteratorList.iterator(), monitor);
 	}
 
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(

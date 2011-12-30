@@ -113,13 +113,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 
 	public Object[] getElements(Object element) {
 		return getChildren(element);
-		/*
-		if (element instanceof ISVDBScopeItem) {
-			return ((ISVDBScopeItem)element).getItems().toArray();
-		} else {
-			return new Object[0];
-		}
-		 */
 	}
 
 	public void dispose() {

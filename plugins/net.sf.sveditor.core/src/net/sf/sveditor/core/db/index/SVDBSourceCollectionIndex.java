@@ -118,7 +118,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		List<String> file_paths = fFileMatcher.findIncludedPaths();
 		
 		for (String path : file_paths) {
-			String rp = resolvePath(path);
+			String rp = resolvePath(path, fInWorkspaceOk);
 			fLog.debug("Adding root file \"" + rp + "\"");
 			addFile(rp);
 			addIncludePath(SVFileUtils.getPathParent(rp));

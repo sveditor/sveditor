@@ -51,16 +51,22 @@ public class SVDBProjectManager implements IResourceChangeListener {
 	}
 	
 	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
-		fListeners.add(l);
+		synchronized (fListeners) {
+			fListeners.add(l);
+		}
 	}
 	
 	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
-		fListeners.remove(l);
+		synchronized (fListeners) {
+			fListeners.remove(l);
+		}
 	}
 	
 	void projectSettingsChanged(SVDBProjectData data) {
-		for (ISVDBProjectSettingsListener l : fListeners) {
-			l.projectSettingsChanged(data);
+		synchronized (fListeners) {
+			for (int i=0; i<fListeners.size(); i++) {
+				fListeners.get(i).projectSettingsChanged(data);
+			}
 		}
 	}
 	

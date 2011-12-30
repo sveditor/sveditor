@@ -5,7 +5,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -117,6 +120,57 @@ public class TestCrossIndexReferences extends TestCase {
 		assertEquals("p1_c", p1_c.getName());
 		assertEquals(SVDBItemType.ClassDecl, p1_c.getType());
 		assertNotNull(p1_c.getSVDBItem());
+	}
+
+	public void testIteratorCircularArgFileIndexCrossRef() throws CoreException {
+		String testname = "testIteratorCircularArgFileIndexCrossRef";
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		IProject p1 = TestUtils.setupIndexWSProject(
+				null, fTmpDir, "p1", 
+				"/data/index/arg_file_cross_index_ref/p1");
+		
+		IProject p2 = TestUtils.setupIndexWSProject(
+				null, fTmpDir, "p2", 
+				"/data/index/arg_file_cross_index_ref/p2");
+		IProjectDescription p2_desc = p2.getDescription();
+		p2_desc.setReferencedProjects(new IProject[] {p1});
+		p2.setDescription(p2_desc,  new NullProgressMonitor());
+
+		IProjectDescription p1_desc = p1.getDescription();
+		p1_desc.setReferencedProjects(new IProject[] {p2});
+		p1.setDescription(p1_desc,  new NullProgressMonitor());
+
+		SVDBProjectData p1_pdata = pmgr.getProjectData(p1);
+		SVProjectFileWrapper p1_fwrapper = p1_pdata.getProjectFileWrapper();
+		SVDBProjectData p2_pdata = pmgr.getProjectData(p2);
+		SVProjectFileWrapper p2_fwrapper = p2_pdata.getProjectFileWrapper();
+
+		p1_fwrapper.addArgFilePath("${workspace_loc}/p1/p1/p1.f");
+		p2_fwrapper.addArgFilePath("${workspace_loc}/p2/p2/p2.f");
+
+		p1_pdata.setProjectFileWrapper(p1_fwrapper);
+		p2_pdata.setProjectFileWrapper(p2_fwrapper);
+	
+		SVDBIndexCollectionMgr p1_index = p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollectionMgr p2_index = p2_pdata.getProjectIndexMgr();
+		
+		ISVDBItemIterator it = p2_index.getItemIterator(new NullProgressMonitor());
+		
+		ISVDBItemBase p1_c=null, p2_c=null;
+		while (it.hasNext()) {
+			ISVDBItemBase item = it.nextItem();
+			if (SVDBItem.getName(item).equals("p1_c")) {
+				p1_c = item;
+			} else if (SVDBItem.getName(item).equals("p2_c")) {
+				p2_c = item;
+			}
+		}
+		
+		assertNotNull(p1_c);
+		assertNotNull(p2_c);
+		assertEquals(SVDBItemType.ClassDecl, p1_c.getType());
+		assertEquals(SVDBItemType.ClassDecl, p2_c.getType());
 	}
 
 }

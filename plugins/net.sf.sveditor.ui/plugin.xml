@@ -31,7 +31,7 @@
             contentProvider="net.sf.sveditor.ui.explorer.SVFileNavigatorContentProvider"
             icon="icons/vlog_16_16.gif"
             id="net.sf.sveditor.ui.svFileNavigatorContent"
-            labelProvider="net.sf.sveditor.ui.svcp.SVTreeLabelProvider"
+            labelProvider="net.sf.sveditor.ui.explorer.SVExplorerDecoratingLabelProvider"
             name="SystemVerilog File"
             priority="normal"
             providesSaveables="false">
@@ -586,5 +586,37 @@ endclass
                id="net.sf.sveditor.ui.svSearchActionSet">
          </actionSet>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="net.sf.sveditor.ui.compareMergeViewer"
+            contentTypeId="net.sf.sveditor.core.systemverilog">
+      </contentTypeBinding>
+      <viewer
+            class="net.sf.sveditor.ui.compare.SVCompareViewerCreator"
+            id="net.sf.sveditor.ui.compareMergeViewer">
+      </viewer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            class="net.sf.sveditor.ui.explorer.ProblemLabelDecorator"
+            id="net.sf.sveditor.ui.svErrorDecorator"
+            label="SV Error Decorator"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
    </extension>
 </plugin>

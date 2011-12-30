@@ -16,10 +16,31 @@
 - #(nobug) Correct parse bug involving conflict between property paren
   expression and sequence match item expression
 
-? #(nobug) Seems fields from class hierarchy are not correctly computed
+- #(enh) Implement colorizing support for Eclipse 'diff' editor. Now, 
+  keywords and language features are appropriately colorized
 
-? #(enh) Implement colorizing support for Eclipse 'diff' editor
+- #(enh) Update to Project Explorer integration to mark error-containing 
+  files, and their containing folders, with error markers
 
+- #(nobug) Correct an issue with the declaration cache where contents were
+  not properly cleared when an index was invalidated
+
+- #(nobug) Correct an issue with path expansion that led linked paths 
+  (absolute paths) that existed within the workspace to not be treated
+  as equivalent to workspace paths. 
+
+- #(nobug) Correct a case where the file timestamp was not set. This caused
+  an index that should be valid to be declared invalid on reload
+
+- #(nobug) Correct an bug involving index iteration across project references.
+  This issue was observed in the hierarchy view, since this view is one of 
+  the few that still uses index iteration (as opposed to the declaration cache) 
+
+- #(nobug) Correct a bug in the hierarchy viewer where the fields of the
+  root class were not correctly displayed
+
+- #(enh) Add basic progress monitor for the hierarchy viewer, since this 
+  operation currently can take a long time
 
 ------------------------------------------------------------------------------
 -- 0.7.5 Release --

@@ -97,6 +97,9 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	}
 
 	public SVDBFile getFile() {
+		if (fParent == null) {
+			System.out.println("Parent of " + fType + " " + fName + " is null");
+		}
 		return fParent.getDeclFile(new NullProgressMonitor(), this);
 	}
 	
