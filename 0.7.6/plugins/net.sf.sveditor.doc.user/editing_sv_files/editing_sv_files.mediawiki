@@ -1,0 +1,68 @@
+= Editing SystemVerilog Files =
+
+[[Image:imgs/sv_file_outline.gif|EclipseWorkbench with Open SVEditor and Outline View]]
+
+SVEditor provides several features to make editing SystemVerilog files easier and more productive. 
+
+== Outline View ==
+The Outline View is a built-in Eclipse view that provides a structural view of the actively-edited file. SVEditor populates the Outline View with structural SystemVerilog information, such as classes, modules, functions, and fields.
+
+[[Image:imgs/outline_navigation.gif|Navigation via the Outline View]]
+
+Selecting an element in the Outline View causes the active editor to navigate to the selected element and highlight the bounds of the item.
+
+== Cross-Linking ==
+When editing a SystemVerilog class or module, it is often helpful to reference a class or module used within the current module. SVEditor provides a context-menu entry and a shortcut (F3) to access cross-linking. Cross-linking works when the cursor is positioned:
+* On the file path of an `include directive. Invoking Open Declaration opens the referenced file
+* On a class or structure type name (eg class-field declaration). Opens the file that contains the class or structure declaration.
+* On a field or task/function reference. Figure 14 shows invoking Open Declaration on the expression <nowiki>slaves[i].assign_vi(xi)</nowiki>. The cursor was placed on ‘assign_vi’. In this case SVEditor will navigate to the task or function named ‘assign_vi’ within the class of which ‘slaves’ is an instance.
+
+[[Image:imgs/open_declaration.gif|Open Declaration for a Class Field]]
+
+== Content Assist ==
+Content assist is common in many editors for code files (Java, C++, etc). SVEditor provides content assist that is very similar to the content assist provided by the Eclipse Java or C++ editor.
+
+Content assist is invoked either explicitly by typing <CTRL>-<SPACE>, or implicitly when a ‘.’ is typed. In both cases, SVEditor provides a list of possible matches for the specified prefix.
+
+== Override Tasks/Functions ==
+SVEditor provides a wizard that creates task or function templates for methods that are overridden by the active class. Open the Override Methods dialog from the context menu within SVEditor, as shown in the figure below.
+
+[[Image:imgs/override_methods.gif|Opening the Override Methods Dialog]]
+
+When the Override Methods dialog opens, find the class and method to override and select it as shown in the figure below.
+
+[[Image:imgs/override_methods_dialog.gif|Override Methods Dialog]]
+
+Selecting OK causes SVEditor to create a new method template at the cursor location, as shown in the figure below. If Auto-Indent is enabled, the newly-inserted content will be indented.
+
+[[Image:imgs/override_methods_new_task.gif|New Task Template]]
+
+== Indenting Content ==
+There are two primary methods for indenting content – auto-indent and explicit indenting. Auto-indent is enabled by default, and can be disabled via the SVEditor Preferences page. 
+
+
+= Creating a New Class File =
+SVEditor provides a wizard for creating new class files. The wizard can be invoked from the main menu (File->New->SystemVerilog Class) if the SystemVerilog perspective is active.  
+
+[[Image:imgs/new_sv_class_main_menu.gif|Open the New Class wizard from the main menu]]
+
+The wizard can also be invoked from the context menu when a container (folder or project) is selected.
+
+[[Image:imgs/new_sv_class_context_menu.gif|Open the New Class wizard from the context menu]]
+
+[[Image:imgs/new_sv_class_wizard.gif]]
+
+Change the source folder if necessary. Specify the name of the class to be created. By default, the file name of the class will be ''classname''.svh. If a different name is desired, uncheck the 'Default Filename' check-box and change the filename.
+
+If the class being created extends from an existing class, either type the name in the 'Super Class' text entry or select the 'Browse' button.
+
+[[Image:imgs/new_sv_class_browse_superclass.gif|Browse for super-class]]
+
+Classes that are accessible from the index of the containing project are available when browsing for a super-class. In this particular case, a new OVM test is being created, which must extend from ovm_test. 
+
+It is often necessary to implement the constructor of a class, especially if there is a super-class. Leaving 'Implement new()' checked causes the new class to implement the constructor. If a super-class is specified and that class has a constructor, a call to the super-constructor is made. In the case of our new test-case class, the following code is generated.
+
+[[Image:imgs/new_sv_class_code.gif|New SystemVerilog Class generated code]]
+
+
+
