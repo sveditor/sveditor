@@ -1073,7 +1073,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			norm_path = normalizePath(path);
 		}
 		
-		if (!norm_path.startsWith("${workspace_loc}") && in_workspace_ok) {
+		if (norm_path != null && !norm_path.startsWith("${workspace_loc}") && in_workspace_ok) {
 			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			IFile file = ws_root.getFileForLocation(new Path(norm_path));
