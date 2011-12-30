@@ -136,6 +136,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
 		fMissingIncludes = new HashSet<String>();
+		fMaxIndexThreads = SVCorePlugin.getMaxIndexThreads();
 	}
 
 	public AbstractSVDBIndex(String project, String base_location,

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -108,6 +109,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		fPersistenceRdrSet = new ArrayList<IDBReader>(); 
 		fPersistenceWriterSet = new ArrayList<IDBWriter>();
 		fWriteBackQueue = new ArrayList<SVDBFileIndexCache.WriteBackInfo>();
+		
+		fNumWriteBackThreads = SVCorePlugin.getNumIndexCacheThreads();
 		
 		if (fNumWriteBackThreads > 0) {
 			fWriteBackThread = new Thread[fNumWriteBackThreads];

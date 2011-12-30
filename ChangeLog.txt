@@ -1,4 +1,7 @@
 
+-- 0.7.7 Release --
+
+------------------------------------------------------------------------------
 -- 0.7.6 Release --
 
 - #(nobug) Correct indent for non-struct/union typedef 

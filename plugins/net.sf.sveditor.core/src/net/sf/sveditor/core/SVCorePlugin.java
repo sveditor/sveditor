@@ -79,6 +79,8 @@ public class SVCorePlugin extends Plugin
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private ISVEditorJobMgr					fJobMgr;
+	private int								fNumIndexCacheThreads = 0;
+	private int								fMaxIndexThreads = 0;
 	
 	/**
 	 * The constructor
@@ -362,6 +364,16 @@ public class SVCorePlugin extends Plugin
 		} else {
 			return System.getenv(key);
 		}
+	}
+	
+	public static int getNumIndexCacheThreads() {
+		SVCorePlugin plugin = getDefault();
+		return plugin.fNumIndexCacheThreads;
+	}
+	
+	public static int getMaxIndexThreads() {
+		SVCorePlugin plugin = getDefault();
+		return plugin.fMaxIndexThreads;
 	}
 }
 
