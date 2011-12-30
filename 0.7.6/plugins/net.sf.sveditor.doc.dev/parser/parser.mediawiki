@@ -1,2 +1,0 @@
-= SVEditor SystemVerilog Parser =
-

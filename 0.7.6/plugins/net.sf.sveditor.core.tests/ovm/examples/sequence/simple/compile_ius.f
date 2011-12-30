@@ -1,3 +1,0 @@
--ovmhome ../../..
-
-test.sv
