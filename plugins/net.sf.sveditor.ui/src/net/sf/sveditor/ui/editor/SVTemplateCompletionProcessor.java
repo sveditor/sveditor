@@ -97,7 +97,7 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 			}
 			
 			if (context.getContextType().getId().equals(template.getContextTypeId()) &&
-					template.getPattern().toLowerCase().startsWith(prefix.toLowerCase())) {
+					template.getName().toLowerCase().startsWith(prefix.toLowerCase())) {
 				matches.add(createProposal(template, context, (IRegion) region, getRelevance(template, prefix)));
 			}
 		}

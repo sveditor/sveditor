@@ -69,7 +69,21 @@ public class SVExprScanner {
 			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
 					scanner.get_str(scanner.getPos()-1, 1) + "\"");
 			 */
-			scanner.seek(scanner.getPos()-1);
+			long pos = scanner.getPos();
+
+			// If the previous character is whitespace, then 
+			// the cursor is likely positioned at the beginning
+			// of the token
+			// In this case, we want to begin processing at the
+			// cursor position, not one previous
+			scanner.seek(pos-1);
+			int prev_ch = scanner.get_ch();
+			
+			if (Character.isWhitespace(prev_ch)) {
+				scanner.seek(pos);
+			} else {
+				scanner.seek(pos-1);
+			}
 		}
 		
 		scanner.setScanFwd(false);

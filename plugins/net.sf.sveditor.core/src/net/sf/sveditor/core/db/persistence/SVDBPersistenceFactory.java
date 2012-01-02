@@ -230,7 +230,7 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 									debug("  " + fLevel + " Field " + f.getName() + " is List<ISVDBItemBase>");
 								}
 								if (fIsWriter) {
-									writeItemList((Collection<ISVDBItemBase>)field_value);
+									writeItemList((List<ISVDBItemBase>)field_value);
 								} else {
 									if (target instanceof ISVDBChildItem) {
 										f.set(target, readItemList((ISVDBChildItem)target));
@@ -513,7 +513,7 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 		}
 	}
 
-	public void writeItemList(Collection items) throws DBWriteException {
+	public void writeItemList(List items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);
 		} else {

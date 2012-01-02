@@ -3,6 +3,13 @@
 
 - #(nobug) Correct implementation of open-declation for `include files 
 
+- #(3468310) Correct a bug in the template completion processor. Now, the
+  content assist trigger is the template name rather than the content prefix
+
+- #(3468309) Correct a bug in the expression scanner. Now, open declaration
+  and open type hierarchy works when the cursor is placed both on the head 
+  and the tail of a token.
+
 ------------------------------------------------------------------------------
 -- 0.7.6 Release --
 

@@ -42,7 +42,7 @@ public interface IDBWriter {
 	
 	void writeEnumType(Class enum_type, Enum value) throws DBWriteException;
 	
-	void writeItemList(Collection items) throws DBWriteException;
+	void writeItemList(List items) throws DBWriteException;
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 	

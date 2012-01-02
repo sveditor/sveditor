@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBLocation;
 
-public class SVDBPersistenceRWBase implements IDBPersistenceTypes {
+public abstract class SVDBPersistenceRWBase 
+	implements IDBPersistenceTypes, ISVDBPersistenceRWDelegateParent {
 	private byte									fTmp[];
 	private DataInput								fInBuf;
 	private DataOutput								fBuf;
@@ -24,6 +26,9 @@ public class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 	public void init(DataOutput out) {
 		fBuf = out;
 		fInBuf = null;
+	}
+	
+	public void close() {
 	}
 	
 	public SVDBLocation readSVDBLocation() throws DBFormatException {
@@ -112,6 +117,27 @@ public class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		
 		return ret;
 	}
+	
+	public Map<String, List> readMapStringList(Class val_c) throws DBFormatException {
+		Map<String, List> ret = new HashMap<String, List>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			ret.put(key, readObjectList(null, val_c));
+		}
+		
+		return ret;
+	}
 
 	public List<Long> readLongList() throws DBFormatException {
 		int type = readRawType();
@@ -171,6 +197,45 @@ public class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		List<String> ret = new ArrayList<String>();
 		for (int i=0; i<size; i++) {
 			ret.add(readString());
+		}
+		
+		return ret;
+	}
+
+	public void writeObjectList(List items, Class obj_c) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_OBJECT_LIST);
+			writeInt(items.size());
+		
+			for (Object v : items) {
+				writeObject(obj_c, v);
+			}
+		}
+	}
+	
+	public List readObjectList(ISVDBChildParent parent, Class val_c) throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		} else if (type != TYPE_OBJECT_LIST) {
+			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type);
+		}
+		int size = readInt();
+		List ret = new ArrayList();
+		for (int i=0; i<size; i++) {
+			Object val = null;
+			try {
+				val = val_c.newInstance();
+			} catch (InstantiationException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			} catch (IllegalAccessException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			}
+			readObject(parent, val_c, val);
+			ret.add(val);
 		}
 		
 		return ret;
@@ -304,6 +369,22 @@ public class SVDBPersistenceRWBase implements IDBPersistenceTypes {
  			}
  		}
 	}
+
+	public void writeMapStringList(Map<String, List> map, Class list_c) 
+			throws DBWriteException, DBFormatException {
+		if (map == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_MAP);
+			
+			writeInt(map.size());
+			for (Entry<String, List> e : map.entrySet()) {
+				writeString(e.getKey());
+				writeObjectList(e.getValue(), list_c);
+			}
+		}
+	}
+
 
 	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
