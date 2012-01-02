@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 
 public class SVDBTypeInfoFwdDecl extends SVDBTypeInfo {
 	
-	private String					fTypeClass; // class, enum, union, struct
+	String					fTypeClass; // class, enum, union, struct
 	
 	public SVDBTypeInfoFwdDecl() {
 		this("", "");

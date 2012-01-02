@@ -19,7 +19,7 @@ public class TestParseBind extends TestCase {
 
 	public void testLRMEx1() throws SVParseException {
 		String testname = "testLRMEx1";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module t;\n" +
 			"	bind cpu: cpu1 fpu_props fpu_rules_1(a, b, c);\n" +

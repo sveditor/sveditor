@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 public class TestParseAssertions extends TestCase {
 	
 	public void testOvmXbusAssertions() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ParserTests.runTest("testOvmXbusAssertions",
 				"/data/assertions/xbus_assertions.sv",
 				new String[] {"xbus_if"});
@@ -40,7 +40,7 @@ public class TestParseAssertions extends TestCase {
 	}
 
 	public void testSavedValueProperty() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ParserTests.runTest("testSavedValueProperty",
 				"/data/assertions/saved_value_property.sv",
 				new String[] {"saved_value_property","p1"});

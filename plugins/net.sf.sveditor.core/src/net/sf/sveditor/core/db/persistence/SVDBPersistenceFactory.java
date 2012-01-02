@@ -15,6 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import com.sun.xml.internal.ws.org.objectweb.asm.FieldVisitor;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -38,6 +44,8 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 	private static Map<Class, Map<Integer, Enum>>	fIntToEnumMap;
 	private static Map<Class, Map<Enum, Integer>>	fEnumToIntMap;
 	private static Map<SVDBItemType, Class>			fClassMap;
+	private SVDBPersistenceFactory					fFactoryInst;
+	private static Class<SVDBPersistenceFactory>	fFactoryClass;
 	
 	static {
 		fIntToEnumMap = new HashMap<Class, Map<Integer,Enum>>();
@@ -45,6 +53,27 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 	}
 	
 	public SVDBPersistenceFactory() {
+		if (fFactoryClass == null) {
+			createFactoryClass();
+		}
+	}
+	
+	private void createFactoryClass() {
+		ClassWriter cw = new ClassWriter(0);
+		cw.visit(Opcodes.V1_5, Opcodes.ACC_PRIVATE+Opcodes.ACC_PUBLIC+Opcodes.ACC_PROTECTED+Opcodes.ACC_SUPER, 
+				"net/sf/sveditor/core/db/persistence/SVDBPersistenceFactoryRW", 
+				null, "net/sf/sveditor/core/db/persistence/SVDBPersistenceFactory", null);
+		cw.visitSource("SVDBPersistenceFactoryRW.java", null);
+		{
+			/*
+			MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, 
+					"readObject", "(Lnet/sf/sveditor/core/db/esc, signature, exceptions)
+			 */
+		}
+		
+		cw.visitEnd();
+		byte bytes[] = cw.toByteArray();
+		System.out.println("" + bytes.length + " bytes");
 	}
 
 	public void setDebugEn(boolean en) {
@@ -57,6 +86,8 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 		fIsWriter = false;
 		fLog = LogFactory.getLogHandle("SVDBPersistenceReader");
 		fLevel = 0;
+		
+		
 		
 		synchronized (getClass()) {
 			if (fClassMap == null) {
@@ -510,7 +541,7 @@ public class SVDBPersistenceFactory implements IDBReader, IDBWriter,
 		}
 	}
 
-	public void writeStringList(Collection<String> items) throws DBWriteException {
+	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);
 		} else {

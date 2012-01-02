@@ -15,10 +15,12 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * Implements an item iterator that operates on a list of index iterators
@@ -49,6 +51,16 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			List<SVDBDeclCacheItem> tmp = index_it.findGlobalScopeDecl(monitor, name, matcher);
 			ret.addAll(tmp);
 		}
+		return ret;
+	}
+	
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
+		StringIterableIterator ret = new StringIterableIterator();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			ret.addIterable(index_it.getFileList(new NullProgressMonitor()));
+		}
+		
 		return ret;
 	}
 

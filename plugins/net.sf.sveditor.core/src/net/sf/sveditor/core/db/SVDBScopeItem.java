@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
-	protected List<ISVDBChildItem>		fItems;
-	protected SVDBLocation				fEndLocation;
+	List<ISVDBChildItem>		fItems;
+	SVDBLocation				fEndLocation;
 	
 	protected SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);

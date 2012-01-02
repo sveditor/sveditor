@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
 	@SVDBParentAttr
-	private ISVDBChildItem 			fParent;
+	ISVDBChildItem 			fParent;
 	
 	public SVDBChildItem(SVDBItemType type) {
 		super(type);

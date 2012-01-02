@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
@@ -33,7 +32,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse_export(ISVDBScopeItem parent) throws SVParseException {
+	public void parse_export(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.readKeyword("export");
 

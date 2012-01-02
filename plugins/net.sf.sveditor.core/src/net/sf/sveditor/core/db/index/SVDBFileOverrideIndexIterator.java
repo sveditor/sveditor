@@ -84,6 +84,10 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 		return ret;
 	}
 	
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
+		return fSuperIterator.getFileList(monitor);
+	}
+	
 	private void findDecl(
 			List<SVDBDeclCacheItem> 	result, 
 			ISVDBChildParent 			scope,

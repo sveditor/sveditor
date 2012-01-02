@@ -28,6 +28,14 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	List<SVDBDeclCacheItem> findGlobalScopeDecl(IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher);
+	
+	/**
+	 * Returns an iterator over the files managed by this cache
+	 * 
+	 * @param monitor
+	 * @return
+	 */
+	Iterable<String> getFileList(IProgressMonitor monitor);
 
 	/**
 	 * Returns a list of declarations from within the specified package scope

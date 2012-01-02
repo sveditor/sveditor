@@ -26,9 +26,9 @@ public class SVDBMarker extends SVDBItemBase {
 		ParseError
 	};
 	
-	private String					fMessage;
-	private MarkerKind				fKind;
-	private MarkerType				fMarkerType;
+	String					fMessage;
+	MarkerKind				fKind;
+	MarkerType				fMarkerType;
 
 	public SVDBMarker() {
 		super(SVDBItemType.Marker);

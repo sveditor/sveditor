@@ -46,7 +46,7 @@ public interface IDBWriter {
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 	
-	void writeStringList(Collection<String> items) throws DBWriteException;
+	void writeStringList(List<String> items) throws DBWriteException;
 	
 	void writeIntList(List<Integer> items) throws DBWriteException;
 

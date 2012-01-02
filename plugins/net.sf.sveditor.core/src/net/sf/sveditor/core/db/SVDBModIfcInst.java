@@ -19,8 +19,8 @@ import java.util.List;
 
 public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 	
-	private SVDBTypeInfo				fTypeInfo;
-	private List<SVDBModIfcInstItem>	fInstList;
+	SVDBTypeInfo				fTypeInfo;
+	List<SVDBModIfcInstItem>	fInstList;
 	
 	public SVDBModIfcInst() {
 		super("", SVDBItemType.ModIfcInst);

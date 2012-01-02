@@ -19,7 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBConstraint extends SVDBScopeItem {
-	private List<SVDBStmt>		fConstraintList;
+	List<SVDBStmt>		fConstraintList;
 	
 	public SVDBConstraint() {
 		super("", SVDBItemType.Constraint);

@@ -118,6 +118,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fParsers.sequenceParser().sequence(parent);
 		} else if (id.equals("import")) {
 			parsers().impExpParser().parse_import(parent);
+		} else if (id.equals("export")) {
+			parsers().impExpParser().parse_export(parent);
 		} else if (id.equals("clocking")) {
 			fParsers.clockingBlockParser().parse(parent);
 		} else if (id.equals("typedef")) {

@@ -60,7 +60,7 @@ public class OpenDeclUtils {
 		// If this is an include lookup, then use a different matching strategy
 		if (expr_ctxt.fTrigger != null && expr_ctxt.fTrigger.equals("`")) {
 			if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
-//			expr_utils.setMatcher(new SVDBOpenDeclarationIncludeNameMatcher());
+				findMatchingIncludeFiles(ret, expr_ctxt, index_it);
 			} else if (expr_ctxt.fRoot == null) {
 				for (SVDBDeclCacheItem it : index_it.findGlobalScopeDecl(
 						new NullProgressMonitor(), expr_ctxt.fLeaf, 
@@ -105,6 +105,40 @@ public class OpenDeclUtils {
 		 */
 		
 		return ret;
+	}
+	
+	private static void findMatchingIncludeFiles(
+			List<Tuple<ISVDBItemBase, SVDBFile>>	ret,
+			SVExprContext 							expr_ctxt,
+			ISVDBIndexIterator						index_it) {
+		String target = expr_ctxt.fLeaf;
+		String leaf = target;
+		int idx=-1;
+		
+		if ((idx = leaf.lastIndexOf('/')) != -1) {
+			leaf = leaf.substring(idx+1);
+		}
+		
+		// Strip off any relative-path elements
+		while (target.startsWith("../")) {
+			target = target.substring(3);
+		}
+		
+		for (String filename : index_it.getFileList(new NullProgressMonitor())) {
+			int f_idx = filename.lastIndexOf('/');
+			if (f_idx == -1) {
+				// only a leaf name in the filename
+				if (filename.equals(leaf)) {
+					SVDBFile item = new SVDBFile(filename);
+					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, item));
+				}
+			} else {
+				if (filename.endsWith(target)) {
+					SVDBFile item = new SVDBFile(filename);
+					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, item));
+				}
+			}
+		}
 	}
 
 }

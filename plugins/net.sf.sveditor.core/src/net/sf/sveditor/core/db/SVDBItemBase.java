@@ -19,9 +19,9 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 public class SVDBItemBase implements ISVDBItemBase {
 	
 	@SVDBDoNotSaveAttr
-	protected SVDBItemType			fType;
+	SVDBItemType			fType;
 	
-	protected SVDBLocation			fLocation;
+	SVDBLocation			fLocation;
 	
 	public SVDBItemBase(SVDBItemType type) {
 		fType = type;

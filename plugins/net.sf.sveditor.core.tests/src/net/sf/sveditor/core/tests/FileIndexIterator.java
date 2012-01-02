@@ -120,6 +120,10 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 		return null;
 	}
 	
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
+		return fFileMap.keySet();
+	}
+	
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		return fFileMap.get(item.getFilename());
 	}

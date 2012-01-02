@@ -17,9 +17,9 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBAssign extends SVDBStmt {
 	
-	private SVDBExpr				fLHS;
-	private SVDBExpr				fDelay;
-	private SVDBExpr				fRHS;
+	SVDBExpr				fLHS;
+	SVDBExpr				fDelay;
+	SVDBExpr				fRHS;
 	
 	public SVDBAssign() {
 		super(SVDBItemType.Assign);

@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db;
 
 public class SVDBTypeInfoBuiltinNet extends SVDBTypeInfo {
 	
-	private String					fWireType;
-	private SVDBTypeInfo			fType;
+	String					fWireType;
+	SVDBTypeInfo			fType;
 	
 	public SVDBTypeInfoBuiltinNet() {
 		this("", null);

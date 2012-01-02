@@ -42,6 +42,7 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOpenFile extends TestCase {
@@ -52,6 +53,7 @@ public class TestOpenFile extends TestCase {
 		File tmpdir = TestUtils.createTempDir();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
+		IProject subdir2_p = null;
 		
 		try {
 			BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -60,7 +62,7 @@ public class TestOpenFile extends TestCase {
 			
 			File subdir2 = new File(tmpdir, "pkg_rel_path_include/subdir1/subdir2");
 			
-			TestUtils.createProject("subdir2", subdir2);
+			subdir2_p = TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.init(TestIndexCacheFactory.instance(null));
@@ -95,9 +97,8 @@ public class TestOpenFile extends TestCase {
 			log.debug("ret.size=" + ret.size());
 			
 			log.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
-			
-			
 		} finally {
+			TestUtils.deleteProject(subdir2_p);
 			TestUtils.delete(tmpdir);
 		}
 		LogFactory.removeLogHandle(log);

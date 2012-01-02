@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class SVDBModportDecl extends SVDBChildItem implements ISVDBChildParent {
-	private List<SVDBModportItem>			fModportItemList;
+	List<SVDBModportItem>			fModportItemList;
 	
 	public SVDBModportDecl() {
 		super(SVDBItemType.ModportDecl);

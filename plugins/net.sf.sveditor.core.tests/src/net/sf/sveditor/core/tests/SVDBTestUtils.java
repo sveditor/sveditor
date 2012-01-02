@@ -127,7 +127,6 @@ public class SVDBTestUtils {
 			switch (it.getType()) {
 				case Bind: {
 					SVDBModIfcInst inst = ((SVDBBind)it).getBindInst();
-					System.out.println("bind inst: " + inst);
 					if (inst != null) {
 						return findElement(inst, e);
 					}

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBModportItem extends SVDBItem {
-	private List<SVDBModportPortsDecl>		fPorts;
+	List<SVDBModportPortsDecl>		fPorts;
 	
 	public SVDBModportItem() {
 		this("");

@@ -1,6 +1,8 @@
 
 -- 0.7.7 Release --
 
+- #(nobug) Correct implementation of open-declation for `include files 
+
 ------------------------------------------------------------------------------
 -- 0.7.6 Release --
 

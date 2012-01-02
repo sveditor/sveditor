@@ -1577,6 +1577,22 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest(testname, doc, new String[] {"top_module", "m1", "m2", "m3"});
 	}
+	
+	public void testDPIExportImport() {
+		String testname = "testDPIExportImport";
+		String doc = 
+			"module harness;\n" +
+			"	import \"DPI\" function void f3(int fin);\n" +
+			"	export \"DPI\" task f4;\n" +
+			"\n" +
+			"	task f4(input int addr, input int data);\n" +
+			"		$display(\"bfm_write: 0x%h 0x%h\",addr,data);\n" +
+			"	endtask\n" + 
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"harness", "f4"});
+	}
 
 	private void runTest(
 			String			testname,

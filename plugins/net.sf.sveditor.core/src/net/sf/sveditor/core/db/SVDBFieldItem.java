@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 
 public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 	
-	protected int					fFieldAttr;
+	int					fFieldAttr;
 	
 	public SVDBFieldItem(String name, SVDBItemType type) {
 		super(name, type);

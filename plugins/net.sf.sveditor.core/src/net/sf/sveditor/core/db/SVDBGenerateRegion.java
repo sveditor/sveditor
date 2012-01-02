@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem {
-	private List<ISVDBChildItem>		fGenerateItems;
-	private SVDBLocation				fEndLocation;
+	List<ISVDBChildItem>		fGenerateItems;
+	SVDBLocation				fEndLocation;
 	
 	public SVDBGenerateRegion() {
 		super(SVDBItemType.GenerateRegion);

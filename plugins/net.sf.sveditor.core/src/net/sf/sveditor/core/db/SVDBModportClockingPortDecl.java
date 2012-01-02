@@ -13,7 +13,7 @@
 package net.sf.sveditor.core.db;
 
 public class SVDBModportClockingPortDecl extends SVDBModportPortsDecl {
-	private String			fClockingId;
+	String			fClockingId;
 	
 	public SVDBModportClockingPortDecl() {
 		super(SVDBItemType.ModportClockingPortDecl);

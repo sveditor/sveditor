@@ -29,9 +29,9 @@ import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 
 public class OverrideMethodsFinder {
 	
-	private SVDBClassDecl									fLeafClass;
-	private Map<SVDBClassDecl, List<SVDBTask>>		fClassMap;
-	private ISVDBIndexIterator								fIndexIt;
+	private SVDBClassDecl								fLeafClass;
+	private Map<SVDBClassDecl, List<SVDBTask>>			fClassMap;
+	private ISVDBIndexIterator							fIndexIt;
 
 	/*
 	private class ClassComparator implements Comparator<SVDBModIfcClassDecl> {

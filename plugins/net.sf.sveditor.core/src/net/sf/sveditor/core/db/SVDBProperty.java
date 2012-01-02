@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVDBProperty extends SVDBScopeItem {
-	private SVDBExpr					fExpr;
-	private List<SVDBParamPortDecl>		fPortList;
+	SVDBExpr					fExpr;
+	List<SVDBParamPortDecl>		fPortList;
 	
 	public SVDBProperty() {
 		this("");

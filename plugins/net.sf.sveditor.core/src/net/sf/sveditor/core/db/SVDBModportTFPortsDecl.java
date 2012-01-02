@@ -19,7 +19,7 @@ public class SVDBModportTFPortsDecl extends SVDBModportPortsDecl {
 		Export
 	};
 	
-	private ImpExpType				fImpExpType;
+	ImpExpType				fImpExpType;
 	
 	public SVDBModportTFPortsDecl() {
 		super(SVDBItemType.ModportTFPortsDecl);

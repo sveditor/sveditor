@@ -67,8 +67,10 @@ public class SVEditorUtil {
 		
 		fLog.debug("Opening editor for file \"" + file + "\"");
 		
+		// It only makes sense to set the location if the 
+		// target item is not a file
 		IEditorPart ed = openEditor(file);
-		if (ed instanceof SVEditor) {
+		if (ed instanceof SVEditor && it.getType() != SVDBItemType.File) {
 			((SVEditor)ed).setSelection(it, true);
 		}
 		

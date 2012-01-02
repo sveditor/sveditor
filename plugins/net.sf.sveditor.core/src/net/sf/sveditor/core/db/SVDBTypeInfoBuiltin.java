@@ -17,8 +17,8 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public static final int				TypeAttr_Signed				= (1 << 7);
 	public static final int				TypeAttr_Unsigned			= (1 << 8);
 
-	private int						fAttr;
-	private String					fVectorDim;
+	int						fAttr;
+	String					fVectorDim;
 	
 	public SVDBTypeInfoBuiltin() {
 		this("");

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBNamedItem {
-	private String			fTargetTypeName;
-	private List<String>	fTargetInstNameList;
-	private SVDBModIfcInst	fBindInst;
+	String			fTargetTypeName;
+	List<String>	fTargetInstNameList;
+	SVDBModIfcInst	fBindInst;
 	
 	public SVDBBind() {
 		super(SVDBItemType.Bind);

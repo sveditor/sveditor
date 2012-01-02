@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
@@ -381,6 +382,24 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		return ret;
 	}
 	
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
+		StringIterableIterator ret = new StringIterableIterator();
+
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				ret.addIterable(index.getFileList(new NullProgressMonitor()));
+			}
+		}
+		Set<SVDBIndexCollectionMgr>	already_searched = new HashSet<SVDBIndexCollectionMgr>();
+		getFileList(ret, already_searched, false);
+		
+		for (ISVDBIndex index : fShadowIndexList) {
+			ret.addIterable(index.getFileList(new NullProgressMonitor()));
+		}
+
+		return ret;
+	}
+	
 	private void findGlobalScopeDeclProjRef(
 			List<SVDBDeclCacheItem>			ret,
 			String							name,
@@ -412,6 +431,33 @@ public class SVDBIndexCollectionMgr implements ISVDBPreProcIndexSearcher, ISVDBI
 		}
 	}
 
+	private void getFileList(
+			StringIterableIterator 			ret, 
+			Set<SVDBIndexCollectionMgr> 	already_searched,
+			boolean							search_local) {
+		if (!already_searched.contains(this)) {
+			already_searched.add(this);
+		}
+		
+		if (search_local) {
+			// Search for matches in the local indexes
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					ret.addIterable(index.getFileList(new NullProgressMonitor()));
+				}
+			}
+		}
+		
+		if (fProjectRefProvider != null) {
+			for (String ref : fProjectRefs) {
+				SVDBIndexCollectionMgr mgr_t = fProjectRefProvider.resolveProjectRef(ref);
+				if (mgr_t != null && !already_searched.contains(mgr_t)) {
+					ret.addIterable(mgr_t.getFileList(new NullProgressMonitor()));
+				}
+			}
+		}
+	}
+			
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();

@@ -507,7 +507,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			}
 			writer.init(out);
 			writer.writeString(fBaseLocation);
-			writer.writeStringList(fFileCache.keySet());
+			List<String> tmp = new ArrayList<String>();
+			tmp.addAll(fFileCache.keySet());
+			writer.writeStringList(tmp);
 			List<Long> timestamp_list = new ArrayList<Long>();
 			for (String path : fFileCache.keySet()) {
 				CacheFileInfo cfi = getCacheFileInfo(path, true);

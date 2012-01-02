@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVDBModIfcDecl extends SVDBScopeItem {
 	
-	private List<SVDBModIfcClassParam>			fParams;
-	private List<SVDBParamPortDecl>					fPorts;
+	List<SVDBModIfcClassParam>			fParams;
+	List<SVDBParamPortDecl>				fPorts;
 	
 	protected SVDBModIfcDecl(String name, SVDBItemType type) {
 		super(name, type);

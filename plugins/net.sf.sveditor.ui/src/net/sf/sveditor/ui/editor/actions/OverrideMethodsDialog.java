@@ -97,7 +97,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 	private static class OverrideMethodsContentProvider implements ITreeContentProvider {
 		private Object							fEmptyList[] = new Object[0];
 		OverrideMethodsFinder					fMethodsFinder;
-		private SVDBModIfcDecl				fLeafClass;
+		private SVDBClassDecl					fLeafClass;
 		
 		public OverrideMethodsContentProvider(
 				SVDBClassDecl			leaf_class,

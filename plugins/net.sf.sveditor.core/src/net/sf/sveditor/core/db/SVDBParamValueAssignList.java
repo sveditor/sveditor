@@ -19,9 +19,9 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocation {
 	
-	private boolean							fNamedMapping;
-	private List<SVDBParamValueAssign>		fParameters;
-	private SVDBLocation					fEndLocation;
+	boolean							fNamedMapping;
+	List<SVDBParamValueAssign>		fParameters;
+	SVDBLocation					fEndLocation;
 	
 	public SVDBParamValueAssignList() {
 		super("", SVDBItemType.ParamValueAssignList);

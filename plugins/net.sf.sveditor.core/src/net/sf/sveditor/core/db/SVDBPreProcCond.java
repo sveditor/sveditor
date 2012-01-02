@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 
 
 public class SVDBPreProcCond extends SVDBScopeItem {
-	private String						fConditional;
+	String						fConditional;
 	
 	public SVDBPreProcCond() {
 		super("", SVDBItemType.PreProcCond);

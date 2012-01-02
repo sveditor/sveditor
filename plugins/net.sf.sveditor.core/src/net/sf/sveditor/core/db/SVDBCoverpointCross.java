@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 public class SVDBCoverpointCross extends SVDBScopeItem {
-	private List<SVDBIdentifierExpr>	fCoverpointList;
-	private SVDBExpr					fIFF;
+	List<SVDBIdentifierExpr>	fCoverpointList;
+	SVDBExpr					fIFF;
 
 	public SVDBCoverpointCross() {
 		super("", SVDBItemType.CoverpointCross);
