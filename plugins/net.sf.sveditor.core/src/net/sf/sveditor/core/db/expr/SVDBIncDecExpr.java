@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBIncDecExpr extends SVDBExpr {
-	private SVDBExpr					fExpr;
-	private String					fOp;
+	SVDBExpr				fExpr;
+	String					fOp;
 	
 	public SVDBIncDecExpr() {
 		this(null, null);

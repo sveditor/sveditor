@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceRepetitionExpr extends SVDBExpr {
-	private String				fRepType;
-	private SVDBExpr			fExpr;
+	String				fRepType;
+	SVDBExpr			fExpr;
 	
 	public SVDBSequenceRepetitionExpr() {
 		super(SVDBItemType.SequenceRepetitionExpr);

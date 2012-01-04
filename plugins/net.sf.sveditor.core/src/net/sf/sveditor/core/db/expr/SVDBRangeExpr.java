@@ -17,8 +17,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBRangeExpr extends SVDBExpr {
 	
-	private SVDBExpr				fLeft;
-	private SVDBExpr				fRight;
+	SVDBExpr				fLeft;
+	SVDBExpr				fRight;
 	
 	public SVDBRangeExpr() {
 		this(null, null);

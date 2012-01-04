@@ -25,6 +25,11 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		fDelegateList = new ArrayList<ISVDBPersistenceRWDelegate>();
 		fDefaultDelegate = new SVDBDefaultPersistenceRW();
 		fDefaultDelegate.init(this);
+		
+		/*
+		ISVDBPersistenceRWDelegate d = JITSVDBExprDelegateFactory.instance().newDelegate();
+		d.init(this);
+		 */
 	}
 	
 	public void addDelegate(ISVDBPersistenceRWDelegate d) {

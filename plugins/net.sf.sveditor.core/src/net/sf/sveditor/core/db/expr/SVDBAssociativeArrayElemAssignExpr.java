@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssociativeArrayElemAssignExpr extends SVDBExpr {
-	private SVDBExpr				fKey;
-	private SVDBExpr				fValue;
+	SVDBExpr				fKey;
+	SVDBExpr				fValue;
 	
 	public SVDBAssociativeArrayElemAssignExpr() {
 		super(SVDBItemType.AssociativeArrayElemAssignExpr);

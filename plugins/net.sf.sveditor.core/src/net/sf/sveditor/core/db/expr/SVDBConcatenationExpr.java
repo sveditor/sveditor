@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBConcatenationExpr extends SVDBExpr {
-	private List<SVDBExpr>			fElems;
+	List<SVDBExpr>			fElems;
 	
 	public SVDBConcatenationExpr() {
 		super(SVDBItemType.ConcatenationExpr);

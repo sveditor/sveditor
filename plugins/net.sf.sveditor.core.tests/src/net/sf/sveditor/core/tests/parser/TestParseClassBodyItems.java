@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
 	
@@ -444,6 +445,26 @@ public class TestParseClassBodyItems extends TestCase {
 		SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)foobar_td.getTypeInfo();
 		assertEquals("foobar_t doesn't have correct number of elements",
 				2, enum_t.getEnumValues().first().size());
+	}
+	
+	public void testBeginBlockVirtualInterfaceVar() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testBeginBlockVirtualInterfaceVar";
+		String content =
+			"class tb_env;\n" +
+			"	function void build;\n" +
+			"		//------------------------------------------------\n" +
+			"		// virtual interface\n" +
+			"		//------------------------------------------------\n" +
+			"		begin\n" +
+			"			virtual pin_xactor_if #(1) int0_if;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+		ParserTests.runTestStrDoc(testname, content, 
+				new String[] {"tb_env", "build"});
 	}
 
 	public void testTypedefClass() {

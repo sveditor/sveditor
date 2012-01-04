@@ -18,8 +18,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCrossBinsSelectConditionExpr extends SVDBExpr {
-	private SVDBExpr				fBinsExpr;
-	private List<SVDBExpr>			fIntersectList;
+	SVDBExpr				fBinsExpr;
+	List<SVDBExpr>			fIntersectList;
 	
 	public SVDBCrossBinsSelectConditionExpr() {
 		super(SVDBItemType.CrossBinsSelectConditionExpr);

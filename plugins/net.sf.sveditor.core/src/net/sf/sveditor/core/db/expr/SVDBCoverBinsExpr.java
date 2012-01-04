@@ -18,12 +18,12 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCoverBinsExpr extends SVCoverageExpr {
-	private String				fName;
-	private String				fBinsType;
-	private boolean				fIsArray;
-	private SVDBExpr				fArrayExpr;
-	private List<SVDBExpr>		fRangeList;
-	private boolean				fIsDefault;
+	String				fName;
+	String				fBinsType;
+	boolean				fIsArray;
+	SVDBExpr			fArrayExpr;
+	List<SVDBExpr>		fRangeList;
+	boolean				fIsDefault;
 	
 	public SVDBCoverBinsExpr() {
 		this(null, null);

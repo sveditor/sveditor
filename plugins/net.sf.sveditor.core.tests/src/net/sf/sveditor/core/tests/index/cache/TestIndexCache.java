@@ -275,7 +275,12 @@ public class TestIndexCache extends TestCase {
 
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(bos);
-		IDBWriter writer = new SVDBPersistenceRW();
+		IDBWriter writer = null;
+		try {
+			writer = new SVDBPersistenceRW();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		writer.setDebugEn(true);
 		IDBReader reader = new SVDBPersistenceRW();
 		reader.setDebugEn(true);

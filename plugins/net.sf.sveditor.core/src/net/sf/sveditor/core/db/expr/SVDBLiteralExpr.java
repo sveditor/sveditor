@@ -17,7 +17,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBLiteralExpr extends SVDBExpr {
 	
-	private String					fLiteral;
+	String					fLiteral;
 	
 	public SVDBLiteralExpr() {
 		this(null);

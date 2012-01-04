@@ -18,7 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBParamIdExpr extends SVDBIdentifierExpr {
-	private List<SVDBExpr>				fParamExpr;
+	List<SVDBExpr>				fParamExpr;
 	
 	public SVDBParamIdExpr() {
 		this(null);

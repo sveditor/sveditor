@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBFieldAccessExpr extends SVDBExpr {
-	private SVDBExpr 					fExpr;
-	private boolean						fStaticRef;
-	private SVDBExpr					fLeaf;
+	SVDBExpr 					fExpr;
+	boolean						fStaticRef;
+	SVDBExpr					fLeaf;
 
 	public SVDBFieldAccessExpr() {
 		this(null, false, null);

@@ -21,8 +21,8 @@ public class SVDBClockingEventExpr extends SVDBExpr {
 		Expr // always @(a or b or c)
 	}
 
-	private SVDBExpr			fExpr;
-	private ClockingEventType   fEventType;
+	SVDBExpr			fExpr;
+	ClockingEventType   fEventType;
 
 
 	public SVDBClockingEventExpr() {

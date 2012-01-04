@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceClockingExpr extends SVDBExpr {
-	private SVDBExpr 		fClockingExpr;
-	private SVDBExpr		fSequenceExpr;
+	SVDBExpr 		fClockingExpr;
+	SVDBExpr		fSequenceExpr;
 	
 	public SVDBSequenceClockingExpr() {
 		super(SVDBItemType.SequenceClockingExpr);

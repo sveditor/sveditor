@@ -18,9 +18,9 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceMatchItemExpr extends SVDBExpr {
-	private SVDBExpr			fExpr;
-	private List<SVDBExpr>		fMatchItemList;
-	private SVDBExpr			fSequenceAbbrev;
+	SVDBExpr			fExpr;
+	List<SVDBExpr>		fMatchItemList;
+	SVDBExpr			fSequenceAbbrev;
 	
 	public SVDBSequenceMatchItemExpr() {
 		super(SVDBItemType.SequenceMatchItemExpr);

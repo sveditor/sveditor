@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssignmentPatternExpr extends SVDBExpr {
-	private List<SVDBExpr>			fPatternList;
+	List<SVDBExpr>			fPatternList;
 	
 	public SVDBAssignmentPatternExpr() {
 		this(SVDBItemType.AssignmentPatternExpr);

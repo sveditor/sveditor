@@ -18,8 +18,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBInsideExpr extends SVDBExpr {
-	private SVDBExpr					fLhs;
-	private List<SVDBExpr>				fValueRangeList;
+	SVDBExpr					fLhs;
+	List<SVDBExpr>				fValueRangeList;
 	
 	public SVDBInsideExpr() {
 		this(null);

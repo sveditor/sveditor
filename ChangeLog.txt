@@ -10,6 +10,9 @@
   and open type hierarchy works when the cursor is placed both on the head 
   and the tail of a token.
 
+- #(3469088) Correct a parse bug involving declaring a virtual-interface variable
+  in a begin/end scope
+
 ------------------------------------------------------------------------------
 -- 0.7.6 Release --
 

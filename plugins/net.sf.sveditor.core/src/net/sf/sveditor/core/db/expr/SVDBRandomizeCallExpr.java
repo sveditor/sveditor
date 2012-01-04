@@ -18,7 +18,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBRandomizeCallExpr extends SVDBTFCallExpr {
-	private SVDBStmt				fWithBlock;
+	SVDBStmt				fWithBlock;
 	
 	public SVDBRandomizeCallExpr() {
 		this(null, null, null);
