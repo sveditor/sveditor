@@ -718,6 +718,10 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (type != CaseType.Randcase && fLexer.peekKeyword("default")) {
 				item.addExpr(new SVDBLiteralExpr("default"));
 				fLexer.eatToken();
+				// Default has an optional : after it
+				if (fLexer.peekOperator(":"))  {
+					fLexer.readOperator(":");
+				}
 			} else {
 				while (fLexer.peek() != null) {
 					item.addExpr(fParsers.exprParser().expression());
@@ -727,8 +731,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 						break;
 					}
 				}
+				fLexer.readOperator(":");
 			}
-			fLexer.readOperator(":");
 			statement(item);
 			case_stmt.addCaseItem(item);
 		}

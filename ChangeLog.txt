@@ -1,3 +1,5 @@
+- #(3469890) 	Case statement with default, now : not parsed correctly
+  case (a) 1: b=1'b0; default b=1'b1; endcase now fixed
 
 -- 0.7.8 Release --
 

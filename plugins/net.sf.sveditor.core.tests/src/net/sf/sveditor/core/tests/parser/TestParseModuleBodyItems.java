@@ -1247,6 +1247,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"			2'd0: pri_out = pri_out0;\n" +
 			"			2'd1: pri_out = pri_out1;\n" +
 			"			2'd2: pri_out = pri_out2;\n" +
+			"			default: pri_out = pri_out2;\n" +
 			"		endcase\n" +
 			"endmodule\n"
 			;
@@ -1254,6 +1255,23 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest("testAlwaysCase", doc, new String[] {"t"});
 	}
 
+	public void testAlwaysCaseDefaultNoColon() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+				"module t;\n" +
+						"	always @(pri_sel or pri_out0 or pri_out1 or  pri_out2)\n" +
+						"		case(pri_sel)           // synopsys parallel_case full_case\n" +
+						"			2'd0: pri_out = pri_out0;\n" +
+						"			2'd1: pri_out = pri_out1;\n" +
+						"			2'd2: pri_out = pri_out2;\n" +
+						"			default pri_out = pri_out2;\n" +
+						"		endcase\n" +
+						"endmodule\n"
+						;
+		
+		runTest("testAlwaysCaseDefaultNoColon", doc, new String[] {"t"});
+	}
+	
 	public void testTaskNonAnsiInputParam() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
