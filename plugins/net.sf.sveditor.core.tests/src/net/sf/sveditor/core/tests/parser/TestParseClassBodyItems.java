@@ -28,7 +28,6 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
 	
@@ -616,7 +615,71 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(testname, content, new String[] {"my_class"});
 	}
-	
+
+	public void testRandomizeWithNoArgList() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testRandomizeWithNoArgList";
+		String content = 
+				"class my_class;\n" +
+				"	function void my_func;\n" +
+				"		my_class cls1;\n" + 
+				"		assert(cls1.randomize with {\n" +
+				"			cls1.a == 2;\n" +
+				"		});" +
+				"	endfunction\n" +
+				"endclass\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class", "my_func"});
+	}
+
+	public void testRandomizeWithArgList() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testRandomizeWithArgList";
+		String content = 
+				"class my_class;\n" +
+				"	function void my_func;\n" +
+				"		my_class cls1;\n" + 
+				"		assert(cls1.randomize() with {\n" +
+				"			cls1.a == 2;\n" +
+				"		});" +
+				"	endfunction\n" +
+				"endclass\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class", "my_func"});
+	}
+
+	public void testFindWithNoArgList() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testFindWithNoArgList";
+		String content = 
+				"class my_class;\n" +
+				"	function void my_func;\n" +
+				"		my_class cls1;\n" + 
+				"		cls1.q.find with (item == idx);\n" +
+				"	endfunction\n" +
+				"endclass\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class", "my_func"});
+	}
+
+	public void testFindWithArgList() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testFindWithArgList";
+		String content = 
+				"class my_class;\n" +
+				"	function void my_func;\n" +
+				"		my_class cls1;\n" + 
+				"		cls1.q.find() with (item == idx);\n" +
+				"	endfunction\n" +
+				"endclass\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class", "my_func"});
+	}
+
 	public void testRandomizeLocalVarRef() {
 		String testname = "testRandomizeLocalVarRef";
 		String content =

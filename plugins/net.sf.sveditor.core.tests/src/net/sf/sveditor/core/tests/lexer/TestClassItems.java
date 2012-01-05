@@ -65,6 +65,8 @@ public class TestClassItems extends TestCase {
 			
 			public boolean error_limit_reached() {return false;}
 			
+			public void disableErrors(boolean dis) {}
+			
 			public void error(SVParseException e) {}
 			
 			public void error(String msg) {}

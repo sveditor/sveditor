@@ -257,6 +257,23 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"t"});
 	}
 
+	public void testAssignBitSelect() throws SVParseException {
+		String testname = "testAssignBitSelect";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module t;\n" +
+			"	struct {" +
+			"		bit[3:0] a;\n" +
+			"	} svar;\n" +
+			"\n" +
+			"	initial begin\n" +
+			"		svar::a[1:0] = 1;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"t"});
+	}
+
 	public void testDelayControlAdjacentBasedNumber() throws SVParseException {
 		String testname = "testDelayControlAdjacentBasedNumber";
 		SVCorePlugin.getDefault().enableDebug(false);

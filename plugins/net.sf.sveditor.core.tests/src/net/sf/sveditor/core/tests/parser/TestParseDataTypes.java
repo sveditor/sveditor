@@ -49,7 +49,23 @@ public class TestParseDataTypes extends TestCase {
 		}
 		LogFactory.removeLogHandle(log);
 	}
-	
+
+	public void testScopedTypeCast() throws SVParseException {
+		String testname = "testScopedTypeCast";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foobar;\n" +
+			"	function void f_func;\n" +
+			"		int a = myscope::mytype'(5);\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		ParserTests.runTestStrDoc(testname, content, 
+				new String[] {"foobar", "f_func"});
+	}
+
 	public void testTypedefEnumFwdDecl() throws SVParseException {
 		String content =
 			"class foo;\n" +

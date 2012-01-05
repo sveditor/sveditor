@@ -57,10 +57,13 @@ public class SVExprUtilsParser implements ISVParser {
 	public ILogHandle getLogHandle() {
 		return fLog;
 	}
+	
+	public void disableErrors(boolean dis) {
+		
+	}
 
 	public void error(String msg) throws SVParseException {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void error(SVParseException e) throws SVParseException {

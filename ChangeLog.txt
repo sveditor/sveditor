@@ -1,4 +1,17 @@
 
+-- 0.7.8 Release --
+
+- #(nobug) Correct a parse error with scoped cast types (eg a = myscope::mytype'(val))
+
+- #(nobug) Correct a parse error with randomize calls without an argument list:
+  assert(cls1.randomize with {a==2});
+
+- #(nobug) Correct a parse-bug conflict between type and static reference:
+  a::b[1:0]
+
+-
+
+------------------------------------------------------------------------------
 -- 0.7.7 Release --
 
 - #(nobug) Correct implementation of open-declation for `include files 

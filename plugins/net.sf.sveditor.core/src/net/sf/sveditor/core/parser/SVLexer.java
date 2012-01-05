@@ -131,7 +131,7 @@ public class SVLexer extends SVToken {
 	public void removeTokenListener(ISVTokenListener l) {
 		fTokenListeners.remove(l);
 	}
-
+	
 	public void setNewlineAsOperator(boolean en) {
 		fNewlineAsOperator = en;
 	}

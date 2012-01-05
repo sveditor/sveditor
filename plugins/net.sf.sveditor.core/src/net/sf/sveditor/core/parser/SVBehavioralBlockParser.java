@@ -107,10 +107,13 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 				fLexer.isIdentifier() || fLexer.peekKeyword("typedef","struct","enum","virtual")) {
 //			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
-			
+
+			if (fDebugEn) {debug(" -- possible variable declaration " + fLexer.peek());}
+
 			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 					fLexer.peekKeyword("typedef","struct","enum","virtual")) {
 				// Definitely a declaration
+				if (fDebugEn) {debug(" -- variable declaration 1 " + fLexer.peek());}
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");
 				}
@@ -122,8 +125,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				// pkg::cls #(P)::type var;
 				// field.foo
 				SVToken tok = fLexer.consumeToken();
-				
+
+				if (fDebugEn) {debug(" -- variable declaration 2 " + fLexer.peek());}
+
 				if (fLexer.peekOperator("::","#") || fLexer.peekId()) {
+					boolean retry_as_statement = false;
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);
 					final List<SVToken> tok_l = new ArrayList<SVToken>();
@@ -138,33 +144,40 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					SVDBTypeInfo type = null;
 					try {
 						fLexer.addTokenListener(l);
+						disableErrors(true);
 						type = parsers().dataTypeParser().data_type(0);
-					} finally {
+					} catch (SVParseException e) {
+						if (fDebugEn) {debug("dataType error ; retrying as statement", e);}
+						fLexer.ungetToken(tok_l);
+						retry_as_statement = true;
+ 					} finally {
+						disableErrors(false);
 						fLexer.removeTokenListener(l);
 					}
 					
+					if (fDebugEn) {debug("Post-read : " + fLexer.peek());}
+
 					// Okay, what's next?
-					if (fLexer.peekId()) {
-						// Conclude that this is a declaration
-						if (fDebugEn) {
-							debug("Assume a declaration @ " + fLexer.peek());
+					if (!retry_as_statement) {
+						if (fLexer.peekId()) {
+							// Conclude that this is a declaration
+							if (fDebugEn) {debug("Assume a declaration @ " + fLexer.peek());}
+							if (!decl_allowed) {
+								error("declaration in a non-declaration location");
+							}
+
+							parsers().blockItemDeclParser().parse(parent, type, start, consume_terminator);
+							return decl_allowed;
+						} else {
+							if (fDebugEn) { debug("Assume a typed reference @ " + fLexer.peek());}
+							// Else, this is probably a typed reference
+							fLexer.ungetToken(tok_l);
+							// Fall through
 						}
-						if (!decl_allowed) {
-							error("declaration in a non-declaration location");
-						}
-						
-						parsers().blockItemDeclParser().parse(parent, type, start, consume_terminator);
-						return decl_allowed;
-					} else {
-						if (fDebugEn) {
-							debug("Assume a typed reference @ " + fLexer.peek());
-						}
-						// Else, this is probably a typed reference
-						fLexer.ungetToken(tok_l);
-						// Fall through
 					}
 				} else {
 					// More likely to not be a type
+					if (fDebugEn) { debug("Not likely a type declaration");}
 					fLexer.ungetToken(tok);
 				}
 			}
@@ -387,6 +400,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
 				fLexer.peekKeyword("this", "super") || 
 				fLexer.peekOperator()) {
+			if (fDebugEn) { debug("non-kw statement: " + fLexer.peek());}
 			SVToken id = fLexer.consumeToken();
 			
 			if (fLexer.peekOperator(":")) {

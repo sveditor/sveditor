@@ -48,6 +48,10 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	public boolean error_limit_reached() {
 		return fParser.error_limit_reached();
 	}
+	
+	public void disableErrors(boolean dis) {
+		fParser.disableErrors(dis);
+	}
 
 	public void error(SVParseException e) throws SVParseException {
 		fParser.error(e);

@@ -30,6 +30,8 @@ public interface ISVParser {
 	
 	boolean error_limit_reached();
 	
+	void disableErrors(boolean dis);
+	
 	SVParsers parsers();
 	
 	void debug(String msg, Exception e);

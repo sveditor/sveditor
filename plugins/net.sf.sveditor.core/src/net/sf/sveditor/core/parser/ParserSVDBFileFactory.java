@@ -80,6 +80,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
 	private List<SVDBMarker>			fMarkers;
+	private boolean						fDisableErrors;
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		// Setup logging
@@ -124,7 +125,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void preProcError(String msg, String filename, int lineno) {
-		if (fMarkers != null) {
+		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.UndefinedMacro, msg);
 			marker.setLocation(new SVDBLocation(lineno, 0));
@@ -627,7 +628,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {
-		if (fMarkers != null) {
+		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.ParseError, msg);
 			marker.setLocation(new SVDBLocation(lineno, linepos));
@@ -783,9 +784,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void error(SVParseException e) throws SVParseException {
+		/** TMP:
 		fParseErrors.add(e);
+		 */
 
-		
 		error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
 		
 		// Send the full error forward
@@ -796,6 +798,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 		
 		throw e;
+	}
+	
+	public void disableErrors(boolean dis) {
+		fDisableErrors = dis;
 	}
 	
 	public void error(String msg) throws SVParseException {
