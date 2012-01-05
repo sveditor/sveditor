@@ -333,7 +333,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		} else if (fLexer.peekOperator("#")) {
 			SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
 			
-			delay_stmt.setExpr(fParsers.exprParser().delay_expr());
+			delay_stmt.setExpr(fParsers.exprParser().delay_expr(2));
 			statement_int(delay_stmt, false, true, consume_terminator);
 		} else if (fLexer.peekKeyword("disable")) {
 			SVDBDisableStmt disable_stmt;
@@ -464,7 +464,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			assign_stmt.setOp(op);
 			
 			if (fLexer.peekOperator("#")) {
-				assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr());
+				assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr(2));
 			} else if (fLexer.peekOperator("@")) {
 				assign_stmt.setDelayExpr(fParsers.exprParser().clocking_event());
 			} else if (fLexer.peekOperator("##")) {

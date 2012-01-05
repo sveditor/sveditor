@@ -102,6 +102,8 @@ public class SVDataTypeParser extends SVParserBase {
 		SVToken tok;
 
 		qualifiers |= parsers().SVParser().scan_qualifiers(false);
+		tok = fLexer.consumeToken();
+		fLexer.ungetToken(tok);
 
 		if (fLexer.peekKeyword(IntegerVectorType)) {
 			// integer_vector_type [signing] { packed_dimension }
@@ -120,8 +122,29 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			type = builtin_type;
 		} else if (fLexer.peekKeyword(NetType)) {
+			//	net_declaration
+			//	13
+			//	 ::= 
+			//	net_type [ drive_strength | charge_strength ] [  vectored  |  scalared  ] 
+			//	data_type_or_implicit [ delay3 ] list_of_net_decl_assignments ;  
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			
+			// Drive Strength
+			if (fLexer.peekOperator("("))  {
+				tok = fLexer.consumeToken();		// eat the (
+				if (fLexer.peekOperator(SVKeywords.fStrength))  {
+					// Have (<strength>, <strength>)
+					String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
+					fLexer.readOperator(",");		// 
+					String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
+					fLexer.readOperator(")");		//
+					// TODO: Do something with the strengths
+				}
+				else  {
+					fLexer.ungetToken(tok);// restore the (
+				}
+			}
+			// Array dimensions
 			if (fLexer.peekOperator("[")) {
 				fLexer.startCapture();
 				while (fLexer.peekOperator("[")) {
@@ -129,7 +152,13 @@ public class SVDataTypeParser extends SVParserBase {
 				}
 				builtin_type.setVectorDim(fLexer.endCapture());
 			}
-			
+			// Delay 3
+			// #(mintypmax,mintypmax, mintypmax)
+			if (fLexer.peekOperator("#"))  {
+				// Time expression
+				fParsers.exprParser().delay_expr(3);
+				// TODO - What Do something with the Delay expression
+			}
 			type = builtin_type;
 		} else if (fLexer.peekKeyword(IntegerAtomType)) {
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());

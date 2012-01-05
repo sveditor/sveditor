@@ -157,7 +157,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 			fLexer.readOperator(";");
 		} else if (SVDataTypeParser.NetType.contains(id)) {
-			parse_var_decl(parent);
+			parse_var_decl_net_type (parent);
 		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
 			parsers().gateInstanceParser().parse(parent);
 		} else if (fLexer.peekKeyword("defparam", "specparam")) {
@@ -310,7 +310,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		if (fLexer.peekOperator("#")) {
 			// Time expression
-			assign.setDelay(fParsers.exprParser().delay_expr());
+			assign.setDelay(fParsers.exprParser().delay_expr(3));
 		}
 		
 		assign.setLHS(fParsers.exprParser().variable_lvalue());
@@ -324,7 +324,14 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		parent.addChildItem(assign);
 	}
 	
-	private void parse_var_decl(ISVDBAddChildItem parent) throws SVParseException {
+	/**
+	 *	net_declaration ::= 
+	 *  net_type [ drive_strength | charge_strength ] [  vectored  |  scalared  ] 
+	 *  data_type_or_implicit [ delay3 ] list_of_net_decl_assignments ;
+	 * @param parent
+	 * @throws SVParseException
+	 */
+	private void parse_var_decl_net_type (ISVDBAddChildItem parent) throws SVParseException {
 		// net type
 		String net_type = fLexer.eatToken();
 		String vector_dim = null;
@@ -339,6 +346,31 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					fLexer.getStartLocation().getLine());
 		}
 		
+		// Drive Strength
+		if (fLexer.peekOperator("("))  {
+			SVToken tok = new SVToken ();
+			tok = fLexer.consumeToken();		// eat the (
+			if (fLexer.peekKeyword(SVKeywords.fStrength))  {
+				// Have (<strength>, <strength>)
+				String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
+				fLexer.readOperator(",");		// 
+				String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
+				fLexer.readOperator(")");		//
+				// TODO: Do something with the strengths
+			}
+			else  {
+				fLexer.ungetToken(tok);// restore the (
+			}
+		}
+
+		// Delay 3
+		// #(mintypmax,mintypmax, mintypmax)
+		if (fLexer.peekOperator("#"))  {
+			// Time expression
+			fParsers.exprParser().delay_expr(3);
+			// TODO - What Do something with the Delay expression
+		}
+
 		// vectored untyped net
 		if (fLexer.peekOperator("[")) {
 			// TODO:
