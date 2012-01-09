@@ -1,10 +1,9 @@
-- #(3469890) 	Case statement with default, now : not parsed correctly
-  case (a) 1: b=1'b0; default b=1'b1; endcase now fixed
 
-- #(3470024) 	net declaration with drive strengths not parsing
-	wire (strong1, weak0) #tck_delay pad_an12 = pad_an12_r; 
 
 -- 0.7.8 Release --
+
+- #(3469890) 	Case statement with default, now : not parsed correctly
+  case (a) 1: b=1'b0; default b=1'b1; endcase now fixed
 
 - #(nobug) Correct a parse error with scoped cast types (eg a = myscope::mytype'(val))
 
@@ -14,7 +13,8 @@
 - #(nobug) Correct a parse-bug conflict between type and static reference:
   a::b[1:0]
 
--
+- #(3470024) 	net declaration with drive strengths not parsing
+	wire (strong1, weak0) #tck_delay pad_an12 = pad_an12_r; 
 
 ------------------------------------------------------------------------------
 -- 0.7.7 Release --

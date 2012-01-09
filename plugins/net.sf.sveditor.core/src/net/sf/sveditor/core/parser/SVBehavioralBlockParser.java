@@ -220,6 +220,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			do_while.setCond(parsers().exprParser().expression());
 			fLexer.readOperator(")");
 			fLexer.readOperator(";");
+			parent.addChildItem(do_while);
 		} else if (fLexer.peekKeyword("repeat")) {
 			SVDBRepeatStmt repeat = new SVDBRepeatStmt();
 			repeat.setLocation(start);
@@ -386,6 +387,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (consume_terminator) {
 				fLexer.readOperator(";");
 			}
+			parent.addChildItem(continue_stmt);
 		} else if (fLexer.peekKeyword("assign", "deassign", "force", "release")) {
 			procedural_cont_assign(parent);
 		} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0) ||
@@ -410,6 +412,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				SVDBLabeledStmt l_stmt = new SVDBLabeledStmt();
 				l_stmt.setLocation(start);
 				l_stmt.setLabel(label);
+				parent.addChildItem(l_stmt);
 				statement(l_stmt, decl_allowed, ansi_decl);
 			} else {
 				fLexer.ungetToken(id);
@@ -531,8 +534,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 		fLexer.eatToken();
 		fLexer.readOperator("(");
-		SVDBForStmt stmt = new SVDBForStmt();
-		stmt.setLocation(start);
+		SVDBForStmt for_stmt = new SVDBForStmt();
+		for_stmt.setLocation(start);
 		if (fLexer.peek() != null && !fLexer.peekOperator(";")) {
 			SVDBBlockStmt init_stmt = new SVDBBlockStmt();
 			
@@ -547,7 +550,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		
 		if (!fLexer.peekOperator(";")) {
 			SVDBBlockStmt cond_stmt = new SVDBBlockStmt();
-			stmt.setTestStmt(cond_stmt);
+			for_stmt.setTestStmt(cond_stmt);
 			
 			while (fLexer.peek() != null) {
 				SVDBExprStmt expr_stmt = new SVDBExprStmt();
@@ -567,7 +570,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		
 		if (!fLexer.peekOperator(")")) {
 			SVDBBlockStmt incr_stmt = new SVDBBlockStmt();
-			stmt.setIncrstmt(incr_stmt);
+			for_stmt.setIncrstmt(incr_stmt);
 			
 			while (fLexer.peek() != null) {
 				SVDBExprStmt expr_stmt = new SVDBExprStmt();
@@ -585,11 +588,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(")");
-		parent.addChildItem(stmt);
+		parent.addChildItem(for_stmt);
 		
-		statement(stmt, false,false);
+		statement(for_stmt, false,false);
 		
-		return stmt;
+		return for_stmt;
 	}
 	
 	private void procedural_cont_assign(ISVDBAddChildItem parent) throws SVParseException {
@@ -668,6 +671,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBIfStmt if_stmt = new SVDBIfStmt(parsers().exprParser().expression()); 
 		fLexer.readOperator(")");
 		if_stmt.setLocation(start);
+		parent.addChildItem(if_stmt);
 		
 		if (fDebugEn) {
 			debug("--> parse body of if");
@@ -700,6 +704,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		
 		// NOTE: randcase doesn't have a switch expression
 		SVDBCaseStmt case_stmt = new SVDBCaseStmt(type);
+		case_stmt.setLocation(start);
 		if (!type_s.equals("randcase")) {
 			fLexer.readOperator("(");
 			case_stmt.setExpr(parsers().exprParser().expression());

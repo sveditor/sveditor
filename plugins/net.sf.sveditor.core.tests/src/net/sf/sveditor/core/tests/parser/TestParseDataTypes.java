@@ -64,6 +64,7 @@ public class TestParseDataTypes extends TestCase {
 		
 		ParserTests.runTestStrDoc(testname, content, 
 				new String[] {"foobar", "f_func"});
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testTypedefEnumFwdDecl() throws SVParseException {
