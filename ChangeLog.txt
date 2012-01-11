@@ -16,6 +16,8 @@
 - #(3470024) 	net declaration with drive strengths not parsing
 	wire (strong1, weak0) #tck_delay pad_an12 = pad_an12_r; 
 
+- #(nobug) Improve filtering of forward typedefs during open-declaration operation
+
 ------------------------------------------------------------------------------
 -- 0.7.7 Release --
 

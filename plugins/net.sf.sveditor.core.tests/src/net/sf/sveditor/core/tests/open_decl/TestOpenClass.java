@@ -296,7 +296,8 @@ public class TestOpenClass extends TestCase {
 	}
 
 	public void testOpenClassTypeRef() {
-		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRef");
+		String testname = "testOpenClassTypeRef";
+		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +
@@ -311,7 +312,7 @@ public class TestOpenClass extends TestCase {
 			"\n" +
 			"endclass\n" 
 			;
-		SVDBFile file = SVDBTestUtils.parse(doc, "testOpenVariableRef.svh");
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
 		
@@ -362,6 +363,45 @@ public class TestOpenClass extends TestCase {
 		assertEquals(1, ret.size());
 		assertEquals(SVDBItemType.InterfaceDecl, ret.get(0).first().getType());
 		assertEquals("foo", SVDBItem.getName(ret.get(0).first()));
+	}
+
+	public void testOpenClassTypeRefIgnoreTypedefs() {
+		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRefIgnoreTypedefs");
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"typedef class foo;\n" +
+			"class foo;\n" +
+			"endclass\n" +
+			"\n" +
+			"typedef class foo;\n" +
+			"\n" +
+			"class bar extends foo;\n" +
+			"    foo      m_foo;\n" +
+			"\n" +
+			"    function new();\n" +
+			"        m_foo = 5;\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, "testOpenVariableRef.svh");
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("extends foo");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"extends f".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+				file, 4, scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		ISVDBItemBase item = ret.get(0).first();
+		assertEquals(SVDBItemType.ClassDecl, item.getType());
+		assertEquals("foo", SVDBItem.getName(item));
 	}
 
 }

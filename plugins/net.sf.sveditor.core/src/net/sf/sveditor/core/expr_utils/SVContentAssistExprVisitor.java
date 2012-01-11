@@ -232,7 +232,10 @@ public class SVContentAssistExprVisitor {
 		
 		fLog.debug("FindByNameInScopes: " + 
 				((fScope != null)?(fScope.getType() + " " + SVDBItem.getName(fScope)):"NONE"));
-		List<ISVDBItemBase> items = finder.find(fScope, name, true); 
+		List<ISVDBItemBase> items = finder.find(fScope, name, false);
+		
+		// Filter out the forward typedefs
+		filterFwdDecls(items);
 		
 		if (items.size() > 0) {
 			return items.get(0);
@@ -259,7 +262,10 @@ public class SVContentAssistExprVisitor {
 			new SVDBFindByNameInClassHierarchy(fIndexIt, fNameMatcher);
 		
 		List<ISVDBItemBase> items = finder_h.find(root, name);
-		
+
+		// Filter out the forward typedefs
+		filterFwdDecls(items);
+
 		if (items.size() > 0) {
 			return items.get(0);
 		} else {
@@ -389,18 +395,9 @@ public class SVContentAssistExprVisitor {
 	
 			List<ISVDBItemBase> item_l = finder_n.find(name);
 	
-			// Filter out forward-decl items
-			for (int i=0; i<item_l.size(); i++) {
-				fLog.debug("item @ " + i + " : " + item_l.get(i).getType());
-				if (item_l.get(i).getType() == SVDBItemType.TypedefStmt) {
-					SVDBTypedefStmt td = (SVDBTypedefStmt)item_l.get(i);
-					if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoFwdDecl) {
-						fLog.debug("remove forward-declaration typedef @ " + item_l.get(i).getLocation());
-						item_l.remove(i);
-						i--;
-					}
-				}
-			}
+			// Filter out the forward typedefs
+			filterFwdDecls(item_l);
+
 			if (item_l.size() > 0) {
 				ret = item_l.get(0);
 			}
@@ -522,6 +519,9 @@ public class SVContentAssistExprVisitor {
 		SVDBFindByName name_finder = new SVDBFindByName(fIndexIt);
 		List<ISVDBItemBase> item_l = name_finder.find(id);
 		
+		// Filter out the forward typedefs
+		filterFwdDecls(item_l);
+
 		if (item_l.size() > 0) {
 			return item_l.get(0);
 		}
@@ -597,4 +597,16 @@ public class SVContentAssistExprVisitor {
 		}
 	}
 
+	protected void filterFwdDecls(List<ISVDBItemBase> items) {
+		for (int i=0; i<items.size(); i++) {
+			if (items.get(i).getType() == SVDBItemType.TypedefStmt) {
+				SVDBTypedefStmt td = (SVDBTypedefStmt)items.get(i);
+				if (td.getTypeInfo().getType() != null &&
+						td.getTypeInfo().getType() == SVDBItemType.TypeInfoFwdDecl) {
+					items.remove(i);
+					i--;
+				}
+			}
+		}
+	}
 }
