@@ -246,6 +246,165 @@ public class SVKeywords {
 		"1step"
 	};
 	
+	/**
+	 * Any keywords that end with *, are SV specific
+	 */
+	private static final String                     fSystemCalls[] = {
+		// Verilog Constructs
+		"$display",
+		"$fdisplay",
+		"$finish",
+		"$fmonitor",
+		"$fstrobe",
+		"$fwrite",
+		"$getpattern",
+		"$history",
+		"$hold",
+		"$incsave",
+		"$monitor",
+		"$readmemb",
+		"$readmemh",
+		"$realtime",
+		"$restart",
+		"$save",
+		"$scale",
+		"$scope",
+		"$setup",
+		"$setuphold",
+		"$showscope",
+		"$showvars",
+		"$sreadmemb",
+		"$sreadmemh",
+		"$stop",
+		"$strobe",
+		"$time",
+		"$width",
+		"$write",
+		
+		// Constructs new to SV
+		"$exit*",
+		"$stime*",
+		"$printtimescale*",
+		"$timeformat*",
+		"$bitstoreal*",
+		"$realtobits*",
+		"$bitstoshortreal*",
+		"$shortrealtobits*",
+		"$itor*",
+		"$rtoi*",
+		"$signed*",
+		"$unsigned*",
+		"$cast*",
+		"$bits*",
+		"$isunbounded*",
+		"$typename*",
+		"$unpacked_dimensions*",
+		"$dimensions*",
+		"$left*",
+		"$right*",
+		"$low*",
+		"$high*",
+		"$increment*",
+		"$size*",
+		"$clog2*",
+		"$asin*",
+		"$ln*",
+		"$acos*",
+		"$log10*",
+		"$atan*",
+		"$exp*",
+		"$atan2*",
+		"$sqrt*",
+		"$hypot*",
+		"$pow*",
+		"$sinh*",
+		"$floor*",
+		"$cosh*",
+		"$ceil*",
+		"$tanh*",
+		"$sin*",
+		"$asinh*",
+		"$cos*",
+		"$acosh*",
+		"$tan*",
+		"$atanh*",
+		"$fatal*",
+		"$error*",
+		"$warning*",
+		"$info*",
+		"$fatal*",
+		"$error*",
+		"$warning*",
+		"$info*",
+		"$asserton*",
+		"$assertoff*",
+		"$assertkill*",
+		"$assertpasson*",
+		"$assertpassoff*",
+		"$assertfailon*",
+		"$assertfailoff*",
+		"$assertnonvacuouson*",
+		"$assertvacuousoff*",
+		"$onehot*",
+		"$onehot0*",
+		"$isunknown*",
+		"$sampled*",
+		"$rose*",
+		"$fell*",
+		"$stable*",
+		"$changed*",
+		"$past*",
+		"$countones*",
+		"$past_gclk*",
+		"$rose_gclk*",
+		"$fell_gclk*",
+		"$stable_gclk*",
+		"$changed_gclk*",
+		"$future_gclk*",
+		"$rising_gclk*",
+		"$falling_gclk*",
+		"$steady_gclk*",
+		"$changing_gclk*",
+		"$coverage_control*",
+		"$coverage_get_max*",
+		"$coverage_get*",
+		"$coverage_merge*",
+		"$coverage_save*",
+		"$get_coverage*",
+		"$set_coverage_db_name*",
+		"$load_coverage_db*",
+		"$random*",
+		"$dist_chi_square*",
+		"$dist_erlang*",
+		"$dist_exponential*",
+		"$dist_normal*",
+		"$dist_poisson*",
+		"$dist_t*",
+		"$dist_uniform*",
+		"$q_initialize*",
+		"$q_add*",
+		"$q_remove*",
+		"$q_full*",
+		"$q_exam*",
+		"$async$and$array*",
+		"$async$and$plane*",
+		"$async$nand$array*",
+		"$async$nand$plane*",
+		"$async$or$array*",
+		"$async$or$plane*",
+		"$async$nor$array*",
+		"$async$nor$plane*",
+		"$sync$and$array*",
+		"$sync$and$plane*",
+		"$sync$nand$array*",
+		"$sync$nand$plane*",
+		"$sync$or$array*",
+		"$sync$or$plane*",
+		"$sync$nor$array*",
+		"$sync$nor$plane*",
+		"$system*"
+	};
+	
 	private static final String 					fTypeStrings[] = {
 		"void",
 		"chandle",
@@ -384,6 +543,11 @@ public class SVKeywords {
 		fAssignmentOps.add("<=");
 	};
 
+	/**
+	 * Checks to see if SV specific keyword
+	 * @param kw
+	 * @return
+	 */
 	public static boolean isSVKeyword(String kw) {
 		Boolean is_sv = fKeywordMap.get(kw);
 		return (is_sv != null);
@@ -393,6 +557,11 @@ public class SVKeywords {
 		return fBuiltinGates.contains(kw);
 	}
 	
+	/**
+	 * Checks to see if Verilog specific keyword
+	 * @param kw
+	 * @return
+	 */
 	public static boolean isVKeyword(String kw) {
 		Boolean is_sv = fKeywordMap.get(kw);
 		return (is_sv != null && !is_sv.booleanValue());
@@ -410,5 +579,9 @@ public class SVKeywords {
 	
 	public static Set<String> getKeywords() {
 		return fKeywordMap.keySet();
+	}
+
+	public static String[] getSystemCalls() {
+		return fSystemCalls;
 	}
 }

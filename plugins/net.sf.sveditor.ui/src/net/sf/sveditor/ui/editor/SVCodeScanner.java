@@ -95,7 +95,16 @@ public class SVCodeScanner extends RuleBasedScanner {
 		}, default_t);
 		
 		
+		// SV Keywords
 		for (String kw :SVKeywords.getKeywords()) {
+			String kw_p = kw;
+			if (kw.endsWith("*")) {
+				kw_p = kw.substring(0, kw.length()-1);
+			}
+			wordRule.addWord(kw_p, keyword);
+		}
+		// SV System Calls
+		for (String kw :SVKeywords.getSystemCalls()) {
 			String kw_p = kw;
 			if (kw.endsWith("*")) {
 				kw_p = kw.substring(0, kw.length()-1);
