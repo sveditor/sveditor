@@ -1,7 +1,12 @@
 
 -- 0.7.9 Release --
+
 - #(3473539) Add colorization of system calls
    - Added colorization of system calls such as $display etc.
+
+- #(3306728) Correct bug in colorizing the compare view when one of the
+  documents being compared comes from a Team Provider
+
 ------------------------------------------------------------------------------
 -- 0.7.8 Release --
 

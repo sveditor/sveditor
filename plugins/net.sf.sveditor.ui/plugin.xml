@@ -595,7 +595,9 @@ endclass
       </contentTypeBinding>
       <viewer
             class="net.sf.sveditor.ui.compare.SVCompareViewerCreator"
-            id="net.sf.sveditor.ui.compareMergeViewer">
+            extensions="sv,svh,v,vl"
+            id="net.sf.sveditor.ui.compareMergeViewer"
+            label="SVEditor Merge Viewer">
       </viewer>
    </extension>
    <extension
@@ -618,5 +620,16 @@ endclass
             </or>
          </enablement>
       </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <viewer
+            class="net.sf.sveditor.ui.compare.ViewerCreator"
+            id="net.sf.sveditor.ui.compareViewer">
+      </viewer>
+      <contentTypeBinding
+            contentTypeId="net.sf.sveditor.core.systemverilog"
+            contentViewerId="net.sf.sveditor.ui.compareViewer">
+      </contentTypeBinding>
    </extension>
 </plugin>

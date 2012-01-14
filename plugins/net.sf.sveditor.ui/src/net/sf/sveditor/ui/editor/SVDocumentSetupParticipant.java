@@ -32,15 +32,20 @@ public class SVDocumentSetupParticipant implements IDocumentSetupParticipant {
 	public void setup(IDocument doc) {
 		if (doc instanceof IDocumentExtension3) {
 			IDocumentExtension3 docExt = (IDocumentExtension3)doc;
-			IDocumentPartitioner p = new FastPartitioner(
-					createScanner(), SVDocumentPartitions.SV_PARTITION_TYPES);
-			
+			IDocumentPartitioner p = createPartitioner();
 			docExt.setDocumentPartitioner(SVDocumentPartitions.SV_PARTITIONING, p);
 			p.connect(doc);
 		}
 	}
 	
-	private IPartitionTokenScanner createScanner() {
+	public static IDocumentPartitioner createPartitioner() {
+		IDocumentPartitioner p = new FastPartitioner(
+				createScanner(), SVDocumentPartitions.SV_PARTITION_TYPES);
+
+		return p;
+	}
+	
+	private static IPartitionTokenScanner createScanner() {
 		RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
 
 		
