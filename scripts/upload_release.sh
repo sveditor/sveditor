@@ -8,20 +8,7 @@ echo "Beginning release of $version" > release/release.log
 
 sftp_cmd="sftp -b /dev/stdin $SF_USERNAME,sveditor@frs.sourceforge.net"
 
-# Copy the update site XML down for modification
-#scp "$update_site_url/site.xml" release/site_ex.xml >> release/release.log 2>&1
-
-#if test ! -f release/site_ex.xml; then
-#    echo "[ERROR] failed to download existing site.xml"
-#    exit 1
-#fi
-
-# Add the new release
-#./scripts/add_release.pl \
-#    release/site_ex.xml \
-#    release/new_release_fragment.xml $version > release/site.xml
-
-cat ./etc/site_head.xml release/new_release_fragment.xml ./etc/site_tail.xml > release/site.xml
+# cat ./etc/site_head.xml release/new_release_fragment.xml ./etc/site_tail.xml > release/site.xml
 scp release/site.xml "$update_site_url/site.xml" >> release/release.log 2>&1
 
 update_site=./release/update_site
