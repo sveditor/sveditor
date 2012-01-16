@@ -6,6 +6,7 @@
     <property file="sveditor.info"/>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
+    <property name="eclipsec"  location="${env.ECLIPSE_HOME}/eclipse"/>
     <property name="feature.version" value="${version}"/>
     <property name="feature.id"      value="net.sf.sveditor"/>
 
@@ -35,6 +36,13 @@
   -->
 
     <property name="srcdir" value="${basedir}"/>
+    <property name="repository" value="${basedir}/archive_tmp/repository"/>
+
+    <taskdef name="xmltask"
+        classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+      <classpath path="${basedir}/scripts/xmltask.jar"/>
+    </taskdef>
+        
 
     <target name="build" depends="compile, mkarchive"/>
 
@@ -43,17 +51,6 @@
 
         <unzip src="${basedir}/sveditor-${feature.version}.jar"
                dest="${basedir}/release/update_site"/>
-
-        <!--
-java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
- -application org.eclipse.equinox.p2.publisher.UpdateSitePublisher
- -metadataRepository file:/<some location>/repository
- -artifactRepository file:/<some location>/repository
- -source /<location with a site.xml>
- -configs gtk.linux.x86
- -compress 
- -publishArtifacts
-          -->
 
     </target>
 
@@ -126,43 +123,83 @@ java -jar <targetProductFolder>/plugins/org.eclipse.equinox.launcher_*.jar
     <target name="mkarchive">
         <delete dir="${basedir}/archive_tmp"/>
         <mkdir dir="${basedir}/archive_tmp"/>
+        <mkdir dir="${basedir}/archive_tmp/features"/>
+        <mkdir dir="${basedir}/archive_tmp/plugins"/>
+
+        <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
+            dir="${buildDirectory}/features/${feature.id}"
+            target="build.update.jar">
+            <property name="feature.destination" value="${basedir}/archive_tmp/features"/>
+            <property name="plugin.destination" value="${basedir}/archive_tmp/plugins"/>
+        </ant>
 
         <copy todir="${basedir}/archive_tmp">
-            <fileset dir="${basedir}/update">
-                <include name="site.xml"/>
+            <fileset dir="${basedir}/features/${feature.id}">
+                <include name="category.xml"/>
             </fileset>
             <filterset begintoken="1" endtoken="3">
                 <filter token=".2." value="${feature.version}"/>
             </filterset>
         </copy>
 
-        <unzip src="${buildDirectory}/net.sf.sveditor-${feature.version}-${os}.${ws}.${arch}.zip"
-               dest="${basedir}/archive_tmp"/>
+        <!-- Create the P2 repository -->
+        <p2.publish.featuresAndBundles
+            metadataRepository="file:${repository}"
+            artifactRepository="file:${repository}"
+            publishArtifacts="true"
+            compress="false"
+            source="${basedir}/archive_tmp"/>
 
-        <!-- Correctly format the feature plugin as a .jar -->
-        <jar destfile="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}.jar" 
-             basedir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"
-             includes="**/*"/>
-        <delete dir="${basedir}/archive_tmp/features/net.sf.sveditor_${feature.version}"/>
-
-        <!-- Correctly format the batch plugin as a .jar -->
-        <jar destfile="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}.jar" 
-             basedir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"
-             manifest="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}/META-INF/MANIFEST.MF"
-             includes="**/*"/>
-        <delete dir="${basedir}/archive_tmp/plugins/net.sf.sveditor.core.batch_${feature.version}"/>
-
-        <jar destfile="${basedir}/archive_tmp/plugins/net.sf.sveditor.extjar_${feature.version}.jar" 
-             basedir="${basedir}/archive_tmp/plugins/net.sf.sveditor.extjar_${feature.version}"
-             manifest="${basedir}/archive_tmp/plugins/net.sf.sveditor.extjar_${feature.version}/META-INF/MANIFEST.MF"
-             includes="**/*"/>
-        <delete dir="${basedir}/archive_tmp/plugins/net.sf.sveditor.extjar_${feature.version}"/>
+        <!-- Categorize the items in the repository -->
+        <exec executable="${eclipsec}" failonerror="true">
+            <arg value="-console"/>
+            <arg value="-consoleLog"/>
+            <arg value="-nosplash"/>
+            <arg value="-application"/>
+            <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher"/>
+            <arg value="-metadataRepository"/>
+            <arg value="file:/${repository}"/>
+            <arg value="-categoryDefinition"/>
+            <arg value="file:/${basedir}/archive_tmp/category.xml"/>
+            <arg value="-categoryQualifier"/>
+        </exec>
+       
+<!-- 
+        <jar destfile="${basedir}/archive_tmp/repository/category.jar"
+             basedir="${basedir}/archive_tmp"
+             includes="category.xml"/>
+ -->
 
         <jar destfile="${basedir}/sveditor-${feature.version}.jar"
-             basedir="${basedir}/archive_tmp"
-             includes="site.xml, features/**, plugins/**"/>
+             basedir="${repository}"
+             includes="*.jar, features/**, plugins/**"/>
+
+        <xmltask source="${basedir}/etc/mappings.xml">
+            <copy path="/repository/mappings" 
+                  buffer="artifacts_mappings"/>
+        </xmltask>
+                  
+        <xmltask source="${repository}/artifacts.xml"
+                 dest="${repository}/artifacts_1.xml">
+            <remove path="/repository/mappings"/>
+            <insert path="/repository/properties" position="after"
+                file="${basedir}/etc/mappings.xml"/>
+        </xmltask>
+
+        <move file="${repository}/artifacts_1.xml"
+              tofile="${repository}/artifacts.xml"/>
+
+        <zip destfile="${repository}/artifacts.jar"
+             basedir="${repository}" includes="artifacts.xml"/>
+        <zip destfile="${repository}/content.jar"
+             basedir="${repository}" includes="content.xml"/>
+        <delete>
+            <fileset dir="${repository}" includes="*.xml"/>
+        </delete>
+
         <delete dir="${basedir}/archive_tmp"/>
     </target>
 
 </project>
+
 
