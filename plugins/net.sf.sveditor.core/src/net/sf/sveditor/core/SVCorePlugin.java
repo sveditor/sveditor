@@ -63,6 +63,8 @@ import org.osgi.framework.Version;
  */
 public class SVCorePlugin extends Plugin 
 	implements ILogListener, ISVDBIndexCacheFactory {
+	
+	/** Change 1 */
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
