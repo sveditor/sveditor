@@ -85,10 +85,6 @@ public class SVCorePlugin extends Plugin
 	private int								fMaxIndexThreads = 0;
 	
 	/**
-	 * Small change 2
-	 */
-	
-	/**
 	 * The constructor
 	 */
 	public SVCorePlugin() {
