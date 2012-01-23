@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="SVEditor SystemVerilog Development Environment" id="net.sf.sveditor.product.sveditor" application="org.eclipse.ui.ide.workbench" useFeatures="true" includeLaunchers="true">
+
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/net.sf.sveditor.product/window_img_16_16.gif" i32="/net.sf.sveditor.product/window_img_32_32.gif" i48="/net.sf.sveditor.product/window_img_48_48.gif" i64="/net.sf.sveditor.product/window_img_64_64.gif" i128="/net.sf.sveditor.product/window_img_128_128.gif"/>
+
+   <splash
+      location="net.sf.sveditor.product"
+      startupProgressRect="5,275,445,15"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
+   <launcher name="sveditor">
+      <linux icon="/net.sf.sveditor.product/window_img_64_64.xpm"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="net.sf.sveditor" version="1.2.3"/>
+      <feature id="org.eclipse.platform" version="3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f"/>
+   </features>
+
+
+</product>

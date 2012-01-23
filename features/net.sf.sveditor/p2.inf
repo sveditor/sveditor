@@ -1,3 +1,3 @@
-instructions.configure=\
-addRepository(type:0,location:http${#58}//sveditor.sourceforge.net/update);\
-addRepository(type:1,location:http${#58}//sveditor.sourceforge.net/update);
+#instructions.configure=\
+#addRepository(type:0,location:http${#58}//sveditor.sourceforge.net/update);\
+#addRepository(type:1,location:http${#58}//sveditor.sourceforge.net/update);
