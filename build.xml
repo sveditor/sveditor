@@ -164,7 +164,7 @@
             <arg value="-categoryQualifier"/>
         </exec>
        
-<!-- 
+<!-- Is this still needed?
         <jar destfile="${basedir}/archive_tmp/repository/category.jar"
              basedir="${basedir}/archive_tmp"
              includes="category.xml"/>
