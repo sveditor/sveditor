@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="sveditor"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.ui.ide.workbench"
+            name="SVEditor SystemVerilog Development Environment">
+         <property
+               name="appName"
+               value="SVEditor SystemVerilog Development Environment">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="000000">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="7,252,445,20">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="5,275,445,15">
+         </property>
+         <property
+               name="windowImages"
+               value="window_img_16_16.gif,window_img_32_32.gif,window_img_48_48.gif,window_img_64_64.gif,window_img_128_128.gif">
+         </property>
+         <!--
+         <property
+               name="startupMessageRect"
+               value="7,252,445,20">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="5,275,445,15">
+         </property>
+           -->
+      </product>
+   </extension>
+
+</plugin>
