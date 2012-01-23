@@ -3,7 +3,6 @@
 
 <product name="SVEditor SystemVerilog Development Environment" id="net.sf.sveditor.product.sveditor" application="org.eclipse.ui.ide.workbench" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -32,17 +31,15 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
-
 
    <plugins>
    </plugins>
 
    <features>
       <feature id="net.sf.sveditor" version="1.2.3"/>
-      <feature id="org.eclipse.platform" version="3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f"/>
+      <feature id="org.eclipse.platform"/>
    </features>
 
 
