@@ -197,9 +197,7 @@
             <fileset dir="${repository}" includes="*.xml"/>
         </delete>
 
-<!--
         <delete dir="${basedir}/archive_tmp"/>
-  -->
     </target>
 
 </project>
