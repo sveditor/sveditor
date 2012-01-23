@@ -41,8 +41,10 @@
 					overwrite="true"
 					helpPrefix="editing_sv_files"
 					file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
+		<!--
 		<wikitext-to-xslfo markupLanguage="MediaWiki" 
 			file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
+		  -->
 		<assemble_toc files="${basedir}/preparing_sv_project/preparing_sv_project-toc.xml,
 							${basedir}/editing_sv_files/editing_sv_files-toc.xml"
 			output="${basedir}/toc.xml" label="SVEditor User Guide">
