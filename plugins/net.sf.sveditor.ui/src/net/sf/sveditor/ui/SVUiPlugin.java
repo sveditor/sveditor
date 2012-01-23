@@ -76,6 +76,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private boolean								fStartRefreshJob = false;
 	private RefreshIndexJob						fRefreshIndexJob;
 	
+	/**
+	 * Small change 1
+	 */
 	
 	/**
 	 * The constructor
