@@ -133,7 +133,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <features>
       <feature id="net.sf.sveditor" version="1.2.3"/>
-      <feature id="org.eclipse.platform" version="3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f"/>
+      <feature id="org.eclipse.platform"/>
    </features>
 
 
