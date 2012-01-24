@@ -1,3 +1,4 @@
+- #(3476740) 	Module Instance Icon not shown in Outline View
 
 -- 0.7.9 Release --
 
