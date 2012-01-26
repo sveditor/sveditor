@@ -1,4 +1,3 @@
-- #(3476740) 	Module Instance Icon not shown in Outline View
 
 -- 0.7.9 Release --
 
@@ -7,6 +6,10 @@
 
 - #(3306728) Correct bug in colorizing the compare view when one of the
   documents being compared comes from a Team Provider
+
+- #(3476740) 	Module Instance Icon not shown in Outline View
+
+- #(nobug) Merge in outline-filter changes from Steven
 
 ------------------------------------------------------------------------------
 -- 0.7.8 Release --

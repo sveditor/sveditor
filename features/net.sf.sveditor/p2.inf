@@ -1,3 +1,7 @@
-#instructions.configure=\
-#addRepository(type:0,location:http${#58}//sveditor.sourceforge.net/update);\
-#addRepository(type:1,location:http${#58}//sveditor.sourceforge.net/update);
+instructions.configure=\
+  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,name:SVEditor Updates,location:http${#58}//sveditor.sourceforge.net/update/,enabled:true);\
+  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,name:SVEditor Updates,location:http${#58}//sveditor.sourceforge.net/update/,enabled:true);
+
+
+#  addRepository(type:0,location:http${#58}//sveditor.sourceforge.net/update,name:SVEditor Updates,enabled:true);\
+#  addRepository(type:1,location:http${#58}//sveditor.sourceforge.net/update,name:SVEditor Updates,enabled:true);
