@@ -52,6 +52,8 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.ClockingBlock, CLOCKING_OBJ);
 		fImgDescMap.put(SVDBItemType.ImportItem, IMPORT_OBJ);
+		fImgDescMap.put(SVDBItemType.ModIfcInst, MOD_IFC_INST_OBJ);
+		fImgDescMap.put(SVDBItemType.ModIfcInstItem, MOD_IFC_INST_OBJ);
 	}
 	
 	public static Image getIcon(String key) {
