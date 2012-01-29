@@ -18,7 +18,16 @@ var f = g_fs.CreateTextFile(outFile, true);
 f.WriteLine("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
 f.WriteLine("<Include>");
 f.WriteLine("  <Directory Id=\"TARGETDIR\" Name=\"SourceDir\">");
+f.WriteLine("    <Directory Id=\"ProgramMenuFolder\">\r\n");
+f.WriteLine("      <Directory Id=\"ApplicationProgramsFolder\" Name=\"SVE_$(var.version)\"/>\r\n");
+f.WriteLine("    </Directory>\r\n");
+f.WriteLine("    <Directory Id=\"ProgramFilesFolder\" Name=\"PFiles\">");
+f.WriteLine("      <Directory Id=\"SVE\" Name=\"SVE\">");
+f.WriteLine("        <Directory Id=\"INSTALLDIR\" Name=\"SVE_$(var.version)\">");
 f.Write(getDirTree(rootDir, "", 1, baseFolder, componentIds));
+f.WriteLine("        </Directory>");
+f.WriteLine("      </Directory>");
+f.WriteLine("    </Directory>");
 f.WriteLine("  </Directory>");
 f.WriteLine("  <Feature Id=\"DefaultFeature\" Level=\"1\" ConfigurableDirectory=\"TARGETDIR\">");
 for (var i=0; i<componentIds.length; i++)
@@ -52,23 +61,26 @@ function getDirTree(root, xml, indent, baseFolder, componentIds)
         var directoryId = "_" + FlatFormat(GetGuid());
 
         xml = xml + space + "<Directory Id=\"" + directoryId +"\"";
-        xml = xml + " Name=\"" + fdrFolder.ShortName.toUpperCase() + "\"";
-        xml = xml + " LongName=\"" + fdrFolder.Name + "\">\r\n";
+//        xml = xml + " Name=\"" + fdrFolder.ShortName.toUpperCase() + "\"";
+//        xml = xml + " LongName=\"" + fdrFolder.Name + "\">\r\n";
+        xml = xml + " Name=\"" + fdrFolder.Name + "\">\r\n";
     }
 
     var componentGuid = GetGuid();
     var componentId = FlatFormat(componentGuid);
-
-    xml = xml + space + "  <Component Id=\"C__" + componentId + "\""
-              + " Guid=\"" + componentGuid + "\">\r\n";
-              
 	var enumFiles = new Enumerator(fdrFolder.Files);
+
+	if (fdrFolder.Files.Count > 0) {
+	    xml = xml + space + "  <Component Id=\"C__" + componentId + "\""
+    	          + " Guid=\"" + componentGuid + "\">\r\n";
+    }
+              
 	for (;!enumFiles.atEnd(); enumFiles.moveNext()) {
 // <File Id="CPL.TXT" Name="CPL.TXT" KeyPath="yes" DiskId="1" Source="SourceDir\File\CPL.TXT" />	
       xml = xml + space + "    <File DiskId=\"1\" "
               + "Id=\"" + MkId(enumFiles.item().Name) + "\" "
               + "Name=\"" + enumFiles.item().Name + "\" "
-              + "Source=\"SourceDir" + fdrFolder.Path.substring(baseFolder.Path.length) + "\\" +enumFiles.item() + "\"/>\r\n";
+              + "Source=\"" + enumFiles.item() + "\"/>\r\n";
 	}
 	/*              
     xml = xml + space + "    <FileGroup filter=\"*.*\" Prefix=\""
@@ -76,12 +88,14 @@ function getDirTree(root, xml, indent, baseFolder, componentIds)
               + fdrFolder.Path.substring(baseFolder.Path.length)
               + "\" DiskId=\"1\"/>\r\n";
      */
-    xml = xml + space + "  </Component>\r\n";
+	if (fdrFolder.Files.Count > 0) {
+      xml = xml + space + "  </Component>\r\n";
+      componentIds[componentIds.length] = componentId;
+    }
 
-    componentIds[componentIds.length] = componentId;
 
     var enumSubFolders = new Enumerator(fdrFolder.SubFolders);
-	WScript.Echo("Folder: ", fdrFolder);        
+//	WScript.Echo("Folder: ", fdrFolder);        
 
     var depth = indent + 1;
     for (;!enumSubFolders.atEnd();enumSubFolders.moveNext())
@@ -168,9 +182,24 @@ function FlatFormat(guid)
 
 function MkId(name)
 {
-  if (name.charAt(0) == '.') {
-    return "_" + name.substring(1);
-  } else {
-    return name;
+  var ret="I_";
+  var i=0;
+  var ch;
+
+//  if (name.length > 65) {
+    ret += FlatFormat(GetGuid());
+/*
+  } else {  
+	  for (i=0; i<name.length; i++) {
+	    ch=name.charAt(i);
+	    if (ch == '.' || ch == '-' || ch == '$') {
+	      ret = ret + '_';
+	    } else {
+	      ret = ret + name.charAt(i);
+	    }
+	  }
   }
+ */
+  
+  return ret;
 }

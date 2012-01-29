@@ -1,9 +1,25 @@
 <project default="mk_msi">
 	<property name="wix" value="c:/Program Files/Windows Installer XML v3.5"/>
 	<property name="candle" value="${wix}/bin/candle.exe"/>
+	<property name="light" value="${wix}/bin/light.exe"/>
+	<property name="script.dir" value="${basedir}/scripts"/>
+	<property name="srcdir" value="${basedir}/exp_sveditor/sveditor"/>
 	
-	<target name="mk_msi">
-		<exec executable="${">
+	<target name="mk_msi" depends="mk_filelist">
+		<exec executable="${candle}" failonerror="true">
+			<arg value="${script.dir}/sve.wxs"/>
+			<arg value="-dversion=1.0"/>
+		</exec>
+		<exec executable="${light}" failonerror="true">
+			<arg value="sve.wixobj"/>
+		</exec>
+	</target>
+	
+	<target name="mk_filelist">
+		<exec executable="cscript" failonerror="true">
+			<arg value="${script.dir}/wxigen.js"/>
+			<arg value="${srcdir}"/>
+			<arg value="${basedir}/sve_files.wxi"/>
 		</exec>
 	</target>
 </project>

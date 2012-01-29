@@ -5,7 +5,7 @@
     	Codepage="1252" 
     	Language="1033" 
     	Manufacturer="SVE" 
-    	Name="SystemVerilog IDE" 
+    	Name="SVE SystemVerilog IDE" 
     	UpgradeCode="{3618724B-2523-44F9-A908-866AA6191754}" 
     	Version="1.0">
         <Package 
@@ -17,7 +17,25 @@
         	Manufacturer="SVEditor" Platform="x86" />
         <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
 
-		<?include ../sve_files.wxi?>        
+		<?include ../sve_files.wxi?>
+		   
+		<DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="{3618724B-2523-44F9-A908-877AA6191754}">
+                <Shortcut Id="ApplicationStartMenuShortcut"
+                		  Name="SVE_$(var.version)"
+                		  Description="SVE SystemVerilog IDE"
+                		  Target="[INSTALLDIR]sveditor.exe"
+                          WorkingDirectory="AppDataFolder"/>
+                <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+                <RegistryValue Root="HKCU" Key="Software\Microsoft\SVE_$(var.version)" 
+                	Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+            </Component>
+        </DirectoryRef>
+        
+		<Feature Id="SVEAppMenu" Title="SVE Application Menu" Level="1">
+            <ComponentRef Id="ApplicationShortcut" />   
+        </Feature>
+        
         <Media Id="1" Cabinet="WiX.cab" EmbedCab="yes" />
     </Product>
 </Wix>
