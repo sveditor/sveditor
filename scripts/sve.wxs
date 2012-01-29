@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product 
+    	Id="{CB509245-1245-4867-8BD4-6B2C5A739254}" 
+    	Codepage="1252" 
+    	Language="1033" 
+    	Manufacturer="SVE" 
+    	Name="SystemVerilog IDE" 
+    	UpgradeCode="{3618724B-2523-44F9-A908-866AA6191754}" 
+    	Version="1.0">
+        <Package 
+        	Comments="SVE SystemVerilog Development Environment Package" 
+        	Compressed="yes" 
+        	Description="SVE SystemVerilog Development Environment Package" 
+        	InstallerVersion="200" 
+        	Keywords="SystemVerilog, HDL, HVL, IDE" Languages="1033" 
+        	Manufacturer="SVEditor" Platform="x86" />
+        <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
+
+		<?include ../sve_files.wxi?>        
+        <Media Id="1" Cabinet="WiX.cab" EmbedCab="yes" />
+    </Product>
+</Wix>

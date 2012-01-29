@@ -1,0 +1,9 @@
+<project default="mk_msi">
+	<property name="wix" value="c:/Program Files/Windows Installer XML v3.5"/>
+	<property name="candle" value="${wix}/bin/candle.exe"/>
+	
+	<target name="mk_msi">
+		<exec executable="${">
+		</exec>
+	</target>
+</project>
