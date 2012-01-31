@@ -11,6 +11,7 @@
 	<property name="base" location="${basedir}/../product_build"/>
 	<property name="installFolder" location="${base}/installFolder"/>
 	<property file="${basedir}/mk_product.properties"/>
+	<property file="${basedir}/mk_product_${os}.properties"/>
 	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 
 
