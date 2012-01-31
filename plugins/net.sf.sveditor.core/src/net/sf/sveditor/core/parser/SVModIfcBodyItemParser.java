@@ -363,6 +363,16 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 		}
 
+		data_type = new SVDBTypeInfoBuiltin(net_type);
+
+		// vectored untyped net
+		if (fLexer.peekOperator("[")) {
+			// TODO:
+			fLexer.startCapture();
+			fLexer.skipPastMatch("[", "]");
+			vector_dim = fLexer.endCapture();
+		}
+
 		// Delay 3
 		// #(mintypmax,mintypmax, mintypmax)
 		if (fLexer.peekOperator("#"))  {
@@ -371,33 +381,25 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			// TODO - What Do something with the Delay expression
 		}
 
-		// vectored untyped net
-		if (fLexer.peekOperator("[")) {
-			// TODO:
+		// Grab data type in case it is a data type
+		data_type = parsers().dataTypeParser().data_type(0);
+
+		// Now, based on what we see next, we determine whether the
+		// net is typed or untyped
+
+		if (fLexer.peekOperator(",", ";", "=")) {
+			// The net was untyped
+			start = fLexer.getStartLocation();
+			net_name = data_type.getName();
 			data_type = new SVDBTypeInfoBuiltin(net_type);
-			fLexer.startCapture();
-			fLexer.skipPastMatch("[", "]");
-			vector_dim = fLexer.endCapture();
-			((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
+		} else {
+			// Assume the net to be typed
 			start = fLexer.getStartLocation();
 			net_name = fLexer.readId();
-		} else {
-			data_type = parsers().dataTypeParser().data_type(0);
-
-			// Now, based on what we see next, we determine whether the
-			// net is typed or untyped
-
-			if (fLexer.peekOperator(",", ";", "=")) {
-				// The net was untyped
-				start = fLexer.getStartLocation();
-				net_name = data_type.getName();
-				data_type = new SVDBTypeInfoBuiltin(net_type);
-			} else {
-				// Assume the net to be typed
-				start = fLexer.getStartLocation();
-				net_name = fLexer.readId();
-			}
 		}
+		// Add in array dimensions if applicable
+		if (vector_dim != null)
+			((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
 		type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
 		
 		var = new SVDBVarDeclStmt(type_info, 0);

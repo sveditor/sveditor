@@ -1447,6 +1447,8 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	wire (strong0, strong1) #myparam [10:0] out3 = '0;\n" +
 			"	wire (supply0, supply1) #(1:2:3)        out4 = 1'b0;\n" +
 			"	wire (weak0, weak1) #(1, 2, 4)          out6 = 1'b0;\n" +
+			"	wire [1:0] #(1, 2, 4)          out7 = '0;\n" +
+			"	//wire [NUM_WIRES:0] #(1, 2, 4)          out8 = '0;\n" +
 			"	reg  in1,in2,in3,in4;\n" +
 			"\n" +
 			"	not U1(out0,in1);\n" +
