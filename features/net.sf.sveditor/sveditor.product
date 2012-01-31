@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SVEditor SystemVerilog Development Environment" id="net.sf.sveditor.product.sveditor" application="org.eclipse.ui.ide.workbench" version="1.2.3" useFeatures="true" includeLaunchers="true">
-
+<product name="SystemVerilog IDE" id="net.sf.sveditor.product.sveditor" application="org.eclipse.ui.ide.workbench" version="1.2.3" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -31,7 +30,6 @@
             winLargeLow="/net.sf.sveditor.product/window_img_48_48_8bit.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
