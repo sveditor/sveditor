@@ -86,6 +86,7 @@
                 <include name="plugins/**"/>
                 <include name="features/**"/>
                 <exclude name="**/*.svn/**"/>
+                <exclude name="**/*.git/**"/>
             </fileset>
         </copy>
         <copy todir="${buildDirectory}" overwrite="true">

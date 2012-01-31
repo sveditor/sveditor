@@ -7,10 +7,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
-            name="SVEditor SystemVerilog Development Environment">
+            name="SystemVerilog IDE">
          <property
                name="appName"
-               value="SVEditor SystemVerilog Development Environment">
+               value="SystemVerilog IDE">
          </property>
          <property
                name="preferenceCustomization"
