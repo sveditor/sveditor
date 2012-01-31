@@ -147,7 +147,7 @@ public class SVOutlinePage extends ContentOutlinePage
 					if (sel.getFirstElement() instanceof ISVDBItemBase) {
 						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
 						
-						if (fLastSelection == null || !fLastSelection.equals(it)) {
+						if (fLastSelection == null || !fLastSelection.equals(it, true)) {
 							fEditor.setSelection(it, false);
 							fLastSelection = it;
 						}
