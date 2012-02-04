@@ -1,12 +1,10 @@
-<<<<<<< HEAD
-=======
+
+
+-- 0.7.9 Release --
 
 - #(3482259)    Vectored Delayed Wire type not parsed correctly
 
 - #(3476740) 	Module Instance Icon not shown in Outline View
->>>>>>> refs/remotes/stevenaz/master
-
--- 0.7.9 Release --
 
 - #(3473539) Add colorization of system calls
    - Added colorization of system calls such as $display etc.
