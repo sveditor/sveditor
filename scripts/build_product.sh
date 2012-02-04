@@ -1,7 +1,5 @@
 #!/bin/sh
 
-cd scripts
-
 $ECLIPSE_HOME/eclipse \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors \

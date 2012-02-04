@@ -240,9 +240,7 @@ public class SVDBIndexUtil {
 								pvm = (IPathVariableManager)get_path_variable_manager.invoke(project);
 								p = pvm.getValue(key);
 							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+						} catch (Exception e) {}
 						if (p != null) {
 							val = p.toString();
 							if (val.matches("^/[a-zA-Z]:.*"))  {
