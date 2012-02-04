@@ -1,0 +1,59 @@
+<project name="release" default="release">
+
+	<property environment="env"/>
+
+	<!-- Import the version info -->
+	<property file="${basedir}/../sveditor.info"/>
+
+	<property name="rlsdir" value="${basedir}/../release"/>
+	<property name="srcdir" value="${basedir}/.."/>
+	<property name="feature.version" value="${version}"/>
+	<property name="buildDirectory"   value="${basedir}/../build"/>
+
+	<target name="release" depends="mkupdate, mksrc">
+		<mkdir dir="${rlsdir}"/>
+       
+		<!-- Create the release fragment file -->
+		<copy todir="${rlsdir}" overwrite="true">
+			<fileset dir="${srcdir}/etc"
+				includes="new_release_fragment.xml"/>
+			<filterset begintoken="1" endtoken="3">
+				<filter token=".2." value="${feature.version}"/>
+			</filterset>
+			<filterset>
+				<filter token="frs_update_site_dir" value="${frs_update_site_dir}"/>
+			</filterset>
+		</copy>
+
+<!--
+		<exec executable="/bin/sh">
+			<arg value="{basedir}/upload_release.sh"/>
+		</exec>
+  -->
+
+<!--
+		<delete dir="${rlsdir}"/> 
+		<delete dir="${buildDirectory}"/>
+  -->
+	</target>
+
+	<target name="mkupdate" depends="build">
+		<mkdir dir="${rlsdir}/update_site"/>
+
+		<unzip src="${basedir}/../sveditor-${feature.version}.jar"
+			dest="${rlsdir}/update_site"/>
+	</target>
+
+	<target name="build">
+		<ant antfile="${basedir}/build.xml" dir="${basedir}" target="build"/>
+	</target>
+
+	<target name="mksrc">
+		<exec executable="/bin/sh">
+			<arg value="${basedir}/mksrc.sh"/>
+		</exec>
+	</target>
+
+</project>
+
+

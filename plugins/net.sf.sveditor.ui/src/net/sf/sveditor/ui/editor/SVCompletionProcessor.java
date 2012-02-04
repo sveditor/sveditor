@@ -123,7 +123,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			fProposals.addAll(cp);
 		}
 		
-		
 		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
 	}
 	
