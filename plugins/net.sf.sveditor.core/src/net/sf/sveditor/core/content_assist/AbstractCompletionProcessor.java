@@ -380,7 +380,7 @@ public abstract class AbstractCompletionProcessor {
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct) {
 			// Look for matching names in the target class
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
-			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator(), matcher);
+			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
 			ISVDBChildParent si = (ISVDBChildParent)leaf_item;
 			
 			while (si != null) {

@@ -32,7 +32,7 @@ public class SVDBFindSuperClass {
 	}
 
 	public SVDBFindSuperClass(ISVDBIndexIterator index_it) {
-		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
+		this(index_it, SVDBFindClassDefaultNameMatcher.getDefault());
 	}
 
 	public SVDBClassDecl find(SVDBClassDecl cls) {
@@ -47,5 +47,5 @@ public class SVDBFindSuperClass {
 			return null;
 		}
 	}
-
+	
 }
