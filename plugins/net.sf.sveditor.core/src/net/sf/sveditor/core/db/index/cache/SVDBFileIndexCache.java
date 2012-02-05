@@ -56,7 +56,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private Thread							fWriteBackThread[];
 	private List<WriteBackInfo>				fWriteBackQueue;
 	
-	private boolean							fUseSoftRef = false;
+	private boolean							fUseSoftRef = true;
 
 	final class CacheFileInfo {
 		public Reference<SVDBFile>			fSVDBPreProcFile;

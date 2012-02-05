@@ -29,12 +29,10 @@
 		<exec executable="/bin/sh">
 			<arg value="{basedir}/upload_release.sh"/>
 		</exec>
-  -->
 
-<!--
 		<delete dir="${rlsdir}"/> 
 		<delete dir="${buildDirectory}"/>
-  -->
+ -->
 	</target>
 
 	<target name="mkupdate" depends="build">
