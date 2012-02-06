@@ -16,7 +16,7 @@ cd "$top/../sveditor-src-${version}"
 cp -r $top/../plugins $top/../features $top/../ChangeLog.txt .
 
 # Remove .svn directories
-rm -rf `find -name '.svn' -print`
+rm -rf `find -name '.git' -print`
 rm -rf `find -name 'bin' -print`
 rm -rf `find -name 'class' -print`
 

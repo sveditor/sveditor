@@ -25,12 +25,12 @@ import java.util.List;
  * 
  * @author ballance
  *
- * All blocks 1K (?)
+ * All blocks 4K (?)
  * 
  * Backing File Layout:
  * |===================================================
- * | Header Block
- * |  
+ * | Root Block
+ * | 
  * |===================================================
  * |
  * |
@@ -39,7 +39,12 @@ public class SVDBFileFS implements ISVDBFS {
 	private RandomAccessFile			fStorage;
 	
 	private class Block {
+		protected long				fBlockPtr;
 		private long				fNextBlockPtr;
+		
+		public Block(long ptr) {
+			fBlockPtr = ptr;
+		}
 		
 		public long getNextBlock() {
 			return fNextBlockPtr;
@@ -57,6 +62,7 @@ public class SVDBFileFS implements ISVDBFS {
 	private class RootBlock {
 		private long				fDirentPtr;
 		private long				fBitmapPtr;
+		
 		
 	}
 	

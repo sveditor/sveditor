@@ -4,16 +4,29 @@
 
 	<!-- Import the version info -->
 	<property file="${basedir}/../sveditor.info"/>
+	<property file="${basedir}/build.properties"/>
+
+	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
+	<property name="sf_update_url" 
+         value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
 
 	<property name="rlsdir" value="${basedir}/../release"/>
 	<property name="srcdir" value="${basedir}/.."/>
 	<property name="feature.version" value="${version}"/>
 	<property name="buildDirectory"   value="${basedir}/../build"/>
 
-	<target name="release" depends="mkupdate, mksrc">
+	<target name="release" depends="release-prereqs, upload_release">
+		<!-- remove release dir once complete -->
+	</target>
+
+	<target name="release-prereqs" depends="mksrc, mk_rn">
 		<mkdir dir="${rlsdir}"/>
+
+		<unzip src="${basedir}/../sveditor-release-${feature.version}.zip"
+			dest="${rlsdir}"/>
        
 		<!-- Create the release fragment file -->
+<!--
 		<copy todir="${rlsdir}" overwrite="true">
 			<fileset dir="${srcdir}/etc"
 				includes="new_release_fragment.xml"/>
@@ -21,28 +34,95 @@
 				<filter token=".2." value="${feature.version}"/>
 			</filterset>
 			<filterset>
-				<filter token="frs_update_site_dir" value="${frs_update_site_dir}"/>
+				<filter token="frs_update_site_dir" 
+					value="${frs_update_site_dir}"/>
 			</filterset>
 		</copy>
-
-<!--
-		<exec executable="/bin/sh">
-			<arg value="{basedir}/upload_release.sh"/>
-		</exec>
   -->
 
 <!--
 		<delete dir="${rlsdir}"/> 
 		<delete dir="${buildDirectory}"/>
-  -->
+ -->
 	</target>
 
+	<target name="upload_release">
+		<!-- First, create appropriate directories -->
+		<tempfile property="release_mkdirs_cmds"/>
+		<echo file="${release_mkdirs_cmds}">
+                cd ${sveditor_dir}
+                -mkdir ${frs_update_site_dir}
+                cd ${frs_update_site_dir}
+                -mkdir ${feature.version}
+                cd ${feature.version}
+                -mkdir plugins
+                -mkdir features
+                cd ${sveditor_dir}/sveditor
+                -mkdir ${feature.version}
+		</echo>
+		<exec executable="sftp" input="${release_mkdirs_cmds}">
+                    <arg value="-b"/>
+                    <arg value="/dev/stdin"/>
+                    <arg value="${sf_frs_url}"/>
+                </exec>
+		<delete file="${release_mkdirs_cmds}"/>
+
+		<!-- Now, copy the release files into the update site -->
+		<exec executable="sftp" dir="${rlsdir}/features"
+                    inputstring="put *.jar">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/${frs_update_site_dir}/${feature.version}/features"/>
+		</exec>
+		<exec executable="sftp" dir="${rlsdir}/plugins"
+                    inputstring="put *.jar">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/${frs_update_site_dir}/${feature.version}/plugins"/>
+		</exec>
+
+		<!-- Now, copy the release archive -->
+		<exec executable="sftp" dir="${basedir}/.." inputstring="put sveditor-${feature.version}.jar">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
+		</exec>
+		<exec executable="sftp" dir="${basedir}/.." inputstring="put sveditor-src-${feature.version}.zip">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
+		</exec>
+		<exec executable="sftp" dir="${rlsdir}" inputstring="put rn.txt">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
+		</exec>
+
+		<!-- Finally, update the SVEditor Update Site -->
+		<exec executable="scp" dir="${rlsdir}">
+			<arg value="content.jar"/>
+			<arg value="artifacts.jar"/>
+			<arg value="${sf_frs_url}"/>
+		</exec>
+	</target>
+
+	<target name="mk_rn">
+		<mkdir dir="${rlsdir}"/>
+		<exec executable="perl" output="${rlsdir}/rn.txt">
+			<arg value="${basedir}/mk_rn.pl"/>
+			<arg value="${feature.version}"/>
+			<arg value="${basedir}/../ChangeLog.txt"/>
+		</exec>
+	</target>
+
+<!--
 	<target name="mkupdate" depends="build">
 		<mkdir dir="${rlsdir}/update_site"/>
 
 		<unzip src="${basedir}/../sveditor-${feature.version}.jar"
 			dest="${rlsdir}/update_site"/>
 	</target>
+  -->
 
 	<target name="build">
 		<ant antfile="${basedir}/build.xml" dir="${basedir}" target="build"/>
