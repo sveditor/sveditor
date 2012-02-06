@@ -7,6 +7,8 @@
 	<property file="${basedir}/build.properties"/>
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
+	<property name="sf_update_url" 
+         value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
 
 	<property name="rlsdir" value="${basedir}/../release"/>
 	<property name="srcdir" value="${basedir}/.."/>
@@ -17,7 +19,7 @@
 		<!-- remove release dir once complete -->
 	</target>
 
-	<target name="release-prereqs" depends="mkupdate, mksrc, mk_rn">
+	<target name="release-prereqs" depends="mksrc, mk_rn">
 		<mkdir dir="${rlsdir}"/>
 
 		<unzip src="${basedir}/../sveditor-release-${feature.version}.zip"
@@ -66,13 +68,13 @@
 		<delete file="${release_mkdirs_cmds}"/>
 
 		<!-- Now, copy the release files into the update site -->
-		<exec executable="sftp" dir="${rls_dir}/features"
+		<exec executable="sftp" dir="${rlsdir}/features"
                     inputstring="put *.jar">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/${frs_update_site_dir}/${feature.version}/features"/>
 		</exec>
-		<exec executable="sftp" dir="${rls_dir}/plugins"
+		<exec executable="sftp" dir="${rlsdir}/plugins"
                     inputstring="put *.jar">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
@@ -83,29 +85,30 @@
 		<exec executable="sftp" dir="${basedir}/.." inputstring="put sveditor-${feature.version}.jar">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
-			<arg value="${sf_frs_url}:${sveditor_dir}/${feature.version}"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
 		<exec executable="sftp" dir="${basedir}/.." inputstring="put sveditor-src-${feature.version}.zip">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
-			<arg value="${sf_frs_url}:${sveditor_dir}/${feature.version}"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
-		<exec executable="sftp" dir="${basedir}/../release" inputstring="put rn.txt">
+		<exec executable="sftp" dir="${rlsdir}" inputstring="put rn.txt">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
-			<arg value="${sf_frs_url}:${sveditor_dir}/${feature.version}"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
 
 		<!-- Finally, update the SVEditor Update Site -->
-		<exec executable="scp" dir="${basedir}/../release">
+		<exec executable="scp" dir="${rlsdir}">
 			<arg value="content.jar"/>
 			<arg value="artifacts.jar"/>
-			<arg value="${update_site_url}"/>
+			<arg value="${sf_frs_url}"/>
 		</exec>
 	</target>
 
 	<target name="mk_rn">
-		<exec executable="perl" output="${basedir}/../release/rn.txt">
+		<mkdir dir="${rlsdir}"/>
+		<exec executable="perl" output="${rlsdir}/rn.txt">
 			<arg value="${basedir}/mk_rn.pl"/>
 			<arg value="${feature.version}"/>
 			<arg value="${basedir}/../ChangeLog.txt"/>
