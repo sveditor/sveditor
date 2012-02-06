@@ -1,3 +1,10 @@
+- Cleaned up outline view.  For now have hidden:
+	- assign statements
+	- always blocks 
+	- initial blocks
+	- generate blocks
+  - Need to add buttons to turn these on and off
+
 
 - #(3482259)    Vectored Delayed Wire type not parsed correctly
 
