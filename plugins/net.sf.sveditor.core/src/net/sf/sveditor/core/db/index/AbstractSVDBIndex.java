@@ -1291,7 +1291,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		if (file_tree == null) {
 			if (getFileSystemProvider().fileExists(path)) {
+				// If the file does exist, but isn't included in the
+				// list of discovered files, invalidate the index,
+				// add the file, and try again
 				invalidateIndex();
+				addFile(path);
 				file_tree = findFileTree(path);
 			} else {
 				// TODO: is this really correct?

@@ -54,6 +54,8 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -285,7 +287,19 @@ public class SVCorePlugin extends Plugin
 	}
 
 	public String getDefaultSourceCollectionIncludes() {
-		return "**/*.sv, **/*.svh, **/*.v, **/*.vl, **/*.vlog";
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
+		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+		StringBuilder ret = new StringBuilder();
+
+		for (int i=0; i<exts.length; i++) {
+			ret.append("**/*.");
+			ret.append(exts[i]);
+			if (i+1 < exts.length) {
+				ret.append(", ");
+			}
+		}
+		return ret.toString();
 	}
 	
 	public String getDefaultSourceCollectionExcludes() {
