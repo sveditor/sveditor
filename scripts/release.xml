@@ -17,6 +17,7 @@
 
 	<target name="release" depends="release-prereqs, upload_release">
 		<!-- remove release dir once complete -->
+		<delete dir="${basedir}/../release"/>
 	</target>
 
 	<target name="release-prereqs" depends="mksrc, mk_rn">
