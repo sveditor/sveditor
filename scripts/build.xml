@@ -120,7 +120,7 @@
 
         <jar destfile="${basedir}/../sveditor-${feature.version}.jar"
              basedir="${repository}"
-             includes="*.jar, features/**, plugins/**"/>
+             includes="*.xml, features/**, plugins/**"/>
 
         <xmltask source="${basedir}/../etc/mappings.xml">
             <copy path="/repository/mappings" 
@@ -145,9 +145,15 @@
             <fileset dir="${repository}" includes="*.xml"/>
         </delete>
 
-<!--
+	<zip destfile="${basedir}/../sveditor-release-${feature.version}.zip">
+		<fileset dir="${repository}">
+			<include name="*.jar"/>
+			<include name="features/**"/>
+			<include name="plugins/**"/>
+		</fileset>
+	</zip>
+
         <delete dir="${basedir}/../archive_tmp"/>
-  -->
     </target>
 
 </project>

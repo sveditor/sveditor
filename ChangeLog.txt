@@ -11,6 +11,10 @@
 
 - #(nobug) Merge in outline-filter changes from Steven
 
+- #(3482997) Correct a bug involving processing of files with a .vh extension
+
+- #(nobug) Add support for user-specified file extensions via the Preference dialog
+
 ------------------------------------------------------------------------------
 -- 0.7.8 Release --
 

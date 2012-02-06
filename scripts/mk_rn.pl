@@ -5,9 +5,10 @@
 #* Create the release notes from the Changelog
 #****************************************************************************
 
-
-open(FH, "ChangeLog.txt") || die "Cannot open ChangeLog.txt";
 $version=$ARGV[0];
+$changelog=$ARGV[1];
+
+open(FH, "$changelog") || die "Cannot open ChangeLog.txt";
 
 $do_output=0;
 
