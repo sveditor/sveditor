@@ -66,11 +66,18 @@
 	<target name="preSetup">
 		<echo msg="buildDirectory=${buildDirectory}"/>
 		<copy todir="${buildDirectory}">
-			<fileset dir="${basedir}">
+			<fileset dir="${srcdir}">
 				<include name="plugins/**"/>
 				<include name="features/**"/>
 			</fileset>
 		</copy>
+        <copy todir="${buildDirectory}" overwrite="true">
+            <fileset dir="${srcdir}" 
+                includes="features/**/*.xml, plugins/**/*.xml, plugins/**/*.MF, plugins/**/*.properties"/>
+            <filterset begintoken="1" endtoken="3">
+                <filter token=".2." value="${feature.version}"/>
+            </filterset>
+        </copy>
 	</target>
 
 	<!-- ===================================================================== -->
