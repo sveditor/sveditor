@@ -126,6 +126,86 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 
 	/**
 	 * Toggle whether tasks & function declarations are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleTaskFunctions  ()  {
+		hide_task_functions = !hide_task_functions;
+		return (hide_task_functions);
+	}
+	
+	/**
+	 * Toggle whether variables are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleVariableDeclarations ()  {
+		hide_variable_declarations  = !hide_variable_declarations;
+		return (hide_variable_declarations);
+	}
+
+	/**
+	 * Toggle whether assign statements are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleAssignStatements ()  {
+		hide_assign_statements  = !hide_assign_statements;
+		return (hide_assign_statements);
+	}
+
+	/**
+	 * Toggle whether always statements are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleAlwaysStatements ()  {
+		hide_always_statements = !hide_always_statements;
+		return (hide_always_statements);
+	}
+
+	/**
+	 * Toggle whether generate blocks are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleGenerateBlocks ()  {
+		hide_generate_blocks = !hide_generate_blocks;
+		return (hide_generate_blocks);
+	}
+	
+	/**
+	 * Toggle whether module instances are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleModuleInstances ()  {
+		hide_module_instances = !hide_module_instances;
+		return (hide_module_instances);
+	}
+
+	/**
+	 * Toggle whether initial blocks are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleInitialBlocks ()  {
+		hide_initial_blocks = !hide_initial_blocks;
+		return (hide_initial_blocks);
+	}
+
+	/**
+	 * Toggle whether include files are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleIncludeFiles ()  {
+		hide_include_files = !hide_include_files;
+		return (hide_include_files);
+	}
+
+	/**
+	 * Toggle whether tasks & function declarations are shown or not
 	 * @param: hide - true - hide element, false show element
 	 */
 	public void HideTaskFunctions  (boolean hide)  {
@@ -139,7 +219,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideVariableDeclarations (boolean hide)  {
 		hide_variable_declarations  = hide;
 	}
-
+	
 	/**
 	 * Toggle whether assign statements are shown or not
 	 * @param: hide - true - hide element, false show element
@@ -147,7 +227,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideAssignStatements (boolean hide)  {
 		hide_assign_statements  = hide;
 	}
-
+	
 	/**
 	 * Toggle whether always statements are shown or not
 	 * @param: hide - true - hide element, false show element
@@ -155,7 +235,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideAlwaysStatements (boolean hide)  {
 		hide_always_statements = hide;
 	}
-
+	
 	/**
 	 * Toggle whether generate blocks are shown or not
 	 * @param: hide - true - hide element, false show element
@@ -171,7 +251,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideModuleInstances (boolean hide)  {
 		hide_module_instances = hide;
 	}
-
+	
 	/**
 	 * Toggle whether initial blocks are shown or not
 	 * @param: hide - true - hide element, false show element
@@ -179,7 +259,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideInitialBlocks (boolean hide)  {
 		hide_initial_blocks = hide;
 	}
-
+	
 	/**
 	 * Toggle whether include files are shown or not
 	 * @param: hide - true - hide element, false show element
@@ -187,5 +267,5 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	public void HideIncludeFiles (boolean hide)  {
 		hide_include_files = hide;
 	}
-
+	
 }
