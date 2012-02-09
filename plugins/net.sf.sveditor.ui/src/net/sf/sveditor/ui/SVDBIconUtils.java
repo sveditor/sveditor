@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 public class SVDBIconUtils implements ISVIcons {
@@ -54,6 +55,8 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.ImportItem, IMPORT_OBJ);
 		fImgDescMap.put(SVDBItemType.ModIfcInst, MOD_IFC_INST_OBJ);
 		fImgDescMap.put(SVDBItemType.ModIfcInstItem, MOD_IFC_INST_OBJ);
+		fImgDescMap.put(SVDBItemType.VarDeclItem, FIELD_PUB_OBJ);
+		fImgDescMap.put(SVDBItemType.Task, TASK_PUB_OBJ);
 	}
 	
 	public static Image getIcon(String key) {
@@ -118,4 +121,12 @@ public class SVDBIconUtils implements ISVIcons {
 		
 		return null;
 	}
+	
+    public static ImageDescriptor getImageDescriptor(SVDBItemType it) {
+		if (fImgDescMap.containsKey(it))  {
+			return SVUiPlugin.getImageDescriptor(fImgDescMap.get(it));
+		}
+		
+		return null;
+    }
 }

@@ -1,4 +1,13 @@
-
+- (#2256648) New feature: configurable outline 
+	- User can now selectively turn on / off:
+	  - Always blocks
+	  - Assign statements
+	  - Initial statements
+	  - Generate blocks
+	  - Signal declarations
+	  - Module instances
+	  - Include files
+	  - Task / function declarations
 
 -- 0.7.9 Release --
 
