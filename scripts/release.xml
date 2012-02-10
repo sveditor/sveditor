@@ -7,6 +7,7 @@
 	<property file="${basedir}/build.properties"/>
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
+	<property name="sf_web_url" value="${env.SF_USERNAME},sveditor@web.sourceforge.net"/>
 	<property name="sf_update_url" 
          value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
 
@@ -20,7 +21,7 @@
 		<delete dir="${basedir}/../release"/>
 	</target>
 
-	<target name="release-prereqs" depends="mksrc, mk_rn">
+	<target name="release-prereqs" depends="build, mksrc, mk_rn">
 		<mkdir dir="${rlsdir}"/>
 
 		<unzip src="${basedir}/../sveditor-release-${feature.version}.zip"
@@ -103,7 +104,7 @@
 		<exec executable="scp" dir="${rlsdir}">
 			<arg value="content.jar"/>
 			<arg value="artifacts.jar"/>
-			<arg value="${sf_frs_url}"/>
+			<arg value="${sf_web_url}:htdocs/update"/>
 		</exec>
 	</target>
 
