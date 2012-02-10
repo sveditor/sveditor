@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -57,12 +58,16 @@ public class SVExprParser extends SVParserBase {
 //	private SVExprDump						fExprDump;
 //	private boolean							fDebugEn = false;
 	public static boolean					fUseFullExprParser = true;
-	private boolean							fEventExpr;
-	private boolean							fAssertionExpr;
+	private Stack<Boolean>					fEventExpr;
+	private Stack<Boolean>					fAssertionExpr;
 	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
+		fAssertionExpr = new Stack<>();
+		fAssertionExpr.push(false);
+		fEventExpr = new Stack<>();
+		fEventExpr.push(false);
 //		fExprDump = new SVExprDump(System.out);
 	}
 	
@@ -209,23 +214,23 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr assert_expression() throws SVParseException {
-		fAssertionExpr = true;
-		fEventExpr = true;
+		fAssertionExpr.push(true);
+		fEventExpr.push(true);
 		try {
 			return expression();
 		} finally {
-			fAssertionExpr = false;
-			fEventExpr = false;
+			fAssertionExpr.pop();
+			fEventExpr.pop();
 		}
 	}
 	
 	public SVDBExpr event_expression() throws SVParseException {
 		if (fDebugEn) {debug("--> event_expression()");}
-		fEventExpr = true;
+		fEventExpr.push(true);
 		try {
 			return expression();
 		} finally {
-			fEventExpr = false;
+			fEventExpr.pop();
 		}
 	}
 	
@@ -264,12 +269,12 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> expression() " + fLexer.peek());}
 		expr = assignmentExpression();
 		
-		if (fEventExpr && fLexer.peekKeyword("iff")) {
+		if (fEventExpr.peek() && fLexer.peekKeyword("iff")) {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, "iff", expression());
 		}
 		
-		if (fEventExpr && fLexer.peekOperator(",")) {
+		if (fEventExpr.peek() && fLexer.peekOperator(",")) {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, ",", expression());
 		}
@@ -470,7 +475,7 @@ public class SVExprParser extends SVParserBase {
 			a = inside;
 		}
 
-		if (fDebugEn) {debug("<-- assignmentExpression() ");}
+		if (fDebugEn) {debug("<-- assignmentExpression() " + fLexer.peek());}
 		return a;
 	}
 	
@@ -545,7 +550,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> conditionalOrExpression()");}
 		SVDBExpr a = conditionalAndExpression();
 		
-		while (peekOperator("||") || (fEventExpr && fLexer.peekKeyword("or"))) {
+		while (peekOperator("||") || (fEventExpr.peek() && fLexer.peekKeyword("or"))) {
 			String op = eatToken();
 			a = new SVDBBinaryExpr(a, op, conditionalAndExpression());
 		}
@@ -699,7 +704,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> unaryExpression " + fLexer.peek());}
 		if (peekOperator("++", "--")) {
 			return new SVDBIncDecExpr(readOperator(), unaryExpression());
-		} else if (fEventExpr && fLexer.peekKeyword("posedge", "negedge", "edge")) {
+		} else if (fEventExpr.peek() && fLexer.peekKeyword("posedge", "negedge", "edge")) {
 			SVDBExpr ret = new SVDBUnaryExpr(fLexer.eatToken(), expression());
 			if (fLexer.peekKeyword("iff")) {
 				fLexer.eatToken();
@@ -708,7 +713,7 @@ public class SVExprParser extends SVParserBase {
 			return ret;
 		}
 		if (peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~") ||
-				(fAssertionExpr && peekOperator("*"))) {
+				(fAssertionExpr.peek() && peekOperator("*"))) {
 			String op = readOperator();
 			SVDBUnaryExpr ret = new SVDBUnaryExpr(op, unaryExpression());
 			
@@ -724,7 +729,7 @@ public class SVExprParser extends SVParserBase {
 		while (peekOperator("::", ".", "[")) {
 			SVToken t = fLexer.consumeToken();
 			// Don't move forward if this is likely to be an assertion sequence
-			if (fAssertionExpr) {
+			if (fAssertionExpr.peek()) {
 				if (!fLexer.peekOperator()) {
 					fLexer.ungetToken(t);
 					a = selector(a);
@@ -960,9 +965,9 @@ public class SVExprParser extends SVParserBase {
 			} else if (peekKeyword("void")) {
 				eatToken();
 				ret = new SVDBIdentifierExpr("void");
-			} else if (fEventExpr && fLexer.peekOperator("@")) {
+			} else if (fEventExpr.peek() && fLexer.peekOperator("@")) {
 				ret = clocking_event();
-			} else if (fEventExpr && fLexer.peekOperator("##")) {
+			} else if (fEventExpr.peek() && fLexer.peekOperator("##")) {
 				ret = cycle_delay();
 			} else {
 				error("Unexpected token in primary: \"" + fLexer.getImage() + "\"");
@@ -1205,17 +1210,26 @@ public class SVExprParser extends SVParserBase {
 	
 	private SVDBRandomizeCallExpr randomize_call(SVDBExpr target) throws SVParseException {
 		List<SVDBExpr> arguments = null;
+		SVDBRandomizeCallExpr rand_call = null;
 		
-		if (fLexer.peekOperator("(")) {
-			arguments = arguments();
-		}
-		
-		SVDBRandomizeCallExpr rand_call = new SVDBRandomizeCallExpr(target, "randomize", arguments);
-		
-		if (fLexer.peekKeyword("with")) {
-			fLexer.eatToken();
-			// constraint block
-			rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true));
+		// Body of a randomize() call should not user assertion semantics
+		fAssertionExpr.push(false);
+		fEventExpr.push(false);
+		try {
+			if (fLexer.peekOperator("(")) {
+				arguments = arguments();
+			}
+
+			rand_call = new SVDBRandomizeCallExpr(target, "randomize", arguments);
+
+			if (fLexer.peekKeyword("with")) {
+				fLexer.eatToken();
+				// constraint block
+				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true));
+			}
+		} finally {
+			fAssertionExpr.pop();
+			fEventExpr.pop();
 		}
 		return rand_call;
 	}

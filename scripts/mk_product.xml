@@ -19,6 +19,10 @@
 		<property name="baseLocation" value="${eclipse.home}"/>
 		<property name="buildDirectory" value="${basedir}/../buildDirectory"/>
 		<property name="buildTempFolder" value="${buildDirectory}" />
+		
+		<delete dir="${buildDirectory}"/>
+		<delete dir="${builder}"/>
+		
 <!--
 		<property name="eclipseBaseURL" 
 			value="file:///home/ballance/Downloads/eclipse-platform-3.7.1-linux-gtk-x86_64.zip"/>

@@ -285,6 +285,26 @@ public class TestParseExpr extends TestCase {
 			;
 		runTest(testname, content, new String[] {"t"});
 	}
+	
+	public void testInlineDistConstraint() throws SVParseException {
+		String testname = "testInlineDistConstraint";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	rand bit[3:0] a;\n" +
+			"	rand bit[3:0] b;\n" +
+			"\n" +
+			"	function void foo();\n" +
+			"		c v = new;\n" +
+			"		assert(v.randomize() with {\n" +
+			"			a dist {[0:1] := 1, [2:15] :/1};\n" +
+			"			b dist {[0:1] := 1, [2:15] :/1};\n" +
+			"		});\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(testname, content, new String[] {"c", "foo"});
+	}
 
 	private void runTest(
 			String			testname,
