@@ -64,9 +64,9 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
-		fAssertionExpr = new Stack<>();
+		fAssertionExpr = new Stack<Boolean>();
 		fAssertionExpr.push(false);
-		fEventExpr = new Stack<>();
+		fEventExpr = new Stack<Boolean>();
 		fEventExpr.push(false);
 //		fExprDump = new SVExprDump(System.out);
 	}
