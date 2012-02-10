@@ -37,5 +37,15 @@ public class SVEditorPrefsConstants {
 	public static final String P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN 		= "contentAssistModIfcInstNamedPortsEn";
 	public static final String P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT 		= "contentAssistModIfcInstLineWrapLimit";
 	public static final String P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE 	= "contentAssistModIfcInstPortsPerLine";
+
+	// Outline view Preferences
+	public static final String P_OUTLINE_SHOW_ALWAYS_BLOCKS                     = "outlineShowAlwaysBlocks";
+	public static final String P_OUTLINE_SHOW_ASSIGN_STATEMENTS                 = "outlineShowAssignStatements";
+	public static final String P_OUTLINE_SHOW_INITIAL_BLOCKS                    = "outlineShowInitialBlocks";
+	public static final String P_OUTLINE_SHOW_INCLUDE_FILES                     = "outlineShowIncludeFiles";
+	public static final String P_OUTLINE_SHOW_GENERATE_BLOCKS                   = "outlineShowGenerateBlocks";
+	public static final String P_OUTLINE_SHOW_MODULE_INSTANCES                  = "outlineShowModuleInstances";
+	public static final String P_OUTLINE_SHOW_SIGNAL_DECLARATIONS               = "outlineShowSignalDeclarations";
+	public static final String P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS        = "outlineShowTaskFunctionDeclarations";
 	
 }
