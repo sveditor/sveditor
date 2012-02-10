@@ -1,3 +1,5 @@
+
+-- 0.8.0 Release --
 - (#2256648) New feature: configurable outline 
 	- User can now selectively turn on / off:
 	  - Always blocks
@@ -9,6 +11,7 @@
 	  - Include files
 	  - Task / function declarations
 
+------------------------------------------------------------------------------
 -- 0.7.9 Release --
 
 - #(3482259)    Vectored Delayed Wire type not parsed correctly
