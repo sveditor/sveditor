@@ -11,6 +11,7 @@
 	  - Include files
 	  - Task / function declarations
 
+- (#nobug) Correct parse error with in-line 'dist' constraint
 ------------------------------------------------------------------------------
 -- 0.7.9 Release --
 
