@@ -1,4 +1,7 @@
 
+-- 0.8.1 Release --
+
+------------------------------------------------------------------------------
 -- 0.8.0 Release --
 - (#2256648) New feature: configurable outline 
 	- User can now selectively turn on / off:
