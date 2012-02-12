@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
@@ -52,6 +53,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private static final boolean			fDebugEn = false;
 	private int								fNLeftParen, fNRightParen;
 	private String							fIndentIncr = "\t";
+	private Pattern							fTabReplacePattern;
 	
 	private int								fAdaptiveIndentEnd;
 	private boolean							fTestMode;
@@ -98,6 +100,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	public void setIndentIncr(String incr) {
 		fIndentIncr = incr;
+		if (fIndentIncr.charAt(0) != '\t') {
+			// Want to replace any existing tabs with
+			// the indent increment
+			fTabReplacePattern = Pattern.compile("\t");
+		} else {
+			fTabReplacePattern = null;
+		}
 	}
 	
 	public void setAdaptiveIndentEnd(int lineno) {
@@ -180,7 +189,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				if (fDebugEn) {
 					debug("tok \"" + t.getType() + "\" line=" + t.getLineno() + " image=" + t.getImage());
 				}
-				sb.append(t.getLeadingWS() + 
+				String leading_ws = t.getLeadingWS();
+				// Replace any tabs in the leading whitespace
+				// if we're inserting spaces instead of tabs
+				if (t.isStartLine() && fTabReplacePattern != null) {
+					leading_ws = fTabReplacePattern.matcher(leading_ws).replaceAll(fIndentIncr);
+				}
+				sb.append(leading_ws + 
 						t.getImage() +
 						t.getTrailingWS() +
 						((t.isEndLine())?"\n":""));
@@ -196,6 +211,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		for (SVIndentToken t : fTokenList) {
 			if (t.getLineno() == lineno) {
 				ret = t.getLeadingWS();
+				
+				// Replace any tabs in the leading whitespace
+				// if we're inserting spaces instead of tabs
+				if (t.isStartLine() && fTabReplacePattern != null) {
+					ret = fTabReplacePattern.matcher(ret).replaceAll(fIndentIncr);
+				}
 				break;
 			}
 		}
