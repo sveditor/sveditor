@@ -46,8 +46,13 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		fEditor = editor;
 	}
 	
-	
-	
+	@Override
+	public String[] getIndentPrefixes(ISourceViewer sourceViewer,
+			String contentType) {
+		String prefix = SVUiPlugin.getDefault().getIndentIncr();
+		return new String[] {prefix, "\t"};
+	}
+
 	@Override
 	public int getTabWidth(ISourceViewer sourceViewer) {
 		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
