@@ -51,6 +51,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	private ISVDBItemBase				fLastSelection;
 	private Action                      ToggleAssign;
 	private Action                      ToggleAlways;
+	private Action                      ToggleDefines;
 	private Action                      ToggleInitial;
 	private Action                      ToggleGenerate;
 	private Action                      ToggleVariables;
@@ -73,9 +74,10 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		// Set up the preferences from the preference store
 		DefaultContentFilter.HideAlwaysStatements    (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
+		DefaultContentFilter.HideAssignStatements    (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
+		DefaultContentFilter.HideDefineStatements    (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
 		DefaultContentFilter.HideGenerateBlocks      (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
 		DefaultContentFilter.HideIncludeFiles        (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
-		DefaultContentFilter.HideAssignStatements    (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
 		DefaultContentFilter.HideInitialBlocks       (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));
 		DefaultContentFilter.HideModuleInstances     (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
 		DefaultContentFilter.HideTaskFunctions       (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
@@ -188,105 +190,118 @@ public class SVOutlinePage extends ContentOutlinePage
 			}
 	};
 	
-    public void createActions() {
-   }
-    
-    @Override
-    public void init(IPageSite pageSite) {
-	    super.init(pageSite);
+	public void createActions() {
+	}
 	
-	    // Add button to toggle assign statements on and off
-	    ToggleAssign = new Action("Assign", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleAssign.setChecked(DefaultContentFilter.ToggleAssignStatements());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS, ToggleAssign.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleAssign.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Assign));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleAssign);
-	    
-	    // Add button to toggle Always statements on and off
-	    ToggleAlways = new Action("Always", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleAlways.setChecked(DefaultContentFilter.ToggleAlwaysStatements());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS, ToggleAlways.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleAlways.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.AlwaysStmt));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleAlways);
-	    
-	    // Add button to toggle Initial statements on and off
-	    ToggleInitial= new Action("Initial", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleInitial.setChecked(DefaultContentFilter.ToggleInitialBlocks());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS, ToggleInitial.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleInitial.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InitialStmt));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleInitial);
-	    
-	    // Add button to toggle Generate statements on and off
-	    ToggleGenerate = new Action("Generate", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleGenerate.setChecked(DefaultContentFilter.ToggleGenerateBlocks());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS, ToggleGenerate.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleGenerate .setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.GenerateBlock));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleGenerate);
-	    
-	    // Add button to toggle Variables statements on and off
-	    ToggleVariables= new Action("Signals", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleVariables.setChecked(DefaultContentFilter.ToggleVariableDeclarations());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS, ToggleVariables.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleVariables.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.VarDeclItem));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleVariables);
-	    
-	    // Add button to toggle Module Instances statements on and off
-	    ToggleModuleInstances = new Action("Module Instances", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleModuleInstances.setChecked(DefaultContentFilter.ToggleModuleInstances());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES, ToggleModuleInstances.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleModuleInstances.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.ModIfcInst));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleModuleInstances);
-	    
-	    // Add button to toggle Include files statements on and off
-	    ToggleInclude= new Action("Include", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleInclude.setChecked(DefaultContentFilter.ToggleIncludeFiles());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES, ToggleInclude.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleInclude.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Include));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleInclude);
-
-	    // Add button to toggle Task / Function statements on and off
-	    ToggleTaskFunction = new Action("Task/Function", Action.AS_CHECK_BOX) {
-	    	public void run() { 
-	    		ToggleTaskFunction.setChecked(DefaultContentFilter.ToggleTaskFunctions());
-	    		SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS, ToggleTaskFunction.isChecked());
-	    		refresh();
-	    	}
-	    };
-	    ToggleTaskFunction.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Task));
-	    pageSite.getActionBars().getToolBarManager().add(ToggleTaskFunction);
-	    
+	@Override
+	public void init(IPageSite pageSite) {
+		super.init(pageSite);
+		
+		// Add button to toggle assign statements on and off
+		ToggleAssign = new Action("Assign", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleAssign.setChecked(DefaultContentFilter.ToggleAssignStatements());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS, ToggleAssign.isChecked());
+				refresh();
+			}
+		};
+		ToggleAssign.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Assign));
+		pageSite.getActionBars().getToolBarManager().add(ToggleAssign);
+		
+		// Add button to toggle Always statements on and off
+		ToggleAlways = new Action("Always", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleAlways.setChecked(DefaultContentFilter.ToggleAlwaysStatements());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS, ToggleAlways.isChecked());
+				refresh();
+			}
+		};
+		ToggleAlways.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.AlwaysStmt));
+		pageSite.getActionBars().getToolBarManager().add(ToggleAlways);
+		
+		// Add button to toggle `define statements on and off
+		ToggleDefines = new Action("`define", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleDefines.setChecked(DefaultContentFilter.ToggleDefineStatements());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS, ToggleDefines.isChecked());
+				refresh();
+			}
+		};
+		ToggleDefines.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.MacroDef));
+		pageSite.getActionBars().getToolBarManager().add(ToggleDefines);
+		
+		// Add button to toggle Initial statements on and off
+		ToggleInitial= new Action("Initial", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleInitial.setChecked(DefaultContentFilter.ToggleInitialBlocks());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS, ToggleInitial.isChecked());
+				refresh();
+			}
+		};
+		ToggleInitial.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InitialStmt));
+		pageSite.getActionBars().getToolBarManager().add(ToggleInitial);
+		
+		// Add button to toggle Generate statements on and off
+		ToggleGenerate = new Action("Generate", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleGenerate.setChecked(DefaultContentFilter.ToggleGenerateBlocks());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS, ToggleGenerate.isChecked());
+				refresh();
+			}
+		};
+		ToggleGenerate .setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.GenerateBlock));
+		pageSite.getActionBars().getToolBarManager().add(ToggleGenerate);
+		
+		// Add button to toggle Variables statements on and off
+		ToggleVariables= new Action("Signals", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleVariables.setChecked(DefaultContentFilter.ToggleVariableDeclarations());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS, ToggleVariables.isChecked());
+				refresh();
+			}
+		};
+		ToggleVariables.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.VarDeclItem));
+		pageSite.getActionBars().getToolBarManager().add(ToggleVariables);
+		
+		// Add button to toggle Module Instances statements on and off
+		ToggleModuleInstances = new Action("Module Instances", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleModuleInstances.setChecked(DefaultContentFilter.ToggleModuleInstances());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES, ToggleModuleInstances.isChecked());
+				refresh();
+			}
+		};
+		ToggleModuleInstances.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.ModIfcInst));
+		pageSite.getActionBars().getToolBarManager().add(ToggleModuleInstances);
+		
+		// Add button to toggle Include files statements on and off
+		ToggleInclude= new Action("Include/Import", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleInclude.setChecked(DefaultContentFilter.ToggleIncludeFiles());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES, ToggleInclude.isChecked());
+				refresh();
+			}
+		};
+		ToggleInclude.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Include));
+		pageSite.getActionBars().getToolBarManager().add(ToggleInclude);
+	
+		// Add button to toggle Task / Function statements on and off
+		ToggleTaskFunction = new Action("Task/Function", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleTaskFunction.setChecked(DefaultContentFilter.ToggleTaskFunctions());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS, ToggleTaskFunction.isChecked());
+				refresh();
+			}
+		};
+		ToggleTaskFunction.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Task));
+		pageSite.getActionBars().getToolBarManager().add(ToggleTaskFunction);
+		
 		// Set up which of the content filters are enabled
 		// Now, format the new addition if auto-indent is enabled
+		
 		ToggleAlways         .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
 		ToggleAssign         .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
+		ToggleDefines        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
 		ToggleGenerate       .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
 		ToggleInclude        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
 		ToggleInitial        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));

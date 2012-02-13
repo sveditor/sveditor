@@ -1,5 +1,7 @@
 -- 0.8.1 Release --
 - #(3482259) - Vectored Delayed Wire type not parsed
+
+- #(nobug)   - Added toggle for `defines in outline view
  
 
 ------------------------------------------------------------------------------
