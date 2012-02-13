@@ -325,15 +325,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	/**
+	 * This function is used to parse two different types of data lines.  Net types, and
+	 * port lists.
+	 * Net Type Declaration:
 	 *	net_declaration ::= 
 	 *  net_type [ drive_strength | charge_strength ] [  vectored  |  scalared  ] 
 	 *  data_type_or_implicit [ delay3 ] list_of_net_decl_assignments ;
 	 * @param parent
 	 * @throws SVParseException
+	 * 
+	 * Port list declaration:
+	 * [input|output|inout] [net_type] ... list_of_net_decl_assignments;
+	 * Supply1 supply0 
 	 */
 	private void parse_var_decl_net_type (ISVDBAddChildItem parent) throws SVParseException {
 		// net type
-		String net_type = fLexer.eatToken();
+		String net_type = fLexer.eatToken();		// at this point net_type can be an invalid net type, such as a direction - input, output or inout
 		String vector_dim = null;
 		SVDBVarDeclStmt var = null;
 		String net_name = null;
@@ -379,25 +386,31 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fLexer.skipPastMatch("[", "]");
 			vector_dim = fLexer.endCapture();
 			((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
-			start = fLexer.getStartLocation();
-			net_name = fLexer.readId();
-		} else {
-			data_type = parsers().dataTypeParser().data_type(0);
-
-			// Now, based on what we see next, we determine whether the
-			// net is typed or untyped
-
-			if (fLexer.peekOperator(",", ";", "=")) {
-				// The net was untyped
-				start = fLexer.getStartLocation();
-				net_name = data_type.getName();
-				data_type = new SVDBTypeInfoBuiltin(net_type);
-			} else {
-				// Assume the net to be typed
-				start = fLexer.getStartLocation();
-				net_name = fLexer.readId();
-			}
 		}
+		else  {
+			// At this point set the data type to a generic, untyped data type.
+			data_type = parsers().dataTypeParser().data_type(0);
+		}
+		
+		// Delay 3
+		// #(mintypmax,mintypmax, mintypmax)
+		if (fLexer.peekOperator("#"))  {
+			// Time expression
+			fParsers.exprParser().delay_expr(3);
+			// TODO - What Do something with the Delay expression
+		}
+
+		// Now, based on what we see next, we determine whether the
+		// net is typed or untyped
+		if (fLexer.peekOperator(",", ";", "=")) {
+			// The net was untyped
+			net_name = data_type.getName();
+			data_type = new SVDBTypeInfoBuiltin(net_type);
+		} else {
+			// Assume the net to be typed
+			net_name = fLexer.readId();
+		}
+		start = fLexer.getStartLocation();
 		type_info = new SVDBTypeInfoBuiltinNet(net_type, data_type);
 		
 		var = new SVDBVarDeclStmt(type_info, 0);
