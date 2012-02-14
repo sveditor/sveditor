@@ -13,11 +13,11 @@
 package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.SVDBAssign;
-import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
@@ -40,6 +40,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	private boolean hide_always_statements		= true;
 	private boolean hide_initial_blocks  		= true;
 	private boolean hide_generate_blocks 		= true;
+	private boolean hide_define_statements		= true;
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// By default show:
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +98,11 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		
 		// Module initial declarations
 		else if ((hide_initial_blocks == true) && (element instanceof SVDBInitialStmt))  {
+			return false;
+		}
+		
+		// Module initial declarations
+		else if ((hide_define_statements == true) && (element instanceof SVDBMacroDef))  {
 			return false;
 		}
 		
@@ -205,6 +211,16 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	}
 
 	/**
+	 * Toggle whether `defines are shown or not
+	 * @param: None
+	 * @return: True if enabled, false if not
+	 */
+	public boolean ToggleDefineStatements ()  {
+		hide_define_statements = !hide_define_statements;
+		return (hide_define_statements);
+	}
+	
+	/**
 	 * Toggle whether tasks & function declarations are shown or not
 	 * @param: hide - true - hide element, false show element
 	 */
@@ -266,6 +282,14 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 	 */
 	public void HideIncludeFiles (boolean hide)  {
 		hide_include_files = hide;
+	}
+
+	/**
+	 * Toggle whether `defines are shown or not
+	 * @param: hide - true - hide element, false show element
+	 */
+	public void HideDefineStatements (boolean hide)  {
+		hide_define_statements = hide;
 	}
 	
 }
