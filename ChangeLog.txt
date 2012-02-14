@@ -1,8 +1,11 @@
 -- 0.8.1 Release --
+
 - #(3482259) - Vectored Delayed Wire type not parsed
 
 - #(nobug)   - Added toggle for `defines in outline view
- 
+
+- #(3486909) - Correct inconsistencies in indenting and indent shifting 
+  when spaces are to be inserted instead of tabs
 
 ------------------------------------------------------------------------------
 -- 0.8.0 Release --
