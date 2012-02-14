@@ -41,6 +41,7 @@ public class SVEditorPrefsConstants {
 	// Outline view Preferences
 	public static final String P_OUTLINE_SHOW_ALWAYS_BLOCKS                     = "outlineShowAlwaysBlocks";
 	public static final String P_OUTLINE_SHOW_ASSIGN_STATEMENTS                 = "outlineShowAssignStatements";
+	public static final String P_OUTLINE_SHOW_DEFINE_STATEMENTS                 = "outlineShowDefineStatements";
 	public static final String P_OUTLINE_SHOW_INITIAL_BLOCKS                    = "outlineShowInitialBlocks";
 	public static final String P_OUTLINE_SHOW_INCLUDE_FILES                     = "outlineShowIncludeFiles";
 	public static final String P_OUTLINE_SHOW_GENERATE_BLOCKS                   = "outlineShowGenerateBlocks";
