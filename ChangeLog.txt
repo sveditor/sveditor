@@ -2,6 +2,8 @@
 - #(3482259) - Vectored Delayed Wire type not parsed
 
 - #(nobug)   - Added toggle for `defines in outline view
+
+- #(3483902) - Parameters declared in tasks not recognized
  
 
 ------------------------------------------------------------------------------

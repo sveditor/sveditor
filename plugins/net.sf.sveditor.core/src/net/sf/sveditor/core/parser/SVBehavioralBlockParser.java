@@ -191,6 +191,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		if (fLexer.peekKeyword("begin")) {
 			block_stmt(parent);
+		} else if (fLexer.peekKeyword("parameter") || fLexer.peekKeyword("localparam")) {
+				parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
 		} else if (fLexer.peekKeyword("unique","unique0","priority")) {
 			// TODO: ignore unique_priority for now
 			fLexer.eatToken();

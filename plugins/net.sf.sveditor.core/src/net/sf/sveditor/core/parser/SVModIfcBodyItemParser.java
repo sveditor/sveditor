@@ -486,7 +486,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		// SV allows modules to be arrayed
 		// some_module module_instance_name [5:0] ( .a (a), .y (y));
-		// so grab the dimentions here
+		// so grab the dimensions here
 		List<SVDBVarDimItem> arraydims = null;
 		if (fLexer.peekOperator("[")) {
 			// Array type

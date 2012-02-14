@@ -290,6 +290,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"    int a;\n" +
 			"\n" +
 			"    initial begin\n" +
+			"        paramter P = 1;\n" +
 			"        int b;\n" +
 			"        b = 5;\n" +
 			"        a = 6;\n" +
