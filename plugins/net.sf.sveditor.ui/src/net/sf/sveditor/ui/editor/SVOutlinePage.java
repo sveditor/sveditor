@@ -67,7 +67,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	public void createControl(Composite parent) {
 		super.createControl(parent);
-		
+
 		fContentProvider = new SVTreeContentProvider();
 		DefaultContentFilter = new SVDBDefaultContentFilter();
 
