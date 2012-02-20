@@ -17,14 +17,14 @@
         	Manufacturer="SVEditor" Platform="x86" />
         <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
 
-		<?include ../sve_files.wxi?>
+		<?include $(var.basedir)/sve_files.wxi?>
 		   
 		<DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationShortcut" Guid="{3618724B-2523-44F9-A908-877AA6191754}">
                 <Shortcut Id="ApplicationStartMenuShortcut"
                 		  Name="SVE_$(var.version)"
                 		  Description="SVE SystemVerilog IDE"
-                		  Target="[INSTALLDIR]sveditor.exe"
+                		  Target="[INSTALLDIR]sve.exe"
                           WorkingDirectory="AppDataFolder"/>
                 <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\Microsoft\SVE_$(var.version)" 

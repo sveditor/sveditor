@@ -13,13 +13,50 @@
 	<property name="build" location="${buildRoot}/build"/>
 	<property name="buildResult" location="${basedir}/../buildResult"/>
 	<property name="builder" value="${buildRoot}/builder"/>
+	<property name="installerTmp" value="${basedir}/../installerTmp"/>
 
 	<property file="${basedir}/mk_product.properties"/>
 	<property file="${basedir}/mk_product_${os}.properties"/>
 	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 
+	<condition property="is_win">
+		<os family="windows"/>
+	</condition>
 
-	<target name="mk_product">
+	<target name="mk_product" depends="build_archive">
+		<antcall target="mk_msi"/>
+	</target>
+
+	<target name="mk_msi" if="is_win">
+		<delete dir="${installerTmp}"/>
+		<mkdir dir="${installerTmp}"/>
+		<unzip dest="${installerTmp}">
+			<fileset dir="${buildResult}">
+				<include name="sve-${os}.*.x86_64.zip"/>
+			</fileset>
+		</unzip>
+		<ant antfile="${basedir}/mk_msi.xml" 
+			dir="${installerTmp}/sve">
+			<property name="script.dir" value="${basedir}"/>
+			<property name="dest" 
+				value="${buildResult}/sve-x86_64.msi"/>
+		</ant>
+		<delete dir="${installerTmp}"/>
+		<mkdir dir="${installerTmp}"/>
+		<unzip dest="${installerTmp}">
+			<fileset dir="${buildResult}">
+				<include name="sve-${os}.*.x86.zip"/>
+			</fileset>
+		</unzip>
+		<ant antfile="${basedir}/mk_msi.xml" 
+			dir="${installerTmp}/sve">
+			<property name="script.dir" value="${basedir}"/>
+			<property name="dest" 
+				value="${buildResult}/sve-x86.msi"/>
+		</ant>
+	</target>
+
+	<target name="build_archive">
 
 		<delete dir="${buildRoot}"/> 
 		<mkdir dir="${buildRoot}"/> 
