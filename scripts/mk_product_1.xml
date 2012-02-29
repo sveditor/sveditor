@@ -20,7 +20,12 @@
 		<available property="haveDeltaPack" file="${deltapack}"/>
 		<fail unless="haveDeltaPack" message="The deltapack is required to build this product.  Please edit buildProduct.xml or set the &quot;deltapack&quot; property." />
 
-		<property name="pluginPath" value="${basedir}/..${path.separator}${deltapack}" />
+		<property name="pluginPath" value="${basedir}/..${path.separator}${deltapack}"/>
+<!--
+		<property name="pluginPath" 
+                  value="${deltapack}${path.separator}/usr1/fun/sveditor/sveditor_mballance-sf/buildRoot/sveditor/eclipse"/>
+  -->
+		<echo message="PluginPath=${pluginPath}"/>
 
 		<ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
 	</target>

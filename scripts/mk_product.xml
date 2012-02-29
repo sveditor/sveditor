@@ -1,6 +1,6 @@
 <project name="mk_product" default="mk_product">
 	
-	<property name="srcdir" value="${basedir}/../"/>
+	<property name="srcdir" value="${basedir}/../sve"/>
 	<property environment="env"/>
 	
 	<!-- Import the version info -->
@@ -8,10 +8,17 @@
 	<property environment="env"/>
 	<property name="feature.version" value="${version}"/>
 
+	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
+	<property name="eclipsec"  location="${env.ECLIPSE_HOME}/eclipse"/>
+
+	<property name="mpc_repository" location="${env.SVE_ADDINS}/mpc"/>
+	<property name="equinox_repository" location="${env.SVE_ADDINS}/equinox"/>
+
 	<property name="buildRoot" location="${basedir}/../buildRoot"/>
 	<property name="buildRun" location="${buildRoot}/buildRun"/>
 	<property name="build" location="${buildRoot}/build"/>
 	<property name="buildResult" location="${basedir}/../buildResult"/>
+	<property name="sveditor" location="${buildRoot}/sveditor"/>
 	<property name="builder" value="${buildRoot}/builder"/>
 	<property name="installerTmp" value="${basedir}/../installerTmp"/>
 
@@ -57,12 +64,14 @@
 	</target>
 
 	<target name="build_archive">
-
+		<delete dir="${buildResult}"/>
 		<delete dir="${buildRoot}"/> 
 		<mkdir dir="${buildRoot}"/> 
 		<mkdir dir="${buildRun}"/> 
 		<mkdir dir="${build}"/> 
 		<mkdir dir="${buildResult}"/> 
+		<mkdir dir="${sveditor}"/> 
+		<mkdir dir="${sveditor}/eclipse"/> 
 		<property name="baseLocation" value="${eclipse.home}"/>
 		<copy todir="${build}">
 			<fileset dir="${srcdir}">
@@ -84,6 +93,12 @@
 				<filter token=".2." value="${feature.version}"/>
 			</filterset>
 		</copy>
+		<unzip dest="${sveditor}/eclipse">
+			<fileset dir="${basedir}/..">
+				<include name="sveditor-feature-${feature.version}.zip"/>
+			</fileset>
+		</unzip> 
+		
 		<copy file="${basedir}/mk_product_1.xml" todir="${buildRun}"/>
 		<ant antfile="${buildRun}/mk_product_1.xml" dir="${buildRun}"/>
 
@@ -92,7 +107,100 @@
 				<include name="*.zip"/>
 			</fileset>
 		</copy>
+
+		<antcall target="win_zip"/>
+		<antcall target="linux_zip"/>
+
 		<delete dir="${buildRoot}"/>
+	</target>
+
+	<target name="win_zip" if="is_win">
+		<antcall target="install_addins">
+			<param name="c_os" value="win32"/>
+			<param name="c_ws" value="win32"/>
+			<param name="c_arch" value="x86"/>
+		</antcall>
+
+		<antcall target="install_addins">
+			<param name="c_os" value="win32"/>
+			<param name="c_ws" value="win32"/>
+			<param name="c_arch" value="x86_64"/>
+		</antcall>
+	</target>
+
+	<target name="linux_zip" unless="if_win">
+		<antcall target="install_addins">
+			<param name="c_os" value="linux"/>
+			<param name="c_ws" value="gtk"/>
+			<param name="c_arch" value="x86_64"/>
+		</antcall>
+
+		<antcall target="install_addins">
+			<param name="c_os" value="linux"/>
+			<param name="c_ws" value="gtk"/>
+			<param name="c_arch" value="x86"/>
+		</antcall>
+	</target>
+
+	<target name="install_addins">
+		<delete dir="${buildResult}/sve"/>
+		<delete dir="${buildResult}/sveditor"/>
+		<unzip dest="${buildResult}" 
+                    src="${buildResult}/sve-${c_os}.${c_ws}.${c_arch}.zip"/>
+		<unzip dest="${buildResult}/sveditor" 
+                    src="${basedir}/../sveditor-${feature.version}.jar"/>
+
+		<exec executable="${eclipsec}" failonerror="true">
+			<arg value="-console"/>
+			<arg value="-consoleLog"/>
+			<arg value="-nosplash"/>
+			<arg value="-application"/>
+			<arg value="org.eclipse.equinox.p2.director"/>
+			<arg value="-installIU"/>
+			<arg value="net.sf.sveditor.feature.group"/>
+			<arg value="-repository"/>
+			<arg value="file://${buildResult}/sveditor"/>
+			<arg value="-tag"/>
+			<arg value="AddSVE"/>
+			<arg value="-destination"/>
+			<arg value="${buildResult}/sve"/>
+		</exec>
+		<exec executable="${eclipsec}" failonerror="true">
+			<arg value="-console"/>
+			<arg value="-consoleLog"/>
+			<arg value="-nosplash"/>
+			<arg value="-application"/>
+			<arg value="org.eclipse.equinox.p2.director"/>
+			<arg value="-installIU"/>
+			<arg value="org.eclipse.equinox.p2.discovery.feature.feature.group"/>
+			<arg value="-repository"/>
+			<arg value="file://${equinox_repository}"/>
+			<arg value="-tag"/>
+			<arg value="AddSVE"/>
+			<arg value="-destination"/>
+			<arg value="${buildResult}/sve"/>
+		</exec>
+		<exec executable="${eclipsec}" failonerror="true">
+			<arg value="-console"/>
+			<arg value="-consoleLog"/>
+			<arg value="-nosplash"/>
+			<arg value="-application"/>
+			<arg value="org.eclipse.equinox.p2.director"/>
+			<arg value="-installIU"/>
+			<arg value="org.eclipse.epp.mpc.feature.group"/>
+			<arg value="-repository"/>
+			<arg value="file://${mpc_repository}"/>
+			<arg value="-tag"/>
+			<arg value="AddSVE"/>
+			<arg value="-destination"/>
+			<arg value="${buildResult}/sve"/>
+		</exec>
+		<delete file="${buildResult}/sve-${c_os}.${c_ws}.${c_arch}.zip"/>
+		<zip destfile="${buildResult}/sve-${c_os}.${c_ws}.${c_arch}.zip"
+			basedir="${buildResult}" includes="sve/**">
+		</zip>
+		<delete dir="${buildResult}/sve"/>
+		<delete dir="${buildResult}/sveditor"/>
 	</target>
 
 </project>

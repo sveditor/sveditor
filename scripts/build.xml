@@ -60,6 +60,8 @@
             target="build.jars"/>
         <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
              dir="${buildDirectory}"/>
+	<copy tofile="${basedir}/../sveditor-feature-${feature.version}.zip"
+		file="${buildDirectory}/${feature.id}-${feature.version}-${os}.${ws}.${arch}.zip"/>
     </target>
 
 

@@ -152,10 +152,4 @@ This Agreement is governed by the laws of the State of New York and the intellec
          install-size="0"
          version="0.0.0"/>
 
-   <plugin
-         id="net.sf.sveditor.product"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
 </feature>
