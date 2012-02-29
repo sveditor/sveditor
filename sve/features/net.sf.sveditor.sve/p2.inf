@@ -1,0 +1,12 @@
+instructions.configure=\
+  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,name:SVEditor Updates,location:http${#58}//sveditor.sourceforge.net/update/,enabled:true);\
+  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,name:SVEditor Updates,location:http${#58}//sveditor.sourceforge.net/update/,enabled:true);
+  
+#  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:0,name:Indigo,location:http${#58}//download.eclipse.org/releases/indigo,enabled:true);\
+#  org.eclipse.equinox.p2.touchpoint.eclipse.addRepository(type:1,name:Indigo,location:http${#58}//download.eclipse.org/releases/indigo,enabled:true);
+
+# properties.1.name=org.eclipse.equinox.p2.type.category
+# properties.1.value=true
+
+#  addRepository(type:0,location:http${#58}//sveditor.sourceforge.net/update,name:SVEditor Updates,enabled:true);\
+#  addRepository(type:1,location:http${#58}//sveditor.sourceforge.net/update,name:SVEditor Updates,enabled:true);
