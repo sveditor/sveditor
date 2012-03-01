@@ -35,6 +35,9 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 		while (fLexer.peek() != null) {
 			if (fLexer.peekKeyword(end_keyword)) {
 				break;
+			// check for parameters - these can be used in port lists etc.
+			} else if (fLexer.peekKeyword("parameter") || fLexer.peekKeyword("localparam")) {
+				parsers().modIfcBodyItemParser().parse_parameter_decl(tf);
 			} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
