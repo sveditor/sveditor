@@ -1,5 +1,5 @@
 
-<project name="SVEditor Feature">
+<project name="SVEditor Feature" default="build">
     <property environment="env"/>
 
     <!-- Import the version info -->

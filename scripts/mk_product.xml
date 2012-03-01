@@ -30,8 +30,12 @@
 		<os family="windows"/>
 	</condition>
 
-	<target name="mk_product" depends="build_archive">
+	<target name="mk_product" depends="build_release,build_archive">
 		<antcall target="mk_msi"/>
+	</target>
+
+	<target name="build_release">
+		<ant antfile="${basedir}/build.xml">
 	</target>
 
 	<target name="mk_msi" if="is_win">
@@ -128,7 +132,7 @@
 		</antcall>
 	</target>
 
-	<target name="linux_zip" unless="if_win">
+	<target name="linux_zip" unless="is_win">
 		<antcall target="install_addins">
 			<param name="c_os" value="linux"/>
 			<param name="c_ws" value="gtk"/>
