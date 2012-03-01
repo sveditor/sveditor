@@ -105,6 +105,20 @@ public class TestParseFunction extends TestCase {
 		parse_tf(content, testname);
 	}
 
+	public void testTaskWithParam() throws SVParseException {
+		String testname = "testTaskWithParam";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"	task send_rx_packet;\n" +
+			"		parameter PARAM1 = 1;\n" +
+			"		begin\n" +
+			"			parameter PARAM2 = 1;\n" +   
+			"		end\n" +
+		    "	endtask\n"
+		    ;
+		parse_tf(content, testname);
+	}
+
 
 
 	// Tests that local variables are correctly recognized and that 

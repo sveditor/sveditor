@@ -1,6 +1,8 @@
 
 -- 0.8.2 Release --
 
+- #(3483902) - Parameters declared in tasks not recognized
+
 ------------------------------------------------------------------------------
 -- 0.8.1 Release --
 
@@ -10,7 +12,7 @@
 
 - #(3486909) - Correct inconsistencies in indenting and indent shifting 
   when spaces are to be inserted instead of tabs
-
+ 
 ------------------------------------------------------------------------------
 -- 0.8.0 Release --
 - (#2256648) New feature: configurable outline 
