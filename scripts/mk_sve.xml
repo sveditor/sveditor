@@ -1,4 +1,4 @@
-<project name="mk_product" default="mk_product">
+<project name="mk_sve" default="mk_sve">
 	
 	<property name="srcdir" value="${basedir}/../sve"/>
 	<property environment="env"/>
@@ -22,15 +22,15 @@
 	<property name="builder" value="${buildRoot}/builder"/>
 	<property name="installerTmp" value="${basedir}/../installerTmp"/>
 
-	<property file="${basedir}/mk_product.properties"/>
-	<property file="${basedir}/mk_product_${os}.properties"/>
+	<property file="${basedir}/mk_sve.properties"/>
+	<property file="${basedir}/mk_sve_${os}.properties"/>
 	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 
 	<condition property="is_win">
 		<os family="windows"/>
 	</condition>
 
-	<target name="mk_product" depends="build_release,build_archive">
+	<target name="mk_sve" depends="build_release,build_archive">
 		<antcall target="mk_msi"/>
 	</target>
 
@@ -103,8 +103,8 @@
 			</fileset>
 		</unzip> 
 		
-		<copy file="${basedir}/mk_product_1.xml" todir="${buildRun}"/>
-		<ant antfile="${buildRun}/mk_product_1.xml" dir="${buildRun}"/>
+		<copy file="${basedir}/mk_sve_1.xml" todir="${buildRun}"/>
+		<ant antfile="${buildRun}/mk_sve_1.xml" dir="${buildRun}"/>
 
 		<copy todir="${buildResult}">
 			<fileset dir="${build}/I.sve">
