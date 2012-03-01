@@ -1,6 +1,6 @@
 <project name="mk_sve" default="mk_sve">
 	
-	<property name="srcdir" value="${basedir}/../sve"/>
+	<property name="sve_srcdir" value="${basedir}/../sve"/>
 	<property environment="env"/>
 	
 	<!-- Import the version info -->
@@ -9,7 +9,11 @@
 	<property name="feature.version" value="${version}"/>
 
 	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
-	<property name="eclipsec"  location="${env.ECLIPSE_HOME}/eclipse"/>
+	<condition property="eclipsec" 
+		value="${env.ECLIPSE_HOME}/eclipsec" 
+		else="${env.ECLIPSE_HOME}/eclipse">
+		<os family="windows"/>
+	</condition>
 
 	<property name="mpc_repository" location="${env.SVE_ADDINS}/mpc"/>
 	<property name="equinox_repository" location="${env.SVE_ADDINS}/equinox"/>
@@ -29,13 +33,26 @@
 	<condition property="is_win">
 		<os family="windows"/>
 	</condition>
+	
+	<condition property="build_ws" value="win32" else="gtk">
+		<os family="windows"/>
+	</condition>
+	<condition property="build_arch" value="x86_64" else="x86">
+		<os arch="amd64"/>
+	</condition>		
 
 	<target name="mk_sve" depends="build_release,build_archive">
 		<antcall target="mk_msi"/>
 	</target>
 
 	<target name="build_release">
-		<ant antfile="${basedir}/build.xml">
+		<ant antfile="${basedir}/build.xml" inheritall="false">
+			<!-- It's necessary to specify some WS/Arch for build
+			 	 Since SVEditor isn't tied to either, doesn't really matter
+			  -->
+			<property name="ws" value="${build_ws}"/>
+			<property name="arch" value="${build_arch}"/>
+		</ant>
 	</target>
 
 	<target name="mk_msi" if="is_win">
@@ -47,10 +64,15 @@
 			</fileset>
 		</unzip>
 		<ant antfile="${basedir}/mk_msi.xml" 
-			dir="${installerTmp}/sve">
+			dir="${installerTmp}/sve" inheritall="false">
 			<property name="script.dir" value="${basedir}"/>
+			<property name="etc.dir" value="${basedir}/../etc"/>
+			<property name="ProgramFilesFolder" 
+				value="ProgramFiles64Folder"/>
 			<property name="dest" 
-				value="${buildResult}/sve-x86_64.msi"/>
+				value="${buildResult}/sve-x64.msi"/>
+			<property name="arch" value="x64"/>
+			<property name="Win64" value="yes"/>
 		</ant>
 		<delete dir="${installerTmp}"/>
 		<mkdir dir="${installerTmp}"/>
@@ -60,10 +82,13 @@
 			</fileset>
 		</unzip>
 		<ant antfile="${basedir}/mk_msi.xml" 
-			dir="${installerTmp}/sve">
+			dir="${installerTmp}/sve" inheritall="false">
 			<property name="script.dir" value="${basedir}"/>
+			<property name="etc.dir" value="${basedir}/../etc"/>
 			<property name="dest" 
 				value="${buildResult}/sve-x86.msi"/>
+			<property name="arch" value="x86"/>
+			<property name="Win64" value="no"/>
 		</ant>
 	</target>
 
@@ -78,7 +103,7 @@
 		<mkdir dir="${sveditor}/eclipse"/> 
 		<property name="baseLocation" value="${eclipse.home}"/>
 		<copy todir="${build}">
-			<fileset dir="${srcdir}">
+			<fileset dir="${sve_srcdir}">
 				<include name="plugins/**"/>
 				<include name="features/**"/>
 				<exclude name="**/*.svn/**"/>
@@ -86,7 +111,7 @@
 			</fileset>
 		</copy>
 		<copy todir="${build}" overwrite="true">
-			<fileset dir="${srcdir}">
+			<fileset dir="${sve_srcdir}">
 				<include name="features/**/*.xml"/>
 				<include name="features/**/*.product"/>
 				<include name="plugins/**/*.xml"/>

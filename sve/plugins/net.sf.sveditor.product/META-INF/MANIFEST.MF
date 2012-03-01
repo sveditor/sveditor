@@ -2,4 +2,5 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SVEditor
 Bundle-SymbolicName: net.sf.sveditor.product;singleton:=true
+Bundle-Localization: plugin
 Bundle-Version: 1.2.3

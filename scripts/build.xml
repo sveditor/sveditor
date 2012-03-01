@@ -7,14 +7,21 @@
     <property file="${basedir}/build.properties"/>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
-    <property name="eclipsec"  location="${env.ECLIPSE_HOME}/eclipse"/>
+	<condition property="eclipsec" 
+		value="${env.ECLIPSE_HOME}/eclipsec" 
+		else="${env.ECLIPSE_HOME}/eclipse">
+		<os family="windows"/>
+	</condition>
+	
     <property name="feature.version" value="${version}"/>
 
     <!-- Options used by the Eclipse build -->
     <property name="buildId" value="${feature.version}"/>
 
     <!-- build.qualifier -->
+	<!--
     <property name="configs" value="${os}, ${ws}, ${arch}"/>
+      -->
     <property name="buildDirectory"   value="${basedir}/../build"/>
 
     <property name="srcdir" value="${basedir}/.."/>
@@ -51,7 +58,7 @@
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
             baseLocation="${eclipse.home}"
-            configInfo="${configs}"
+            configInfo="${os},${ws},${arch}"
             forceContextQualifier="${forceContextQualifier}"
             generateFeatureVersionSuffix="true"/>
 

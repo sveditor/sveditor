@@ -14,13 +14,13 @@
         	Description="SVE SystemVerilog Development Environment Package" 
         	InstallerVersion="200" 
         	Keywords="SystemVerilog, HDL, HVL, IDE" Languages="1033" 
-        	Manufacturer="SVEditor" Platform="x86" />
+        	Manufacturer="SVEditor" Platform="$(var.arch)" />
         <Condition Message="An administrator must approve or install [ProductName].">Privileged</Condition>
 
 		<?include $(var.basedir)/sve_files.wxi?>
 		   
 		<DirectoryRef Id="ApplicationProgramsFolder">
-            <Component Id="ApplicationShortcut" Guid="{3618724B-2523-44F9-A908-877AA6191754}">
+            <Component Id="ApplicationShortcut" Guid="{3618724B-2523-44F9-A908-877AA6191754}" Win64="$(var.Win64)">
                 <Shortcut Id="ApplicationStartMenuShortcut"
                 		  Name="SVE_$(var.version)"
                 		  Description="SVE SystemVerilog IDE"
@@ -35,6 +35,13 @@
 		<Feature Id="SVEAppMenu" Title="SVE Application Menu" Level="1">
             <ComponentRef Id="ApplicationShortcut" />   
         </Feature>
+        
+        <WixVariable Id="WixUILicenseRtf" Value="$(var.etc.dir)/epl.rtf" />
+		<WixVariable Id="WixUIBannerBmp" Value="$(var.etc.dir)/msi_banner.bmp"/>  
+		<WixVariable Id="WixUIDialogBmp" Value="$(var.etc.dir)/msi_dialog.bmp"/>          
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
+		<UIRef Id="WixUI_InstallDir"/>
+
         
         <Media Id="1" Cabinet="WiX.cab" EmbedCab="yes" />
     </Product>

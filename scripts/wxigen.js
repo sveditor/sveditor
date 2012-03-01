@@ -21,7 +21,7 @@ f.WriteLine("  <Directory Id=\"TARGETDIR\" Name=\"SourceDir\">");
 f.WriteLine("    <Directory Id=\"ProgramMenuFolder\">\r\n");
 f.WriteLine("      <Directory Id=\"ApplicationProgramsFolder\" Name=\"SVE_$(var.version)\"/>\r\n");
 f.WriteLine("    </Directory>\r\n");
-f.WriteLine("    <Directory Id=\"ProgramFilesFolder\" Name=\"PFiles\">");
+f.WriteLine("    <Directory Id=\"$(var.ProgramFilesFolder)\" Name=\"PFiles\">");
 f.WriteLine("      <Directory Id=\"SVE\" Name=\"SVE\">");
 f.WriteLine("        <Directory Id=\"INSTALLDIR\" Name=\"SVE_$(var.version)\">");
 f.Write(getDirTree(rootDir, "", 1, baseFolder, componentIds));
@@ -72,7 +72,7 @@ function getDirTree(root, xml, indent, baseFolder, componentIds)
 
 	if (fdrFolder.Files.Count > 0) {
 	    xml = xml + space + "  <Component Id=\"C__" + componentId + "\""
-    	          + " Guid=\"" + componentGuid + "\">\r\n";
+    	          + " Guid=\"" + componentGuid + "\" Win64=\"$(var.Win64)\">\r\n";
     }
               
 	for (;!enumFiles.atEnd(); enumFiles.moveNext()) {
