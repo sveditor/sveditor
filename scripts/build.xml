@@ -16,6 +16,7 @@
     <!-- build.qualifier -->
     <property name="configs" value="${os}, ${ws}, ${arch}"/>
     <property name="buildDirectory"   value="${basedir}/../build"/>
+    <property name="buildResult"   value="${basedir}/../buildResult"/>
 
     <property name="srcdir" value="${basedir}/.."/>
     <property name="repository" value="${basedir}/../archive_tmp/repository"/>
@@ -30,6 +31,8 @@
     <target name="compile"> 
         <delete dir="${buildDirectory}"/>
         <mkdir dir="${buildDirectory}"/>
+        <mkdir dir="${buildResult}"/>
+
         <copy todir="${buildDirectory}">
             <fileset dir="${srcdir}">
                 <include name="plugins/**"/>
@@ -114,13 +117,7 @@
             <arg value="-categoryQualifier"/>
         </exec>
        
-<!-- Is this still needed?
-        <jar destfile="${basedir}/archive_tmp/repository/category.jar"
-             basedir="${basedir}/archive_tmp"
-             includes="category.xml"/>
- -->
-
-        <jar destfile="${basedir}/../sveditor-${feature.version}.jar"
+        <jar destfile="${buildResult}/sveditor-${feature.version}.jar"
              basedir="${repository}"
              includes="*.xml, features/**, plugins/**"/>
 
@@ -147,7 +144,7 @@
             <fileset dir="${repository}" includes="*.xml"/>
         </delete>
 
-	<zip destfile="${basedir}/../sveditor-release-${feature.version}.zip">
+	<zip destfile="${buildResult}/sveditor-release-${feature.version}.zip">
 		<fileset dir="${repository}">
 			<include name="*.jar"/>
 			<include name="features/**"/>

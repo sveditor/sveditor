@@ -35,7 +35,7 @@
 	</target>
 
 	<target name="build_release">
-		<ant antfile="${basedir}/build.xml">
+		<ant antfile="${basedir}/build.xml"/>
 	</target>
 
 	<target name="mk_msi" if="is_win">
@@ -98,7 +98,7 @@
 			</filterset>
 		</copy>
 		<unzip dest="${sveditor}/eclipse">
-			<fileset dir="${basedir}/..">
+			<fileset dir="${buildResult}">
 				<include name="sveditor-feature-${feature.version}.zip"/>
 			</fileset>
 		</unzip> 
