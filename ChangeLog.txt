@@ -3,6 +3,9 @@
 
 - #(3483902) - Parameters declared in tasks not recognized
 
+- #(nobug) - Correct problem with argument-file parser that could result
+  in a 'hang'
+
 ------------------------------------------------------------------------------
 -- 0.8.1 Release --
 
