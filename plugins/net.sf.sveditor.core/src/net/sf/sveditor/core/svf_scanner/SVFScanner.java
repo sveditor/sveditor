@@ -337,7 +337,7 @@ public class SVFScanner {
 					ch = fScanner.skipWhite(ch);
 					tmp.setLength(0);
 					
-					while (!Character.isWhitespace(ch)) {
+					while (ch != -1 && !Character.isWhitespace(ch)) {
 						tmp.append((char)ch);
 						ch = fScanner.get_ch();
 					}
