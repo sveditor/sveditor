@@ -93,10 +93,11 @@
 			<property name="script.dir" value="${basedir}"/>
 			<property name="etc.dir" value="${basedir}/../etc"/>
 			<property name="dest" 
-				value="${buildResult}/sve-x86.msi"/>
+				value="${buildResult}/sve-${sve_version}-x86.msi"/>
 			<property name="arch" value="x86"/>
 			<property name="Win64" value="no"/>
 		</ant>
+		<delete dir="${installerTmp}"/>
 	</target>
 
 	<target name="build_archive">
