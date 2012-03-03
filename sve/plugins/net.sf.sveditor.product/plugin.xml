@@ -7,6 +7,7 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
+            description="%productBlurb"
             name="SystemVerilog IDE">
          <property
                name="appName"
@@ -32,6 +33,15 @@
                name="windowImages"
                value="window_img_16_16.gif,window_img_32_32.gif,window_img_48_48.gif,window_img_64_64.gif,window_img_128_128.gif">
          </property>
+         <property
+               name="aboutImage"
+               value="product_lg.gif">
+         </property>
+         <property
+               name="aboutText"
+               value="%productBlurb">
+         </property>
+         
          <!--
          <property
                name="startupMessageRect"

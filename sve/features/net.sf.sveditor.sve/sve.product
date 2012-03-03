@@ -1,19 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature
-      id="net.sf.sveditor"
-      label="SVEditor"
-      version="1.2.3">
+<?pde version="3.5"?>
 
-   <description url="http://sveditor.sourceforge.net">
-      SVEditor is a SystemVerilog editor for Eclipse
-   </description>
+<product name="SystemVerilog IDE" id="net.sf.sveditor.product.sveditor" application="org.eclipse.ui.ide.workbench" version="1.2.3" useFeatures="true" includeLaunchers="true">
 
-   <copyright>
-      Copyright 2008-2012 Matthew Ballance and contributors. All Rights Reserved
-   </copyright>
+   <aboutInfo>
+      <image path="product_lg.gif"/>
+      <text>
+         SVE SystemVerilog IDE
+      </text>
+   </aboutInfo>
 
-   <license url="http://www.eclipse.org/legal/epl-v10.html">
-      Eclipse Public License - v 1.0
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/net.sf.sveditor.product/window_img_16_16.gif" i32="/net.sf.sveditor.product/window_img_32_32.gif" i48="/net.sf.sveditor.product/window_img_48_48.gif" i64="/net.sf.sveditor.product/window_img_64_64.gif" i128="/net.sf.sveditor.product/window_img_128_128.gif"/>
+
+   <splash
+      location="net.sf.sveditor.product"
+      startupProgressRect="5,275,445,15"
+      startupMessageRect="7,252,445,20"
+      startupForegroundColor="000000" />
+   <launcher name="sve">
+      <linux icon="/net.sf.sveditor.product/icon.xpm"/>
+      <solaris/>
+      <win useIco="false">
+         <bmp
+            winSmallHigh="/net.sf.sveditor.product/window_img_16_16.bmp"
+            winSmallLow="/net.sf.sveditor.product/window_img_16_16_8bit.bmp"
+            winMediumHigh="/net.sf.sveditor.product/window_img_32_32.bmp"
+            winMediumLow="/net.sf.sveditor.product/window_img_32_32_8bit.bmp"
+            winLargeHigh="/net.sf.sveditor.product/window_img_48_48.bmp"
+            winLargeLow="/net.sf.sveditor.product/window_img_48_48_8bit.bmp"/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <license>
+        <url>http://www.eclipse.org/legal/epl-v10.html</url>
+        <text>
+   Eclipse Public License - v 1.0
 
 THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS ECLIPSE PUBLIC LICENSE (&quot;AGREEMENT&quot;). ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM CONSTITUTES RECIPIENT&apos;S ACCEPTANCE OF THIS AGREEMENT.
 
@@ -99,57 +130,16 @@ All Recipient&apos;s rights under this Agreement shall terminate if it fails to 
 Everyone is permitted to copy and distribute copies of this Agreement, but in order to avoid inconsistency the Agreement is copyrighted and may only be modified in the following manner. The Agreement Steward reserves the right to publish new versions (including revisions) of this Agreement from time to time. No one other than the Agreement Steward has the right to modify this Agreement. The Eclipse Foundation is the initial Agreement Steward. The Eclipse Foundation may assign the responsibility to serve as the Agreement Steward to a suitable separate entity. Each new version of the Agreement will be given a distinguishing version number. The Program (including Contributions) may always be distributed subject to the version of the Agreement under which it was received. In addition, after a new version of the Agreement is published, Contributor may elect to distribute the Program (including its Contributions) under the new version. Except as expressly stated in Sections 2(a) and 2(b) above, Recipient receives no rights or licenses to the intellectual property of any Contributor under this Agreement, whether expressly, by implication, estoppel or otherwise. All rights in the Program not expressly granted under this Agreement are reserved.
 
 This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
+         </text>
    </license>
 
-   <url>
-      <update label="SVEditor Updates" url="http://sveditor.sourceforge.net/update"/>
-   </url>
+   <plugins>
+   </plugins>
 
-   <plugin
-         id="net.sf.sveditor.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <features>
+      <feature id="net.sf.sveditor.sve" version="1.2.3"/>
+      <feature id="org.eclipse.platform"/>
+   </features>
 
-   <plugin
-         id="net.sf.sveditor.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
-   <plugin
-         id="net.sf.sveditor.doc.user"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sf.sveditor.doc.dev"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sf.sveditor.core.uvm.templates"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.sf.sveditor.core.batch"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="net.sf.sveditor.extjar"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-</feature>
+</product>
