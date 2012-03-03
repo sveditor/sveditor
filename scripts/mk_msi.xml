@@ -1,24 +1,43 @@
 <project default="mk_msi">
-	<property name="wix" value="c:/Program Files/Windows Installer XML v3.5"/>
+	<condition
+		property="wix"
+		value="c:/Program Files (x86)/Windows Installer XML v3.5"
+		else="c:/Program Files/Windows Installer XML v3.5">
+		<os arch="amd64"/>
+	</condition>
 	<property name="candle" value="${wix}/bin/candle.exe"/>
 	<property name="light" value="${wix}/bin/light.exe"/>
 	<property name="script.dir" value="${basedir}/scripts"/>
-	<property name="srcdir" value="${basedir}/exp_sveditor/sveditor"/>
+	<property name="etc.dir" value="${basedir}/etc"/>
+	<property name="dest" value="${basedir}/sve.msi"/>
+	<property name="sve_version" value="1.0"/>
+	<property name="ProgramFilesFolder" value="ProgramFilesFolder"/>
+	<property name="Win64" value="no"/>
 	
 	<target name="mk_msi" depends="mk_filelist">
 		<exec executable="${candle}" failonerror="true">
 			<arg value="${script.dir}/sve.wxs"/>
-			<arg value="-dversion=1.0"/>
+			<arg value="-dversion=${sve_version}"/>
+			<arg value="-dbasedir=${basedir}"/>
+			<arg value="-detc.dir=${etc.dir}"/>
+			<arg value="-darch=${arch}"/>
+			<arg value="-dProgramFilesFolder=${ProgramFilesFolder}"/>
+			<arg value="-dWin64=${Win64}"/>
+			<arg value="-ext"/>
+			<arg value="WixUIExtension"/>
 		</exec>
 		<exec executable="${light}" failonerror="true">
 			<arg value="sve.wixobj"/>
+			<arg value="-ext"/>
+			<arg value="WixUIExtension"/>
 		</exec>
+		<copy tofile="${dest}" file="${basedir}/sve.msi"/>
 	</target>
 	
 	<target name="mk_filelist">
 		<exec executable="cscript" failonerror="true">
 			<arg value="${script.dir}/wxigen.js"/>
-			<arg value="${srcdir}"/>
+			<arg value="${basedir}"/>
 			<arg value="${basedir}/sve_files.wxi"/>
 		</exec>
 	</target>

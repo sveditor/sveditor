@@ -1,5 +1,5 @@
 
-<project name="SVEditor Feature">
+<project name="SVEditor Feature" default="build">
     <property environment="env"/>
 
     <!-- Import the version info -->
@@ -7,15 +7,23 @@
     <property file="${basedir}/build.properties"/>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
-    <property name="eclipsec"  location="${env.ECLIPSE_HOME}/eclipse"/>
+	<condition property="eclipsec" 
+		value="${env.ECLIPSE_HOME}/eclipsec" 
+		else="${env.ECLIPSE_HOME}/eclipse">
+		<os family="windows"/>
+	</condition>
+	
     <property name="feature.version" value="${version}"/>
 
     <!-- Options used by the Eclipse build -->
     <property name="buildId" value="${feature.version}"/>
 
     <!-- build.qualifier -->
+	<!--
     <property name="configs" value="${os}, ${ws}, ${arch}"/>
+      -->
     <property name="buildDirectory"   value="${basedir}/../build"/>
+    <property name="buildResult"   value="${basedir}/../buildResult"/>
 
     <property name="srcdir" value="${basedir}/.."/>
     <property name="repository" value="${basedir}/../archive_tmp/repository"/>
@@ -25,11 +33,15 @@
       <classpath path="${basedir}/xmltask.jar"/>
     </taskdef>
         
-    <target name="build" depends="compile, mkarchive"/>
+    <target name="build" depends="compile, mkarchive">
+	<delete dir="${buildDirectory}"/>
+    </target>
 
     <target name="compile"> 
         <delete dir="${buildDirectory}"/>
         <mkdir dir="${buildDirectory}"/>
+        <mkdir dir="${buildResult}"/>
+
         <copy todir="${buildDirectory}">
             <fileset dir="${srcdir}">
                 <include name="plugins/**"/>
@@ -51,7 +63,7 @@
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
             baseLocation="${eclipse.home}"
-            configInfo="${configs}"
+            configInfo="${os},${ws},${arch}"
             forceContextQualifier="${forceContextQualifier}"
             generateFeatureVersionSuffix="true"/>
 
@@ -60,6 +72,8 @@
             target="build.jars"/>
         <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
              dir="${buildDirectory}"/>
+	<copy tofile="${basedir}/../sveditor-feature-${feature.version}.zip"
+		file="${buildDirectory}/${feature.id}-${feature.version}-${os}.${ws}.${arch}.zip"/>
     </target>
 
 
@@ -112,13 +126,7 @@
             <arg value="-categoryQualifier"/>
         </exec>
        
-<!-- Is this still needed?
-        <jar destfile="${basedir}/archive_tmp/repository/category.jar"
-             basedir="${basedir}/archive_tmp"
-             includes="category.xml"/>
- -->
-
-        <jar destfile="${basedir}/../sveditor-${feature.version}.jar"
+        <jar destfile="${buildResult}/sveditor-${feature.version}.jar"
              basedir="${repository}"
              includes="*.xml, features/**, plugins/**"/>
 
@@ -145,7 +153,7 @@
             <fileset dir="${repository}" includes="*.xml"/>
         </delete>
 
-	<zip destfile="${basedir}/../sveditor-release-${feature.version}.zip">
+	<zip destfile="${buildResult}/sveditor-release-${feature.version}.zip">
 		<fileset dir="${repository}">
 			<include name="*.jar"/>
 			<include name="features/**"/>

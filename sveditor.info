@@ -6,3 +6,5 @@ upload_archive=0
 do_tag=1
 src_url=trunk
 
+sve_version=1.0
+
