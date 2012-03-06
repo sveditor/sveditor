@@ -18,9 +18,9 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 public class SVDBGenerateIf extends SVDBChildItem implements ISVDBAddChildItem {
 	@SVDBDoNotSaveAttr
 	int				fAddIdx;
-	SVDBExpr		fExpr;
-	ISVDBChildItem	fIfBody;
-	ISVDBChildItem	fElseBody;
+	public SVDBExpr		fExpr;
+	public ISVDBChildItem	fIfBody;
+	public ISVDBChildItem	fElseBody;
 	
 	public SVDBGenerateIf() {
 		super(SVDBItemType.GenerateIf);

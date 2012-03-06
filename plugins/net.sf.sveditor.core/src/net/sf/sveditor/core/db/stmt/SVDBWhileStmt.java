@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBWhileStmt extends SVDBBodyStmt {
-	private SVDBExpr				fCond;
+	public SVDBExpr				fCond;
 	
 	public SVDBWhileStmt() {
 		super(SVDBItemType.WhileStmt);

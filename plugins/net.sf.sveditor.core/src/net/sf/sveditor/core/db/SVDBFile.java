@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 import java.io.File;
 
 public class SVDBFile extends SVDBScopeItem {
-	String						fFile;
+	public String						fFile;
 	
 	public SVDBFile() {
 		super("", SVDBItemType.File);

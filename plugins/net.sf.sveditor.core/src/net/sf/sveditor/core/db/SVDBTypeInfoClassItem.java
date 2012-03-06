@@ -19,7 +19,7 @@ package net.sf.sveditor.core.db;
  *
  */
 public class SVDBTypeInfoClassItem extends SVDBTypeInfo {
-	SVDBParamValueAssignList			fParamAssign;
+	public SVDBParamValueAssignList			fParamAssign;
 	
 	public SVDBTypeInfoClassItem() {
 		this("");

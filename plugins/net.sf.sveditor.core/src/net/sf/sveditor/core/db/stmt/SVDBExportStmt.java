@@ -21,7 +21,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
-	private List<SVDBExportItem>			fExportList;
+	public List<SVDBExportItem>			fExportList;
 	
 	public SVDBExportStmt() {
 		super(SVDBItemType.ExportStmt);

@@ -38,7 +38,7 @@ public class SVDBParamPortDecl extends SVDBVarDeclStmt {
 	public static final int			Direction_wand    = (11 << WireType_Shift);
 	public static final int			Direction_wor     = (12 << WireType_Shift);
 	
-	private int						fDir;
+	public int						fDir;
 
 	public SVDBParamPortDecl() {
 		super(SVDBItemType.ParamPortDecl, null, 0);

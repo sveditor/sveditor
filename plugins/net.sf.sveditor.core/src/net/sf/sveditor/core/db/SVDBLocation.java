@@ -14,8 +14,8 @@ package net.sf.sveditor.core.db;
 
 
 public class SVDBLocation {
-	int				fLine;
-	int				fPos;
+	public int				fLine;
+	public int				fPos;
 
 	public SVDBLocation(int line, int pos) {
 		fLine = line;

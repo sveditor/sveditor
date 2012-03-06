@@ -20,9 +20,9 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBSequence extends SVDBScopeItem {
-	SVDBExpr					fExpr;
-	List<SVDBParamPortDecl>		fPortList;
-	List<SVDBVarDeclStmt>		fVarDeclList;
+	public SVDBExpr					fExpr;
+	public List<SVDBParamPortDecl>		fPortList;
+	public List<SVDBVarDeclStmt>		fVarDeclList;
 	
 	public SVDBSequence() {
 		this("");

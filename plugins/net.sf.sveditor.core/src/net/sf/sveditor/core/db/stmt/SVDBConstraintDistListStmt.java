@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintDistListStmt extends SVDBStmt {
-	private List<SVDBExpr>						fLHS;
-	private List<SVDBConstraintDistListItem>	fDistItems;
+	public List<SVDBExpr>						fLHS;
+	public List<SVDBConstraintDistListItem>		fDistItems;
 	
 	public SVDBConstraintDistListStmt() {
 		super(SVDBItemType.ConstraintDistListStmt);

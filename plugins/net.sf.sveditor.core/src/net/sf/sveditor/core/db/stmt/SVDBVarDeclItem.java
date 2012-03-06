@@ -18,17 +18,15 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
-	@SVDBParentAttr
-	protected SVDBVarDeclStmt			fParent;
-	protected String					fName;
-	protected int						fAttr;
-	protected int						fVarAttr;
-	protected List<SVDBVarDimItem>		fArrayDim;
-	protected SVDBExpr					fInitExpr;
+	
+	public String					fName;
+	public int						fAttr;
+	public int						fVarAttr;
+	public List<SVDBVarDimItem>		fArrayDim;
+	public SVDBExpr					fInitExpr;
 	
 	public SVDBVarDeclItem() {
 		super(SVDBItemType.VarDeclItem);
@@ -76,7 +74,7 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 	}
 	
 	public SVDBVarDeclStmt getParent() {
-		return fParent;
+		return (SVDBVarDeclStmt)fParent;
 	}
 
 	public void setParent(ISVDBChildItem parent) {

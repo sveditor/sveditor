@@ -13,8 +13,8 @@
 package net.sf.sveditor.core.db;
 
 public class SVDBModportTFPort extends SVDBChildItem {
-	String			fId;
-	SVDBTask		fTFPrototype;
+	public String			fId;
+	public SVDBTask		fTFPrototype;
 	
 	public SVDBModportTFPort() {
 		super(SVDBItemType.ModportTFPort);

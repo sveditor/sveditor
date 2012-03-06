@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBLabeledStmt extends SVDBBodyStmt {
-	private String					fLabel;
+	public String					fLabel;
 	
 	public SVDBLabeledStmt() {
 		super(SVDBItemType.LabeledStmt);

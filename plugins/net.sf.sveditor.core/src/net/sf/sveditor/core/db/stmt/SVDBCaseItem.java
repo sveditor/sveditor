@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCaseItem extends SVDBBodyStmt {
-	private List<SVDBExpr>		fCaseExprList;
+	public List<SVDBExpr>		fCaseExprList;
 	
 	public SVDBCaseItem() {
 		super(SVDBItemType.CaseItem);

@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBEventTriggerStmt extends SVDBStmt {
-	private SVDBStmt			fDelayOrEventControl;
-	private SVDBExpr				fHierarchicalEventIdentifier;
+	public SVDBStmt			fDelayOrEventControl;
+	public SVDBExpr				fHierarchicalEventIdentifier;
 	
 	public SVDBEventTriggerStmt() {
 		super(SVDBItemType.EventTriggerStmt);

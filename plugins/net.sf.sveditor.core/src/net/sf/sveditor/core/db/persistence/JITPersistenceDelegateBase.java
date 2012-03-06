@@ -39,16 +39,16 @@ public class JITPersistenceDelegateBase implements ISVDBPersistenceRWDelegate {
 		return fSupportedItems;
 	}
 
+	// These methods are called from outside, based on 
+	// our advertised support for objects/enums 
 	public void writeObject(Class cls, Object obj) throws DBWriteException {
 		// TODO Auto-generated method stub
 
 	}
 
 	public void writeSVDBItem(ISVDBItemBase item) throws DBWriteException {
-		// TODO Auto-generated method stub
-
 	}
-
+		
 	public void writeEnumType(Class cls, Enum value) throws DBWriteException {
 		// TODO Auto-generated method stub
 
@@ -65,11 +65,14 @@ public class JITPersistenceDelegateBase implements ISVDBPersistenceRWDelegate {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
 
 	public Enum readEnumType(Class enum_type) throws DBFormatException {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
 
 	public Set<Class> getSupportedObjects() {
 		return null;

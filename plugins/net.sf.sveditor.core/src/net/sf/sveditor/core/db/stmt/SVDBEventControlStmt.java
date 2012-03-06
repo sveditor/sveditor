@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBEventControlStmt extends SVDBBodyStmt {
-	private SVDBExpr 				fExpr;
+	public SVDBExpr 				fExpr;
 	
 	public SVDBEventControlStmt() {
 		super(SVDBItemType.EventControlStmt);

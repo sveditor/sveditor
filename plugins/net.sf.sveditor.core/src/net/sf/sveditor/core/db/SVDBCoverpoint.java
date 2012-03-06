@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCoverpoint extends SVDBScopeItem {
-	SVDBExpr				fTarget;
-	SVDBExpr				fIFF;
+	public SVDBExpr				fTarget;
+	public SVDBExpr				fIFF;
 
 	public SVDBCoverpoint() {
 		super("", SVDBItemType.Coverpoint);

@@ -18,8 +18,8 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintImplStmt extends SVDBStmt {
 	
-	private SVDBExpr					fExpr;
-	private SVDBStmt				fConstraint;
+	public SVDBExpr					fExpr;
+	public SVDBStmt				fConstraint;
 	
 	public SVDBConstraintImplStmt() {
 		super(SVDBItemType.ConstraintImplStmt);

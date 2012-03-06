@@ -17,8 +17,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
-	SVDBParamValueAssignList		fPortMap;
-	List<SVDBVarDimItem>			fArrayDim;
+	public SVDBParamValueAssignList		fPortMap;
+	public List<SVDBVarDimItem>			fArrayDim;
 	
 	
 	public SVDBModIfcInstItem() {

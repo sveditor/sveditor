@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBModIfcClassParam extends SVDBItem {
 	
-	SVDBExpr					fDefault;
-	SVDBTypeInfo				fDefaultType;
+	public SVDBExpr					fDefault;
+	public SVDBTypeInfo				fDefaultType;
 	
 	public SVDBModIfcClassParam() {
 		super("", SVDBItemType.ModIfcClassParam);

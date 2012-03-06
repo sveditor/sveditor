@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintForeachStmt extends SVDBStmt {
-	private SVDBExpr				fExpr;
-	private SVDBStmt			fStmt;
+	public SVDBExpr				fExpr;
+	public SVDBStmt			fStmt;
 	
 	public SVDBConstraintForeachStmt() {
 		super(SVDBItemType.ConstraintForeachStmt);

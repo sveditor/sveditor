@@ -56,27 +56,33 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private Thread							fWriteBackThread[];
 	private List<WriteBackInfo>				fWriteBackQueue;
 	
+	private int								fMaxCacheSize = 100;
+	
+	private static CacheFileInfo			fCacheHead;
+	private static CacheFileInfo			fCacheTail;
+	private static int						fCacheSize;
+	
 	private boolean							fUseSoftRef = true;
 
 	final class CacheFileInfo {
+		public boolean						fCached;
+		public CacheFileInfo				fPrev;
+		public CacheFileInfo				fNext;
 		public Reference<SVDBFile>			fSVDBPreProcFile;
+		public SVDBFile						fSVDBPreProcFileRef;
 		public Reference<SVDBFileTree>		fSVDBFileTree;
+		public SVDBFileTree					fSVDBFileTreeRef;
 		public Reference<SVDBFile>			fSVDBFile;
+		public SVDBFile						fSVDBFileRef;
 		public Reference<List<SVDBMarker>>	fMarkers;
+		public List<SVDBMarker>				fMarkersRef;
 		public long							fLastModified;
 		
 		public CacheFileInfo() {
-			if (fUseSoftRef) {
-				fSVDBPreProcFile = new SoftReference<SVDBFile>(null);
-				fSVDBFileTree = new SoftReference<SVDBFileTree>(null);
-				fSVDBFile = new SoftReference<SVDBFile>(null);
-				fMarkers = new SoftReference<List<SVDBMarker>>(null);
-			} else {
-				fSVDBPreProcFile = new WeakReference<SVDBFile>(null);
-				fSVDBFileTree = new WeakReference<SVDBFileTree>(null);
-				fSVDBFile = new WeakReference<SVDBFile>(null);
-				fMarkers = new WeakReference<List<SVDBMarker>>(null);
-			}
+			fSVDBPreProcFile = (Reference<SVDBFile>)createRef(null);
+			fSVDBFileTree = (Reference<SVDBFileTree>)createRef(null);
+			fSVDBFile = (Reference<SVDBFile>)createRef(null);
+			fMarkers = (Reference<List<SVDBMarker>>)createRef(null);
 			fLastModified = -1;
 		}
 	}
@@ -175,28 +181,34 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	
 	private CacheFileInfo getCacheFileInfo(String path, boolean create) {
 		synchronized (fFileCache) {
+			CacheFileInfo file = null;
 			if (!fFileCache.containsKey(path)) {
 				if (create) {
-					CacheFileInfo file = new CacheFileInfo();
+					file = new CacheFileInfo();
 					fFileCache.put(path, file);
-					return file;
-				} else {
-					return null;
 				}
 			} else {
-				return fFileCache.get(path);
+				file = fFileCache.get(path);
+				
 			}
+			if (file != null) {
+				if (file.fCached) {
+					moveElementToTail(file);
+				} else {
+					addElementToTail(file);
+				}
+			}
+			return file;
 		}
 	}
 	
 	public void setMarkers(String path, List<SVDBMarker> markers) {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 
-		if (fUseSoftRef) {
-			cfi.fMarkers = new SoftReference<List<SVDBMarker>>(markers);
-		} else {
-			cfi.fMarkers = new WeakReference<List<SVDBMarker>>(markers);
-		}
+		cfi.fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
+		
+		// We know we're referenced, so update the links
+		cfi.fMarkersRef = markers;
 		
 		writeBackMarkerList(path, markers);
 	}
@@ -211,11 +223,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			if (fSVDBFS.fileExists(target_file)){
 				cfi = getCacheFileInfo(path, true);
 				m = readMarkerList(target_file);
-				if (fUseSoftRef) {
-					cfi.fMarkers = new SoftReference<List<SVDBMarker>>(m);
-				} else {
-					cfi.fMarkers = new WeakReference<List<SVDBMarker>>(m);
-				}
+				cfi.fMarkers = (Reference<List<SVDBMarker>>)createRef(m);
+				cfi.fMarkersRef = m;
 			}
 		}
 		
@@ -327,11 +336,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/preProcFile"); 
 				pp_file = readFile(in, path);
 				fSVDBFS.closeChannel(in);
-				if (fUseSoftRef) {
-					cfi.fSVDBPreProcFile = new SoftReference<SVDBFile>(pp_file);
-				} else {
-					cfi.fSVDBPreProcFile = new WeakReference<SVDBFile>(pp_file);
-				}
+				cfi.fSVDBPreProcFile = (Reference<SVDBFile>)createRef(pp_file);
+				cfi.fSVDBPreProcFileRef = pp_file;
 			}
 		}
 		
@@ -351,11 +357,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/file");
 				file = readFile(in, path);
 				fSVDBFS.closeChannel(in);
-				if (fUseSoftRef) {
-					cfi.fSVDBFile = new SoftReference<SVDBFile>(file);
-				} else {
-					cfi.fSVDBFile = new WeakReference<SVDBFile>(file);
-				}
+				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
+				cfi.fSVDBFileRef = file;
 				fNumFilesRead++;
 			} else {
 				debug("Target dir does not exist: " + target_dir);
@@ -376,11 +379,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 
-		if (fUseSoftRef) {
-			cfi.fSVDBPreProcFile = new SoftReference<SVDBFile>(file);
-		} else {
-			cfi.fSVDBPreProcFile = new WeakReference<SVDBFile>(file);
-		}
+		cfi.fSVDBPreProcFile = (Reference<SVDBFile>)createRef(file);
+		cfi.fSVDBPreProcFileRef = file;
 		
 		// write-through to the cache
 		writeBackPreProcFile(path, file);
@@ -397,11 +397,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			String target_dir = computePathDir(path);
 			fSVDBFS.delete(target_dir + "/file");
 		} else {
-			if (fUseSoftRef) {
-				cfi.fSVDBFile = new SoftReference<SVDBFile>(file);
-			} else {
-				cfi.fSVDBFile = new WeakReference<SVDBFile>(file);
-			}
+			cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
+			cfi.fSVDBFileRef = file;
 
 			writeBackFile(path, file);
 		}
@@ -409,11 +406,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 	public void setFileTree(String path, SVDBFileTree file_tree) {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
-		if (fUseSoftRef) {
-			cfi.fSVDBFileTree = new SoftReference<SVDBFileTree>(file_tree);
-		} else {
-			cfi.fSVDBFileTree = new WeakReference<SVDBFileTree>(file_tree);
-		}
+		cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(file_tree);
+		cfi.fSVDBFileTreeRef = file_tree;
 
 		writeBackFileTree(path, file_tree);
 	}
@@ -432,11 +426,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				ft = readFileTree(in);
 				fSVDBFS.closeChannel(in);
 
-				if (fUseSoftRef) {
-					cfi.fSVDBFileTree = new SoftReference<SVDBFileTree>(ft);
-				} else {
-					cfi.fSVDBFileTree = new WeakReference<SVDBFileTree>(ft);
-				}
+				cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
+				cfi.fSVDBFileTreeRef = ft;
 			} else {
 				fLog.debug("FileTree path " + path + " doesn't exist");
 			}
@@ -447,7 +438,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	
 
 	public void removeFile(String path) {
+		CacheFileInfo file = fFileCache.get(path);
 		fFileCache.remove(path);
+		
+		// Remove from linked list
+		removeElement(file);
 		
 		String target_dir = computePathDir(path);
 
@@ -780,9 +775,101 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			freeWriter(writer);
 		}
 	}
+
+	@SuppressWarnings({"rawtypes","unchecked"})
+	private Reference createRef(Object obj) {
+		if (fUseSoftRef) {
+			return new SoftReference(obj);
+		} else {
+			return new WeakReference(obj);
+		}
+	}
 	
 	private void debug(String msg) {
 		// TODO:
 	}
+
+	private void addElementToTail(CacheFileInfo info) {
+		synchronized (SVDBFileIndexCache.class) {
+			// Add references
+			info.fCached = true;
+			info.fSVDBFileRef = info.fSVDBFile.get();
+			info.fSVDBFileTreeRef = info.fSVDBFileTree.get();
+			info.fSVDBPreProcFileRef = info.fSVDBPreProcFile.get();
+			
+			if (fCacheHead == null) {
+				// First entry
+				fCacheHead = info;
+				fCacheTail = info;
+				info.fPrev = null;
+				info.fNext = null;
+			} else {
+				// Add the new file info to the linked list
+				fCacheTail.fNext = info;
+				info.fPrev = fCacheTail;
+				fCacheTail = info;
+				info.fNext = null;
+			}
+			fCacheSize++;
+			while (fCacheSize > fMaxCacheSize) {
+				// Remove a few entries
+				removeElement(fCacheHead);
+			}
+		}
+	}
 	
+	private void moveElementToTail(CacheFileInfo info) {
+		synchronized (SVDBFileIndexCache.class) {
+			if (fCacheTail != info) {
+				if (info.fPrev == null) {
+					fCacheHead = info.fNext;
+				} else {
+					info.fPrev.fNext = info.fNext;
+				}
+
+				if (info.fNext == null) {
+					fCacheTail = info.fPrev;
+				} else {
+					info.fNext.fPrev = info.fPrev;
+				}
+
+				if (fCacheHead == null) {
+					// First entry
+					fCacheHead = info;
+					fCacheTail = info;
+					info.fPrev = null;
+					info.fNext = null;
+				} else {
+					// Add the file info to the linked list
+					fCacheTail.fNext = info;
+					info.fPrev = fCacheTail;
+					fCacheTail = info;
+					info.fNext = null;
+				}
+			}
+		}
+	}
+	
+	private void removeElement(CacheFileInfo info) {
+		synchronized (SVDBFileIndexCache.class) {
+			if (info.fPrev == null) {
+				fCacheHead = info.fNext;
+			} else {
+				info.fPrev.fNext = info.fNext;
+			}
+
+			if (info.fNext == null) {
+				fCacheTail = info.fPrev;
+			} else {
+				info.fNext.fPrev = info.fPrev;
+			}
+			
+			// Release references
+			info.fSVDBFileRef = null;
+			info.fSVDBFileTreeRef = null;
+			info.fSVDBPreProcFileRef = null;
+			info.fCached = false;
+			fCacheSize--;
+		}
+	}
 }

@@ -17,9 +17,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCoverageOptionStmt extends SVDBStmt implements ISVDBNamedItem {
-	private boolean				fIsTypeOption;
-	private String				fName;
-	private SVDBExpr			fExpr;
+	public boolean				fIsTypeOption;
+	public String				fName;
+	public SVDBExpr			fExpr;
 	
 	public SVDBCoverageOptionStmt() {
 		super(SVDBItemType.CoverageOptionStmt);

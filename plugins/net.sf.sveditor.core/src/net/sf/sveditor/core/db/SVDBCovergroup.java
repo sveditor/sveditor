@@ -24,8 +24,8 @@ public class SVDBCovergroup extends SVDBModIfcDecl {
 		IgnoreBins
 	};
 	
-	SVDBExpr				fCoverageEventExpr;
-	List<SVDBParamPortDecl>	fParamPort;
+	public SVDBExpr				fCoverageEventExpr;
+	public List<SVDBParamPortDecl>	fParamPort;
 
 	public SVDBCovergroup() {
 		super("", SVDBItemType.Covergroup);
