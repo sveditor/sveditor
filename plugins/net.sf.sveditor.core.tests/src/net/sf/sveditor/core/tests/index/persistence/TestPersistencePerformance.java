@@ -26,8 +26,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -35,13 +33,9 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -50,7 +44,6 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceRWDelegate;
 import net.sf.sveditor.core.db.persistence.JITSVDBExprDelegateFactory;
-import net.sf.sveditor.core.db.persistence.SVDBDefaultPersistenceRW;
 import net.sf.sveditor.core.db.persistence.SVDBDelegatingPersistenceRW;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.log.LogFactory;
@@ -86,14 +79,14 @@ public class TestPersistencePerformance extends TestCase {
 	}
 	
 	public void testJITPersistence() throws Exception {
-		ISVDBPersistenceRWDelegate delegate = JITSVDBExprDelegateFactory.instance().newDelegate();
 		SVDBInclude inc = new SVDBInclude("foo");
 		inc.setLocation(new SVDBLocation(1, 1));
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bos);
 		DataInputStream in;
+		long start, end;
 		
-		SVDBDelegatingPersistenceRW dflt = new SVDBDelegatingPersistenceRW() {
+		SVDBDelegatingPersistenceRW dflt1 = new SVDBDelegatingPersistenceRW() {
 
 			@Override
 			public void writeEnumType(Class enum_type, Enum value)
@@ -119,21 +112,33 @@ public class TestPersistencePerformance extends TestCase {
 			@Override
 			public void writeSVDBLocation(SVDBLocation loc)
 					throws DBWriteException {
-				System.out.println("writeSVDBLocation");
+//				System.out.println("writeSVDBLocation");
 				super.writeSVDBLocation(loc);
 			}
 			
 			
 		};
+		SVDBDelegatingPersistenceRW dflt = new SVDBDelegatingPersistenceRW();
+		ISVDBPersistenceRWDelegate delegate = JITSVDBExprDelegateFactory.instance().newDelegate();
+//		ISVDBPersistenceRWDelegate delegate = new SVDBDefaultPersistenceRW();
+		int n_iter = 1000000;
 		dflt.init(out);
 		delegate.init(dflt);
-		delegate.writeSVDBItem(inc);
+		start = System.currentTimeMillis(); 
+		for (int i=0; i<n_iter; i++) {
+			delegate.writeSVDBItem(inc);
+		}
 		
 		in = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
 		dflt.init(in);
-		SVDBInclude inc_1 = (SVDBInclude)delegate.readSVDBItem(SVDBItemType.Include, null);
-		System.out.println("inc_1: " + inc_1.getName());
-		System.out.println("    location: " + inc_1.getLocation().getLine());
+		for (int i=0; i<n_iter; i++) {
+			SVDBInclude inc_1 = (SVDBInclude)delegate.readSVDBItem(SVDBItemType.Include, null);
+		}
+		end = System.currentTimeMillis();
+		
+		System.out.println("" + n_iter + " items in " + (end-start));
+//		System.out.println("inc_1: " + inc_1.getName());
+//		System.out.println("    location: " + inc_1.getLocation().getLine());
 	}
 
 	public void testInMemPersistence() throws IOException, CoreException, DBFormatException, DBWriteException {

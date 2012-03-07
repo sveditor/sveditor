@@ -23,15 +23,16 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
 
 public class JITSVDBExprDelegateFactory implements Opcodes {
 	private static JITSVDBExprDelegateFactory			fInstance;
@@ -161,6 +162,14 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private void build_boilerplate(ClassWriter cw) {
 		String classname = "SVDBPersistenceDelegate";
 		String full_classname = transform_cls(fTargetPkg) + "/" + classname;
+		Label labels[] = new Label[SVDBItemType.values().length];
+		int indexes[] = new int[SVDBItemType.values().length];
+		Label dflt, endcase;
+		
+		for (int i=0; i<SVDBItemType.values().length; i++) {
+			indexes[i] = i;
+		}
+
 		cw.visit(Opcodes.V1_5, 
 				ACC_PROTECTED+ACC_PUBLIC+ACC_SUPER,
 				full_classname,
@@ -184,16 +193,34 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		mv = cw.visitMethod(ACC_PUBLIC, "writeSVDBItem",
 				"(L" + getClassName(ISVDBItemBase.class) + ";)V",
 				null, new String[] {fDBWriteException});
-		// TODO: Just call writeInclude for now
-		// TODO: call <obj>.getType()
-		// call stack
-		// object
-		// this
-		mv.visitVarInsn(ALOAD, THIS_VAR);
+		for (int i=0; i<SVDBItemType.values().length; i++) {
+			labels[i] = new Label();
+		}
+		dflt = new Label();
+		endcase = new Label();
+
+		// Retrieve the object type
 		mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
-		mv.visitTypeInsn(CHECKCAST, getClassName(SVDBInclude.class));
-		mv.visitMethodInsn(INVOKESPECIAL, full_classname, "writeInclude", 
-				"(L" + getClassName(SVDBInclude.class) + ";)V");
+		mv.visitMethodInsn(INVOKEINTERFACE, 
+				getClassName(ISVDBItemBase.class), "getType",
+				"()L" + getClassName(SVDBItemType.class) + ";");
+		mv.visitMethodInsn(INVOKEVIRTUAL,
+				getClassName(SVDBItemType.class), "ordinal", "()I");
+		mv.visitLookupSwitchInsn(dflt, indexes, labels);
+		for (SVDBItemType t : SVDBItemType.values()) {
+			Class c = fTypeClassMap.get(t);
+			mv.visitLabel(labels[t.ordinal()]);
+			
+			mv.visitVarInsn(ALOAD, THIS_VAR);
+			mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
+			mv.visitTypeInsn(CHECKCAST, getClassName(c));
+			mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+					"write" + t.name(), 
+					"(L" + getClassName(c) + ";)V");
+			mv.visitJumpInsn(GOTO, endcase);
+		}
+		mv.visitLabel(dflt);
+		mv.visitLabel(endcase);
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(16, 16);
 		mv.visitEnd();
@@ -202,35 +229,36 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		mv = cw.visitMethod(ACC_PUBLIC, "readSVDBItem", 
 				"(L" + getClassName(SVDBItemType.class) + ";L" + getClassName(ISVDBChildItem.class) + ";)L" + getClassName(ISVDBItemBase.class) + ";",
 				null, new String[] {fDBWriteException});
-		// TODO: Just call readInclude for now
-		// call stack
-		// parent object
-		// this
-		mv.visitVarInsn(ALOAD, THIS_VAR);
-		mv.visitVarInsn(ALOAD, 2); // parent
-		mv.visitMethodInsn(INVOKESPECIAL, full_classname, "readInclude", 
-				"(L" + getClassName(ISVDBChildItem.class) + ";)L" + getClassName(SVDBInclude.class) + ";");
+		for (int i=0; i<SVDBItemType.values().length; i++) {
+			labels[i] = new Label();
+		}
+		dflt = new Label();
+		endcase = new Label();
+
+		mv.visitVarInsn(ALOAD, 1); // object type
+		mv.visitMethodInsn(INVOKEVIRTUAL,
+				getClassName(SVDBItemType.class), "ordinal", "()I");
+		mv.visitLookupSwitchInsn(dflt, indexes, labels);
+		for (SVDBItemType t : SVDBItemType.values()) {
+			Class c = fTypeClassMap.get(t);
+			mv.visitLabel(labels[t.ordinal()]);
+			
+			mv.visitVarInsn(ALOAD, THIS_VAR);
+			mv.visitVarInsn(ALOAD, 2); // parent
+			mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+					"read" + t.name(), 
+					"(L" + getClassName(ISVDBChildItem.class) + ";)" +
+					"L" + getClassName(c) + ";");
+			mv.visitJumpInsn(GOTO, endcase);
+		}
+		mv.visitLabel(dflt);
+		mv.visitInsn(ACONST_NULL);
+		mv.visitLabel(endcase);
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(16, 16);
 		mv.visitEnd();
-	}
-	
-	/*
-	private List readItemList(ISVDBChildItem parent) {
-		return null;
-	}
-	
-	protected ISVDBPersistenceRWDelegateParent		fParent; 
 
-	private SVDBClassDecl readClassDecl(ISVDBChildItem parent) throws DBFormatException {
-		SVDBClassDecl ret = new SVDBClassDecl();
-		ret.fParams = readItemList(ret);
-
-		fParent.readInt();
-		
-		return ret;
 	}
-	 */
 	
 	private void buildAccessors(ClassWriter cw, SVDBItemType t, Class cls) {
 		MethodVisitor mv;
@@ -374,7 +402,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Desired layout
 							// enum value -- from calling readEnumType
 							// object handle -- loaded at beginning
-							System.out.println("Field " + f.getName() + " has type " + field_classname);
 							mv.visitTypeInsn(CHECKCAST, field_classname);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), 
 									"L" + field_classname + ";");
