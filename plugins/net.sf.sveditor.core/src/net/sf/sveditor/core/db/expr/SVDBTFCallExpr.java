@@ -18,10 +18,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBTFCallExpr extends SVDBExpr {
-	SVDBExpr				fTarget;
-	String					fName;
-	List<SVDBExpr>			fArgs;
-	SVDBExpr				fWithExpr;
+	public SVDBExpr				fTarget;
+	public String					fName;
+	public List<SVDBExpr>			fArgs;
+	public SVDBExpr				fWithExpr;
 
 	public SVDBTFCallExpr() {
 		this(null, null, null);

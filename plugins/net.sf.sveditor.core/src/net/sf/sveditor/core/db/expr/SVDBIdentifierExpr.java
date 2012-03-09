@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
  *
  */
 public class SVDBIdentifierExpr extends SVDBExpr {
-	String					fId;
+	public String					fId;
 	
 	public SVDBIdentifierExpr() {
 		this((String)null);

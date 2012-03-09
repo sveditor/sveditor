@@ -20,30 +20,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBBaseItemsPersistenceDelegate implements
-		ISVDBPersistenceRWDelegate {
-	private Set<Class>								fSupportedObjects;
-	private ISVDBPersistenceRWDelegateParent		fParent;
+public class SVDBBaseItemsPersistenceDelegate extends SVDBPersistenceRWDelegateBase {
 	
 	public SVDBBaseItemsPersistenceDelegate() {
-		fSupportedObjects = new HashSet<Class>();
-		fSupportedObjects.add(SVDBItemBase.class);
-	}
-
-	public void init(ISVDBPersistenceRWDelegateParent parent) {
-		fParent = parent;
-	}
-
-	public Set<Class> getSupportedObjects() {
-		return fSupportedObjects;
-	}
-
-	public Set<Class> getSupportedEnumTypes() {
-		return null;
-	}
-	
-	public Set<SVDBItemType> getSupportedItemTypes() {
-		return null;
 	}
 
 	public void writeObject(Class cls, Object obj) throws DBWriteException {

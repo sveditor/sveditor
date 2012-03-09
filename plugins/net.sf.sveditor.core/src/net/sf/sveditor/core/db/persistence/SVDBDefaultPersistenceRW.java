@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -67,7 +69,10 @@ public class SVDBDefaultPersistenceRW
 		fDebugEn = en;
 	}
 	
-	public void init(ISVDBPersistenceRWDelegateParent parent) {
+	public void init(
+			ISVDBPersistenceRWDelegateParent 	parent,
+			DataInput							in,
+			DataOutput							out) {
 		fParent = parent;
 		fLevel = 0;
 		

@@ -78,7 +78,7 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 	}
 
 	public void setParent(ISVDBChildItem parent) {
-		fParent = (SVDBVarDeclStmt)parent;
+		fParent = parent;
 	}
 
 	public SVDBVarDeclItem duplicate() {

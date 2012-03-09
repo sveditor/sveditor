@@ -18,8 +18,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBFirstMatchExpr extends SVDBExpr {
-	SVDBExpr				fExpr;
-	List<SVDBExpr>			fSequenceMatchItems;		
+	public SVDBExpr				fExpr;
+	public List<SVDBExpr>			fSequenceMatchItems;		
 
 	public SVDBFirstMatchExpr() {
 		super(SVDBItemType.FirstMatchExpr);

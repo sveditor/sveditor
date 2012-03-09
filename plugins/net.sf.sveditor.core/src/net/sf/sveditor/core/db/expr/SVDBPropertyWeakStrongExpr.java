@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPropertyWeakStrongExpr extends SVDBExpr {
-	boolean				fIsWeak;
-	SVDBExpr			fExpr;
+	public boolean				fIsWeak;
+	public SVDBExpr			fExpr;
 	
 	
 	public SVDBPropertyWeakStrongExpr() {

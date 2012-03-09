@@ -123,7 +123,7 @@ public class TestPersistencePerformance extends TestCase {
 //		ISVDBPersistenceRWDelegate delegate = new SVDBDefaultPersistenceRW();
 		int n_iter = 1000000;
 		dflt.init(out);
-		delegate.init(dflt);
+		delegate.init(dflt, null, null);
 		start = System.currentTimeMillis(); 
 		for (int i=0; i<n_iter; i++) {
 			delegate.writeSVDBItem(inc);
@@ -212,13 +212,18 @@ public class TestPersistencePerformance extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 
 		Set<String> files = index.getFileList(new NullProgressMonitor());
+//		SVDBDelegatingPersistenceRW delegate = SVDBDelegatingPersistenceRW.createDefault();
+		SVDBPersistenceRW delegate = new SVDBPersistenceRW();
 
-		IDBWriter writer = new SVDBPersistenceRW();
-		IDBReader reader = new SVDBPersistenceRW();
+//		IDBWriter writer = new SVDBPersistenceRW();
+//		IDBReader reader = new SVDBPersistenceRW();
+		IDBWriter writer = delegate;
+		IDBReader reader = delegate;
 
 		long start = System.currentTimeMillis(), end, total_time;
 		int iter=10;
 		int total = 0;
+		/*
 		for (int i=0; i<iter; i++) {
 			FileOutputStream fos = new FileOutputStream(new File(db, "file_" + i));
 			DataOutputStream dos = new DataOutputStream(fos);
@@ -254,72 +259,40 @@ public class TestPersistencePerformance extends TestCase {
 		
 		System.out.println("Performance: " + total + " items in " + total_time + "ms");
 		System.out.println("    " + (total_time/total) + " ms/item");
+		 */
 
 		total=0;
-		start = System.currentTimeMillis();		
-		for (int i=0; i<iter; i++) {
-			FileOutputStream fos = new FileOutputStream(new File(db, "file_f_" + i));
-			DataOutputStream dos = new DataOutputStream(fos);
-			writer.init(dos);
-			
-			for (String file : files) {
-				for (int j=0; j<1024; j++) {
-					writer.writeLong(5);
-				}
-				total++;
-			}
-			
-			dos.close();
-			fos.close();
-		}
-		for (int i=0; i<iter; i++) {
-			FileInputStream fis = new FileInputStream(new File(db, "file_f_" + i));
-			DataInputStream dis = new DataInputStream(fis);
-			reader.init(dis);
-			
-			for (String file : files) {
-				for (int j=0; j<1024; j++) {
-					reader.readLong();
-				}
-			}
-			
-			dis.close();
-			fis.close();
-		}
-		end = System.currentTimeMillis();
-		total_time = (end-start);
+//		RandomAccessFile af = new RandomAccessFile(new File(db, "file_r"), "rw");
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		DataOutput dout = new DataOutputStream(bos);
+		DataInput din = null;
 		
-		if (total_time == 0) {
-			total_time=1;
-		}
-
-		System.out.println("Performance: " + total + " items in " + total_time + "ms");
-		System.out.println("    " + (total_time/total) + " ms/item");
-
-		total=0;
-		RandomAccessFile af = new RandomAccessFile(new File(db, "file_r"), "rw");
+		/*
 		byte data[] = new byte[1024*1024];
 		for (int i=0; i<200; i++) {
 			af.write(data);
 		}
+		 */
 		
 		start = System.currentTimeMillis();		
 		for (int i=0; i<iter; i++) {
-			writer.init(af);
+			writer.init(dout);
 			
 			for (String file : files) {
-				af.seek(1024*1024*total);
+				// af.seek(1024*1024*total);
 				SVDBFile svdb_file = index.findFile(file);
 				writer.writeSVDBItem(svdb_file);
 				total++;
 			}
 		}
 		total=0;
+		// af.seek(0);
+		din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
 		for (int i=0; i<iter; i++) {
-			reader.init(af);
+			reader.init(din);
 			
 			for (String file : files) {
-				af.seek(1024*1024*total);
+				// af.seek(1024*1024*total);
 				ISVDBItemBase item = reader.readSVDBItem(null);
 				total++;
 			}
@@ -334,9 +307,7 @@ public class TestPersistencePerformance extends TestCase {
 		System.out.println("Performance: " + total + " items in " + total_time + "ms");
 		System.out.println("    " + (total_time/total) + " ms/item");
 
-		
 		LogFactory.removeLogHandle(log);
 		TestUtils.deleteProject(project_dir);
 	}
-
 }

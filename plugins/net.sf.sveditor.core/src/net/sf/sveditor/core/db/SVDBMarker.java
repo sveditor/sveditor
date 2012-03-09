@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db;
 
 
+
 public class SVDBMarker extends SVDBItemBase {
 	public enum MarkerType {
 		Info,

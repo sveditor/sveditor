@@ -56,13 +56,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private Thread							fWriteBackThread[];
 	private List<WriteBackInfo>				fWriteBackQueue;
 	
-	private int								fMaxCacheSize = 100;
+	private int								fMaxCacheSize = 0;
 	
 	private static CacheFileInfo			fCacheHead;
 	private static CacheFileInfo			fCacheTail;
 	private static int						fCacheSize;
 	
-	private boolean							fUseSoftRef = true;
+	private boolean							fUseSoftRef = false;
 
 	final class CacheFileInfo {
 		public boolean						fCached;

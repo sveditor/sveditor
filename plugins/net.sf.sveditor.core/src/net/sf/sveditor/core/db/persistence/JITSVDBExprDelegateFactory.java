@@ -40,7 +40,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private String										fTargetPkg;
 	private List<String>								fTargetPkgList;
 	private Map<SVDBItemType, Class>					fTypeClassMap;
-	private static final String							fBaseClass = "net/sf/sveditor/core/db/persistence/JITPersistenceDelegateBase";
+	private static final String							fBaseClass = getClassName(JITPersistenceDelegateBase.class);
 	private static final String							fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
 	private static final String	fChildItem = "net/sf/sveditor/core/db/ISVDBChildItem";
 	private static final String fDBFormatException = "net/sf/sveditor/core/db/persistence/DBFormatException";
@@ -61,7 +61,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private static final String WRITE_BOOL_SIG = "(Z)V";
 	private static final String READ_BOOL_SIG = "()Z";
 	private static final String WRITE_ITEM_SIG = "(Lnet/sf/sveditor/core/db/ISVDBItemBase;)V";
-	private static final String READ_ITEM_SIG = "()Lnet/sf/sveditor/core/db/ISVDBItemBase;";
+	private static final String READ_ITEM_SIG = "(L" + getClassName(ISVDBChildItem.class) + ";)Lnet/sf/sveditor/core/db/ISVDBItemBase;";
 	private static final String WRITE_MAP_SIG = "(Ljava/util/Map;)V";
 	private static final String READ_MAP_SIG  = "()Ljava/util/Map;";
 	private boolean										fDebugEn;
@@ -102,7 +102,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		}
 	}
 	
-	public JITSVDBExprDelegateFactory() {
+	private JITSVDBExprDelegateFactory() {
 		fTypeClassMap = new HashMap<SVDBItemType, Class>();
 		fTargetPkg = "net.sf.sveditor.core.db";
 		fTargetPkgList = new ArrayList<String>();
@@ -442,10 +442,9 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								if (fDebugEn) {
 									debug("  " + fLevel + " Field " + f.getName() + " is List<ISVDBItemBase>");
 								}
-								writeMethod = "writeItemList";
 								
+								useStdRW = false;
 								if (!write) {
-									useStdRW = false;
 									// Invoke the parent to read the enum value
 									// Store the result back to the field
 									mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // for later use
@@ -458,8 +457,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 									// Stack layout must be:
 									// enum class
 									// fParent
-
-									mv.visitVarInsn(ALOAD, READ_PARENT_VAR);
+									mv.visitVarInsn(ALOAD, READ_OBJ_VAR);
 									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
 											"readItemList", READ_ITEM_LIST_SIG);
 
@@ -470,15 +468,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 									mv.visitTypeInsn(CHECKCAST, field_classname);
 									mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), 
 											"L" + field_classname + ";");
-								}
-							} else {
-								if (fDebugEn) {
-									debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is List<?>");
-								}
-								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
-							}
-							if (useStdRW) {
-								if (write) {
+								} else {
 									// Load up the field value and call writeStringList
 									// Desired stack layout is:
 									// enum value
@@ -494,23 +484,36 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 									mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
 											"L" + field_classname + ";");
 									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-											writeMethod, WRITE_LIST_SIG);
+											"writeItemList", WRITE_LIST_SIG);
+								}
+							} else {
+								if (fDebugEn) {
+									debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is List<?>");
+								}
+								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
+							}
+							if (useStdRW) {
+								if (write) {
+									// Load up the field value and call writeStringList
+									// Desired stack layout is:
+									// enum value
+									// enum class
+									// fParent
+									mv.visitVarInsn(ALOAD, THIS_VAR); 
+
+									// Load field value
+									mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
+									mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
+											"L" + field_classname + ";");
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, writeMethod, WRITE_LIST_SIG);
 								} else {
 									// Invoke the parent to read the enum value
 									// Store the result back to the field
 									mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // for later use
 
 									mv.visitVarInsn(ALOAD, THIS_VAR); 
-									mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-											"L" + fPersistenceDelegateParentClass + ";");
-									// fParent handle left on the stack
 
-									// Stack layout must be:
-									// enum class
-									// fParent
-
-									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-											readMethod, READ_LIST_SIG);
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, readMethod, READ_LIST_SIG);
 
 									// Now, store the result back to the target field
 									// Desired layout
@@ -528,6 +531,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							throw new DBFormatException("Non-parameterized list");
 						}
 					} else if (Map.class.isAssignableFrom(field_class)) {
+						boolean local_access = true;
 						Type t = f.getGenericType();
 						if (t instanceof ParameterizedType) {
 							ParameterizedType pt = (ParameterizedType)t;
@@ -561,6 +565,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								if (fDebugEn) {
 									debug("  " + fLevel + " Field " + f.getName() + " is Map<String,List>");
 								}
+								local_access = false;
 								writeMethod = "writeMapStringList";
 								readMethod  = "readMapStringList";
 							} else {
@@ -575,33 +580,45 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								// enum value
 								// enum class
 								// fParent
-								mv.visitVarInsn(ALOAD, THIS_VAR); 
-								mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-										"L" + fPersistenceDelegateParentClass + ";");
-								// fParent handle left on the stack
+								mv.visitVarInsn(ALOAD, THIS_VAR);
+								if (!local_access) {
+									mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
+											"L" + fPersistenceDelegateParentClass + ";");
+									// fParent handle left on the stack
+								}
 
 								// Load field value
 								mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 								mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
 										"L" + field_classname + ";");
-								mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-										writeMethod, WRITE_MAP_SIG);
+								if (local_access) {
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, writeMethod, WRITE_MAP_SIG);
+								} else {
+									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
+											writeMethod, WRITE_MAP_SIG);
+								}
 							} else {
 								// Invoke the parent to read the enum value
 								// Store the result back to the field
 								mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // for later use
 
-								mv.visitVarInsn(ALOAD, THIS_VAR); 
-								mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-										"L" + fPersistenceDelegateParentClass + ";");
-								// fParent handle left on the stack
+								mv.visitVarInsn(ALOAD, THIS_VAR);
+								if (!local_access) {
+									mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
+											"L" + fPersistenceDelegateParentClass + ";");
+									// fParent handle left on the stack
+								}
 
 								// Stack layout must be:
 								// enum class
 								// fParent
 
-								mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-										readMethod, READ_MAP_SIG);
+								if (local_access) {
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, readMethod, READ_MAP_SIG);
+								} else {
+									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
+											readMethod, READ_MAP_SIG);
+								}
 
 								// Now, store the result back to the target field
 								// Desired layout
@@ -622,11 +639,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							debug("  " + fLevel + " Field " + f.getName() + " is a String");
 						}
 						if (write) {
-							// Load the parent handle
-							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
+							mv.visitVarInsn(ALOAD, THIS_VAR);
 							
 							mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 							mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
@@ -637,22 +650,17 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"writeString", WRITE_STRING_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeString", WRITE_STRING_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"readString", READ_STRING_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readString", READ_STRING_SIG);
 							
 							// stack
 							// object -- result of readString
@@ -667,9 +675,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 						if (write) {
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 							mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), "I"); 
@@ -679,22 +684,17 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"writeInt", WRITE_INT_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeInt", WRITE_INT_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"readInt", READ_INT_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readInt", READ_INT_SIG);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), "I");
 						}
 					} else if (field_class == long.class) {
@@ -704,9 +704,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 						if (write) {
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 							mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), "J"); 
@@ -716,22 +713,17 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"writeInt", WRITE_LONG_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeInt", WRITE_LONG_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"readInt", READ_LONG_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readInt", READ_LONG_SIG);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), "J"); 
 						}
 					} else if (field_class == boolean.class) {
@@ -740,10 +732,7 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 						}
 						if (write) {
 							// Load the parent handle
-							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
+							mv.visitVarInsn(ALOAD, THIS_VAR);
 							
 							mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 							mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), "Z"); 
@@ -753,22 +742,17 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"writeInt", WRITE_BOOL_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeBoolean", WRITE_BOOL_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"readInt", READ_BOOL_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readBoolean", READ_BOOL_SIG);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), "Z"); 
 						}
 					} else if (SVDBLocation.class == field_class) {
@@ -778,9 +762,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 						if (write) {
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 							mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
@@ -791,21 +772,17 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-									"writeSVDBLocation", WRITE_LOCATION_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeSVDBLocation", WRITE_LOCATION_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
 							// Load the parent handle
 							mv.visitVarInsn(ALOAD, THIS_VAR); 
-							mv.visitFieldInsn(GETFIELD, fBaseClass, "fParent", 
-									"L" + fPersistenceDelegateParentClass + ";");
-							// fParent handle left on the stack
 							
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, 
 									"readSVDBLocation", READ_LOCATION_SIG);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), 
 									"L" + field_classname + ";");
@@ -843,7 +820,9 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 							
 							// Call readString
 							// Stack layout:
+							// parent object
 							// parent handle
+							mv.visitVarInsn(ALOAD, READ_OBJ_VAR);
 							mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
 									"readSVDBItem", READ_ITEM_SIG);
 							mv.visitTypeInsn(CHECKCAST, field_classname);

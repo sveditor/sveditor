@@ -12,33 +12,15 @@
 
 package net.sf.sveditor.core.db.persistence;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class JITPersistenceDelegateBase implements ISVDBPersistenceRWDelegate {
-	protected Set<SVDBItemType>						fSupportedItems;
-	protected ISVDBPersistenceRWDelegateParent		fParent; 
+public class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {
 	
 	public JITPersistenceDelegateBase() {
-		fSupportedItems = new HashSet<SVDBItemType>();
 	}
 	
-	public void init(Set<SVDBItemType> supported_items) {
-		fSupportedItems.addAll(supported_items);
-	}
-
-	public void init(ISVDBPersistenceRWDelegateParent parent) {
-		fParent = parent;
-	}
-
-	public Set<SVDBItemType> getSupportedItemTypes() {
-		return fSupportedItems;
-	}
-
 	// These methods are called from outside, based on 
 	// our advertised support for objects/enums 
 	public void writeObject(Class cls, Object obj) throws DBWriteException {
@@ -70,15 +52,6 @@ public class JITPersistenceDelegateBase implements ISVDBPersistenceRWDelegate {
 
 	public Enum readEnumType(Class enum_type) throws DBFormatException {
 		// TODO Auto-generated method stub
-		return null;
-	}
-	
-
-	public Set<Class> getSupportedObjects() {
-		return null;
-	}
-
-	public Set<Class> getSupportedEnumTypes() {
 		return null;
 	}
 

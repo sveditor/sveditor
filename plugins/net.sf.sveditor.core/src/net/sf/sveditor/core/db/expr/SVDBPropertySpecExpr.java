@@ -15,9 +15,9 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPropertySpecExpr extends SVDBExpr {
-	SVDBClockingEventExpr			fClockingEventExpr;
-	SVDBExpr						fDisableExpr;
-	SVDBExpr						fExpr;
+	public SVDBClockingEventExpr			fClockingEventExpr;
+	public SVDBExpr						fDisableExpr;
+	public SVDBExpr						fExpr;
 	
 	public SVDBPropertySpecExpr() {
 		super(SVDBItemType.PropertySpecExpr);

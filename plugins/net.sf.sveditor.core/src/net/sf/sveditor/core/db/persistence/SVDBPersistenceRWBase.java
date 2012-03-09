@@ -21,23 +21,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBLocation;
 
-public abstract class SVDBPersistenceRWBase 
-	implements IDBPersistenceTypes, ISVDBPersistenceRWDelegateParent {
+public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 	private byte									fTmp[];
-	private DataInput								fInBuf;
-	private DataOutput								fBuf;
+	protected DataInput								fIn;
+	protected DataOutput							fOut;
 
 	public void init(DataInput in) {
-		fInBuf = in;
-		fBuf = null;
+		fIn = in;
+		fOut = null;
 	}
 	
 	public void init(DataOutput out) {
-		fBuf = out;
-		fInBuf = null;
+		fOut = out;
+		fIn = null;
 	}
 	
 	public void close() {
@@ -81,7 +79,7 @@ public abstract class SVDBPersistenceRWBase
 			fTmp = new byte[len];
 		}
 		try {
-			fInBuf.readFully(fTmp, 0, len);
+			fIn.readFully(fTmp, 0, len);
 		} catch (IOException e) {
 			throw new DBFormatException("readString failed: " + e.getMessage());
 		}
@@ -93,11 +91,11 @@ public abstract class SVDBPersistenceRWBase
 
 	public int readRawType() throws DBFormatException {
 		int ret = -1;
-		if (fInBuf == null) {
-			throw new DBFormatException("fInBuf==null ; fBuf==" + fBuf);
+		if (fIn == null) {
+			throw new DBFormatException("fInBuf==null ; fBuf==" + fOut);
 		}
 		try {
-			ret = fInBuf.readByte();
+			ret = fIn.readByte();
 		} catch (IOException e) {
 			throw new DBFormatException("readRawType failed: " + e.getMessage());
 		}
@@ -130,27 +128,6 @@ public abstract class SVDBPersistenceRWBase
 		return ret;
 	}
 	
-	public Map<String, List> readMapStringList(Class val_c) throws DBFormatException {
-		Map<String, List> ret = new HashMap<String, List>();
-		int type = readRawType();
-		
-		if (type == TYPE_NULL) {
-			return null;
-		}
-		
-		if (type != TYPE_MAP) {
-			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
-		}
-		
-		int size = readInt();
-		for (int i=0; i<size; i++) {
-			String key = readString();
-			ret.put(key, readObjectList(null, val_c));
-		}
-		
-		return ret;
-	}
-
 	public List<Long> readLongList() throws DBFormatException {
 		int type = readRawType();
 		
@@ -214,44 +191,6 @@ public abstract class SVDBPersistenceRWBase
 		return ret;
 	}
 
-	public void writeObjectList(List items, Class obj_c) throws DBWriteException {
-		if (items == null) {
-			writeRawType(TYPE_NULL);
-		} else {
-			writeRawType(TYPE_OBJECT_LIST);
-			writeInt(items.size());
-		
-			for (Object v : items) {
-				writeObject(obj_c, v);
-			}
-		}
-	}
-	
-	public List readObjectList(ISVDBChildParent parent, Class val_c) throws DBFormatException {
-		int type = readRawType();
-		
-		if (type == TYPE_NULL) {
-			return null;
-		} else if (type != TYPE_OBJECT_LIST) {
-			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type);
-		}
-		int size = readInt();
-		List ret = new ArrayList();
-		for (int i=0; i<size; i++) {
-			Object val = null;
-			try {
-				val = val_c.newInstance();
-			} catch (InstantiationException e) {
-				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
-			} catch (IllegalAccessException e) {
-				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
-			}
-			readObject(parent, val_c, val);
-			ret.add(val);
-		}
-		
-		return ret;
-	}
 
 	public byte[] readByteArray() throws DBFormatException {
 		int type = readRawType();
@@ -267,7 +206,7 @@ public abstract class SVDBPersistenceRWBase
 		byte ret[] = new byte[size];
 
 		try {
-			fInBuf.readFully(ret);
+			fIn.readFully(ret);
 		} catch (IOException e) {
 			throw new DBFormatException("readByteArray failed: " + e.getMessage());
 		}
@@ -297,16 +236,16 @@ public abstract class SVDBPersistenceRWBase
 		try {
 			switch (type) {
 				case TYPE_INT_8:
-					ret = fInBuf.readByte();
+					ret = fIn.readByte();
 					break;
 				case TYPE_INT_16:
-					ret = fInBuf.readShort();
+					ret = fIn.readShort();
 					break;
 				case TYPE_INT_32:
-					ret = fInBuf.readInt();
+					ret = fIn.readInt();
 					break;
 				case TYPE_INT_64:
-					ret = fInBuf.readLong();
+					ret = fIn.readLong();
 					break;
 			}
 		} catch (IOException e) {
@@ -326,13 +265,13 @@ public abstract class SVDBPersistenceRWBase
 		try {
 			switch (type) {
 				case TYPE_INT_8:
-					ret = fInBuf.readByte();
+					ret = fIn.readByte();
 					break;
 				case TYPE_INT_16:
-					ret = fInBuf.readShort();
+					ret = fIn.readShort();
 					break;
 				case TYPE_INT_32:
-					ret = fInBuf.readInt();
+					ret = fIn.readInt();
 					break;
 			}
 		} catch (IOException e) {
@@ -348,7 +287,7 @@ public abstract class SVDBPersistenceRWBase
 
 	public void writeRawType(int type) throws DBWriteException {
 		try {
-			fBuf.write((byte)type);
+			fOut.write((byte)type);
 		} catch (IOException e) {
 			throw new DBWriteException("writeRawType failed: " + e.getMessage());
 		}
@@ -381,22 +320,6 @@ public abstract class SVDBPersistenceRWBase
  			}
  		}
 	}
-
-	public void writeMapStringList(Map<String, List> map, Class list_c) 
-			throws DBWriteException, DBFormatException {
-		if (map == null) {
-			writeRawType(TYPE_NULL);
-		} else {
-			writeRawType(TYPE_MAP);
-			
-			writeInt(map.size());
-			for (Entry<String, List> e : map.entrySet()) {
-				writeString(e.getKey());
-				writeObjectList(e.getValue(), list_c);
-			}
-		}
-	}
-
 
 	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
@@ -441,7 +364,7 @@ public abstract class SVDBPersistenceRWBase
 			try {
 				writeRawType(TYPE_STRING);
 				writeInt(val.length());
-				fBuf.writeBytes(val);
+				fOut.writeBytes(val);
 			} catch (IOException e) {
 				throw new DBWriteException("writeString failed: " + e.getMessage());
 			}
@@ -452,25 +375,25 @@ public abstract class SVDBPersistenceRWBase
 		try {
 			if (val < 0) {
 				if (val >= -0x000000FF) {
-					fBuf.write((byte)TYPE_INT_8);
-					fBuf.write((byte)val);
+					fOut.write((byte)TYPE_INT_8);
+					fOut.write((byte)val);
 				} else if (val >= -0x0000FFFF) {
-					fBuf.write((byte)TYPE_INT_16);
-					fBuf.writeShort((short)val);
+					fOut.write((byte)TYPE_INT_16);
+					fOut.writeShort((short)val);
 				} else { 
-					fBuf.write((byte)TYPE_INT_32);
-					fBuf.writeInt(val);
+					fOut.write((byte)TYPE_INT_32);
+					fOut.writeInt(val);
 				}
 			} else {
 				if (val <= 0x0000007F) {
-					fBuf.write((byte)TYPE_INT_8);
-					fBuf.write((byte)val);
+					fOut.write((byte)TYPE_INT_8);
+					fOut.write((byte)val);
 				} else if (val <= 0x00007FFF) {
-					fBuf.write((byte)TYPE_INT_16);
-					fBuf.writeShort((short)val);
+					fOut.write((byte)TYPE_INT_16);
+					fOut.writeShort((short)val);
 				} else {
-					fBuf.write((byte)TYPE_INT_32);
-					fBuf.writeInt(val);
+					fOut.write((byte)TYPE_INT_32);
+					fOut.writeInt(val);
 				}
 			}
 		} catch (IOException e) {
@@ -482,31 +405,31 @@ public abstract class SVDBPersistenceRWBase
 		try {
 			if (val < 0) {
 				if (val >= -0x00000000000000FFL) {
-					fBuf.write(TYPE_INT_8);
-					fBuf.writeByte((byte)val);
+					fOut.write(TYPE_INT_8);
+					fOut.writeByte((byte)val);
 				} else if (val >= -0x000000000000FFFFL) {
-					fBuf.write(TYPE_INT_16);
-					fBuf.writeShort((short)val);
+					fOut.write(TYPE_INT_16);
+					fOut.writeShort((short)val);
 				} else if (val >= -0x00000000FFFFFFFFL) {
-					fBuf.write(TYPE_INT_32);
-					fBuf.writeInt((int)val);
+					fOut.write(TYPE_INT_32);
+					fOut.writeInt((int)val);
 				} else {
-					fBuf.write(TYPE_INT_64);
-					fBuf.writeLong(val);
+					fOut.write(TYPE_INT_64);
+					fOut.writeLong(val);
 				}
 			} else {
 				if (val <= 0x000000000000007FL) {
-					fBuf.write(TYPE_INT_8);
-					fBuf.writeByte((byte)val);
+					fOut.write(TYPE_INT_8);
+					fOut.writeByte((byte)val);
 				} else if (val <= 0x0000000000007FFFL) {
-					fBuf.write(TYPE_INT_16);
-					fBuf.writeShort((short)val);
+					fOut.write(TYPE_INT_16);
+					fOut.writeShort((short)val);
 				} else if (val <= 0x000000007FFFFFFFL) {
-					fBuf.write(TYPE_INT_32);
-					fBuf.writeInt((int)val);
+					fOut.write(TYPE_INT_32);
+					fOut.writeInt((int)val);
 				} else {
-					fBuf.write(TYPE_INT_64);
-					fBuf.writeLong(val);
+					fOut.write(TYPE_INT_64);
+					fOut.writeLong(val);
 				}
 			}
 		} catch (IOException e) {
@@ -521,7 +444,7 @@ public abstract class SVDBPersistenceRWBase
 			writeRawType(TYPE_BYTE_ARRAY);
 			writeInt(data.length);
 			try {
-				fBuf.write(data);
+				fOut.write(data);
 			} catch (IOException e) {
 				throw new DBWriteException("writeByteArray failed: " + e.getMessage());
 			}
