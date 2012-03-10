@@ -41,6 +41,7 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+@SuppressWarnings({"rawtypes","unchecked"})
 public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private String							fBaseLocation;
 	private Map<String, CacheFileInfo>		fFileCache;
@@ -502,7 +503,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return ret;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private List<SVDBMarker> readMarkerList(String path) {
 //		InputStream in = null;
 		RandomAccessFile in = fSVDBFS.openChannelRead(path);
@@ -780,7 +780,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 	}
 
-	@SuppressWarnings({"rawtypes","unchecked"})
 	private Reference createRef(Object obj) {
 		if (fUseSoftRef) {
 			return new SoftReference(obj);
