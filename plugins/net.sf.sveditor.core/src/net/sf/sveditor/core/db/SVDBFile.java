@@ -15,14 +15,23 @@ package net.sf.sveditor.core.db;
 import java.io.File;
 
 public class SVDBFile extends SVDBScopeItem {
-	String						fFile;
+	public String						fFile;
 	
 	public SVDBFile() {
 		super("", SVDBItemType.File);
 	}
 	
 	public SVDBFile(String file) {
-		super(new File(file).getName(), SVDBItemType.File);
+		super(file, SVDBItemType.File);
+		if (file != null) {
+			setName(new File(file).getName());
+		} else {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		fFile               = file;
 		setLocation(new SVDBLocation(-1, -1));
 	}

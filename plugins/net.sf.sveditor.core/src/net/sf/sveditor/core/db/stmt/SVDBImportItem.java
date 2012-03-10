@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBImportItem extends SVDBStmt {
-	private String			fImport;
+	public String			fImport;
 	
 	public SVDBImportItem() {
 		super(SVDBItemType.ImportItem);

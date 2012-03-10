@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -27,7 +29,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
  */
 public interface ISVDBPersistenceRWDelegate {
 	
-	void init(ISVDBPersistenceRWDelegateParent parent);
+	void init(
+			ISVDBPersistenceRWDelegateParent 	parent,
+			DataInput							in,
+			DataOutput							out);
 	
 	Set<Class> getSupportedObjects();
 

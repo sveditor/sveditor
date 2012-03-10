@@ -18,8 +18,8 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 
 public class SVDBTypeInfoEnum extends SVDBTypeInfo {
-	List<String>						fKeyList;
-	List<String>						fValList;
+	public List<String>						fKeyList;
+	public List<String>						fValList;
 	
 	public SVDBTypeInfoEnum() {
 		this("");

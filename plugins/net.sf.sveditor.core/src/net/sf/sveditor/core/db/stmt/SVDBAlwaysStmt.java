@@ -27,8 +27,8 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 		AlwaysFF
 	};
 	
-	private AlwaysType				fAlwaysType;
-	private SVDBClockingEventExpr 	fAlwaysEventExprType;
+	public AlwaysType				fAlwaysType;
+	public SVDBClockingEventExpr 	fAlwaysEventExprType;
 	
 	public SVDBAlwaysStmt() {
 		this(AlwaysType.Always);

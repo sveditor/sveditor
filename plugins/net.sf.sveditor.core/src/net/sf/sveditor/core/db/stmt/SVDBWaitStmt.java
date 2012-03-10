@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBWaitStmt extends SVDBBodyStmt {
-	private SVDBExpr			fExpr;
+	public SVDBExpr			fExpr;
 	
 	public SVDBWaitStmt() {
 		this(SVDBItemType.WaitStmt);

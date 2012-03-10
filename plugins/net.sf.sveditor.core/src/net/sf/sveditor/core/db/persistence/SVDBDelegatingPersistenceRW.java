@@ -12,18 +12,23 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase 
-	implements IDBReader, IDBWriter {
+@SuppressWarnings({"unchecked","rawtypes"})
+public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
+	implements IDBReader, IDBWriter, ISVDBPersistenceRWDelegateParent {
 	private Map<Class, ISVDBPersistenceRWDelegate>			fObjectDelegateMap;
 	private Map<SVDBItemType, ISVDBPersistenceRWDelegate>	fSVDBItemDelegateMap;
 	private Map<Class, ISVDBPersistenceRWDelegate>			fEnumDelegateMap;
@@ -36,18 +41,31 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		fSVDBItemDelegateMap = new HashMap<SVDBItemType, ISVDBPersistenceRWDelegate>();
 		fDelegateList = new ArrayList<ISVDBPersistenceRWDelegate>();
 		fDefaultDelegate = new SVDBDefaultPersistenceRW();
-		fDefaultDelegate.init(this);
-		
-		/*
-		ISVDBPersistenceRWDelegate d = JITSVDBExprDelegateFactory.instance().newDelegate();
-		d.init(this);
-		 */
+		fDefaultDelegate.init(this, fIn, fOut);
 	}
 	
+	@Override
+	public void init(DataInput in) {
+		super.init(in);
+		for (ISVDBPersistenceRWDelegate d : fDelegateList) {
+			d.init(this, in, null);
+		}
+		fDefaultDelegate.init(this, in, null);
+	}
+
+	@Override
+	public void init(DataOutput out) {
+		super.init(out);
+		for (ISVDBPersistenceRWDelegate d : fDelegateList) {
+			d.init(this, null, out);
+		}
+		fDefaultDelegate.init(this, null, out);
+	}
+
 	public void addDelegate(ISVDBPersistenceRWDelegate d) {
 		fDelegateList.add(d);
 		
-		d.init(this);
+		d.init(this, fIn, fOut);
 		Set<Class> supported_classes = d.getSupportedObjects();
 		
 		if (supported_classes != null) {
@@ -72,14 +90,90 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		}
 	}
 
+	public Map<String, List> readMapStringList(Class val_c) throws DBFormatException {
+		Map<String, List> ret = new HashMap<String, List>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			ret.put(key, readObjectList(null, val_c));
+		}
+		
+		return ret;
+	}
+
+	public void writeMapStringList(Map<String, List> map, Class list_c) 
+			throws DBWriteException, DBFormatException {
+		if (map == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_MAP);
+			
+			writeInt(map.size());
+			for (Entry<String, List> e : map.entrySet()) {
+				writeString(e.getKey());
+				writeObjectList(e.getValue(), list_c);
+			}
+		}
+	}
+
 	public void writeObject(Class cls, Object obj) throws DBWriteException {
 		ISVDBPersistenceRWDelegate d = fObjectDelegateMap.get(cls);
 		
 		if (d != null) {
 			d.writeObject(cls, obj);
 		} else {
+//			System.out.println("[WRITE] Using default for \"" + cls.getName() + "\"");
 			fDefaultDelegate.writeObject(cls, obj);
 		}
+	}
+
+	public void writeObjectList(List items, Class obj_c) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_OBJECT_LIST);
+			writeInt(items.size());
+		
+			for (Object v : items) {
+				writeObject(obj_c, v);
+			}
+		}
+	}
+	
+	public List readObjectList(ISVDBChildParent parent, Class val_c) throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		} else if (type != TYPE_OBJECT_LIST) {
+			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type + " class " + val_c.getName());
+		}
+		int size = readInt();
+		List ret = new ArrayList();
+		for (int i=0; i<size; i++) {
+			Object val = null;
+			try {
+				val = val_c.newInstance();
+			} catch (InstantiationException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			} catch (IllegalAccessException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			}
+			readObject(parent, val_c, val);
+			ret.add(val);
+		}
+		
+		return ret;
 	}
 
 	public void writeItemType(SVDBItemType type) throws DBWriteException {
@@ -144,6 +238,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		if (d != null) {
 			d.readObject(parent, cls, obj);
 		} else {
+//			System.out.println("[READ] Using default for \"" + cls.getName() + "\"");
 			fDefaultDelegate.readObject(parent, cls, obj);
 		}
 	}
@@ -211,6 +306,4 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 			return fDefaultDelegate.readSVDBItem(item_type, parent);
 		}
 	}
-	
-
 }

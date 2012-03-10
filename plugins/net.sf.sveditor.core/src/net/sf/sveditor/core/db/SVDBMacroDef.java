@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
-	List<String>			fParams;
-	String					fDef;
+	public List<String>			fParams;
+	public String					fDef;
 
 	public SVDBMacroDef() {
 		super("", SVDBItemType.MacroDef);

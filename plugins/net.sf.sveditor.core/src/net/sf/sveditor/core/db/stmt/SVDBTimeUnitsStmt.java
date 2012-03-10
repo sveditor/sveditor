@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBTimeUnitsStmt extends SVDBStmt {
-	private String				fUnits;
+	public String				fUnits;
 	
 	public SVDBTimeUnitsStmt() {
 		super(SVDBItemType.TimeUnitsStmt);

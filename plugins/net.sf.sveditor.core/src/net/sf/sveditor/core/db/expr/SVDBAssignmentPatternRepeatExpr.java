@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssignmentPatternRepeatExpr extends SVDBAssignmentPatternExpr {
-	SVDBExpr					fRepeatExpr;
+	public SVDBExpr					fRepeatExpr;
 	
 	public SVDBAssignmentPatternRepeatExpr() {
 		this(null);

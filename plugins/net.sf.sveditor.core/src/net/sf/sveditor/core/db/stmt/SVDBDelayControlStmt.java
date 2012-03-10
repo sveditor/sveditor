@@ -17,7 +17,7 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBDelayControlStmt extends SVDBBodyStmt {
 	
-	private SVDBExpr				fExpr;
+	public SVDBExpr				fExpr;
 	
 	public SVDBDelayControlStmt() {
 		super(SVDBItemType.DelayControlStmt);

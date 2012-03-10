@@ -18,9 +18,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 /** Change 2 */
 
 public class SVDBBinaryExpr extends SVDBExpr {
-	SVDBExpr				fLhs;
-	String					fOp;
-	SVDBExpr				fRhs;
+	public SVDBExpr				fLhs;
+	public String					fOp;
+	public SVDBExpr				fRhs;
 	
 	public SVDBBinaryExpr() {
 		this(null, null, null);

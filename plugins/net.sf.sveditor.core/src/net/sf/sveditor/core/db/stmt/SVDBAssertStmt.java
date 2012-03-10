@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssertStmt extends SVDBStmt {
-	private SVDBExpr				fExpr;
-	private SVDBExpr				fDelay;
-	private SVDBActionBlockStmt		fActionBlock;
+	public SVDBExpr				fExpr;
+	public SVDBExpr				fDelay;
+	public SVDBActionBlockStmt		fActionBlock;
 	
 	public SVDBAssertStmt() {
 		this(SVDBItemType.AssertStmt);

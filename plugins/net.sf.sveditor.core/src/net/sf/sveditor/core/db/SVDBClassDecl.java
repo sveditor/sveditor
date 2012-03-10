@@ -18,9 +18,9 @@ import java.util.List;
 
 public class SVDBClassDecl extends SVDBScopeItem {
 	
-	List<SVDBModIfcClassParam>			fParams;
-	SVDBTypeInfoClassType				fClassType;
-	SVDBTypeInfoClassType				fSuperClass;
+	public List<SVDBModIfcClassParam>			fParams;
+	public SVDBTypeInfoClassType				fClassType;
+	public SVDBTypeInfoClassType				fSuperClass;
 
 	public SVDBClassDecl() {
 		this("");

@@ -15,10 +15,12 @@ package net.sf.sveditor.core.db;
 
 public class SVDBFieldItem extends SVDBItem implements IFieldItemAttr {
 	
-	int					fFieldAttr;
+	public int					fFieldAttr;
 	
 	public SVDBFieldItem(String name, SVDBItemType type) {
 		super(name, type);
+		SVDBInclude inc = new SVDBInclude();
+		inc.fName = "foo";
 	}
 	
 	public int getAttr() {

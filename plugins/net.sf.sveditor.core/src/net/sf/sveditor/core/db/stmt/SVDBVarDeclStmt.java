@@ -25,9 +25,9 @@ import net.sf.sveditor.core.db.SVDBTypeInfo;
 
 public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBChildParent {
 	
-	protected SVDBTypeInfo				fTypeInfo;
-	protected int						fFieldAttr;
-	protected List<SVDBVarDeclItem>		fVarList;
+	public SVDBTypeInfo				fTypeInfo;
+	public int						fFieldAttr;
+	public List<SVDBVarDeclItem>		fVarList;
 
 	public SVDBVarDeclStmt() {
 		super(SVDBItemType.VarDeclStmt);

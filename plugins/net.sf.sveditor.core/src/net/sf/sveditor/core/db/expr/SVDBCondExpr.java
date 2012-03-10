@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCondExpr extends SVDBExpr {
-	SVDBExpr			fLhs;
-	SVDBExpr			fMhs;
-	SVDBExpr			fRhs;
+	public SVDBExpr			fLhs;
+	public SVDBExpr			fMhs;
+	public SVDBExpr			fRhs;
 	
 	public SVDBCondExpr() {
 		this(null, null, null);

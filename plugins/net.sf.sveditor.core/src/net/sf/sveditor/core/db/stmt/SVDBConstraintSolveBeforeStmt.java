@@ -19,8 +19,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBConstraintSolveBeforeStmt extends SVDBStmt {
-	private List<SVDBExpr>				fSolveBeforeList;
-	private List<SVDBExpr>				fSolveAfterList;
+	public List<SVDBExpr>				fSolveBeforeList;
+	public List<SVDBExpr>				fSolveAfterList;
 	
 	public SVDBConstraintSolveBeforeStmt() {
 		super(SVDBItemType.ConstraintSolveBeforeStmt);

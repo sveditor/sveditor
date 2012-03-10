@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBExportItem extends SVDBStmt {
 	
-	private String				fExport;
+	public String				fExport;
 	
 	public SVDBExportItem() {
 		super(SVDBItemType.ExportItem);

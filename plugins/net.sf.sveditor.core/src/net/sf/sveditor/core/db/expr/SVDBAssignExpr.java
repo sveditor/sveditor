@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssignExpr extends SVDBExpr {
-	SVDBExpr					fLhs;
-	String						fOp;
-	SVDBExpr					fRhs;
+	public SVDBExpr					fLhs;
+	public String						fOp;
+	public SVDBExpr					fRhs;
 	
 	public SVDBAssignExpr() {
 		this(null, null, null);

@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCastExpr extends SVDBExpr {
-	SVDBExpr					fCastType;
-	SVDBExpr					fExpr;
+	public SVDBExpr					fCastType;
+	public SVDBExpr					fExpr;
 	
 	public SVDBCastExpr() {
 		this(null, null);

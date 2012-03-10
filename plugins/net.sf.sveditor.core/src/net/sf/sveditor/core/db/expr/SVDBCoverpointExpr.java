@@ -20,11 +20,11 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCoverpointExpr extends SVCoverageExpr {
-	Map<String, String>		fOptionMap;
-	Map<String, String>		fTypeOptionMap;
-	List<SVDBCoverBinsExpr>	fCoverBins;
-	SVDBExpr					fIffExpr;
-	SVDBExpr					fTarget;
+	public Map<String, String>		fOptionMap;
+	public Map<String, String>		fTypeOptionMap;
+	public List<SVDBCoverBinsExpr>	fCoverBins;
+	public SVDBExpr					fIffExpr;
+	public SVDBExpr					fTarget;
 
 	public SVDBCoverpointExpr() {
 		super(SVDBItemType.CoverpointExpr);

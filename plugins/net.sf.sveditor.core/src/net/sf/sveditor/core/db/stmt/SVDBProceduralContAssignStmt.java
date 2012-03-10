@@ -23,8 +23,8 @@ public class SVDBProceduralContAssignStmt extends SVDBStmt {
 		Release
 	};
 	
-	private AssignType				fAssignType;
-	private SVDBExpr					fExpr;
+	public AssignType				fAssignType;
+	public SVDBExpr					fExpr;
 	
 	public SVDBProceduralContAssignStmt() {
 		super(SVDBItemType.ProceduralContAssignStmt);

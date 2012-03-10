@@ -15,8 +15,8 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBTimePrecisionStmt extends SVDBStmt {
-	private String				fArg1;				
-	private String				fArg2;
+	public String				fArg1;				
+	public String				fArg2;
 	
 	public SVDBTimePrecisionStmt() {
 		super(SVDBItemType.TimePrecisionStmt);

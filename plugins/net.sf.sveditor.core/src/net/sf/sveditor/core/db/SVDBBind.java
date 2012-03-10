@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBNamedItem {
-	String			fTargetTypeName;
-	List<String>	fTargetInstNameList;
-	SVDBModIfcInst	fBindInst;
+	public String			fTargetTypeName;
+	public List<String>	fTargetInstNameList;
+	public SVDBModIfcInst	fBindInst;
 	
 	public SVDBBind() {
 		super(SVDBItemType.Bind);

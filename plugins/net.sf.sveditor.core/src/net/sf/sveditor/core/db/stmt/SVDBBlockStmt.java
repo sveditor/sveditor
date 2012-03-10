@@ -25,11 +25,11 @@ import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 	@SVDBParentAttr
-	private ISVDBChildItem			fParent;
+	public ISVDBChildItem			fParent;
 	
-	private List<ISVDBItemBase>		fItems;
-	private SVDBLocation			fEndLocation;
-	private String					fBlockName;
+	public List<ISVDBItemBase>		fItems;
+	public SVDBLocation			fEndLocation;
+	public String					fBlockName;
 	
 	public SVDBBlockStmt() {
 		super(SVDBItemType.BlockStmt);

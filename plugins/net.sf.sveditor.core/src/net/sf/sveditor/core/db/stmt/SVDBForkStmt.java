@@ -21,7 +21,7 @@ public class SVDBForkStmt extends SVDBBlockStmt {
 		JoinAny
 	};
 	
-	private JoinType					fJoinType;
+	public JoinType					fJoinType;
 	
 	public SVDBForkStmt() {
 		super(SVDBItemType.ForkStmt);

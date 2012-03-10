@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBStringExpr extends SVDBExpr {
-	String				fStr;
+	public String				fStr;
 	
 	public SVDBStringExpr() {
 		this("");

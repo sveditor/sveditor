@@ -16,13 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 public class SVDBFileTree {
-	boolean					fProcessed;
-	String					fFilePath;
-	SVDBFile				fSVDBFile;
-	List<String>			fIncludedFiles;
-	List<String>			fIncludedByFiles;
+	@SVDBDoNotSaveAttr
+	private boolean					fProcessed;
+	
+	public String					fFilePath;
+	public SVDBFile					fSVDBFile;
+	public List<String>				fIncludedFiles;
+	public List<String>				fIncludedByFiles;
 
 	public SVDBFileTree() {
 		fFilePath = null;

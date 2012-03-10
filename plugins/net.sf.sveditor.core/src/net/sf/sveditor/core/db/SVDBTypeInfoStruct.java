@@ -19,8 +19,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
-	SVDBLocation					fEndLocation;
-	List<SVDBVarDeclStmt>			fFields;
+	public SVDBLocation					fEndLocation;
+	public List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
 		super("<<ANONYMOUS>>", SVDBItemType.TypeInfoStruct);

@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBDefParamItem extends SVDBStmt {
-	private SVDBExpr			fTarget;
-	private SVDBExpr			fExpr;
+	public SVDBExpr			fTarget;
+	public SVDBExpr			fExpr;
 	
 	public SVDBDefParamItem() {
 		super(SVDBItemType.DefParamItem);

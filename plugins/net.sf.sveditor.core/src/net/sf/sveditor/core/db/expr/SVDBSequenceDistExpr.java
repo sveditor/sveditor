@@ -16,8 +16,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 
 public class SVDBSequenceDistExpr extends SVDBExpr {
-	SVDBExpr					fExpr;
-	SVDBConstraintDistListStmt	fDistExpr;
+	public SVDBExpr					fExpr;
+	public SVDBConstraintDistListStmt	fDistExpr;
 
 	public SVDBSequenceDistExpr() {
 		super(SVDBItemType.SequenceDistExpr);

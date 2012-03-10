@@ -16,9 +16,9 @@ import java.util.List;
 
 
 public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
-	SVDBParamValueAssignList				fParamAssignList;
-	SVDBLocation							fEndLocation;
-	List<ISVDBItemBase>					fItems;
+	public SVDBParamValueAssignList				fParamAssignList;
+	public SVDBLocation							fEndLocation;
+	public List<ISVDBItemBase>					fItems;
 	
 	public SVDBTypeInfoUserDef() {
 		this("");
