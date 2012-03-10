@@ -1,6 +1,10 @@
 -- 0.8.3 Release --
 
-- #(nobug) 
+- #(nobug) Increase performance of the persistence mechanism used by the indexer
+  by around 10x.
+  
+- #(nobug) Filter 'NullStmt' items from the outline view
+
 
 ------------------------------------------------------------------------------
 -- 0.8.2 Release --
