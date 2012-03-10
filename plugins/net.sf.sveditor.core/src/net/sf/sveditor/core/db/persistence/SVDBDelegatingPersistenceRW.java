@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
+@SuppressWarnings({"unchecked","rawtypes"})
 public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 	implements IDBReader, IDBWriter, ISVDBPersistenceRWDelegateParent {
 	private Map<Class, ISVDBPersistenceRWDelegate>			fObjectDelegateMap;
@@ -131,7 +132,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		if (d != null) {
 			d.writeObject(cls, obj);
 		} else {
-//			System.out.println("Using default for \"" + cls.getName() + "\"");
+//			System.out.println("[WRITE] Using default for \"" + cls.getName() + "\"");
 			fDefaultDelegate.writeObject(cls, obj);
 		}
 	}
@@ -155,7 +156,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		if (type == TYPE_NULL) {
 			return null;
 		} else if (type != TYPE_OBJECT_LIST) {
-			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type);
+			throw new DBFormatException("Expect TYPE_OBJECT_LIST, receive " + type + " class " + val_c.getName());
 		}
 		int size = readInt();
 		List ret = new ArrayList();
@@ -237,6 +238,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		if (d != null) {
 			d.readObject(parent, cls, obj);
 		} else {
+//			System.out.println("[READ] Using default for \"" + cls.getName() + "\"");
 			fDefaultDelegate.readObject(parent, cls, obj);
 		}
 	}

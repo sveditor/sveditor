@@ -34,10 +34,8 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 @SuppressWarnings({"unchecked","rawtypes"})
-public class SVDBDefaultPersistenceRW 
-		implements ISVDBPersistenceRWDelegate, IDBPersistenceTypes {
+public class SVDBDefaultPersistenceRW extends SVDBPersistenceRWDelegateBase {
 	private LogHandle								fLog;
-	private ISVDBPersistenceRWDelegateParent		fParent;
 	private boolean									fDebugEn = false;
 	private int										fLevel;
 	private static Map<Class, Map<Integer, Enum>>	fIntToEnumMap;
@@ -73,7 +71,7 @@ public class SVDBDefaultPersistenceRW
 			ISVDBPersistenceRWDelegateParent 	parent,
 			DataInput							in,
 			DataOutput							out) {
-		fParent = parent;
+		super.init(parent, in, out);
 		fLevel = 0;
 		
 		synchronized (getClass()) {
@@ -125,11 +123,14 @@ public class SVDBDefaultPersistenceRW
 		}
 		
 		if (cls.getSuperclass() != null && cls.getSuperclass() != Object.class) {
+			accessObject(write, parent, cls.getSuperclass(), target);
+			/*
 			if (write) {
 				fParent.writeObject(cls.getSuperclass(), target);
 			} else {
 				fParent.readObject(parent, cls.getSuperclass(), target);
 			}
+			 */
 		}
 		
 		Field fields[] = cls.getDeclaredFields();
@@ -185,9 +186,9 @@ public class SVDBDefaultPersistenceRW
 									debug("  " + fLevel + " Field " + f.getName() + " is List<String>");
 								}
 								if (write) {
-									fParent.writeStringList((List<String>)field_value);
+									writeStringList((List<String>)field_value);
 								} else {
-									Object o = fParent.readStringList();
+									Object o = readStringList();
 									f.set(target, o);
 								}
 							} else if (c == Integer.class) {
@@ -195,18 +196,18 @@ public class SVDBDefaultPersistenceRW
 									debug("  " + fLevel + " Field " + f.getName() + " is List<Integer>");
 								}
 								if (write) {
-									fParent.writeIntList((List<Integer>)field_value);
+									writeIntList((List<Integer>)field_value);
 								} else {
-									f.set(target, fParent.readIntList());
+									f.set(target, readIntList());
 								}
 							} else if (c == Long.class) {
 								if (fDebugEn) {
 									debug("  " + fLevel + " Field " + f.getName() + " is List<Long>");
 								}
 								if (write) {
-									fParent.writeLongList((List<Long>)field_value);
+									writeLongList((List<Long>)field_value);
 								} else {
-									f.set(target, fParent.readLongList());
+									f.set(target, readLongList());
 								}
 							} else if (ISVDBItemBase.class.isAssignableFrom(c)) {
 								if (fDebugEn) {
@@ -261,9 +262,9 @@ public class SVDBDefaultPersistenceRW
 									debug("  " + fLevel + " Field " + f.getName() + " is Map<String,String>");
 								}
 								if (write) {
-									fParent.writeMapStringString((Map<String, String>)field_value);
+									writeMapStringString((Map<String, String>)field_value);
 								} else {
-									f.set(target, fParent.readMapStringString());
+									f.set(target, readMapStringString());
 								}
 							} else if (key_c == String.class && val_c.isAssignableFrom(List.class)) {
 								Class c = (Class)((ParameterizedType)args[1]).getActualTypeArguments()[0];
@@ -292,45 +293,45 @@ public class SVDBDefaultPersistenceRW
 							debug("  " + fLevel + " Field " + f.getName() + " is a String");
 						}
 						if (write) {
-							fParent.writeString((String)field_value);
+							writeString((String)field_value);
 						} else {
-							f.set(target, fParent.readString());
+							f.set(target, readString());
 						}
 					} else if (field_class == int.class) {
 						if (fDebugEn) {
 							debug("  " + fLevel + " Field " + f.getName() + " is an Integer");
 						}
 						if (write) {
-							fParent.writeInt((Integer)field_value);
+							writeInt((Integer)field_value);
 						} else {
-							f.setInt(target, fParent.readInt());
+							f.setInt(target, readInt());
 						}
 					} else if (field_class == long.class) {
 						if (fDebugEn) {
 							debug("  " + fLevel + " Field " + f.getName() + " is a Long");
 						}
 						if (write) {
-							fParent.writeLong((Long)field_value);
+							writeLong((Long)field_value);
 						} else {
-							f.setLong(target, fParent.readLong());
+							f.setLong(target, readLong());
 						}
 					} else if (field_class == boolean.class) {
 						if (fDebugEn) {
 							debug("  " + fLevel + " Field " + f.getName() + " is a Boolean");
 						}
 						if (write) {
-							fParent.writeBoolean((Boolean)field_value);
+							writeBoolean((Boolean)field_value);
 						} else {
-							f.setBoolean(target, fParent.readBoolean());
+							f.setBoolean(target, readBoolean());
 						}
 					} else if (SVDBLocation.class == field_class) {
 						if (fDebugEn) {
 							debug("  " + fLevel + " Field " + f.getName() + " is an SVDBLocation");
 						}
 						if (write) {
-							fParent.writeSVDBLocation((SVDBLocation)field_value);
+							writeSVDBLocation((SVDBLocation)field_value);
 						} else {
-							f.set(target, fParent.readSVDBLocation());
+							f.set(target, readSVDBLocation());
 						}
 					} else if (ISVDBItemBase.class.isAssignableFrom(field_class)) {
 						if (fDebugEn) {
@@ -360,28 +361,8 @@ public class SVDBDefaultPersistenceRW
 	}
 
 	public void writeEnumType(Class enum_type, Enum value) throws DBWriteException {
-		synchronized (fEnumToIntMap) {
-			if (!fEnumToIntMap.containsKey(enum_type)) {
-				Enum vals[] = null;
-				try {
-					Method m = null;
-					m = enum_type.getMethod("values");
-					vals = (Enum[])m.invoke(null);
-				} catch (Exception ex) {
-					throw new DBWriteException("Enum class " + 
-							enum_type.getName() + " does not have a values() method");
-				}
-				Map<Enum, Integer> em = new HashMap<Enum, Integer>();
-				for (int i=0; i<vals.length; i++) {
-					em.put(vals[i], i);
-				}
-
-				fEnumToIntMap.put(enum_type, em);
-			}
-			Map<Enum, Integer> em = fEnumToIntMap.get(enum_type);
-			fParent.writeRawType(TYPE_ENUM);
-			fParent.writeInt(em.get(value));
-		}
+		writeRawType(TYPE_ENUM);
+		writeInt(value.ordinal());
 	}
 
 	public void writeSVDBItem(ISVDBItemBase item) throws DBWriteException {
@@ -414,7 +395,7 @@ public class SVDBDefaultPersistenceRW
 				fIntToEnumMap.put(enum_type, em);
 			}
 			Map<Integer, Enum> enum_vals = fIntToEnumMap.get(enum_type);
-			val = fParent.readInt();
+			val = readInt();
 			ret = enum_vals.get(val); 
 		}
 		

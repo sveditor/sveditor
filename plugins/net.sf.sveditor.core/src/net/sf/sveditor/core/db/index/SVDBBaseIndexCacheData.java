@@ -17,14 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+
 public class SVDBBaseIndexCacheData {
-	private String									fVersion;
-	private String									fBaseLocation;
-	private List<String>							fIncludePathList;
-	private List<String>							fMissingIncludeFiles;
-	private Map<String, String>						fGlobalDefines;
-	private Map<String, String>						fDefineMap;
-	private Map<String, List<SVDBDeclCacheItem>>	fDeclCacheMap;
+	
+	public String									fVersion;
+	public String									fBaseLocation;
+	public List<String>								fIncludePathList;
+	public List<String>								fMissingIncludeFiles;
+	public Map<String, String>						fGlobalDefines;
+	public Map<String, String>						fDefineMap;
+	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
 
 	public SVDBBaseIndexCacheData(String base) {
 		fBaseLocation = base;

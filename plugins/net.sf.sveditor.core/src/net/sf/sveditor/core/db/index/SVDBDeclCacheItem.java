@@ -30,8 +30,8 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	@SVDBDoNotSaveAttr
 	private ISVDBDeclCache				fParent;
 	
-	private String						fName;
-	private SVDBItemType				fType;
+	public String						fName;
+	public SVDBItemType					fType;
 	
 	public SVDBDeclCacheItem() {
 	}

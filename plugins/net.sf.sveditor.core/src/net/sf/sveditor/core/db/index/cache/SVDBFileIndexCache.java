@@ -39,6 +39,7 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
@@ -56,13 +57,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private Thread							fWriteBackThread[];
 	private List<WriteBackInfo>				fWriteBackQueue;
 	
-	private int								fMaxCacheSize = 0;
+	private int								fMaxCacheSize = 100;
 	
 	private static CacheFileInfo			fCacheHead;
 	private static CacheFileInfo			fCacheTail;
 	private static int						fCacheSize;
 	
-	private boolean							fUseSoftRef = false;
+	private boolean							fUseSoftRef = true;
 
 	final class CacheFileInfo {
 		public boolean						fCached;
@@ -408,6 +409,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 		cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(file_tree);
 		cfi.fSVDBFileTreeRef = file_tree;
+		
+		if (path == null) {
+			System.out.println("Null path");
+		}
 
 		writeBackFileTree(path, file_tree);
 	}

@@ -22,7 +22,16 @@ public class SVDBFile extends SVDBScopeItem {
 	}
 	
 	public SVDBFile(String file) {
-		super(new File(file).getName(), SVDBItemType.File);
+		super(file, SVDBItemType.File);
+		if (file != null) {
+			setName(new File(file).getName());
+		} else {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		fFile               = file;
 		setLocation(new SVDBLocation(-1, -1));
 	}

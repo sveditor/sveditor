@@ -18,28 +18,40 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-
-public class JITSVDBExprDelegateFactory implements Opcodes {
-	private static JITSVDBExprDelegateFactory			fInstance;
+@SuppressWarnings({"rawtypes","unchecked"})
+public class JITPersistenceDelegateFactory implements Opcodes {
+	private static JITPersistenceDelegateFactory			fInstance;
 	private Class<JITPersistenceDelegateBase>			fDelegateCls;
 	private String										fTargetPkg;
 	private List<String>								fTargetPkgList;
 	private Map<SVDBItemType, Class>					fTypeClassMap;
+	private List<Class>									fClassList;
+	private Set<Class>									fClassSet;
 	private static final String							fBaseClass = getClassName(JITPersistenceDelegateBase.class);
 	private static final String							fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
 	private static final String	fChildItem = "net/sf/sveditor/core/db/ISVDBChildItem";
@@ -70,13 +82,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private static final int							READ_PARENT_VAR 	= 1;
 	private static final int							READ_OBJ_VAR 		= 2;
 	private static final int							WRITE_OBJ_VAR		= 1;
-	private static String								fJitPersistenceBaseCls;
-	private static String								fSVDBPersistenceRWDelegateParentCls;
-	
-	static {
-		fJitPersistenceBaseCls = JITPersistenceDelegateBase.class.getName().replace('.', '/');
-		fSVDBPersistenceRWDelegateParentCls = ISVDBPersistenceRWDelegateParent.class.getName().replace('.', '/');
-	}
 	
 	private class JITClassLoader extends ClassLoader {
 		private byte 									fClassBytes[];
@@ -102,13 +107,26 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		}
 	}
 	
-	private JITSVDBExprDelegateFactory() {
-		fTypeClassMap = new HashMap<SVDBItemType, Class>();
-		fTargetPkg = "net.sf.sveditor.core.db";
+	private JITPersistenceDelegateFactory() {
+		fTypeClassMap	= new HashMap<SVDBItemType, Class>();
+		fClassList		= new ArrayList<Class>();
+		fClassSet		= new HashSet<Class>();
+		fTargetPkg = "net.sf.sveditor.core.db.persistence";
 		fTargetPkgList = new ArrayList<String>();
 		fTargetPkgList.add("net.sf.sveditor.core.db");
 		fTargetPkgList.add("net.sf.sveditor.core.db.expr");
 		fTargetPkgList.add("net.sf.sveditor.core.db.stmt");
+
+		fClassList.add(SVDBFile.class);
+//		fClassList.add(SVDBScopeItem.class);
+//		fClassList.add(SVDBItem.class);
+//		fClassList.add(SVDBItemBase.class);
+		fClassList.add(SVDBFileTree.class);
+		fClassList.add(SVDBBaseIndexCacheData.class);
+		fClassList.add(SVDBArgFileIndexCacheData.class);
+		fClassList.add(SVDBDeclCacheItem.class);
+		
+		fClassSet.addAll(fClassList);
 	}
 	
 	private void build() {
@@ -138,9 +156,12 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		build_boilerplate(cw);
 		
 		for (SVDBItemType t : fTypeClassMap.keySet()) {
-//		for (SVDBItemType t : new SVDBItemType[] {SVDBItemType.Include}) {
 			Class cls = fTypeClassMap.get(t);
-			buildAccessors(cw, t, cls);
+			buildItemAccessor(cw, t, cls);
+		}
+		
+		for (Class c : fClassList) {
+			buildObjectAccessor(cw, c);
 		}
 		
 		cw.visitEnd();
@@ -162,13 +183,6 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private void build_boilerplate(ClassWriter cw) {
 		String classname = "SVDBPersistenceDelegate";
 		String full_classname = transform_cls(fTargetPkg) + "/" + classname;
-		Label labels[] = new Label[SVDBItemType.values().length];
-		int indexes[] = new int[SVDBItemType.values().length];
-		Label dflt, endcase;
-		
-		for (int i=0; i<SVDBItemType.values().length; i++) {
-			indexes[i] = i;
-		}
 
 		cw.visit(Opcodes.V1_5, 
 				ACC_PROTECTED+ACC_PUBLIC+ACC_SUPER,
@@ -189,8 +203,24 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		mv.visitMaxs(1, 1);
 		mv.visitEnd();
 		
+		buildItemDispatchMethods(cw);
+		buildObjectDispatchMethods(cw);
+	}
+	
+	private void buildItemDispatchMethods(ClassWriter cw) {
+		String classname = "SVDBPersistenceDelegate";
+		String full_classname = transform_cls(fTargetPkg) + "/" + classname;
+		
+		Label labels[] = new Label[SVDBItemType.values().length];
+		int indexes[] = new int[SVDBItemType.values().length];
+		Label dflt, endcase;
+		
+		for (int i=0; i<SVDBItemType.values().length; i++) {
+			indexes[i] = i;
+		}
+		
 		// writeItem Dispatch method
-		mv = cw.visitMethod(ACC_PUBLIC, "writeSVDBItem",
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "writeSVDBItem",
 				"(L" + getClassName(ISVDBItemBase.class) + ";)V",
 				null, new String[] {fDBWriteException});
 		for (int i=0; i<SVDBItemType.values().length; i++) {
@@ -257,10 +287,165 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		mv.visitInsn(ARETURN);
 		mv.visitMaxs(16, 16);
 		mv.visitEnd();
+	}
 
+	private void buildObjectDispatchMethods(ClassWriter cw) {
+		String classname = "SVDBPersistenceDelegate";
+		String full_classname = transform_cls(fTargetPkg) + "/" + classname;
+		int idx;
+		
+		Label labels[] = new Label[fClassList.size()];
+		int indexes[] = new int[fClassList.size()];
+		Label dflt, endcase;
+		
+		for (int i=0; i<fClassList.size(); i++) {
+			indexes[i] = i;
+		}
+		
+		// writeItem Dispatch method
+		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "writeObject",
+				"(L" + getClassName(Class.class) + ";" +
+				"L" + getClassName(Object.class) + ";)V",
+				null, new String[] {fDBWriteException});
+		for (int i=0; i<fClassList.size(); i++) {
+			labels[i] = new Label();
+		}
+		dflt = new Label();
+		endcase = new Label();
+
+		// Find the object index
+		mv.visitVarInsn(ALOAD, THIS_VAR);
+		mv.visitFieldInsn(GETFIELD, fBaseClass, "fObjectTypeList", 
+				"L" + getClassName(List.class) + ";");
+		
+		// Class parameter
+		// fObjectList field
+		mv.visitVarInsn(ALOAD, 1); // cls parameter
+		mv.visitMethodInsn(INVOKEINTERFACE,
+				getClassName(List.class), "indexOf", 
+				"(L" + getClassName(Object.class) + ";)I");
+		// Index now on the stack 
+		mv.visitLookupSwitchInsn(dflt, indexes, labels);
+		idx=0;
+		for (Class c : fClassList) {
+			mv.visitLabel(labels[idx]);
+			
+			mv.visitVarInsn(ALOAD, THIS_VAR);
+			mv.visitVarInsn(ALOAD, 2); // object
+			mv.visitTypeInsn(CHECKCAST, getClassName(c));
+			mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+					"write" + getClassLeafName(c),
+					"(L" + getClassName(c) + ";)V");
+			mv.visitJumpInsn(GOTO, endcase);
+			idx++;
+		}
+		mv.visitLabel(dflt);
+		mv.visitVarInsn(ALOAD, THIS_VAR);
+		mv.visitVarInsn(ALOAD, 2); // object
+		mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+				"writeObjectErr",
+				"(L" + getClassName(Object.class) + ";)V");
+		
+		mv.visitLabel(endcase);
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(16, 16);
+		mv.visitEnd();
+		
+		// readItem dispatch method
+		mv = cw.visitMethod(ACC_PUBLIC, "readObject", 
+				"(L" + getClassName(ISVDBChildItem.class) + ";" +
+				"L" + getClassName(Class.class) + ";" +
+				"L" + getClassName(Object.class) + ";)V",
+				null, new String[] {fDBWriteException});
+		for (int i=0; i<fClassList.size(); i++) {
+			labels[i] = new Label();
+		}
+		dflt = new Label();
+		endcase = new Label();
+
+		// Find the object index
+		mv.visitVarInsn(ALOAD, THIS_VAR);
+		mv.visitFieldInsn(GETFIELD, fBaseClass, "fObjectTypeList", 
+				"L" + getClassName(List.class) + ";");
+		
+		// Class parameter
+		// fObjectList field
+		mv.visitVarInsn(ALOAD, 2); // cls parameter
+		mv.visitMethodInsn(INVOKEINTERFACE, 
+				getClassName(List.class), "indexOf",
+				"(L" + getClassName(Object.class) + ";)I");
+
+		mv.visitLookupSwitchInsn(dflt, indexes, labels);
+		idx=0;
+		for (Class c : fClassList) {
+			mv.visitLabel(labels[idx]);
+			
+			// 
+			mv.visitVarInsn(ALOAD, THIS_VAR);
+			mv.visitVarInsn(ALOAD, 1); // parent
+			mv.visitVarInsn(ALOAD, 3); // object
+			mv.visitTypeInsn(CHECKCAST, getClassName(c));
+			mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+					"read" + getClassLeafName(c), 
+					"(L" + getClassName(ISVDBChildItem.class) + ";" +
+					"L" + getClassName(c) + ";)V");
+			mv.visitJumpInsn(GOTO, endcase);
+			idx++;
+		}
+		mv.visitLabel(dflt);
+		mv.visitVarInsn(ALOAD, THIS_VAR);
+		mv.visitVarInsn(ALOAD, 3); // object
+		mv.visitMethodInsn(INVOKESPECIAL, full_classname, 
+				"readObjectErr", 
+				"(L" + getClassName(Object.class) + ";)V");
+		mv.visitLabel(endcase);
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(4, 4);
+		mv.visitEnd();
+	}
+
+	private void buildObjectAccessor(ClassWriter cw, Class cls) {
+		MethodVisitor mv;
+		
+		if (fDebugEn) {debug("--> buildAccessor cls=" + cls.getName());}
+
+		// Constructor
+		String tgt_clsname = getClassName(cls);
+		String cls_name = getClassLeafName(cls);
+		
+		// Read method
+		//
+		// 0 - this
+		// 1 - parent
+		// 2 - object
+		mv = cw.visitMethod(ACC_PRIVATE, "read" + cls_name, 
+				"(L" + fChildItem + ";" +
+				"L" + tgt_clsname + ";)V",
+				null, new String[] {fDBFormatException});
+		mv.visitCode();
+		visit(false, tgt_clsname, mv, cls);
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(3, 3);
+		mv.visitEnd();
+		
+		// Write method
+		//
+		// 0 - this
+		// 1 - object
+		mv = cw.visitMethod(ACC_PRIVATE, "write" + cls_name, 
+				// "(L" + tgt_clsname + ";)V",
+				"(L" + tgt_clsname + ";)V",
+				null, new String[] {fDBWriteException});
+		mv.visitCode();
+		visit(true, tgt_clsname, mv, cls);
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(3, 3);
+		mv.visitEnd();
+		
+		if (fDebugEn) {debug("<-- buildAccessor cls=" + cls.getName());}
 	}
 	
-	private void buildAccessors(ClassWriter cw, SVDBItemType t, Class cls) {
+	private void buildItemAccessor(ClassWriter cw, SVDBItemType t, Class cls) {
 		MethodVisitor mv;
 		
 		if (fDebugEn) {debug("--> buildAccessor t=" + t.name() + " cls=" + cls.getName());}
@@ -351,10 +536,13 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 				if (f.getAnnotation(SVDBDoNotSaveAttr.class) != null) {
 					continue;
 				}
-				
+
+				if ((f.getModifiers() & Modifier.PUBLIC) == 0) {
+					throw new RuntimeException("Error: non-public field " +
+							tgt_classname + "." + f.getName());
+				}
+
 				try {
-					Object field_value = null;
-				
 					if (Enum.class.isAssignableFrom(field_class)) {
 						if (fDebugEn) {
 							debug("  " + fLevel + " Field " + f.getName() + " is an enum " + field_class.getName());
@@ -536,9 +724,11 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 						if (t instanceof ParameterizedType) {
 							ParameterizedType pt = (ParameterizedType)t;
 							Type args[] = pt.getActualTypeArguments();
-							Class key_c = null;
-							Class val_c = null;
+							Class key_c  = null;
+							Class val_c  = null;
+							Class elem_c = null;
 							String readMethod=null, writeMethod=null;
+							String readSig=READ_MAP_SIG, writeSig=WRITE_MAP_SIG;
 							
 							if (args[0] instanceof Class) {
 								key_c = (Class)args[0];
@@ -562,12 +752,19 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								writeMethod = "writeMapStringString";
 								readMethod  = "readMapStringString";
 							} else if (key_c == String.class && val_c.isAssignableFrom(List.class)) {
+								elem_c = (Class)((ParameterizedType)args[1]).getActualTypeArguments()[0];
 								if (fDebugEn) {
 									debug("  " + fLevel + " Field " + f.getName() + " is Map<String,List>");
 								}
 								local_access = false;
 								writeMethod = "writeMapStringList";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+									        "L" + getClassName(Class.class) + ";)V";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+								        "L" + getClassName(Class.class) + ";)V";
 								readMethod  = "readMapStringList";
+								readSig = "(L" + getClassName(Class.class) + ";)" + 
+										"L" + getClassName(Map.class) + ";";
 							} else {
 								if (fDebugEn) {
 									debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is an unrecognized Map<?,?>");
@@ -591,11 +788,14 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
 								mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
 										"L" + field_classname + ";");
+								if (elem_c != null) {
+									mv.visitLdcInsn(org.objectweb.asm.Type.getType(elem_c));
+								}
 								if (local_access) {
-									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, writeMethod, WRITE_MAP_SIG);
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, writeMethod, writeSig);
 								} else {
 									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-											writeMethod, WRITE_MAP_SIG);
+											writeMethod, writeSig);
 								}
 							} else {
 								// Invoke the parent to read the enum value
@@ -612,12 +812,14 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 								// Stack layout must be:
 								// enum class
 								// fParent
-
+								if (elem_c != null) {
+									mv.visitLdcInsn(org.objectweb.asm.Type.getType(elem_c));
+								}
 								if (local_access) {
-									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, readMethod, READ_MAP_SIG);
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, readMethod, readSig);
 								} else {
 									mv.visitMethodInsn(INVOKEINTERFACE, fPersistenceDelegateParentClass, 
-											readMethod, READ_MAP_SIG);
+											readMethod, readSig);
 								}
 
 								// Now, store the result back to the target field
@@ -849,6 +1051,15 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	private static String getClassName(Class cls) {
 		return transform_cls(cls.getName());
 	}
+	
+	private static String getClassLeafName(Class cls) {
+		String ret = cls.getName();
+		int idx = ret.lastIndexOf('.');
+		if (idx != -1) {
+			ret = ret.substring(idx+1);
+		}
+		return ret;
+	}
 
 	private static String transform_cls(String clsname) {
 		return clsname.replace('.', '/');
@@ -857,7 +1068,10 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 	public ISVDBPersistenceRWDelegate newDelegate() {
 		try {
 			JITPersistenceDelegateBase ret = fDelegateCls.newInstance();
-			ret.init(fTypeClassMap.keySet());
+			ret.setSupportedClasses(fClassList);
+			ret.init(
+					fTypeClassMap.keySet(),
+					fClassSet);
 			return ret;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
@@ -867,9 +1081,9 @@ public class JITSVDBExprDelegateFactory implements Opcodes {
 		return null;
 	}
 	
-	public static synchronized JITSVDBExprDelegateFactory instance() {
+	public static synchronized JITPersistenceDelegateFactory instance() {
 		if (fInstance == null) {
-			fInstance = new JITSVDBExprDelegateFactory();
+			fInstance = new JITPersistenceDelegateFactory();
 			fInstance.build();
 		}
 		return fInstance;

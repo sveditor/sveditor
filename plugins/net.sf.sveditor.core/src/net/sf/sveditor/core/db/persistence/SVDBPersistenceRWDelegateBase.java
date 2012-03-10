@@ -7,13 +7,16 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBItemType;
 
+@SuppressWarnings("rawtypes")
 public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBase 
 		implements ISVDBPersistenceRWDelegate {
 	protected Set<SVDBItemType>						fSupportedItems;
+	protected Set<Class>							fSupportedObjects;
 	protected ISVDBPersistenceRWDelegateParent		fParent; 
 	
 	public SVDBPersistenceRWDelegateBase() {
 		fSupportedItems = new HashSet<SVDBItemType>();
+		fSupportedObjects = new HashSet<Class>();
 	}
 
 	public void init(
@@ -25,13 +28,18 @@ public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBas
 		fOut = out;
 	}
 
-	public void init(Set<SVDBItemType> supported_items) {
+	public void init(Set<SVDBItemType> supported_items,
+			Set<Class> supported_objects) {
 		fSupportedItems.addAll(supported_items);
+		fSupportedObjects.addAll(supported_objects);
+	}
+	
+	public void addSupportedType(SVDBItemType t) {
+		fSupportedItems.add(t);
 	}
 
 	public Set<Class> getSupportedObjects() {
-		// TODO Auto-generated method stub
-		return null;
+		return fSupportedObjects;
 	}
 
 	public Set<Class> getSupportedEnumTypes() {

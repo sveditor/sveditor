@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -36,14 +38,17 @@ import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.ISVDBPersistenceRWDelegate;
-import net.sf.sveditor.core.db.persistence.JITSVDBExprDelegateFactory;
+import net.sf.sveditor.core.db.persistence.JITPersistenceDelegateFactory;
 import net.sf.sveditor.core.db.persistence.SVDBDelegatingPersistenceRW;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.log.LogFactory;
@@ -119,7 +124,7 @@ public class TestPersistencePerformance extends TestCase {
 			
 		};
 		SVDBDelegatingPersistenceRW dflt = new SVDBDelegatingPersistenceRW();
-		ISVDBPersistenceRWDelegate delegate = JITSVDBExprDelegateFactory.instance().newDelegate();
+		ISVDBPersistenceRWDelegate delegate = JITPersistenceDelegateFactory.instance().newDelegate();
 //		ISVDBPersistenceRWDelegate delegate = new SVDBDefaultPersistenceRW();
 		int n_iter = 1000000;
 		dflt.init(out);
@@ -267,13 +272,6 @@ public class TestPersistencePerformance extends TestCase {
 		DataOutput dout = new DataOutputStream(bos);
 		DataInput din = null;
 		
-		/*
-		byte data[] = new byte[1024*1024];
-		for (int i=0; i<200; i++) {
-			af.write(data);
-		}
-		 */
-		
 		start = System.currentTimeMillis();		
 		for (int i=0; i<iter; i++) {
 			writer.init(dout);
@@ -299,6 +297,110 @@ public class TestPersistencePerformance extends TestCase {
 		}
 		end = System.currentTimeMillis();
 		total_time = (end-start);
+		
+		if (total_time == 0) {
+			total_time=1;
+		}
+
+		System.out.println("Performance: " + total + " items in " + total_time + "ms");
+		System.out.println("    " + (total_time/total) + " ms/item");
+
+		LogFactory.removeLogHandle(log);
+		TestUtils.deleteProject(project_dir);
+	}
+
+	public void testCacheDataPerf() throws IOException, CoreException, DBFormatException, DBWriteException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		String testname = "testCacheDataPerf";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		File test_dir = new File(fTmpDir, testname);
+		if (test_dir.exists()) {
+			TestUtils.delete(test_dir);
+		}
+		test_dir.mkdirs();
+		
+		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
+		File ubus = new File(test_dir, "uvm/examples/integrated/ubus");
+		
+		IProject project_dir = TestUtils.createProject("ubus", ubus);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		db.mkdirs();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(new TestNullIndexCacheFactory());
+		
+		PrintStream ps = new PrintStream(new File(ubus, "/examples/questa.f"));
+		ps.println("+incdir+../sv");
+		ps.println("+incdir+../../../../src");
+		ps.println("../../../../src/uvm_pkg.sv");
+		ps.println("ubus_tb_top.sv");
+		ps.flush();
+		ps.close();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/ubus/examples/questa.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+
+		Set<String> files = index.getFileList(new NullProgressMonitor());
+		SVDBPersistenceRW delegate = new SVDBPersistenceRW();
+
+		IDBWriter writer = delegate;
+		IDBReader reader = delegate;
+
+		long start = System.currentTimeMillis(), end, total_time;
+		int iter=1;
+		int total = 0;
+
+		total=0;
+//		RandomAccessFile af = new RandomAccessFile(new File(db, "file_r"), "rw");
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		DataOutput dout = new DataOutputStream(bos);
+		DataInput din = null;
+		
+		SVDBBaseIndexCacheData cd = new SVDBBaseIndexCacheData("base");
+		SVDBBaseIndexCacheData cd2 = new SVDBBaseIndexCacheData("base");
+		SVDBArgFileIndexCacheData acd = new SVDBArgFileIndexCacheData("base");
+		SVDBArgFileIndexCacheData acd2 = new SVDBArgFileIndexCacheData("base");
+		SVDBFile f = new SVDBFile("myfile");
+		SVDBFile f2 = new SVDBFile();
+		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
+		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt));
+		cd.getDeclCacheMap().put("foobar", items);
+		
+		start = System.currentTimeMillis();		
+		for (int i=0; i<iter; i++) {
+			writer.init(dout);
+			
+//			for (String file : files) {
+				writer.writeObject(SVDBBaseIndexCacheData.class, cd);
+				writer.writeObject(SVDBArgFileIndexCacheData.class, acd);
+				writer.writeObject(SVDBFile.class, f);
+				total++;
+//			}
+		}
+		total=0;
+
+		din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
+		for (int i=0; i<iter; i++) {
+			reader.init(din);
+			
+//			for (String file : files) {
+				reader.readObject(null, SVDBBaseIndexCacheData.class, cd2);
+				reader.readObject(null, SVDBArgFileIndexCacheData.class, acd2);
+				reader.readObject(null, SVDBFile.class, f2);
+				total++;
+//			}
+		}
+		end = System.currentTimeMillis();
+		total_time = (end-start);
+		
+		System.out.println("f2.path=" + f2.getFilePath());
 		
 		if (total_time == 0) {
 			total_time=1;

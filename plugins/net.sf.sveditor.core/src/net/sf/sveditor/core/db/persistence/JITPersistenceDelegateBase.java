@@ -12,47 +12,48 @@
 
 package net.sf.sveditor.core.db.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {
+public abstract class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {
+	protected List<Class>				fObjectTypeList;
 	
 	public JITPersistenceDelegateBase() {
+		fObjectTypeList = new ArrayList<Class>();
 	}
 	
+	public void setSupportedClasses(List<Class> s) {
+		fObjectTypeList = s;
+	}
+	
+	@Override
+	public void init(Set<SVDBItemType> supported_items,
+			Set<Class> supported_objects) {
+		super.init(supported_items, supported_objects);
+	}
+
 	// These methods are called from outside, based on 
-	// our advertised support for objects/enums 
-	public void writeObject(Class cls, Object obj) throws DBWriteException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void writeSVDBItem(ISVDBItemBase item) throws DBWriteException {
-	}
+	// our advertised support for objects/enums
 		
 	public void writeEnumType(Class cls, Enum value) throws DBWriteException {
 		// TODO Auto-generated method stub
 
 	}
 
-	public void readObject(ISVDBChildItem parent, Class cls, Object obj)
-			throws DBFormatException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public ISVDBItemBase readSVDBItem(SVDBItemType type, ISVDBChildItem parent)
-			throws DBFormatException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	
-
 	public Enum readEnumType(Class enum_type) throws DBFormatException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	protected void writeObjectErr(Object obj) throws DBWriteException {
+		System.out.println("[WRITE] Failed to find class " + obj.getClass().getName());
+	}
+	protected void readObjectErr(Object obj) throws DBFormatException {
+		System.out.println("[READ] Failed to find class " + obj.getClass().getName());
+	}
 }

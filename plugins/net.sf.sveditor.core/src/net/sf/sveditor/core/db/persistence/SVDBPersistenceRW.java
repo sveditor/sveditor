@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.persistence;
 public class SVDBPersistenceRW extends SVDBDelegatingPersistenceRW {
 	
 	public SVDBPersistenceRW() {
-		addDelegate(JITSVDBExprDelegateFactory.instance().newDelegate());
+		addDelegate(JITPersistenceDelegateFactory.instance().newDelegate());
 	}
 
 }

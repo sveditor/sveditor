@@ -17,8 +17,8 @@ import java.util.List;
 
 public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
-	private List<String>			fArgFilePaths;
-	private List<Long>				fArgFileTimestamps;
+	public List<String>			fArgFilePaths;
+	public List<Long>			fArgFileTimestamps;
 	
 	public SVDBArgFileIndexCacheData(String base_location) {
 		super(base_location);
