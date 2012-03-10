@@ -15,6 +15,7 @@
 	<property name="srcdir" value="${basedir}/.."/>
 	<property name="feature.version" value="${version}"/>
 	<property name="buildDirectory"   value="${basedir}/../build"/>
+	<property name="buildResult"      value="${basedir}/../buildResult"/>
 
 	<target name="release" depends="release-prereqs, upload_release">
 		<!-- remove release dir once complete -->
@@ -24,7 +25,7 @@
 	<target name="release-prereqs" depends="build, mksrc, mk_rn">
 		<mkdir dir="${rlsdir}"/>
 
-		<unzip src="${basedir}/../sveditor-release-${feature.version}.zip"
+		<unzip src="${buildResult}/sveditor-release-${feature.version}.zip"
 			dest="${rlsdir}"/>
        
 		<!-- Create the release fragment file -->
@@ -84,7 +85,7 @@
 		</exec>
 
 		<!-- Now, copy the release archive -->
-		<exec executable="sftp" dir="${basedir}/.." inputstring="put sveditor-${feature.version}.jar">
+		<exec executable="sftp" dir="${buildResult}" inputstring="put sveditor-${feature.version}.jar">
 			<arg value="-b"/>
 			<arg value="/dev/stdin"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
@@ -127,6 +128,7 @@
   -->
 
 	<target name="build">
+		<delete dir="${buildResult}"/>
 		<ant antfile="${basedir}/build.xml" dir="${basedir}" target="build"/>
 	</target>
 
