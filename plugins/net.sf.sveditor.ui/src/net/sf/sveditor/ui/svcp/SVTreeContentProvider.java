@@ -29,6 +29,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	
 	private static final Set<SVDBItemType>		fDoNotRecurseScopes;
 	private static final Set<SVDBItemType>		fExpandInLineItems;
+	private static final Set<SVDBItemType>		fIgnoreItems;
 	
 	static {
 		fDoNotRecurseScopes = new HashSet<SVDBItemType>();
@@ -43,6 +44,9 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fExpandInLineItems.add(SVDBItemType.ModIfcInst);
 		fExpandInLineItems.add(SVDBItemType.ImportStmt);
 		fExpandInLineItems.add(SVDBItemType.ExportStmt);
+		
+		fIgnoreItems = new HashSet<SVDBItemType>();
+		fIgnoreItems.add(SVDBItemType.NullStmt);
 	}
 	
 	public Object[] getChildren(Object elem) {
@@ -56,7 +60,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 						for (ISVDBChildItem ci_p : ((ISVDBChildParent)ci).getChildren()) {
 							c.add(ci_p);
 						}
-					} else {
+					} else if (!fIgnoreItems.contains(ci.getType())) {
 						c.add(ci);
 					}
 				}
