@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBArrayAccessExpr extends SVDBExpr {
-	SVDBExpr				fLhs;
-	SVDBExpr				fLow;
-	SVDBExpr				fHigh;
+	public SVDBExpr				fLhs;
+	public SVDBExpr				fLow;
+	public SVDBExpr				fHigh;
 	
 	public SVDBArrayAccessExpr() {
 		this(null, null, null);

@@ -17,10 +17,10 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 
 public class SVDBConstraintIfStmt extends SVDBStmt {
-	private SVDBExpr					fIfExpr;
-	private SVDBStmt				fConstraint;
-	private SVDBStmt				fElse;
-	private boolean					fElseIf;
+	public SVDBExpr					fIfExpr;
+	public SVDBStmt				fConstraint;
+	public SVDBStmt				fElse;
+	public boolean					fElseIf;
 	
 	public SVDBConstraintIfStmt() {
 		super(SVDBItemType.ConstraintIfStmt);

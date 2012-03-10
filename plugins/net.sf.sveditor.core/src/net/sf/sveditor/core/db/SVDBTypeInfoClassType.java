@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
-	List<SVDBTypeInfoClassItem>		fTypeInfo;
+	public List<SVDBTypeInfoClassItem>		fTypeInfo;
 	
 	public SVDBTypeInfoClassType() {
 		this("");

@@ -16,10 +16,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCoverageCrossBinsSelectStmt extends SVDBStmt {
-	private SVDBCoverageBinsType	fBinsType;
-	private SVDBExpr				fBinsName;
-	private SVDBExpr				fSelectCondition;
-	private SVDBExpr				fIffExpr;
+	public SVDBCoverageBinsType	fBinsType;
+	public SVDBExpr				fBinsName;
+	public SVDBExpr				fSelectCondition;
+	public SVDBExpr				fIffExpr;
 	
 	public SVDBCoverageCrossBinsSelectStmt() {
 		super(SVDBItemType.CoverageCrossBinsSelectStmt);

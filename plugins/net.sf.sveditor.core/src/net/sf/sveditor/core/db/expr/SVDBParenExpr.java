@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBParenExpr extends SVDBExpr {
-	SVDBExpr				fExpr;
+	public SVDBExpr				fExpr;
 	
 	public SVDBParenExpr() {
 		this(null);

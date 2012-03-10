@@ -27,9 +27,9 @@ public class SVDBCaseStmt extends SVDBStmt {
 		Randcase
 	};
 	
-	private CaseType					fCaseType;
-	private SVDBExpr						fExpr;
-	private List<SVDBCaseItem>			fCaseItemList;
+	public CaseType						fCaseType;
+	public SVDBExpr						fExpr;
+	public List<SVDBCaseItem>			fCaseItemList;
 	
 	public SVDBCaseStmt() {
 		this(CaseType.Case);

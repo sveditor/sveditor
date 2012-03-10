@@ -16,10 +16,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssignStmt extends SVDBStmt {
-	private SVDBExpr			fLHS;
-	private String			fOp;
-	private SVDBExpr			fDelayExpr;
-	private SVDBExpr			fRHS;
+	public SVDBExpr			fLHS;
+	public String			fOp;
+	public SVDBExpr			fDelayExpr;
+	public SVDBExpr			fRHS;
 	
 	public SVDBAssignStmt() {
 		super(SVDBItemType.AssignStmt);

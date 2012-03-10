@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.utils.SVDBSingleItemIterable;
 
 public class SVDBBodyStmt extends SVDBStmt implements ISVDBBodyStmt, ISVDBAddChildItem, ISVDBChildParent {
-	private SVDBStmt			fBody;
+	public SVDBStmt			fBody;
 	
 	@SVDBDoNotSaveAttr
 	private int					fAddIdx;

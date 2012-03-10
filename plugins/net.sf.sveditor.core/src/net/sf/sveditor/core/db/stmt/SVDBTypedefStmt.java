@@ -18,10 +18,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
 public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
-	private SVDBTypeInfo					fTypeInfo;
+	public SVDBTypeInfo					fTypeInfo;
 	// TODO: Add Vectored info
 	
-	private String							fName;
+	public String							fName;
 	
 	public SVDBTypedefStmt() {
 		super(SVDBItemType.TypedefStmt);

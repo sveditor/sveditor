@@ -20,13 +20,13 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBIfStmt extends SVDBStmt implements ISVDBAddChildItem {
-	private SVDBExpr		fCondExpr;
+	public SVDBExpr		fCondExpr;
 	
 	@SVDBDoNotSaveAttr
 	private int				fAddIdx;
 	
-	private SVDBStmt		fIfStmt;
-	private SVDBStmt		fElseStmt;
+	public SVDBStmt		fIfStmt;
+	public SVDBStmt		fElseStmt;
 	
 	public SVDBIfStmt() {
 		super(SVDBItemType.IfStmt);

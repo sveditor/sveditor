@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBImportStmt extends SVDBStmt implements ISVDBChildParent {
 	
-	private List<SVDBImportItem>			fImportList;
+	public List<SVDBImportItem>			fImportList;
 	
 	public SVDBImportStmt() {
 		super(SVDBItemType.ImportStmt);

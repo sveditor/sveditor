@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBExprStmt extends SVDBStmt {
-	private SVDBExpr				fExpr;
+	public SVDBExpr				fExpr;
 	
 	public SVDBExprStmt() {
 		super(SVDBItemType.ExprStmt);

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBModportPortsDecl extends SVDBChildItem implements ISVDBAddChildItem {
-	List<ISVDBChildItem>			fPorts;
+	public List<ISVDBChildItem>			fPorts;
 	
 	protected SVDBModportPortsDecl(SVDBItemType type) {
 		super(type);

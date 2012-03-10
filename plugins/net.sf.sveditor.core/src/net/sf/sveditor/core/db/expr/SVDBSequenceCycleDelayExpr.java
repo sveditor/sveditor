@@ -15,9 +15,9 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceCycleDelayExpr extends SVDBExpr {
-	SVDBExpr				fLhs;
-	SVDBCycleDelayExpr		fDelay;
-	SVDBExpr				fRhs;
+	public SVDBExpr				fLhs;
+	public SVDBCycleDelayExpr		fDelay;
+	public SVDBExpr				fRhs;
 	
 	public SVDBSequenceCycleDelayExpr() {
 		super(SVDBItemType.SequenceCycleDelayExpr);

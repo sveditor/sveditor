@@ -17,8 +17,8 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCtorExpr extends SVDBExpr {
-	List<SVDBExpr>			fArgs;
-	SVDBExpr				fDim;
+	public List<SVDBExpr>			fArgs;
+	public SVDBExpr				fDim;
 	
 	public SVDBCtorExpr() {
 		super(SVDBItemType.CtorExpr);

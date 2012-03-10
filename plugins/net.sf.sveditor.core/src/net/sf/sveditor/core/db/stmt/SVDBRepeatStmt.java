@@ -17,7 +17,7 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBRepeatStmt extends SVDBBodyStmt {
 	
-	private SVDBExpr				fRepeatExpr;
+	public SVDBExpr				fRepeatExpr;
 
 	public SVDBRepeatStmt() {
 		super(SVDBItemType.RepeatStmt);

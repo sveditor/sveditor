@@ -20,9 +20,9 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 public class SVDBItem extends SVDBItemBase implements ISVDBNamedItem, ISVDBChildItem {
 	
 	@SVDBParentAttr
-	ISVDBChildItem		fParent;
+	public ISVDBChildItem		fParent;
 	
-	String				fName;
+	public String				fName;
 	
 	public SVDBItem(String name, SVDBItemType type) {
 		super(type);

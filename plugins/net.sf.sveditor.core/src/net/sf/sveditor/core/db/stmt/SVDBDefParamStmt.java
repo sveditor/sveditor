@@ -18,7 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBDefParamStmt extends SVDBStmt {
-	private List<SVDBDefParamItem>		fParamAssignList;
+	public List<SVDBDefParamItem>		fParamAssignList;
 	
 	public SVDBDefParamStmt() {
 		super(SVDBItemType.DefParamStmt);

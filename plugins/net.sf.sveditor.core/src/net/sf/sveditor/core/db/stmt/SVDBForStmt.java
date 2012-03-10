@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBForStmt extends SVDBBodyStmt {
-	private SVDBStmt			fInitExpr;
-	private SVDBStmt			fTestStmt;
-	private SVDBStmt			fIncrStmt;
+	public SVDBStmt			fInitExpr;
+	public SVDBStmt			fTestStmt;
+	public SVDBStmt			fIncrStmt;
 	
 	public SVDBForStmt() {
 		super(SVDBItemType.ForStmt);

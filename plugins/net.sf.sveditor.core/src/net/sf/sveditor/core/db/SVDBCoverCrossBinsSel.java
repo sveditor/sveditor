@@ -17,7 +17,7 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 public class SVDBCoverCrossBinsSel extends SVDBItem {
 	
-	SVDBExpr				fSelectExpr;
+	public SVDBExpr				fSelectExpr;
 	
 	public SVDBCoverCrossBinsSel() {
 		super("", SVDBItemType.CoverCrossBinsSel);

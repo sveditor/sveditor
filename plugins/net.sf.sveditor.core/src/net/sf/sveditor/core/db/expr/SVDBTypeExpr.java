@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
 public class SVDBTypeExpr extends SVDBExpr {
-	SVDBTypeInfo			fTypeInfo;
+	public SVDBTypeInfo			fTypeInfo;
 	
 	public SVDBTypeExpr() {
 		super(SVDBItemType.TypeExpr);

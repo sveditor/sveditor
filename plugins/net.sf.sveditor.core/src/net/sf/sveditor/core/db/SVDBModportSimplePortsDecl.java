@@ -21,8 +21,8 @@ public class SVDBModportSimplePortsDecl extends SVDBModportPortsDecl {
 		output,
 		inout
 	};
-	PortDir							fPortDir;
-	List<SVDBModportSimplePort>		fPortList;
+	public PortDir							fPortDir;
+	public List<SVDBModportSimplePort>		fPortList;
 	
 	public SVDBModportSimplePortsDecl() {
 		super(SVDBItemType.ModportSimplePortsDecl);

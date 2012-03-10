@@ -14,7 +14,7 @@ package net.sf.sveditor.core.db;
 
 
 public class SVDBFunction extends SVDBTask {
-	SVDBTypeInfo				fRetType;
+	public SVDBTypeInfo				fRetType;
 
 	public SVDBFunction() {
 		super("", SVDBItemType.Function);
