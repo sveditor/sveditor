@@ -1,0 +1,13 @@
+Source: sve
+Package: sve
+Version: 1.2.3
+Section: unknown
+Priority: extra
+Maintainer: Matthew Ballance <matt.ballance@gmail.com>
+Standards-Version: 3.9.2
+Homepage: http://sveditor.sourceforge.net
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
+Depends: java5-runtime
+Architecture: @arch@
+

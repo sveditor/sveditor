@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=SVE @sve_version@
+Exec=sve
+Type=Aplication
+Terminal=false
+Icon=sve
+Caption=SVE
+X-KDE-StartupNotify=false
+Categories=Science;Engineering
+

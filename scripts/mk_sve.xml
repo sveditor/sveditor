@@ -4,7 +4,7 @@
 	<property environment="env"/>
 	
 	<!-- Import the version info -->
-	<property file="${basedir}/../sveditor.info"/>
+	<property file="${basedir}/../etc/sveditor.info"/>
 	<property environment="env"/>
 	<property name="feature.version" value="${version}"/>
 
@@ -33,7 +33,7 @@
 	<condition property="is_win">
 		<os family="windows"/>
 	</condition>
-	
+
 	<condition property="build_ws" value="win32" else="gtk">
 		<os family="windows"/>
 	</condition>
@@ -43,6 +43,7 @@
 
 	<target name="mk_sve" depends="mk_sve-pre,build_release,build_archive">
 		<antcall target="mk_msi"/>
+		<antcall target="mk_deb"/>
 	</target>
 
 	<target name="mk_sve-pre">
@@ -98,6 +99,17 @@
 			<property name="Win64" value="no"/>
 		</ant>
 		<delete dir="${installerTmp}"/>
+	</target>
+
+	<target name="mk_deb" unless="is_win">
+		<ant antfile="${basedir}/mk_deb.xml" inheritall="false">
+			<property name="arch" value="x86"/>
+			<property name="deb_arch" value="i386"/>
+		</ant>
+		<ant antfile="${basedir}/mk_deb.xml" inheritall="false">
+			<property name="arch" value="x86_64"/>
+			<property name="deb_arch" value="amd64"/>
+		</ant>
 	</target>
 
 	<target name="build_archive">
