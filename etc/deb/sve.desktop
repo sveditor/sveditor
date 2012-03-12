@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=SVE @sve_version@
+Name=SVE 1.2.3
 Exec=sve
-Type=Aplication
+Type=Application
 Terminal=false
 Icon=sve
-Caption=SVE
 X-KDE-StartupNotify=false
-Categories=Science;Engineering
+Categories=Development
+Additional Categories=IDE;Electronics;Engineering
 
