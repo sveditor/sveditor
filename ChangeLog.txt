@@ -1,3 +1,5 @@
+- #(3509696) - add sorting button in outline view
+
 -- 0.8.1 Release --
 - #(3482259) - Vectored Delayed Wire type not parsed
 

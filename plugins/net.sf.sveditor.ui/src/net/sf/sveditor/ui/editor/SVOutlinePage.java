@@ -34,7 +34,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.IPageSite;
@@ -58,7 +58,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	private Action                      ToggleModuleInstances;
 	private Action                      ToggleInclude;
 	private Action                      ToggleTaskFunction;
+	private Action                      ToggleSort;
 	private SVDBDefaultContentFilter    DefaultContentFilter;
+	private ViewerComparator            ViewerComapartor;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -70,6 +72,7 @@ public class SVOutlinePage extends ContentOutlinePage
 
 		fContentProvider = new SVTreeContentProvider();
 		DefaultContentFilter = new SVDBDefaultContentFilter();
+		ViewerComapartor     = new ViewerComparator();
 
 		
 		// Set up the preferences from the preference store
@@ -86,6 +89,13 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		getTreeViewer().setContentProvider(fContentProvider);
 		getTreeViewer().addFilter(DefaultContentFilter);
+		// Check whether we have sorting enabled or not
+		if (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT))  {
+			getTreeViewer().setComparator(ViewerComapartor);
+		}
+		else  {
+			getTreeViewer().setComparator(null);
+		}
 		getTreeViewer().setLabelProvider(
 				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
 		getTreeViewer().setComparer(new IElementComparer() {
@@ -196,6 +206,31 @@ public class SVOutlinePage extends ContentOutlinePage
 	@Override
 	public void init(IPageSite pageSite) {
 		super.init(pageSite);
+		
+		// Add button to toggle assign statements on and off
+		ToggleSort = new Action("Sort", Action.AS_CHECK_BOX) {
+			public void run() {
+				boolean new_value = true;
+				if (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT))  {
+					new_value = false;
+				}
+				// Update the preferences
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SORT, new_value);
+				// Update the value
+				ToggleSort.setChecked(new_value);
+				// enable or disable the sorter
+				if (new_value)  {
+					getTreeViewer().setComparator(ViewerComapartor);
+				}
+				else  {
+					getTreeViewer().setComparator(null);
+				}
+				refresh();
+			}
+		};
+		// TODO Get the sort icon instanced
+//		ToggleSort.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Assign));
+		pageSite.getActionBars().getToolBarManager().add(ToggleSort);
 		
 		// Add button to toggle assign statements on and off
 		ToggleAssign = new Action("Assign", Action.AS_CHECK_BOX) {
