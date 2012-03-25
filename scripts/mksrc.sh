@@ -7,13 +7,18 @@
 
 top=`pwd`
 
-. ../sveditor.info
+. ../etc/sveditor.info
 
 
 mkdir "$top/../sveditor-src-${version}"
 cd "$top/../sveditor-src-${version}"
 
-cp -r $top/../plugins $top/../features $top/../ChangeLog.txt .
+cp -r \
+  $top/../sveditor \
+  $top/../sve      \
+  $top/../etc      \
+  $top/../scripts  \
+  .
 
 # Remove .svn directories
 rm -rf `find -name '.git' -print`

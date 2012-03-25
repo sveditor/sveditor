@@ -1,6 +1,12 @@
 -- 0.8.4 Release --
-
 - #(3509696) - add sorting button in outline view
+
+- #(nobug) Add new dialogs to select 'Project Paths' in the SVEditor 
+  project properties pages
+  
+- #(3479754) Correct a parse error with type parameters
+
+- #(3479836) Correct a parse error with initialized associative arrays
 
 ------------------------------------------------------------------------------
 -- 0.8.3 Release --

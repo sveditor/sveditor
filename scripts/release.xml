@@ -3,7 +3,7 @@
 	<property environment="env"/>
 
 	<!-- Import the version info -->
-	<property file="${basedir}/../sveditor.info"/>
+	<property file="${basedir}/../etc/sveditor.info"/>
 	<property file="${basedir}/build.properties"/>
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
@@ -12,7 +12,7 @@
          value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
 
 	<property name="rlsdir" value="${basedir}/../release"/>
-	<property name="srcdir" value="${basedir}/.."/>
+	<property name="srcdir" value="${basedir}/../sveditor"/>
 	<property name="feature.version" value="${version}"/>
 	<property name="buildDirectory"   value="${basedir}/../build"/>
 	<property name="buildResult"      value="${basedir}/../buildResult"/>
@@ -28,21 +28,6 @@
 		<unzip src="${buildResult}/sveditor-release-${feature.version}.zip"
 			dest="${rlsdir}"/>
        
-		<!-- Create the release fragment file -->
-<!--
-		<copy todir="${rlsdir}" overwrite="true">
-			<fileset dir="${srcdir}/etc"
-				includes="new_release_fragment.xml"/>
-			<filterset begintoken="1" endtoken="3">
-				<filter token=".2." value="${feature.version}"/>
-			</filterset>
-			<filterset>
-				<filter token="frs_update_site_dir" 
-					value="${frs_update_site_dir}"/>
-			</filterset>
-		</copy>
-  -->
-
 <!--
 		<delete dir="${rlsdir}"/> 
 		<delete dir="${buildDirectory}"/>
@@ -114,7 +99,7 @@
 		<exec executable="perl" output="${rlsdir}/rn.txt">
 			<arg value="${basedir}/mk_rn.pl"/>
 			<arg value="${feature.version}"/>
-			<arg value="${basedir}/../ChangeLog.txt"/>
+			<arg value="${basedir}/../etc/ChangeLog.txt"/>
 		</exec>
 	</target>
 

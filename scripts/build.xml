@@ -3,7 +3,7 @@
     <property environment="env"/>
 
     <!-- Import the version info -->
-    <property file="${basedir}/../sveditor.info"/>
+    <property file="${basedir}/../etc/sveditor.info"/>
     <property file="${basedir}/build.properties"/>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
@@ -25,7 +25,7 @@
     <property name="buildDirectory"   value="${basedir}/../build"/>
     <property name="buildResult"   value="${basedir}/../buildResult"/>
 
-    <property name="srcdir" value="${basedir}/.."/>
+    <property name="srcdir" value="${basedir}/../sveditor"/>
     <property name="repository" value="${basedir}/../archive_tmp/repository"/>
 
     <taskdef name="xmltask"
@@ -72,7 +72,7 @@
             target="build.jars"/>
         <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
              dir="${buildDirectory}"/>
-	<copy tofile="${basedir}/../sveditor-feature-${feature.version}.zip"
+	<copy tofile="${buildResult}/sveditor-feature-${feature.version}.zip"
 		file="${buildDirectory}/${feature.id}-${feature.version}-${os}.${ws}.${arch}.zip"/>
     </target>
 
@@ -96,7 +96,7 @@
         </ant>
 
         <copy todir="${basedir}/../archive_tmp">
-            <fileset dir="${basedir}/../features/${feature.id}">
+            <fileset dir="${srcdir}/features/${feature.id}">
                 <include name="category.xml"/>
             </fileset>
             <filterset begintoken="1" endtoken="3">

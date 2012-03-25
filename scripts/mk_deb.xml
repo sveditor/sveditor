@@ -1,0 +1,65 @@
+<project name="mk_deb" default="mk_deb">
+
+	<property file="${basedir}/../etc/sveditor.info"/>
+	<property name="arch" value="x86_64"/>
+	<property name="deb_arch" value="amd64"/>
+
+	<property name="buildResult" location="${basedir}/../buildResult"/>
+	<property name="etc.dir" location="${basedir}/../etc"/>
+	<property name="deb_tmp" location="${buildResult}/deb_tmp"/>
+	<property name="sveArchive" 
+		location="${buildResult}/sve-${sve_version}-linux_${arch}.tar.gz"/>
+	<property name="sve_deb" 
+		location="${buildResult}/sve-${sve_version}-linux-${deb_arch}.deb"/>
+
+	<target name="mk_deb">
+		<delete dir="${deb_tmp}"/>
+		<mkdir dir="${deb_tmp}"/>
+		<mkdir dir="${deb_tmp}/DEBIAN"/>
+
+		<copy todir="${deb_tmp}/DEBIAN">
+			<fileset dir="${etc.dir}/deb/DEBIAN">
+				<include name="**/*"/>
+			</fileset>
+			<filterset begintoken="1" endtoken="3">
+				<filter token=".2." value="${sve_version}"/>
+			</filterset>
+			<filterset>
+				<filter token="arch" value="${deb_arch}"/>
+			</filterset>
+		</copy>
+		<exec executable="chmod" failonerror="true" dir="${deb_tmp}">
+			<arg value="+x"/>
+			<arg value="DEBIAN/postinst"/>
+			<arg value="DEBIAN/postrm"/>
+		</exec>
+		<mkdir dir="${deb_tmp}/usr/lib"/>
+		<exec executable="tar" failonerror="true" dir="${deb_tmp}/usr/lib">
+			<arg value="xvzf"/>
+			<arg value="${sveArchive}"/>
+		</exec>
+		<mkdir dir="${deb_tmp}/usr/share/applications"/>
+		<mkdir dir="${deb_tmp}/usr/share/pixmaps"/>
+		<copy todir="${deb_tmp}/usr/share/applications">
+			<fileset dir="${etc.dir}/deb">
+				<include name="sve.desktop"/>
+			</fileset>
+			<filterset begintoken="1" endtoken="3">
+				<filter token=".2." value="${sve_version}"/>
+			</filterset>
+		</copy>
+		<copy todir="${deb_tmp}/usr/share/pixmaps">
+			<fileset dir="${etc.dir}/deb">
+				<include name="sve.png"/>
+			</fileset>
+		</copy>
+		<exec executable="dpkg-deb" failonerror="true" dir="${deb_tmp}">
+			<arg value="--build"/>
+			<arg value="${deb_tmp}"/>
+			<arg value="${sve_deb}"/>
+		</exec>
+<!--
+		<delete dir="${deb_tmp}"/>
+  -->
+	</target>
+</project>

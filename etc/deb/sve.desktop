@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=SVE 1.2.3
+Exec=sve
+Type=Application
+Terminal=false
+Icon=sve
+X-KDE-StartupNotify=false
+Categories=Development
+Additional Categories=IDE;Electronics;Engineering
+
