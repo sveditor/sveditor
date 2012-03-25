@@ -48,5 +48,6 @@ public class SVEditorPrefsConstants {
 	public static final String P_OUTLINE_SHOW_MODULE_INSTANCES                  = "outlineShowModuleInstances";
 	public static final String P_OUTLINE_SHOW_SIGNAL_DECLARATIONS               = "outlineShowSignalDeclarations";
 	public static final String P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS        = "outlineShowTaskFunctionDeclarations";
+	public static final String P_OUTLINE_SORT                                   = "outlineSort";
 	
 }

@@ -29,12 +29,13 @@ import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.IPageSite;
@@ -58,7 +59,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	private Action                      ToggleModuleInstances;
 	private Action                      ToggleInclude;
 	private Action                      ToggleTaskFunction;
+	private Action                      ToggleSort;
 	private SVDBDefaultContentFilter    DefaultContentFilter;
+	private ViewerComparator            ViewerComapartor;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -70,6 +73,7 @@ public class SVOutlinePage extends ContentOutlinePage
 
 		fContentProvider = new SVTreeContentProvider();
 		DefaultContentFilter = new SVDBDefaultContentFilter();
+		ViewerComapartor     = new ViewerComparator();
 
 		
 		// Set up the preferences from the preference store
@@ -86,6 +90,13 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		getTreeViewer().setContentProvider(fContentProvider);
 		getTreeViewer().addFilter(DefaultContentFilter);
+		// Check whether we have sorting enabled or not
+		if (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT))  {
+			getTreeViewer().setComparator(ViewerComapartor);
+		}
+		else  {
+			getTreeViewer().setComparator(null);
+		}
 		getTreeViewer().setLabelProvider(
 				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
 		getTreeViewer().setComparer(new IElementComparer() {
@@ -193,9 +204,39 @@ public class SVOutlinePage extends ContentOutlinePage
 	public void createActions() {
 	}
 	
+	private class SortAction extends Action {
+		public SortAction() {
+			super("sort", Action.AS_CHECK_BOX);
+			setImageDescriptor(SVUiPlugin.getImageDescriptor("/icons/elcl16/alphab_sort_co.gif"));
+		}
+		
+		public void run() {
+			boolean new_value = true;
+			if (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT))  {
+				new_value = false;
+			}
+			// Update the preferences
+			SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SORT, new_value);
+			// Update the value
+			ToggleSort.setChecked(new_value);
+			// enable or disable the sorter
+			if (new_value)  {
+				getTreeViewer().setComparator(ViewerComapartor);
+			}
+			else  {
+				getTreeViewer().setComparator(null);
+			}
+			refresh();
+		}
+	}
+	
 	@Override
 	public void init(IPageSite pageSite) {
 		super.init(pageSite);
+		
+		// Add button to toggle assign statements on and off
+		ToggleSort = new SortAction();
+		pageSite.getActionBars().getToolBarManager().add(ToggleSort);
 		
 		// Add button to toggle assign statements on and off
 		ToggleAssign = new Action("Assign", Action.AS_CHECK_BOX) {
@@ -298,16 +339,16 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		// Set up which of the content filters are enabled
 		// Now, format the new addition if auto-indent is enabled
-		
-		ToggleAlways         .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
-		ToggleAssign         .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
-		ToggleDefines        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
-		ToggleGenerate       .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
-		ToggleInclude        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
-		ToggleInitial        .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));
-		ToggleModuleInstances.setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
-		ToggleTaskFunction   .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
-		ToggleVariables      .setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
-	
+		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
+		ToggleSort           .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT));
+		ToggleAlways         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
+		ToggleAssign         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
+		ToggleDefines        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
+		ToggleGenerate       .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
+		ToggleInclude        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
+		ToggleInitial        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));
+		ToggleModuleInstances.setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
+		ToggleTaskFunction   .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
+		ToggleVariables      .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
 	}
 }

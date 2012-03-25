@@ -1,3 +1,8 @@
+-- 0.8.4 Release --
+
+- #(3509696) - add sorting button in outline view
+
+------------------------------------------------------------------------------
 -- 0.8.3 Release --
 
 - #(nobug) Increase performance of the persistence mechanism used by the indexer
