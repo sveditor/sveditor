@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignmentPatternExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignmentPatternRepeatExpr;
+import net.sf.sveditor.core.db.expr.SVDBAssociativeArrayElemAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr;
@@ -798,7 +799,7 @@ public class SVExprParser extends SVParserBase {
 					}
 					fLexer.readOperator("}");
 					ret_top = ret;
-				} /*else if (fLexer.peekOperator(":")) {
+				} else /* if (fLexer.peekOperator(":")) {
 					// associative-array assignment
 					SVDBAssignmentPatternExpr ret = new SVDBAssignmentPatternExpr();
 					SVDBAssociativeArrayElemAssignExpr assign;
@@ -821,7 +822,7 @@ public class SVExprParser extends SVParserBase {
 						expr1 = null;
 					}
 					ret_top = ret;
-				} */ else {
+				} else */ {
 					SVDBAssignmentPatternExpr ret = new SVDBAssignmentPatternExpr();
 					ret.getPatternList().add(expr1);
 
@@ -882,7 +883,13 @@ public class SVExprParser extends SVParserBase {
 			fLexer.peek();
 			if (fLexer.isNumber()) {
 				if (fDebugEn) {debug("-- primary is a number");}
-				ret = new SVDBLiteralExpr(readNumber());
+				SVToken tmp = fLexer.consumeToken();
+				if (fEnableNameMappedPrimary && fLexer.peekOperator(":")) {
+					fLexer.eatToken();
+					ret = new SVDBNameMappedExpr(tmp.getImage(), expression());
+				} else {
+					ret = new SVDBLiteralExpr(tmp.getImage());
+				}
 			} else if (fLexer.peekOperator("$")) {
 				fLexer.eatToken();
 				ret = new SVDBRangeDollarBoundExpr();

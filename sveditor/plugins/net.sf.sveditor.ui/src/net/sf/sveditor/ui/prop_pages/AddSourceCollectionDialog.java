@@ -16,6 +16,7 @@ package net.sf.sveditor.ui.prop_pages;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -41,9 +42,11 @@ public class AddSourceCollectionDialog extends Dialog {
 	private Text				fExcludes;
 	private String				fExcludeStr;
 	private String				fPathStr;
+	private IProject			fProject;
 	
-	public AddSourceCollectionDialog(Shell shell) {
+	public AddSourceCollectionDialog(Shell shell, IProject p) {
 		super(shell);
+		fProject = p;
 	}
 	
 	public void setBase(String path) {
@@ -186,6 +189,24 @@ public class AddSourceCollectionDialog extends Dialog {
 		Composite button_bar = new Composite(frame, SWT.NONE);
 		button_bar.setLayout(new GridLayout(1, true));
 		button_bar.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, true));
+		
+		Button add_proj_path = new Button(button_bar, SWT.PUSH);
+		add_proj_path.setText("Add Project Path");
+		add_proj_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		add_proj_path.addSelectionListener(new SelectionListener() {
+
+			public void widgetDefaultSelected(SelectionEvent e) {}
+
+			public void widgetSelected(SelectionEvent e) {
+				ProjectDirectoryDialog dlg = new ProjectDirectoryDialog(getShell(), fProject);
+				
+				if (dlg.open() == Window.OK) {
+					if (dlg.getPath() != null) {
+						fPath.setText("${workspace_loc}" + dlg.getPath());
+					}
+				}
+			}
+		});
 		
 		Button add_ws_path = new Button(button_bar, SWT.PUSH);
 		add_ws_path.setText("Add Workspace Path");

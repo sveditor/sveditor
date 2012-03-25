@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -49,9 +50,11 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 	private Button							fEditButton;
 	private Button							fRemoveButton;
 	private List<SVDBSourceCollection>		fSourceCollections;
+	private IProject						fProject;
 	
-	public SourceCollectionsPage() {
+	public SourceCollectionsPage(IProject p) {
 		fSourceCollections = new ArrayList<SVDBSourceCollection>();
+		fProject = p;
 	}
 
 	public void init(SVProjectFileWrapper project_wrapper) {
@@ -140,7 +143,7 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 	}
 	
 	private void add() {
-		AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fAddButton.getShell());
+		AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fAddButton.getShell(), fProject);
 		dlg.setIncludes(SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes());
 		dlg.setExcludes(SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes());
 		
@@ -163,7 +166,7 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 			(IStructuredSelection)fSourceCollectionsTree.getSelection();
 		
 		if (sel != null && sel.size() == 1) {
-			AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fEditButton.getShell());
+			AddSourceCollectionDialog dlg = new AddSourceCollectionDialog(fEditButton.getShell(), fProject);
 			SVDBSourceCollection sc = (SVDBSourceCollection)sel.getFirstElement();
 			
 			dlg.setBase(sc.getBaseLocation());

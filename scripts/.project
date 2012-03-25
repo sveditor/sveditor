@@ -8,4 +8,11 @@
 	</buildSpec>
 	<natures>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>ChangeLog.txt</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/ChangeLog.txt</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

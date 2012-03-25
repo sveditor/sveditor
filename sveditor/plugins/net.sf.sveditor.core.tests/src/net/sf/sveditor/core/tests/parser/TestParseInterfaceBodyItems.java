@@ -83,5 +83,18 @@ public class TestParseInterfaceBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(testname, content, new String[] {"ifa", "myclass"});
 	}
 	
+	public void testTypeParameters() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testTypeParameters";
+		String content = 
+			"interface some_interface #(\n" +
+			"parameter type T = int, // ERROR: 'type' expression unsupported\n" +
+			"parameter int BOUND = 1\n" +
+			");\n" +
+			"endinterface"
+			;
+		ParserTests.runTestStrDoc(testname, content, new String[] {"some_interface"});
+	}
+	
 }
 

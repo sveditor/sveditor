@@ -19,6 +19,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -47,9 +48,11 @@ public class GlobalDefinesPage implements ISVProjectPropsPage,
 	private Button							fAdd;
 	private Button							fRemove;
 	private Button							fEdit;
+//	private IProject						fProject;
 	
-	public GlobalDefinesPage() {
+	public GlobalDefinesPage(IProject p) {
 		fDefineList = new ArrayList<Tuple<String, String>>();
+//		fProject = p;
 	}
 	
 	public void init(SVProjectFileWrapper project_wrapper) {

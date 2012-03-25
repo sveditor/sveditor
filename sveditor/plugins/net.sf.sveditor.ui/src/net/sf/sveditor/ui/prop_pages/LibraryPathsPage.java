@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -46,9 +47,11 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 	private Button							fAdd;
 	private Button							fRemove;
 	private Button							fEdit;
+	private IProject						fProject;
 	
-	public LibraryPathsPage() {
+	public LibraryPathsPage(IProject p) {
 		fLibraryPaths = new ArrayList<SVDBPath>();
+		fProject = p;
 	}
 	
 	public void init(SVProjectFileWrapper project_wrapper) {
@@ -160,7 +163,7 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 	}
 	
 	private void add() {
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell());
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
 		
 		if (dlg.open() == Window.OK) {
 			SVDBPath path = new SVDBPath(dlg.getPath(), false);
@@ -173,7 +176,7 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 		IStructuredSelection sel = (IStructuredSelection)fLibraryPathViewer.getSelection();
 		SVDBPath elem = (SVDBPath)sel.getFirstElement();
 
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell());
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
 		dlg.setInitialPath(elem.getPath());
 		
 		if (dlg.open() == Window.OK) {

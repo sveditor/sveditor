@@ -47,6 +47,10 @@ public class SVParameterPortListParser extends SVParserBase {
 			SVDBLocation it_start = fLexer.getStartLocation();
 			boolean is_type = false;
 
+			if (fLexer.peekKeyword("parameter")) {
+				fLexer.eatToken();
+			}
+
 			// Parameter can be typed or untyped
 			// type T=int
 			// string Ts="foo"
@@ -56,12 +60,9 @@ public class SVParameterPortListParser extends SVParserBase {
 				id = fLexer.readIdOrKeyword();
 				is_type = true;
 			} else {
-				if (fLexer.peekKeyword("parameter")) {
-					fLexer.eatToken();
-				}
 				// This might be a type
 				SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
-				
+
 				// If the next element is an operator, then the 
 				// return from the type parser is the parameter name
 				if (fLexer.peekOperator(",", ")", "=")) {

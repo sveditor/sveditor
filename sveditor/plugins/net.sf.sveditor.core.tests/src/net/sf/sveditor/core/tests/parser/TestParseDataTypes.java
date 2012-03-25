@@ -241,6 +241,34 @@ public class TestParseDataTypes extends TestCase {
 				new String[] {"my_class", "do_something", "t_s", "t_ms", "t_us",
 					"t_ns", "t_ps", "t_fs", "t_1s"});
 	}
+	
+	public void testAssocArrayInit() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testAssocArrayInit";
+		String content =
+			"class foo;\n" +
+			"	integer tab [string] = '{\"Peter\":20, \"Paul\":22, \"Mary\":23, default:-1 };\n" +
+			"	string words [int] = '{1: \"test\", default: \"hello\"};\n" +
+			"endclass\n";
+		runTest(testname, content, new String[] {"foo", "tab", "words"});
+	}
+	
+	public void testBeginBlockVirtualIfcDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testBeginBlockVirtualIfcDecl";
+		String content =
+			"class tb_env;\n" +
+			"	function void build;\n" +
+			"		//------------------------------------------------\n" +
+			"		// virtual interface\n" +
+			"		//------------------------------------------------\n" +
+			"		begin\n" +
+			"			virtual pin_xactor_if #(1) int0_if;\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n";
+		runTest(testname, content, new String[] {"tb_env", "build", "int0_if"});
+	}
 
 	private void runTest(
 			String			testname,

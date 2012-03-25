@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -46,9 +47,11 @@ public class IncludePathsPage implements ISVProjectPropsPage,
 	private Button						fAdd;
 	private Button						fRemove;
 	private Button						fEdit;
+	private IProject					fProject;
 
-	public IncludePathsPage() {
+	public IncludePathsPage(IProject p) {
 		fIncludePaths = new ArrayList<SVDBPath>();
+		fProject = p;
 	}
 	
 
@@ -122,7 +125,7 @@ public class IncludePathsPage implements ISVProjectPropsPage,
 	}
 	
 	private void add() {
-		AddDirectoryPathDialog dlg = new AddDirectoryPathDialog(fAdd.getShell());
+		AddDirectoryPathDialog dlg = new AddDirectoryPathDialog(fAdd.getShell(), fProject);
 		
 		if (dlg.open() == Window.OK) {
 			SVDBPath path = new SVDBPath(dlg.getPath(), false);
@@ -135,7 +138,7 @@ public class IncludePathsPage implements ISVProjectPropsPage,
 		IStructuredSelection sel = (IStructuredSelection)fIncludePathViewer.getSelection();
 		SVDBPath elem = (SVDBPath)sel.getFirstElement();
 		
-		AddDirectoryPathDialog dlg = new AddDirectoryPathDialog(fAdd.getShell());
+		AddDirectoryPathDialog dlg = new AddDirectoryPathDialog(fAdd.getShell(), fProject);
 		dlg.setInitialPath(elem.getPath());
 		
 		if (dlg.open() == Window.OK) {
