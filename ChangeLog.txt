@@ -1,4 +1,5 @@
 -- 0.8.4 Release --
+
 - #(3509696) - add sorting button in outline view
 
 - #(nobug) Add new dialogs to select 'Project Paths' in the SVEditor 
