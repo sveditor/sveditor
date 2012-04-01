@@ -2,7 +2,10 @@
 
 - #(3513767) - Correct incorrect outdent for fork/join block
 
-- #(3509102) - Correct update-site name
+- #(3509102) - Correct update-site name as reported in the update manager
+
+- #(3482303) - Add initial support for configurations. Configurations now parse correctly, 
+  are displayed in the outline, and are handled by the indenter
 
 ------------------------------------------------------------------------------
 -- 0.8.4 Release --

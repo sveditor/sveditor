@@ -148,6 +148,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 							tok.isId("property")) {
 						tok = indent_ifc_module_class(tok.getImage());
 						fQualifiers = 0;
+					} else if (tok.isId("config")) {
+						tok = indent_config(tok.getImage());
+						fQualifiers = 0;
 					} else if (tok.isId("covergroup")) {
 						tok = indent_covergroup();
 					} else if (tok.isId("function") || tok.isId("task")) {
@@ -557,7 +560,62 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		return tok;
 	}
-	
+
+	/**
+	 * indent_ifc_module_class()
+	 * 
+	 * Indents a class, module or interface and the items
+	 * within the body
+	 * 
+	 * @param item
+	 * @return
+	 */
+	private SVIndentToken indent_config(String item) {
+		SVIndentToken tok = current_s();
+		
+		String end = "endconfig";
+		if (fDebugEn) {
+			debug("--> indent_config(" + item + ")");
+		}
+
+		start_of_scope(tok); 	// establish the indent of this scope
+        // for adaptive-indent purposes
+
+		tok = next_s();
+		
+		// Reach the end of the declaration
+		while (!tok.isOp(";")) {
+			tok = next_s();
+		}
+		
+		tok = next_s();
+		enter_scope(tok); // enter the body of the module
+		
+		fQualifiers = 0;
+		
+		// Now, read body items
+		while (tok != null) {
+			
+			if (tok.isId(end)) {
+				break;
+			} else {
+				tok = indent_block_or_statement(item, true);
+			}
+		}
+		
+		leave_scope(tok);
+		end_of_scope(tok); // restore scope previously set
+		
+		tok = consume_labeled_block(next_s());
+		
+		if (fDebugEn) {
+			debug("--> indent_config (" + item + ") next=" + 
+				((tok != null)?tok.getImage():"null"));
+		}
+		
+		return tok;
+	}
+
 	private static boolean is_always(SVIndentToken tok) {
 		return (tok.isId("always") || tok.isId("always_comb") ||
 				tok.isId("always_latch") || tok.isId("always_ff"));
