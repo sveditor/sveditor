@@ -1,5 +1,9 @@
 -- 0.8.5 Release --
 
+- #(3513767) - Correct incorrect outdent for fork/join block
+
+- #(3509102) - Correct update-site name
+
 ------------------------------------------------------------------------------
 -- 0.8.4 Release --
 

@@ -938,6 +938,113 @@ public class IndentTests extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testForkJoin() {
+		String testname = "testForkJoin";
+		String ref =
+		"class foo;\n" +
+		"	task bar();\n" +
+		"		fork\n" +
+		"			a();\n" +
+		"			b();\n" +
+		"		join\n" +
+		"	endtask\n" +
+		"endclass\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, testname, ref, result);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testEmptyForkJoin() {
+		String testname = "testEmptyForkJoin";
+		String ref =
+		"class foo;\n" +
+		"	task bar();\n" +
+		"		fork\n" +
+		"		join\n" +
+		"	endtask\n" +
+		"endclass\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, testname, ref, result);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testForkJoinBlock() {
+		String testname = "testForkJoinBlock";
+		String ref =
+		"class foo;\n" +
+		"	task bar();\n" +
+		"		fork\n" +
+		"			begin\n" +
+		"				a();\n" +
+		"			end\n" +
+		"			begin\n" +
+		"				b();\n" +
+		"			end\n" +
+		"		join\n" +
+		"	endtask\n" +
+		"endclass\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, testname, ref, result);
+		LogFactory.removeLogHandle(log);
+	}
+
 	private StringBuilder removeLeadingWS(String ref) {
 		StringBuilder sb = new StringBuilder();
 		int i=0;

@@ -327,16 +327,16 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private SVIndentToken indent_fork() {
 		SVIndentToken tok = current();
 		
-		enter_scope(tok);
-
+		start_of_scope(tok);
 		tok = next_s();
 		enter_scope(tok);
 
-		while (!tok.isId("join") && 
+		while (tok != null && 
+				!tok.isId("join") && 
 				!tok.isId("join_none") && 
 				!tok.isId("join_any")) {
 			
-			tok = indent_stmt("fork");
+			tok = indent_block_or_statement("fork", true);
 		}
 		leave_scope(tok);
 		
@@ -376,7 +376,6 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = next_s();
 			}
 			tok = next_s();
-			
 		}
 		
 		if (fDebugEn) {
