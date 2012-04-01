@@ -125,7 +125,23 @@
             <arg value="file:/${basedir}/../archive_tmp/category.xml"/>
             <arg value="-categoryQualifier"/>
         </exec>
-       
+
+        <xmltask source="${repository}/artifacts.xml"
+                 dest="${repository}/artifacts_1.xml">
+        	<replace path="/repository/@name" withText="http://sveditor.sourceforge.net/update"/>
+        </xmltask>
+
+        <move file="${repository}/artifacts_1.xml"
+              tofile="${repository}/artifacts.xml"/>
+
+        <xmltask source="${repository}/content.xml"
+                 dest="${repository}/content_1.xml">
+        	<replace path="/repository/@name" withText="http://sveditor.sourceforge.net/update"/>
+        </xmltask>
+
+        <move file="${repository}/content_1.xml"
+              tofile="${repository}/content.xml"/>
+
         <jar destfile="${buildResult}/sveditor-${feature.version}.jar"
              basedir="${repository}"
              includes="*.xml, features/**, plugins/**"/>

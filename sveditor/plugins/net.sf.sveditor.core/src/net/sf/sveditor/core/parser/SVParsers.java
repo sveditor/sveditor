@@ -49,6 +49,7 @@ public class SVParsers {
 	private SVPropertyExprParser				fPropertyExprParser;
 	private SVSequenceParser					fSequenceParser;
 	private SVPropertyParser					fPropertyParser;
+	private SVConfigParser						fConfigParser;
 	
 	public SVParsers() {
 	}
@@ -90,6 +91,7 @@ public class SVParsers {
 		fPropertyExprParser = new SVPropertyExprParser(fSVParser);
 		fSequenceParser = new SVSequenceParser(fSVParser);
 		fPropertyParser = new SVPropertyParser(fSVParser);
+		fConfigParser = new SVConfigParser(fSVParser);
 	}
 	
 	public ParserSVDBFileFactory SVParser() {
@@ -199,5 +201,8 @@ public class SVParsers {
 	public SVPropertyParser propertyParser() {
 		return fPropertyParser;
 	}
-	
+
+	public SVConfigParser configParser() {
+		return fConfigParser;
+	}
 }

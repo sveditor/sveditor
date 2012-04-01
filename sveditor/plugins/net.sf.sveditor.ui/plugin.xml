@@ -353,6 +353,7 @@
                definitionId="net.sf.sveditor.ui.override.tf.command"
                id="net.sf.sveditor.ui.override.tf"
                label="Override Tasks/Functions"
+               menubarPath="net.sf.sveditor.ui.source.menu/editGroup"
                retarget="true">
          </action>
          <action
@@ -380,7 +381,7 @@
       <actionSet
             id="net.sf.sveditor.ui.source.menu.as"
             label="Source Menu"
-            visible="false">
+            visible="true">
          <menu
                id="net.sf.sveditor.ui.source.menu"
                label="Source"

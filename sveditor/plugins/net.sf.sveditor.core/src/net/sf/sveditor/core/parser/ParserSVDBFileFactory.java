@@ -200,6 +200,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		if (fLexer.peekKeyword("bind")) {
 			parsers().modIfcBodyItemParser().parse_bind(parent);
+		} else if (fLexer.peekKeyword("config")) {
+			parsers().configParser().parse_config(parent);
 		} else if (fLexer.peekKeyword("class")) {
 			parsers().classParser().parse(parent, modifiers);
 			fNewStatement = true;
