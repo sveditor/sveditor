@@ -553,6 +553,9 @@ public class SVEditor extends TextEditor
 		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
+		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT,
+				"net.sf.sveditor.ui.source.menu");
+		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				"net.sf.sveditor.ui.source.menu.as");

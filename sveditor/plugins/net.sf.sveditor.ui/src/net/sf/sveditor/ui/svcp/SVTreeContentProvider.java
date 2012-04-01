@@ -37,6 +37,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fDoNotRecurseScopes.add(SVDBItemType.Task);
 		fDoNotRecurseScopes.add(SVDBItemType.Coverpoint);
 		fDoNotRecurseScopes.add(SVDBItemType.CoverpointCross);
+		fDoNotRecurseScopes.add(SVDBItemType.ConfigDecl);
 		
 		fExpandInLineItems = new HashSet<SVDBItemType>();
 		fExpandInLineItems.add(SVDBItemType.VarDeclStmt);
