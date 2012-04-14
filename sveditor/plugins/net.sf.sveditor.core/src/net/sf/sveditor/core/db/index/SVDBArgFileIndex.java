@@ -218,7 +218,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		fLog.debug("File changed: " + path);
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file
-			invalidateIndex();
+			invalidateIndex("Argument File Changed: " + path);
 		}
 		super.fileChanged(path);
 	}

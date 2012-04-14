@@ -40,6 +40,7 @@ import net.sf.sveditor.core.indent.SVDefaultIndenter2;
 import net.sf.sveditor.core.job_mgr.ISVEditorJobMgr;
 import net.sf.sveditor.core.job_mgr.SVEditorEclipseJobMgr;
 import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
@@ -77,7 +78,7 @@ public class SVCorePlugin extends Plugin
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
-	private boolean							fDebugEn = false;
+	private int								fDebugLevel = 0;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
@@ -126,12 +127,17 @@ public class SVCorePlugin extends Plugin
 	 * @param en
 	 */
 	public void enableDebug(boolean en) {
-		fDebugEn = en;
-		LogFactory.getDefault().setLogLevel(null, (en)?10:0);
+		fDebugLevel = (en)?ILogLevel.LEVEL_MAX:0;
+		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
 	}
 	
-	public boolean getDebugEn() {
-		return fDebugEn;
+	public void setDebugLevel(int level) {
+		fDebugLevel = level;
+		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
+	}
+	
+	public int getDebugLevel() {
+		return fDebugLevel;
 	}
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
@@ -333,7 +339,7 @@ public class SVCorePlugin extends Plugin
 				fLogPS.println("[" + handle.getName() + "] " + message);
 			}
 		} else {
-			if (fDebugEn) {
+			if (fDebugLevel >= level) {
 				System.out.println("[" + handle.getName() + "] " + message);
 				if (fLogPS != null) {
 					fLogPS.println("[" + handle.getName() + "] " + message);

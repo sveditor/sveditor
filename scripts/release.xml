@@ -99,7 +99,7 @@
 		<exec executable="perl" output="${rlsdir}/rn.txt">
 			<arg value="${basedir}/mk_rn.pl"/>
 			<arg value="${feature.version}"/>
-			<arg value="${basedir}/../etc/ChangeLog.txt"/>
+			<arg value="${basedir}/../ChangeLog.txt"/>
 		</exec>
 	</target>
 

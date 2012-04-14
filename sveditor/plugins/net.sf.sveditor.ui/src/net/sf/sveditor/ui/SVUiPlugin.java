@@ -21,6 +21,7 @@ import java.util.WeakHashMap;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -100,8 +101,20 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		getPreferenceStore().addPropertyChangeListener(this);
 		
-		boolean debug_en = getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_DEBUG_ENABLED_S);
-		SVCorePlugin.getDefault().enableDebug(debug_en);
+		SVCorePlugin.getDefault().setDebugLevel(getDebugLevel(
+				getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
+	}
+	
+	private int getDebugLevel(String level_s) {
+		if (level_s.equals("LEVEL_MIN")) {
+			return ILogLevel.LEVEL_MIN;
+		} else if (level_s.equals("LEVEL_MID")) {
+			return ILogLevel.LEVEL_MID;
+		} else if (level_s.equals("LEVEL_MAX")) {
+			return ILogLevel.LEVEL_MAX;
+		} else {
+			return ILogLevel.LEVEL_OFF;
+		}
 	}
 	
 	// Called by SVEditor on startup
@@ -152,8 +165,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 	}
 	
 	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_ENABLED_S)) {
-			SVCorePlugin.getDefault().enableDebug(((Boolean)event.getNewValue()));
+		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)) {
+			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel((String)event.getNewValue()));
 		}
 	}
 	
@@ -164,7 +177,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 			out = getStderrStream();
 		} else if (type == ILogListener.Type_Info) {
 			out = getStdoutStream();
-		} else if (SVCorePlugin.getDefault().getDebugEn()) {
+		} else if (SVCorePlugin.getDefault().getDebugLevel() >= level) {
 			if ((type & ILogListener.Type_Error) != 0) {
 				out = getStderrStream();
 			} else {

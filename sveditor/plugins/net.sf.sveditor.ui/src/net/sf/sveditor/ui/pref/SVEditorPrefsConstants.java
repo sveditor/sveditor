@@ -28,7 +28,7 @@ public class SVEditorPrefsConstants {
 	
 	public static final String P_AUTO_INDENT_ENABLED_S = "autoIndentEnabled";
 	
-	public static final String P_DEBUG_ENABLED_S = "debugEnabled";
+	public static final String P_DEBUG_LEVEL_S = "debugLevel";
 	
 	public static final String P_CONTENT_ASSIST_TF_NAMED_PORTS_EN 				= "contentAssistTFNamedPortsEn";
 	public static final String P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT 				= "contentAssistTFLineWrapLimit";

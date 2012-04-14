@@ -12,13 +12,20 @@
 
 package net.sf.sveditor.ui.editor;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -31,9 +38,12 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IElementComparer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +56,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 public class SVOutlinePage extends ContentOutlinePage 
 	implements IShowInTarget, IAdaptable, 
 			Runnable, ISVDBChangeListener {
+	private SVDBFile					fSVDBFile;
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
 	private boolean						fIgnoreSelectionChange = false;
@@ -66,6 +77,8 @@ public class SVOutlinePage extends ContentOutlinePage
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
 		fContentProvider = new SVTreeContentProvider();
+		
+		fSVDBFile = new SVDBFile();
 	}
 	
 	public void createControl(Composite parent) {
@@ -105,31 +118,18 @@ public class SVOutlinePage extends ContentOutlinePage
 			}
 			
 			public boolean equals(Object a, Object b) {
-				if (a instanceof ISVDBItemBase && b instanceof ISVDBItemBase) {
-					return ((ISVDBItemBase)a).equals((ISVDBItemBase)b, true);
-				} else {
-					return a.equals(b);
-				}
+				// Just do a simple compare
+				return (a == b);
 			}
 		});
 		
-		getTreeViewer().setInput(fEditor.getSVDBFile());
-		
-		getTreeViewer().getControl().getDisplay().asyncExec(this);
-		/*
-		getTreeViewer().getControl().addListener(SWT.MouseDown, 
-				new Listener() {
-					
-					@Override
-					public void handleEvent(Event event) {
-						System.out.println("Mouse: " + event.button + " " + event.type);
-					}
-				});
-		 */
+		getTreeViewer().setInput(fSVDBFile);
 		
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 		
+		// Get initial contents
+		refresh();
 	}
 
 	
@@ -150,8 +150,166 @@ public class SVOutlinePage extends ContentOutlinePage
 
 	public void run() {
 		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
-			getTreeViewer().refresh();
+			// fSVDBFile still has references to the items in the old file revision
+			SVDBFile new_file = fEditor.getSVDBFile();
+			
+			fSVDBFile = new SVDBFile();
+			
+			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
+			
+			ISelection sel = getTreeViewer().getSelection();
+			
+			// Add the roots from the new file
+			for (ISVDBChildItem c : new_file.getChildren()) {
+				fSVDBFile.addChildItem(c);
+			}
+			
+			getTreeViewer().setInput(fSVDBFile);
+			
+			// Apply selection and expansions previously saved
+			setExpansionPaths(exp_path_list);
+			
+			setSavedSelection(sel);
 		}
+	}
+	
+	private List<ISVDBItemBase> getExpansionPaths() {
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		for (TreePath p : getTreeViewer().getExpandedTreePaths()) {
+			Object last_seg_o = p.getLastSegment();
+			
+			if (last_seg_o instanceof ISVDBItemBase) {
+				ret.add((ISVDBItemBase)last_seg_o);
+			}
+		}
+
+		return ret;
+	}
+	
+	private void setExpansionPaths(List<ISVDBItemBase> exp_paths) {
+		List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
+		List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+		List<TreePath>		exp_tree_paths = new ArrayList<TreePath>();
+		
+		for (ISVDBItemBase item : exp_paths) {
+			path.clear();
+			target_path.clear();
+			
+			// Build the path
+			buildFullPath(path, item);
+			
+			// Find the corresponding path
+			lookupPath(fSVDBFile, path.iterator(), target_path);
+			
+			if (target_path.size() > 0) {
+				exp_tree_paths.add(new TreePath(target_path.toArray()));
+			}
+		}
+		
+		if (exp_tree_paths.size() > 0) {
+			getTreeViewer().setExpandedTreePaths(exp_tree_paths.toArray(
+					new TreePath[exp_tree_paths.size()]));
+		}
+	}
+	
+	private void buildFullPath(List<ISVDBItemBase> path, ISVDBItemBase leaf) {
+		ISVDBItemBase item_tmp = leaf;
+		while (item_tmp != null && item_tmp.getType() != SVDBItemType.File) {
+			// Don't record the container, since there isn't an
+			// identifier to use
+			if (!(item_tmp instanceof SVDBVarDeclStmt) &&
+					!(item_tmp instanceof SVDBModIfcInst)) {
+				path.add(0, item_tmp);
+			}
+			if (item_tmp instanceof ISVDBChildItem) {
+				item_tmp = ((ISVDBChildItem)item_tmp).getParent();
+			} else {
+				item_tmp = null;
+			}
+		}
+	}
+	
+	private void setSavedSelection(ISelection sel) {
+		fIgnoreSelectionChange = true;
+		if (!sel.isEmpty() && sel instanceof IStructuredSelection) {
+			List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
+			IStructuredSelection ss = (IStructuredSelection)sel;
+			List<ISVDBItemBase> new_sel_l = new ArrayList<ISVDBItemBase>();
+			List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+			
+			for (Object sel_it : ss.toList()) {
+				if (sel_it instanceof ISVDBItemBase) {
+					path.clear();
+					target_path.clear();
+					buildFullPath(path, (ISVDBItemBase)sel_it);
+					
+					if (lookupPath(fSVDBFile, path.iterator(), target_path)) {
+						ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
+						new_sel_l.add(sel_t);
+					}
+				}
+			}
+			StructuredSelection new_sel = new StructuredSelection(new_sel_l);
+			
+			getTreeViewer().setSelection(new_sel);
+		}
+	}
+	
+	private boolean lookupPath(
+			ISVDBChildParent			scope,
+			Iterator<ISVDBItemBase>		path_it,
+			List<ISVDBItemBase>			target_path) {
+		ISVDBItemBase path_item = path_it.next();
+		ISVDBItemBase target_item = null;
+		boolean ret = false;
+		
+		if (!(path_item instanceof ISVDBNamedItem)) {
+			// TODO:
+			return ret;
+		}
+		
+		ISVDBNamedItem ni = (ISVDBNamedItem)path_item;
+		
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (ci instanceof ISVDBNamedItem) {
+				ISVDBNamedItem ci_ni = (ISVDBNamedItem)ci;
+				if (ni.getName().equals(ci_ni.getName()) &&
+						ni.getType() == ci_ni.getType()) {
+					target_item = ci;
+					break;
+				}
+			} else if (ci instanceof SVDBVarDeclStmt ||
+					ci instanceof SVDBModIfcInst) {
+				// instance list
+				ISVDBChildParent inst_list = (ISVDBChildParent)ci;
+				for (ISVDBChildItem ci_inst : inst_list.getChildren()) {
+					ISVDBNamedItem ci_inst_ni = (ISVDBNamedItem)ci_inst;
+					if (ni.getName().equals(ci_inst_ni.getName()) &&
+							ni.getType() == ci_inst_ni.getType()) {
+						target_item = ci_inst;
+						break;
+					}
+				}
+				if (target_item != null) {
+					break;
+				}
+			} else {
+				// TODO: How to match?
+			}
+		}
+		
+		if (target_item != null) {
+			target_path.add(target_item);
+		}
+		
+		if (path_it.hasNext() && target_item != null &&
+				target_item instanceof ISVDBChildParent) {
+			ret = lookupPath((ISVDBChildParent)target_item, path_it, target_path);
+		} else if (!path_it.hasNext() && target_item != null) {
+			ret = true;
+		}
+		
+		return ret;
 	}
 
 	public void dispose() {
@@ -180,6 +338,7 @@ public class SVOutlinePage extends ContentOutlinePage
 			
 			public void selectionChanged(SelectionChangedEvent event) {
 				if (fIgnoreSelectionChange) {
+					fIgnoreSelectionChange = false;
 					return;
 				}
 				

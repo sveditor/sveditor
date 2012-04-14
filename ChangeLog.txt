@@ -1,3 +1,17 @@
+-- 0.8.6 Release --
+
+- #(nobug) - Ensure content assist for macros is provided without name-mapped
+ parameters. SV only supports positional parameters for macros.
+ 
+- #(3500603) - Expanded outline-view paths are now saved and restored when
+  the file contents change
+  
+- #(3261116) - Outline view now identifies cases where an update is due to
+  the file changing, and does not re-set the editor selection.
+  
+- #(nobug)   - Debug is now controlled in four levels: off, minimum, medium, and maximum
+
+------------------------------------------------------------------------------
 -- 0.8.5 Release --
 
 - #(3513767) - Correct incorrect outdent for fork/join block
