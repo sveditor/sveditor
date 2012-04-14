@@ -134,8 +134,5 @@ public class LogFactory implements ILogListener {
 			}
 		}
 	}
-	
-	
-	
 
 }

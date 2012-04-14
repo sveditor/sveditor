@@ -11,9 +11,11 @@
 
 
 package net.sf.sveditor.ui.pref;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -34,7 +36,12 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-Indent:", getFieldEditorParent()));
 		
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_DEBUG_ENABLED_S, "Enable Debug:", getFieldEditorParent()));
+		addField( new ComboFieldEditor(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "Debug Level:", 
+				new String[][] {
+					{"Off", "LEVEL_OFF"}, 
+					{"Minimum", "LEVEL_MIN"}, 
+					{"Medium", "LEVEL_MID"},
+					{"Maximum", "LEVEL_MAX"}}, getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

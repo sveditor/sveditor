@@ -441,11 +441,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			String param = md.getParameters().get(i);
 			
 			d.append(param);
-			r.append(".");
+			r.append("${");
 			r.append(param);
-			r.append("(${");
-			r.append(param);
-			r.append("})");
+			r.append("}");
 			
 			if (i+1 < md.getParameters().size()) {
 				d.append(", ");
@@ -516,30 +514,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		return fEditor.getSVDBFile();
 	}
 
-
-	/**
-	 * Add a proposal to the proposals list, ensure that this proposal isn't a
-	 * duplicate
-	 * 
-	 * @param p
-	 * @param proposals
-	private static void addProposal(ICompletionProposal p,
-			List<ICompletionProposal> proposals) {
-		boolean found = false;
-
-		for (ICompletionProposal p_t : proposals) {
-			if (p.getDisplayString().equals(p_t.getDisplayString())) {
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) {
-			proposals.add(p);
-		}
-	}
-	 */
-	
 	public IContextInformation[] computeContextInformation(
 			ITextViewer viewer, int offset) {
 		

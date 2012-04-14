@@ -20,7 +20,7 @@ public class LogHandle implements ILogHandle {
 	private String						fName;
 	private String						fCategory;
 	private ILogListener				fListener;
-	private int							fDebugLevel = 10;
+	private int							fDebugLevel = 1;
 	private int							fIndent;
 	private List<WeakReference<ILogLevelListener>>		fLogLevelListeners;
 	
@@ -75,6 +75,10 @@ public class LogHandle implements ILogHandle {
 		return (fDebugLevel > 0);
 	}
 
+	public boolean isEnabled(int level) {
+		return (fDebugLevel > level);
+	}
+
 	public void print(int type, int level, String msg) {
 	}
 
@@ -87,19 +91,36 @@ public class LogHandle implements ILogHandle {
 	}
 	
 	public void debug(String msg) {
-		println(ILogListener.Type_Debug, fDebugLevel, 
+		println(ILogListener.Type_Debug, 3, 
 				(fIndent > 0)?(indent(fIndent) + msg):msg);
 	}
 
 	public void debug(String msg, Exception e) {
 		int level = ILogListener.Type_Error+ILogListener.Type_Debug;
-		println(level, fDebugLevel, msg);
-		println(level, fDebugLevel, e.getMessage());
+		println(level, 3, msg);
+		println(level, 3, e.getMessage());
 		for (StackTraceElement s_e : e.getStackTrace()) {
 			String m = "    at " + 
 					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
 					s_e.getFileName() + ":" + s_e.getLineNumber() + ")";
-			println(level, fDebugLevel, m);
+			println(level, 3, m);
+		}
+	}
+
+	public void debug(int level, String msg) {
+		println(ILogListener.Type_Debug, level, 
+				(fIndent > 0)?(indent(fIndent) + msg):msg);
+	}
+
+	public void debug(int level, String msg, Exception e) {
+		int type = ILogListener.Type_Error+ILogListener.Type_Debug;
+		println(type, level, msg);
+		println(type, level, e.getMessage());
+		for (StackTraceElement s_e : e.getStackTrace()) {
+			String m = "    at " + 
+					s_e.getClassName() + "." + s_e.getMethodName() + "(" +
+					s_e.getFileName() + ":" + s_e.getLineNumber() + ")";
+			println(type, level, m);
 		}
 	}
 

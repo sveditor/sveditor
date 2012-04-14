@@ -12,9 +12,10 @@
 
 package net.sf.sveditor.core.log;
 
-public interface ILogHandle {
+public interface ILogHandle extends ILogLevel {
 	String				LOG_CAT_DEFAULT = "DEFAULT";
 	String				LOG_CAT_PARSER  = "Parser";
+	
 	
 	String getName();
 	
