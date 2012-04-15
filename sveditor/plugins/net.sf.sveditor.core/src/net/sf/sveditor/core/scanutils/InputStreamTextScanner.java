@@ -22,6 +22,7 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 	private byte						fBuffer[];
 	private int							fBufferIdx;
 	private int							fBufferMax;
+	private long						fPos;
 	
 	public InputStreamTextScanner(InputStream in, String filename) {
 		super();
@@ -32,6 +33,7 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 		fBuffer   = new byte[1024*64]; // 64K buffer
 		fBufferIdx = 0;
 		fBufferMax = 0;
+		fPos       = 1;
 	}
 
 	public ScanLocation getLocation() {
@@ -44,6 +46,7 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 		if (fUngetCh != -1) {
 			ch = fUngetCh;
 			fUngetCh = -1;
+			fPos++;
 			return ch;
 		}
 
@@ -66,10 +69,20 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 		}
 		fLastCh = ch;
 		
+		fPos++;
+		
 		return ch;
 	}
 
 	public void unget_ch(int ch) {
 		fUngetCh = ch;
+		
+		if (fUngetCh != -1) {
+			fPos--;
+		}
+	}
+	
+	public long getPos() {
+		return fPos;
 	}
 }

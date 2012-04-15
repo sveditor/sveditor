@@ -228,6 +228,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
 		} else if (fLexer.peekKeyword("timeprecision", "timeunit")) {
 			parsers().modIfcBodyItemParser().parse_time_units_precision(parent);
+		} else if (fLexer.peekId() && fLexer.peek().equals("${file_header}")) {
+			// Ignore pieces of the template
+			fLexer.eatToken();
 		} else if (!fLexer.peekOperator()) {
 			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
 		} else if (fLexer.peekOperator(";")) {

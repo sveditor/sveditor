@@ -70,10 +70,16 @@ public abstract class AbstractTextScanner implements ITextScanner {
 				return null;
 			}
 
+			boolean in_ref = false;
+			int last_ci = ci;
+
 			fTmpBuffer.append((char)ci);
 
 			while ((ci = get_ch()) != -1 && 
-					(SVCharacter.isSVIdentifierPart(ci) || ci == ':')) {
+					(SVCharacter.isSVIdentifierPart(ci) || 
+							ci == ':' ||
+							(last_ci == '$' && ci == '{') ||
+							(in_ref && ci == '}'))) {
 				if (ci == ':') {
 					int c2 = get_ch();
 					if (c2 == ':') {
@@ -85,6 +91,10 @@ public abstract class AbstractTextScanner implements ITextScanner {
 				} else {
 					fTmpBuffer.append((char)ci);
 				}
+				
+				in_ref |= (ci == '{' && last_ci == '$');
+				in_ref &= !(in_ref && ci == '}');
+				last_ci = ci;
 			}
 			unget_ch(ci);
 

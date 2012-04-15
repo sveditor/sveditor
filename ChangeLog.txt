@@ -11,6 +11,14 @@
   
 - #(nobug)   - Debug is now controlled in four levels: off, minimum, medium, and maximum
 
+- #(nobug)   - Update auto-indent to indent `include directives inside current scope (eg package)
+
+- #(enh)     - Add basic template capability for several UVM features:
+                 - UVM Agent
+                 - UVM Environment
+                 - UVM Test
+                 - UVM Sequence
+
 ------------------------------------------------------------------------------
 -- 0.8.5 Release --
 

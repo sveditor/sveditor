@@ -17,10 +17,10 @@ import java.util.Set;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.IRandomAccessTextScanner;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 
 public class SVIndentScanner implements ISVIndentScanner {
-	private IRandomAccessTextScanner	fScanner;
+	private ITextScanner				fScanner;
 	private int							fUngetCh;
 	private int							fLastCh[] = {-1, -1};
 	private int							fLastChT  = -1;
@@ -90,7 +90,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 		}
 	}
 	
-	public SVIndentScanner(IRandomAccessTextScanner scanner) {
+	public SVIndentScanner(ITextScanner scanner) {
 		fTmp = new StringBuilder();
 		fScanner = scanner;
 

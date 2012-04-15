@@ -1263,7 +1263,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
 				indent_multi_line_comment(tok);
 				fTokenList.add(tok);
-			} else if (tok.isPreProc()) {
+			} else if (tok.isPreProc() && !tok.getImage().equals("`include")) {
 				// If this is a built-in directive, then place at the
 				// beginning of the line
 				Stack<Tuple<String, Boolean>> stack = fIndentStack;
