@@ -26,10 +26,13 @@ import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -88,6 +91,10 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	
 	public TemplateInfo getTemplate() {
 		return fTemplate;
+	}
+	
+	public List<String> getFileNames() {
+		return fFileNames;
 	}
 	
 	//
@@ -164,6 +171,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fCategoryCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				updateTemplateList();
+				fTemplateCombo.select(0);
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
@@ -171,19 +179,19 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		l = new Label(src_c, SWT.NONE);
 		l.setText("Class Template:");
 		
-		fTemplateCombo = new Combo(src_c, SWT.DROP_DOWN);
+		fTemplateCombo = new Combo(src_c, SWT.READ_ONLY);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateCombo.setLayoutData(gd);
 		fTemplateCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				TemplateRegistry rgy = 
-					TemplateRegistry.getDefault();
+				TemplateRegistry rgy = TemplateRegistry.getDefault();
 				List<String> category_ids = rgy.getCategoryIDs();
 				String id = category_ids.get(fCategoryCombo.getSelectionIndex());
 				List<TemplateInfo> templates = rgy.getTemplates(id);
 				fTemplate = templates.get(fTemplateCombo.getSelectionIndex());
-				updateFilenames();			}
+				updateFilenames();
+			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 
@@ -227,11 +235,28 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 			public void addListener(ILabelProviderListener listener) {}
 			
 			public String getColumnText(Object element, int columnIndex) {
-				return element.toString() + " : " + columnIndex;
+				if (columnIndex == 1) {
+					// Filename column
+					return element.toString();
+				} else {
+					return null;
+				}
 			}
 			
 			public Image getColumnImage(Object element, int columnIndex) {
-				return null;
+				if (columnIndex == 0) {
+					IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
+					String filename = element.toString();
+					IFile file = c.getFile(new Path(filename));
+					
+					if (file.exists()) {
+						return SVUiPlugin.getImage("/icons/eview16/error.gif");
+					} else {
+						return SVUiPlugin.getImage("/icons/eview16/signed_yes.gif");
+					}
+				} else {
+					return null;
+				}
 			}
 		});
 		fFileTable.setInput(fFileNames);
@@ -245,14 +270,13 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	}
 
 	private void updateFilenames() {
-		TagProcessor tp = new TagProcessor();
-		tp.appendTag("name", fNameStr);
+		TagProcessor tp = getTagProcessor(true);
 		
-		fFileNames.clear();
+		fFileNames = new ArrayList<String>();
+		
 		fFileNames.addAll(TemplateProcessor.getOutputFiles(fTemplate, tp));
-		System.out.println("updateFilenames: " + fFileNames.size());
-		
-		fFileTable.refresh();
+
+		fFileTable.setInput(fFileNames);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -271,6 +295,17 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fCategoryCombo.setItems(names.toArray(new String[names.size()]));
 		fCategoryCombo.select(0);
 		updateTemplateList();
+	}
+	
+	public TagProcessor getTagProcessor(boolean dont_expand_null_name) {
+		TagProcessor tp = new TagProcessor();
+		
+		// Don't replace ${name} if no name is specified
+		if (!dont_expand_null_name || !fNameStr.trim().equals("")) {
+			tp.appendTag("name", fNameStr);
+		}
+
+		return tp;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -301,6 +336,8 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fTemplateCombo.setItems(items);
 		fTemplateCombo.select(0);
 		fTemplate = templates.get(0);
+		
+		updateFilenames();
 	}
 	
 	private void validate() {
@@ -313,14 +350,12 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		if (c != null) {
 			// TODO: validate all proposed files to ensure none exist
 			fTemplate.getTemplates();
-			/*
-			if (fFileNameStr != null && !fFileNameStr.equals("")) {
-				IFile f = c.getFile(new Path(fFileNameStr));
-				if (f.exists()) {
-					setErrorMessage("File \"" + fFileNameStr + "\" exists");
+			for (String filename : getFileNames()) {
+				IFile file = c.getFile(new Path(filename));
+				if (file.exists()) {
+					setErrorMessage("File \"" + filename + "\" exists");
 				}
 			}
-			 */
 		} else {
 			setErrorMessage("Directory \"" + 
 					fSourceFolderStr + "\" does not exist");
@@ -354,6 +389,6 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	}
 	
 	private void debug(String msg) {
-		System.out.println(msg);
+		// System.out.println(msg);
 	}
 }

@@ -12,32 +12,10 @@
 
 package net.sf.sveditor.core.templates;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
-public class TemplateFSOutStreamProvider implements ITemplateOutStreamProvider {
+public interface ITemplateFileCreator {
 	
-	private File						fRoot;
+	void createFile(String path, InputStream content);
 	
-	public TemplateFSOutStreamProvider(File root) {
-		fRoot = root;
-	}
-
-	public OutputStream openStream(String path) {
-		File target = new File(fRoot, path);
-		try {
-			return new FileOutputStream(target);
-		} catch (IOException e) {}
-
-		return null;
-	}
-
-	public void closeStream(OutputStream out) {
-		try {
-			out.close();
-		} catch (IOException e) {}
-	}
-
 }

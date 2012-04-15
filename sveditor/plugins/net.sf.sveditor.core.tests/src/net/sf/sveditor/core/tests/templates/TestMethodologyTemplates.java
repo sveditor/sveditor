@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.templates.TemplateFSOutStreamProvider;
+import net.sf.sveditor.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.templates.TemplateRegistry;
@@ -73,7 +73,7 @@ public class TestMethodologyTemplates extends TestCase {
 				"test_seq_item.svh",
 				"test_agent.svh");
 		
-		TemplateFSOutStreamProvider out_sp = new TemplateFSOutStreamProvider(fTmpDir);
+		TemplateFSFileCreator out_sp = new TemplateFSFileCreator(fTmpDir);
 		TemplateProcessor tp = new TemplateProcessor(out_sp);
 		
 		tp.process(tmpl, proc);

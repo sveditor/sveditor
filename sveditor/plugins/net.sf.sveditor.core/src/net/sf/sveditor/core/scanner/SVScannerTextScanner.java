@@ -18,11 +18,13 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class SVScannerTextScanner extends AbstractTextScanner {
 	private SVPreProcScanner			fScanner;
 	private StringBuffer				fUngetStr;
+	private long						fPos;
 	
 	public SVScannerTextScanner(SVPreProcScanner scanner) {
 		super();
 		fScanner        = scanner;
 		fUngetStr       = new StringBuffer();
+		fPos			= 1;
 	}
 	
 	public int get_ch() {
@@ -39,11 +41,14 @@ public class SVScannerTextScanner extends AbstractTextScanner {
 			fCaptureBuffer.append((char)ch);
 		}
 		
+		fPos++;
+		
 		return ch;
 	}
 	
 	public void unget_ch(int ch) {
 		fUngetStr.append((char)ch);
+		fPos--;
 	}
 	
 
@@ -80,10 +85,15 @@ public class SVScannerTextScanner extends AbstractTextScanner {
 	public void unget_str(String str) {
 		for (int i=str.length()-1; i>=0; i--) {
 			fUngetStr.append(str.charAt(i));
+			fPos--;
 		}
 	}
 	
 	public ScanLocation getLocation() {
 		return fScanner.getLocation();
+	}
+	
+	public long getPos() {
+		return fPos;
 	}
 }

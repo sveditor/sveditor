@@ -15,36 +15,78 @@
             id="org.uvmworld.uvm.uvm_agent"
             name="UVM Agent">
          <description>
-            description body text
+            UVM Agent template
          </description>
          <templateFiles>
             <templateFile
-                  name="@name@_agent_pkg.sv"
-                  template="templates/uvm_agent/uvm__agent_pkg.sv">
+                  name="${name}_agent_pkg.sv"
+                  template="templates/uvm_agent/${name}_agent_pkg.sv">
             </templateFile>
             <templateFile
-                  name="@name@_config.svh"
-                  template="templates/uvm_agent/uvm__config.svh">
+                  name="${name}_config.svh"
+                  template="templates/uvm_agent/${name}_config.svh">
             </templateFile>
             <templateFile
-                  name="@name@_driver.svh"
-                  template="templates/uvm_agent/uvm__driver.svh">
+                  name="${name}_driver.svh"
+                  template="templates/uvm_agent/${name}_driver.svh">
             </templateFile>
             <templateFile
-                  name="@name@_monitor.svh"
-                  template="templates/uvm_agent/uvm__monitor.svh">
+                  name="${name}_monitor.svh"
+                  template="templates/uvm_agent/${name}_monitor.svh">
             </templateFile>
             <templateFile
-                  name="@name@_seq_base.svh"
-                  template="templates/uvm_agent/uvm__seq_base.svh">
+                  name="${name}_seq_base.svh"
+                  template="templates/uvm_agent/${name}_seq_base.svh">
             </templateFile>
             <templateFile
-                  name="@name@_seq_item.svh"
-                  template="templates/uvm_agent/uvm__seq_item.svh">
+                  name="${name}_seq_item.svh"
+                  template="templates/uvm_agent/${name}_seq_item.svh">
             </templateFile>
             <templateFile
-                  name="@name@_agent.svh"
-                  template="templates/uvm_agent/uvm__agent.svh">
+                  name="${name}_agent.svh"
+                  template="templates/uvm_agent/${name}_agent.svh">
+            </templateFile>
+         </templateFiles>
+      </methodologyTemplate>
+      <methodologyTemplate
+            category="org.uvmworld.uvm"
+            id="net.sf.sveditor.core.uvm.templates.uvmEnvironment"
+            name="UVM Environment">
+         <description>
+            Creates a new class derived from uvm_env
+         </description>
+         <templateFiles>
+            <templateFile
+                  name="${name}.svh"
+                  template="templates/uvm_env/${name}.svh">
+            </templateFile>
+         </templateFiles>
+      </methodologyTemplate>
+      <methodologyTemplate
+            category="org.uvmworld.uvm"
+            id="net.sf.sveditor.core.uvm.templates.uvmSequence"
+            name="UVM Sequence">
+         <description>
+            Creates a class derived from uvm_sequence
+         </description>
+         <templateFiles>
+            <templateFile
+                  name="${name}.svh"
+                  template="templates/uvm_sequence/${name}.svh">
+            </templateFile>
+         </templateFiles>
+      </methodologyTemplate>
+      <methodologyTemplate
+            category="org.uvmworld.uvm"
+            id="net.sf.sveditor.core.uvm.templates.uvmTest"
+            name="UVM Test">
+         <description>
+            Creates a class derived from uvm_test
+         </description>
+         <templateFiles>
+            <templateFile
+                  name="${name}.svh"
+                  template="templates/uvm_test/${name}.svh">
             </templateFile>
          </templateFiles>
       </methodologyTemplate>

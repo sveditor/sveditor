@@ -124,7 +124,6 @@ public class TemplateRegistry {
 					fLog.error("Unknown SVMethodologyTemplate element \"" + 
 							name + "\"");
 				}
-				System.out.println("name=" + name);
 			}
 		}
 		
@@ -151,8 +150,6 @@ public class TemplateRegistry {
 		// Now, sort the templates in each category
 		for (Entry<String, List<TemplateInfo>> c : fCategoryMap.entrySet()) {
 			List<TemplateInfo> t = c.getValue();
-			
-			System.out.println("Category \"" + c.getKey() + "\" has " + c.getValue().size());
 			
 			for (int i=0; i<t.size(); i++) {
 				for (int j=i+1; j<t.size(); j++) {

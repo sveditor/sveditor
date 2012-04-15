@@ -12,19 +12,31 @@
 
 package net.sf.sveditor.core.templates;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.indent.ISVIndenter;
+import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.text.TagProcessor;
 
 public class TemplateProcessor {
-	private ITemplateOutStreamProvider			fStreamProvider;
+	private ITemplateFileCreator			fStreamProvider;
+
+	private static final String							fDefaultFileHeader =
+"/****************************************************************************\n" +
+" * ${filename}\n" +
+" ****************************************************************************/";
 	
-	public TemplateProcessor(ITemplateOutStreamProvider provider) {
+	
+	public TemplateProcessor(ITemplateFileCreator provider) {
 		fStreamProvider = provider;
 	}
 	
@@ -40,30 +52,58 @@ public class TemplateProcessor {
 	}
 	
 	public void process(TemplateInfo template, TagProcessor proc) {
+		if (!proc.hasTag("file_header")) {
+			proc.setTag("file_header", fDefaultFileHeader);
+		}
+		
 		for (Tuple<String, String> t : template.getTemplates()) {
+			int n_replacements = 0;
 			String templ = t.first();
 			String name = proc.process(t.second());
 			
-			InputStream in = template.openTemplate(templ);
-			OutputStream out = fStreamProvider.openStream(name);
+			proc.setTag("filename", name);
+			
 
-			/*
+			InputStream in = template.openTemplate(templ);
+			ByteArrayInputStream  in_t = readInputStream(in);
+			ByteArrayOutputStream out  = new ByteArrayOutputStream();
+
+			do {
+				try {
+					n_replacements = proc.process(in_t, out);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				// Swap output to input
+				in_t = new ByteArrayInputStream(out.toByteArray());
+				out = new ByteArrayOutputStream();
+			} while (n_replacements > 0);
+
+			// Indent the new content
 			SVIndentScanner scanner = new SVIndentScanner(
-					new StringTextScanner(content));
+					new InputStreamTextScanner(in_t, name));
 			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			indenter.init(scanner);
-			final StringInputStream in = new StringInputStream(indenter.indent());
-			 */
-			
-			try {
-				proc.process(in, out);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
+			final StringInputStream in_ind = new StringInputStream(indenter.indent());
+
+			fStreamProvider.createFile(name, in_ind);
 			template.closeTemplate(in);
-			fStreamProvider.closeStream(out);
 		}
+	}
+	
+	private ByteArrayInputStream readInputStream(InputStream in) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		byte tmp[] = new byte[16384];
+		int len;
+		
+		try {
+			while ((len = in.read(tmp, 0, tmp.length)) > 0) {
+				bos.write(tmp, 0, len);
+			}
+		} catch (IOException e) {}
+		
+		return new ByteArrayInputStream(bos.toByteArray());
 	}
 	
 }
