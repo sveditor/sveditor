@@ -31,5 +31,7 @@ public interface ITextScanner {
 	String readString(int ch);
 	
 	ScanLocation getLocation();
+	
+	long getPos();
 
 }

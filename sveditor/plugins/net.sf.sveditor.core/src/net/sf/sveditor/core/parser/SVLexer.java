@@ -711,9 +711,20 @@ public class SVLexer extends SVToken {
 			// Probably an operator in some form
 			operator();
 		} else if (SVCharacter.isSVIdentifierStart(ch)) {
+			int last_ch = ch;
+			boolean in_ref = false;
 			// Identifier or keyword
-			while ((ch = get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
+			
+			while ((ch = get_ch()) != -1 && 
+					(SVCharacter.isSVIdentifierPart(ch) ||
+							(ch == '{' && last_ch == '$') ||
+							(ch == '}' && in_ref))) {
 				append_ch(ch);
+				
+				in_ref |= (last_ch == '$' && ch == '{');
+				in_ref &= !(in_ref && ch == '}');
+				
+				last_ch = ch;
 			}
 			unget_ch(ch);
 			// Handle case where we received a single '$'

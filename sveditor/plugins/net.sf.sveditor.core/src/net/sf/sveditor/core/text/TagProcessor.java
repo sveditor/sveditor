@@ -35,6 +35,10 @@ public class TagProcessor {
 		fTagMap.put(tag, value);
 	}
 	
+	public boolean hasTag(String tag) {
+		return fTagMap.containsKey(tag);
+	}
+	
 	public void appendTag(String tag, String value) {
 		String val;
 		if (fTagMap.containsKey(tag)) {
@@ -57,41 +61,56 @@ public class TagProcessor {
 		return out.toString();
 	}
 	
-	public void process(InputStream in, OutputStream out) throws IOException {
+	public int process(InputStream in, OutputStream out) throws IOException {
 		int ch;
+		int n_replacements = 0;
 		StringBuilder sb = new StringBuilder();
 		
 		while ((ch = in.read()) != -1) {
-			if (ch == '@') {
-				sb.setLength(0);
+			if (ch == '$') {
+				int ch2 = in.read();
 				
-				for (int i=0; i<80; i++) {
-					
-					if ((ch = in.read()) == '@' || ch == -1) {
-						break;
+				if (ch2 == '{') {
+					sb.setLength(0);
+
+					for (int i=0; i<80; i++) {
+
+						if ((ch = in.read()) == '}' || ch == -1) {
+							break;
+						}
+						sb.append((char)ch);
 					}
-					sb.append((char)ch);
-				}
-				
-				String val = sb.toString();
-				if (ch == '@') {
-					if (fTagMap.containsKey(val)) {
-						out.write(fTagMap.get(val).getBytes());
+
+					String val = sb.toString();
+					if (ch == '}') {
+						if (fTagMap.containsKey(val)) {
+							out.write(fTagMap.get(val).getBytes());
+							n_replacements++;
+						} else {
+							out.write('$');
+							out.write('{');
+							out.write(val.getBytes());
+							out.write('}');
+						}
 					} else {
-						out.write('@');
+						out.write('$');
+						out.write('{');
 						out.write(val.getBytes());
-						out.write('@');
+						if (ch != -1) {
+							out.write((char)ch);
+						}
 					}
 				} else {
-					out.write('@');
-					out.write(val.getBytes());
-					if (ch != -1) {
-						out.write((char)ch);
+					out.write((char)ch);
+					if (ch2 != -1) {
+						out.write((char)ch2);
 					}
 				}
 			} else {
 				out.write((char)ch);
 			}
 		}
+		
+		return n_replacements;
 	}
 }

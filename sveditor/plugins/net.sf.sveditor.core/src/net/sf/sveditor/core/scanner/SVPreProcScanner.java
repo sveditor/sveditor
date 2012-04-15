@@ -170,7 +170,7 @@ public class SVPreProcScanner implements ISVScanner {
 			if (ch == ';' || ch == '\n') {
 				new_stmt = true;
 			} else if (!Character.isWhitespace(ch)) {
-				if (new_stmt && Character.isJavaIdentifierStart(ch)) {
+				if (new_stmt && SVCharacter.isSVIdentifierStart(ch)) {
 					fScanLocation.setLineNo(fLineno);
 					String id = readIdentifier(ch);
 					
@@ -207,11 +207,22 @@ public class SVPreProcScanner implements ISVScanner {
 			return null;
 		}
 
+		boolean in_ref = false;
+		int last_ci = ci;
+		
 		fTmpBuffer.append((char)ci);
 
 		while ((ci = get_ch()) != -1 && 
-				(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+				(Character.isJavaIdentifierPart(ci) || 
+						ci == ':' ||
+						(last_ci == '$' && ci == '{') ||
+						(in_ref && ci == '}'))) {
 			fTmpBuffer.append((char)ci);
+			in_ref |= (ci == '{' && last_ci == '$');
+			if (in_ref && ci == '}') {
+				in_ref = false;
+			}
+			last_ci = ci;
 		}
 		unget_ch(ci);
 
@@ -239,11 +250,22 @@ public class SVPreProcScanner implements ISVScanner {
 			return null;
 		}
 
+		boolean in_ref = false;
+		int last_ci = ci;
+
 		fTmpBuffer.append((char)ci);
 
 		while ((ci = get_ch_ll()) != -1 && 
-				(Character.isJavaIdentifierPart(ci) || ci == ':')) {
+				(Character.isJavaIdentifierPart(ci) || 
+						ci == ':' ||
+						(last_ci == '$' && ci == '{') ||
+						(in_ref && ci == '}'))) {
 			fTmpBuffer.append((char)ci);
+			in_ref |= (ci == '{' && last_ci == '$');
+			if (in_ref && ci == '}') {
+				in_ref = false;
+			}
+			last_ci = ci;
 		}
 		unget_ch(ci);
 
@@ -270,11 +292,20 @@ public class SVPreProcScanner implements ISVScanner {
 			unget_ch(ci);
 			return null;
 		}
+		
+		boolean in_ref = false;
+		int last_ci = ci;
 
 		fTmpBuffer.append((char)ci);
 
-		while ((ci = get_ch_ll()) != -1 && (SVCharacter.isSVIdentifierPart(ci))) {
+		while ((ci = get_ch_ll()) != -1 && (
+				SVCharacter.isSVIdentifierPart(ci) ||
+				(last_ci == '$' && ci == '{') ||
+				(in_ref && ci == '}'))) {
 			fTmpBuffer.append((char)ci);
+			last_ci = ci;
+			in_ref |= (ci == '{' && last_ci == '$');
+			in_ref &= !(in_ref && ci == '}');
 		}
 		unget_ch(ci);
 

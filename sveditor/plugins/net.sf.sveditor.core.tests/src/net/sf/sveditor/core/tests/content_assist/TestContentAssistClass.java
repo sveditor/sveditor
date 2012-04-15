@@ -351,7 +351,7 @@ public class TestContentAssistClass extends TestCase {
 	public void testContentAssistOnlyTopNew_1() {
 		String testname = "testContentAssistOnlyTopNew_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class base;\n" +
@@ -419,7 +419,7 @@ public class TestContentAssistClass extends TestCase {
 	public void testContentAssistOnlyTopNew_2() {
 		String testname = "testContentAssistOnlyTopNew_2";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class base;\n" +

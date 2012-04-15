@@ -54,6 +54,7 @@
             <sequence minOccurs="0" maxOccurs="1">
                <element ref="description"/>
                <element ref="templateFiles"/>
+               <element ref="templateParameters"/>
             </sequence>
          </choice>
          <attribute name="name" type="string" use="required">
@@ -129,6 +130,26 @@
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="templateFile"/>
          </sequence>
+      </complexType>
+   </element>
+
+   <element name="templateParameters">
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="templateParameter"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="templateParameter">
+      <complexType>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

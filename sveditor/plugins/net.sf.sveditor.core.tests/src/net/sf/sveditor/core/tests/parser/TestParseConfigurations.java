@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 public class TestParseConfigurations extends TestCase {
 	
 	public void testConfig_33_2_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testConfig_33_2_1";
 		String content =
 			"config cfg1; // specify rtl adder for top.a1, gate-level adder for top.a2\n" +
@@ -20,7 +20,7 @@ public class TestParseConfigurations extends TestCase {
 	}
 	
 	public void testConfig_33_2_2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testConfig_33_2_2";
 		String content =
 			"config cfg2;\n" +

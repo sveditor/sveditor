@@ -12,13 +12,25 @@
 
 package net.sf.sveditor.ui.wizards;
 
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.templates.ITemplateFileCreator;
+import net.sf.sveditor.core.templates.TemplateProcessor;
+import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
@@ -29,6 +41,7 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	private NewSVMethodologyClassWizardBasicsPage		fBasicsPage;
 	private ISVSubWizard								fSubWizard;
 	private Map<String, Object>							fOptions;
+	
 
 	public NewSVMethodologyClassWizard() {
 		super();
@@ -93,9 +106,40 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 
 	@Override
 	public boolean performFinish() {
-//		IContainer c = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
+		final IContainer folder = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
+		final TagProcessor tp = fBasicsPage.getTagProcessor(false);
+		
+
+		try {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+
+				public void run(final IProgressMonitor monitor) 
+						throws InvocationTargetException, InterruptedException {
+					monitor.beginTask("Creating Files", fBasicsPage.getFileNames().size());
+					TemplateProcessor templ_proc = new TemplateProcessor(new ITemplateFileCreator() {
+
+						public void createFile(String path, InputStream content) {
+							IFile file = folder.getFile(new Path(path));
+
+							monitor.worked(1);
+							try {
+								if (file.exists()) {
+									file.setContents(content, true, true, new NullProgressMonitor());
+								} else {
+									file.create(content, true, new NullProgressMonitor());
+								}
+							} catch (CoreException e) {}
+						}
+					});
+					templ_proc.process(fBasicsPage.getTemplate(), tp);
+					monitor.done();
+				}
+			});
+		} catch (InterruptedException e) {}
+		catch (InvocationTargetException e) {}
 		
 //		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
+	
 		
 		/*
 		ISVDBIndexIterator index_it = null;
