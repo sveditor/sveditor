@@ -497,8 +497,9 @@
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
             class="net.sf.sveditor.ui.wizards.NewSVMethodologyClassWizard"
+            icon="icons/eview16/generate_template_class.gif"
             id="net.sf.sveditor.ui.svMethodologyClassWizard"
-            name="SystemVerilog Methodology Class"
+            name="SystemVerilog Template Class"
             project="false">
       </wizard>
    </extension>
