@@ -1,5 +1,14 @@
 -- 0.8.7 Release --
 
+- #(nobug) - Correct content-assist issue with comparison operators. For example:
+  if (a >= <<CONTENT_ASSIST>>
+  
+- #(3035042) - Correct an issue where sometimes the Override Tasks/Functions
+  dialog opens with no content shown.
+  
+- #(nobug) - Correct an issue with the Override Tasks/Functions dialog that
+  caused the classes to not always be listed in class-hierarchy order
+  
 ------------------------------------------------------------------------------
 -- 0.8.6 Release --
 
