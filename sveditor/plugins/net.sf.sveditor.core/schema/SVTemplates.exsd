@@ -18,8 +18,8 @@
       </annotation>
       <complexType>
          <choice minOccurs="0" maxOccurs="unbounded">
-            <element ref="methodologyCategory"/>
-            <element ref="methodologyTemplate"/>
+            <element ref="category"/>
+            <element ref="template"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -48,13 +48,13 @@
       </complexType>
    </element>
 
-   <element name="methodologyTemplate">
+   <element name="template">
       <complexType>
          <choice>
             <sequence minOccurs="0" maxOccurs="1">
                <element ref="description"/>
-               <element ref="templateFiles"/>
-               <element ref="templateParameters"/>
+               <element ref="files"/>
+               <element ref="parameters"/>
             </sequence>
          </choice>
          <attribute name="name" type="string" use="required">
@@ -81,7 +81,7 @@
       </complexType>
    </element>
 
-   <element name="methodologyCategory">
+   <element name="category">
       <complexType>
          <attribute name="name" type="string">
             <annotation>
@@ -97,13 +97,20 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="parent" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
    <element name="description" type="string">
    </element>
 
-   <element name="templateFile">
+   <element name="file">
       <complexType>
          <attribute name="name" type="string" use="required">
             <annotation>
@@ -125,29 +132,71 @@
       </complexType>
    </element>
 
-   <element name="templateFiles">
+   <element name="files">
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="templateFile"/>
+            <element ref="file"/>
          </sequence>
       </complexType>
    </element>
 
-   <element name="templateParameters">
+   <element name="parameters">
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="templateParameter"/>
+            <element ref="parameter"/>
          </sequence>
       </complexType>
    </element>
 
-   <element name="templateParameter">
+   <element name="parameter">
       <complexType>
-         <attribute name="name" type="string">
+         <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="type" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="identifier"/>
+               </appInfo>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="id">
+                  </enumeration>
+                  <enumeration value="int">
+                  </enumeration>
+                  <enumeration value="class">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+         <attribute name="extends_from" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="svt">
+      <complexType>
+         <attribute name="path" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Path to the .svt file
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>

@@ -19,6 +19,7 @@ public class TemplateTests extends TestSuite {
 	public static TestSuite suite() {
 		TestSuite s = new TestSuite();
 		s.addTest(new TestSuite(TestMethodologyTemplates.class));
+		s.addTest(new TestSuite(TestExternalTemplates.class));
 		return s;
 	}
 }

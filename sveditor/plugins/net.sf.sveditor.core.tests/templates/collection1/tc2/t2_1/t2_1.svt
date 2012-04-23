@@ -1,0 +1,11 @@
+<sv_template>
+	<template name="t2_1" id="collection1.t2.t2_1" category="default">
+		<description>
+		Simple template with files specified
+		</description>
+		<files>
+			<file name="${name}.svh" template="t2_1.svh"/>
+			<file name="${name}.f" template="t2_1.f"/>
+		</files>
+	</template>
+</sv_template>

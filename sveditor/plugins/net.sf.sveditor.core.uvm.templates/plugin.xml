@@ -2,94 +2,94 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="net.sf.sveditor.core.SVMethodologyTemplates">
-      <methodologyCategory
+         point="net.sf.sveditor.core.SVTemplates">
+      <category
             id="org.uvmworld.uvm"
             name="Universal Verification Methodology">
-      </methodologyCategory>
+      </category>
    </extension>
    <extension
-         point="net.sf.sveditor.core.SVMethodologyTemplates">
-      <methodologyTemplate
+         point="net.sf.sveditor.core.SVTemplates">
+      <template
             category="org.uvmworld.uvm"
             id="org.uvmworld.uvm.uvm_agent"
             name="UVM Agent">
          <description>
             UVM Agent template
          </description>
-         <templateFiles>
-            <templateFile
+         <files>
+            <file
                   name="${name}_agent_pkg.sv"
                   template="templates/uvm_agent/${name}_agent_pkg.sv">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_config.svh"
                   template="templates/uvm_agent/${name}_config.svh">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_driver.svh"
                   template="templates/uvm_agent/${name}_driver.svh">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_monitor.svh"
                   template="templates/uvm_agent/${name}_monitor.svh">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_seq_base.svh"
                   template="templates/uvm_agent/${name}_seq_base.svh">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_seq_item.svh"
                   template="templates/uvm_agent/${name}_seq_item.svh">
-            </templateFile>
-            <templateFile
+            </file>
+            <file
                   name="${name}_agent.svh"
                   template="templates/uvm_agent/${name}_agent.svh">
-            </templateFile>
-         </templateFiles>
-      </methodologyTemplate>
-      <methodologyTemplate
+            </file>
+         </files>
+      </template>
+      <template
             category="org.uvmworld.uvm"
             id="net.sf.sveditor.core.uvm.templates.uvmEnvironment"
             name="UVM Environment">
          <description>
             Creates a new class derived from uvm_env
          </description>
-         <templateFiles>
-            <templateFile
+         <files>
+            <file
                   name="${name}.svh"
                   template="templates/uvm_env/${name}.svh">
-            </templateFile>
-         </templateFiles>
-      </methodologyTemplate>
-      <methodologyTemplate
+            </file>
+         </files>
+      </template>
+      <template
             category="org.uvmworld.uvm"
             id="net.sf.sveditor.core.uvm.templates.uvmSequence"
             name="UVM Sequence">
          <description>
             Creates a class derived from uvm_sequence
          </description>
-         <templateFiles>
-            <templateFile
+         <files>
+            <file
                   name="${name}.svh"
                   template="templates/uvm_sequence/${name}.svh">
-            </templateFile>
-         </templateFiles>
-      </methodologyTemplate>
-      <methodologyTemplate
+            </file>
+         </files>
+      </template>
+      <template
             category="org.uvmworld.uvm"
             id="net.sf.sveditor.core.uvm.templates.uvmTest"
             name="UVM Test">
          <description>
             Creates a class derived from uvm_test
          </description>
-         <templateFiles>
-            <templateFile
+         <files>
+            <file
                   name="${name}.svh"
                   template="templates/uvm_test/${name}.svh">
-            </templateFile>
-         </templateFiles>
-      </methodologyTemplate>
+            </file>
+         </files>
+      </template>
    </extension>
 
 </plugin>

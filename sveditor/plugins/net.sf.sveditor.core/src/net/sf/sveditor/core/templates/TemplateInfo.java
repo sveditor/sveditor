@@ -25,6 +25,7 @@ public class TemplateInfo {
 	private String							fCategoryId;
 	private String							fDescription;
 	private List<Tuple<String, String>>		fTemplateList;
+	private List<TemplateParameter>			fParameters;
 	private ITemplateInStreamProvider		fStreamProvider;
 	
 	public TemplateInfo(
@@ -38,6 +39,7 @@ public class TemplateInfo {
 		fCategoryId 	= (category_id != null)?category_id:"";
 		fDescription	= description;
 		fTemplateList	= new ArrayList<Tuple<String,String>>();
+		fParameters		= new ArrayList<TemplateParameter>();
 		fStreamProvider = stream_provider;
 	}
 	
@@ -53,6 +55,9 @@ public class TemplateInfo {
 		return fCategoryId;
 	}
 	
+	public void setDescription(String description) {
+		fDescription = description;
+	}
 	public String getDescription() {
 		return fDescription;
 	}
@@ -70,12 +75,24 @@ public class TemplateInfo {
 		};
 	}
 	
+	public void addTemplate(String template, String filename) {
+		addTemplate(new Tuple<String, String>(template, filename));
+	}
+	
 	/**
 	 * Adds a tuple: template-path / filename
 	 * @param template
 	 */
 	public void addTemplate(Tuple<String, String> template) {
 		fTemplateList.add(template);
+	}
+	
+	public void addParameter(TemplateParameter p) {
+		fParameters.add(p);
+	}
+	
+	public List<TemplateParameter> getParameters() {
+		return fParameters;
 	}
 	
 	public InputStream openTemplate(String path) {
