@@ -48,7 +48,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()), 
 				new OverrideMethodsContentProvider(leaf_class, index_it));
 
-		fLeafClass     = leaf_class;
+		fLeafClass = leaf_class;
 		setInput(fLeafClass);
 		updateOKStatus();
 	}
@@ -102,6 +102,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		public OverrideMethodsContentProvider(
 				SVDBClassDecl			leaf_class,
 				ISVDBIndexIterator		index_it) {
+			fLeafClass     = leaf_class;
 			fMethodsFinder = new OverrideMethodsFinder(leaf_class, index_it);
 		}
 		
@@ -120,6 +121,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 						return fMethodsFinder.getClassSet().toArray();
 					}
 					System.out.println("Class \"" + SVDBItem.getName((SVDBItemBase)parentElement) + "\" not in MethodsFinder");
+					System.out.println("  LeafClass=" + SVDBItem.getName(fLeafClass));
 					return fEmptyList;
 				} else {
 					return methods.toArray();

@@ -42,11 +42,12 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  *
  */
 public class SVDBIndexRegistry  {
-	public static final String								GLOBAL_PROJECT = "GLOBAL";
+	public static final String							GLOBAL_PROJECT = "GLOBAL";
 	
 	private SVDBIndexCollectionMgr							fGlobalIndexMgr;
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
 	private ISVDBIndexCacheFactory							fCacheFactory;
+	private boolean										fAutoRebuildEn;
 	private LogHandle										fLog;
 
 	/**
@@ -61,27 +62,19 @@ public class SVDBIndexRegistry  {
 	public SVDBIndexRegistry(boolean standalone_test_mode) {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
+		fAutoRebuildEn = true;
 	}
 	
-	/*
-	@Deprecated
-	public void init(final File state_location) {
-		fProjectIndexMap.clear();
-		fCacheFactory = new ISVDBIndexCacheFactory() {
-			
-			public ISVDBIndexCache createIndexCache(
-					String project_name,
-					String base_location) {
-				File cache_dir = new File(state_location, 
-						project_name + "_" + SVFileUtils.computeMD5(base_location));
-				SVDBDirFS fs = new SVDBDirFS(cache_dir);
-				return new SVDBFileIndexCache(fs);
+	public void setEnableAutoRebuild(boolean en) {
+		fAutoRebuildEn = en;
+		
+		for (List<ISVDBIndex> il : fProjectIndexMap.values()) {
+			for (ISVDBIndex i : il) {
+				i.setEnableAutoRebuild(fAutoRebuildEn);
 			}
-		};
-		fGlobalIndexMgr = getGlobalIndexMgr();
+		}
 	}
-	 */
-
+	
 	public void init(ISVDBIndexCacheFactory cache_factory) {
 		fCacheFactory = cache_factory;
 		fProjectIndexMap.clear();
@@ -172,6 +165,7 @@ public class SVDBIndexRegistry  {
 			ISVDBIndexFactory factory = findFactory(type);
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
+			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
@@ -223,6 +217,7 @@ public class SVDBIndexRegistry  {
 			ISVDBIndexCache cache = fCacheFactory.createIndexCache(project, base_location);
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
+			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
@@ -284,6 +279,7 @@ public class SVDBIndexRegistry  {
 			
 			// See about creating a new index
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
+			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);

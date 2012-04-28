@@ -451,13 +451,19 @@
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVTemplatePrefsPage"
             id="net.sf.sveditor.ui.svEditorTemplates"
-            name="Templates">
+            name="Code Templates">
       </page>
       <page
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVContentAssistPrefsPage"
             id="net.sf.sveditor.ui.contentAssist"
             name="Content Assist">
+      </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorTemplatePathsPrefsPage"
+            id="net.sf.sveditor.ui.svTemplatePaths"
+            name="SV Template Paths">
       </page>
    </extension>
    <extension

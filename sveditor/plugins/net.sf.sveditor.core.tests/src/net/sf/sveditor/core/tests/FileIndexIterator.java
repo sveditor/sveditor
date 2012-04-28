@@ -65,6 +65,8 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 						return null;
 					}
+					public void setEnableAutoRebuild(boolean en) {}
+					public boolean isDirty() { return false; }
 					public void init(IProgressMonitor monitor) {}
 					public String getTypeID() {
 						return null;

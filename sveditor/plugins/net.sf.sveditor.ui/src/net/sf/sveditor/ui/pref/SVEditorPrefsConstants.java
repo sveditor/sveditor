@@ -24,11 +24,13 @@ public class SVEditorPrefsConstants {
 	public static final String P_COMMENT_S = "singleLineCommentStylePreference";
 	public static final String P_STRING_S = "stringStylePreference";
 	
-	public static final String P_SV_FILE_EXTENSIONS_S = "svFileExtensions";
+	public static final String P_SV_FILE_EXTENSIONS_S 							= "svFileExtensions";
 	
-	public static final String P_AUTO_INDENT_ENABLED_S = "autoIndentEnabled";
+	public static final String P_AUTO_INDENT_ENABLED_S 							= "autoIndentEnabled";
 	
-	public static final String P_DEBUG_LEVEL_S = "debugLevel";
+	public static final String P_AUTO_REBUILD_INDEX								= "autoRebuildIndex";
+	
+	public static final String P_DEBUG_LEVEL_S 									= "debugLevel";
 	
 	public static final String P_CONTENT_ASSIST_TF_NAMED_PORTS_EN 				= "contentAssistTFNamedPortsEn";
 	public static final String P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT 				= "contentAssistTFLineWrapLimit";
@@ -37,17 +39,21 @@ public class SVEditorPrefsConstants {
 	public static final String P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN 		= "contentAssistModIfcInstNamedPortsEn";
 	public static final String P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT 		= "contentAssistModIfcInstLineWrapLimit";
 	public static final String P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE 	= "contentAssistModIfcInstPortsPerLine";
+	
+	
+	// SV Template Paths
+	public static final String P_SV_TEMPLATE_PATHS								= "svTemplatePaths";
 
 	// Outline view Preferences
-	public static final String P_OUTLINE_SHOW_ALWAYS_BLOCKS                     = "outlineShowAlwaysBlocks";
-	public static final String P_OUTLINE_SHOW_ASSIGN_STATEMENTS                 = "outlineShowAssignStatements";
-	public static final String P_OUTLINE_SHOW_DEFINE_STATEMENTS                 = "outlineShowDefineStatements";
-	public static final String P_OUTLINE_SHOW_INITIAL_BLOCKS                    = "outlineShowInitialBlocks";
-	public static final String P_OUTLINE_SHOW_INCLUDE_FILES                     = "outlineShowIncludeFiles";
-	public static final String P_OUTLINE_SHOW_GENERATE_BLOCKS                   = "outlineShowGenerateBlocks";
-	public static final String P_OUTLINE_SHOW_MODULE_INSTANCES                  = "outlineShowModuleInstances";
-	public static final String P_OUTLINE_SHOW_SIGNAL_DECLARATIONS               = "outlineShowSignalDeclarations";
-	public static final String P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS        = "outlineShowTaskFunctionDeclarations";
-	public static final String P_OUTLINE_SORT                                   = "outlineSort";
+	public static final String P_OUTLINE_SHOW_ALWAYS_BLOCKS                     	= "outlineShowAlwaysBlocks";
+	public static final String P_OUTLINE_SHOW_ASSIGN_STATEMENTS                 	= "outlineShowAssignStatements";
+	public static final String P_OUTLINE_SHOW_DEFINE_STATEMENTS                 	= "outlineShowDefineStatements";
+	public static final String P_OUTLINE_SHOW_INITIAL_BLOCKS                    	= "outlineShowInitialBlocks";
+	public static final String P_OUTLINE_SHOW_INCLUDE_FILES                     	= "outlineShowIncludeFiles";
+	public static final String P_OUTLINE_SHOW_GENERATE_BLOCKS                   	= "outlineShowGenerateBlocks";
+	public static final String P_OUTLINE_SHOW_MODULE_INSTANCES                  	= "outlineShowModuleInstances";
+	public static final String P_OUTLINE_SHOW_SIGNAL_DECLARATIONS               	= "outlineShowSignalDeclarations";
+	public static final String P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS        	= "outlineShowTaskFunctionDeclarations";
+	public static final String P_OUTLINE_SORT                                   	= "outlineSort";
 	
 }

@@ -11,7 +11,6 @@
 
 
 package net.sf.sveditor.ui.pref;
-import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -35,7 +34,10 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_KEYWORD_C, "Keyword color:", SVEditorPrefsConstants.P_KEYWORD_S, getFieldEditorParent()));
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-Indent:", getFieldEditorParent()));
-		
+
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, 
+				"Enable Index Auto-Rebuild:", getFieldEditorParent()));
+
 		addField( new ComboFieldEditor(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "Debug Level:", 
 				new String[][] {
 					{"Off", "LEVEL_OFF"}, 

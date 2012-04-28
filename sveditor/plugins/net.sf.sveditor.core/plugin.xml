@@ -3,7 +3,7 @@
 <plugin>
    <extension-point id="SVLibraries" name="SystemVerilog Libraries" schema="schema/SVLibraries.exsd"/>
    <extension-point id="SVDBIndexFactories" name="SVDB Index Factory extension point" schema="schema/SVDBIndexFactories.exsd"/>
-   <extension-point id="SVMethodologyTemplates" name="SVEditor Methodology Templates" schema="schema/SVMethodologyTemplates.exsd"/>
+   <extension-point id="SVTemplates" name="SystemVerilog Templates" schema="schema/SVTemplates.exsd"/>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type

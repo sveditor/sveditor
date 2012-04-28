@@ -166,7 +166,10 @@ public class SVExprScanner {
 					
 					if (c == '=') {
 						int c2 = scanner.get_ch();
-						if (c2 != '=') {
+						if (c2 != '=' && c2 != '>' &&
+								c2 != '<' && c2 != '&' &&
+								c2 != '|' && c2 != '+' &&
+								c2 != '-') {
 							c = scanner.skipWhite(c2);
 							ret.fTrigger = "=";
 						}
