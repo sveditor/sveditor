@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.templates.ITemplateFileCreator;
 import net.sf.sveditor.core.templates.TemplateProcessor;
@@ -102,6 +103,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		super.init(workbench, selection);
 		setNeedsProgressMonitor(true);
+		
+		SVCorePlugin.getDefault().getTemplateRgy().load_extensions();
 	}
 
 	@Override
@@ -128,7 +131,9 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 								} else {
 									file.create(content, true, new NullProgressMonitor());
 								}
-							} catch (CoreException e) {}
+							} catch (CoreException e) {
+								e.printStackTrace();
+							}
 						}
 					});
 					templ_proc.process(fBasicsPage.getTemplate(), tp);

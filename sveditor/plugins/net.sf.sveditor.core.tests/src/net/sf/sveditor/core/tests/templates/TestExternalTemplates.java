@@ -11,6 +11,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
 import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.templates.TemplateParameter;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -42,14 +43,16 @@ public class TestExternalTemplates extends TestCase {
 		
 		utils.copyBundleDirToFS("/templates/collection1", tmpl_dir);
 		
-		TemplateRegistry rgy = new TemplateRegistry(new IExternalTemplatePathProvider() {
+		TemplateRegistry rgy = new TemplateRegistry(false);
+		rgy.addPathProvider(new IExternalTemplatePathProvider() {
 			
 			public List<String> getExternalTemplatePath() {
 				List<String> ret = new ArrayList<String>();
 				ret.add(tmpl_dir.getAbsolutePath());
 				return ret;
 			}
-		}, false);
+		});
+		rgy.load_extensions();
 		
 		List<String> categories = rgy.getCategoryIDs();
 		for (String category : categories) {
@@ -58,6 +61,8 @@ public class TestExternalTemplates extends TestCase {
 		
 		TestUtils.assertContains(categories, "default");
 		LogFactory.removeLogHandle(log);
+
+		TemplateInfo t1_1 = null;
 		
 		List<TemplateInfo> ti_l = rgy.getTemplates("default");
 		List<String> templates = new ArrayList<String>();
@@ -65,7 +70,19 @@ public class TestExternalTemplates extends TestCase {
 		for (TemplateInfo t : ti_l) {
 			log.debug("Template ID: " + t.getId());
 			templates.add(t.getId());
+			if (t.getId().equals("collection1.t1_1")) {
+				t1_1 = t;
+			}
 		}
+		
+		assertNotNull(t1_1);
+		
+		List<String> param_names = new ArrayList<String>();
+		for (TemplateParameter p : t1_1.getParameters()) {
+			param_names.add(p.getName());
+		}
+		
+		TestUtils.assertContains(param_names, "foo1", "foo2");
 		
 		TestUtils.assertContains(templates, 
 				"collection1.t1", "collection1.t1_1",
@@ -95,5 +112,6 @@ public class TestExternalTemplates extends TestCase {
 				}
 			}
 		}
+		
 	}
 }

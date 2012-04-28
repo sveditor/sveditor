@@ -51,6 +51,14 @@ public class TemplateProcessor {
 		return ret;
 	}
 	
+	public static void setParameters(
+			TagProcessor				proc,
+			List<TemplateParameter>		parameters) {
+		for (TemplateParameter p : parameters) {
+			proc.setTag(p.getName(), p.getValue());
+		}
+	}
+	
 	public void process(TemplateInfo template, TagProcessor proc) {
 		if (!proc.hasTag("file_header")) {
 			proc.setTag("file_header", fDefaultFileHeader);
@@ -60,6 +68,8 @@ public class TemplateProcessor {
 			int n_replacements = 0;
 			String templ = t.first();
 			String name = proc.process(t.second());
+			
+			System.out.println("templ=" + templ + " name=" + name);
 			
 			proc.setTag("filename", name);
 			
@@ -80,16 +90,32 @@ public class TemplateProcessor {
 				out = new ByteArrayOutputStream();
 			} while (n_replacements > 0);
 
-			// Indent the new content
-			SVIndentScanner scanner = new SVIndentScanner(
-					new InputStreamTextScanner(in_t, name));
-			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
-			indenter.init(scanner);
-			final StringInputStream in_ind = new StringInputStream(indenter.indent());
+			// Indent the new content if it is SystemVerilog
+			InputStream in_ind = null;
+			if (should_sv_indent(name)) {
+				SVIndentScanner scanner = new SVIndentScanner(
+						new InputStreamTextScanner(in_t, name));
+				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+				indenter.init(scanner);
+				in_ind = new StringInputStream(indenter.indent());
+			} else {
+				in_ind = in_t;
+			}
 
 			fStreamProvider.createFile(name, in_ind);
 			template.closeTemplate(in);
 		}
+	}
+	
+	private boolean should_sv_indent(String name) {
+		String ext = "";
+		
+		if (name.lastIndexOf('.') != -1) {
+			ext = name.substring(name.lastIndexOf('.'));
+		}
+		
+		List<String> exts = SVCorePlugin.getDefault().getDefaultSVExts();
+		return exts.contains(ext);
 	}
 	
 	private ByteArrayInputStream readInputStream(InputStream in) {

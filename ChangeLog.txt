@@ -9,6 +9,15 @@
 - #(nobug) - Correct an issue with the Override Tasks/Functions dialog that
   caused the classes to not always be listed in class-hierarchy order
   
+- #(enh)   - Add initial support for externally-defined SV templates.
+
+- #(enh)   - Add Preferences page to configure template paths
+
+- #(3521770) - User option to disable automatic rebuild of SV Index
+    - When Auto-Rebuild is disabled, index rebuild only takes place:
+        - On startup if the index is invalid
+        - When the user requests a rebuild
+  
 ------------------------------------------------------------------------------
 -- 0.8.6 Release --
 

@@ -46,7 +46,8 @@ public abstract class AbstractExternalTemplateFinder extends AbstractTemplateFin
 					
 					for (String file : files) {
 						if (!file.endsWith(".svt")) {
-							ti.addTemplate(file, file);
+							File fn = new File(file);
+							ti.addTemplate(file, fn.getName());
 						}
 					}
 				}

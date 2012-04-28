@@ -12,10 +12,13 @@
 
 package net.sf.sveditor.ui;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -24,6 +27,8 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
+import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.runtime.jobs.Job;
@@ -53,7 +58,7 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class SVUiPlugin extends AbstractUIPlugin 
-	implements IPropertyChangeListener, ILogListener {
+	implements IPropertyChangeListener, ILogListener, IExternalTemplatePathProvider {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
@@ -76,6 +81,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	private boolean								fStartRefreshJob = false;
 	private RefreshIndexJob						fRefreshIndexJob;
+	private List<String>						fTemplatePaths;
 	
 	/**
 	 * Small change 1
@@ -103,7 +109,35 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		SVCorePlugin.getDefault().setDebugLevel(getDebugLevel(
 				getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
+		
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
+				getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
+		
+		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
+		rgy.addPathProvider(this);
+		update_template_paths();
 	}
+	
+	private void update_template_paths() {
+		fTemplatePaths = parse_paths(getPreferenceStore().getString(
+				SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS));
+	}
+	
+	public List<String> getExternalTemplatePath() {
+		return fTemplatePaths;
+	}
+
+	private static List<String> parse_paths(String stringList) {
+		
+		StringTokenizer st = new StringTokenizer(stringList, File.pathSeparator
+				+ "\n\r");//$NON-NLS-1$
+		ArrayList<String> v = new ArrayList<String>();
+		while (st.hasMoreElements()) {
+			v.add((String)st.nextElement());
+		}
+		return v;
+	}
+
 	
 	private int getDebugLevel(String level_s) {
 		if (level_s.equals("LEVEL_MIN")) {
@@ -167,6 +201,12 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)) {
 			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel((String)event.getNewValue()));
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS)) {
+			// propagate to template registry
+			update_template_paths();
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX)) {
+			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
+					(Boolean)event.getNewValue());
 		}
 	}
 	
