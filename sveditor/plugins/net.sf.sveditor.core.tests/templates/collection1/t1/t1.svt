@@ -1,0 +1,7 @@
+<sv_template>
+	<template name="t1" id="collection1.t1" category="default">
+		<description>
+		Simple template with no files specified
+		</description>
+	</template>
+</sv_template>

@@ -20,8 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
+import junit.framework.TestFailure;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -211,6 +214,28 @@ public class TestUtils {
 			e.printStackTrace();
 		}
 	}
-	
+
+	public static void assertContains(List<String> list, String ... expected) {
+		List<String> temp = new ArrayList<String>();
+		temp.addAll(list);
+		
+		for (String exp : expected) {
+			if (temp.contains(exp)) {
+				temp.remove(exp);
+			} else {
+				TestCase.fail("List does not contain \"" + exp + "\"");
+			}
+		}
+		
+		if (temp.size() > 0) {
+			StringBuilder leftovers = new StringBuilder();
+			
+			for (String l : temp) {
+				leftovers.append(l);
+				leftovers.append(" ");
+			}
+			TestCase.fail("List contains unexpected elements {" + leftovers + "}");
+		}
+	}
 
 }

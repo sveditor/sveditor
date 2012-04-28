@@ -35,6 +35,18 @@ public interface ISVDBIndex extends
 			List<SVDBMarker> markers);
 	
 	/**
+	 * setEnableAutoRebuild()
+	 * 
+	 * Controls whether invalidating the index will
+	 * trigger a rebuild. Defaults to 'true'
+	 * 
+	 * @param en
+	 */
+	void setEnableAutoRebuild(boolean en);
+	
+	boolean isDirty();
+	
+	/**
 	 * Cleans up this entry
 	 */
 	void dispose();

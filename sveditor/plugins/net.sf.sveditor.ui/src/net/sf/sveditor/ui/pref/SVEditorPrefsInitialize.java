@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.ui.pref;
 
-import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
@@ -46,6 +45,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
+		store.setDefault(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, true);
 		
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN, false);
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT, 80);

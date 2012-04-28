@@ -70,6 +70,8 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	private TableViewer				fFileTable;
 	private List<String>			fFileNames;
 	
+	private Text					fDescription;
+	
 	
 	public NewSVMethodologyClassWizardBasicsPage() {
 		super("New SystemVerilog Methodology Component", "", null);
@@ -105,8 +107,13 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		
 		fNameStr = "";
 		
+		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+//		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
+		
 		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
+//		c.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Composite src_c = new Composite(c, SWT.NONE);
 		src_c.setLayout(new GridLayout(3, false));
@@ -156,7 +163,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				fNameStr = fName.getText();
-				updateFilenames();
+				updateFilenamesDescription();
 				validate();
 			}
 		});
@@ -185,12 +192,12 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fTemplateCombo.setLayoutData(gd);
 		fTemplateCombo.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				TemplateRegistry rgy = TemplateRegistry.getDefault();
+				TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 				List<String> category_ids = rgy.getCategoryIDs();
 				String id = category_ids.get(fCategoryCombo.getSelectionIndex());
 				List<TemplateInfo> templates = rgy.getTemplates(id);
 				fTemplate = templates.get(fTemplateCombo.getSelectionIndex());
-				updateFilenames();
+				updateFilenamesDescription();
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
@@ -260,16 +267,28 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 			}
 		});
 		fFileTable.setInput(fFileNames);
+		
+		
+		g = new Group(c, SWT.None);
+		g.setText("Description");
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 2;
+		g.setLayout(new GridLayout());
+		g.setLayoutData(gd);
+		
+		fDescription = new Text(g, SWT.READ_ONLY);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fDescription.setLayoutData(gd);
 
 		fName.setFocus();
 		loadCategoryList();
-		updateFilenames();
+		updateFilenamesDescription();
 		
 		setPageComplete(false);
 		setControl(c);
 	}
 
-	private void updateFilenames() {
+	private void updateFilenamesDescription() {
 		TagProcessor tp = getTagProcessor(true);
 		
 		fFileNames = new ArrayList<String>();
@@ -277,11 +296,13 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fFileNames.addAll(TemplateProcessor.getOutputFiles(fTemplate, tp));
 
 		fFileTable.setInput(fFileNames);
+		
+		fDescription.setText(fTemplate.getDescription());
 	}
 	
 	@SuppressWarnings("rawtypes")
 	private void loadCategoryList() {
-		TemplateRegistry rgy = TemplateRegistry.getDefault();
+		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 		List<String> names = new ArrayList<String>();
 		names.addAll(rgy.getCategoryNames());
 		
@@ -310,8 +331,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 	
 	@SuppressWarnings("rawtypes")
 	private void updateTemplateList() {
-		TemplateRegistry rgy = 
-			TemplateRegistry.getDefault();
+		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 		String sel = fCategoryCombo.getText();
 		int category_idx = rgy.getCategoryNames().indexOf(sel);
 		
@@ -337,7 +357,7 @@ public class NewSVMethodologyClassWizardBasicsPage extends WizardPage {
 		fTemplateCombo.select(0);
 		fTemplate = templates.get(0);
 		
-		updateFilenames();
+		updateFilenamesDescription();
 	}
 	
 	private void validate() {

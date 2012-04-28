@@ -16,10 +16,12 @@ package net.sf.sveditor.core.templates;
 public class TemplateCategory {
 	private String							fId;
 	private String							fName;
+	private String							fParent;
 	
-	public TemplateCategory(String id, String name) {
+	public TemplateCategory(String id, String name, String parent) {
 		fId = id;
 		fName = name;
+		fParent = parent;
 	}
 	
 	public String getId() {
@@ -28,6 +30,10 @@ public class TemplateCategory {
 	
 	public String getName() {
 		return fName;
+	}
+	
+	public String getParent() {
+		return fParent;
 	}
 
 }

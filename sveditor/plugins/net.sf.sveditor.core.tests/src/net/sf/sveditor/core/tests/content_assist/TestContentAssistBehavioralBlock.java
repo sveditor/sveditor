@@ -186,5 +186,47 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
 		LogFactory.removeLogHandle(log);
 	}
-	
+
+	public void testLessEqualAssist() {
+		String testname = "testLessEqualAssist";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"\n" +
+			"class my_class;\n" +
+			"	foobar		m_field1;\n" +
+			"	foobar		m_field2;\n" +
+			"\n" +
+			"	task my_task();\n" +
+			"		int a;\n" +
+			"		if (a <= m_<<MARK>>\n" +
+			"	endtask\n" +
+			"\n" +
+			"endclass\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"m_field1", "m_field2"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
 }

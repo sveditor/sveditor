@@ -45,6 +45,7 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.scanner.IDefineProvider;
+import net.sf.sveditor.core.templates.TemplateRegistry;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.FileLocator;
@@ -67,8 +68,6 @@ import org.osgi.framework.Version;
 public class SVCorePlugin extends Plugin 
 	implements ILogListener, ISVDBIndexCacheFactory {
 	
-	/** Change 1 */
-
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
 	public static final String SV_BUILTIN_LIBRARY = "net.sf.sveditor.sv_builtin";
@@ -86,6 +85,7 @@ public class SVCorePlugin extends Plugin
 	private ISVEditorJobMgr					fJobMgr;
 	private int								fNumIndexCacheThreads = 0;
 	private int								fMaxIndexThreads = 0;
+	private TemplateRegistry				fTemplateRgy;
 	
 	/**
 	 * The constructor
@@ -154,6 +154,13 @@ public class SVCorePlugin extends Plugin
 			fJobMgr = new SVEditorEclipseJobMgr();
 		}
 		return fJobMgr;
+	}
+	
+	public TemplateRegistry getTemplateRgy() {
+		if (fTemplateRgy == null) {
+			fTemplateRgy = new TemplateRegistry(true);
+		}
+		return fTemplateRgy;
 	}
 
 	/*
@@ -290,6 +297,19 @@ public class SVCorePlugin extends Plugin
 				SVFileUtils.delete(f);
 			}
 		}
+	}
+	
+	public List<String> getDefaultSVExts() {
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
+		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+		List<String> ret = new ArrayList<String>();
+		for (String e : exts) {
+			ret.add(e);
+		}
+		
+		return ret;
 	}
 
 	public String getDefaultSourceCollectionIncludes() {
