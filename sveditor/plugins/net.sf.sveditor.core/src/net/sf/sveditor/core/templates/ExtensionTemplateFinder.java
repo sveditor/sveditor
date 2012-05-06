@@ -47,6 +47,12 @@ public class ExtensionTemplateFinder extends AbstractTemplateFinder {
 		String parent   = ce.getAttribute("parent");
 		TemplateCategory c = new TemplateCategory(id, name, parent);
 		
+		for (IConfigurationElement ci : ce.getChildren()) {
+			if (ci.getName().equals("description")) {
+				c.setDescription(ci.getValue());
+			}
+		}
+		
 		fCategories.add(c);
 	}
 	

@@ -10,15 +10,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package net.sf.sveditor.ui.wizards.templates;
 
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
@@ -37,34 +37,60 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
-	private String					fSourceFolderStr;
-	// private MethodologyTemplate		fTemplate;
+public class SVTemplateParameterPage extends WizardPage {
+	private Text							fSourceFolder;
+	private String							fSourceFolderStr;
 	
-	// private String					fNameStr;
+	private TemplateFilesTableViewer		fFileTable;
+	
+	private TemplateParametersTableViewer	fParamsTable;
 
-	private Text					fSuperClass;
-	private String					fSuperClassStr;
-	private Button					fSuperClassBrowse;
+	private TemplateInfo					fTemplate;
 	
-	public NewSVMethodologyClassWizardSpecificsPage() {
+	private TagProcessor					fTagProcessor;
+	
+	public SVTemplateParameterPage() {
 		super("New SystemVerilog Class", "SystemVerilog Class", null);
 		setDescription("Create a new SystemVerilog class");
+		fTagProcessor = new TagProcessor();
+	}
+
+	public void setSourceFolder(String folder) {
+		System.out.println("Params: setSourceFolder");
+		fSourceFolderStr = folder;
+		
+		if (fSourceFolder != null && !fSourceFolder.isDisposed()) {
+			fSourceFolder.setText(fSourceFolderStr);
+		}
+		
+		updateFilenamesDescription();
 	}
 	
-	public void setSourceFolder(String folder) {
-		fSourceFolderStr = folder;
+	public String getSourceFolder() {
+		return fSourceFolderStr;
 	}
 	
 	public void setTemplate(TemplateInfo template) {
-		// fTemplate = template;
+		// TODO: need to flush state here
+		fTemplate = template;
+		
+		System.out.println("setTemplate: " + template);
+		
+		updateFilenamesDescription();
 	}
 	
-	public String getSuperClass() {
-		return fSuperClassStr;
+	public TagProcessor getTagProcessor(boolean dont_expand_null_name) {
+		TagProcessor tp = new TagProcessor(fTagProcessor);
+		
+		// Don't replace ${name} if no name is specified
+		if (!dont_expand_null_name) {
+			if (!tp.hasTag("name")) {
+				tp.setTag("name", "");
+			}
+		}
+
+		return tp;
 	}
-	
-	
 	
 	@Override
 	public boolean isPageComplete() {
@@ -78,8 +104,8 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 	// 
 	public void createControl(Composite parent) {
 		Label l;
-		
-		// fNameStr = "";
+		GridData gd;
+		Group g;
 		
 		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
@@ -88,70 +114,109 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		src_c.setLayout(new GridLayout(3, false));
 		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		Composite s = new Composite(src_c, SWT.BORDER);
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.horizontalSpan = 3;
-		gd.heightHint = 1;
-		s.setLayoutData(gd);
-
-		/** CHANGE **/
+		/** Select the destination location */
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Super Class:");
+		l.setText("Source Folder:");
 		
-		fSuperClass = new Text(src_c, SWT.BORDER);
-		fSuperClass.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fSuperClass.addModifyListener(new ModifyListener() {
+		fSourceFolder = new Text(src_c, SWT.BORDER);
+		if (fSourceFolderStr != null) {
+			fSourceFolder.setText(fSourceFolderStr);
+		}
+		fSourceFolder.setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, false));
+		fSourceFolder.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				fSuperClassStr = fSuperClass.getText();
-				validate();
+				fSourceFolderStr = fSourceFolder.getText();
+				fFileTable.setSourceFolder(fSourceFolderStr);
+				updateFilenamesDescription();
 			}
 		});
-		fSuperClassBrowse = new Button(src_c, SWT.NONE);
-		fSuperClassBrowse.setText("Browse");
-		fSuperClassBrowse.addSelectionListener(new SelectionListener() {
+		final Button sf_browse = new Button(src_c, SWT.PUSH);
+		sf_browse.setText("Browse");
+		sf_browse.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				browseClass();
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(
+						sf_browse.getShell());
+				if (dlg.open() == Window.OK) {
+					fSourceFolder.setText(dlg.getPath());
+				}
 				validate();
 			}
-			
 			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
-		Group group = new Group(src_c, SWT.BORDER);
-		group.setText("Style Options");
-		group.setLayout(new GridLayout());
+		g = new Group(src_c, SWT.NONE);
+		g.setText("Parameters");
+		
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;
-		group.setLayoutData(gd);
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout());
 		
+		fParamsTable = new TemplateParametersTableViewer(g);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.heightHint = 100;
+		fParamsTable.getTable().setLayoutData(gd);
+		
+//		fParamsTable.setContentProvider(provider);
+//		fParamsTable.set
+
+		g = new Group(src_c, SWT.NONE);
+		g.setText("Filenames");
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.heightHint = 100;
+		gd.horizontalSpan = 3;
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout());
+		fFileTable = new TemplateFilesTableViewer(g, fTagProcessor);
+		
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fFileTable.getTable().setLayoutData(gd);
+
 		setPageComplete(false);
 		setControl(c);
+		
+		updateFilenamesDescription();
 	}
 	
 	private void validate() {
+		String err;
+		
 		setErrorMessage(null);
-		if (!SVCharacter.isSVIdentifier(fSuperClassStr)) {
-			setErrorMessage("Invalid class name format");
+		
+		if (fTemplate == null) {
+			return;
 		}
 		
-		/*
-		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
-		if (c != null) {
-			if (fFileNameStr != null && !fFileNameStr.equals("")) {
-				IFile f = c.getFile(new Path(fFileNameStr));
-				if (f.exists()) {
-					setErrorMessage("File \"" + fFileNameStr + "\" exists");
-				}
+		if ((err = fFileTable.validate()) != null) {
+			if (getErrorMessage() == null) {
+				setErrorMessage(err);
 			}
-		} else {
-			setErrorMessage("Directory \"" + 
-					fSourceFolderStr + "\" does not exist");
 		}
 		
-		 */
 		setPageComplete((getErrorMessage() == null));
 	}
 	
+	private void updateFilenamesDescription() {
+		
+		TagProcessor tp = getTagProcessor(true);
+		
+		if (fFileTable != null && !fFileTable.getTable().isDisposed()) {
+			fFileTable.setSourceFolder(fSourceFolderStr);
+			fFileTable.setTemplate(fTemplate);
+		}
+
+		if (fParamsTable != null && !fParamsTable.getTable().isDisposed()) {
+			if (fTemplate != null) {
+				fParamsTable.setParameters(fTemplate.getParameters());
+			} else {
+				fParamsTable.setParameters(null);
+			}
+		}
+		
+		validate();
+	}
+
 	/*
 	private void updateClassBrowseState() {
 		fSuperClassBrowse.setEnabled((findDestProject() != null));
@@ -181,7 +246,8 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 		
 		return pdata;
 	}
-	
+
+	/*
 	private void browseClass() {
 		SVDBProjectData pdata = getProjectData();
 		
@@ -196,5 +262,6 @@ public class NewSVMethodologyClassWizardSpecificsPage extends WizardPage {
 			}
 		}
 	}
+	 */
 
 }

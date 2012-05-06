@@ -85,7 +85,17 @@ public class SVTParser {
 		}
 		
 		TemplateCategory c = new TemplateCategory(id, name, parent);
-		fCategories.add(c);
+		
+		NodeList dl = category.getElementsByTagName("description");
+		
+		if (dl.getLength() > 0) {
+			Element desc = (Element)dl.item(0);
+			c.setDescription(desc.getTextContent());
+		}
+		
+		if (!fCategories.contains(c)) {
+			fCategories.add(c);
+		}
 	}
 	
 	private void addTemplate(Element template) {

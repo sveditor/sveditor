@@ -45,7 +45,9 @@ public abstract class AbstractExternalTemplateFinder extends AbstractTemplateFin
 					List<String> files = listFiles(tmpl_dir.getPath());
 					
 					for (String file : files) {
-						if (!file.endsWith(".svt")) {
+						File f = new File(file);
+						if (!f.getName().endsWith(".svt") && 
+								!f.getName().startsWith(".")) {
 							File fn = new File(file);
 							ti.addTemplate(file, fn.getName());
 						}

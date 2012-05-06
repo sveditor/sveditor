@@ -56,7 +56,19 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 		
 		IContainer c = null;
 
-		c = root.getFolder(new Path(path));
+		try {
+			c = root.getFolder(new Path(path));
+		} catch (IllegalArgumentException e) {}
+		
+		if (c == null) {
+			// Try treating this as a project
+			if (path.startsWith("/")) {
+				String pname = path.substring(1);
+				try {
+					c = root.getProject(pname);
+				} catch (IllegalArgumentException e) {}
+			}
+		}
 		
 		if (c != null) {
 			IResource resources[] = null;

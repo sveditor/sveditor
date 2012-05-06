@@ -57,6 +57,10 @@ public class TemplateRegistry implements ILogLevel {
 		fPathProviders.clear();
 	}
 	
+	public List<TemplateCategory> getCategories() {
+		return fCategories;
+	}
+	
 	public List<String> getCategoryNames() {
 		List<String> ret = new ArrayList<String>();
 		
@@ -139,7 +143,11 @@ public class TemplateRegistry implements ILogLevel {
 			List<TemplateCategory> category_list = f.getCategories();
 			
 			fTemplates.addAll(tmpl_list);
-			fCategories.addAll(category_list);
+			for (TemplateCategory new_c : category_list) {
+				if (!fCategories.contains(new_c)) {
+					fCategories.add(new_c);
+				}
+			}
 		}
 		
 		// Sort the categories

@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package net.sf.sveditor.ui.wizards.templates;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +23,7 @@ import net.sf.sveditor.core.templates.ITemplateFileCreator;
 import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.wizards.ISVSubWizard;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -37,14 +38,15 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
-public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
-	public static final String					ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
-	private NewSVMethodologyClassWizardBasicsPage		fBasicsPage;
+public class SVTemplateWizard extends BasicNewResourceWizard {
+	public static final String						ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
+	private SVTemplateSelectionPage						fBasicsPage;
+	private SVTemplateParameterPage						fParamsPage;
 	private ISVSubWizard								fSubWizard;
 	private Map<String, Object>							fOptions;
 	
 
-	public NewSVMethodologyClassWizard() {
+	public SVTemplateWizard() {
 		super();
 		fOptions = new HashMap<String, Object>();
 	}
@@ -52,7 +54,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	public void addPages() {
 		super.addPages();
 		
-		fBasicsPage = new NewSVMethodologyClassWizardBasicsPage();
+		fBasicsPage = new SVTemplateSelectionPage();
+		fParamsPage = new SVTemplateParameterPage();
 		
 		Object sel = getSelection().getFirstElement();
 		if (sel != null && sel instanceof IResource) {
@@ -61,9 +64,10 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 			if (!(r instanceof IContainer)) {
 				r = r.getParent();
 			}
-			fBasicsPage.setSourceFolder(r.getFullPath().toOSString());
+			fParamsPage.setSourceFolder(r.getFullPath().toOSString());
 		}
 		addPage(fBasicsPage);
+		addPage(fParamsPage);
 	}
 	
 	@Override
@@ -77,11 +81,19 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 	
 	@Override
 	public IWizardPage getNextPage(IWizardPage page) {
+		IWizardPage next;
+		
 		if (fSubWizard != null) {
-			return fSubWizard.getNextPage(page);
+			next = fSubWizard.getNextPage(page);
 		} else {
-			return super.getNextPage(page);
+			next = super.getNextPage(page);
 		}
+		
+		if (next == fParamsPage) {
+			fParamsPage.setTemplate(fBasicsPage.getTemplate());
+		}
+		
+		return next;
 	}
 	
 	@Override
@@ -109,8 +121,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 
 	@Override
 	public boolean performFinish() {
-		final IContainer folder = SVFileUtils.getWorkspaceFolder(fBasicsPage.getSourceFolder());
-		final TagProcessor tp = fBasicsPage.getTagProcessor(false);
+		final IContainer folder = SVFileUtils.getWorkspaceFolder(fParamsPage.getSourceFolder());
+		final TagProcessor tp = fParamsPage.getTagProcessor(false);
 		
 
 		try {
@@ -118,7 +130,8 @@ public class NewSVMethodologyClassWizard extends BasicNewResourceWizard {
 
 				public void run(final IProgressMonitor monitor) 
 						throws InvocationTargetException, InterruptedException {
-					monitor.beginTask("Creating Files", fBasicsPage.getFileNames().size());
+					// TODO:
+					monitor.beginTask("Creating Files", 5 /*fParamsPage.getFileNames().size()*/);
 					TemplateProcessor templ_proc = new TemplateProcessor(new ITemplateFileCreator() {
 
 						public void createFile(String path, InputStream content) {

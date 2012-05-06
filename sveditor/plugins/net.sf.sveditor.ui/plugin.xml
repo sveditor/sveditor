@@ -502,7 +502,7 @@
       <wizard
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
-            class="net.sf.sveditor.ui.wizards.NewSVMethodologyClassWizard"
+            class="net.sf.sveditor.ui.wizards.templates.SVTemplateWizard"
             icon="icons/eview16/generate_template_class.gif"
             id="net.sf.sveditor.ui.svMethodologyClassWizard"
             name="SystemVerilog Template Class"

@@ -83,6 +83,9 @@
 
    <element name="category">
       <complexType>
+         <sequence minOccurs="0" maxOccurs="1">
+            <element ref="description"/>
+         </sequence>
          <attribute name="name" type="string">
             <annotation>
                <documentation>

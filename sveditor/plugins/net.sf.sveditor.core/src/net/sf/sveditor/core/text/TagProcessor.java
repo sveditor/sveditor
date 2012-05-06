@@ -27,7 +27,12 @@ public class TagProcessor {
 	public TagProcessor() {
 		fTagMap = new HashMap<String, String>();
 	}
-	
+
+	public TagProcessor(TagProcessor other) {
+		this();
+		fTagMap.putAll(other.fTagMap);
+	}
+
 	public void setTag(String tag, String value) {
 		if (fTagMap.containsKey(tag)) {
 			fTagMap.remove(tag);
@@ -37,6 +42,14 @@ public class TagProcessor {
 	
 	public boolean hasTag(String tag) {
 		return fTagMap.containsKey(tag);
+	}
+
+	public String getTag(String tag) {
+		if (fTagMap.containsKey(tag)) {
+			return fTagMap.get(tag);
+		} else {
+			return "";
+		}
 	}
 	
 	public void appendTag(String tag, String value) {
