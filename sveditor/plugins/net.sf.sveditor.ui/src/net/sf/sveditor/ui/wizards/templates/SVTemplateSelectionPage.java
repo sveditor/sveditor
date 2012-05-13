@@ -28,7 +28,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class SVTemplateSelectionPage extends WizardPage {
@@ -53,14 +52,11 @@ public class SVTemplateSelectionPage extends WizardPage {
 	// Source Folder
 	// 
 	public void createControl(Composite parent) {
-		Label l;
 		
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-//		parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
 		
 		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
-//		c.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Composite src_c = new Composite(c, SWT.NONE);
@@ -105,10 +101,6 @@ public class SVTemplateSelectionPage extends WizardPage {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fDescription.setLayoutData(gd);
 
-//		fName.setFocus();
-		//loadCategoryList();
-		//updateFilenamesDescription();
-		
 		setPageComplete(false);
 		setControl(c);
 	}
@@ -126,63 +118,6 @@ public class SVTemplateSelectionPage extends WizardPage {
 		
 		validate();
 	}
-
-	/*
-	 */
-	
-	/*
-	@SuppressWarnings("rawtypes")
-	private void loadCategoryList() {
-		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
-		List<String> names = new ArrayList<String>();
-		names.addAll(rgy.getCategoryNames());
-		
-		SortUtils.sort(names, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				return ((String)o1).compareTo((String)o2);
-			}
-		}, true);
-		
-		
-		fCategoryCombo.setItems(names.toArray(new String[names.size()]));
-		fCategoryCombo.select(0);
-		updateTemplateList();
-	}
-	 */
-	
-
-	/*
-	@SuppressWarnings("rawtypes")
-	private void updateTemplateList() {
-		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
-		String sel = fCategoryCombo.getText();
-		int category_idx = rgy.getCategoryNames().indexOf(sel);
-		
-		String id = rgy.getCategoryIDs().get(category_idx);
-		
-		List<TemplateInfo> templates = new ArrayList<TemplateInfo>(rgy.getTemplates(id));
-		SortUtils.sort(templates, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				TemplateInfo i1 = (TemplateInfo)o1;
-				TemplateInfo i2 = (TemplateInfo)o2;
-				return (i1.getName().compareTo(i2.getName()));
-			}
-		}, true);
-		
-		debug("Category: " + id);
-		
-		String items[] = new String[templates.size()];
-		for (int i=0; i<templates.size(); i++) {
-			debug("    Template: " + templates.get(i).getName());
-			items[i] = templates.get(i).getName();
-		}
-		fTemplateCombo.setItems(items);
-		fTemplateCombo.select(0);
-		fTemplate = templates.get(0);
-		
-		updateFilenamesDescription();
-	}
-	 */
 	
 	private void validate() {
 		setErrorMessage(null);
@@ -204,33 +139,4 @@ public class SVTemplateSelectionPage extends WizardPage {
 		setPageComplete((getErrorMessage() == null));
 	}
 
-	/*
-	private IProject findDestProject() {
-		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
-
-		if (c == null) {
-			return null;
-		} else if (c instanceof IProject) {
-			return (IProject)c;
-		} else {
-			return c.getProject();
-		}
-	}
-	
-	public SVDBProjectData getProjectData() {
-		IProject p = findDestProject();
-		if (p == null) {
-			return null;
-		}
-
-		SVDBProjectData pdata = 
-			SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
-		
-		return pdata;
-	}
-	 */
-	
-	private void debug(String msg) {
-		// System.out.println(msg);
-	}
 }

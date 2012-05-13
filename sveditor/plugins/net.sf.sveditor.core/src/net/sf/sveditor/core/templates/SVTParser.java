@@ -141,6 +141,7 @@ public class SVTParser {
 				String p_type_s = parameter.getAttribute("type");
 				String p_dflt   = parameter.getAttribute("default");
 				String p_ext    = parameter.getAttribute("extends_from");
+				String p_restr  = parameter.getAttribute("restrictions");
 				
 				if (p_type_s.equals("class")) {
 					p_type = TemplateParameterType.ParameterType_Class;
@@ -152,6 +153,15 @@ public class SVTParser {
 				
 				TemplateParameter p = new TemplateParameter(
 						p_type, p_name, p_dflt, p_ext);
+				
+				if (p_restr != null && !p_restr.trim().equals("")) {
+					String restr[] = p_restr.split(",");
+					
+					for (String r : restr) {
+						r = r.trim();
+						p.addValue(r);
+					}
+				}
 				t.addParameter(p);
 			}
 		}

@@ -28,6 +28,21 @@ public class TemplateParameter {
 		return fType;
 	}
 	
+	public String getTypeName() {
+		switch (fType) {
+			case ParameterType_Id: {
+				if (fValues.size() == 0) {
+					return "identifier";
+				} else {
+					return "choice";
+				}
+			}
+			case ParameterType_Class: return "class"; 
+			case ParameterType_Int: return "integer"; 
+			default: return "unknown";
+		}
+	}
+	
 	public String getName() {
 		return fName;
 	}

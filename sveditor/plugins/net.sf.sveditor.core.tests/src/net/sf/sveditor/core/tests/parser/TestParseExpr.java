@@ -306,6 +306,22 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"c", "foo"});
 	}
 
+	public void testNewExprCall() throws SVParseException {
+		String testname = "testNewExprCall";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	rand bit[3:0] a;\n" +
+			"	rand bit[3:0] b;\n" +
+			"\n" +
+			"	function void foo();\n" +
+			"		c v = new this;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(testname, content, new String[] {"c", "foo"});
+	}
+
 	private void runTest(
 			String			testname,
 			String			doc,

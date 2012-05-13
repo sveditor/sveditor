@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
@@ -56,6 +57,9 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 	public Image getImage(Object element) {
 		if (element instanceof ISVDBItemBase) {
 			return SVDBIconUtils.getIcon((ISVDBItemBase)element);
+		} else if (element instanceof SVDBDeclCacheItem) {
+			SVDBDeclCacheItem item = (SVDBDeclCacheItem)element;
+			return SVDBIconUtils.getIcon(item.getType());
 		} else {
 			return super.getImage(element);
 		}
@@ -193,6 +197,9 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret = new StyledString(element.toString());
 			}
 			return ret;
+		} else if (element instanceof SVDBDeclCacheItem) {
+			SVDBDeclCacheItem item = (SVDBDeclCacheItem)element;
+			return new StyledString(item.getName());
 		} else {
 			return new StyledString(element.toString());
 		}

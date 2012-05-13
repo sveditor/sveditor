@@ -17,6 +17,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.templates.TemplateParameter;
 import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
@@ -40,6 +41,11 @@ import org.eclipse.swt.widgets.Text;
 public class SVTemplateParameterPage extends WizardPage {
 	private Text							fSourceFolder;
 	private String							fSourceFolderStr;
+	private Button							fBrowse;
+	
+	private Text							fName;
+	
+	private Button							fOverwrite;
 	
 	private TemplateFilesTableViewer		fFileTable;
 	
@@ -51,12 +57,11 @@ public class SVTemplateParameterPage extends WizardPage {
 	
 	public SVTemplateParameterPage() {
 		super("New SystemVerilog Class", "SystemVerilog Class", null);
-		setDescription("Create a new SystemVerilog class");
+		setDescription("Specify template parameters");
 		fTagProcessor = new TagProcessor();
 	}
 
 	public void setSourceFolder(String folder) {
-		System.out.println("Params: setSourceFolder");
 		fSourceFolderStr = folder;
 		
 		if (fSourceFolder != null && !fSourceFolder.isDisposed()) {
@@ -71,12 +76,11 @@ public class SVTemplateParameterPage extends WizardPage {
 	}
 	
 	public void setTemplate(TemplateInfo template) {
-		// TODO: need to flush state here
+		// Flush state here
 		fTemplate = template;
 		
-		System.out.println("setTemplate: " + template);
-		
 		updateFilenamesDescription();
+		updateParameters();
 	}
 	
 	public TagProcessor getTagProcessor(boolean dont_expand_null_name) {
@@ -88,17 +92,15 @@ public class SVTemplateParameterPage extends WizardPage {
 				tp.setTag("name", "");
 			}
 		}
+		
+		// Add parameter values
+		for (TemplateParameter p : fParamsTable.getParameters()) {
+			tp.setTag(p.getName(), p.getValue());
+		}
 
 		return tp;
 	}
 	
-	@Override
-	public boolean isPageComplete() {
-		// TODO Auto-generated method stub
-		System.out.println("isPageComplete: " +  super.isPageComplete());
-		return super.isPageComplete();
-	}
-
 	//
 	// Source Folder
 	// 
@@ -122,28 +124,28 @@ public class SVTemplateParameterPage extends WizardPage {
 		if (fSourceFolderStr != null) {
 			fSourceFolder.setText(fSourceFolderStr);
 		}
-		fSourceFolder.setLayoutData(
-				new GridData(SWT.FILL, SWT.FILL, true, false));
-		fSourceFolder.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				fSourceFolderStr = fSourceFolder.getText();
-				fFileTable.setSourceFolder(fSourceFolderStr);
-				updateFilenamesDescription();
-			}
-		});
-		final Button sf_browse = new Button(src_c, SWT.PUSH);
-		sf_browse.setText("Browse");
-		sf_browse.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(
-						sf_browse.getShell());
-				if (dlg.open() == Window.OK) {
-					fSourceFolder.setText(dlg.getPath());
-				}
-				validate();
-			}
-			public void widgetDefaultSelected(SelectionEvent e) {}
-		});
+		fSourceFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fSourceFolder.addModifyListener(modifyListener);
+		
+		fBrowse = new Button(src_c, SWT.PUSH);
+		fBrowse.setText("Browse");
+		fBrowse.addSelectionListener(selectionListener);
+		
+		// Name
+		l = new Label(src_c, SWT.NONE);
+		l.setText("Name:");
+		fName = new Text(src_c, SWT.BORDER);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		fName.setLayoutData(gd);
+		fName.addModifyListener(modifyListener);
+		
+		// Overwrite Files
+		l = new Label(src_c, SWT.NONE);
+		l.setText("Overwrite Files:");
+		fOverwrite = new Button(src_c, SWT.CHECK);
+		fOverwrite.addSelectionListener(selectionListener);
+		
 		
 		g = new Group(src_c, SWT.NONE);
 		g.setText("Parameters");
@@ -157,10 +159,8 @@ public class SVTemplateParameterPage extends WizardPage {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 100;
 		fParamsTable.getTable().setLayoutData(gd);
+		fParamsTable.addModifyListener(modifyListener);
 		
-//		fParamsTable.setContentProvider(provider);
-//		fParamsTable.set
-
 		g = new Group(src_c, SWT.NONE);
 		g.setText("Filenames");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -177,6 +177,8 @@ public class SVTemplateParameterPage extends WizardPage {
 		setControl(c);
 		
 		updateFilenamesDescription();
+		
+		fName.setFocus();
 	}
 	
 	private void validate() {
@@ -198,14 +200,19 @@ public class SVTemplateParameterPage extends WizardPage {
 	}
 	
 	private void updateFilenamesDescription() {
-		
-		TagProcessor tp = getTagProcessor(true);
-		
 		if (fFileTable != null && !fFileTable.getTable().isDisposed()) {
 			fFileTable.setSourceFolder(fSourceFolderStr);
 			fFileTable.setTemplate(fTemplate);
 		}
+		
+		if (fParamsTable != null && !fParamsTable.getTable().isDisposed()) {
+			fParamsTable.setSourceFolder(fSourceFolderStr);
+		}
 
+		validate();
+	}
+	
+	private void updateParameters() {
 		if (fParamsTable != null && !fParamsTable.getTable().isDisposed()) {
 			if (fTemplate != null) {
 				fParamsTable.setParameters(fTemplate.getParameters());
@@ -213,16 +220,8 @@ public class SVTemplateParameterPage extends WizardPage {
 				fParamsTable.setParameters(null);
 			}
 		}
-		
-		validate();
 	}
 
-	/*
-	private void updateClassBrowseState() {
-		fSuperClassBrowse.setEnabled((findDestProject() != null));
-	}
-	 */
-	
 	private IProject findDestProject() {
 		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
 
@@ -246,6 +245,40 @@ public class SVTemplateParameterPage extends WizardPage {
 		
 		return pdata;
 	}
+	
+	private ModifyListener modifyListener = new ModifyListener() {
+		public void modifyText(ModifyEvent e) {
+			if (e.widget == fSourceFolder) {
+				fSourceFolderStr = fSourceFolder.getText();
+				fFileTable.setSourceFolder(fSourceFolderStr);
+			} else if (e.widget == fName) {
+				fTagProcessor.setTag("name", fName.getText());
+			} else if (e.widget == fFileTable.getTable()) {
+				
+			}
+			updateFilenamesDescription();
+		}
+	};
+	
+	private SelectionListener selectionListener = new SelectionListener() {
+		
+		public void widgetSelected(SelectionEvent e) {
+			if (e.widget == fBrowse) {
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(getShell());
+				if (dlg.open() == Window.OK) {
+					fSourceFolder.setText(dlg.getPath());
+				}
+			} else if (e.widget == fOverwrite) {
+				boolean overwrite = fOverwrite.getSelection();
+				if (fFileTable.getTable() != null && !fFileTable.getTable().isDisposed()) {
+					fFileTable.setOverwriteFiles(overwrite);
+				}
+			}
+			validate();
+		}
+		
+		public void widgetDefaultSelected(SelectionEvent e) {}
+	};
 
 	/*
 	private void browseClass() {

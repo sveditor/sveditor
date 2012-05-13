@@ -40,6 +40,10 @@ public class TagProcessor {
 		fTagMap.put(tag, value);
 	}
 	
+	public void removeTag(String tag) {
+		fTagMap.remove(tag);
+	}
+	
 	public boolean hasTag(String tag) {
 		return fTagMap.containsKey(tag);
 	}

@@ -1,3 +1,9 @@
+-- 0.8.8 Release --
+
+- #(3526097) - Correct parse error with new <expr>; statement
+
+
+------------------------------------------------------------------------------
 -- 0.8.7 Release --
 
 - #(nobug) - Correct content-assist issue with comparison operators. For example:

@@ -20,28 +20,34 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 
 public class TemplateParametersTableViewer extends TableViewer {
 	private List<TemplateParameter>				fParameters;
-	private String								fEditValue;
+	private List<ModifyListener>				fModifyListeners;
+	private String								fSourceFolderStr = "";
+	private TemplateParameter					fActiveParameter;
 	
 	public TemplateParametersTableViewer(Composite parent) {
 		super(parent);
 		
 		fParameters = new ArrayList<TemplateParameter>();
+		fModifyListeners = new ArrayList<ModifyListener>();
 		
 		getTable().setHeaderVisible(true);
 		
 		TableViewerColumn err = new TableViewerColumn(this, SWT.LEFT, 0);
-		err.getColumn().setText("Status");
-		err.getColumn().setWidth(50);
+		err.getColumn().setText("Name");
+		err.getColumn().setWidth(100);
 		
 		TableViewerColumn name = new TableViewerColumn(this, SWT.LEFT, 1);
-		name.getColumn().setText("Name");
+		name.getColumn().setText("Type");
 		name.getColumn().setWidth(100);
 		
 		TableViewerColumn value = new TableViewerColumn(this, SWT.LEFT, 2);
@@ -49,7 +55,7 @@ public class TemplateParametersTableViewer extends TableViewer {
 		value.getColumn().setWidth(100);
 		value.setEditingSupport(new ValueEditingSupport(getTable(), this));
 		
-		setColumnProperties(new String[] {"status", "name", "value"});
+		setColumnProperties(new String[] {"name", "type", "value"});
 		
 		setContentProvider(contentProvider);
 		setLabelProvider(labelProvider);
@@ -64,6 +70,28 @@ public class TemplateParametersTableViewer extends TableViewer {
 		}
 		
 		setInput(fParameters);
+	}
+	
+	public List<TemplateParameter> getParameters() {
+		return fParameters;
+	}
+	
+	public void setSourceFolder(String src_folder) {
+		fSourceFolderStr = src_folder;
+	}
+	
+	public void addModifyListener(ModifyListener l) {
+		fModifyListeners.add(l);
+	}
+	
+	private void triggerListeners() {
+		Event ev = new Event();
+		ev.widget = getTable();
+		ModifyEvent e = new ModifyEvent(ev);
+		e.widget = this.getTable();
+		for (ModifyListener l : fModifyListeners) {
+			l.modifyText(e);
+		}
 	}
 
 	IStructuredContentProvider contentProvider = new IStructuredContentProvider() {
@@ -90,15 +118,19 @@ public class TemplateParametersTableViewer extends TableViewer {
 
 		public String getColumnText(Object element, int columnIndex) {
 			String ret = "" + columnIndex;
+			TemplateParameter p = (TemplateParameter)element;
 			
 			switch (columnIndex) {
+				case 0:
+					ret = p.getName();
+					break;
+					
 				case 1:
-					ret = ((TemplateParameter)element).getName();
+					ret = p.getTypeName();
 					break;
 					
 				case 2:
-					ret = ((TemplateParameter)element).getValue();
-					System.out.println("getColumnText: " + ret);
+					ret = p.getValue();
 					break;
 			}
 			return ret;
@@ -109,30 +141,25 @@ public class TemplateParametersTableViewer extends TableViewer {
 	private class ValueEditingSupport extends EditingSupport {
 		private ComboBoxCellEditor			fRestrictedIdEditor;
 		private TextCellEditor				fIdEditor;
-		private ComboBoxCellEditor			fClassEditor;
+		private TextCellEditor				fClassEditor;
 		
 		public ValueEditingSupport(Composite parent, ColumnViewer viewer) {
 			super(viewer);
 			
 			fRestrictedIdEditor = new ComboBoxCellEditor(parent, new String[] {}, SWT.READ_ONLY);
 			fIdEditor = new TextCellEditor(parent, SWT.NONE);
-			fClassEditor = new ComboBoxCellEditor(parent, new String[] {});
+			fClassEditor = new TextCellEditor(parent, SWT.SEARCH+SWT.ICON_SEARCH);
 			
-			final CCombo c = (CCombo)fClassEditor.getControl(); 
-			c.addSelectionListener(new SelectionListener() {
-				public void widgetDefaultSelected(SelectionEvent e) {}
+			final Text t = (Text)fClassEditor.getControl();
+			t.addListener(SWT.DefaultSelection, new Listener() {
 				
-				public void widgetSelected(SelectionEvent e) {
-					System.out.println("Selected: " + e);
-					if (c.getText().equals("Browse...")) {
-						ClassBrowseDialog d = new ClassBrowseDialog(c.getShell());
-						
-						if (d.open() == Dialog.OK) {
-							c.setItem(0, "A");
-						} else {
-						}
-						c.select(0);
-						e.doit = false;
+				public void handleEvent(Event event) {
+					ClassBrowseDialog d = new ClassBrowseDialog(
+							t.getShell(), fSourceFolderStr, 
+							fActiveParameter.getExtFrom());
+					
+					if (d.open() == Dialog.OK) {
+						t.setText(d.getSelectedClass());
 					}
 				}
 			});
@@ -142,6 +169,8 @@ public class TemplateParametersTableViewer extends TableViewer {
 		protected CellEditor getCellEditor(Object element) {
 			CellEditor ret = null;
 			TemplateParameter p = (TemplateParameter)element;
+			
+			fActiveParameter = p;
 			
 			if (p.getType() == TemplateParameterType.ParameterType_Id) {
 				if (p.getValues().size() > 0) {
@@ -153,8 +182,6 @@ public class TemplateParametersTableViewer extends TableViewer {
 				}
 			} else if (p.getType() == TemplateParameterType.ParameterType_Class) {
 				ret = fClassEditor;
-				((CCombo)ret.getControl()).setItems(
-						new String[] {p.getValue(), "Browse..."});
 			}
 			
 			return ret;
@@ -176,7 +203,7 @@ public class TemplateParametersTableViewer extends TableViewer {
 					return p.getValue();
 				}
 			} else if (p.getType() == TemplateParameterType.ParameterType_Class) {
-				return new Integer(0);
+				return p.getValue();
 			}
 			return "";
 		}
@@ -184,16 +211,18 @@ public class TemplateParametersTableViewer extends TableViewer {
 		@Override
 		protected void setValue(Object element, Object value) {
 			TemplateParameter p = (TemplateParameter)element;
-			System.out.println("setValue: " + value);
 			if (p.getType() == TemplateParameterType.ParameterType_Class) {
-				int idx = (Integer)value;
-				CCombo c = (CCombo)fClassEditor.getControl();
-				
-				p.setValue(c.getText());
-			} else {
 				p.setValue(value.toString());
+			} else {
+				if (p.getValues().size() > 0) {
+					CCombo c = (CCombo)fRestrictedIdEditor.getControl();
+					p.setValue(c.getText());
+				} else {
+					p.setValue(value.toString());
+				}
 			}
 			refresh();
+			triggerListeners();
 		}
 	}
 	

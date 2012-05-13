@@ -11,6 +11,8 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -27,6 +29,7 @@ public class TemplateFilesTableViewer extends TableViewer {
 	private String							fSourceFolderStr = "";
 	private List<String>					fFilenames;
 	private TagProcessor					fTagProcessor;
+	private boolean						fOverwriteFiles;
 	
 	public TemplateFilesTableViewer(Composite parent, TagProcessor p) {
 		super(parent);
@@ -48,18 +51,29 @@ public class TemplateFilesTableViewer extends TableViewer {
 		updateFilenames();
 	}
 	
+	public void setOverwriteFiles(boolean overwrite) {
+		fOverwriteFiles = overwrite;
+		updateFilenames();
+	}
+	
 	public String validate() {
 		String ret = null;
 		
 		updateFilenames();
 		
+		if (!fTagProcessor.hasTag("name") || 
+				fTagProcessor.getTag("name").trim().equals("")) {
+			ret = "Must specify name";
+		}
+		
 		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
-		if (c != null) {
+		if (c != null && c.exists()) {
 			// TODO: validate all proposed files to ensure none exist
 			fTemplate.getTemplates();
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			for (String filename : fFilenames) {
-				IFile file = c.getFile(new Path(filename));
-				if (file.exists() && ret == null) {
+				IFile file = root.getFile(new Path(filename));
+				if ((file.exists() && !fOverwriteFiles) && ret == null) {
 					ret = "File \"" + filename + "\" exists";
 				}
 			}
@@ -83,6 +97,12 @@ public class TemplateFilesTableViewer extends TableViewer {
 	private void updateFilenames() {
 		fFilenames = new ArrayList<String>();
 		
+		TagProcessor tp = new TagProcessor(fTagProcessor);
+		
+		if (tp.hasTag("name") && tp.getTag("name").trim().equals("")) {
+			tp.removeTag("name");
+		}
+		
 		if (fTemplate != null) {
 			for (Tuple<String, String> n : fTemplate.getTemplates()) {
 				fFilenames.add("" + fSourceFolderStr + "/" + n.second());
@@ -91,7 +111,7 @@ public class TemplateFilesTableViewer extends TableViewer {
 		
 		// TODO: process filenames
 		for (int i=0; i<fFilenames.size(); i++) {
-			String pn = fTagProcessor.process(fFilenames.get(i));
+			String pn = tp.process(fFilenames.get(i));
 			fFilenames.set(i, pn);
 		}
 		
@@ -131,12 +151,15 @@ public class TemplateFilesTableViewer extends TableViewer {
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
 				IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
-				
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
 				if (c != null) {
 					String filename = element.toString();
-					IFile file = c.getFile(new Path(filename));
+					IFile file = root.getFile(new Path(filename));
 
-					if (file.exists()) {
+					if (!fTagProcessor.hasTag("name") || 
+							fTagProcessor.getTag("name").trim().equals("") || 
+							(file.exists() && !fOverwriteFiles)) {
 						return SVUiPlugin.getImage("/icons/eview16/error.gif");
 					} else {
 						return SVUiPlugin.getImage("/icons/eview16/signed_yes.gif");
