@@ -2,6 +2,14 @@
 
 - #(3526097) - Correct parse error with new <expr>; statement
 
+- #(enh) - Enhance template infrastructure with support for user-defined
+  template parameters. Currently, integer-, identifier-, and class-type parameters
+  are supported.
+
+- #(nobug) - Correct parse error with multi-dimension vectors (eg wire [3:0][3:0])
+
+- 
+
 
 ------------------------------------------------------------------------------
 -- 0.8.7 Release --

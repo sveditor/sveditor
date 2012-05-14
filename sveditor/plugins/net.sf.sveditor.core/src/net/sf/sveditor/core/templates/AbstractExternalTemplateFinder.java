@@ -17,6 +17,7 @@ public abstract class AbstractExternalTemplateFinder extends AbstractTemplateFin
 		List<String> paths = findTemplatePaths();
 		
 		for (String path : paths) {
+			fLog.debug(LEVEL_MIN, "Processing .svt file: " + path);
 			InputStream in = openFile(path);
 			File tmpl_dir = new File(path).getParentFile();
 			
@@ -25,7 +26,7 @@ public abstract class AbstractExternalTemplateFinder extends AbstractTemplateFin
 				continue;
 			}
 			
-			// TODO: process template file
+			// Process template file
 			SVTParser p = new SVTParser(tmpl_dir.getPath(), fInProvider);
 			
 			try {
@@ -34,11 +35,17 @@ public abstract class AbstractExternalTemplateFinder extends AbstractTemplateFin
 				fLog.error("Failed to parse template \"" + path + "\": " + e.getMessage(), e);
 			}
 			
+			for (TemplateCategory c : p.getCategories()) {
+				fLog.debug(LEVEL_MID, "Category: id=" + c.getId() + " name=" + c.getName());
+			}
 			fCategories.addAll(p.getCategories());
 			
 			for (TemplateInfo ti : p.getTemplates()) {
 				fTemplates.add(ti);
-				
+
+				fLog.debug(LEVEL_MID, "Template: id=" + 
+						ti.getId() + " name=" + ti.getName());
+
 				if (!ti.getTemplates().iterator().hasNext()) {
 					// implicitly-specified template list
 					

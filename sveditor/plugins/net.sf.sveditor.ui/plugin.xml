@@ -14,6 +14,13 @@
                contentTypeId="net.sf.sveditor.core.systemverilog">
          </contentTypeBinding>
       </editor>
+      <editor
+            class="net.sf.sveditor.ui.svt.editor.SVTEditor"
+            default="false"
+            extensions="svt"
+            id="net.sf.sveditor.ui.svtEditor"
+            name="SystemVerilog Template Editor">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
@@ -505,7 +512,7 @@
             class="net.sf.sveditor.ui.wizards.templates.SVTemplateWizard"
             icon="icons/eview16/generate_template_class.gif"
             id="net.sf.sveditor.ui.svMethodologyClassWizard"
-            name="SystemVerilog Template Class"
+            name="SystemVerilog Template"
             project="false">
       </wizard>
    </extension>

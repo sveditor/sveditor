@@ -117,6 +117,21 @@ public class TestParseDataTypes extends TestCase {
 		runTest("testMultiDimArrayDecl", content,
 				new String [] {"foo", "my_var"});
 	}
+	
+	public void testMultiDimWireArrayDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testMultiDimWireArrayDecl";
+		String content =
+			"module m;\n" +
+			"wire        [P1_WIDTH:0]        V1;\n" +
+			"wire        [P1_WIDTH:0][5:0]   V2;\n" +
+			"CnTxt2RAM_s [P1_WIDTH:0]        V3;\n" +
+			"endmodule\n";
+
+		runTest(testname, content,
+				new String[] {"m", "V1", "V2", "V3"});
+	}
+	
 
 	public void testVirtualInterfaceParameterizedClass() throws SVParseException {
 		String content =
@@ -269,6 +284,7 @@ public class TestParseDataTypes extends TestCase {
 			"endclass\n";
 		runTest(testname, content, new String[] {"tb_env", "build", "int0_if"});
 	}
+	
 
 	private void runTest(
 			String			testname,

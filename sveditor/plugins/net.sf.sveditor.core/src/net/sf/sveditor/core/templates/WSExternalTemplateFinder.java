@@ -9,6 +9,7 @@ import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -44,6 +45,8 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 			for (IResource r : resources) {
 				if (r instanceof IFile && r.getName().endsWith(".svt")) {
 					templates.add(((IFile)r).getFullPath().toOSString());
+				} else if (r instanceof IContainer) {
+					findTemplatePaths(templates, (IContainer)r);
 				}
 			}
 		}

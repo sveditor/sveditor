@@ -118,7 +118,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			while (fLexer.peekOperator("[")) {
-				builtin_type.setArrayDim(var_dim());
+				builtin_type.setArrayDim(vector_dim());
 			}
 			type = builtin_type;
 		} else if (fLexer.peekKeyword(NetType)) {
@@ -127,6 +127,7 @@ public class SVDataTypeParser extends SVParserBase {
 			//	 ::= 
 			//	net_type [ drive_strength | charge_strength ] [  vectored  |  scalared  ] 
 			//	data_type_or_implicit [ delay3 ] list_of_net_decl_assignments ;  
+			debug("NetType");
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 			
 			// Drive Strength
@@ -146,11 +147,7 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			// Array dimensions
 			if (fLexer.peekOperator("[")) {
-				fLexer.startCapture();
-				while (fLexer.peekOperator("[")) {
-					fLexer.skipPastMatch("[", "]");
-				}
-				builtin_type.setVectorDim(fLexer.endCapture());
+				builtin_type.setVectorDim(vector_dim());
 			}
 			// Delay 3
 			// #(mintypmax,mintypmax, mintypmax)
@@ -254,24 +251,19 @@ public class SVDataTypeParser extends SVParserBase {
 			type = type_fwd;
 		} else if (fLexer.peekOperator("[") || fLexer.peekKeyword("signed", "unsigned")) {
 			// Implicit items
-			String id = fLexer.eatToken();
+			SVToken id = fLexer.consumeToken();
 			SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(
-					(id.equals("["))?"bit":id);
+					(id.getImage().equals("["))?"bit":id.getImage());
 			
 			// Implicit sized item
+			
+			debug("implicit type - " + id.getImage());
 
-			if (id.equals("[")) {
-				fLexer.startCapture();
-				do {
-					fLexer.skipPastMatch("[", "]");
-				} while (fLexer.peekOperator("["));
-				builtin_type.setVectorDim(fLexer.endCapture());
+			if (id.getImage().equals("[")) {
+				fLexer.ungetToken(id);
+				builtin_type.setVectorDim(vector_dim());
 			} else if (fLexer.peekOperator("[")) {
-				fLexer.startCapture();
-				do {
-					fLexer.skipPastMatch("[", "]");
-				} while (fLexer.peekOperator("["));
-				builtin_type.setVectorDim(fLexer.endCapture());
+				builtin_type.setVectorDim(vector_dim());
 			}
 			
 			type = builtin_type;
@@ -499,6 +491,38 @@ public class SVDataTypeParser extends SVParserBase {
 
 			fLexer.readOperator("]");
 			
+			if (!fLexer.peekOperator("[")) {
+				break;
+			}
+		}
+		
+		return ret;
+	}
+
+	public List<SVDBVarDimItem> vector_dim() throws SVParseException {
+		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
+		
+		while (fLexer.peek() != null) {
+			fLexer.readOperator("[");
+			SVDBVarDimItem dim = new SVDBVarDimItem();
+
+			debug("--> expression");
+			SVDBExpr expr = parsers().exprParser().expression();
+			debug("<-- expression - " + fLexer.peek());
+
+			if (fLexer.peekOperator(":")) {
+				// range
+				fLexer.eatToken();
+				dim.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
+			} else {
+				// single value
+				dim.setExpr(expr);
+			}
+
+			ret.add(dim);
+
+			fLexer.readOperator("]");
+	
 			if (!fLexer.peekOperator("[")) {
 				break;
 			}

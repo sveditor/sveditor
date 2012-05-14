@@ -382,10 +382,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		if (fLexer.peekOperator("[")) {
 			// TODO:
 			data_type = new SVDBTypeInfoBuiltin(net_type);
-			fLexer.startCapture();
-			fLexer.skipPastMatch("[", "]");
-			vector_dim = fLexer.endCapture();
-			((SVDBTypeInfoBuiltin)data_type).setVectorDim(vector_dim);
+			((SVDBTypeInfoBuiltin)data_type).setVectorDim(
+					fParsers.dataTypeParser().vector_dim());
 		}
 		else  {
 			// At this point set the data type to a generic, untyped data type.
