@@ -29,6 +29,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_AUTO_INDENT_ENABLED_S 							= "autoIndentEnabled";
 	
 	public static final String P_AUTO_REBUILD_INDEX								= "autoRebuildIndex";
+	public static final String P_ENABLE_SHADOW_INDEX								= "enableShadowIndex";
 	
 	public static final String P_DEBUG_LEVEL_S 									= "debugLevel";
 	

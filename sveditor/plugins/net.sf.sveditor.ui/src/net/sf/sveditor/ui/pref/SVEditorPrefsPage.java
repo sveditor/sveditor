@@ -35,9 +35,6 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-Indent:", getFieldEditorParent()));
 
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, 
-				"Enable Index Auto-Rebuild:", getFieldEditorParent()));
-
 		addField( new ComboFieldEditor(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "Debug Level:", 
 				new String[][] {
 					{"Off", "LEVEL_OFF"}, 

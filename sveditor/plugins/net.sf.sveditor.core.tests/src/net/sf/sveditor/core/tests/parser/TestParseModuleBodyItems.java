@@ -1011,6 +1011,23 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "control_if");
 	}
 
+	public void testClockingSameLine_DR() {
+		String testname = "testClockingSameLine_DR";
+		String doc = 
+			"interface control_if;\n" +
+			"	clocking mon_cb @(posedge clk); endclocking\n" +
+			"\n" +
+			"	clocking cb @(posedge clk); endclocking\n" +
+			"endinterface : control_if\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "control_if");
+	}
+
 	public void testOutputPort() {
 		
 		String doc =
