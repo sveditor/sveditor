@@ -1,7 +1,10 @@
 package net.sf.sveditor.ui.svt.editor;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
 
@@ -38,6 +41,7 @@ public class SVTEditor extends FormEditor {
 	private LogHandle						fLog;
 	private Document						fDocument;
 	private Element							fRootElement;
+	private boolean						fIsDirty;
 	
 	public SVTEditor() {
 		fLog = LogFactory.getLogHandle("SVTEditor");
@@ -80,11 +84,20 @@ public class SVTEditor extends FormEditor {
 			fRootElement = (Element)fDocument.getElementsByTagName("sv_template").item(0);
 		}
 		
-		boolean changed = SVTUtils.ensureExpectedSections(fDocument, fRootElement);
-		
-		dump();
-
 		super.init(site, input);
+
+		// Fixup the file structure and mark 'dirty' if changed 
+		if (SVTUtils.ensureExpectedSections(fDocument, fRootElement)) {
+			fIsDirty = true;
+			editorDirtyStateChanged();
+		}
+		
+		setPartName(input.getName());
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return (super.isDirty() || fIsDirty);
 	}
 
 	@Override
@@ -104,11 +117,11 @@ public class SVTEditor extends FormEditor {
 	@Override
 	protected void addPages() {
 		fTemplatePage = new TemplatePage(this);
-		fTextEditorPage = new TextEditorPage();
+//TODO:		fTextEditorPage = new TextEditorPage();
 		
 		try {
 			addPage(fTemplatePage);
-			addPage(fTextEditorPage);
+//TODO:			addPage(fTextEditorPage);
 		} catch (PartInitException e) {
 			fLog.error("Failed to add pages", e);
 		}
@@ -118,8 +131,39 @@ public class SVTEditor extends FormEditor {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-
+		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		
+		
+		if (getActivePage() == 0) {
+			fTemplatePage.doSave(monitor);
+		} else if (getActivePage() == 1) {
+			fTextEditorPage.doSave(monitor);
+		}
+		
+		try {
+			DOMSource ds = new DOMSource(fDocument);
+			StreamResult sr = new StreamResult(out);
+			tf.setAttribute("indent-number", new Integer(2));
+			TransformerHandler th = tf.newTransformerHandler();
+			
+			Properties format = new Properties();
+			format.put(OutputKeys.METHOD, "xml");
+//			format.put("{http://xml. customer .org/xslt}indent-amount", "4");
+//			format.put("indent-amount", "4");
+//			format.put(OutputKeys.DOCTYPE_SYSTEM, "myfile.dtd");
+			format.put(OutputKeys.ENCODING, "UTF-8");
+			format.put(OutputKeys.INDENT, "yes");
+			
+			th.getTransformer().setOutputProperties(format);
+			th.setResult(sr);
+			th.getTransformer().transform(ds, sr);
+			
+			EditorInputUtils.setContents(getEditorInput(),
+					new ByteArrayInputStream(out.toByteArray()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -130,8 +174,7 @@ public class SVTEditor extends FormEditor {
 
 	@Override
 	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 	
 	private void dump() {

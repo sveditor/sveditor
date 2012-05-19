@@ -522,6 +522,13 @@
             name="SystemVerilog Template"
             project="false">
       </wizard>
+      <wizard
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.templates.NewSVTDescriptorWizard"
+            icon="icons/eview16/generate_template_class.gif"
+            id="net.sf.sveditor.ui.newSVTWizard"
+            name="SystemVerilog Template Descriptor">
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

@@ -1021,7 +1021,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endinterface : control_if\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(doc, testname);
 		
 		SVDBTestUtils.assertNoErrWarn(file);

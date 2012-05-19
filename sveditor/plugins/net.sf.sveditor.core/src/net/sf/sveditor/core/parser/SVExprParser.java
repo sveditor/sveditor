@@ -181,21 +181,53 @@ public class SVExprParser extends SVParserBase {
 			}
 			fLexer.readOperator(")");
 		} else {
-			if (fLexer.peekNumber()) {
-				if (fDebugEn) {debug("  isNumber - " + fLexer.peek());}
-				expr = new SVDBLiteralExpr(fLexer.eatToken());
-			} else if (fLexer.peekOperator("1step")) {
-				expr = new SVDBLiteralExpr(fLexer.eatToken());
-			} else if (fLexer.peekId()) {
-				if (fDebugEn) {debug("  isIdExpression");}
-				expr = hierarchical_identifier(); // idExpr();
-			} else {
-				error("Expect number, '1step', or identifier ; receive " + fLexer.peek());
-			}
+			expr = delay_value();
 		}
 		
 		if (fDebugEn) {debug("<-- delay_expr - " + fLexer.peek());}
 		return expr;
+	}
+	
+	private SVDBExpr delay_value() throws SVParseException {
+		SVDBExpr ret = null;
+		if (fDebugEn) {debug("--> delay_value() : " + fLexer.peek());}
+		
+		if (fLexer.peekNumber()) {
+			if (fDebugEn) {debug("  isNumber - " + fLexer.peek());}
+			ret = new SVDBLiteralExpr(fLexer.eatToken());
+		} else if (fLexer.peekOperator("1step")) {
+			ret = new SVDBLiteralExpr(fLexer.eatToken());
+		} else if (fLexer.peekId()) {
+			if (fDebugEn) {debug("  isIdExpression");}
+			// expr = hierarchical_identifier(); // idExpr();
+			ret = idExpr();
+			
+			if (fDebugEn) {debug("  postPrimary -- peek: " + fLexer.peek());}
+			while (peekOperator("::", ".", "[")) {
+				SVToken t = fLexer.consumeToken();
+				// Don't move forward if this is likely to be an assertion sequence
+				if (fAssertionExpr.peek()) {
+					if (!fLexer.peekOperator()) {
+						fLexer.ungetToken(t);
+						ret = selector(ret);
+					} else {
+						fLexer.ungetToken(t);
+						break;
+					}
+				} else {
+					fLexer.ungetToken(t);
+					ret = selector(ret);
+				}
+			}
+			
+		} else {
+			error("Expect number, '1step', or identifier ; receive " + fLexer.peek());
+		}
+		
+		
+		if (fDebugEn) {debug("<-- delay_value() : " + fLexer.peek());}
+
+		return ret;
 	}
 	
 	public SVDBExpr datatype_or_expression() throws SVParseException {

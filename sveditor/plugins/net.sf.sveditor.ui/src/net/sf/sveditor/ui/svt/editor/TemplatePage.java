@@ -1,14 +1,28 @@
 package net.sf.sveditor.ui.svt.editor;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.ui.EditorInputUtils;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -58,15 +72,35 @@ public class TemplatePage extends FormPage {
 	
 	private Composite					fFileDetailsPane;
 	private Text						fFileName;
-	private Text						fFilePath;
+	private Text						fTemplatePath;
 	private Button						fFilePathBrowse;
 	
 	private Composite					fCategoryDetailsPane;
 	private Text						fCategoryId;
 	private Text						fCategoryName;
+	private Text						fCategoryDescription;
+
+	private boolean					fControlModify;
+	private boolean					fIsDirty;
+	
+	private Map<Object, String>			fAttrMap;
+	private Map	<Object, String>		fElemMap;
+	
+	private static List<String>		fTypeNames;
+	
+	static {
+		fTypeNames = new ArrayList<String>();
+		fTypeNames.add("id");
+		fTypeNames.add("int");
+		fTypeNames.add("enum");
+		fTypeNames.add("class");
+	}
 	
 	public TemplatePage(SVTEditor editor) {
 		super(editor, "id", "Template Definitions");
+		
+		fAttrMap = new HashMap<Object, String>();
+		fElemMap = new HashMap<Object, String>();
 	}
 
 	@Override
@@ -74,6 +108,8 @@ public class TemplatePage extends FormPage {
 		FormToolkit tk = managedForm.getToolkit();
 		ScrolledForm form = managedForm.getForm();
 		form.setText("Template");
+		
+		managedForm.dirtyStateChanged();
 		
 		Composite pane = form.getBody();
 		pane.setLayout(new GridLayout(1, false));
@@ -128,6 +164,7 @@ public class TemplatePage extends FormPage {
 		
 		fCategoryDetailsPane = createCategoryDetailsPane(tk, fDetailsPaneParent);
 
+		fTreeViewer.setSelection(new StructuredSelection("Templates"));
 		
 		setDetailsPane(fNoDetailsPane);
 	}
@@ -150,17 +187,23 @@ public class TemplatePage extends FormPage {
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateName.setLayoutData(gd);
+		fTemplateName.addModifyListener(modifyListener);
+		fAttrMap.put(fTemplateName, "name");
 		
 		tk.createLabel(c, "Id:");
 		fTemplateId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateId.setLayoutData(gd);
+		fTemplateId.addModifyListener(modifyListener);
+		fAttrMap.put(fTemplateId, "name");
 		
 		tk.createLabel(c, "Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fTemplateCategoryId.setLayoutData(gd);
+		fTemplateCategoryId.addModifyListener(modifyListener);
+		fAttrMap.put(fTemplateCategoryId, "category");
 		fTemplateCategoryBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fTemplateCategoryBrowse.addSelectionListener(selectionListener);
 		
@@ -171,9 +214,11 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fTemplateDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI);
+		fTemplateDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fTemplateDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fTemplateDescription.setLayoutData(gd);
+		fElemMap.put(fTemplateDescription, "description");
 		
 		return c;
 	}
@@ -191,33 +236,45 @@ public class TemplatePage extends FormPage {
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fParameterName.setLayoutData(gd);
+		fParameterName.addModifyListener(modifyListener);
+		fAttrMap.put(fParameterName, "name");
 		
 		tk.createLabel(c, "Type:");
 		fParameterType = new Combo(c, SWT.READ_ONLY);
-		fParameterType.setItems(new String[] {"id", "int", "class"});
+		fParameterType.setItems(fTypeNames.toArray(new String[fTypeNames.size()]));
 		tk.adapt(fParameterType);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fParameterType.setLayoutData(gd);
+		fParameterType.addSelectionListener(selectionListener);
 		
 		tk.createLabel(c, "Restrictions:");
 		fParameterRestrictions = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fParameterRestrictions.setLayoutData(gd);
+		fParameterRestrictions.addModifyListener(modifyListener);
+		fAttrMap.put(fParameterRestrictions, "restrictions");
 		
 		tk.createLabel(c, "Class Extends From:");
 		fParameterExtFromClass = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan = 2;
 		fParameterExtFromClass.setLayoutData(gd);
+		fParameterExtFromClass.addModifyListener(modifyListener);
+		fAttrMap.put(fParameterExtFromClass, "extends_from");
 		
+		/** TODO:
 		fParameterExtFromClassBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fParameterExtFromClassBrowse.addSelectionListener(selectionListener);
+		 */
 		
 		tk.createLabel(c, "Default:");
 		fParameterDefault = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fParameterDefault.setLayoutData(gd);
+		fParameterDefault.addModifyListener(modifyListener);
+		fAttrMap.put(fParameterDefault, "default");
 		
 		return c;
 	}
@@ -235,11 +292,15 @@ public class TemplatePage extends FormPage {
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fFileName.setLayoutData(gd);
+		fFileName.addModifyListener(modifyListener);
+		fAttrMap.put(fFileName, "name");
 		
-		tk.createLabel(c, "Path:");
-		fFilePath = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
+		tk.createLabel(c, "Template Path:");
+		fTemplatePath = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		fFilePath.setLayoutData(gd);
+		fTemplatePath.setLayoutData(gd);
+		fTemplatePath.addModifyListener(modifyListener);
+		fAttrMap.put(fTemplatePath, "path");
 		fFilePathBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fFilePathBrowse.addSelectionListener(selectionListener);
 
@@ -258,11 +319,27 @@ public class TemplatePage extends FormPage {
 		fCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fCategoryId.setLayoutData(gd);
+		fCategoryId.addModifyListener(modifyListener);
+		fAttrMap.put(fCategoryId, "id");
 		
 		tk.createLabel(c, "Name:");
 		fCategoryName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fCategoryName.setLayoutData(gd);
+		fCategoryName.addModifyListener(modifyListener);
+		fAttrMap.put(fCategoryName, "name");
+		
+		Group g = new Group(c, SWT.NONE);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 2;
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout());
+		g.setText("Description");
+		fCategoryDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fCategoryDescription.addModifyListener(modifyListener);
+		fElemMap.put(fCategoryDescription, "description");
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fCategoryDescription.setLayoutData(gd);
 		
 		return c;
 	}
@@ -274,12 +351,16 @@ public class TemplatePage extends FormPage {
 		// 
 		fActiveElement = template;
 		
+		fControlModify = true;
+		
 		fTemplateName.setText(getAttribute(template, "name"));
 		fTemplateId.setText(getAttribute(template, "id"));
 		fTemplateCategoryId.setText(getAttribute(template, "category"));
 		
 		fTemplateDescription.setText(getElementText(template, "description"));
-		
+
+		fControlModify = false;
+
 		setDetailsPane(fTemplateDetailsPane);
 	}
 	
@@ -288,7 +369,13 @@ public class TemplatePage extends FormPage {
 		fRemoveButton.setEnabled(true);
 
 		fActiveElement = file;
+		
+		fControlModify = true;
+		
+		fFileName.setText(getAttribute(fActiveElement, "name"));
+		fTemplatePath.setText(getAttribute(fActiveElement, "template"));
 
+		fControlModify = false;
 		setDetailsPane(fFileDetailsPane);
 	}
 
@@ -297,8 +384,47 @@ public class TemplatePage extends FormPage {
 		fRemoveButton.setEnabled(true);
 
 		fActiveElement = file;
+		
+		fControlModify = true;
+		
+		fParameterName.setText(getAttribute(fActiveElement, "name"));
+		fParameterType.select(getTypeIndex(getAttribute(fActiveElement, "type")));
+		fParameterDefault.setText(getAttribute(fActiveElement, "default"));
+		fParameterExtFromClass.setText(getAttribute(fActiveElement, "extends_from"));
+		fParameterRestrictions.setText(getAttribute(fActiveElement, "restrictions"));
+		
+		updateParameterFields();
+		
+		fControlModify = false;
 
 		setDetailsPane(fParameterDetailsPane);
+	}
+	
+	private void updateParameterFields() {
+		String type = fParameterType.getText();
+		
+		fControlModify = true;
+		
+		if (type.equals("id") || type.equals("int")) {
+			fParameterExtFromClass.setText("");
+			fParameterExtFromClass.setEnabled(false);
+			fParameterRestrictions.setText("");
+			fParameterRestrictions.setEnabled(false);
+		} else if (type.equals("enum")) {
+			fParameterExtFromClass.setText("");
+			fParameterExtFromClass.setEnabled(false);
+			fParameterRestrictions.setText(getAttribute(fActiveElement, "restrictions"));
+			fParameterRestrictions.setEnabled(true);
+		} else if (type.equals("class")) {
+			fParameterExtFromClass.setText(getAttribute(fActiveElement, "extends_from"));
+			fParameterExtFromClass.setEnabled(true);
+			fParameterRestrictions.setText("");
+			fParameterRestrictions.setEnabled(false);
+		} else {
+			// ??
+		}
+		
+		fControlModify = false;
 	}
 
 	private void setCategoryContext(Element category) {
@@ -306,6 +432,14 @@ public class TemplatePage extends FormPage {
 		fRemoveButton.setEnabled(true);
 
 		fActiveElement = category;
+		
+		fControlModify = true;
+		
+		fCategoryId.setText(getAttribute(fActiveElement, "id"));
+		fCategoryName.setText(getAttribute(fActiveElement, "name"));
+		fCategoryDescription.setText(getElementText(fActiveElement, "description"));
+		
+		fControlModify = false;
 
 		setDetailsPane(fCategoryDetailsPane);
 	}
@@ -320,10 +454,15 @@ public class TemplatePage extends FormPage {
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		super.doSave(monitor);
+		fIsDirty = false;
+		getEditor().editorDirtyStateChanged();
 	}
 	
+	@Override
+	public boolean isDirty() {
+		return fIsDirty;
+	}
+
 	private Element createTemplate() {
 		Element ret = fDocument.createElement("template");
 		Element doc = fDocument.createElement("description");
@@ -342,6 +481,7 @@ public class TemplatePage extends FormPage {
 		ret.appendChild(doc);
 
 		ret.setAttribute("category", "category.id");
+		ret.setAttribute("name", "New Category");
 
 		return ret;
 	}
@@ -357,57 +497,100 @@ public class TemplatePage extends FormPage {
 		
 		return ret;
 	}
+	
+	private void addElement() {
+		Element new_elem = null;
+		Element target = null;
+		if (fActiveElement.getNodeName().equals("Templates") ||
+				fActiveElement.getNodeName().equals("template")) {
+			// Create a new template
+			if (fActiveElement.getNodeName().equals("Templates")) {
+				target = fRoot;
+			} else {
+				target = (Element)fActiveElement.getParentNode();
+			}
+			new_elem = createTemplate();
+		} else if (fActiveElement.getNodeName().equals("Categories") ||
+				fActiveElement.getNodeName().equals("category")) {
+			if (fActiveElement.getNodeName().equals("Categories")) {
+				target = fRoot;
+			} else {
+				target = (Element)fActiveElement.getParentNode();
+			}
+			new_elem = createCategory();
+		} else if (fActiveElement.getNodeName().equals("parameters") ||
+				fActiveElement.getNodeName().equals("parameter")) {
+			if (fActiveElement.getNodeName().equals("parameters")) {
+				target = fActiveElement;
+			} else {
+				target = (Element)fActiveElement.getParentNode();
+			}
+			new_elem = createParameter();
+		} else if (fActiveElement.getNodeName().equals("files") ||
+				fActiveElement.getNodeName().equals("file")) {
+			if (fActiveElement.getNodeName().equals("files")) {
+				target = fActiveElement;
+			} else {
+				target = (Element)fActiveElement.getParentNode();
+			}
+			new_elem = createFile();
+		}
+		
+		if (new_elem != null) {
+			target.appendChild(new_elem);
+			fActiveElement = new_elem;
+			fTreeViewer.refresh();
+			fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					fTreeViewer.expandToLevel(fActiveElement, 0);
+					fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+				}
+			});
+			// TODO: notify dirty
+			fIsDirty = true;
+			getEditor().editorDirtyStateChanged();
+		}
+	}
+	
+	private void removeElement() {
+		fActiveElement.getParentNode().removeChild(fActiveElement);
+		fTreeViewer.refresh();
+		
+		fIsDirty = true;
+		getEditor().editorDirtyStateChanged();
+	}
 
 	private SelectionListener selectionListener = new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent e) {}
 		
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget == fAddButton) {
-				Element new_elem = null;
-				Element target = null;
-				if (fActiveElement.getNodeName().equals("Templates") ||
-						fActiveElement.getNodeName().equals("template")) {
-					// Create a new template
-					if (fActiveElement.getNodeName().equals("Templates")) {
-						target = fRoot;
-					} else {
-						target = (Element)fActiveElement.getParentNode();
-					}
-					new_elem = createTemplate();
-				} else if (fActiveElement.getNodeName().equals("Categories") ||
-						fActiveElement.getNodeName().equals("category")) {
-					if (fActiveElement.getNodeName().equals("Categories")) {
-						target = fRoot;
-					} else {
-						target = (Element)fActiveElement.getParentNode();
-					}
-					new_elem = createCategory();
-				} else if (fActiveElement.getNodeName().equals("parameters") ||
-						fActiveElement.getNodeName().equals("parameter")) {
-					if (fActiveElement.getNodeName().equals("parameters")) {
-						target = fActiveElement;
-					} else {
-						target = (Element)fActiveElement.getParentNode();
-					}
-					new_elem = createParameter();
-				} else if (fActiveElement.getNodeName().equals("files") ||
-						fActiveElement.getNodeName().equals("file")) {
-					if (fActiveElement.getNodeName().equals("files")) {
-						target = fActiveElement;
-					} else {
-						target = (Element)fActiveElement.getParentNode();
-					}
-					new_elem = createFile();
+				addElement();
+			} else if (e.widget == fRemoveButton) {
+				removeElement();
+			} else if (e.widget == fParameterType) {
+				if (!fControlModify) {
+					setAttr(fActiveElement, "type", fParameterType.getText());
+					updateParameterFields();
+					fIsDirty = true;
+					getEditor().editorDirtyStateChanged();
+				}
+			} else if (e.widget == fFilePathBrowse) {
+				Tuple<File, IFile> ret = EditorInputUtils.getFileLocation(getEditorInput());
+				
+				FileBrowseDialog dlg;
+				
+				if (ret.first() != null) {
+					dlg = new FileBrowseDialog(fDetailsPaneParent.getShell(), 
+							ret.first().getParentFile());
+				} else {
+					dlg = new FileBrowseDialog(fDetailsPaneParent.getShell(), 
+							ret.second().getParent());
 				}
 				
-				if (new_elem != null) {
-					target.appendChild(new_elem);
-					fTreeViewer.refresh();
-					fTreeViewer.setSelection(new StructuredSelection(new_elem), true);
+				if (dlg.open() == Window.OK) {
+					fTemplatePath.setText(dlg.getSelectedFile());
 				}
-			} else if (e.widget == fRemoveButton) {
-				fActiveElement.getParentNode().removeChild(fActiveElement);
-				fTreeViewer.refresh();
 			}
 		}
 	};
@@ -448,16 +631,67 @@ public class TemplatePage extends FormPage {
 		}
 	};
 	
+	private ModifyListener modifyListener = new ModifyListener() {
+		
+		public void modifyText(ModifyEvent e) {
+			if (fControlModify) {
+				return;
+			}
+			
+			if (fAttrMap.containsKey(e.widget)) {
+				setAttr(fActiveElement, fAttrMap.get(e.widget), 
+						((Text)e.widget).getText());
+			} else if (fElemMap.containsKey(e.widget)) {
+				setElem(fActiveElement, fElemMap.get(e.widget), 
+						((Text)e.widget).getText());
+			}
+
+			fIsDirty = true;
+			getEditor().editorDirtyStateChanged();
+		}
+	};
+	
+	private void setAttr(Element elem, String attr, String value) {
+		elem.setAttribute(attr, value);
+	}
+
+	private void setElem(Element elem, String e_name, String value) {
+		NodeList nl = elem.getElementsByTagName(e_name);
+		Element e;
+		
+		if (nl.getLength() > 0) {
+			e = (Element)nl.item(0);
+		} else {
+			e = fDocument.createElement(e_name);
+			elem.appendChild(e);
+		}
+		e.setTextContent(value);
+	}
+	
+	private int getTypeIndex(String type) {
+		int ret = fTypeNames.indexOf(type);
+		
+		if (ret == -1) {
+			ret = 0;
+		}
+		
+		return ret; 
+	}
+
 	private String getAttribute(Element elem, String attr) {
+		return getAttribute(elem, attr, "");
+	}
+
+	private String getAttribute(Element elem, String attr, String dflt) {
 		String ret = elem.getAttribute(attr);
 		
 		if (ret == null) {
-			ret = "";
+			ret = dflt;
 		}
 		
 		return ret;
 	}
-	
+
 	private String getElementText(Element elem, String c_elem) {
 		NodeList nl = elem.getElementsByTagName(c_elem);
 		String ret = "";

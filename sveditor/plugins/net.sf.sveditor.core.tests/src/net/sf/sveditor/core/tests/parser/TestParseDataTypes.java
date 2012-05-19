@@ -123,15 +123,34 @@ public class TestParseDataTypes extends TestCase {
 		String testname = "testMultiDimWireArrayDecl";
 		String content =
 			"module m;\n" +
-			"wire        [P1_WIDTH:0]        V1;\n" +
-			"wire        [P1_WIDTH:0][5:0]   V2;\n" +
-			"CnTxt2RAM_s [P1_WIDTH:0]        V3;\n" +
+			"	wire        [P1_WIDTH:0]        V1;\n" +
+			"	wire        [P1_WIDTH:0][5:0]   V2;\n" +
+			"	CnTxt2RAM_s [P1_WIDTH:0]        V3;\n" +
 			"endmodule\n";
 
 		runTest(testname, content,
 				new String[] {"m", "V1", "V2", "V3"});
 	}
-	
+
+	public void testPackedEnumArrayDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testPackedEnumArrayDecl";
+		String content =
+			"module m;\n" +
+			"	typedef enum {A, B, C, D} my_enum_t;\n" +
+			"\n" +
+			"	my_enum_t [3:0]		V1[4];\n" +
+			"\n" +
+			"	class c;\n" +
+			"		my_enum_t [3:0]		V2[4];\n" +
+			"	endclass\n" +
+			"\n" +
+			"endmodule\n";
+
+		runTest(testname, content,
+				new String[] {"m", "c", "V1", "V2"});
+	}
+
 
 	public void testVirtualInterfaceParameterizedClass() throws SVParseException {
 		String content =

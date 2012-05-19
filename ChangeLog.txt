@@ -8,7 +8,10 @@
 
 - #(nobug) - Correct parse error with multi-dimension vectors (eg wire [3:0][3:0])
 
-- 
+- #(3527774) - The parser does not handle a #delay statement that uses an array
+
+? #(nobug) - Correctly implement clocking-block parsing (one of the last scanner hold-outs)
+ 
 
 
 ------------------------------------------------------------------------------

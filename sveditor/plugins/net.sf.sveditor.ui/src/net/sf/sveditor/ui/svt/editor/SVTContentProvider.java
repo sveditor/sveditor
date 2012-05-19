@@ -12,11 +12,21 @@ import org.w3c.dom.NodeList;
 
 public class SVTContentProvider implements ITreeContentProvider {
 	private Document			fDocument;
+	private Element				fRoot;
 
 	public void dispose() {}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		fDocument = (Document)newInput;
+		
+		if (fDocument != null) {
+			NodeList nl = fDocument.getElementsByTagName("sv_template");
+			if (nl.getLength() > 0) {
+				fRoot = (Element)nl.item(0);
+			} else {
+				fRoot = null;
+			}
+		}
 	}
 
 	public Object[] getElements(Object inputElement) {
@@ -119,8 +129,24 @@ public class SVTContentProvider implements ITreeContentProvider {
 	}
 
 	public Object getParent(Object element) {
-		// TODO Auto-generated method stub
-		return null;
+		Object ret = null;
+		System.out.println("getParent: " + element);
+		
+		if (element instanceof String) {
+			ret = fRoot;
+		} else if (element != fRoot) {
+			Element e = (Element)element;
+			if (e.getNodeName().equals("template")) {
+				ret = "Templates";
+			} else if (e.getNodeName().equals("category")) {
+				ret = "Categories";
+			} else {
+				ret = e.getParentNode();
+			}
+		}
+		
+		System.out.println("parent=" + ret);
+		return ret;
 	}
 
 	public boolean hasChildren(Object element) {
