@@ -3,8 +3,8 @@
 - #(3526097) - Correct parse error with new <expr>; statement
 
 - #(enh) - Enhance template infrastructure with support for user-defined
-  template parameters. Currently, integer-, identifier-, and class-type parameters
-  are supported.
+  template parameters. Currently, integer-, identifier-, and class-type 
+  parameters are supported.
   
 - #(enh) - Add a form-based editor for the XML-formatted template descriptor file
 
