@@ -40,6 +40,8 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fToggleCommentAction;
 	protected RetargetTextEditorAction fNextWordAction;
 	protected RetargetTextEditorAction fPrevWordAction;
+	protected RetargetTextEditorAction fSelNextWordAction;
+	protected RetargetTextEditorAction fSelPrevWordAction;
 	
 	protected MenuManager			   fSourceMenu;
 
@@ -84,6 +86,13 @@ public class SVActionContributor extends TextEditorActionContributor {
 		
 		fPrevWordAction = new RetargetTextEditorAction(bundle, "PrevWordAction.");
 		fPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
+		
+		fSelNextWordAction = new RetargetTextEditorAction(bundle, "SelNextWordAction.");
+		fSelNextWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
+		
+		fSelPrevWordAction = new RetargetTextEditorAction(bundle, "SelPrevWordAction.");
+		fSelPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
+		
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
@@ -136,6 +145,8 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fToggleCommentAction.setAction(getAction(editor, "ToggleComment"));
 		fNextWordAction.setAction(getAction(editor, "NextWord"));
 		fPrevWordAction.setAction(getAction(editor, "PrevWord"));
+		fSelNextWordAction.setAction(getAction(editor, "SelNextWord"));
+		fSelPrevWordAction.setAction(getAction(editor, "SelPrevWord"));
 	}
 
 	/*

@@ -66,7 +66,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 					type = parsers().dataTypeParser().data_type(0);
 				}
 				
-				debug("type=" + type + " " + fLexer.peek());
+				if (fDebugEn) {
+					debug("type=" + type + " " + fLexer.peek());
+				}
 				
 				// Allow for untyped parameters
 				if (dir != null && fLexer.peekOperator()) {
