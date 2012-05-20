@@ -83,6 +83,9 @@
 
    <element name="category">
       <complexType>
+         <sequence minOccurs="0" maxOccurs="1">
+            <element ref="description"/>
+         </sequence>
          <attribute name="name" type="string">
             <annotation>
                <documentation>
@@ -178,6 +181,13 @@
             </simpleType>
          </attribute>
          <attribute name="extends_from" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="restrictions" type="string">
             <annotation>
                <documentation>
                   

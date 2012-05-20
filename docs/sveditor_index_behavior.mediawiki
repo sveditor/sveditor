@@ -1,0 +1,51 @@
+= SVEditor Index Theory of Operations =
+
+== Index Components ==
+
+== 
+
+
+== Specifying Index Paths ==
+SVEditor provides several ways to specify the set of files that should be indexed. This section provides details on the behavior of each of these methods. Index paths are specified via the SystemVerilog Project Properties page on a project's properties page.
+
+ 
+
+=== Argument File ===
+Using an argument file is probably the most reliable way to specify which files SVEditor should index. The content of an argument file specifies a list of files to index, and options to specify include paths and macro definitions. In most cases, the argument file could be passed to your simulator's SystemVerilog compiler to compile the source code.
+
+SVEditor assumes that the files specified in the argument file, in addition to files included by those root files, are the only files of interest.
+
+==== Specifying File Paths ====
+Files can be specified in three ways:
+* Relative to the argument file
+* Via an absolute path
+* Relative to an environment variable or Eclipse Linked-Resource variable
+
+
+==== Supported Options ====
+The use of several compiler options are supported within an argument file.
+
+* <b>+incdir+<path></b> - Specify an include path. The path can be in any of the supported path formats
+* <b>-IN <path></b> - Specify an include path. The path can be in any of the supported path formats
+* <b>-incdir <path></b> - Specify an include path. The path can be in any of the supported path formats
+* <b>+define+<name>[=<value>]</b> - Specify a macro definition
+* <b>-DEF <name>[=<value>]</b> - Specify a macro definition
+* <b>-define <name>[=<value>]</b> - Specify a macro definition
+* <b>-f <file></b> - Specify the path to an argument file to include. The file path can be in any of the supported path formats
+* <b>-y <path></b> - Specify a library path. All files in the directory with SystemVerilog extensions (eg .v, .vl, .vlog, .sv) will be parsed. It is assumed that these files define a construct such as a module. The file path can be in any of the supported path formats.
+
+
+==== Lexical Conventions ====
+Comments can be specified in an argument file using both single-line and multi-line SystemVerilog comments.
+
+=== Library Path ===
+A library path specifies the path to a compilation unit such as a file that defines a package. Any files included within the library file will also be parsed. 
+
+=== Source Collection ===
+A source collection is specified via a filesystem-relative or workspace-relative directory path. SVEditor locates all files with SV extensions (eg .sv, .svh, .v) within the directory structure and parses the discovered files. SVEditor attempts to discover the order in which the files should be parsed using the following heuristics:
+* Identify files that declare a module or package
+* Identify files that are included from module- or package-containing files
+** Remove the files included by the package/module files from the list of files to process
+
+ 
+

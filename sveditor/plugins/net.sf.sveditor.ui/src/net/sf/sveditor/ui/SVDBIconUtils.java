@@ -64,6 +64,13 @@ public class SVDBIconUtils implements ISVIcons {
 		return SVUiPlugin.getImage(key);
 	}
 	
+	public static Image getIcon(SVDBItemType type) {
+		if (fImgDescMap.containsKey(type))  {
+			return SVUiPlugin.getImage(fImgDescMap.get(type)); 
+		}
+		return null;
+	}
+	
 	public static Image getIcon(ISVDBItemBase it) {
 		if (it.getType() == SVDBItemType.VarDeclItem) {
 			SVDBVarDeclItem decl = (SVDBVarDeclItem)it;

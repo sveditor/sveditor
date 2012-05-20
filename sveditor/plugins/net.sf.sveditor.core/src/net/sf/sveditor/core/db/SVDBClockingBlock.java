@@ -12,8 +12,11 @@
 
 package net.sf.sveditor.core.db;
 
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+
 
 public class SVDBClockingBlock extends SVDBScopeItem {
+	public SVDBExpr				fExpr;
 
 	public SVDBClockingBlock() {
 		super("", SVDBItemType.ClockingBlock);
@@ -21,6 +24,14 @@ public class SVDBClockingBlock extends SVDBScopeItem {
 	
 	public SVDBClockingBlock(String name) {
 		super(name, SVDBItemType.ClockingBlock);
+	}
+	
+	public void setExpr(SVDBExpr expr) {
+		fExpr = expr;
+	}
+	
+	public SVDBExpr getExpr() {
+		return fExpr;
 	}
 	
 	@Override

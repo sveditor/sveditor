@@ -184,6 +184,21 @@ public class TestParseExpr extends TestCase {
 		
 		runTest(testname, content, new String[] {"m"});
 	}
+	
+	public void testDelayArrayRefExpr() throws SVParseException {
+		String testname = "testDelayArrayRefExpr";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	function f;\n" +
+			"		time timeval[2];\n" +
+			"		timeval[0] = 1ms;\n" +
+			"		#timeval[0];\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(testname, content, new String[] {"c", "f"});
+	}
 
 	public void testWireAssignMacroExpr() throws SVParseException {
 		String testname = "testWireAssignMacroExpr";
@@ -300,6 +315,22 @@ public class TestParseExpr extends TestCase {
 			"			a dist {[0:1] := 1, [2:15] :/1};\n" +
 			"			b dist {[0:1] := 1, [2:15] :/1};\n" +
 			"		});\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(testname, content, new String[] {"c", "foo"});
+	}
+
+	public void testNewExprCall() throws SVParseException {
+		String testname = "testNewExprCall";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	rand bit[3:0] a;\n" +
+			"	rand bit[3:0] b;\n" +
+			"\n" +
+			"	function void foo();\n" +
+			"		c v = new this;\n" +
 			"	endfunction\n" +
 			"endclass\n"
 			;

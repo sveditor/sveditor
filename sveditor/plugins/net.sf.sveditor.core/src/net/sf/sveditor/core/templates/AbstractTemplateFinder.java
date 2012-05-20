@@ -3,9 +3,10 @@ package net.sf.sveditor.core.templates;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 
-public abstract class AbstractTemplateFinder {
+public abstract class AbstractTemplateFinder implements ILogLevel {
 	protected LogHandle					fLog;
 	protected List<TemplateInfo>		fTemplates;
 	protected List<TemplateCategory>	fCategories;

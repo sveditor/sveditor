@@ -1,3 +1,19 @@
+-- 0.8.8 Release --
+
+- #(3526097) - Correct parse error with new <expr>; statement
+
+- #(enh) - Enhance template infrastructure with support for user-defined
+  template parameters. Currently, integer-, identifier-, and class-type parameters
+  are supported.
+  
+- #(enh) - Add a form-based editor for the XML-formatted template descriptor file
+
+- #(nobug) - Correct parse error with multi-dimension vectors (eg wire [3:0][3:0])
+
+- #(3527774) - The parser does not handle a #delay statement that uses an array
+
+
+------------------------------------------------------------------------------
 -- 0.8.7 Release --
 
 - #(nobug) - Correct content-assist issue with comparison operators. For example:

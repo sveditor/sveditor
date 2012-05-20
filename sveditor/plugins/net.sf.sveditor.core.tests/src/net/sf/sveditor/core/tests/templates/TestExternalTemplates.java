@@ -36,7 +36,7 @@ public class TestExternalTemplates extends TestCase {
 	public void testDiscoverTemplatesFS() throws IOException {
 		String testname = "testDiscoverTemplatesFS";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		final File tmpl_dir = new File(fTmp, "templates");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

@@ -57,6 +57,10 @@ public class TemplateRegistry implements ILogLevel {
 		fPathProviders.clear();
 	}
 	
+	public List<TemplateCategory> getCategories() {
+		return fCategories;
+	}
+	
 	public List<String> getCategoryNames() {
 		List<String> ret = new ArrayList<String>();
 		
@@ -139,7 +143,11 @@ public class TemplateRegistry implements ILogLevel {
 			List<TemplateCategory> category_list = f.getCategories();
 			
 			fTemplates.addAll(tmpl_list);
-			fCategories.addAll(category_list);
+			for (TemplateCategory new_c : category_list) {
+				if (!fCategories.contains(new_c)) {
+					fCategories.add(new_c);
+				}
+			}
 		}
 		
 		// Sort the categories
@@ -156,6 +164,16 @@ public class TemplateRegistry implements ILogLevel {
 		}
 		
 		for (TemplateInfo t : fTemplates) {
+			if (t.getCategoryId() == null || t.getCategoryId().trim().equals("")) {
+				// Add an 'Other' category
+				if (!fCategoryMap.containsKey("net.sf.sveditor.template.category.other")) {
+					TemplateCategory c = new TemplateCategory(
+							"net.sf.sveditor.template.category.other",
+							"Other", "");
+					c.setDescription("Category for uncategorized templates");
+					t.setCategoryId("net.sf.sveditor.template.category.other");
+				}
+			}
 			if (!fCategoryMap.containsKey(t.getCategoryId())) {
 				fCategoryMap.put(t.getCategoryId(), new ArrayList<TemplateInfo>());
 			}

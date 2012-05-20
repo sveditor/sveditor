@@ -61,6 +61,8 @@ public class SVFileUtils {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource r = null;
 		IProject  p = null;
+		
+		path = normalize(path);
 
 		try {
 			if ((r = root.getFolder(new Path(path))) != null && r.exists()) {

@@ -12,13 +12,17 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.List;
+
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+
 
 public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 	public static final int				TypeAttr_Signed				= (1 << 7);
 	public static final int				TypeAttr_Unsigned			= (1 << 8);
 
 	public int						fAttr;
-	public String					fVectorDim;
+	public List<SVDBVarDimItem>		fVectorDim;
 	
 	public SVDBTypeInfoBuiltin() {
 		this("");
@@ -40,11 +44,11 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		fAttr = attr;
 	}
 	
-	public String getVectorDim() {
+	public List<SVDBVarDimItem> getVectorDim() {
 		return fVectorDim;
 	}
 	
-	public void setVectorDim(String dim) {
+	public void setVectorDim(List<SVDBVarDimItem> dim) {
 		fVectorDim = dim;
 	}
 	

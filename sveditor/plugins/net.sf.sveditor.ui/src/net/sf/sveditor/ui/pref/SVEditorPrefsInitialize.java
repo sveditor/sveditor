@@ -45,7 +45,10 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
+		
+		// Index Preferences
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, true);
+		store.setDefault(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, false);
 		
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN, false);
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT, 80);
