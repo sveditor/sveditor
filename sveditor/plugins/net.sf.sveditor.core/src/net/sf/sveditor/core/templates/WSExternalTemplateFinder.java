@@ -9,11 +9,11 @@ import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
@@ -102,9 +102,21 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 		
 		if (file.exists()) {
 			
-			try {
-				in = file.getContents();
-			} catch (CoreException e) {}
+			for (int i=0; i<2; i++) {
+				try {
+					in = file.getContents();
+					break;
+				} catch (CoreException e) {
+					fLog.error("Failed to open file: \"" + path + "\": " + e.getMessage(), e);
+					if (e.getMessage().contains("out of sync")) {
+						try {
+							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						} catch (CoreException e2) {}
+					}
+				}
+			}
+		} else {
+			fLog.debug(LEVEL_MID, "File \"" + path + "\" doesn't exist");
 		}
 		
 		return in;

@@ -130,7 +130,6 @@ public class SVTContentProvider implements ITreeContentProvider {
 
 	public Object getParent(Object element) {
 		Object ret = null;
-		System.out.println("getParent: " + element);
 		
 		if (element instanceof String) {
 			ret = fRoot;
@@ -145,7 +144,6 @@ public class SVTContentProvider implements ITreeContentProvider {
 			}
 		}
 		
-		System.out.println("parent=" + ret);
 		return ret;
 	}
 

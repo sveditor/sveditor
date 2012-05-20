@@ -164,6 +164,16 @@ public class TemplateRegistry implements ILogLevel {
 		}
 		
 		for (TemplateInfo t : fTemplates) {
+			if (t.getCategoryId() == null || t.getCategoryId().trim().equals("")) {
+				// Add an 'Other' category
+				if (!fCategoryMap.containsKey("net.sf.sveditor.template.category.other")) {
+					TemplateCategory c = new TemplateCategory(
+							"net.sf.sveditor.template.category.other",
+							"Other", "");
+					c.setDescription("Category for uncategorized templates");
+					t.setCategoryId("net.sf.sveditor.template.category.other");
+				}
+			}
 			if (!fCategoryMap.containsKey(t.getCategoryId())) {
 				fCategoryMap.put(t.getCategoryId(), new ArrayList<TemplateInfo>());
 			}

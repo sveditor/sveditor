@@ -99,14 +99,12 @@ public class SVTEditor extends FormEditor {
 
 	@Override
 	protected void commitPages(boolean onSave) {
-		System.out.println("commitPages");
 		// TODO Auto-generated method stub
 		super.commitPages(onSave);
 	}
 
 	@Override
 	protected void pageChange(int newPageIndex) {
-		System.out.println("pageChange: " + newPageIndex);
 		// TODO Auto-generated method stub
 		super.pageChange(newPageIndex);
 	}
@@ -161,6 +159,8 @@ public class SVTEditor extends FormEditor {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		fIsDirty = false;
 	}
 
 	@Override

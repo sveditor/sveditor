@@ -148,7 +148,7 @@ public class TemplateParametersTableViewer extends TableViewer {
 			
 			fRestrictedIdEditor = new ComboBoxCellEditor(parent, new String[] {}, SWT.READ_ONLY);
 			fIdEditor = new TextCellEditor(parent, SWT.NONE);
-			fClassEditor = new TextCellEditor(parent, SWT.SEARCH+SWT.ICON_SEARCH);
+			fClassEditor = new TextCellEditor(parent, SWT.SEARCH+SWT.ICON_SEARCH+SWT.CANCEL+SWT.ICON_CANCEL);
 			
 			final Text t = (Text)fClassEditor.getControl();
 			t.addListener(SWT.DefaultSelection, new Listener() {
@@ -173,6 +173,7 @@ public class TemplateParametersTableViewer extends TableViewer {
 			fActiveParameter = p;
 			
 			if (p.getType() == TemplateParameterType.ParameterType_Id) {
+				System.out.println("ID");
 				if (p.getValues().size() > 0) {
 					ret = fRestrictedIdEditor;
 					((CCombo)ret.getControl()).setItems(
@@ -181,9 +182,11 @@ public class TemplateParametersTableViewer extends TableViewer {
 					ret = fIdEditor;
 				}
 			} else if (p.getType() == TemplateParameterType.ParameterType_Class) {
+				System.out.println("Class Editor");
 				ret = fClassEditor;
 			}
 			
+			System.out.println("ret=" + ret);
 			return ret;
 		}
 

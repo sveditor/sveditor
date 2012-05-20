@@ -9,7 +9,6 @@ import java.util.Map;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.ui.EditorInputUtils;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -201,11 +200,15 @@ public class TemplatePage extends FormPage {
 		tk.createLabel(c, "Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		// TODO:
+		gd.horizontalSpan = 2;
 		fTemplateCategoryId.setLayoutData(gd);
 		fTemplateCategoryId.addModifyListener(modifyListener);
 		fAttrMap.put(fTemplateCategoryId, "category");
+		/** TODO:
 		fTemplateCategoryBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fTemplateCategoryBrowse.addSelectionListener(selectionListener);
+		 */
 		
 		Group g = new Group(c, SWT.NONE);
 		g.setText("Description");
@@ -300,7 +303,7 @@ public class TemplatePage extends FormPage {
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fTemplatePath.setLayoutData(gd);
 		fTemplatePath.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplatePath, "path");
+		fAttrMap.put(fTemplatePath, "template");
 		fFilePathBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fFilePathBrowse.addSelectionListener(selectionListener);
 
@@ -472,6 +475,11 @@ public class TemplatePage extends FormPage {
 		ret.setAttribute("id", "template.id");
 		ret.setAttribute("category", "category.id");
 		
+		Element parameters = fDocument.createElement("parameters");
+		ret.appendChild(parameters);
+		Element files = fDocument.createElement("files");
+		ret.appendChild(files);
+		
 		return ret;
 	}
 	
@@ -501,6 +509,8 @@ public class TemplatePage extends FormPage {
 	private void addElement() {
 		Element new_elem = null;
 		Element target = null;
+		
+		System.out.println("Active Element: " + fActiveElement.getNodeName());
 		if (fActiveElement.getNodeName().equals("Templates") ||
 				fActiveElement.getNodeName().equals("template")) {
 			// Create a new template
@@ -610,6 +620,7 @@ public class TemplatePage extends FormPage {
 				fActiveElement = fDocument.createElement(e);
 			} else {
 				Element e = (Element)ss.getFirstElement();
+				fActiveElement = e;
 				if (e.getNodeName().equals("sv_template") ||
 						e.getNodeName().equals("parameters") ||
 						e.getNodeName().equals("files")) {
@@ -648,6 +659,7 @@ public class TemplatePage extends FormPage {
 
 			fIsDirty = true;
 			getEditor().editorDirtyStateChanged();
+			fTreeViewer.refresh();
 		}
 	};
 	

@@ -11,6 +11,7 @@ import java.net.URI;
 import net.sf.sveditor.core.Tuple;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IEditorInput;
@@ -23,11 +24,11 @@ public class EditorInputUtils {
 		File file = null;
 		IFile ifile = null;
 		
-		if (input instanceof IURIEditorInput) {
+		if (input instanceof IFileEditorInput) {
+			ifile = ((IFileEditorInput)input).getFile();
+		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			file = new File(uri.getPath());
-		} else if (input instanceof IFileEditorInput) {
-			ifile = ((IFileEditorInput)input).getFile();
 		}
 		
 		return new Tuple<File, IFile>(file, ifile);
@@ -36,26 +37,39 @@ public class EditorInputUtils {
 	public static InputStream openInputStream(IEditorInput input) {
 		InputStream in = null;
 		
-		if (input instanceof IURIEditorInput) {
+		if (input instanceof IFileEditorInput) {
+			IFile file = ((IFileEditorInput)input).getFile();
+			for (int i=0; i<2; i++) {
+				try {
+					in = file.getContents();
+					break;
+				} catch (CoreException e) {
+					if (e.getMessage().contains("out of sync")) {
+						try {
+							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						} catch (CoreException e2) {
+
+						}
+					}
+				}
+			}
+		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			try {
 				in = new FileInputStream(uri.getPath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else if (input instanceof IFileEditorInput) {
-			IFile file = ((IFileEditorInput)input).getFile();
-			try {
-				in = file.getContents();
-			} catch (CoreException e) {}
 		}
 		
 		return in;
 	}
 
 	public static void setContents(IEditorInput input, InputStream in) throws Exception {
-		
-		if (input instanceof IURIEditorInput) {
+		if (input instanceof IFileEditorInput) {
+			IFile file = ((IFileEditorInput)input).getFile();
+			file.setContents(in, true, true, new NullProgressMonitor());
+		} else if (input instanceof IURIEditorInput) {
 			OutputStream out = null;
 			URI uri = ((IURIEditorInput)input).getURI();
 			byte tmp[] = new byte[4096];
@@ -67,9 +81,6 @@ public class EditorInputUtils {
 				out.write(tmp, 0, len);
 			}
 			out.close();
-		} else if (input instanceof IFileEditorInput) {
-			IFile file = ((IFileEditorInput)input).getFile();
-			file.setContents(in, true, true, new NullProgressMonitor());
 		}
 	}
 }
