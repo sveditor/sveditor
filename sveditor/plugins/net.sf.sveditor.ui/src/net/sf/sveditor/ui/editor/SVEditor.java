@@ -52,6 +52,8 @@ import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
 import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
+import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -475,6 +477,17 @@ public class SVEditor extends TextEditor
 				bundle, "PrevWordAction.", this);
 		pw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.WORD_PREVIOUS);
 		setAction(ITextEditorActionDefinitionIds.WORD_PREVIOUS, pw_action);
+		
+		SelNextWordAction sel_nw_action = new SelNextWordAction(
+				bundle, "SelNextWordAction.", this);
+		sel_nw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
+		setAction(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT, sel_nw_action);
+		
+		SelPrevWordAction sel_pw_action = new SelPrevWordAction(
+				bundle, "SelPrevWordAction.", this);
+		sel_pw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
+		setAction(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, sel_pw_action);
+		
 	}
 	
 	/*
