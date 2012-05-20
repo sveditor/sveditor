@@ -47,6 +47,12 @@ public class ExtensionTemplateFinder extends AbstractTemplateFinder {
 		String parent   = ce.getAttribute("parent");
 		TemplateCategory c = new TemplateCategory(id, name, parent);
 		
+		for (IConfigurationElement ci : ce.getChildren()) {
+			if (ci.getName().equals("description")) {
+				c.setDescription(ci.getValue());
+			}
+		}
+		
 		fCategories.add(c);
 	}
 	
@@ -74,7 +80,45 @@ public class ExtensionTemplateFinder extends AbstractTemplateFinder {
 					String tmpl_name = tmpl.getAttribute("name");
 					info.addTemplate(new Tuple<String, String>(template, tmpl_name));
 				}
+			} else if (ce_c.getName().equals("parameters")) {
+				for (IConfigurationElement p : ce_c.getChildren()) {
+					if (p.getName().equals("parameter")) {
+						String p_type = p.getAttribute("type");
+						String p_name = p.getAttribute("name");
+						String p_dflt = p.getAttribute("default");
+						String p_ext_from = p.getAttribute("extends_from");
+						String p_restr = p.getAttribute("restrictions");
+						
+						TemplateParameterType type = null;
+						
+						if (p_type.equals("int")) {
+							type = TemplateParameterType.ParameterType_Int;
+						} else if (p_type.equals("id")) {
+							type = TemplateParameterType.ParameterType_Id;
+						} else if (p_type.equals("class")) {
+							type = TemplateParameterType.ParameterType_Class;
+						} else {
+							fLog.error("Unknown parameter type \"" + p_type + "\"");
+							continue;
+						}
+						
+						TemplateParameter tp = new TemplateParameter(
+								type, p_name, p_dflt, p_ext_from);
+						
+						if (p_restr != null && !p_restr.trim().equals("")) {
+							String r[] = p_restr.split(",");
+							for (String rs : r) {
+								rs = rs.trim();
+								if (!rs.equals("")) {
+									tp.addValue(rs);
+								}
+							}
+						}
+						
+						info.addParameter(tp);
+					}
+				}
 			}
-		}
+		} 
 	}
 }

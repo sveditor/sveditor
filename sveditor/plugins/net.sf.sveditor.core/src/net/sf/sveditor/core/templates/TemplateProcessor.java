@@ -69,10 +69,7 @@ public class TemplateProcessor {
 			String templ = t.first();
 			String name = proc.process(t.second());
 			
-			System.out.println("templ=" + templ + " name=" + name);
-			
 			proc.setTag("filename", name);
-			
 
 			InputStream in = template.openTemplate(templ);
 			ByteArrayInputStream  in_t = readInputStream(in);

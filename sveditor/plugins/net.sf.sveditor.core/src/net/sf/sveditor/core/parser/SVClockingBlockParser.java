@@ -14,6 +14,7 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClockingBlock;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVClockingBlockParser extends SVParserBase {
 	
@@ -24,16 +25,17 @@ public class SVClockingBlockParser extends SVParserBase {
 	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBClockingBlock clk_blk = new SVDBClockingBlock("");
 		String name = "";
-		String expr = "";
 		
 		clk_blk.setLocation(fLexer.getStartLocation());
 		
 		parent.addChildItem(clk_blk);
 
 		try {
+			String type = "";
+			
 			// TODO: 
 			if (fLexer.peekKeyword("default", "global") ) {
-				fLexer.eatToken();
+				type = fLexer.eatToken();
 			}
 			fLexer.readKeyword("clocking");
 
@@ -43,16 +45,7 @@ public class SVClockingBlockParser extends SVParserBase {
 			}
 			clk_blk.setName(name);
 
-			fLexer.readOperator("@");
-			if (fLexer.peekOperator("(")) {
-				fLexer.eatToken();
-				expr = "(";
-				expr += event_expr();
-				fLexer.readOperator(")");
-				expr += ")";
-			} else {
-				expr = fLexer.readId();
-			}
+			clk_blk.setExpr(fParsers.exprParser().clocking_event());
 
 			while (fLexer.peek() != null && !fLexer.peekKeyword("endclocking")) {
 				parsers().SVParser().scan_statement();

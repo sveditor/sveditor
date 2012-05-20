@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
@@ -44,6 +45,8 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 			for (IResource r : resources) {
 				if (r instanceof IFile && r.getName().endsWith(".svt")) {
 					templates.add(((IFile)r).getFullPath().toOSString());
+				} else if (r instanceof IContainer) {
+					findTemplatePaths(templates, (IContainer)r);
 				}
 			}
 		}
@@ -56,7 +59,19 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 		
 		IContainer c = null;
 
-		c = root.getFolder(new Path(path));
+		try {
+			c = root.getFolder(new Path(path));
+		} catch (IllegalArgumentException e) {}
+		
+		if (c == null) {
+			// Try treating this as a project
+			if (path.startsWith("/")) {
+				String pname = path.substring(1);
+				try {
+					c = root.getProject(pname);
+				} catch (IllegalArgumentException e) {}
+			}
+		}
 		
 		if (c != null) {
 			IResource resources[] = null;
@@ -87,9 +102,21 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 		
 		if (file.exists()) {
 			
-			try {
-				in = file.getContents();
-			} catch (CoreException e) {}
+			for (int i=0; i<2; i++) {
+				try {
+					in = file.getContents();
+					break;
+				} catch (CoreException e) {
+					fLog.error("Failed to open file: \"" + path + "\": " + e.getMessage(), e);
+					if (e.getMessage().contains("out of sync")) {
+						try {
+							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+						} catch (CoreException e2) {}
+					}
+				}
+			}
+		} else {
+			fLog.debug(LEVEL_MID, "File \"" + path + "\" doesn't exist");
 		}
 		
 		return in;

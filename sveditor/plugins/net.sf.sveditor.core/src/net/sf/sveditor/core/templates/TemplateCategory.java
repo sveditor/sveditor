@@ -13,14 +13,16 @@
 package net.sf.sveditor.core.templates;
 
 
-public class TemplateCategory {
+public class TemplateCategory implements Comparable<TemplateCategory> {
 	private String							fId;
 	private String							fName;
+	private String							fDescription;
 	private String							fParent;
 	
 	public TemplateCategory(String id, String name, String parent) {
 		fId = id;
 		fName = name;
+		fDescription = "";
 		fParent = parent;
 	}
 	
@@ -32,8 +34,29 @@ public class TemplateCategory {
 		return fName;
 	}
 	
+	public String getDescription() {
+		return fDescription;
+	}
+	
+	public void setDescription(String desc) {
+		fDescription = desc;
+	}
+	
 	public String getParent() {
 		return fParent;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof TemplateCategory) {
+			return fId.equals(((TemplateCategory)obj).fId);
+		} else {
+			return false;
+		}
+	}
+
+	public int compareTo(TemplateCategory o) {
+		return fName.compareTo(o.fName);
 	}
 
 }

@@ -54,7 +54,11 @@ public class TemplateInfo {
 	public String getCategoryId() {
 		return fCategoryId;
 	}
-	
+
+	public void setCategoryId(String id) {
+		fCategoryId = id;
+	}
+
 	public void setDescription(String description) {
 		fDescription = description;
 	}

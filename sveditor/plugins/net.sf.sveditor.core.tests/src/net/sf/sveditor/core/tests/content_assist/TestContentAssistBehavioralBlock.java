@@ -190,7 +190,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 	public void testLessEqualAssist() {
 		String testname = "testLessEqualAssist";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"\n" +
