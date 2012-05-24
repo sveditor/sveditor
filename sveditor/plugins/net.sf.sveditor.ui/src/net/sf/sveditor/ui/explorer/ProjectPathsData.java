@@ -17,7 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class ProjectPathsData implements IProjectPathsData {
@@ -28,7 +28,7 @@ public class ProjectPathsData implements IProjectPathsData {
 		fProjectData = pd;
 		fPaths = new ArrayList<IProjectPathsData>();
 		
-		SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
+		SVDBIndexCollectionMgr mgr = fProjectData.getProjectIndexMgr();
 		
 		List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
 		List<ISVDBIndex> srcCollectionIndexes = mgr.getSourceCollectionList();
