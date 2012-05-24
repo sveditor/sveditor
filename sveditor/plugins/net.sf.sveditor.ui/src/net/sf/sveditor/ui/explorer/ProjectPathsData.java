@@ -17,7 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class ProjectPathsData implements IProjectPathsData {
@@ -28,7 +28,7 @@ public class ProjectPathsData implements IProjectPathsData {
 		fProjectData = pd;
 		fPaths = new ArrayList<IProjectPathsData>();
 		
-		SVDBIndexCollectionMgr mgr = fProjectData.getProjectIndexMgr();
+		SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
 		
 		List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
 		List<ISVDBIndex> srcCollectionIndexes = mgr.getSourceCollectionList();
@@ -63,5 +63,29 @@ public class ProjectPathsData implements IProjectPathsData {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public SVDBProjectData getProjectData() {
+		return fProjectData;
+	}
+	
+	
+	
+	@Override
+	public int hashCode() {
+		int hash = fProjectData.getName().hashCode();
+		
+		return hash;
+	}
 
+	public boolean equals(Object obj) {
+		if (obj instanceof SVDBProjectData) {
+			return (obj == fProjectData);
+		} else if (obj instanceof ProjectPathsData) {
+			ProjectPathsData p_obj = (ProjectPathsData)obj;
+			return p_obj.getProjectData().getName().equals(
+					fProjectData.getName());
+		} else {
+			return super.equals(obj);
+		}
+	}
 }

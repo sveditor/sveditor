@@ -445,7 +445,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		
 		fLexer.readKeyword("bind");
 		
-		bind.setTargetTypeName(fLexer.readId());
+		bind.setTargetTypeName(fParsers.exprParser().hierarchical_identifier());
 		parent.addChildItem(bind);
 		
 		if (fLexer.peekOperator(":")) {
