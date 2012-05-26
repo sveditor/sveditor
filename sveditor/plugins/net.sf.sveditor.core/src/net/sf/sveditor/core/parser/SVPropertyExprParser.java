@@ -45,6 +45,7 @@ public class SVPropertyExprParser extends SVParserBase {
 		BinaryOpKW = new HashSet<String>();
 		BinaryOpKW.add("or");
 		BinaryOpKW.add("and");
+		BinaryOpKW.add("throughout");
 		BinaryOpKW.add("until");
 		BinaryOpKW.add("s_until");
 		BinaryOpKW.add("until_with");
@@ -124,7 +125,6 @@ public class SVPropertyExprParser extends SVParserBase {
 			ret = sequence_expr();
 			
 		}
-
 		
 		// Now, parse binary operators
 		if (fLexer.peekKeyword(BinaryOpKW) || fLexer.peekOperator(BinaryOp)) {
@@ -172,6 +172,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			expr = clk_expr;
 		} else if (fLexer.peekOperator("(")) {
 			// ( sequence_expr {, sequence_match_item} ) [sequence_abbrev]
+			// (expression) [dist
 			if (fDebugEn) {
 				debug("entering sequence_expr {...}");
 			}
@@ -204,13 +205,18 @@ public class SVPropertyExprParser extends SVParserBase {
 			fLexer.readOperator(")");
 			expr = first_match;
 		} else {
-			// expression_or_dist [boolean_abbrev]
+			//   expression_or_dist [boolean_abbrev]
+			// | expression_or_dist throughout sequence_expr 
 			expr = expression_or_dist();
 			
 			if (fLexer.peekOperator("[")) {
 				// TODO: where to hang this?
 				SVDBExpr bool_abbrev = boolean_abbrev();
-			}
+			}/* else if (fLexer.peekKeyword("throughout")) {
+				fLexer.eatToken();
+				// TODO:
+				sequence_expr();
+			} */
 		}
 		
 		// Trailing. sequence_expr 
@@ -229,7 +235,8 @@ public class SVPropertyExprParser extends SVParserBase {
 				delay_expr.setRhs(sequence_expr());
 				expr = delay_expr;
 			}
-		} else if (fLexer.peekKeyword("and","intersect","or","within")) {
+		} else if (fLexer.peekKeyword("and","intersect","or","within","throughout") ||
+				fLexer.peekOperator(BinaryOp)) {
 			SVDBLocation start = fLexer.getStartLocation();
 			expr = new SVDBBinaryExpr(expr, fLexer.eatToken(), sequence_expr());
 			expr.setLocation(start);

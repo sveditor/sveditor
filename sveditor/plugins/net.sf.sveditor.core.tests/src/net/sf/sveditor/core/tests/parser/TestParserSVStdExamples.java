@@ -317,6 +317,13 @@ public class TestParserSVStdExamples extends TestCase {
 				new String[] {"m"});
 	}
 
+	public void test_16_11_0_throughout_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_16_11_0_throughout_1", 
+				"/data/parser/16.11.0_throughout_1.svh", 
+				new String[] {"m"});
+	}
+
 	public void test_16_13_0_property_1() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_13_0_property_1", 

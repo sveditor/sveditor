@@ -6,6 +6,11 @@
 
 - #(3529251) - Correct a bug in parsing bind of a hierarchical path
 
+- #(nobug) - Correct a lurking issue regarding reparenting of newly-parsed
+  active-file content. Now, we leave the parent pointer intact for children.
+  
+- #(3528722) - Correct a bug in parsing throughout expressions
+
 ------------------------------------------------------------------------------
 -- 0.8.8 Release --
 
