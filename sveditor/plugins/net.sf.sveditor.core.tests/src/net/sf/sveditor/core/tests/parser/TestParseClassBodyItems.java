@@ -616,6 +616,21 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest(testname, content, new String[] {"my_class"});
 	}
 
+	public void testSoftConstraint() {
+		String testname = "testExternConstraint";
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	constraint i_cons {\n" +
+				"     soft i == 2;"  +
+				"   }\n" +
+				"endclass\n" +
+				"\n" 
+				;
+		
+		runTest(testname, content, new String[] {"my_class"});
+	}
+
 	public void testRandomizeWithNoArgList() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testRandomizeWithNoArgList";
