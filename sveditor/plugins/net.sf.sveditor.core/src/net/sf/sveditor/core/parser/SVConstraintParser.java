@@ -84,6 +84,11 @@ public class SVConstraintParser extends SVParserBase {
 		} else if (fLexer.peekKeyword("foreach")) {
 			ret = constraint_foreach();
 		} else {
+			
+			if (fLexer.peekKeyword("soft")) {
+				fLexer.eatToken();
+			}
+			
 			// Not sure. Possibly one of:
 			// - expression_or_dist
 			//     - expression [dist { dist_list }]

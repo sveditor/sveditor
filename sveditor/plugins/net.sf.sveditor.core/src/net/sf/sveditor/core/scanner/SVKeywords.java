@@ -189,6 +189,7 @@ public class SVKeywords {
 		"showcancelled",
 		"signed",
 		"small",
+		"soft",
 		"solve*",
 		"specify",
 		"specparam",
