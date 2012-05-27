@@ -331,7 +331,7 @@ public class SVFScanner {
 					}
 
 					fIncludePaths.add(tmp.toString());
-				} else if (key.equals("-f")) {
+				} else if (key.equals("-f") || key.equals("-file")) {
 					// Add the sub-included file to the list
 					
 					ch = fScanner.skipWhite(ch);
