@@ -21,7 +21,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.framework.TestFailure;
@@ -237,5 +239,13 @@ public class TestUtils {
 			TestCase.fail("List contains unexpected elements {" + leftovers + "}");
 		}
 	}
-
+	
+	public static <T> HashSet<T> newHashSet(T... objs) {
+	    HashSet<T> set = new HashSet<T>();
+	    for (T o : objs) {
+	        set.add(o);
+	    }
+	    return set;
+	}
+	
 }
