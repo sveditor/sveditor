@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.tests.srcgen;
 
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.tests.SVDBStringDocumentIndex;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -27,8 +27,8 @@ public class SrcGenTests extends TestSuite {
 		return suite;
 	}
 	
-	public static SVDBIndexCollectionMgr createIndex(String doc) {
-		SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
+	public static SVDBIndexCollection createIndex(String doc) {
+		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(new SVDBStringDocumentIndex(doc));
 		
 		return index_mgr;

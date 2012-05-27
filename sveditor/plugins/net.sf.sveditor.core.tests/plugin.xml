@@ -15,12 +15,6 @@
             name="VMM Library"
             path="vmm/sv/vmm_lib.sv">
       </SVLibrary>
-      <SVLibrary
-            default="false"
-            id="org.uvmworld.uvm"
-            name="OVM Library"
-            path="uvm/src/uvm_pkg.sv">
-      </SVLibrary>
    </extension>
 
 </plugin>

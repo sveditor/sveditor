@@ -16,10 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -29,6 +32,7 @@ import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -47,13 +51,32 @@ public class OpenDeclUtils {
 		SVExprScanner			expr_scanner = new SVExprScanner();
 		SVDBFile 				inc_file = null;
 		
+		log.debug(ILogLevel.LEVEL_MID, "openDecl: " + file.getFilePath() + ":" + line);
+		
 		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
 		
 		log.debug("Expression Context: root=" + expr_ctxt.fRoot +
 				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
 		
-		ISVDBScopeItem active_scope = 
-			SVDBSearchUtils.findActiveScope(file, line);
+		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(file, line);
+		
+		if (active_scope != null) {
+			log.debug(ILogLevel.LEVEL_MID, "active_scope:");
+			ISVDBChildItem i = active_scope;
+			String ind = "";
+			while (i != null) {
+				log.debug(ILogLevel.LEVEL_MID, 
+						ind + SVDBItem.getName(i) + " " + i + " " + i.getParent());
+				if (i.getType() == SVDBItemType.File) {
+					log.debug(ILogLevel.LEVEL_MID,
+							"File: " + (SVDBFile)i + " ; " + file);
+				}
+				ind += "    ";
+				i = i.getParent();
+			}
+		} else {
+			log.debug(ILogLevel.LEVEL_MID, "active_scope: null");
+		}
 
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
 
@@ -103,6 +126,21 @@ public class OpenDeclUtils {
 			ret.add(new Tuple<ISVDBItemBase, SVDBFile>(it, inc_file));
 		}
 		 */
+		
+		log.debug(ILogLevel.LEVEL_MID, "Result:");
+		for (Tuple<ISVDBItemBase, SVDBFile> r : ret) {
+			String ind="";
+			ISVDBItemBase i = r.first();
+			while (i != null) {
+				log.debug(ILogLevel.LEVEL_MID, ind + SVDBItem.getName(i));
+				ind += "    ";
+				if (i instanceof ISVDBChildItem) {
+					i = ((ISVDBChildItem)i).getParent();
+				} else {
+					i = null;
+				}
+			}
+		}
 		
 		return ret;
 	}

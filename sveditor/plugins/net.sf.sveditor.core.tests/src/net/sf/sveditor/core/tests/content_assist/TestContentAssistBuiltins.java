@@ -31,7 +31,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
@@ -46,14 +46,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestContentAssistBuiltins extends TestCase {
 	private ContentAssistIndex			fIndex;
-	private SVDBIndexCollectionMgr		fIndexMgr;
+	private SVDBIndexCollection		fIndexMgr;
 	private File						fTmpDir;
 	
 	@Override
 	public void setUp() {
 		fTmpDir = TestUtils.createTempDir();
 		
-		fIndexMgr = new SVDBIndexCollectionMgr("TestContentAssistBuiltins");
+		fIndexMgr = new SVDBIndexCollection("TestContentAssistBuiltins");
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		fIndexMgr.addPluginLibrary(

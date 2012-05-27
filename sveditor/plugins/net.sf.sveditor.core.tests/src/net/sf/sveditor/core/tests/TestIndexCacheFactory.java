@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 
 public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 	private File				fRoot;
@@ -34,7 +35,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 			String project_name,
 			String base_location) {
 		if (fRoot == null) {
-			return new TestNullIndexCache();
+			return new InMemoryIndexCache();
 		} else {
 			if (!fRoot.isDirectory()) {
 				TestCase.assertTrue(fRoot.mkdirs());

@@ -1373,6 +1373,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		dp.setMacroProvider(createMacroProvider(file_tree));
 		SVDBFile svdb_f = factory.parse(
 				copier.copy(), file_tree.getFilePath(), markers);
+		
+		if (svdb_f.getFilePath() == null) {
+			System.out.println("file path: " + path + " is null");
+		}
+		System.out.println("file path: " + path + " is " + svdb_f.getFilePath());
 		/** TMP:
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 		 */

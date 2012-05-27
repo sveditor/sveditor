@@ -67,6 +67,10 @@
             class="net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory"
             id="net.sf.sveditor.argFileIndex">
       </SVDBIndexFactory>
+      <SVDBIndexFactory
+            class="net.sf.sveditor.core.db.index.SVDBShadowIndexFactory"
+            id="net.sf.sveditor.shadowIndex">
+      </SVDBIndexFactory>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">

@@ -44,7 +44,13 @@ public class SVFileUtils {
 		}
 		return fWinPathPattern.matcher(parent).replaceAll("/");
 	}
-	
+
+	public static String getPathLeaf(String path) {
+		String leaf = new File(path).getName();
+		
+		return leaf;
+	}
+
 	public static String normalize(String path) {
 		if (path.indexOf('\\') != -1) {
 			path = fWinPathPattern.matcher(path).replaceAll("/");

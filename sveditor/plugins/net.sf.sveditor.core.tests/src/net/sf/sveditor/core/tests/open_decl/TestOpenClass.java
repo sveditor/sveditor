@@ -32,7 +32,9 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 public class TestOpenClass extends TestCase {
 	
 	public void testOpenVariableRef() {
+		String testname = "testOpenVariableRef";
 		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"class foo;\n" +
 			"endclass\n" +
@@ -52,17 +54,18 @@ public class TestOpenClass extends TestCase {
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
 		int idx = doc.indexOf("m_foo = 5;\n");
-		System.out.println("index: " + idx);
+		log.debug("index: " + idx);
 		scanner.seek(idx+"m_f".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
 				file, 4, scanner, target_index);
 		
-		System.out.println(ret.size() + " items");
+		log.debug(ret.size() + " items");
 		assertEquals(1, ret.size());
 		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
 		assertEquals("m_foo", SVDBItem.getName(ret.get(0).first()));
+		LogFactory.removeLogHandle(log);
 	}
 	
 	public void testOpenVariableRefTaskScope() {
@@ -102,14 +105,14 @@ public class TestOpenClass extends TestCase {
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
 		int idx = doc.indexOf("ext_class.class_a_task");
-		System.out.println("index: " + idx);
+		log.debug("index: " + idx);
 		scanner.seek(idx+"ext_class.cl".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
 				file, 22, scanner, target_index);
 		
-		System.out.println(ret.size() + " items");
+		log.debug(ret.size() + " items");
 		assertEquals(1, ret.size());
 		assertEquals(SVDBItemType.Task, ret.get(0).first().getType());
 		assertEquals("class_a_task", SVDBItem.getName(ret.get(0).first()));

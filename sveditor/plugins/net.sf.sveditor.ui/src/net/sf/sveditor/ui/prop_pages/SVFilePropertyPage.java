@@ -17,7 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -77,7 +77,7 @@ public class SVFilePropertyPage extends PropertyPage implements
 		boolean found = false;
 		for (IProject project : root.getProjects()) {
 			SVDBProjectData proj_data = mgr.getProjectData(project);
-			SVDBIndexCollectionMgr index_mgr = proj_data.getProjectIndexMgr();
+			SVDBIndexCollection index_mgr = proj_data.getProjectIndexMgr();
 			List<SVDBSearchResult<SVDBFile>> result = index_mgr.findPreProcFile(file_path, true);
 
 			if (result.size() > 0) {

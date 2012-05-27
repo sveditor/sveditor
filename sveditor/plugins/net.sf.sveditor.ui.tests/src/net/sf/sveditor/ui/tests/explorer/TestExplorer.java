@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestExplorer extends TestCase {
 	private File 						fTmpDir;
-	private SVDBIndexCollectionMgr		fIndexCollectionOVMMgr;
+	private SVDBIndexCollection		fIndexCollectionOVMMgr;
 	
 	@Override
 	public void setUp() {
@@ -44,7 +44,7 @@ public class TestExplorer extends TestCase {
 
 		String pname = "basic_content_assist_project";
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		fIndexCollectionOVMMgr = new SVDBIndexCollectionMgr(pname);
+		fIndexCollectionOVMMgr = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), pname);
 		fIndexCollectionOVMMgr.addPluginLibrary(
 				rgy.findCreateIndex(new NullProgressMonitor(), 
 						pname, SVCoreTestsPlugin.OVM_LIBRARY_ID, 
