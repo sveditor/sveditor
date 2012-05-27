@@ -18,6 +18,7 @@ import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class SelNextWordAction extends TextEditorAction {
@@ -37,6 +38,18 @@ public class SelNextWordAction extends TextEditorAction {
 		int offset = text.getCaretOffset();
 		int start_offset = offset;
 		
+		// Adjust start_offset if selection currently set
+		if (text.getSelection() != null) {
+			Point sel = text.getSelection();
+			if (sel.x == offset) {
+				// contracting
+				start_offset = sel.y;
+			} else if (sel.y == offset) {
+				// extending
+				start_offset = sel.x;
+			}
+		}
+		
 		String str = text.getText();
 		int len = str.length();
 		
@@ -50,13 +63,18 @@ public class SelNextWordAction extends TextEditorAction {
 				}
 				offset++;
 			}
-		} else {
-			// scan forward to end or next identifier
+		} else if (Character.isWhitespace(ch)) {
+			// scan forward through whitespace
 			while (offset < len) {
 				ch = str.charAt(offset);
-				if (SVCharacter.isSVIdentifierPart(ch)) {
+				if (!Character.isWhitespace(ch)) {
 					break;
 				}
+				offset++;
+			}
+		} else {
+			// Not identifier and not whitespace. Skip forward one.
+			if (offset+1 < len) {
 				offset++;
 			}
 		}
@@ -65,6 +83,9 @@ public class SelNextWordAction extends TextEditorAction {
 			offset = len-1;
 		}
 		
+		// Move cursor to end position
+		text.setCaretOffset(offset);
+		// Set selection bounds
 		text.setSelection(start_offset, offset);
 	}
 }

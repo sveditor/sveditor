@@ -12,22 +12,31 @@
 
 package net.sf.sveditor.ui.explorer;
 
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-public class ProjectPathsContentProvider implements ITreeContentProvider {
-	private Map<Object, ProjectPathsData> 		fProjectDataMap;
-	private static Object 		NO_ELEMENTS[] = new Object[0];
+public class ProjectPathsContentProvider implements 
+		ITreeContentProvider, ISVDBProjectSettingsListener, ISVDBIndexChangeListener {
+	private List<ProjectPathsData>				fProjectDataMap;
+	private static Object 						NO_ELEMENTS[] = new Object[0];
+	private Viewer								fViewer;
+	private boolean							fRefreshQueued;
+	private IElementComparer					fDefaultComparer;
 	
 	public ProjectPathsContentProvider() {
-		fProjectDataMap = new WeakHashMap<Object, ProjectPathsData>();
+		fProjectDataMap = new ArrayList<ProjectPathsData>();
 	}
 
 	public Object[] getChildren(Object parentElement) {
@@ -35,18 +44,54 @@ public class ProjectPathsContentProvider implements ITreeContentProvider {
 				((IProject)parentElement).getFile(".svproject").exists()) {
 			SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(
 					(IProject)parentElement);
-			if (!fProjectDataMap.containsKey(pd)) {
-				fProjectDataMap.put(pd, new ProjectPathsData(pd));
-			}
-			return new Object[] {fProjectDataMap.get(pd)};
+			ProjectPathsData paths_d = getProjectPathsData(pd);
+			return new Object[] {paths_d};
 		} else if (parentElement instanceof IProjectPathsData) {
 			return ((IProjectPathsData)parentElement).getChildren(parentElement);
 		}
 		return NO_ELEMENTS;
 	}
+	
+	private ProjectPathsData getProjectPathsData(SVDBProjectData pd) {
+		int idx = fProjectDataMap.indexOf(pd);
+		
+		if (idx == 0) {
+			return fProjectDataMap.get(idx);
+		} else if (idx == -1) {
+			while (fProjectDataMap.size() >= 15) {
+				// Remove
+				ProjectPathsData paths_d = fProjectDataMap.remove(0);
+				removeListeners(paths_d.getProjectData());
+			}
+			ProjectPathsData paths_d = new ProjectPathsData(pd);
+			addListeners(pd);
+			return paths_d;
+		} else {
+			ProjectPathsData paths_d = fProjectDataMap.remove(idx);
+			fProjectDataMap.add(paths_d);
+			return paths_d;
+		}
+	}
+	
+	private void addListeners(SVDBProjectData pd) {
+		pd.addProjectSettingsListener(this);
+		// TODO:
+		// pd.getProjectIndexMgr().addIndexChangeListener(this);
+	}
+	
+	private void removeListeners(SVDBProjectData pd) {
+		pd.removeProjectSettingsListener(this);
+		// TODO:
+		// pd.getProjectIndexMgr().removeIndexChangeListener(this);
+	}
 
 	public Object getParent(Object element) {
-		return null;
+		if (element instanceof LibIndexPath) {
+			LibIndexPath lip = (LibIndexPath)element;
+			return lip.getParent(element);
+		} else {
+			return null;
+		}
 	}
 
 	public boolean hasChildren(Object element) {
@@ -58,10 +103,36 @@ public class ProjectPathsContentProvider implements ITreeContentProvider {
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		if (fViewer != null && !fViewer.getControl().isDisposed()) {
+			((TreeViewer)fViewer).setComparer(fDefaultComparer);
+		}
+	}
+	
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		fViewer = viewer;
 	}
 
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
+	public void index_changed(int reason, SVDBFile file) {
+		doRefresh();
+	}
 
+	public void index_rebuilt() {
+		doRefresh();
+	}
+
+	public void projectSettingsChanged(SVDBProjectData data) {
+		doRefresh();
+	}
+	
+	private void doRefresh() {
+		if (!fRefreshQueued && fViewer != null && !fViewer.getControl().isDisposed()) {
+			fRefreshQueued = true;
+			fViewer.getControl().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					fViewer.refresh();
+					fRefreshQueued = false;
+				}
+			});
+		}
+	}
 }

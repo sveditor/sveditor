@@ -62,4 +62,24 @@ public class LibIndexPath implements IProjectPathsData {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public int hashCode() {
+		int hash = fName.hashCode();
+		hash += fType.hashCode();
+		hash += fParent.hashCode();
+		
+		return hash;
+	}
+
+	public boolean equals(Object obj) {
+		if (obj instanceof LibIndexPath) {
+			LibIndexPath lip = (LibIndexPath)obj;
+			return (fName.equals(lip.fName) &&
+					fType.equals(lip.fType) &&
+					fParent.equals(lip.fParent));
+		} else {
+			return super.equals(obj);
+		}
+	}
 }

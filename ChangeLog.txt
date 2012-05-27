@@ -2,6 +2,10 @@
 
 - #(3526657) - Treat "_" as part of a word, not delimiter
 
+- #(enh) - Updates to project-paths entry
+
+- #(3529251) - Correct a bug in parsing bind of a hierarchical path
+
 ------------------------------------------------------------------------------
 -- 0.8.8 Release --
 

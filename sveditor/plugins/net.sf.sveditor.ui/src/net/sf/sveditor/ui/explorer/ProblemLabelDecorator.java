@@ -19,13 +19,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IDecoration;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-public class ProblemLabelDecorator implements ILightweightLabelDecorator {
-
+public class ProblemLabelDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	public void decorate(Object element, IDecoration decoration) {
 		if (!(element instanceof IResource)) {
@@ -49,25 +48,5 @@ public class ProblemLabelDecorator implements ILightweightLabelDecorator {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void addListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void dispose() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public boolean isLabelProperty(Object element, String property) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public void removeListener(ILabelProviderListener listener) {
-		// TODO Auto-generated method stub
-		
 	}
 }

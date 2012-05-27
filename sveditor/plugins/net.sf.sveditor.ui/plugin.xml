@@ -142,6 +142,7 @@
       </commonWizard>
       <navigatorContent
             activeByDefault="true"
+            appearsBefore="org.eclipse.ui.navigator.resourceContent"
             contentProvider="net.sf.sveditor.ui.explorer.ProjectPathsContentProvider"
             icon="icons/edecl16/package.gif"
             id="net.sf.sveditor.ui.projectPathsContent"

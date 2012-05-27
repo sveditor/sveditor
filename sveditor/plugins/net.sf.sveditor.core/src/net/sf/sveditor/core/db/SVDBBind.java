@@ -15,8 +15,10 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.expr.SVDBExpr;
+
 public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBNamedItem {
-	public String			fTargetTypeName;
+	public SVDBExpr			fTargetTypeName;
 	public List<String>	fTargetInstNameList;
 	public SVDBModIfcInst	fBindInst;
 	
@@ -26,14 +28,14 @@ public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBN
 	}
 	
 	public String getName() {
-		return fTargetTypeName;
+		return fTargetTypeName.toString();
 	}
 	
-	public void setTargetTypeName(String name) {
+	public void setTargetTypeName(SVDBExpr name) {
 		fTargetTypeName = name;
 	}
 	
-	public String getTargetTypeName() {
+	public SVDBExpr getTargetTypeName() {
 		return fTargetTypeName;
 	}
 	
