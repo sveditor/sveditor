@@ -1,15 +1,29 @@
 -- 0.8.9 Release --
 
-- #(3526657) - Treat "_" as part of a word, not delimiter
+- #(3526657) - Treat "_" as part of a word, not delimiter, during keyboard-driven selection
 
-- #(enh) - Updates to project-paths entry
+- #(nobug) - Updates to project-paths settings trigger update of the Project Paths
+  entry in the Project Explorer
 
 - #(3529251) - Correct a bug in parsing bind of a hierarchical path
 
 - #(nobug) - Correct a lurking issue regarding reparenting of newly-parsed
   active-file content. Now, we leave the parent pointer intact for children.
   
-- #(3528722) - Correct a bug in parsing throughout expressions
+- #(3528722) - Correct a bug in parsing "throughout" expressions
+
+- #(nobug) - Soft constraint support added (patch from contributor)
+
+- #(enh) - Add a message to the editor Status Line indicating which index
+  manages the active file. Hopefully this will help in troubleshooting
+  indexer behavior
+  
+- #(nobug) - Change behavior of the Shadow Index, the index that is
+  created to manage a file that is otherwise not managed by an index. 
+  Previously, this index collected all SV files in the target directory
+  and indexed them. Now, this index only manages the target file. This should
+  result in less ambiguity as to which files are actually managed by an
+  explicit index.
 
 ------------------------------------------------------------------------------
 -- 0.8.8 Release --

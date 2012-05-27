@@ -20,8 +20,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.tests.TestNullIndexCache;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -30,7 +30,7 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 	
 	public ContentAssistIndex() {
 		super("GLOBAL", "base_location", 
-				null, new TestNullIndexCache(), null);
+				null, new InMemoryIndexCache(), null);
 	}
 	
 	@Override

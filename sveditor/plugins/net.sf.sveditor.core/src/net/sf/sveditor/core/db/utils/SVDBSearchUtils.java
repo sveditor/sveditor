@@ -26,10 +26,11 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-public class SVDBSearchUtils {
+public class SVDBSearchUtils implements ILogLevel {
 	
 	private static final LogHandle		fLog;
 	
@@ -143,6 +144,6 @@ public class SVDBSearchUtils {
 
 
 	private static void debug(String msg) {
-		fLog.debug(msg);
+		fLog.debug(LEVEL_MAX, msg);
 	}
 }

@@ -21,6 +21,7 @@ import java.util.WeakHashMap;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -44,7 +45,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 public class SVDBIndexRegistry  {
 	public static final String							GLOBAL_PROJECT = "GLOBAL";
 	
-	private SVDBIndexCollectionMgr							fGlobalIndexMgr;
+	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
+	private SVDBIndexCollection								fGlobalIndexMgr;
 	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
 	private ISVDBIndexCacheFactory							fCacheFactory;
 	private boolean										fAutoRebuildEn;
@@ -63,6 +65,7 @@ public class SVDBIndexRegistry  {
 		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 		fAutoRebuildEn = true;
+		fIndexCollectionMgr = new SVDBIndexCollectionMgr();
 	}
 	
 	public void setEnableAutoRebuild(boolean en) {
@@ -73,6 +76,10 @@ public class SVDBIndexRegistry  {
 				i.setEnableAutoRebuild(fAutoRebuildEn);
 			}
 		}
+	}
+	
+	public SVDBIndexCollectionMgr getIndexCollectionMgr() {
+		return fIndexCollectionMgr;
 	}
 	
 	public void init(ISVDBIndexCacheFactory cache_factory) {
@@ -107,9 +114,9 @@ public class SVDBIndexRegistry  {
 		return ret;
 	}
 	
-	public SVDBIndexCollectionMgr getGlobalIndexMgr() {
+	public SVDBIndexCollection getGlobalIndexMgr() {
 		if (fGlobalIndexMgr == null) {
-			fGlobalIndexMgr = new SVDBIndexCollectionMgr(GLOBAL_PROJECT);
+			fGlobalIndexMgr = new SVDBIndexCollection(fIndexCollectionMgr, GLOBAL_PROJECT);
 			
 			// Ensure the global index has access to the built-in types
 			ISVDBIndex index = findCreateIndex(
@@ -214,7 +221,13 @@ public class SVDBIndexRegistry  {
 			fLog.debug("    Index does not exist -- creating");
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
-			ISVDBIndexCache cache = fCacheFactory.createIndexCache(project, base_location);
+			ISVDBIndexCache cache = null;
+			
+			if (type.equals(SVDBShadowIndexFactory.TYPE)) {
+				cache = new InMemoryIndexCache();
+			} else {
+				cache = fCacheFactory.createIndexCache(project, base_location);
+			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
 			ret.setEnableAutoRebuild(fAutoRebuildEn);

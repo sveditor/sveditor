@@ -1,10 +1,10 @@
 
 module m;
-	
-	sequence s1;
-		logic v, w;
-		(a, v = e) ##1
-		(b[->1], w = f, $display("b after a with v = %h, w = %h\n", v, w));
+
+	sequence burst_rule1;
+		@(posedge mclk)
+		$fell(burst_mode) ##0
+		((!burst_mode) throughout (##2 ((trdy==0)&&(irdy==0)) [*7]));
 	endsequence	
-	
+ 	
 endmodule

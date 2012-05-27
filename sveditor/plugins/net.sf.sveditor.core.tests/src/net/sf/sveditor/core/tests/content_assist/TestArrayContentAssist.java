@@ -30,7 +30,7 @@ import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
@@ -43,7 +43,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestArrayContentAssist extends TestCase {
 	private static ContentAssistIndex			fIndex;
-	private static SVDBIndexCollectionMgr		fIndexMgr;
+	private static SVDBIndexCollection		fIndexMgr;
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -51,7 +51,7 @@ public class TestArrayContentAssist extends TestCase {
 			System.out.println("setUp");
 			fIndex = new ContentAssistIndex();
 			fIndex.init(new NullProgressMonitor());
-			fIndexMgr = new SVDBIndexCollectionMgr("GLOBAL");
+			fIndexMgr = new SVDBIndexCollection("GLOBAL");
 			fIndexMgr.addLibraryPath(fIndex);
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),

@@ -51,19 +51,19 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private List<IDBReader>					fPersistenceRdrSet;
 	private List<IDBWriter>					fPersistenceWriterSet;
 	private long							fNumFilesRead = 0;
-	private boolean							fDebugEn = false;
+	private boolean						fDebugEn = false;
 
-	private int								fNumWriteBackThreads = 0;
+	private int							fNumWriteBackThreads = 0;
 	private Thread							fWriteBackThread[];
 	private List<WriteBackInfo>				fWriteBackQueue;
 	
-	private int								fMaxCacheSize = 100;
+	private int							fMaxCacheSize = 100;
 	
 	private static CacheFileInfo			fCacheHead;
 	private static CacheFileInfo			fCacheTail;
-	private static int						fCacheSize;
+	private static int					fCacheSize;
 	
-	private boolean							fUseSoftRef = true;
+	private boolean						fUseSoftRef = true;
 
 	final class CacheFileInfo {
 		public boolean						fCached;
@@ -77,7 +77,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		public SVDBFile						fSVDBFileRef;
 		public Reference<List<SVDBMarker>>	fMarkers;
 		public List<SVDBMarker>				fMarkersRef;
-		public long							fLastModified;
+		public long						fLastModified;
 		
 		public CacheFileInfo() {
 			fSVDBPreProcFile = (Reference<SVDBFile>)createRef(null);

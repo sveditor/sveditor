@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
@@ -76,8 +76,8 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollectionMgr p1_index = p1_pdata.getProjectIndexMgr();
-		SVDBIndexCollectionMgr p2_index = p2_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
 				new NullProgressMonitor(), 
@@ -120,8 +120,8 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollectionMgr p1_index = p1_pdata.getProjectIndexMgr();
-		SVDBIndexCollectionMgr p2_index = p2_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
 				new NullProgressMonitor(), 
@@ -164,8 +164,8 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollectionMgr p1_index = p1_pdata.getProjectIndexMgr();
-		SVDBIndexCollectionMgr p2_index = p2_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		ISVDBItemIterator it = p2_index.getItemIterator(new NullProgressMonitor());
 		

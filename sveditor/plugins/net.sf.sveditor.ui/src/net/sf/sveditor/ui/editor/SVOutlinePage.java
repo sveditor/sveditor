@@ -78,7 +78,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		fEditor = editor;
 		fContentProvider = new SVTreeContentProvider();
 		
-		fSVDBFile = new SVDBFile();
+		fSVDBFile = new SVDBFile("");
 	}
 	
 	public void createControl(Composite parent) {
@@ -150,19 +150,11 @@ public class SVOutlinePage extends ContentOutlinePage
 
 	public void run() {
 		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
-			// fSVDBFile still has references to the items in the old file revision
-			SVDBFile new_file = fEditor.getSVDBFile();
-			
-			fSVDBFile = new SVDBFile();
+			fSVDBFile = fEditor.getSVDBFile();
 			
 			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
 			
 			ISelection sel = getTreeViewer().getSelection();
-			
-			// Add the roots from the new file
-			for (ISVDBChildItem c : new_file.getChildren()) {
-				fSVDBFile.addChildItem(c);
-			}
 			
 			getTreeViewer().setInput(fSVDBFile);
 			

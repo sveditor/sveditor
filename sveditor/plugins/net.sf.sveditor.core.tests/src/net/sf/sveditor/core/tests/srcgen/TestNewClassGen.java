@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
@@ -92,7 +92,7 @@ public class TestNewClassGen extends TestCase {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.init(TestIndexCacheFactory.instance(tmpdir));
 
-			SVDBIndexCollectionMgr index_mgr = new SVDBIndexCollectionMgr("GLOBAL");
+			SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 			index_mgr.addPluginLibrary(
 					rgy.findCreateIndex(new NullProgressMonitor(),
 							"GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
@@ -163,7 +163,7 @@ public class TestNewClassGen extends TestCase {
 			}
 			assertTrue(tmpdir.mkdirs());
 			
-			SVDBIndexCollectionMgr index_it = SrcGenTests.createIndex(doc);
+			SVDBIndexCollection index_it = SrcGenTests.createIndex(doc);
 
 			gen.generate(index_it, file, "new_class", "base", true, new NullProgressMonitor());
 
@@ -231,7 +231,7 @@ public class TestNewClassGen extends TestCase {
 			}
 			tmpdir.mkdirs();
 			
-			SVDBIndexCollectionMgr index_it = SrcGenTests.createIndex(doc);
+			SVDBIndexCollection index_it = SrcGenTests.createIndex(doc);
 
 			gen.generate(index_it, file, "new_class", "base", true, new NullProgressMonitor());
 

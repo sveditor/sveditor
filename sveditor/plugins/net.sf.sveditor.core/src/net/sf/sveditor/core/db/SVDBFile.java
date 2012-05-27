@@ -19,6 +19,7 @@ public class SVDBFile extends SVDBScopeItem {
 	
 	public SVDBFile() {
 		super("", SVDBItemType.File);
+		fFile = "";
 	}
 	
 	public SVDBFile(String file) {
@@ -41,27 +42,17 @@ public class SVDBFile extends SVDBScopeItem {
 	}
 	
 	public void setFilePath(String file) {
+		if (file == null) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		fFile = file;
 	}
 	
 	public void clearChildren() {
 		fItems.clear();
 	}
-	
-	/*
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof SVDBFile) {
-			SVDBFile o = (SVDBFile)obj;
-
-			if (fLastModified != o.fLastModified) {
-				return false;
-			}
-			
-			return (fFile.equals(o.fFile) &&
-					super.equals(obj));
-		}
-		return false;
-	}
-	 */
 }

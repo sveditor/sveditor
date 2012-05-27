@@ -19,7 +19,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -101,7 +101,7 @@ public class TestUserLevelOperations extends TestCase {
 		p_data.setProjectFileWrapper(p_wrapper);
 		
 		// Now, open xbus/examples/xbus_demo_tb.sv
-		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
+		SVDBIndexCollection project_index = p_data.getProjectIndexMgr();
 		// force index loading
 		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
 		it.nextItem();

@@ -20,17 +20,17 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 
 public class SVDBIndexSearcher implements ISVDBIndexSearcher {
 	protected boolean								fDebugEn;
-	protected List<SVDBIndexCollectionMgr>			fIndexCollection;
+	protected List<SVDBIndexCollection>			fIndexCollection;
 	
 	public SVDBIndexSearcher() {
-		fIndexCollection = new ArrayList<SVDBIndexCollectionMgr>();
+		fIndexCollection = new ArrayList<SVDBIndexCollection>();
 	}
 	
-	public void addIndexCollection(SVDBIndexCollectionMgr mgr) {
+	public void addIndexCollection(SVDBIndexCollection mgr) {
 		fIndexCollection.add(mgr);
 	}
 	

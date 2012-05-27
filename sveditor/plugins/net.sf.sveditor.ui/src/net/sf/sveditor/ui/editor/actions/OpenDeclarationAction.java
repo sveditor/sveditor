@@ -36,7 +36,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVEditor				fEditor;
 	private LogHandle				fLog;
-	private boolean					fDebugEn = true;
+	private boolean				fDebugEn = true;
 
 	public OpenDeclarationAction(
 			ResourceBundle			bundle,
