@@ -147,6 +147,8 @@ public class TestUvmBasics extends TestCase {
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
+		assertTrue("Cache is empty. No files found.",index.getCache().numFilesRead()!=0) ;
+		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
@@ -198,6 +200,8 @@ public class TestUvmBasics extends TestCase {
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
+		
+		assertTrue("Cache is empty. No files found.",index.getCache().numFilesRead()!=0) ;
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
