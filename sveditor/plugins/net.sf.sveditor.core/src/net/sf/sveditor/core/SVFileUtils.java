@@ -13,6 +13,9 @@
 package net.sf.sveditor.core;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
@@ -126,6 +129,16 @@ public class SVFileUtils {
     	return "UNSUPPORTED";
     }
     
+    public static void writeToFile(File file, String content) {
+    	try {
+    		PrintWriter out = new PrintWriter(new FileWriter(file.toString())) ;
+    		out.print(content) ;
+    		out.close();
+    	} catch (IOException e){
+    		e.printStackTrace();
+    	}       	
+    }
+    
     public static void delete(File file) {
     	if (!file.exists()) {
     		return;
@@ -138,4 +151,5 @@ public class SVFileUtils {
     	}
     	file.delete();
     }
+    
 }
