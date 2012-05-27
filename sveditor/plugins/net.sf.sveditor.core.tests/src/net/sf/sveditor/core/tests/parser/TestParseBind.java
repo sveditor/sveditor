@@ -34,7 +34,7 @@ public class TestParseBind extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module t;\n" +
-			"	bind target_scope.sub_scope monitor m1(.a, .b, .c);\n" +
+			"	bind cpu: board.cpu1 monitor m1(.a, .b, .c);\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"m1"});
