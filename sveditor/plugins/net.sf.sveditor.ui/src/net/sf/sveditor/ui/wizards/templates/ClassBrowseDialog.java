@@ -7,7 +7,7 @@ import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
@@ -84,7 +84,7 @@ public class ClassBrowseDialog extends Dialog {
 			fTable.setContentProvider(contentProvider);
 			fTable.setLabelProvider(new SVTreeLabelProvider());
 			
-			SVDBIndexCollectionMgr mgr = pdata.getProjectIndexMgr();
+			SVDBIndexCollection mgr = pdata.getProjectIndexMgr();
 			fAllClasses = mgr.findGlobalScopeDecl(new NullProgressMonitor(), "", 
 					new ISVDBFindNameMatcher() {
 						public boolean match(ISVDBNamedItem it, String name) {

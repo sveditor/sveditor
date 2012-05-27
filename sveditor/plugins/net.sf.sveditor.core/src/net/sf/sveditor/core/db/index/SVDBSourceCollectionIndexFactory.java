@@ -27,7 +27,7 @@ import net.sf.sveditor.core.log.LogHandle;
 public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.sourceCollectionIndex";
-	public static final String  FILESET = "FILE_SET";
+	public static final String  	FILESET = "FILE_SET";
 	private LogHandle				fLog;
 	
 	public SVDBSourceCollectionIndexFactory() {
@@ -84,10 +84,22 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
 
-		ret = new SVDBSourceCollectionIndex(project_name, base_location, 
-				matcher, fs_provider, cache, config);
+		ret = createIndex(project_name, base_location, matcher,
+				fs_provider, cache, config);
+				
 		
 		return ret;
+	}
+	
+	protected ISVDBIndex createIndex(
+			String						project_name,
+			String						base_location,
+			AbstractSVFileMatcher		matcher,
+			ISVDBFileSystemProvider		fs_provider,
+			ISVDBIndexCache				cache,
+			Map<String, Object>			config) {
+		return new SVDBSourceCollectionIndex(project_name, base_location, 
+				matcher, fs_provider, cache, config);
 	}
 
 }

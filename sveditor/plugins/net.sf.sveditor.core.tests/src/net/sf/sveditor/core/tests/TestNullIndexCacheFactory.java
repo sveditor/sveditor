@@ -17,17 +17,18 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 
 public class TestNullIndexCacheFactory implements ISVDBIndexCacheFactory {
-	private List<TestNullIndexCache>			fCacheList;
+	private List<InMemoryIndexCache>			fCacheList;
 	
 	public TestNullIndexCacheFactory() {
-		fCacheList = new ArrayList<TestNullIndexCache>();
+		fCacheList = new ArrayList<InMemoryIndexCache>();
 	}
 
 	public ISVDBIndexCache createIndexCache(String project_name,
 			String base_location) {
-		TestNullIndexCache ret = new TestNullIndexCache();
+		InMemoryIndexCache ret = new InMemoryIndexCache();
 		fCacheList.add(ret);
 		
 		return ret;
@@ -36,7 +37,7 @@ public class TestNullIndexCacheFactory implements ISVDBIndexCacheFactory {
 	public void compactCache(List<ISVDBIndexCache> cache_list) {
 	}
 	
-	public List<TestNullIndexCache> getCacheList() {
+	public List<InMemoryIndexCache> getCacheList() {
 		return fCacheList;
 	}
 

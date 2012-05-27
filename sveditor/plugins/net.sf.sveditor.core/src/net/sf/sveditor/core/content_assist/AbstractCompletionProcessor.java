@@ -51,6 +51,7 @@ import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
@@ -58,7 +59,7 @@ import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 
-public abstract class AbstractCompletionProcessor {
+public abstract class AbstractCompletionProcessor implements ILogLevel {
 	protected List<SVCompletionProposal>		fCompletionProposals;
 	
 	protected LogHandle							fLog;
@@ -115,7 +116,9 @@ public abstract class AbstractCompletionProcessor {
 		
 		// Trigger characters and string prior to the trigger (if any)
 
-		debug("computeCompletionProposals: ");
+		fLog.debug(LEVEL_MID, 
+				"computeProposals: " + 
+						active_file.getFilePath() + ":" + lineno + ":" + linepos);
 
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);

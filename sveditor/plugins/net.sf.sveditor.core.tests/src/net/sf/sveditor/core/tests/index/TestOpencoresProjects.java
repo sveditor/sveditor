@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -136,7 +136,7 @@ public class TestOpencoresProjects extends TestCase {
 		}
 		p_data.setProjectFileWrapper(p_wrapper);
 		
-		SVDBIndexCollectionMgr project_index = p_data.getProjectIndexMgr();
+		SVDBIndexCollection project_index = p_data.getProjectIndexMgr();
 		assertNoErrors(log, project_index);
 		
 		// force index loading

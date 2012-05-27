@@ -33,7 +33,7 @@ import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
@@ -52,9 +52,9 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestContentAssistBasics extends TestCase {
-	private SVDBIndexCollectionMgr		fIndexCollectionOVMMgr;
-	private SVDBIndexCollectionMgr		fIndexCollectionVMMMgr;
-	private SVDBIndexCollectionMgr		fIndexCollectionStandalone;
+	private SVDBIndexCollection		fIndexCollectionOVMMgr;
+	private SVDBIndexCollection		fIndexCollectionVMMMgr;
+	private SVDBIndexCollection		fIndexCollectionStandalone;
 	private ContentAssistIndex			fIndex;
 	private File						fTmpDir;
 	
@@ -71,7 +71,7 @@ public class TestContentAssistBasics extends TestCase {
 		fIndex = new ContentAssistIndex();
 		fIndex.init(new NullProgressMonitor());
 
-		fIndexCollectionVMMMgr = new SVDBIndexCollectionMgr(pname);
+		fIndexCollectionVMMMgr = new SVDBIndexCollection(pname);
 		fIndexCollectionVMMMgr.addLibraryPath(fIndex);
 		fIndexCollectionVMMMgr.addPluginLibrary(
 				rgy.findCreateIndex(new NullProgressMonitor(), pname, 
@@ -79,18 +79,18 @@ public class TestContentAssistBasics extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 	}
 	
-	private SVDBIndexCollectionMgr createStandaloneIndexMgr() {
+	private SVDBIndexCollection createStandaloneIndexMgr() {
 		if (fIndexCollectionStandalone == null) {
-			fIndexCollectionStandalone = new SVDBIndexCollectionMgr("GLOBAL");
+			fIndexCollectionStandalone = new SVDBIndexCollection("GLOBAL");
 			fIndexCollectionStandalone.addLibraryPath(fIndex);
 		}
 		return fIndexCollectionStandalone;
 	}
 
-	private SVDBIndexCollectionMgr createOVMIndexMgr() {
+	private SVDBIndexCollection createOVMIndexMgr() {
 		if (fIndexCollectionOVMMgr == null) {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			fIndexCollectionOVMMgr = new SVDBIndexCollectionMgr("GLOBAL");
+			fIndexCollectionOVMMgr = new SVDBIndexCollection("GLOBAL");
 			fIndexCollectionOVMMgr.addLibraryPath(fIndex);
 			fIndexCollectionOVMMgr.addPluginLibrary(
 					rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 

@@ -75,14 +75,12 @@ public class ProjectPathsContentProvider implements
 	
 	private void addListeners(SVDBProjectData pd) {
 		pd.addProjectSettingsListener(this);
-		// TODO:
-		// pd.getProjectIndexMgr().addIndexChangeListener(this);
+		pd.getProjectIndexMgr().addIndexChangeListener(this);
 	}
 	
 	private void removeListeners(SVDBProjectData pd) {
 		pd.removeProjectSettingsListener(this);
-		// TODO:
-		// pd.getProjectIndexMgr().removeIndexChangeListener(this);
+		pd.getProjectIndexMgr().removeIndexChangeListener(this);
 	}
 
 	public Object getParent(Object element) {

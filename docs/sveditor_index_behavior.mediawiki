@@ -4,11 +4,14 @@
 
 == 
 
+=== Index Affinity ===
+When a file is opened with SVEditor's text editor, one of SVEditor's first tasks is to determine which index collection and which index the file is associated with.
+* If the file is within a project in the workspace, the file will be managed by that project's index collection
+ 
 
-== Specifying Index Paths ==
+=== Specifying Index Paths ===
 SVEditor provides several ways to specify the set of files that should be indexed. This section provides details on the behavior of each of these methods. Index paths are specified via the SystemVerilog Project Properties page on a project's properties page.
 
- 
 
 === Argument File ===
 Using an argument file is probably the most reliable way to specify which files SVEditor should index. The content of an argument file specifies a list of files to index, and options to specify include paths and macro definitions. In most cases, the argument file could be passed to your simulator's SystemVerilog compiler to compile the source code.

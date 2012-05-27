@@ -16,7 +16,7 @@ import java.io.File;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -30,7 +30,7 @@ public class ProfileIndexLoad {
 	
 	public void testLoadOVM(String ovm_home) {
 		String pname = "testLoadOVM";
-		SVDBIndexCollectionMgr mgr = new SVDBIndexCollectionMgr(pname);
+		SVDBIndexCollection mgr = new SVDBIndexCollection(pname);
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));

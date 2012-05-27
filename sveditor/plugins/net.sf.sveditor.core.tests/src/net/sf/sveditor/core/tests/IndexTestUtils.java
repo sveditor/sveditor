@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -44,7 +44,7 @@ public class IndexTestUtils {
 		}
 	}
 
-	public static void assertNoErrWarn(LogHandle log, SVDBIndexCollectionMgr index_mgr) {
+	public static void assertNoErrWarn(LogHandle log, SVDBIndexCollection index_mgr) {
 		for (ISVDBIndex index : index_mgr.getIndexList()) {
 			for (String file : index.getFileList(new NullProgressMonitor())) {
 				List<SVDBMarker> markers = index.getMarkers(file);

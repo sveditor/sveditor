@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBProjectRefProvider;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
@@ -48,7 +48,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private IProject								fProject;
 	private IPath 									fSVProjFilePath;
 	private SVProjectFileWrapper 					fFileWrapper;
-	private SVDBIndexCollectionMgr					fIndexCollection;
+	private SVDBIndexCollection					fIndexCollection;
 	private String									fProjectName;
 	private LogHandle								fLog;
 	private List<ISVDBProjectSettingsListener>		fListeners;
@@ -57,22 +57,23 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			IProject					project,
 			SVProjectFileWrapper 		wrapper, 
 			IPath 						projfile_path) {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fProject = project;
 		fLog = LogFactory.getLogHandle("SVDBProjectData");
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project.getName();
 		fSVProjFilePath = projfile_path;
 		
-		fIndexCollection = new SVDBIndexCollectionMgr(fProjectName);
+		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
 		
 		fFileWrapper = null;
 		setProjectFileWrapper(wrapper, false);
 	}
 	
-	public SVDBIndexCollectionMgr resolveProjectRef(String path) {
+	public SVDBIndexCollection resolveProjectRef(String path) {
 		IWorkspace ws = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root = ws.getRoot();
-		SVDBIndexCollectionMgr mgr = null;
+		SVDBIndexCollection mgr = null;
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr(); 
 		
 		IProject p = root.getProject(path);
@@ -98,7 +99,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		fListeners.remove(l);
 	}
 
-	public synchronized SVDBIndexCollectionMgr getProjectIndexMgr() {
+	public synchronized SVDBIndexCollection getProjectIndexMgr() {
 		if (fIndexCollection == null) {
 			fIndexCollection = createProjectIndex();
 		}
@@ -205,8 +206,9 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	 * 
 	 * @return
 	 */
-	private SVDBIndexCollectionMgr createProjectIndex() {
-		SVDBIndexCollectionMgr ret = new SVDBIndexCollectionMgr(fProjectName);
+	private SVDBIndexCollection createProjectIndex() {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		SVDBIndexCollection ret = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
 		SVProjectFileWrapper fw = getProjectFileWrapper();
 		
 		setProjectPaths(ret, fw, false);
@@ -215,7 +217,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	}
 	
 	private void setProjectPaths(
-			SVDBIndexCollectionMgr 		sc,
+			SVDBIndexCollection 		sc,
 			SVProjectFileWrapper		fw,
 			boolean						refresh) {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
