@@ -29,6 +29,17 @@ public class TestParseBind extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"m1"});
 	}
 
+	public void testBasicBindWithHier() throws SVParseException {
+		String testname = "testBasicBindWithHier";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module t;\n" +
+			"	bind cpu: board.cpu1 monitor m1(.a, .b, .c);\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"m1"});
+	}
+
 	public void testLRMEx1() throws SVParseException {
 		String testname = "testLRMEx1";
 		SVCorePlugin.getDefault().enableDebug(false);
