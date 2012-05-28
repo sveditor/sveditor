@@ -1,3 +1,11 @@
+-- 0.9.0 Release --
+- #(nobug) - Add support for bind hierarchical target paths (patch from contributor)
+
+- #(nobug) - Add support for -file <path> within an argument file, in addition to
+  -f <path> (patch from contributor)
+
+ 
+
 -- 0.8.9 Release --
 
 - #(3526657) - Treat "_" as part of a word, not delimiter, during keyboard-driven selection
