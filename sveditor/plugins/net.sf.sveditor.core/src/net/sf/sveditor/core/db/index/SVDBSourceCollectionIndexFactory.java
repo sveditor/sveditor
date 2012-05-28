@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -42,6 +44,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			Map<String, Object> 	config) {
 		ISVDBIndex ret;
 		ISVDBFileSystemProvider fs_provider = null;
+		List<AbstractSVFileMatcher> matcher_list = new ArrayList<AbstractSVFileMatcher>();
 		
 		fLog.debug("createSVDBIndex: " + project_name + " ; " + base_location);
 		
@@ -67,6 +70,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			matcher.addFileSet(fs);
 			
 			fs_provider = new SVDBWSFileSystemProvider();
+			matcher_list.add(matcher);
 			
 		} else {
 			if (fs == null) {
@@ -82,24 +86,12 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			matcher.addFileSet(fs);
 			
 			fs_provider = new SVDBFSFileSystemProvider();
+			matcher_list.add(matcher);
 		}
 
-		ret = createIndex(project_name, base_location, matcher,
-				fs_provider, cache, config);
-				
+		ret = new SVDBSourceCollectionIndex(project_name, base_location, 
+				matcher_list, fs_provider, cache, config);
 		
 		return ret;
 	}
-	
-	protected ISVDBIndex createIndex(
-			String						project_name,
-			String						base_location,
-			AbstractSVFileMatcher		matcher,
-			ISVDBFileSystemProvider		fs_provider,
-			ISVDBIndexCache				cache,
-			Map<String, Object>			config) {
-		return new SVDBSourceCollectionIndex(project_name, base_location, 
-				matcher, fs_provider, cache, config);
-	}
-
 }

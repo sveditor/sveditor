@@ -506,6 +506,10 @@ public class SVExprParser extends SVParserBase {
 			open_range_list(inside.getValueRangeList());
 			
 			a = inside;
+			
+			if (fLexer.peekOperator(SVKeywords.fBinaryOps)) {
+				a = new SVDBBinaryExpr(a, fLexer.eatToken(), expression());
+			}
 		}
 
 		if (fDebugEn) {debug("<-- assignmentExpression() " + fLexer.peek());}
