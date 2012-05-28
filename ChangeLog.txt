@@ -4,6 +4,7 @@
 - #(nobug) - Add support for -file <path> within an argument file, in addition to
   -f <path> (patch from contributor)
 
+- #(3530165) - Correct bug with inside constraint and binary expression
  
 
 -- 0.8.9 Release --

@@ -485,6 +485,7 @@ public class SVKeywords {
 	public static final Set<String>					fStrengthC;
 	public static final Set<String>					fStrength;
 	public static final Set<String>					fAssignmentOps;
+	public static final Set<String>					fBinaryOps;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -584,6 +585,15 @@ public class SVKeywords {
 		fAssignmentOps.add("<<<=");
 		fAssignmentOps.add(">>>=");
 		fAssignmentOps.add("<=");
+		
+		fBinaryOps = new HashSet<String>();
+		for (String op : new String[] {"&", "&&", "|", "||", "-",
+				"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
+				"?", "<", "<<", "<=", "<<<", ">", ">>", ">=", ">>>", "=", "*=",
+				"/=", "%=", "+=", "==", "!=", "-=", "<<=", ">>=", "<<<=", ">>>=",
+				"&=", "^=", "|=", "===", "!==", "==?", "!=?"}) {
+			fBinaryOps.add(op);
+		}
 	};
 
 	/**

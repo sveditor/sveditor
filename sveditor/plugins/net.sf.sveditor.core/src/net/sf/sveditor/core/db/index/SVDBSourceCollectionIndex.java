@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	
-	private AbstractSVFileMatcher			fFileMatcher;
+	private List<AbstractSVFileMatcher>		fFileMatcherList;
 	/*
 	private Set<SVDBFile>					fModIfcClsFiles;
 	private Set<SVDBFile>					fUnincludedFiles;
@@ -36,19 +36,15 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 	}
 	
 	SVDBSourceCollectionIndex(
-			String					project,
-			String					root,
-			AbstractSVFileMatcher	matcher,
-			ISVDBFileSystemProvider	fs_provider,
-			ISVDBIndexCache			cache,
-			Map<String, Object>		config) {
+			String							project,
+			String							root,
+			List<AbstractSVFileMatcher>		matcher_list,
+			ISVDBFileSystemProvider			fs_provider,
+			ISVDBIndexCache					cache,
+			Map<String, Object>				config) {
 		super(project, root, fs_provider, cache, config);
 		
-		fFileMatcher = matcher;
-		/*
-		fModIfcClsFiles = new HashSet<SVDBFile>();
-		fUnincludedFiles = new HashSet<SVDBFile>();
-		 */
+		fFileMatcherList = matcher_list;
 	}
 	
 	@Override
@@ -61,41 +57,17 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 		boolean valid = super.checkCacheValid();
 		
 		if (valid) {
-			List<String> file_paths = fFileMatcher.findIncludedPaths();
-			Set<String> cache_files = getCache().getFileList();
-			List<String> tmp_cache_files = new ArrayList<String>();
-			
-			tmp_cache_files.addAll(cache_files);
-			
-			// First, check that all discovered files exist
-			for (String path : file_paths) {
-				if (cache_files.contains(path)) {
-					long fs_timestamp = getFileSystemProvider().getLastModifiedTime(path);
-					long cache_timestamp = getCache().getLastModified(path);
-					
-					if (cache_timestamp < fs_timestamp) {
-						if (fDebugEn) {
-							fLog.debug(LEVEL_MIN, "Cache is invalid due to timestamp on " + path +
-									": file=" + fs_timestamp + " cache=" + cache_timestamp);
-						}
-						valid = false;
-						break;
-					}
-					tmp_cache_files.remove(path);
-				} else {
-					if (fDebugEn) {
-						fLog.debug(LEVEL_MIN, "Cache is invalid due to uncached file " + path);
-					}
-					valid = false;
-					break;
-				}
-			}
-			
-			// If all discovered files are up-to-date in the cache,
-			// check any cached files that were not discovered
-			if (valid) {
-				for (String path : tmp_cache_files) {
-					if (getFileSystemProvider().fileExists(path)) {
+			for (int i=0; i<fFileMatcherList.size(); i++) {
+				AbstractSVFileMatcher matcher = fFileMatcherList.get(i);
+				List<String> file_paths = matcher.findIncludedPaths();
+				Set<String> cache_files = getCache().getFileList();
+				List<String> tmp_cache_files = new ArrayList<String>();
+
+				tmp_cache_files.addAll(cache_files);
+
+				// First, check that all discovered files exist
+				for (String path : file_paths) {
+					if (cache_files.contains(path)) {
 						long fs_timestamp = getFileSystemProvider().getLastModifiedTime(path);
 						long cache_timestamp = getCache().getLastModified(path);
 
@@ -107,12 +79,39 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 							valid = false;
 							break;
 						}
+						tmp_cache_files.remove(path);
 					} else {
 						if (fDebugEn) {
 							fLog.debug(LEVEL_MIN, "Cache is invalid due to uncached file " + path);
 						}
 						valid = false;
 						break;
+					}
+				}
+
+				// If all discovered files are up-to-date in the cache,
+				// check any cached files that were not discovered
+				if (valid) {
+					for (String path : tmp_cache_files) {
+						if (getFileSystemProvider().fileExists(path)) {
+							long fs_timestamp = getFileSystemProvider().getLastModifiedTime(path);
+							long cache_timestamp = getCache().getLastModified(path);
+
+							if (cache_timestamp < fs_timestamp) {
+								if (fDebugEn) {
+									fLog.debug(LEVEL_MIN, "Cache is invalid due to timestamp on " + path +
+											": file=" + fs_timestamp + " cache=" + cache_timestamp);
+								}
+								valid = false;
+								break;
+							}
+						} else {
+							if (fDebugEn) {
+								fLog.debug(LEVEL_MIN, "Cache is invalid due to uncached file " + path);
+							}
+							valid = false;
+							break;
+						}
 					}
 				}
 			}
@@ -128,15 +127,18 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
-		List<String> file_paths = fFileMatcher.findIncludedPaths();
-		
-		fLog.debug(LEVEL_MIN, "discoverRootFiles");
-		
-		for (String path : file_paths) {
-			String rp = resolvePath(path, fInWorkspaceOk);
-			fLog.debug(LEVEL_MID, "Adding root file \"" + rp + "\"");
-			addFile(rp);
-			addIncludePath(SVFileUtils.getPathParent(rp));
+		for (int i=0; i<fFileMatcherList.size(); i++) {
+			AbstractSVFileMatcher matcher = fFileMatcherList.get(i);
+			List<String> file_paths = matcher.findIncludedPaths();
+			
+			fLog.debug(LEVEL_MIN, "discoverRootFiles");
+			
+			for (String path : file_paths) {
+				String rp = resolvePath(path, fInWorkspaceOk);
+				fLog.debug(LEVEL_MID, "Adding root file \"" + rp + "\"");
+				addFile(rp);
+				addIncludePath(SVFileUtils.getPathParent(rp));
+			}
 		}
 	}
 	
