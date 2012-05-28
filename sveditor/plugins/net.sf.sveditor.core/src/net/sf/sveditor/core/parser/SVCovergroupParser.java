@@ -391,6 +391,10 @@ public class SVCovergroupParser extends SVParserBase {
 		SVDBCrossBinsSelectConditionExpr select_c = new SVDBCrossBinsSelectConditionExpr();
 		select_c.setLocation(start);
 		
+		if(fLexer.peekOperator("!")) {
+			fLexer.eatToken();
+		}
+		
 		fLexer.readKeyword("binsof");
 		fLexer.readOperator("(");
 		SVDBExpr bins_expr = fParsers.exprParser().idExpr();
