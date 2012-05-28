@@ -389,21 +389,30 @@ public class SVCovergroupParser extends SVParserBase {
 	private SVDBExpr select_condition() throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		SVDBCrossBinsSelectConditionExpr select_c = new SVDBCrossBinsSelectConditionExpr();
+		SVDBUnaryExpr not_expr = null;
+		SVDBExpr bins_expr = null;
 		select_c.setLocation(start);
 		
 		if(fLexer.peekOperator("!")) {
+			not_expr = new SVDBUnaryExpr("!", null);
+			not_expr.setLocation(fLexer.getStartLocation());
 			fLexer.eatToken();
 		}
 		
 		fLexer.readKeyword("binsof");
 		fLexer.readOperator("(");
-		SVDBExpr bins_expr = fParsers.exprParser().idExpr();
+		bins_expr = fParsers.exprParser().idExpr();
 		if (fLexer.peekOperator(".")) {
 			fLexer.eatToken();
 			bins_expr = new SVDBFieldAccessExpr(bins_expr, false, 
 					fParsers.exprParser().idExpr());
 		}
-		select_c.setBinsExpr(bins_expr);
+		if (not_expr != null) {
+			not_expr.setExpr(bins_expr);
+			select_c.setBinsExpr(not_expr);
+		} else {
+			select_c.setBinsExpr(bins_expr);
+		}
 		fLexer.readOperator(")");
 		
 		if (fLexer.peekKeyword("intersect")) {
