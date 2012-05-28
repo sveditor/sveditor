@@ -452,7 +452,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			fLexer.eatToken();
 			// Have a list of instance names
 			while (fLexer.peek() != null) {
-				bind.addTargetInstName(fParsers.exprParser().hierarchical_identifier().toString());
+				bind.addTargetInstName(fParsers.exprParser().hierarchical_identifier());
 				if (fLexer.peekOperator(",")) {
 					fLexer.eatToken();
 				} else {

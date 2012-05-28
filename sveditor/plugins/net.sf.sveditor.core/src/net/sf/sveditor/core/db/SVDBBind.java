@@ -19,12 +19,12 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBNamedItem {
 	public SVDBExpr			fTargetTypeName;
-	public List<String>	fTargetInstNameList;
+	public List<SVDBExpr>	fTargetInstNameList;
 	public SVDBModIfcInst	fBindInst;
 	
 	public SVDBBind() {
 		super(SVDBItemType.Bind);
-		fTargetInstNameList = new ArrayList<String>();
+		fTargetInstNameList = new ArrayList<SVDBExpr>();
 	}
 	
 	public String getName() {
@@ -39,11 +39,11 @@ public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBN
 		return fTargetTypeName;
 	}
 	
-	public List<String> getTargetInstNameList() {
+	public List<SVDBExpr> getTargetInstNameList() {
 		return fTargetInstNameList;
 	}
 	
-	public void addTargetInstName(String name) {
+	public void addTargetInstName(SVDBExpr name) {
 		fTargetInstNameList.add(name);
 	}
 	
