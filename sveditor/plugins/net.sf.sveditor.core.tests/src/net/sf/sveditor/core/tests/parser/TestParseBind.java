@@ -40,6 +40,17 @@ public class TestParseBind extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"m1"});
 	}
 
+	public void testTypedHierarchicalBind() throws SVParseException {
+		String testname = "testHierarchicalBind";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module t;\n" +
+			"	bind cpu: target_scope.subscope monitor m1(.a, .b, .c);\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"m1"});
+	}
+
 	public void testLRMEx1() throws SVParseException {
 		String testname = "testLRMEx1";
 		SVCorePlugin.getDefault().enableDebug(false);
