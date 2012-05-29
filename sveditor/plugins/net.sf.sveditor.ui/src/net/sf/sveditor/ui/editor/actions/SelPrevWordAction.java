@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.TextEditorAction;
@@ -34,6 +35,7 @@ public class SelPrevWordAction extends TextEditorAction {
 
 	@Override
 	public void run() {
+		ISourceViewer sv = fEditor.sourceViewer();
 		StyledText text = fEditor.sourceViewer().getTextWidget();
 		int offset = text.getCaretOffset();
 		int start_offset = offset;
@@ -86,7 +88,7 @@ public class SelPrevWordAction extends TextEditorAction {
 			offset = 0;
 		}
 		offset++;
-		text.setCaretOffset(offset);
-		text.setSelection(start_offset, offset);
+		
+		sv.setSelectedRange(start_offset, offset-start_offset);
 	}
 }
