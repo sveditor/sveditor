@@ -5,6 +5,11 @@
   -f <path> (patch from contributor)
 
 - #(3530165) - Correct bug with inside constraint and binary expression
+
+- #(nobug) - Correct parse bug related to negated binsof statement (patch from contributor)
+
+- #(nobug) - Correct a critical bug with keyboard-driven selection, where the selected
+  text was not picked up by Copy (eg CTRL+C)
  
 
 -- 0.8.9 Release --
