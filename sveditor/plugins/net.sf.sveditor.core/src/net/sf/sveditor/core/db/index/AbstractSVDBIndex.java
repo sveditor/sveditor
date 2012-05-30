@@ -863,18 +863,23 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					continue;
 				}
 			}
-
-			SVDBFile pp_file = fCache.getPreProcFile(
-					new NullProgressMonitor(), path);
 			
+			SVDBFile pp_file ;
+
+			synchronized (fCache) {
+				pp_file = fCache.getPreProcFile(
+						new NullProgressMonitor(), path);
+				
+			}
+				
 			if (pp_file == null) {
 				fLog.error("Failed to get pp_file \"" + path + "\" from cache");
 			}
-			SVDBFileTree ft_root = new SVDBFileTree(
-					(SVDBFile) pp_file.duplicate());
-			Set<String> included_files = new HashSet<String>();
-			Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
-			buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
+				
+			SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
+				Set<String> included_files = new HashSet<String>();
+				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
+				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
 		}
 	}
 
