@@ -1,3 +1,6 @@
+-- 0.9.1 Release --
+
+------------------------------------------------------------------------------
 -- 0.9.0 Release --
 - #(nobug) - Add support for bind hierarchical target paths (patch from contributor)
 
@@ -20,6 +23,7 @@
 - #(enh) - Add preference transfer settings to allow users to preserve their settings
   across workspaces. This did require changing preference IDs to add categories
 
+------------------------------------------------------------------------------
 -- 0.8.9 Release --
 
 - #(3526657) - Treat "_" as part of a word, not delimiter, during keyboard-driven selection
