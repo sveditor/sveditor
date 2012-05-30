@@ -399,7 +399,9 @@ public class SVFScanner {
 					tmp.append((char)ch);
 				}
 				
-				fFilePaths.add(tmp.toString());
+				if(!tmp.toString().matches(".*\\.(c|h|cpp|hpp)$")){
+					fFilePaths.add(tmp.toString());
+				}
 			}
 		}
 	}
