@@ -16,6 +16,9 @@
  
 - #(3530270) - Prevent argument-file parser from processing files with C/C++ extensions
   (patch from contributor)
+  
+- #(enh) - Add preference transfer settings to allow users to preserve their settings
+  across workspaces. This did require changing preference IDs to add categories
 
 -- 0.8.9 Release --
 
