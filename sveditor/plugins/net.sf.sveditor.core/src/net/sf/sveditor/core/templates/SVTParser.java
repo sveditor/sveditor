@@ -136,7 +136,7 @@ public class SVTParser {
 			for (int i=0; i<parameters_list.getLength(); i++) {
 				Element parameter = (Element)parameters_list.item(i);
 				
-				TemplateParameterType p_type = null;
+				TemplateParameterType p_type = TemplateParameterType.ParameterType_Id;
 				String p_name   = parameter.getAttribute("name");
 				String p_type_s = parameter.getAttribute("type");
 				String p_dflt   = parameter.getAttribute("default");
