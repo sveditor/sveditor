@@ -474,6 +474,14 @@
             id="net.sf.sveditor.ui.svTemplatePaths"
             name="SV Template Paths">
       </page>
+      <!--
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
+            id="net.sf.sveditor.ui.svTemplateProperties"
+            name="SV Template Properties">
+      </page>
+        -->
       <page
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorIndexPrefsPage"
@@ -661,5 +669,62 @@ endclass
             contentTypeId="net.sf.sveditor.core.systemverilog"
             contentViewerId="net.sf.sveditor.ui.compareViewer">
       </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svEditSettingsTransfer"
+            name="SVEditor Edit Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="net.sf.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="EditSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor editing settings, including colors, auto-indent, and content assist
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svLinkedResourcesSettingsTransfer"
+            name="SVEditor Linked Resource Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.eclipse.core.resources">
+               <key
+                     match="prefix"
+                     name="pathvariable.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            Global linked resource settings
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svTemplateSettingsTransfer"
+            name="SVEditor Template Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="net.sf.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="TemplateSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor template settings, including template repository paths and template variables
+         </description>
+      </transfer>
    </extension>
 </plugin>

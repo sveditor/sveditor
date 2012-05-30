@@ -1382,7 +1382,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (svdb_f.getFilePath() == null) {
 			System.out.println("file path: " + path + " is null");
 		}
-		System.out.println("file path: " + path + " is " + svdb_f.getFilePath());
 		/** TMP:
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 		 */
