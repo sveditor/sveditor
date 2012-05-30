@@ -497,6 +497,10 @@ public class TemplatePage extends FormPage {
 	private Element createParameter() {
 		Element ret = fDocument.createElement("parameter");
 		
+		ret.setAttribute("type", "id");
+		ret.setAttribute("name", "");
+		ret.setAttribute("default", "");
+		
 		return ret;
 	}
 
