@@ -14,6 +14,8 @@
 - #(3530324) - Correct a bug in initializing Template Parameter fields, that could cause
   the template-descriptor editor to write parameter elements without 'type' attributes.
  
+- #(3530270) - Prevent argument-file parser from processing files with C/C++ extensions
+  (patch from contributor)
 
 -- 0.8.9 Release --
 
