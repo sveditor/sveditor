@@ -10,8 +10,7 @@
 
 - #(nobug) - Correct a critical bug with keyboard-driven selection, where the selected
   text was not picked up by Copy (eg CTRL+C)
- 
-
+  
 -- 0.8.9 Release --
 
 - #(3526657) - Treat "_" as part of a word, not delimiter, during keyboard-driven selection
