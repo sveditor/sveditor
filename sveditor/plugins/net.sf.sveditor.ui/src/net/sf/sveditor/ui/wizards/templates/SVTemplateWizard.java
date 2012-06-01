@@ -19,6 +19,8 @@ import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
+import net.sf.sveditor.core.templates.DynamicTemplateParameterProvider;
 import net.sf.sveditor.core.templates.ITemplateFileCreator;
 import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.text.TagProcessor;
@@ -122,7 +124,15 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 	@Override
 	public boolean performFinish() {
 		final IContainer folder = SVFileUtils.getWorkspaceFolder(fParamsPage.getSourceFolder());
-		final TagProcessor tp = fParamsPage.getTagProcessor(false);
+		final TagProcessor tp = new TagProcessor();
+		tp.addParameterProvider(new DynamicTemplateParameterProvider());
+		tp.addParameterProvider(fParamsPage.getTagProcessor(false));
+		tp.addParameterProvider(new DefaultTemplateParameterProvider(
+				SVUiPlugin.getDefault().getGlobalTemplateParameters()));
+		// Add the global parameters, to allow users to 'bend' the rules a bit
+		// on referencing parameters that are not declared in the template
+		// manifest
+		tp.addParameterProvider(SVUiPlugin.getDefault().getGlobalTemplateParameters());
 		
 
 		try {
@@ -156,44 +166,6 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		} catch (InterruptedException e) {}
 		catch (InvocationTargetException e) {}
 		
-//		final IFile file_path = c.getFile(new Path(fBasicsPage.getFileName()));
-	
-		
-		/*
-		ISVDBIndexIterator index_it = null;
-		if (fBasicsPage.getProjectData() != null) {
-			index_it = fBasicsPage.getProjectData().getProjectIndexMgr();
-		}
-		final ISVDBIndexIterator index_it_f = index_it;
-		 */
-		
-		/*
-		IRunnableWithProgress op = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) throws InvocationTargetException,
-					InterruptedException {
-				NewClassGenerator gen = new NewClassGenerator();
-				gen.generate(index_it_f, file_path, fBasicsPage.getName(), 
-						fBasicsPage.getSuperClass(), fBasicsPage.getOverrideNew(), monitor);
-			}
-		};
-		
-		try {
-			getContainer().run(false, false, op);
-		} catch (Exception e) {
-			return false;
-		}
-		 */
-	
-		/*
-		try {
-			SVEditorUtil.openEditor("${workspace_loc}/" + file_path.getFullPath());
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
-		 */
-
 		return true;
 	}
-
-
 }

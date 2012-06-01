@@ -118,7 +118,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
 	}
-
+	
 	protected AbstractSVDBIndex(String project) {
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
@@ -557,6 +557,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
+	
+	public String getProject() {
+		return fProjectName;
+	}
 
 	public String getResolvedBaseLocation() {
 		if (fResolvedBaseLocation == null) {
@@ -874,12 +878,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				
 			if (pp_file == null) {
 				fLog.error("Failed to get pp_file \"" + path + "\" from cache");
-			}
-				
+			} else {
 			SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
 				Set<String> included_files = new HashSet<String>();
 				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
 				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
+			}
 		}
 	}
 
@@ -1382,7 +1386,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (svdb_f.getFilePath() == null) {
 			System.out.println("file path: " + path + " is null");
 		}
-		System.out.println("file path: " + path + " is " + svdb_f.getFilePath());
 		/** TMP:
 		svdb_f.setLastModified(fFileSystemProvider.getLastModifiedTime(path));
 		 */

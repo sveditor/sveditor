@@ -36,3 +36,6 @@ class ${name} extends uvm_test;
 	endtask
 	
 endclass
+
+${file_footer}
+

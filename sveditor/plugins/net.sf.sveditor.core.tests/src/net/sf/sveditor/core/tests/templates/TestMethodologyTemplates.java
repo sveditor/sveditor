@@ -26,6 +26,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -60,7 +61,9 @@ public class TestMethodologyTemplates extends TestCase {
 		
 		assertNotNull(tmpl);
 		TagProcessor proc = new TagProcessor();
-		proc.setTag("name", "test");
+		TemplateParameterProvider p = new TemplateParameterProvider();
+		p.setTag("name", "test");
+		proc.addParameterProvider(p);
 		
 		List<String> files = TemplateProcessor.getOutputFiles(tmpl, proc);
 		

@@ -22,12 +22,28 @@
             id="net.sf.sveditor.ui.svtEditor"
             name="SystemVerilog Template Editor">
       </editor>
+      <editor
+            class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
+            default="true"
+            id="net.sf.sveditor.ui.argfile.editor"
+            name="SystemVerilog Argument File Editor">
+         <contentTypeBinding
+               contentTypeId="net.sf.sveditor.core.argfile">
+         </contentTypeBinding>
+      </editor>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="net.sf.sveditor.ui.editor.SVDocumentSetupParticipant"
             contentTypeId="net.sf.sveditor.core.systemverilog">
+      </participant>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="net.sf.sveditor.ui.argfile.editor.SVArgFileDocSetupParticipant"
+            contentTypeId="net.sf.sveditor.core.argfile">
       </participant>
    </extension>
    <extension
@@ -476,6 +492,12 @@
       </page>
       <page
             category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
+            id="net.sf.sveditor.ui.svTemplateProperties"
+            name="SV Template Properties">
+      </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorIndexPrefsPage"
             id="net.sf.sveditor.ui.indexPreferences"
             name="Index Preferences">
@@ -661,5 +683,62 @@ endclass
             contentTypeId="net.sf.sveditor.core.systemverilog"
             contentViewerId="net.sf.sveditor.ui.compareViewer">
       </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svEditSettingsTransfer"
+            name="SVEditor Edit Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="net.sf.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="EditSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor editing settings, including colors, auto-indent, and content assist
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svLinkedResourcesSettingsTransfer"
+            name="SVEditor Linked Resource Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.eclipse.core.resources">
+               <key
+                     match="prefix"
+                     name="pathvariable.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            Global linked resource settings
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="net.sf.sveditor.ui.svTemplateSettingsTransfer"
+            name="SVEditor Template Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="net.sf.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="TemplateSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor template settings, including template repository paths and template variables
+         </description>
+      </transfer>
    </extension>
 </plugin>

@@ -4,3 +4,5 @@ class ${name}_config extends uvm_object;
 
 endclass
 
+${file_footer}
+

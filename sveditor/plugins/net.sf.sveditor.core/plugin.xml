@@ -17,6 +17,17 @@
                name="net.sf.sveditor.core.svfile">
          </property>
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="f"
+            id="net.sf.sveditor.core.argfile"
+            name="SystemVerilog Argument File"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.sv_argfile">
+         </property>
+      </content-type>
    </extension>
    <extension
          id="SVNature"

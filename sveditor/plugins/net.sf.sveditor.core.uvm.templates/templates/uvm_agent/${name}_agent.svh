@@ -19,3 +19,6 @@ endfunction
 	endfunction
 
 endclass
+
+${file_footer}
+

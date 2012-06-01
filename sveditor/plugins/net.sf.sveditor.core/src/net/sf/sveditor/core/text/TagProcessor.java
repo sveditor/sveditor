@@ -16,56 +16,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 
 public class TagProcessor {
-	private Map<String, String>				fTagMap;
+	private List<ITemplateParameterProvider>		fProviders;
 	
 	public TagProcessor() {
-		fTagMap = new HashMap<String, String>();
-	}
-
-	public TagProcessor(TagProcessor other) {
-		this();
-		fTagMap.putAll(other.fTagMap);
-	}
-
-	public void setTag(String tag, String value) {
-		if (fTagMap.containsKey(tag)) {
-			fTagMap.remove(tag);
-		}
-		fTagMap.put(tag, value);
+		fProviders = new ArrayList<ITemplateParameterProvider>();
 	}
 	
-	public void removeTag(String tag) {
-		fTagMap.remove(tag);
-	}
-	
-	public boolean hasTag(String tag) {
-		return fTagMap.containsKey(tag);
+	public void addParameterProvider(ITemplateParameterProvider p) {
+		fProviders.add(p);
 	}
 
-	public String getTag(String tag) {
-		if (fTagMap.containsKey(tag)) {
-			return fTagMap.get(tag);
-		} else {
-			return "";
-		}
-	}
-	
-	public void appendTag(String tag, String value) {
-		String val;
-		if (fTagMap.containsKey(tag)) {
-			val = fTagMap.get(tag);
-			fTagMap.remove(tag);
-		} else {
-			val = "";
-		}
-		val += value;
-		fTagMap.put(tag, val);
+	public void removeParameterProvider(ITemplateParameterProvider p) {
+		fProviders.remove(p);
 	}
 	
 	public String process(String in) {
@@ -100,8 +69,14 @@ public class TagProcessor {
 
 					String val = sb.toString();
 					if (ch == '}') {
-						if (fTagMap.containsKey(val)) {
-							out.write(fTagMap.get(val).getBytes());
+						String key = val;
+						String args = null;
+						if (key.indexOf(':') != -1) {
+							args = key.substring(key.indexOf(':')+1);
+							key = key.substring(0, key.indexOf(':'));
+						}
+						if (containsKey(key)) {
+							out.write(getParameterValue(key, args).getBytes());
 							n_replacements++;
 						} else {
 							out.write('$');
@@ -129,5 +104,23 @@ public class TagProcessor {
 		}
 		
 		return n_replacements;
+	}
+	
+	private boolean containsKey(String key) {
+		for (ITemplateParameterProvider p : fProviders) {
+			if (p.providesParameter(key)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private String getParameterValue(String key, String args) {
+		for (ITemplateParameterProvider p : fProviders) {
+			if (p.providesParameter(key)) {
+				return p.getParameterValue(key, args);
+			}
+		}
+		return null;
 	}
 }

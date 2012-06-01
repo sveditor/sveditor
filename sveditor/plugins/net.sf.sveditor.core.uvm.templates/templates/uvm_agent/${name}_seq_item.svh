@@ -10,3 +10,6 @@ class ${name}_seq_item extends uvm_sequence_item;
 	
 	
 endclass
+
+${file_footer}
+

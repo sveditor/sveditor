@@ -620,6 +620,10 @@ public class SVEditor extends TextEditor
 		SVCorePlugin.getDefault().getProjMgr().removeProjectSettingsListener(this);
 		SVUiPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(
 				fPropertyChangeListener);
+		
+		// Remove handles to shadow index
+		fSVDBIndex = null;
+		fIndexMgr  = null;
 	}
 
 	public void createPartControl(Composite parent) {

@@ -6,6 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.SVUiPlugin;
 
@@ -28,10 +29,10 @@ public class TemplateFilesTableViewer extends TableViewer {
 	private TemplateInfo					fTemplate;
 	private String							fSourceFolderStr = "";
 	private List<String>					fFilenames;
-	private TagProcessor					fTagProcessor;
+	private TemplateParameterProvider		fParameters;
 	private boolean						fOverwriteFiles;
 	
-	public TemplateFilesTableViewer(Composite parent, TagProcessor p) {
+	public TemplateFilesTableViewer(Composite parent, TemplateParameterProvider p) {
 		super(parent);
 		getTable().setHeaderVisible(true);
 		
@@ -46,7 +47,7 @@ public class TemplateFilesTableViewer extends TableViewer {
 		setContentProvider(contentProvider);
 		setLabelProvider(labelProvider);
 		
-		fTagProcessor = p;
+		fParameters = p;
 		
 		updateFilenames();
 	}
@@ -61,8 +62,8 @@ public class TemplateFilesTableViewer extends TableViewer {
 		
 		updateFilenames();
 		
-		if (!fTagProcessor.hasTag("name") || 
-				fTagProcessor.getTag("name").trim().equals("")) {
+		if (!fParameters.hasTag("name") || 
+				fParameters.getTag("name").trim().equals("")) {
 			ret = "Must specify name";
 		}
 		
@@ -97,10 +98,12 @@ public class TemplateFilesTableViewer extends TableViewer {
 	private void updateFilenames() {
 		fFilenames = new ArrayList<String>();
 		
-		TagProcessor tp = new TagProcessor(fTagProcessor);
+		TemplateParameterProvider pp = new TemplateParameterProvider(fParameters);
+		TagProcessor tp = new TagProcessor();
+		tp.addParameterProvider(pp);
 		
-		if (tp.hasTag("name") && tp.getTag("name").trim().equals("")) {
-			tp.removeTag("name");
+		if (pp.hasTag("name") && pp.getTag("name").trim().equals("")) {
+			pp.removeTag("name");
 		}
 		
 		if (fTemplate != null) {
@@ -109,7 +112,7 @@ public class TemplateFilesTableViewer extends TableViewer {
 			}
 		}
 		
-		// TODO: process filenames
+		// process filenames
 		for (int i=0; i<fFilenames.size(); i++) {
 			String pn = tp.process(fFilenames.get(i));
 			fFilenames.set(i, pn);
@@ -157,8 +160,8 @@ public class TemplateFilesTableViewer extends TableViewer {
 					String filename = element.toString();
 					IFile file = root.getFile(new Path(filename));
 
-					if (!fTagProcessor.hasTag("name") || 
-							fTagProcessor.getTag("name").trim().equals("") || 
+					if (!fParameters.hasTag("name") || 
+							fParameters.getTag("name").trim().equals("") || 
 							(file.exists() && !fOverwriteFiles)) {
 						return SVUiPlugin.getImage("/icons/eview16/error.gif");
 					} else {

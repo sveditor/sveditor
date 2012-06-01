@@ -25,3 +25,6 @@ class ${name}_driver extends uvm_driver #(${name}_seq_item);
 		end
 	endtask
 endclass
+
+${file_footer}
+

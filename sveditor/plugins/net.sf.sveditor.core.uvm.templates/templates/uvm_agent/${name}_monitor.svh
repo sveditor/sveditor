@@ -32,3 +32,6 @@ class ${name}_monitor extends uvm_monitor;
 	
 	
 endclass
+
+${file_footer}
+

@@ -285,6 +285,10 @@ public class SVExprUtils {
 				ret = true;
 				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
 				break;
+			case TypeExpr: {
+				SVDBTypeExpr type = (SVDBTypeExpr)expr;
+				ps.print("Type: " + type.getTypeInfo());
+			} break;
 			
 			default:
 				try {
