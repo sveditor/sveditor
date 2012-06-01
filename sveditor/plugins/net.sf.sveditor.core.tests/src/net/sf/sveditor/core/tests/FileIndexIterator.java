@@ -80,6 +80,9 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public String getBaseLocation() {
 						return null;
 					}
+					public String getProject() {
+						return "";
+					}
 					public SVDBFile findPreProcFile(String path) {
 						return null;
 					}

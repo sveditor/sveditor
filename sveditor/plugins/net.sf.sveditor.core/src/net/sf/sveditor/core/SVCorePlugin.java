@@ -77,14 +77,14 @@ public class SVCorePlugin extends Plugin
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
-	private int								fDebugLevel = 0;
+	private int							fDebugLevel = 0;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private ISVEditorJobMgr					fJobMgr;
-	private int								fNumIndexCacheThreads = 0;
-	private int								fMaxIndexThreads = 0;
+	private int							fNumIndexCacheThreads = 0;
+	private int							fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
 	
 	/**

@@ -25,7 +25,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class XMLTransformUtils {
-	
+
+	public static Map<String, String> xml2Map(
+			String				content,
+			String				root_elem_id,
+			String				item_elem_id) throws Exception {
+		return xml2Map(new StringInputStream(content), root_elem_id, item_elem_id);
+	}
+
 	public static Map<String, String> xml2Map(
 			InputStream			content,
 			String				root_elem_id,
