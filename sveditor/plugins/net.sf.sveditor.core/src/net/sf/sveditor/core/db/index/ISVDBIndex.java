@@ -57,6 +57,8 @@ public interface ISVDBIndex extends
 	 */
 	String getBaseLocation();
 	
+	String getProject();
+	
 	void setGlobalDefine(String key, String val);
 	
 	void clearGlobalDefines();

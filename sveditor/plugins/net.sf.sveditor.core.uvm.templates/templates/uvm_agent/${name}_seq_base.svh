@@ -18,3 +18,6 @@ class ${name}_seq_base extends uvm_sequence #(${name}_seq_item);
 endclass
 
 `endif /* INCLUDED_${filename}_SVH */
+
+${file_footer}
+

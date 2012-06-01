@@ -12,11 +12,11 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -47,7 +47,7 @@ public class SVDBIndexRegistry  {
 	
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
 	private SVDBIndexCollection								fGlobalIndexMgr;
-	private Map<String, List<ISVDBIndex>>					fProjectIndexMap;
+	private List<Reference<ISVDBIndex>>						fIndexList;
 	private ISVDBIndexCacheFactory							fCacheFactory;
 	private boolean										fAutoRebuildEn;
 	private LogHandle										fLog;
@@ -62,7 +62,7 @@ public class SVDBIndexRegistry  {
 	}
 	
 	public SVDBIndexRegistry(boolean standalone_test_mode) {
-		fProjectIndexMap = new WeakHashMap<String, List<ISVDBIndex>>();
+		fIndexList = new ArrayList<Reference<ISVDBIndex>>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 		fAutoRebuildEn = true;
 		fIndexCollectionMgr = new SVDBIndexCollectionMgr();
@@ -71,9 +71,11 @@ public class SVDBIndexRegistry  {
 	public void setEnableAutoRebuild(boolean en) {
 		fAutoRebuildEn = en;
 		
-		for (List<ISVDBIndex> il : fProjectIndexMap.values()) {
-			for (ISVDBIndex i : il) {
-				i.setEnableAutoRebuild(fAutoRebuildEn);
+		clearStaleIndexes();
+		
+		for (Reference<ISVDBIndex> i : fIndexList) {
+			if (i.get() != null) {
+				i.get().setEnableAutoRebuild(fAutoRebuildEn);
 			}
 		}
 	}
@@ -84,33 +86,45 @@ public class SVDBIndexRegistry  {
 	
 	public void init(ISVDBIndexCacheFactory cache_factory) {
 		fCacheFactory = cache_factory;
-		fProjectIndexMap.clear();
+		fIndexList.clear();
 		
 		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
 
 	public void test_init(ISVDBIndexCacheFactory cache_factory) {
 		fCacheFactory = cache_factory;
-		fProjectIndexMap.clear();
+		fIndexList.clear();
 	}
 
 	public List<ISVDBIndex> getProjectIndexList(String project) {
-		if (fProjectIndexMap.containsKey(project)) {
-			return fProjectIndexMap.get(project);
-		} else {
-			return new ArrayList<ISVDBIndex>();
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		
+		clearStaleIndexes();
+		
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				if (i.get() != null && i.get().getProject().equals(project)) {
+					ret.add(i.get());
+				}
+			}
 		}
+		
+		return ret;
 	}
 	
 	public List<ISVDBIndex> getIndexList() {
 		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
-		for (Entry<String, List<ISVDBIndex>> e : fProjectIndexMap.entrySet()) {
-			for (ISVDBIndex index : e.getValue()) {
-				if (!ret.contains(index)) {
-					ret.add(index);
+		
+		clearStaleIndexes();
+		
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				if (i.get() != null) {
+					ret.add(i.get());
 				}
 			}
 		}
+		
 		return ret;
 	}
 	
@@ -152,17 +166,15 @@ public class SVDBIndexRegistry  {
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		
-		if (!fProjectIndexMap.containsKey(project)) {
-			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
-		}
-		
-		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
-		
-		for (ISVDBIndex index : project_index) {
-			if (index.getBaseLocation().equals(base_location) &&
-					index.getTypeID().equals(type)) {
-				ret = index;
-				break;
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				ISVDBIndex index = i.get();
+				if (index != null && index.getProject().equals(project) &&
+						index.getBaseLocation().equals(base_location) &&
+						index.getTypeID().equals(type)) {
+					ret = index;
+					break;
+				}
 			}
 		}
 		
@@ -177,7 +189,9 @@ public class SVDBIndexRegistry  {
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
 			
-			project_index.add(ret);
+			synchronized (fIndexList) {
+				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
+			}
 		} else {
 			fLog.debug("    Index already exists");
 		}
@@ -203,17 +217,15 @@ public class SVDBIndexRegistry  {
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		
-		if (!fProjectIndexMap.containsKey(project)) {
-			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
-		}
-		
-		List<ISVDBIndex> project_index = fProjectIndexMap.get(project);
-		
-		for (ISVDBIndex index : project_index) {
-			if (index.getBaseLocation().equals(base_location) &&
-					index.getTypeID().equals(type)) {
-				ret = index;
-				break;
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				ISVDBIndex index = i.get();
+				if (index != null && index.getProject().equals(project) &&
+						index.getBaseLocation().equals(base_location) &&
+						index.getTypeID().equals(type)) {
+					ret = index;
+					break;
+				}
 			}
 		}
 		
@@ -235,7 +247,9 @@ public class SVDBIndexRegistry  {
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
 			
-			project_index.add(ret);
+			synchronized (fIndexList) {
+				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
+			}
 		} else {
 			fLog.debug("    Index already exists");
 		}
@@ -272,17 +286,15 @@ public class SVDBIndexRegistry  {
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		
-		if (!fProjectIndexMap.containsKey(project)) {
-			fProjectIndexMap.put(project, new ArrayList<ISVDBIndex>());
-		}
-		
-		List<ISVDBIndex> project_index = fProjectIndexMap.get(project); 
-		
-		for (ISVDBIndex index : project_index) {
-			if (index.getBaseLocation().equals(base_location) &&
-					index.getTypeID().equals(type)) {
-				ret = index;
-				break;
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				ISVDBIndex index = i.get();
+				if (index != null && index.getProject().equals(project) &&
+						index.getBaseLocation().equals(base_location) &&
+						index.getTypeID().equals(type)) {
+					ret = index;
+					break;
+				}
 			}
 		}
 		
@@ -297,7 +309,9 @@ public class SVDBIndexRegistry  {
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
 			
-			project_index.add(ret);
+			synchronized (fIndexList) {
+				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
+			}
 		} else {
 			fLog.debug("    Index already exists");
 		}
@@ -307,13 +321,16 @@ public class SVDBIndexRegistry  {
 	
 	public void rebuildIndex(String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
-		if (!fProjectIndexMap.containsKey(project)) {
-			fLog.debug("    skipping - not a registered project");
-			return;
-		}
 		
-		for (ISVDBIndex index : fProjectIndexMap.get(project)) {
-			index.rebuildIndex();
+		clearStaleIndexes();
+		
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				ISVDBIndex index = i.get();
+				if (index != null && index.getProject().equals(project)) {
+					index.rebuildIndex();
+				}
+			}
 		}
 	}
 
@@ -323,17 +340,21 @@ public class SVDBIndexRegistry  {
 	public void save_state() {
 		fLog.debug("save_state()");
 		
-		for (List<ISVDBIndex> index_l : fProjectIndexMap.values()) {
-			for (ISVDBIndex index : index_l) {
-				index.dispose();
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				ISVDBIndex index = i.get();
+				if (index != null) {
+					index.dispose();
+				}
 			}
 		}
-
+		
 		if (fCacheFactory != null) {
 			List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
-			for (List<ISVDBIndex> index_l : fProjectIndexMap.values()) {
-				for (ISVDBIndex index : index_l) {
-					if (!cache_l.contains(index) && index.getCache() != null) {
+			synchronized (fIndexList) {
+				for (Reference<ISVDBIndex> i : fIndexList) {
+					ISVDBIndex index = i.get();
+					if (index != null && !cache_l.contains(index.getCache()) && index.getCache() != null) {
 						cache_l.add(index.getCache());
 					}
 				}
@@ -370,6 +391,18 @@ public class SVDBIndexRegistry  {
 		}
 		
 		return ret;
+	}
+	
+	private void clearStaleIndexes() {
+		synchronized (fIndexList) {
+			for (int i=0; i<fIndexList.size(); i++) {
+				if (fIndexList.get(i).get() == null) {
+					System.out.println("Removing stale index");
+					fIndexList.remove(i);
+					i--;
+				}
+			}
+		}
 	}
 	
 }

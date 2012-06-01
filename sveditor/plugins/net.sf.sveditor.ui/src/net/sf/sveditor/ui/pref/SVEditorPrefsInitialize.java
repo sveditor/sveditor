@@ -12,6 +12,11 @@
 
 package net.sf.sveditor.ui.pref;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.sveditor.core.XMLTransformUtils;
+import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
@@ -59,6 +64,19 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT, 80);
 		// 0 means don't bother splitting the parameters across lines
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE, 1);
+		
+		/**
+		 * Initialize template parameters
+		 */
+		{
+			Map<String, String> p = new HashMap<String, String>();
+			p.put("file_header", DefaultTemplateParameterProvider.FILE_HEADER_DFLT);
+			p.put("file_footer", DefaultTemplateParameterProvider.FILE_FOOTER_DFLT);
+			try {
+				store.setDefault(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES,
+						XMLTransformUtils.map2Xml(p, "parameters", "parameter"));
+			} catch (Exception e) {}
+		}
 	}
 
 }

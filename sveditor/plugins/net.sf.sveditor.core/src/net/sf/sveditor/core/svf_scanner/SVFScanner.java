@@ -39,7 +39,9 @@ public class SVFScanner {
 	private List<String>						fLibPaths;
 	private Set<String>							fSrcExtensions;
 	private List<String>						fIncludedArgFiles;
-	private static final Map<String, Integer>	fIgnoredSwitches;
+	public static final Map<String, Integer>	fIgnoredSwitches;
+	public static final Set<String>			fSupportedSwitches;
+	public static final Set<String>			fRecognizedSwitches;
 	
 	static {
 		fIgnoredSwitches = new HashMap<String, Integer>();
@@ -151,6 +153,23 @@ public class SVFScanner {
 		fIgnoredSwitches.put("-vmake", 0);
 		fIgnoredSwitches.put("-writetoplevels", 0);
 //		fIgnoredSwitches.put("-y", 1);
+		
+		fSupportedSwitches = new HashSet<String>();
+		fSupportedSwitches.add("+define+");
+		fSupportedSwitches.add("-DEF");
+		fSupportedSwitches.add("-define");
+		fSupportedSwitches.add("+incdir+");
+		fSupportedSwitches.add("-IN");
+		fSupportedSwitches.add("-incdir");
+		fSupportedSwitches.add("-y");
+		fSupportedSwitches.add("-v");
+		fSupportedSwitches.add("-f");
+		fSupportedSwitches.add("-file");
+		
+		
+		fRecognizedSwitches = new HashSet<String>();
+		fRecognizedSwitches.addAll(fIgnoredSwitches.keySet());
+		fRecognizedSwitches.addAll(fSupportedSwitches);
 	}
 	
 	public SVFScanner() {

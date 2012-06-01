@@ -3,8 +3,10 @@ package net.sf.sveditor.ui.wizards.templates;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateParameter;
 import net.sf.sveditor.core.templates.TemplateParameterType;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.CellEditor;
@@ -64,8 +66,17 @@ public class TemplateParametersTableViewer extends TableViewer {
 	public void setParameters(List<TemplateParameter> params) {
 		fParameters = new ArrayList<TemplateParameter>();
 		if (params != null) {
+			ITemplateParameterProvider pp = SVUiPlugin.getDefault().getGlobalTemplateParameters();
+			
 			for (TemplateParameter p : params) {
-				fParameters.add(p.duplicate());
+				TemplateParameter p_d = p.duplicate();
+			
+				// Change default value if global provides one
+				if (pp.providesParameter(p.getName())) {
+					p_d.setValue(pp.getParameterValue(p.getName(), null));
+				}
+		
+				fParameters.add(p_d);
 			}
 		}
 		
@@ -173,7 +184,6 @@ public class TemplateParametersTableViewer extends TableViewer {
 			fActiveParameter = p;
 			
 			if (p.getType() == TemplateParameterType.ParameterType_Id) {
-				System.out.println("ID");
 				if (p.getValues().size() > 0) {
 					ret = fRestrictedIdEditor;
 					((CCombo)ret.getControl()).setItems(
@@ -182,11 +192,9 @@ public class TemplateParametersTableViewer extends TableViewer {
 					ret = fIdEditor;
 				}
 			} else if (p.getType() == TemplateParameterType.ParameterType_Class) {
-				System.out.println("Class Editor");
 				ret = fClassEditor;
 			}
 			
-			System.out.println("ret=" + ret);
 			return ret;
 		}
 

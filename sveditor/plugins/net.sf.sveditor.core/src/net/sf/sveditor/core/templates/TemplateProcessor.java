@@ -51,25 +51,21 @@ public class TemplateProcessor {
 		return ret;
 	}
 	
-	public static void setParameters(
-			TagProcessor				proc,
-			List<TemplateParameter>		parameters) {
-		for (TemplateParameter p : parameters) {
-			proc.setTag(p.getName(), p.getValue());
-		}
-	}
-	
 	public void process(TemplateInfo template, TagProcessor proc) {
+		TemplateParameterProvider local_p = new TemplateParameterProvider();
+		proc.addParameterProvider(local_p);
+		/*
 		if (!proc.hasTag("file_header")) {
 			proc.setTag("file_header", fDefaultFileHeader);
 		}
+		 */
 		
 		for (Tuple<String, String> t : template.getTemplates()) {
 			int n_replacements = 0;
 			String templ = t.first();
 			String name = proc.process(t.second());
 			
-			proc.setTag("filename", name);
+			local_p.setTag("filename", name);
 
 			InputStream in = template.openTemplate(templ);
 			ByteArrayInputStream  in_t = readInputStream(in);
@@ -102,6 +98,8 @@ public class TemplateProcessor {
 			fStreamProvider.createFile(name, in_ind);
 			template.closeTemplate(in);
 		}
+		
+		proc.removeParameterProvider(local_p);
 	}
 	
 	private boolean should_sv_indent(String name) {
