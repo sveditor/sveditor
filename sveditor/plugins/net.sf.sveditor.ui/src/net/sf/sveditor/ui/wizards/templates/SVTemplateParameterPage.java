@@ -16,8 +16,10 @@ package net.sf.sveditor.ui.wizards.templates;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateParameter;
+import net.sf.sveditor.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
@@ -53,12 +55,12 @@ public class SVTemplateParameterPage extends WizardPage {
 
 	private TemplateInfo					fTemplate;
 	
-	private TagProcessor					fTagProcessor;
+	private TemplateParameterProvider		fParameters;
 	
 	public SVTemplateParameterPage() {
 		super("New SystemVerilog Class", "SystemVerilog Class", null);
 		setDescription("Specify template parameters");
-		fTagProcessor = new TagProcessor();
+		fParameters = new TemplateParameterProvider();
 	}
 
 	public void setSourceFolder(String folder) {
@@ -83,8 +85,8 @@ public class SVTemplateParameterPage extends WizardPage {
 		updateParameters();
 	}
 	
-	public TagProcessor getTagProcessor(boolean dont_expand_null_name) {
-		TagProcessor tp = new TagProcessor(fTagProcessor);
+	public ITemplateParameterProvider getTagProcessor(boolean dont_expand_null_name) {
+		TemplateParameterProvider tp = new TemplateParameterProvider(fParameters);
 		
 		// Don't replace ${name} if no name is specified
 		if (!dont_expand_null_name) {
@@ -168,7 +170,7 @@ public class SVTemplateParameterPage extends WizardPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fFileTable = new TemplateFilesTableViewer(g, fTagProcessor);
+		fFileTable = new TemplateFilesTableViewer(g, fParameters);
 		
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fFileTable.getTable().setLayoutData(gd);
@@ -252,7 +254,7 @@ public class SVTemplateParameterPage extends WizardPage {
 				fSourceFolderStr = fSourceFolder.getText();
 				fFileTable.setSourceFolder(fSourceFolderStr);
 			} else if (e.widget == fName) {
-				fTagProcessor.setTag("name", fName.getText());
+				fParameters.setTag("name", fName.getText());
 			} else if (e.widget == fFileTable.getTable()) {
 				
 			}

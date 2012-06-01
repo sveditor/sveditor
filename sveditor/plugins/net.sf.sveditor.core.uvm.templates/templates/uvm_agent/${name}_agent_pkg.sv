@@ -11,3 +11,6 @@ package ${name}_agent_pkg;
 	`include "${name}_seq_base.svh"
 	`include "${name}_agent.svh"
 endpackage
+
+${file_footer}
+

@@ -118,7 +118,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
 	}
-
+	
 	protected AbstractSVDBIndex(String project) {
 		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
@@ -556,6 +556,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public String getBaseLocation() {
 		return fBaseLocation;
+	}
+	
+	public String getProject() {
+		return fProjectName;
 	}
 
 	public String getResolvedBaseLocation() {

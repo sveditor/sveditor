@@ -1,16 +1,17 @@
 package net.sf.sveditor.core.db.index;
 
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBIndexCollectionMgr {
 	
-	private List<WeakReference<SVDBIndexCollection>>			fIndexCollectionList;
-	private boolean											fCreateShadowIndexes;
+	private List<Reference<SVDBIndexCollection>>			fIndexCollectionList;
+	private boolean										fCreateShadowIndexes;
 	
 	public SVDBIndexCollectionMgr() {
-		fIndexCollectionList = new ArrayList<WeakReference<SVDBIndexCollection>>();
+		fIndexCollectionList = new ArrayList<Reference<SVDBIndexCollection>>();
 	}
 	
 	public void addIndexCollection(SVDBIndexCollection c) {

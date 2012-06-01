@@ -22,12 +22,28 @@
             id="net.sf.sveditor.ui.svtEditor"
             name="SystemVerilog Template Editor">
       </editor>
+      <editor
+            class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
+            default="true"
+            id="net.sf.sveditor.ui.argfile.editor"
+            name="SystemVerilog Argument File Editor">
+         <contentTypeBinding
+               contentTypeId="net.sf.sveditor.core.argfile">
+         </contentTypeBinding>
+      </editor>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="net.sf.sveditor.ui.editor.SVDocumentSetupParticipant"
             contentTypeId="net.sf.sveditor.core.systemverilog">
+      </participant>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="net.sf.sveditor.ui.argfile.editor.SVArgFileDocSetupParticipant"
+            contentTypeId="net.sf.sveditor.core.argfile">
       </participant>
    </extension>
    <extension
@@ -474,14 +490,12 @@
             id="net.sf.sveditor.ui.svTemplatePaths"
             name="SV Template Paths">
       </page>
-      <!--
       <page
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
             id="net.sf.sveditor.ui.svTemplateProperties"
             name="SV Template Properties">
       </page>
-        -->
       <page
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorIndexPrefsPage"

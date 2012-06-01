@@ -18,3 +18,6 @@ class ${name} extends uvm_sequence #(uvm_sequence_item);
 	endtask
 
 endclass
+
+${file_footer}
+

@@ -16,18 +16,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
+import net.sf.sveditor.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
@@ -72,16 +76,18 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private MessageConsoleStream				fStderrStream;
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
-	public static final String					CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
-	public static final String					SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
+	public static final String				CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
+	public static final String				SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
 	
 	// Preference override for testing. Sets the number of spaces a  
 	// tab is equivalent to
 	private String								fInsertSpaceTestOverride;
 	
-	private boolean								fStartRefreshJob = false;
+	private boolean							fStartRefreshJob = false;
 	private RefreshIndexJob						fRefreshIndexJob;
 	private List<String>						fTemplatePaths;
+	
+	private TemplateParameterProvider			fGlobalPrefsProvider;
 	
 	/**
 	 * Small change 1
@@ -92,6 +98,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	 */
 	public SVUiPlugin() {
 		fImageMap = new WeakHashMap<String, Image>();
+		fGlobalPrefsProvider = new TemplateParameterProvider();
 	}
 
 	/*
@@ -116,6 +123,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 		rgy.addPathProvider(this);
 		update_template_paths();
+		
+		update_global_parameters();
+		
 	}
 	
 	private void update_template_paths() {
@@ -123,8 +133,26 @@ public class SVUiPlugin extends AbstractUIPlugin
 				SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS));
 	}
 	
+	private void update_global_parameters() {
+		Map<String, String> params = null;
+		
+		try {
+			params = XMLTransformUtils.xml2Map(
+				getPreferenceStore().getString(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES),
+				"parameters", "parameter");
+		} catch (Exception e) {}
+		
+		if (params != null) {
+			fGlobalPrefsProvider = new TemplateParameterProvider(params);
+		}
+	}
+	
 	public List<String> getExternalTemplatePath() {
 		return fTemplatePaths;
+	}
+	
+	public ITemplateParameterProvider getGlobalTemplateParameters() {
+		return fGlobalPrefsProvider;
 	}
 
 	private static List<String> parse_paths(String stringList) {
@@ -207,6 +235,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX)) {
 			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
 					(Boolean)event.getNewValue());
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES)) {
+			update_global_parameters();
 		}
 	}
 	
