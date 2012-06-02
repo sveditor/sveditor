@@ -955,11 +955,15 @@ public class SVExprParser extends SVParserBase {
 				}
 				
 				if (peekOperator("#")) {
+					if (fDebugEn) {
+						debug("Parameterized identifier");
+					}
 					// Parameterized identifier
 					ret = new SVDBParamIdExpr(id);
 					fLexer.eatToken(); // #
 					fLexer.readOperator("(");
-					while (fLexer.peek() != null) {
+					// Catch case where no parameters are specified in the parameter list
+					while (fLexer.peek() != null && !fLexer.peekOperator(")")) {
 						((SVDBParamIdExpr)ret).addParamExpr(datatype_or_expression());
 						if (fLexer.peekOperator(",")) {
 							fLexer.eatToken();

@@ -86,7 +86,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	private ISVDBIncludeFileProvider 				fIncludeFileProvider;
 
-	private List<ISVDBIndexChangeListener>			fIndexChageListeners;
+	private List<ISVDBIndexChangeListener>			fIndexChangeListeners;
 
 	protected static Pattern 						fWinPathPattern;
 	protected LogHandle 							fLog;
@@ -120,7 +120,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 	
 	protected AbstractSVDBIndex(String project) {
-		fIndexChageListeners = new ArrayList<ISVDBIndexChangeListener>();
+		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fProjectName = project;
 		fLog = LogFactory.getLogHandle(getLogName());
@@ -1233,16 +1233,22 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public void addChangeListener(ISVDBIndexChangeListener l) {
-		fIndexChageListeners.add(l);
+		synchronized (fIndexChangeListeners) {
+			fIndexChangeListeners.add(l);
+		}
 	}
 
 	public void removeChangeListener(ISVDBIndexChangeListener l) {
-		fIndexChageListeners.remove(l);
+		synchronized (fIndexChangeListeners) {
+			fIndexChangeListeners.remove(l);
+		}
 	}
 
 	protected void notifyIndexRebuilt() {
-		for (ISVDBIndexChangeListener l : fIndexChageListeners) {
-			l.index_rebuilt();
+		synchronized (fIndexChangeListeners) {
+			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
+				l.index_rebuilt();
+			}
 		}
 	}
 
