@@ -140,6 +140,19 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testStringParameterizedStaticCall", doc, new String[] { "t" });
 	}
 	
+	public void testEmptyParameterizedStaticCall() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		class_type_name #()::empty_static_class_method();\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testEmptyParameterizedStaticCall", doc, new String[] { "t" });
+	}
+	
 	public void testVarDeclListForStmt() throws SVParseException {
 		String doc =
 			"module t;\n" +
