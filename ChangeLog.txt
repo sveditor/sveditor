@@ -1,3 +1,6 @@
+-- 0.9.2 Release --
+
+------------------------------------------------------------------------------
 -- 0.9.1 Release --
 
 - #(enh) - Add preference page for specifying global template parameters. These
