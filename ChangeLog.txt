@@ -1,5 +1,8 @@
 -- 0.9.2 Release --
 
+- #(3531462) Correct parse error involving parameterized-type static call
+  with no parameter-values specified
+
 ------------------------------------------------------------------------------
 -- 0.9.1 Release --
 
