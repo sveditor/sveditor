@@ -387,6 +387,12 @@ public class SVFScanner {
 					
 					fLibPaths.add(tmp.toString());
 				}
+			} else if (ch == '#') {
+				// Skip preprocessor like lines such as #ifndef, #endif
+				while ((ch = fScanner.get_ch()) != -1 && 
+						ch != '\n') {}
+				fScanner.unget_ch(ch);
+				continue;
 			} else {
 				if (ch == '/') {
 					int ch2 = fScanner.get_ch();
