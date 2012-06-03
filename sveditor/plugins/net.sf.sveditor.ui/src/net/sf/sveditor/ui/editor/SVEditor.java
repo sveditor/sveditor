@@ -118,6 +118,18 @@ public class SVEditor extends TextEditor
 	private boolean						fPendingUpdateSVDBFile;
 	private SVDBFileOverrideIndexIterator	fIndexIterator;
 	
+	
+	IInformationPresenter fQuickOutlinePresenter;
+	
+	public IInformationPresenter getQuickOutlinePresenter() {
+		if(fQuickOutlinePresenter != null) {
+			return fQuickOutlinePresenter ;
+		} else {
+			fQuickOutlinePresenter = getSourceViewerConfiguration().
+		}
+	}
+	
+	
 	private class UpdateSVDBFileJob extends Job {
 		public UpdateSVDBFileJob() {
 			super("Update SVDBFile");
