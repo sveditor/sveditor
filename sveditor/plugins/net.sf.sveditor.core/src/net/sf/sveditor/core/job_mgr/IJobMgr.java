@@ -12,10 +12,16 @@
 
 package net.sf.sveditor.core.job_mgr;
 
-public interface ISVEditorJobListener {
+public interface IJobMgr {
 	
-	void jobStarted(ISVEditorJob job);
+	IJob createJob();
 	
-	void jobEnded(ISVEditorJob job);
+	void queueJob(IJob job);
+	
+	void addJobListener(IJobListener l);
+	
+	void removeJobListener(IJobListener l);
+	
+	void dispose();
 
 }

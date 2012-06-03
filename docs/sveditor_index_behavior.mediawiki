@@ -1,15 +1,19 @@
 = SVEditor Index Theory of Operations =
 
 == Index Components ==
-
-== 
+The index system is composed of several pieces for modularity and efficiency:
+* <b>Index</b> - Several flavors of index exist, which are described below
+* <b>IndexCollection</b> - Collects one or more indexes together, and allows operations (primarily searching) to be performed on all the collected indexes. The IndexCollection implements the Index API.
+* <b>IndexCache</b> - Keeping the full AST in-memory for all files in a large design or testbench consumes too much memory. The IndexCache manages keeping the full AST of only the most-recently used files in-memory, while making available a summary of what is declared in the files.
+* <b>Parser</b> - SystemVerilog files, of course, need to be parsed. The parser processes one file at a time to create an AST for the contents of the file.  
 
 === Index Affinity ===
-When a file is opened with SVEditor's text editor, one of SVEditor's first tasks is to determine which index collection and which index the file is associated with.
-* If the file is within a project in the workspace, the file will be managed by that project's index collection
- 
+When a file is opened with SVEditor's text editor, one of SVEditor's first tasks is to determine which index collection and which index the file is associated with. If the file is within a project in the workspace, the file will be managed by that project's index collection.
 
-=== Specifying Index Paths ===
+If the file is not managed by an existing index, then a temporary index will be created that only indexes the file.
+
+
+== Specifying Index Paths ==
 SVEditor provides several ways to specify the set of files that should be indexed. This section provides details on the behavior of each of these methods. Index paths are specified via the SystemVerilog Project Properties page on a project's properties page.
 
 
@@ -42,13 +46,12 @@ The use of several compiler options are supported within an argument file.
 Comments can be specified in an argument file using both single-line and multi-line SystemVerilog comments.
 
 === Library Path ===
-A library path specifies the path to a compilation unit such as a file that defines a package. Any files included within the library file will also be parsed. 
+A library path specifies the path to a compilation unit such as a file that defines a package. Any files included within the library file will also be parsed. An implicit include path is added for the directory containing the package/module file.
 
 === Source Collection ===
 A source collection is specified via a filesystem-relative or workspace-relative directory path. SVEditor locates all files with SV extensions (eg .sv, .svh, .v) within the directory structure and parses the discovered files. SVEditor attempts to discover the order in which the files should be parsed using the following heuristics:
 * Identify files that declare a module or package
-* Identify files that are included from module- or package-containing files
-** Remove the files included by the package/module files from the list of files to process
+* Identify files that are included from module- or package-containing files. Remove the include files from the list of files to process
 
- 
+
 

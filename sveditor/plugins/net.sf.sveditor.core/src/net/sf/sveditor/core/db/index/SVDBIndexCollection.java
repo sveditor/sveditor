@@ -434,8 +434,25 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				if (fProject != null) {
 					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 					
+					// See if the index exists
+					synchronized (fShadowIndexList) {
+						for (Reference<ISVDBIndex> r : fShadowIndexList) {
+							if (r.get() != null) {
+								if (r.get().getBaseLocation().equals(path)) {
+									index = r.get();
+									break;
+								}
+							}
+						}
+					}
+					
+					if (index != null) {
+						index = SVDBShadowIndexFactory.create(fProject, path);
+					}
+					/*
 					index = rgy.findCreateIndex(new NullProgressMonitor(),
 						fProject, path, SVDBShadowIndexFactory.TYPE, null);
+					 */
 				} else {
 					System.out.println("[TODO] create shadow index for " +
 							"non-project file");

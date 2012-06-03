@@ -135,8 +135,11 @@ public class SVDBIndexUtil {
 			// Just add the file...
 			fs.getIncludes().add(SVFileUtils.getPathLeaf(path));
 
+			/*
 			index = rgy.findCreateIndex(new NullProgressMonitor(), project,
 					path, SVDBShadowIndexFactory.TYPE, null);
+			 */
+			index = SVDBShadowIndexFactory.create(project, path);
 			index_mgr.addShadowIndex(index.getBaseLocation(), index);
 		}
 		
