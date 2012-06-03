@@ -49,6 +49,7 @@ import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
@@ -464,6 +465,10 @@ public class SVEditor extends TextEditor
 		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction", th_action);
 
+		OpenObjectsViewAction ov_action = new OpenObjectsViewAction(bundle, this);
+		ov_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.objects");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenObjectsAction", ov_action);
+
 		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
@@ -587,6 +592,8 @@ public class SVEditor extends TextEditor
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenObjectsAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
