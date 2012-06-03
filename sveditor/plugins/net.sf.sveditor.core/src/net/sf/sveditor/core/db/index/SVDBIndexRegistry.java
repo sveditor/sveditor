@@ -16,13 +16,13 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -42,7 +42,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * @author ballance
  *
  */
-public class SVDBIndexRegistry  {
+public class SVDBIndexRegistry implements ILogLevel {
 	public static final String							GLOBAL_PROJECT = "GLOBAL";
 	
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
@@ -128,6 +128,14 @@ public class SVDBIndexRegistry  {
 		return ret;
 	}
 	
+	public void disposeIndex(ISVDBIndex index) {
+		fLog.debug(LEVEL_MID, "Dispose Index " + index.getBaseLocation() + " ; " + index.getConfig());
+		synchronized (fIndexList) {
+			fIndexList.remove(index);
+		}
+		index.dispose();
+	}
+	
 	public SVDBIndexCollection getGlobalIndexMgr() {
 		if (fGlobalIndexMgr == null) {
 			fGlobalIndexMgr = new SVDBIndexCollection(fIndexCollectionMgr, GLOBAL_PROJECT);
@@ -145,60 +153,6 @@ public class SVDBIndexRegistry  {
 		return fGlobalIndexMgr;
 	}
 
-	@Deprecated
-	public ISVDBIndex findCreateIndex(
-			String 					project, 
-			String 					base_location, 
-			String 					type,
-			Map<String, Object>		config) {
-		return findCreateIndex(new NullProgressMonitor(), project,
-				base_location, type, config);
-	}
-	
-	public ISVDBIndex findCreateIndex(
-			IProgressMonitor		monitor,
-			String 					project, 
-			String 					base_location, 
-			String 					type,
-			ISVDBIndexCache			cache,
-			Map<String, Object>		config) {
-		ISVDBIndex ret = null;
-		
-		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
-		
-		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				ISVDBIndex index = i.get();
-				if (index != null && index.getProject().equals(project) &&
-						index.getBaseLocation().equals(base_location) &&
-						index.getTypeID().equals(type)) {
-					ret = index;
-					break;
-				}
-			}
-		}
-		
-		if (ret == null) {
-			fLog.debug("    Index does not exist -- creating");
-			// See about creating a new index
-			ISVDBIndexFactory factory = findFactory(type);
-			
-			ret = factory.createSVDBIndex(project, base_location, cache, config);
-			ret.setEnableAutoRebuild(fAutoRebuildEn);
-			
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			ret.init(m);
-			
-			synchronized (fIndexList) {
-				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
-			}
-		} else {
-			fLog.debug("    Index already exists");
-		}
-		
-		return ret;
-	}
-
 	/**
 	 * Finds or creates an index
 	 * 
@@ -212,7 +166,7 @@ public class SVDBIndexRegistry  {
 			String 					project, 
 			String 					base_location, 
 			String 					type,
-			Map<String, Object>		config) {
+			SVDBIndexConfig			config) {
 		ISVDBIndex ret = null;
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
@@ -226,6 +180,18 @@ public class SVDBIndexRegistry  {
 					ret = index;
 					break;
 				}
+			}
+		}
+		
+		// After finding an entry based using basic parameters, ensure
+		// that the configuration parameters match as well
+		if (ret != null) {
+			// Compare configuration to see if we're actually being
+			// asked to create a different index
+			if (!SVDBIndexConfig.equals(config, ret.getConfig())) {
+				fLog.debug(LEVEL_MID, "Index Config for " + ret.getBaseLocation() + " does not match");
+				disposeIndex(ret);
+				ret = null;
 			}
 		}
 		
@@ -262,7 +228,7 @@ public class SVDBIndexRegistry  {
 			String 					base_location, 
 			String 					type,
 			ISVDBIndexFactory		factory,
-			Map<String, Object>		config) {
+			SVDBIndexConfig			config) {
 		return findCreateIndex(new NullProgressMonitor(), project,
 				base_location, type, factory, config);
 	}
@@ -281,7 +247,7 @@ public class SVDBIndexRegistry  {
 			String 					base_location, 
 			String 					type,
 			ISVDBIndexFactory		factory,
-			Map<String, Object>		config) {
+			SVDBIndexConfig			config) {
 		ISVDBIndex ret = null;
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);

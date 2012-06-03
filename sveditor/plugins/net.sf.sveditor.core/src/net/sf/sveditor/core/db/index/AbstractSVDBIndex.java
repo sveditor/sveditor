@@ -94,7 +94,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	protected boolean 							fLoadUpToDate;
 	private ISVDBIndexCache 						fCache;
-	private Map<String, Object> 					fConfig;
+	
+	private SVDBIndexConfig	 						fConfig;
 	
 	// Manages a list of the directories that managed files are stored in
 	private Set<String>								fFileDirs;
@@ -135,7 +136,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public AbstractSVDBIndex(String project, String base_location,
 			ISVDBFileSystemProvider fs_provider, ISVDBIndexCache cache,
-			Map<String, Object> config) {
+			SVDBIndexConfig config) {
 		this(project);
 		fBaseLocation = base_location;
 		fCache = cache;
@@ -496,6 +497,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public ISVDBIndexCache getCache() {
 		return fCache;
+	}
+	
+	public SVDBIndexConfig getConfig() {
+		return fConfig;
 	}
 
 	protected SVDBBaseIndexCacheData getCacheData() {

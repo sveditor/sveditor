@@ -13,7 +13,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
@@ -41,7 +40,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 			List<AbstractSVFileMatcher>		matcher_list,
 			ISVDBFileSystemProvider			fs_provider,
 			ISVDBIndexCache					cache,
-			Map<String, Object>				config) {
+			SVDBIndexConfig					config) {
 		super(project, root, fs_provider, cache, config);
 		
 		fFileMatcherList = matcher_list;

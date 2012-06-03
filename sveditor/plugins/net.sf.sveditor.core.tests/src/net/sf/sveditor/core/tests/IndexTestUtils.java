@@ -78,7 +78,23 @@ public class IndexTestUtils {
 			TestCase.fail("Failed to find element \"" + e + "\"");
 		}
 	}
-	
+
+	public static void assertDoesNotContain(ISVDBIndexIterator index_it, String ... elems) {
+		Set<String> exp = new HashSet<String>();
+		for (String e : elems) {
+			exp.add(e);
+		}
+		
+		ISVDBItemIterator item_it = index_it.getItemIterator(new NullProgressMonitor());
+		while (item_it.hasNext()) {
+			ISVDBItemBase it = item_it.nextItem();
+			String name = SVDBItem.getName(it);
+			if (exp.contains(name)) {
+				TestCase.fail("Index contails \"" + name + "\"");
+			}
+		}
+	}
+
 	public static ISVDBIndexIterator buildIndex(String doc, String filename) {
 		SVDBFile file = SVDBTestUtils.parse(doc, filename);
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);

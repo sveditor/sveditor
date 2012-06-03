@@ -129,7 +129,8 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
-			SVDBFile new_in = fIndexMgr.parse(getProgressMonitor(), sin, fSVDBFilePath, markers);
+			SVDBFile new_in = fIndexMgr.parse(
+					getProgressMonitor(), sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			
 			if (new_in != null) {
