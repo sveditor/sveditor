@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.db.index;
 
-import java.util.Map;
-
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
@@ -11,7 +9,7 @@ public class SVDBShadowIndex extends AbstractSVDBIndex {
 	
 	public SVDBShadowIndex(String project, String base_location,
 			ISVDBFileSystemProvider fs_provider, ISVDBIndexCache cache,
-			Map<String, Object> config) {
+			SVDBIndexConfig config) {
 		super(project, base_location, fs_provider, cache, config);
 	}
 

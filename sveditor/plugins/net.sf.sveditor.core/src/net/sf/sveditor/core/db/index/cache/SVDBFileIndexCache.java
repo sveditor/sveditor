@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
+import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -875,4 +876,19 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			fCacheSize--;
 		}
 	}
+	
+	private class FileTreeWritebackRunnable implements Runnable {
+		private CacheFileInfo				fFileInfo;
+
+		public FileTreeWritebackRunnable(CacheFileInfo info) {
+			fFileInfo = info;
+		}
+		
+		public void run() {
+			// TODO: Do writeback
+			synchronized (fFileInfo) {
+				fFileInfo.fSVDBFileTreeRef = null;
+			}
+		}
+	};
 }

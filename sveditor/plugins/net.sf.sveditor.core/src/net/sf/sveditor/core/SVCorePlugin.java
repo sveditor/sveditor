@@ -37,8 +37,8 @@ import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVDefaultIndenter2;
-import net.sf.sveditor.core.job_mgr.ISVEditorJobMgr;
-import net.sf.sveditor.core.job_mgr.SVEditorEclipseJobMgr;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
+import net.sf.sveditor.core.job_mgr.JobMgr;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
@@ -82,7 +82,7 @@ public class SVCorePlugin extends Plugin
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
-	private ISVEditorJobMgr					fJobMgr;
+	private IJobMgr					fJobMgr;
 	private int							fNumIndexCacheThreads = 0;
 	private int							fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
@@ -149,9 +149,9 @@ public class SVCorePlugin extends Plugin
 		return new SVDefaultIndenter2();
 	}
 	
-	public ISVEditorJobMgr getJobMgr() {
+	public synchronized IJobMgr getJobMgr() {
 		if (fJobMgr == null) {
-			fJobMgr = new SVEditorEclipseJobMgr();
+			fJobMgr = new JobMgr();
 		}
 		return fJobMgr;
 	}
@@ -192,6 +192,10 @@ public class SVCorePlugin extends Plugin
 
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;
+		
+		if (fJobMgr != null) {
+			fJobMgr.dispose();
+		}
 
 		super.stop(context);
 	}

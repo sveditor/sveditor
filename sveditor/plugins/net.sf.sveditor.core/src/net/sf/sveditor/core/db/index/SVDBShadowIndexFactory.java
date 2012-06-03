@@ -1,16 +1,11 @@
 package net.sf.sveditor.core.db.index;
 
-import java.util.Map;
-
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.project.SVDBSourceCollection;
-import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
-import net.sf.sveditor.core.fileset.SVFileSet;
-import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
-import net.sf.sveditor.core.fileset.SVWorkspaceFileMatcher;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBShadowIndexFactory implements ISVDBIndexFactory {
 	public static final String	TYPE = "net.sf.sveditor.shadowIndex";
@@ -26,7 +21,7 @@ public class SVDBShadowIndexFactory implements ISVDBIndexFactory {
 			String 					project_name,
 			String 					base_location,
 			ISVDBIndexCache			cache,
-			Map<String, Object> 	config) {
+			SVDBIndexConfig			config) {
 		ISVDBIndex ret;
 		ISVDBFileSystemProvider fs_provider = null;
 		
@@ -44,4 +39,12 @@ public class SVDBShadowIndexFactory implements ISVDBIndexFactory {
 		return ret;
 	}
 	
+	public static ISVDBIndex create(String project, String path) {
+		SVDBShadowIndexFactory f = new SVDBShadowIndexFactory();
+		ISVDBIndex ret = f.createSVDBIndex(project, path, new InMemoryIndexCache(), null);
+		
+		ret.init(new NullProgressMonitor());
+		
+		return ret;
+	}
 }

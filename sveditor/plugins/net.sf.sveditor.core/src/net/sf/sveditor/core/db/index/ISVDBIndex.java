@@ -115,4 +115,6 @@ public interface ISVDBIndex extends
 	
 	void loadIndex(IProgressMonitor monitor);
 	
+	SVDBIndexConfig getConfig();
+	
 }

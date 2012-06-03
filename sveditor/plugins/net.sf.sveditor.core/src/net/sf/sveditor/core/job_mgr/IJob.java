@@ -12,8 +12,22 @@
 
 package net.sf.sveditor.core.job_mgr;
 
-public interface ISVEditorJobMgr {
-	
-	void queueJob(ISVEditorJob job);
+import org.eclipse.core.runtime.IProgressMonitor;
 
+public interface IJob {
+	
+	void init(String name, Runnable runnable);
+	
+	String getName();
+	
+	void run(IProgressMonitor monitor);
+	
+	void addListener(IJobListener l);
+	
+	void removeListener(IJobListener l);
+	
+	void clearListeners();
+	
+	void join();
+	
 }

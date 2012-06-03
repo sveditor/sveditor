@@ -26,7 +26,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 			String 					root,
 			ISVDBFileSystemProvider fs_provider,
 			ISVDBIndexCache			cache,
-			Map<String, Object>		config) {
+			SVDBIndexConfig			config) {
 		super(project, root, fs_provider, cache, config);
 	}
 	

@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -62,6 +63,7 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 					public void removeChangeListener(ISVDBIndexChangeListener l) {}
 					public void rebuildIndex() {}
 					public ISVDBIndexCache getCache() { return null; }
+					public SVDBIndexConfig getConfig() { return null; }
 					public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
 						return null;
 					}

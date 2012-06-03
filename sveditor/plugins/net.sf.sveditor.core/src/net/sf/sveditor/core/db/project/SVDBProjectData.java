@@ -27,10 +27,12 @@ import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBProjectRefProvider;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -92,11 +94,15 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	}
 	
 	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
-		fListeners.add(l);
+		synchronized (fListeners) {
+			fListeners.add(l);
+		}
 	}
 	
 	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
-		fListeners.remove(l);
+		synchronized (fListeners) { 
+			fListeners.remove(l);
+		}
 	}
 
 	public synchronized SVDBIndexCollection getProjectIndexMgr() {
@@ -222,7 +228,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			boolean						refresh) {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		Map<String, String> define_map = new HashMap<String, String>();
-		Map<String, Object> args = new HashMap<String, Object>();
+		SVDBIndexConfig args = new SVDBIndexConfig();
 		
 		for (Tuple<String, String> def : fw.getGlobalDefines()) {
 			if (define_map.containsKey(def.first())) {
@@ -290,12 +296,17 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		
 		// Add source collection paths
 		for (SVDBSourceCollection srcc : fw.getSourceCollections()) {
-			Map<String, Object> params = new HashMap<String, Object>();
+			SVDBIndexConfig params = new SVDBIndexConfig();
 
-			/*
-			FileSet fs = new FileSet();
+			SVFileSet fs = new SVFileSet(srcc.getBaseLocation());
+			for (String incl : srcc.getIncludes()) {
+				fs.addInclude(incl);
+			}
+			for (String excl : srcc.getExcludes()) {
+				fs.addExclude(excl);
+			}
 			params.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
-			 */
+			
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 					fProjectName, srcc.getBaseLocation(),
 					SVDBSourceCollectionIndexFactory.TYPE, params);
@@ -309,6 +320,17 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			}
 		}
 		
+		// Clear out any project indexes that aren't being used
+		List<ISVDBIndex> active_indexes = sc.getIndexList();
+		List<ISVDBIndex> project_indexes = rgy.getProjectIndexList(fProjectName);
+		for (ISVDBIndex i : active_indexes) {
+			project_indexes.remove(i);
+		}
+		
+		// Remove leftover indexes
+		for (ISVDBIndex i : project_indexes) {
+			rgy.disposeIndex(i);
+		}
 		
 		// Push defines to all indexes. This may cause index rebuild
 		for (ISVDBIndex index : rgy.getProjectIndexList(fProjectName)) {
@@ -318,8 +340,10 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		}
 		
 		// Project settings have changed, so notify listeners
-		for (ISVDBProjectSettingsListener l : fListeners) {
-			l.projectSettingsChanged(this);
+		synchronized (fListeners) {
+			for (ISVDBProjectSettingsListener l : fListeners) {
+				l.projectSettingsChanged(this);
+			}
 		}
 		
 		// Also notify global listeners
