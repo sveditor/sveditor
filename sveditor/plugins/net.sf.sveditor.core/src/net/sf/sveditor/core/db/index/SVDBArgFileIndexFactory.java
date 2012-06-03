@@ -24,7 +24,7 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			String 					projectName, 
 			String 					base_location,
 			ISVDBIndexCache			cache,
-			Map<String, Object> 	config) {
+			SVDBIndexConfig 		config) {
 		ISVDBFileSystemProvider fs_provider;
 		
 		if (base_location.startsWith("${workspace_loc}")) {
@@ -44,7 +44,7 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			String 					base_location,
 			StringBuilder			arguments,
 			ISVDBIndexCache			cache,
-			Map<String, Object> 	config) {
+			SVDBIndexConfig		 	config) {
 		ISVDBFileSystemProvider fs_provider;
 		
 		if (base_location.startsWith("${workspace_loc}")) {

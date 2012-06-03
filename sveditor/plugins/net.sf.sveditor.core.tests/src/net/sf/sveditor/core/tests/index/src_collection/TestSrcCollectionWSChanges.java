@@ -81,8 +81,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
-				"${workspace_loc}/project/project_dir_src_collection_pkg",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"project", "${workspace_loc}/project/project_dir_src_collection_pkg",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
@@ -194,8 +194,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex("project", 
-				"${workspace_loc}/project/project_dir_src_collection_pkg",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				"project", "${workspace_loc}/project/project_dir_src_collection_pkg",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();

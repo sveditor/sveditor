@@ -14,7 +14,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -35,7 +34,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			String						root,
 			ISVDBFileSystemProvider		fs_provider,
 			ISVDBIndexCache				cache,
-			Map<String, Object>			config) {
+			SVDBIndexConfig				config) {
 		super(project, root, fs_provider, cache, config);
 		fInWorkspaceOk = (root.startsWith("${workspace_loc}"));
 	}
@@ -46,7 +45,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			StringBuilder				arguments,
 			ISVDBFileSystemProvider		fs_provider,
 			ISVDBIndexCache				cache,
-			Map<String, Object>			config) {
+			SVDBIndexConfig				config) {
 		super(project, root, fs_provider, cache, config);
 		fArguments = arguments;
 		fInWorkspaceOk = (root.startsWith("${workspace_loc}"));

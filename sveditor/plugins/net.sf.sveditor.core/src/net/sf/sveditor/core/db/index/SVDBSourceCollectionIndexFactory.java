@@ -14,7 +14,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -29,6 +28,8 @@ import net.sf.sveditor.core.log.LogHandle;
 public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.sourceCollectionIndex";
+	
+	// 
 	public static final String  	FILESET = "FILE_SET";
 	private LogHandle				fLog;
 	
@@ -41,7 +42,7 @@ public class SVDBSourceCollectionIndexFactory implements ISVDBIndexFactory {
 			String 					project_name,
 			String 					base_location,
 			ISVDBIndexCache			cache,
-			Map<String, Object> 	config) {
+			SVDBIndexConfig			config) {
 		ISVDBIndex ret;
 		ISVDBFileSystemProvider fs_provider = null;
 		List<AbstractSVFileMatcher> matcher_list = new ArrayList<AbstractSVFileMatcher>();
