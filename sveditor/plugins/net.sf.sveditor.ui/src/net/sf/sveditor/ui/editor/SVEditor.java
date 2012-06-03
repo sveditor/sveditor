@@ -465,7 +465,7 @@ public class SVEditor extends TextEditor
 		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction", th_action);
 
-		OpenObjectsViewAction ov_action = new OpenObjectsViewAction(bundle, this);
+		OpenObjectsViewAction ov_action = new OpenObjectsViewAction(bundle);
 		ov_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.objects");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenObjectsAction", ov_action);
 

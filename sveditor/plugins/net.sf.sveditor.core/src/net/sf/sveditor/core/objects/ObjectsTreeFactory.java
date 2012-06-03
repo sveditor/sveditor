@@ -36,6 +36,9 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode topNode  = new ObjectsTreeNode(null, "Top") ;
 		
+		// TODO: spin through the incoming projectIndexList and produce the real tree.
+		// 		 Currently generating some phony data
+		
 		ObjectsTreeNode packagesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.PACKAGES_NODE) ;
 		topNode.addChild(packagesNode) ;
 		packagesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.PACKAGES_NODE, SVDBItemType.PackageDecl)) ;

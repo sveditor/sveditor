@@ -13,6 +13,7 @@
 
 package net.sf.sveditor.ui.views.objects;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.objects.ObjectsTreeNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -30,7 +31,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -44,12 +44,7 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 	private FilteredTree	     		fObjectTree;
 	private TreeViewer				    fTreeViewer;
 	private PatternFilter				fPatternFilter;
-	
-	private ObjectsTreeNode			fTopNode;
-	private ObjectsTreeNode         fNodeModules;
-	private ObjectsTreeNode         fNodeInterface;
-	private ObjectsTreeNode         fNodePackages;
-	
+	private ObjectsViewContentProvider 	fContentProvider;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -70,8 +65,9 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 		
 		fTreeViewer = fObjectTree.getViewer() ;
 		fTreeViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		fTreeViewer.setContentProvider(new ObjectsViewContentProvider());
+		fTreeViewer.setContentProvider(fContentProvider = new ObjectsViewContentProvider());
 		fTreeViewer.setLabelProvider(new ObjectsLabelProvider());
+		fTreeViewer.setInput(SVCorePlugin.getDefault().getSVDBIndexRegistry());
 		
 		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
@@ -79,7 +75,9 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 				if (sel.getFirstElement() instanceof ObjectsTreeNode) {
 					ObjectsTreeNode n = (ObjectsTreeNode)sel.getFirstElement();
 					// First level nodes for object types get expanded on double click
-					if(n == fNodeInterface || n == fNodePackages || n == fNodeModules ) {
+					if(n == fContentProvider.getModulesNode() || 
+					   n == fContentProvider.getInterfacesNode() ||
+					   n == fContentProvider.getPackagesNode()) {
 						fTreeViewer.setExpandedState(n, !fTreeViewer.getExpandedState(n)) ;
 					// Packages toggle expanded state
 					} else if(n.getItemDecl().getType() == SVDBItemType.PackageDecl) {
@@ -117,33 +115,33 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 		tbm.add( new Action("Expand Modules", Action.AS_PUSH_BUTTON) { 
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.ModuleDecl)) ; } 
 					public void run() { 
-						if(fNodeModules != null) {
+						if(fContentProvider.getModulesNode() != null) {
 							fTreeViewer.collapseAll() ; 
-					        fTreeViewer.expandToLevel(fNodeModules, TreeViewer.ALL_LEVELS) ; 
+					        fTreeViewer.expandToLevel(fContentProvider.getModulesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
 		tbm.add( new Action("Expand Packages", Action.AS_PUSH_BUTTON) { 
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.PackageDecl)) ; } 
 					public void run() { 
-						if(fNodePackages != null) {
+						if(fContentProvider.getPackagesNode() != null) {
 							fTreeViewer.collapseAll() ; 
-					        fTreeViewer.expandToLevel(fNodePackages, 1) ;
+					        fTreeViewer.expandToLevel(fContentProvider.getPackagesNode(), 1) ;
 						}}}) ;
 		
 		tbm.add( new Action("Expand Classes", Action.AS_PUSH_BUTTON) { 
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.ClassDecl)) ; } 
 					public void run() { 
-						if(fNodePackages != null) {
+						if(fContentProvider.getPackagesNode() != null) {
 							fTreeViewer.collapseAll() ; 
-					        fTreeViewer.expandToLevel(fNodePackages, TreeViewer.ALL_LEVELS) ; 
+					        fTreeViewer.expandToLevel(fContentProvider.getPackagesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
 		tbm.add( new Action("Expand Interfaces", Action.AS_PUSH_BUTTON) { 
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InterfaceDecl)) ; } 
 					public void run() { 
-						if(fNodeInterface != null) {
+						if(fContentProvider.getInterfacesNode() != null) {
 							fTreeViewer.collapseAll() ; 
-					        fTreeViewer.expandToLevel(fNodeInterface, TreeViewer.ALL_LEVELS) ; 
+					        fTreeViewer.expandToLevel(fContentProvider.getInterfacesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
 		
@@ -154,22 +152,7 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {}
-
-	public void setTarget(ObjectsTreeNode topNode) {
-		
-		fTopNode = topNode ;
-		
-		if(fTopNode != null) {
-		
-		fNodeInterface = topNode.getChildByName(ObjectsTreeNode.INTERFACES_NODE) ;
-		fNodeModules = topNode.getChildByName(ObjectsTreeNode.MODULES_NODE) ;
-		fNodePackages = topNode.getChildByName(ObjectsTreeNode.PACKAGES_NODE) ;
-			
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() { fTreeViewer.setInput(fTopNode); } });
-		}
-	}
-
+	
 	@Override
 	public void setFocus() {}
 	

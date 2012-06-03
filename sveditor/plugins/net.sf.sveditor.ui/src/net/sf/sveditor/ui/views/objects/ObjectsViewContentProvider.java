@@ -13,6 +13,11 @@
 
 package net.sf.sveditor.ui.views.objects;
 
+import java.util.List;
+
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.objects.ObjectsTreeFactory;
 import net.sf.sveditor.core.objects.ObjectsTreeNode;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -20,6 +25,21 @@ import org.eclipse.jface.viewers.Viewer;
 
 public class ObjectsViewContentProvider implements ITreeContentProvider {
 	private static final Object 		fEmptyArray[] = new Object[0];
+	private SVDBIndexRegistry fIndexRegistry ;
+	
+	private ObjectsTreeNode         fNodeModules;
+	private ObjectsTreeNode         fNodeInterface;
+	private ObjectsTreeNode         fNodePackages;
+	
+	public ObjectsTreeNode getModulesNode() {
+		return fNodeModules ;
+	}
+	public ObjectsTreeNode getInterfacesNode() {
+		return fNodeInterface ;
+	}
+	public ObjectsTreeNode getPackagesNode() {
+		return fNodePackages ;
+	}
 	
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof ObjectsTreeNode) {
@@ -46,16 +66,24 @@ public class ObjectsViewContentProvider implements ITreeContentProvider {
 	}
 
 	public Object[] getElements(Object inputElement) {
-		if (inputElement instanceof ObjectsTreeNode) {
-			return ((ObjectsTreeNode)inputElement).getChildren().toArray();
+		List<ISVDBIndex> projectIndexList = fIndexRegistry.getAllProjectLists() ; 
+		ObjectsTreeFactory factory = new ObjectsTreeFactory(projectIndexList) ;
+		ObjectsTreeNode topNode = factory.build();
+		if(topNode == null)  {
+			return fEmptyArray ;
 		} else {
-			return fEmptyArray;
+			fNodeInterface = topNode.getChildByName(ObjectsTreeNode.INTERFACES_NODE) ;
+			fNodeModules = topNode.getChildByName(ObjectsTreeNode.MODULES_NODE) ;
+			fNodePackages = topNode.getChildByName(ObjectsTreeNode.PACKAGES_NODE) ;			
+			return topNode.getChildren().toArray() ;
 		}
+		
 	}
 
 	public void dispose() {}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		fIndexRegistry = (SVDBIndexRegistry)newInput ; 
 	}
 
 }
