@@ -25,7 +25,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms40m -Xmx384m"/>
 <stringAttribute key="pde.version" value="3.3"/>
-<stringAttribute key="product" value="org.eclipse.platform.ide"/>
+<stringAttribute key="product" value="net.sf.sveditor.product.sveditor"/>
 <setAttribute key="selected_features">
 <setEntry value="com.atlassian.connector.commons:default"/>
 <setEntry value="com.atlassian.connector.eclipse.bamboo:default"/>
