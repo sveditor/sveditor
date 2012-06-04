@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -32,7 +33,7 @@ import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonMenuConstants;
 
-public class RebuildSvIndexAction extends CommonActionProvider {
+public class RebuildSvIndexAction extends CommonActionProvider implements ILogLevel {
 
 	public RebuildSvIndexAction() {
 		fRebuildAction = new RebuildIndexAction();
@@ -61,8 +62,6 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 			List<IProject> projects = new ArrayList<IProject>();
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 
-			fLog.debug("run()");
-			
 			for (Object sel_o : sel_s.toList()) {
 				IProject p = null;
 				if (sel_o instanceof IProject) {
@@ -77,14 +76,14 @@ public class RebuildSvIndexAction extends CommonActionProvider {
 			}
 			
 			for (IProject p : projects) {
-				fLog.debug("Rebuild index for project \"" + p.getName() + "\"");
+				fLog.debug(LEVEL_MIN, "Rebuild index for project \"" + p.getName() + "\"");
 				try {
 					p.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 				} catch (CoreException e) {}
 				
 				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
 				for (ISVDBIndex index : index_list) {
-					fLog.debug("rebuildIndex " + index.getBaseLocation());
+					fLog.debug(LEVEL_MIN, "rebuildIndex " + index.getBaseLocation());
 					index.rebuildIndex();
 				}
 				SVUiPlugin.getDefault().refreshIndexList(index_list);

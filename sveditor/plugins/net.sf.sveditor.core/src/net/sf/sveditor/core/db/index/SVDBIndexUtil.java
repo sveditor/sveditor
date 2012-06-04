@@ -30,6 +30,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -158,15 +159,24 @@ public class SVDBIndexUtil {
 		if (workspace_prefix) {
 			exp_path = exp_path.substring("${workspace_loc}".length());
 		}
-
-		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
-		IProject project = null;
 		
-		if (projectname != null) {
-			project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectname);
+		IWorkspace workspace = null;
+		try {
+			workspace = ResourcesPlugin.getWorkspace();
+		} catch (IllegalStateException e) {}
+
+		IPathVariableManager pvm = null;
+		IProject project = null;
+		IStringVariableManager svm = null;
+		if (workspace != null) {
+			pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
+			
+			if (projectname != null) {
+				project = workspace.getRoot().getProject(projectname);
+			}
+			svm = (VariablesPlugin.getDefault() != null)?VariablesPlugin.getDefault().getStringVariableManager():null;
 		}
 		 
-		IStringVariableManager svm = (VariablesPlugin.getDefault() != null)?VariablesPlugin.getDefault().getStringVariableManager():null;
 		StringBuilder sb = new StringBuilder(exp_path);
 		StringBuilder tmp = new StringBuilder();
 
@@ -242,7 +252,7 @@ public class SVDBIndexUtil {
 					}
 					
 					// Eclipse Project Variables
-					if (val == null) {
+					if (val == null && pvm != null) {
 						IPath p = pvm.getValue(key);
 						// URI p = pvm.getURIValue(key);
 						if (p != null) {

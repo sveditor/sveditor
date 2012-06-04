@@ -66,7 +66,7 @@ public class SrcCollectionBasics extends TestCase {
 	}
 	
 	public void testFindSourceRecursePkg() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle("testFindSourceRecursePkg");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
