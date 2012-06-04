@@ -13,21 +13,15 @@
 package net.sf.sveditor.ui.tests.explorer;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.ui.explorer.PathTreeNode;
-import net.sf.sveditor.ui.explorer.PathTreeNodeFactory;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -61,33 +55,4 @@ public class TestExplorer extends TestCase {
 		TestUtils.delete(fTmpDir);
 	}
 	
-	public void testPathTreeNodeFactory() {
-		PathTreeNodeFactory f = new PathTreeNodeFactory();
-		
-		List<ISVDBIndex> l = fIndexCollectionOVMMgr.getPluginPathList();
-		
-		for (ISVDBIndex i : l) {
-			List<SVDBFile> file_l = new ArrayList<SVDBFile>();
-			for (String p : i.getFileList(new NullProgressMonitor())) {
-				file_l.add(i.findPreProcFile(p));
-			}
-			List<PathTreeNode> roots = f.build(file_l);
-			
-			for (PathTreeNode n : roots) {
-				System.out.println("root: " + n.getName());
-				printChildren("    ", n);
-			}
-		}
-	}
-	
-	private void printChildren(String indent, PathTreeNode n) {
-		System.out.println(indent + "Node: " + n.getName());
-		for (SVDBFile f : n.getFileList()) {
-			System.out.println(indent + "    File: " + f.getName());
-		}
-		for (PathTreeNode n_t : n.getChildNodes()) {
-			printChildren(indent + "    ", n_t);
-		}
-	}
-
 }

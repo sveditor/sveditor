@@ -82,7 +82,7 @@ public class SVCorePlugin extends Plugin
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
-	private IJobMgr					fJobMgr;
+	private static IJobMgr					fJobMgr;
 	private int							fNumIndexCacheThreads = 0;
 	private int							fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
@@ -149,7 +149,7 @@ public class SVCorePlugin extends Plugin
 		return new SVDefaultIndenter2();
 	}
 	
-	public synchronized IJobMgr getJobMgr() {
+	public synchronized static IJobMgr getJobMgr() {
 		if (fJobMgr == null) {
 			fJobMgr = new JobMgr();
 		}
@@ -372,9 +372,13 @@ public class SVCorePlugin extends Plugin
 		}
 	}
 
-	public String getVersion() {
-		Version v = getBundle().getVersion();
-		return v.getMajor() + "." + v.getMinor() + "." + v.getMicro();
+	public static String getVersion() {
+		if (fPlugin != null) {
+			Version v = fPlugin.getBundle().getVersion();
+			return v.getMajor() + "." + v.getMinor() + "." + v.getMicro();
+		} else {
+			return "1.2.3"; // testing
+		}
 	}
 
 	
@@ -419,12 +423,20 @@ public class SVCorePlugin extends Plugin
 	
 	public static int getNumIndexCacheThreads() {
 		SVCorePlugin plugin = getDefault();
-		return plugin.fNumIndexCacheThreads;
+		if (plugin != null) {
+			return plugin.fNumIndexCacheThreads;
+		} else {
+			return 0;
+		}
 	}
 	
 	public static int getMaxIndexThreads() {
 		SVCorePlugin plugin = getDefault();
-		return plugin.fMaxIndexThreads;
+		if (plugin != null) {
+			return plugin.fMaxIndexThreads;
+		} else {
+			return 0;
+		}
 	}
 }
 

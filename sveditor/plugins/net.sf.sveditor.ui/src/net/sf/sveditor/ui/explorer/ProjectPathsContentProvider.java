@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.IElementComparer;
@@ -48,6 +49,8 @@ public class ProjectPathsContentProvider implements
 			return new Object[] {paths_d};
 		} else if (parentElement instanceof IProjectPathsData) {
 			return ((IProjectPathsData)parentElement).getChildren(parentElement);
+		} else if (parentElement instanceof SVDBDirTreeNode) {
+			return ((SVDBDirTreeNode)parentElement).getChildren().toArray();
 		}
 		return NO_ELEMENTS;
 	}
@@ -87,6 +90,8 @@ public class ProjectPathsContentProvider implements
 		if (element instanceof LibIndexPath) {
 			LibIndexPath lip = (LibIndexPath)element;
 			return lip.getParent(element);
+		} else if (element instanceof SVDBDirTreeNode) {
+			return ((SVDBDirTreeNode)element).getParent();
 		} else {
 			return null;
 		}

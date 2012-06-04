@@ -14,24 +14,35 @@ package net.sf.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.dirtree.SVDBDirTreeFactory;
+import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ProjectPathsIndexEntry implements IProjectPathsData {
 	private String					fType;
 	private ISVDBIndex				fIndex;
-	private List<PathTreeNode>		fRoots;
+	private List<SVDBDirTreeNode>	fRoots;
 	
 	
 	public ProjectPathsIndexEntry(String type, ISVDBIndex index) {
 		fType  = type;
 		fIndex = index;
 		
-		fRoots = new ArrayList<PathTreeNode>();
+		fRoots = new ArrayList<SVDBDirTreeNode>();
+		
+		Set<String> filelist = fIndex.getFileList(new NullProgressMonitor());
+		
+		SVDBDirTreeFactory tree_factory = new SVDBDirTreeFactory();
+		for (String f : filelist) {
+			tree_factory.addPath(f, false); // TODO: determine item type
+		}
+		fRoots.addAll(tree_factory.buildTree().getChildren());
 
-//		PathTreeNodeFactory f = new PathTreeNodeFactory();
-//		System.out.println("[TODO] ProjectPathsIndexEntry");
-		// TEMP: fRoots.addAll(f.build(index.getPreProcFileMap(new NullProgressMonitor()).values()));
+		// TODO: remove elements up to the start of the root (?)
 	}
 	
 	public String getType() {

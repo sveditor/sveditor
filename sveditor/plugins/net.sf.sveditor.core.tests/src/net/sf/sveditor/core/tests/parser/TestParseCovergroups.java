@@ -20,7 +20,7 @@ public class TestParseCovergroups extends TestCase {
 
 	  public void testCovergroup() throws SVParseException {
 		String testname = "testTransitionBins";
-	    SVCorePlugin.getDefault().enableDebug(true);
+	    SVCorePlugin.getDefault().enableDebug(false);
 	    String doc =
 	      "class c;\n" +
 	      " covergroup foobar;\n" +

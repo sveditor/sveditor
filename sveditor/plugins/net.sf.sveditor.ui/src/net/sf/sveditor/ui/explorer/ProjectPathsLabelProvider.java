@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.explorer;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -25,8 +26,13 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 	public Image getImage(Object element) {
 		if (element instanceof ProjectPathsData) {
 			return SVUiPlugin.getImage("/icons/eview16/project_paths.gif");
-		} else if (element instanceof PathTreeNode) {
-			return SVUiPlugin.getImage("/icons/eview16/folder.gif");
+		} else if (element instanceof SVDBDirTreeNode) {
+			SVDBDirTreeNode n = (SVDBDirTreeNode)element;
+			if (n.isDir()) {
+				return SVUiPlugin.getImage("/icons/eview16/folder.gif");
+			} else {
+				return SVUiPlugin.getImage("/icons/vlog_16_16.gif");
+			}
 		} else if (element instanceof LibIndexPath || element instanceof ProjectPathsIndexEntry) {
 			String type;
 			if (element instanceof LibIndexPath) {
@@ -50,6 +56,9 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 			return new StyledString(((IProjectPathsData)element).getName());
 		} else if (element instanceof SVDBFile) {
 			return new StyledString(((SVDBFile)element).getName());
+		} else if (element instanceof SVDBDirTreeNode) {
+			SVDBDirTreeNode n = (SVDBDirTreeNode)element;
+			return new StyledString(n.getName());
 		} else {
 			return super.getStyledText(element);
 		}
