@@ -293,6 +293,11 @@
             name="Open Type Hierarchy">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.editor.open.objects"
+            name="Open Objects">
+      </command>
+      <command
             id="net.sf.sveditor.ui.AddBlockComment"
             name="Add Block Comment">
       </command>
@@ -388,6 +393,12 @@
                retarget="true">
          </action>
          <action
+               definitionId="net.sf.sveditor.ui.editor.open.objects"
+               id="net.sf.sveditor.ui.svOpenObjectsAction"
+               label="Open Objects"
+               retarget="true">
+         </action>
+         <action
                id="net.sf.sveditor.ui.svAddBlockCommentAction"
                label="Add Block Comment"
                retarget="true">
@@ -458,6 +469,18 @@
             id="net.sf.sveditor.ui.viewCategory"
             name="SVEditor">
       </category>
+      <view
+            allowMultiple="false"
+            category="net.sf.sveditor.ui.viewCategory"
+            class="net.sf.sveditor.ui.views.objects.SVObjectsView"
+            icon="icons/eview16/class_hi.gif"
+            id="net.sf.sveditor.ui.objectsView"
+            name="Objects"
+            restorable="true">
+         <description>
+            SystemVerilog Objects Viewer
+         </description>
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">

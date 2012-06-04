@@ -35,6 +35,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fOpenDeclarationAction;
 	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
+	protected RetargetTextEditorAction fOpenObjectsAction;
 	protected RetargetTextEditorAction fAddBlockCommentAction;
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
 	protected RetargetTextEditorAction fToggleCommentAction;
@@ -68,6 +69,11 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenTypeHierarchy.");
 		fOpenTypeHierarchyAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.type.hierarchy");
+
+		fOpenObjectsAction = new RetargetTextEditorAction(
+				bundle, "OpenObjects.");
+		fOpenObjectsAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.open.objects");
 
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
 		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
@@ -103,6 +109,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fOpenObjectsAction);
 			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}
@@ -123,6 +130,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fOpenObjectsAction);
 			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}	
@@ -138,6 +146,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
+		fOpenObjectsAction.setAction(getAction(editor, "OpenObjects"));
 		fFindReferencesAction.setAction(getAction(editor, "FindReferences"));
 		fIndentAction.setAction(getAction(editor, "Indent"));
 		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));
