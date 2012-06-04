@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.ui.views.objects.ObjectsLabelProvider;
+import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.KeyAdapter;
@@ -25,6 +29,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -50,8 +55,10 @@ import org.eclipse.ui.IDecoratorManager;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.keys.KeySequence;
-import org.eclipse.ui.keys.SWTKeySupport;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
+//import org.eclipse.ui.keys.KeySequence;
+//import org.eclipse.ui.keys.SWTKeySupport;
 
 //import org.eclipse.jdt.core.ICompilationUnit;
 //import org.eclipse.jdt.core.IJavaElement;
@@ -578,12 +585,31 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 	 */
 	@Override
 	protected TreeViewer createTreeViewer(Composite parent, int style) {
-		Tree tree= new Tree(parent, SWT.SINGLE | (style & ~SWT.MULTI));
+		
+//		Composite class_c = new Composite(parent, SWT.NONE);
+//		class_c.setLayout(gl);
+//		class_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		final PatternFilter patternFilter = new PatternFilter() ;
+
+//		final TreeViewer treeViewer= new OutlineTreeViewer(tree);
+		
+		final FilteredTree filteredTreeViewer = new FilteredTree(parent, SWT.H_SCROLL, patternFilter, true) ;
+		final TreeViewer treeViewer = filteredTreeViewer.getViewer() ;
+		
+		final Tree tree = treeViewer.getTree();
+		
+//		Tree tree= new Tree(parent, SWT.SINGLE | (style & ~SWT.MULTI));
 		GridData gd= new GridData(GridData.FILL_BOTH);
+//		gd.heightHint= tree.getItemHeight() * 12;
 		gd.heightHint= tree.getItemHeight() * 12;
 		tree.setLayoutData(gd);
-
-		final TreeViewer treeViewer= new OutlineTreeViewer(tree);
+		
+//		GridLayout gl;
+//		
+//		gl = new GridLayout();
+//		gl.marginHeight = 0;
+//		gl.marginWidth = 0;
 
 //		// Hard-coded filters
 //		treeViewer.addFilter(new NamePatternFilter());
@@ -610,6 +636,11 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 //
 //
 //		treeViewer.getTree().addKeyListener(getKeyAdapter());
+		
+		treeViewer.setContentProvider(new ObjectsViewContentProvider()) ;
+//		fTreeViewer.setContentProvider(fContentProvider = new ObjectsViewContentProvider());
+		treeViewer.setLabelProvider(new ObjectsLabelProvider());
+		treeViewer.setInput(SVCorePlugin.getDefault().getSVDBIndexRegistry());
 
 		return treeViewer;
 	}
@@ -631,13 +662,9 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 //			return Messages.format(JavaUIMessages.JavaOutlineControl_statusFieldText_showInheritedMembers, keySequence);
 //	}
 
-	/*
-	 * @see org.eclipse.jdt.internal.ui.text.AbstractInformationControl#getId()
-	 * @since 3.0
-	 */
 	@Override
 	protected String getId() {
-		return "org.eclipse.jdt.internal.ui.text.QuickOutline"; //$NON-NLS-1$
+		return "net.sf.sveditor.ui.text.QuickObjects"; //$NON-NLS-1$
 	}
 
 	/**

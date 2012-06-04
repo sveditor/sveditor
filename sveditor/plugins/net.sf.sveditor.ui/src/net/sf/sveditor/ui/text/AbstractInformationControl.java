@@ -859,11 +859,11 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 */
 	@Override
 	protected void setTabOrder(Composite composite) {
-		if (hasHeader()) {
-			composite.setTabList(new Control[] { fFilterText, fTreeViewer.getTree() });
-		} else {
-			fViewMenuButtonComposite.setTabList(new Control[] { fFilterText });
-			composite.setTabList(new Control[] { fViewMenuButtonComposite, fTreeViewer.getTree() });
-		}
+//		if (hasHeader()) {
+//			composite.setTabList(new Control[] { fFilterText, fTreeViewer.getTree() });
+//		} else {
+//			fViewMenuButtonComposite.setTabList(new Control[] { fFilterText });
+//			composite.setTabList(new Control[] { fViewMenuButtonComposite, fTreeViewer.getTree() });
+//		}
 	}
 }

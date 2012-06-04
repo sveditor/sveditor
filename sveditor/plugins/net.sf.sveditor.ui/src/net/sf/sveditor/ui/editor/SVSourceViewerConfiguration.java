@@ -18,6 +18,8 @@ import java.util.List;
 
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.text.ObjectsInformationControl;
+import net.sf.sveditor.ui.text.SVElementProvider;
+import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractInformationControlManager;
@@ -239,15 +241,16 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		};
 	}	
 	
-	public IInformationPresenter getOutlinePresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
+	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
 		presenter= new InformationPresenter(
 				getObjectsPresenterControlCreator(sourceViewer, 
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.outline")) ;
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
+		IInformationProvider provider = new SVElementProvider(fEditor);
 //		IInformationProvider provider= new JavaElementProvider(getEditor(), doCodeResolve);
-//		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
 //		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_DOC);
 //		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_MULTI_LINE_COMMENT);
 //		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_SINGLE_LINE_COMMENT);
