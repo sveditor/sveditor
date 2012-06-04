@@ -761,12 +761,75 @@ public class SVPreProcScanner implements ISVScanner {
 		int ch = -1;
 		
 		do {
-			ch = get_ch_pp();
+			while (true) {
+				if (fUnaccBuffer.length() > 0) {
+					ch = fUnaccBuffer.charAt(fUnaccBuffer.length()-1);
+					fUnaccBuffer.setLength(fUnaccBuffer.length()-1);
+				} else {
+					ch = get_ch_ll();
+				}
+				
+				if (ch == '/' && !fInString) {
+					int ch2 = get_ch_ll();
+
+					if (ch2 == '/') {
+						while ((ch = get_ch_ll()) != -1 && ch != '\n') {}
+					} else if (ch2 == '*') {
+						int end_comment[] = {-1, -1};
+
+						while ((ch = get_ch_ll()) != -1) {
+							end_comment[0] = end_comment[1];
+							end_comment[1] = ch;
+
+							if (end_comment[0] == '*' && end_comment[1] == '/') {
+								break;
+							}
+						}
+
+						ch = ' ';
+					} else {
+						unget_ch(ch2);
+					}
+				} else if (ch == '`' && !fInString) {
+					ch = get_ch_ll();
+					
+					String type = readPreProcId_ll(ch);
+					
+					if (type != null) {
+						handle_preproc_directive(type);
+					} else {
+						System.out.println("null type @ " + 
+								fFileName + ":" + fLineno);
+					}
+					
+					continue;
+				}
+				
+				if (!fInString) {
+					if (ch == '"' && fLastChPP != '\'') {
+						fInString = true;
+					}
+				} else {
+					if (ch == '"' && fLastChPP != '\\') {
+						fInString = false;
+					}
+				}
+				
+				break;
+			}
+
+			if (fLastChPP == '\\' && ch == '\\') {
+				fLastChPP = ' ';
+			} else {
+				fLastChPP = ch;
+			}
+//			ch = get_ch_pp();
 		} while (!ifdef_enabled() && ch != -1);
 		
 		return ch;
 	}
 
+	/*
 	private int get_ch_pp() {
 		int ch=-1;
 
@@ -835,6 +898,7 @@ public class SVPreProcScanner implements ISVScanner {
 		
 		return ch;
 	}
+	 */
 	
 	private int get_ch_ll() {
 		int ch = -1;

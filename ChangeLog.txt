@@ -8,6 +8,9 @@
 - #(nobug) Change handling of index config to identify requests for an index
   from the registry that match base location, project, and type but differ in
   the configuration. These indexes are now disposed and a new index created.
+  
+- #(enh) Add support for showing the files managed by an index in the 
+  project explorer view. This should be helpful when debugging index issues
 
 ------------------------------------------------------------------------------
 -- 0.9.1 Release --

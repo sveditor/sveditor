@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.tests.parser.perf;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,28 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestParserPerf extends TestCase {
+	
+	private File				fTmpDir;
+	
+	@Override
+	protected void setUp() throws Exception {
+		fTmpDir = TestUtils.createTempDir();
+	}
+
+
+
+	@Override
+	protected void tearDown() throws Exception {
+		// TODO Auto-generated method stub
+		super.tearDown();
+	}
+
+
 
 	public void testXBusExample() {
 		/*
@@ -57,7 +76,8 @@ public class TestParserPerf extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.test_init(TestIndexCacheFactory.instance(null));
+//		rgy.test_init(TestIndexCacheFactory.instance(null));
+		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		String compile_questa_sv = xbus + "/examples/compile_questa_sv.f";
 		System.out.println("compile_questa_sv=" + compile_questa_sv);
@@ -65,7 +85,9 @@ public class TestParserPerf extends TestCase {
 		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
 				compile_questa_sv, SVDBArgFileIndexFactory.TYPE, factory, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
+		/*
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
 		while (it.hasNext()) {
@@ -85,6 +107,7 @@ public class TestParserPerf extends TestCase {
 			System.out.println("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
+		 */
 	}
 
 }

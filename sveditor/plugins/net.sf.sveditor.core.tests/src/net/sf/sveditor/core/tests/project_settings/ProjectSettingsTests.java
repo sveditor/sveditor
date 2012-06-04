@@ -88,7 +88,7 @@ public class ProjectSettingsTests extends TestCase {
 	 * Test that if we change
 	 */
 	public void testSourceCollectionChangeIncExclExts() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		fProject = TestUtils.createProject("src_collection", fTmpDir);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
