@@ -136,7 +136,7 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 					        fTreeViewer.expandToLevel(fContentProvider.getPackagesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
-		tbm.add( new Action("Expand Interfaces", Action.AS_PUSH_BUTTON) { 
+		tbm.add( new Action("Expand Interfaces", Action.AS_PUSH_BUTTON) {
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InterfaceDecl)) ; } 
 					public void run() { 
 						if(fContentProvider.getInterfacesNode() != null) {
@@ -144,6 +144,12 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 					        fTreeViewer.expandToLevel(fContentProvider.getInterfacesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
+		
+		tbm.add( new Action("Reload", Action.AS_PUSH_BUTTON) { 
+					{ setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+						.getImageDescriptor(ISharedImages.IMG_TOOL_REDO)) ; } 
+					public void run() { 
+						fTreeViewer.setInput(SVCorePlugin.getDefault().getSVDBIndexRegistry()); }}) ;
 		
 	}
 	
