@@ -114,6 +114,14 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 						.getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL)) ; } 
 					public void run() { fTreeViewer.collapseAll() ; }}) ;
 		
+		tbm.add( new Action("Expand Interfaces", Action.AS_PUSH_BUTTON) {
+					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InterfaceDecl)) ; } 
+					public void run() { 
+						if(fContentProvider.getInterfacesNode() != null) {
+							fTreeViewer.collapseAll() ; 
+					        fTreeViewer.expandToLevel(fContentProvider.getInterfacesNode(), TreeViewer.ALL_LEVELS) ; 
+						}}}) ;
+		
 		tbm.add( new Action("Expand Modules", Action.AS_PUSH_BUTTON) { 
 					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.ModuleDecl)) ; } 
 					public void run() { 
@@ -136,14 +144,6 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 						if(fContentProvider.getPackagesNode() != null) {
 							fTreeViewer.collapseAll() ; 
 					        fTreeViewer.expandToLevel(fContentProvider.getPackagesNode(), TreeViewer.ALL_LEVELS) ; 
-						}}}) ;
-		
-		tbm.add( new Action("Expand Interfaces", Action.AS_PUSH_BUTTON) {
-					{ setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.InterfaceDecl)) ; } 
-					public void run() { 
-						if(fContentProvider.getInterfacesNode() != null) {
-							fTreeViewer.collapseAll() ; 
-					        fTreeViewer.expandToLevel(fContentProvider.getInterfacesNode(), TreeViewer.ALL_LEVELS) ; 
 						}}}) ;
 		
 		

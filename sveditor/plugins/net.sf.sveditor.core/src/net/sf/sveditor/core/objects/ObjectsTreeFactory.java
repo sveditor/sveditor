@@ -45,7 +45,6 @@ public class ObjectsTreeFactory {
 		Map<String,SVDBDeclCacheItem> globalPkgMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> ifaceMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> moduleMap = new HashMap<String, SVDBDeclCacheItem>() ;
-//		Map<String, Map<String, SVDBDeclCacheItem>> classMap = new HashMap<String, Map<String, SVDBDeclCacheItem>>() ;
 		
 		ObjectsTreeNode topNode  = new ObjectsTreeNode(null, "Top") ;
 		
