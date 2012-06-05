@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -68,6 +69,7 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 		fTreeViewer.setContentProvider(fContentProvider = new ObjectsViewContentProvider());
 		fTreeViewer.setLabelProvider(new ObjectsLabelProvider());
 		fTreeViewer.setInput(SVCorePlugin.getDefault().getSVDBIndexRegistry());
+		fTreeViewer.setComparator(new ViewerComparator()) ;
 		
 		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
