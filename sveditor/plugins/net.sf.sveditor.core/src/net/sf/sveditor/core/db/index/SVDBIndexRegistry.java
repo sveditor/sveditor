@@ -95,6 +95,18 @@ public class SVDBIndexRegistry implements ILogLevel {
 		fCacheFactory = cache_factory;
 		fIndexList.clear();
 	}
+	
+	public List<ISVDBIndex> getAllProjectLists() {
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		synchronized (fIndexList) {
+			for (Reference<ISVDBIndex> i : fIndexList) {
+				if (i.get() != null) { 
+					ret.add(i.get());
+				}
+			}
+		}
+		return ret ;
+	}
 
 	public List<ISVDBIndex> getProjectIndexList(String project) {
 		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
