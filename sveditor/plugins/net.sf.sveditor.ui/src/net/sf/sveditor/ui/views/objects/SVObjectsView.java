@@ -153,13 +153,10 @@ public class SVObjectsView extends ViewPart implements SelectionListener {
 		
 	}
 	
-	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {}
 
-	@Override
 	public void widgetSelected(SelectionEvent e) {}
 	
-	@Override
 	public void setFocus() {}
 	
 }

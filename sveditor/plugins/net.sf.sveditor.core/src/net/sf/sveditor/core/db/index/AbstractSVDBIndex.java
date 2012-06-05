@@ -45,8 +45,6 @@ import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.job_mgr.IJob;
-import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -1702,10 +1700,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	
 	private void cacheDeclarations(String filename, ISVDBChildParent scope) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
+		List<SVDBDeclCacheItem> decl_list = decl_cache.get(filename);
 		
 		for (ISVDBChildItem item : scope.getChildren()) {
 			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
-				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+				decl_list.add(new SVDBDeclCacheItem(this, filename, 
 						((SVDBPackageDecl)item).getName(), item.getType()));
 				cacheDeclarations(filename, (SVDBPackageDecl)item);
 			} else if (item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task,
@@ -1713,12 +1712,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
 					SVDBItemType.TypedefStmt)) {
 				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
-				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+				decl_list.add(new SVDBDeclCacheItem(this, filename, 
 						((ISVDBNamedItem)item).getName(), item.getType()));
 			} else if (item.getType() == SVDBItemType.PreProcCond) {
 				cacheDeclarations(filename, (SVDBPreProcCond)item);
 			} else if (item.getType() == SVDBItemType.MacroDef) {
-				decl_cache.get(filename).add(new SVDBDeclCacheItem(this, filename, 
+				decl_list.add(new SVDBDeclCacheItem(this, filename, 
 						((ISVDBNamedItem)item).getName(), item.getType()));
 			}
 		}
