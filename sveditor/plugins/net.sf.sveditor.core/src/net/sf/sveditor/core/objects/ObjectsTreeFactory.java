@@ -13,7 +13,6 @@
 
 package net.sf.sveditor.core.objects;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +45,9 @@ public class ObjectsTreeFactory {
 		Map<String,SVDBDeclCacheItem> globalPkgMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> ifaceMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> moduleMap = new HashMap<String, SVDBDeclCacheItem>() ;
+//		Map<String, Map<String, SVDBDeclCacheItem>> classMap = new HashMap<String, Map<String, SVDBDeclCacheItem>>() ;
 		
 		ObjectsTreeNode topNode  = new ObjectsTreeNode(null, "Top") ;
-		
-		// TODO: spin through the incoming projectIndexList and produce the real tree.
-		// 		 Currently generating some phony data
 		
 		ObjectsTreeNode packagesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.PACKAGES_NODE) ;
 		topNode.addChild(packagesNode) ;
@@ -84,21 +81,18 @@ public class ObjectsTreeFactory {
 						ObjectsTreeNode pkgNode = new ObjectsTreeNode(packagesNode, pkg.getName(), pkg) ;  
 						packagesNode.addChild(pkgNode) ; 
 						pkgMap.put(pkg.getName(), pkg) ;
+						// Look deeper into this project to find all classes for this package
+						List<SVDBDeclCacheItem> pkgClasses = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
+						if(pkgClasses != null) {
+							for(SVDBDeclCacheItem pkgClass: pkgClasses) {
+								ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgClass.getName(), pkgClass) ;
+								packagesNode.addChild(pkgClassNode) ;
+							}
+						}
 					}
 				}
 			}
 		}
-		
-//		for(String pkgName: Arrays.asList("axi_agent_pkg", "cpu_agent_pkg")) {
-//			SVDBDeclCacheItem pkgDeclItem = new SVDBDeclCacheItem(null, null, pkgName, SVDBItemType.PackageDecl) ;
-//			ObjectsTreeNode pkgNode = new ObjectsTreeNode(packagesNode, pkgName, pkgDeclItem) ;  
-//			packagesNode.addChild(pkgNode) ; 
-//			for(String className: Arrays.asList("bfm", "mon", "agent")) {
-//				SVDBDeclCacheItem classDeclItem = new SVDBDeclCacheItem(null, null, className, SVDBItemType.ClassDecl) ;
-//				ObjectsTreeNode classNode = new ObjectsTreeNode(pkgNode, className, classDeclItem); 
-//				pkgNode.addChild(classNode) ; 
-//			}
-//		}
 		
 		ObjectsTreeNode modulesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.MODULES_NODE) ;
 		topNode.addChild(modulesNode) ;
@@ -117,13 +111,6 @@ public class ObjectsTreeFactory {
 			}
 		}
 		
-		
-//		for(String pkgName: Arrays.asList("axi", "cpu")) {
-//			SVDBDeclCacheItem moduleDeclItem = new SVDBDeclCacheItem(null, null, pkgName, SVDBItemType.ModuleDecl) ;
-//			ObjectsTreeNode moduleNode = new ObjectsTreeNode(packagesNode, pkgName, moduleDeclItem) ;  
-//			modulesNode.addChild(moduleNode) ; 
-//		}
-		
 		ObjectsTreeNode interfacesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.INTERFACES_NODE) ;
 		topNode.addChild(interfacesNode) ;
 		interfacesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.INTERFACES_NODE, SVDBItemType.InterfaceDecl)) ;
@@ -140,13 +127,6 @@ public class ObjectsTreeFactory {
 				}
 			}
 		}
-		
-		
-//		for(String pkgName: Arrays.asList("axi", "cpu")) {
-//			SVDBDeclCacheItem interfaceDeclItem = new SVDBDeclCacheItem(null, null, pkgName, SVDBItemType.InterfaceDecl) ;
-//			ObjectsTreeNode moduleNode = new ObjectsTreeNode(packagesNode, pkgName, interfaceDeclItem) ;  
-//			interfacesNode.addChild(moduleNode) ; 
-//		}
 		
 		return topNode ;
 		
