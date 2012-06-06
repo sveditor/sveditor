@@ -450,9 +450,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						}
 					}
 						
+				} 
+				if(ft_root != null) {
+					IPreProcMacroProvider mp = createMacroProvider(ft_root);
+					processFile(ft_root, mp);
 				}
-				IPreProcMacroProvider mp = createMacroProvider(ft_root);
-				processFile(ft_root, mp);
 				
 				synchronized (fCache) {
 					ret = fCache.getFile(new NullProgressMonitor(), path);

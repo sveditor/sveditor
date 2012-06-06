@@ -1,0 +1,6 @@
+
+
+	class cR;
+	endclass
+
+	
