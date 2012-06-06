@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.index.libIndex.WSArgFileIndexChanges;
 import net.sf.sveditor.core.tests.index.libIndex.WSLibIndexFileChanges;
 import net.sf.sveditor.core.tests.index.src_collection.SrcCollectionBasics;
+import net.sf.sveditor.core.tests.objects.ObjectsTests;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -51,6 +52,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
 		suite.addTest(new TestSuite(TestCrossIndexReferences.class));
 		suite.addTest(new TestSuite(TestIndexFileRefs.class));
+		suite.addTest(new TestSuite(ObjectsTests.class));
 		
 		return suite;
 	}
