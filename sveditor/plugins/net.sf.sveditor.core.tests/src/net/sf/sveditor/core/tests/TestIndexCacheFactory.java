@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.cache.SVDBThreadedFileIndexCache;
 
 public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 	private File				fRoot;
@@ -48,6 +49,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 			}
 			
 			SVDBFileIndexCache cache = new SVDBFileIndexCache(new SVDBDirFS(target));
+//			SVDBThreadedFileIndexCache cache = new SVDBThreadedFileIndexCache(new SVDBDirFS(target));
 			
 			return cache;
 		}

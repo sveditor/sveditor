@@ -22,6 +22,9 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -84,6 +87,7 @@ public class SVTemplateSelectionPage extends WizardPage {
 		});
 		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 		fTemplateTree.setInput(TemplateCategoriesNode.create(rgy));
+		fTemplateTree.setSorter(SorterA);
 
 		
 		// TODO: move
@@ -139,4 +143,22 @@ public class SVTemplateSelectionPage extends WizardPage {
 		setPageComplete((getErrorMessage() == null));
 	}
 
+	private ViewerSorter SorterA = new ViewerSorter() {
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			if (e1 instanceof TemplateCategory && e2 instanceof TemplateCategory) {
+				TemplateCategory c1 = (TemplateCategory)e1;
+				TemplateCategory c2 = (TemplateCategory)e2;
+				
+				return c1.getName().compareTo(c2.getName());
+			} else if (e1 instanceof TemplateInfo && e2 instanceof TemplateInfo) {
+				TemplateInfo c1 = (TemplateInfo)e1;
+				TemplateInfo c2 = (TemplateInfo)e2;
+				
+				return c1.getName().compareTo(c2.getName());
+			} else {
+				return super.compare(viewer, e1, e2);
+			}
+		}
+	};
 }

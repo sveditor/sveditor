@@ -20,6 +20,10 @@ public interface IJob {
 	
 	String getName();
 	
+	void setPriority(int p);
+	
+	int getPriority();
+	
 	void run(IProgressMonitor monitor);
 	
 	void addListener(IJobListener l);

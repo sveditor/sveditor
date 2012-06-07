@@ -29,6 +29,7 @@ import net.sf.sveditor.ui.wizards.ISVSubWizard;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -146,9 +147,14 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 
 						public void createFile(String path, InputStream content) {
 							IFile file = folder.getFile(new Path(path));
+							
 
 							monitor.worked(1);
 							try {
+								if (!file.getParent().exists()) {
+									((IFolder)file.getParent()).create(
+											true, true, new NullProgressMonitor());
+								}
 								if (file.exists()) {
 									file.setContents(content, true, true, new NullProgressMonitor());
 								} else {

@@ -45,6 +45,8 @@ import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.job_mgr.IJob;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -66,7 +68,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-public abstract class AbstractSVDBIndex implements ISVDBIndex,
+public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		ISVDBFileSystemChangeListener, ILogLevelListener, ILogLevel {
 	private static final int IndexState_AllInvalid 			= 0;
 	private static final int IndexState_RootFilesDiscovered	= (IndexState_AllInvalid + 1);
@@ -100,8 +102,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	// Manages a list of the directories that managed files are stored in
 	private Set<String>								fFileDirs;
 	
-	// Controls indexing parallelism
-	private int									fMaxIndexThreads = 0;
 	protected boolean								fDebugEn;
 
 	protected boolean								fInWorkspaceOk;
@@ -115,12 +115,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private int 									fIndexState;
 	protected boolean								fAutoRebuildEn;
 	protected boolean								fIsDirty;
+	
+	protected boolean								fEnableThreads = false;
 
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
 	}
 	
-	protected AbstractSVDBIndex(String project) {
+	protected AbstractThreadedSVDBIndex(String project) {
 		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fProjectName = project;
@@ -128,13 +130,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
 		fMissingIncludes = new HashSet<String>();
-		fMaxIndexThreads = SVCorePlugin.getMaxIndexThreads();
 		fAutoRebuildEn = true;
 		
 		fFileDirs = new HashSet<String>();
 	}
 
-	public AbstractSVDBIndex(String project, String base_location,
+	public AbstractThreadedSVDBIndex(String project, String base_location,
 			ISVDBFileSystemProvider fs_provider, ISVDBIndexCache cache,
 			SVDBIndexConfig config) {
 		this(project);
@@ -318,6 +319,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * @param state
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor monitor, int state) {
+		List<IJob> jobs = new ArrayList<IJob>();
+		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 		if (fIndexState < IndexState_RootFilesDiscovered
 				&& state >= IndexState_RootFilesDiscovered) {
@@ -326,11 +329,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						+ fIndexState);
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			discoverRootFiles(m);
+			discoverRootFiles(jobs);
 			// Flush file-list back to backing store
 			fCache.sync();
-			fIndexState = IndexState_RootFilesDiscovered;
 			fIsDirty = false;
+			join(m, jobs);
+			// TODO:
+			jobs.clear();
+			fIndexState = IndexState_RootFilesDiscovered;
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
@@ -339,9 +345,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						+ fIndexState);
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			preProcessFiles(m);
-			fIndexState = IndexState_FilesPreProcessed;
+			preProcessFiles(jobs);
 			fIsDirty = false;
+			join(m, jobs);
+			jobs.clear();
+			fIndexState = IndexState_FilesPreProcessed;
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
@@ -350,12 +358,22 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						+ fIndexState);
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			buildFileTree(m);
-			fIndexState = IndexState_FileTreeValid;
+			List<String> missing_includes = new ArrayList<String>();
 			
+			buildFileTree(jobs, missing_includes);
+
+			join(m, jobs);
+			jobs.clear();
+			
+			getCacheData().clearMissingIncludeFiles();
+			for (String path : missing_includes) {
+				getCacheData().addMissingIncludeFile(path);
+			}
+
 			propagateAllMarkers();
 			notifyIndexRebuilt();
 			fIsDirty = false;
+			fIndexState = IndexState_FileTreeValid;
 		}
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
@@ -364,10 +382,13 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				fCache.initLoad(m);
 				m.done();
 			} else {
-				parseFiles(monitor);
+				parseFiles(jobs);
 			}
 			fIndexState = IndexState_AllFilesParsed;
 			fIsDirty = false;
+			
+			join(new NullProgressMonitor(), jobs);
+			jobs.clear();
 		}
 		
 		monitor.done();
@@ -380,7 +401,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * - 
 	 * @param monitor
 	 */
-	protected void parseFiles(IProgressMonitor monitor) {
+	protected void parseFiles(List<IJob> jobs) {
 		final List<String> paths = new ArrayList<String>();
 //		final List<IJob> jobs = new ArrayList<IJob>();
 		
@@ -389,62 +410,29 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList());
 		}
-		final SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-		m.beginTask("Parsing Files", paths.size());
+//		final SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
+//		m.beginTask("Parsing Files", paths.size());
 
-		/*
 		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
 		
 		for (String path : paths) {
-			ParseFilesRunnable r = new ParseFilesRunnable(path, m);
+			ParseFilesRunnable r = new ParseFilesRunnable(path);
 			IJob j = job_mgr.createJob();
 			j.init(path, r);
-			job_mgr.queueJob(j);
-			jobs.add(j);
-		}
-		
-		// Now, wait for all jobs to complete
-		synchronized (jobs) {
-			for (IJob j : jobs) {
-				j.join();
+			synchronized (jobs) {
+				jobs.add(j);
+			}
+			if (fEnableThreads) {
+				job_mgr.queueJob(j);
 			}
 		}
-		 */
-		
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
-		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
-			// only a single thread
-			parseFilesJob(paths, m);
-		} else {
-			Thread threads[] = new Thread[num_threads];
-			for (int i=0; i<threads.length; i++) {
-				threads[i] = new Thread(new Runnable() {
-					
-					public void run() {
-						parseFilesJob(paths, m);
-					}
-				}, "parse_" + getBaseLocation() + "_" + i);
-				threads[i].setPriority(Thread.MAX_PRIORITY);
-				threads[i].start();
-			}
-			
-			// Now, wait for the threads to complete
-			join_threads(threads);
-		}
-		
-		m.done();
 	}
 	
 	private class ParseFilesRunnable implements Runnable {
 		private String					fPath;
-		private IProgressMonitor		fMonitor;
 		
-		public ParseFilesRunnable(String path, IProgressMonitor monitor) {
+		public ParseFilesRunnable(String path) {
 			fPath = path;
-			fMonitor = monitor;
-			System.out.println("ParseFilesRunnable");
 		}
 		
 		public void run() {
@@ -453,8 +441,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			synchronized (fCache) {
 				ft_root = fCache.getFileTree(new NullProgressMonitor(), fPath);
 			}
-			
-			System.out.println("Run: " + fPath);
 			
 			if (ft_root == null) {
 				try {
@@ -469,66 +455,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 					
 			}
+			
+			long start = System.currentTimeMillis();
 			IPreProcMacroProvider mp = createMacroProvider(ft_root);
 			processFile(ft_root, mp);
+			long end = System.currentTimeMillis();
 			
 			// TODO: why?
 			synchronized (fCache) {
 				file = fCache.getFile(new NullProgressMonitor(), fPath);
-			}
-		}
-	}
-
-	protected void parseFilesJob(List<String> paths, IProgressMonitor monitor) {
-		while (true) {
-			String path = null;
-			synchronized(paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-			
-			if (path == null) {
-				break;
-			}
-			
-			SVDBFile ret;
-
-			synchronized (fCache) {
-				ret = fCache.getFile(new NullProgressMonitor(), path);
-			}
-
-			if (ret == null) {
-				SVDBFileTree ft_root;
-				synchronized (fCache) {
-					ft_root = fCache.getFileTree(new NullProgressMonitor(), path);
-				}
-				
-				if (ft_root == null) {
-					try {
-						throw new Exception();
-					} catch (Exception e) {
-						fLog.error("File Path \"" + path + "\" not in index " +
-								getBaseLocation(), 
-								e);
-						for (String p : getFileList(new NullProgressMonitor())) {
-							fLog.error("path: " + p);
-						}
-					}
-						
-				} 
-				if(ft_root != null) {
-					IPreProcMacroProvider mp = createMacroProvider(ft_root);
-					processFile(ft_root, mp);
-				}
-				
-				synchronized (fCache) {
-					ret = fCache.getFile(new NullProgressMonitor(), path);
-				}
-			}
-
-			synchronized(monitor) {
-				monitor.worked(1);
 			}
 		}
 	}
@@ -787,179 +722,112 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * 
 	 * @param monitor
 	 */
-	protected abstract void discoverRootFiles(IProgressMonitor monitor);
+	protected abstract void discoverRootFiles(List<IJob> jobs);
 
 	/**
 	 * 
 	 */
-	protected void preProcessFiles(final IProgressMonitor monitor) {
+	protected void preProcessFiles(List<IJob> jobs) {
+		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
 		final List<String> paths = new ArrayList<String>();
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList());
 		}
 		
-		monitor.beginTask("Pre-Process Files", paths.size());
-
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
-		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
-			// only a single thread
-			preProcessFilesJob(paths, monitor);
-		} else {
-			Thread threads[] = new Thread[num_threads];
-			for (int i=0; i<threads.length; i++) {
-				threads[i] = new Thread(new Runnable() {
-					
-					public void run() {
-						preProcessFilesJob(paths, monitor);
-					}
-				});
-				threads[i].start();
+		for (String path : paths) {
+			IJob job = job_mgr.createJob();
+			job.init(path, new PreProcessFilesRunnable(path));
+			synchronized (jobs) {
+				jobs.add(job);
 			}
-			
-			// Now, wait for the threads to complete
-			join_threads(threads);
+			if (fEnableThreads) {
+				job_mgr.queueJob(job);
+			}
+		}
+	}
+	
+	private class PreProcessFilesRunnable implements Runnable {
+		private String				fPath;
+		
+		public PreProcessFilesRunnable(String path) {
+			fPath = path;
 		}
 		
-		monitor.done();
-	}
-	
-	private void join_threads(Thread threads[]) {
-		for (int i=0; i<threads.length; i++) {
-			if (threads[i].isAlive()) {
-				try {
-					threads[i].join();
-				} catch (InterruptedException e) {}
-			}
-		}
-	}
-	
-	protected void preProcessFilesJob(List<String> paths, IProgressMonitor monitor) {
-		while (true) {
-			String path = null;
-			synchronized(paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-			// Reached the end of the list
-			if (path == null) {
-				break;
-			}
+		public void run() {
+			long start = System.currentTimeMillis();
 			
-			SubProgressMonitor m = null;
-			synchronized(monitor) {
-				m = new SubProgressMonitor(monitor, 1);
-				m.beginTask("Process " + path, 1);
-			}
+			SVDBFile file = processPreProcFile(fPath);
+			long end = System.currentTimeMillis();
 			
-			SVDBFile file = processPreProcFile(path);
 			synchronized (fCache) {
-				fCache.setPreProcFile(path, file);
-				fCache.setLastModified(path, 
-						fFileSystemProvider.getLastModifiedTime(path));
-			}
-			
-			synchronized(monitor) {
-				m.done();
+				fCache.setPreProcFile(fPath, file);
+				fCache.setLastModified(fPath, 
+						fFileSystemProvider.getLastModifiedTime(fPath));
 			}
 		}
 	}
-
-	protected void buildFileTree(final IProgressMonitor monitor) {
-		final List<String> paths = new ArrayList<String>(); 
-		paths.addAll(getCache().getFileList());
-		final List<String> missing_includes = new ArrayList<String>();
+	
+	protected void buildFileTree(List<IJob> jobs, List<String> missing_includes) {
+		final List<String> paths = new ArrayList<String>();
+		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
+		synchronized (fCache) {
+			paths.addAll(getCache().getFileList());
+		}
 		
 		fLog.debug(LEVEL_MAX, "buildFileTree");
-		monitor.beginTask("Building File Tree", paths.size());
-
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
-		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
-			// only a single thread
-			buildFileTreeJob(paths, missing_includes, monitor);
-		} else {
-			Thread threads[] = new Thread[num_threads];
-			for (int i=0; i<threads.length; i++) {
-				threads[i] = new Thread(new Runnable() {
-					
-					public void run() {
-						buildFileTreeJob(paths, missing_includes, monitor);
-					}
-				}, "file_tree-" + getBaseLocation() + "-" + i);
-				threads[i].start();
+		
+		for (String path : paths) {
+			IJob job = job_mgr.createJob();
+			job.init(path, new BuildFileTreeRunnable(path, missing_includes));
+			synchronized (jobs) {
+				jobs.add(job);
 			}
-			
-			// Now, wait for the threads to complete
-			boolean threads_alive = true;
-			while (threads_alive) {
-				threads_alive = false;
-				for (int i=0; i<threads.length; i++) {
-					if (threads[i].isAlive()) {
-						try {
-							threads[i].join();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-							threads_alive = true;
-						}
-					}
-				}
+			if (fEnableThreads) {
+				job_mgr.queueJob(job);
 			}
 		}
 
-		getCacheData().clearMissingIncludeFiles();
-		for (String path : missing_includes) {
-			getCacheData().addMissingIncludeFile(path);
-		}
-
-		monitor.done();
 	}
 	
-	protected void buildFileTreeJob(
-			List<String>			paths,
-			List<String>			missing_includes,
-			IProgressMonitor		monitor) {
-		while (true) {
-			String path = null;
-			
-			synchronized(paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-			
-			if (path == null) {
-				break;
-			}
+	private class BuildFileTreeRunnable implements Runnable {
+		private String					fPath;
+		private List<String>			fMissingIncludes;
+		
+		public BuildFileTreeRunnable(String path, List<String> missing_inc) {
+			fPath = path;
+			fMissingIncludes = missing_inc;
+		}
+		
+		public void run() {
+			SVDBFileTree ft_root;
 			
 			synchronized (fCache) {
-				if (fCache.getFileTree(new NullProgressMonitor(), path) != null) {
-					continue;
-				}
+				ft_root = fCache.getFileTree(new NullProgressMonitor(), fPath);
 			}
 			
-			SVDBFile pp_file ;
+			if (ft_root == null) {
+				SVDBFile pp_file;
 
-			synchronized (fCache) {
-				pp_file = fCache.getPreProcFile(
-						new NullProgressMonitor(), path);
-				
-			}
-				
-			if (pp_file == null) {
-				fLog.error("Failed to get pp_file \"" + path + "\" from cache");
-			} else {
-			SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
-				Set<String> included_files = new HashSet<String>();
-				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
-				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
+				synchronized (fCache) {
+					pp_file = fCache.getPreProcFile(
+							new NullProgressMonitor(), fPath);
+
+				}
+
+				if (pp_file == null) {
+					fLog.error("Failed to get pp_file \"" + fPath + "\" from cache");
+				} else {
+					long start = System.currentTimeMillis();
+					ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
+					Set<String> included_files = new HashSet<String>();
+					Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
+					buildPreProcFileMap(null, ft_root, fMissingIncludes, included_files, working_set);
+					long end = System.currentTimeMillis();
+				}
 			}
 		}
 	}
-
+	
 	private void buildPreProcFileMap(
 			SVDBFileTree 				parent, 
 			SVDBFileTree 				root,
@@ -1786,4 +1654,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		return pp;
 	}
 
+	private void join(IProgressMonitor m, List<IJob> jobs) {
+		synchronized (jobs) {
+			for (IJob j : jobs) {
+				if (fEnableThreads) {
+					j.join();
+				} else {
+					j.run(new NullProgressMonitor());
+				}
+			}
+		}
+	}
 }

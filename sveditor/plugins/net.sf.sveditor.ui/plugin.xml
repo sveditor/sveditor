@@ -298,6 +298,11 @@
             name="Open Objects">
       </command>
       <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.editor.open.quick.objects"
+            name="Open Quick Objects">
+      </command>
+      <command
             id="net.sf.sveditor.ui.AddBlockComment"
             name="Add Block Comment">
       </command>
@@ -329,6 +334,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F4">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.quick.objects"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+O">
       </key>
       <key
             commandId="net.sf.sveditor.ui.indent"
@@ -396,6 +407,14 @@
                definitionId="net.sf.sveditor.ui.editor.open.objects"
                id="net.sf.sveditor.ui.svOpenObjectsAction"
                label="Open Objects"
+               retarget="true">
+               retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.quick.objects"
+               id="net.sf.sveditor.ui.svOpenQuickObjectsAction"
+               label="Open Quick Objects"
+               retarget="true">
                retarget="true">
          </action>
          <action

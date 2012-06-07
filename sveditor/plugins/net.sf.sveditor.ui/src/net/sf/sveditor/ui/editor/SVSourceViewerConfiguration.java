@@ -17,14 +17,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.text.ObjectsInformationControl;
+import net.sf.sveditor.ui.text.SVElementProvider;
+import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.AbstractInformationControlManager;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.information.IInformationPresenter;
+import org.eclipse.jface.text.information.IInformationProvider;
+import org.eclipse.jface.text.information.InformationPresenter;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -36,6 +45,8 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
@@ -219,4 +230,34 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return null;
 	}
 	 */
+	
+	private IInformationControlCreator getObjectsPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				int shellStyle= SWT.RESIZE;
+				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				return new ObjectsInformationControl(parent, shellStyle, treeStyle, commandId);
+			}
+		};
+	}	
+	
+	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
+		InformationPresenter presenter;
+		presenter= new InformationPresenter(
+				getObjectsPresenterControlCreator(sourceViewer, 
+						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.outline")) ;
+		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
+		IInformationProvider provider = new SVElementProvider(fEditor);
+//		IInformationProvider provider= new JavaElementProvider(getEditor(), doCodeResolve);
+		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_DOC);
+//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_MULTI_LINE_COMMENT);
+//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_SINGLE_LINE_COMMENT);
+//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_STRING);
+//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_CHARACTER);
+		presenter.setSizeConstraints(50, 20, true, false);
+		return presenter;
+	}	
+	
 }
