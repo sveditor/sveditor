@@ -52,6 +52,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
 		suite.addTest(new TestSuite(TestCrossIndexReferences.class));
 		suite.addTest(new TestSuite(TestIndexFileRefs.class));
+//		suite.addTest(new TestSuite(TestThreadedSourceCollectionIndex.class));
 		suite.addTest(new TestSuite(ObjectsTests.class));
 		
 		return suite;
