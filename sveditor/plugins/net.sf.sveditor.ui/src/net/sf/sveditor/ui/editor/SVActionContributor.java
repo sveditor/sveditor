@@ -36,6 +36,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
 	protected RetargetTextEditorAction fOpenObjectsAction;
+	protected RetargetTextEditorAction fOpenQuickObjectsAction;
 	protected RetargetTextEditorAction fAddBlockCommentAction;
 	protected RetargetTextEditorAction fRemoveBlockCommentAction;
 	protected RetargetTextEditorAction fToggleCommentAction;
@@ -75,6 +76,11 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fOpenObjectsAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.objects");
 
+		fOpenQuickObjectsAction = new RetargetTextEditorAction(
+				bundle, "OpenQuickObjects.");
+		fOpenQuickObjectsAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.open.quick.objects");
+
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
 		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
 		
@@ -110,6 +116,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
 			editMenu.add(fOpenObjectsAction);
+			editMenu.add(fOpenQuickObjectsAction);
 			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
 		}
@@ -130,6 +137,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fOpenQuickObjectsAction);
 			editMenu.add(fOpenObjectsAction);
 			editMenu.add(fFindReferencesAction);
 			editMenu.add(fIndentAction);
@@ -147,6 +155,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
 		fOpenObjectsAction.setAction(getAction(editor, "OpenObjects"));
+		fOpenQuickObjectsAction.setAction(getAction(editor, "OpenQuickObjects"));
 		fFindReferencesAction.setAction(getAction(editor, "FindReferences"));
 		fIndentAction.setAction(getAction(editor, "Indent"));
 		fAddBlockCommentAction.setAction(getAction(editor, "AddBlockComment"));

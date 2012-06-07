@@ -50,6 +50,7 @@ import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
+import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
@@ -70,6 +71,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.information.IInformationPresenter;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -117,6 +119,22 @@ public class SVEditor extends TextEditor
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean						fPendingUpdateSVDBFile;
 	private SVDBFileOverrideIndexIterator	fIndexIterator;
+	
+	
+	IInformationPresenter fQuickOutlinePresenter;
+	
+	public IInformationPresenter getQuickOutlinePresenter() {
+		if(fQuickOutlinePresenter == null) {
+			fQuickOutlinePresenter = 
+					((SVSourceViewerConfiguration)getSourceViewerConfiguration())
+					.getObjectsPresenter(getSourceViewer(), false) ;
+			if(fQuickOutlinePresenter != null) {
+				fQuickOutlinePresenter.install(getSourceViewer()) ;
+			}
+		}
+		return fQuickOutlinePresenter ;
+	}
+	
 	
 	private class UpdateSVDBFileJob extends Job {
 		public UpdateSVDBFileJob() {
@@ -470,6 +488,10 @@ public class SVEditor extends TextEditor
 		ov_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.objects");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenObjectsAction", ov_action);
 
+		OpenQuickObjectsViewAction qov_action = new OpenQuickObjectsViewAction(bundle, this);
+		qov_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.quick.objects");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenQuickObjectsAction", qov_action);
+
 		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
@@ -595,6 +617,8 @@ public class SVEditor extends TextEditor
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenObjectsAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenQuickObjectsAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
