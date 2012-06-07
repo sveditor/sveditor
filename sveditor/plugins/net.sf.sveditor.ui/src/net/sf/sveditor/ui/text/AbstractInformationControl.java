@@ -11,7 +11,6 @@ package net.sf.sveditor.ui.text;
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed from JDT for use in SVEditor quick views
  *******************************************************************************/
-//package org.eclipse.jdt.internal.ui.text;
 
 import java.util.List;
 
@@ -132,7 +131,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 //	}
 
 	/** The control's text widget */
-	private Text fFilterText;
+//	private Text fFilterText;
 	/** The control's tree widget */
 	private TreeViewer fTreeViewer;
 	/** The current string matcher */
@@ -176,27 +175,28 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 * @param showStatusField <code>true</code> iff the control has a status field at the bottom
 	 */
 	public AbstractInformationControl(Shell parent, int shellStyle, int treeStyle, String invokingCommandId, boolean showStatusField) {
-		super(parent, shellStyle, true, true, false, true, true, null, null);
-		if (invokingCommandId != null) {
-			ICommandManager commandManager= PlatformUI.getWorkbench().getCommandSupport().getCommandManager();
-			fInvokingCommand= commandManager.getCommand(invokingCommandId);
-			if (fInvokingCommand != null && !fInvokingCommand.isDefined())
-				fInvokingCommand= null;
-			else
-				// Pre-fetch key sequence - do not change because scope will change later.
-				getInvokingCommandKeySequences();
-		}
+//		super(parent, shellStyle, true, true, false, true, true, null, null);
+		super(parent, shellStyle, true, true, true, false, false, null, null);
+//		if (invokingCommandId != null) {
+//			ICommandManager commandManager= PlatformUI.getWorkbench().getCommandSupport().getCommandManager();
+//			fInvokingCommand= commandManager.getCommand(invokingCommandId);
+//			if (fInvokingCommand != null && !fInvokingCommand.isDefined())
+//				fInvokingCommand= null;
+//			else
+//				// Pre-fetch key sequence - do not change because scope will change later.
+//				getInvokingCommandKeySequences();
+//		}
 		fTreeStyle= treeStyle;
-		// Title and status text must be set to get the title label created, so force empty values here.
-		if (hasHeader())
-			setTitleText(""); //$NON-NLS-1$
-		setInfoText(""); //  //$NON-NLS-1$
+//		// Title and status text must be set to get the title label created, so force empty values here.
+//		if (hasHeader())
+//			setTitleText(""); //$NON-NLS-1$
+//		setInfoText(""); //  //$NON-NLS-1$
 
 		// Create all controls early to preserve the life cycle of the original implementation.
 		create();
 
-		// Status field text can only be computed after widgets are created.
-		setInfoText(getStatusFieldText());
+//		// Status field text can only be computed after widgets are created.
+//		setInfoText(getStatusFieldText());
 	}
 
 	/**
@@ -288,7 +288,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 			}
 		});
 
-		installFilter();
+//		installFilter();
 
 		addDisposeListener(this);
 		return fTreeViewer.getControl();
@@ -332,105 +332,105 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		return false;
 	}
 
-	protected Text getFilterText() {
-		return fFilterText;
-	}
+//	protected Text getFilterText() {
+//		return fFilterText;
+//	}
 
-	protected Text createFilterText(Composite parent) {
-		fFilterText= new Text(parent, SWT.NONE);
-		Dialog.applyDialogFont(fFilterText);
-
-		GridData data= new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalAlignment= GridData.FILL;
-		data.verticalAlignment= GridData.CENTER;
-		fFilterText.setLayoutData(data);
-
-		fFilterText.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == 0x0D) // return
-					gotoSelectedElement();
-				if (e.keyCode == SWT.ARROW_DOWN)
-					fTreeViewer.getTree().setFocus();
-				if (e.keyCode == SWT.ARROW_UP)
-					fTreeViewer.getTree().setFocus();
-				if (e.character == 0x1B) // ESC
-					dispose();
-			}
-			public void keyReleased(KeyEvent e) {
-				// do nothing
-			}
-		});
-
-		return fFilterText;
-	}
+//	protected Text createFilterText(Composite parent) {
+//		fFilterText= new Text(parent, SWT.NONE);
+//		Dialog.applyDialogFont(fFilterText);
+//
+//		GridData data= new GridData(GridData.FILL_HORIZONTAL);
+//		data.horizontalAlignment= GridData.FILL;
+//		data.verticalAlignment= GridData.CENTER;
+//		fFilterText.setLayoutData(data);
+//
+//		fFilterText.addKeyListener(new KeyListener() {
+//			public void keyPressed(KeyEvent e) {
+//				if (e.keyCode == 0x0D) // return
+//					gotoSelectedElement();
+//				if (e.keyCode == SWT.ARROW_DOWN)
+//					fTreeViewer.getTree().setFocus();
+//				if (e.keyCode == SWT.ARROW_UP)
+//					fTreeViewer.getTree().setFocus();
+//				if (e.character == 0x1B) // ESC
+//					dispose();
+//			}
+//			public void keyReleased(KeyEvent e) {
+//				// do nothing
+//			}
+//		});
+//
+//		return fFilterText;
+//	}
 
 	protected void createHorizontalSeparator(Composite parent) {
 		Label separator= new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL | SWT.LINE_DOT);
 		separator.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 	}
 
-	protected void updateStatusFieldText() {
-		setInfoText(getStatusFieldText());
-	}
+//	protected void updateStatusFieldText() {
+//		setInfoText(getStatusFieldText());
+//	}
+//
+//	protected String getStatusFieldText() {
+//		return ""; //$NON-NLS-1$
+//	}
 
-	protected String getStatusFieldText() {
-		return ""; //$NON-NLS-1$
-	}
+//	private void installFilter() {
+//		fFilterText.setText(""); //$NON-NLS-1$
+//
+//		fFilterText.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+//				String text= ((Text) e.widget).getText();
+//				int length= text.length();
+//				if (length > 0 && text.charAt(length -1 ) != '*') {
+//					text= text + '*';
+//				}
+//				setMatcherString(text, true);
+//			}
+//		});
+//	}
 
-	private void installFilter() {
-		fFilterText.setText(""); //$NON-NLS-1$
-
-		fFilterText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				String text= ((Text) e.widget).getText();
-				int length= text.length();
-				if (length > 0 && text.charAt(length -1 ) != '*') {
-					text= text + '*';
-				}
-				setMatcherString(text, true);
-			}
-		});
-	}
-
-	/**
-	 * The string matcher has been modified. The default implementation
-	 * refreshes the view and selects the first matched element
-	 */
-	protected void stringMatcherUpdated() {
-		// refresh viewer to re-filter
-		fTreeViewer.getControl().setRedraw(false);
-		fTreeViewer.refresh();
-		fTreeViewer.expandAll();
-		selectFirstMatch();
-		fTreeViewer.getControl().setRedraw(true);
-	}
-
-	/**
-	 * Sets the patterns to filter out for the receiver.
-	 * <p>
-	 * The following characters have special meaning:
-	 *   ? => any character
-	 *   * => any string
-	 * </p>
-	 *
-	 * @param pattern the pattern
-	 * @param update <code>true</code> if the viewer should be updated
-	 */
-	protected void setMatcherString(String pattern, boolean update) {
-		if (pattern.length() == 0) {
-			fStringMatcher= null;
-		} else {
-			boolean ignoreCase= pattern.toLowerCase().equals(pattern);
-			fStringMatcher= new StringMatcher(pattern, ignoreCase, false);
-		}
-
-		if (update)
-			stringMatcherUpdated();
-	}
-
-	protected StringMatcher getMatcher() {
-		return fStringMatcher;
-	}
+//	/**
+//	 * The string matcher has been modified. The default implementation
+//	 * refreshes the view and selects the first matched element
+//	 */
+//	protected void stringMatcherUpdated() {
+//		// refresh viewer to re-filter
+//		fTreeViewer.getControl().setRedraw(false);
+//		fTreeViewer.refresh();
+//		fTreeViewer.expandAll();
+//		selectFirstMatch();
+//		fTreeViewer.getControl().setRedraw(true);
+//	}
+//
+//	/**
+//	 * Sets the patterns to filter out for the receiver.
+//	 * <p>
+//	 * The following characters have special meaning:
+//	 *   ? => any character
+//	 *   * => any string
+//	 * </p>
+//	 *
+//	 * @param pattern the pattern
+//	 * @param update <code>true</code> if the viewer should be updated
+//	 */
+//	protected void setMatcherString(String pattern, boolean update) {
+//		if (pattern.length() == 0) {
+//			fStringMatcher= null;
+//		} else {
+//			boolean ignoreCase= pattern.toLowerCase().equals(pattern);
+//			fStringMatcher= new StringMatcher(pattern, ignoreCase, false);
+//		}
+//
+//		if (update)
+//			stringMatcherUpdated();
+//	}
+//
+//	protected StringMatcher getMatcher() {
+//		return fStringMatcher;
+//	}
 
 	/**
 	 * Implementers can modify
@@ -462,7 +462,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 * Selects the first element in the tree which
 	 * matches the current filter pattern.
 	 */
-	protected void selectFirstMatch() {
+//	protected void selectFirstMatch() {
 //		Object selectedElement= fTreeViewer.testFindItem(fInitiallySelectedType);
 //		TreeItem element;
 //		final Tree tree= fTreeViewer.getTree();
@@ -476,13 +476,13 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 //			tree.showItem(element);
 //		} else
 //			fTreeViewer.setSelection(StructuredSelection.EMPTY);
-	}
+//	}
 
-	private TreeItem findElement(TreeItem[] items) {
-		return findElement(items, null, true);
-	}
+//	private TreeItem findElement(TreeItem[] items) {
+//		return findElement(items, null, true);
+//	}
 
-	private TreeItem findElement(TreeItem[] items, TreeItem[] toBeSkipped, boolean allowToGoUp) {
+//	private TreeItem findElement(TreeItem[] items, TreeItem[] toBeSkipped, boolean allowToGoUp) {
 //		if (fStringMatcher == null)
 //			return items.length > 0 ? items[0] : null;
 //
@@ -517,37 +517,37 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 //
 //		// Check root elements
 //		return findElement(selectItems(items[0].getParent().getItems(), items), null, false);
-		return null ;
-	}
+//		return null ;
+//	}
 	
-	private boolean canSkip(TreeItem item, TreeItem[] toBeSkipped) {
-		if (toBeSkipped == null)
-			return false;
-		
-		for (int i= 0; i < toBeSkipped.length; i++) {
-			if (toBeSkipped[i] == item)
-				return true;
-		}
-		return false;
-	}
+//	private boolean canSkip(TreeItem item, TreeItem[] toBeSkipped) {
+//		if (toBeSkipped == null)
+//			return false;
+//		
+//		for (int i= 0; i < toBeSkipped.length; i++) {
+//			if (toBeSkipped[i] == item)
+//				return true;
+//		}
+//		return false;
+//	}
 
-	private TreeItem[] selectItems(TreeItem[] items, TreeItem[] toBeSkipped) {
-		if (toBeSkipped == null || toBeSkipped.length == 0)
-			return items;
-
-		int j= 0;
-		for (int i= 0; i < items.length; i++) {
-			TreeItem item= items[i];
-			if (!canSkip(item, toBeSkipped))
-				items[j++]= item;
-		}
-		if (j == items.length)
-			return items;
-
-		TreeItem[] result= new TreeItem[j];
-		System.arraycopy(items, 0, result, 0, j);
-		return result;
-	}
+//	private TreeItem[] selectItems(TreeItem[] items, TreeItem[] toBeSkipped) {
+//		if (toBeSkipped == null || toBeSkipped.length == 0)
+//			return items;
+//
+//		int j= 0;
+//		for (int i= 0; i < items.length; i++) {
+//			TreeItem item= items[i];
+//			if (!canSkip(item, toBeSkipped))
+//				items[j++]= item;
+//		}
+//		if (j == items.length)
+//			return items;
+//
+//		TreeItem[] result= new TreeItem[j];
+//		System.arraycopy(items, 0, result, 0, j);
+//		return result;
+//	}
 
 
 	/**
@@ -607,7 +607,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		if (visible) {
 			open();
 		} else {
-			removeHandlerAndKeyBindingSupport();
+//			removeHandlerAndKeyBindingSupport();
 			saveDialogBounds(getShell());
 			getShell().setVisible(false);
 		}
@@ -619,7 +619,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 */
 	@Override
 	public int open() {
-		addHandlerAndKeyBindingSupport();
+//		addHandlerAndKeyBindingSupport();
 		return super.open();
 	}
 
@@ -638,9 +638,9 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 * </p>
 	 */
 	public void widgetDisposed(DisposeEvent event) {
-		removeHandlerAndKeyBindingSupport();
+//		removeHandlerAndKeyBindingSupport();
 		fTreeViewer= null;
-		fFilterText= null;
+//		fFilterText= null;
 	}
 
 	/**
@@ -648,25 +648,25 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 *
 	 * @since 3.2
 	 */
-	protected void addHandlerAndKeyBindingSupport() {
-		// Register action with command support
-		if (fShowViewMenuHandlerSubmission == null) {
-			fShowViewMenuHandlerSubmission= new HandlerSubmission(null, getShell(), null, fShowViewMenuAction.getActionDefinitionId(), new ActionHandler(fShowViewMenuAction), Priority.MEDIUM);
-			PlatformUI.getWorkbench().getCommandSupport().addHandlerSubmission(fShowViewMenuHandlerSubmission);
-		}
-	}
+//	protected void addHandlerAndKeyBindingSupport() {
+//		// Register action with command support
+//		if (fShowViewMenuHandlerSubmission == null) {
+//			fShowViewMenuHandlerSubmission= new HandlerSubmission(null, getShell(), null, fShowViewMenuAction.getActionDefinitionId(), new ActionHandler(fShowViewMenuAction), Priority.MEDIUM);
+//			PlatformUI.getWorkbench().getCommandSupport().addHandlerSubmission(fShowViewMenuHandlerSubmission);
+//		}
+//	}
 
 	/**
 	 * Removes handler and key binding support.
 	 *
 	 * @since 3.2
 	 */
-	protected void removeHandlerAndKeyBindingSupport() {
-		// Remove handler submission
-		if (fShowViewMenuHandlerSubmission != null)
-			PlatformUI.getWorkbench().getCommandSupport().removeHandlerSubmission(fShowViewMenuHandlerSubmission);
-
-	}
+//	protected void removeHandlerAndKeyBindingSupport() {
+//		// Remove handler submission
+//		if (fShowViewMenuHandlerSubmission != null)
+//			PlatformUI.getWorkbench().getCommandSupport().removeHandlerSubmission(fShowViewMenuHandlerSubmission);
+//
+//	}
 
 	/**
 	 * {@inheritDoc}
@@ -757,7 +757,7 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 */
 	public void setFocus() {
 		getShell().forceFocus();
-		fFilterText.setFocus();
+//		fFilterText.setFocus();
 	}
 
 	/**
@@ -774,25 +774,25 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		getShell().removeFocusListener(listener);
 	}
 
-	final protected ICommand getInvokingCommand() {
-		return fInvokingCommand;
-	}
+//	final protected ICommand getInvokingCommand() {
+//		return fInvokingCommand;
+//	}
 
-	final protected KeySequence[] getInvokingCommandKeySequences() {
-		if (fInvokingCommandKeySequences == null) {
-			if (getInvokingCommand() != null) {
-				List<IKeySequenceBinding> list= getInvokingCommand().getKeySequenceBindings();
-				if (!list.isEmpty()) {
-					fInvokingCommandKeySequences= new KeySequence[list.size()];
-					for (int i= 0; i < fInvokingCommandKeySequences.length; i++) {
-						fInvokingCommandKeySequences[i]= list.get(i).getKeySequence();
-					}
-					return fInvokingCommandKeySequences;
-				}
-			}
-		}
-		return fInvokingCommandKeySequences;
-	}
+//	final protected KeySequence[] getInvokingCommandKeySequences() {
+//		if (fInvokingCommandKeySequences == null) {
+//			if (getInvokingCommand() != null) {
+//				List<IKeySequenceBinding> list= getInvokingCommand().getKeySequenceBindings();
+//				if (!list.isEmpty()) {
+//					fInvokingCommandKeySequences= new KeySequence[list.size()];
+//					for (int i= 0; i < fInvokingCommandKeySequences.length; i++) {
+//						fInvokingCommandKeySequences[i]= list.get(i).getKeySequence();
+//					}
+//					return fInvokingCommandKeySequences;
+//				}
+//			}
+//		}
+//		return fInvokingCommandKeySequences;
+//	}
 
 	/*
 	 * @see org.eclipse.jface.dialogs.PopupDialog#getDialogSettings()
@@ -813,46 +813,46 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 *
 	 * @since 3.2
 	 */
-	@Override
-	protected Control createTitleMenuArea(Composite parent) {
-		fViewMenuButtonComposite= (Composite) super.createTitleMenuArea(parent);
-
-		// If there is a header, then the filter text must be created
-		// underneath the title and menu area.
-
-		if (hasHeader()) {
-			fFilterText= createFilterText(parent);
-		}
-
-		// Create show view menu action
-		fShowViewMenuAction= new Action("showViewMenu") { //$NON-NLS-1$
-			/*
-			 * @see org.eclipse.jface.action.Action#run()
-			 */
-			@Override
-			public void run() {
-				showDialogMenu();
-			}
-		};
-		fShowViewMenuAction.setEnabled(true);
-		fShowViewMenuAction.setActionDefinitionId(IWorkbenchCommandConstants.WINDOW_SHOW_VIEW_MENU);
-
-		return fViewMenuButtonComposite;
-	}
+//	@Override
+//	protected Control createTitleMenuArea(Composite parent) {
+//		fViewMenuButtonComposite= (Composite) super.createTitleMenuArea(parent);
+//
+//		// If there is a header, then the filter text must be created
+//		// underneath the title and menu area.
+//
+////		if (hasHeader()) {
+////			fFilterText= createFilterText(parent);
+////		}
+//
+//		// Create show view menu action
+//		fShowViewMenuAction= new Action("showViewMenu") { //$NON-NLS-1$
+//			/*
+//			 * @see org.eclipse.jface.action.Action#run()
+//			 */
+//			@Override
+//			public void run() {
+//				showDialogMenu();
+//			}
+//		};
+//		fShowViewMenuAction.setEnabled(true);
+//		fShowViewMenuAction.setActionDefinitionId(IWorkbenchCommandConstants.WINDOW_SHOW_VIEW_MENU);
+//
+//		return fViewMenuButtonComposite;
+//	}
 
 	/*
 	 * Overridden to insert the filter text into the title control
 	 * if there is no header specified.
 	 * @since 3.2
 	 */
-	@Override
-	protected Control createTitleControl(Composite parent) {
-		if (hasHeader()) {
-			return super.createTitleControl(parent);
-		}
-		fFilterText= createFilterText(parent);
-		return fFilterText;
-	}
+//	@Override
+//	protected Control createTitleControl(Composite parent) {
+//		if (hasHeader()) {
+//			return super.createTitleControl(parent);
+//		}
+//		fFilterText= createFilterText(parent);
+//		return fFilterText;
+//	}
 
 	/*
 	 * @see org.eclipse.jface.dialogs.PopupDialog#setTabOrder(org.eclipse.swt.widgets.Composite)

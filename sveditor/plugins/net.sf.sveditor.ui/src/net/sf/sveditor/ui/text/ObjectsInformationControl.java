@@ -579,6 +579,15 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 //		text.addKeyListener(getKeyAdapter());
 //		return text;
 //	}
+	
+	
+	@Override
+	public void setFocus() {
+	  super.setFocus() ;
+	  fFilteredTree.getFilterControl().setFocus() ;
+	};
+	
+	protected FilteredTree fFilteredTree ;
 
 	/**
 	 * {@inheritDoc}
@@ -598,6 +607,8 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 		final TreeViewer treeViewer = filteredTreeViewer.getViewer() ;
 		
 		final Tree tree = treeViewer.getTree();
+		
+		fFilteredTree = filteredTreeViewer ;
 		
 //		Tree tree= new Tree(parent, SWT.SINGLE | (style & ~SWT.MULTI));
 		GridData gd= new GridData(GridData.FILL_BOTH);
@@ -687,6 +698,12 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 //
 //		fCategoryFilterActionGroup.setInput(getInputForCategories());
 	}
+
+//	@Override
+//	public void setInformation(String information) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 
 //	private KeyAdapter getKeyAdapter() {
 //		if (fKeyAdapter == null) {
