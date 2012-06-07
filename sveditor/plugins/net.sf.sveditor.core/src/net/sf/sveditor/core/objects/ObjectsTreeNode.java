@@ -27,6 +27,7 @@ public class ObjectsTreeNode {
 	public static String MODULES_NODE = "Modules" ;
 	public static String INTERFACES_NODE = "Interfaces" ;
 	public static String PACKAGES_NODE = "Packages" ;
+	public static String ROOT_PKG = "root" ;
 	
 	public ObjectsTreeNode(
 			ObjectsTreeNode	parent,
@@ -60,7 +61,7 @@ public class ObjectsTreeNode {
 	
 	public ObjectsTreeNode getChildByName(String name) {
 		for(ObjectsTreeNode child: getChildren()) {
-			if(child.getName() == name) {
+			if(child.getName().matches(name)){
 				return child ;
 			}
 		}
