@@ -29,7 +29,11 @@ public class JobMgrWorkerThread extends Thread {
 			IJob job = fJobMgr.dequeueJob(fIdleTimeout);
 
 			if (job != null) {
-				job.run(new NullProgressMonitor());
+				try {
+					job.run(new NullProgressMonitor());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 				// Run the job
 				fJobMgr.jobEnded(job);
@@ -40,7 +44,4 @@ public class JobMgrWorkerThread extends Thread {
 			}
 		}
 	}
-	
-	
-
 }

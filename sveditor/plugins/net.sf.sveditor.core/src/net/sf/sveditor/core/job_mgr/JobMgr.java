@@ -55,7 +55,23 @@ public class JobMgr implements IJobMgr {
 	public void queueJob(IJob job) {
 		checkWorkerThreads();
 		synchronized (fJobQueue) {
-			fJobQueue.add(job);
+			// Find an insertion point such that we preserve priority order
+			if (fJobQueue.size() == 0 || 
+					fJobQueue.get(fJobQueue.size()-1).getPriority() <= job.getPriority()) {
+				fJobQueue.add(job);
+			} else {
+				boolean added = false;
+				for (int i=0; i<fJobQueue.size(); i++) {
+					if (fJobQueue.get(i).getPriority() > job.getPriority()) {
+						fJobQueue.add(i, job);
+						added = true;
+						break;
+					}
+				}
+				if (!added) {
+					fJobQueue.add(job);
+				}
+			}
 			fJobQueue.notifyAll();
 		}
 	}
@@ -85,6 +101,7 @@ public class JobMgr implements IJobMgr {
 			synchronized (fJobQueue) {
 				if (fJobQueue.size() > 0) {
 					job = fJobQueue.remove(0);
+					break;
 				} else if (i == 0) {
 					// Wait for a bit
 					try {
