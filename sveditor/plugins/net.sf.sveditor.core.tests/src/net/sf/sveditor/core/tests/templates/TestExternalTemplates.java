@@ -10,34 +10,38 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
+import net.sf.sveditor.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateParameter;
+import net.sf.sveditor.core.templates.TemplateParameterProvider;
+import net.sf.sveditor.core.templates.TemplateProcessor;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+import net.sf.sveditor.core.text.TagProcessor;
 
 import junit.framework.TestCase;
 
 public class TestExternalTemplates extends TestCase {
 	
-	private File			fTmp;
+	private File			fTmpDir;
 	
 	@Override
 	protected void setUp() throws Exception {
-		fTmp = TestUtils.createTempDir();
+		fTmpDir = TestUtils.createTempDir();
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		TestUtils.delete(fTmp);
+		TestUtils.delete(fTmpDir);
 	}
 
 	public void testDiscoverTemplatesFS() throws IOException {
 		String testname = "testDiscoverTemplatesFS";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		final File tmpl_dir = new File(fTmp, "templates");
+		final File tmpl_dir = new File(fTmpDir, "templates");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -112,6 +116,70 @@ public class TestExternalTemplates extends TestCase {
 				}
 			}
 		}
-		
 	}
+	
+	public void testSubdirHierarchy() {
+		String testname = "testSubdirHierarchy";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		utils.copyBundleDirToFS("/data/templates/subdir_output", fTmpDir);
+		
+		TemplateRegistry rgy = new TemplateRegistry(false);
+		rgy.addPathProvider(new IExternalTemplatePathProvider() {
+			public List<String> getExternalTemplatePath() {
+				List<String> ret = new ArrayList<String>();
+				ret.add(new File(fTmpDir, "subdir_output").getAbsolutePath());
+				return ret;
+			}
+		});
+		rgy.load_extensions();
+		
+		TemplateInfo tmpl = rgy.findTemplate("subdir_output");
+		assertNotNull(tmpl);
+		
+		TagProcessor proc = new TagProcessor();
+		TemplateParameterProvider p = new TemplateParameterProvider();
+		p.setTag("name", "test");
+		proc.addParameterProvider(p);
+		
+		List<String> files = TemplateProcessor.getOutputFiles(tmpl, proc);
+		
+		assertContainsAll(files,
+				"subdir/test_1.svh",
+				"subdir/test_2.svh");
+		
+		TemplateFSFileCreator out_sp = new TemplateFSFileCreator(fTmpDir);
+		TemplateProcessor tp = new TemplateProcessor(out_sp);
+		
+		tp.process(tmpl, proc);
+		
+		assertFilesExist(fTmpDir, 
+				"subdir/test_1.svh",
+				"subdir/test_2.svh");
+
+		LogFactory.removeLogHandle(log);
+	}
+	
+	private static void assertFilesExist(File dir, String ... paths) {
+		for (String path : paths) {
+			File t = new File(dir, path);
+			TestCase.assertTrue(
+					"File " + t.getPath() + " does not exist",
+					t.isFile());
+		}
+	}
+
+	private static void assertContainsAll(List<String> target, String ... expected) {
+		
+		assertEquals(expected.length, target.size());
+		
+		for (String exp : expected) {
+			if (!target.contains(exp)) {
+				fail("target does not contain \"" + exp + "\"");
+			}
+		}
+	}
+	
 }

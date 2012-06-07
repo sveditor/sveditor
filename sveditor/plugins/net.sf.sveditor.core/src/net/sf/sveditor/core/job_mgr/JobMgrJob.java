@@ -12,6 +12,7 @@ public class JobMgrJob implements IJob {
 	private Runnable				fRunnable;
 	private Object					fJobDoneMutex;
 	private boolean				fJobDone;
+	private int					fPriority = 5;
 
 	public JobMgrJob() {
 		fJobListeners = new ArrayList<IJobListener>();
@@ -27,11 +28,22 @@ public class JobMgrJob implements IJob {
 	public String getName() {
 		return fName;
 	}
+	
+	public void setPriority(int p) {
+		fPriority = p;
+	}
+	
+	public int getPriority() {
+		return fPriority;
+	}
 
 	public void run(IProgressMonitor monitor) {
-		jobStarted();
-		fRunnable.run();
-		jobEnded();
+		try {
+			jobStarted();
+			fRunnable.run();
+		} finally {
+			jobEnded();
+		}
 	}
 	
 	private void jobStarted() {

@@ -11,6 +11,12 @@
   
 - #(enh) Add support for showing the files managed by an index in the 
   project explorer view. This should be helpful when debugging index issues
+  
+- #(3532307) Add sorter to the Template Category pane in the New Template
+  wizard
+  
+- #(3532303) Update the template engine to support output files with 
+  directory hierary (eg filename="subdir/${name}_file.svh")
 
 ------------------------------------------------------------------------------
 -- 0.9.1 Release --
