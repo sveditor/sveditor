@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.templates;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +31,10 @@ public class TemplateFSFileCreator implements ITemplateFileCreator {
 		File file = new File(fRoot, path);
 		byte tmp[] = new byte[16384];
 		int len;
+		
+		if (!file.getParentFile().exists()) {
+			file.getParentFile().mkdirs();
+		}
 		
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
