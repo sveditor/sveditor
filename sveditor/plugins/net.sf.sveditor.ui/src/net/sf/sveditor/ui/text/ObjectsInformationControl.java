@@ -22,6 +22,7 @@ import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
@@ -62,7 +63,6 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 
 	@Override
 	public void setFocus() {
-	  super.setFocus() ;
 	  fObjectTree.getFilterControl().setFocus() ;
 	};
 	
@@ -81,7 +81,8 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 		final Tree tree = fTreeViewer.getTree();
 		
 		GridData gd= new GridData(GridData.FILL_BOTH);
-		gd.heightHint= tree.getItemHeight() * 12;
+		gd.heightHint= tree.getItemHeight() * 20 ; // Initial height of dialog
+		gd.widthHint = 600 ;					   // Initial width of dialog
 		tree.setLayoutData(gd);
 		
 		fTreeViewer.setContentProvider(fContentProvider) ;
@@ -163,25 +164,39 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 						}
 					}
 					else if(e.keyCode == SWT.ARROW_LEFT) {
-						// First level nodes for object types get collapsed
+						// First level nodes for object types get collapsed if not already 
+						// collapsed. Otherwise, focus is moved up to the filter string entry
 						if(n == fContentProvider.getModulesNode() ||
-						   n == fContentProvider.getInterfacesNode() ||
-						   n == fContentProvider.getPackagesNode()) {
-							fTreeViewer.setExpandedState(n, false) ;
-						// Packages get collapsed
+								n == fContentProvider.getInterfacesNode() ||
+								n == fContentProvider.getPackagesNode()) {
+							if(fTreeViewer.getExpandedState(fContentProvider.getModulesNode())) {
+								fTreeViewer.setExpandedState(fContentProvider.getModulesNode(), false) ;
+							} else {
+								fObjectTree.getFilterControl().setFocus() ;
+							}
+						// Packages get collapsed if not already collapsed. Otherwise,
+						// the top level package node is collapsed if not already collapsed...
+						// otherwise we jump focus up to the filter string entry
 						} else if(n.getItemDecl().getType() == SVDBItemType.PackageDecl) {
-							fTreeViewer.setExpandedState(n, false) ; 
-						// Otherwise, at leaf, collapse parent node
+							if(fTreeViewer.getExpandedState(n)) {
+								fTreeViewer.setExpandedState(n, false) ; 
+							} else {
+							  if(fTreeViewer.getExpandedState(fContentProvider.getPackagesNode())) {
+								 fTreeViewer.setExpandedState(fContentProvider.getPackagesNode(),false) ;
+								 fTreeViewer.setSelection(new StructuredSelection(fContentProvider.getPackagesNode())) ;
+							  } else {
+								  fObjectTree.getFilterControl().setFocus() ;
+							  }
+							}
+						// Otherwise, at leaf, collapse and select parent node
 						} else if(n.getItemDecl() != null && n.getParent() != null) {
 							fTreeViewer.setExpandedState(n.getParent(), false) ;
+							fTreeViewer.setSelection(new StructuredSelection(n.getParent())) ;
 						}
 					}
-// Hmm... this still closes the dialog.					
-//					if(e.keyCode == SWT.ESC) {
-//						// Move focus to the search entry
-//						// Banging ESC again there will close the dialog
-//						fObjectTree.getFilterControl().setFocus() ;
-//					}
+					else if(e.keyCode == SWT.HOME) {
+						fObjectTree.getFilterControl().setFocus() ;
+					}
 				}
 			}
 		}) ;
