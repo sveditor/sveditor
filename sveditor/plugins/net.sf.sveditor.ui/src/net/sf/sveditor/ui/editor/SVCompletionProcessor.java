@@ -205,6 +205,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 					}
 					
 					// Check to see if the name matches any enum values
+					/** TODO:
 					if (tds.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 						SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)tds.getTypeInfo();
 						
@@ -223,6 +224,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							}
 						}
 					}
+					 */
 					cp = null;
 				} break;
 				

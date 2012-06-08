@@ -42,9 +42,12 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -169,7 +172,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 */
 	protected boolean checkCacheValid() {
 		boolean valid = true;
-		String version = SVCorePlugin.getDefault().getVersion();
+		String version = SVCorePlugin.getVersion();
 		
 		if (fDebugEn) {
 			fLog.debug("Cached version=" + fIndexCacheData.getVersion() + " version=" + version);
@@ -1711,11 +1714,27 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				cacheDeclarations(filename, (SVDBPackageDecl)item);
 			} else if (item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task,
 					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
-					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
-					SVDBItemType.TypedefStmt)) {
+					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
 				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
 				decl_list.add(new SVDBDeclCacheItem(this, filename, 
 						((ISVDBNamedItem)item).getName(), item.getType()));
+			} else if (item.getType() == SVDBItemType.TypedefStmt) {
+				// Add entries for the typedef
+				decl_list.add(new SVDBDeclCacheItem(this, filename, 
+						((ISVDBNamedItem)item).getName(), item.getType()));
+				
+				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
+				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+					// Add entries for all enumerators
+					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)td.getTypeInfo();
+					fLog.debug("Adding enum " + e.getName() + " to cache");
+					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+						fLog.debug("Adding enumerator " + en.getName() + " to cache");
+						decl_list.add(new SVDBDeclCacheItem(this, filename, 
+								((ISVDBNamedItem)en).getName(), en.getType()));
+					}
+				}
+				
 			} else if (item.getType() == SVDBItemType.PreProcCond) {
 				cacheDeclarations(filename, (SVDBPreProcCond)item);
 			} else if (item.getType() == SVDBItemType.MacroDef) {

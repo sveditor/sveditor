@@ -64,6 +64,7 @@ public enum SVDBItemType {
 	TypeInfoClassItem,
 	TypeInfoClassType,
 	TypeInfoEnum,
+	TypeInfoEnumerator,
 	TypeInfoFwdDecl,
 	TypeInfoStruct,
 	TypeInfoUnion,	

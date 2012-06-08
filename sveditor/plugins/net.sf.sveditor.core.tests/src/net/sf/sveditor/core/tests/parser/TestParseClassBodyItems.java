@@ -443,7 +443,7 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)foobar_td.getTypeInfo();
 		assertEquals("foobar_t doesn't have correct number of elements",
-				2, enum_t.getEnumValues().first().size());
+				2, enum_t.getEnumerators().size());
 	}
 	
 	public void testBeginBlockVirtualInterfaceVar() {
