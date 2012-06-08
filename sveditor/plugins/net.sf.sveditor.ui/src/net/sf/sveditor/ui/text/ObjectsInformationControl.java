@@ -81,7 +81,8 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 		final Tree tree = fTreeViewer.getTree();
 		
 		GridData gd= new GridData(GridData.FILL_BOTH);
-		gd.heightHint= tree.getItemHeight() * 12;
+		gd.heightHint= tree.getItemHeight() * 20 ; // Initial height of dialog
+		gd.widthHint = 600 ;					   // Initial width of dialog
 		tree.setLayoutData(gd);
 		
 		fTreeViewer.setContentProvider(fContentProvider) ;
