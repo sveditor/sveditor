@@ -12,42 +12,72 @@
 
 package net.sf.sveditor.core.tests;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexConfig;
-import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class FileIndexIterator implements ISVDBIndexIterator {
+public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBIndexIterator  */{
+	private SVDBFile				fFile;
 	Map<String, SVDBFile>			fFileMap;
 	
 	public FileIndexIterator(SVDBFile file) {
+		super("project", "base", new SVDBFSFileSystemProvider(), new InMemoryIndexCache(), null);
+		fFile = file;
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(file.getName(), file);
+		init(new NullProgressMonitor());
+		loadIndex(new NullProgressMonitor());
+	}
+	
+	public String getTypeID() {
+		return "FileIndexIterator";
 	}
 
+	@Override
+	protected String getLogName() {
+		return "FileIndexIterator";
+	}
+
+	@Override
+	protected void discoverRootFiles(IProgressMonitor monitor) {
+		addFile(fFile.getFilePath());
+	}
+	
+	@Override
+	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
+		// Do Nothing
+	}
+
+	@Override
+	protected SVDBFile processPreProcFile(String path) {
+		// Do Nothing
+		cacheDeclarations(fFile);
+		getCache().setFile(fFile.getFilePath(), fFile);
+		return null;
+	}
+
+	@Override
+	protected void parseFiles(IProgressMonitor monitor) {
+		// Do Nothing
+	}
+
+	@Override
+	protected void buildFileTree(IProgressMonitor monitor) {
+		// Do Nothing
+	}
+	
+	
+	/*
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		Set<String> path = new HashSet<String>();
 		for (String elem : fFileMap.keySet()) {
@@ -134,5 +164,6 @@ public class FileIndexIterator implements ISVDBIndexIterator {
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		return fFileMap.get(item.getFilename());
 	}
+	 */
 
 }

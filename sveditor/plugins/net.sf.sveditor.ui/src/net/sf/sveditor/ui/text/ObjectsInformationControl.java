@@ -127,9 +127,7 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 	private void addKeyListeners() {
 		final Tree tree = fTreeViewer.getTree() ;
 		tree.addKeyListener(new KeyListener() {
-			@Override
 			public void keyReleased(KeyEvent e) {}
-			@Override
 			public void keyPressed(KeyEvent e) {
 				if(tree.getSelectionCount()==1 && (tree.getSelection()[0].getData() instanceof ObjectsTreeNode)) {
 					ObjectsTreeNode n = (ObjectsTreeNode)tree.getSelection()[0].getData() ;

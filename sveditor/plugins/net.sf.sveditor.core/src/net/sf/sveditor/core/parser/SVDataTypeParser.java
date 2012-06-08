@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.SVDBTypeInfoFwdDecl;
 import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUnion;
@@ -365,9 +366,6 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBTypeInfo enum_type() throws SVParseException {
 		fLexer.readKeyword("enum");
 		SVDBTypeInfoEnum type = null;
-		boolean vals_specified = false;
-		String val_str = null;
-		int index = 0;
 		
 		// TODO: scan base type
 		if (!fLexer.peekOperator("{")) {
@@ -385,17 +383,21 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		fLexer.readOperator("{");
 		while (fLexer.peek() != null) {
-			String name = fLexer.readId();
+			SVDBLocation loc = fLexer.getStartLocation();
+			SVDBTypeInfoEnumerator enum_v = new SVDBTypeInfoEnumerator(fLexer.readId());
+			enum_v.setLocation(loc);
+			
+			// TODO: is this really necessary ?
 			if (fLexer.peekOperator("[")) {
 				fLexer.skipPastMatch("[", "]");
 			}
+			
 			if (fLexer.peekOperator("=")) {
 				fLexer.eatToken();
 				// TODO: 
-				val_str = parsers().exprParser().expression().toString();
-				vals_specified = true;
+				enum_v.setExpr(parsers().exprParser().expression());
 			}
-			type.addEnumValue(name, ((vals_specified)?""+index:val_str));
+			type.addEnumerator(enum_v);
 			
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
