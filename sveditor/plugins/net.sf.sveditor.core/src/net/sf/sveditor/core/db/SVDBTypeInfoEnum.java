@@ -15,24 +15,28 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
-
 public class SVDBTypeInfoEnum extends SVDBTypeInfo {
-	public List<String>						fKeyList;
-	public List<String>						fValList;
+	public List<SVDBTypeInfoEnumerator>		fEnumerators;
 	
 	public SVDBTypeInfoEnum() {
 		this("");
-		fKeyList = new ArrayList<String>();
-		fValList = new ArrayList<String>();
 	}
 	
 	public SVDBTypeInfoEnum(String typename) {
 		super(typename, SVDBItemType.TypeInfoEnum);
-		fKeyList = new ArrayList<String>();
-		fValList = new ArrayList<String>();
+		fEnumerators = new ArrayList<SVDBTypeInfoEnumerator>();
+	}
+	
+	public void addEnumerator(SVDBTypeInfoEnumerator e) {
+		e.setParent(this);
+		fEnumerators.add(e);
+	}
+	
+	public List<SVDBTypeInfoEnumerator> getEnumerators() {
+		return fEnumerators;
 	}
 
+	/*
 	public Tuple<List<String>, List<String>> getEnumValues() {
 		return new Tuple<List<String>, List<String>>(fKeyList, fValList);
 	}
@@ -47,13 +51,9 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		fKeyList.add(key);
 		fValList.add(val);
 	}
+	 */
 	
 	public String toString() {
 		return getName();
 	}
-	
-	public SVDBTypeInfoEnum duplicate() {
-		return (SVDBTypeInfoEnum)super.duplicate();
-	}
-
 }

@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests.templates;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -25,8 +24,6 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.templates.FSExternalTemplateFinder;
-import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
 import net.sf.sveditor.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateParameterProvider;

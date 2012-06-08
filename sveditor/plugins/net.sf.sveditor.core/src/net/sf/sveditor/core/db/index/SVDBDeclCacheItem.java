@@ -19,7 +19,10 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -79,6 +82,18 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 					ISVDBItemBase i = getSVDBItem((ISVDBChildParent)c);
 					if (i != null) {
 						return i;
+					}
+				} else if (getType() == SVDBItemType.TypeInfoEnumerator && 
+						c.getType() == SVDBItemType.TypedefStmt) {
+					SVDBTypedefStmt stmt = (SVDBTypedefStmt)c;
+					if (stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+						SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)stmt.getTypeInfo();
+						// Search through enumerator
+						for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+							if (en.getName().equals(getName())) {
+								return en;
+							}
+						}
 					}
 				}
 			}

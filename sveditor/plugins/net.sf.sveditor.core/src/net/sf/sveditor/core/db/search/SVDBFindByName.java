@@ -52,7 +52,7 @@ public class SVDBFindByName {
 					try {
 						throw new Exception();
 					} catch (Exception e) { 
-						fLog.debug("item " + item.getType() + " : " +  item.getName() + " is null", e);
+						fLog.error("item " + item.getType() + " : " +  item.getName() + " is null", e);
 					}
 				}
 			}
