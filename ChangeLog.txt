@@ -1,22 +1,24 @@
 -- 0.9.2 Release --
 
-- #(3531462) Correct parse error involving parameterized-type static call
+- #(3531462) - Correct parse error involving parameterized-type static call
   with no parameter-values specified
   
-- #(nobug) Change handling of shadow index, so not stored in registry.
+- #(nobug) - Change handling of shadow index, so not stored in registry.
 
-- #(nobug) Change handling of index config to identify requests for an index
+- #(nobug) - Change handling of index config to identify requests for an index
   from the registry that match base location, project, and type but differ in
   the configuration. These indexes are now disposed and a new index created.
   
-- #(enh) Add support for showing the files managed by an index in the 
+- #(enh) - Add support for showing the files managed by an index in the 
   project explorer view. This should be helpful when debugging index issues
   
-- #(3532307) Add sorter to the Template Category pane in the New Template
+- #(3532307) - Add sorter to the Template Category pane in the New Template
   wizard
   
-- #(3532303) Update the template engine to support output files with 
-  directory hierary (eg filename="subdir/${name}_file.svh")
+- #(3532303) - Update the template engine to support output files with 
+  directory hierarchy (eg filename="subdir/${name}_file.svh")
+  
+- #(3452774) - Add content-assist support for enumerators
 
 ------------------------------------------------------------------------------
 -- 0.9.1 Release --
