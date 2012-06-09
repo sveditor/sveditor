@@ -294,11 +294,13 @@
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Objects view if not already visible"
             id="net.sf.sveditor.ui.editor.open.objects"
             name="Open Objects">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
+            description="Opens the quick objects dialog"
             id="net.sf.sveditor.ui.editor.open.quick.objects"
             name="Open Quick Objects">
       </command>
@@ -313,6 +315,12 @@
       <command
             id="net.sf.sveditor.ui.ToggleComment"
             name="Toggle Comment">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Quick Outline"
+            id="net.sf.sveditor.ui.editor.open.quick.outline"
+            name="Open Quick Outline">
       </command>
    </extension>
    <extension
@@ -365,6 +373,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+/">
       </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.quick.outline"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+O">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
@@ -416,6 +430,13 @@
                label="Open Quick Objects"
                retarget="true">
                retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.quick.outline"
+               id="net.sf.sveditor.ui.svOpenQuickOutlineAction"
+               label="Open Quick Outline"
+               retarget="true">
+            retarget="true">
          </action>
          <action
                id="net.sf.sveditor.ui.svAddBlockCommentAction"

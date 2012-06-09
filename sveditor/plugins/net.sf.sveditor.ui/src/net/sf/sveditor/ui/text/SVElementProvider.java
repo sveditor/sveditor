@@ -19,8 +19,6 @@ package net.sf.sveditor.ui.text;
 
 import net.sf.sveditor.ui.editor.SVEditor;
 
-import org.eclipse.jface.viewers.IStructuredSelection;
-
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;

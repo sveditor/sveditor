@@ -32,7 +32,7 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 			ResourceBundle			bundle,
 			SVEditor editor) {
 		
-		super(bundle, "OpenQuickObjects", editor) ;
+		super(bundle, "OpenQuickObjects.", editor) ;
 		
 		fEditor = editor ;
 		
@@ -57,7 +57,7 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 			
 			monitor.worked(1);
 			
-			fEditor.getQuickOutlinePresenter().showInformation() ;
+			fEditor.getQuickObjectsPresenter().showInformation() ;
 			
 			monitor.done();
 		}
