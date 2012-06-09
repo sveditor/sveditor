@@ -322,6 +322,12 @@
             id="net.sf.sveditor.ui.editor.open.quick.outline"
             name="Open Quick Outline">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Quick Type Hierarchy"
+            id="net.sf.sveditor.ui.editor.open.quick.hierarchy"
+            name="Open Quick Type Hierarchy">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -378,6 +384,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+O">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.quick.hierarchy"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+T">
       </key>
    </extension>
    <extension
@@ -452,6 +464,13 @@
                id="net.sf.sveditor.ui.svToggleCommentAction"
                label="Toggle Comment"
                retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.quick.hierarchy"
+               id="net.sf.sveditor.ui.svOpenQuickHierarchyAction"
+               label="Open Quick Type Hierarchy"
+               retarget="true">
+            retarget="true">
          </action>
       </actionSet>
       <actionSet
