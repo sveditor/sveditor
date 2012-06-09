@@ -1,3 +1,6 @@
+-- 0.9.3 Release --
+
+------------------------------------------------------------------------------
 -- 0.9.2 Release --
 
 - #(3531462) - Correct parse error involving parameterized-type static call
