@@ -64,10 +64,8 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	public AbstractInformationControl(Shell parent, int shellStyle, int treeStyle, String invokingCommandId, boolean showStatusField) {
 		super(parent, shellStyle, true, true, true, false, false, null, null);
 		fTreeStyle= treeStyle;
-
 		// Create all controls early to preserve the life cycle of the original implementation.
 		create();
-
 	}
 
 	/**
@@ -80,83 +78,6 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		fTreeViewer= createTreeViewer(parent, fTreeStyle);
-
-//		final Tree tree= fTreeViewer.getTree();
-//		tree.addKeyListener(new KeyListener() {
-//			public void keyPressed(KeyEvent e)  {
-//				if (e.character == 0x1B) // ESC
-//					dispose();
-//			}
-//			public void keyReleased(KeyEvent e) {
-//				// do nothing
-//			}
-//		});
-
-//		tree.addSelectionListener(new SelectionListener() {
-//			public void widgetSelected(SelectionEvent e) {
-//				// do nothing
-//			}
-//			public void widgetDefaultSelected(SelectionEvent e) {
-//				gotoSelectedElement();
-//			}
-//		});
-//
-//		tree.addMouseMoveListener(new MouseMoveListener()	 {
-//			TreeItem fLastItem= null;
-//			public void mouseMove(MouseEvent e) {
-//				if (tree.equals(e.getSource())) {
-//					Object o= tree.getItem(new Point(e.x, e.y));
-//					if (fLastItem == null ^ o == null) {
-//						tree.setCursor(o == null ? null : tree.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
-//					}
-//					if (o instanceof TreeItem) {
-//						Rectangle clientArea = tree.getClientArea();
-//						if (!o.equals(fLastItem)) {
-//							fLastItem= (TreeItem)o;
-//							tree.setSelection(new TreeItem[] { fLastItem });
-//						} else if (e.y - clientArea.y < tree.getItemHeight() / 4) {
-//							// Scroll up
-//							Point p= tree.toDisplay(e.x, e.y);
-//							Item item= fTreeViewer.scrollUp(p.x, p.y);
-//							if (item instanceof TreeItem) {
-//								fLastItem= (TreeItem)item;
-//								tree.setSelection(new TreeItem[] { fLastItem });
-//							}
-//						} else if (clientArea.y + clientArea.height - e.y < tree.getItemHeight() / 4) {
-//							// Scroll down
-//							Point p= tree.toDisplay(e.x, e.y);
-//							Item item= fTreeViewer.scrollDown(p.x, p.y);
-//							if (item instanceof TreeItem) {
-//								fLastItem= (TreeItem)item;
-//								tree.setSelection(new TreeItem[] { fLastItem });
-//							}
-//						}
-//					} else if (o == null) {
-//						fLastItem= null;
-//					}
-//				}
-//			}
-//		});
-//
-//		tree.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseUp(MouseEvent e) {
-//
-//				if (tree.getSelectionCount() < 1)
-//					return;
-//
-//				if (e.button != 1)
-//					return;
-//
-//				if (tree.equals(e.getSource())) {
-//					Object o= tree.getItem(new Point(e.x, e.y));
-//					TreeItem selection= tree.getSelection()[0];
-//					if (selection.equals(o))
-//						gotoSelectedElement();
-//				}
-//			}
-//		});
-
 		addDisposeListener(this);
 		return fTreeViewer.getControl();
 	}
@@ -217,22 +138,6 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		return ((IStructuredSelection) fTreeViewer.getSelection()).getFirstElement();
 	}
 
-	private void gotoSelectedElement() {
-//		Object selectedElement= getSelectedElement();
-//		if (selectedElement != null) {
-//			try {
-//				dispose();
-//				IEditorPart part= EditorUtility.openInEditor(selectedElement, true);
-//				if (part != null && selectedElement instanceof IJavaElement)
-//					EditorUtility.revealInEditor(part, (IJavaElement) selectedElement);
-//			} catch (CoreException ex) {
-//				JavaPlugin.log(ex);
-//			}
-//		}
-	}
-
-
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -265,8 +170,6 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		super.fillDialogMenu(dialogMenu);
 		fillViewMenu(dialogMenu);
 	}
-
-//	protected void inputChanged(Object newInput, Object newSelection) { }
 
 	/**
 	 * {@inheritDoc}
@@ -415,11 +318,5 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 	 */
 	@Override
 	protected void setTabOrder(Composite composite) {
-//		if (hasHeader()) {
-//			composite.setTabList(new Control[] { fFilterText, fTreeViewer.getTree() });
-//		} else {
-//			fViewMenuButtonComposite.setTabList(new Control[] { fFilterText });
-//			composite.setTabList(new Control[] { fViewMenuButtonComposite, fTreeViewer.getTree() });
-//		}
 	}
 }
