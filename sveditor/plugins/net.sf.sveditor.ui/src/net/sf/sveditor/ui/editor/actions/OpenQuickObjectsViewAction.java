@@ -32,7 +32,7 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 			ResourceBundle			bundle,
 			SVEditor editor) {
 		
-		super(bundle, "OpenQuickObjects", editor) ;
+		super(bundle, "OpenQuickObjects.", editor) ;
 		
 		fEditor = editor ;
 		
