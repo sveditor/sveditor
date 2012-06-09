@@ -83,4 +83,47 @@ public class TestContentAssistEnum extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testContentAssistInClassEnumDecl() {
+		String testname = "testContentAssistInClassEnumDecl";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc1 =
+			"class my_class;\n" +
+			"	typedef enum {\n" +
+			"		E_ENUM_A,\n" +
+			"		E_ENUM_B,\n" +
+			"		_MY_ENUM_C\n" +
+			"	} my_enum_t;\n" +
+			"    my_enum_t              ab;\n" +
+			"\n" +
+			"    function void foo();\n" +
+			"        ab = E_<<MARK>>\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"E_ENUM_A", "E_ENUM_B"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
 }

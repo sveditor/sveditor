@@ -20,6 +20,12 @@
   
 - #(3452774) - Add content-assist support for enumerators
 
+- #(enh) - 'Objects' view added. This contains a list of modules, interfaces,
+  and packages declared within the active projects in the workspace
+ 
+ - #(enh) - 'Objects' quick view, activated by CTRL+SHIFT+o in the editor. 
+   provides a quick way to navigate to other type declarations
+
 ------------------------------------------------------------------------------
 -- 0.9.1 Release --
 
