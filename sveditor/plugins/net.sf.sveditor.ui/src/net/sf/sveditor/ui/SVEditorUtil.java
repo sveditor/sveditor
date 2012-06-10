@@ -54,6 +54,8 @@ public class SVEditorUtil {
 		ISVDBItemBase p = it;
 		// Find the file that this item belongs to
 		
+		String typeName = p.getType().toString() ;
+		
 		while (p != null && p.getType() != SVDBItemType.File) {
 			if (p instanceof ISVDBChildItem) {
 				p = ((ISVDBChildItem)p).getParent();
@@ -61,6 +63,11 @@ public class SVEditorUtil {
 				p = null;
 				break;
 			}
+		}
+		
+		if(p == null) {
+			fLog.debug("Failed to find file for type \"" + typeName + "\"");
+			return null ;
 		}
 		
 		String file = ((SVDBFile)p).getFilePath();
