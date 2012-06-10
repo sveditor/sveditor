@@ -294,11 +294,13 @@
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Objects view if not already visible"
             id="net.sf.sveditor.ui.editor.open.objects"
             name="Open Objects">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
+            description="Opens the quick objects dialog"
             id="net.sf.sveditor.ui.editor.open.quick.objects"
             name="Open Quick Objects">
       </command>

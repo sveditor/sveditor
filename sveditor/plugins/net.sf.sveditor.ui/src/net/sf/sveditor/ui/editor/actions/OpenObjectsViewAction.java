@@ -19,20 +19,20 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.ResourceAction;
 
-public class OpenObjectsViewAction extends Action {
+public class OpenObjectsViewAction extends ResourceAction {
 	
 	private IWorkbench				fWorkbench;
 	
 	public OpenObjectsViewAction(
 			ResourceBundle			bundle) {
-		super("OpenObjects") ;
+		super(bundle, "OpenObjects.") ;
 		
 		fWorkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getWorkbench() ;
 	}
