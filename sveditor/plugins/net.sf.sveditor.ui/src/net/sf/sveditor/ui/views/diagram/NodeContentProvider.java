@@ -18,7 +18,6 @@ import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
 
 public class NodeContentProvider extends ArrayContentProvider implements IGraphEntityContentProvider {
 	
-	@Override
 	public Object[] getConnectedTo(Object entity) {
 		if (entity instanceof DiagNode) {
 			DiagNode node = (DiagNode) entity;

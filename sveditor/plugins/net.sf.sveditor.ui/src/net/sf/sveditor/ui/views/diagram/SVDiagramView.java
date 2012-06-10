@@ -206,7 +206,6 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	}
 
 
-	@Override
 	public AbstractZoomableViewer getZoomableViewer() {
 		return fGraphViewer ;
 	}

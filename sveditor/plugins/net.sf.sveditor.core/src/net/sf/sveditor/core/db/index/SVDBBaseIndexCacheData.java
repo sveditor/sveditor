@@ -28,6 +28,7 @@ public class SVDBBaseIndexCacheData {
 	public Map<String, String>						fGlobalDefines;
 	public Map<String, String>						fDefineMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
+	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
 
 	public SVDBBaseIndexCacheData(String base) {
 		fBaseLocation = base;
@@ -36,6 +37,7 @@ public class SVDBBaseIndexCacheData {
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
 		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 	
 	public String getVersion() {
@@ -111,6 +113,10 @@ public class SVDBBaseIndexCacheData {
 	
 	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
 		return fDeclCacheMap;
+	}
+	
+	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
+		return fPackageCacheMap;
 	}
 	
 	public void clear() {

@@ -59,7 +59,6 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		return null ;
 	}
 
-	@Override
 	public IFigure getFigure(Object element) {
 		if (element instanceof DiagNode) {
 			DiagNode myNode = (DiagNode) element;
@@ -104,7 +103,6 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		return classFigure ;
 	}
 
-	@Override
 	public int getConnectionStyle(Object rel) {
 		int res = 0 ;
 		if(rel instanceof EntityConnectionData) {
@@ -123,25 +121,21 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		return res ;
 	}
 
-	@Override
 	public Color getColor(Object rel) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public Color getHighlightColor(Object rel) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
 	public int getLineWidth(Object rel) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public IFigure getTooltip(Object entity) {
 		// TODO Auto-generated method stub
 		return null;

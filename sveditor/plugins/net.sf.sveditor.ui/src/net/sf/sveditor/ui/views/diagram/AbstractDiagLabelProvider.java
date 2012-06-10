@@ -20,42 +20,34 @@ public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLab
 	private boolean fIncludePrivateClassTasksFunctions ;
 	private boolean fIncludePublicClassTasksFunctions ; 
 
-	@Override
 	public boolean getIncludePrivateClassFields() {
 		return fIncludePrivateClassFields ;
 	}
 
-	@Override
 	public boolean getIncludePublicClassFields() {
 		return fIncludePublicClassFields ;
 	}
 
-	@Override
 	public boolean getIncludePrivateTasksFunctions() {
 		return fIncludePrivateClassTasksFunctions ;
 	}
 
-	@Override
 	public boolean getIncludePublicTasksFunctions() {
 		return fIncludePublicClassTasksFunctions ;
 	}
 
-	@Override
 	public void setIncludePrivateClassFields(boolean include) {
 		fIncludePrivateClassFields = include ;
 	}
 
-	@Override
 	public void setIncludePublicClassFields(boolean include) {
 		fIncludePublicClassFields = include ;
 	}
 
-	@Override
 	public void setIncludePrivateTasksFunctions(boolean include) {
 		fIncludePrivateClassTasksFunctions = include ;
 	}
 
-	@Override
 	public void setIncludePublicTasksFunctions(boolean include) {
 		fIncludePublicClassTasksFunctions = include ;
 	}
