@@ -50,6 +50,7 @@ import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
+import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
@@ -124,6 +125,7 @@ public class SVEditor extends TextEditor
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
+	IInformationPresenter fQuickHierarchyPresenter;
 	
 	public IInformationPresenter getQuickObjectsPresenter() {
 		if(fQuickObjectsPresenter == null) {
@@ -147,6 +149,18 @@ public class SVEditor extends TextEditor
 			}
 		}
 		return fQuickOutlinePresenter ;
+	}
+	
+	public IInformationPresenter getQuickHierarchyPresenter() {
+		if(fQuickHierarchyPresenter == null) {
+			fQuickHierarchyPresenter = 
+					((SVSourceViewerConfiguration)getSourceViewerConfiguration())
+					.getHierarchyPresenter(getSourceViewer(), false) ;
+			if(fQuickHierarchyPresenter != null) {
+				fQuickHierarchyPresenter.install(getSourceViewer()) ;
+			}
+		}
+		return fQuickHierarchyPresenter ;
 	}
 	
 	
@@ -510,6 +524,10 @@ public class SVEditor extends TextEditor
 		qoutv_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.quick.outline");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenQuickOutlineAction", qoutv_action);
 
+		OpenQuickHierarchyAction qh_action = new OpenQuickHierarchyAction(bundle, this);
+		qh_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.quick.hierarchy");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenQuickHierarchyAction", qh_action);
+
 		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
@@ -639,6 +657,8 @@ public class SVEditor extends TextEditor
 				SVUiPlugin.PLUGIN_ID + ".svOpenQuickObjectsAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenQuickOutlineAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenQuickHierarchyAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		

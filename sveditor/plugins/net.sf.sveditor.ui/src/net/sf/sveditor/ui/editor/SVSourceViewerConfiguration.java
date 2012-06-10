@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.text.HierarchyInformationControl;
 import net.sf.sveditor.ui.text.ObjectsInformationControl;
 import net.sf.sveditor.ui.text.OutlineInformationControl;
 import net.sf.sveditor.ui.text.SVEditorProvider;
@@ -252,6 +253,16 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		};
 	}	
 	
+	private IInformationControlCreator getHierarchyPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				int shellStyle= SWT.RESIZE;
+				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				return new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId) ;
+			}
+		};
+	}	
+	
 	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
 		presenter= new InformationPresenter(
@@ -259,7 +270,7 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.objects")) ;
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
-		IInformationProvider provider = new SVElementProvider(fEditor);
+		IInformationProvider provider = new SVEditorProvider(fEditor);
 		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
@@ -273,6 +284,19 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new SVEditorProvider(fEditor);
+		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		presenter.setSizeConstraints(50, 20, true, false);
+		return presenter;
+	}	
+	
+	public IInformationPresenter getHierarchyPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
+		InformationPresenter presenter;
+		presenter= new InformationPresenter(
+				getHierarchyPresenterControlCreator(sourceViewer, 
+						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.hierarchy")) ;
+		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
+		IInformationProvider provider = new SVElementProvider(fEditor); 
 		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
