@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     Matthew Ballance - initial implementation
- *     Armond Paiva - repurposed from hierarchy view to objects view
+ *     Armond Paiva - repurposed from hierarchy view to quick outline 
  ****************************************************************************/
 
 
@@ -23,16 +23,16 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-public class OpenQuickObjectsViewAction extends TextEditorAction {
+public class OpenQuickOutlineAction extends TextEditorAction {
 	
 	private IWorkbench				fWorkbench;
 	private SVEditor fEditor;
 	
-	public OpenQuickObjectsViewAction(
+	public OpenQuickOutlineAction(
 			ResourceBundle			bundle,
 			SVEditor editor) {
 		
-		super(bundle, "OpenQuickObjects.", editor) ;
+		super(bundle, "OpenQuickOutline.", editor) ;
 		
 		fEditor = editor ;
 		
@@ -42,22 +42,22 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 	@Override
 	public void run() {
 		try {
-			fWorkbench.getProgressService().run(false, false, fOpenQuickObjects);
+			fWorkbench.getProgressService().run(false, false, fOpenQuickOutline);
 		} catch (InvocationTargetException e) {
 		} catch (InterruptedException e) {
 		}
 	}
 	
-	private IRunnableWithProgress fOpenQuickObjects = new IRunnableWithProgress() {
+	private IRunnableWithProgress fOpenQuickOutline = new IRunnableWithProgress() {
 		
 		public void run(IProgressMonitor monitor) throws InvocationTargetException,
 				InterruptedException {
 			
-			monitor.beginTask("Open Objects View", 2);
+			monitor.beginTask("Open quick outline", 2);
 			
 			monitor.worked(1);
 			
-			fEditor.getQuickObjectsPresenter().showInformation() ;
+			fEditor.getQuickOutlinePresenter().showInformation() ;
 			
 			monitor.done();
 		}
