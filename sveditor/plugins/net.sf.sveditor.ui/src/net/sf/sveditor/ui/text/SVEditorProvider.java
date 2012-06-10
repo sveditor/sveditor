@@ -54,7 +54,6 @@ public class SVEditorProvider implements IInformationProvider, IInformationProvi
 		return fEditor ;
 	}
 
-	@Override
 	public IRegion getSubject(ITextViewer textViewer, int offset) {
 		if (textViewer != null && fEditor != null) {
 			// Unused... but we've got to return non-null as 

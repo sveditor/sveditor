@@ -1,5 +1,7 @@
 -- 0.9.3 Release --
 
+- #(nobug) - Correct NPE when opening an object from the Objects view.
+
 ------------------------------------------------------------------------------
 -- 0.9.2 Release --
 

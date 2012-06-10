@@ -125,7 +125,6 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 		});		
 		
 		fTreeViewer.getTree().addKeyListener(new KeyListener() {
-			@Override
 			public void keyPressed(KeyEvent e) {
 				if(tree.getSelectionCount()==1 && (tree.getSelection()[0].getData() instanceof HierarchyTreeNode)) {
 					HierarchyTreeNode n = (HierarchyTreeNode)tree.getSelection()[0].getData() ;
@@ -142,7 +141,6 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 					}
 				}
 			}
-			@Override
 			public void keyReleased(KeyEvent e) { }
 		}) ;
 
