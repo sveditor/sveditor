@@ -49,6 +49,7 @@ import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
 import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
@@ -528,6 +529,10 @@ public class SVEditor extends TextEditor
 		qh_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.quick.hierarchy");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenQuickHierarchyAction", qh_action);
 
+		OpenDiagForSelectionAction ods_action = new OpenDiagForSelectionAction(bundle, this);
+		ods_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.diag.selection");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenDiagForSelectionAction", ods_action);
+
 		IndentAction ind_action = new IndentAction(bundle, "Indent.", this);
 		ind_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".indent");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svIndentEditorAction", ind_action);
@@ -659,6 +664,9 @@ public class SVEditor extends TextEditor
 				SVUiPlugin.PLUGIN_ID + ".svOpenQuickOutlineAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenQuickHierarchyAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenDiagForSelectionAction");
+		
 		addAction(menu, ITextEditorActionConstants.GROUP_FIND,
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
