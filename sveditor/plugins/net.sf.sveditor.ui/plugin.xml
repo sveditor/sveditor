@@ -300,7 +300,7 @@
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            description="Opens the quick objects dialog"
+            description="Opens the Quick Objects"
             id="net.sf.sveditor.ui.editor.open.quick.objects"
             name="Open Quick Objects">
       </command>
@@ -327,6 +327,12 @@
             description="Open the Quick Type Hierarchy"
             id="net.sf.sveditor.ui.editor.open.quick.hierarchy"
             name="Open Quick Type Hierarchy">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Diagram for Selection"
+            id="net.sf.sveditor.ui.editor.open.diag.selection"
+            name="Open Diagram for Selection">
       </command>
    </extension>
    <extension
@@ -390,6 +396,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+T">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.diag.selection"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+D">
       </key>
    </extension>
    <extension
@@ -472,6 +484,13 @@
                retarget="true">
             retarget="true">
          </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.diag.selection"
+               id="net.sf.sveditor.ui.svOpenDiagForSelectionAction"
+               label="Open Diag for Selection"
+               retarget="true">
+            retarget="true">
+         </action>
       </actionSet>
       <actionSet
             id="net.sf.sveditor.ui.source.menu.as"
@@ -535,6 +554,18 @@
             icon="icons/eview16/class_hi.gif"
             id="net.sf.sveditor.ui.objectsView"
             name="Objects"
+            restorable="true">
+         <description>
+            SystemVerilog Objects Viewer
+         </description>
+      </view>
+      <view
+            allowMultiple="false"
+            category="net.sf.sveditor.ui.viewCategory"
+            class="net.sf.sveditor.ui.views.diagram.SVDiagramView"
+            icon="icons/eview16/class_hi.gif"
+            id="net.sf.sveditor.ui.diagramView"
+            name="Diagram"
             restorable="true">
          <description>
             SystemVerilog Objects Viewer
