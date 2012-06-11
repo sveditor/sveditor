@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.text.HierarchyInformationControl;
 import net.sf.sveditor.ui.text.ObjectsInformationControl;
+import net.sf.sveditor.ui.text.OutlineInformationControl;
+import net.sf.sveditor.ui.text.SVEditorProvider;
 import net.sf.sveditor.ui.text.SVElementProvider;
-import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractInformationControlManager;
@@ -241,21 +243,61 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		};
 	}	
 	
+	private IInformationControlCreator getOutlinePresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				int shellStyle= SWT.RESIZE;
+				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				return new OutlineInformationControl(parent, shellStyle, treeStyle, commandId);
+			}
+		};
+	}	
+	
+	private IInformationControlCreator getHierarchyPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				int shellStyle= SWT.RESIZE;
+				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				return new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId) ;
+			}
+		};
+	}	
+	
 	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
 		presenter= new InformationPresenter(
 				getObjectsPresenterControlCreator(sourceViewer, 
+						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.objects")) ;
+		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
+		IInformationProvider provider = new SVEditorProvider(fEditor);
+		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		presenter.setSizeConstraints(50, 20, true, false);
+		return presenter;
+	}	
+	
+	public IInformationPresenter getOutlinePresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
+		InformationPresenter presenter;
+		presenter= new InformationPresenter(
+				getOutlinePresenterControlCreator(sourceViewer, 
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.outline")) ;
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
-		IInformationProvider provider = new SVElementProvider(fEditor);
-//		IInformationProvider provider= new JavaElementProvider(getEditor(), doCodeResolve);
+		IInformationProvider provider = new SVEditorProvider(fEditor);
 		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
-//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_DOC);
-//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_MULTI_LINE_COMMENT);
-//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_SINGLE_LINE_COMMENT);
-//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_STRING);
-//		presenter.setInformationProvider(provider, IJavaPartitions.JAVA_CHARACTER);
+		presenter.setSizeConstraints(50, 20, true, false);
+		return presenter;
+	}	
+	
+	public IInformationPresenter getHierarchyPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
+		InformationPresenter presenter;
+		presenter= new InformationPresenter(
+				getHierarchyPresenterControlCreator(sourceViewer, 
+						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.hierarchy")) ;
+		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
+		IInformationProvider provider = new SVElementProvider(fEditor); 
+		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
 	}	

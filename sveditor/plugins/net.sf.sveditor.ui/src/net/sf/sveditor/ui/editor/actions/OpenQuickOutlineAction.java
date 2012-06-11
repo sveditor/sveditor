@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     Matthew Ballance - initial implementation
- *     Armond Paiva - repurposed from hierarchy view to objects view
+ *     Armond Paiva - repurposed from hierarchy view to quick outline 
  ****************************************************************************/
 
 
@@ -16,23 +16,25 @@ package net.sf.sveditor.ui.editor.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-
+import net.sf.sveditor.ui.editor.SVEditor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.ResourceAction;
+import org.eclipse.ui.texteditor.TextEditorAction;
 
-public class OpenObjectsViewAction extends ResourceAction {
+public class OpenQuickOutlineAction extends TextEditorAction {
 	
 	private IWorkbench				fWorkbench;
+	private SVEditor fEditor;
 	
-	public OpenObjectsViewAction(
-			ResourceBundle			bundle) {
-		super(bundle, "OpenObjects.") ;
+	public OpenQuickOutlineAction(
+			ResourceBundle			bundle,
+			SVEditor editor) {
+		
+		super(bundle, "OpenQuickOutline.", editor) ;
+		
+		fEditor = editor ;
 		
 		fWorkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getWorkbench() ;
 	}
@@ -40,34 +42,22 @@ public class OpenObjectsViewAction extends ResourceAction {
 	@Override
 	public void run() {
 		try {
-			fWorkbench.getProgressService().run(false, false, fOpenObjects);
+			fWorkbench.getProgressService().run(false, false, fOpenQuickOutline);
 		} catch (InvocationTargetException e) {
 		} catch (InterruptedException e) {
 		}
 	}
 	
-	private IRunnableWithProgress fOpenObjects = new IRunnableWithProgress() {
+	private IRunnableWithProgress fOpenQuickOutline = new IRunnableWithProgress() {
 		
 		public void run(IProgressMonitor monitor) throws InvocationTargetException,
 				InterruptedException {
 			
-			monitor.beginTask("Open Objects View", 2);
+			monitor.beginTask("Open quick outline", 2);
 			
 			monitor.worked(1);
 			
-			try {
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
-				IViewPart view;
-				if ((view = page.findView(SVUiPlugin.PLUGIN_ID + ".objectsView")) == null) {
-					view = page.showView(SVUiPlugin.PLUGIN_ID + ".objectsView");
-				}
-
-				page.activate(view);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}			
+			fEditor.getQuickOutlinePresenter().showInformation() ;
 			
 			monitor.done();
 		}

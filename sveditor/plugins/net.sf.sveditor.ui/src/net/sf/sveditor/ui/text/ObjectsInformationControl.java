@@ -110,8 +110,8 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 					} else {
 						if (n.getItemDecl() != null) {
 							try {
-								if( n.getItemDecl() != null && n.getItemDecl().getFile() != null) {
-									SVEditorUtil.openEditor(n.getItemDecl().getFile()) ;
+								if( n.getItemDecl() != null && n.getItemDecl().getSVDBItem() != null) {
+									SVEditorUtil.openEditor(n.getItemDecl().getSVDBItem()) ;
 								}
 							} catch (PartInitException e) {
 								e.printStackTrace();

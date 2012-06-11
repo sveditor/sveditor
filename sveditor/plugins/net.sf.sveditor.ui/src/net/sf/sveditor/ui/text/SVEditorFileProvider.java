@@ -9,13 +9,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Armond Paiva - repurposed for use in SVEDitor quick views
  *******************************************************************************/
 
 package net.sf.sveditor.ui.text;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.actions.SelectionConverter;
 
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -28,28 +27,17 @@ import org.eclipse.ui.IEditorPart;
 /**
  * Provides a Java element to be displayed in by an information presenter.
  */
-public class SVElementProvider implements IInformationProvider, IInformationProviderExtension {
+public class SVEditorFileProvider implements IInformationProvider, IInformationProviderExtension {
 
 	private SVEditor fEditor;
 
-	public SVElementProvider(IEditorPart editor) {
+	public SVEditorFileProvider(IEditorPart editor) {
 		if (editor instanceof SVEditor)
 			fEditor= (SVEditor)editor;
 	}
 
-	/*
-	 * @see IInformationProvider#getSubject(ITextViewer, int)
-	 */
-	public IRegion getSubject(ITextViewer textViewer, int offset) {
-		if (textViewer != null && fEditor != null) {
-//			IRegion region= JavaWordFinder.findWord(textViewer.getDocument(), offset);
-//			IRegion region=null ; // FIXME:
-//			if (region != null)
-//				return region;
-//			else
-			return new Region(offset, 0);
-		}
-		return null;
+	public SVEditorFileProvider(IEditorPart editor, boolean useCodeResolve) {
+		this(editor);
 	}
 
 	/*
@@ -65,10 +53,15 @@ public class SVElementProvider implements IInformationProvider, IInformationProv
 	public Object getInformation2(ITextViewer textViewer, IRegion subject) {
 		if (fEditor == null)
 			return null;
-		
-		ISVDBItemBase element = SelectionConverter.getElementAtOffset(fEditor) ;
-		
-		return element ;
+		return fEditor.getSVDBFile() ;
 	}
-	
+
+	public IRegion getSubject(ITextViewer textViewer, int offset) {
+		if (textViewer != null && fEditor != null) {
+			// Unused... but we've got to return non-null as 
+			// there has to be a subject 
+			return new Region(offset, 0);
+		}
+		return null ;
+	}
 }

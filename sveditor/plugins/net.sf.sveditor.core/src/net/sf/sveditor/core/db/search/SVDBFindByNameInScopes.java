@@ -23,8 +23,11 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
@@ -77,6 +80,21 @@ public class SVDBFindByNameInScopes {
 								}
 							}
 						}
+					}
+				} else if (it.getType() == SVDBItemType.TypedefStmt &&
+						((SVDBTypedefStmt)it).getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+					// Check the enumerators for matches
+					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)((SVDBTypedefStmt)it).getTypeInfo();
+					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+						if (fMatcher.match(en, name)) {
+							ret.add(en);
+							if (stop_on_first_match) {
+								break;
+							}
+						}
+					}
+					if (ret.size() > 0 && stop_on_first_match) {
+						break;
 					}
 				} else {
 					if (it instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it, name)) {
