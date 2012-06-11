@@ -1,5 +1,10 @@
 -- 0.9.3 Release --
 
+Note: This release requires the Eclipse Zest feature. Users of the
+ SVE 1.0 application will need to manually add the update site
+ http://download.eclipse.org/releases/indigo before installing 0.9.3.
+ SVE 1.1 will contain the Zest feature by default.
+
 - #(nobug) - Correct NPE when opening an object from the Objects view.
 
 - #(enh) - Outline quick view, activated by CTRL+o in the editor. Provides
