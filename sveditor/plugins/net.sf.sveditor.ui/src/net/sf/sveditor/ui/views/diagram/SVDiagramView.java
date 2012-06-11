@@ -205,8 +205,6 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fTabFolder.setSelection(fConfigTab) ;
 	}
 
-
-	@Override
 	public AbstractZoomableViewer getZoomableViewer() {
 		return fGraphViewer ;
 	}
