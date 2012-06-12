@@ -26,13 +26,17 @@ import net.sf.sveditor.core.db.search.SVDBFindClassMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindInterfaceMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindModuleMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 
 public class ObjectsTreeFactory {
 	List<ISVDBIndex> fProjectIndexList ;
+	private LogHandle				fLog;
 	
 	public ObjectsTreeFactory(List<ISVDBIndex> projectIndexList) {
 		fProjectIndexList = projectIndexList;
+		fLog = LogFactory.getLogHandle("ObjectsTreeFactory");
 	}
 	
 	public ObjectsTreeNode build() { 
@@ -83,10 +87,14 @@ public class ObjectsTreeFactory {
 						// Look deeper into this project to find all classes for this package
 						List<SVDBDeclCacheItem> pkgClasses = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
 						if(pkgClasses != null) {
+							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" found");
 							for(SVDBDeclCacheItem pkgClass: pkgClasses) {
+								fLog.debug("  Add node for \"" + pkgClass.getName() + "\"");
 								ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgClass.getName(), pkgClass) ;
-								packagesNode.addChild(pkgClassNode) ;
+								pkgNode.addChild(pkgClassNode) ;
 							}
+						} else {
+							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" not found");
 						}
 					}
 				}

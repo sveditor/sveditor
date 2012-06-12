@@ -31,6 +31,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ObjectsTests extends TestCase {
 	
@@ -50,6 +51,7 @@ public class ObjectsTests extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		SVCorePlugin.getDefault().enableDebug(false);
 		fTmpDir = TestUtils.createTempDir();
 		CoreReleaseTests.clearErrors();
 		
@@ -72,6 +74,9 @@ public class ObjectsTests extends TestCase {
 		fp1_pdata.setProjectFileWrapper(fp1_fwrapper);
 	
 		SVDBIndexCollection p1_index = fp1_pdata.getProjectIndexMgr();
+		for (ISVDBIndex index : p1_index.getIndexList()) {
+			index.loadIndex(new NullProgressMonitor());
+		}
 		
 		// Projec p2
 		
@@ -82,6 +87,9 @@ public class ObjectsTests extends TestCase {
 		fp2_pdata.setProjectFileWrapper(fp2_fwrapper);
 	
 		SVDBIndexCollection p2_index = fp2_pdata.getProjectIndexMgr();
+		for (ISVDBIndex index : p2_index.getIndexList()) {
+			index.loadIndex(new NullProgressMonitor());
+		}
 		
 		//
 		
@@ -174,24 +182,22 @@ public class ObjectsTests extends TestCase {
 	}
 	
 	public void testClassesWithinPackages() throws CoreException {  
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		assertNotNull("pkg A not found", fpkgA) ;
 		assertNotNull("pkg B not found", fpkgB) ;
+		assertNotNull("pkg C not found", fpkgB) ;
 		
 		ObjectsTreeNode cA=null, cB=null, cL=null ;
 		
-		if(fpkgA != null) {
-			cA = fpkgA.getChildByName("cA") ;
-			cB = fpkgA.getChildByName("cB") ;
-		}
+		cA = fpkgA.getChildByName("cA") ;
+		cB = fpkgA.getChildByName("cB") ;
 		
-		if(fpkgB != null) {
-			cL = fpkgB.getChildByName("cL") ;
-		}
+		cL = fpkgB.getChildByName("cL") ;
 		
-		assertNotNull("class cA not found in root package", cA) ;
-		assertNotNull("class cB not found in root package", cB) ;
-		assertNotNull("class cL not found in root package", cL) ;
+		assertNotNull("class cA not found in pkgA", cA) ;
+		assertNotNull("class cB not found in pkgA", cB) ;
+		assertNotNull("class cL not found in pkgB", cL) ;
 	
 	}
 
