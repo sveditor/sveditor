@@ -13,6 +13,8 @@ package net.sf.sveditor.ui.views.diagram;
 
 import net.sf.sveditor.ui.SVDBIconUtils;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -20,14 +22,23 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
 import org.eclipse.zest.core.viewers.GraphViewer;
@@ -147,7 +158,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			public void widgetSelected(SelectionEvent e) {
 				fDiagLabelProvider.setIncludePublicTasksFunctions(((Button)(e.widget)).getSelection()) ;
 				fDiagLabelProvider.setIncludePrivateTasksFunctions(((Button)(e.widget)).getSelection()) ;
-				rebuildModel() ;
+				updateInputNoLayout() ;
 			}
 		}) ;
 		button = new Button(group, SWT.CHECK) ;
@@ -159,9 +170,53 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			public void widgetSelected(SelectionEvent e) {
 				fDiagLabelProvider.setIncludePublicClassFields(((Button)(e.widget)).getSelection()) ;
 				fDiagLabelProvider.setIncludePrivateClassFields(((Button)(e.widget)).getSelection()) ;
-				rebuildModel() ;
+				updateInputNoLayout() ;
 			}
 		}) ;
+		button = new Button(group, SWT.CHECK) ;
+		button.setText("Show field types") ;
+		button.setSelection(false) ;
+		fDiagLabelProvider.setShowFieldTypes(false) ;
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fDiagLabelProvider.setShowFieldTypes(((Button)(e.widget)).getSelection()) ;
+				updateInputNoLayout() ;
+			}
+		}) ;
+		
+		//
+		//
+		//
+		
+		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager() ;
+		
+		final Shell shell = parent.getShell() ;
+		
+		tbm.add( new Action("Export Image", Action.AS_PUSH_BUTTON) {
+			{ setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT)) ; }
+			public void run() {
+				FileDialog fileDialog = new FileDialog(shell, SWT.SAVE) ;
+				fileDialog.setText("Select File");
+				fileDialog.setFilterExtensions(new String[] { "*.png" });
+				fileDialog.setFilterNames(new String[] { "PNG files (*.png)" });
+				String selected = fileDialog.open() ;				
+				if(selected != null) {
+					GC gc = new GC(fGraphViewer.getControl());
+					Rectangle bounds = fGraphViewer.getControl().getBounds() ;
+					Image image = new Image(fGraphViewer.getControl().getDisplay(), bounds) ;
+					try {
+					    gc.copyArea(image, 0, 0);
+					    ImageLoader imageLoader = new ImageLoader();
+					    imageLoader.data = new ImageData[] { image.getImageData() } ;
+					    imageLoader.save(selected, SWT.IMAGE_PNG) ;
+					} finally {
+					    image.dispose() ;
+					    gc.dispose() ;
+					}					
+				}
+			} }) ;
 		
 		//
 		//
@@ -176,11 +231,16 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 	}
 	
-	private void rebuildModel() {
-		// TODO: this might get slooooowwww for big diags
-		fModel = fModelFactory.build();
-		fGraphViewer.setInput(fModel == null ? null : fModel.getNodes()) ;
+	private void updateInputNoLayout() {
+		fGraphViewer.setLayoutAlgorithm(new LeaveEmBeLayoutAlgoritm(SWT.NONE)) ;
+		fGraphViewer.setInput(fModel.getNodes()) ;
 	}
+	
+//	private void rebuildModel() {
+//		// TODO: this might get slooooowwww for big diags
+//		fModel = fModelFactory.build();
+//		fGraphViewer.setInput(fModel == null ? null : fModel.getNodes()) ;
+//	}
 	
 	private void fillToolbar() {
 //		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(this);
@@ -205,12 +265,9 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fTabFolder.setSelection(fConfigTab) ;
 	}
 
-
-	@Override
 	public AbstractZoomableViewer getZoomableViewer() {
 		return fGraphViewer ;
 	}
-
 
 	public void setTarget(DiagModel model, IDiagModelFactory factory) {
 		fModel = model ;
