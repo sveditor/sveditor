@@ -210,7 +210,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 					    gc.copyArea(image, 0, 0);
 					    ImageLoader imageLoader = new ImageLoader();
 					    imageLoader.data = new ImageData[] { image.getImageData() } ;
-					    imageLoader.save(selected + ".png", SWT.IMAGE_PNG) ;
+					    imageLoader.save(selected, SWT.IMAGE_PNG) ;
 					} finally {
 					    image.dispose() ;
 					    gc.dispose() ;
