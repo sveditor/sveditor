@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.search.SVDBFindClassDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
@@ -54,6 +55,9 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 			} else if(child.getType() == SVDBItemType.Function) {
 				SVDBFunction funcItem = (SVDBFunction)child ;
 				node.addFunction(funcItem) ;
+			} else if(child.getType() == SVDBItemType.Task) {
+				SVDBTask taskItem = (SVDBTask)child ;
+				node.addTask(taskItem) ;
 			}
 			
 		}		
@@ -82,9 +86,6 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 						}
 					}
 				}
-			} else if(child.getType() == SVDBItemType.Function) {
-				SVDBFunction funcItem = (SVDBFunction)child ;
-				node.addFunction(funcItem) ;
 			}
 			
 		}		
