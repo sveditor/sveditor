@@ -5,12 +5,12 @@
 		else="c:/Program Files/Windows Installer XML v3.5">
 		<os arch="amd64"/>
 	</condition>
+	<property file="${script.dir}/../etc/sveditor.info"/>
 	<property name="candle" value="${wix}/bin/candle.exe"/>
 	<property name="light" value="${wix}/bin/light.exe"/>
 	<property name="script.dir" value="${basedir}/scripts"/>
 	<property name="etc.dir" value="${basedir}/etc"/>
 	<property name="dest" value="${basedir}/sve.msi"/>
-	<property name="sve_version" value="1.0"/>
 	<property name="ProgramFilesFolder" value="ProgramFilesFolder"/>
 	<property name="Win64" value="no"/>
 	
