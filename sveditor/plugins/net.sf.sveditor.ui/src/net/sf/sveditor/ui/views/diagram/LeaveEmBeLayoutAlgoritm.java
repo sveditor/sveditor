@@ -1,0 +1,60 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Armond Paiva - initial contributor
+ ****************************************************************************/
+
+package net.sf.sveditor.ui.views.diagram;
+
+import org.eclipse.zest.layouts.algorithms.AbstractLayoutAlgorithm;
+import org.eclipse.zest.layouts.dataStructures.InternalNode;
+import org.eclipse.zest.layouts.dataStructures.InternalRelationship;
+
+public class LeaveEmBeLayoutAlgoritm extends AbstractLayoutAlgorithm {
+	
+	public LeaveEmBeLayoutAlgoritm(int styles) {
+		super(styles);
+	}
+
+	private int totalSteps;
+
+	protected void applyLayoutInternal(InternalNode[] entitiesToLayout,
+			InternalRelationship[] relationshipsToConsider, double boundsX, double boundsY, double boundsWidth,
+			double boundsHeight) {
+		totalSteps = 0 ;
+	}
+
+	protected int getCurrentLayoutStep() {
+		return 0;
+	}
+
+	protected int getTotalNumberOfLayoutSteps() {
+		return totalSteps;
+	}
+
+	protected boolean isValidConfiguration(boolean asynchronous, boolean continuous) {
+		return true;
+	}
+
+	protected void postLayoutAlgorithm(InternalNode[] entitiesToLayout,
+			InternalRelationship[] relationshipsToConsider) {
+		// Do nothing
+	}
+
+	protected void preLayoutAlgorithm(InternalNode[] entitiesToLayout,
+			InternalRelationship[] relationshipsToConsider, double x, double y, double width, double height) {
+		// do nothing
+	}
+
+	public void setLayoutArea(double x, double y, double width, double height) {
+		// do nothing
+	}
+
+
+
+}

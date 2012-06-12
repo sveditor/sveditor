@@ -19,6 +19,7 @@ public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLab
 	private boolean fIncludePublicClassFields ;
 	private boolean fIncludePrivateClassTasksFunctions ;
 	private boolean fIncludePublicClassTasksFunctions ; 
+	private boolean fShowFieldTypes ;
 
 	public boolean getIncludePrivateClassFields() {
 		return fIncludePrivateClassFields ;
@@ -50,5 +51,13 @@ public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLab
 
 	public void setIncludePublicTasksFunctions(boolean include) {
 		fIncludePublicClassTasksFunctions = include ;
+	}
+
+	public boolean getShowFieldTypes() {
+		return fShowFieldTypes ;
+	}
+
+	public void setShowFieldTypes(boolean show) {
+		fShowFieldTypes = show ;
 	}
 }
