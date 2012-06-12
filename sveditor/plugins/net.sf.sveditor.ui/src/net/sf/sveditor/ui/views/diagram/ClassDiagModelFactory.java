@@ -38,7 +38,6 @@ public class ClassDiagModelFactory extends AbstractDiagModelFactory {
 		fClassDecl = classDecl ;
 	}
 
-	@Override
 	public DiagModel build() {
 		DiagModel model = new DiagModel() ;
 		
