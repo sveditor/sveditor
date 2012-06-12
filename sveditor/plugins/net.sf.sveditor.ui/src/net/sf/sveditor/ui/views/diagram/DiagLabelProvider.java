@@ -41,7 +41,6 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 			return myConnection.getLabel();
 		}
 		if (element instanceof EntityConnectionData) {
-			// TODO: optionally return member name for composition relationships
 			return "";
 		}
 		throw new RuntimeException("Unexpected type: " + element.getClass().toString());
@@ -88,13 +87,14 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 				if(declItem.getParent() != null) {
 					typeName = declItem.getParent().getTypeName();
 				}
-			  classFigure.getAttributesCompartment().add(new Label(typeName + ": " + declItem.getName(), SVDBIconUtils.getIcon(declItem))) ;
+				String labelString = getShowFieldTypes() ? typeName + ": " + declItem.getName() : declItem.getName() ;
+				classFigure.getAttributesCompartment().add(new Label(labelString, SVDBIconUtils.getIcon(declItem))) ;
 			}
 		}
 		
 		if(getIncludePrivateTasksFunctions()) {
 			for(SVDBFunction funcItem: node.getFuncDecls()) {
-			  classFigure.getMethodsCompartment().add(new Label(funcItem.getName(), SVDBIconUtils.getIcon(funcItem))) ;
+			  classFigure.getMethodsCompartment().add(new Label(funcItem.getName() + "()", SVDBIconUtils.getIcon(funcItem))) ;
 			}
 		}
 		
@@ -122,22 +122,18 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 	}
 
 	public Color getColor(Object rel) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Color getHighlightColor(Object rel) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public int getLineWidth(Object rel) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public IFigure getTooltip(Object entity) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
