@@ -11,11 +11,16 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -185,6 +190,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			}
 		}) ;
 		
+		
 		//
 		//
 		//
@@ -222,10 +228,28 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		//
 		//
 		
+		fGraphViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				if(event.getSelection().isEmpty()) return ;
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof DiagNode) {
+					DiagNode dn = (DiagNode)sel.getFirstElement() ;
+					try {
+						SVEditorUtil.openEditor(dn.getSVDBItem()) ;
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}				
+			}
+		}) ;
+		
+		//
+		//
+		//
+		
 		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
 		fGraphViewer.applyLayout() ;
-		
-		fillToolbar() ;
 		
 		fTabFolder.setSelection(fConfigTab) ;
 		
@@ -236,18 +260,6 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fGraphViewer.setInput(fModel.getNodes()) ;
 	}
 	
-//	private void rebuildModel() {
-//		// TODO: this might get slooooowwww for big diags
-//		fModel = fModelFactory.build();
-//		fGraphViewer.setInput(fModel == null ? null : fModel.getNodes()) ;
-//	}
-	
-	private void fillToolbar() {
-//		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(this);
-//		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager() ;
-//		tbm.add(toolbarZoomContributionViewItem) ;
-	}
-
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
