@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -85,13 +86,15 @@ public class ObjectsTreeFactory {
 						packagesNode.addChild(pkgNode) ; 
 						pkgMap.put(pkg.getName(), pkg) ;
 						// Look deeper into this project to find all classes for this package
-						List<SVDBDeclCacheItem> pkgClasses = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
-						if(pkgClasses != null) {
+						List<SVDBDeclCacheItem> pkgDecls = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
+						if(pkgDecls != null) {
 							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" found");
-							for(SVDBDeclCacheItem pkgClass: pkgClasses) {
-								fLog.debug("  Add node for \"" + pkgClass.getName() + "\"");
-								ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgClass.getName(), pkgClass) ;
-								pkgNode.addChild(pkgClassNode) ;
+							for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
+								if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
+									fLog.debug("  Add node for \"" + pkgDecl.getName() + "\"");
+									ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgDecl.getName(), pkgDecl) ;
+									pkgNode.addChild(pkgClassNode) ;
+								}
 							}
 						} else {
 							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" not found");
