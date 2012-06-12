@@ -269,7 +269,6 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		return fGraphViewer ;
 	}
 
-
 	public void setTarget(DiagModel model, IDiagModelFactory factory) {
 		fModel = model ;
 		fModelFactory = factory ;
