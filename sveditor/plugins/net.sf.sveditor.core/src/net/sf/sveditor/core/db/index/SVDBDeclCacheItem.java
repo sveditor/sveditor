@@ -72,6 +72,11 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	}
 	
 	public ISVDBItemBase getSVDBItem() {
+		if(fParent == null) {
+			// FIXME: should we also warn or generate an error here?
+			return null ;
+		}
+		
 		SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
 		
 		if (file != null) {
