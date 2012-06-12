@@ -15,7 +15,9 @@ Note: This release requires the Eclipse Zest feature. Users of the
 
 - #(ehh) - UML Diagram view added. The view is opened by selected a class
   and selecting 'Open Class Diagram' from the context menu, or CTRL+SHIFT+D.
-  
+
+- #(enh) - Implement findPackageDecl API that provides a complete view 
+  of a package and the contents, included contents contributed by included files  
   
 ------------------------------------------------------------------------------
 -- 0.9.2 Release --
