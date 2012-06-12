@@ -21,6 +21,8 @@ public interface IDiagLabelProviderConfig {
 	
 	boolean getIncludePublicTasksFunctions() ;
 	
+	boolean getShowFieldTypes() ;
+	
 	void setIncludePrivateClassFields(boolean include) ;
 	
 	void setIncludePublicClassFields(boolean include) ;
@@ -28,5 +30,7 @@ public interface IDiagLabelProviderConfig {
 	void setIncludePrivateTasksFunctions(boolean include) ;
 	
 	void setIncludePublicTasksFunctions(boolean include) ;
+	
+	void setShowFieldTypes(boolean show) ;
 	
 }
