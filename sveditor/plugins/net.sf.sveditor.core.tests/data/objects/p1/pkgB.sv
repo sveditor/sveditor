@@ -5,4 +5,5 @@ package pkgB;
   endclass
   class cB;
   endclass
+  `include "cL.svh"
 endpackage

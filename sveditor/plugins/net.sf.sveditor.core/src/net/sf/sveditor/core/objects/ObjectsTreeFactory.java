@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -26,13 +27,17 @@ import net.sf.sveditor.core.db.search.SVDBFindClassMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindInterfaceMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindModuleMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 
 public class ObjectsTreeFactory {
 	List<ISVDBIndex> fProjectIndexList ;
+	private LogHandle				fLog;
 	
 	public ObjectsTreeFactory(List<ISVDBIndex> projectIndexList) {
 		fProjectIndexList = projectIndexList;
+		fLog = LogFactory.getLogHandle("ObjectsTreeFactory");
 	}
 	
 	public ObjectsTreeNode build() { 
@@ -81,12 +86,18 @@ public class ObjectsTreeFactory {
 						packagesNode.addChild(pkgNode) ; 
 						pkgMap.put(pkg.getName(), pkg) ;
 						// Look deeper into this project to find all classes for this package
-						List<SVDBDeclCacheItem> pkgClasses = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
-						if(pkgClasses != null) {
-							for(SVDBDeclCacheItem pkgClass: pkgClasses) {
-								ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgClass.getName(), pkgClass) ;
-								packagesNode.addChild(pkgClassNode) ;
+						List<SVDBDeclCacheItem> pkgDecls = svdbIndex.findPackageDecl(new NullProgressMonitor(), pkg) ; 
+						if(pkgDecls != null) {
+							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" found");
+							for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
+								if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
+									fLog.debug("  Add node for \"" + pkgDecl.getName() + "\"");
+									ObjectsTreeNode pkgClassNode = new ObjectsTreeNode(pkgNode, pkgDecl.getName(), pkgDecl) ;
+									pkgNode.addChild(pkgClassNode) ;
+								}
 							}
+						} else {
+							fLog.debug("Package Declaration for \"" + pkg.getName() + "\" not found");
 						}
 					}
 				}

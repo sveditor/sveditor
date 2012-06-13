@@ -60,7 +60,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fUnaccBuffer;
 	private boolean				fInString;
 	private int					fLastChPP;
-	private static final Set<String>	fIgnoredDirectives;
+	public static final Set<String>	fIgnoredDirectives;
 	private static LogHandle	fLog = LogFactory.getLogHandle("SVPreProcScanner");
 	
 	static {

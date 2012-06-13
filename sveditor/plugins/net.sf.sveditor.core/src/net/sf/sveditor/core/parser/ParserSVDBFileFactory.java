@@ -389,31 +389,37 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVDBPackageDecl pkg = new SVDBPackageDecl();
 		pkg.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("package");
-
-		if (fLexer.peekKeyword("static","automatic")) {
-			fLexer.eatToken();
-		}
-
-		String pkg_name = readQualifiedIdentifier();
-		pkg.setName(pkg_name);
-		fLexer.readOperator(";");
 		
-		parent.addChildItem(pkg);
+		fScopeStack.push(pkg);
 
-		while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
-			top_level_item(pkg);
-			
-			if (fLexer.peekKeyword("endpackage")) {
-				break;
+		try {
+			if (fLexer.peekKeyword("static","automatic")) {
+				fLexer.eatToken();
 			}
-		}
-		
-		pkg.setEndLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("endpackage");
-		// Handled named package end-block
-		if (fLexer.peekOperator(":")) {
-			fLexer.eatToken();
-			fLexer.readId();
+
+			String pkg_name = readQualifiedIdentifier();
+			pkg.setName(pkg_name);
+			fLexer.readOperator(";");
+
+			parent.addChildItem(pkg);
+
+			while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
+				top_level_item(pkg);
+
+				if (fLexer.peekKeyword("endpackage")) {
+					break;
+				}
+			}
+
+			pkg.setEndLocation(fLexer.getStartLocation());
+			fLexer.readKeyword("endpackage");
+			// Handled named package end-block
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				fLexer.readId();
+			}
+		} finally {
+			fScopeStack.pop();
 		}
 	}
 
@@ -767,14 +773,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void enter_preproc_conditional(String type, String conditional) {}
 	public void leave_preproc_conditional() {}
 	public void comment(String comment) {}
-
-	public void leave_covergroup() {
-		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.Covergroup) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop();
-		}
-	}
 
 	public boolean error_limit_reached() {
 		return (fParseErrorMax > 0 && fParseErrors.size() >= fParseErrorMax);

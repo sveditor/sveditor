@@ -40,6 +40,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
 		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestBuiltinIndex.class));
+		suite.addTest(new TestSuite(TestDeclCache.class));
 		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestIndexMissingIncludeDefine.class));
 		suite.addTest(new TestSuite(TestGlobalDefine.class));
