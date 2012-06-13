@@ -27,8 +27,7 @@ import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBDeclCacheItem implements ISVDBNamedItem {
-	@SVDBDoNotSaveAttr
-	private String						fFileName;
+	public String						fFileName;
 	
 	@SVDBDoNotSaveAttr
 	private ISVDBDeclCache				fParent;
@@ -39,20 +38,27 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	public SVDBDeclCacheItem() {
 	}
 	
-	public SVDBDeclCacheItem(ISVDBDeclCache parent, String filename, String name, SVDBItemType type) {
+	public SVDBDeclCacheItem(
+			ISVDBDeclCache 		parent, 
+			String 				filename, 
+			String 				name, 
+			SVDBItemType 		type) {
 		fParent = parent;
 		fFileName = filename;
 		fName = name;
 		fType = type;
 	}
 	
-	public void init(String filename, ISVDBDeclCache parent) {
-		fFileName = filename;
+	public void init(ISVDBDeclCache parent) {
 		fParent = parent;
 	}
 	
 	public String getFilename() {
 		return fFileName;
+	}
+	
+	public void setFilename(String filename) {
+		fFileName = filename;
 	}
 	
 	public String getName() {
@@ -61,6 +67,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	
 	public void setName(String name) {
 		fName = name;
+	}
+	
+	public void setParent(ISVDBDeclCache parent) {
+		fParent = parent;
 	}
 	
 	public SVDBItemType getType() {
@@ -72,6 +82,11 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	}
 	
 	public ISVDBItemBase getSVDBItem() {
+		if(fParent == null) {
+			// FIXME: should we also warn or generate an error here?
+			return null ;
+		}
+		
 		SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
 		
 		if (file != null) {
