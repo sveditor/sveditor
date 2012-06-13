@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class DiagNode {
@@ -31,12 +32,14 @@ public class DiagNode {
 	
 	private List<SVDBVarDeclItem> fMemberDecls ;
 	private List<SVDBFunction> fFuncDecls ;
+	private List<SVDBTask> fTaskDecls ;
 
 	public DiagNode(String name, ISVDBItemBase item) {
 
 		this.fName = name;
 		this.fMemberDecls = new ArrayList<SVDBVarDeclItem>();
 		this.fFuncDecls = new ArrayList<SVDBFunction>();
+		this.fTaskDecls = new ArrayList<SVDBTask>();
 		this.fISVDBItem = item ;
 		this.fSuperClasses = new HashSet<DiagNode>() ;
 		this.fContainedClasses = new HashSet<DiagNode>() ;
@@ -86,6 +89,14 @@ public class DiagNode {
 	
 	public List<SVDBFunction> getFuncDecls() {
 		return fFuncDecls ;
+	}
+
+	public void addTask(SVDBTask taskItem) {
+		this.fTaskDecls.add(taskItem) ;
+	}
+	
+	public List<SVDBTask> getTaskDecls() {
+		return fTaskDecls ;
 	}
 
 }

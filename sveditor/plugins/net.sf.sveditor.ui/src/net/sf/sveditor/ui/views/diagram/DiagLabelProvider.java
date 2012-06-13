@@ -14,6 +14,7 @@ package net.sf.sveditor.ui.views.diagram;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.diagrams.DiagConnection;
 import net.sf.sveditor.core.diagrams.DiagNode;
@@ -81,6 +82,8 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		
 		UMLClassFigure classFigure = new UMLClassFigure(classLabel1);
 		
+		// TODO: currently grouping all fields under the "private" enable regardless of accessibility. Provide settings for both in diag options then distinguish here
+		
 		if(getIncludePrivateClassFields()) {
 			for(SVDBVarDeclItem declItem: node.getMemberDecls()) {
 				String typeName = "unknown" ;
@@ -92,9 +95,14 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 			}
 		}
 		
+		// TODO: currently grouping all tasks/funcs under the "private" enable regardless of accessibility. Provide settings for both in diag options then distinguish here
+		
 		if(getIncludePrivateTasksFunctions()) {
 			for(SVDBFunction funcItem: node.getFuncDecls()) {
 			  classFigure.getMethodsCompartment().add(new Label(funcItem.getName() + "()", SVDBIconUtils.getIcon(funcItem))) ;
+			}
+			for(SVDBTask taskItem: node.getTaskDecls()) {
+			  classFigure.getMethodsCompartment().add(new Label(taskItem.getName() + "()", SVDBIconUtils.getIcon(taskItem))) ;
 			}
 		}
 		
