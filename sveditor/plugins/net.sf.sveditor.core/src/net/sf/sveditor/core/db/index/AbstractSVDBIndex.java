@@ -289,7 +289,17 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				for (Entry<String, List<SVDBDeclCacheItem>> e : 
 						fIndexCacheData.getDeclCacheMap().entrySet()) {
 					for (SVDBDeclCacheItem i : e.getValue()) {
-						i.init(e.getKey(), this);
+						i.init(this);
+					}
+				}
+			}
+			
+			// Also update the package cache
+			if (fIndexCacheData.getPackageCacheMap() != null) {
+				for (Entry<String, List<SVDBDeclCacheItem>> e :
+					fIndexCacheData.getPackageCacheMap().entrySet()) {
+					for (SVDBDeclCacheItem i : e.getValue()) {
+						i.init(this);
 					}
 				}
 			}
