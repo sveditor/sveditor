@@ -30,4 +30,5 @@ Export-Package: net.sf.sveditor.ui,
  net.sf.sveditor.ui.editor,
  net.sf.sveditor.ui.editor.actions,
  net.sf.sveditor.ui.explorer
+Import-Package: net.sf.sveditor.ui.editor.actions
 

@@ -20,10 +20,13 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.views.diagram.ClassDiagModelFactory;
 import net.sf.sveditor.ui.views.diagram.DiagModel;
+import net.sf.sveditor.ui.views.diagram.IDiagModelFactory;
+import net.sf.sveditor.ui.views.diagram.PackageClassDiagModelFactory;
 import net.sf.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,7 +73,8 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 			
 			ISVDBItemBase itemBase = SelectionConverter.getElementAtOffset(fEditor) ;
 			
-			if(itemBase != null && itemBase.getType() == SVDBItemType.ClassDecl) {
+			if(itemBase != null && (itemBase.getType() == SVDBItemType.ClassDecl ||
+									itemBase.getType() == SVDBItemType.PackageDecl)) {
 			
 				try {
 					IWorkbench workbench = PlatformUI.getWorkbench();
@@ -80,15 +84,25 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 						view = page.showView(SVUiPlugin.PLUGIN_ID + ".diagramView");
 					}
 					
-					SVDBClassDecl classDecl = (SVDBClassDecl)itemBase ;
+					IDiagModelFactory factory = null ;
 					
-					ClassDiagModelFactory factory = new ClassDiagModelFactory(SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists(), classDecl) ;
+					if(itemBase.getType() == SVDBItemType.ClassDecl) {
+						factory = new ClassDiagModelFactory(SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists(), 
+										(SVDBClassDecl)itemBase) ;
+					} else if(itemBase.getType() == SVDBItemType.PackageDecl) {
+						factory = new PackageClassDiagModelFactory(SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists(), 
+										(SVDBPackageDecl)itemBase) ;
+					}
+						
+					if(factory != null) {
 					
-					DiagModel model = factory.build() ;
+						DiagModel model = factory.build() ;
 
-					page.activate(view);
-
-					((SVDiagramView)view).setTarget(model, factory);
+						page.activate(view);
+	
+						((SVDiagramView)view).setTarget(model, factory);
+						
+					}
 
 				} catch (Exception e) {
 					e.printStackTrace();
