@@ -13,20 +13,14 @@
 
 package net.sf.sveditor.ui.editor.actions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.ui.editor.SVEditor;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenQuickHierarchyAction extends TextEditorAction {
 	
-	private IWorkbench				fWorkbench;
 	private SVEditor fEditor;
 	
 	public OpenQuickHierarchyAction(
@@ -36,32 +30,13 @@ public class OpenQuickHierarchyAction extends TextEditorAction {
 		super(bundle, "OpenQuickHierarchy.", editor) ;
 		
 		fEditor = editor ;
-		
-		fWorkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getWorkbench() ;
 	}
 
 	@Override
 	public void run() {
-		try {
-			fWorkbench.getProgressService().run(false, false, fOpenQuickHierarchy);
-		} catch (InvocationTargetException e) {
-		} catch (InterruptedException e) {
-		}
-	}
-	
-	private IRunnableWithProgress fOpenQuickHierarchy = new IRunnableWithProgress() {
-		
-		public void run(IProgressMonitor monitor) throws InvocationTargetException,
-				InterruptedException {
 			
-			monitor.beginTask("Open quick outline", 2);
+		fEditor.getQuickHierarchyPresenter().showInformation() ;
 			
-			monitor.worked(1);
-			
-			fEditor.getQuickHierarchyPresenter().showInformation() ;
-			
-			monitor.done();
-		}
 	};
 	
 }
