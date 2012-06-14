@@ -15,6 +15,10 @@ import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 
+import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.SWTGraphics;
+import org.eclipse.draw2d.ScalableFigure;
+import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -31,12 +35,13 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-import org.eclipse.swt.graphics.Rectangle;
+//import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
@@ -209,18 +214,24 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 				fileDialog.setFilterNames(new String[] { "PNG files (*.png)" });
 				String selected = fileDialog.open() ;				
 				if(selected != null) {
-					GC gc = new GC(fGraphViewer.getControl());
-					Rectangle bounds = fGraphViewer.getControl().getBounds() ;
-					Image image = new Image(fGraphViewer.getControl().getDisplay(), bounds) ;
-					try {
-					    gc.copyArea(image, 0, 0);
-					    ImageLoader imageLoader = new ImageLoader();
-					    imageLoader.data = new ImageData[] { image.getImageData() } ;
-					    imageLoader.save(selected, SWT.IMAGE_PNG) ;
-					} finally {
-					    image.dispose() ;
-					    gc.dispose() ;
-					}					
+					ScalableFigure figure = fGraphViewer.getGraphControl().getRootLayer() ;
+					Rectangle bounds = figure.getBounds() ;
+					Control srcCanvas = fGraphViewer.getGraphControl() ;
+					GC srcGC = new GC(srcCanvas) ;
+					Image destImg = new Image(null, bounds.width, bounds.height) ;
+					GC destImgGC = new GC(destImg) ;
+					destImgGC.setBackground(srcGC.getBackground()) ;
+					destImgGC.setForeground(srcGC.getForeground()) ;
+					destImgGC.setFont(srcGC.getFont()) ;
+					destImgGC.setLineStyle(srcGC.getLineStyle()) ;
+					destImgGC.setLineWidth(srcGC.getLineWidth()) ;
+					Graphics dstImgGraphics = new SWTGraphics(destImgGC) ;
+					figure.paint(dstImgGraphics) ;
+					ImageLoader imgLoader = new ImageLoader() ;
+					imgLoader.data = new ImageData[] { destImg.getImageData() } ;
+					imgLoader.save(selected, SWT.IMAGE_PNG) ;
+					destImg.dispose() ;
+					destImgGC.dispose() ;
 				}
 			} }) ;
 		
