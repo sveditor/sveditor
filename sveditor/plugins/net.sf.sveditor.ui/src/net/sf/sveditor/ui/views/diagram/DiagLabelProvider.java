@@ -20,6 +20,7 @@ import net.sf.sveditor.core.diagrams.DiagConnection;
 import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
+import org.eclipse.draw2d.ConnectionRouter;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.swt.graphics.Color;
@@ -90,8 +91,10 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 				if(declItem.getParent() != null) {
 					typeName = declItem.getParent().getTypeName();
 				}
-				String labelString = getShowFieldTypes() ? typeName + ": " + declItem.getName() : declItem.getName() ;
-				classFigure.getAttributesCompartment().add(new Label(labelString, SVDBIconUtils.getIcon(declItem))) ;
+				String labelString = getShowFieldTypes() ? typeName + ": " + declItem.getName() : declItem.getName() 
+						+ " " ; // Extra space at end due to last char sometimes being cut off
+				classFigure.getAttributesCompartment().add(
+						new Label(labelString, SVDBIconUtils.getIcon(declItem))) ;
 			}
 		}
 		
@@ -99,10 +102,14 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		
 		if(getIncludePrivateTasksFunctions()) {
 			for(SVDBFunction funcItem: node.getFuncDecls()) {
-			  classFigure.getMethodsCompartment().add(new Label(funcItem.getName() + "()", SVDBIconUtils.getIcon(funcItem))) ;
+			  classFigure.getMethodsCompartment().add(
+					  new Label(funcItem.getName() + "() ", 
+							  SVDBIconUtils.getIcon(funcItem))) ; // Extra space at end due to last char sometimes being cut off
 			}
 			for(SVDBTask taskItem: node.getTaskDecls()) {
-			  classFigure.getMethodsCompartment().add(new Label(taskItem.getName() + "()", SVDBIconUtils.getIcon(taskItem))) ;
+			  classFigure.getMethodsCompartment().add(
+					  new Label(taskItem.getName() + "() ", 
+							  SVDBIconUtils.getIcon(taskItem))) ; // Extra space at end due to last char sometimes being cut off
 			}
 		}
 		
@@ -143,6 +150,14 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 
 	public IFigure getTooltip(Object entity) {
 		return null;
+	}
+
+	public ConnectionRouter getRouter(Object rel) {
+		if(rel instanceof EntityConnectionData) {
+			return getSVDiagRouter() ;
+		} else {
+			return null;
+		}
 	}
 	
 }

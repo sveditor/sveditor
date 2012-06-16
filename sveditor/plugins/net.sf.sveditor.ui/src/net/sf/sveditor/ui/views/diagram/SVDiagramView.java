@@ -15,7 +15,9 @@ import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 
+import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.ManhattanConnectionRouter;
 import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
@@ -35,7 +37,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
-//import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -56,9 +57,8 @@ import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
 import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
-import org.eclipse.zest.layouts.LayoutStyles;
+import org.eclipse.zest.layouts.algorithms.BoxLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
-import org.eclipse.zest.layouts.algorithms.HorizontalLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
 
@@ -112,27 +112,31 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fConfigTab.setControl(new Composite(fTabFolder, SWT.NONE)) ; 
 		((Composite)fConfigTab.getControl()).setLayout(new GridLayout()) ;
 		
+		//
+		// Layout radio button group
+		//
+		
 		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
 		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
 		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
 		group.setText("Layout") ;
-		Button layoutRadios[] = new Button[4] ;
+		Button layoutRadios[] = new Button[3] ;
 		layoutRadios[0] = new Button(group, SWT.RADIO) ;
-		layoutRadios[0].setText("Radial") ;
+		layoutRadios[0].setText("Grid (Default)") ;
+		layoutRadios[0].setSelection(true) ;
 		layoutRadios[0].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
+				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
 		layoutRadios[1] = new Button(group, SWT.RADIO) ;
-		layoutRadios[1].setText("Grid") ;
-		layoutRadios[1].setSelection(true) ;  // Default
+		layoutRadios[1].setText("Radial") ;
 		layoutRadios[1].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
+				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm()) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
@@ -141,22 +145,45 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		layoutRadios[2].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
+				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm()) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
-		layoutRadios[3] = new Button(group, SWT.RADIO) ;
-		layoutRadios[3].setText("Horizontal Tree") ;
-		layoutRadios[3].addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new HorizontalLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
-				fGraphViewer.applyLayout() ;
-			}
-		});
-		
 		
 		//
+		// Routing buttons groups
+		//
+		
+		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
+		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
+		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
+		group.setText("Connection Routing") ;
+		Button routingButtons[] = new Button[2] ;
+		routingButtons[0] = new Button(group, SWT.RADIO) ;
+		routingButtons[0].setText("Manhattan (Default)") ;
+		routingButtons[0].setSelection(true) ;
+		fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
+		routingButtons[0].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
+				fGraphViewer.setInput(fModel.getNodes()) ;
+			}
+		});
+		routingButtons[1] = new Button(group, SWT.RADIO) ;
+		routingButtons[1].setText("Fan") ;
+		routingButtons[1].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fDiagLabelProvider.setSVDiagRouter(new FanRouter()) ;
+				fGraphViewer.setInput(fModel.getNodes()) ;
+			}
+		});
+		
+		//
+		// Class Details group
+		//
+		
 		Button button = null ;
 		
 		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
@@ -270,9 +297,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		//
 		//
 		//
-		
-		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
-		fGraphViewer.applyLayout() ;
+		fGraphViewer.setLayoutAlgorithm(new BoxLayoutAlgorithm(), false) ;
 		
 		fTabFolder.setSelection(fConfigTab) ;
 		
@@ -308,6 +333,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fModel = model ;
 		fModelFactory = factory ;
 		fGraphViewer.setInput(fModel.getNodes()) ;
+		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
 	}
 	
 	public void setViewState(int state) {
