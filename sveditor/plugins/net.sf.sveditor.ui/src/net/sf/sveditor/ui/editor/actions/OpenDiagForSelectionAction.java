@@ -16,7 +16,6 @@ package net.sf.sveditor.ui.editor.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -87,11 +86,9 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 					IDiagModelFactory factory = null ;
 					
 					if(itemBase.getType() == SVDBItemType.ClassDecl) {
-						factory = new ClassDiagModelFactory(SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists(), 
-										(SVDBClassDecl)itemBase) ;
+						factory = new ClassDiagModelFactory(fEditor.getSVDBIndex(), (SVDBClassDecl)itemBase) ;
 					} else if(itemBase.getType() == SVDBItemType.PackageDecl) {
-						factory = new PackageClassDiagModelFactory(SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists(), 
-										(SVDBPackageDecl)itemBase) ;
+						factory = new PackageClassDiagModelFactory(fEditor.getSVDBIndex(), (SVDBPackageDecl)itemBase) ;
 					}
 						
 					if(factory != null) {
@@ -99,6 +96,8 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 						DiagModel model = factory.build() ;
 
 						page.activate(view);
+						
+						((SVDiagramView)view).setViewState(IWorkbenchPage.STATE_MAXIMIZED) ;
 	
 						((SVDiagramView)view).setTarget(model, factory);
 						

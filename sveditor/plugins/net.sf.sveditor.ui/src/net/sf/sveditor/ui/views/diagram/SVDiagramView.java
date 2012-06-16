@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -64,6 +65,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	
 	private GraphViewer fGraphViewer ;
 	private DiagModel fModel ;
+	@SuppressWarnings("unused")
 	private IDiagModelFactory fModelFactory ;
 	private CTabItem fConfigTab ;
 	private CTabFolder fTabFolder ;
@@ -296,6 +298,15 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fModel = model ;
 		fModelFactory = factory ;
 		fGraphViewer.setInput(fModel.getNodes()) ;
+	}
+	
+	public void setViewState(int state) {
+		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		int currentState = page.getPartState(page.getReference(this));
+		if(currentState != state) {
+			page.activate(this);
+			page.setPartState(page.getReference(this), state);
+		}
 	}
 	
 }

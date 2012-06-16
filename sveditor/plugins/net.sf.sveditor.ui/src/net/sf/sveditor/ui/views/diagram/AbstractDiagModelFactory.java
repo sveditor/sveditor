@@ -11,6 +11,7 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import java.util.HashMap;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -29,11 +30,11 @@ import net.sf.sveditor.core.diagrams.DiagNode;
 
 public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 	
-	protected List<ISVDBIndex> fProjectIndexList ;
+	protected ISVDBIndex fIndex ;
 	
 	
-	public AbstractDiagModelFactory(List<ISVDBIndex> projectIndexList) {
-		fProjectIndexList = projectIndexList ;
+	public AbstractDiagModelFactory(ISVDBIndex index) {
+		fIndex = index ;
 	}
 
 	public DiagNode createNodeForClass(DiagModel model, SVDBClassDecl classDecl) {
@@ -75,22 +76,45 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 				// Check for members of user defined type (class?) as
 				// connected to
 				if(childVarDecl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
-					for(ISVDBIndex svdbIndex: fProjectIndexList) {
-						SVDBFindNamedClass finder = new SVDBFindNamedClass(svdbIndex, SVDBFindClassDefaultNameMatcher.getDefault()) ;
-						List<SVDBClassDecl> classDecls = finder.find(childVarDecl.getTypeName()) ;
-						if(classDecls.size() != 0) {
-							DiagNode kidNode = createNodeForClass(model, (SVDBClassDecl)classDecls.toArray()[0]) ;
-							DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, kidNode) ;
-							model.addConnection(con) ;
-							node.addContainedClass(kidNode) ;
-						}
+					SVDBFindNamedClass finder = new SVDBFindNamedClass(fIndex, SVDBFindClassDefaultNameMatcher.getDefault()) ;
+					List<SVDBClassDecl> classDecls = finder.find(childVarDecl.getTypeName()) ;
+					if(classDecls.size() != 0) {
+						DiagNode kidNode = createNodeForClass(model, (SVDBClassDecl)classDecls.toArray()[0]) ;
+						DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, kidNode) ;
+						model.addConnection(con) ;
+						node.addContainedClass(kidNode) ;
 					}
 				}
 			}
 			
 		}		
+	}
+	
+	public void createConnectionsForNodes(DiagModel model, List<DiagNode> nodes) {
+		HashMap<String,DiagNode> nodeHash = new HashMap<String,DiagNode>() ;
+		for(DiagNode node: nodes) {
+			nodeHash.put(node.getName(), node) ;
+		}
+		
+		for(DiagNode node: nodes) {
+			SVDBClassDecl classDecl = (SVDBClassDecl)node.getSVDBItem() ;
+			for(ISVDBChildItem child: classDecl.getChildren()) {
+				if(child.getType() == SVDBItemType.VarDeclStmt) {
+					SVDBVarDeclStmt childVarDecl = (SVDBVarDeclStmt)child ;
+					// Check for members of user defined type (class?) as
+					// connected to
+					if(childVarDecl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
+						String typeName = childVarDecl.getTypeName() ;
+						if(nodeHash.containsKey(typeName)) {
+							DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, nodeHash.get(typeName)) ;
+							model.addConnection(con) ;
+							node.addContainedClass(nodeHash.get(typeName)) ;
+						}
+					}
+				}
+			}		
+		}
 		
 	}
-
 	
 }
