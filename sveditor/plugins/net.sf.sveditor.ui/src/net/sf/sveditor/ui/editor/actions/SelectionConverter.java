@@ -16,6 +16,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -59,13 +60,24 @@ public class SelectionConverter {
 				(expr_ctxt.fTrigger == null || 
 				 expr_ctxt.fTrigger.equals(""))) {
 			
-			// FIXME: currently only looks for class/module/if declarations
-			// as it is only the quick hierarchy using this.
+			List<ISVDBChildItem> found ;
+			
+			// FIXME: currently only looks for class/module/if and package declarations
+			// as it is only the quick hierarchy and package/class diagram using this.
+			
+			SVDBFindNamedPackage findNamedPkg = new SVDBFindNamedPackage(editor.getIndexIterator()) ;
+			
+			found = findNamedPkg.find(expr_ctxt.fLeaf); 
+			ISVDBItemBase pkg = (found != null && found.size() > 0) ? found.get(0) : null ; 
+			
+			if(pkg != null) {
+				return pkg ;
+			}
 			
 			SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
 					editor.getIndexIterator()) ;
 			
-				List<ISVDBChildItem> found = finder_c.find(expr_ctxt.fLeaf); 
+				found = finder_c.find(expr_ctxt.fLeaf); 
 				ISVDBItemBase cls = (found != null && found.size() > 0)?found.get(0):null; 
 				
 				if(cls == null) {
