@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ant.core,
  org.apache.ant,
  org.eclipse.core.variables,
- org.eclipse.core.expressions,
  net.sf.sveditor.extjar,
  org.eclipse.zest.core,
  org.eclipse.zest.layouts
