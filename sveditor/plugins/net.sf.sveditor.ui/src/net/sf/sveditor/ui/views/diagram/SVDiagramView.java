@@ -11,10 +11,13 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.views.diagram.context_menu.NewDiagramForClassContributionItem;
 
+import org.eclipse.core.commands.IHandler;
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.ManhattanConnectionRouter;
@@ -22,7 +25,10 @@ import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -45,6 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -73,8 +80,14 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	private CTabItem fConfigTab ;
 	private CTabFolder fTabFolder ;
 	private IDiagLabelProviderConfig fDiagLabelProvider ;
+	private NewDiagramForClassHandler fNewDiagramForClassHandler ;
+	private NewDiagramForClassContributionItem fNewDiagramForClassContributionItem ;
 	
 	private double [] fZoomLevels = { 0.25,0.75, 1.0 } ;
+	
+	public GraphViewer getGraphViewer() {
+		return fGraphViewer ;
+	}
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -86,6 +99,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 		createGraphViewer(parent) ;
 		createTabFolder(parent) ;		
+		createContextMenu() ;
+		createContributions() ;
 		
 		//
 		//
@@ -104,6 +119,27 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 		fTabFolder.setSelection(fConfigTab) ;
 		
+	}
+
+    private void createContextMenu() {
+     MenuManager menuMgr = new MenuManager("#PopupMenu") ;
+        menuMgr.setRemoveAllWhenShown(true) ;
+        menuMgr.addMenuListener(new IMenuListener() {
+                public void menuAboutToShow(IMenuManager mgr) {
+                        SVDiagramView.this.fillContextMenu(mgr);
+                }
+        }) ;
+        // Create menu.
+        Menu menu = menuMgr.createContextMenu(fGraphViewer.getControl()) ;
+        fGraphViewer.getControl().setMenu(menu) ;
+    }
+
+	protected void fillContextMenu(IMenuManager mgr) {
+		mgr.add(fNewDiagramForClassContributionItem) ;
+	}
+	private void createContributions() {
+		fNewDiagramForClassHandler = new NewDiagramForClassHandler() ;
+		fNewDiagramForClassContributionItem = new NewDiagramForClassContributionItem(this, fNewDiagramForClassHandler) ;
 	}
 
 	private void createGraphViewer(Composite parent) {
@@ -169,6 +205,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 //				System.out.println(((Graph) e.widget).getSelection());
 			}
 		}) ;
+//		fGraphViewer.getGraphControl().addSelectionListener(selectionListener)
 	}
 
 	private void createToolBarItems(Composite parent) {
@@ -348,9 +385,11 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		return fGraphViewer ;
 	}
 
-	public void setTarget(DiagModel model, IDiagModelFactory factory) {
+	public void setTarget(DiagModel model, IDiagModelFactory factory, ISVDBIndex index) {
+		if(model == null || factory == null || index == null) { return ; }
 		fModel = model ;
 		fModelFactory = factory ;
+		fNewDiagramForClassHandler.setSVDBIndex(index) ;
 		fGraphViewer.setInput(fModel.getNodes()) ;
 //		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ; // TODO: Zest 2.0
 		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
@@ -364,6 +403,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			page.setPartState(page.getReference(this), state);
 		}
 	}
+
 	
 }
 

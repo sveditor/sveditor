@@ -99,7 +99,7 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 						
 						((SVDiagramView)view).setViewState(IWorkbenchPage.STATE_MAXIMIZED) ;
 	
-						((SVDiagramView)view).setTarget(model, factory);
+						((SVDiagramView)view).setTarget(model, factory, fEditor.getSVDBIndex());
 						
 					}
 
