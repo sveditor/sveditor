@@ -165,7 +165,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 		fGraphViewer.getGraphControl().addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(((Graph) e.widget).getSelection());
+//				System.out.println(((Graph) e.widget).getSelection());
 			}
 		}) ;
 	}
