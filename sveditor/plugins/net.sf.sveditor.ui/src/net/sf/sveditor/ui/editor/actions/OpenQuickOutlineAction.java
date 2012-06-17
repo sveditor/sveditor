@@ -13,19 +13,14 @@
 
 package net.sf.sveditor.ui.editor.actions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.ui.editor.SVEditor;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenQuickOutlineAction extends TextEditorAction {
 	
-	private IWorkbench				fWorkbench;
 	private SVEditor fEditor;
 	
 	public OpenQuickOutlineAction(
@@ -35,33 +30,11 @@ public class OpenQuickOutlineAction extends TextEditorAction {
 		super(bundle, "OpenQuickOutline.", editor) ;
 		
 		fEditor = editor ;
-		
-		fWorkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getWorkbench() ;
 	}
 
-	@Override
 	public void run() {
-		try {
-			fWorkbench.getProgressService().run(false, false, fOpenQuickOutline);
-		} catch (InvocationTargetException e) {
-		} catch (InterruptedException e) {
-		}
-	}
-	
-	private IRunnableWithProgress fOpenQuickOutline = new IRunnableWithProgress() {
 		
-		public void run(IProgressMonitor monitor) throws InvocationTargetException,
-				InterruptedException {
-			
-			monitor.beginTask("Open quick outline", 2);
-			
-			monitor.worked(1);
-			
-			fEditor.getQuickOutlinePresenter().showInformation() ;
-			
-			monitor.done();
-		}
-	};
-	
-
+		fEditor.getQuickOutlinePresenter().showInformation() ;
+		
+	}
 }

@@ -13,19 +13,14 @@
 
 package net.sf.sveditor.ui.editor.actions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import net.sf.sveditor.ui.editor.SVEditor;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
+
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenQuickObjectsViewAction extends TextEditorAction {
 	
-	private IWorkbench				fWorkbench;
 	private SVEditor fEditor;
 	
 	public OpenQuickObjectsViewAction(
@@ -35,33 +30,12 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 		super(bundle, "OpenQuickObjects.", editor) ;
 		
 		fEditor = editor ;
-		
-		fWorkbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getWorkbench() ;
 	}
 
 	@Override
 	public void run() {
-		try {
-			fWorkbench.getProgressService().run(false, false, fOpenQuickObjects);
-		} catch (InvocationTargetException e) {
-		} catch (InterruptedException e) {
-		}
-	}
-	
-	private IRunnableWithProgress fOpenQuickObjects = new IRunnableWithProgress() {
-		
-		public void run(IProgressMonitor monitor) throws InvocationTargetException,
-				InterruptedException {
 			
-			monitor.beginTask("Open Objects View", 2);
-			
-			monitor.worked(1);
-			
-			fEditor.getQuickObjectsPresenter().showInformation() ;
-			
-			monitor.done();
-		}
+		fEditor.getQuickObjectsPresenter().showInformation() ;
 	};
-	
 
 }
