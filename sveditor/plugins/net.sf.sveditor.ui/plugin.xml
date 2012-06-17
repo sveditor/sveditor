@@ -566,7 +566,7 @@
             icon="icons/eview16/class_hi.gif"
             id="net.sf.sveditor.ui.diagramView"
             name="Diagram"
-            restorable="true">
+            restorable="false">
          <description>
             SystemVerilog Objects Viewer
          </description>

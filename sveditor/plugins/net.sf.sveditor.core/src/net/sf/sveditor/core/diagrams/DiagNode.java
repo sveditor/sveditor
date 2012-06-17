@@ -33,10 +33,13 @@ public class DiagNode {
 	private List<SVDBVarDeclItem> fMemberDecls ;
 	private List<SVDBFunction> fFuncDecls ;
 	private List<SVDBTask> fTaskDecls ;
+	
+	private boolean fSelected ;
 
 	public DiagNode(String name, ISVDBItemBase item) {
 
 		this.fName = name;
+		this.fSelected = false;
 		this.fMemberDecls = new ArrayList<SVDBVarDeclItem>();
 		this.fFuncDecls = new ArrayList<SVDBFunction>();
 		this.fTaskDecls = new ArrayList<SVDBTask>();
@@ -97,6 +100,14 @@ public class DiagNode {
 	
 	public List<SVDBTask> getTaskDecls() {
 		return fTaskDecls ;
+	}
+
+	public void setSelected(boolean selected) {
+		fSelected = selected ;
+	}
+
+	public boolean getSelected() {
+		return fSelected ;
 	}
 
 }

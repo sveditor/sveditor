@@ -11,18 +11,27 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.views.diagram.context_menu.NewDiagramForClassContributionItem;
 
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
+import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.ManhattanConnectionRouter;
 import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -30,6 +39,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -45,6 +56,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
@@ -57,6 +69,7 @@ import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
 import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
+import org.eclipse.zest.core.widgets.CGraphNode;
 import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
@@ -73,8 +86,15 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	private CTabItem fConfigTab ;
 	private CTabFolder fTabFolder ;
 	private IDiagLabelProviderConfig fDiagLabelProvider ;
+	private NewDiagramForClassHandler fNewDiagramForClassHandler ;
+	private NewDiagramForClassContributionItem fNewDiagramForClassContributionItem ;
 	
+	@SuppressWarnings("unused")
 	private double [] fZoomLevels = { 0.25,0.75, 1.0 } ;
+	
+	public GraphViewer getGraphViewer() {
+		return fGraphViewer ;
+	}
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -86,6 +106,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 		createGraphViewer(parent) ;
 		createTabFolder(parent) ;		
+		createContextMenu() ;
+		createContributions() ;
 		
 		//
 		//
@@ -104,6 +126,27 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		
 		fTabFolder.setSelection(fConfigTab) ;
 		
+	}
+
+    private void createContextMenu() {
+     MenuManager menuMgr = new MenuManager("#PopupMenu") ;
+        menuMgr.setRemoveAllWhenShown(true) ;
+        menuMgr.addMenuListener(new IMenuListener() {
+                public void menuAboutToShow(IMenuManager mgr) {
+                        SVDiagramView.this.fillContextMenu(mgr);
+                }
+        }) ;
+        // Create menu.
+        Menu menu = menuMgr.createContextMenu(fGraphViewer.getControl()) ;
+        fGraphViewer.getControl().setMenu(menu) ;
+    }
+
+	protected void fillContextMenu(IMenuManager mgr) {
+		mgr.add(fNewDiagramForClassContributionItem) ;
+	}
+	private void createContributions() {
+		fNewDiagramForClassHandler = new NewDiagramForClassHandler() ;
+		fNewDiagramForClassContributionItem = new NewDiagramForClassContributionItem(this, fNewDiagramForClassHandler) ;
 	}
 
 	private void createGraphViewer(Composite parent) {
@@ -148,6 +191,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	}
 
 	private void createListeners() {
+		
 		fGraphViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				if(event.getSelection().isEmpty()) return ;
@@ -164,11 +208,67 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			}
 		}) ;
 		
+		fGraphViewer.getGraphControl().addMouseListener(new MouseListener() {
+			public void mouseUp(MouseEvent e) { }
+			public void mouseDown(MouseEvent e) {
+				// If mouse button pressed NOT on a class figure, undo any selection
+				IFigure figure = fGraphViewer.getGraphControl().getFigureAt(e.x, e.y) ;
+				if(figure == null) {
+					// DeSelect all the selected nodes
+					Set<DiagNode> nodesChanged = new HashSet<DiagNode>() ;
+					for(Object item: fGraphViewer.getGraphControl().getGraph().getSelection()) {
+						if(!(item instanceof CGraphNode)) { continue ; }
+						CGraphNode graphNode = (CGraphNode)item ;
+						if(!(graphNode.getData() instanceof DiagNode)) { continue ; }
+						DiagNode dNode = (DiagNode)graphNode.getData() ;
+						dNode.setSelected(false) ;
+						nodesChanged.add(dNode) ;
+					}
+					// Refresh the view. This might get slow with large diagrams.
+					if(nodesChanged.size() != 0) {
+						fGraphViewer.refresh();
+					}
+					fGraphViewer.getGraphControl().getGraph().setSelection(null) ;
+				}
+			}
+			public void mouseDoubleClick(MouseEvent e) { }
+		}) ;
+		
+		
 		fGraphViewer.getGraphControl().addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				System.out.println(((Graph) e.widget).getSelection());
+				if(!(e.widget instanceof Graph)) {
+					return ;
+				}
+				Graph graph = (Graph)e.widget ;
+				Set<DiagNode> nodesChanged = new HashSet<DiagNode>() ;
+				// Deselect all nodes
+				for(Object obj: graph.getNodes()) {
+					if(!(obj instanceof CGraphNode)) { continue ; }
+					CGraphNode graphNode = (CGraphNode)obj ;
+					if(!(graphNode.getData() instanceof DiagNode)) { continue ; }
+					DiagNode dNode = (DiagNode)graphNode.getData() ;
+					if(dNode.getSelected()) {
+						dNode.setSelected(false) ;
+						nodesChanged.add(dNode) ;
+					}
+				}
+				// Select all the selected nodes
+				for(Object item: fGraphViewer.getGraphControl().getGraph().getSelection()) {
+					if(!(item instanceof CGraphNode)) { continue ; }
+					CGraphNode graphNode = (CGraphNode)item ;
+					if(!(graphNode.getData() instanceof DiagNode)) { continue ; }
+					DiagNode dNode = (DiagNode)graphNode.getData() ;
+					dNode.setSelected(true) ;
+					nodesChanged.add(dNode) ;
+				}
+				// Refresh the view. This might get slow with large diagrams.
+				if(nodesChanged.size() != 0) {
+					fGraphViewer.refresh();
+				}
 			}
 		}) ;
+		
 	}
 
 	private void createToolBarItems(Composite parent) {
@@ -253,6 +353,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		}) ;
 	}
 
+	@SuppressWarnings("unused")
 	private void createRoutingGroup() {
 		Group group;
 		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
@@ -348,9 +449,11 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		return fGraphViewer ;
 	}
 
-	public void setTarget(DiagModel model, IDiagModelFactory factory) {
+	public void setTarget(DiagModel model, IDiagModelFactory factory, ISVDBIndex index) {
+		if(model == null || factory == null || index == null) { return ; }
 		fModel = model ;
 		fModelFactory = factory ;
+		fNewDiagramForClassHandler.setSVDBIndex(index) ;
 		fGraphViewer.setInput(fModel.getNodes()) ;
 //		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ; // TODO: Zest 2.0
 		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
@@ -364,6 +467,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 			page.setPartState(page.getReference(this), state);
 		}
 	}
+
 	
 }
 

@@ -46,9 +46,8 @@ public class LeaveEmBeLayoutAlgoritm extends AbstractLayoutAlgorithm {
 	}
 
 	@Override
-	protected boolean isValidConfiguration(boolean asynchronous,
-			boolean continuous) {
-		return false;
+	protected boolean isValidConfiguration(boolean asynchronous, boolean continuous) {
+		return true ;
 	}
 
 	@Override
@@ -62,6 +61,7 @@ public class LeaveEmBeLayoutAlgoritm extends AbstractLayoutAlgorithm {
 			InternalRelationship[] relationshipsToConsider, double x, double y,
 			double width, double height) {
 	}
+	
 
 	@Override
 	protected void postLayoutAlgorithm(InternalNode[] entitiesToLayout,
