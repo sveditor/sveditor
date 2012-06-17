@@ -57,6 +57,7 @@ import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
 import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
+import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.layouts.algorithms.BoxLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
@@ -73,16 +74,39 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	private CTabFolder fTabFolder ;
 	private IDiagLabelProviderConfig fDiagLabelProvider ;
 	
+	private double [] fZoomLevels = { 0.25,0.75, 1.0 } ;
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		
 		GridLayout gl = new GridLayout() ;
-		GridData gd = null ;
-		Group group = null ;
 		
 		gl.numColumns = 2 ;
 		parent.setLayout(gl) ;
 		
+		createGraphViewer(parent) ;
+		createTabFolder(parent) ;		
+		
+		//
+		//
+		//
+		
+		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(this);
+		IActionBars bars = getViewSite().getActionBars();
+		bars.getMenuManager().add(toolbarZoomContributionViewItem);
+		fGraphViewer.getGraphControl().getZoomManager().setZoomLevels(fZoomLevels) ;
+		
+		//
+		//
+		//
+		fGraphViewer.setLayoutAlgorithm(new BoxLayoutAlgorithm(), false) ;
+		
+		fTabFolder.setSelection(fConfigTab) ;
+		
+	}
+
+	private void createGraphViewer(Composite parent) {
+		GridData gd;
 		fGraphViewer = new GraphViewer(parent, SWT.BORDER) ;
 		fDiagLabelProvider = new DiagLabelProvider() ;
 		fGraphViewer.setContentProvider(new NodeContentProvider()) ;
@@ -95,7 +119,10 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		gd.horizontalAlignment = GridData.FILL ;
 		gd.verticalAlignment = GridData.FILL ;
 		fGraphViewer.getControl().setLayoutData(gd) ;
-		
+	}
+
+	private void createTabFolder(Composite parent) {
+		GridData gd;
 		fTabFolder = new CTabFolder(parent, SWT.NONE) ;
 		fTabFolder.setSimple(false) ;
 		
@@ -112,78 +139,76 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fConfigTab.setControl(new Composite(fTabFolder, SWT.NONE)) ; 
 		((Composite)fConfigTab.getControl()).setLayout(new GridLayout()) ;
 		
-		//
-		// Layout radio button group
-		//
-		
-		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
-		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
-		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
-		group.setText("Layout") ;
-		Button layoutRadios[] = new Button[3] ;
-		layoutRadios[0] = new Button(group, SWT.RADIO) ;
-		layoutRadios[0].setText("Grid (Default)") ;
-		layoutRadios[0].setSelection(true) ;
-		layoutRadios[0].addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
-				fGraphViewer.applyLayout() ;
+		createLayoutGroup() ;
+		createRoutingGroup() ;
+		createClassDetailsGroup() ;
+		createToolBarItems(parent) ;
+		createListeners() ;
+	}
+
+	private void createListeners() {
+		fGraphViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				if(event.getSelection().isEmpty()) return ;
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				if (sel.getFirstElement() instanceof DiagNode) {
+					DiagNode dn = (DiagNode)sel.getFirstElement() ;
+					try {
+						SVEditorUtil.openEditor(dn.getSVDBItem()) ;
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}				
 			}
-		});
-		layoutRadios[1] = new Button(group, SWT.RADIO) ;
-		layoutRadios[1].setText("Radial") ;
-		layoutRadios[1].addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm()) ;
-				fGraphViewer.applyLayout() ;
-			}
-		});
-		layoutRadios[2] = new Button(group, SWT.RADIO) ;
-		layoutRadios[2].setText("Tree") ;
-		layoutRadios[2].addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm()) ;
-				fGraphViewer.applyLayout() ;
-			}
-		});
+		}) ;
 		
-		//
-		// Routing buttons groups
-		//
-		
-		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
-		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
-		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
-		group.setText("Connection Routing") ;
-		Button routingButtons[] = new Button[2] ;
-		routingButtons[0] = new Button(group, SWT.RADIO) ;
-		routingButtons[0].setText("Manhattan (Default)") ;
-		routingButtons[0].setSelection(true) ;
-		fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
-		routingButtons[0].addSelectionListener(new SelectionAdapter() {
-			@Override
+		fGraphViewer.getGraphControl().addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
-				fGraphViewer.setInput(fModel.getNodes()) ;
+				System.out.println(((Graph) e.widget).getSelection());
 			}
-		});
-		routingButtons[1] = new Button(group, SWT.RADIO) ;
-		routingButtons[1].setText("Fan") ;
-		routingButtons[1].addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fDiagLabelProvider.setSVDiagRouter(new FanRouter()) ;
-				fGraphViewer.setInput(fModel.getNodes()) ;
-			}
-		});
+		}) ;
+	}
+
+	private void createToolBarItems(Composite parent) {
+		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager() ;
 		
-		//
-		// Class Details group
-		//
+		final Shell shell = parent.getShell() ;
 		
+		tbm.add( new Action("Export Image", Action.AS_PUSH_BUTTON) {
+			{ setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
+					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT)) ; }
+			public void run() {
+				FileDialog fileDialog = new FileDialog(shell, SWT.SAVE) ;
+				fileDialog.setText("Select File");
+				fileDialog.setFilterExtensions(new String[] { "*.png" });
+				fileDialog.setFilterNames(new String[] { "PNG files (*.png)" });
+				String selected = fileDialog.open() ;				
+				if(selected != null) {
+					ScalableFigure figure = fGraphViewer.getGraphControl().getRootLayer() ;
+					Rectangle bounds = figure.getBounds() ;
+					Control srcCanvas = fGraphViewer.getGraphControl() ;
+					GC srcGC = new GC(srcCanvas) ;
+					Image destImg = new Image(null, bounds.width, bounds.height) ;
+					GC destImgGC = new GC(destImg) ;
+					destImgGC.setBackground(srcGC.getBackground()) ;
+					destImgGC.setForeground(srcGC.getForeground()) ;
+					destImgGC.setFont(srcGC.getFont()) ;
+					destImgGC.setLineStyle(srcGC.getLineStyle()) ;
+					destImgGC.setLineWidth(srcGC.getLineWidth()) ;
+					Graphics dstImgGraphics = new SWTGraphics(destImgGC) ;
+					figure.paint(dstImgGraphics) ;
+					ImageLoader imgLoader = new ImageLoader() ;
+					imgLoader.data = new ImageData[] { destImg.getImageData() } ;
+					imgLoader.save(selected, SWT.IMAGE_PNG) ;
+					destImg.dispose() ;
+					destImgGC.dispose() ;
+				}
+			} }) ;
+	}
+
+	private void createClassDetailsGroup() {
+		Group group;
 		Button button = null ;
 		
 		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
@@ -225,82 +250,72 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 				updateInputNoLayout() ;
 			}
 		}) ;
-		
-		
-		//
-		//
-		//
-		
-		IToolBarManager tbm = getViewSite().getActionBars().getToolBarManager() ;
-		
-		final Shell shell = parent.getShell() ;
-		
-		tbm.add( new Action("Export Image", Action.AS_PUSH_BUTTON) {
-			{ setImageDescriptor(PlatformUI.getWorkbench().getSharedImages()
-					.getImageDescriptor(ISharedImages.IMG_ETOOL_SAVEAS_EDIT)) ; }
-			public void run() {
-				FileDialog fileDialog = new FileDialog(shell, SWT.SAVE) ;
-				fileDialog.setText("Select File");
-				fileDialog.setFilterExtensions(new String[] { "*.png" });
-				fileDialog.setFilterNames(new String[] { "PNG files (*.png)" });
-				String selected = fileDialog.open() ;				
-				if(selected != null) {
-					ScalableFigure figure = fGraphViewer.getGraphControl().getRootLayer() ;
-					Rectangle bounds = figure.getBounds() ;
-					Control srcCanvas = fGraphViewer.getGraphControl() ;
-					GC srcGC = new GC(srcCanvas) ;
-					Image destImg = new Image(null, bounds.width, bounds.height) ;
-					GC destImgGC = new GC(destImg) ;
-					destImgGC.setBackground(srcGC.getBackground()) ;
-					destImgGC.setForeground(srcGC.getForeground()) ;
-					destImgGC.setFont(srcGC.getFont()) ;
-					destImgGC.setLineStyle(srcGC.getLineStyle()) ;
-					destImgGC.setLineWidth(srcGC.getLineWidth()) ;
-					Graphics dstImgGraphics = new SWTGraphics(destImgGC) ;
-					figure.paint(dstImgGraphics) ;
-					ImageLoader imgLoader = new ImageLoader() ;
-					imgLoader.data = new ImageData[] { destImg.getImageData() } ;
-					imgLoader.save(selected, SWT.IMAGE_PNG) ;
-					destImg.dispose() ;
-					destImgGC.dispose() ;
-				}
-			} }) ;
-		
-		//
-		//
-		//
-		
-		fGraphViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				if(event.getSelection().isEmpty()) return ;
-				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof DiagNode) {
-					DiagNode dn = (DiagNode)sel.getFirstElement() ;
-					try {
-						SVEditorUtil.openEditor(dn.getSVDBItem()) ;
-					} catch (PartInitException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}				
+	}
+
+	private void createRoutingGroup() {
+		Group group;
+		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
+		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
+		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
+		group.setText("Connection Routing") ;
+		Button routingButtons[] = new Button[2] ;
+		routingButtons[0] = new Button(group, SWT.RADIO) ;
+		routingButtons[0].setText("Manhattan (Default)") ;
+		routingButtons[0].setSelection(true) ;
+		fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
+		routingButtons[0].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fDiagLabelProvider.setSVDiagRouter(new ManhattanConnectionRouter()) ;
+				fGraphViewer.setInput(fModel.getNodes()) ;
 			}
-		}) ;
-		
-		//
-		//
-		//
-		
-		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(this);
-		IActionBars bars = getViewSite().getActionBars();
-		bars.getMenuManager().add(toolbarZoomContributionViewItem);
-		
-		//
-		//
-		//
-		fGraphViewer.setLayoutAlgorithm(new BoxLayoutAlgorithm(), false) ;
-		
-		fTabFolder.setSelection(fConfigTab) ;
-		
+		});
+		routingButtons[1] = new Button(group, SWT.RADIO) ;
+		routingButtons[1].setText("Fan") ;
+		routingButtons[1].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fDiagLabelProvider.setSVDiagRouter(new FanRouter()) ;
+				fGraphViewer.setInput(fModel.getNodes()) ;
+			}
+		});
+	}
+
+	private void createLayoutGroup() {
+		Group group;
+		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
+		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
+		group.setLayout(new RowLayout(SWT.VERTICAL)) ;
+		group.setText("Layout") ;
+		Button layoutRadios[] = new Button[3] ;
+		layoutRadios[0] = new Button(group, SWT.RADIO) ;
+		layoutRadios[0].setText("Grid (Default)") ;
+		layoutRadios[0].setSelection(true) ;
+		layoutRadios[0].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
+				fGraphViewer.applyLayout() ;
+			}
+		});
+		layoutRadios[1] = new Button(group, SWT.RADIO) ;
+		layoutRadios[1].setText("Radial") ;
+		layoutRadios[1].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm()) ;
+				fGraphViewer.applyLayout() ;
+			}
+		});
+		layoutRadios[2] = new Button(group, SWT.RADIO) ;
+		layoutRadios[2].setText("Tree") ;
+		layoutRadios[2].addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm()) ;
+				fGraphViewer.applyLayout() ;
+			}
+		});
 	}
 	
 	private void updateInputNoLayout() {

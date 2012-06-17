@@ -11,6 +11,8 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import java.util.HashSet;
+
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -32,6 +34,26 @@ import org.eclipse.zest.core.widgets.ZestStyles;
 
 public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFigureProvider, IConnectionStyleProvider {
 	
+	final HashSet<String> fExcludedUVMMembers ;
+	
+	public DiagLabelProvider() {
+		fExcludedUVMMembers = new HashSet<String>() ;
+		createExcludeLists() ;
+	}
+	
+	private void createExcludeLists() {
+		// Uvm
+		fExcludedUVMMembers.add("type_name") ;
+		fExcludedUVMMembers.add("m_registered_converter__") ;
+		fExcludedUVMMembers.add("get_type") ;
+		fExcludedUVMMembers.add("get_object_type") ;
+		fExcludedUVMMembers.add("get_type_name") ;
+		fExcludedUVMMembers.add("__m_uvm_field_automation") ;
+		fExcludedUVMMembers.add("m_find_number_driver_connections") ;
+		// TODO: exclude ovm members
+		// TODO: exclude vmm members
+	}
+
 	@Override
 	public String getText(Object element) {
 		if (element instanceof DiagNode) {
@@ -90,6 +112,12 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 				String typeName = "unknown" ;
 				if(declItem.getParent() != null) {
 					typeName = declItem.getParent().getTypeName();
+				} else {
+					continue ;
+				}
+				// Skip members from methodology
+				if(fExcludedUVMMembers.contains(declItem.getName())) {
+					continue ;
 				}
 				String labelString = getShowFieldTypes() ? typeName + ": " + declItem.getName() : declItem.getName() 
 						+ " " ; // Extra space at end due to last char sometimes being cut off
@@ -102,12 +130,16 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		
 		if(getIncludePrivateTasksFunctions()) {
 			for(SVDBFunction funcItem: node.getFuncDecls()) {
-			  classFigure.getMethodsCompartment().add(
+			// Skip members from methodology
+				if(fExcludedUVMMembers.contains(funcItem.getName())) { continue ; }
+				classFigure.getMethodsCompartment().add(
 					  new Label(funcItem.getName() + "() ", 
 							  SVDBIconUtils.getIcon(funcItem))) ; // Extra space at end due to last char sometimes being cut off
 			}
 			for(SVDBTask taskItem: node.getTaskDecls()) {
-			  classFigure.getMethodsCompartment().add(
+				// Skip members from methodology
+				if(fExcludedUVMMembers.contains(taskItem.getName())) { continue ; }
+				classFigure.getMethodsCompartment().add(
 					  new Label(taskItem.getName() + "() ", 
 							  SVDBIconUtils.getIcon(taskItem))) ; // Extra space at end due to last char sometimes being cut off
 			}
