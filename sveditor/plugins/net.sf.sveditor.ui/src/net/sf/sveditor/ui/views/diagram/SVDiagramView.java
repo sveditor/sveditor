@@ -58,7 +58,7 @@ import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
 import org.eclipse.zest.core.widgets.Graph;
-import org.eclipse.zest.layouts.algorithms.BoxLayoutAlgorithm;
+import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
@@ -94,12 +94,13 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		ZoomContributionViewItem toolbarZoomContributionViewItem = new ZoomContributionViewItem(this);
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(toolbarZoomContributionViewItem);
-		fGraphViewer.getGraphControl().getZoomManager().setZoomLevels(fZoomLevels) ;
+//		fGraphViewer.getGraphControl().getZoomManager().setZoomLevels(fZoomLevels) ; // TODO: Zest 2.0
 		
 		//
 		//
 		//
-		fGraphViewer.setLayoutAlgorithm(new BoxLayoutAlgorithm(), false) ;
+//		fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm(), false) ; // TODO: Zest 2.0
+		fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING), false) ;
 		
 		fTabFolder.setSelection(fConfigTab) ;
 		
@@ -140,7 +141,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		((Composite)fConfigTab.getControl()).setLayout(new GridLayout()) ;
 		
 		createLayoutGroup() ;
-		createRoutingGroup() ;
+//		createRoutingGroup() ;  // TODO: Zest 2.0
 		createClassDetailsGroup() ;
 		createToolBarItems(parent) ;
 		createListeners() ;
@@ -294,7 +295,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		layoutRadios[0].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
+//				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ; // TODO: Zest 2.0
+				fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
@@ -303,7 +305,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		layoutRadios[1].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm()) ;
+//				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm()) ; // TODO: Zest 2.0
+				fGraphViewer.setLayoutAlgorithm(new RadialLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
@@ -312,7 +315,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		layoutRadios[2].addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm()) ;
+//				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm()) ; // TODO: Zest 2.0
+				fGraphViewer.setLayoutAlgorithm(new TreeLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
 				fGraphViewer.applyLayout() ;
 			}
 		});
@@ -348,7 +352,8 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		fModel = model ;
 		fModelFactory = factory ;
 		fGraphViewer.setInput(fModel.getNodes()) ;
-		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ;
+//		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm()) ; // TODO: Zest 2.0
+		fGraphViewer.setLayoutAlgorithm(new GridLayoutAlgorithm(LayoutStyles.NO_LAYOUT_NODE_RESIZING)) ;
 	}
 	
 	public void setViewState(int state) {
