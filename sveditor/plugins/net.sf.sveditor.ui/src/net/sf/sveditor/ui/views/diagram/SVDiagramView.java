@@ -17,7 +17,6 @@ import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.views.diagram.context_menu.NewDiagramForClassContributionItem;
 
-import org.eclipse.core.commands.IHandler;
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.ManhattanConnectionRouter;
@@ -64,7 +63,6 @@ import org.eclipse.zest.core.viewers.AbstractZoomableViewer;
 import org.eclipse.zest.core.viewers.GraphViewer;
 import org.eclipse.zest.core.viewers.IZoomableWorkbenchPart;
 import org.eclipse.zest.core.viewers.ZoomContributionViewItem;
-import org.eclipse.zest.core.widgets.Graph;
 import org.eclipse.zest.layouts.LayoutStyles;
 import org.eclipse.zest.layouts.algorithms.GridLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
@@ -83,6 +81,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 	private NewDiagramForClassHandler fNewDiagramForClassHandler ;
 	private NewDiagramForClassContributionItem fNewDiagramForClassContributionItem ;
 	
+	@SuppressWarnings("unused")
 	private double [] fZoomLevels = { 0.25,0.75, 1.0 } ;
 	
 	public GraphViewer getGraphViewer() {
@@ -290,6 +289,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		}) ;
 	}
 
+	@SuppressWarnings("unused")
 	private void createRoutingGroup() {
 		Group group;
 		group = new Group((Composite)fConfigTab.getControl(), SWT.NONE) ;
