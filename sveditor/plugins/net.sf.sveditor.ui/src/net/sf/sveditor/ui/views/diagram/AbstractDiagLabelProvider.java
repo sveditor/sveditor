@@ -11,6 +11,7 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import org.eclipse.draw2d.AbstractRouter;
 import org.eclipse.jface.viewers.LabelProvider;
 
 public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLabelProviderConfig {
@@ -20,6 +21,7 @@ public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLab
 	private boolean fIncludePrivateClassTasksFunctions ;
 	private boolean fIncludePublicClassTasksFunctions ; 
 	private boolean fShowFieldTypes ;
+	private AbstractRouter fRouter ;
 
 	public boolean getIncludePrivateClassFields() {
 		return fIncludePrivateClassFields ;
@@ -60,4 +62,13 @@ public class AbstractDiagLabelProvider extends LabelProvider implements IDiagLab
 	public void setShowFieldTypes(boolean show) {
 		fShowFieldTypes = show ;
 	}
+
+	public void setSVDiagRouter(AbstractRouter router) {
+		fRouter = router ;
+	}
+	
+	public AbstractRouter getSVDiagRouter() {
+		return fRouter ;
+	}
+	
 }

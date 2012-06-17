@@ -11,6 +11,8 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
+import org.eclipse.draw2d.AbstractRouter;
+
 public interface IDiagLabelProviderConfig {
 	
 	boolean getIncludePrivateClassFields() ;
@@ -32,5 +34,7 @@ public interface IDiagLabelProviderConfig {
 	void setIncludePublicTasksFunctions(boolean include) ;
 	
 	void setShowFieldTypes(boolean show) ;
+
+	void setSVDiagRouter(AbstractRouter router);
 	
 }
