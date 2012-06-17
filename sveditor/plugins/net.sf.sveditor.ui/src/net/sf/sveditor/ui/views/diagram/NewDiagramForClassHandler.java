@@ -43,12 +43,14 @@ public class NewDiagramForClassHandler extends AbstractHandler implements IHandl
 			IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
 			IViewPart view;
 			try {
+//				String viewName = classDecl.getName() ;
 				if ((view = page.findView(SVUiPlugin.PLUGIN_ID + ".diagramView")) == null) {
 					view = page.showView(SVUiPlugin.PLUGIN_ID + ".diagramView") ;
 				}
 				DiagModel model = factory.build() ;
 				if(model == null) { return null ; }
-				view = page.showView(SVUiPlugin.PLUGIN_ID + ".diagramView");
+//				view = page.showView(SVUiPlugin.PLUGIN_ID + ".diagramView", viewName, IWorkbenchPage.VIEW_VISIBLE) ;
+//				view = page.showView(SVUiPlugin.PLUGIN_ID + ".diagramView");
 				page.activate(view) ;
 				((SVDiagramView)view).setViewState(IWorkbenchPage.STATE_MAXIMIZED) ;
 				((SVDiagramView)view).setTarget(model, factory, fSVDBIndex);
