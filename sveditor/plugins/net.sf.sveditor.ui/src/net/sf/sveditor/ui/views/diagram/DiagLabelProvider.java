@@ -103,7 +103,7 @@ public class DiagLabelProvider extends AbstractDiagLabelProvider implements IFig
 		Label classLabel1 = new Label(classDecl.getName(), SVDBIconUtils.getIcon(classDecl)) ;
 //		classLabel1.setFont(classFont);
 		
-		UMLClassFigure classFigure = new UMLClassFigure(classLabel1);
+		UMLClassFigure classFigure = new UMLClassFigure(classLabel1, node.getSelected());
 		
 		// TODO: currently grouping all fields under the "private" enable regardless of accessibility. Provide settings for both in diag options then distinguish here
 		
