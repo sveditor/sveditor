@@ -15,46 +15,67 @@ import org.eclipse.zest.layouts.algorithms.AbstractLayoutAlgorithm;
 import org.eclipse.zest.layouts.dataStructures.InternalNode;
 import org.eclipse.zest.layouts.dataStructures.InternalRelationship;
 
+//import org.eclipse.zest.layouts.interfaces.LayoutContext;
+//
+//
+//public class LeaveEmBeLayoutAlgoritm implements LayoutAlgorithm {
+//	
+//	public LeaveEmBeLayoutAlgoritm(int styles) { }
+//
+//	public void setLayoutContext(LayoutContext context) { }
+//
+//	public void applyLayout(boolean clean) { }
+//
+//}
+
+
+
+
 public class LeaveEmBeLayoutAlgoritm extends AbstractLayoutAlgorithm {
 	
-	public LeaveEmBeLayoutAlgoritm(int styles) {
-		super(styles);
+	public LeaveEmBeLayoutAlgoritm(int styles) { 
+		super(styles) ;
 	}
 
-	private int totalSteps;
+//	public void setLayoutContext(LayoutContext context) { }
+//
+//	public void applyLayout(boolean clean) { }
 
+	@Override
+	public void setLayoutArea(double x, double y, double width, double height) {
+	}
+
+	@Override
+	protected boolean isValidConfiguration(boolean asynchronous,
+			boolean continuous) {
+		return false;
+	}
+
+	@Override
 	protected void applyLayoutInternal(InternalNode[] entitiesToLayout,
-			InternalRelationship[] relationshipsToConsider, double boundsX, double boundsY, double boundsWidth,
-			double boundsHeight) {
-		totalSteps = 0 ;
+			InternalRelationship[] relationshipsToConsider, double boundsX,
+			double boundsY, double boundsWidth, double boundsHeight) {
 	}
 
-	protected int getCurrentLayoutStep() {
+	@Override
+	protected void preLayoutAlgorithm(InternalNode[] entitiesToLayout,
+			InternalRelationship[] relationshipsToConsider, double x, double y,
+			double width, double height) {
+	}
+
+	@Override
+	protected void postLayoutAlgorithm(InternalNode[] entitiesToLayout,
+			InternalRelationship[] relationshipsToConsider) {
+	}
+
+	@Override
+	protected int getTotalNumberOfLayoutSteps() {
 		return 0;
 	}
 
-	protected int getTotalNumberOfLayoutSteps() {
-		return totalSteps;
+	@Override
+	protected int getCurrentLayoutStep() {
+		return 0;
 	}
-
-	protected boolean isValidConfiguration(boolean asynchronous, boolean continuous) {
-		return true;
-	}
-
-	protected void postLayoutAlgorithm(InternalNode[] entitiesToLayout,
-			InternalRelationship[] relationshipsToConsider) {
-		// Do nothing
-	}
-
-	protected void preLayoutAlgorithm(InternalNode[] entitiesToLayout,
-			InternalRelationship[] relationshipsToConsider, double x, double y, double width, double height) {
-		// do nothing
-	}
-
-	public void setLayoutArea(double x, double y, double width, double height) {
-		// do nothing
-	}
-
-
 
 }
