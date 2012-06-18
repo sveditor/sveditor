@@ -128,6 +128,10 @@ public class SVEditor extends TextEditor
 	IInformationPresenter fQuickOutlinePresenter;
 	IInformationPresenter fQuickHierarchyPresenter;
 	
+	public ISVDBIndex getSVDBIndex() {
+		return fSVDBIndex ;
+	}
+	
 	public IInformationPresenter getQuickObjectsPresenter() {
 		if(fQuickObjectsPresenter == null) {
 			fQuickObjectsPresenter = 

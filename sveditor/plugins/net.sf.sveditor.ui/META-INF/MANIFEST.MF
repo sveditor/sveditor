@@ -23,11 +23,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.compare,
  org.eclipse.ui.forms,
  org.eclipse.zest.core,
- org.eclipse.zest.layouts
+ org.eclipse.zest.layouts,
+ org.eclipse.draw2d
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: net.sf.sveditor.ui,
  net.sf.sveditor.ui.editor,
  net.sf.sveditor.ui.editor.actions,
  net.sf.sveditor.ui.explorer
+Import-Package: org.eclipse.draw2d,
+ org.eclipse.zest.core.viewers
 

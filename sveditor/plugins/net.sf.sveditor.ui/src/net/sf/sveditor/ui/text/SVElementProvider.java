@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Armond Paiva - repurposed for use in SVEditor
  *******************************************************************************/
 
 package net.sf.sveditor.ui.text;
@@ -26,7 +27,7 @@ import org.eclipse.jface.text.information.IInformationProviderExtension;
 import org.eclipse.ui.IEditorPart;
 
 /**
- * Provides a Java element to be displayed in by an information presenter.
+ * Provides a System Verilog element to be displayed in by an information presenter.
  */
 public class SVElementProvider implements IInformationProvider, IInformationProviderExtension {
 
@@ -42,11 +43,6 @@ public class SVElementProvider implements IInformationProvider, IInformationProv
 	 */
 	public IRegion getSubject(ITextViewer textViewer, int offset) {
 		if (textViewer != null && fEditor != null) {
-//			IRegion region= JavaWordFinder.findWord(textViewer.getDocument(), offset);
-//			IRegion region=null ; // FIXME:
-//			if (region != null)
-//				return region;
-//			else
 			return new Region(offset, 0);
 		}
 		return null;

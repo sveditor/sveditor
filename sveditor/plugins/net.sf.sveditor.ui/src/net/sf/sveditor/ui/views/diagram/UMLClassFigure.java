@@ -26,12 +26,16 @@ public class UMLClassFigure extends Figure {
 
 	private CompartmentFigure attributeFigure = new CompartmentFigure();
 	private CompartmentFigure methodFigure = new CompartmentFigure();
+	
+//	private boolean fIsSelected = false ;
 
-	public UMLClassFigure(Label name) {
+	public UMLClassFigure(Label name, boolean isSelected) {
+		
 		ToolbarLayout layout = new ToolbarLayout();
 		setLayoutManager(layout);
-		setBorder(new LineBorder(ColorConstants.black, 1));
 		
+		setBorder(new LineBorder(ColorConstants.black, 
+				isSelected ? 5 : 1 ));
 		
 		if(UMLClassFigure.classColor == null) {
 			UMLClassFigure.classColor = new Color(null, 255, 255, 206);		
@@ -44,6 +48,10 @@ public class UMLClassFigure extends Figure {
 		add(attributeFigure);
 		add(methodFigure);
 	}
+	
+//	public void setSelected(boolean isSelected) {
+//		fIsSelected = isSelected ;
+//	}
 
 	public CompartmentFigure getAttributesCompartment() {
 		return attributeFigure;
