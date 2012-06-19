@@ -16,10 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
+@SuppressWarnings("rawtypes")
 public abstract class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {
 	protected List<Class>				fObjectTypeList;
 	

@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 
+@SuppressWarnings("rawtypes")
 public interface ISVDBPersistenceRWDelegateParent {
 	
 	void init(DataInput in);
@@ -42,6 +43,8 @@ public interface ISVDBPersistenceRWDelegateParent {
 	Map<String, String> readMapStringString() throws DBFormatException;
 
 	Map<String, List> readMapStringList(Class val_c) throws DBFormatException;
+	
+	Map<String, Object> readMapStringObject(Class val_c) throws DBFormatException;
 	
 	List<Long> readLongList() throws DBFormatException;
 
@@ -76,6 +79,9 @@ public interface ISVDBPersistenceRWDelegateParent {
 	void writeMapStringString(Map<String, String> map) throws DBWriteException;
 	
 	void writeMapStringList(Map<String, List> map, Class list_c) 
+			throws DBWriteException, DBFormatException;
+	
+	void writeMapStringObject(Map<String, Object> map, Class list_c) 
 			throws DBWriteException, DBFormatException;
 	
 	void writeStringList(List<String> items) throws DBWriteException;
