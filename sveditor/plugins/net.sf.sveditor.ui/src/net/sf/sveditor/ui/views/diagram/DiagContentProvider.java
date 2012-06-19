@@ -16,7 +16,7 @@ import net.sf.sveditor.core.diagrams.DiagNode;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
 
-public class NodeContentProvider extends ArrayContentProvider implements IGraphEntityContentProvider {
+public class DiagContentProvider extends ArrayContentProvider implements IGraphEntityContentProvider {
 	
 	public Object[] getConnectedTo(Object entity) {
 		if (entity instanceof DiagNode) {

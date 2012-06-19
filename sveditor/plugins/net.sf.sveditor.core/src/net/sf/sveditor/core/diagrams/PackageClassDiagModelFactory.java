@@ -10,7 +10,7 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package net.sf.sveditor.core.diagrams;
 
 import java.util.List;
 

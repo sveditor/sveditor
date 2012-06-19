@@ -15,10 +15,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.diagrams.DiagModel;
 import net.sf.sveditor.core.diagrams.DiagNode;
+import net.sf.sveditor.core.diagrams.IDiagModelFactory;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.views.diagram.context_menu.NewDiagramForClassContributionItem;
+import net.sf.sveditor.ui.views.diagram.contributions.NewDiagramForClassContributionItem;
+import net.sf.sveditor.ui.views.diagram.contributions.NewDiagramForClassHandler;
 
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
@@ -32,6 +35,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -61,6 +65,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -143,6 +148,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 
 	protected void fillContextMenu(IMenuManager mgr) {
 		mgr.add(fNewDiagramForClassContributionItem) ;
+		mgr.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS)) ;
 	}
 	private void createContributions() {
 		fNewDiagramForClassHandler = new NewDiagramForClassHandler() ;
@@ -153,7 +159,7 @@ public class SVDiagramView extends ViewPart implements SelectionListener, IZooma
 		GridData gd;
 		fGraphViewer = new GraphViewer(parent, SWT.BORDER) ;
 		fDiagLabelProvider = new DiagLabelProvider() ;
-		fGraphViewer.setContentProvider(new NodeContentProvider()) ;
+		fGraphViewer.setContentProvider(new DiagContentProvider()) ;
 		fGraphViewer.setLabelProvider((IBaseLabelProvider)fDiagLabelProvider) ;
 		fGraphViewer.setInput(fModel == null ? null : fModel.getNodes()) ;
 		

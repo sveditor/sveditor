@@ -10,16 +10,13 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package net.sf.sveditor.core.diagrams;
 
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.diagrams.DiagConnection;
-import net.sf.sveditor.core.diagrams.DiagConnectionType;
-import net.sf.sveditor.core.diagrams.DiagNode;
 
 public class ClassDiagModelFactory extends AbstractDiagModelFactory {
 	

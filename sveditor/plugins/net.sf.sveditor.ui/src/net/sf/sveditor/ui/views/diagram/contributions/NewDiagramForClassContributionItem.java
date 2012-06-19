@@ -9,7 +9,7 @@
  *     Armond Paiva - initial contributor
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram.context_menu;
+package net.sf.sveditor.ui.views.diagram.contributions;
 
 import java.util.Collections;
 
@@ -49,7 +49,7 @@ public class NewDiagramForClassContributionItem extends ContributionItem {
 				new ISelectionChangedListener() {
 					public void selectionChanged(SelectionChangedEvent event) {
 						ISelection selection = event.getSelection() ;
-						fEnabled = false ;
+						fEnabled = false ; fClassDecl = null ;
 						if(!selection.isEmpty() && selection instanceof IStructuredSelection) {
 							IStructuredSelection structuredSel = (IStructuredSelection)selection ;
 							if(structuredSel.size() == 1) {  
@@ -65,6 +65,11 @@ public class NewDiagramForClassContributionItem extends ContributionItem {
 						updateEnablement() ;
 					}
 				} ) ;
+	}
+	
+	@Override
+	public boolean isDynamic() {
+		return true ;
 	}
 
 	protected void updateEnablement() {

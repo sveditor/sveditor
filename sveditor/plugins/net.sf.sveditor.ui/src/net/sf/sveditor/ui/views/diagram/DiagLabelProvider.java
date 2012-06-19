@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.diagrams.DiagConnection;
 import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.views.diagram.figures.UMLClassFigure;
 
 import org.eclipse.draw2d.ConnectionRouter;
 import org.eclipse.draw2d.IFigure;

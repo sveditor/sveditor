@@ -9,11 +9,15 @@
  *     Armond Paiva - initial contributor
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package net.sf.sveditor.ui.views.diagram.contributions;
 
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.diagrams.ClassDiagModelFactory;
+import net.sf.sveditor.core.diagrams.DiagModel;
+import net.sf.sveditor.core.diagrams.IDiagModelFactory;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
