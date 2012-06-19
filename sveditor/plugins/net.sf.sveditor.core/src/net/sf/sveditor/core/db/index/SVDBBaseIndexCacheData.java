@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 
 public class SVDBBaseIndexCacheData {
 	
@@ -29,6 +29,7 @@ public class SVDBBaseIndexCacheData {
 	public Map<String, String>						fDefineMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
+	public Map<String, SVDBRefCacheEntry>			fReferenceCacheMap;
 
 	public SVDBBaseIndexCacheData(String base) {
 		fBaseLocation = base;
@@ -38,6 +39,7 @@ public class SVDBBaseIndexCacheData {
 		fDefineMap = new HashMap<String, String>();
 		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+		fReferenceCacheMap = new HashMap<String, SVDBRefCacheEntry>();
 	}
 	
 	public String getVersion() {
@@ -117,6 +119,10 @@ public class SVDBBaseIndexCacheData {
 	
 	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
 		return fPackageCacheMap;
+	}
+	
+	public Map<String, SVDBRefCacheEntry> getReferenceCacheMap() {
+		return fReferenceCacheMap;
 	}
 	
 	public void clear() {

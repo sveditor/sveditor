@@ -29,10 +29,7 @@ import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
-import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
-import net.sf.sveditor.core.db.stmt.SVDBAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
-import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBCaseItem;
 import net.sf.sveditor.core.db.stmt.SVDBCaseStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDoWhileStmt;
@@ -41,8 +38,6 @@ import net.sf.sveditor.core.db.stmt.SVDBForStmt;
 import net.sf.sveditor.core.db.stmt.SVDBIfStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
-import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
-import net.sf.sveditor.core.db.stmt.SVDBLabeledStmt;
 import net.sf.sveditor.core.db.stmt.SVDBRepeatStmt;
 import net.sf.sveditor.core.db.stmt.SVDBReturnStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
@@ -52,15 +47,8 @@ import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 
 public abstract class AbstractSVDBFileRefFinder {
-	private SVDBFile					fFile;
-	private Stack<ISVDBChildItem>		fScopeStack;
-	
-	public enum RefType {
-		TypeReference,
-		FieldReference,
-		ImportReference,
-		IncludeReference
-	}
+	protected SVDBFile						fFile;
+	protected Stack<ISVDBChildItem>		fScopeStack;
 	
 	public AbstractSVDBFileRefFinder() {
 		fScopeStack = new Stack<ISVDBChildItem>();
@@ -97,7 +85,7 @@ public abstract class AbstractSVDBFileRefFinder {
 
 				case Include: {
 					SVDBInclude inc = (SVDBInclude)c;
-					visitRef(inc.getLocation(), RefType.IncludeReference, inc.getName());
+					visitRef(inc.getLocation(), SVDBRefType.IncludeReference, inc.getName());
 				} break;
 
 				// Class may have a super-class, in addition
@@ -106,7 +94,7 @@ public abstract class AbstractSVDBFileRefFinder {
 					SVDBClassDecl cls = (SVDBClassDecl)c;
 					if (cls.getSuperClass() != null) {
 						SVDBTypeInfoClassType cls_t = cls.getSuperClass();
-						visitRef(null, RefType.TypeReference, cls_t.getName());
+						visitRef(null, SVDBRefType.TypeReference, cls_t.getName());
 					}
 				} break;
 			}
@@ -260,13 +248,13 @@ public abstract class AbstractSVDBFileRefFinder {
 				case ImportItem: {
 					SVDBImportItem i_stmt = (SVDBImportItem)stmt;
 					// TODO: simplify import statement?
-					visitRef(i_stmt.getLocation(), RefType.ImportReference, i_stmt.getImport());
+					visitRef(i_stmt.getLocation(), SVDBRefType.ImportReference, i_stmt.getImport());
 					} break;
 					
 				case ImportStmt: {
 					SVDBImportStmt i_stmt = (SVDBImportStmt)stmt;
 					for (ISVDBChildItem ci : i_stmt.getChildren()) {
-						visitStmt((SVDBStmt)i_stmt);
+						visitStmt((SVDBStmt)ci);
 					}
 					} break;
 					
@@ -292,7 +280,7 @@ public abstract class AbstractSVDBFileRefFinder {
 					SVDBVarDeclStmt var_decl = (SVDBVarDeclStmt)stmt;
 					if (var_decl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
 						SVDBTypeInfoUserDef ut = (SVDBTypeInfoUserDef)var_decl.getTypeInfo();
-						visitRef(null, RefType.TypeReference, ut.getName());
+						visitRef(null, SVDBRefType.TypeReference, ut.getName());
 
 						for (ISVDBChildItem var_item_c : var_decl.getChildren()) {
 							SVDBVarDeclItem var_item = (SVDBVarDeclItem)var_item_c;
@@ -366,8 +354,7 @@ public abstract class AbstractSVDBFileRefFinder {
 		 */
 			case IdentifierExpr: {
 				SVDBIdentifierExpr id_expr = (SVDBIdentifierExpr)expr;
-				System.out.println("ID: " + id_expr.getId());
-				visitRef(id_expr.getLocation(), RefType.FieldReference, id_expr.getId());
+				visitRef(id_expr.getLocation(), SVDBRefType.FieldReference, id_expr.getId());
 				} break;
 		/*
 		IncDecExpr,
@@ -402,7 +389,7 @@ public abstract class AbstractSVDBFileRefFinder {
 		}
 	}
 	
-	protected void visitRef(SVDBLocation loc, RefType type, String name) {
+	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
 		System.out.println("reference: " + type + " : " + name);
 	}
 

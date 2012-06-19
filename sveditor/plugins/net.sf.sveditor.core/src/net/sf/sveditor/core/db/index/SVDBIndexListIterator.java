@@ -17,6 +17,9 @@ import java.util.List;
 
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -51,6 +54,18 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			List<SVDBDeclCacheItem> tmp = index_it.findGlobalScopeDecl(monitor, name, matcher);
 			ret.addAll(tmp);
 		}
+		return ret;
+	}
+	
+	public List<SVDBRefCacheItem> findReferences(
+			IProgressMonitor monitor, String name, ISVDBRefMatcher matcher) {
+		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			List<SVDBRefCacheItem> r = index_it.findReferences(monitor, name, matcher);
+			ret.addAll(r);
+		}
+
 		return ret;
 	}
 	

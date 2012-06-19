@@ -26,17 +26,15 @@ import java.util.Set;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -45,15 +43,15 @@ import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class JITPersistenceDelegateFactory implements Opcodes {
-	private static JITPersistenceDelegateFactory			fInstance;
+	private static JITPersistenceDelegateFactory		fInstance;
 	private Class<JITPersistenceDelegateBase>			fDelegateCls;
 	private String										fTargetPkg;
 	private List<String>								fTargetPkgList;
 	private Map<SVDBItemType, Class>					fTypeClassMap;
 	private List<Class>									fClassList;
 	private Set<Class>									fClassSet;
-	private static final String							fBaseClass = getClassName(JITPersistenceDelegateBase.class);
-	private static final String							fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
+	private static final String						fBaseClass = getClassName(JITPersistenceDelegateBase.class);
+	private static final String						fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
 	private static final String	fChildItem = "net/sf/sveditor/core/db/ISVDBChildItem";
 	private static final String fDBFormatException = "net/sf/sveditor/core/db/persistence/DBFormatException";
 	private static final String fDBWriteException = "net/sf/sveditor/core/db/persistence/DBWriteException";
@@ -65,6 +63,8 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	private static final String READ_LOCATION_SIG   = "()Lnet/sf/sveditor/core/db/SVDBLocation;";
 	private static final String READ_LIST_SIG       = "()Ljava/util/List;";
 	private static final String WRITE_LIST_SIG      = "(Ljava/util/List;)V";
+	private static final String READ_SET_SIG       = "()Ljava/util/Set;";
+	private static final String WRITE_SET_SIG      = "(Ljava/util/Set;)V";
 	private static final String READ_ITEM_LIST_SIG  = "(L" + fChildItem + ";)Ljava/util/List;";
 	private static final String WRITE_INT_SIG = "(I)V";
 	private static final String READ_INT_SIG = "()I";
@@ -76,7 +76,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	private static final String READ_ITEM_SIG = "(L" + getClassName(ISVDBChildItem.class) + ";)Lnet/sf/sveditor/core/db/ISVDBItemBase;";
 	private static final String WRITE_MAP_SIG = "(Ljava/util/Map;)V";
 	private static final String READ_MAP_SIG  = "()Ljava/util/Map;";
-	private boolean										fDebugEn;
+	private boolean										fDebugEn = false;
 	private int											fLevel;
 	private static final int							THIS_VAR			= 0;
 	private static final int							READ_PARENT_VAR 	= 1;
@@ -125,6 +125,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fClassList.add(SVDBBaseIndexCacheData.class);
 		fClassList.add(SVDBArgFileIndexCacheData.class);
 		fClassList.add(SVDBDeclCacheItem.class);
+		fClassList.add(SVDBRefCacheEntry.class);
 		
 		fClassSet.addAll(fClassList);
 	}
@@ -718,6 +719,79 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 							}
 							throw new DBFormatException("Non-parameterized list");
 						}
+					} else if (Set.class.isAssignableFrom(field_class)) {
+						Type t = f.getGenericType();
+						if (t instanceof ParameterizedType) {
+							ParameterizedType pt = (ParameterizedType)t;
+							Type args[] = pt.getActualTypeArguments();
+							String readMethod=null, writeMethod=null;
+							boolean useStdRW = true;
+							if (args.length != 1) {
+								throw new DBFormatException("" + args.length + "-parameter list unsupported");
+							}
+							Class c = (Class)args[0];
+							if (c == String.class) {
+								if (fDebugEn) {
+									debug("  " + fLevel + " Field " + f.getName() + " is Set<String>");
+								}
+								writeMethod = "writeStringSet";
+								readMethod = "readStringSet";
+							} else if (c == Integer.class) {
+								if (fDebugEn) {
+									debug("  " + fLevel + " Field " + f.getName() + " is Set<Integer>");
+								}
+								writeMethod = "writeIntSet";
+								readMethod  = "readIntSet";
+							} else if (c == Long.class) {
+								if (fDebugEn) {
+									debug("  " + fLevel + " Field " + f.getName() + " is Set<Long>");
+								}
+								writeMethod = "writeLongSet";
+								readMethod  = "readLongSet";
+							} else {
+								if (fDebugEn) {
+									debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is Set<?>");
+								}
+								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
+							}
+							if (useStdRW) {
+								if (write) {
+									// Load up the field value and call writeStringList
+									// Desired stack layout is:
+									// enum value
+									// enum class
+									// fParent
+									mv.visitVarInsn(ALOAD, THIS_VAR); 
+
+									// Load field value
+									mv.visitVarInsn(ALOAD, WRITE_OBJ_VAR);
+									mv.visitFieldInsn(GETFIELD, tgt_classname, f.getName(), 
+											"L" + field_classname + ";");
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, writeMethod, WRITE_SET_SIG);
+								} else {
+									// Invoke the parent to read the enum value
+									// Store the result back to the field
+									mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // for later use
+
+									mv.visitVarInsn(ALOAD, THIS_VAR); 
+
+									mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, readMethod, READ_SET_SIG);
+
+									// Now, store the result back to the target field
+									// Desired layout
+									// enum value -- from calling readEnumType
+									// object handle -- loaded at beginning
+									mv.visitTypeInsn(CHECKCAST, field_classname);
+									mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), 
+											"L" + field_classname + ";");
+								}
+							}
+						} else {
+							if (fDebugEn) {
+								debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is an unparameterized Set");
+							}
+							throw new DBFormatException("Non-parameterized set");
+						}
 					} else if (Map.class.isAssignableFrom(field_class)) {
 						boolean local_access = true;
 						Type t = f.getGenericType();
@@ -738,7 +812,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 							}
 							
 							if (args[1] instanceof Class) {
-								val_c = (Class)args[0];
+								val_c = (Class)args[1];
 							} else if (args[1] instanceof ParameterizedType) {
 								val_c = (Class)((ParameterizedType)args[1]).getRawType();
 							} else {
@@ -763,6 +837,21 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 								writeSig = "(L" + getClassName(Map.class) + ";" +
 								        "L" + getClassName(Class.class) + ";)V";
 								readMethod  = "readMapStringList";
+								readSig = "(L" + getClassName(Class.class) + ";)" + 
+										"L" + getClassName(Map.class) + ";";
+							} else if (key_c == String.class) {
+								// Assume a map of string and an object we support
+								elem_c = val_c; // Type of element object
+								if (fDebugEn) {
+									debug("  " + fLevel + " Field " + f.getName() + " is Map<String,Object>");
+								}
+								local_access = false;
+								writeMethod = "writeMapStringObject";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+									        "L" + getClassName(Class.class) + ";)V";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+								        "L" + getClassName(Class.class) + ";)V";
+								readMethod  = "readMapStringObject";
 								readSig = "(L" + getClassName(Class.class) + ";)" + 
 										"L" + getClassName(Map.class) + ";";
 							} else {

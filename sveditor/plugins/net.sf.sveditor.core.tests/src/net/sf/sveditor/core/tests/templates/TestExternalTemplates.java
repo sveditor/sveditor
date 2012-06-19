@@ -162,6 +162,50 @@ public class TestExternalTemplates extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 	
+	public void testSpaceContainingFilenames() {
+		String testname = "testSpaceContainingFilenames";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		utils.copyBundleDirToFS("/data/templates/space_containing_filenames", fTmpDir);
+		
+		TemplateRegistry rgy = new TemplateRegistry(false);
+		rgy.addPathProvider(new IExternalTemplatePathProvider() {
+			public List<String> getExternalTemplatePath() {
+				List<String> ret = new ArrayList<String>();
+				ret.add(new File(fTmpDir, "space_containing_filenames").getAbsolutePath());
+				return ret;
+			}
+		});
+		rgy.load_extensions();
+		
+		TemplateInfo tmpl = rgy.findTemplate("subdir_output");
+		assertNotNull(tmpl);
+		
+		TagProcessor proc = new TagProcessor();
+		TemplateParameterProvider p = new TemplateParameterProvider();
+		p.setTag("name", "test");
+		proc.addParameterProvider(p);
+		
+		List<String> files = TemplateProcessor.getOutputFiles(tmpl, proc);
+		
+		assertContainsAll(files,
+				"subdir/test_1.svh",
+				"subdir/test_2.svh");
+		
+		TemplateFSFileCreator out_sp = new TemplateFSFileCreator(fTmpDir);
+		TemplateProcessor tp = new TemplateProcessor(out_sp);
+		
+		tp.process(tmpl, proc);
+		
+		assertFilesExist(fTmpDir, 
+				"subdir/test_1.svh",
+				"subdir/test_2.svh");
+
+		LogFactory.removeLogHandle(log);
+	}
+	
 	private static void assertFilesExist(File dir, String ... paths) {
 		for (String path : paths) {
 			File t = new File(dir, path);
