@@ -122,6 +122,9 @@ public class SVTParser {
 				Element file = (Element)file_list.item(i);
 				String filename = file.getAttribute("name");
 				String tmpl_path = file.getAttribute("template");
+			
+				filename = filename.trim();
+				tmpl_path = tmpl_path.trim();
 				
 				t.addTemplate(fTemplateBase + "/" + tmpl_path, filename);
 			}
