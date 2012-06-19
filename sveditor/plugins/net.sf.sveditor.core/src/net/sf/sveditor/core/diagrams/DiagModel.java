@@ -9,14 +9,12 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package net.sf.sveditor.core.diagrams;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.sf.sveditor.core.diagrams.DiagConnection;
-import net.sf.sveditor.core.diagrams.DiagNode;
 
 public class DiagModel {
 	

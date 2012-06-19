@@ -9,7 +9,7 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package net.sf.sveditor.core.diagrams;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +24,6 @@ import net.sf.sveditor.core.db.search.SVDBFindClassDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.diagrams.DiagConnection;
-import net.sf.sveditor.core.diagrams.DiagConnectionType;
-import net.sf.sveditor.core.diagrams.DiagNode;
 
 public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 	
