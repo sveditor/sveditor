@@ -12,20 +12,16 @@
 
 package net.sf.sveditor.core.db.refs;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import net.sf.sveditor.core.db.SVDBLocation;
 
 public class SVDBFileRefCollector extends AbstractSVDBFileRefFinder {
-	private Map<RefType, Set<String>>	fReferences;
+	private SVDBRefCacheEntry			fReferences;
 	
 	public SVDBFileRefCollector() {
-		fReferences = new HashMap<AbstractSVDBFileRefFinder.RefType, Set<String>>();
+		fReferences = new SVDBRefCacheEntry();
 	}
-	
+
+	/*
 	public Set<RefType> getRefTypeSet() {
 		return fReferences.keySet();
 	}
@@ -33,15 +29,27 @@ public class SVDBFileRefCollector extends AbstractSVDBFileRefFinder {
 	public Set<String> getRefSet(RefType type) {
 		return fReferences.get(type);
 	}
+	 */
+	
+	public SVDBRefCacheEntry getReferences() {
+		return fReferences;
+	}
 
 	@Override
-	protected void visitRef(SVDBLocation loc, RefType type, String name) {
-		if (!fReferences.containsKey(type)) {
-			fReferences.put(type, new HashSet<String>());
-		}
-		Set<String> set = fReferences.get(type);
-		if (!set.contains(name)) {
-			set.add(name);
+	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
+		switch (type) {
+			case FieldReference: {
+				fReferences.addFieldRef(name);
+			} break;
+			case ImportReference: {
+				fReferences.addImportRef(name);
+			} break;
+			case IncludeReference: {
+				fReferences.addIncludeRef(name);
+			} break;
+			case TypeReference: {
+				fReferences.addTypeRef(name);
+			} break;
 		}
 	}
 }

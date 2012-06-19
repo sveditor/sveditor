@@ -43,6 +43,9 @@ import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.job_mgr.IJob;
@@ -170,7 +173,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 	 */
 	protected boolean checkCacheValid() {
 		boolean valid = true;
-		String version = SVCorePlugin.getDefault().getVersion();
+		String version = SVCorePlugin.getVersion();
 		
 		if (fDebugEn) {
 			fLog.debug("Cached version=" + fIndexCacheData.getVersion() + " version=" + version);
@@ -1544,6 +1547,19 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 			}
 		}
 		
+		return ret;
+	}
+	
+	public List<SVDBRefCacheItem> findReferences(
+			IProgressMonitor		monitor,
+			String					name,
+			ISVDBRefMatcher			matcher) {
+		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
+		Map<String, SVDBRefCacheEntry> ref_cache = fIndexCacheData.getReferenceCacheMap();
+		
+		for (Entry<String, SVDBRefCacheEntry> e : ref_cache.entrySet()) {
+			matcher.find_matches(ret, e.getValue(), name);
+		}
 		return ret;
 	}
 	

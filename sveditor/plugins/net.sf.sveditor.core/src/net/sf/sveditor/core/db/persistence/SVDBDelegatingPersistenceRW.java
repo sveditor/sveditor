@@ -110,6 +110,36 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		
 		return ret;
 	}
+	
+	public Map<String, Object> readMapStringObject(Class val_c) throws DBFormatException {
+		Map<String, Object> ret = new HashMap<String, Object>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			Object val = null;
+			try {
+				val = val_c.newInstance();
+			} catch (InstantiationException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			} catch (IllegalAccessException e) {
+				throw new DBFormatException("Fail to create instance of class " + val_c.getName());
+			}
+			readObject(null, val_c, val);
+			ret.put(key, val);
+		}
+		
+		return ret;
+	}
 
 	public void writeMapStringList(Map<String, List> map, Class list_c) 
 			throws DBWriteException, DBFormatException {
@@ -122,6 +152,21 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 			for (Entry<String, List> e : map.entrySet()) {
 				writeString(e.getKey());
 				writeObjectList(e.getValue(), list_c);
+			}
+		}
+	}
+	
+	public void writeMapStringObject(Map<String, Object> map, Class obj_c)
+			throws DBWriteException, DBFormatException {
+		if (map == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_MAP);
+			
+			writeInt(map.size());
+			for (Entry<String, Object> e : map.entrySet()) {
+				writeString(e.getKey());
+				writeObject(obj_c, e.getValue());
 			}
 		}
 	}

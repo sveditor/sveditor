@@ -17,9 +17,11 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBLocation;
 
@@ -148,6 +150,27 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		
 		return ret;
 	}
+	
+	public Set<Long> readLongSet() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_LONG_SET) {
+			throw new DBFormatException("Expecting TYPE_LONG_SET, received " + type);
+		}
+		
+		int size = readInt();
+		
+		Set<Long> ret = new HashSet<Long>();
+		for (int i=0; i<size; i++) {
+			ret.add(readLong());
+		}
+		
+		return ret;
+	}
 
 	public List<Integer> readIntList() throws DBFormatException {
 		int type = readRawType();
@@ -169,6 +192,27 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		
 		return ret;
 	}
+	
+	public Set<Integer> readIntSet() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_INT_SET) {
+			throw new DBFormatException("Expecting INT_SET, receive " + type);
+		}
+		
+		int size = readInt();
+		
+		Set<Integer> ret = new HashSet<Integer>();
+		for (int i=0; i<size; i++) {
+			ret.add(readInt());
+		}
+		
+		return ret;
+	}
 
 	public List<String> readStringList() throws DBFormatException {
 		int type = readRawType();
@@ -184,6 +228,27 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		int size = readInt();
 		
 		List<String> ret = new ArrayList<String>();
+		for (int i=0; i<size; i++) {
+			ret.add(readString());
+		}
+		
+		return ret;
+	}
+	
+	public Set<String> readStringSet() throws DBFormatException {
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_STRING_SET) {
+			throw new DBFormatException("Expecting TYPE_STRING_SET, received " + type);
+		}
+		
+		int size = readInt();
+		
+		Set<String> ret = new HashSet<String>();
 		for (int i=0; i<size; i++) {
 			ret.add(readString());
 		}
@@ -307,6 +372,19 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		}
 	}
 	
+	public void writeIntSet(Set<Integer> items) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_INT_SET);
+			writeInt(items.size());
+		
+			for (Integer i: items) {
+				writeInt(i.intValue());
+			}
+		}
+	}
+	
 	public void writeMapStringString(Map<String, String> map) throws DBWriteException {
 		if (map == null) {
 			writeRawType(TYPE_NULL);
@@ -321,6 +399,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
  		}
 	}
 
+
 	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);
@@ -333,12 +412,38 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 			}
 		}
 	}
+	
+	public void writeStringSet(Set<String> items) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_STRING_SET);
+			writeInt(items.size());
+		
+			for (String s : items) {
+				writeString(s);
+			}
+		}
+	}
 
 	public void writeLongList(List<Long> items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);
 		} else {
 			writeRawType(TYPE_LONG_LIST);
+			writeInt(items.size());
+		
+			for (Long v : items) {
+				writeLong(v.longValue());
+			}
+		}
+	}
+	
+	public void writeLongSet(Set<Long> items) throws DBWriteException {
+		if (items == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_LONG_SET);
 			writeInt(items.size());
 		
 			for (Long v : items) {

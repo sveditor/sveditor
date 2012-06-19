@@ -3,6 +3,18 @@
 
 - #(nobug) - Correct an issue with the package cache not restoring
   the filename after a restart.
+  
+- #(enh) - 
+
+- #(enh) - A package can now be displayed in the Class Diagram view. All classes
+  declared within the package are shown, along with relationships between the 
+  classes.
+- #(enh) - Adds ability to create new class diagram by right clicking on class in existing diagram.
+
+- #(enh) - Adds enhancements to class selection in diagram. It should now be clear to the user what 
+  is selected, and the selection can be cleared by clicking the background.
+ 
+- #(3536166) - Trim leading/trailing spaces from template file paths 
 
 ------------------------------------------------------------------------------
 -- 0.9.3 Release --

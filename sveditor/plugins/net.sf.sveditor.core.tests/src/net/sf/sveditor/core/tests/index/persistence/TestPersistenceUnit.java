@@ -12,9 +12,74 @@
 
 package net.sf.sveditor.core.tests.index.persistence;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
+import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.SVDBRefType;
 
 public class TestPersistenceUnit extends TestCase {
+	
+	public void testRWRefCacheEntry() throws DBFormatException, DBWriteException {
+		IDBWriter writer = new SVDBPersistenceRW();
+		IDBReader reader = new SVDBPersistenceRW();
+		SVDBRefCacheEntry entry = new SVDBRefCacheEntry();
+		entry.setFilename("file1");
+		entry.addTypeRef("type1");
+	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		DataOutput out = new DataOutputStream(bos); 
+	
+		writer.init(out);
+		writer.writeObject(SVDBRefCacheEntry.class, entry);
+
+		ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
+		DataInput in = new DataInputStream(bin);
+		reader.init(in);
+	
+		SVDBRefCacheEntry entry_i = new SVDBRefCacheEntry();
+		reader.readObject(null, SVDBRefCacheEntry.class, entry_i);
+	
+//		assertEquals(entry.getFilename(), entry_i.getFilename());
+		assertTrue(entry_i.getRefSet(SVDBRefType.TypeReference).contains("type1"));
+	}
+	
+	public void testRWRefCacheEntryMap() throws DBFormatException, DBWriteException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		IDBWriter writer = new SVDBPersistenceRW();
+		IDBReader reader = new SVDBPersistenceRW();
+		SVDBBaseIndexCacheData index_data = new SVDBBaseIndexCacheData("foo");
+		SVDBRefCacheEntry entry = new SVDBRefCacheEntry();
+		entry.setFilename("file1");
+		entry.addTypeRef("type1");
+		index_data.fReferenceCacheMap.put("file1", entry);
+	
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		DataOutput out = new DataOutputStream(bos); 
+	
+		writer.init(out);
+		writer.writeObject(SVDBBaseIndexCacheData.class, index_data);
+
+		ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
+		DataInput in = new DataInputStream(bin);
+		reader.init(in);
+
+		SVDBBaseIndexCacheData index_data_i = new SVDBBaseIndexCacheData("");
+		reader.readObject(null, SVDBBaseIndexCacheData.class, index_data_i);
+		
+	}
 	
 	/*
 	// Ensures that each SVDBItemType has a corresponding class

@@ -31,6 +31,9 @@ public interface IDBPersistenceTypes {
 	int					TYPE_MAP			= 15;
 	int					TYPE_LONG_LIST		= 16;
 	int					TYPE_OBJECT_LIST	= 17;
+	int					TYPE_STRING_SET		= 18;
+	int					TYPE_INT_SET		= 19;
+	int					TYPE_LONG_SET		= 20;
 	
 	int					TYPE_MAX			= 31;
 	

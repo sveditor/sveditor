@@ -20,6 +20,8 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -44,7 +46,7 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 	public void setIndexIt(ISVDBIndexIterator index_it) {
 		fSuperIterator = index_it;
 	}
-
+	
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
 			IProgressMonitor 		monitor, 
 			String 					name, 
@@ -82,6 +84,14 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 		findDecl(ret, fFile, name, matcher);
 		
 		return ret;
+	}
+	
+	public List<SVDBRefCacheItem> findReferences(
+			IProgressMonitor			monitor,
+			String						name,
+			ISVDBRefMatcher				matcher) {
+		// TODO: Skip searching the local file for now
+		return fSuperIterator.findReferences(monitor, name, matcher);
 	}
 	
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
