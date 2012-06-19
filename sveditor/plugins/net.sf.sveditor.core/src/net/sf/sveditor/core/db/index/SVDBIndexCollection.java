@@ -25,6 +25,9 @@ import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -491,6 +494,22 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			ret.addAll(tmp);
 		}
 		 */
+		return ret;
+	}
+	
+	public List<SVDBRefCacheItem> findReferences(
+			IProgressMonitor			monitor,
+			String						name,
+			ISVDBRefMatcher				matcher) {
+		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
+		
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBRefCacheItem> r = index.findReferences(monitor, name, matcher);
+				ret.addAll(r);
+			}
+		}
+		
 		return ret;
 	}
 	

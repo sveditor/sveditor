@@ -20,12 +20,12 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.diagrams.ClassDiagModelFactory;
+import net.sf.sveditor.core.diagrams.DiagModel;
+import net.sf.sveditor.core.diagrams.IDiagModelFactory;
+import net.sf.sveditor.core.diagrams.PackageClassDiagModelFactory;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.views.diagram.ClassDiagModelFactory;
-import net.sf.sveditor.ui.views.diagram.DiagModel;
-import net.sf.sveditor.ui.views.diagram.IDiagModelFactory;
-import net.sf.sveditor.ui.views.diagram.PackageClassDiagModelFactory;
 import net.sf.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.runtime.IProgressMonitor;

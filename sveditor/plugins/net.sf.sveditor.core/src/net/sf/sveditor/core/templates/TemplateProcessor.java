@@ -64,6 +64,8 @@ public class TemplateProcessor {
 			int n_replacements = 0;
 			String templ = t.first();
 			String name = proc.process(t.second());
+		
+			name = name.trim();
 			
 			local_p.setTag("filename", name);
 

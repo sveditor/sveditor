@@ -875,19 +875,4 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			fCacheSize--;
 		}
 	}
-	
-	private class FileTreeWritebackRunnable implements Runnable {
-		private CacheFileInfo				fFileInfo;
-
-		public FileTreeWritebackRunnable(CacheFileInfo info) {
-			fFileInfo = info;
-		}
-		
-		public void run() {
-			// TODO: Do writeback
-			synchronized (fFileInfo) {
-				fFileInfo.fSVDBFileTreeRef = null;
-			}
-		}
-	};
 }
