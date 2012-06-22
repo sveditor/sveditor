@@ -20,8 +20,12 @@ import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFirstMatchExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
+import net.sf.sveditor.core.db.expr.SVDBPropertyCaseItem;
+import net.sf.sveditor.core.db.expr.SVDBPropertyCaseStmt;
+import net.sf.sveditor.core.db.expr.SVDBPropertyIfStmt;
 import net.sf.sveditor.core.db.expr.SVDBPropertySpecExpr;
 import net.sf.sveditor.core.db.expr.SVDBPropertyWeakStrongExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
@@ -61,6 +65,20 @@ public class SVPropertyExprParser extends SVParserBase {
 		for (String op : SVLexer.RelationalOps) {
 			BinaryOp.add(op);
 		}
+	}
+	
+	public SVDBExpr property_statement() throws SVParseException {
+		SVDBExpr ret;
+		if (fLexer.peekKeyword("if")) {
+			ret = property_statement_if();
+		} else if (fLexer.peekKeyword("case")) {
+			ret = property_stmt_case();
+		} else {
+			SVDBExpr stmt = property_expr();
+			fLexer.readOperator(";");
+			ret = stmt;
+		}
+		return ret;
 	}
 	
 	public SVDBExpr property_expr() throws SVParseException {
@@ -120,6 +138,8 @@ public class SVPropertyExprParser extends SVParserBase {
 			// always/eventually expression
 		} else if (fLexer.peekKeyword("accept_on", "reject_on", "sync_accept_on", "sync_reject_on")) {
 			// 
+		} else if (fLexer.peekKeyword("if","case")) {
+			ret = property_statement();
 		} else {
 			// TODO: property_statement, property_instance, clocking_event
 			ret = sequence_expr();
@@ -146,6 +166,80 @@ public class SVPropertyExprParser extends SVParserBase {
 		if (fDebugEn) {debug("<-- property_expr()");}
 		
 		return ret;
+	}
+	
+	private SVDBExpr property_statement_if() throws SVParseException {
+		SVDBPropertyIfStmt stmt = new SVDBPropertyIfStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+				
+		fLexer.readKeyword("if");
+		
+		fLexer.readOperator("(");
+		stmt.setExpr(expression_or_dist());
+		fLexer.readOperator(")");
+		
+		stmt.setIfExpr(property_expr());
+		
+		if (fLexer.peekKeyword("else")) {
+			fLexer.eatToken();
+			stmt.setElseExpr(property_expr());
+		}
+	
+		return stmt;
+	}
+	
+	private SVDBExpr property_stmt_case() throws SVParseException {
+		SVDBPropertyCaseStmt stmt = new SVDBPropertyCaseStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+		
+		fLexer.readKeyword("case");
+		
+		fLexer.readOperator("(");
+		stmt.setExpr(expression_or_dist());
+		fLexer.readOperator(")");
+		
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endcase")) {
+			SVDBPropertyCaseItem case_item = property_stmt_case_item();
+			stmt.addItem(case_item);
+		}
+		fLexer.readKeyword("endcase");
+		
+		return stmt;
+	}
+	
+	private SVDBPropertyCaseItem property_stmt_case_item() throws SVParseException {
+		if (fDebugEn) {
+			debug("--> property_stmt_case_item " + fLexer.peek());
+		}
+		SVDBPropertyCaseItem item = new SVDBPropertyCaseItem();
+		item.setLocation(fLexer.getStartLocation());
+	
+		if (fLexer.peekKeyword("default")) {
+			fLexer.eatToken();
+			item.addExpr(new SVDBIdentifierExpr("default"));
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+			}
+		} else {
+			while (fLexer.peek() != null) {
+				item.addExpr(expression_or_dist());
+				
+				if (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
+				} else {
+					break;
+				}
+			}
+			
+			fLexer.readOperator(":");
+		}
+	
+		item.setStmt(property_statement());
+		
+		if (fDebugEn) {
+			debug("<-- property_stmt_case_item " + fLexer.peek());
+		}
+		return item;
 	}
 	
 	public SVDBExpr sequence_expr() throws SVParseException {

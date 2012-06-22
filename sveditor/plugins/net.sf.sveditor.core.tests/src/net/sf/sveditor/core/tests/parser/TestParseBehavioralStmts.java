@@ -75,7 +75,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"module t;\n" +
 			"	event event_identifier;\n" +
 			"	initial begin\n" +
-			"		--> event_identifier;\n" +
+			"		->> event_identifier;\n" +
 			"	end\n" +
 			"endmodule\n"
 			;
