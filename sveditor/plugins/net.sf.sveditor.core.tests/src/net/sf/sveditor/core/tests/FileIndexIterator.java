@@ -62,6 +62,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 	protected SVDBFile processPreProcFile(String path) {
 		// Do Nothing
 		cacheDeclarations(fFile);
+		cacheReferences(fFile);
 		getCache().setFile(fFile.getFilePath(), fFile);
 		return null;
 	}

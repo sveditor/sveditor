@@ -64,7 +64,7 @@ public class SVIndentScanner implements ISVIndentScanner {
 		"{", "}", "#", "[", "]", ".", ",", "@", "?", "$",
 		"(", ")", "\\",
 		
-		"->", "-->"
+		"->", "->>"
 	};
 
 	

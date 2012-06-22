@@ -1867,7 +1867,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}	
 	}
 	
-	private void cacheReferences(SVDBFile file) {
+	protected void cacheReferences(SVDBFile file) {
 		SVDBFileRefCollector collector = new SVDBFileRefCollector();
 		collector.visitFile(file);
 		
@@ -1944,8 +1944,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		for (Entry<String, SVDBRefCacheEntry> e : ref_cache.entrySet()) {
 			matcher.find_matches(ret, e.getValue(), name);
 		}
-		
-		System.out.println("findReferences: " + ret.size());
 		
 		for (SVDBRefCacheItem item : ret) {
 			item.setRefFinder(this);
