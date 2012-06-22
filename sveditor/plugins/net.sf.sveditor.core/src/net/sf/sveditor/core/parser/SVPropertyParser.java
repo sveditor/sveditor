@@ -174,16 +174,16 @@ public class SVPropertyParser extends SVParserBase {
 	}
 
 	private void property_statement_spec(SVDBProperty prop) throws SVParseException {
-		if (fLexer.peekKeyword("case")) {
-			// TODO:
-		} else if (fLexer.peekKeyword("if")) {
-			// TODO:
-		} else {
-			// Expression
-			SVDBExprStmt stmt = new SVDBExprStmt();
-			stmt.setLocation(fLexer.getStartLocation());
-			stmt.setExpr(fParsers.propertyExprParser().property_expr());
-			fLexer.readOperator(";");
+		if (fDebugEn) {
+			debug("--> property_statement_spec " + fLexer.peek());
+		}
+		SVDBExprStmt stmt = new SVDBExprStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+		stmt.setExpr(fParsers.propertyExprParser().property_statement());
+		prop.addChildItem(stmt);
+				
+		if (fDebugEn) {
+			debug("<-- property_statement_spec " + fLexer.peek());
 		}
 	}
 	

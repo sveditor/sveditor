@@ -92,22 +92,22 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 				monitor.worked(1);
 
 				if (cls != null) {
-					HierarchyTreeNode n = null;
+					HierarchyTreeNode target = null;
 					if (cls.getType() == SVDBItemType.ClassDecl) {
 						ClassHierarchyTreeFactory factory = new ClassHierarchyTreeFactory(
 								((SVEditor)getTextEditor()).getIndexIterator());
 
-						n = factory.build((SVDBClassDecl)cls);
+						target = factory.build((SVDBClassDecl)cls);
 					} else if (cls.getType() == SVDBItemType.ModuleDecl) {
 						ModuleHierarchyTreeFactory factory = new ModuleHierarchyTreeFactory(
 								((SVEditor)getTextEditor()).getIndexIterator());
 						
-						n = factory.build((SVDBModIfcDecl)cls);
+						target = factory.build((SVDBModIfcDecl)cls);
 					}
-
+					
 					monitor.worked(1);
 					
-					if (n != null) {
+					if (target != null) {
 						try {
 							IWorkbench workbench = PlatformUI.getWorkbench();
 							IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
@@ -119,7 +119,7 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 
 							page.activate(view);
 
-							((SVHierarchyView)view).setTarget(n);
+							((SVHierarchyView)view).setTarget(target);
 
 						} catch (Exception e) {
 							e.printStackTrace();

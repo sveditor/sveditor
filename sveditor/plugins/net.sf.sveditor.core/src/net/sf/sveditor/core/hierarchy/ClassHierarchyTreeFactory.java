@@ -12,20 +12,12 @@
 
 package net.sf.sveditor.core.hierarchy;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
+import net.sf.sveditor.core.db.refs.SVDBSubClassRefFinder;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 
 public class ClassHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;
@@ -33,72 +25,45 @@ public class ClassHierarchyTreeFactory {
 	public ClassHierarchyTreeFactory(ISVDBIndexIterator index_it) {
 		fIndexIt = index_it;
 	}
-	
+
+	/**
+	 * Returns: target hierarchy node
+	 * 
+	 * @param cls
+	 * @return
+	 */
 	public HierarchyTreeNode build(SVDBClassDecl cls) {
-		Map<String, HierarchyTreeNode> class_map = 
-			new HashMap<String, HierarchyTreeNode>();
 		
 		// Don't yet know if this class has a super
-		HierarchyTreeNode ret = new HierarchyTreeNode(null, cls.getName());
-		class_map.put(cls.getName(), ret);
-		
-		// Now, iterate through all classes in the index and build
-		// the extension hierarchy
-		List<SVDBDeclCacheItem> cls_list = fIndexIt.findGlobalScopeDecl(
-				new NullProgressMonitor(), "", new ISVDBFindNameMatcher() {
-					public boolean match(ISVDBNamedItem it, String name) {
-						return (it.getType() == SVDBItemType.ClassDecl);
-					}
-				});
-		
-		ISVDBItemIterator it = fIndexIt.getItemIterator(new NullProgressMonitor());
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			if (it_t.getType() == SVDBItemType.ClassDecl) {
-				SVDBClassDecl cls_t = (SVDBClassDecl)it_t;
-				
-				// Check for an empty super-node
-				HierarchyTreeNode cls_n = null;
-				if (class_map.containsKey(cls_t.getName())) {
-					cls_n = class_map.get(cls_t.getName());
-					cls_n.setItemDecl(cls_t);
-				} else {
-					cls_n = new HierarchyTreeNode(null, cls_t.getName(), cls_t);
-					class_map.put(cls_t.getName(), cls_n);
-				}
-				
-				if (cls_t.getSuperClass() != null && 
-						cls_t.getSuperClass().getName() != null &&
-						!cls_t.getSuperClass().getName().equals("")) {
-					String super_cls_name = cls_t.getSuperClass().getName();
-					// Create a speculative hierarchy node
-					if (!class_map.containsKey(super_cls_name)) {
-						// Create a new node
-						class_map.put(super_cls_name,
-								new HierarchyTreeNode(null, super_cls_name));
-					}
-					
-					cls_n.setParent(class_map.get(super_cls_name));
-					class_map.get(super_cls_name).addChild(cls_n);
-				}
-			}
-		}
-		
-		// Iterate up the inheritance tree and prune any 
-		// branches that are not related to the target class
-		HierarchyTreeNode nt = ret, p;
+		HierarchyTreeNode target = new HierarchyTreeNode(null, cls.getName(), cls);
+		HierarchyTreeNode root = target;
+	
+		// First, search up looking for super-classes
+		SVDBFindSuperClass super_finder = new SVDBFindSuperClass(fIndexIt);
+		SVDBClassDecl cls_t = cls, super_c;
+		while ((super_c = super_finder.find(cls_t)) != null) {
+			HierarchyTreeNode old_root = root;
+			root = new HierarchyTreeNode(null, super_c.getName(), super_c);
+			old_root.setParent(root);
+			root.addChild(old_root);
 
-		while ((p = nt.getParent()) != null) {
-			for (int i=0; i<p.getChildren().size(); i++) {
-				if (p.getChildren().get(i) != nt) {
-					p.getChildren().remove(i);
-					i--;
-				}
-			}
-			nt = nt.getParent();
+			cls_t = super_c;
 		}
 		
-		return ret;
+		// Now, build down the hierarchy
+		build_sub(target);
+		
+		return target;
+	}
+	
+	private void build_sub(HierarchyTreeNode parent) {
+		List<SVDBClassDecl> sub_classes = SVDBSubClassRefFinder.find(fIndexIt, parent.getName());
+		
+		for (SVDBClassDecl s : sub_classes) {
+			HierarchyTreeNode sn = new HierarchyTreeNode(parent, s.getName(), s);
+			parent.addChild(sn);
+			build_sub(sn);
+		}
 	}
 
 }

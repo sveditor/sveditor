@@ -51,11 +51,59 @@ public class HierarchyTests extends TestCase {
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
 		List<SVDBClassDecl> cls_l = cls_finder.find("c2_2");
 		assertEquals(1, cls_l.size());
-		
+	
+		// root, target
 		HierarchyTreeNode h = tf.build(cls_l.get(0));
+		
 		assertEquals("c2_2", h.getName());
 		h = h.getParent();
+		assertNotNull(h);
 		assertEquals("c1", h.getName());
 	}
 
+	public void testClassSubHierarchy() {
+		String doc = 
+			"class c1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class c2_1 extends c1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class c2_2_1 extends c2_1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class c2_2_2 extends c2_1;\n" +
+			"endclass\n" +
+			"\n"
+			;
+		String testname = "testClassHierarchy";
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname);
+		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
+
+		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
+		List<SVDBClassDecl> cls_l = cls_finder.find("c2_1");
+		assertEquals(1, cls_l.size());
+	
+		// root, target
+		HierarchyTreeNode h = tf.build(cls_l.get(0));
+		
+		assertEquals("c2_1", h.getName());
+		
+		HierarchyTreeNode c2_2_1 = null;
+		HierarchyTreeNode c2_2_2 = null;
+		
+		for (HierarchyTreeNode c : h.getChildren()) {
+			if (c.getName().equals("c2_2_1")) {
+				c2_2_1 = c;
+			} else if (c.getName().equals("c2_2_2")) {
+				c2_2_2 = c;
+			}
+		}
+		
+		assertNotNull(c2_2_1);
+		assertEquals("c2_2_1", c2_2_1.getName());
+		assertNotNull(c2_2_2);
+		assertEquals("c2_2_2", c2_2_2.getName());
+	}
+	
 }

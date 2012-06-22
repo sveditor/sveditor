@@ -16,6 +16,10 @@
  
 - #(3536166) - Trim leading/trailing spaces from template file paths 
 
+- #(3536752) - Correct non-blocking event-trigger operator (--> to ->>)
+
+- #(3536783) - Correct parse bug involving an 'if' in a property statement
+
 ------------------------------------------------------------------------------
 -- 0.9.3 Release --
 
