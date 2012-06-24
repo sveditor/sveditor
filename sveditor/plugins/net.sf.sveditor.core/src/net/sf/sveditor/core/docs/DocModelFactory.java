@@ -81,8 +81,10 @@ public class DocModelFactory {
 	}
 	
 	private void indexClass(SVDBDeclCacheItem pkg, SVDBDeclCacheItem pkgDecl, DocModel model) throws DocModelFactoryException {
-		if(!(pkgDecl.getSVDBItem() instanceof SVDBClassDecl))
-			throw new DocModelFactoryException("Asked to index a decl item that is not a class") ;
+		if(!(pkgDecl.getSVDBItem() instanceof SVDBClassDecl)) {
+			log.error("Asked to index class item which is not a classDecl: " + pkgDecl.getName()) ;
+			return ;
+		}
 		SVDBClassDecl classDecl = (SVDBClassDecl)pkgDecl.getSVDBItem() ;
 		String name = classDecl.getName() ;
 		String firstChar = name.substring(0, 1).toUpperCase() ;
