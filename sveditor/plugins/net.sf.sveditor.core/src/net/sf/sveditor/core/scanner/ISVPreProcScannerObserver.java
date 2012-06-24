@@ -30,7 +30,7 @@ public interface ISVPreProcScannerObserver {
 	
 	void leave_preproc_conditional();
 	
-	void comment(String comment);
+	void comment(String comment, String name);
 
 	void enter_package(String name);
 	

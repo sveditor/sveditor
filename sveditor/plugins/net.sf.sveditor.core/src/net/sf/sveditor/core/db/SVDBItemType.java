@@ -186,6 +186,9 @@ public enum SVDBItemType {
 	
 	CoverpointExpr,
 	CoverBinsExpr,
+	
+	// Documentation types
+	DocComment
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

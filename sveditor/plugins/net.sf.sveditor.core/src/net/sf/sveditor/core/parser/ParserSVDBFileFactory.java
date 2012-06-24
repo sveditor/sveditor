@@ -772,7 +772,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void enter_preproc_conditional(String type, String conditional) {}
 	public void leave_preproc_conditional() {}
-	public void comment(String comment) {}
+	public void comment(String comment, String name) {}
 
 	public boolean error_limit_reached() {
 		return (fParseErrorMax > 0 && fParseErrors.size() >= fParseErrorMax);
