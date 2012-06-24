@@ -141,11 +141,11 @@ public class HTMLUtils {
 		return result ;
 	}
 	
-	static String genMenu(String relPathToHTML) {
+	static String genMenu(String relPathToHTML, String title) {
 		String res = 
 			"<div id=Menu>"
 				+ "<div class=MEntry>"
-					+ "<div class=MFile id=MSelected>uvm_object</div>"
+					+ "<div class=MFile id=MSelected>" + title + "</div>"
 				+ "</div>"
 				+ "<div class=MEntry>"
 				+ "<div class=MGroup><a href=\"javascript:ToggleMenu('MGroupContent1')\">Index</a>"

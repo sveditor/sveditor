@@ -32,7 +32,7 @@ public class HTMLClassIndexFactory {
 		res += HTMLUtils.genBodyBegin("IndexPage") ;
 		res += genIndex("..",model) ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu("..") ;
+		res += HTMLUtils.genMenu("..","Class Index") ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}

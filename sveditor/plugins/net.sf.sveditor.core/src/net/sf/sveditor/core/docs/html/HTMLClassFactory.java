@@ -58,7 +58,7 @@ public class HTMLClassFactory {
 		res += genMemberDetail(classDeclItem) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu("../..") ;
+		res += HTMLUtils.genMenu("../..", classDeclItem.getName()) ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
