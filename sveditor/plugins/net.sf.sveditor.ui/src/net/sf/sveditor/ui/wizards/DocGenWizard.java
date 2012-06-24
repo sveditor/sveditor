@@ -13,22 +13,41 @@ package net.sf.sveditor.ui.wizards ;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.DocModel;
 import net.sf.sveditor.core.docs.DocModelFactory;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard ;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 public class DocGenWizard extends Wizard {
 	
 	DocGenSelectPkgsWizardPage fSelectPkgsPage ;
 	DocGenBasicOptionsWizardPage fBasicOptionsPage ;
+	
+	IWorkbench workbench ;
+	
+	LogHandle log ;
+	
+	public DocGenWizard() {
+		log = LogFactory.getLogHandle("DocGenWizard") ;
+	}
+	
+	
 
 	@Override
 	public boolean performFinish() {
@@ -51,7 +70,7 @@ public class DocGenWizard extends Wizard {
 	}
 
 	public void init(IWorkbench workbench) {
-		
+		this.workbench = workbench ;
 	}
 
 	@Override
@@ -66,7 +85,8 @@ public class DocGenWizard extends Wizard {
 
 	@Override
 	public boolean canFinish() {
-		return fSelectPkgsPage.hasSelection() ;
+		return fSelectPkgsPage.hasSelection() 
+				&& !(fBasicOptionsPage.getOutputDir().isEmpty()) ;
 	}
 
 	@Override
@@ -75,21 +95,36 @@ public class DocGenWizard extends Wizard {
 	}
 
 	private void performOperation(DocGenConfig cfg, IProgressMonitor monitor) {
-		monitor.beginTask("Generating documentation", 10) ;
+		monitor.beginTask("Generating documentation", 3) ;
 		DocModelFactory factory = new DocModelFactory() ;
 		DocModel model = factory.build(cfg) ;
+		monitor.worked(1) ;
 		IDocWriter writer = new HTMLDocWriter() ;
 		writer.write(cfg, model) ;
-		for(int i=0 ; i < 10 ; i++) {
-			try {
-				Thread.sleep(100) ;
-			} catch (InterruptedException e) {
-				// FIXME: Auto-generated catch block
-				e.printStackTrace();
-			}
-			monitor.worked(1) ;
-		}
+		monitor.worked(1) ;
+		openIndexHTML(writer.getIndexHTML(cfg, model)) ;
 		monitor.done() ;
+	}
+	
+	private void openIndexHTML(File indexHTML) {
+		IWorkbenchBrowserSupport browserSupport = workbench.getBrowserSupport() ;
+		URL url ;
+		try {
+			url = new URL("file://" + indexHTML) ;
+		} catch (MalformedURLException e) {
+			log.error("Failed to create url for indexHtml: " + indexHTML, e) ;
+			return ;
+		}
+		IWebBrowser browser ;
+		try {
+			browser = browserSupport
+					.createBrowser(IWorkbenchBrowserSupport.AS_EXTERNAL, null, 
+							"SVEditor HTML Docsl", "SVEditor HTML docs") ;
+			browser.openURL(url) ;
+		} catch (PartInitException e) {
+			log.error("Failed to open browser", e) ; 
+			return ;
+		}
 	}
 	
 

@@ -11,8 +11,12 @@
 
 package net.sf.sveditor.core.docs;
 
+import java.io.File;
+
 public interface IDocWriter {
 	
 	public void write(DocGenConfig cfg, DocModel model) ;
+	
+	public File getIndexHTML(DocGenConfig cfg, DocModel model) ;
 
 }

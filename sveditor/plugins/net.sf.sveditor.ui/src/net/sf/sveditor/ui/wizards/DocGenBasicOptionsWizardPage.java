@@ -77,6 +77,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 				String dir = fDirDialog.open() ;
 				if(dir != null && !dir.isEmpty()) {
 					fDirText.setText(dir) ;
+					setPageComplete(!dir.isEmpty()) ;
 				}
 			}
 			public void widgetDefaultSelected(SelectionEvent e) { }

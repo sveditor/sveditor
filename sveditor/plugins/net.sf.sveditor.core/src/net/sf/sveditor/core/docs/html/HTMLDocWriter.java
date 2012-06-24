@@ -32,6 +32,8 @@ import org.osgi.framework.Bundle;
 
 public class HTMLDocWriter implements IDocWriter {
 	
+	private File indexHtmFile ;
+	
 	private class HTMLDocWriterException extends Exception {
 		private static final long serialVersionUID = 567302255024887471L ;
 		public HTMLDocWriterException(String msg) { super(msg) ; }
@@ -96,6 +98,7 @@ public class HTMLDocWriter implements IDocWriter {
 			for(String className: pkgClassMap.keySet()) {
 				log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
 				File outPath = HTMLUtils.getHTMLFileForClass(cfg,pkgName,className) ;
+				indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
 				SVDBDeclCacheItem classDecl = pkgClassMap.get(className) ;
 				if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
 				log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
@@ -172,5 +175,9 @@ public class HTMLDocWriter implements IDocWriter {
 			}
 		}		
 		
+	}
+
+	public File getIndexHTML(DocGenConfig cfg, DocModel model) {
+		return indexHtmFile ;
 	}
 }
