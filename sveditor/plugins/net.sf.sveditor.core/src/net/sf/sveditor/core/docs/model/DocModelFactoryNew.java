@@ -16,8 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -61,23 +67,65 @@ public class DocModelFactoryNew {
 			if(pkg.getParent() == null) {
 				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
 			}
-			Map<String, DocClassItem> pkgClassMap = classMapByPkg.get(pkg.getName()) ;
-			List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
-			if(pkgDecls != null) {
-				for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
-					if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
-						// FIXME: check for user defined class docs
-						DocClassItem classDocItem = new DocClassItem(pkgDecl.getName()) ;
-						docPkgItem.addChild(classDocItem) ;
-						pkgClassMap.put(classDocItem.getName(), classDocItem) ;
-						indexClass(docPkgItem, classDocItem, model) ;
-					}
-				}
-			} else {
-				fLog.debug("Package declarations for \"" + pkg.getName() + "\" not found");
-			}			
+			gatherPackageClasses(model, pkg, docPkgItem, classMapByPkg);			
 		}
 		
+	}
+
+	private void gatherPackageClasses(DocModelNew model, 
+									  SVDBDeclCacheItem pkg,
+									  DocPkgItem docPkgItem,
+									  Map<String, Map<String, DocClassItem>> classMapByPkg)
+			throws DocModelFactoryException {
+		Map<String, DocClassItem> pkgClassMap = classMapByPkg.get(pkg.getName()) ;
+		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
+		if(pkgDecls != null) {
+			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
+				if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
+					// FIXME: check for user defined class docs
+					DocClassItem classDocItem = new DocClassItem(pkgDecl.getName()) ;
+					docPkgItem.addChild(classDocItem) ;
+					pkgClassMap.put(classDocItem.getName(), classDocItem) ;
+					indexClass(docPkgItem, classDocItem, model) ;
+					gatherClassMembers(docPkgItem, classDocItem, (SVDBClassDecl)pkgDecl.getSVDBItem(), model ) ;
+				}
+			}
+		} else {
+			fLog.debug("Package declarations for \"" + pkg.getName() + "\" not found");
+		}
+	}
+
+	private void gatherClassMembers(DocPkgItem docPkgItem,
+									DocClassItem classDocItem, 
+									SVDBClassDecl svdbClassDecl, 
+									DocModelNew model) {
+		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
+			if(ci.getType() == SVDBItemType.Task) {
+				SVDBTask svdbTask = (SVDBTask)ci ;
+				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName()) ;
+				classDocItem.addChild(taskItem) ;
+				continue ;
+			}
+			if(ci.getType() == SVDBItemType.Function) {
+				SVDBFunction svdbFunction = (SVDBFunction)ci ;
+				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
+				classDocItem.addChild(funcItem) ;
+				continue ;
+			}
+			if(ci.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
+				for(ISVDBChildItem varItem: varDecl.getChildren()) {
+					if(varItem instanceof SVDBVarDeclItem) {
+						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
+						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName()) ;
+						classDocItem.addChild(docVarItem) ;
+					}
+				}
+//				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
+//				classDocItem.addChild(funcItem) ;
+				continue ;
+			}
+		}
 	}
 
 	private DocPkgItem createPkgItem(SVDBDeclCacheItem pkg) {

@@ -95,13 +95,6 @@ public class HTMLClassFactory {
 	
 	private String genSummaryMembers(DocClassItem classItem) {
 		String res = "" ;
-//		List<ISVDBItemBase> members = new ArrayList<ISVDBItemBase>();
-//		ISVDBItemBase it = classItem.getSVDBItem() ;
-//		if (it instanceof ISVDBChildParent) {
-//			for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-//				members.add(ci);
-//			}
-//		}
 		for(DocItem child: classItem.getChildren()) {
 			if(child.getType() == DocItemType.VarDeclDoc) 
 				res += genSummaryVarDecl(classItem, (DocVarDeclItem)child) ;
@@ -114,9 +107,6 @@ public class HTMLClassFactory {
 	}
 
 	private String genSummaryVarDecl(DocClassItem classItem, DocVarDeclItem varItem) {
-//		for(ISVDBChildItem child: varDecl.getChildren()) {
-//			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
-//			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
 		String res =
 				 "<tr class=\"SVariable SIndent2 SMarked\">" 
 			   + "<td class=SIcon>"
@@ -131,7 +121,6 @@ public class HTMLClassFactory {
 						 + "This will be the variable description"
 						 + "</td>"
 			   + "</tr>" ;
-//		}
 		return res ;
 	}
 	
@@ -155,8 +144,6 @@ public class HTMLClassFactory {
 
 
 	private String genSummaryFuncDecl(DocClassItem classItem, DocFuncItem func) {
-//		if(!(child instanceof SVDBFunction)) { return "" ; } 
-//		SVDBFunction func = (SVDBFunction)child ;
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
@@ -175,8 +162,6 @@ public class HTMLClassFactory {
 	}
 	
 	private String genDetailsTask(DocClassItem classItem, DocTaskItem taskItem) {
-//		if(!(child instanceof SVDBTask)) { return "" ; } 
-//		SVDBTask task = (SVDBTask)child ;
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
@@ -193,8 +178,6 @@ public class HTMLClassFactory {
 	}
 
 	private String genDetailsFunc(DocClassItem classDeclItem, DocFuncItem func) {
-//		if(!(child instanceof SVDBFunction)) { return "" ; } 
-//		SVDBFunction func = (SVDBFunction)child ;
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
@@ -211,12 +194,6 @@ public class HTMLClassFactory {
 	}
 
 	private String genDetailsVar(DocClassItem classDeclItem, DocVarDeclItem varItem) {
-//		if(!(child2 instanceof SVDBVarDeclStmt)) { return "" ; }
-//		String res = "" ;
-//		SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)child2 ;
-//		for(ISVDBChildItem child: varDecl.getChildren()) {
-//			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
-//			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
 		String res =
 				  "<div class=\"CVariable\">"
 				    + "<div class=CTopic>" 

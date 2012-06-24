@@ -13,8 +13,19 @@ package net.sf.sveditor.core.docs.model;
 
 public class DocTaskItem extends DocItem {
 
+	public int fFieldAttr ;
+	
 	public DocTaskItem(String name) {
 		super(name, DocItemType.TaskDoc);
 	}
+	
+	public void setAttr(int attr) {
+		fFieldAttr = attr ;
+	}
+
+	public int getAttr() {
+		return fFieldAttr ;
+	}
+
 
 }

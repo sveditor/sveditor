@@ -11,10 +11,22 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocVarDeclItem extends DocItem {
+import net.sf.sveditor.core.db.IFieldItemAttr;
+
+public class DocVarDeclItem extends DocItem implements IFieldItemAttr {
+	
+	public int fFieldAttr ;
 
 	public DocVarDeclItem(String name) {
 		super(name, DocItemType.VarDeclDoc);
+	}
+
+	public void setAttr(int attr) {
+		fFieldAttr = attr ;
+	}
+
+	public int getAttr() {
+		return fFieldAttr ;
 	}
 
 }

@@ -25,6 +25,8 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocItemType;
+import net.sf.sveditor.core.docs.model.DocTaskItem;
+import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -85,46 +87,26 @@ public class HTMLIconUtils implements IHTMLIcons {
 	
 	@SuppressWarnings("unused")
 	public static String getImagePath(DocItem docItem) {
-		if(false){
-//		if (docItemType == SVDBItemType.VarDeclDoc) {
-//			SVDBVarDeclItem decl = (SVDBVarDeclItem)docItemType;
-//			SVDBVarDeclStmt decl_p = decl.getParent();
-//			
-//			if (decl_p == null) {
-//				HTMLIconUtils.getLog().error("Parent of " + decl.getName() + " @ " + decl.getLocation().getLine() + " is NULL") ;
-//			}
-//			int attr = decl_p.getAttr();
-//			if (decl_p.getParent() != null && 
-//					(decl_p.getParent().getType() == SVDBItemType.Task ||
-//							decl_p.getParent().getType() == SVDBItemType.Function)) {
-//				return LOCAL_OBJ ;
-//			} else {
-//				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-//					return FIELD_PRIV_OBJ ;
-//				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-//					return FIELD_PROT_OBJ ;
-//				} else {
-//					return FIELD_PUB_OBJ ;
-//				}
-//			}
-//		} else if (docItemType instanceof IFieldItemAttr) {
-//			int            attr = ((IFieldItemAttr)docItemType).getAttr();
-//			SVDBItemType   type = docItemType.getType();
-//			
-//			if (type == SVDBItemType.ModIfcInstItem) {
-//				return MOD_IFC_INST_OBJ ;
-//			} else if (type == SVDBItemType.Task || 
-//					type == SVDBItemType.Function) {
-//				if ((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
-//					return TASK_PRIV_OBJ ;
-//				} else if ((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
-//					return TASK_PROT_OBJ ;
-//				} else {
-//					return TASK_PUB_OBJ ;
-//				}
-//			} else if (SVDBStmt.isType(docItemType, SVDBItemType.ParamPortDecl)) {
-//				return LOCAL_OBJ ;
-//			}
+		if (docItem.getType() == DocItemType.VarDeclDoc) {
+			DocVarDeclItem varDeclItem = (DocVarDeclItem)docItem ;
+			int attr = varDeclItem.getAttr() ;
+			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
+				return FIELD_PRIV_OBJ ; 
+			} else if((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
+				return FIELD_PROT_OBJ ; 
+			} else { 
+				return FIELD_PUB_OBJ ; 
+			}
+		} else if(docItem.getType() == DocItemType.TaskDoc) {
+			DocTaskItem taskDeclItem = (DocTaskItem)docItem ;
+			int attr = taskDeclItem.getAttr() ;
+			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
+				return TASK_PRIV_OBJ ; 
+			} else if((attr & IFieldItemAttr.FieldAttr_Protected) != 0) {
+				return TASK_PROT_OBJ ; 
+			} else { 
+				return TASK_PUB_OBJ ; 
+			}
 		} else { 
 			DocItemType type = docItem.getType() ; 
 			if (fImgDescMap.containsKey(type)) {
