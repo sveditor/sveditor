@@ -334,6 +334,17 @@
             id="net.sf.sveditor.ui.editor.open.diag.selection"
             name="Open Diagram for Selection">
       </command>
+      <category
+            description="Commands related to SVEditor document generation"
+            id="net.sf.sveditor.ui.docs"
+            name="Documents">
+      </category>
+      <command
+            categoryId="net.sf.sveditor.ui.docs"
+            defaultHandler="net.sf.sveditor.ui.handlers.DocsGenerateHandler"
+            id="net.sf.sveditor.ui.docs.generate"
+            name="Generate Docs">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -682,6 +693,19 @@
             id="net.sf.sveditor.ui.newSVWizards"
             separatorsVisible="true">
       </group>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="net.sf.sveditor.ui.toolbars.docs"
+               label="Docs">
+            <command
+                  commandId="net.sf.sveditor.ui.docs.generate"
+                  icon="icons/edecl16/generate_obj.gif"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.search.searchPages">
