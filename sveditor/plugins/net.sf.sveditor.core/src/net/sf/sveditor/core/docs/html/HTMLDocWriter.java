@@ -20,10 +20,10 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.DocModel;
 import net.sf.sveditor.core.docs.IDocWriter;
+import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocModelNew;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -47,7 +47,7 @@ public class HTMLDocWriter implements IDocWriter {
 		log = LogFactory.getLogHandle("HTMLDocWriter") ;
 	}
 
-	public void write(DocGenConfig cfg, DocModel model) {
+	public void write(DocGenConfig cfg, DocModelNew model) {
 		
 		try {
 			
@@ -66,12 +66,12 @@ public class HTMLDocWriter implements IDocWriter {
 
 	}
 
-	private void writeIndices(DocGenConfig cfg, DocModel model) throws IOException {
+	private void writeIndices(DocGenConfig cfg, DocModelNew model) throws IOException {
 		writeClassIndex(cfg, model) ;
 		
 	}
 
-	private void writeClassIndex(DocGenConfig cfg, DocModel model) throws IOException {
+	private void writeClassIndex(DocGenConfig cfg, DocModelNew model) throws IOException {
 		
 		HTMLClassIndexFactory classIndexFactory = new HTMLClassIndexFactory(cfg) ;
 		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
@@ -89,28 +89,28 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
+	private void writeClasses(DocGenConfig cfg, DocModelNew model) throws IOException {
 		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
 		
 		for(String pkgName: model.getClassMapByPkg().keySet()) {
 			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for pkg: " + pkgName) ;
-			Map<String, SVDBDeclCacheItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
+			Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
 			for(String className: pkgClassMap.keySet()) {
 				log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
 				File outPath = HTMLUtils.getHTMLFileForClass(cfg,pkgName,className) ;
 				indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
-				SVDBDeclCacheItem classDecl = pkgClassMap.get(className) ;
+				DocClassItem classItem = pkgClassMap.get(className) ;
 				if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
 				log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
 				FileOutputStream os;
 				os = new FileOutputStream(outPath);
-				os.write(classFactory.build(classDecl).getBytes()) ;
+				os.write(classFactory.build(classItem).getBytes()) ;
 				os.close() ;
 			}
 		}
 	}
 
-	private void sanityCheck(DocGenConfig cfg, DocModel model) throws HTMLDocWriterException {
+	private void sanityCheck(DocGenConfig cfg, DocModelNew model) throws HTMLDocWriterException {
 		
 		if(cfg == null)
 			throw new HTMLDocWriterException("Received null config") ;
@@ -124,7 +124,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	private void buildDirTree(DocGenConfig cfg, DocModel model) throws Exception {
+	private void buildDirTree(DocGenConfig cfg, DocModelNew model) throws Exception {
 		
 		log.debug(ILogLevel.LEVEL_MIN, "Building dir tree") ;
 		
@@ -177,7 +177,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	public File getIndexHTML(DocGenConfig cfg, DocModel model) {
+	public File getIndexHTML(DocGenConfig cfg, DocModelNew model) {
 		return indexHtmFile ;
 	}
 }

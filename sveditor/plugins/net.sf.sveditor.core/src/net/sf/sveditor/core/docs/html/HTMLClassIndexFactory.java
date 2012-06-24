@@ -14,9 +14,10 @@ package net.sf.sveditor.core.docs.html;
 import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.DocModel;
+import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocModelNew;
+import net.sf.sveditor.core.docs.model.DocPkgItem;
 
 public class HTMLClassIndexFactory {
 	
@@ -26,7 +27,7 @@ public class HTMLClassIndexFactory {
 		this.cfg = cfg ;
 	}
 	
-	public String build(DocModel model) {
+	public String build(DocModelNew model) {
 		String res = HTMLUtils.STR_DOCTYPE ;
 		res += HTMLUtils.genHTMLHeadStart("..","Class Index") ;
 		res += HTMLUtils.genBodyBegin("IndexPage") ;
@@ -37,13 +38,13 @@ public class HTMLClassIndexFactory {
 		return res ;
 	}
 	
-	private String genIndex(String relPathToHTML, DocModel model) {
+	private String genIndex(String relPathToHTML, DocModelNew model) {
 		String res = 
 			"<div id=Index>"
 				+ "<div class=IPageTitle>Class Index</div>"
 				+ "<div class=INavigationBar>" ;
 		boolean first = true ;
-		Map<String, Map<String, Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem>>> classIdxMap = model.getClassIndexMap() ; 
+		Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIdxMap = model.getClassIndexMap() ; 
 		for(String idxKey: classIdxMap.keySet()) {
 			if(!first) { res += " &middot; " ; } 
 			else { first = false ; }
@@ -66,9 +67,9 @@ public class HTMLClassIndexFactory {
 						+"<td class=IHeading id=IFirstHeading>"
 							+ "<a name=\"" + idxKey + "\"></a>" + idxKey + "</td><td></td>"
 					+ "</tr>" ;
-		   Map<String, Tuple<SVDBDeclCacheItem, SVDBDeclCacheItem>> classMap = classIdxMap.get(idxKey) ;					
+		   Map<String, Tuple<DocPkgItem, DocClassItem>> classMap = classIdxMap.get(idxKey) ;					
 		   for(String className: classMap.keySet()) {
-			   Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem> tuple = classMap.get(className) ;
+			   Tuple<DocPkgItem,DocClassItem> tuple = classMap.get(className) ;
 			   String pkgName = tuple.first() == null ? "" : tuple.first().getName() ; 
 			   String classRelPath = HTMLUtils.getHTMLRelPathForClass(cfg, pkgName, className).toString() ;
 			   res +=

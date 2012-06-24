@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2011 Matthew Ballance and others.
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,16 +9,12 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.docs;
+package net.sf.sveditor.core.docs.model;
 
-import java.io.File;
+public class DocPkgItem extends DocItem {
 
-import net.sf.sveditor.core.docs.model.DocModelNew;
-
-public interface IDocWriter {
-	
-	public void write(DocGenConfig cfg, DocModelNew model) ;
-	
-	public File getIndexHTML(DocGenConfig cfg, DocModelNew model) ;
+	public DocPkgItem(String name) {
+		super(name, DocItemType.PackageDoc);
+	}
 
 }

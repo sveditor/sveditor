@@ -9,29 +9,28 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.docs;
+package net.sf.sveditor.core.docs.model;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
-public class DocModel {
+public class DocModelNew {
 	
 	public static final String IndexKeyWierd = "$#!" ;
 	public static final String IndexKeyNum   = "0..9" ;
 	
-	private Map<String, SVDBDeclCacheItem> pkgMap ;
+	private Map<String, DocPkgItem> pkgMap ;
 	
-	private Map<String, Map<String, SVDBDeclCacheItem>> classMapByPkg ;
+	private Map<String, Map<String, DocClassItem>> classMapByPkg ;
 	
-	private Map<String, Map<String, Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem>>> classIndexMap ;
+	private Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIndexMap ;
 	
-	public DocModel() {
-		pkgMap = new HashMap<String, SVDBDeclCacheItem>() ;
-		classMapByPkg = new HashMap<String, Map<String, SVDBDeclCacheItem>>() ;
-		classIndexMap = new HashMap<String, Map<String, Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem>>>() ;
+	public DocModelNew() {
+		pkgMap = new HashMap<String, DocPkgItem>() ;
+		classMapByPkg = new HashMap<String, Map<String, DocClassItem>>() ;
+		classIndexMap = new HashMap<String, Map<String, Tuple<DocPkgItem,DocClassItem>>>() ;
 		
 		String keys[] = {IndexKeyWierd, IndexKeyNum,
 						 "A","B","C","D","E","F","G",
@@ -40,19 +39,19 @@ public class DocModel {
 						 "V","W","X","Y","Z"} ;
 
 	    for(String key: keys) {
-	    	classIndexMap.put(key, new HashMap<String, Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem>>()) ;
+	    	classIndexMap.put(key, new HashMap<String, Tuple<DocPkgItem,DocClassItem>>()) ;
 	    }
 	}
 
-	public Map<String, SVDBDeclCacheItem> getPkgMap() {
+	public Map<String, DocPkgItem> getPkgMap() {
 		return pkgMap ;
 	}
 
-	public Map<String, Map<String, SVDBDeclCacheItem>> getClassMapByPkg() {
+	public Map<String, Map<String, DocClassItem>> getClassMapByPkg() {
 		return classMapByPkg ;
 	}
 
-	public Map<String, Map<String, Tuple<SVDBDeclCacheItem,SVDBDeclCacheItem>>> getClassIndexMap() {
+	public Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> getClassIndexMap() {
 		return classIndexMap ;
 	}
 

@@ -17,17 +17,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.DocModel;
-import net.sf.sveditor.core.docs.DocModelFactory;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
+import net.sf.sveditor.core.docs.model.DocModelFactoryNew;
+import net.sf.sveditor.core.docs.model.DocModelNew;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.Wizard ;
+import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.browser.IWebBrowser;
@@ -95,8 +95,10 @@ public class DocGenWizard extends Wizard {
 
 	private void performOperation(DocGenConfig cfg, IProgressMonitor monitor) {
 		monitor.beginTask("Generating documentation", 3) ;
-		DocModelFactory factory = new DocModelFactory() ;
-		DocModel model = factory.build(cfg) ;
+		
+		DocModelFactoryNew factory = new DocModelFactoryNew() ;
+		DocModelNew model = factory.build(cfg) ;
+		
 		monitor.worked(1) ;
 		IDocWriter writer = new HTMLDocWriter() ;
 		writer.write(cfg, model) ;

@@ -11,19 +11,13 @@
 
 package net.sf.sveditor.core.docs.html;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFunction;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.docs.DocGenConfig;
+import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocFuncItem;
+import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocItemType;
+import net.sf.sveditor.core.docs.model.DocTaskItem;
+import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 
 public class HTMLClassFactory {
 	
@@ -34,62 +28,55 @@ public class HTMLClassFactory {
 		this.cfg = cfg ;
 	}
 	
-	public String build(SVDBDeclCacheItem classDeclItem) {
+	public String build(DocClassItem classItem) {
 		String res = HTMLUtils.STR_DOCTYPE ;
-		res += HTMLUtils.genHTMLHeadStart("../..",classDeclItem.getName()) ;
+		res += HTMLUtils.genHTMLHeadStart("../..",classItem.getName()) ;
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
 		res += genClassStart() ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(classDeclItem.getName()) ;
+		res += HTMLUtils.genCTitle(classItem.getName()) ;
 		res += HTMLUtils.genCBodyBegin() ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
-		res += genSTRMain(classDeclItem) ;
-		res += genSummaryMembers(classDeclItem) ;
+		res += genSTRMain(classItem) ;
+		res += genSummaryMembers(classItem) ;
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
 		res += HTMLUtils.genSummaryEnd() ;
 		res += HTMLUtils.genCBodyEnd() ;
 		res += HTMLUtils.genCTopicEnd() ;
 		res += genClassEnd() ;
-		res += genMemberDetail(classDeclItem) ;
+		res += genMemberDetail(classItem) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu("../..", classDeclItem.getName()) ;
+		res += HTMLUtils.genMenu("../..", classItem.getName()) ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
 	
-	private String genMemberDetail(SVDBDeclCacheItem classDeclItem) {
+	private String genMemberDetail(DocClassItem classItem) {
 		String res = "" ;
-		List<ISVDBItemBase> members = new ArrayList<ISVDBItemBase>();
-		ISVDBItemBase it = classDeclItem.getSVDBItem() ;
-		if (it instanceof ISVDBChildParent) {
-			for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-				members.add(ci);
-			}
-		}
-		for(ISVDBItemBase child: members) {
-			if(child.getType() == SVDBItemType.VarDeclStmt) 
-				res += genDetailsVar(classDeclItem, child) ;
-			else if(child.getType() == SVDBItemType.Function) 
-				res += genDetailsFunc(classDeclItem, child) ;
-			else if(child.getType() == SVDBItemType.Task) 
-				res += genDetailsTask(classDeclItem, child) ;
+		for(DocItem child: classItem.getChildren()) {
+			if(child.getType() == DocItemType.VarDeclDoc) 
+				res += genDetailsVar(classItem, (DocVarDeclItem)child) ;
+			else if(child.getType() == DocItemType.FuncDoc) 
+				res += genDetailsFunc(classItem, (DocFuncItem)child) ;
+			else if(child.getType() == DocItemType.TaskDoc) 
+				res += genDetailsTask(classItem, (DocTaskItem)child) ;
 		}
 		return res ;
 	}
 
-	static String genSTRMain(SVDBDeclCacheItem classDeclItem) {
+	static String genSTRMain(DocClassItem classItem) {
 		String result =
 			  "<tr class=\"SMain\">"
 				   + "<td class=SIcon>"
-							 + "<img src=../../" + HTMLIconUtils.getImagePath(classDeclItem.getSVDBItem()) + ">"
+							 + "<img src=../../" + HTMLIconUtils.getImagePath(classItem) + ">"
 							 + "</td>"
-			+ "<td class=SEntry><a href=\"#" +classDeclItem.getName()+ "\" >" +classDeclItem.getName()+ "</a></td>" 
+			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
 			+ "<td class=SDescription>" + "This will become the class description" + "</td>"
 			+ "</tr>" ;
 		return result ;
@@ -106,61 +93,56 @@ public class HTMLClassFactory {
 		return res ;
 	}
 	
-	private String genSummaryMembers(SVDBDeclCacheItem classDeclItem) {
+	private String genSummaryMembers(DocClassItem classItem) {
 		String res = "" ;
-		List<ISVDBItemBase> members = new ArrayList<ISVDBItemBase>();
-		ISVDBItemBase it = classDeclItem.getSVDBItem() ;
-		if (it instanceof ISVDBChildParent) {
-			for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-				members.add(ci);
-			}
-		}
-		for(ISVDBItemBase child: members) {
-			if(child.getType() == SVDBItemType.VarDeclStmt) 
-				res += genSummaryVarDecl(classDeclItem, child) ;
-			else if(child.getType() == SVDBItemType.Function) 
-				res += genSummaryFuncDecl(classDeclItem, child) ;
-			else if(child.getType() == SVDBItemType.Task) 
-				res += genSummaryTaskDecl(classDeclItem, child) ;
+//		List<ISVDBItemBase> members = new ArrayList<ISVDBItemBase>();
+//		ISVDBItemBase it = classItem.getSVDBItem() ;
+//		if (it instanceof ISVDBChildParent) {
+//			for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
+//				members.add(ci);
+//			}
+//		}
+		for(DocItem child: classItem.getChildren()) {
+			if(child.getType() == DocItemType.VarDeclDoc) 
+				res += genSummaryVarDecl(classItem, (DocVarDeclItem)child) ;
+			else if(child.getType() == DocItemType.FuncDoc) 
+				res += genSummaryFuncDecl(classItem, (DocFuncItem)child) ;
+			else if(child.getType() == DocItemType.TaskDoc) 
+				res += genSummaryTaskDecl(classItem, (DocTaskItem)child) ;
 		}
 		return res ;
 	}
 
-	private String genSummaryVarDecl(SVDBDeclCacheItem classDeclItem, ISVDBItemBase item) {
-		if(!(item instanceof SVDBVarDeclStmt)) { return "" ; }
-		String res = "" ;
-		SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)item ;
-		for(ISVDBChildItem child: varDecl.getChildren()) {
-			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
-			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
-			res += 
+	private String genSummaryVarDecl(DocClassItem classItem, DocVarDeclItem varItem) {
+//		for(ISVDBChildItem child: varDecl.getChildren()) {
+//			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
+//			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
+		String res =
 				 "<tr class=\"SVariable SIndent2 SMarked\">" 
 			   + "<td class=SIcon>"
-						 + "<img src=../../" + HTMLIconUtils.getImagePath(child) + ">"
+						 + "<img src=../../" + HTMLIconUtils.getImagePath(varItem) + ">"
 						 + "</td>"
 			   + "<td class=SEntry><a href=\"#" 
-						 + classDeclItem.getName()
-						 + "." + varDeclItem.getName() 
-						 + "\">" + varDeclItem.getName() + "</a>"
+						 + classItem.getName()
+						 + "." + varItem.getName() 
+						 + "\">" + varItem.getName() + "</a>"
 						 + "</td>"
 			   + "<td class=SDescription>"
 						 + "This will be the variable description"
 						 + "</td>"
 			   + "</tr>" ;
-		}
+//		}
 		return res ;
 	}
 	
-	private String genSummaryTaskDecl(SVDBDeclCacheItem classDeclItem, ISVDBItemBase child) {
-		if(!(child instanceof SVDBTask)) { return "" ; } 
-		SVDBTask task = (SVDBTask)child ;
+	private String genSummaryTaskDecl(DocClassItem classItem, DocTaskItem task) {
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=../../" + HTMLIconUtils.getImagePath(child) + ">"
+					 + "<img src=../../" + HTMLIconUtils.getImagePath(task) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classDeclItem.getName()
+					 + classItem.getName()
 					 + "." + task.getName() 
 					 + "\">" + task.getName() + "()</a>"
 					 + "</td>"
@@ -172,16 +154,16 @@ public class HTMLClassFactory {
 	}
 
 
-	private String genSummaryFuncDecl(SVDBDeclCacheItem classDeclItem, ISVDBItemBase child) {
-		if(!(child instanceof SVDBFunction)) { return "" ; } 
-		SVDBFunction func = (SVDBFunction)child ;
+	private String genSummaryFuncDecl(DocClassItem classItem, DocFuncItem func) {
+//		if(!(child instanceof SVDBFunction)) { return "" ; } 
+//		SVDBFunction func = (SVDBFunction)child ;
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=../../" + HTMLIconUtils.getImagePath(child) + ">"
+					 + "<img src=../../" + HTMLIconUtils.getImagePath(func) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classDeclItem.getName()
+					 + classItem.getName()
 					 + "." + func.getName() 
 					 + "\">" + func.getName() + "()</a>"
 					 + "</td>"
@@ -192,15 +174,15 @@ public class HTMLClassFactory {
 		return res ;
 	}
 	
-	private String genDetailsTask(SVDBDeclCacheItem classDeclItem, ISVDBItemBase child) {
-		if(!(child instanceof SVDBTask)) { return "" ; } 
-		SVDBTask task = (SVDBTask)child ;
+	private String genDetailsTask(DocClassItem classItem, DocTaskItem taskItem) {
+//		if(!(child instanceof SVDBTask)) { return "" ; } 
+//		SVDBTask task = (SVDBTask)child ;
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classDeclItem.getName() + "." + task.getName()
+						  + classItem.getName() + "." + taskItem.getName()
 				    + "\"></a>"
-				    + task.getName() + "()"
+				    + taskItem.getName() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>"
 						+ "<p>This is some text about the variable</p>"
@@ -210,9 +192,9 @@ public class HTMLClassFactory {
 		return res ;
 	}
 
-	private String genDetailsFunc(SVDBDeclCacheItem classDeclItem, ISVDBItemBase child) {
-		if(!(child instanceof SVDBFunction)) { return "" ; } 
-		SVDBFunction func = (SVDBFunction)child ;
+	private String genDetailsFunc(DocClassItem classDeclItem, DocFuncItem func) {
+//		if(!(child instanceof SVDBFunction)) { return "" ; } 
+//		SVDBFunction func = (SVDBFunction)child ;
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
@@ -228,28 +210,27 @@ public class HTMLClassFactory {
 		return res ;
 	}
 
-	private String genDetailsVar(SVDBDeclCacheItem classDeclItem, ISVDBItemBase item) {
-		if(!(item instanceof SVDBVarDeclStmt)) { return "" ; }
-		String res = "" ;
-		SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)item ;
-		for(ISVDBChildItem child: varDecl.getChildren()) {
-			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
-			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
-			res += 
+	private String genDetailsVar(DocClassItem classDeclItem, DocVarDeclItem varItem) {
+//		if(!(child2 instanceof SVDBVarDeclStmt)) { return "" ; }
+//		String res = "" ;
+//		SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)child2 ;
+//		for(ISVDBChildItem child: varDecl.getChildren()) {
+//			if(!(child instanceof SVDBVarDeclItem)) { continue ; }
+//			SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
+		String res =
 				  "<div class=\"CVariable\">"
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 
-								  + classDeclItem.getName() + "." + varDeclItem.getName()
+								  + classDeclItem.getName() + "." + varItem.getName()
 						    + "\"></a>"
-					    + varDeclItem.getName()
+					    + varItem.getName()
 					    + "</h3>"
 					    + "<div class=CBody>"
 							+ "<p>This is some text about the variable</p>"
 					    + "</div>"
 				    + "</div>"
 			    + "</div>" ;
-		}
 		return res ;
 	}
 
