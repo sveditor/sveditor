@@ -12,9 +12,11 @@
 
 package net.sf.sveditor.core.tests.utils;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,11 +25,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
-import junit.framework.TestFailure;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -68,6 +69,52 @@ public class TestUtils {
 		
 		return ret;
 	}
+	
+	public static void unpackZipToFS(
+			File			zipfile_path,
+			File			fs_path) {
+		if (!fs_path.isDirectory()) {
+			TestCase.assertTrue(fs_path.mkdirs());
+		}
+		
+		try {
+			InputStream in = new FileInputStream(zipfile_path);
+			TestCase.assertNotNull(in);
+			byte tmp[] = new byte[4*1024];
+			int cnt;
+
+			ZipInputStream zin = new ZipInputStream(in);
+			ZipEntry ze;
+
+			while ((ze = zin.getNextEntry()) != null) {
+				// System.out.println("Entry: \"" + ze.getName() + "\"");
+				File entry_f = new File(fs_path, ze.getName());
+				if (ze.getName().endsWith("/")) {
+					// Directory
+					continue;
+				}
+				if (!entry_f.getParentFile().exists()) {
+					TestCase.assertTrue(entry_f.getParentFile().mkdirs());
+				}
+				FileOutputStream fos = new FileOutputStream(entry_f);
+				BufferedOutputStream bos = new BufferedOutputStream(fos, tmp.length);
+				
+				while ((cnt = zin.read(tmp, 0, tmp.length)) > 0) {
+					bos.write(tmp, 0, cnt);
+				}
+				bos.flush();
+				bos.close();
+				fos.close();
+			
+				zin.closeEntry();
+			}
+			zin.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			TestCase.fail("Failed to unpack zip file: " + e.getMessage());
+		}			
+	}
+			
 	
 	public static String readInput(InputStream in) {
 		StringBuilder sb = new StringBuilder();
