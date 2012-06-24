@@ -21,6 +21,7 @@ import net.sf.sveditor.core.docs.DocModel;
 import net.sf.sveditor.core.docs.DocModelFactory;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -28,9 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard ;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
@@ -62,9 +61,9 @@ public class DocGenWizard extends Wizard {
 				}
 			}) ;
 		} catch (InvocationTargetException e) {
-			// FIXME: Auto-generated catch block
-			e.printStackTrace(); } catch (InterruptedException e) { // FIXME: Auto-generated catch block
-			e.printStackTrace();
+			log.error("Wizzard invocation failed", e) ;
+		} catch (InterruptedException e) { 
+			log.debug(ILogLevel.LEVEL_MIN, "Wizzard interrupted", e) ;
 		}
 		return true ;
 	}
