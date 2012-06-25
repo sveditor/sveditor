@@ -23,7 +23,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.model.DocClassItem;
-import net.sf.sveditor.core.docs.model.DocModelNew;
+import net.sf.sveditor.core.docs.model.DocModel;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -47,7 +47,7 @@ public class HTMLDocWriter implements IDocWriter {
 		log = LogFactory.getLogHandle("HTMLDocWriter") ;
 	}
 
-	public void write(DocGenConfig cfg, DocModelNew model) {
+	public void write(DocGenConfig cfg, DocModel model) {
 		
 		try {
 			
@@ -66,12 +66,12 @@ public class HTMLDocWriter implements IDocWriter {
 
 	}
 
-	private void writeIndices(DocGenConfig cfg, DocModelNew model) throws IOException {
+	private void writeIndices(DocGenConfig cfg, DocModel model) throws IOException {
 		writeClassIndex(cfg, model) ;
 		
 	}
 
-	private void writeClassIndex(DocGenConfig cfg, DocModelNew model) throws IOException {
+	private void writeClassIndex(DocGenConfig cfg, DocModel model) throws IOException {
 		
 		HTMLClassIndexFactory classIndexFactory = new HTMLClassIndexFactory(cfg) ;
 		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
@@ -89,7 +89,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	private void writeClasses(DocGenConfig cfg, DocModelNew model) throws IOException {
+	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
 		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
 		
 		for(String pkgName: model.getClassMapByPkg().keySet()) {
@@ -110,7 +110,7 @@ public class HTMLDocWriter implements IDocWriter {
 		}
 	}
 
-	private void sanityCheck(DocGenConfig cfg, DocModelNew model) throws HTMLDocWriterException {
+	private void sanityCheck(DocGenConfig cfg, DocModel model) throws HTMLDocWriterException {
 		
 		if(cfg == null)
 			throw new HTMLDocWriterException("Received null config") ;
@@ -124,7 +124,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	private void buildDirTree(DocGenConfig cfg, DocModelNew model) throws Exception {
+	private void buildDirTree(DocGenConfig cfg, DocModel model) throws Exception {
 		
 		log.debug(ILogLevel.LEVEL_MIN, "Building dir tree") ;
 		
@@ -177,7 +177,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 	}
 
-	public File getIndexHTML(DocGenConfig cfg, DocModelNew model) {
+	public File getIndexHTML(DocGenConfig cfg, DocModel model) {
 		return indexHtmFile ;
 	}
 }

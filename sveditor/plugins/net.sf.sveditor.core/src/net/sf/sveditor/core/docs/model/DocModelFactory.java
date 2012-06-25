@@ -17,10 +17,13 @@ import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -31,7 +34,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 
-public class DocModelFactoryNew {
+public class DocModelFactory {
 	
 	private class DocModelFactoryException extends Exception {
 		private static final long serialVersionUID = -6656720421849741060L;
@@ -42,12 +45,12 @@ public class DocModelFactoryNew {
 	
 	private LogHandle fLog ;
 	
-	public DocModelFactoryNew() {
+	public DocModelFactory() {
 		fLog = LogFactory.getLogHandle("DocModelFactory") ;
 	}
 
-	public DocModelNew build(DocGenConfig cfg) {
-		DocModelNew model = new DocModelNew() ;
+	public DocModel build(DocGenConfig cfg) {
+		DocModel model = new DocModel() ;
 		try {
 			gatherPackages(cfg, model) ;
 		} catch (DocModelFactoryException e) {
@@ -56,7 +59,7 @@ public class DocModelFactoryNew {
 		return model ;
 	}
 
-	private void gatherPackages(DocGenConfig cfg, DocModelNew model) throws DocModelFactoryException {
+	private void gatherPackages(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
 		for(SVDBDeclCacheItem pkg: cfg.getSelectedPackages()) {
 			DocPkgItem docPkgItem = createPkgItem(pkg) ; // FIXME: check for user defined docs
 			if(docPkgItem != null) {
@@ -72,7 +75,7 @@ public class DocModelFactoryNew {
 		
 	}
 
-	private void gatherPackageClasses(DocModelNew model, 
+	private void gatherPackageClasses(DocModel model, 
 									  SVDBDeclCacheItem pkg,
 									  DocPkgItem docPkgItem,
 									  Map<String, Map<String, DocClassItem>> classMapByPkg)
@@ -85,6 +88,7 @@ public class DocModelFactoryNew {
 					// FIXME: check for user defined class docs
 					DocClassItem classDocItem = new DocClassItem(pkgDecl.getName()) ;
 					docPkgItem.addChild(classDocItem) ;
+					ISVDBItemBase item = pkgDecl.getSVDBItem() ;
 					pkgClassMap.put(classDocItem.getName(), classDocItem) ;
 					indexClass(docPkgItem, classDocItem, model) ;
 					gatherClassMembers(docPkgItem, classDocItem, (SVDBClassDecl)pkgDecl.getSVDBItem(), model ) ;
@@ -98,7 +102,7 @@ public class DocModelFactoryNew {
 	private void gatherClassMembers(DocPkgItem docPkgItem,
 									DocClassItem classDocItem, 
 									SVDBClassDecl svdbClassDecl, 
-									DocModelNew model) {
+									DocModel model) {
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
@@ -121,8 +125,6 @@ public class DocModelFactoryNew {
 						classDocItem.addChild(docVarItem) ;
 					}
 				}
-//				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
-//				classDocItem.addChild(funcItem) ;
 				continue ;
 			}
 		}
@@ -133,17 +135,17 @@ public class DocModelFactoryNew {
 		return item ;
 	}
 
-	private void indexClass(DocPkgItem pkgItem, DocClassItem classItem, DocModelNew model) throws DocModelFactoryException {
+	private void indexClass(DocPkgItem pkgItem, DocClassItem classItem, DocModel model) throws DocModelFactoryException {
 		String name = classItem.getName() ;
 		String firstChar = name.substring(0, 1).toUpperCase() ;
 		if(model.getClassIndexMap().containsKey(firstChar)) {
 			model.getClassIndexMap().get(firstChar)
 				.put(name, new Tuple<DocPkgItem, DocClassItem>(pkgItem,classItem)) ;
 		} else if(firstChar.matches("[0123456789]")) {
-			model.getClassIndexMap().get(DocModelNew.IndexKeyNum)
+			model.getClassIndexMap().get(DocModel.IndexKeyNum)
 				.put(name,  new Tuple<DocPkgItem, DocClassItem>(pkgItem,classItem)) ;
 		} else {
-			model.getClassIndexMap().get(DocModelNew.IndexKeyWierd)
+			model.getClassIndexMap().get(DocModel.IndexKeyWierd)
 				.put(name,  new Tuple<DocPkgItem, DocClassItem>(pkgItem,classItem)) ;
 		}
 		

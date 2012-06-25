@@ -16,7 +16,7 @@ import java.util.Map;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocClassItem;
-import net.sf.sveditor.core.docs.model.DocModelNew;
+import net.sf.sveditor.core.docs.model.DocModel;
 import net.sf.sveditor.core.docs.model.DocPkgItem;
 
 public class HTMLClassIndexFactory {
@@ -27,7 +27,7 @@ public class HTMLClassIndexFactory {
 		this.cfg = cfg ;
 	}
 	
-	public String build(DocModelNew model) {
+	public String build(DocModel model) {
 		String res = HTMLUtils.STR_DOCTYPE ;
 		res += HTMLUtils.genHTMLHeadStart("..","Class Index") ;
 		res += HTMLUtils.genBodyBegin("IndexPage") ;
@@ -38,7 +38,7 @@ public class HTMLClassIndexFactory {
 		return res ;
 	}
 	
-	private String genIndex(String relPathToHTML, DocModelNew model) {
+	private String genIndex(String relPathToHTML, DocModel model) {
 		String res = 
 			"<div id=Index>"
 				+ "<div class=IPageTitle>Class Index</div>"

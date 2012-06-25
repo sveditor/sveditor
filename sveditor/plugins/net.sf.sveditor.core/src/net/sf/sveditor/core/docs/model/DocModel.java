@@ -16,7 +16,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 
-public class DocModelNew {
+public class DocModel {
 	
 	public static final String IndexKeyWierd = "$#!" ;
 	public static final String IndexKeyNum   = "0..9" ;
@@ -27,7 +27,7 @@ public class DocModelNew {
 	
 	private Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIndexMap ;
 	
-	public DocModelNew() {
+	public DocModel() {
 		pkgMap = new HashMap<String, DocPkgItem>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocClassItem>>() ;
 		classIndexMap = new HashMap<String, Map<String, Tuple<DocPkgItem,DocClassItem>>>() ;

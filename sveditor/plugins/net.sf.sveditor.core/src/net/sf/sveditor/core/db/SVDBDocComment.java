@@ -13,11 +13,10 @@ package net.sf.sveditor.core.db;
 
 public class SVDBDocComment extends SVDBItem {
 	
-	@SuppressWarnings("unused")
 	public String fRawComment ;
 
 	public SVDBDocComment() {
-		super("",SVDBItemType.DocComment) ;
+		super("", SVDBItemType.DocComment) ;
 	}
 	public SVDBDocComment(String name, String comment) {
 		super(name, SVDBItemType.DocComment) ;

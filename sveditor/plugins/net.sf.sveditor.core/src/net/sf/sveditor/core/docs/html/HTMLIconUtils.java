@@ -17,12 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
@@ -85,7 +79,6 @@ public class HTMLIconUtils implements IHTMLIcons {
 		return log ;
 	}
 	
-	@SuppressWarnings("unused")
 	public static String getImagePath(DocItem docItem) {
 		if (docItem.getType() == DocItemType.VarDeclDoc) {
 			DocVarDeclItem varDeclItem = (DocVarDeclItem)docItem ;

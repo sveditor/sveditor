@@ -19,8 +19,8 @@ import java.net.URL;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
-import net.sf.sveditor.core.docs.model.DocModelFactoryNew;
-import net.sf.sveditor.core.docs.model.DocModelNew;
+import net.sf.sveditor.core.docs.model.DocModelFactory;
+import net.sf.sveditor.core.docs.model.DocModel;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -96,8 +96,8 @@ public class DocGenWizard extends Wizard {
 	private void performOperation(DocGenConfig cfg, IProgressMonitor monitor) {
 		monitor.beginTask("Generating documentation", 3) ;
 		
-		DocModelFactoryNew factory = new DocModelFactoryNew() ;
-		DocModelNew model = factory.build(cfg) ;
+		DocModelFactory factory = new DocModelFactory() ;
+		DocModel model = factory.build(cfg) ;
 		
 		monitor.worked(1) ;
 		IDocWriter writer = new HTMLDocWriter() ;
