@@ -31,7 +31,7 @@ public class DocCommentParser implements IDocCommentParser {
 	public String isDocComment(String comment) {
 		Matcher matcher = fIsDocCommentPattern.matcher(comment) ;
 		if(matcher.find()) {
-			return matcher.group(1) ;
+			return matcher.group(2) ;
 		} else {
 			return null ;
 		}

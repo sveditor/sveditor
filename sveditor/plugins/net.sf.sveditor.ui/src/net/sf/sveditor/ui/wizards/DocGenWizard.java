@@ -15,7 +15,12 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
@@ -51,7 +56,11 @@ public class DocGenWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		final DocGenConfig cfg = new DocGenConfig() ;
-		cfg.setSelectedPackages(fSelectPkgsPage.getSelectedPackages()) ;
+		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		for(SVDBDeclCacheItem pkg: fSelectPkgsPage.getSelectedPackages()) {
+			pkgs.add(fSelectPkgsPage.getPkgMap().get(pkg.getName())) ;
+		}
+		cfg.setSelectedPackages(pkgs) ;
 		cfg.setOutputDir(new File(fBasicOptionsPage.getOutputDir())) ;
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {

@@ -14,17 +14,19 @@ package net.sf.sveditor.core.docs;
 import java.io.File;
 import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class DocGenConfig {
 	
-	private Set<SVDBDeclCacheItem> fPackages ;
+	private Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> fPackages ;
 	private File outputDir ;
 
-	public Set<SVDBDeclCacheItem> getSelectedPackages() {
+	public Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> getSelectedPackages() {
 		return fPackages;
 	}
-	public void setSelectedPackages(Set<SVDBDeclCacheItem> fPackages) {
+	public void setSelectedPackages(Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> fPackages) {
 		this.fPackages = fPackages ;
 	}
 	
