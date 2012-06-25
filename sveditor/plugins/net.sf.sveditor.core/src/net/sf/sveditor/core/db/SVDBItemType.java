@@ -173,6 +173,9 @@ public enum SVDBItemType {
 	
 	// Property Expression Types
 	PropertySpecExpr,
+	PropertyIfStmt,
+	PropertyCaseStmt,
+	PropertyCaseItem,
 	
 	SequenceCycleDelayExpr,
 	SequenceClockingExpr,
