@@ -13,6 +13,8 @@ package net.sf.sveditor.core.docs;
 
 public interface IDocCommentParser {
 
-	String isDocComment(String comment);
+	public String isDocComment(String comment) ;
+	
+	public void parse(String comment) ;
 
 }

@@ -28,9 +28,15 @@ package net.sf.sveditor.core.docs;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 public class DocCommentParser implements IDocCommentParser {
 	
 	private static Pattern fIsDocCommentPattern ;
+	
+	private LogHandle fLog ;
 	
 	static {
 		fIsDocCommentPattern = Pattern.compile(
@@ -40,6 +46,10 @@ public class DocCommentParser implements IDocCommentParser {
 					+   	"|function"
 					+   ")\\s*:\\s*(\\w+)",
 			Pattern.CASE_INSENSITIVE) ;
+	}
+	
+	public DocCommentParser() {
+		fLog = LogFactory.getLogHandle("DocCommentParser") ;
 	}
 
 	public String isDocComment(String comment) {
@@ -51,7 +61,25 @@ public class DocCommentParser implements IDocCommentParser {
 		}
 	}
 
-}
+	public void parse(String comment) {
+		
+		String lines[] = comment.split("\\r?\\n") ;
+		
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "Parsing the following comment:") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		
+		cleanComment(lines) ;
+		
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "Cleaned the following comment:") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
+		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		
+	}
 
 
 //
@@ -471,6 +499,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	sub CleanComment #(commentLines)
 //	    {
 //	    my ($self, $commentLines) = @_;
+	
+	
+	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
+	
+	private void cleanComment(String[] lines) {
 //	
 //	    use constant DONT_KNOW => 0;
 //	    use constant IS_UNIFORM => 1;
@@ -481,17 +514,26 @@ public class DocCommentParser implements IDocCommentParser {
 //	    my $rightSide = DONT_KNOW;
 //	    my $leftSideChar;
 //	    my $rightSideChar;
+		
+		Uniformity leftSide = Uniformity.DONT_KNOW ;
+		Uniformity rightSide = Uniformity.DONT_KNOW ;
+		
 //	
 //	    my $index = 0;
 //	    my $tabLength = NaturalDocs::Settings->TabLength();
-//	
-//	    while ($index < scalar @$commentLines)
-//	        {
+		
+		String tabExpansion = "   " ;
+		int index = 0 ;
+		boolean inCodeSection = false ;
+		
+		while(index < lines.length) {
+		
 //	        # Strip trailing whitespace from the original.
 //	
 //	        $commentLines->[$index] =~ s/[ \t]+$//;
-//	
-//	
+			
+			lines[index] = lines[index].replaceAll("[ \\t]+$", "") ;
+			
 //	        # Expand tabs in the original.  This method is almost six times faster than Text::Tabs' method.
 //	
 //	        my $tabIndex = index($commentLines->[$index], "\t");
@@ -501,47 +543,52 @@ public class DocCommentParser implements IDocCommentParser {
 //	            substr( $commentLines->[$index], $tabIndex, 1, ' ' x ($tabLength - ($tabIndex % $tabLength)) );
 //	            $tabIndex = index($commentLines->[$index], "\t", $tabIndex);
 //	            };
-//	
-//	
+			
+			lines[index] = lines[index].replaceAll("\\n", tabExpansion) ;
+
 //	        # Make a working copy and strip leading whitespace as well.  This has to be done after tabs are expanded because
 //	        # stripping indentation could change how far tabs are expanded.
 //	
 //	        my $line = $commentLines->[$index];
 //	        $line =~ s/^ +//;
-//	
-//	        # If the line is blank...
-//	        if (!length $line)
-//	            {
-//	            # If we have a potential vertical line, this only acceptable if it's at the end of the comment.
-//	            if ($leftSide == IS_UNIFORM)
-//	                {  $leftSide = IS_UNIFORM_IF_AT_END;  };
-//	            if ($rightSide == IS_UNIFORM)
-//	                {  $rightSide = IS_UNIFORM_IF_AT_END;  };
-//	            }
-//	
-//	        # If there's at least four symbols in a row, it's a horizontal line.  The second regex supports differing edge characters.  It
-//	        # doesn't matter if any of this matches the left and right side symbols.  The length < 256 is a sanity check, because that
-//	        # regexp has caused the perl regexp engine to choke on an insane line someone sent me from an automatically generated
-//	        # file.  It had over 10k characters on the first line, and most of them were 0x00.
-//	        elsif ($line =~ /^([^a-zA-Z0-9 ])\1{3,}$/ ||
-//	                (length $line < 256 && $line =~ /^([^a-zA-Z0-9 ])\1*([^a-zA-Z0-9 ])\2{3,}([^a-zA-Z0-9 ])\3*$/) )
-//	            {
-//	            # Ignore it.  This has no effect on the vertical line detection.  We want to keep it in the output though in case it was
-//	            # in a code section.
-//	            }
-//	
-//	        # If the line is not blank or a horizontal line...
-//	        else
-//	            {
-//	            # More content means any previous blank lines are no longer tolerated in vertical line detection.  They are only
-//	            # acceptable at the end of the comment.
-//	
-//	            if ($leftSide == IS_UNIFORM_IF_AT_END)
-//	                {  $leftSide = IS_NOT_UNIFORM;  };
-//	            if ($rightSide == IS_UNIFORM_IF_AT_END)
-//	                {  $rightSide = IS_NOT_UNIFORM;  };
-//	
-//	
+			
+			String line = lines[index] ;
+			
+	        // If the line is blank...
+			//
+			if(line.length()==0) {
+	            // If we have a potential vertical line, this only acceptable if it's at the end of the comment.
+	            if (leftSide == Uniformity.IS_UNIFORM)
+	                {  leftSide = Uniformity.IS_UNIFORM_IF_AT_END ; }
+	            if (rightSide == Uniformity.IS_UNIFORM)
+	                {  rightSide = Uniformity.IS_UNIFORM_IF_AT_END ; }
+            }
+
+	        // If there's at least four symbols in a row, it's a horizontal line.  The second regex supports differing edge characters.  It
+	        // doesn't matter if any of this matches the left and right side symbols.  The length < 256 is a sanity check, because that
+	        // regexp has caused the perl regexp engine to choke on an insane line someone sent me from an automatically generated
+	        // file.  It had over 10k characters on the first line, and most of them were 0x00.
+			//
+			else if (line.matches("^([^a-zA-Z0-9 ])\\1{3,}$") ||
+					 ((line.length() < 256) &&
+							 line.matches("^([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$/"))) {
+			
+	            // Ignore it.  This has no effect on the vertical line detection.  We want to keep it in the output though in case it was
+	            // in a code section.
+
+	        // If the line is not blank or a horizontal line...
+			//
+			} else {
+	        	
+	            // More content means any previous blank lines are no longer tolerated in vertical line detection.  They are only
+	            // acceptable at the end of the comment.
+	
+	            if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END)
+	                {  leftSide = Uniformity.IS_NOT_UNIFORM;  }
+	            if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END)
+	                {  rightSide = Uniformity.IS_NOT_UNIFORM;  }
+
+
 //	            # Detect vertical lines.  Lines are only lines if they are followed by whitespace or a connected horizontal line.
 //	            # Otherwise we may accidentally detect lines from short comments that just happen to have every first or last
 //	            # character the same.
@@ -594,80 +641,70 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	
 //	            # We'll remove vertical lines later if they're uniform throughout the entire comment.
-//	            };
-//	
-//	        $index++;
-//	        };
-//	
-//	
-//	    if ($leftSide == IS_UNIFORM_IF_AT_END)
-//	        {  $leftSide = IS_UNIFORM;  };
-//	    if ($rightSide == IS_UNIFORM_IF_AT_END)
-//	        {  $rightSide = IS_UNIFORM;  };
-//	
-//	
-//	    $index = 0;
-//	    my $inCodeSection = 0;
-//	
-//	    while ($index < scalar @$commentLines)
-//	        {
-//	        # Clear horizontal lines only if we're not in a code section.
-//	        if ($commentLines->[$index] =~ /^ *([^a-zA-Z0-9 ])\1{3,}$/ ||
-//	            ( length $commentLines->[$index] < 256 &&
-//	              $commentLines->[$index] =~ /^ *([^a-zA-Z0-9 ])\1*([^a-zA-Z0-9 ])\2{3,}([^a-zA-Z0-9 ])\3*$/ ) )
-//	        	{
-//	        	if (!$inCodeSection)
-//	        		{  $commentLines->[$index] = '';  }
-//	        	}
-//	
-//	        else
-//	        	{
-//		        # Clear vertical lines.
-//	
-//		        if ($leftSide == IS_UNIFORM)
-//		            {
-//		            # This works because every line should either start this way, be blank, or be the first line that doesn't start with a
-//		            # symbol.
-//		            $commentLines->[$index] =~ s/^ *([^a-zA-Z0-9 ])\1*//;
-//		            };
-//	
-//		        if ($rightSide == IS_UNIFORM)
-//		            {
-//		            $commentLines->[$index] =~ s/ *([^a-zA-Z0-9 ])\1*$//;
-//		            };
-//	
-//	
-//		        # Clear horizontal lines again if there were vertical lines.  This catches lines that were separated from the verticals by
-//		        # whitespace.
-//	
-//		        if (($leftSide == IS_UNIFORM || $rightSide == IS_UNIFORM) && !$inCodeSection)
-//		            {
-//		            $commentLines->[$index] =~ s/^ *([^a-zA-Z0-9 ])\1{3,}$//;
-//		            $commentLines->[$index] =~ s/^ *([^a-zA-Z0-9 ])\1*([^a-zA-Z0-9 ])\2{3,}([^a-zA-Z0-9 ])\3*$//;
-//		            };
-//	
-//	
-//		        # Check for the start and end of code sections.  Note that this doesn't affect vertical line removal.
-//	
-//		        if (!$inCodeSection &&
-//		        	$commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\)$/i )
-//		        	{
-//		        	$inCodeSection = 1;
-//		        	}
-//		        elsif ($inCodeSection &&
-//		        	    $commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
-//		        	 {
-//		        	 $inCodeSection = 0;
-//		        	 }
-//		        }
-//	
-//	
-//	        $index++;
-//	        };
-//	
-//	    };
-//	
-//	
+	            };
+
+	        	index++ ;
+	        }
+	
+	
+	    if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END)
+	        {  leftSide = Uniformity.IS_UNIFORM;  }
+	    if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END)
+	        {  rightSide = Uniformity.IS_UNIFORM;  }
+	
+	    index = 0;
+	    inCodeSection = false ;
+	    
+	    while(index < lines.length) {
+	    
+	        // Clear horizontal lines only if we're not in a code section.
+	    	//
+	        if (lines[index].matches("^ *([^a-zA-Z0-9 ])\\1{3,}") ||
+	            ( lines[index].length() < 256 &&
+	              lines[index].matches("^ *([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$" )))
+	        	{
+	        	if (!inCodeSection)
+	        		{  lines[index] = "" ;  }
+	        	}
+	
+	        else {
+		        // Clear vertical lines.
+	
+		        if (leftSide == Uniformity.IS_UNIFORM) {
+		            // This works because every line should either start this way, be blank, or be the first line that doesn't start with a
+		            // symbol.
+		            lines[index].replace("^ *([^a-zA-Z0-9 ])\\1*","") ;
+	            }
+	
+		        if (rightSide == Uniformity.IS_UNIFORM) {
+		            lines[index].replace(" *([^a-zA-Z0-9 ])\\1*$","") ;
+	            }
+	
+		        // Clear horizontal lines again if there were vertical lines.  This catches lines that were separated from the verticals by
+		        // whitespace.
+	
+		        if ((leftSide == Uniformity.IS_UNIFORM || rightSide == Uniformity.IS_UNIFORM) && !inCodeSection) {
+		            lines[index].replace("^ *([^a-zA-Z0-9 ])\\1{3,}$","") ;
+		            lines[index].replace("^ *([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$","") ;
+	            }
+	
+		        // Check for the start and end of code sections.  Note that this doesn't affect vertical line removal.
+		        //
+	        	Pattern patternCodeStart = Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE ) ;
+		        Pattern patternCodeEnd = Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE) ;
+		        if (!inCodeSection &&
+		        		patternCodeStart.matcher(lines[index]).matches()) {
+		        	inCodeSection = true ;
+	        	}
+		        else if (inCodeSection && patternCodeEnd.matcher(lines[index]).matches()) { 
+		        	 inCodeSection = false ;
+		        }
+	
+			}
+	        index++ ;
+		}	
+	}
+	
 //	
 //	###############################################################################
 //	# Group: Processing Functions
@@ -2721,3 +2758,5 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	
 //	1;
+	
+}

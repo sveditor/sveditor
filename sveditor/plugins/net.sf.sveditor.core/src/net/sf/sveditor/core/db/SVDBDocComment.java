@@ -22,5 +22,9 @@ public class SVDBDocComment extends SVDBItem {
 		super(name, SVDBItemType.DocComment) ;
 		fRawComment = comment ;
 	}
+	
+	public String getRawComment() {
+		return fRawComment ;
+	}
 
 }

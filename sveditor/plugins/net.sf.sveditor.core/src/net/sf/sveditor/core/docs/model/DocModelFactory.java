@@ -17,20 +17,19 @@ import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocGenConfig;
+import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -39,6 +38,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 
 public class DocModelFactory {
+	
+	private IDocCommentParser fParser ;
 	
 	private class DocModelFactoryException extends Exception {
 		private static final long serialVersionUID = -6656720421849741060L;
@@ -51,6 +52,7 @@ public class DocModelFactory {
 	
 	public DocModelFactory() {
 		fLog = LogFactory.getLogHandle("DocModelFactory") ;
+		fParser = new DocCommentParser() ;
 	}
 
 	public DocModel build(DocGenConfig cfg) {
@@ -112,6 +114,7 @@ public class DocModelFactory {
 				fLog.debug(ILogLevel.LEVEL_MID, 
 						"Found doc comment for \"" + pkgDeclItem.getName() + "::" + classDeclItem.getName() + "\"") ;
 				// TODO: Parse the doc comment into the individual Doc Items
+				fParser.parse(docComment.getRawComment()) ;
 			}
 		}
 		return classDocItem ;
