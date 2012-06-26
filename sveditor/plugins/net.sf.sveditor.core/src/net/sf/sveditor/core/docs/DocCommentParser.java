@@ -10,9 +10,9 @@
  *     Armond Paiva - repurposed from Natural Docs for use in SVEditor
  *    
  * This class is largely a Java port of the natural docs parser
- * for it's native comment format. The three Perl packages ported
+ * for it's native comment format. The following Perl packages ported
  * were NaturalDocs::Parser, NaturalDocs::Parser::Native, and 
- * NaturalDocs::Parser::ParsedTopic
+ * NaturalDocs::Parser::ParsedTopic, NaturalDocs::NDMarkup
  *     
  ****************************************************************************
  * Original Natural Docs License:
@@ -25,9 +25,15 @@
 
 package net.sf.sveditor.core.docs;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.docs.model.DocItemType;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -61,7 +67,7 @@ public class DocCommentParser implements IDocCommentParser {
 		}
 	}
 
-	public void parse(String comment) {
+	public void parse(String comment, Set<DocTopic> docTopics) {
 		
 		String lines[] = comment.split("\\r?\\n") ;
 		
@@ -78,6 +84,10 @@ public class DocCommentParser implements IDocCommentParser {
 		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
 		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
 		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+		
+		parseComment(lines, docTopics) ;
+		
+//	        {  return NaturalDocs::Parser::Native->ParseComment($commentLines, $isJavaDoc, $lineNumber, \@parsedFile);  }
 		
 	}
 
@@ -1490,173 +1500,148 @@ public class DocCommentParser implements IDocCommentParser {
 //	###############################################################################
 //	# Group: Interface Functions
 //	
-//	
-//	#
-//	#   Function: Start
-//	#
-//	#   This will be called whenever a file is about to be parsed.  It allows the package to reset its internal state.
-//	#
-//	sub Start
-//	    {
-//	    my ($self) = @_;
-//	    $package = undef;
-//	    };
-//	
-//	
-//	#
-//	#   Function: IsMine
-//	#
-//	#   Examines the comment and returns whether it is *definitely* Natural Docs content, i.e. it is owned by this package.  Note
-//	#   that a comment can fail this function and still be interpreted as a Natural Docs content, for example a JavaDoc-styled comment
-//	#   that doesn't have header lines but no JavaDoc tags either.
-//	#
-//	#   Parameters:
-//	#
-//	#       commentLines - An arrayref of the comment lines.  Must have been run through <NaturalDocs::Parser->CleanComment()>.
-//	#       isJavaDoc - Whether the comment was JavaDoc-styled.
-//	#
-//	#   Returns:
-//	#
-//	#       Whether the comment is *definitely* Natural Docs content.
-//	#
-//	sub IsMine #(string[] commentLines, bool isJavaDoc)
-//	    {
-//	    my ($self, $commentLines, $isJavaDoc) = @_;
-//	
-//	    # Skip to the first line with content.
-//	    my $line = 0;
-//	
-//	    while ($line < scalar @$commentLines && !length $commentLines->[$line])
-//	        {  $line++;  };
-//	
-//	    return $self->ParseHeaderLine($commentLines->[$line]);
-//	    };
-//	
-//	
-//	
-//	#
-//	#   Function: ParseComment
-//	#
-//	#   This will be called whenever a comment capable of containing Natural Docs content is found.
-//	#
-//	#   Parameters:
-//	#
-//	#       commentLines - An arrayref of the comment lines.  Must have been run through <NaturalDocs::Parser->CleanComment()>.
-//	#                               *The original memory will be changed.*
-//	#       isJavaDoc - Whether the comment is JavaDoc styled.
-//	#       lineNumber - The line number of the first of the comment lines.
-//	#       parsedTopics - A reference to the array where any new <NaturalDocs::Parser::ParsedTopics> should be placed.
-//	#
-//	#   Returns:
-//	#
-//	#       The number of parsed topics added to the array, or zero if none.
+
+
+//#
+//#   Constants: ScopeType
+//#
+//#   The possible values for <Scope()>.
+//#
+//#   SCOPE_NORMAL - The topic stays in the current scope without affecting it.
+//#   SCOPE_START - The topic starts a scope.
+//#   SCOPE_END - The topic ends a scope, returning it to global.
+//#   SCOPE_ALWAYS_GLOBAL - The topic is always global, but it doesn't affect the current scope.
+//#
+//use constant SCOPE_NORMAL => 1;
+//use constant SCOPE_START => 2;
+//use constant SCOPE_END => 3;
+//use constant SCOPE_ALWAYS_GLOBAL => 4;
+
 //	#
 //	sub ParseComment #(commentLines, isJavaDoc, lineNumber, parsedTopics)
 //	    {
 //	    my ($self, $commentLines, $isJavaDoc, $lineNumber, $parsedTopics) = @_;
 //	
-//	    my $topicCount = 0;
-//	    my $prevLineBlank = 1;
-//	    my $inCodeSection = 0;
-//	
+	
+//	private enum Scope { NONE, NORMAL, START, END, ALWAYS_GLOBAL } ;
+	
+	private int parseComment(String lines[], Set<DocTopic> parsedTopics) {
+	
+	    int topicCount = 0 ;
+	    boolean prevLineBlank = true ;
+	    boolean inCodeSection = false ;
+
 //	    my ($type, $scope, $isPlural, $title, $symbol);
 //	    #my $package;  # package variable.
 //	    my ($newKeyword, $newTitle);
 //	
-//	    my $index = 0;
-//	
-//	    my $bodyStart = 0;
-//	    my $bodyEnd = 0;  # Not inclusive.
-//	
+	    int index = 0 ;
+	    
+//	    Scope scope = Scope.NONE ;
+//	    String topicType = null ;
+	    String title = null ;
+//	    boolean isPlural = false ;
+	
+	    int bodyStart = 0 ;
+	    int bodyEnd = 0 ; // Note inclusive
+	    
+	    Tuple<String,String> tupleKeywordTitle = new Tuple<String,String>(null,null) ;
+
 //	    while ($index < scalar @$commentLines)
-//	        {
-//	        # Everything but leading whitespace was removed beforehand.
-//	
-//	        # If we're in a code section...
-//	        if ($inCodeSection)
-//	            {
-//	            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
-//	                {  $inCodeSection = undef;  };
-//	
-//	            $prevLineBlank = 0;
-//	            $bodyEnd++;
-//	            }
-//	
-//	        # If the line is empty...
-//	        elsif (!length($commentLines->[$index]))
-//	            {
-//	            $prevLineBlank = 1;
-//	
-//	            if ($topicCount)
-//	                {  $bodyEnd++;  };
-//	            }
-//	
-//	        # If the line has a recognized header and the previous line is blank...
-//	        elsif ($prevLineBlank && (($newKeyword, $newTitle) = $self->ParseHeaderLine($commentLines->[$index])) )
-//	            {
-//	            # Process the previous one, if any.
-//	
-//	            if ($topicCount)
-//	                {
-//	                if ($scope == ::SCOPE_START() || $scope == ::SCOPE_END())
+	    
+	    while(index < lines.length ) {
+	    
+	        // Everything but leading whitespace was removed beforehand.
+	    	
+	    	// FIXME: move out into a static. No need to recompile the pattern each comment
+        	Pattern codeSectionEnd = Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
+
+	        if (inCodeSection) {
+	            if (codeSectionEnd.matcher(lines[index]).matches()) {  inCodeSection = false ;  }
+	
+	            prevLineBlank = false ;
+	            bodyEnd++ ;
+            }
+	
+	        // If the line is empty...
+	        //
+	        else if(lines[index].length() == 0) {
+	            prevLineBlank = true ;
+	            if (topicCount != 0) {  bodyEnd++;  }
+            }
+	
+	        // If the line has a recognized header and the previous line is blank...
+//	        else if (prevLineBlank && (($newKeyword, $newTitle) = $self->ParseHeaderLine($commentLines->[$index])) )
+	        
+	        else if(prevLineBlank && parseHeaderLine(tupleKeywordTitle, lines[index]))
+	            {
+	        	
+	            // Process the previous one, if any.
+	
+	            if (topicCount != 0) {
+	            	
+	            	// FIXME: not sure if we need to care about scopes since we have the AST and preproc structures 
+	            	
+//	                if (scope == Scope.START || scope == Scope.END)
 //	                    {  $package = undef;  };
 //	
 //	                my $body = $self->FormatBody($commentLines, $bodyStart, $bodyEnd, $type, $isPlural);
 //	                my $newTopic = $self->MakeParsedTopic($type, $title, $package, $body, $lineNumber + $bodyStart - 1, $isPlural);
 //	                push @$parsedTopics, $newTopic;
-//	
+	            	
+	            	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
+	            	
+	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title) ;
+	            	
+	            	parsedTopics.add(newTopic) ;
+	            	
 //	                $package = $newTopic->Package();
-//	                };
-//	
-//	            $title = $newTitle;
-//	
+	            	
+                }
+	            
+	            String keyword = tupleKeywordTitle.first() ;
+
+	            title = tupleKeywordTitle.second() ;
+	            
+	            fLog.debug(ILogLevel.LEVEL_MID, 
+	            		"Found header line for keyword(" 
+	            			+ keyword + ") title("
+	            			+ title + ")") ;
+	            
+	            // FIXME: will want to grab keyword and associate it with topic... or something like that
+
 //	            my $typeInfo;
 //	            ($type, $typeInfo, $isPlural) = NaturalDocs::Topics->KeywordInfo($newKeyword);
 //	            $scope = $typeInfo->Scope();
 //	
-//	            $bodyStart = $index + 1;
-//	            $bodyEnd = $index + 1;
-//	
-//	            $topicCount++;
-//	
-//	            $prevLineBlank = 0;
-//	            }
-//	
-//	        # If we're on a non-empty, non-header line of a JavaDoc-styled comment and we haven't started a topic yet...
-//	        elsif ($isJavaDoc && !$topicCount)
-//	            {
-//	            $type = undef;
-//	            $scope = ::SCOPE_NORMAL();  # The scope repair and topic merging processes will handle if this is a class topic.
-//	            $isPlural = undef;
-//	            $title = undef;
-//	            $symbol = undef;
-//	
-//	            $bodyStart = $index;
-//	            $bodyEnd = $index + 1;
-//	
-//	            $topicCount++;
-//	
-//	            $prevLineBlank = undef;
-//	            }
-//	
-//	        # If we're on a normal content line within a topic
-//	        elsif ($topicCount)
-//	            {
-//	            $prevLineBlank = 0;
-//	            $bodyEnd++;
-//	
-//	            if ($commentLines->[$index] =~ /^ *\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\)$/i)
-//	                {  $inCodeSection = 1;  };
-//	            };
-//	
-//	
-//	        $index++;
-//	        };
-//	
-//	
-//	    # Last one, if any.  This is the only one that gets the prototypes.
-//	    if ($topicCount)
-//	        {
+	            bodyStart = index + 1 ;
+	            bodyEnd = index + 1 ;
+	
+	            topicCount++;
+	
+	            prevLineBlank = false ;
+	        	
+            }
+	        // If we're on a normal content line within a topic
+	        //
+	        else if (topicCount != 0) {
+	            prevLineBlank = false ;
+	            bodyEnd++ ;
+	            // FIXME: move pattern out into static... no need to keep recompiline
+	            Pattern patternCodeSectionStart = Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE) ;
+	            if(patternCodeSectionStart.matcher(lines[index]).matches()) {
+	            	inCodeSection = true ;
+	            }
+	            	
+            }
+	
+	        index++ ;
+        }
+
+	    // Last one, if any.  This is the only one that gets the prototypes.
+	    //
+	    if (topicCount != 0) {
+	    	
 //	        if ($scope == ::SCOPE_START() || $scope == ::SCOPE_END())
 //	            {  $package = undef;  };
 //	
@@ -1664,12 +1649,57 @@ public class DocCommentParser implements IDocCommentParser {
 //	        my $newTopic = $self->MakeParsedTopic($type, $title, $package, $body, $lineNumber + $bodyStart - 1, $isPlural);
 //	        push @$parsedTopics, $newTopic;
 //	        $topicCount++;
+	    	
+        	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
+        	
+        	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title) ;
+        	
+        	parsedTopics.add(newTopic) ;
+        	
+        	topicCount++ ;
 //	
 //	        $package = $newTopic->Package();
-//	        };
-//	
-//	    return $topicCount;
-//	    };
+        }
+	    
+	    return topicCount ;
+		
+    }
+
+	@SuppressWarnings("unused")
+	private boolean parseHeaderLine(Tuple<String, String> tupleKeywordTitle, String line) {
+		
+		// FIXME: make static
+		Pattern patternHeaderLine = Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
+		
+		Matcher matcher = patternHeaderLine.matcher(line) ;
+		
+		if(matcher.matches()) {
+			
+			String keyWord = matcher.group(1) ;
+			String title = matcher.group(2) ;
+			
+			// FIXME: lookup topic.  for now just assume this is a known topic
+	
+	        // We need to do it this way because if you do "if (ND:T->KeywordInfo($keyword)" and the last element of the array it
+	        // returns is false, the statement is false.  That is really retarded, but there it is.
+//	        my ($type, undef, undef) = NaturalDocs::Topics->KeywordInfo($keyword);
+	
+//	        if ($type) {  
+			if(true) {
+				tupleKeywordTitle.setFirst(keyWord) ;
+				tupleKeywordTitle.setSecond(title) ;
+	        	return true ;
+        	}
+	        else {  
+	        	return false ;  
+        	}
+        }
+	    else {  
+	    	return false ;  
+    	}
+		
+	}
+	
 //	
 //	
 //	#
@@ -1757,7 +1787,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	sub FormatBody #(commentLines, startingIndex, endingIndex, type, isList)
 //	    {
 //	    my ($self, $commentLines, $startingIndex, $endingIndex, $type, $isList) = @_;
-//	
+	
 //	    use constant TAG_NONE => 1;
 //	    use constant TAG_PARAGRAPH => 2;
 //	    use constant TAG_BULLETLIST => 3;
@@ -1773,25 +1803,44 @@ public class DocCommentParser implements IDocCommentParser {
 //	                                 TAG_HEADING() => '</h>',
 //	                                 TAG_PREFIXCODE() => '</code>',
 //	                                 TAG_TAGCODE() => '</code>' );
-//	
-//	    my $topLevelTag = TAG_NONE;
-//	
-//	    my $output;
-//	    my $textBlock;
-//	    my $prevLineBlank = 1;
-//	
-//	    my $codeBlock;
-//	    my $removedCodeSpaces;
-//	
-//	    my $ignoreListSymbols;
-//	
-//	    my $index = $startingIndex;
-//	
-//	    while ($index < $endingIndex)
-//	        {
-//	        # If we're in a tagged code section...
-//	        if ($topLevelTag == TAG_TAGCODE)
-//	            {
+	
+	enum Tag { NONE, PARAGRAPH, BULLETLIST, DESCRIPTIONLIST, HEADING, PREFIXCODE, TAGCODE } ;
+	
+	private static final Map<Tag,String> fTagEnders ;
+	
+	static {
+		fTagEnders = new HashMap<Tag,String>() ;
+		fTagEnders.put(Tag.NONE, "") ;
+		fTagEnders.put(Tag.PARAGRAPH, "</p>") ;
+		fTagEnders.put(Tag.BULLETLIST, "</li></ul>") ;
+		fTagEnders.put(Tag.DESCRIPTIONLIST, "</dd></dl>") ;
+		fTagEnders.put(Tag.HEADING, "</h>") ;
+		fTagEnders.put(Tag.PREFIXCODE, "</code>") ;
+		fTagEnders.put(Tag.TAGCODE, "</code>") ;
+	}
+	
+	private String formatBody(String[] lines, int startIndex, int endIndex) {
+
+		Tag topLevelTag = Tag.NONE ; 
+		String output = "" ;
+		
+	    String textBlock = null ;
+	    boolean prevLineBlank = true ;
+
+	    String codeBlock ;
+	    String removedCodeSpaces ;
+	
+	    boolean ignoreListSymbols;
+
+	    int index = startIndex ;
+	
+	    while (index < endIndex) {
+	    	
+	    
+	        // If we're in a tagged code section...
+	    	//
+	        if (topLevelTag == Tag.TAGCODE) {
+	        	
 //	            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
 //	                {
 //	                $codeBlock =~ s/\n+$//;
@@ -1804,11 +1853,15 @@ public class DocCommentParser implements IDocCommentParser {
 //	                {
 //	                $self->AddToCodeBlock($commentLines->[$index], \$codeBlock, \$removedCodeSpaces);
 //	                };
-//	            }
-//	
+	        	
+            }
+	
 //	        # If the line starts with a code designator...
 //	        elsif ($commentLines->[$index] =~ /^ *[>:|](.*)$/)
 //	            {
+	        
+	        else if (lines[index].matches("^ *[>:|](.*)$")) {
+	        
 //	            my $code = $1;
 //	
 //	            if ($topLevelTag == TAG_PREFIXCODE)
@@ -1827,38 +1880,43 @@ public class DocCommentParser implements IDocCommentParser {
 //	                $output .= '<code type="anonymous">';
 //	                $self->AddToCodeBlock($code, \$codeBlock, \$removedCodeSpaces);
 //	                };
-//	            }
-//	
-//	        # If we're not in either code style...
-//	        else
-//	            {
-//	            # Strip any leading whitespace.
-//	            $commentLines->[$index] =~ s/^ +//;
-//	
-//	            # If we were in a prefixed code section...
-//	            if ($topLevelTag == TAG_PREFIXCODE)
-//	                {
+            }
+
+	        // If we're not in either code style...
+	        //
+	        else {
+	        
+	            // Strip any leading whitespace.
+	        	//
+	            lines[index] = lines[index].replaceFirst("^ +","") ;
+	
+	            // If we were in a prefixed code section...
+	            if (topLevelTag == Tag.PREFIXCODE) {
+
 //	                $codeBlock =~ s/\n+$//;
 //	                $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
-//	                $codeBlock = undef;
-//	                $topLevelTag = TAG_NONE;
-//	                $prevLineBlank = undef;
-//	                };
-//	
-//	
-//	            # If the line is blank...
-//	            if (!length($commentLines->[$index]))
-//	                {
-//	                # End a paragraph.  Everything else ignores it for now.
-//	                if ($topLevelTag == TAG_PARAGRAPH)
-//	                    {
+	            	
+	                codeBlock = null ;
+	                topLevelTag = Tag.NONE;
+	                prevLineBlank = false ;
+	            	
+                }
+	
+	            // If the line is blank...
+	            //
+	            if (lines[index].length() == 0) 
+	                {
+	                // End a paragraph.  Everything else ignores it for now.
+	            	//
+	                if (topLevelTag == Tag.PARAGRAPH)
+	                    {
 //	                    $output .= $self->RichFormatTextBlock($textBlock) . '</p>';
-//	                    $textBlock = undef;
-//	                    $topLevelTag = TAG_NONE;
-//	                    };
-//	
-//	                $prevLineBlank = 1;
-//	                }
+	                    textBlock = null ;
+	                    topLevelTag = Tag.NONE;
+	                    }
+	
+	                prevLineBlank = true ;
+	                }
 //	
 //	            # If the line starts with a bullet...
 //	            elsif ($commentLines->[$index] =~ /^[-\*o+] +([^ ].*)$/ &&
@@ -1980,9 +2038,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	                $prevLineBlank = undef;
 //	                }
 //	
-//	            # If the line isn't any of those, we consider it normal text.
-//	            else
-//	                {
+	            // If the line isn't any of those, we consider it normal text.
+	            //
+	            else
+	                {
 //	                # A blank line followed by normal text ends lists.  We don't handle this when we detect if the line's blank because
 //	                # we don't want blank lines between list items to break the list.
 //	                if ($prevLineBlank && ($topLevelTag == TAG_BULLETLIST || $topLevelTag == TAG_DESCRIPTIONLIST))
@@ -1999,19 +2058,20 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    $topLevelTag = TAG_PARAGRAPH;
 //	                    # textBlock will already be undef.
 //	                    };
-//	
-//	                if (defined $textBlock)
-//	                    {  $textBlock .= ' ';  };
-//	
-//	                $textBlock .= $commentLines->[$index];
-//	
-//	                $prevLineBlank = undef;
-//	                };
-//	            };
-//	
-//	        $index++;
-//	        };
-//	
+	            	
+	            	if(textBlock != null) { textBlock += " " ; }
+
+	                textBlock += lines[index] ;
+	
+	                prevLineBlank = false ;
+	            	
+	                }
+	        	
+            }
+	    	
+	        index++ ;
+        }
+	
 //	    # Clean up anything left dangling.
 //	    if (defined $textBlock)
 //	        {
@@ -2023,9 +2083,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	        $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
 //	        };
 //	
-//	    return $output;
-//	    };
-//	
+	    return output ;
+		
+    }
+	
 //	
 //	#
 //	#   Function: AddToCodeBlock
@@ -2759,4 +2820,57 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	1;
 	
+
+
+//	#
+//	#   Function: ConvertAmpChars
+//	#
+//	#   Substitutes certain characters with their <NDMarkup> amp chars.
+//	#
+//	#   Parameters:
+//	#
+//	#       text - The block of text to convert.
+//	#
+//	#   Returns:
+//	#
+//	#       The converted text block.
+//	#
+
+	private String convertAmpChars(String text) {
+
+	    text = text.replaceAll("&","&amp;") ;
+	    text = text.replaceAll("<","&lt;") ;
+	    text = text.replaceAll(">","&gt;") ;
+	    text = text.replaceAll("\"","&quot;") ;
+	
+	    return text ;
+		
+    }
+	
+
+//	
+//	#
+//	#   Function: RestoreAmpChars
+//	#
+//	#   Replaces <NDMarkup> amp chars with their original symbols.
+//	#
+//	#   Parameters:
+//	#
+//	#       text - The text to restore.
+//	#
+//	#   Returns:
+//	#
+//	#       The restored text.
+//	#
+	private String restoreAmpChars(String text) {
+	
+	    text = text.replaceAll("&quot;","\"") ;
+	    text = text.replaceAll("&gt;",">") ;
+	    text = text.replaceAll("&lt;","<") ;
+	    text = text.replaceAll("&amp;","&") ;
+
+	    return text ;
+		
+    }
+
 }

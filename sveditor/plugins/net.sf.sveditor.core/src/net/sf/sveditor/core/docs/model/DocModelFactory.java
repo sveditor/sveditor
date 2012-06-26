@@ -12,8 +12,10 @@
 package net.sf.sveditor.core.docs.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -114,7 +116,8 @@ public class DocModelFactory {
 				fLog.debug(ILogLevel.LEVEL_MID, 
 						"Found doc comment for \"" + pkgDeclItem.getName() + "::" + classDeclItem.getName() + "\"") ;
 				// TODO: Parse the doc comment into the individual Doc Items
-				fParser.parse(docComment.getRawComment()) ;
+				Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
+				fParser.parse(docComment.getRawComment(),docTopics) ;
 			}
 		}
 		return classDocItem ;
