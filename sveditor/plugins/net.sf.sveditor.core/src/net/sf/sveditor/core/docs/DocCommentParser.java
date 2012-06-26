@@ -9,10 +9,10 @@
  *     Natural Docs - initial implementation
  *     Armond Paiva - repurposed from Natural Docs for use in SVEditor
  *    
- * This class is largely a Java port of the natural docs parser
- * for it's native comment format. The following Perl packages ported
- * were NaturalDocs::Parser, NaturalDocs::Parser::Native, and 
- * NaturalDocs::Parser::ParsedTopic, NaturalDocs::NDMarkup
+ * This class is largely a Java port of the natural docs native format 
+ * parser. The following ND Perl packages were ported in varying degrees:
+ * 		NaturalDocs::Parser, NaturalDocs::Parser::Native, and 
+ * 		NaturalDocs::Parser::ParsedTopic, NaturalDocs::NDMarkup
  *     
  ****************************************************************************
  * Original Natural Docs License:
@@ -43,6 +43,8 @@ public class DocCommentParser implements IDocCommentParser {
 	private static Pattern fIsDocCommentPattern ;
 	
 	private LogHandle fLog ;
+	
+	// FIXME: this should be replaced by something along the lines of the Topic interface from ND
 	
 	static {
 		fIsDocCommentPattern = Pattern.compile(
@@ -355,52 +357,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	        {  return NaturalDocs::Parser::Native->ParseComment($commentLines, $isJavaDoc, $lineNumber, \@parsedFile);  }
 //	    };
 //	
-//	
-//	#
-//	#   Function: OnClass
-//	#
-//	#   A function called by <NaturalDocs::Languages::Base>-derived objects when their parsers encounter a class declaration.
-//	#
-//	#   Parameters:
-//	#
-//	#       class - The <SymbolString> of the class encountered.
-//	#
-//	sub OnClass #(class)
-//	    {
-//	    my ($self, $class) = @_;
-//	
-//	    if ($parsingForInformation)
-//	        {  NaturalDocs::ClassHierarchy->AddClass($sourceFile, $class);  };
-//	    };
-//	
-//	
-//	#
-//	#   Function: OnClassParent
-//	#
-//	#   A function called by <NaturalDocs::Languages::Base>-derived objects when their parsers encounter a declaration of
-//	#   inheritance.
-//	#
-//	#   Parameters:
-//	#
-//	#       class - The <SymbolString> of the class we're in.
-//	#       parent - The <SymbolString> of the class it inherits.
-//	#       scope - The package <SymbolString> that the reference appeared in.
-//	#       using - An arrayref of package <SymbolStrings> that the reference has access to via "using" statements.
-//	#       resolvingFlags - Any <Resolving Flags> to be used when resolving the reference.  <RESOLVE_NOPLURAL> is added
-//	#                              automatically since that would never apply to source code.
-//	#
-//	sub OnClassParent #(class, parent, scope, using, resolvingFlags)
-//	    {
-//	    my ($self, $class, $parent, $scope, $using, $resolvingFlags) = @_;
-//	
-//	    if ($parsingForInformation)
-//	        {
-//	        NaturalDocs::ClassHierarchy->AddParentReference($sourceFile, $class, $parent, $scope, $using,
-//	                                                                                   $resolvingFlags | ::RESOLVE_NOPLURAL());
-//	        };
-//	    };
-//	
-//	
+
 //	
 //	###############################################################################
 //	# Group: Support Functions
@@ -501,15 +458,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	#   whitespace from lines, and expands all tab characters.  It keeps leading whitespace, though, since it may be needed for
 //	#   example code, and blank lines, since the original line numbers are needed.
 //	#
-//	#   Parameters:
-//	#
-//	#       commentLines  - An arrayref of the comment lines to clean.  *The original memory will be changed.*  Lines should have the
-//	#                                language's comment symbols replaced by spaces and not have a trailing line break.
-//	#
-//	sub CleanComment #(commentLines)
-//	    {
-//	    my ($self, $commentLines) = @_;
-	
 	
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
 	
@@ -1299,144 +1247,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	        };
 //	    };
 //	
-//	
-//	#
-//	#   Function: BreakLists
-//	#
-//	#   Breaks list topics into individual topics.
-//	#
-//	sub BreakLists
-//	    {
-//	    my $self = shift;
-//	
-//	    my $index = 0;
-//	
-//	    while ($index < scalar @parsedFile)
-//	        {
-//	        my $topic = $parsedFile[$index];
-//	
-//	        if ($topic->IsList() && NaturalDocs::Topics->TypeInfo( $topic->Type() )->BreakLists())
-//	            {
-//	            my $body = $topic->Body();
-//	
-//	            my @newTopics;
-//	            my $newBody;
-//	
-//	            my $bodyIndex = 0;
-//	
-//	            for (;;)
-//	                {
-//	                my $startList = index($body, '<dl>', $bodyIndex);
-//	
-//	                if ($startList == -1)
-//	                    {  last;  };
-//	
-//	                $newBody .= substr($body, $bodyIndex, $startList - $bodyIndex);
-//	
-//	                my $endList = index($body, '</dl>', $startList);
-//	                my $listBody = substr($body, $startList, $endList - $startList);
-//	
-//	                while ($listBody =~ /<ds>([^<]+)<\/ds><dd>(.*?)<\/dd>/g)
-//	                    {
-//	                    my ($symbol, $description) = ($1, $2);
-//	
-//	                    push @newTopics, NaturalDocs::Parser::ParsedTopic->New( $topic->Type(), $symbol, $topic->Package(),
-//	                                                                                                            $topic->Using(), undef,
-//	                                                                                                            $self->GetSummaryFromDescriptionList($description),
-//	                                                                                                            '<p>' . $description .  '</p>', $topic->LineNumber(),
-//	                                                                                                            undef );
-//	                    };
-//	
-//	                $bodyIndex = $endList + 5;
-//	                };
-//	
-//	            $newBody .= substr($body, $bodyIndex);
-//	
-//	            # Remove trailing headings.
-//	            $newBody =~ s/(?:<h>[^<]+<\/h>)+$//;
-//	
-//	            # Remove empty headings.
-//	            $newBody =~ s/(?:<h>[^<]+<\/h>)+(<h>[^<]+<\/h>)/$1/g;
-//	
-//	            if ($newBody)
-//	                {
-//	                unshift @newTopics, NaturalDocs::Parser::ParsedTopic->New( ::TOPIC_GROUP(), $topic->Title(), $topic->Package(),
-//	                                                                                                          $topic->Using(), undef,
-//	                                                                                                          $self->GetSummaryFromBody($newBody), $newBody,
-//	                                                                                                          $topic->LineNumber(), undef );
-//	                };
-//	
-//	            splice(@parsedFile, $index, 1, @newTopics);
-//	
-//	            $index += scalar @newTopics;
-//	            }
-//	
-//	        else # not a list
-//	            {  $index++;  };
-//	        };
-//	    };
-//	
-//	
-//	#
-//	#   Function: GetSummaryFromBody
-//	#
-//	#   Returns the summary text from the topic body.
-//	#
-//	#   Parameters:
-//	#
-//	#       body - The complete topic body, in <NDMarkup>.
-//	#
-//	#   Returns:
-//	#
-//	#       The topic summary, or undef if none.
-//	#
-//	sub GetSummaryFromBody #(body)
-//	    {
-//	    my ($self, $body) = @_;
-//	
-//	    my $summary;
-//	
-//	    # Extract the first sentence from the leading paragraph, if any.  We'll tolerate a single header beforehand, but nothing else.
-//	
-//	    if ($body =~ /^(?:<h>[^<]*<\/h>)?<p>(.*?)(<\/p>|[\.\!\?](?:[\)\}\'\ ]|&quot;|&gt;))/x)
-//	        {
-//	        $summary = $1;
-//	
-//	        if ($2 ne '</p>')
-//	            {  $summary .= $2;  };
-//	        };
-//	
-//	    return $summary;
-//	    };
-//	
-//	
-//	#
-//	#   Function: GetSummaryFromDescriptionList
-//	#
-//	#   Returns the summary text from a description list entry.
-//	#
-//	#   Parameters:
-//	#
-//	#       description - The description in <NDMarkup>.  Should be the content between the <dd></dd> tags only.
-//	#
-//	#   Returns:
-//	#
-//	#       The description summary, or undef if none.
-//	#
-//	sub GetSummaryFromDescriptionList #(description)
-//	    {
-//	    my ($self, $description) = @_;
-//	
-//	    my $summary;
-//	
-//	    if ($description =~ /^(.*?)($|[\.\!\?](?:[\)\}\'\ ]|&quot;|&gt;))/)
-//	        {  $summary = $1 . $2;  };
-//	
-//	    return $summary;
-//	    };
-//	
-//	
-//	1;
 
 
 
@@ -2649,44 +2459,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	###############################################################################
 //	# Group: Functions
 //	
-//	#
-//	#   Function: New
-//	#
-//	#   Creates a new object.
-//	#
-//	#   Parameters:
-//	#
-//	#       type          - The <TopicType>.
-//	#       title           - The title of the topic.
-//	#       package    - The package <SymbolString> the topic appears in, or undef if none.
-//	#       using         - An arrayref of additional package <SymbolStrings> available to the topic via "using" statements, or undef if
-//	#                          none.
-//	#       prototype   - The prototype, if it exists and is applicable.  Otherwise set to undef.
-//	#       summary   - The summary of the topic, if any.
-//	#       body          - The body of the topic, formatted in <NDMarkup>.  May be undef, as some topics may not have bodies.
-//	#       lineNumber - The line number the topic appears at in the file.
-//	#       isList          - Whether the topic is a list topic or not.
-//	#
-//	#   Returns:
-//	#
-//	#       The new object.
-//	#
-//	sub New #(type, title, package, using, prototype, summary, body, lineNumber, isList)
-//	    {
-//	    # DEPENDENCY: This depends on the order of the parameter list being the same as the constants, and that there are no
-//	    # members inherited from a base class.
-//	
-//	    my $package = shift;
-//	
-//	    my $object = [ @_ ];
-//	    bless $object, $package;
-//	
-//	    if (defined $object->[USING])
-//	        {  $object->[USING] = [ @{$object->[USING]} ];  };
-//	
-//	    return $object;
-//	    };
-//	
 //	
 //	# Function: Type
 //	# Returns the <TopicType>.
@@ -2819,23 +2591,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	
 //	1;
-	
 
-
-//	#
-//	#   Function: ConvertAmpChars
-//	#
-//	#   Substitutes certain characters with their <NDMarkup> amp chars.
-//	#
-//	#   Parameters:
-//	#
-//	#       text - The block of text to convert.
-//	#
-//	#   Returns:
-//	#
-//	#       The converted text block.
-//	#
-
+	//
+	//   Substitutes certain characters with their <NDMarkup> amp chars.
+	//
 	private String convertAmpChars(String text) {
 
 	    text = text.replaceAll("&","&amp;") ;
@@ -2847,21 +2606,9 @@ public class DocCommentParser implements IDocCommentParser {
 		
     }
 	
-
-//	
-//	#
-//	#   Function: RestoreAmpChars
-//	#
-//	#   Replaces <NDMarkup> amp chars with their original symbols.
-//	#
-//	#   Parameters:
-//	#
-//	#       text - The text to restore.
-//	#
-//	#   Returns:
-//	#
-//	#       The restored text.
-//	#
+	//
+	//   Replaces <NDMarkup> amp chars with their original symbols.
+	//
 	private String restoreAmpChars(String text) {
 	
 	    text = text.replaceAll("&quot;","\"") ;
