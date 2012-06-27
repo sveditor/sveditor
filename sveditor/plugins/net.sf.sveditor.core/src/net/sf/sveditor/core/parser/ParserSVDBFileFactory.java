@@ -38,6 +38,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
@@ -46,6 +47,7 @@ import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.scanner.SVScannerTextScanner;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 /**
@@ -62,7 +64,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class ParserSVDBFileFactory implements ISVScanner,
 		IPreProcErrorListener, ISVDBFileFactory, ISVPreProcScannerObserver,
 		ISVParser, ILogLevelListener {
-	private SVScannerTextScanner fInput;
+	private ITextScanner fInput;
 	private SVLexer fLexer;
 
 	private boolean fNewStatement;
@@ -138,7 +140,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	 * @param in
 	 */
 	private void scan(InputStream in, String filename, List<SVDBMarker> markers) {
-
+		boolean use_incr_preproc = false;
 		fNewStatement = true;
 		fMarkers = markers;
 		
@@ -150,6 +152,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fDefineProvider.addErrorListener(this);
 		}
 
+	
+		if (use_incr_preproc) {
 		SVPreProcScanner pp = new SVPreProcScanner();
 		pp.setDefineProvider(fDefineProvider);
 		pp.setScanner(this);
@@ -160,6 +164,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		pp.setEvalConditionals(fEvalConditionals);
 
 		fInput = new SVScannerTextScanner(pp);
+		} else {
+			SVPreProcessor preproc = new SVPreProcessor(
+					in, filename, fDefineProvider);
+			fInput = preproc.preprocess();
+		}
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();

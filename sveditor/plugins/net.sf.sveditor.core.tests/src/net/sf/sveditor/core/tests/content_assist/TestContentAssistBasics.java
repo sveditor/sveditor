@@ -112,6 +112,7 @@ public class TestContentAssistBasics extends TestCase {
 	 * Test that basic macro content assist works
 	 */
 	public void testOVMMacroContentAssist() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc1 = 
 			"class my_class;\n" +
 			"    `ovm_componen<<FIELD1>>\n" +

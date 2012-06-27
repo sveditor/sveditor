@@ -56,7 +56,7 @@ public class SVDBThreadedFileIndexCache implements ISVDBIndexCache, ILogLevelLis
 	private boolean						fDebugEn = false;
 	private List<IJob>						fWritebackJobs;
 
-	private int							fMaxCacheSize = 50;
+	private int							fMaxCacheSize = 100;
 	
 	private static CacheFileInfo			fCacheHead;
 	private static CacheFileInfo			fCacheTail;
@@ -496,6 +496,8 @@ public class SVDBThreadedFileIndexCache implements ISVDBIndexCache, ILogLevelLis
 			}
 			if (j == null) {
 				break;
+			} else {
+				j.join();
 			}
 		}
 		

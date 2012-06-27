@@ -67,19 +67,24 @@ import org.osgi.framework.Bundle;
 public class TestPersistencePerformance extends TestCase {
 
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		if (fTmpDir != null) {
-//			TestUtils.delete(fTmpDir);
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
 		}
 	}
 	
@@ -193,7 +198,7 @@ public class TestPersistencePerformance extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File ubus = new File(test_dir, "uvm/examples/integrated/ubus");
 		
-		IProject project_dir = TestUtils.createProject("ubus", ubus);
+		fProject = TestUtils.createProject("ubus", ubus);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -306,7 +311,6 @@ public class TestPersistencePerformance extends TestCase {
 		System.out.println("    " + (total_time/total) + " ms/item");
 
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project_dir);
 	}
 
 	public void testCacheDataPerf() throws IOException, CoreException, DBFormatException, DBWriteException {
@@ -324,7 +328,7 @@ public class TestPersistencePerformance extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File ubus = new File(test_dir, "uvm/examples/integrated/ubus");
 		
-		IProject project_dir = TestUtils.createProject("ubus", ubus);
+		fProject = TestUtils.createProject("ubus", ubus);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -410,6 +414,5 @@ public class TestPersistencePerformance extends TestCase {
 		System.out.println("    " + (total_time/total) + " ms/item");
 
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project_dir);
 	}
 }

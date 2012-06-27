@@ -48,16 +48,17 @@ public class TestContentAssistBuiltins extends TestCase {
 	private ContentAssistIndex			fIndex;
 	private SVDBIndexCollection		fIndexMgr;
 	private File						fTmpDir;
+	private SVDBIndexRegistry			fIndexRgy;
 	
 	@Override
 	public void setUp() {
 		fTmpDir = TestUtils.createTempDir();
 		
 		fIndexMgr = new SVDBIndexCollection("TestContentAssistBuiltins");
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		fIndexRgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		fIndexMgr.addPluginLibrary(
-				rgy.findCreateIndex(new NullProgressMonitor(),
+				fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 						"TestContentAssistBuiltins", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 
@@ -69,7 +70,8 @@ public class TestContentAssistBuiltins extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		
+
+		fIndexRgy.save_state();
 		TestUtils.delete(fTmpDir);
 	}
 

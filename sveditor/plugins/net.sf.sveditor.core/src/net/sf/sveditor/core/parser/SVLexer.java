@@ -34,21 +34,21 @@ public class SVLexer extends SVToken {
 
 	private List<ISVTokenListener> fTokenListeners;
 
-	private boolean fTokenConsumed;
-	private boolean fNewlineAsOperator;
-	private boolean fIsDelayControl;
+	private boolean 		fTokenConsumed;
+	private boolean 		fNewlineAsOperator;
+	private boolean 		fIsDelayControl;
 
-	private StringBuilder fStringBuffer;
+	private StringBuilder 	fStringBuffer;
 	private static final boolean fDebugEn = false;
-	private boolean fEOF;
+	private boolean 		fEOF;
 
-	private StringBuilder fCaptureBuffer;
-	private boolean fCapture;
-	private SVToken fCaptureLastToken;
-	private ISVParser fParser;
+	private StringBuilder	fCaptureBuffer;
+	private boolean 		fCapture;
+	private SVToken 		fCaptureLastToken;
+	private ISVParser 		fParser;
 	private Stack<SVToken> fUngetStack;
-	private boolean fInAttr;
-	private LogHandle			fLog;
+	private boolean 		fInAttr;
+	private LogHandle		fLog;
 
 	public static final String RelationalOps[] = { "&", "&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
@@ -572,8 +572,12 @@ public class SVLexer extends SVToken {
 	}
 
 	private boolean next_token_int() throws SVParseException {
-		int ch = get_ch();
+		int ch = fScanner.get_ch();
 		int ch2 = -1;
+		
+		if (fDebugEn) {
+			fLog.debug("--> next_token_int()");
+		}
 
 		fIsOperator = false;
 		fIsNumber = false;
@@ -584,18 +588,23 @@ public class SVLexer extends SVToken {
 		boolean local_is_delay_ctrl = fIsDelayControl;
 		fIsDelayControl = false;
 
+		/*
 		// Skip whitespace and comments
+		while ((ch = fScanner.get_ch()) != -1 && 
+				Character.isWhitespace(ch)) { }
+		 */
+		
 		while (true) {
 			if (ch == '/') {
-				ch2 = get_ch();
+				ch2 = fScanner.get_ch();
 
 				if (ch2 == '/') {
-					while ((ch = get_ch()) != -1 && ch != '\n') {
+					while ((ch = fScanner.get_ch()) != -1 && ch != '\n') {
 					}
 				} else if (ch2 == '*') {
 					int end_comment[] = { -1, -1 };
 
-					while ((ch = get_ch()) != -1) {
+					while ((ch = fScanner.get_ch()) != -1) {
 						end_comment[0] = end_comment[1];
 						end_comment[1] = ch;
 
@@ -606,7 +615,7 @@ public class SVLexer extends SVToken {
 
 					ch = ' ';
 				} else {
-					unget_ch(ch2);
+					fScanner.unget_ch(ch2);
 					break;
 				}
 			} else {
@@ -615,8 +624,9 @@ public class SVLexer extends SVToken {
 					break;
 				}
 			}
-			ch = get_ch();
+			ch = fScanner.get_ch();
 		}
+
 		fStringBuffer.setLength(0);
 		if (ch != -1 && ch != 0xFFFF) {
 			append_ch(ch);
@@ -637,7 +647,7 @@ public class SVLexer extends SVToken {
 			int last_ch = -1;
 			// String
 			fStringBuffer.setLength(0);
-			while ((ch = get_ch()) != -1) {
+			while ((ch = fScanner.get_ch()) != -1) {
 				if (ch == '"' && last_ch != '\\') {
 					break;
 				}
@@ -658,16 +668,16 @@ public class SVLexer extends SVToken {
 			fIsNumber = true;
 
 			if (ch == '\'') {
-				ch2 = get_ch();
+				ch2 = fScanner.get_ch();
 				if (isUnbasedUnsizedLiteralChar(ch2)) {
 					// unbased_unsigned_literal
 					// nothing more to do
 					append_ch(ch2);
 				} else if (isBaseChar(ch2)) {
 					ch = readBasedNumber(ch2);
-					unget_ch(ch);
+					fScanner.unget_ch(ch);
 				} else {
-					unget_ch(ch2);
+					fScanner.unget_ch(ch2);
 					fIsOperator = true;
 				}
 			} else {
@@ -678,30 +688,30 @@ public class SVLexer extends SVToken {
 		} else if (ch == '(') {
 			// Could be (, (*
 			// Want to avoid (*) case
-			ch2 = get_ch();
+			ch2 = fScanner.get_ch();
 			if (ch2 == '*') {
-				int ch3 = get_ch();
+				int ch3 = fScanner.get_ch();
 				if (ch3 != ')') {
 					append_ch('*');
-					unget_ch(ch3);
+					fScanner.unget_ch(ch3);
 				} else {
-					unget_ch(ch3);
-					unget_ch(ch2);
+					fScanner.unget_ch(ch3);
+					fScanner.unget_ch(ch2);
 				}
 			} else {
-				unget_ch(ch2);
+				fScanner.unget_ch(ch2);
 			}
 			fIsOperator = true;
 		} else if (ch == '*') {
 			// Could be *, **, *=, or *)
-			ch2 = get_ch();
+			ch2 = fScanner.get_ch();
 
 			if (ch2 == ')' && fInAttr) {
 				append_ch(')');
 			} else if (ch2 == '*' || ch2 == '=') {
 				append_ch(ch2);
 			} else {
-				unget_ch(ch2);
+				fScanner.unget_ch(ch2);
 			}
 			fIsOperator = true;
 		} else if (fOperatorSet.contains(fStringBuffer.toString()) ||
@@ -715,7 +725,7 @@ public class SVLexer extends SVToken {
 			boolean in_ref = false;
 			// Identifier or keyword
 			
-			while ((ch = get_ch()) != -1 && 
+			while ((ch = fScanner.get_ch()) != -1 && 
 					(SVCharacter.isSVIdentifierPart(ch) ||
 							(ch == '{' && last_ch == '$') ||
 							(ch == '}' && in_ref))) {
@@ -726,7 +736,7 @@ public class SVLexer extends SVToken {
 				
 				last_ch = ch;
 			}
-			unget_ch(ch);
+			fScanner.unget_ch(ch);
 			// Handle case where we received a single '$'
 			if (fStringBuffer.length() == 1 && fStringBuffer.charAt(0) == '$') {
 				fIsOperator = true;
@@ -735,10 +745,10 @@ public class SVLexer extends SVToken {
 			}
 		} else if (ch == '\\') {
 			// Escaped identifier
-			while ((ch = get_ch()) != -1 && !Character.isWhitespace(ch)) {
+			while ((ch = fScanner.get_ch()) != -1 && !Character.isWhitespace(ch)) {
 				append_ch(ch);
 			}
-			unget_ch(ch);
+			fScanner.unget_ch(ch);
 		}
 
 		if (fStringBuffer.length() == 0 && !fIsString) {
@@ -748,6 +758,9 @@ public class SVLexer extends SVToken {
 			 */
 			if (fDebugEn) {
 				debug("EOF - " + getStartLocation().toString());
+			}
+			if (fDebugEn) {
+				fLog.debug("<-- next_token_int()");
 			}
 			return false;
 		} else {
@@ -763,6 +776,9 @@ public class SVLexer extends SVToken {
 			fTokenConsumed = false;
 			if (fDebugEn) {
 				debug("next_token(): \"" + fImage + "\"");
+			}
+			if (fDebugEn) {
+				fLog.debug("<-- next_token_int()");
 			}
 			return true;
 		}
@@ -792,7 +808,7 @@ public class SVLexer extends SVToken {
 		while (op_idx < 2) {
 			// Add a character and check whether is a prefix for the next
 			// sequence
-			if ((ch = get_ch()) != -1) {
+			if ((ch = fScanner.get_ch()) != -1) {
 				append_ch(ch);
 				if (fDebugEn) {
 					debug("  append: " + (char)ch + "  => " + fStringBuffer.toString());
@@ -800,7 +816,7 @@ public class SVLexer extends SVToken {
 				if (!fSeqPrefixes[op_idx+1].contains(fStringBuffer.toString()) &&
 						!fOperatorSet.contains(fStringBuffer.toString())) {
 					// Doesn't match, so don't move forward
-					unget_ch(ch);
+					fScanner.unget_ch(ch);
 					fStringBuffer.setLength(fStringBuffer.length()-1);
 					if (fDebugEn) {
 						debug("  \"" + (char)ch + "\" doesn't match");
@@ -829,12 +845,12 @@ public class SVLexer extends SVToken {
 		
 		if (val.equals("#")) {
 			// May be a delay-control expression
-			while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+			while ((ch = fScanner.get_ch()) != -1 && Character.isWhitespace(ch)) { }
 			if (ch >= '0' && ch <= '9') {
 				// delay-control
 				fIsDelayControl = true;
 			}
-			unget_ch(ch);
+			fScanner.unget_ch(ch);
 		}
 	}
 	
@@ -857,7 +873,7 @@ public class SVLexer extends SVToken {
 
 		append_ch(ch);
 		if (ch == 's' || ch == 'S') {
-			ch = get_ch();
+			ch = fScanner.get_ch();
 			append_ch(ch);
 		}
 
@@ -867,7 +883,7 @@ public class SVLexer extends SVToken {
 		base = Character.toLowerCase(ch);
 
 		// Skip whitespace
-		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) {
+		while ((ch = fScanner.get_ch()) != -1 && Character.isWhitespace(ch)) {
 		}
 
 		if (base == 'd') {
@@ -905,9 +921,9 @@ public class SVLexer extends SVToken {
 		if (isTimeUnitChar(ch)) {
 			// Avoid #1step. Looks alot like #1s
 			if (ch == 's') {
-				int ch2 = get_ch();
+				int ch2 = fScanner.get_ch();
 				if (SVCharacter.isSVIdentifierPart(ch2)) {
-					unget_ch(ch2);
+					fScanner.unget_ch(ch2);
 				} else {
 					append_ch(ch);
 					ch = ch2;
@@ -922,18 +938,18 @@ public class SVLexer extends SVToken {
 			// continue across a number boundary
 		} else {
 			while (ch != -1 && Character.isWhitespace(ch)) {
-				ch = get_ch();
+				ch = fScanner.get_ch();
 			}
 
 			if (ch == '\'') {
 				append_ch(ch);
-				ch = readBasedNumber(get_ch());
+				ch = readBasedNumber(fScanner.get_ch());
 			} else {
 				// Really just a decimal number
 			}
 		}
 
-		unget_ch(ch);
+		fScanner.unget_ch(ch);
 	}
 
 	private static boolean isDecDigit(int ch) {
@@ -943,7 +959,7 @@ public class SVLexer extends SVToken {
 	private int readDecNumber(int ch) throws SVParseException {
 		while (ch >= '0' && ch <= '9' || ch == '_') {
 			append_ch(ch);
-			ch = get_ch();
+			ch = fScanner.get_ch();
 		}
 		return ch;
 	}
@@ -952,15 +968,15 @@ public class SVLexer extends SVToken {
 	private int readRealNumber(int ch) throws SVParseException {
 		if (ch == '.') {
 			append_ch(ch);
-			ch = readDecNumber(get_ch());
+			ch = readDecNumber(fScanner.get_ch());
 		}
 
 		if (ch == 'e' || ch == 'E') {
 			append_ch(ch);
-			ch = get_ch();
+			ch = fScanner.get_ch();
 			if (ch == '-' || ch == '+') {
 				append_ch(ch);
-				ch = get_ch();
+				ch = fScanner.get_ch();
 			}
 
 			if (!isDecDigit(ch)) {
@@ -982,7 +998,7 @@ public class SVLexer extends SVToken {
 		append_ch(ch);
 		
 		if (ch != 's') {
-			ch = get_ch();
+			ch = fScanner.get_ch();
 
 			if (ch != 's') {
 				error("Malformed time unit n" + (char) ch);
@@ -992,7 +1008,7 @@ public class SVLexer extends SVToken {
 		
 		fIsTime = true;
 
-		return get_ch();
+		return fScanner.get_ch();
 	}
 
 	private int readHexNumber(int ch) throws SVParseException {
@@ -1001,7 +1017,7 @@ public class SVLexer extends SVToken {
 						|| (ch >= 'A' && ch <= 'F') || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
 			append_ch(ch);
-			ch = get_ch();
+			ch = fScanner.get_ch();
 		}
 
 		return ch;
@@ -1012,7 +1028,7 @@ public class SVLexer extends SVToken {
 				&& ((ch >= '0' && ch <= '7') || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
 			append_ch(ch);
-			ch = get_ch();
+			ch = fScanner.get_ch();
 		}
 
 		return ch;
@@ -1023,29 +1039,10 @@ public class SVLexer extends SVToken {
 				&& (ch == '0' || ch == '1' || ch == '_' || ch == 'x'
 						|| ch == 'X' || ch == 'z' || ch == 'Z' || ch == '?')) {
 			append_ch(ch);
-			ch = get_ch();
+			ch = fScanner.get_ch();
 		}
 
 		return ch;
-	}
-
-	private int get_ch() {
-		int ch = fScanner.get_ch();
-
-		// Convert all '\r' sequences to '\n'
-		if (ch == '\r') {
-			int ch2 = fScanner.get_ch();
-			if (ch2 != '\n') {
-				fScanner.unget_ch(ch2);
-			}
-			ch = '\n';
-		}
-
-		return ch;
-	}
-
-	private void unget_ch(int ch) {
-		fScanner.unget_ch(ch);
 	}
 
 	private void debug(String msg) {

@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.ref.Reference;
@@ -246,10 +248,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 		// Read the file list from the backing file
 		try {
-			RandomAccessFile in = null;
-					
-			in = fSVDBFS.openChannelRead("index");
-			
+			DataInput in = fSVDBFS.openDataInput("index");
+				
 			if (in != null) {
 				
 				rdr.init(in);
@@ -261,17 +261,17 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 					CacheFileInfo cfi = getCacheFileInfo(path, true);
 					cfi.fLastModified = timestamp_list.get(i);
 				}
-				
-				fSVDBFS.closeChannel(in);
+
+				fSVDBFS.closeInput(in);
 			}
-			
-			in = fSVDBFS.openChannelRead("index_data");
+		
+			in = fSVDBFS.openDataInput("index_data");
 			if (in != null) {
 				rdr.init(in);
 				rdr.readObject(null, index_data.getClass(), index_data);
 				debug("Cache " + fSVDBFS.getRoot() + " has base " + 
 						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
-				fSVDBFS.closeChannel(in);
+				fSVDBFS.closeInput(in);
 				valid = true;
 			} else {
 				debug("Failed to read index_data");
@@ -334,9 +334,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			
 			if (fSVDBFS.fileExists(target_dir + "/preProcFile")) {
 				cfi = getCacheFileInfo(path, true);
-				RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/preProcFile"); 
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/preProcFile"); 
 				pp_file = readFile(in, path);
-				fSVDBFS.closeChannel(in);
+				fSVDBFS.closeInput(in);
 				cfi.fSVDBPreProcFile = (Reference<SVDBFile>)createRef(pp_file);
 				cfi.fSVDBPreProcFileRef = pp_file;
 			}
@@ -355,9 +355,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			
 			if (fSVDBFS.fileExists(target_dir + "/file")) {
 				cfi = getCacheFileInfo(path, true);
-				RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/file");
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/file");
 				file = readFile(in, path);
-				fSVDBFS.closeChannel(in);
+				fSVDBFS.closeInput(in);
 				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 				cfi.fSVDBFileRef = file;
 				fNumFilesRead++;
@@ -427,9 +427,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			
 			if (fSVDBFS.fileExists(target_dir + "/fileTreeMap")) {
 				cfi = getCacheFileInfo(path, true);
-				RandomAccessFile in = fSVDBFS.openChannelRead(target_dir + "/fileTreeMap"); 
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/fileTreeMap"); 
 				ft = readFileTree(in);
-				fSVDBFS.closeChannel(in);
+				fSVDBFS.closeInput(in);
 
 				cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
 				cfi.fSVDBFileTreeRef = ft;
@@ -468,7 +468,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return SVFileUtils.computeMD5(path);
 	}
 	
-	private SVDBFile readFile(RandomAccessFile in, String path) {
+	private SVDBFile readFile(DataInput in, String path) {
 //		debug("readFile " + path);
 //		System.out.println("readFile: " + path);
 		IDBReader reader = allocReader();
@@ -486,7 +486,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return ret;
 	}
 
-	private SVDBFileTree readFileTree(RandomAccessFile in) {
+	private SVDBFileTree readFileTree(DataInput in) {
 //		debug("readFileTree");
 		IDBReader reader = allocReader();
 		reader.init(in);
@@ -504,8 +504,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	private List<SVDBMarker> readMarkerList(String path) {
-//		InputStream in = null;
-		RandomAccessFile in = fSVDBFS.openChannelRead(path);
+		DataInput in = fSVDBFS.openDataInput(path);
 		IDBReader reader = allocReader();
 		reader.init(in);
 		
@@ -519,7 +518,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			freeReader(reader);
 		}
 
-		fSVDBFS.closeChannel(in);
+		fSVDBFS.closeInput(in);
 		
 		return ret;
 	}
@@ -542,7 +541,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 		
 		try {
-			RandomAccessFile out = fSVDBFS.openChannelWrite("index");
+			DataOutput out = fSVDBFS.openDataOutput("index");
 			if (out == null) {
 				throw new DBWriteException("Failed to open file \"index\" for writing");
 			}
@@ -559,13 +558,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			writer.writeLongList(timestamp_list);
 			
 			writer.close();
-			fSVDBFS.closeChannel(out);
+			fSVDBFS.closeOutput(out);
 			
-			out = fSVDBFS.openChannelWrite("index_data");
+			out = fSVDBFS.openDataOutput("index_data");
 			writer.init(out);
 			writer.writeObject(fIndexData.getClass(), fIndexData);
 			writer.close();
-			fSVDBFS.closeChannel(out);
+			fSVDBFS.closeOutput(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		} finally {
@@ -730,12 +729,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		
 		fSVDBFS.mkdirs(target_dir);
 		try {
-			RandomAccessFile out = fSVDBFS.openChannelWrite(file_path);
+			DataOutput out = fSVDBFS.openDataOutput(file_path);
 			
 			writer.init(out);
 			writer.writeObject(file.getClass(), file);
 			writer.close();
-			fSVDBFS.closeChannel(out);
+			fSVDBFS.closeOutput(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		} finally {
@@ -749,13 +748,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		IDBWriter writer = allocWriter();
 		
 		try {
-			RandomAccessFile out = fSVDBFS.openChannelWrite(file_path);
+			DataOutput out = fSVDBFS.openDataOutput(file_path);
 			writer.init(out);
 			synchronized (file_tree) {
 				writer.writeObject(file_tree.getClass(), file_tree);
 			}
 			writer.close();
-			out.close();
+			fSVDBFS.closeOutput(out);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -768,11 +767,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 		IDBWriter writer = allocWriter();
 		try {
-			RandomAccessFile out = fSVDBFS.openChannelWrite(file_path);
+			DataOutput out = fSVDBFS.openDataOutput(file_path);
 			writer.init(out);
 			writer.writeItemList(markers);
 			writer.close();
-			fSVDBFS.closeChannel(out);
+			fSVDBFS.closeOutput(out);
 		} catch (DBWriteException e) {
 			e.printStackTrace();
 		} finally {

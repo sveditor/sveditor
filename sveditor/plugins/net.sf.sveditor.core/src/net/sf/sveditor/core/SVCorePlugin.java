@@ -209,6 +209,10 @@ public class SVCorePlugin extends Plugin
 		return fPlugin;
 	}
 	
+	public static void testInit() {
+		fPlugin = new SVCorePlugin();
+	}
+	
 	public SVDBProjectManager getProjMgr() {
 		if (fProjManager == null) {
 			fProjManager = new SVDBProjectManager();

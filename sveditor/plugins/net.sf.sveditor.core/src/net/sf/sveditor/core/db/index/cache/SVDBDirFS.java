@@ -12,6 +12,12 @@
 
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -57,6 +63,26 @@ public class SVDBDirFS implements ISVDBFS {
 		return ret;
 	}
 	
+	
+	public DataInput openDataInput(String path) {
+		InputStream in = openFileRead(path);
+		if (in != null) {
+			BufferedInputStream bin = new BufferedInputStream(in, 1024*8);
+			DataInputStream din = new DataInputStream(bin);
+			return din;
+		} else {
+			return null;
+		}
+	}
+
+	public void closeInput(DataInput in) {
+		try {
+			if (in instanceof DataInputStream) {
+				((DataInputStream)in).close();
+			}
+		} catch (IOException e) {}
+	}
+
 	public void closeChannel(RandomAccessFile ch) {
 		try {
 			ch.close();
@@ -95,7 +121,26 @@ public class SVDBDirFS implements ISVDBFS {
 		
 		return ret;
 	}
-	
+
+	public DataOutput openDataOutput(String path) {
+		OutputStream out = openFileWrite(path);
+		if (out != null) {
+			BufferedOutputStream bos = new BufferedOutputStream(out, 1024*8);
+			DataOutputStream dos = new DataOutputStream(bos);
+			return dos;
+		} else {
+			return null;
+		}
+	}
+
+	public void closeOutput(DataOutput out) {
+		try {
+			if (out instanceof DataOutputStream) {
+				((DataOutputStream)out).close();
+			}
+		} catch (IOException e) {}
+	}
+
 	public void close(InputStream in) {
 		try {
 			in.close();

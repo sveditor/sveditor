@@ -51,6 +51,9 @@ public class TestFilesystemLibPersistence extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+		
 		if (fTmpDir != null) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
@@ -63,6 +66,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		

@@ -47,19 +47,26 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SrcCollectionBasics extends TestCase {
 	
 	private File					fTmpDir;
+	private IProject				fProject;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 
-		if (fTmpDir != null) {
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
@@ -623,10 +630,10 @@ public class SrcCollectionBasics extends TestCase {
 			sub2.delete();
 		}
 		
-		final IProject project_dir = TestUtils.createProject("a", new File(sub3, "a"));
+		fProject = TestUtils.createProject("a", new File(sub3, "a"));
 
 		String data_dir = "/project_dir_src_collection_ws_ext_inc";
-		utils.copyBundleFileToWS(data_dir + "/top.v", project_dir);
+		utils.copyBundleFileToWS(data_dir + "/top.v", fProject);
 		utils.copyBundleFileToFS(data_dir + "/xx.svh", sub3);
 		utils.copyBundleFileToFS(data_dir + "/xxx.svh", sub2);
 		utils.copyBundleFileToFS(data_dir + "/xxxx.svh", sub1);
@@ -636,7 +643,7 @@ public class SrcCollectionBasics extends TestCase {
 		rgy.init(TestIndexCacheFactory.instance(null));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-				project_dir.getName(), "${workspace_loc}/a", 
+				fProject.getName(), "${workspace_loc}/a", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.setGlobalDefine("TEST_MODE", "1");
 		

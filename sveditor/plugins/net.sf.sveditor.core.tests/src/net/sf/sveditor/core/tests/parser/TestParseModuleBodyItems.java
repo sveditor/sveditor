@@ -51,8 +51,9 @@ public class TestParseModuleBodyItems extends TestCase {
 		    "endmodule\r\n"
 		    ;
 
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testPackageModule");
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(
+				log, content, "testPackageModule", false);
 
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "p", "t1");
@@ -74,8 +75,9 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testDefineCaseItems");
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(
+				log, content, "testDefineCaseItems", false);
 
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "mymodule");
@@ -1379,6 +1381,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testVmmErrorBehaveBlock() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
         "`define vmm_error(log, msg)  \\\n" +
         "do \\\n" +
@@ -1640,7 +1643,8 @@ public class TestParseModuleBodyItems extends TestCase {
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);

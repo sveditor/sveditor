@@ -42,22 +42,34 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends TestCase {
 	
+	private IProject		fProject;
 	private File			fTmpDir;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		TestUtils.delete(fTmpDir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 	}
 
 	public void testBasicProcessing() {
@@ -127,7 +139,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File ethernet = new File(test_dir, "vmm/sv/examples/std_lib/ethernet");
 		
-		/* IProject project_dir = */ TestUtils.createProject("ethernet", ethernet);
+		fProject = TestUtils.createProject("ethernet", ethernet);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -177,7 +189,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File wishbone = new File(test_dir, "vmm/sv/examples/std_lib/wishbone");
 		
-		/* IProject project_dir = */ TestUtils.createProject("wishbone", wishbone);
+		fProject = TestUtils.createProject("wishbone", wishbone);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -228,7 +240,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
 
-		/* IProject project_dir = */ TestUtils.createProject("scenarios", scenarios);
+		fProject = TestUtils.createProject("scenarios", scenarios);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {

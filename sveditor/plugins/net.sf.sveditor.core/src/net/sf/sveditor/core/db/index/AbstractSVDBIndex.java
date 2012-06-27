@@ -62,6 +62,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
@@ -1585,7 +1586,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected SVDBFile processPreProcFile(String path) {
-		SVPreProcScanner sc = new SVPreProcScanner();
+//		SVPreProcScanner sc = new SVPreProcScanner();
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		SVDBPreProcObserver ob = new SVDBPreProcObserver();
 
 		sc.setObserver(ob);
@@ -1600,7 +1602,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 
 		sc.init(in, path);
-		sc.scan();
+//		sc.scan();
+		sc.process();
 
 		getFileSystemProvider().closeStream(in);
 

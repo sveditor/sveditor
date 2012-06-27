@@ -132,7 +132,7 @@ public class TestParseExpr extends TestCase {
 	}
 
 	public void testStringEmbeddedComment() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content =
 			"class my_class;\n" +
 			"\n" +

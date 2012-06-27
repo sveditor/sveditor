@@ -29,6 +29,7 @@ public class TestDeclCache extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override

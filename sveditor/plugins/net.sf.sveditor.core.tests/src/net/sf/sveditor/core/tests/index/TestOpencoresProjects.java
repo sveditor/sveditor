@@ -46,18 +46,23 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestOpencoresProjects extends TestCase {
 	
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		
-		if (fTmpDir != null) {
+	
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
@@ -71,7 +76,7 @@ public class TestOpencoresProjects extends TestCase {
 	}
 	
 	public void testI2C() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 
 		runTest("testI2C", "/i2c.zip", "i2c",
 				new String[] {"${workspace_loc}/i2c/dut.f",
@@ -120,11 +125,11 @@ public class TestOpencoresProjects extends TestCase {
 		utils.unpackBundleZipToFS(zipfile_path, test_dir);
 		File project_path = new File(test_dir, proj_path);
 		
-		IProject project_dir = TestUtils.createProject(project_path.getName(), project_path);
+		fProject = TestUtils.createProject(project_path.getName(), project_path);
 		
 		// Setup appropriate project settings
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
+		SVDBProjectData p_data = p_mgr.getProjectData(fProject);
 		
 		// Add an argument-file paths
 		SVProjectFileWrapper p_wrapper = p_data.getProjectFileWrapper().duplicate();
