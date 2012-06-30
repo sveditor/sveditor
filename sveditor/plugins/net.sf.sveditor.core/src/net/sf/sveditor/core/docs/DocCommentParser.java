@@ -762,6 +762,9 @@ public class DocCommentParser implements IDocCommentParser {
 	            // Strip any leading whitespace.
 	        	//
 	            lines[index] = lines[index].replaceFirst("^ +","") ;
+	            
+	            Pattern bulletLinePatter = Pattern.compile("^[-\\*o+] +([^ ].*)$") ; 
+	            Matcher bulletLineMatcher = bulletLinePatter.matcher(lines[index]) ;
 	
 	            // If we were in a prefixed code section...
 	            if (topLevelTag == Tag.PREFIXCODE) {
@@ -790,30 +793,33 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	                prevLineBlank = true ;
 	                }
+	
+	            // If the line starts with a bullet...
+//	            else if (lines[index].matches("^[-\\*o+] +([^ ].*)$") 
+	            else if (bulletLineMatcher.matches()
+	            		&& !bulletLineMatcher.group(1).substring(0, 2).matches("- "))
+//	            		&& !lines[index].substring(0, 2).matches("- "))
+//	            		&& substr($1, 0, 2) ne '- ')  // Make sure "o - Something" is a definition, not a bullet.
+	                {
+	                String bulletedText = bulletLineMatcher.group(1) ;
 //	
-//	            # If the line starts with a bullet...
-//	            elsif ($commentLines->[$index] =~ /^[-\*o+] +([^ ].*)$/ &&
-//	                    substr($1, 0, 2) ne '- ')  # Make sure "o - Something" is a definition, not a bullet.
-//	                {
-//	                my $bulletedText = $1;
+	                if (textBlock != null)
+	                    {  output += richFormatTextBlock(textBlock) ;  } ;
 //	
-//	                if (defined $textBlock)
-//	                    {  $output .= $self->RichFormatTextBlock($textBlock);  };
-//	
-//	                if ($topLevelTag == TAG_BULLETLIST)
-//	                    {
-//	                    $output .= '</li><li>';
-//	                    }
-//	                else #($topLevelTag != TAG_BULLETLIST)
-//	                    {
-//	                    $output .= $tagEnders{$topLevelTag} . '<ul><li>';
-//	                    $topLevelTag = TAG_BULLETLIST;
-//	                    };
-//	
-//	                $textBlock = $bulletedText;
-//	
-//	                $prevLineBlank = undef;
-//	                }
+	                if (topLevelTag == Tag.BULLETLIST)
+	                    {
+	                    output += "</li><li>" ;
+	                    }
+	                else // ($topLevelTag != TAG_BULLETLIST)
+	                    {
+	                    output += fTagEnders.get(topLevelTag) + "<ul><li>" ;
+	                    topLevelTag = Tag.BULLETLIST;
+	                    }
+	
+	                textBlock = bulletedText ;
+	
+	                prevLineBlank = false ;
+	            }
 //	
 //	            # If the line looks like a description list entry...
 //	            elsif ($commentLines->[$index] =~ /^(.+?) +- +([^ ].*)$/ && $topLevelTag != TAG_PARAGRAPH)
