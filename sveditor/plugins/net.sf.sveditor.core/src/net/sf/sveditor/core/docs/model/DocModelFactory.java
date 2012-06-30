@@ -158,35 +158,52 @@ public class DocModelFactory {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
 				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName()) ;
+				classDocItem.addChild(taskItem) ;
 				SVDBDocComment docComment = findDocCommentByName(ppFile, taskItem.getName()) ;
 				if(docComment != null) {
 					fLog.debug(ILogLevel.LEVEL_MID, 
 							"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + taskItem.getName() + "\"") ;
-					// TODO: Parse the doc comment into the individual Doc Items
 					Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
 					fParser.parse(docComment.getRawComment(),docTopics) ;
-					fLog.debug(ILogLevel.LEVEL_MID,
-							"Parsed out the following topics") ;
-					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//					fLog.debug(ILogLevel.LEVEL_MID,
+//							"Parsed out the following topics") ;
+//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 					for(DocTopic topic: docTopics) {
-						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
-						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
-						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
-						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
+//						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 						taskItem.addTopic(topic) ;
 					}
 				} else {
 
 				}
-				classDocItem.addChild(taskItem) ;
 				continue ;
 			}
 			if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
 				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
 				classDocItem.addChild(funcItem) ;
-				// TODO: Check for doc comments associated with function
+				SVDBDocComment docComment = findDocCommentByName(ppFile, funcItem.getName()) ;
+				if(docComment != null) {
+					fLog.debug(ILogLevel.LEVEL_MID, 
+							"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + funcItem.getName() + "\"") ;
+					Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
+					fParser.parse(docComment.getRawComment(),docTopics) ;
+//					fLog.debug(ILogLevel.LEVEL_MID,
+//							"Parsed out the following topics") ;
+//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+					for(DocTopic topic: docTopics) {
+//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
+//						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
+//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+						funcItem.addTopic(topic) ;
+					}
+				} else {
+				}
 				continue ;
 			}
 			if(ci.getType() == SVDBItemType.VarDeclStmt) {
@@ -195,8 +212,20 @@ public class DocModelFactory {
 					if(varItem instanceof SVDBVarDeclItem) {
 						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
 						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName()) ;
-						// TODO: check for doc comments associated with variable decl
+						SVDBDocComment docComment = findDocCommentByName(ppFile, varDeclItem.getName()) ;
 						classDocItem.addChild(docVarItem) ;
+						if(docComment != null) {
+							fLog.debug(ILogLevel.LEVEL_MID, 
+									"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + varDeclItem.getName() + "\"") ;
+							Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
+							fParser.parse(docComment.getRawComment(),docTopics) ;
+							for(DocTopic topic: docTopics) {
+								docVarItem.addChild(topic) ;
+							}
+						} else {
+						}
+						// TODO: check for doc comments associated with variable decl
+						docVarItem.addChild(docVarItem) ;
 					}
 				}
 				continue ;

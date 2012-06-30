@@ -11,12 +11,25 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.util.ArrayList;
+
 public class DocFuncItem extends DocItem {
 
 	public int fFieldAttr ;
+	
+	ArrayList<DocTopic> fTopics ;
+	public ArrayList<DocTopic> getTopics() {
+		return fTopics ;
+	}
+	
+	public void addTopic(DocTopic topic) {
+		fTopics.add(topic) ;
+	}
+	
 
 	public DocFuncItem(String name) {
 		super(name, DocItemType.FuncDoc);
+		fTopics = new ArrayList<DocTopic>() ;
 	}
 	
 	public void setAttr(int attr) {

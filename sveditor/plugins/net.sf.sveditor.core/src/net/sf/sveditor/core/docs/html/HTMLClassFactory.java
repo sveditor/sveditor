@@ -204,7 +204,7 @@ public class HTMLClassFactory {
 		for(DocTopic topic: taskItem.getTopics()) {
 			res += topic.getBody() ;
 		}
-				res +=
+		res +=
 				      "</div>"
 			    + "</div>"
 		    + "</div>" ;
@@ -219,9 +219,13 @@ public class HTMLClassFactory {
 				    + "\"></a>"
 				    + func.getName() + "()"
 				    + "</h3>"
-				    + "<div class=CBody>"
-						+ "<p>This is some text about the variable</p>"
-				    + "</div>"
+				    + "<div class=CBody>" ;
+//						+ "<p>This is some text about the variable</p>"
+		for(DocTopic topic: func.getTopics()) {
+			res += topic.getBody() ;
+		}
+		res +=
+				      "</div>"
 			    + "</div>"
 		    + "</div>" ;
 		return res ;
@@ -237,9 +241,13 @@ public class HTMLClassFactory {
 						    + "\"></a>"
 					    + varItem.getName()
 					    + "</h3>"
-					    + "<div class=CBody>"
-							+ "<p>This is some text about the variable</p>"
-					    + "</div>"
+					    + "<div class=CBody>" ; 
+//							+ "<p>This is some text about the variable</p>"
+		for(DocTopic topic: varItem.getTopics()) {
+			res += topic.getBody() ;
+		}
+		res += 
+					      "</div>"
 				    + "</div>"
 			    + "</div>" ;
 		return res ;
