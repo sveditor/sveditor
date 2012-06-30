@@ -135,66 +135,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	/**
-	 * 
-	 * @param in
-	 */
-	private void scan(InputStream in, String filename, List<SVDBMarker> markers) {
-		boolean use_incr_preproc = false;
-		fNewStatement = true;
-		fMarkers = markers;
-		
-		if (fMarkers == null) {
-			fMarkers = new ArrayList<SVDBMarker>();
-		}
-
-		if (fDefineProvider != null) {
-			fDefineProvider.addErrorListener(this);
-		}
-
-	
-		if (use_incr_preproc) {
-		SVPreProcScanner pp = new SVPreProcScanner();
-		pp.setDefineProvider(fDefineProvider);
-		pp.setScanner(this);
-		pp.setObserver(this);
-
-		pp.init(in, filename);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(fEvalConditionals);
-
-		fInput = new SVScannerTextScanner(pp);
-		} else {
-			SVPreProcessor preproc = new SVPreProcessor(
-					in, filename, fDefineProvider);
-			fInput = preproc.preprocess();
-		}
-		fLexer = new SVLexer();
-		fLexer.init(this, fInput);
-		fSVParsers = new SVParsers();
-		fSVParsers.init(this);
-
-		try {
-			process_file();
-		} catch (SVParseException e) {
-			if (fDebugEn) {
-				debug("ParseException: post-process()", e);
-			}
-		} catch (EOFException e) {
-			e.printStackTrace();
-		}
-
-		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.File) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop();
-		}
-
-		if (fDefineProvider != null) {
-			fDefineProvider.removeErrorListener(this);
-		}
-	}
-	
 	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		int modifiers = scan_qualifiers(false);
@@ -248,13 +188,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} else {
 			// TODO: check for a data declaration
 			error("Unknown top-level element \"" + fLexer.peek() + "\"");
-		}
-	}
-
-	private void process_file() throws SVParseException {
-		
-		while (fLexer.peek() != null) {
-			top_level_item(fFile);
 		}
 	}
 
@@ -656,14 +589,69 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public SVDBFile parse(InputStream in, String name, List<SVDBMarker> markers) {
+	public SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers) {
+		boolean use_incr_preproc = false;
 		fScopeStack.clear();
 		
-		fFile = new SVDBFile(name);
+		fFile = new SVDBFile(filename);
 		fScopeStack.clear();
 		fScopeStack.push(fFile);
-		scan(in, name, markers);
 
+		fNewStatement = true;
+		fMarkers = markers;
+		
+		if (fMarkers == null) {
+			fMarkers = new ArrayList<SVDBMarker>();
+		}
+
+		if (fDefineProvider != null) {
+			fDefineProvider.addErrorListener(this);
+		}
+
+	
+		if (use_incr_preproc) {
+		SVPreProcScanner pp = new SVPreProcScanner();
+		pp.setDefineProvider(fDefineProvider);
+		pp.setScanner(this);
+		pp.setObserver(this);
+
+		pp.init(in, filename);
+		pp.setExpandMacros(true);
+		pp.setEvalConditionals(fEvalConditionals);
+
+		fInput = new SVScannerTextScanner(pp);
+		} else {
+			SVPreProcessor preproc = new SVPreProcessor(
+					in, filename, fDefineProvider);
+			fInput = preproc.preprocess();
+		}
+		fLexer = new SVLexer();
+		fLexer.init(this, fInput);
+		fSVParsers = new SVParsers();
+		fSVParsers.init(this);
+
+		try {
+			while (fLexer.peek() != null) {
+				top_level_item(fFile);
+			}
+		} catch (SVParseException e) {
+			if (fDebugEn) {
+				debug("ParseException: post-process()", e);
+			}
+		} catch (EOFException e) {
+			e.printStackTrace();
+		}
+
+		if (fScopeStack.size() > 0
+				&& fScopeStack.peek().getType() == SVDBItemType.File) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+
+		if (fDefineProvider != null) {
+			fDefineProvider.removeErrorListener(this);
+		}
+		
 		return fFile;
 	}
 

@@ -190,12 +190,12 @@ public class SVCorePlugin extends Plugin
 			} catch (IOException e) {}
 		}
 
-		// Don't null out the plugin until we're sure we don't need it
-		fPlugin = null;
-		
 		if (fJobMgr != null) {
 			fJobMgr.dispose();
 		}
+		
+		// Don't null out the plugin until we're sure we don't need it
+		fPlugin = null;
 
 		super.stop(context);
 	}

@@ -69,7 +69,6 @@ public class SVPreProcessor extends AbstractTextScanner {
 
 					if (ch2 == '/') {
 						fOutput.append(' '); // ch
-//						fOutput.append(' '); // ch2
 						while ((ch = get_ch()) != -1 && 
 								ch != '\n' && ch != '\r') { }
 
@@ -87,13 +86,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 						end_comment[1] = -1;
 
 						fOutput.append(' '); // ch
-//						fOutput.append(' '); // ch2
 
 						while ((ch = get_ch()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
-
-//							fOutput.append(' '); // ch
 
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
 								break;

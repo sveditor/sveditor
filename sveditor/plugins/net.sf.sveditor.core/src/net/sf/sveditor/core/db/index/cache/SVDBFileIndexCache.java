@@ -15,7 +15,6 @@ package net.sf.sveditor.core.db.index.cache;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -172,7 +171,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void clear() {
 		// Delete entire index
 		if (fDebugEn) {
-			fLog.debug("clear");
+			fLog.debug(LEVEL_MID, "Clear Index Cache");
 		}
 		fFileCache.clear();
 		fSVDBFS.delete("");
@@ -269,12 +268,16 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			if (in != null) {
 				rdr.init(in);
 				rdr.readObject(null, index_data.getClass(), index_data);
-				debug("Cache " + fSVDBFS.getRoot() + " has base " + 
-						((SVDBBaseIndexCacheData)index_data).getBaseLocation());
+				if (fDebugEn) {
+					fLog.debug(LEVEL_MIN, "Cache " + fSVDBFS.getRoot() + " has base " + 
+							((SVDBBaseIndexCacheData)index_data).getBaseLocation());
+				}
 				fSVDBFS.closeInput(in);
 				valid = true;
 			} else {
-				debug("Failed to read index_data");
+				if (fDebugEn) {
+					fLog.debug(LEVEL_MIN, "Failed to read index_data");
+				}
 			}
 //		} catch (IOException e) {}
 		} catch (DBFormatException e) {
@@ -361,8 +364,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 				cfi.fSVDBFileRef = file;
 				fNumFilesRead++;
-			} else {
-				debug("Target dir does not exist: " + target_dir);
 			}
 		}
 		
@@ -392,7 +393,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 		
 		if (file == null) {
-			debug("setFile \"" + path + "\" == NULL");
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MAX, "setFile \"" + path + "\" == NULL");
+			}
 			// TODO: should actually remove?
 			cfi.fSVDBFile = new WeakReference<SVDBFile>(null);
 			String target_dir = computePathDir(path);
@@ -433,8 +436,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 				cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
 				cfi.fSVDBFileTreeRef = ft;
-			} else {
-				fLog.debug("FileTree path " + path + " doesn't exist");
 			}
 		}
 		
@@ -787,10 +788,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 	}
 	
-	private void debug(String msg) {
-		// TODO:
-	}
-
 	private void addElementToTail(CacheFileInfo info) {
 		synchronized (SVDBFileIndexCache.class) {
 			// Add references

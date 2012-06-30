@@ -257,19 +257,56 @@ public class SVLexer extends SVToken {
 		peek();
 
 		if (fIsOperator) {
-			if (ops.length == 0) {
-				return true;
-			} else if (ops.length == 1) {
-				return fImage.equals(ops[0]);
-			} else {
-				for (String op : ops) {
-					if (fImage.equals(op)) {
-						return true;
+			switch (ops.length) {
+				case 0:
+					return true;
+				case 1:
+					return (fImage.equals(ops[0]));
+				case 2:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]));
+				case 3:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]));
+				case 4:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || fImage.equals(ops[3]));
+				case 5:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]));
+				case 6:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]));
+				case 7:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
+							fImage.equals(ops[6]));
+				case 8:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
+							fImage.equals(ops[6]) || fImage.equals(ops[7]));
+				case 9:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
+							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]));
+				case 10:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
+							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]) ||
+							fImage.equals(ops[9]));
+				case 11:
+					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
+							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
+							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]) ||
+							fImage.equals(ops[9]) || fImage.equals(ops[10]));
+				default:
+					for (String op : ops) {
+						if (fImage.equals(op)) {
+							return true;
+						}
 					}
-				}
+					return false;
 			}
+		} else {
+			return false;
 		}
-		return false;
 	}
 
 	public boolean peekOperator(Set<String> ops) throws SVParseException {
@@ -340,31 +377,33 @@ public class SVLexer extends SVToken {
 	public boolean peekKeyword(String... kw) throws SVParseException {
 		peek();
 
-		boolean found = false;
 		if (fIsKeyword) {
-			if (kw.length == 0) {
-				found = true;
-			} else if (kw.length == 1) {
-				found = fImage.equals(kw[0]);
-			} else if (kw.length == 2) {
-				found = fImage.equals(kw[0]) || fImage.equals(kw[1]);
-			} else if (kw.length == 3) {
-				found = fImage.equals(kw[0]) || fImage.equals(kw[1])
-						|| fImage.equals(kw[2]);
-			} else if (kw.length == 4) {
-				found = fImage.equals(kw[0]) || fImage.equals(kw[1])
-						|| fImage.equals(kw[2]) || fImage.equals(kw[3]);
-			} else {
-				for (String k : kw) {
-					if (fImage.equals(k)) {
-						found = true;
-						break;
+			switch (kw.length) {
+				case 0:
+					return true;
+				case 1:
+					return fImage.equals(kw[0]);
+				case 2:
+					return (fImage.equals(kw[0]) || fImage.equals(kw[1]));
+				case 3:
+					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]));
+				case 4:
+					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) ||
+							fImage.equals(kw[3]));
+				case 5:
+					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) ||
+							fImage.equals(kw[3]) || fImage.equals(kw[4]));
+				default:
+					for (String k : kw) {
+						if (fImage.equals(k)) {
+							return true;
+						}
 					}
-				}
+					return false;
 			}
 		}
 
-		return found;
+		return false;
 	}
 
 	public boolean peekKeyword(Set<String> kw) throws SVParseException {
@@ -619,8 +658,7 @@ public class SVLexer extends SVToken {
 					break;
 				}
 			} else {
-				if (!Character.isWhitespace(ch)
-						|| (ch == '\n' && fNewlineAsOperator)) {
+				if (!Character.isWhitespace(ch) || (ch == '\n' && fNewlineAsOperator)) {
 					break;
 				}
 			}
