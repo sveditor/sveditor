@@ -63,7 +63,7 @@ public class TestIndexCacheDataPersistence extends TestCase {
 		SVDBBaseIndexCacheData data_n = new SVDBBaseIndexCacheData("base2");
 		
 		data.getDeclCacheMap().put("my_file", new ArrayList<SVDBDeclCacheItem>());
-		data.getDeclCacheMap().get("my_file").add(new SVDBDeclCacheItem(null, "my_file", "my_item", SVDBItemType.ClassDecl));
+		data.getDeclCacheMap().get("my_file").add(new SVDBDeclCacheItem(null, "my_file", "my_item", SVDBItemType.ClassDecl, false));
 
 		dump_load(data, data_n);
 		

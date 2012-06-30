@@ -93,7 +93,6 @@ public class TestVmmBasics extends TestCase {
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase vmm_xtor=null;
-		ISVDBItemBase vmm_err=null;
 		
 		while (index_it.hasNext()) {
 			ISVDBItemBase it = index_it.nextItem();
@@ -106,10 +105,6 @@ public class TestVmmBasics extends TestCase {
 				if (name.equals("vmm_xactor")) {
 					vmm_xtor = it;
 				}
-			} else if (it.getType() == SVDBItemType.MacroDef) {
-				if (name.equals("vmm_error")) {
-					vmm_err = it;
-				}
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
@@ -120,7 +115,6 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
-		assertNotNull("Check found vmm_error", vmm_err);
 		assertNotNull("Check found vmm_xactor", vmm_xtor);
 		LogFactory.removeLogHandle(log);
 	}

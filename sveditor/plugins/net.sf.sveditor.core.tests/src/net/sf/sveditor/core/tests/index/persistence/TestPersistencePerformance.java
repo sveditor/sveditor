@@ -374,7 +374,7 @@ public class TestPersistencePerformance extends TestCase {
 		SVDBFile f = new SVDBFile("myfile");
 		SVDBFile f2 = new SVDBFile();
 		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
-		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt));
+		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt, false));
 		cd.getDeclCacheMap().put("foobar", items);
 		
 		start = System.currentTimeMillis();		

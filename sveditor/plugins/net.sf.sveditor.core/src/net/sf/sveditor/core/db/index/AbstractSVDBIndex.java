@@ -11,7 +11,6 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1537,8 +1536,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fLog.error("ProcessFile: Failed to open file \"" + path_s + "\"");
 		}
 
-		BufferedInputStream in_b = new BufferedInputStream(in);
-
 		List<SVDBMarker> markers = fCache.getMarkers(path.getFilePath());
 		if (markers == null) {
 			markers = new ArrayList<SVDBMarker>();
@@ -1553,7 +1550,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 
-		SVDBFile svdb_f = factory.parse(in_b, path.getFilePath(), markers);
+		SVDBFile svdb_f = factory.parse(in, path.getFilePath(), markers);
 
 		// Problem parsing the file..
 		if (svdb_f == null) {
@@ -1704,7 +1701,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				processed_files.add(file.getFilePath());
 				
 				cacheDeclarations(processed_files, file.getFilePath(), 
-						null, pkgname, pkgitem_list, file);
+						null, pkgname, pkgitem_list, file, false);
 			}
 		}
 		
@@ -1717,7 +1714,21 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				decl_cache.get(file.getFilePath()),
 				null, 
 				null, 
-				file);
+				file,
+				false);
+	
+		SVDBFileTree ft = fCache.getFileTree(
+				new NullProgressMonitor(), file.getFilePath());
+		if (ft != null) {
+			cacheDeclarations(
+					processed_files,
+					file.getFilePath(), 
+					decl_cache.get(file.getFilePath()),
+					null, 
+					null, 
+					ft.getSVDBFile(),
+					true);
+		}
 	}
 	
 	private void cacheDeclarations(
@@ -1726,7 +1737,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			List<SVDBDeclCacheItem>		decl_list,
 			String						pkgname,
 			List<SVDBDeclCacheItem>		pkgitem_list,
-			ISVDBChildParent 			scope) {
+			ISVDBChildParent 			scope,
+			boolean						is_ft) {
 		if (fDebugEn) {
 			fLog.debug("--> cacheDeclarations(" + filename + ", " + decl_list + ", " +
 					pkgname + ", " + pkgitem_list + ", " + scope);
@@ -1740,7 +1752,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				SVDBPackageDecl pkg = (SVDBPackageDecl)item;
 				if (decl_list != null) {
 					decl_list.add(new SVDBDeclCacheItem(this, filename, 
-							pkg.getName(), item.getType()));
+							pkg.getName(), item.getType(), is_ft));
 				}
 				Map<String, List<SVDBDeclCacheItem>> pkg_map = fIndexCacheData.getPackageCacheMap();
 				
@@ -1751,14 +1763,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 				
 				cacheDeclarations(processed_files, filename, decl_list, 
-						pkg.getName(), pkg_map.get(pkg.getName()), pkg);
+						pkg.getName(), pkg_map.get(pkg.getName()), pkg, false);
 			} else if (item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task,
 					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
 					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
-				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
+				fLog.debug(LEVEL_MID, "Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
 				if (decl_list != null) {
 					decl_list.add(new SVDBDeclCacheItem(this, filename, 
-							((ISVDBNamedItem)item).getName(), item.getType()));
+							((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				}
 			
 				// Add the declarations to the package cache as well
@@ -1767,7 +1779,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						fLog.debug("Adding " + SVDBItem.getName(item) + " to package cache \"" + pkgname + "\"");
 					}
 					pkgitem_list.add(new SVDBDeclCacheItem(this, filename,
-						((ISVDBNamedItem)item).getName(), item.getType()));
+						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				} else {
 					fLog.debug("pkgname is null");
 				}
@@ -1775,13 +1787,13 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				// Add entries for the typedef
 				if (decl_list != null) {
 					decl_list.add(new SVDBDeclCacheItem(this, filename, 
-							((ISVDBNamedItem)item).getName(), item.getType()));
+							((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				}
 				
 				// Add the declarations to the package cache as well
 				if (pkgname != null) {
 					pkgitem_list.add(new SVDBDeclCacheItem(this, filename,
-						((ISVDBNamedItem)item).getName(), item.getType()));
+						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				}
 				
 				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
@@ -1793,12 +1805,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						fLog.debug("Adding enumerator " + en.getName() + " to cache");
 						if (decl_list != null) {
 							decl_list.add(new SVDBDeclCacheItem(this, filename, 
-									((ISVDBNamedItem)en).getName(), en.getType()));
+									((ISVDBNamedItem)en).getName(), en.getType(), is_ft));
 						}
 						// Add the declarations to the package cache as well
 						if (pkgname != null) {
 							pkgitem_list.add(new SVDBDeclCacheItem(this, filename,
-									((ISVDBNamedItem)item).getName(), item.getType()));
+									((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 						}
 					}
 				}
@@ -1821,7 +1833,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						if (!processed_files.contains(file.getFilePath())) {
 							processed_files.add(file.getFilePath());
 							cacheDeclarations(processed_files, file.getFilePath(), 
-									null, pkgname, pkgitem_list, file);
+									null, pkgname, pkgitem_list, file, is_ft);
 						} else {
 							if (fDebugEn) {
 								fLog.debug("File " + file.getFilePath() + " already processed");
@@ -1855,11 +1867,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 			} else if (item.getType() == SVDBItemType.PreProcCond) {
 				cacheDeclarations(processed_files, filename, decl_list, 
-						pkgname, pkgitem_list, (SVDBPreProcCond)item);
+						pkgname, pkgitem_list, (SVDBPreProcCond)item, is_ft);
 			} else if (item.getType() == SVDBItemType.MacroDef) {
 				if (decl_list != null) {
+					fLog.debug(LEVEL_MID, "Add macro declaration \"" + SVDBItem.getName(item) + "\"");
 					decl_list.add(new SVDBDeclCacheItem(this, filename, 
-							((ISVDBNamedItem)item).getName(), item.getType()));
+							((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				}
 			}
 		}
@@ -1968,7 +1981,19 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
 		
-		return findFile(item.getFilename());
+		SVDBFile file = null;
+
+		// If this is a pre-processor item, then return the FileTree view of the file
+		if (item.isFileTreeItem()) {
+			SVDBFileTree ft = findFileTree(item.getFilename());
+			if (ft != null) {
+				file = ft.getSVDBFile();
+			}
+		} else {
+			file = findFile(item.getFilename());
+		}
+	
+		return file;
 	}
 
 	public SVPreProcScanner createPreProcScanner(String path) {

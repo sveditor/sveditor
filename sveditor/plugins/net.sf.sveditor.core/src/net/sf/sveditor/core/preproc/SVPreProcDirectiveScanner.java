@@ -75,7 +75,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
 		
-		fInBuffer = new byte[1024*1024];
+		fInBuffer = new byte[1024*8];
 		fInBufferIdx = 0;
 		fInBufferMax = 0;
 	}
@@ -133,7 +133,6 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		int				ch, last_ch = -1;
 		int				end_comment[] = {-1, -1};
 		boolean			in_string = false;
-		boolean			ifdef_enabled = true;
 		StringBuilder	comment_buffer = new StringBuilder();
 		boolean			in_comment_section = false;
 		
