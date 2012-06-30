@@ -11,6 +11,8 @@
 
 package net.sf.sveditor.core.docs.html;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
@@ -45,7 +47,9 @@ public class HTMLClassIndexFactory {
 				+ "<div class=INavigationBar>" ;
 		boolean first = true ;
 		Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIdxMap = model.getClassIndexMap() ; 
-		for(String idxKey: classIdxMap.keySet()) {
+		ArrayList<String> sortedIdxKeys = new ArrayList<String>(classIdxMap.keySet()) ;
+		Collections.sort(sortedIdxKeys) ;
+		for(String idxKey: sortedIdxKeys) {
 			if(!first) { res += " &middot; " ; } 
 			else { first = false ; }
 			if(classIdxMap.get(idxKey).size() == 0) {
@@ -60,7 +64,8 @@ public class HTMLClassIndexFactory {
 		res += 
 				"</div>"
 				+ "<table border=0 cellspacing=0 cellpadding=0>" ;
-		for(String idxKey: classIdxMap.keySet()) {
+//		for(String idxKey: classIdxMap.keySet()) {
+		for(String idxKey: sortedIdxKeys) {
 		   if(classIdxMap.get(idxKey).size() == 0) { continue ; }
 		   res +=
 					  "<tr>"
@@ -68,7 +73,10 @@ public class HTMLClassIndexFactory {
 							+ "<a name=\"" + idxKey + "\"></a>" + idxKey + "</td><td></td>"
 					+ "</tr>" ;
 		   Map<String, Tuple<DocPkgItem, DocClassItem>> classMap = classIdxMap.get(idxKey) ;					
-		   for(String className: classMap.keySet()) {
+		   ArrayList<String> sortedClassNames = new ArrayList<String>(classMap.keySet()) ;
+		   Collections.sort(sortedClassNames) ;
+//		   for(String className: classMap.keySet()) {
+		   for(String className: sortedClassNames) {
 			   Tuple<DocPkgItem,DocClassItem> tuple = classMap.get(className) ;
 			   String pkgName = tuple.first() == null ? "" : tuple.first().getName() ; 
 			   String classRelPath = HTMLUtils.getHTMLRelPathForClass(cfg, pkgName, className).toString() ;

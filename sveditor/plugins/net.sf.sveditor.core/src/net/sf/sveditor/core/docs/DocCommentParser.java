@@ -77,6 +77,8 @@ public class DocCommentParser implements IDocCommentParser {
 		
 		String lines[] = comment.split("\\r?\\n") ;
 		
+		try {
+		
 		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
 		fLog.debug(ILogLevel.LEVEL_MID, "Parsing the following comment:") ;
 		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
@@ -92,6 +94,11 @@ public class DocCommentParser implements IDocCommentParser {
 		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
 		
 		parseComment(lines, docTopics) ;
+		
+		}
+		catch(Exception e) {
+			fLog.error("Exception while parsing doc comment",e) ;
+		}
 		
 //	        {  return NaturalDocs::Parser::Native->ParseComment($commentLines, $isJavaDoc, $lineNumber, \@parsedFile);  }
 		
@@ -1010,7 +1017,7 @@ public class DocCommentParser implements IDocCommentParser {
 
 //	    my ($self, $line, $codeBlockRef, $removedSpacesRef) = @_;
 		
-		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( *)(.*)$") ;
+		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( \\*)(.*)$") ;
 		Matcher matcherLeadingWhiteSpace = patternLeadingWhiteSpaces.matcher(line) ;
 		
 		String spaces = null ;
@@ -1185,7 +1192,8 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	    my @tempTextBlocks = split(/([\*_<>\x1E\x1F])/, $text);
 		
-		String[] tempTextBlocks = text.split("([\\*_<>\\x1E\\x1F])") ;
+//		String[] tempTextBlocks = text.split("([\\*_<>\\x1E\\x1F])") ;
+		String[] tempTextBlocks = text.split("((?<=[\\*_<>\\x1E\\x1F])|(?=[\\*_<>\\x1E\\x1F]))") ;
 		
 	
 	    // Since the symbols are considered dividers, empty strings could appear between two in a row or at the beginning/end of the
@@ -1210,13 +1218,11 @@ public class DocCommentParser implements IDocCommentParser {
 	    boolean bold = false ;
 	    boolean underline = false ;
 	    boolean underlineHasWhitespace = false ;
-//	
+
 	    int index = 0 ;
-//	
+
 	    while (index < textBlocks.size()) {
 	    	
-	    	
-//	    	if(false) {
 	        if (textBlocks.get(index).matches("\\x1E")) {
 	    		
 	            output += '<';
@@ -1262,13 +1268,14 @@ public class DocCommentParser implements IDocCommentParser {
 //	                else
 //	                    {  $output .= '<link target="' . $linkText . '" name="' . $linkText . '" original="&lt;' . $linkText . '&gt;">';  };
 //	    		
-	            } else // it's not a link.
-	                {
+	            } else {// it's not a link.
+	                
 	                output += "&lt;" ;
-	                };
-	            }
+	            };
+	            
 //	
 //	        elsif ($textBlocks[$index] eq '*')
+	    	} else if(false) {
 //	            {
 //	            my $tagType = $self->TagType(\@textBlocks, $index);
 //	
@@ -1289,7 +1296,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	            }
 //	
-    		else if (textBlocks.get(index).matches("_")) {
+	    	} else if (textBlocks.get(index).matches("_")) {
 	    		
 //	            my $tagType = $self->TagType(\@textBlocks, $index);
 	    		TagType tagType = tagType(textBlocks, index) ;
@@ -1317,15 +1324,13 @@ public class DocCommentParser implements IDocCommentParser {
 	                // will work too.
 	                output += " " ;
 	                }
-	    		if(false) {
-	    		} else
+	    		 else
 	                {
 	                output += "_" ;
 	                } ;
-	            }
 
 	    	//  plain text or a > that isn't part of a link
-	        else {
+	    	} else {
 	            output += convertAmpChars(textBlocks.get(index)) ;
 	        } ;
 	
@@ -1451,15 +1456,17 @@ public class DocCommentParser implements IDocCommentParser {
     Tuple<Integer, Boolean> closingTag(ArrayList<String> textBlocks, int index) {
     	
     	Tuple<Integer, Boolean> result = new Tuple<Integer, Boolean>(-1,false) ;
+    	
+    	try {
 	
 	    boolean hasWhitespace = false ;
 
 	    String closingTag = null ;
 
-	    if (textBlocks.get(index).matches("*") || textBlocks.get(index).matches("_"))
+	    if (textBlocks.get(index).matches("\\*") || textBlocks.get(index).matches("_"))
 	        {  closingTag = textBlocks.get(index) ;  }
-	    else if (textBlocks.get(index).matches("<"))
-	        {  closingTag = ">" ;  }
+	    else if (textBlocks.get(index).matches("\\<"))
+	        {  closingTag = "\\>" ;  }
 	    else
 	        {  
 	    	return result ;  
@@ -1470,11 +1477,11 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	    while (index < textBlocks.size())
 	        {
-	        if (textBlocks.get(index).matches("<") && tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
+	        if (textBlocks.get(index).matches("\\<") && tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
 
 	            // If we hit a < and we're checking whether a link is closed, it's not.  The first < becomes literal and the second one
 	            // becomes the new link opening.
-	            if (closingTag.matches(">"))
+	            if (closingTag.matches("\\>"))
 	                {
 	                return result ;
 	                }
@@ -1535,6 +1542,11 @@ public class DocCommentParser implements IDocCommentParser {
 
 	        index++;
         } ;
+        
+    	}
+    	catch (Exception e){
+    		fLog.error("Exception caught looking for closing tag", e) ;
+    	}
 	
 	    // Hit the end of the text blocks if we're here.
     	

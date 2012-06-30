@@ -59,12 +59,6 @@ public class HTMLClassFactory {
 		return res ;
 	}
 	
-//	private String genSummaryStart() {
-//		for(DocTopic topic: classItem.getTopics()) {
-//			result += topic.getBody() ;
-//		}
-//	}
-
 	private String genSummaryStart(DocClassItem classItem) {
 		String result = "" ;
 		// Note: this iteration of topics attached to the class item seems wrong.
@@ -74,7 +68,6 @@ public class HTMLClassFactory {
 		for(DocTopic topic: classItem.getTopics()) {
 			result += topic.getBody() ;
 		}
-//		result += "<p></p>" ;
 		return result ;
 	}
 
@@ -200,7 +193,6 @@ public class HTMLClassFactory {
 				    + taskItem.getName() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-//						+ "<p>This is some text about the variable</p>"
 		for(DocTopic topic: taskItem.getTopics()) {
 			res += topic.getBody() ;
 		}
@@ -220,7 +212,6 @@ public class HTMLClassFactory {
 				    + func.getName() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-//						+ "<p>This is some text about the variable</p>"
 		for(DocTopic topic: func.getTopics()) {
 			res += topic.getBody() ;
 		}
@@ -242,7 +233,6 @@ public class HTMLClassFactory {
 					    + varItem.getName()
 					    + "</h3>"
 					    + "<div class=CBody>" ; 
-//							+ "<p>This is some text about the variable</p>"
 		for(DocTopic topic: varItem.getTopics()) {
 			res += topic.getBody() ;
 		}
