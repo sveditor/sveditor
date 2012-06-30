@@ -94,100 +94,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	        {  return NaturalDocs::Parser::Native->ParseComment($commentLines, $isJavaDoc, $lineNumber, \@parsedFile);  }
 		
 	}
-	
-//	
-//	###############################################################################
-//	# Group: Support Functions
-//	
-//	
-//	#   Function: Parse
-//	#
-//	#   Opens the source file and parses process.  Most of the actual parsing is done in <NaturalDocs::Languages::Base->ParseFile()>
-//	#   and <OnComment()>, though.
-//	#
-//	#   *Do not call externally.*  Rather, call <ParseForInformation()> or <ParseForBuild()>.
-//	#
-//	#   Returns:
-//	#
-//	#       The default menu title of the file.  Will be the <FileName> if nothing better is found.
-//	#
-//	sub Parse
-//	    {
-//	    my ($self) = @_;
-//	
-//	    NaturalDocs::Error->OnStartParsing($sourceFile);
-//	
-//	    $language = NaturalDocs::Languages->LanguageOf($sourceFile);
-//	    NaturalDocs::Parser::Native->Start();
-//	    @parsedFile = ( );
-//	
-//	    my ($autoTopics, $scopeRecord) = $language->ParseFile($sourceFile, \@parsedFile);
-//	
-//	
-//	    $self->AddToClassHierarchy();
-//	
-//	    $self->BreakLists();
-//	
-//	    if (defined $autoTopics)
-//	        {
-//	        if (defined $scopeRecord)
-//	            {  $self->RepairPackages($autoTopics, $scopeRecord);  };
-//	
-//	        $self->MergeAutoTopics($language, $autoTopics);
-//	        };
-//	
-//	    $self->RemoveRemainingHeaderlessTopics();
-//	
-//	
-//	    # We don't need to do this if there aren't any auto-topics because the only package changes would be implied by the comments.
-//	    if (defined $autoTopics)
-//	        {  $self->AddPackageDelineators();  };
-//	
-//	    if (!NaturalDocs::Settings->NoAutoGroup())
-//	        {  $self->MakeAutoGroups($autoTopics);  };
-//	
-//	
-//	    # Set the menu title.
-//	
-//	    my $defaultMenuTitle = $sourceFile;
-//	
-//	    if (scalar @parsedFile)
-//	        {
-//	        my $addFileTitle;
-//	
-//	        if (NaturalDocs::Settings->OnlyFileTitles())
-//	            {
-//	            # We still want to use the title from the topics if the first one is a file.
-//	            if ($parsedFile[0]->Type() eq ::TOPIC_FILE())
-//	                {  $addFileTitle = 0;  }
-//	            else
-//	                {  $addFileTitle = 1;  };
-//	            }
-//	        elsif (scalar @parsedFile == 1 || NaturalDocs::Topics->TypeInfo( $parsedFile[0]->Type() )->PageTitleIfFirst())
-//	            {  $addFileTitle = 0;  }
-//	        else
-//	            {  $addFileTitle = 1;  };
-//	
-//	        if (!$addFileTitle)
-//	            {
-//	            $defaultMenuTitle = $parsedFile[0]->Title();
-//	            }
-//	        else
-//	            {
-//	            # If the title ended up being the file name, add a leading section for it.
-//	
-//	            unshift @parsedFile,
-//	                       NaturalDocs::Parser::ParsedTopic->New(::TOPIC_FILE(), (NaturalDocs::File->SplitPath($sourceFile))[2],
-//	                                                                                  undef, undef, undef, undef, undef, 1, undef);
-//	            };
-//	        };
-//	
-//	    NaturalDocs::Error->OnEndParsing($sourceFile);
-//	
-//	    return $defaultMenuTitle;
-//	    };
-//	
-//	
+
 //	#
 //	#   Function: CleanComment
 //	#
@@ -431,6 +338,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	use constant POSSIBLE_OPENING_TAG => 1;
 //	use constant POSSIBLE_CLOSING_TAG => 2;
 //	use constant NOT_A_TAG => 3;
+	
+	
+	enum TagType { POSSIBLE_OPENING_TAG,
+				   POSSIBLE_CLOSING_TAG,
+				   NOT_A_TAG } ;
 //	
 //	
 //	#
@@ -1233,9 +1145,9 @@ public class DocCommentParser implements IDocCommentParser {
 	    	}
 	    }
 	    
-//	    my $bold;
-//	    my $underline;
-//	    my $underlineHasWhitespace;
+	    boolean bold = false ;
+	    boolean underline = false ;
+	    boolean underlineHasWhitespace = false ;
 //	
 	    int index = 0 ;
 //	
@@ -1315,36 +1227,41 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	            }
 //	
-//	        elsif ($textBlocks[$index] eq '_')
-//	            {
+	    	else if (textBlocks.get(index).matches("_")) {
+	    		
 //	            my $tagType = $self->TagType(\@textBlocks, $index);
-//	
-//	             if ($tagType == POSSIBLE_OPENING_TAG && $self->ClosingTag(\@textBlocks, $index, \$underlineHasWhitespace) != -1)
-//	                {
-//	                # ClosingTag() makes sure tags aren't opened multiple times in a row.
-//	                $underline = 1;
-//	                #underlineHasWhitespace is set by ClosingTag().
-//	                $output .= '<u>';
-//	                }
-//	            elsif ($underline && $tagType == POSSIBLE_CLOSING_TAG)
-//	                {
-//	                $underline = undef;
-//	                #underlineHasWhitespace will be reset by the next opening underline.
-//	                $output .= '</u>';
-//	                }
-//	            elsif ($underline && !$underlineHasWhitespace)
-//	                {
-//	                # If there's no whitespace between underline tags, all underscores are replaced by spaces so
-//	                # _some_underlined_text_ becomes <u>some underlined text</u>.  The standard _some underlined text_
-//	                # will work too.
-//	                $output .= ' ';
-//	                }
-//	            else
-//	                {
-//	                $output .= '_';
-//	                };
-//	            }
-//	
+	    		TagType tagType = tagType(textBlocks, index) ;
+	    		
+	    		Tuple<Integer,Boolean> closingTagTuple = closingTag(textBlocks, index) ;
+	
+//	             if (tagType == TagType.POSSIBLE_OPENING_TAG && ClosingTag(textBlocks, index, underlineHasWhitespace) != -1)
+	             if (tagType == TagType.POSSIBLE_OPENING_TAG && closingTagTuple.first() != -1)
+	                {
+	                // ClosingTag() makes sure tags aren't opened multiple times in a row.
+	                underline = true ;
+	                // underlineHasWhitespace is set by ClosingTag().
+	                output += "<u>";
+	                }
+	             else if (underline && tagType == TagType.POSSIBLE_CLOSING_TAG)
+	                {
+	                underline = false ;
+	                // underlineHasWhitespace will be reset by the next opening underline.
+                	output += "</u>";
+	                }
+	             else if (underline && !underlineHasWhitespace)
+	                {
+	                // If there's no whitespace between underline tags, all underscores are replaced by spaces so
+	                // _some_underlined_text_ becomes <u>some underlined text</u>.  The standard _some underlined text_
+	                // will work too.
+	                output += " " ;
+	                }
+	    		if(false) {
+	    		} else
+	                {
+	                output += "_" ;
+	                } ;
+	            }
+
 	    	//  plain text or a > that isn't part of a link
 	        else {
 	            output += convertAmpChars(textBlocks.get(index)) ;
@@ -1358,7 +1275,7 @@ public class DocCommentParser implements IDocCommentParser {
 	    
     }
 
-//	
+	//	
 //	#
 //	#   Function: TagType
 //	#
@@ -1375,38 +1292,38 @@ public class DocCommentParser implements IDocCommentParser {
 //	#
 //	#       POSSIBLE_OPENING_TAG, POSSIBLE_CLOSING_TAG, or NOT_A_TAG.
 //	#
-//	sub TagType #(textBlocks, index)
-//	    {
+	private TagType tagType (ArrayList<String> textBlocks, int index) {
+
 //	    my ($self, $textBlocks, $index) = @_;
 //	
 //	
-//	    # Possible opening tags
-//	
-//	    if ( ( $textBlocks->[$index] =~ /^[\*_<]$/ ) &&
-//	
-//	        # Before it must be whitespace, the beginning of the text, or ({["'-/*_.
-//	        ( $index == 0 || $textBlocks->[$index-1] =~ /[\ \t\n\(\{\[\"\'\-\/\*\_]$/ ) &&
+	    // Possible opening tags
+		//
+	    if ( textBlocks.get(index).matches("^[\\*_<]$") &&
+
+	        // Before it must be whitespace, the beginning of the text, or ({["'-/*_.
+	        ( index == 0 || textBlocks.get(index-1).matches("[\\ \\t\\n\\(\\{\\[\"'\\-\\/\\*\\_]$")) &&
 //	
 //	        # Notes for 2.0: Include Spanish upside down ! and ? as well as opening quotes (66) and apostrophes (6).  Look into
 //	        # Unicode character classes as well.
 //	
-//	        # After it must be non-whitespace.
-//	        ( $index + 1 < scalar @$textBlocks && $textBlocks->[$index+1] !~ /^[\ \t\n]/) &&
-//	
-//	        # Make sure we don't accept <<, <=, <-, or *= as opening tags.
-//	        ( $textBlocks->[$index] ne '<' || $textBlocks->[$index+1] !~ /^[<=-]/ ) &&
-//	        ( $textBlocks->[$index] ne '*' || $textBlocks->[$index+1] !~ /^[\=\*]/ ) &&
-//	
-//	        # Make sure we don't accept * or _ before it unless it's <.
-//	        ( $textBlocks->[$index] eq '<' || $index == 0 || $textBlocks->[$index-1] !~ /[\*\_]$/) )
-//	        {
-//	        return POSSIBLE_OPENING_TAG;
-//	        }
-//	
-//	
-//	    # Possible closing tags
-//	
-//	    elsif ( ( $textBlocks->[$index] =~ /^[\*_>]$/) &&
+	        // After it must be non-whitespace.
+	        ((index + 1 < textBlocks.size()) && !textBlocks.get(index+1).matches("^[\\ \\t\\n]")) &&
+
+	        // Make sure we don't accept <<, <=, <-, or *= as opening tags.
+	        ( !textBlocks.get(index).matches("<") || !textBlocks.get(index+1).matches("^[<=-]" )) &&
+	        ( !textBlocks.get(index).matches("*") || !textBlocks.get(index+1).matches("^[\\=\\*]")) &&
+	
+	        // Make sure we don't accept * or _ before it unless it's <.
+	        ( textBlocks.get(index).matches("<") || index == 0 || !textBlocks.get(index-1).matches("[\\*\\_]$") ))
+	     {
+	        return TagType.POSSIBLE_OPENING_TAG ;
+	     }
+	
+	
+	    // Possible closing tags
+	    //
+	    else if ( ( textBlocks.get(index).matches("^[\\*_>]$")) &&
 //	
 //	            # After it must be whitespace, the end of the text, or )}].,!?"';:-/*_.
 //	            ( $index + 1 == scalar @$textBlocks || $textBlocks->[$index+1] =~ /^[ \t\n\)\]\}\.\,\!\?\"\'\;\:\-\/\*\_]/ ||
@@ -1415,26 +1332,26 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	            # Notes for 2.0: Include closing quotes (99) and apostrophes (9).  Look into Unicode character classes as well.
 //	
-//	            # Before it must be non-whitespace.
-//	            ( $index != 0 && $textBlocks->[$index-1] !~ /[ \t\n]$/ ) &&
+	            // Before it must be non-whitespace.
+	            ( index != 0 && !textBlocks.get(index-1).matches("[ \\t\\n]$")) &&
 //	
 //	            # Make sure we don't accept >>, ->, or => as closing tags.  >= is already taken care of.
 //	            ( $textBlocks->[$index] ne '>' || $textBlocks->[$index-1] !~ /[>=-]$/ ) &&
 //	
-//	            # Make sure we don't accept * or _ after it unless it's >.
-//	            ( $textBlocks->[$index] eq '>' || $textBlocks->[$index+1] !~ /[\*\_]$/) )
-//	        {
-//	        return POSSIBLE_CLOSING_TAG;
-//	        }
+	            // Make sure we don't accept * or _ after it unless it's >.
+	            ( !textBlocks.get(index).matches(">") || !textBlocks.get(index+1).matches("[\\*\\_]$")))
+	        {
+	        return TagType.POSSIBLE_CLOSING_TAG ;
+	        }
 //	
-//	    else
-//	        {
-//	        return NOT_A_TAG;
-//	        };
-//	
-//	    };
-//	
-//	
+	    else
+	        {
+	        return TagType.NOT_A_TAG ;
+	        } 
+
+    } ;
+
+
 //	#
 //	#   Function: ClosingTag
 //	#
@@ -1460,30 +1377,39 @@ public class DocCommentParser implements IDocCommentParser {
 //	sub ClosingTag #(textBlocks, index, hasWhitespace)
 //	    {
 //	    my ($self, $textBlocks, $index, $hasWhitespaceRef) = @_;
-//	
-//	    my $hasWhitespace;
-//	    my $closingTag;
-//	
-//	    if ($textBlocks->[$index] eq '*' || $textBlocks->[$index] eq '_')
-//	        {  $closingTag = $textBlocks->[$index];  }
-//	    elsif ($textBlocks->[$index] eq '<')
-//	        {  $closingTag = '>';  }
-//	    else
-//	        {  return -1;  };
-//	
-//	    my $beginningIndex = $index;
-//	    $index++;
-//	
-//	    while ($index < scalar @$textBlocks)
-//	        {
-//	        if ($textBlocks->[$index] eq '<' && $self->TagType($textBlocks, $index) == POSSIBLE_OPENING_TAG)
-//	            {
-//	            # If we hit a < and we're checking whether a link is closed, it's not.  The first < becomes literal and the second one
-//	            # becomes the new link opening.
-//	            if ($closingTag eq '>')
-//	                {
-//	                return -1;
-//	                }
+	    
+//    private int ClosingTag(ArrayList<String> textBlocks, int index, boolean underlineHasWhitespace) {
+    
+    Tuple<Integer, Boolean> closingTag(ArrayList<String> textBlocks, int index) {
+    	
+    	Tuple<Integer, Boolean> result = new Tuple<Integer, Boolean>(-1,false) ;
+	
+	    boolean hasWhitespace = false ;
+
+	    String closingTag = null ;
+
+	    if (textBlocks.get(index).matches("*") || textBlocks.get(index).matches("_"))
+	        {  closingTag = textBlocks.get(index) ;  }
+	    else if (textBlocks.get(index).matches("<"))
+	        {  closingTag = ">" ;  }
+	    else
+	        {  
+	    	return result ;  
+    	} ;
+	
+	    int beginningIndex = index ;
+	    index++ ;
+	
+	    while (index < textBlocks.size())
+	        {
+	        if (textBlocks.get(index).matches("<") && tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
+
+	            // If we hit a < and we're checking whether a link is closed, it's not.  The first < becomes literal and the second one
+	            // becomes the new link opening.
+	            if (closingTag.matches(">"))
+	                {
+	                return result ;
+	                }
 //	
 //	            # If we're not searching for the end of a link, we have to skip the link because formatting tags cannot appear within
 //	            # them.  That's of course provided it's closed.
@@ -1503,48 +1429,50 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    $index = $endIndex;
 //	                    };
 //	                };
-//	            }
-//	
-//	        elsif ($textBlocks->[$index] eq $closingTag)
-//	            {
-//	            my $tagType = $self->TagType($textBlocks, $index);
-//	
-//	            if ($tagType == POSSIBLE_CLOSING_TAG)
-//	                {
-//	                # There needs to be something between the tags for them to count.
-//	                if ($index == $beginningIndex + 1)
-//	                    {  return -1;  }
-//	                else
-//	                    {
-//	                    # Success!
-//	
-//	                    if ($hasWhitespaceRef)
-//	                        {  $$hasWhitespaceRef = $hasWhitespace;  };
-//	
-//	                    return $index;
-//	                    };
-//	                }
-//	
-//	            # If there are two opening tags of the same type, the first becomes literal and the next becomes part of a tag.
-//	            elsif ($tagType == POSSIBLE_OPENING_TAG)
-//	                {  return -1;  }
-//	            }
-//	
-//	        elsif ($hasWhitespaceRef && !$hasWhitespace)
-//	            {
-//	            if ($textBlocks->[$index] =~ /[ \t\n]/)
-//	                {  $hasWhitespace = 1;  };
-//	            };
-//	
-//	        $index++;
-//	        };
-//	
-//	    # Hit the end of the text blocks if we're here.
-//	    return -1;
-//	    };
-//	
-//	
-//	1;
+	            }
+	
+	        else if (textBlocks.get(index).matches(closingTag)) {
+	        	
+	            TagType tagType = tagType(textBlocks, index) ;
+	
+	            if (tagType == TagType.POSSIBLE_CLOSING_TAG) {
+	            	
+	                // There needs to be something between the tags for them to count.
+	                if (index == beginningIndex + 1) {  
+	                	return result ;
+	                }
+	                else {
+	                	
+	                    // Success!
+	                	//
+	                    result.setFirst(index) ;
+	                    result.setSecond(hasWhitespace) ;
+	
+	                } ;
+	            }
+	
+	            // If there are two opening tags of the same type, the first becomes literal and the next becomes part of a tag.
+	            //
+	            else if (tagType == TagType.POSSIBLE_OPENING_TAG)
+	                {  
+	                return result ;
+	                }
+	            }
+	
+	        else if (!result.second()) {
+	            if (textBlocks.get(index).matches("[ \t\n]")) {
+	                 result.setSecond(true) ;
+	            }
+	        } ;
+
+	        index++;
+        } ;
+	
+	    // Hit the end of the text blocks if we're here.
+    	
+    	return result ;
+    	
+    } 
 
 //	###############################################################################
 //	#
