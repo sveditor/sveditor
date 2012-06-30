@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocItemType;
@@ -100,37 +99,23 @@ public class DocCommentParser implements IDocCommentParser {
 			fLog.error("Exception while parsing doc comment",e) ;
 		}
 		
-//	        {  return NaturalDocs::Parser::Native->ParseComment($commentLines, $isJavaDoc, $lineNumber, \@parsedFile);  }
-		
 	}
 
-//	#
-//	#   Function: CleanComment
-//	#
-//	#   Removes any extraneous formatting and whitespace from the comment.  Eliminates comment boxes, horizontal lines, trailing
-//	#   whitespace from lines, and expands all tab characters.  It keeps leading whitespace, though, since it may be needed for
-//	#   example code, and blank lines, since the original line numbers are needed.
-//	#
+	//
+	//   Function: CleanComment
+	//
+	//   Removes any extraneous formatting and whitespace from the comment.  Eliminates comment boxes, horizontal lines, trailing
+	//   whitespace from lines, and expands all tab characters.  It keeps leading whitespace, though, since it may be needed for
+	//   example code, and blank lines, since the original line numbers are needed.
+	//
 	
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
 	
 	private void cleanComment(String[] lines) {
-//	
-//	    use constant DONT_KNOW => 0;
-//	    use constant IS_UNIFORM => 1;
-//	    use constant IS_UNIFORM_IF_AT_END => 2;
-//	    use constant IS_NOT_UNIFORM => 3;
-//	
-//	    my $leftSide = DONT_KNOW;
-//	    my $rightSide = DONT_KNOW;
-//	    my $leftSideChar;
-//	    my $rightSideChar;
 		
 		Uniformity leftSide = Uniformity.DONT_KNOW ;
 		Uniformity rightSide = Uniformity.DONT_KNOW ;
 		
-//	
-//	    my $index = 0;
 //	    my $tabLength = NaturalDocs::Settings->TabLength();
 		
 		String tabExpansion = "   " ;
@@ -341,14 +326,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	###############################################################################
 //	# Group: Variables
-//	
-//	
-//	# Return values of TagType().  Not documented here.
-//	use constant POSSIBLE_OPENING_TAG => 1;
-//	use constant POSSIBLE_CLOSING_TAG => 2;
-//	use constant NOT_A_TAG => 3;
-	
-	
+
 	enum TagType { POSSIBLE_OPENING_TAG,
 				   POSSIBLE_CLOSING_TAG,
 				   NOT_A_TAG } ;
@@ -415,7 +393,6 @@ public class DocCommentParser implements IDocCommentParser {
 
 //	    my ($type, $scope, $isPlural, $title, $symbol);
 //	    #my $package;  # package variable.
-//	    my ($newKeyword, $newTitle);
 //	
 	    int index = 0 ;
 	    
@@ -429,8 +406,6 @@ public class DocCommentParser implements IDocCommentParser {
 	    
 	    Tuple<String,String> tupleKeywordTitle = new Tuple<String,String>(null,null) ;
 
-//	    while ($index < scalar @$commentLines)
-	    
 	    while(index < lines.length ) {
 	    
 	        // Everything but leading whitespace was removed beforehand.
@@ -466,10 +441,6 @@ public class DocCommentParser implements IDocCommentParser {
 	            	
 //	                if (scope == Scope.START || scope == Scope.END)
 //	                    {  $package = undef;  };
-//	
-//	                my $body = $self->FormatBody($commentLines, $bodyStart, $bodyEnd, $type, $isPlural);
-//	                my $newTopic = $self->MakeParsedTopic($type, $title, $package, $body, $lineNumber + $bodyStart - 1, $isPlural);
-//	                push @$parsedTopics, $newTopic;
 	            	
 	            	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
 	            	
@@ -509,7 +480,7 @@ public class DocCommentParser implements IDocCommentParser {
 	        else if (topicCount != 0) {
 	            prevLineBlank = false ;
 	            bodyEnd++ ;
-	            // FIXME: move pattern out into static... no need to keep recompiline
+	            // FIXME: move pattern out into static... no need to keep recompiling
 	            Pattern patternCodeSectionStart = Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE) ;
 	            if(patternCodeSectionStart.matcher(lines[index]).matches()) {
 	            	inCodeSection = true ;
@@ -526,12 +497,7 @@ public class DocCommentParser implements IDocCommentParser {
 	    	
 //	        if ($scope == ::SCOPE_START() || $scope == ::SCOPE_END())
 //	            {  $package = undef;  };
-//	
-//	        my $body = $self->FormatBody($commentLines, $bodyStart, $bodyEnd, $type, $isPlural);
-//	        my $newTopic = $self->MakeParsedTopic($type, $title, $package, $body, $lineNumber + $bodyStart - 1, $isPlural);
-//	        push @$parsedTopics, $newTopic;
-//	        $topicCount++;
-	    	
+
         	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
         	
         	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title) ;
@@ -539,7 +505,7 @@ public class DocCommentParser implements IDocCommentParser {
         	parsedTopics.add(newTopic) ;
         	
         	topicCount++ ;
-//	
+
 //	        $package = $newTopic->Package();
         }
 	    
@@ -649,42 +615,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	    };
 //	
 //	
-//	#
-//	#    Function: FormatBody
-//	#
-//	#    Converts the section body to <NDMarkup>.
-//	#
-//	#    Parameters:
-//	#
-//	#       commentLines - The arrayref of comment lines.
-//	#       startingIndex  - The starting index of the body to format.
-//	#       endingIndex   - The ending index of the body to format, *not* inclusive.
-//	#       type               - The type of the section.  May be undef for headerless comments.
-//	#       isList              - Whether it's a list topic.
-//	#
-//	#    Returns:
-//	#
-//	#        The body formatted in <NDMarkup>.
-//	#
-//	sub FormatBody #(commentLines, startingIndex, endingIndex, type, isList)
-//	    {
-//	    my ($self, $commentLines, $startingIndex, $endingIndex, $type, $isList) = @_;
-	
-//	    use constant TAG_NONE => 1;
-//	    use constant TAG_PARAGRAPH => 2;
-//	    use constant TAG_BULLETLIST => 3;
-//	    use constant TAG_DESCRIPTIONLIST => 4;
-//	    use constant TAG_HEADING => 5;
-//	    use constant TAG_PREFIXCODE => 6;
-//	    use constant TAG_TAGCODE => 7;
-//	
-//	    my %tagEnders = ( TAG_NONE() => '',
-//	                                 TAG_PARAGRAPH() => '</p>',
-//	                                 TAG_BULLETLIST() => '</li></ul>',
-//	                                 TAG_DESCRIPTIONLIST() => '</dd></dl>',
-//	                                 TAG_HEADING() => '</h>',
-//	                                 TAG_PREFIXCODE() => '</code>',
-//	                                 TAG_TAGCODE() => '</code>' );
 	
 	enum Tag { NONE, PARAGRAPH, BULLETLIST, DESCRIPTIONLIST, HEADING, PREFIXCODE, TAGCODE } ;
 	
@@ -702,6 +632,23 @@ public class DocCommentParser implements IDocCommentParser {
 		fTagEnders.put(Tag.TAGCODE, "</code>") ;
 	}
 	
+	//
+	//    Function: FormatBody
+	//
+	//    Converts the section body to <NDMarkup>.
+	//
+	//    Parameters:
+	//
+	//       commentLines - The arrayref of comment lines.
+	//       startingIndex  - The starting index of the body to format.
+	//       endingIndex   - The ending index of the body to format, *not* inclusive.
+	//       type               - The type of the section.  May be undef for headerless comments.
+	//       isList              - Whether it's a list topic.
+	//
+	//    Returns:
+	//
+	//        The body formatted in <NDMarkup>.
+	//
 	@SuppressWarnings("unused")
 	private String formatBody(String[] lines, int startIndex, int endIndex) {
 
@@ -745,29 +692,19 @@ public class DocCommentParser implements IDocCommentParser {
 	        	
             }
 	
-//	        # If the line starts with a code designator...
-//	        elsif ($commentLines->[$index] =~ /^ *[>:|](.*)$/)
-//	            {
-	        
-//	        else if (lines[index].matches("^ *[>:|](.*)$")) {
 	        else if (codeDesignatorMatcher.matches()) {
 	        
-//	            my $code = $1;
 	        	String code = codeDesignatorMatcher.group(1) ;
-//	
+
 	            if (topLevelTag == Tag.PREFIXCODE) {
-//	                removedCodeSpaces = addToCodeBlock(code, codeBlock, removedCodeSpaces) ;
 	                 AddToCodeBlock(code, codeBlockTuple) ;
 	            }
 	            else // $topLevelTag != TAG_PREFIXCODE
 	                {
-	            	if(textBlock != null)
-	                
-	                    {
-	                    output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
-	                    textBlock = null ;
-	                    } ;
-
+	            	if(textBlock != null) {
+	            		output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
+	            		textBlock = null ;
+	            	} 
 	                topLevelTag = Tag.PREFIXCODE;
 //	                output += "<code type=\"anonymous\">" ;
 	                output += "<blockquote><pre>" ;
@@ -788,10 +725,10 @@ public class DocCommentParser implements IDocCommentParser {
 	            Matcher bulletLineMatcher = bulletLinePatter.matcher(lines[index]) ;
 	
 	            // If we were in a prefixed code section...
+	            //
 	            if (topLevelTag == Tag.PREFIXCODE) {
 
 //	                $codeBlock =~ s/\n+$//;
-//	                $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
 	            	
 	            	output += convertAmpChars(codeBlockTuple.first()) + "</pre></blockquote>" ;
 	            	
@@ -804,41 +741,35 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	            // If the line is blank...
 	            //
-	            if (lines[index].length() == 0) 
-	                {
-	                // End a paragraph.  Everything else ignores it for now.
+	            if (lines[index].length() == 0) {
+	            	// End a paragraph.  Everything else ignores it for now.
 	            	//
-	                if (topLevelTag == Tag.PARAGRAPH)
-	                    {
-	                    output += richFormatTextBlock(textBlock) + "</p>" ;
-	                    textBlock = null ;
-	                    topLevelTag = Tag.NONE;
-	                    }
-	
-	                prevLineBlank = true ;
-	                }
+	            	if (topLevelTag == Tag.PARAGRAPH)
+	            	{
+	            		output += richFormatTextBlock(textBlock) + "</p>" ;
+	            		textBlock = null ;
+	            		topLevelTag = Tag.NONE;
+	            	}
+
+	            	prevLineBlank = true ;
 	
 	            // If the line starts with a bullet...
-//	            else if (lines[index].matches("^[-\\*o+] +([^ ].*)$") 
-	            else if (bulletLineMatcher.matches()
-	            		&& !bulletLineMatcher.group(1).substring(0, 2).matches("- "))
-//	            		&& !lines[index].substring(0, 2).matches("- "))
-//	            		&& substr($1, 0, 2) ne '- ')  // Make sure "o - Something" is a definition, not a bullet.
-	                {
+	            //
+	            } else if (bulletLineMatcher.matches() 
+	            		&& !bulletLineMatcher.group(1).substring(0, 2).matches("- ")) {
+	            	
 	                String bulletedText = bulletLineMatcher.group(1) ;
-//	
-	                if (textBlock != null)
-	                    {  output += richFormatTextBlock(textBlock) ;  } ;
-//	
-	                if (topLevelTag == Tag.BULLETLIST)
-	                    {
-	                    output += "</li><li>" ;
-	                    }
-	                else // ($topLevelTag != TAG_BULLETLIST)
-	                    {
-	                    output += fTagEnders.get(topLevelTag) + "<ul><li>" ;
-	                    topLevelTag = Tag.BULLETLIST;
-	                    }
+
+	                if (textBlock != null) {  
+	                	output += richFormatTextBlock(textBlock) ;  
+	                } ;
+
+	                if (topLevelTag == Tag.BULLETLIST) {
+	                	output += "</li><li>" ;
+	                } else {
+	                	output += fTagEnders.get(topLevelTag) + "<ul><li>" ;
+	                	topLevelTag = Tag.BULLETLIST;
+	                }
 	
 	                textBlock = bulletedText ;
 	
@@ -943,34 +874,33 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 	            // If the line isn't any of those, we consider it normal text.
 	            //
-	            else
-	                {
+	            else {
 	            	
-	                // A blank line followed by normal text ends lists.  We don't handle this when we detect if the line's blank because
-	                // we don't want blank lines between list items to break the list.
+	            	// A blank line followed by normal text ends lists.  We don't handle this when we detect if the line's blank because
+	            	// we don't want blank lines between list items to break the list.
 	            	//
-	                if (prevLineBlank && (topLevelTag == Tag.BULLETLIST || topLevelTag == Tag.DESCRIPTIONLIST)) {
-	                	
-	                    output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) + "<p>" ;
-	
-	                    topLevelTag = Tag.PARAGRAPH ;
-	                    textBlock = null ;
-	                    
-                    } else if (topLevelTag == Tag.NONE) {
-                    	
-	                    output += "<p>";
-	                    topLevelTag = Tag.PARAGRAPH ;
-	                    // textBlock will already be null
-                    }
-	            	
+	            	if (prevLineBlank && (topLevelTag == Tag.BULLETLIST || topLevelTag == Tag.DESCRIPTIONLIST)) {
+
+	            		output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) + "<p>" ;
+
+	            		topLevelTag = Tag.PARAGRAPH ;
+	            		textBlock = null ;
+
+	            	} else if (topLevelTag == Tag.NONE) {
+
+	            		output += "<p>";
+	            		topLevelTag = Tag.PARAGRAPH ;
+	            		// textBlock will already be null
+	            	}
+
 	            	if(textBlock != null) { textBlock += " " ; }
 	            	else { textBlock = new String() ; }
-	            	
-	                textBlock += lines[index] ;
-	
-	                prevLineBlank = false ;
-	            	
-	                }
+
+	            	textBlock += lines[index] ;
+
+	            	prevLineBlank = false ;
+
+	            }
 	        	
             }
 	    	
@@ -981,12 +911,8 @@ public class DocCommentParser implements IDocCommentParser {
 	    //
 	    if (textBlock != null) {
 	        output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
-//        } else if (codeBlock != null) {
         } else if (codeBlockTuple.first().length() != 0) {
-//	        codeBlock.replaceFirst("\n+$","") ;
-//	        output += convertAmpChars(codeBlock) + "</code>" ;
         	codeBlockTuple.setFirst(codeBlockTuple.first().replaceFirst("\\n+$", "")) ;
-//        	output += convertAmpChars(codeBlockTuple.first() + "</code>") ;
         	output += convertAmpChars(codeBlockTuple.first()) + "</pre></blockquote>" ;
         }
 	
@@ -994,28 +920,21 @@ public class DocCommentParser implements IDocCommentParser {
 		
     }
 	
-//	
-//	#
-//	#   Function: AddToCodeBlock
-//	#
-//	#   Adds a line of text to a code block, handling all the indentation processing required.
-//	#
-//	#   Parameters:
-//	#
-//	#       line - The line of text to add.
-//	#       codeBlockRef - A reference to the code block to add it to.
-//	#       removedSpacesRef - A reference to a variable to hold the number of spaces removed.  It needs to be stored between calls.
-//	#                                      It will reset itself automatically when the code block codeBlockRef points to is undef.
-//	#
-//	sub AddToCodeBlock #(line, codeBlockRef, removedSpacesRef)
 	
-//	private int AddToCodeBlock(String line, String codeBlock, int removedSpacesIn) {
+	//
+	//   Function: AddToCodeBlock
+	//
+	//   Adds a line of text to a code block, handling all the indentation processing required.
+	//
+	//   Parameters:
+	//
+	//       line - The line of text to add.
+	//       codeBlockRef - A reference to the code block to add it to.
+	//       removedSpacesRef - A reference to a variable to hold the number of spaces removed.  It needs to be stored between calls.
+	//                                      It will reset itself automatically when the code block codeBlockRef points to is undef.
+	//
 	
 	private void AddToCodeBlock(String line, Tuple<String,Integer> codeBlockTuple) {
-		
-//		int removedSpacesOut = 0 ;
-
-//	    my ($self, $line, $codeBlockRef, $removedSpacesRef) = @_;
 		
 		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( \\*)(.*)$") ;
 		Matcher matcherLeadingWhiteSpace = patternLeadingWhiteSpaces.matcher(line) ;
@@ -1029,78 +948,60 @@ public class DocCommentParser implements IDocCommentParser {
 			spaces = matcherLeadingWhiteSpace.group(1) ;
 			code = matcherLeadingWhiteSpace.group(2) ;
 		}
-
-	
-//	    $line =~ /^( *)(.*)$/;
-//	    my ($spaces, $code) = ($1, $2);
-//	
-//	    if (!defined $$codeBlockRef)
-//	        {
-	    if (codeBlockTuple.first().length()==0) {
-	        if (code.length() != 0) {
-	    
-	            codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n");
-	            codeBlockTuple.setSecond(spaces.length()) ;
-	            }
-//	        # else ignore leading line breaks.
-//	
-        } else if (code.length() != 0) {
-	        // Make sure we have the minimum amount of spaces to the left possible.
-	        if (spaces.length() != codeBlockTuple.second() )
-	            {
-//	            my $spaceDifference = U.abs( length($spaces) - $$removedSpacesRef );
-	        	int spaceDifference = 0 ;
-	        	if(spaces.length() >= codeBlockTuple.second()) {
-	        		spaceDifference = spaces.length() - codeBlockTuple.second() ;
-	        	}
-	        	String spacesToAdd = "" ;
-	        	for(int i=0 ; i<spaceDifference ; i++) {
-	        		spacesToAdd += " " ;
-	        	}
-
-	            if (spaces.length() > codeBlockTuple.second()) {
-	                codeBlockTuple.setFirst( codeBlockTuple.first() + spacesToAdd) ;
-	            } else {
-//	                $$codeBlockRef =~ s/^(.)/$spacesToAdd . $1/gme;
-	                codeBlockTuple.setFirst( spacesToAdd + codeBlockTuple.first()) ;
-//	                $$removedSpacesRef = length($spaces);
-	                codeBlockTuple.setSecond(spaces.length()) ;
-	                };
-	            };
-//	
-//	        codeBlock += code + "\n" ;
-	        codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n") ;
-        }
-	
-	    else // (!length $code)
-	        {
-//	        codeBlock += "\n" ;
-	        codeBlockTuple.setFirst( codeBlockTuple.first() + "\n") ;
-	        } 
 		
-//		return removedSpacesOut ;
+		if (codeBlockTuple.first().length()==0) {
+			
+			if (code.length() != 0) {
+				codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n");
+				codeBlockTuple.setSecond(spaces.length()) ;
+			}
+	        
+	    // else ignore leading line breaks.
+	    //	
+        } else if (code.length() != 0) {
+        	
+	        // Make sure we have the minimum amount of spaces to the left possible.
+        	//
+        	if (spaces.length() != codeBlockTuple.second() ) {
+
+        		int spaceDifference = 0 ;
+        		if(spaces.length() >= codeBlockTuple.second()) {
+        			spaceDifference = spaces.length() - codeBlockTuple.second() ;
+        		}
+        		String spacesToAdd = "" ;
+        		for(int i=0 ; i<spaceDifference ; i++) {
+        			spacesToAdd += " " ;
+        		}
+
+        		if (spaces.length() > codeBlockTuple.second()) {
+        			codeBlockTuple.setFirst( codeBlockTuple.first() + spacesToAdd) ;
+        		} else {
+        			codeBlockTuple.setFirst( spacesToAdd + codeBlockTuple.first()) ;
+        			codeBlockTuple.setSecond(spaces.length()) ;
+        		}
+        	}
+	        codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n") ;
+	        
+        } else {
+        	codeBlockTuple.setFirst( codeBlockTuple.first() + "\n") ;
+        } 
+		
     }
 	
-//	
-//	#
-//	#   Function: RichFormatTextBlock
-//	#
-//	#   Applies rich <NDMarkup> formatting to a chunk of text.  This includes both amp chars, formatting tags, and link tags.
-//	#
-//	#   Parameters:
-//	#
-//	#       text - The block of text to format.
-//	#
-//	#   Returns:
-//	#
-//	#       The formatted text block.
-//	#
+	//
+	//   Function: RichFormatTextBlock
+	//
+	//   Applies rich <NDMarkup> formatting to a chunk of text.  This includes both amp chars, formatting tags, and link tags.
+	//
+	//   Parameters:
+	//
+	//       text - The block of text to format.
+	//
+	//   Returns:
+	//
+	//       The formatted text block.
+	//
 	
-//	sub RichFormatTextBlock #(text)
-//	    {
-//	    my ($self, $text) = @_;
-//	    my $output;
-//	
 	@SuppressWarnings("unused")
 	private String richFormatTextBlock(String text) {
 		
@@ -1192,23 +1093,13 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	    my @tempTextBlocks = split(/([\*_<>\x1E\x1F])/, $text);
 		
-//		String[] tempTextBlocks = text.split("([\\*_<>\\x1E\\x1F])") ;
 		String[] tempTextBlocks = text.split("((?<=[\\*_<>\\x1E\\x1F])|(?=[\\*_<>\\x1E\\x1F]))") ;
-		
 	
 	    // Since the symbols are considered dividers, empty strings could appear between two in a row or at the beginning/end of the
 	    // array.  This could seriously screw up TagType(), so we need to get rid of them.
 		//
 	    ArrayList<String> textBlocks = new ArrayList<String>() ;
 
-///	    while (scalar @tempTextBlocks)
-//	        {
-//	        my $tempTextBlock = shift @tempTextBlocks;
-//	
-//	        if (length $tempTextBlock)
-//	            {  push @textBlocks, $tempTextBlock;  };
-//	        };
-	    
 	    for(String block: tempTextBlocks) {
 	    	if(block.length() != 0) {
 	    		textBlocks.add(block) ;
@@ -1228,21 +1119,17 @@ public class DocCommentParser implements IDocCommentParser {
 	            output += '<';
 	            index++;
 	
-	            while (!textBlocks.get(index).matches("\\x1F"))
-	                {
+	            while (!textBlocks.get(index).matches("\\x1F")) {
 	                output += textBlocks.get(index) ;
 	                index++ ;
-	                } ;
+                } ;
 	
 	            output += ">" ;
 
-	        } else if (textBlocks.get(index).matches("<") && 
-	        		tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
+	        } else if (textBlocks.get(index).matches("<") && tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
 	        	
-//	            int endingIndex = closingTag(textBlocks, index) ;
 	        	Tuple<Integer, Boolean> closingTagTuple = closingTag(textBlocks, index) ;
 	
-//	            if ($endingIndex != -1)
 	            if (closingTagTuple.first() != -1) {
 //	                {
 //	                my $linkText;
@@ -1268,10 +1155,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	                else
 //	                    {  $output .= '<link target="' . $linkText . '" name="' . $linkText . '" original="&lt;' . $linkText . '&gt;">';  };
 //	    		
-	            } else {// it's not a link.
+	            } else { // it's not a link.
 	                
 	                output += "&lt;" ;
-	            };
+	            }
 	            
 //	
 //	        elsif ($textBlocks[$index] eq '*')
@@ -1298,12 +1185,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 	    	} else if (textBlocks.get(index).matches("_")) {
 	    		
-//	            my $tagType = $self->TagType(\@textBlocks, $index);
 	    		TagType tagType = tagType(textBlocks, index) ;
 	    		
 	    		Tuple<Integer,Boolean> closingTagTuple = closingTag(textBlocks, index) ;
 	
-//	             if (tagType == TagType.POSSIBLE_OPENING_TAG && ClosingTag(textBlocks, index, underlineHasWhitespace) != -1)
 	             if (tagType == TagType.POSSIBLE_OPENING_TAG && closingTagTuple.first() != -1)
 	                {
 	                // ClosingTag() makes sure tags aren't opened multiple times in a row.
@@ -1330,56 +1215,53 @@ public class DocCommentParser implements IDocCommentParser {
 	                } ;
 
 	    	//  plain text or a > that isn't part of a link
+            //
 	    	} else {
 	            output += convertAmpChars(textBlocks.get(index)) ;
 	        } ;
 	
 	    	
 	        index++ ;
-        } ;
+        } 
         
-				fLog.debug(ILogLevel.LEVEL_MID,
-					"ricFormatTextBlock: end") ;
-				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-				fLog.debug(ILogLevel.LEVEL_MID, output) ;
-				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+	    fLog.debug(ILogLevel.LEVEL_MID, "ricFormatTextBlock: end") ;
+	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+	    fLog.debug(ILogLevel.LEVEL_MID, output) ;
+	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 	
 	    return output ;
 	    
     }
 
-	//	
-//	#
-//	#   Function: TagType
-//	#
-//	#   Returns whether the tag is a possible opening or closing tag, or neither.  "Possible" because it doesn't check if an opening tag is
-//	#   closed or a closing tag is opened, just whether the surrounding characters allow it to be a candidate for a tag.  For example, in
-//	#   "A _B" the underscore is a possible opening underline tag, but in "A_B" it is not.  Support function for <RichFormatTextBlock()>.
-//	#
-//	#   Parameters:
-//	#
-//	#       textBlocks  - A reference to an array of text blocks.
-//	#       index         - The index of the tag.
-//	#
-//	#   Returns:
-//	#
-//	#       POSSIBLE_OPENING_TAG, POSSIBLE_CLOSING_TAG, or NOT_A_TAG.
-//	#
+
+	//
+	//   Function: TagType
+	//
+	//   Returns whether the tag is a possible opening or closing tag, or neither.  "Possible" because it doesn't check if an opening tag is
+	//   closed or a closing tag is opened, just whether the surrounding characters allow it to be a candidate for a tag.  For example, in
+	//   "A _B" the underscore is a possible opening underline tag, but in "A_B" it is not.  Support function for <RichFormatTextBlock()>.
+	//
+	//   Parameters:
+	//
+	//       textBlocks  - A reference to an array of text blocks.
+	//       index         - The index of the tag.
+	//
+	//   Returns:
+	//
+	//       POSSIBLE_OPENING_TAG, POSSIBLE_CLOSING_TAG, or NOT_A_TAG.
+	//
 	private TagType tagType (ArrayList<String> textBlocks, int index) {
 
-//	    my ($self, $textBlocks, $index) = @_;
-//	
-//	
 	    // Possible opening tags
 		//
 	    if ( textBlocks.get(index).matches("^[\\*_<]$") &&
 
 	        // Before it must be whitespace, the beginning of the text, or ({["'-/*_.
 	        ( index == 0 || textBlocks.get(index-1).matches("[\\ \\t\\n\\(\\{\\[\"'\\-\\/\\*\\_]$")) &&
-//	
-//	        # Notes for 2.0: Include Spanish upside down ! and ? as well as opening quotes (66) and apostrophes (6).  Look into
-//	        # Unicode character classes as well.
-//	
+	
+	        // Notes for 2.0: Include Spanish upside down ! and ? as well as opening quotes (66) and apostrophes (6).  Look into
+	        // Unicode character classes as well.
+	
 	        // After it must be non-whitespace.
 	        ((index + 1 < textBlocks.size()) && !textBlocks.get(index+1).matches("^[\\ \\t\\n]")) &&
 
@@ -1397,26 +1279,26 @@ public class DocCommentParser implements IDocCommentParser {
 	    // Possible closing tags
 	    //
 	    else if ( ( textBlocks.get(index).matches("^[\\*_>]$")) &&
-//	
-//	            # After it must be whitespace, the end of the text, or )}].,!?"';:-/*_.
+
+//	            // After it must be whitespace, the end of the text, or )}].,!?"';:-/*_.
 //	            ( $index + 1 == scalar @$textBlocks || $textBlocks->[$index+1] =~ /^[ \t\n\)\]\}\.\,\!\?\"\'\;\:\-\/\*\_]/ ||
 //	              # Links also get plurals, like <link>s, <linx>es, <link>'s, and <links>'.
 //	              ( $textBlocks->[$index] eq '>' && $textBlocks->[$index+1] =~ /^(?:es|s|\')/ ) ) &&
-//	
-//	            # Notes for 2.0: Include closing quotes (99) and apostrophes (9).  Look into Unicode character classes as well.
-//	
+
+	            // Notes for 2.0: Include closing quotes (99) and apostrophes (9).  Look into Unicode character classes as well.
+
 	            // Before it must be non-whitespace.
 	            ( index != 0 && !textBlocks.get(index-1).matches("[ \\t\\n]$")) &&
 //	
-//	            # Make sure we don't accept >>, ->, or => as closing tags.  >= is already taken care of.
+//	            // Make sure we don't accept >>, ->, or => as closing tags.  >= is already taken care of.
 //	            ( $textBlocks->[$index] ne '>' || $textBlocks->[$index-1] !~ /[>=-]$/ ) &&
 //	
 	            // Make sure we don't accept * or _ after it unless it's >.
 	            ( !textBlocks.get(index).matches(">") || !textBlocks.get(index+1).matches("[\\*\\_]$")))
-	        {
+	    {
 	        return TagType.POSSIBLE_CLOSING_TAG ;
-	        }
-//	
+	    }
+
 	    else
 	        {
 	        return TagType.NOT_A_TAG ;
@@ -1425,34 +1307,28 @@ public class DocCommentParser implements IDocCommentParser {
     } ;
 
 
-//	#
-//	#   Function: ClosingTag
-//	#
-//	#   Returns whether a tag is closed or not, where it's closed if it is, and optionally whether there is any whitespace between the
-//	#   tags.  Support function for <RichFormatTextBlock()>.
-//	#
-//	#   The results of this function are in full context, meaning that if it says a tag is closed, it can be interpreted as that tag in the
-//	#   final output.  It takes into account any spoiling factors, like there being two opening tags in a row.
-//	#
-//	#   Parameters:
-//	#
-//	#       textBlocks             - A reference to an array of text blocks.
-//	#       index                    - The index of the opening tag.
-//	#       hasWhitespaceRef  - A reference to the variable that will hold whether there is whitespace between the tags or not.  If
-//	#                                     undef, the function will not check.  If the tag is not closed, the variable will not be changed.
-//	#
-//	#   Returns:
-//	#
-//	#       If the tag is closed, it returns the index of the closing tag and puts whether there was whitespace between the tags in
-//	#       hasWhitespaceRef if it was specified.  If the tag is not closed, it returns -1 and doesn't touch the variable pointed to by
-//	#       hasWhitespaceRef.
-//	#
-//	sub ClosingTag #(textBlocks, index, hasWhitespace)
-//	    {
-//	    my ($self, $textBlocks, $index, $hasWhitespaceRef) = @_;
-	    
-//    private int ClosingTag(ArrayList<String> textBlocks, int index, boolean underlineHasWhitespace) {
-    
+	//
+	//   Function: ClosingTag
+	//
+	//   Returns whether a tag is closed or not, where it's closed if it is, and optionally whether there is any whitespace between the
+	//   tags.  Support function for <RichFormatTextBlock()>.
+	//
+	//   The results of this function are in full context, meaning that if it says a tag is closed, it can be interpreted as that tag in the
+	//   final output.  It takes into account any spoiling factors, like there being two opening tags in a row.
+	//
+	//   Parameters:
+	//
+	//       textBlocks             - A reference to an array of text blocks.
+	//       index                    - The index of the opening tag.
+	//       hasWhitespaceRef  - A reference to the variable that will hold whether there is whitespace between the tags or not.  If
+	//                                     undef, the function will not check.  If the tag is not closed, the variable will not be changed.
+	//
+	//   Returns:
+	//
+	//       If the tag is closed, it returns the index of the closing tag and puts whether there was whitespace between the tags in
+	//       hasWhitespaceRef if it was specified.  If the tag is not closed, it returns -1 and doesn't touch the variable pointed to by
+	//       hasWhitespaceRef.
+    //
     Tuple<Integer, Boolean> closingTag(ArrayList<String> textBlocks, int index) {
     	
     	Tuple<Integer, Boolean> result = new Tuple<Integer, Boolean>(-1,false) ;
@@ -1504,41 +1380,37 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    $index = $endIndex;
 //	                    };
 //	                };
-	            }
-	
-	        else if (textBlocks.get(index).matches(closingTag)) {
+	            
+	        } else if (textBlocks.get(index).matches(closingTag)) {
+
+	        	TagType tagType = tagType(textBlocks, index) ;
+
+	        	if (tagType == TagType.POSSIBLE_CLOSING_TAG) {
+
+	        		// There needs to be something between the tags for them to count.
+	        		if (index == beginningIndex + 1) {  
+	        			return result ;
+	        		}
+	        		else {
+
+	        			// Success!
+	        			//
+	        			result.setFirst(index) ;
+	        			result.setSecond(hasWhitespace) ;
+
+	        		} ;
+
+	        	// If there are two opening tags of the same type, the first becomes literal and the next becomes part of a tag.
+	        	//
+	        	} else if (tagType == TagType.POSSIBLE_OPENING_TAG) {  
+	        		return result ;
+	        	}
 	        	
-	            TagType tagType = tagType(textBlocks, index) ;
-	
-	            if (tagType == TagType.POSSIBLE_CLOSING_TAG) {
-	            	
-	                // There needs to be something between the tags for them to count.
-	                if (index == beginningIndex + 1) {  
-	                	return result ;
-	                }
-	                else {
-	                	
-	                    // Success!
-	                	//
-	                    result.setFirst(index) ;
-	                    result.setSecond(hasWhitespace) ;
-	
-	                } ;
-	            }
-	
-	            // If there are two opening tags of the same type, the first becomes literal and the next becomes part of a tag.
-	            //
-	            else if (tagType == TagType.POSSIBLE_OPENING_TAG)
-	                {  
-	                return result ;
-	                }
-	            }
-	
-	        else if (!result.second()) {
-	            if (textBlocks.get(index).matches("[ \t\n]")) {
-	                 result.setSecond(true) ;
-	            }
-	        } ;
+	        } else if (!result.second()) {
+	        	if (textBlocks.get(index).matches("[ \t\n]")) {
+	        		result.setSecond(true) ;
+	        	}
+	        } 
 
 	        index++;
         } ;
@@ -1768,8 +1640,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	sub LineNumber
 //	    {  return $_[0]->[LINE_NUMBER];  };
 //	
-//	
-//	1;
 
 	//
 	//   Substitutes certain characters with their <NDMarkup> amp chars.

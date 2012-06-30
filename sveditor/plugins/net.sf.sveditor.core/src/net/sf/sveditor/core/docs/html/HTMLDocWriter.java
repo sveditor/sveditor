@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -94,9 +93,7 @@ public class HTMLDocWriter implements IDocWriter {
 
 	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
 		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
-//		List<String> classNames = new ArrayList<String>(model.getClassMapByPkg().keySet()) ;
 		ArrayList<String> classNames = new ArrayList<String>(model.getClassMapByPkg().keySet()) ;
-//		String classNames[] = new String[](model.getClassMapByPkg().keySet()) ;
 	 	Collections.sort(classNames,String.CASE_INSENSITIVE_ORDER) ;
 	 	for(String pkgName: classNames) {
 			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for pkg: " + pkgName) ;

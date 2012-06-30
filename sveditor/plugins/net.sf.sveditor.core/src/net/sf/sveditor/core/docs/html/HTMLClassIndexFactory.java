@@ -64,7 +64,6 @@ public class HTMLClassIndexFactory {
 		res += 
 				"</div>"
 				+ "<table border=0 cellspacing=0 cellpadding=0>" ;
-//		for(String idxKey: classIdxMap.keySet()) {
 		for(String idxKey: sortedIdxKeys) {
 		   if(classIdxMap.get(idxKey).size() == 0) { continue ; }
 		   res +=
@@ -75,7 +74,6 @@ public class HTMLClassIndexFactory {
 		   Map<String, Tuple<DocPkgItem, DocClassItem>> classMap = classIdxMap.get(idxKey) ;					
 		   ArrayList<String> sortedClassNames = new ArrayList<String>(classMap.keySet()) ;
 		   Collections.sort(sortedClassNames) ;
-//		   for(String className: classMap.keySet()) {
 		   for(String className: sortedClassNames) {
 			   Tuple<DocPkgItem,DocClassItem> tuple = classMap.get(className) ;
 			   String pkgName = tuple.first() == null ? "" : tuple.first().getName() ; 
