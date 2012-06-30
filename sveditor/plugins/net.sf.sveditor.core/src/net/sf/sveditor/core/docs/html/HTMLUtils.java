@@ -92,7 +92,7 @@ public class HTMLUtils {
 	
 	static String genCBodyBegin() {
 		String result =
-			  "<div class=CBody> <p> This will become the class description </p>" ;
+			  "<div class=CBody>" ;
 		return result ;
 	}
 	static String genCBodyEnd() {

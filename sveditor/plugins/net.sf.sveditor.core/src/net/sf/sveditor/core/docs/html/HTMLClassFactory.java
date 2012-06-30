@@ -17,6 +17,7 @@ import net.sf.sveditor.core.docs.model.DocFuncItem;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 
 public class HTMLClassFactory {
@@ -37,6 +38,7 @@ public class HTMLClassFactory {
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
 		res += HTMLUtils.genCTitle(classItem.getName()) ;
 		res += HTMLUtils.genCBodyBegin() ;
+		res += genSummaryStart(classItem) ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
@@ -57,6 +59,25 @@ public class HTMLClassFactory {
 		return res ;
 	}
 	
+//	private String genSummaryStart() {
+//		for(DocTopic topic: classItem.getTopics()) {
+//			result += topic.getBody() ;
+//		}
+//	}
+
+	private String genSummaryStart(DocClassItem classItem) {
+		String result = "" ;
+		// Note: this iteration of topics attached to the class item seems wrong.
+		// Will there be more than one topic for class? If not, then
+		// the contained set of topics (which is just one topic) can be 
+		// swallowed by the class item.
+		for(DocTopic topic: classItem.getTopics()) {
+			result += topic.getBody() ;
+		}
+//		result += "<p></p>" ;
+		return result ;
+	}
+
 	private String genMemberDetail(DocClassItem classItem) {
 		String res = "" ;
 		for(DocItem child: classItem.getChildren()) {
@@ -77,8 +98,17 @@ public class HTMLClassFactory {
 							 + "<img src=../../" + HTMLIconUtils.getImagePath(classItem) + ">"
 							 + "</td>"
 			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
-			+ "<td class=SDescription>" + "This will become the class description" + "</td>"
-			+ "</tr>" ;
+			+ "<td class=SDescription>" ;
+
+//		if(classItem.getTopics().size()==0) {
+			result += 
+				  "This will become the class description" + "</td>" ;
+//		} else {
+//			for(DocTopic topic: classItem.getTopics()) {
+//				result += topic.getBody() ;
+//			}
+//		}
+			result += "</tr>" ;
 		return result ;
 	}	
 	
@@ -169,9 +199,13 @@ public class HTMLClassFactory {
 				    + "\"></a>"
 				    + taskItem.getName() + "()"
 				    + "</h3>"
-				    + "<div class=CBody>"
-						+ "<p>This is some text about the variable</p>"
-				    + "</div>"
+				    + "<div class=CBody>" ;
+//						+ "<p>This is some text about the variable</p>"
+		for(DocTopic topic: taskItem.getTopics()) {
+			res += topic.getBody() ;
+		}
+				res +=
+				      "</div>"
 			    + "</div>"
 		    + "</div>" ;
 		return res ;

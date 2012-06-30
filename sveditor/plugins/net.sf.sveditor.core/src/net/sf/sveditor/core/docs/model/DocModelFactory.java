@@ -98,7 +98,7 @@ public class DocModelFactory {
 					docPkgItem.addChild(classDocItem) ;
 					pkgClassMap.put(classDocItem.getName(), classDocItem) ;
 					indexClass(docPkgItem, classDocItem, model) ;
-					gatherClassMembers(docPkgItem, classDocItem, (SVDBClassDecl)pkgDecl.getSVDBItem(), model ) ;
+					gatherClassMembers(docPkgItem, classDocItem, pkgDecl, (SVDBClassDecl)pkgDecl.getSVDBItem(), model, isvdbIndex ) ;
 				}
 			}
 		} else {
@@ -118,6 +118,19 @@ public class DocModelFactory {
 				// TODO: Parse the doc comment into the individual Doc Items
 				Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
 				fParser.parse(docComment.getRawComment(),docTopics) ;
+				fLog.debug(ILogLevel.LEVEL_MID,
+					"Parsed out the following topics") ;
+				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+				for(DocTopic topic: docTopics) {
+					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+					fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
+					fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
+					fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
+					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+					classDocItem.addTopic(topic) ;
+				}
+			} else {
+				
 			}
 		}
 		return classDocItem ;
@@ -137,12 +150,35 @@ public class DocModelFactory {
 
 	private void gatherClassMembers(DocPkgItem docPkgItem,
 									DocClassItem classDocItem, 
-									SVDBClassDecl svdbClassDecl, 
-									DocModel model) {
+									SVDBDeclCacheItem classDeclCacheItem, 
+									SVDBClassDecl svdbClassDecl,  // FIXME: remove... get from classDeclCacheItem
+									DocModel model, ISVDBIndex isvdbIndex) {
+		SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), classDeclCacheItem.getFile().getFilePath()) ;
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
 				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName()) ;
+				SVDBDocComment docComment = findDocCommentByName(ppFile, taskItem.getName()) ;
+				if(docComment != null) {
+					fLog.debug(ILogLevel.LEVEL_MID, 
+							"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + taskItem.getName() + "\"") ;
+					// TODO: Parse the doc comment into the individual Doc Items
+					Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
+					fParser.parse(docComment.getRawComment(),docTopics) ;
+					fLog.debug(ILogLevel.LEVEL_MID,
+							"Parsed out the following topics") ;
+					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+					for(DocTopic topic: docTopics) {
+						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
+						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
+						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
+						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+						taskItem.addTopic(topic) ;
+					}
+				} else {
+
+				}
 				classDocItem.addChild(taskItem) ;
 				continue ;
 			}
@@ -150,6 +186,7 @@ public class DocModelFactory {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
 				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
 				classDocItem.addChild(funcItem) ;
+				// TODO: Check for doc comments associated with function
 				continue ;
 			}
 			if(ci.getType() == SVDBItemType.VarDeclStmt) {
@@ -158,6 +195,7 @@ public class DocModelFactory {
 					if(varItem instanceof SVDBVarDeclItem) {
 						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
 						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName()) ;
+						// TODO: check for doc comments associated with variable decl
 						classDocItem.addChild(docVarItem) ;
 					}
 				}

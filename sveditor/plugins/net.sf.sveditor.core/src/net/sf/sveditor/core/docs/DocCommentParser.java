@@ -25,6 +25,7 @@
 
 package net.sf.sveditor.core.docs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -599,10 +600,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	
 //	            # We'll remove vertical lines later if they're uniform throughout the entire comment.
-	            };
-
-	        	index++ ;
-	        }
+	            
+            } 
+			
+        	index++ ;
+        }
 	
 	
 	    if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END)
@@ -1637,7 +1639,7 @@ public class DocCommentParser implements IDocCommentParser {
 	    String textBlock = null ;
 	    boolean prevLineBlank = true ;
 
-	    String codeBlock ;
+	    String codeBlock = null ;
 	    String removedCodeSpaces ;
 	
 	    boolean ignoreListSymbols;
@@ -1720,7 +1722,7 @@ public class DocCommentParser implements IDocCommentParser {
 	            	//
 	                if (topLevelTag == Tag.PARAGRAPH)
 	                    {
-//	                    $output .= $self->RichFormatTextBlock($textBlock) . '</p>';
+	                    output += richFormatTextBlock(textBlock) + "</p>" ;
 	                    textBlock = null ;
 	                    topLevelTag = Tag.NONE;
 	                    }
@@ -1852,25 +1854,27 @@ public class DocCommentParser implements IDocCommentParser {
 	            //
 	            else
 	                {
-//	                # A blank line followed by normal text ends lists.  We don't handle this when we detect if the line's blank because
-//	                # we don't want blank lines between list items to break the list.
-//	                if ($prevLineBlank && ($topLevelTag == TAG_BULLETLIST || $topLevelTag == TAG_DESCRIPTIONLIST))
-//	                    {
-//	                    $output .= $self->RichFormatTextBlock($textBlock) . $tagEnders{$topLevelTag} . '<p>';
-//	
-//	                    $topLevelTag = TAG_PARAGRAPH;
-//	                    $textBlock = undef;
-//	                    }
-//	
-//	                elsif ($topLevelTag == TAG_NONE)
-//	                    {
-//	                    $output .= '<p>';
-//	                    $topLevelTag = TAG_PARAGRAPH;
-//	                    # textBlock will already be undef.
-//	                    };
+	            	
+	                // A blank line followed by normal text ends lists.  We don't handle this when we detect if the line's blank because
+	                // we don't want blank lines between list items to break the list.
+	            	//
+	                if (prevLineBlank && (topLevelTag == Tag.BULLETLIST || topLevelTag == Tag.DESCRIPTIONLIST)) {
+	                	
+	                    output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) + "<p>" ;
+	
+	                    topLevelTag = Tag.PARAGRAPH ;
+	                    textBlock = null ;
+	                    
+                    } else if (topLevelTag == Tag.NONE) {
+                    	
+	                    output += "<p>";
+	                    topLevelTag = Tag.PARAGRAPH ;
+	                    // textBlock will already be null
+                    }
 	            	
 	            	if(textBlock != null) { textBlock += " " ; }
-
+	            	else { textBlock = new String() ; }
+	            	
 	                textBlock += lines[index] ;
 	
 	                prevLineBlank = false ;
@@ -1882,17 +1886,15 @@ public class DocCommentParser implements IDocCommentParser {
 	        index++ ;
         }
 	
-//	    # Clean up anything left dangling.
-//	    if (defined $textBlock)
-//	        {
-//	        $output .= $self->RichFormatTextBlock($textBlock) . $tagEnders{$topLevelTag};
-//	        }
-//	    elsif (defined $codeBlock)
-//	        {
-//	        $codeBlock =~ s/\n+$//;
-//	        $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
-//	        };
-//	
+	    // Clean up anything left dangling.
+	    //
+	    if (textBlock != null) {
+	        output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
+        } else if (codeBlock != null) {
+	        codeBlock.replaceFirst("\n+$","") ;
+	        output += convertAmpChars(codeBlock) + "</code>" ;
+        }
+	
 	    return output ;
 		
     }
@@ -1969,11 +1971,17 @@ public class DocCommentParser implements IDocCommentParser {
 //	#
 //	#       The formatted text block.
 //	#
+	
 //	sub RichFormatTextBlock #(text)
 //	    {
 //	    my ($self, $text) = @_;
 //	    my $output;
 //	
+	@SuppressWarnings("unused")
+	private String richFormatTextBlock(String text) {
+		
+		String output = "" ;
+		
 //	
 //	    # First find bare urls, e-mail addresses, and images.  We have to do this before the split because they may contain underscores
 //	    # or asterisks.  We have to mark the tags with \x1E and \x1F so they don't get confused with angle brackets from the comment.
@@ -2053,29 +2061,41 @@ public class DocCommentParser implements IDocCommentParser {
 //	    # Split the text from the potential tags.
 //	
 //	    my @tempTextBlocks = split(/([\*_<>\x1E\x1F])/, $text);
-//	
-//	    # Since the symbols are considered dividers, empty strings could appear between two in a row or at the beginning/end of the
-//	    # array.  This could seriously screw up TagType(), so we need to get rid of them.
-//	    my @textBlocks;
-//	
-//	    while (scalar @tempTextBlocks)
+		
+		String[] tempTextBlocks = text.split("([\\*_<>\\x1E\\x1F])") ;
+		
+	
+	    // Since the symbols are considered dividers, empty strings could appear between two in a row or at the beginning/end of the
+	    // array.  This could seriously screw up TagType(), so we need to get rid of them.
+		//
+	    ArrayList<String> textBlocks = new ArrayList<String>() ;
+
+///	    while (scalar @tempTextBlocks)
 //	        {
 //	        my $tempTextBlock = shift @tempTextBlocks;
 //	
 //	        if (length $tempTextBlock)
 //	            {  push @textBlocks, $tempTextBlock;  };
 //	        };
-//	
-//	
+	    
+	    for(String block: tempTextBlocks) {
+	    	if(block.length() != 0) {
+	    		textBlocks.add(block) ;
+	    	}
+	    }
+	    
 //	    my $bold;
 //	    my $underline;
 //	    my $underlineHasWhitespace;
 //	
-//	    my $index = 0;
+	    int index = 0 ;
 //	
-//	    while ($index < scalar @textBlocks)
-//	        {
+	    while (index < textBlocks.size()) {
+	    	
+	    	
 //	        if ($textBlocks[$index] eq "\x1E")
+	    	if(false) {
+	    		
 //	            {
 //	            $output .= '<';
 //	            $index++;
@@ -2087,8 +2107,8 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	
 //	            $output .= '>';
-//	            }
-//	
+
+	    	}
 //	        elsif ($textBlocks[$index] eq '<' && $self->TagType(\@textBlocks, $index) == POSSIBLE_OPENING_TAG)
 //	            {
 //	            my $endingIndex = $self->ClosingTag(\@textBlocks, $index, undef);
@@ -2176,17 +2196,19 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	            }
 //	
-//	        else # plain text or a > that isn't part of a link
-//	            {
-//	            $output .= NaturalDocs::NDMarkup->ConvertAmpChars($textBlocks[$index]);
-//	           };
-//	
-//	        $index++;
-//	        };
-//	
-//	    return $output;
-//	    };
-//	
+	    	//  plain text or a > that isn't part of a link
+	        else {
+	            output += convertAmpChars(textBlocks.get(index)) ;
+	        } ;
+	
+	    	
+	        index++ ;
+        } ;
+	
+	    return output ;
+	    
+    }
+
 //	
 //	#
 //	#   Function: TagType
