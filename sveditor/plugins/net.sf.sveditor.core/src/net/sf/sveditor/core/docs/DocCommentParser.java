@@ -33,6 +33,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTopic;
@@ -688,10 +690,12 @@ public class DocCommentParser implements IDocCommentParser {
 		fTagEnders.put(Tag.BULLETLIST, "</li></ul>") ;
 		fTagEnders.put(Tag.DESCRIPTIONLIST, "</dd></dl>") ;
 		fTagEnders.put(Tag.HEADING, "</h>") ;
-		fTagEnders.put(Tag.PREFIXCODE, "</code>") ;
+//		fTagEnders.put(Tag.PREFIXCODE, "</code>") ;
+		fTagEnders.put(Tag.PREFIXCODE, "</pre></blockquote>") ;
 		fTagEnders.put(Tag.TAGCODE, "</code>") ;
 	}
 	
+	@SuppressWarnings("unused")
 	private String formatBody(String[] lines, int startIndex, int endIndex) {
 
 		Tag topLevelTag = Tag.NONE ; 
@@ -700,8 +704,10 @@ public class DocCommentParser implements IDocCommentParser {
 	    String textBlock = null ;
 	    boolean prevLineBlank = true ;
 
-	    String codeBlock = null ;
-	    String removedCodeSpaces ;
+//	    String codeBlock = null ;
+//	    int removedCodeSpaces = 0 ;
+	    
+	    Tuple<String,Integer> codeBlockTuple = new Tuple<String,Integer>("",0) ;
 	
 	    boolean ignoreListSymbols;
 
@@ -709,23 +715,26 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	    while (index < endIndex) {
 	    	
+	    	Pattern codeDesignatorPattern = Pattern.compile("^ *[>:|](.*)$") ;
+	    	Matcher codeDesignatorMatcher = codeDesignatorPattern.matcher(lines[index]) ;
 	    
 	        // If we're in a tagged code section...
 	    	//
 	        if (topLevelTag == Tag.TAGCODE) {
 	        	
 //	            if ($commentLines->[$index] =~ /^ *\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\)$/i)
-//	                {
+	        	if(false) 
+	                {
 //	                $codeBlock =~ s/\n+$//;
 //	                $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
 //	                $codeBlock = undef;
 //	                $topLevelTag = TAG_NONE;
 //	                $prevLineBlank = undef;
-//	                }
-//	            else
-//	                {
-//	                $self->AddToCodeBlock($commentLines->[$index], \$codeBlock, \$removedCodeSpaces);
-//	                };
+	                }
+	            else
+	            {
+	                AddToCodeBlock(lines[index], codeBlockTuple) ;
+	            };
 	        	
             }
 	
@@ -733,26 +742,31 @@ public class DocCommentParser implements IDocCommentParser {
 //	        elsif ($commentLines->[$index] =~ /^ *[>:|](.*)$/)
 //	            {
 	        
-	        else if (lines[index].matches("^ *[>:|](.*)$")) {
+//	        else if (lines[index].matches("^ *[>:|](.*)$")) {
+	        else if (codeDesignatorMatcher.matches()) {
 	        
 //	            my $code = $1;
+	        	String code = codeDesignatorMatcher.group(1) ;
 //	
-//	            if ($topLevelTag == TAG_PREFIXCODE)
-//	                {
-//	                $self->AddToCodeBlock($code, \$codeBlock, \$removedCodeSpaces);
-//	                }
-//	            else # $topLevelTag != TAG_PREFIXCODE
-//	                {
-//	                if (defined $textBlock)
-//	                    {
-//	                    $output .= $self->RichFormatTextBlock($textBlock) . $tagEnders{$topLevelTag};
-//	                    $textBlock = undef;
-//	                    };
-//	
-//	                $topLevelTag = TAG_PREFIXCODE;
-//	                $output .= '<code type="anonymous">';
-//	                $self->AddToCodeBlock($code, \$codeBlock, \$removedCodeSpaces);
-//	                };
+	            if (topLevelTag == Tag.PREFIXCODE) {
+//	                removedCodeSpaces = addToCodeBlock(code, codeBlock, removedCodeSpaces) ;
+	                 AddToCodeBlock(code, codeBlockTuple) ;
+	            }
+	            else // $topLevelTag != TAG_PREFIXCODE
+	                {
+	            	if(textBlock != null)
+	                
+	                    {
+	                    output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
+	                    textBlock = null ;
+	                    } ;
+
+	                topLevelTag = Tag.PREFIXCODE;
+//	                output += "<code type=\"anonymous\">" ;
+	                output += "<blockquote><pre>" ;
+	                AddToCodeBlock(code, codeBlockTuple) ;
+	                    
+	            }
             }
 
 	        // If we're not in either code style...
@@ -772,7 +786,10 @@ public class DocCommentParser implements IDocCommentParser {
 //	                $codeBlock =~ s/\n+$//;
 //	                $output .= NaturalDocs::NDMarkup->ConvertAmpChars($codeBlock) . '</code>';
 	            	
-	                codeBlock = null ;
+	            	output += convertAmpChars(codeBlockTuple.first()) + "</pre></blockquote>" ;
+	            	
+	                codeBlockTuple.setFirst("") ;
+	                codeBlockTuple.setSecond(0) ;
 	                topLevelTag = Tag.NONE;
 	                prevLineBlank = false ;
 	            	
@@ -957,9 +974,13 @@ public class DocCommentParser implements IDocCommentParser {
 	    //
 	    if (textBlock != null) {
 	        output += richFormatTextBlock(textBlock) + fTagEnders.get(topLevelTag) ;
-        } else if (codeBlock != null) {
-	        codeBlock.replaceFirst("\n+$","") ;
-	        output += convertAmpChars(codeBlock) + "</code>" ;
+//        } else if (codeBlock != null) {
+        } else if (codeBlockTuple.first().length() != 0) {
+//	        codeBlock.replaceFirst("\n+$","") ;
+//	        output += convertAmpChars(codeBlock) + "</code>" ;
+        	codeBlockTuple.setFirst(codeBlockTuple.first().replaceFirst("\\n+$", "")) ;
+//        	output += convertAmpChars(codeBlockTuple.first() + "</code>") ;
+        	output += convertAmpChars(codeBlockTuple.first()) + "</pre></blockquote>" ;
         }
 	
 	    return output ;
@@ -980,50 +1001,79 @@ public class DocCommentParser implements IDocCommentParser {
 //	#                                      It will reset itself automatically when the code block codeBlockRef points to is undef.
 //	#
 //	sub AddToCodeBlock #(line, codeBlockRef, removedSpacesRef)
-//	    {
+	
+//	private int AddToCodeBlock(String line, String codeBlock, int removedSpacesIn) {
+	
+	private void AddToCodeBlock(String line, Tuple<String,Integer> codeBlockTuple) {
+		
+//		int removedSpacesOut = 0 ;
+
 //	    my ($self, $line, $codeBlockRef, $removedSpacesRef) = @_;
-//	
+		
+		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( *)(.*)$") ;
+		Matcher matcherLeadingWhiteSpace = patternLeadingWhiteSpaces.matcher(line) ;
+		
+		String spaces = null ;
+		String code = null ;
+		
+		if(!matcherLeadingWhiteSpace.matches()) {
+			// FIXME: report error condition. this should always match
+		} else {
+			spaces = matcherLeadingWhiteSpace.group(1) ;
+			code = matcherLeadingWhiteSpace.group(2) ;
+		}
+
+	
 //	    $line =~ /^( *)(.*)$/;
 //	    my ($spaces, $code) = ($1, $2);
 //	
 //	    if (!defined $$codeBlockRef)
 //	        {
-//	        if (length($code))
-//	            {
-//	            $$codeBlockRef = $code . "\n";
-//	            $$removedSpacesRef = length($spaces);
-//	            };
+	    if (codeBlockTuple.first().length()==0) {
+	        if (code.length() != 0) {
+	    
+	            codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n");
+	            codeBlockTuple.setSecond(spaces.length()) ;
+	            }
 //	        # else ignore leading line breaks.
-//	        }
 //	
-//	    elsif (length $code)
-//	        {
-//	        # Make sure we have the minimum amount of spaces to the left possible.
-//	        if (length($spaces) != $$removedSpacesRef)
-//	            {
-//	            my $spaceDifference = abs( length($spaces) - $$removedSpacesRef );
-//	            my $spacesToAdd = ' ' x $spaceDifference;
-//	
-//	            if (length($spaces) > $$removedSpacesRef)
-//	                {
-//	                $$codeBlockRef .= $spacesToAdd;
-//	                }
-//	            else
-//	                {
+        } else if (code.length() != 0) {
+	        // Make sure we have the minimum amount of spaces to the left possible.
+	        if (spaces.length() != codeBlockTuple.second() )
+	            {
+//	            my $spaceDifference = U.abs( length($spaces) - $$removedSpacesRef );
+	        	int spaceDifference = 0 ;
+	        	if(spaces.length() >= codeBlockTuple.second()) {
+	        		spaceDifference = spaces.length() - codeBlockTuple.second() ;
+	        	}
+	        	String spacesToAdd = "" ;
+	        	for(int i=0 ; i<spaceDifference ; i++) {
+	        		spacesToAdd += " " ;
+	        	}
+
+	            if (spaces.length() > codeBlockTuple.second()) {
+	                codeBlockTuple.setFirst( codeBlockTuple.first() + spacesToAdd) ;
+	            } else {
 //	                $$codeBlockRef =~ s/^(.)/$spacesToAdd . $1/gme;
+	                codeBlockTuple.setFirst( spacesToAdd + codeBlockTuple.first()) ;
 //	                $$removedSpacesRef = length($spaces);
-//	                };
-//	            };
+	                codeBlockTuple.setSecond(spaces.length()) ;
+	                };
+	            };
 //	
-//	        $$codeBlockRef .= $code . "\n";
-//	        }
-//	
-//	    else # (!length $code)
-//	        {
-//	        $$codeBlockRef .= "\n";
-//	        };
-//	    };
-//	
+//	        codeBlock += code + "\n" ;
+	        codeBlockTuple.setFirst( codeBlockTuple.first() + code + "\n") ;
+        }
+	
+	    else // (!length $code)
+	        {
+//	        codeBlock += "\n" ;
+	        codeBlockTuple.setFirst( codeBlockTuple.first() + "\n") ;
+	        } 
+		
+//		return removedSpacesOut ;
+    }
+	
 //	
 //	#
 //	#   Function: RichFormatTextBlock
@@ -1048,6 +1098,12 @@ public class DocCommentParser implements IDocCommentParser {
 	private String richFormatTextBlock(String text) {
 		
 		String output = "" ;
+		
+				fLog.debug(ILogLevel.LEVEL_MID,
+					"ricFormatTextBlock: begin") ;
+				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+				fLog.debug(ILogLevel.LEVEL_MID, text) ;
+				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 		
 //	
 //	    # First find bare urls, e-mail addresses, and images.  We have to do this before the split because they may contain underscores
@@ -1160,27 +1216,28 @@ public class DocCommentParser implements IDocCommentParser {
 	    while (index < textBlocks.size()) {
 	    	
 	    	
-//	        if ($textBlocks[$index] eq "\x1E")
-	    	if(false) {
+//	    	if(false) {
+	        if (textBlocks.get(index).matches("\\x1E")) {
 	    		
-//	            {
-//	            $output .= '<';
-//	            $index++;
-//	
-//	            while ($textBlocks[$index] ne "\x1F")
-//	                {
-//	                $output .= $textBlocks[$index];
-//	                $index++;
-//	                };
-//	
-//	            $output .= '>';
+	            output += '<';
+	            index++;
+	
+	            while (!textBlocks.get(index).matches("\\x1F"))
+	                {
+	                output += textBlocks.get(index) ;
+	                index++ ;
+	                } ;
+	
+	            output += ">" ;
 
-	    	}
-//	        elsif ($textBlocks[$index] eq '<' && $self->TagType(\@textBlocks, $index) == POSSIBLE_OPENING_TAG)
-//	            {
-//	            my $endingIndex = $self->ClosingTag(\@textBlocks, $index, undef);
-//	
+	        } else if (textBlocks.get(index).matches("<") && 
+	        		tagType(textBlocks, index) == TagType.POSSIBLE_OPENING_TAG) {
+	        	
+//	            int endingIndex = closingTag(textBlocks, index) ;
+	        	Tuple<Integer, Boolean> closingTagTuple = closingTag(textBlocks, index) ;
+	
 //	            if ($endingIndex != -1)
+	            if (closingTagTuple.first() != -1) {
 //	                {
 //	                my $linkText;
 //	                $index++;
@@ -1204,13 +1261,12 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    {  $output .= '<url target="' . $2 . '" name="' . $1 . '">';  }
 //	                else
 //	                    {  $output .= '<link target="' . $linkText . '" name="' . $linkText . '" original="&lt;' . $linkText . '&gt;">';  };
-//	                }
-//	
-//	            else # it's not a link.
-//	                {
-//	                $output .= '&lt;';
-//	                };
-//	            }
+//	    		
+	            } else // it's not a link.
+	                {
+	                output += "&lt;" ;
+	                };
+	            }
 //	
 //	        elsif ($textBlocks[$index] eq '*')
 //	            {
@@ -1233,7 +1289,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	                };
 //	            }
 //	
-	    	else if (textBlocks.get(index).matches("_")) {
+    		else if (textBlocks.get(index).matches("_")) {
 	    		
 //	            my $tagType = $self->TagType(\@textBlocks, $index);
 	    		TagType tagType = tagType(textBlocks, index) ;
@@ -1276,6 +1332,12 @@ public class DocCommentParser implements IDocCommentParser {
 	    	
 	        index++ ;
         } ;
+        
+				fLog.debug(ILogLevel.LEVEL_MID,
+					"ricFormatTextBlock: end") ;
+				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+				fLog.debug(ILogLevel.LEVEL_MID, output) ;
+				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 	
 	    return output ;
 	    
