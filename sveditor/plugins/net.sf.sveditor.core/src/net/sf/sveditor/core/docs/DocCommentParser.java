@@ -244,8 +244,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    {  $package = undef;  };
 	            	
 	            	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
-	            	
-	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title) ;
+	            	String summary = "" ;
+	            	if(body != null) {
+	            		summary = getSummaryFromBody(body) ; 
+	            	}
+	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
 	            	
 	            	parsedTopics.add(newTopic) ;
 	            	
@@ -300,8 +303,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	            {  $package = undef;  };
 
         	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
-        	
-        	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title) ;
+        	String summary = "" ;
+        	if(body != null) {
+        		summary = getSummaryFromBody(body) ; 
+        	}
+        	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
         	
         	parsedTopics.add(newTopic) ;
         	
@@ -1472,5 +1478,29 @@ public class DocCommentParser implements IDocCommentParser {
 	    return text ;
 		
     }
+	
+	
+	private String getSummaryFromBody (String body) {
+		
+		String summary = "" ;
+
+		// Extract the first sentence from the leading paragraph, if any.  We'll tolerate a single header beforehand, but nothing else.
+		
+		Pattern pattern = Pattern.compile("^(?:<h>[^<]*<\\/h>)?<p>(.*?)(</p>|[\\.!\\?](?:[\\)}' ]|&quot;|&gt;)).*",Pattern.DOTALL) ;
+		
+		Matcher matcher = pattern.matcher(body) ;
+
+		if (matcher.matches()) {
+        	summary = matcher.group(1) ;
+        	if ((matcher.group(2) != null) &&  !(matcher.group(2).equals("</p>"))) {  
+        		summary += matcher.group(2);  
+        	} ;
+        }
+        	
+
+        return summary ;
+    }
+
+
 
 }
