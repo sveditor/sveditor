@@ -720,6 +720,19 @@ public class SVLexer extends SVToken {
 				}
 			} else {
 				readNumber(ch, local_is_delay_ctrl);
+				ch = fScanner.get_ch();
+				if (ch == 's') {
+					// most likely 1step
+					fIsNumber = false;
+					fIsKeyword = true;
+					fStringBuffer.append((char)ch);
+					while ((ch = fScanner.get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
+						fStringBuffer.append((char)ch);
+					}
+					fScanner.unget_ch(ch);
+				} else {
+					fScanner.unget_ch(ch);
+				}
 			}
 
 			fImage = fStringBuffer.toString();
@@ -975,15 +988,22 @@ public class SVLexer extends SVToken {
 			// do nothing. We do not want to accidentally 
 			// continue across a number boundary
 		} else {
+			boolean found_ws = false;
 			while (ch != -1 && Character.isWhitespace(ch)) {
 				ch = fScanner.get_ch();
+				found_ws = true;
 			}
 
 			if (ch == '\'') {
 				append_ch(ch);
 				ch = readBasedNumber(fScanner.get_ch());
 			} else {
-				// Really just a decimal number
+				// Really just a decimal number. Insert the
+				// whitespace
+				if (found_ws) {
+					fScanner.unget_ch(ch);
+					ch = ' ';
+				}
 			}
 		}
 

@@ -11,6 +11,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	private int						fLineIdx;
 	private int						fNextLinePos;
 	private int						fIdx;
+	private int						fUngetCh1, fUngetCh2;
 	
 	public SVPreProcOutput(
 			StringBuilder 		text,
@@ -32,20 +33,25 @@ public class SVPreProcOutput extends AbstractTextScanner {
 				fText.setCharAt(i, '\n');
 			}
 		}
+		fUngetCh1 = -1;
+		fUngetCh2 = -1;
 	}
 
 	public int get_ch() {
-		if (fIdx < fText.length()) {
-			return fText.charAt(fIdx++);
-		} else {
-			return -1;
+		int ch = -1;
+		if (fUngetCh1 != -1) {
+			ch = fUngetCh1;
+			fUngetCh1 = fUngetCh2;
+			fUngetCh2 = -1;
+		} else if (fIdx < fText.length()) {
+			ch = fText.charAt(fIdx++);
 		}
+		return ch;
 	}
 
 	public void unget_ch(int ch) {
-		if (fIdx > 0 && ch != -1) {
-			fIdx--;
-		}
+		fUngetCh2 = fUngetCh1;
+		fUngetCh1 = ch;
 	}
 
 	public ScanLocation getLocation() {

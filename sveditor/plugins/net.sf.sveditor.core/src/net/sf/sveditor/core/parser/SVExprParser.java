@@ -197,7 +197,7 @@ public class SVExprParser extends SVParserBase {
 		if (fLexer.peekNumber()) {
 			if (fDebugEn) {debug("  isNumber - " + fLexer.peek());}
 			ret = new SVDBLiteralExpr(fLexer.eatToken());
-		} else if (fLexer.peekOperator("1step")) {
+		} else if (fLexer.peekKeyword("1step")) {
 			ret = new SVDBLiteralExpr(fLexer.eatToken());
 		} else if (fLexer.peekId()) {
 			if (fDebugEn) {debug("  isIdExpression");}

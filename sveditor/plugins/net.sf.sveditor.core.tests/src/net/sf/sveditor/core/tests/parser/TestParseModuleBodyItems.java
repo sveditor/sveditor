@@ -51,7 +51,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		    "endmodule\r\n"
 		    ;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(
 				log, content, "testPackageModule", false);
 
@@ -75,7 +75,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBFile file = SVDBTestUtils.parse(
 				log, content, "testDefineCaseItems", false);
 
@@ -1381,7 +1381,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testVmmErrorBehaveBlock() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
         "`define vmm_error(log, msg)  \\\n" +
         "do \\\n" +

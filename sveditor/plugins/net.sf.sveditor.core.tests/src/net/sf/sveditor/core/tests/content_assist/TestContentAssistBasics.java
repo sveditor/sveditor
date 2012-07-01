@@ -113,7 +113,7 @@ public class TestContentAssistBasics extends TestCase {
 	 * Test that basic macro content assist works
 	 */
 	public void testOVMMacroContentAssist() {
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testOVMMacroContentAssist";
 		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		LogHandle log = LogFactory.getLogHandle(testname);

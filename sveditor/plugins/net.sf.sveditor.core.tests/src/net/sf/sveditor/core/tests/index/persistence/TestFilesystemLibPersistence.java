@@ -66,7 +66,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
