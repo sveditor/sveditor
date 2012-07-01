@@ -196,6 +196,28 @@ public class TestParser extends TestCase {
 		
 	}
 		
+	public void testUnderlineMultiWordWithWS() throws Exception {
+		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some _underlined text_",
+			    "",
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
 	public void testClassTopicWithCodeBlock() throws Exception {
 //		fDebug = true ;
 		String commentLines[] =  {

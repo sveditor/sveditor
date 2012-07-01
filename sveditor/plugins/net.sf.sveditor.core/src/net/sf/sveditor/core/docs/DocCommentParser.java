@@ -1088,6 +1088,8 @@ public class DocCommentParser implements IDocCommentParser {
 //	            ( $index + 1 == scalar @$textBlocks || $textBlocks->[$index+1] =~ /^[ \t\n\)\]\}\.\,\!\?\"\'\;\:\-\/\*\_]/ ||
 //	              # Links also get plurals, like <link>s, <linx>es, <link>'s, and <links>'.
 //	              ( $textBlocks->[$index] eq '>' && $textBlocks->[$index+1] =~ /^(?:es|s|\')/ ) ) &&
+	    		
+	    		( index+1 == textBlocks.size() || textBlocks.get(index).matches("^[ \\t\\n\\)\\]\\}\\.\\,\\!\\?\"\'\\;\\:\\-\\/\\*\\_]")) &&
 
 	            // Notes for 2.0: Include closing quotes (99) and apostrophes (9).  Look into Unicode character classes as well.
 
