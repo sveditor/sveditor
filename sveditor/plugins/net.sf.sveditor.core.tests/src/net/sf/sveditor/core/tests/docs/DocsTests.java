@@ -1,3 +1,4 @@
+
 /****************************************************************************
  * Copyright (c) 2008-2010 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
@@ -9,18 +10,17 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.docs;
+package net.sf.sveditor.core.tests.docs ;
 
-import java.util.Set;
+import junit.framework.TestSuite ;
 
-import net.sf.sveditor.core.docs.model.DocTopic;
-
-public interface IDocCommentParser {
-
-	public String isDocComment(String comment) ;
+public class DocsTests extends TestSuite {
 	
-	public void parse(String comment, Set<DocTopic> docTopics) ;
-	
-	public int parseComment(String lines[], Set<DocTopic> parsedTopics) ;
-		
+	public static TestSuite suite() {
+		TestSuite s = new TestSuite("DocsTests");
+		s.addTest(new TestSuite(TestCleaner.class));
+		s.addTest(new TestSuite(TestParser.class));
+		return s;
+	}
+
 }
