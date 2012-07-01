@@ -92,15 +92,17 @@ public class HTMLClassFactory {
 							 + "</td>"
 			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
+		
+			result += classItem.getSummary() ;
 
-//		if(classItem.getTopics().size()==0) {
-			result += 
-				  "This will become the class description" + "</td>" ;
-//		} else {
-//			for(DocTopic topic: classItem.getTopics()) {
-//				result += topic.getBody() ;
-//			}
-//		}
+////		if(classItem.getTopics().size()==0) {
+//			result += 
+//				  "This will become the class description" + "</td>" ;
+////		} else {
+////			for(DocTopic topic: classItem.getTopics()) {
+////				result += topic.getBody() ;
+////			}
+////		}
 			result += "</tr>" ;
 		return result ;
 	}	
@@ -141,7 +143,7 @@ public class HTMLClassFactory {
 						 + "\">" + varItem.getName() + "</a>"
 						 + "</td>"
 			   + "<td class=SDescription>"
-						 + "This will be the variable description"
+						 + varItem.getSummary()
 						 + "</td>"
 			   + "</tr>" ;
 		return res ;
@@ -159,7 +161,7 @@ public class HTMLClassFactory {
 					 + "\">" + task.getName() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
-					 + "This will be the variable description"
+					 + task.getSummary()
 					 + "</td>"
 		   + "</tr>" ;
 		return res ;
@@ -178,7 +180,7 @@ public class HTMLClassFactory {
 					 + "\">" + func.getName() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
-					 + "This will be the variable description"
+					 + func.getSummary()
 					 + "</td>"
 		   + "</tr>" ;
 		return res ;

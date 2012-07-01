@@ -109,13 +109,12 @@ public class DocModelFactory {
 	private DocClassItem createDocItemForClass(SVDBDeclCacheItem pkgDeclItem, SVDBDeclCacheItem classDeclItem, ISVDBIndex isvdbIndex) {
 		SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), classDeclItem.getFile().getFilePath()) ;
 		DocClassItem classDocItem ;
-		classDocItem = new DocClassItem(classDeclItem.getName()) ;
+		classDocItem = new DocClassItem(classDeclItem.getName(),"") ;
 		if(ppFile != null) {
 			SVDBDocComment docComment = findDocCommentByName(ppFile, classDeclItem.getName()) ;
 			if(docComment != null) {
 				fLog.debug(ILogLevel.LEVEL_MID, 
 						"Found doc comment for \"" + pkgDeclItem.getName() + "::" + classDeclItem.getName() + "\"") ;
-				// TODO: Parse the doc comment into the individual Doc Items
 				Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
 				fParser.parse(docComment.getRawComment(),docTopics) ;
 				fLog.debug(ILogLevel.LEVEL_MID,
@@ -128,6 +127,7 @@ public class DocModelFactory {
 					fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
 					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 					classDocItem.addTopic(topic) ;
+					classDocItem.setSummary(topic.getSummary()) ;
 				}
 			} else {
 				
@@ -157,7 +157,7 @@ public class DocModelFactory {
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
-				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName()) ;
+				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName(),"") ;
 				classDocItem.addChild(taskItem) ;
 				SVDBDocComment docComment = findDocCommentByName(ppFile, taskItem.getName()) ;
 				if(docComment != null) {
@@ -175,6 +175,7 @@ public class DocModelFactory {
 //						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
 //						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 						taskItem.addTopic(topic) ;
+						taskItem.setSummary(topic.getSummary()) ;
 					}
 				} else {
 
@@ -183,7 +184,7 @@ public class DocModelFactory {
 			}
 			if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
-				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
+				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName(),"") ;
 				classDocItem.addChild(funcItem) ;
 				SVDBDocComment docComment = findDocCommentByName(ppFile, funcItem.getName()) ;
 				if(docComment != null) {
@@ -201,6 +202,7 @@ public class DocModelFactory {
 //						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
 //						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 						funcItem.addTopic(topic) ;
+						funcItem.setSummary(topic.getSummary()) ;
 					}
 				} else {
 				}
@@ -211,7 +213,7 @@ public class DocModelFactory {
 				for(ISVDBChildItem varItem: varDecl.getChildren()) {
 					if(varItem instanceof SVDBVarDeclItem) {
 						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
-						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName()) ;
+						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName(), "") ;
 						SVDBDocComment docComment = findDocCommentByName(ppFile, varDeclItem.getName()) ;
 						classDocItem.addChild(docVarItem) ;
 						if(docComment != null) {
@@ -220,12 +222,13 @@ public class DocModelFactory {
 							Set<DocTopic> docTopics = new HashSet<DocTopic>() ;
 							fParser.parse(docComment.getRawComment(),docTopics) ;
 							for(DocTopic topic: docTopics) {
-								docVarItem.addChild(topic) ;
+								docVarItem.addTopic(topic) ;
+								docVarItem.setSummary(topic.getSummary()) ;
 							}
 						} else {
 						}
 						// TODO: check for doc comments associated with variable decl
-						docVarItem.addChild(docVarItem) ;
+//						docVarItem.addChild(docVarItem) ;
 					}
 				}
 				continue ;
@@ -234,7 +237,7 @@ public class DocModelFactory {
 	}
 
 	private DocPkgItem createPkgItem(SVDBDeclCacheItem pkg) {
-		DocPkgItem item = new DocPkgItem(pkg.getName()) ;
+		DocPkgItem item = new DocPkgItem(pkg.getName(), "") ;
 		return item ;
 	}
 

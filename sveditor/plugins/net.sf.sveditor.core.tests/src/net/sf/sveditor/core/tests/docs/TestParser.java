@@ -52,7 +52,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
 		
 		expTopics.add(classDocTopic) ;
 		
@@ -78,7 +78,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class. The first para continues here</p><p>The second starts and continues here</p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class. ") ;
+		classDocTopic.setSummary("Description of the ubus_env class. ") ;
 		
 		expTopics.add(classDocTopic) ;
 		
@@ -104,7 +104,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p><ul><li>bullet 1</li><li>bullet 2</li><li>bullet 3</li></ul>") ;
-		classDocTopic.setDescription("Description of the ubus_env class") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
 		
 		expTopics.add(classDocTopic) ;
 		
@@ -128,7 +128,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold</b> text</p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class with some <b>bold</b> text") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <b>bold</b> text") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -151,7 +151,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold text</b></p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class with some <b>bold text</b>") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <b>bold text</b>") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -174,7 +174,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined</u> text</p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class with some <u>underlined</u> text") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined</u> text") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -197,7 +197,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class with some <u>underlined text</u>") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined text</u>") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -220,7 +220,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
-		classDocTopic.setDescription("Description of the ubus_env class with some <u>underlined text</u>") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined text</u>") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -250,7 +250,7 @@ public class TestParser extends TestCase {
 								    +"this is more code\n"
 									+"more code"
 								+"</pre></blockquote>") ;
-		classDocTopic.setDescription("Description of the ubus_env class") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -280,7 +280,7 @@ public class TestParser extends TestCase {
 								    +"this is more code\n"
 									+"more code"
 								+"</pre></blockquote>") ;
-		classDocTopic.setDescription("Description of the ubus_env class") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -308,13 +308,13 @@ public class TestParser extends TestCase {
 					if(fDebug) {
 						logBody("Expecting body:", expTopic.getBody()) ;
 						logBody("Actual body:", actTopic.getBody()) ;
-						logBody("Expecting summary:", expTopic.getDescription()) ;
-						logBody("Actual summary:", actTopic.getDescription()) ;
+						logBody("Expecting summary:", expTopic.getSummary()) ;
+						logBody("Actual summary:", actTopic.getSummary()) ;
 					}
 					assertEquals("Body for topic " + expTopic.getTitle() + " differs from expected",
 							expTopic.getBody(), actTopic.getBody()) ;
 					assertEquals("Sumamry for topic " + expTopic.getTitle() + " differs from expected",
-							expTopic.getDescription(), actTopic.getDescription()) ;
+							expTopic.getSummary(), actTopic.getSummary()) ;
 					continue ;
 				}
 			}

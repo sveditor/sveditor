@@ -28,8 +28,8 @@ public class DocVarDeclItem extends DocItem implements IFieldItemAttr {
 		fTopics.add(topic) ;
 	}
 	
-	public DocVarDeclItem(String name) {
-		super(name, DocItemType.VarDeclDoc);
+	public DocVarDeclItem(String name, String summary) {
+		super(name, DocItemType.VarDeclDoc, summary);
 		fTopics = new ArrayList<DocTopic>() ;
 	}
 

@@ -27,8 +27,8 @@ public class DocFuncItem extends DocItem {
 	}
 	
 
-	public DocFuncItem(String name) {
-		super(name, DocItemType.FuncDoc);
+	public DocFuncItem(String name, String summary) {
+		super(name, DocItemType.FuncDoc, summary);
 		fTopics = new ArrayList<DocTopic>() ;
 	}
 	

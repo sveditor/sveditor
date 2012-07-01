@@ -15,22 +15,22 @@ import java.util.ArrayList;
 
 public class DocClassItem extends DocItem {
 	ArrayList<DocTopic> fTopics ;
-	private String fShortDescription ;
+//	private String fShortDescription ;
 	public ArrayList<DocTopic> getTopics() {
 		return fTopics ;
 	}
-	public String getShortDescription() {
-		return fShortDescription;
-	}
-	public void setShortDescription(String shortDescription) {
-		this.fShortDescription = shortDescription;
-	}
+//	public String getShortDescription() {
+//		return fShortDescription;
+//	}
+//	public void setShortDescription(String shortDescription) {
+//		this.fShortDescription = shortDescription;
+//	}
 	public void addTopic(DocTopic topic) {
 		fTopics.add(topic) ;
 	}
-	public DocClassItem(String name) {
-		super(name, DocItemType.ClassDoc) ;
+	public DocClassItem(String name, String summary) {
+		super(name, DocItemType.ClassDoc, summary) ;
 		fTopics = new ArrayList<DocTopic>() ;
-		fShortDescription = "Sort description of class" ;
+//		fShortDescription = "Sort description of class" ;
 	}
 }

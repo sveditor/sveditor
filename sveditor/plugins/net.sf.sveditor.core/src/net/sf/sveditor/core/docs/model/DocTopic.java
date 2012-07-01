@@ -23,17 +23,17 @@ public class DocTopic extends DocItem {
 //	String topicType ;
 	String title ;
 	String body ;
-	String description ;
+//	String summary ;
 
 	public DocTopic(String name, DocItemType type, String body, String title) {
 		this(name, type, body, title, "") ;
 	}
 
-	public DocTopic(String name, DocItemType type, String body, String title, String description) {
-		super(name, type) ;
+	public DocTopic(String name, DocItemType type, String body, String title, String summary) {
+		super(name, type, summary) ;
 		this.body = body ;
 		this.title = title ;
-		this.description = description ;
+//		this.summary = summary ;
 	}
 
 	public String getTitle() {
@@ -52,12 +52,12 @@ public class DocTopic extends DocItem {
 		this.body = body;
 	}
 
-	public void setDescription(String description) {
-		this.description = description ;
-	}
-	
-	public String getDescription() {
-		return this.description ;
-	}
+//	public void setSummary(String summary) {
+//		this.summary = summary ;
+//	}
+//	
+//	public String getSummary() {
+//		return this.summary ;
+//	}
 
 }

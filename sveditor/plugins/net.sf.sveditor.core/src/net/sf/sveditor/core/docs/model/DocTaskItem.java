@@ -26,8 +26,8 @@ public class DocTaskItem extends DocItem {
 		fTopics.add(topic) ;
 	}
 	
-	public DocTaskItem(String name) {
-		super(name, DocItemType.TaskDoc);
+	public DocTaskItem(String name, String summary) {
+		super(name, DocItemType.TaskDoc, summary) ;
 		fTopics = new ArrayList<DocTopic>() ;
 	}
 	
@@ -38,7 +38,5 @@ public class DocTaskItem extends DocItem {
 	public int getAttr() {
 		return fFieldAttr ;
 	}
-
-
 
 }

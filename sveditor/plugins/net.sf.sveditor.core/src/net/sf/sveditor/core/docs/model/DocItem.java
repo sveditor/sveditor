@@ -19,11 +19,13 @@ public class DocItem implements IDocItem {
 	private DocItemType fItemType ;
 	private String fName ;
 	private Set<DocItem> fChildren ;
+	private String fSummary ; 
 	
-	public DocItem(String name, DocItemType type) {
+	public DocItem(String name, DocItemType type, String summary) {
 		fName = name ;
 		fItemType = type ;
 		fChildren = new HashSet<DocItem>() ;
+		fSummary = summary ;
 	}
 
 	public String getName() {
@@ -48,6 +50,13 @@ public class DocItem implements IDocItem {
 
 	public void setItemType(DocItemType itemType) {
 		this.fItemType = itemType;
+	}
+	
+	public String getSummary() {
+		return fSummary ;
+	}
+	public void setSummary(String summary) {
+		this.fSummary = summary ;
 	}
 
 }

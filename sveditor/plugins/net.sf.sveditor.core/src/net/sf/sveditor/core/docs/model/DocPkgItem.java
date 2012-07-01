@@ -13,8 +13,8 @@ package net.sf.sveditor.core.docs.model;
 
 public class DocPkgItem extends DocItem {
 
-	public DocPkgItem(String name) {
-		super(name, DocItemType.PackageDoc);
+	public DocPkgItem(String name, String summary) {
+		super(name, DocItemType.PackageDoc, summary);
 	}
 
 }
