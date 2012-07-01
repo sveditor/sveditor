@@ -145,7 +145,7 @@ public class TestParser extends TestCase {
 		
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
-		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold</b> text</p>") ;
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold text</b></p>") ;
 		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
@@ -175,13 +175,13 @@ public class TestParser extends TestCase {
 	}
 		
 	public void testUnderlineMultiWord() throws Exception {
-//		fDebug = true ;
+		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "CLASS: ubus_env",
 			    "",
 			    "Description of the ubus_env class",
-			    "with some _underlined_text",
+			    "with some _underlined_text_",
 			    "",
 		} ;
 
@@ -243,6 +243,10 @@ public class TestParser extends TestCase {
 				if(topic.getTitle().equals(expTopic.getTitle())) {
 					actTopic = topic ;
 					actDocTopics.remove(topic) ;
+					if(fDebug) {
+						logBody("Expecting body:", expTopic.getBody()) ;
+						logBody("Actual body:", actTopic.getBody()) ;
+					}
 					assertEquals("Body for topic " + expTopic.getTitle() + " differs from expected",
 							expTopic.getBody(), actTopic.getBody()) ;
 					continue ;
@@ -256,6 +260,13 @@ public class TestParser extends TestCase {
 		fLog.debug(ILogLevel.LEVEL_OFF, "Done!") ;
 		
 	}
+
+	private void logBody(String msg, String body) {
+		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| " + msg ) ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, body) ;
+	}	
 
 	private void logComment(String msg, String[] lines) {
 		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------------") ;

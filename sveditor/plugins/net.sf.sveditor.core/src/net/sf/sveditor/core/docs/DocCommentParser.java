@@ -963,27 +963,30 @@ public class DocCommentParser implements IDocCommentParser {
 	            
 //	
 //	        elsif ($textBlocks[$index] eq '*')
-	    	} else if(false) {
+//	    	} else if(false) {
+	    	} else if (textBlocks.get(index).matches("\\*")) {
 //	            {
 //	            my $tagType = $self->TagType(\@textBlocks, $index);
 //	
+	    		TagType tagType = tagType(textBlocks, index) ;
+	    		
+	    		Tuple<Integer,Boolean> closingTagTuple = closingTag(textBlocks, index) ;
+	    		
 //	            if ($tagType == POSSIBLE_OPENING_TAG && $self->ClosingTag(\@textBlocks, $index, undef) != -1)
-//	                {
-//	                # ClosingTag() makes sure tags aren't opened multiple times in a row.
-//	                $bold = 1;
-//	                $output .= '<b>';
-//	                }
-//	            elsif ($bold && $tagType == POSSIBLE_CLOSING_TAG)
-//	                {
-//	                $bold = undef;
-//	                $output .= '</b>';
-//	                }
-//	            else
-//	                {
-//	                $output .= '*';
-//	                };
-//	            }
-//	
+	             if (tagType == TagType.POSSIBLE_OPENING_TAG && closingTagTuple.first() != -1) {
+	                // ClosingTag() makes sure tags aren't opened multiple times in a row.
+	                bold = true ;
+	                output += "<b>" ;
+	                }
+	             else if (bold && tagType == TagType.POSSIBLE_CLOSING_TAG)
+	                {
+	                bold = false;
+	                output += "</b>";
+	                }
+	            else {
+	                output += "*" ;
+	                } ;
+	
 	    	} else if (textBlocks.get(index).matches("_")) {
 	    		
 	    		TagType tagType = tagType(textBlocks, index) ;
@@ -1058,17 +1061,17 @@ public class DocCommentParser implements IDocCommentParser {
 	    if ( textBlocks.get(index).matches("^[\\*_<]$") &&
 
 	        // Before it must be whitespace, the beginning of the text, or ({["'-/*_.
-	        ( index == 0 || textBlocks.get(index-1).matches("[\\ \\t\\n\\(\\{\\[\"'\\-\\/\\*\\_]$")) &&
+	        ( index == 0 || textBlocks.get(index-1).matches(".*[ \\t\\n\\(\\{\\[\"'\\-\\/\\*_]$")) &&
 	
 	        // Notes for 2.0: Include Spanish upside down ! and ? as well as opening quotes (66) and apostrophes (6).  Look into
 	        // Unicode character classes as well.
 	
 	        // After it must be non-whitespace.
-	        ((index + 1 < textBlocks.size()) && !textBlocks.get(index+1).matches("^[\\ \\t\\n]")) &&
+	        ((index + 1 < textBlocks.size()) && !textBlocks.get(index+1).matches("^[ \\t\\n]")) &&
 
 	        // Make sure we don't accept <<, <=, <-, or *= as opening tags.
 	        ( !textBlocks.get(index).matches("<") || !textBlocks.get(index+1).matches("^[<=-]" )) &&
-	        ( !textBlocks.get(index).matches("*") || !textBlocks.get(index+1).matches("^[\\=\\*]")) &&
+	        ( !textBlocks.get(index).matches("\\*") || !textBlocks.get(index+1).matches("^[\\=\\*]")) &&
 	
 	        // Make sure we don't accept * or _ before it unless it's <.
 	        ( textBlocks.get(index).matches("<") || index == 0 || !textBlocks.get(index-1).matches("[\\*\\_]$") ))
@@ -1158,7 +1161,7 @@ public class DocCommentParser implements IDocCommentParser {
 
 	            // If we hit a < and we're checking whether a link is closed, it's not.  The first < becomes literal and the second one
 	            // becomes the new link opening.
-	            if (closingTag.matches("\\>"))
+	            if (closingTag.equals("\\>"))
 	                {
 	                return result ;
 	                }
@@ -1182,7 +1185,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    };
 //	                };
 	            
-	        } else if (textBlocks.get(index).matches(closingTag)) {
+	        } else if (textBlocks.get(index).equals(closingTag)) {
 
 	        	TagType tagType = tagType(textBlocks, index) ;
 
