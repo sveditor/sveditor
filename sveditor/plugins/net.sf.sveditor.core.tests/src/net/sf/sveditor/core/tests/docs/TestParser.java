@@ -5,6 +5,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
+import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -20,7 +21,7 @@ public class TestParser extends TestCase {
 		fLog = LogFactory.getLogHandle("TestParser") ;
 	}
 	
-	public void testBasicClassTopic() throws Exception {
+	public void testEmptyClassTopic() throws Exception {
 		fDebug = true ;
 		String commentLines[] =  {
 			    "",
@@ -29,6 +30,79 @@ public class TestParser extends TestCase {
 		} ;
 
 		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		expTopics.add(new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env")) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+	
+	public void testSimplClassTopic() throws Exception {
+		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "" 
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class</p>") ;
+		
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+
+	public void testClassTopicWithMultiParagraphs() throws Exception {
+		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class.",
+			    "The first para continues here",
+			    "",
+			    "The second starts",
+			    "and continues here"
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class. The first para continues here</p><p>The second starts and continues here</p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+	
+	public void testClassTopicWithList() throws Exception {
+		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "",
+			    "- bullet 1",
+			    "- bullet 2",
+			    "- bullet 3"
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class</p><ul><li>bullet 1</li><li>bullet 2</li><li>bullet 3</li></ul>") ;
+		
+		expTopics.add(classDocTopic) ;
 		
 		runTest(commentLines, expTopics) ;
 		
@@ -46,8 +120,23 @@ public class TestParser extends TestCase {
 		
 		parser.parseComment(commentLines, actDocTopics) ;
 		
-		fLog.debug(ILogLevel.LEVEL_OFF, "Done!") ;
+		for(DocTopic expTopic: expTopics) {
+			DocTopic actTopic = null ;
+			for(DocTopic topic: actDocTopics) {
+				if(topic.getTitle().equals(expTopic.getTitle())) {
+					actTopic = topic ;
+					actDocTopics.remove(topic) ;
+					assertEquals("Body for topic " + expTopic.getTitle() + " differs from expected",
+							expTopic.getBody(), actTopic.getBody()) ;
+					continue ;
+				}
+			}
+			assertNotNull("DocTopic for title(" + expTopic.getTitle() + ") not found", actTopic) ;
+		}
 		
+		assertTrue("Unexpected topics parsed", actDocTopics.size()==0) ;
+		
+		fLog.debug(ILogLevel.LEVEL_OFF, "Done!") ;
 		
 	}
 
