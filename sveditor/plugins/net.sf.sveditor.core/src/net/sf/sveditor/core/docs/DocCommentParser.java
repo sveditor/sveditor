@@ -737,7 +737,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	private void AddToCodeBlock(String line, Tuple<String,Integer> codeBlockTuple) {
 		
-		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( \\*)(.*)$") ;
+		Pattern patternLeadingWhiteSpaces = Pattern.compile("^( *)(.*)$") ;
 		Matcher matcherLeadingWhiteSpace = patternLeadingWhiteSpaces.matcher(line) ;
 		
 		String spaces = null ;

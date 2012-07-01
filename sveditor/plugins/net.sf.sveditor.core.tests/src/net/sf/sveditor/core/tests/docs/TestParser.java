@@ -22,7 +22,7 @@ public class TestParser extends TestCase {
 	}
 	
 	public void testEmptyClassTopic() throws Exception {
-		fDebug = true ;
+//		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "CLASS: ubus_env",
@@ -38,7 +38,7 @@ public class TestParser extends TestCase {
 	}
 	
 	public void testSimplClassTopic() throws Exception {
-		fDebug = true ;
+//		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "CLASS: ubus_env",
@@ -60,7 +60,7 @@ public class TestParser extends TestCase {
 	}
 
 	public void testClassTopicWithMultiParagraphs() throws Exception {
-		fDebug = true ;
+//		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "CLASS: ubus_env",
@@ -84,7 +84,7 @@ public class TestParser extends TestCase {
 	}
 	
 	public void testClassTopicWithList() throws Exception {
-		fDebug = true ;
+//		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "CLASS: ubus_env",
@@ -107,7 +107,124 @@ public class TestParser extends TestCase {
 		runTest(commentLines, expTopics) ;
 		
 	}
+	
+	public void testBold() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some *bold* text",
+			    "",
+		} ;
 
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold</b> text</p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
+	public void testBoldMultiWord() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some *bold text*",
+			    "",
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold</b> text</p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
+	public void testUnderline() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some _underlined_ text",
+			    "",
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined</u> text</p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
+	public void testUnderlineMultiWord() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some _underlined_text",
+			    "",
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
+	public void testClassTopicWithCodeBlock() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "",
+			    "| this is some code",
+			    "| this is more code", 
+			    "| more code"
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
+								+"<blockquote><pre>"
+									+"this is some code\n"
+								    +"this is more code\n"
+									+"more code"
+								+"</pre></blockquote>") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+	
 	private void runTest(String commentLines[], Set<DocTopic> expTopics) throws Exception {
 		
 		if(fDebug) {
