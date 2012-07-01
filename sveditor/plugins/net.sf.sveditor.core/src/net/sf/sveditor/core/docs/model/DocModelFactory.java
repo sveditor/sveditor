@@ -227,8 +227,6 @@ public class DocModelFactory {
 							}
 						} else {
 						}
-						// TODO: check for doc comments associated with variable decl
-//						docVarItem.addChild(docVarItem) ;
 					}
 				}
 				continue ;

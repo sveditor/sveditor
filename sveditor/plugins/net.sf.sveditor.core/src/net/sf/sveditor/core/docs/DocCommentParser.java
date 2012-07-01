@@ -439,6 +439,10 @@ public class DocCommentParser implements IDocCommentParser {
 		fTagEnders.put(Tag.TAGCODE, "</code>") ;
 	}
 	
+//	            else if ($prevLineBlank && $commentLines->[$index] =~ /^(.*)([^ ]):$/) {
+	
+	private static Pattern headerLinePattern = Pattern.compile("^(.*)([^ ]):$") ;
+	
 	//
 	//    Function: FormatBody
 	//
@@ -478,6 +482,8 @@ public class DocCommentParser implements IDocCommentParser {
 	    	
 	    	Pattern codeDesignatorPattern = Pattern.compile("^ *[>:|](.*)$") ;
 	    	Matcher codeDesignatorMatcher = codeDesignatorPattern.matcher(lines[index]) ;
+	    	
+	    	Matcher headerLineMatcher = headerLinePattern.matcher(lines[index]) ;
 	    
 	        // If we're in a tagged code section...
 	    	//
@@ -616,29 +622,37 @@ public class DocCommentParser implements IDocCommentParser {
 //	                $prevLineBlank = undef;
 //	                }
 //	
-//	            # If the line could be a header...
-//	            elsif ($prevLineBlank && $commentLines->[$index] =~ /^(.*)([^ ]):$/)
-//	                {
+	            // If the line could be a header...
+//	            else if ($prevLineBlank && $commentLines->[$index] =~ /^(.*)([^ ]):$/) {
+	            else if (prevLineBlank && headerLineMatcher.matches()) {
+	            
 //	                my $headerText = $1 . $2;
+	            	
+	            	String headerText = headerLineMatcher.group(1) + headerLineMatcher.group(2) ; 
 //	
 //	                if (defined $textBlock)
 //	                    {
 //	                    $output .= $self->RichFormatTextBlock($textBlock);
 //	                    $textBlock = undef;
 //	                    }
-//	
-//	                $output .= $tagEnders{$topLevelTag};
-//	                $topLevelTag = TAG_NONE;
-//	
-//	                $output .= '<h>' . $self->RichFormatTextBlock($headerText) . '</h>';
-//	
-//	                if ($type eq ::TOPIC_FUNCTION() && $isList)
+	            	
+	            	if(textBlock != null) {
+	            		output += richFormatTextBlock(textBlock) ;
+	            		textBlock = null ;
+	            	}
+	            	
+	            	output += fTagEnders.get(topLevelTag) ;
+	            	topLevelTag = Tag.NONE ;
+
+	                output += "<h4 class=CHeading>" + richFormatTextBlock(headerText) + "</h4>" ;
+	
+//	                if (type eq ::TOPIC_FUNCTION() && $isList)
 //	                    {
 //	                    $ignoreListSymbols = exists $functionListIgnoredHeadings{lc($headerText)};
 //	                    };
-//	
-//	                $prevLineBlank = undef;
-//	                }
+	
+	                prevLineBlank = false ;
+	            }
 //	
 //	            # If the line looks like a code tag...
 //	            elsif ($commentLines->[$index] =~ /^\( *(?:(?:start|begin)? +)?(table|code|example|diagram) *\)$/i)

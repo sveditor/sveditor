@@ -60,6 +60,34 @@ public class TestParser extends TestCase {
 		
 	}
 
+	public void testSimplClassTopicWithHeaderLine() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "" ,
+			    "This is a header line:",
+			    "",
+			    "More stuff following header"
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
+								+"<h>This is a header line</h>"
+								+"<p>More stuff following header</p>") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
+		
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+
 	public void testClassTopicWithMultiParagraphs() throws Exception {
 //		fDebug = true ;
 		String commentLines[] =  {
