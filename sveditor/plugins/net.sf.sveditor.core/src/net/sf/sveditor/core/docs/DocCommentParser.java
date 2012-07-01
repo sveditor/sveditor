@@ -960,19 +960,13 @@ public class DocCommentParser implements IDocCommentParser {
 	                
 	                output += "&lt;" ;
 	            }
-	            
-//	
-//	        elsif ($textBlocks[$index] eq '*')
-//	    	} else if(false) {
+
 	    	} else if (textBlocks.get(index).matches("\\*")) {
-//	            {
-//	            my $tagType = $self->TagType(\@textBlocks, $index);
-//	
+	    		
 	    		TagType tagType = tagType(textBlocks, index) ;
 	    		
 	    		Tuple<Integer,Boolean> closingTagTuple = closingTag(textBlocks, index) ;
 	    		
-//	            if ($tagType == POSSIBLE_OPENING_TAG && $self->ClosingTag(\@textBlocks, $index, undef) != -1)
 	             if (tagType == TagType.POSSIBLE_OPENING_TAG && closingTagTuple.first() != -1) {
 	                // ClosingTag() makes sure tags aren't opened multiple times in a row.
 	                bold = true ;
@@ -1167,25 +1161,29 @@ public class DocCommentParser implements IDocCommentParser {
 	                {
 	                return result ;
 	                }
-//	
-//	            # If we're not searching for the end of a link, we have to skip the link because formatting tags cannot appear within
-//	            # them.  That's of course provided it's closed.
-//	            else
-//	                {
-//	                my $linkHasWhitespace;
-//	
-//	                my $endIndex = $self->ClosingTag($textBlocks, $index,
-//	                                                                    ($hasWhitespaceRef && !$hasWhitespace ? \$linkHasWhitespace : undef) );
-//	
-//	                if ($endIndex != -1)
-//	                    {
-//	                    if ($linkHasWhitespace)
-//	                        {  $hasWhitespace = 1;  };
-//	
-//	                    # index will be incremented again at the end of the loop, which will bring us past the link's >.
-//	                    $index = $endIndex;
-//	                    };
-//	                };
+	
+	            // If we're not searching for the end of a link, we have to skip the link because formatting tags cannot appear within
+	            // them.  That's of course provided it's closed.
+	            else
+	                {
+//	                boolean linkHasWhitespace;
+	
+//	                int $endIndex = $self->ClosingTag($textBlocks, $index,
+//	                                 ($hasWhitespaceRef && !$hasWhitespace ? \$linkHasWhitespace : undef) );
+//	                int $endIndex = closingTag(textBlocks, index) ;
+	                Tuple<Integer, Boolean> closingTagTuple = closingTag(textBlocks, index) ;
+	                
+	                int endIndex = closingTagTuple.first() ;
+	                boolean linkHasWhitespace = closingTagTuple.second() ; 
+	
+	                if (endIndex != -1) {
+	                    if (linkHasWhitespace)
+	                        {  hasWhitespace = true ;  };
+	
+	                    // index will be incremented again at the end of the loop, which will bring us past the link's >.
+	                    index = endIndex;
+	                    }
+	                }
 	            
 	        } else if (textBlocks.get(index).equals(closingTag)) {
 
