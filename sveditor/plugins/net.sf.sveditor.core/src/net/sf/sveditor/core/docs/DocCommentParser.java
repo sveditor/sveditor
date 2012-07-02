@@ -43,33 +43,35 @@ import net.sf.sveditor.core.log.LogHandle;
 
 public class DocCommentParser implements IDocCommentParser {
 	
-	private static Pattern fIsDocCommentPattern ;
-	
 	private LogHandle fLog ;
 	
-	// FIXME: this should be replaced by something along the lines of the Topic interface from ND
-	
-	static {
-		fIsDocCommentPattern = Pattern.compile(
-						"("
-					+		"class"
-					+   	"|task"
-					+   	"|function"
-					+   ")\\s*:\\s*(\\w+)",
-			Pattern.CASE_INSENSITIVE) ;
-	}
+	private IDocTopics fDocTopics ;
 	
 	public DocCommentParser() {
 		fLog = LogFactory.getLogHandle("DocCommentParser") ;
+		fDocTopics = new DocTopics() ;
 	}
+	
+	private static Pattern fPatternHeaderLine = 
+			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
+	
+	private static Pattern fPatternIsDocComment = 
+			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*?) *\\n.*",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
+	
+    private static Pattern fPatternCodeSectionEnd = 
+    		Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
 
 	public String isDocComment(String comment) {
-		Matcher matcher = fIsDocCommentPattern.matcher(comment) ;
-		if(matcher.find()) {
-			return matcher.group(2) ;
-		} else {
-			return null ;
+		
+		Matcher matcher = fPatternIsDocComment.matcher(comment) ;
+		
+		if(matcher.matches()) {
+			String keyword = matcher.group(1) ;
+			if(fDocTopics.getTopicType(keyword) != null) {
+				return matcher.group(2) ;
+			} 
 		}
+		return null ;
 	}
 
 	public void parse(String comment, Set<DocTopic> docTopics) {
@@ -101,37 +103,10 @@ public class DocCommentParser implements IDocCommentParser {
 		
 	}
 
-
-
-//	###############################################################################
-//	#
-//	#   Package: NaturalDocs::Parser::Native
-//	#
-//	###############################################################################
-//	#
-//	#   A package that converts comments from Natural Docs' native format into <NaturalDocs::Parser::ParsedTopic> objects.
-//	#   Unlike most second-level packages, these are packages and not object classes.
-//	#
-//	###############################################################################
-//	
-//	# This file is part of Natural Docs, which is Copyright  2003-2010 Greg Valure
-//	# Natural Docs is licensed under version 3 of the GNU Affero General Public License (AGPL)
-//	# Refer to License.txt for the complete details
-//	
-//	
-//	use strict;
-//	use integer;
-//	
-//	package NaturalDocs::Parser::Native;
-//	
-//	
-//	###############################################################################
-//	# Group: Variables
-
 	enum TagType { POSSIBLE_OPENING_TAG,
 				   POSSIBLE_CLOSING_TAG,
 				   NOT_A_TAG } ;
-//	
+
 //	
 //	#
 //	#   var: package
@@ -156,12 +131,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	                                                       'argument' => 1,
 //	                                                       'args' => 1,
 //	                                                       'arg' => 1 );
-//	
-//	
-//	###############################################################################
-//	# Group: Interface Functions
-//	
-
 
 //#
 //#   Constants: ScopeType
@@ -211,11 +180,9 @@ public class DocCommentParser implements IDocCommentParser {
 	    
 	        // Everything but leading whitespace was removed beforehand.
 	    	
-	    	// FIXME: move out into a static. No need to recompile the pattern each comment
-        	Pattern codeSectionEnd = Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
 
 	        if (inCodeSection) {
-	            if (codeSectionEnd.matcher(lines[index]).matches()) {  inCodeSection = false ;  }
+	            if (fPatternCodeSectionEnd.matcher(lines[index]).matches()) {  inCodeSection = false ;  }
 	
 	            prevLineBlank = false ;
 	            bodyEnd++ ;
@@ -323,10 +290,8 @@ public class DocCommentParser implements IDocCommentParser {
 	@SuppressWarnings("unused")
 	private boolean parseHeaderLine(Tuple<String, String> tupleKeywordTitle, String line) {
 		
-		// FIXME: make static
-		Pattern patternHeaderLine = Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
 		
-		Matcher matcher = patternHeaderLine.matcher(line) ;
+		Matcher matcher = fPatternHeaderLine.matcher(line) ;
 		
 		if(matcher.matches()) {
 			
@@ -823,7 +788,6 @@ public class DocCommentParser implements IDocCommentParser {
 	//       The formatted text block.
 	//
 	
-	@SuppressWarnings("unused")
 	private String richFormatTextBlock(String text) {
 		
 		String output = "" ;
@@ -1482,6 +1446,7 @@ public class DocCommentParser implements IDocCommentParser {
 	//
 	//   Replaces <NDMarkup> amp chars with their original symbols.
 	//
+	@SuppressWarnings("unused")
 	private String restoreAmpChars(String text) {
 	
 	    text = text.replaceAll("&quot;","\"") ;

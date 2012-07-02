@@ -1,3 +1,14 @@
+/****************************************************************************
+ * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Armond Paiva - initial implementation
+ ****************************************************************************/
+
 package net.sf.sveditor.core.tests.docs;
 
 import java.util.HashSet;
@@ -78,7 +89,7 @@ public class TestParser extends TestCase {
 		DocTopic classDocTopic = new DocTopic("ubus_env", DocItemType.Topic, "", "ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
-								+"<h>This is a header line</h>"
+								+"<h4 class=CHeading>This is a header line</h4>"
 								+"<p>More stuff following header</p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class") ;
 		
