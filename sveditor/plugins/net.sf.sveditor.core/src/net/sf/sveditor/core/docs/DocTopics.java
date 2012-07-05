@@ -65,6 +65,7 @@ public class DocTopics implements IDocTopics {
 		registerKeywordForTopicType(TOPIC_TASK, 	"task", 	"tasks") ;
 		registerKeywordForTopicType(TOPIC_FUNCTION, "function", "functions") ;
 		registerKeywordForTopicType(TOPIC_FUNCTION, "func", 	"funcs") ;
+		registerKeywordForTopicType(TOPIC_PROPERTY, "property", "properties") ;
 		
 	}
 

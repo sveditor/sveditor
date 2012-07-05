@@ -14,7 +14,7 @@ package net.sf.sveditor.core.docs.model;
 public class DocSectionItem extends DocItem {
 
 	public DocSectionItem(String name, String summary) {
-		super(name, DocItemType.PackageSection) ;
+		super(name, DocItemType.PACKAGESECTION) ;
 	}
 
 	public DocSectionItem(String title) {

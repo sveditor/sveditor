@@ -99,22 +99,27 @@ public class DocModelFactory {
 								fParser.parse(docCom.getRawComment(),docTopics) ;
 								for(DocItem topic: docTopics) {
 									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getName()) ;
-//									docFile.addChild(topic) ;
+									switch(topic.getType()) {
+										case CLASS:
+										case PACKAGE:
+											parent = docFile ;
+											break ;
+										default:
+											break ;
+									}
 									parent.addChild(topic) ;
 									fileHasDocs = true ;
 									switch(topic.getType()) {
-									case CLASS:
-										parent = topic ;
-										fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to class("+ topic.getName() + ")") ;
-										break ;
-									case TASK:
-									case FUNC:
-										break ;
-									case PACKAGE:	
-									default:
-										parent = docFile ;	
-										fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to file") ;
-										break ;
+										case TASK:
+										case FUNC:
+										case VARDECL:
+											break ;
+										case CLASS:
+										case PACKAGE:	
+										default:
+											parent = topic ;
+											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getName() + ")") ;
+											break ;
 									}
 								}
 							}
@@ -176,9 +181,7 @@ public class DocModelFactory {
 								svdbTask.getName(), 
 								pkgSvdbIndex) ;
 				fSymbolTable.addSymbol(taskSTE) ;
-				continue ;
-			}
-			if(ci.getType() == SVDBItemType.Function) {
+			} else if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
 				SymbolTableEntry funcSTE =
 						SymbolTableEntry.createClassMemberEntry(pkgDeclCacheItem.getName(), 
@@ -186,9 +189,7 @@ public class DocModelFactory {
 								svdbFunction.getName(), 
 								pkgSvdbIndex) ;
 				fSymbolTable.addSymbol(funcSTE) ;
-				continue ;
-			}
-			if(ci.getType() == SVDBItemType.VarDeclStmt) {
+			} else if(ci.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
 				for(ISVDBChildItem varItem: varDecl.getChildren()) {
 					if(varItem instanceof SVDBVarDeclItem) {
@@ -201,7 +202,6 @@ public class DocModelFactory {
 						fSymbolTable.addSymbol(varSTE) ;
 					}
 				}
-				continue ;
 			}
 		}		
 		
@@ -352,31 +352,6 @@ public class DocModelFactory {
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
-//				DocTaskItem taskItem = new DocTaskItem(svdbTask.getName()) ;
-//				classDocItem.addChild(taskItem) ;
-//				SVDBDocComment docComment = findDocCommentByName(ppFile, taskItem.getName()) ;
-//				SVDBDocComment docComment = findDocCommentByName(ppFile, svdbTask.getName()) ;
-				
-//				if(docComment != null) {
-//					fLog.debug(ILogLevel.LEVEL_MID, 
-//							"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + svdbTask.getName() + "\"") ;
-//					Set<DocItem> docTopics = new HashSet<DocItem>() ;
-//					fParser.parse(docComment.getRawComment(),docTopics) ;
-//					fLog.debug(ILogLevel.LEVEL_MID,
-//							"Parsed out the following topics") ;
-//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//					for(DocItem topic: docTopics) {
-//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
-//						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//						taskItem.addChild(topic) ;
-//						taskItem.setSummary(topic.getSummary()) ;
-//					}
-//				} else {
-//
-//				}
 				for(DocItem docItem: classDocItem.getChildren()) {
 					if(docItem.getName().equals(svdbTask.getName())) {
 						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
@@ -389,15 +364,51 @@ public class DocModelFactory {
 							fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
 							symbolEntry.setDocPath(docFile.getDocPath()) ;
 							symbolEntry.setDocumented(true) ;
-//							if(docItem instanceof DocClassItem) {
-//								indexClass((DocClassItem)docItem,model) ;  
-//								gatherClassMembers((DocClassItem)docItem, pkgDecl, model, isvdbIndex, ppFile) ;
-//							}
 						}
 						break ;
 					}
 				}
-				continue ;
+			}
+			if(ci.getType() == SVDBItemType.Function) {
+				SVDBFunction svdbFunc = (SVDBFunction)ci ;
+				for(DocItem docItem: classDocItem.getChildren()) {
+					if(docItem.getName().equals(svdbFunc.getName())) {
+						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
+						docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
+						String symbol = docItem.getQualifiedName() ;
+						SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+						if(symbolEntry == null) {
+							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+						} else {
+							fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
+							symbolEntry.setDocPath(docFile.getDocPath()) ;
+							symbolEntry.setDocumented(true) ;
+						}
+						break ;
+					}
+				}
+			}
+			if(ci.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt svdbVarDeclStmt = (SVDBVarDeclStmt)ci ;
+				for(ISVDBChildItem child: svdbVarDeclStmt.getChildren()) {
+					SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
+					for(DocItem docItem: classDocItem.getChildren()) {
+						if(docItem.getName().equals(varDeclItem.getName())) {
+							docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
+							docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
+							String symbol = docItem.getQualifiedName() ;
+							SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+							if(symbolEntry == null) {
+								fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+							} else {
+								fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
+								symbolEntry.setDocPath(docFile.getDocPath()) ;
+								symbolEntry.setDocumented(true) ;
+							}
+							break ;
+						}
+					}
+				}
 			}
 			/*
 			if(ci.getType() == SVDBItemType.Function) {

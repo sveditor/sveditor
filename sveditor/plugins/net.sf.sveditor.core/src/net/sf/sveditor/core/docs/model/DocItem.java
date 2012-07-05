@@ -11,7 +11,9 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class DocItem implements IDocItem {
@@ -22,7 +24,7 @@ public class DocItem implements IDocItem {
 	private String fName ; // FIXME: change to fTitle
 	private String fSummary ; 
 	private String fBody ;
-	private Set<DocItem> fChildren ;
+	private List<DocItem> fChildren ;
 	private String fEnclosingPkg ; 
 	private String fEnclosingClass ; 
 	private DocFile fDocFile ;
@@ -30,7 +32,7 @@ public class DocItem implements IDocItem {
 	public DocItem(String name, DocItemType type) {
 		fName = name ;
 		fItemType = type ;
-		fChildren = new HashSet<DocItem>() ;
+		fChildren = new ArrayList<DocItem>() ;
 		fSummary = "" ;
 		fBody = "" ;
 		fEnclosingPkg = "" ;
@@ -66,7 +68,7 @@ public class DocItem implements IDocItem {
 		child.setDocFile(getDocFile()) ;
 	}
 	
-	public Set<DocItem> getChildren() {
+	public List<DocItem> getChildren() {
 		return fChildren ;
 	}
 

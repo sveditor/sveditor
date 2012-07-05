@@ -51,24 +51,6 @@ public class FileFactory {
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
 		res += genContent(docFile) ;
-//		res += genClassStart() ;
-//		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-//		res += HTMLUtils.genCTitle(classItem.getName()) ;
-//		res += HTMLUtils.genCBodyBegin() ;
-//		res += genSummaryStart(classItem) ;
-//		res += HTMLUtils.genSummaryBegin() ;
-//		res += HTMLUtils.genSTitle() ;
-//		res += HTMLUtils.genSBorderBegin() ;
-//		res += HTMLUtils.genSTableBegin() ;
-//		res += genSTRMain(classItem) ;
-//		res += genSummaryMembers(classItem) ;
-//		res += HTMLUtils.genSTableEnd() ;
-//		res += HTMLUtils.genSBorderEnd() ;
-//		res += HTMLUtils.genSummaryEnd() ;
-//		res += HTMLUtils.genCBodyEnd() ;
-//		res += HTMLUtils.genCTopicEnd() ;
-//		res += genClassEnd() ;
-//		res += genMemberDetail(classItem) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
 		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getName()),"FIXME-I-NEED-A-SOMETHING") ;
@@ -79,13 +61,7 @@ public class FileFactory {
 	
 	private String genSummaryStart(DocClassItem classItem) {
 		String result = "" ;
-		// Note: this iteration of topics attached to the class item seems wrong.
-		// Will there be more than one topic for class? If not, then
-		// the contained set of topics (which is just one topic) can be 
-		// swallowed by the class item.
-		for(DocItem topic: classItem.getChildren()) {
-			result += topic.getBody() ;
-		}
+		result += classItem.getSummary() ;
 		return result ;
 	}
 
@@ -112,15 +88,6 @@ public class FileFactory {
 			+ "<td class=SDescription>" ;
 		
 			result += classItem.getSummary() ;
-
-////		if(classItem.getTopics().size()==0) {
-//			result += 
-//				  "This will become the class description" + "</td>" ;
-////		} else {
-////			for(DocTopic topic: classItem.getTopics()) {
-////				result += topic.getBody() ;
-////			}
-////		}
 			result += "</tr>" ;
 		return result ;
 	}	
@@ -142,6 +109,7 @@ public class FileFactory {
 			switch(contentItem.getType()) {
 			case CLASS: {
 				res += genClass((DocClassItem)contentItem) ;
+				break ;
 			}
 			default: { }
 			}
@@ -249,9 +217,7 @@ public class FileFactory {
 				    + taskItem.getName() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-		for(DocItem topic: taskItem.getChildren()) {
-			res += topic.getBody() ;
-		}
+		res += taskItem.getBody() ;
 		res +=
 				      "</div>"
 			    + "</div>"
@@ -268,9 +234,7 @@ public class FileFactory {
 				    + func.getName() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-		for(DocItem topic: func.getChildren()) {
-			res += topic.getBody() ;
-		}
+		res += func.getBody() ;
 		res +=
 				      "</div>"
 			    + "</div>"
@@ -289,9 +253,7 @@ public class FileFactory {
 					    + varItem.getName()
 					    + "</h3>"
 					    + "<div class=CBody>" ; 
-		for(DocItem topic: varItem.getChildren()) {
-			res += topic.getBody() ;
-		}
+		res += varItem.getBody() ;
 		res += 
 					      "</div>"
 				    + "</div>"

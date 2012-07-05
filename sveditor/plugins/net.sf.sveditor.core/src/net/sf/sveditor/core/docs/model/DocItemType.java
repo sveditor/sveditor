@@ -7,7 +7,7 @@ public enum DocItemType {
 	FUNC,
 	VARDECL,
 	TOPIC, 
-	PackageSection, 
+	PACKAGESECTION, 
 	FILE, 
 	GENERAL
 }
