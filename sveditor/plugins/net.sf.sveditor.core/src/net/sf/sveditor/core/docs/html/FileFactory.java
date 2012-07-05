@@ -59,9 +59,9 @@ public class FileFactory {
 	}
 	
 	
-	private String genSummaryStart(DocClassItem classItem) {
+	private String genSummaryStart(DocItem docItem) {
 		String result = "" ;
-		result += classItem.getSummary() ;
+		result += docItem.getSummary() ;
 		return result ;
 	}
 
@@ -78,16 +78,16 @@ public class FileFactory {
 		return res ;
 	}
 
-	static String genSTRMain(DocClassItem classItem) {
+	static String genSTRMain(DocItem docItem) {
 		String result =
 			  "<tr class=\"SMain\">"
 				   + "<td class=SIcon>"
-							 + "<img src=" + getRelPathToHTML(classItem.getDocFile().getName()) + HTMLIconUtils.getImagePath(classItem) + ">"
+							 + "<img src=" + getRelPathToHTML(docItem.getDocFile().getName()) + HTMLIconUtils.getImagePath(docItem) + ">"
 							 + "</td>"
-			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
+			+ "<td class=SEntry><a href=\"#" +docItem.getName()+ "\" >" +docItem.getName()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
 		
-			result += classItem.getSummary() ;
+			result += docItem.getSummary() ;
 			result += "</tr>" ;
 		return result ;
 	}	
@@ -105,10 +105,13 @@ public class FileFactory {
 	
 	private String genContent(DocFile docFile) {
 		String res = "" ;
+		if(docFile.getChildren().size() > 1) {
+			res += genFileSummary(docFile) ;
+		}
 		for(DocItem contentItem: docFile.getChildren()) {
 			switch(contentItem.getType()) {
 			case CLASS: {
-				res += genClass((DocClassItem)contentItem) ;
+				res += genClass(docFile, (DocClassItem)contentItem) ;
 				break ;
 			}
 			default: { }
@@ -117,7 +120,26 @@ public class FileFactory {
 		return res ;
 	}
 	
-	private String genClass(DocClassItem classItem) {
+	private String genFileSummary(DocFile docFile) {
+		String res = "" ;
+		res += genSummaryStart(docFile) ;
+		res += HTMLUtils.genSummaryBegin() ;
+		res += HTMLUtils.genSTitle() ;
+		res += HTMLUtils.genSBorderBegin() ;
+		res += HTMLUtils.genSTableBegin() ;
+		for(DocItem docItem: docFile.getChildren()) {
+			if(docItem instanceof DocClassItem){
+				res += genSTRMain(docFile) ;
+				res += genSummaryMembers(docFile, (DocClassItem)docItem) ;
+			}
+		}
+		res += HTMLUtils.genSTableEnd() ;
+		res += HTMLUtils.genSBorderEnd() ;
+		res += HTMLUtils.genSummaryEnd() ;
+		return res ;
+	}
+
+	private String genClass(DocFile docFile, DocClassItem classItem) {
 		String res = "" ;
 		res += genClassStart() ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
@@ -129,7 +151,7 @@ public class FileFactory {
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
 		res += genSTRMain(classItem) ;
-		res += genSummaryMembers(classItem) ;
+		res += genSummaryMembers(docFile, classItem) ;
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
 		res += HTMLUtils.genSummaryEnd() ;
@@ -140,24 +162,24 @@ public class FileFactory {
 		return res ;
 	}
 
-	private String genSummaryMembers(DocClassItem classItem) {
+	private String genSummaryMembers(DocFile docFile, DocClassItem classDocItem) {
 		String res = "" ;
-		for(DocItem child: classItem.getChildren()) {
+		for(DocItem child: classDocItem.getChildren()) {
 			if(child.getType() == DocItemType.VARDECL) 
-				res += genSummaryVarDecl(classItem, (DocVarDeclItem)child) ;
+				res += genSummaryVarDecl(docFile, classDocItem, (DocVarDeclItem)child) ;
 			else if(child.getType() == DocItemType.FUNC) 
-				res += genSummaryFuncDecl(classItem, (DocFuncItem)child) ;
+				res += genSummaryFuncDecl(docFile, classDocItem, (DocFuncItem)child) ;
 			else if(child.getType() == DocItemType.TASK) 
-				res += genSummaryTaskDecl(classItem, (DocTaskItem)child) ;
+				res += genSummaryTaskDecl(docFile, classDocItem, (DocTaskItem)child) ;
 		}
 		return res ;
 	}
 
-	private String genSummaryVarDecl(DocClassItem classItem, DocVarDeclItem varItem) {
+	private String genSummaryVarDecl(DocFile docFile, DocClassItem classItem, DocVarDeclItem varItem) {
 		String res =
 				 "<tr class=\"SVariable SIndent2 SMarked\">" 
 			   + "<td class=SIcon>"
-						 + "<img src=../../" + HTMLIconUtils.getImagePath(varItem) + ">"
+						 + "<img src="  + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(varItem) + ">"
 						 + "</td>"
 			   + "<td class=SEntry><a href=\"#" 
 						 + classItem.getName()
@@ -171,11 +193,11 @@ public class FileFactory {
 		return res ;
 	}
 	
-	private String genSummaryTaskDecl(DocClassItem classItem, DocTaskItem task) {
+	private String genSummaryTaskDecl(DocFile docFile, DocClassItem classItem, DocTaskItem task) {
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=../../" + HTMLIconUtils.getImagePath(task) + ">"
+					 + "<img src=" + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(task) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
 					 + classItem.getName()
@@ -190,11 +212,11 @@ public class FileFactory {
 	}
 
 
-	private String genSummaryFuncDecl(DocClassItem classItem, DocFuncItem func) {
+	private String genSummaryFuncDecl(DocFile docFile, DocClassItem classItem, DocFuncItem func) {
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=../../" + HTMLIconUtils.getImagePath(func) + ">"
+					 + "<img src=" + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(func) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
 					 + classItem.getName()
