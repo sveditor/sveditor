@@ -11,52 +11,71 @@
 
 package net.sf.sveditor.core.docs.html;
 
+import java.io.File;
+
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocFile;
 import net.sf.sveditor.core.docs.model.DocFuncItem;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 
-public class HTMLClassFactory {
+public class FileFactory {
 	
 	@SuppressWarnings("unused")
 	private DocGenConfig cfg ;
 	
-	public HTMLClassFactory(DocGenConfig cfg) {
+	public FileFactory(DocGenConfig cfg) {
 		this.cfg = cfg ;
 	}
 	
-	public String build(DocClassItem classItem) {
+	public static String getRelPathToHTML(String path) {
+		String res = "" ;
+		File filePath = new File(path) ;
+		int numParents=0 ;
+		while(filePath.getParentFile() != null) {
+			numParents++ ;
+			filePath = filePath.getParentFile() ;  
+		}
+		for(int i=0 ; i<numParents ; i++) {
+			res += "../" ;
+		}
+		return res ;
+	}
+	
+	public String build(DocFile docFile) {
 		String res = HTMLUtils.STR_DOCTYPE ;
-		res += HTMLUtils.genHTMLHeadStart("../..",classItem.getName()) ;
+		res += HTMLUtils.genHTMLHeadStart(getRelPathToHTML(docFile.getName()),"FIXME-I-NEED-A-TITLE") ;
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
-		res += genClassStart() ;
-		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(classItem.getName()) ;
-		res += HTMLUtils.genCBodyBegin() ;
-		res += genSummaryStart(classItem) ;
-		res += HTMLUtils.genSummaryBegin() ;
-		res += HTMLUtils.genSTitle() ;
-		res += HTMLUtils.genSBorderBegin() ;
-		res += HTMLUtils.genSTableBegin() ;
-		res += genSTRMain(classItem) ;
-		res += genSummaryMembers(classItem) ;
-		res += HTMLUtils.genSTableEnd() ;
-		res += HTMLUtils.genSBorderEnd() ;
-		res += HTMLUtils.genSummaryEnd() ;
-		res += HTMLUtils.genCBodyEnd() ;
-		res += HTMLUtils.genCTopicEnd() ;
-		res += genClassEnd() ;
-		res += genMemberDetail(classItem) ;
+		res += genContent(docFile) ;
+//		res += genClassStart() ;
+//		res += HTMLUtils.genCTopicBegin("MainTopic") ;
+//		res += HTMLUtils.genCTitle(classItem.getName()) ;
+//		res += HTMLUtils.genCBodyBegin() ;
+//		res += genSummaryStart(classItem) ;
+//		res += HTMLUtils.genSummaryBegin() ;
+//		res += HTMLUtils.genSTitle() ;
+//		res += HTMLUtils.genSBorderBegin() ;
+//		res += HTMLUtils.genSTableBegin() ;
+//		res += genSTRMain(classItem) ;
+//		res += genSummaryMembers(classItem) ;
+//		res += HTMLUtils.genSTableEnd() ;
+//		res += HTMLUtils.genSBorderEnd() ;
+//		res += HTMLUtils.genSummaryEnd() ;
+//		res += HTMLUtils.genCBodyEnd() ;
+//		res += HTMLUtils.genCTopicEnd() ;
+//		res += genClassEnd() ;
+//		res += genMemberDetail(classItem) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu("../..", classItem.getName()) ;
+		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getName()),"FIXME-I-NEED-A-SOMETHING") ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
+	
 	
 	private String genSummaryStart(DocClassItem classItem) {
 		String result = "" ;
@@ -87,7 +106,7 @@ public class HTMLClassFactory {
 		String result =
 			  "<tr class=\"SMain\">"
 				   + "<td class=SIcon>"
-							 + "<img src=../../" + HTMLIconUtils.getImagePath(classItem) + ">"
+							 + "<img src=" + getRelPathToHTML(classItem.getDocFile().getName()) + HTMLIconUtils.getImagePath(classItem) + ">"
 							 + "</td>"
 			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
@@ -117,6 +136,42 @@ public class HTMLClassFactory {
 		return res ;
 	}
 	
+	private String genContent(DocFile docFile) {
+		String res = "" ;
+		for(DocItem contentItem: docFile.getChildren()) {
+			switch(contentItem.getType()) {
+			case CLASS: {
+				res += genClass((DocClassItem)contentItem) ;
+			}
+			default: { }
+			}
+		}
+		return res ;
+	}
+	
+	private String genClass(DocClassItem classItem) {
+		String res = "" ;
+		res += genClassStart() ;
+		res += HTMLUtils.genCTopicBegin("MainTopic") ;
+		res += HTMLUtils.genCTitle(classItem.getQualifiedName()) ;
+		res += HTMLUtils.genCBodyBegin() ;
+		res += genSummaryStart(classItem) ;
+		res += HTMLUtils.genSummaryBegin() ;
+		res += HTMLUtils.genSTitle() ;
+		res += HTMLUtils.genSBorderBegin() ;
+		res += HTMLUtils.genSTableBegin() ;
+		res += genSTRMain(classItem) ;
+		res += genSummaryMembers(classItem) ;
+		res += HTMLUtils.genSTableEnd() ;
+		res += HTMLUtils.genSBorderEnd() ;
+		res += HTMLUtils.genSummaryEnd() ;
+		res += HTMLUtils.genCBodyEnd() ;
+		res += HTMLUtils.genCTopicEnd() ;
+		res += genClassEnd() ;
+		res += genMemberDetail(classItem) ;		
+		return res ;
+	}
+
 	private String genSummaryMembers(DocClassItem classItem) {
 		String res = "" ;
 		for(DocItem child: classItem.getChildren()) {

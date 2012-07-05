@@ -198,6 +198,10 @@ public class HTMLUtils {
 		return new File(cfg.getOutputDir(), "html") ;
 	}	
 	
+	public static File getFilesDir(DocGenConfig cfg) {
+		return new File(getHTMLDir(cfg), "files") ;
+	}
+	
 	public static File getPkgClassDir(DocGenConfig cfg, String pkgName) {
 		return new File(getClassesDir(cfg),pkgName) ;
 	}
@@ -211,6 +215,12 @@ public class HTMLUtils {
 	}
 	public static File getScriptsDir(DocGenConfig cfg) {
 		return new File(getHTMLDir(cfg), "scripts") ;
+	}
+
+	public static File getHTMLFileForSrcPath(DocGenConfig cfg, String srcPath) {
+//		String srcPathCleaned = srcPath.replaceAll("\\.", "_") ;
+//		return new File(getFilesDir(cfg),srcPathCleaned+".html") ;
+		return new File(getFilesDir(cfg),srcPath+".html") ;
 	}	
 	
 }

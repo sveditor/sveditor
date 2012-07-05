@@ -11,10 +11,9 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocPkgItem extends DocItem {
 
-	public DocPkgItem(String name) {
-		super(name, DocItemType.PACKAGE) ;
+public class DocGeneralItem extends DocItem {
+	public DocGeneralItem(String name) {
+		super(name, DocItemType.GENERAL) ;
 	}
-
 }

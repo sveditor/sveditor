@@ -11,10 +11,21 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocPkgItem extends DocItem {
+public class DocFile extends DocItem {
+	
+	String fDocPath ;
 
-	public DocPkgItem(String name) {
-		super(name, DocItemType.PACKAGE) ;
+	public DocFile(String name) {
+		super(name, DocItemType.FILE) ;
+		setDocFile(this) ;
+	}
+
+	public void setDocPath(String path) {
+		fDocPath = path ;
+	}
+	
+	public String getDocPath() {
+		return fDocPath ;
 	}
 
 }

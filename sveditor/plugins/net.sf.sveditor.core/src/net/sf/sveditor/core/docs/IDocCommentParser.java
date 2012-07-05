@@ -13,14 +13,14 @@ package net.sf.sveditor.core.docs;
 
 import java.util.Set;
 
-import net.sf.sveditor.core.docs.model.DocTopic;
+import net.sf.sveditor.core.docs.model.DocItem;
 
 public interface IDocCommentParser {
 
 	public String isDocComment(String comment) ;
 	
-	public void parse(String comment, Set<DocTopic> docTopics) ;
+	public void parse(String comment, Set<DocItem> docTopics) ;
 	
-	public int parseComment(String lines[], Set<DocTopic> parsedTopics) ;
+	public int parseComment(String lines[], Set<DocItem> parsedTopics) ;
 		
 }

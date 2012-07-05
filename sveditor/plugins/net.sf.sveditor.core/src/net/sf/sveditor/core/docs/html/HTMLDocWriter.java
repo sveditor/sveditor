@@ -16,15 +16,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
-import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocFile;
 import net.sf.sveditor.core.docs.model.DocModel;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -59,7 +56,9 @@ public class HTMLDocWriter implements IDocWriter {
 			
 			buildDirTree(cfg, model) ;
 			
-			writeClasses(cfg, model) ;
+			writeFiles(cfg, model) ;
+			
+//			writeClasses(cfg, model) ;
 			writeIndices(cfg, model) ; 
 			
 		} catch (Exception e) {
@@ -68,9 +67,42 @@ public class HTMLDocWriter implements IDocWriter {
 
 	}
 
+	private void writeFiles(DocGenConfig cfg, DocModel model) throws IOException {
+		for(String file: model.getDocFiles().keySet()) {
+			DocFile docFile = model.getDocFiles().get(file) ;
+			writeFile(cfg, model, docFile) ;
+		}
+	}
+
+	private void writeFile(DocGenConfig cfg, DocModel model, DocFile docFile) {
+		FileFactory fileFactory = new FileFactory(cfg) ;
+		String srcPath = docFile.getDocPath() ;
+		log.debug(ILogLevel.LEVEL_MID, "Generating HTML doc for: " + srcPath) ;
+//		Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
+//		for(String className: pkgClassMap.keySet()) {
+//			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
+			File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
+//			indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
+//			DocClassItem classItem = pkgClassMap.get(className) ;
+			if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
+			log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
+			FileOutputStream os;
+			try {
+				os = new FileOutputStream(outPath);
+				String fileContent = fileFactory.build(docFile) ;
+				if(fileContent == null || fileContent.isEmpty()) {
+					log.error("Unpexpectedly generated no content for: " + docFile.getName()) ;
+				}
+				os.write(fileContent.getBytes()) ;
+				os.close() ;
+			} catch (Exception e) {
+				log.error("Exception while opening for write: " + outPath, e) ;
+			}
+//		}
+	}
+
 	private void writeIndices(DocGenConfig cfg, DocModel model) throws IOException {
 		writeClassIndex(cfg, model) ;
-		
 	}
 
 	private void writeClassIndex(DocGenConfig cfg, DocModel model) throws IOException {
@@ -90,28 +122,28 @@ public class HTMLDocWriter implements IDocWriter {
 		os.close() ;
 		
 	}
-
-	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
-		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
-		ArrayList<String> classNames = new ArrayList<String>(model.getClassMapByPkg().keySet()) ;
-	 	Collections.sort(classNames,String.CASE_INSENSITIVE_ORDER) ;
-	 	for(String pkgName: classNames) {
-			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for pkg: " + pkgName) ;
-			Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
-			for(String className: pkgClassMap.keySet()) {
-				log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
-				File outPath = HTMLUtils.getHTMLFileForClass(cfg,pkgName,className) ;
-				indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
-				DocClassItem classItem = pkgClassMap.get(className) ;
-				if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
-				log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
-				FileOutputStream os;
-				os = new FileOutputStream(outPath);
-				os.write(classFactory.build(classItem).getBytes()) ;
-				os.close() ;
-			}
-		}
-	}
+//
+//	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
+//		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
+//		ArrayList<String> classNames = new ArrayList<String>(model.getClassMapByPkg().keySet()) ;
+//	 	Collections.sort(classNames,String.CASE_INSENSITIVE_ORDER) ;
+//	 	for(String pkgName: classNames) {
+//			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for pkg: " + pkgName) ;
+//			Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
+//			for(String className: pkgClassMap.keySet()) {
+//				log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
+//				File outPath = HTMLUtils.getHTMLFileForClass(cfg,pkgName,className) ;
+//				indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
+//				DocClassItem classItem = pkgClassMap.get(className) ;
+//				if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
+//				log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
+//				FileOutputStream os;
+//				os = new FileOutputStream(outPath);
+//				os.write(classFactory.build(classItem).getBytes()) ;
+//				os.close() ;
+//			}
+//		}
+//	}
 
 	private void sanityCheck(DocGenConfig cfg, DocModel model) throws HTMLDocWriterException {
 		

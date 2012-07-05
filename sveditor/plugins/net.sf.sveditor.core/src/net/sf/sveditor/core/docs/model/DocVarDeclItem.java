@@ -11,7 +11,6 @@
 
 package net.sf.sveditor.core.docs.model;
 
-import java.util.ArrayList;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 
@@ -19,18 +18,8 @@ public class DocVarDeclItem extends DocItem implements IFieldItemAttr {
 	
 	public int fFieldAttr ;
 
-	ArrayList<DocTopic> fTopics ;
-	public ArrayList<DocTopic> getTopics() {
-		return fTopics ;
-	}
-	
-	public void addTopic(DocTopic topic) {
-		fTopics.add(topic) ;
-	}
-	
-	public DocVarDeclItem(String name, String summary) {
-		super(name, DocItemType.VarDeclDoc, summary);
-		fTopics = new ArrayList<DocTopic>() ;
+	public DocVarDeclItem(String name) {
+		super(name, DocItemType.VARDECL) ;
 	}
 
 	public void setAttr(int attr) {

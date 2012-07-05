@@ -35,10 +35,10 @@ public class HTMLIconUtils implements IHTMLIcons {
 //		fImgDescMap.put(DocItemType.ModuleDecl, MODULE_OBJ);
 //		fImgDescMap.put(DocItemType.InterfaceDecl, INT_OBJ);
 //		fImgDescMap.put(DocItemType.ConfigDecl, CONFIG_OBJ);
-		fImgDescMap.put(DocItemType.ClassDoc, CLASS_OBJ);
+		fImgDescMap.put(DocItemType.CLASS, CLASS_OBJ);
 //		fImgDescMap.put(DocItemType.MacroDef, DEFINE_OBJ);
 //		fImgDescMap.put(DocItemType.Include, INCLUDE_OBJ);
-		fImgDescMap.put(DocItemType.PackageDoc, PACKAGE_OBJ);
+		fImgDescMap.put(DocItemType.PACKAGE, PACKAGE_OBJ);
 //		fImgDescMap.put(DocItemType.TypeInfoStruct, STRUCT_OBJ);
 //		fImgDescMap.put(DocItemType.Covergroup, COVERGROUP_OBJ);
 //		fImgDescMap.put(DocItemType.Coverpoint, COVERPOINT_OBJ);
@@ -55,8 +55,8 @@ public class HTMLIconUtils implements IHTMLIcons {
 //		fImgDescMap.put(DocItemType.ModIfcInst, MOD_IFC_INST_OBJ);
 //		fImgDescMap.put(DocItemType.ModIfcInstItem, MOD_IFC_INST_OBJ);
 //		fImgDescMap.put(DocItemType.VarDeclItem, FIELD_PUB_OBJ);
-		fImgDescMap.put(DocItemType.TaskDoc, TASK_PUB_OBJ);
-		fImgDescMap.put(DocItemType.FuncDoc, TASK_PUB_OBJ); // FIXME: image for func?
+		fImgDescMap.put(DocItemType.TASK, TASK_PUB_OBJ);
+		fImgDescMap.put(DocItemType.FUNC, TASK_PUB_OBJ); // FIXME: image for func?
 	}
 	
 //	public static Image getIcon(String key) {
@@ -80,7 +80,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 	}
 	
 	public static String getImagePath(DocItem docItem) {
-		if (docItem.getType() == DocItemType.VarDeclDoc) {
+		if (docItem.getType() == DocItemType.VARDECL) {
 			DocVarDeclItem varDeclItem = (DocVarDeclItem)docItem ;
 			int attr = varDeclItem.getAttr() ;
 			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
@@ -90,7 +90,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 			} else { 
 				return FIELD_PUB_OBJ ; 
 			}
-		} else if(docItem.getType() == DocItemType.TaskDoc) {
+		} else if(docItem.getType() == DocItemType.TASK) {
 			DocTaskItem taskDeclItem = (DocTaskItem)docItem ;
 			int attr = taskDeclItem.getAttr() ;
 			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {

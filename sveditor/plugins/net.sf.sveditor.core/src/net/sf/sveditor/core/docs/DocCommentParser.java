@@ -35,8 +35,12 @@ import java.util.regex.Pattern;
 
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.docs.model.DocItemType;
-import net.sf.sveditor.core.docs.model.DocTopic;
+import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.model.DocFuncItem;
+import net.sf.sveditor.core.docs.model.DocGeneralItem;
+import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTaskItem;
+import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -56,43 +60,66 @@ public class DocCommentParser implements IDocCommentParser {
 			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
 	
 	private static Pattern fPatternIsDocComment = 
-			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*?) *\\n.*",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
+//			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*?) *\\n.*",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
+			Pattern.compile(".*? *([a-z0-9 ]*[a-z0-9]): +(.*?) *$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 	
     private static Pattern fPatternCodeSectionEnd = 
     		Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
 
 	public String isDocComment(String comment) {
 		
-		Matcher matcher = fPatternIsDocComment.matcher(comment) ;
+		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
-		if(matcher.matches()) {
-			String keyword = matcher.group(1) ;
-			if(fDocTopics.getTopicType(keyword) != null) {
-				return matcher.group(2) ;
-			} 
+		for(String line: lines) {
+			Matcher matcher = fPatternIsDocComment.matcher(line) ;
+			if(matcher.matches()) {
+				String keyword = matcher.group(1).toLowerCase() ;
+				if(fDocTopics.getTopicType(keyword) != null) {
+					return matcher.group(2) ;
+				} 
+			}
 		}
+		
 		return null ;
 	}
+	
+	public DocItem createDocItemForKeyword(String keyword, String topicTitle) {
+		DocItem docItem ;
+		DocKeywordInfo kwi = fDocTopics.getTopicType(keyword.toLowerCase()) ;
+		String topicTypeName = kwi.getTopicType().getName() ;
+		if(topicTypeName == DocTopics.TOPIC_CLASS) {
+			docItem = new DocClassItem(topicTitle) ;
+		} else if(topicTypeName == DocTopics.TOPIC_TASK) {
+			docItem = new DocTaskItem(topicTitle) ;
+		} else if(topicTypeName == DocTopics.TOPIC_FUNCTION) {
+			docItem = new DocFuncItem(topicTitle) ;
+		} else if(topicTypeName == DocTopics.TOPIC_PROPERTY) {
+			docItem = new DocVarDeclItem(topicTitle) ;
+		} else {
+			docItem = new DocGeneralItem(topicTitle) ;
+		}
+		return docItem ;
+	}
 
-	public void parse(String comment, Set<DocTopic> docTopics) {
+	public void parse(String comment, Set<DocItem> docTopics) {
 		
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
 		try {
 		
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_MID, "Parsing the following comment:") ;
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
-		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "Parsing the following comment:") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
 		
 		DocCommentCleaner.clean(lines) ;
 		
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_MID, "Cleaned the following comment:") ;
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
-		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
-		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "Cleaned the following comment:") ;
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
+//		for(String line: lines) { fLog.debug(ILogLevel.LEVEL_MID, line + "<END>") ; }
+//		fLog.debug(ILogLevel.LEVEL_MID, "----------------------------------------") ;
 		
 		parseComment(lines, docTopics) ;
 		
@@ -132,7 +159,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	                                                       'args' => 1,
 //	                                                       'arg' => 1 );
 
-//#
 //#   Constants: ScopeType
 //#
 //#   The possible values for <Scope()>.
@@ -155,7 +181,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 //	private enum Scope { NONE, NORMAL, START, END, ALWAYS_GLOBAL } ;
 	
-	public int parseComment(String lines[], Set<DocTopic> parsedTopics) {
+	public int parseComment(String lines[], Set<DocItem> parsedTopics) {
 	
 	    int topicCount = 0 ;
 	    boolean prevLineBlank = true ;
@@ -169,6 +195,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	    Scope scope = Scope.NONE ;
 //	    String topicType = null ;
 	    String title = null ;
+	    String keyword = null ;
 //	    boolean isPlural = false ;
 	
 	    int bodyStart = 0 ;
@@ -215,22 +242,26 @@ public class DocCommentParser implements IDocCommentParser {
 	            	if(body != null) {
 	            		summary = getSummaryFromBody(body) ; 
 	            	}
-	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
+//	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
 	            	
-	            	parsedTopics.add(newTopic) ;
+	            	DocItem newDocItem = createDocItemForKeyword(keyword, title) ;
+	            	
+	            	newDocItem.setBody(body) ;
+	            	newDocItem.setSummary(summary) ;
+	            	
+	            	parsedTopics.add(newDocItem) ;
 	            	
 //	                $package = $newTopic->Package();
 	            	
                 }
 	            
-	            String keyword = tupleKeywordTitle.first() ;
-
-	            title = tupleKeywordTitle.second() ;
+	            keyword = tupleKeywordTitle.first() ;
+	            title   = tupleKeywordTitle.second() ;
 	            
-	            fLog.debug(ILogLevel.LEVEL_MID, 
-	            		"Found header line for keyword(" 
-	            			+ keyword + ") title("
-	            			+ title + ")") ;
+//	            fLog.debug(ILogLevel.LEVEL_MID, 
+//	            		"Found header line for keyword(" 
+//	            			+ keyword + ") title("
+//	            			+ title + ")") ;
 	            
 	            // FIXME: will want to grab keyword and associate it with topic... or something like that
 
@@ -274,7 +305,11 @@ public class DocCommentParser implements IDocCommentParser {
         	if(body != null) {
         		summary = getSummaryFromBody(body) ; 
         	}
-        	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
+//        	DocItem newTopic = new DocItem("todo-name-me",DocItemType.Topic, body, title, summary) ;
+        	DocItem newTopic = createDocItemForKeyword(keyword, title) ;
+        	
+        	newTopic.setBody(body) ;
+        	newTopic.setSummary(summary) ;
         	
         	parsedTopics.add(newTopic) ;
         	
@@ -303,9 +338,15 @@ public class DocCommentParser implements IDocCommentParser {
 	        // We need to do it this way because if you do "if (ND:T->KeywordInfo($keyword)" and the last element of the array it
 	        // returns is false, the statement is false.  That is really retarded, but there it is.
 //	        my ($type, undef, undef) = NaturalDocs::Topics->KeywordInfo($keyword);
+			
+//			if(fDocTopics.getTopicType(keyWord.toLowerCase()))
+//				return matcher.group(2) ;
+//			} 
+			
 	
 //	        if ($type) {  
-			if(true) {
+//			if(true) {
+			if(fDocTopics.getTopicType(keyWord.toLowerCase()) != null) {
 				tupleKeywordTitle.setFirst(keyWord) ;
 				tupleKeywordTitle.setSecond(title) ;
 	        	return true ;
@@ -792,11 +833,11 @@ public class DocCommentParser implements IDocCommentParser {
 		
 		String output = "" ;
 		
-				fLog.debug(ILogLevel.LEVEL_MID,
-					"ricFormatTextBlock: begin") ;
-				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-				fLog.debug(ILogLevel.LEVEL_MID, text) ;
-				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//				fLog.debug(ILogLevel.LEVEL_MID,
+//					"ricFormatTextBlock: begin") ;
+//				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//				fLog.debug(ILogLevel.LEVEL_MID, text) ;
+//				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 		
 //	
 //	    # First find bare urls, e-mail addresses, and images.  We have to do this before the split because they may contain underscores
@@ -1006,10 +1047,10 @@ public class DocCommentParser implements IDocCommentParser {
 	        index++ ;
         } 
         
-	    fLog.debug(ILogLevel.LEVEL_MID, "ricFormatTextBlock: end") ;
-	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-	    fLog.debug(ILogLevel.LEVEL_MID, output) ;
-	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//	    fLog.debug(ILogLevel.LEVEL_MID, "ricFormatTextBlock: end") ;
+//	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
+//	    fLog.debug(ILogLevel.LEVEL_MID, output) ;
+//	    fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
 	
 	    return output ;
 	    

@@ -11,10 +11,14 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocPkgItem extends DocItem {
+public class DocSectionItem extends DocItem {
 
-	public DocPkgItem(String name) {
-		super(name, DocItemType.PACKAGE) ;
+	public DocSectionItem(String name, String summary) {
+		super(name, DocItemType.PackageSection) ;
+	}
+
+	public DocSectionItem(String title) {
+		this(title, "") ;
 	}
 
 }
