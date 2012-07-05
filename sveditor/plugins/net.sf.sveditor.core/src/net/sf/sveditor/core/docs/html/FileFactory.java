@@ -123,6 +123,9 @@ public class FileFactory {
 	private String genFileSummary(DocFile docFile) {
 		String res = "" ;
 		res += genSummaryStart(docFile) ;
+		res += HTMLUtils.genCTopicBegin("MainTopic") ;
+		res += HTMLUtils.genCTitle(docFile.getName()) ;
+		res += HTMLUtils.genCBodyBegin() ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
@@ -136,6 +139,8 @@ public class FileFactory {
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
 		res += HTMLUtils.genSummaryEnd() ;
+		res += HTMLUtils.genCBodyEnd() ;
+		res += HTMLUtils.genCTopicEnd() ;
 		return res ;
 	}
 

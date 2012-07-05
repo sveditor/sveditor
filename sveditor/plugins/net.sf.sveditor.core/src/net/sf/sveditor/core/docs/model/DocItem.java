@@ -12,9 +12,7 @@
 package net.sf.sveditor.core.docs.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class DocItem implements IDocItem {
 	

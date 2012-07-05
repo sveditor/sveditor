@@ -217,20 +217,6 @@ public class DocModelFactory {
 			}
 			gatherPackageClasses(model, pkg, classMapByPkg, pkgTuple.second());			
 		}
-//		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
-//			SVDBDeclCacheItem pkg = pkgTuple.first() ;
-//			DocPkgItem docPkgItem = createPkgItem(pkg) ; // FIXME: check for user defined docs
-//			if(docPkgItem != null) {
-//				model.getPkgMap().put(docPkgItem.getName(), docPkgItem) ;
-//			}
-//			Map<String, Map<String, DocClassItem>> classMapByPkg = model.getClassMapByPkg() ;
-//			classMapByPkg.put(pkg.getName(), new HashMap<String, DocClassItem>()) ;
-//			if(pkg.getParent() == null) {
-//				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
-//			}
-//			gatherPackageClasses(model, pkg, docPkgItem, classMapByPkg, pkgTuple.second());			
-//		}
-		
 	}
 
 	private void gatherPackageClasses(DocModel model, 
@@ -277,70 +263,6 @@ public class DocModelFactory {
 		}
 	}
 	
-//	private void gatherPackageClasses(DocModel model, 
-//			SVDBDeclCacheItem pkg,
-//			DocPkgItem docPkgItem,
-//			Map<String, Map<String, DocClassItem>> classMapByPkg, ISVDBIndex isvdbIndex)
-//					throws DocModelFactoryException {
-//		Map<String, DocClassItem> pkgClassMap = classMapByPkg.get(pkg.getName()) ;
-//		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
-//		if(pkgDecls != null) {
-//			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
-//				if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
-//					DocClassItem classDocItem = createDocItemForClass(pkg, pkgDecl, isvdbIndex) ;
-//					docPkgItem.addChild(classDocItem) ;
-//					pkgClassMap.put(classDocItem.getName(), classDocItem) ;
-//					indexClass(docPkgItem, classDocItem, model) ;
-//					gatherClassMembers(docPkgItem, classDocItem, pkgDecl, (SVDBClassDecl)pkgDecl.getSVDBItem(), model, isvdbIndex ) ;
-//				}
-//			}
-//		} else {
-//			fLog.debug("Package declarations for \"" + pkg.getName() + "\" not found");
-//		}
-//	}
-	
-//	private DocClassItem createDocItemForClass(SVDBDeclCacheItem pkgDeclItem, SVDBDeclCacheItem classDeclItem, ISVDBIndex isvdbIndex) {
-//		SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), classDeclItem.getFile().getFilePath()) ;
-//		DocClassItem classDocItem ;
-//		classDocItem = new DocClassItem(classDeclItem.getName()) ;
-//		if(ppFile != null) {
-//			SVDBDocComment docComment = findDocCommentByName(ppFile, classDeclItem.getName()) ;
-//			if(docComment != null) {
-//				fLog.debug(ILogLevel.LEVEL_MID, 
-//						"Found doc comment for \"" + pkgDeclItem.getName() + "::" + classDeclItem.getName() + "\"") ;
-//				Set<DocItem> docTopics = new HashSet<DocItem>() ;
-//				fParser.parse(docComment.getRawComment(),docTopics) ;
-//				fLog.debug(ILogLevel.LEVEL_MID,
-//					"Parsed out the following topics") ;
-//				fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//				for(DocItem topic: docTopics) {
-//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//					fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
-//					fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
-//					fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
-//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//					classDocItem.addChild(topic) ;
-//					classDocItem.setSummary(topic.getSummary()) ;
-//				}
-//			} else {
-//				
-//			}
-//		}
-//		return classDocItem ;
-//	}
-
-	private SVDBDocComment findDocCommentByName(SVDBFile ppFile, String name) {
-		for(ISVDBChildItem child: ppFile.getChildren()) {
-			if(child instanceof SVDBDocComment) {
-				SVDBDocComment docCom = (SVDBDocComment)child ;
-				if(docCom.getName().matches(name)) {
-					return docCom ;
-				}
-			}
-		}
-		return null ;
-	}
-
 	private void gatherClassMembers(DocClassItem classDocItem, 
 									SVDBDeclCacheItem pkgDeclCacheItem, 
 									SVDBDeclCacheItem classDeclCacheItem, 
@@ -410,66 +332,8 @@ public class DocModelFactory {
 					}
 				}
 			}
-			/*
-			if(ci.getType() == SVDBItemType.Function) {
-				SVDBFunction svdbFunction = (SVDBFunction)ci ;
-				DocFuncItem funcItem = new DocFuncItem(svdbFunction.getName()) ;
-				classDocItem.addChild(funcItem) ;
-				SVDBDocComment docComment = findDocCommentByName(ppFile, funcItem.getName()) ;
-				if(docComment != null) {
-					fLog.debug(ILogLevel.LEVEL_MID, 
-							"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + funcItem.getName() + "\"") ;
-					Set<DocItem> docTopics = new HashSet<DocItem>() ;
-					fParser.parse(docComment.getRawComment(),docTopics) ;
-//					fLog.debug(ILogLevel.LEVEL_MID,
-//							"Parsed out the following topics") ;
-//					fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-					for(DocItem topic: docTopics) {
-//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "  Name:" + topic.getName()) ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "  Body:") ;
-//						fLog.debug(ILogLevel.LEVEL_MID, topic.getBody()) ;
-//						fLog.debug(ILogLevel.LEVEL_MID, "------------------------------------") ;
-						funcItem.addChild(topic) ;
-						funcItem.setSummary(topic.getSummary()) ;
-					}
-				} else {
-				}
-				continue ;
-			}
-			*/
-			/*
-			if(ci.getType() == SVDBItemType.VarDeclStmt) {
-				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
-				for(ISVDBChildItem varItem: varDecl.getChildren()) {
-					if(varItem instanceof SVDBVarDeclItem) {
-						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
-						DocVarDeclItem docVarItem = new DocVarDeclItem(varDeclItem.getName()) ;
-						SVDBDocComment docComment = findDocCommentByName(ppFile, varDeclItem.getName()) ;
-						classDocItem.addChild(docVarItem) ;
-						if(docComment != null) {
-							fLog.debug(ILogLevel.LEVEL_MID, 
-									"Found doc comment for \"" + classDeclCacheItem.getName() + "::" + varDeclItem.getName() + "\"") ;
-							Set<DocItem> docTopics = new HashSet<DocItem>() ;
-							fParser.parse(docComment.getRawComment(),docTopics) ;
-							for(DocItem topic: docTopics) {
-								docVarItem.addChild(topic) ;
-								docVarItem.setSummary(topic.getSummary()) ;
-							}
-						} else {
-						}
-					}
-				}
-				continue ;
-			}
-			*/
-		}
-	}
 
-	@SuppressWarnings("unused")
-	private DocPkgItem createPkgItem(SVDBDeclCacheItem pkg) {
-		DocPkgItem item = new DocPkgItem(pkg.getName()) ;
-		return item ;
+		}
 	}
 
 	private void indexClass(DocClassItem classItem, DocModel model) throws DocModelFactoryException {

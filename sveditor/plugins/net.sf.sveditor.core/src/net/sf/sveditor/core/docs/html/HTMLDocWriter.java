@@ -58,7 +58,6 @@ public class HTMLDocWriter implements IDocWriter {
 			
 			writeFiles(cfg, model) ;
 			
-//			writeClasses(cfg, model) ;
 			writeIndices(cfg, model) ; 
 			
 		} catch (Exception e) {
@@ -78,27 +77,21 @@ public class HTMLDocWriter implements IDocWriter {
 		FileFactory fileFactory = new FileFactory(cfg) ;
 		String srcPath = docFile.getDocPath() ;
 		log.debug(ILogLevel.LEVEL_MID, "Generating HTML doc for: " + srcPath) ;
-//		Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
-//		for(String className: pkgClassMap.keySet()) {
-//			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
-			File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
-//			indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
-//			DocClassItem classItem = pkgClassMap.get(className) ;
-			if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
-			log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
-			FileOutputStream os;
-			try {
-				os = new FileOutputStream(outPath);
-				String fileContent = fileFactory.build(docFile) ;
-				if(fileContent == null || fileContent.isEmpty()) {
-					log.error("Unpexpectedly generated no content for: " + docFile.getName()) ;
-				}
-				os.write(fileContent.getBytes()) ;
-				os.close() ;
-			} catch (Exception e) {
-				log.error("Exception while opening for write: " + outPath, e) ;
+		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
+		if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
+		log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
+		FileOutputStream os;
+		try {
+			os = new FileOutputStream(outPath);
+			String fileContent = fileFactory.build(docFile) ;
+			if(fileContent == null || fileContent.isEmpty()) {
+				log.error("Unpexpectedly generated no content for: " + docFile.getName()) ;
 			}
-//		}
+			os.write(fileContent.getBytes()) ;
+			os.close() ;
+		} catch (Exception e) {
+			log.error("Exception while opening for write: " + outPath, e) ;
+		}
 	}
 
 	private void writeIndices(DocGenConfig cfg, DocModel model) throws IOException {
@@ -114,6 +107,8 @@ public class HTMLDocWriter implements IDocWriter {
 		
 		log.debug(ILogLevel.LEVEL_MID, "Generating class index to: " + classIndexFile) ;
 		
+		indexHtmFile = classIndexFile ; // FIXME: temp just to give the wizard something to open
+		
 		if(!classIndexFile.getParentFile().exists()) classIndexFile.getParentFile().mkdirs() ;
 		
 		FileOutputStream os ;
@@ -122,28 +117,6 @@ public class HTMLDocWriter implements IDocWriter {
 		os.close() ;
 		
 	}
-//
-//	private void writeClasses(DocGenConfig cfg, DocModel model) throws IOException {
-//		HTMLClassFactory classFactory = new HTMLClassFactory(cfg) ;
-//		ArrayList<String> classNames = new ArrayList<String>(model.getClassMapByPkg().keySet()) ;
-//	 	Collections.sort(classNames,String.CASE_INSENSITIVE_ORDER) ;
-//	 	for(String pkgName: classNames) {
-//			log.debug(ILogLevel.LEVEL_MID, "Generating class docs for pkg: " + pkgName) ;
-//			Map<String, DocClassItem> pkgClassMap = model.getClassMapByPkg().get(pkgName) ;
-//			for(String className: pkgClassMap.keySet()) {
-//				log.debug(ILogLevel.LEVEL_MID, "Generating class docs for class: " + pkgName + "::" + className) ;
-//				File outPath = HTMLUtils.getHTMLFileForClass(cfg,pkgName,className) ;
-//				indexHtmFile = outPath ; // TODO: generate an actual index HTML file. For now just remember the last class file created so the wizard has something to present to the user
-//				DocClassItem classItem = pkgClassMap.get(className) ;
-//				if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
-//				log.debug(ILogLevel.LEVEL_MID, "HTML file: " + outPath) ;
-//				FileOutputStream os;
-//				os = new FileOutputStream(outPath);
-//				os.write(classFactory.build(classItem).getBytes()) ;
-//				os.close() ;
-//			}
-//		}
-//	}
 
 	private void sanityCheck(DocGenConfig cfg, DocModel model) throws HTMLDocWriterException {
 		

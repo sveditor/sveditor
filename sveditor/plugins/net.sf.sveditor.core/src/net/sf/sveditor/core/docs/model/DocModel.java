@@ -40,19 +40,12 @@ public class DocModel {
 	
 	private Map<String, Map<String, DocClassItem>> classMapByPkg ;
 	
-//	private Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIndexMap ;
-	
 	private Map<String, Map<String, Map<String, DocItem>>> topicIndexMaps ;
 	
 	public DocModel() {
 		pkgMap = new HashMap<String, DocPkgItem>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocClassItem>>() ;
-//		classIndexMap = new HashMap<String, Map<String, Tuple<DocPkgItem,DocClassItem>>>() ;
 		docFiles = new HashMap<String, DocFile>() ;
-		
-//	    for(String key: keys) {
-//	    	classIndexMap.put(key, new HashMap<String, Tuple<DocPkgItem,DocClassItem>>()) ;
-//	    }
 		
 		topicIndexMaps = new HashMap<String, Map<String, Map<String,DocItem>>>() ;
 	}
@@ -65,10 +58,6 @@ public class DocModel {
 		return classMapByPkg ;
 	}
 
-//	public Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> getClassIndexMap() {
-//		return classIndexMap ;
-//	}
-	
 	public Map<String,Map<String,DocItem>> getTopicIndexMap(String topic) {
 		if(topicIndexMaps.containsKey(topic)) {
 			return topicIndexMaps.get(topic) ;
