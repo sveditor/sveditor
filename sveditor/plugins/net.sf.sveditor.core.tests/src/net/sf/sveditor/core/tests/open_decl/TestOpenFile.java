@@ -129,9 +129,8 @@ public class TestOpenFile extends TestCase {
 			"	int			`MY_MACRO;\n" +	// 4
 			"endclass\n"					// 5
 			;
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
-		SVDBTestUtils.assertNoErrWarn(file);
-		SVDBTestUtils.assertFileHasElements(file, "c", "foo");
+		Tuple<SVDBFile, SVDBFile> file = SVDBTestUtils.parsePreProc(doc, testname, false);
+		SVDBTestUtils.assertFileHasElements(file.second(), "c", "foo");
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
 		int idx = doc.indexOf("`MY_MACRO");
@@ -141,7 +140,7 @@ public class TestOpenFile extends TestCase {
 		int lineno = 4;
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
-				file, lineno, scanner, target_index);
+				file.second(), lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
 		assertEquals(1, ret.size());

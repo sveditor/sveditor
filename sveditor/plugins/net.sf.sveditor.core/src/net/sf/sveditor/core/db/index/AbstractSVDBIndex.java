@@ -956,7 +956,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 	}
 
-	private void buildPreProcFileMap(
+	protected void buildPreProcFileMap(
 			SVDBFileTree 				parent, 
 			SVDBFileTree 				root,
 			List<String>				missing_includes,
@@ -1712,13 +1712,14 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				processed_files,
 				file.getFilePath(), 
 				decl_cache.get(file.getFilePath()),
-				null, 
-				null, 
+				null,
+				null,
 				file,
 				false);
 	
-		SVDBFileTree ft = fCache.getFileTree(
-				new NullProgressMonitor(), file.getFilePath());
+//		SVDBFileTree ft = fCache.getFileTree(
+//				new NullProgressMonitor(), file.getFilePath());
+		SVDBFileTree ft = findFileTree(file.getFilePath());
 		if (ft != null) {
 			cacheDeclarations(
 					processed_files,

@@ -50,7 +50,7 @@ public class SVLexer extends SVToken {
 	private boolean 		fInAttr;
 	private LogHandle		fLog;
 
-	public static final String RelationalOps[] = { "&", "&&", "|", "||", "-",
+	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
 			"?", "<", "<<", "<=", "<<<", ">", ">>", ">=", ">>>", "=", "*=",
 			"/=", "%=", "+=", "==", "!=", "-=", "<<=", ">>=", "<<<=", ">>>=",

@@ -43,6 +43,7 @@ import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBIncDecExpr;
 import net.sf.sveditor.core.db.expr.SVDBInsideExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBMinTypMaxExpr;
 import net.sf.sveditor.core.db.expr.SVDBNameMappedExpr;
 import net.sf.sveditor.core.db.expr.SVDBNamedArgExpr;
 import net.sf.sveditor.core.db.expr.SVDBNullExpr;
@@ -292,7 +293,22 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("<-- const_or_range_expression - " + fLexer.peek());}
 		return expr;
 	}
-
+	
+	public SVDBExpr constant_mintypmax_expression() throws SVParseException {
+		if (fDebugEn) {debug("<-- constant_mintypmax_expression - " + fLexer.peek());}
+		SVDBExpr expr = expression();
+		if (fLexer.peekOperator(":")) {
+			fLexer.eatToken();
+			SVDBExpr typ = expression();
+			fLexer.readOperator(":");
+			SVDBExpr max = expression();
+			expr = new SVDBMinTypMaxExpr(expr, typ, max);
+		}
+		
+		if (fDebugEn) {debug("<-- constant_mintypmax_expression - " + fLexer.peek());}
+		return expr;
+	}
+	
 	/**
 	 * Expression := AssignmentExpression
 	 * @param tok

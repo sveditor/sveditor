@@ -76,7 +76,7 @@ public class TestOpencoresProjects extends TestCase {
 	}
 	
 	public void testI2C() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testI2C", "/i2c.zip", "i2c",
 				new String[] {"${workspace_loc}/i2c/dut.f",

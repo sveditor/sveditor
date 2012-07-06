@@ -43,7 +43,6 @@ import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
-import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.scanner.SVScannerTextScanner;
@@ -67,7 +66,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private ITextScanner fInput;
 	private SVLexer fLexer;
 
-	private boolean fNewStatement;
 	private ScanLocation fStmtLocation;
 	private ScanLocation fStartLocation;
 
@@ -153,7 +151,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			parsers().configParser().parse_config(parent);
 		} else if (fLexer.peekKeyword("class")) {
 			parsers().classParser().parse(parent, modifiers);
-			fNewStatement = true;
 		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
 			// enter module scope
 			parsers().modIfcProgParser().parse(parent, modifiers);
@@ -161,16 +158,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			package_decl(parent);
 		} else if (fLexer.peekKeyword("import")) {
 			parsers().impExpParser().parse_import(parent);
-			fNewStatement = true;
 		} else if (fLexer.peekKeyword("export")) {
 			parsers().impExpParser().parse_export(parent);
-			fNewStatement = true;
 		} else if (fLexer.peekKeyword("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
-			fNewStatement = true;
 		} else if (fLexer.peekKeyword("function","task")) {
 			parsers().taskFuncParser().parse(parent, start, modifiers);
-			fNewStatement = true;
 		} else if (fLexer.peekKeyword("constraint")) {
 			parsers().constraintParser().parse(parent, modifiers);
 		} else if (fLexer.peekKeyword("parameter","localparam")) {
@@ -414,43 +407,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				|| id.equals("endtask") || id.equals("endfunction"));
 	}
 
-	/**
-	 * scan_statement()
-	 */
-	public String scan_statement() {
-		String id;
-
-		fLexer.setNewlineAsOperator(true);
-		// System.out.println("--> scan_statement() " + fLexer.peek() + "\n");
-
-		while ((id = fLexer.peek()) != null) {
-			/*
-			System.out.println("scan_statement: id=\"" + id
-					+ "\" ; NewStatement=" + fNewStatement);
-			 */
-			if (!fNewStatement && (id.equals(";") || id.equals("\n")
-					|| (SVKeywords.isSVKeyword(id) && id.startsWith("end")))) {
-				fNewStatement = true;
-				fLexer.eatToken();
-			} else if (fNewStatement) {
-				fStmtLocation = getLocation();
-				if (SVCharacter.isSVIdentifierStart(id.charAt(0))) {
-					fNewStatement = false;
-					break;
-				} else if (id.charAt(0) == '`') {
-					System.out
-							.println("[ERROR] pre-processor directive encountered");
-					fNewStatement = true;
-				}
-			}
-			fLexer.eatToken();
-		}
-
-		// System.out.println("<-- scan_statement() - " + id + "\n");
-		fLexer.setNewlineAsOperator(false);
-		return id;
-	}
-	
+	/*
 	public void setNewStatement() {
 		fNewStatement = true;
 	}
@@ -458,6 +415,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void clrNewStatement() {
 		fNewStatement = false;
 	}
+	 */
 
 	/*
 	 * Currently unused private String readLine(int ci) throws EOFException { if
@@ -597,7 +555,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fScopeStack.clear();
 		fScopeStack.push(fFile);
 
-		fNewStatement = true;
 		fMarkers = markers;
 		
 		if (fMarkers == null) {
@@ -659,8 +616,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fScopeStack.clear();
 		fFile = new SVDBFile(name);
 		fScopeStack.push(fFile);
-
-		fNewStatement = true;
 
 		if (fDefineProvider != null) {
 			fDefineProvider.addErrorListener(this);

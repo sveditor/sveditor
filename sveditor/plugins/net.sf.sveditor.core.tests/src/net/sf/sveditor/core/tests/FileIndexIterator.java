@@ -12,21 +12,29 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
+import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBIndexIterator  */{
 	private SVDBFile				fFile;
+	private SVDBFile				fPPFile;
 	Map<String, SVDBFile>			fFileMap;
 	
 	public FileIndexIterator(SVDBFile file) {
@@ -35,6 +43,17 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(file.getName(), file);
+		init(new NullProgressMonitor());
+		loadIndex(new NullProgressMonitor());
+	}
+	
+	public FileIndexIterator(Tuple<SVDBFile, SVDBFile> file) {
+		super("project", "base", new SVDBFSFileSystemProvider(), new InMemoryIndexCache(), null);
+		fPPFile = file.first();
+		fFile = file.second();
+		fFileMap = new HashMap<String, SVDBFile>();
+		
+		fFileMap.put(fFile.getName(), fFile);
 		init(new NullProgressMonitor());
 		loadIndex(new NullProgressMonitor());
 	}
@@ -76,7 +95,21 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 	protected void buildFileTree(IProgressMonitor monitor) {
 		// Do Nothing
 	}
-	
+
+	@Override
+	public synchronized SVDBFileTree findFileTree(String path) {
+		if (fPPFile != null) {
+			SVDBFileTree ft = new SVDBFileTree(
+					(SVDBFile)fPPFile.duplicate());
+			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
+			Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
+			ft_utils.resolveConditionals(ft, new SVPreProcDefineProvider(
+					createPreProcMacroProvider(ft, working_set)));
+			return ft;
+		} else {
+			return null;
+		}
+	}
 	
 	/*
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
