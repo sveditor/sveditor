@@ -110,10 +110,13 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
 					SVDBItemType.TypedefStmt, SVDBItemType.MacroDef)) {
 				if (item instanceof ISVDBNamedItem) {
+					boolean is_ft = item.getType().isElemOf(
+							SVDBItemType.MacroDef);
 					ISVDBNamedItem ni = (ISVDBNamedItem)item;
 					if (matcher.match(ni, name)) {
 						fLog.debug("Add item \"" + ni.getName() + "\" to result");
-						result.add(new SVDBDeclCacheItem(this, fFile.getFilePath(), ni.getName(), ni.getType()));
+						result.add(new SVDBDeclCacheItem(this, fFile.getFilePath(), 
+								ni.getName(), ni.getType(), is_ft));
 					}
 				}
 				if (item.getType() == SVDBItemType.PackageDecl) {

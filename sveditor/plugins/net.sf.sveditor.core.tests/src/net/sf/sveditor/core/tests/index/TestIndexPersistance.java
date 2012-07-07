@@ -41,19 +41,28 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeListener {
 	private File			fTmpDir;
-	private int				fRebuildCount;
+	private int			fRebuildCount;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		if (fTmpDir != null) {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
@@ -85,7 +94,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		/* IProject project_dir = */ TestUtils.createProject("xbus", xbus);
+		fProject = TestUtils.createProject("xbus", xbus);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
@@ -162,7 +171,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");
 		
-		IProject project_dir = TestUtils.createProject("ovm", ovm);
+		fProject = TestUtils.createProject("ovm", ovm);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db_dir));
@@ -216,7 +225,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project_dir);
+		TestUtils.deleteProject(fProject);
 	}
 
 }

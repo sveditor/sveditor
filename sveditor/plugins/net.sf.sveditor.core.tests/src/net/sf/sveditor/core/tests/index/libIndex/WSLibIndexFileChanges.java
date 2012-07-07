@@ -45,8 +45,8 @@ public class WSLibIndexFileChanges extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
-		super.tearDown();
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
 	}
 	
 	

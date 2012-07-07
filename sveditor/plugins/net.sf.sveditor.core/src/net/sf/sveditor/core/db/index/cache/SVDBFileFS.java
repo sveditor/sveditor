@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index.cache;
 
 import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -132,7 +133,7 @@ public class SVDBFileFS implements ISVDBFS {
 	}
 
 
-	public OutputStream openFileWrite(String path) throws IOException {
+	public OutputStream openFileWrite(String path) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -158,5 +159,26 @@ public class SVDBFileFS implements ISVDBFS {
 	public void mkdirs(String path) {
 		
 	}
+
+	public DataInput openDataInput(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void closeInput(DataInput in) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public DataOutput openDataOutput(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void closeOutput(DataOutput out) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	
 }

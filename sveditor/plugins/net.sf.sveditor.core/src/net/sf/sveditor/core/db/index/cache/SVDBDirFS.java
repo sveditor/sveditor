@@ -12,6 +12,12 @@
 
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,14 +26,33 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.List;
+import java.util.Random;
 
-public class SVDBDirFS implements ISVDBFS {
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.job_mgr.IJob;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
+public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 	private File				fDBDir;
+	private boolean			fAsyncClear = false;
+	private boolean			fDebugEn;
+	private LogHandle			fLog;
 	
 	public SVDBDirFS(File root) {
 		fDBDir = root;
+		fLog = LogFactory.getLogHandle("SVDBDirFS");
+		fLog.addLogLevelListener(this);
+		fDebugEn = fLog.isEnabled();
 	}
 	
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = handle.isEnabled();
+	}
+
 	public String getRoot() {
 		return fDBDir.getAbsolutePath();
 	}
@@ -57,6 +82,26 @@ public class SVDBDirFS implements ISVDBFS {
 		return ret;
 	}
 	
+	
+	public DataInput openDataInput(String path) {
+		InputStream in = openFileRead(path);
+		if (in != null) {
+			BufferedInputStream bin = new BufferedInputStream(in, 1024*8);
+			DataInputStream din = new DataInputStream(bin);
+			return din;
+		} else {
+			return null;
+		}
+	}
+
+	public void closeInput(DataInput in) {
+		try {
+			if (in instanceof DataInputStream) {
+				((DataInputStream)in).close();
+			}
+		} catch (IOException e) {}
+	}
+
 	public void closeChannel(RandomAccessFile ch) {
 		try {
 			ch.close();
@@ -95,7 +140,26 @@ public class SVDBDirFS implements ISVDBFS {
 		
 		return ret;
 	}
-	
+
+	public DataOutput openDataOutput(String path) {
+		OutputStream out = openFileWrite(path);
+		if (out != null) {
+			BufferedOutputStream bos = new BufferedOutputStream(out, 1024*8);
+			DataOutputStream dos = new DataOutputStream(bos);
+			return dos;
+		} else {
+			return null;
+		}
+	}
+
+	public void closeOutput(DataOutput out) {
+		try {
+			if (out instanceof DataOutputStream) {
+				((DataOutputStream)out).close();
+			}
+		} catch (IOException e) {}
+	}
+
 	public void close(InputStream in) {
 		try {
 			in.close();
@@ -120,7 +184,11 @@ public class SVDBDirFS implements ISVDBFS {
 	public void delete(String path) {
 		if (path.equals("")) {
 			if (fDBDir.exists()) {
-				delete_tree(fDBDir);
+				if (fAsyncClear) {
+					async_clear(fDBDir);
+				} else {
+					delete_tree(fDBDir);
+				}
 			}
 		} else {
 			File file = new File(fDBDir, path);
@@ -141,6 +209,37 @@ public class SVDBDirFS implements ISVDBFS {
 		if (!file.isDirectory()) {
 			file.mkdirs();
 		}
+	}
+	
+	private void async_clear(File root) {
+		Random r = new Random(System.currentTimeMillis());
+
+		final File newname = new File(root.getParentFile(), 
+				root.getName() + "_" + Math.abs(r.nextInt()));
+		if (!root.renameTo(newname)) {
+			fLog.debug(LEVEL_MIN, "Failed to rename cache directory");
+			// delete in-line
+			delete_tree(root);
+			return;
+		}
+		
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MID, "Removing cache: rename to " + newname.getAbsolutePath());
+		}
+
+		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
+		IJob job = job_mgr.createJob();
+		// Set low priority
+		job.setPriority(10);
+		job.init("Remove Cache", new Runnable() {
+			public void run() {
+				if (fDebugEn) {
+					fLog.debug(LEVEL_MID, "Deleteing old cache");
+				}
+				delete_tree(newname);
+			}
+		});
+		job_mgr.queueJob(job);
 	}
 	
 	private void delete_tree(File p) {

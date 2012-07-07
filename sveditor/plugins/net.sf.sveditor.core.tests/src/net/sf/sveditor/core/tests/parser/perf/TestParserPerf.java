@@ -20,9 +20,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -34,12 +32,14 @@ public class TestParserPerf extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+//		SVCorePlugin.testInit(); 
 	}
 
 
 
 	@Override
 	protected void tearDown() throws Exception {
+//		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
 //		TestUtils.delete(fTmpDir);
 		// TODO Auto-generated method stub
 		super.tearDown();
@@ -196,4 +196,5 @@ public class TestParserPerf extends TestCase {
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
 		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
 	}
+	
 }

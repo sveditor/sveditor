@@ -32,12 +32,17 @@ public class TestThreadedSourceCollectionIndex extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		if (fProject != null) {
-//			TestUtils.deleteProject(fProject);
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
 		}
 	}
 

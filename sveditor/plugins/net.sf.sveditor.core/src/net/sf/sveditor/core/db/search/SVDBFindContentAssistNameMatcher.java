@@ -13,11 +13,17 @@
 package net.sf.sveditor.core.db.search;
 
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
+	private SVDBItemType			fItemTypes[];
+	
+	public SVDBFindContentAssistNameMatcher(SVDBItemType ... types) {
+		fItemTypes = types;
+	}
 
 	public boolean match(ISVDBNamedItem it, String name) {
-		if (it.getName() != null) {
+		if ((fItemTypes.length == 0 || it.getType().isElemOf(fItemTypes)) && it.getName() != null) {
 			String it_lower = it.getName().toLowerCase();
 			String n_lower = name.toLowerCase();
 

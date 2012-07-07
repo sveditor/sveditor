@@ -48,7 +48,7 @@ public class TestParseAssertions extends TestCase {
 	
 	public void testPropertyDisableIffIf() throws SVParseException {
 		String testname = "testPropertyDisableIffIf";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module test ();\n" +
 			"	property someprop;" +
@@ -66,7 +66,7 @@ public class TestParseAssertions extends TestCase {
 	}
 	
 	public void testPropertyCaseStmt() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testPropertyCaseStmt";
 		String doc =
 			"module t;\n" +
