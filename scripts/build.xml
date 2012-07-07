@@ -6,6 +6,8 @@
     <property file="${basedir}/../etc/sveditor.info"/>
     <property file="${basedir}/build.properties"/>
 
+    <property name="gef_zest" location="${env.SVE_ADDINS}/gef_zest"/>
+
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 	<condition property="eclipsec" 
 		value="${env.ECLIPSE_HOME}/eclipsec" 
@@ -103,6 +105,20 @@
                 <filter token=".2." value="${feature.version}"/>
             </filterset>
         </copy>
+
+<!--
+        <copy todir="${basedir}/../archive_tmp/features">
+            <fileset dir="${gef_zest}/eclipse/features">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${basedir}/../archive_tmp/plugins">
+            <fileset dir="${gef_zest}/eclipse/plugins">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+  -->
 
         <!-- Create the P2 repository -->
         <p2.publish.featuresAndBundles
