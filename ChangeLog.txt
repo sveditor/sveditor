@@ -20,6 +20,9 @@
 
 - #(3536783) - Correct parse bug involving an 'if' in a property statement
 
+- #(enh) - Parser structure changes and enhancements to the cache subsystem boost the
+  overall parse performance by 4-5x on sizeable parsing jobs
+
 ------------------------------------------------------------------------------
 -- 0.9.3 Release --
 

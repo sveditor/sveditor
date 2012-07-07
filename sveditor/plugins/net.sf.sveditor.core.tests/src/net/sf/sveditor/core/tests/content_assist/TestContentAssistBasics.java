@@ -38,6 +38,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -112,6 +113,11 @@ public class TestContentAssistBasics extends TestCase {
 	 * Test that basic macro content assist works
 	 */
 	public void testOVMMacroContentAssist() {
+//		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testOVMMacroContentAssist";
+		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
 		String doc1 = 
 			"class my_class;\n" +
 			"    `ovm_componen<<FIELD1>>\n" +
@@ -126,18 +132,22 @@ public class TestContentAssistBasics extends TestCase {
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(
-				"testOVMMacroContentAssist", file, createOVMIndexMgr());
+				testname, file, createOVMIndexMgr());
 		
 		scanner.seek(tt_utils.getPosMap().get("FIELD1"));
 
+		log.debug(ILogLevel.LEVEL_MIN, "--> computeProposals");
 		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("FIELD1"));
+		log.debug(ILogLevel.LEVEL_MIN, "<-- computeProposals");
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
 		validateResults(new String[] {"ovm_component_utils", "ovm_component_param_utils", 
 				"ovm_component_utils_begin", "ovm_component_param_utils_begin", 
 				"ovm_component_utils_end", "ovm_component_new_func", 
 				"ovm_component_factory_create_func", "ovm_component_registry",
-				"ovm_component_registry_internal", "ovm_component_registry_param"}, proposals);
+				"ovm_component_registry_internal", "ovm_component_registry_param",
+				"OVM_COMPONENT_SVH"}, proposals);
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testVMMMacroContentAssist() {

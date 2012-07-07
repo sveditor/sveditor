@@ -57,20 +57,28 @@ public class ArgFilePersistence extends TestCase
 	
 	private File					fTmpDir;
 	private int						fIndexRebuilt;
+	private IProject				fProject;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		if (fTmpDir != null) {
-//			TestUtils.delete(fTmpDir);
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}
@@ -170,7 +178,7 @@ public class ArgFilePersistence extends TestCase
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 
-		IProject project_dir = TestUtils.createProject("xbus", xbus);
+		fProject = TestUtils.createProject("xbus", xbus);
 
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -218,7 +226,6 @@ public class ArgFilePersistence extends TestCase
 		log.debug("<-- parse()");
 		
 		SVDBTestUtils.assertNoErrWarn(file);
-		TestUtils.deleteProject(project_dir);
 		
 		LogFactory.removeLogHandle(log);
 	}
@@ -235,7 +242,7 @@ public class ArgFilePersistence extends TestCase
 		}
 		test_dir.mkdirs();
 		
-		System.out.println("test_dir: " + test_dir.getAbsolutePath());
+		log.debug("test_dir: " + test_dir.getAbsolutePath());
 
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
 		utils.copyBundleDirToFS("/data/ovm_warning_unbalanced_paren", test_dir);
@@ -243,7 +250,7 @@ public class ArgFilePersistence extends TestCase
 		
 		assertTrue(test_proj.isDirectory());
 
-		IProject project_dir = TestUtils.createProject(test_proj.getName(), test_proj);
+		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
 
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -293,7 +300,6 @@ public class ArgFilePersistence extends TestCase
 
 		IndexTestUtils.assertNoErrWarn(log, target_index);
 
-		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -303,9 +309,9 @@ public class ArgFilePersistence extends TestCase
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileTimestampChanged");
 		
-		IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -360,7 +366,7 @@ public class ArgFilePersistence extends TestCase
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		out = new ByteArrayOutputStream();
 		ps = new PrintStream(out);
@@ -369,7 +375,7 @@ public class ArgFilePersistence extends TestCase
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/basic_lib.f")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
 
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
@@ -398,9 +404,9 @@ public class ArgFilePersistence extends TestCase
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -530,8 +536,6 @@ public class ArgFilePersistence extends TestCase
 		assertEquals("Index rebuilt without cause", 0, fIndexRebuilt);
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
-		
-		TestUtils.deleteProject(project_dir);
 	}
 
 	public void testFSArgFileTimestampChanged() {

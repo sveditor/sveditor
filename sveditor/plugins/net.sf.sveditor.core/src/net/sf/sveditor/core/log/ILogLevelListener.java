@@ -12,7 +12,7 @@
 
 package net.sf.sveditor.core.log;
 
-public interface ILogLevelListener {
+public interface ILogLevelListener extends ILogLevel {
 	
 	void logLevelChanged(ILogHandle handle);
 

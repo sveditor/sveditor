@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.index.cache;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,13 +38,21 @@ public interface ISVDBFS {
 	
 	RandomAccessFile openChannelRead(String path);
 	
+	DataInput openDataInput(String path);
+	
 	void closeChannel(RandomAccessFile ch);
 	
 	void close(InputStream in);
 	
-	OutputStream openFileWrite(String path) throws IOException;
+	void closeInput(DataInput in);
+	
+	OutputStream openFileWrite(String path);
 	
 	RandomAccessFile openChannelWrite(String path);
+	
+	DataOutput openDataOutput(String path);
+	
+	void closeOutput(DataOutput out);
 	
 	boolean fileExists(String path);
 	
