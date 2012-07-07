@@ -50,18 +50,21 @@ import org.eclipse.ui.PlatformUI;
 
 public class TestUserLevelOperations extends TestCase {
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		if (fTmpDir != null) {
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}

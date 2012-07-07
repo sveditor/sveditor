@@ -56,6 +56,9 @@ public class TestIndexParse extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+		
 		if (fTmpDir != null) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;

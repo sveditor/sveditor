@@ -42,22 +42,34 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends TestCase {
 	
+	private IProject		fProject;
 	private File			fTmpDir;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		TestUtils.delete(fTmpDir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 	}
 
 	public void testBasicProcessing() {
@@ -81,7 +93,6 @@ public class TestVmmBasics extends TestCase {
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase vmm_xtor=null;
-		ISVDBItemBase vmm_err=null;
 		
 		while (index_it.hasNext()) {
 			ISVDBItemBase it = index_it.nextItem();
@@ -94,10 +105,6 @@ public class TestVmmBasics extends TestCase {
 				if (name.equals("vmm_xactor")) {
 					vmm_xtor = it;
 				}
-			} else if (it.getType() == SVDBItemType.MacroDef) {
-				if (name.equals("vmm_error")) {
-					vmm_err = it;
-				}
 			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
 				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
 				
@@ -108,7 +115,6 @@ public class TestVmmBasics extends TestCase {
 		}
 		
 		assertEquals("Check that no errors were found", 0, markers.size());
-		assertNotNull("Check found vmm_error", vmm_err);
 		assertNotNull("Check found vmm_xactor", vmm_xtor);
 		LogFactory.removeLogHandle(log);
 	}
@@ -127,7 +133,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File ethernet = new File(test_dir, "vmm/sv/examples/std_lib/ethernet");
 		
-		/* IProject project_dir = */ TestUtils.createProject("ethernet", ethernet);
+		fProject = TestUtils.createProject("ethernet", ethernet);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -177,7 +183,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File wishbone = new File(test_dir, "vmm/sv/examples/std_lib/wishbone");
 		
-		/* IProject project_dir = */ TestUtils.createProject("wishbone", wishbone);
+		fProject = TestUtils.createProject("wishbone", wishbone);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -228,7 +234,7 @@ public class TestVmmBasics extends TestCase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
 
-		/* IProject project_dir = */ TestUtils.createProject("scenarios", scenarios);
+		fProject = TestUtils.createProject("scenarios", scenarios);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {

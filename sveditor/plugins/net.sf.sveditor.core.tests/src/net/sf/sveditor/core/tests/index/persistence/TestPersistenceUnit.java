@@ -57,7 +57,7 @@ public class TestPersistenceUnit extends TestCase {
 	}
 	
 	public void testRWRefCacheEntryMap() throws DBFormatException, DBWriteException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IDBWriter writer = new SVDBPersistenceRW();
 		IDBReader reader = new SVDBPersistenceRW();
 		SVDBBaseIndexCacheData index_data = new SVDBBaseIndexCacheData("foo");

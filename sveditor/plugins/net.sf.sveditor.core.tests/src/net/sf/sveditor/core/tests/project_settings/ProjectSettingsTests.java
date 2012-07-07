@@ -32,7 +32,9 @@ public class ProjectSettingsTests extends TestCase {
 	protected void tearDown() throws Exception {
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
-		} else {
+		}
+		
+		if (fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
