@@ -177,4 +177,23 @@ public class TestParserPerf extends TestCase {
 		assertEquals("No errors", 0, errors.size());
 		 */
 	}	
+	
+	public void testOpenSparc() {
+		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
+
+		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
+		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
+		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				opensparc_design.getAbsolutePath(), 
+				SVDBArgFileIndexFactory.TYPE, factory, null);
+		
+		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		long fullparse_start = System.currentTimeMillis();
+		index.loadIndex(new NullProgressMonitor());
+		long fullparse_end = System.currentTimeMillis();
+		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
+	}
 }
