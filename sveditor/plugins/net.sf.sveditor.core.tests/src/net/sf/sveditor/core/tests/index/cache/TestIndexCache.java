@@ -52,12 +52,31 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexCache extends TestCase {
 	
+	private File			fTmpDir;
+	private IProject		fProject;
+	
+	@Override
+	protected void setUp() throws Exception {
+		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
+	}
+
 	public void testFileCacheBasics() {
 		String testname = "testFileCacheBasics";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		File tmp_dir = TestUtils.createTempDir();
-		final File db_dir = new File(tmp_dir, "db");
-		File test_dir = new File(tmp_dir, "test");
+		File test_dir = new File(fTmpDir, "test");
+		final File db_dir = new File(fTmpDir, "db");
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		CoreReleaseTests.clearErrors();
@@ -65,10 +84,10 @@ public class TestIndexCache extends TestCase {
 		assertTrue(db_dir.mkdirs());
 		assertTrue(test_dir.mkdirs());
 		
-		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
-		File xbus = new File(test_dir, "ovm/examples/xbus");
+		utils.unpackBundleZipToFS("/ovm.zip", fTmpDir);		
+		File xbus = new File(fTmpDir, "ovm/examples/xbus");
 		
-		IProject project_dir = TestUtils.createProject("xbus", xbus);
+		fProject = TestUtils.createProject("xbus", xbus);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
@@ -126,16 +145,14 @@ public class TestIndexCache extends TestCase {
 		log.debug("Second Iteration: " + (end-start) + "ms");
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
-		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 	}
 
 	public void testFileCacheBasicsUVM() {
 		String testname = "testFileCacheBasicsUVM";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		File tmp_dir = TestUtils.createTempDir();
-		final File db_dir = new File(tmp_dir, "db");
-		File test_dir = new File(tmp_dir, "test");
+		final File db_dir = new File(fTmpDir, "db");
+		File test_dir = new File(fTmpDir, "test");
 		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -146,7 +163,7 @@ public class TestIndexCache extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm = new File(test_dir, "uvm");
 		
-		IProject project_dir = TestUtils.createProject("uvm", uvm);
+		fProject = TestUtils.createProject("uvm", uvm);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
@@ -214,16 +231,14 @@ public class TestIndexCache extends TestCase {
 		log.debug("Second Iteration: " + (end-start) + "ms");
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
-		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 	}
 
 	public void testFileCacheUVMDumpLoadBug() throws IOException, DBFormatException, DBWriteException {
 		String testname = "testFileCacheUVMDumpLoadBug";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		File tmp_dir = TestUtils.createTempDir();
-		final File db_dir = new File(tmp_dir, "db");
-		File test_dir = new File(tmp_dir, "test");
+		final File db_dir = new File(fTmpDir, "db");
+		File test_dir = new File(fTmpDir, "test");
 		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -235,7 +250,7 @@ public class TestIndexCache extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm = new File(test_dir, "uvm");
 		
-		IProject project_dir = TestUtils.createProject("uvm", uvm);
+		fProject = TestUtils.createProject("uvm", uvm);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
@@ -303,7 +318,6 @@ public class TestIndexCache extends TestCase {
 		log.debug("Second Iteration: " + (end-start) + "ms");
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
-		TestUtils.deleteProject(project_dir);
 		LogFactory.removeLogHandle(log);
 	}
 

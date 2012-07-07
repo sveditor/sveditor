@@ -35,6 +35,12 @@ import org.eclipse.core.runtime.Path;
 
 public class WSArgFileIndexChanges extends TestCase {
 	
+	@Override
+	protected void tearDown() throws Exception {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+	}
+
 	public void testArgFileChange() {
 		File tmpdir = TestUtils.createTempDir();
 		SVCorePlugin.getDefault().enableDebug(false);

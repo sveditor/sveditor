@@ -765,10 +765,12 @@ public class TestParseClassBodyItems extends TestCase {
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
+		LogFactory.removeLogHandle(log);
 	}
 
 	private void runTestExpErr(

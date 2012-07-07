@@ -30,9 +30,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.InputStreamCopier;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -40,6 +40,8 @@ import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
@@ -159,6 +161,15 @@ public class SVDBTestUtils {
 		return file;
 	}
 	
+	public static SVDBFile parse(LogHandle log, String content, String filename, boolean exp_err) {
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = parse(log, content, filename, markers);
+		if (!exp_err) {
+			TestCase.assertEquals("Unexpected errors", 0, markers.size());
+		}
+		return file;
+	}
+	
 	public static SVDBFile parse(
 			LogHandle				log,
 			String 					content, 
@@ -175,12 +186,20 @@ public class SVDBTestUtils {
 		SVDBFile file = null;
 		InputStreamCopier copier = new InputStreamCopier(content_i);
 		InputStream content = copier.copy();
+		/*
 		SVPreProcScanner pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(content, filename);
+		 */
+		SVPreProcDirectiveScanner pp_dir_scanner = new SVPreProcDirectiveScanner();
+		pp_dir_scanner.init(content, filename);
 		
 		SVDBPreProcObserver pp_observer = new SVDBPreProcObserver();
+		/*
 		pp_scanner.setObserver(pp_observer);
 		pp_scanner.scan();
+		 */
+		pp_dir_scanner.setObserver(pp_observer);
+		pp_dir_scanner.process();
 		
 		final SVDBFile pp_file = pp_observer.getFiles().get(0);
 		IPreProcMacroProvider macro_provider = new IPreProcMacroProvider() {
@@ -216,6 +235,11 @@ public class SVDBTestUtils {
 			}
 			log.debug("Content:");
 			log.debug(sb.toString());
+		
+			in = copier.copy();
+			SVPreProcessor preproc = new SVPreProcessor(in, filename, dp);
+			log.debug("Content (SVPreProc):");
+			log.debug(preproc.preprocess().toString());
 		}
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);

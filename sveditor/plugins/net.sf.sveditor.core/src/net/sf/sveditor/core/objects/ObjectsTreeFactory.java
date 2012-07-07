@@ -54,11 +54,11 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode packagesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.PACKAGES_NODE) ;
 		topNode.addChild(packagesNode) ;
-		packagesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.PACKAGES_NODE, SVDBItemType.PackageDecl)) ;
+		packagesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.PACKAGES_NODE, SVDBItemType.PackageDecl, false)) ;
 		
 		ObjectsTreeNode rootPkgNode = new ObjectsTreeNode(packagesNode, "root") ;
 		packagesNode.addChild(rootPkgNode) ;
-		rootPkgNode.setItemDecl(new SVDBDeclCacheItem(null, null, "root", SVDBItemType.PackageDecl)) ;
+		rootPkgNode.setItemDecl(new SVDBDeclCacheItem(null, null, "root", SVDBItemType.PackageDecl, false)) ;
 		
 		// Global classes go into the "root" package
 		//
@@ -105,7 +105,7 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode modulesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.MODULES_NODE) ;
 		topNode.addChild(modulesNode) ;
-		modulesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.MODULES_NODE, SVDBItemType.ModuleDecl)) ;
+		modulesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.MODULES_NODE, SVDBItemType.ModuleDecl, false)) ;
 		
 		for(ISVDBIndex svdbIndex: fProjectIndexList) {
 			List<SVDBDeclCacheItem> modules = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), "modules", new SVDBFindModuleMatcher()) ;
@@ -122,7 +122,7 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode interfacesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.INTERFACES_NODE) ;
 		topNode.addChild(interfacesNode) ;
-		interfacesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.INTERFACES_NODE, SVDBItemType.InterfaceDecl)) ;
+		interfacesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.INTERFACES_NODE, SVDBItemType.InterfaceDecl, false)) ;
 		
 		for(ISVDBIndex svdbIndex: fProjectIndexList) {
 			List<SVDBDeclCacheItem> interfaces = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), "interfaces", new SVDBFindInterfaceMatcher()) ;

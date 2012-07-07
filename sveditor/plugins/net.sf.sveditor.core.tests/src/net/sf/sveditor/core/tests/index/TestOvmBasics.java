@@ -47,18 +47,27 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestOvmBasics extends TestCase {
 	
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
 		
-		if (fTmpDir != null) {
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
@@ -140,7 +149,7 @@ public class TestOvmBasics extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		IProject project_dir = TestUtils.createProject("xbus", xbus);
+		fProject = TestUtils.createProject("xbus", xbus);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -174,7 +183,7 @@ public class TestOvmBasics extends TestCase {
 		assertEquals("No errors", 0, errors.size());
 		
 		index.dispose();
-		TestUtils.deleteProject(project_dir);
+		TestUtils.deleteProject(fProject);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -191,7 +200,7 @@ public class TestOvmBasics extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File trivial = new File(test_dir, "ovm/examples/trivial");
 		
-		/* IProject project_dir = */ TestUtils.createProject("trivial", trivial);
+		fProject = TestUtils.createProject("trivial", trivial);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -240,7 +249,7 @@ public class TestOvmBasics extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File basic_read_write_sequence = new File(test_dir, "ovm/examples/sequence/basic_read_write_sequence");
 		
-		/* IProject project_dir = */ TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
+		fProject = TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -295,7 +304,7 @@ public class TestOvmBasics extends TestCase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File simple = new File(test_dir, "ovm/examples/sequence/simple");
 		
-		/* IProject project_dir = */ TestUtils.createProject("simple", simple);
+		fProject = TestUtils.createProject("simple", simple);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {

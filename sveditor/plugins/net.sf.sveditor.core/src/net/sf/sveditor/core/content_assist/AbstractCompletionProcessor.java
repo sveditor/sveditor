@@ -32,7 +32,7 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
@@ -124,7 +124,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				active_file, lineno);
 		
 		if (src_scope != null) {
-			debug("src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
+			fLog.debug(LEVEL_MID, "src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
 		}
 
 		/*
@@ -136,7 +136,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		 */
 
 		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
-		debug("ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+		fLog.debug(LEVEL_MID, "ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 
 		if (ctxt.fTrigger != null) {
@@ -151,7 +151,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					try {
 						expr = parser.parsers().exprParser().expression();
 					} catch (SVParseException e) {
-						fLog.debug("Failed to parse the content-assist expression", e);
+						fLog.debug(LEVEL_MID, "Failed to parse the content-assist expression", e);
 						return;
 					}
 
@@ -164,10 +164,10 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					}
 
 					if (item == null) {
-						fLog.debug("Failed to traverse the content-assist expression");
+						fLog.debug(LEVEL_MID, "Failed to traverse the content-assist expression");
 						return;
 					}
-					debug("Item: " + item.getType() + " " + SVDBItem.getName(item));
+					fLog.debug(LEVEL_MID, "Item: " + item.getType() + " " + SVDBItem.getName(item));
 
 					// '.' or '::' trigger
 					findTriggeredProposals(ctxt, src_scope, item);
@@ -178,7 +178,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					try {
 						expr = parser.parsers().exprParser().expression();
 					} catch (SVParseException e) {
-						fLog.debug("Failed to parse the content-assist expression", e);
+						fLog.debug(LEVEL_MID, "Failed to parse the content-assist expression", e);
 						return;
 					}
 
@@ -195,9 +195,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					}
 
 					if (item == null) {
-						fLog.debug("Failed to traverse the content-assist expression");
+						fLog.debug(LEVEL_MID, "Failed to traverse the content-assist expression");
 					}
-					debug("Item: " + ((item != null)?(item.getType() + " " + SVDBItem.getName(item)):"null"));
+					fLog.debug(LEVEL_MID, "Item: " + ((item != null)?(item.getType() + " " + SVDBItem.getName(item)):"null"));
 					
 					findAssignTriggeredProposals(ctxt, src_scope, item);
 				} else if (ctxt.fTrigger.equals(":")) {
@@ -214,7 +214,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				}
 			} else if (ctxt.fTrigger.equals(".")) {
 				// null root and '.' -- likely a port completion
-				fLog.debug("likely port completion");
+				fLog.debug(LEVEL_MID, "likely port completion");
 
 				findPortCompletionProposals(ctxt, src_scope, lineno, linepos);
 			} else {
@@ -817,16 +817,12 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			}
 		} else {
 			// most likely a macro call
-			ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
-			while (it_i.hasNext()) {
-				ISVDBItemBase it_t = it_i.nextItem();
-
-				if (it_t.getType() == SVDBItemType.MacroDef) {
-					if (ctxt.fLeaf.equals("") || 
-							((ISVDBNamedItem)it_t).getName().startsWith(ctxt.fLeaf)) {
-						addProposal(it_t, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
-					}
-				}
+			List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), 
+					ctxt.fLeaf, new SVDBFindContentAssistNameMatcher(SVDBItemType.MacroDef));
+			
+			for (SVDBDeclCacheItem i : result) {
+				fLog.debug(LEVEL_MID, "Macro: " + i.getName());
+				addProposal(i.getSVDBItem(), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		}
 	}
