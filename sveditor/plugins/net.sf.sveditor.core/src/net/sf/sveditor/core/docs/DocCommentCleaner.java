@@ -28,20 +28,23 @@ package net.sf.sveditor.core.docs ;
 
 import java.util.regex.Pattern ;
 
+/**
+ * Removes any extraneous formatting and whitespace from the comment.  Eliminates 
+ * comment boxes, horizontal lines, trailing whitespace from lines, and expands all tab characters.  
+ * It keeps leading whitespace, though, since it may be needed for example code, 
+ * and blank lines, since the original line numbers are needed.
+ * 
+ */ 
 public class DocCommentCleaner {
 	
 	public static String TAB_EXPANSION = "   " ;
 	
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
-
-	//
-	//   Function: CleanComment
-	//
-	//   Removes any extraneous formatting and whitespace from the comment.  Eliminates comment boxes, horizontal lines, trailing
-	//   whitespace from lines, and expands all tab characters.  It keeps leading whitespace, though, since it may be needed for
-	//   example code, and blank lines, since the original line numbers are needed.
-	//
 	
+	/* 
+	 * 
+	 * @param lines
+	 */
 	public static void clean(String[] lines) {
 		
 		Uniformity leftSide = Uniformity.DONT_KNOW ;

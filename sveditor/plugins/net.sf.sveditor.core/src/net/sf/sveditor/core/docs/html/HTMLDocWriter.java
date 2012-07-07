@@ -68,8 +68,6 @@ public class HTMLDocWriter implements IDocWriter {
 	}
 
 	private void writeFiles(DocGenConfig cfg, DocModel model) throws IOException {
-//		for(String file: model.getDocFiles().keySet()) {
-//			DocFile docFile = model.getDocFiles().get(file) ;
 		for(String file: model.getFileSet()) {
 			DocFile docFile = model.getDocFile(file) ;
 			writeFile(cfg, model, docFile) ;
