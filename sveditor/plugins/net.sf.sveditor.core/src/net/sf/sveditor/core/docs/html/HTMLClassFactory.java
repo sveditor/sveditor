@@ -14,7 +14,7 @@ package net.sf.sveditor.core.docs.html;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocClassItem;
 import net.sf.sveditor.core.docs.model.DocFuncItem;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
@@ -30,12 +30,12 @@ public class HTMLClassFactory {
 	
 	public String build(DocClassItem classItem) {
 		String res = HTMLUtils.STR_DOCTYPE ;
-		res += HTMLUtils.genHTMLHeadStart("../..",classItem.getName()) ;
+		res += HTMLUtils.genHTMLHeadStart("../..",classItem.getTitle()) ;
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
 		res += genClassStart() ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(classItem.getName()) ;
+		res += HTMLUtils.genCTitle(classItem.getTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
 		res += genSummaryStart(classItem) ;
 		res += HTMLUtils.genSummaryBegin() ;
@@ -53,7 +53,7 @@ public class HTMLClassFactory {
 		res += genMemberDetail(classItem) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu("../..", classItem.getName()) ;
+		res += HTMLUtils.genMenu("../..", classItem.getTitle()) ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
@@ -64,7 +64,7 @@ public class HTMLClassFactory {
 		// Will there be more than one topic for class? If not, then
 		// the contained set of topics (which is just one topic) can be 
 		// swallowed by the class item.
-		for(DocItem topic: classItem.getChildren()) {
+		for(DocTopic topic: classItem.getChildren()) {
 			result += topic.getBody() ;
 		}
 		return result ;
@@ -72,7 +72,7 @@ public class HTMLClassFactory {
 
 	private String genMemberDetail(DocClassItem classItem) {
 		String res = "" ;
-		for(DocItem child: classItem.getChildren()) {
+		for(DocTopic child: classItem.getChildren()) {
 			if(child.getType() == DocItemType.VARDECL) 
 				res += genDetailsVar(classItem, (DocVarDeclItem)child) ;
 			else if(child.getType() == DocItemType.FUNC) 
@@ -89,7 +89,7 @@ public class HTMLClassFactory {
 				   + "<td class=SIcon>"
 							 + "<img src=../../" + HTMLIconUtils.getImagePath(classItem) + ">"
 							 + "</td>"
-			+ "<td class=SEntry><a href=\"#" +classItem.getName()+ "\" >" +classItem.getName()+ "</a></td>" 
+			+ "<td class=SEntry><a href=\"#" +classItem.getTitle()+ "\" >" +classItem.getTitle()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
 		
 			result += classItem.getSummary() ;
@@ -119,7 +119,7 @@ public class HTMLClassFactory {
 	
 	private String genSummaryMembers(DocClassItem classItem) {
 		String res = "" ;
-		for(DocItem child: classItem.getChildren()) {
+		for(DocTopic child: classItem.getChildren()) {
 			if(child.getType() == DocItemType.VARDECL) 
 				res += genSummaryVarDecl(classItem, (DocVarDeclItem)child) ;
 			else if(child.getType() == DocItemType.FUNC) 
@@ -137,9 +137,9 @@ public class HTMLClassFactory {
 						 + "<img src=../../" + HTMLIconUtils.getImagePath(varItem) + ">"
 						 + "</td>"
 			   + "<td class=SEntry><a href=\"#" 
-						 + classItem.getName()
-						 + "." + varItem.getName() 
-						 + "\">" + varItem.getName() + "</a>"
+						 + classItem.getTitle()
+						 + "." + varItem.getTitle() 
+						 + "\">" + varItem.getTitle() + "</a>"
 						 + "</td>"
 			   + "<td class=SDescription>"
 						 + varItem.getSummary()
@@ -155,9 +155,9 @@ public class HTMLClassFactory {
 					 + "<img src=../../" + HTMLIconUtils.getImagePath(task) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getName()
-					 + "." + task.getName() 
-					 + "\">" + task.getName() + "()</a>"
+					 + classItem.getTitle()
+					 + "." + task.getTitle() 
+					 + "\">" + task.getTitle() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
 					 + task.getSummary()
@@ -174,9 +174,9 @@ public class HTMLClassFactory {
 					 + "<img src=../../" + HTMLIconUtils.getImagePath(func) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getName()
-					 + "." + func.getName() 
-					 + "\">" + func.getName() + "()</a>"
+					 + classItem.getTitle()
+					 + "." + func.getTitle() 
+					 + "\">" + func.getTitle() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
 					 + func.getSummary()
@@ -189,12 +189,12 @@ public class HTMLClassFactory {
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classItem.getName() + "." + taskItem.getName()
+						  + classItem.getTitle() + "." + taskItem.getTitle()
 				    + "\"></a>"
-				    + taskItem.getName() + "()"
+				    + taskItem.getTitle() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-		for(DocItem topic: taskItem.getChildren()) {
+		for(DocTopic topic: taskItem.getChildren()) {
 			res += topic.getBody() ;
 		}
 		res +=
@@ -208,12 +208,12 @@ public class HTMLClassFactory {
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classDeclItem.getName() + "." + func.getName()
+						  + classDeclItem.getTitle() + "." + func.getTitle()
 				    + "\"></a>"
-				    + func.getName() + "()"
+				    + func.getTitle() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
-		for(DocItem topic: func.getChildren()) {
+		for(DocTopic topic: func.getChildren()) {
 			res += topic.getBody() ;
 		}
 		res +=
@@ -229,12 +229,12 @@ public class HTMLClassFactory {
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 
-								  + classDeclItem.getName() + "." + varItem.getName()
+								  + classDeclItem.getTitle() + "." + varItem.getTitle()
 						    + "\"></a>"
-					    + varItem.getName()
+					    + varItem.getTitle()
 					    + "</h3>"
 					    + "<div class=CBody>" ; 
-		for(DocItem topic: varItem.getChildren()) {
+		for(DocTopic topic: varItem.getChildren()) {
 			res += topic.getBody() ;
 		}
 		res += 

@@ -68,8 +68,10 @@ public class HTMLDocWriter implements IDocWriter {
 	}
 
 	private void writeFiles(DocGenConfig cfg, DocModel model) throws IOException {
-		for(String file: model.getDocFiles().keySet()) {
-			DocFile docFile = model.getDocFiles().get(file) ;
+//		for(String file: model.getDocFiles().keySet()) {
+//			DocFile docFile = model.getDocFiles().get(file) ;
+		for(String file: model.getFileSet()) {
+			DocFile docFile = model.getDocFile(file) ;
 			writeFile(cfg, model, docFile) ;
 		}
 	}
@@ -86,7 +88,7 @@ public class HTMLDocWriter implements IDocWriter {
 			os = new FileOutputStream(outPath);
 			String fileContent = fileFactory.build(docFile) ;
 			if(fileContent == null || fileContent.isEmpty()) {
-				log.error("Unpexpectedly generated no content for: " + docFile.getName()) ;
+				log.error("Unpexpectedly generated no content for: " + docFile.getTitle()) ;
 			}
 			os.write(fileContent.getBytes()) ;
 			os.close() ;

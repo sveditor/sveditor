@@ -17,7 +17,7 @@ import java.util.Set;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.docs.model.DocClassItem;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocSectionItem;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -41,7 +41,7 @@ public class TestParser extends TestCase {
 			    "" 
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
 		expTopics.add(new DocClassItem("ubus_env")) ;
 		
@@ -59,9 +59,9 @@ public class TestParser extends TestCase {
 			    "" 
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class") ;
@@ -85,9 +85,9 @@ public class TestParser extends TestCase {
 			    "More stuff following header"
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
 								+"<h4 class=CHeading>This is a header line</h4>"
@@ -113,9 +113,9 @@ public class TestParser extends TestCase {
 			    "and continues here"
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class. The first para continues here</p><p>The second starts and continues here</p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class. ") ;
@@ -139,9 +139,9 @@ public class TestParser extends TestCase {
 			    "- bullet 3"
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p><ul><li>bullet 1</li><li>bullet 2</li><li>bullet 3</li></ul>") ;
 		classDocTopic.setSummary("Description of the ubus_env class") ;
@@ -163,9 +163,9 @@ public class TestParser extends TestCase {
 			    "",
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold</b> text</p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class with some <b>bold</b> text") ;
@@ -186,9 +186,9 @@ public class TestParser extends TestCase {
 			    "",
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <b>bold text</b></p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class with some <b>bold text</b>") ;
@@ -209,9 +209,9 @@ public class TestParser extends TestCase {
 			    "",
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined</u> text</p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined</u> text") ;
@@ -232,9 +232,9 @@ public class TestParser extends TestCase {
 			    "",
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined text</u>") ;
@@ -255,9 +255,9 @@ public class TestParser extends TestCase {
 			    "",
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class with some <u>underlined text</u></p>") ;
 		classDocTopic.setSummary("Description of the ubus_env class with some <u>underlined text</u>") ;
@@ -280,9 +280,9 @@ public class TestParser extends TestCase {
 			    "| more code"
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
 								+"<blockquote><pre>"
@@ -310,9 +310,9 @@ public class TestParser extends TestCase {
 			    "> more code"
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem classDocTopic = new DocClassItem("ubus_env") ;
+		DocTopic classDocTopic = new DocClassItem("ubus_env") ;
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
 								+"<blockquote><pre>"
@@ -342,9 +342,9 @@ public class TestParser extends TestCase {
 			    "" 
 		} ;
 
-		Set<DocItem> expTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
-		DocItem titleTopic = new DocSectionItem("This is the page title") ;
+		DocTopic titleTopic = new DocSectionItem("This is the page title") ;
 		
 		titleTopic.setBody("<p>this is a description of the page</p>") ;
 		titleTopic.setSummary("this is a description of the page") ;
@@ -359,7 +359,7 @@ public class TestParser extends TestCase {
 	}
 	
 		
-	private void runTest(String commentLines[], Set<DocItem> expTopics) throws Exception {
+	private void runTest(String commentLines[], Set<DocTopic> expTopics) throws Exception {
 		
 		if(fDebug) {
 			logComment("Parsing comment", commentLines) ;
@@ -367,13 +367,13 @@ public class TestParser extends TestCase {
 		
 		IDocCommentParser parser = new DocCommentParser() ;
 		
-		Set<DocItem> actDocTopics = new HashSet<DocItem>() ;
+		Set<DocTopic> actDocTopics = new HashSet<DocTopic>() ;
 		
 		parser.parseComment(commentLines, actDocTopics) ;
 		
-		for(DocItem expTopic: expTopics) {
-			DocItem actTopic = null ;
-			for(DocItem topic: actDocTopics) {
+		for(DocTopic expTopic: expTopics) {
+			DocTopic actTopic = null ;
+			for(DocTopic topic: actDocTopics) {
 				if(topic.getTitle().equals(expTopic.getTitle())) {
 					actTopic = topic ;
 					actDocTopics.remove(topic) ;

@@ -17,7 +17,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.DocTopicType;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocModel;
 
 public class HTMLIndexFactory {
@@ -42,7 +42,7 @@ public class HTMLIndexFactory {
 	}
 	
 	private String genIndex(String relPathToHTML, DocModel model) {
-		Map<String, Map<String, DocItem>> classIdxMap = model.getTopicIndexMap("class") ;
+		Map<String, Map<String, DocTopic>> classIdxMap = model.getTopicIndexMap("class") ;
 		if(classIdxMap == null) {
 			return "" ;
 		}
@@ -75,11 +75,11 @@ public class HTMLIndexFactory {
 						+"<td class=IHeading id=IFirstHeading>"
 							+ "<a name=\"" + idxKey + "\"></a>" + idxKey + "</td><td></td>"
 					+ "</tr>" ;
-		   Map<String, DocItem> classMap = classIdxMap.get(idxKey) ;
+		   Map<String, DocTopic> classMap = classIdxMap.get(idxKey) ;
 		   ArrayList<String> sortedClassNames = new ArrayList<String>(classMap.keySet()) ;
 		   Collections.sort(sortedClassNames) ;
 		   for(String className: sortedClassNames) {
-			   DocItem docItem = classMap.get(className) ;
+			   DocTopic docItem = classMap.get(className) ;
 			   res +=
 					  "<tr><td class=ISymbolPrefix id=IOnlySymbolPrefix>&nbsp;</td>" 
 						+ "<td class=IEntry>"

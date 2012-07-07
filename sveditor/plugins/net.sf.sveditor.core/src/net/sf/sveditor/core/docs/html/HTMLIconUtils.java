@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
@@ -79,7 +79,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 		return log ;
 	}
 	
-	public static String getImagePath(DocItem docItem) {
+	public static String getImagePath(DocTopic docItem) {
 		if (docItem.getType() == DocItemType.VARDECL) {
 			DocVarDeclItem varDeclItem = (DocVarDeclItem)docItem ;
 			int attr = varDeclItem.getAttr() ;

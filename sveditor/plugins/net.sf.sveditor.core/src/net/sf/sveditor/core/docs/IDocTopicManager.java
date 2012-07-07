@@ -9,8 +9,14 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.docs.model;
+package net.sf.sveditor.core.docs;
 
-public interface IDocItem {
+import java.util.Collection;
+
+public interface IDocTopicManager {
+	
+	DocKeywordInfo getTopicType(String keyword) ;
+
+	Collection<DocTopicType> getAllTopicTypes() ;
 
 }

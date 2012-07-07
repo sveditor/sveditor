@@ -38,7 +38,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocClassItem;
 import net.sf.sveditor.core.docs.model.DocFuncItem;
 import net.sf.sveditor.core.docs.model.DocGeneralItem;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
@@ -48,13 +48,13 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	private LogHandle fLog ;
 	
-	private IDocTopics fDocTopics ;
+	private IDocTopicManager fDocTopics ;
 	
 	public DocCommentParser() {
 		this(null) ;
 	}
 	
-	public DocCommentParser(IDocTopics docTopics) {
+	public DocCommentParser(IDocTopicManager docTopics) {
 		fLog = LogFactory.getLogHandle("DocCommentParser") ;
 		fDocTopics = docTopics ;
 	}
@@ -91,8 +91,8 @@ public class DocCommentParser implements IDocCommentParser {
 		return null ;
 	}
 	
-	public DocItem createDocItemForKeyword(String keyword, String topicTitle) {
-		DocItem docItem ;
+	public DocTopic createDocItemForKeyword(String keyword, String topicTitle) {
+		DocTopic docItem ;
 		DocKeywordInfo kwi = fDocTopics.getTopicType(keyword.toLowerCase()) ;
 		String topicTypeName = kwi.getTopicType().getName() ;
 		if(topicTypeName == DocTopicManager.TOPIC_CLASS) {
@@ -109,7 +109,7 @@ public class DocCommentParser implements IDocCommentParser {
 		return docItem ;
 	}
 
-	public void parse(String comment, Set<DocItem> docTopics) {
+	public void parse(String comment, Set<DocTopic> docTopics) {
 		
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
@@ -189,7 +189,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 //	private enum Scope { NONE, NORMAL, START, END, ALWAYS_GLOBAL } ;
 	
-	public int parseComment(String lines[], Set<DocItem> parsedTopics) {
+	public int parseComment(String lines[], Set<DocTopic> parsedTopics) {
 	
 	    int topicCount = 0 ;
 	    boolean prevLineBlank = true ;
@@ -252,7 +252,7 @@ public class DocCommentParser implements IDocCommentParser {
 	            	}
 //	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
 	            	
-	            	DocItem newDocItem = createDocItemForKeyword(keyword, title) ;
+	            	DocTopic newDocItem = createDocItemForKeyword(keyword, title) ;
 	            	
 	            	newDocItem.setBody(body) ;
 	            	newDocItem.setSummary(summary) ;
@@ -314,7 +314,7 @@ public class DocCommentParser implements IDocCommentParser {
         		summary = getSummaryFromBody(body) ; 
         	}
 //        	DocItem newTopic = new DocItem("todo-name-me",DocItemType.Topic, body, title, summary) ;
-        	DocItem newTopic = createDocItemForKeyword(keyword, title) ;
+        	DocTopic newTopic = createDocItemForKeyword(keyword, title) ;
         	
         	newTopic.setBody(body) ;
         	newTopic.setSummary(summary) ;

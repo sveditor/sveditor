@@ -12,7 +12,7 @@
 package net.sf.sveditor.core.docs.model;
 
 
-public class DocTaskItem extends DocItem {
+public class DocTaskItem extends DocTopic {
 
 	public int fFieldAttr ;
 	

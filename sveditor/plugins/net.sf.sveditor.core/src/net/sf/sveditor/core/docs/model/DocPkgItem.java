@@ -11,7 +11,7 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocPkgItem extends DocItem {
+public class DocPkgItem extends DocTopic {
 
 	public DocPkgItem(String name) {
 		super(name, DocItemType.PACKAGE) ;

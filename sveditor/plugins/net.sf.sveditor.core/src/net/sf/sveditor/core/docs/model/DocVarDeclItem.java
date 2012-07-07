@@ -14,7 +14,7 @@ package net.sf.sveditor.core.docs.model;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 
-public class DocVarDeclItem extends DocItem implements IFieldItemAttr {
+public class DocVarDeclItem extends DocTopic implements IFieldItemAttr {
 	
 	public int fFieldAttr ;
 

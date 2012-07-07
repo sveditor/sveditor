@@ -12,7 +12,7 @@
 package net.sf.sveditor.core.docs.model;
 
 
-public class DocGeneralItem extends DocItem {
+public class DocGeneralItem extends DocTopic {
 	public DocGeneralItem(String name) {
 		super(name, DocItemType.GENERAL) ;
 	}

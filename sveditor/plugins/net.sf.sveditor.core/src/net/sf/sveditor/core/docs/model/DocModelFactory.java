@@ -63,6 +63,7 @@ public class DocModelFactory {
 			buildInitialSymbolTableFromSVDB(cfg, model) ;
 			spinThroughComments(cfg, model, docCommentParser) ;
 			gatherPackages(cfg, model) ;
+//			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString()) ;
 		}
@@ -76,7 +77,7 @@ public class DocModelFactory {
 			if(!visitedIndex.contains(index)) {
 				visitedIndex.add(index) ;
 				for(String file: index.getFileList(new NullProgressMonitor())) {
-					DocItem parent = null ;
+					DocTopic parent = null ;
 					SVDBFile ppFile = index.getCache().getPreProcFile(new NullProgressMonitor(), file) ;
 					if(ppFile == null) {
 						fLog.error("Failed to find pre proc file for: " + file) ;
@@ -92,12 +93,12 @@ public class DocModelFactory {
 						boolean fileHasDocs = false ;
 						for(ISVDBChildItem child: ppFile.getChildren()) {
 							if(child instanceof SVDBDocComment) {
-								Set<DocItem> docTopics = new HashSet<DocItem>() ; // FIXME: this needs to be ordered
+								Set<DocTopic> docTopics = new HashSet<DocTopic>() ; // FIXME: this needs to be ordered
 								SVDBDocComment docCom = (SVDBDocComment)child ;
 								fLog.debug(ILogLevel.LEVEL_MID,"Found comment: " + docCom.getName()) ;
 								docCommentParser.parse(docCom.getRawComment(),docTopics) ;
-								for(DocItem topic: docTopics) {
-									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getName()) ;
+								for(DocTopic topic: docTopics) {
+									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getTitle()) ;
 									switch(topic.getType()) {
 										case CLASS:
 										case PACKAGE:
@@ -117,14 +118,14 @@ public class DocModelFactory {
 										case PACKAGE:	
 										default:
 											parent = topic ;
-											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getName() + ")") ;
+											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getTitle() + ")") ;
 											break ;
 									}
 								}
 							}
 						}						
 						if(fileHasDocs) {
-							model.getDocFiles().put(file, docFile) ;
+							model.addDocFile(docFile) ;
 						}
 					}
 				}
@@ -223,16 +224,15 @@ public class DocModelFactory {
 									  Map<String, Map<String, DocClassItem>> classMapByPkg, ISVDBIndex isvdbIndex)
 			throws DocModelFactoryException {
 		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
-		Map<String, DocFile> docFiles = model.getDocFiles() ;
 		if(pkgDecls != null) {
 			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
 				SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), pkgDecl.getFile().getFilePath()) ;
 				if(ppFile != null) {
 					String symbol = String.format("%s::%s", pkg.getName(), pkgDecl.getName()) ;
-					if(docFiles.containsKey(pkgDecl.getFile().getFilePath())) {
-						DocFile docFile = docFiles.get(pkgDecl.getFile().getFilePath()) ;
-						for(DocItem docItem: docFile.getChildren()) {
-							if(docItem.getName().equals(pkgDecl.getName())) {
+					DocFile docFile = model.getDocFile(pkgDecl.getFile().getFilePath()) ;
+					if(docFile != null) {
+						for(DocTopic docItem: docFile.getChildren()) {
+							if(docItem.getTitle().equals(pkgDecl.getName())) {
 								fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for %s",symbol)) ;
 								SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
 								if(symbolEntry == null) {
@@ -273,8 +273,8 @@ public class DocModelFactory {
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
-				for(DocItem docItem: classDocItem.getChildren()) {
-					if(docItem.getName().equals(svdbTask.getName())) {
+				for(DocTopic docItem: classDocItem.getChildren()) {
+					if(docItem.getTitle().equals(svdbTask.getName())) {
 						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 						docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 						String symbol = docItem.getQualifiedName() ;
@@ -292,8 +292,8 @@ public class DocModelFactory {
 			}
 			if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunc = (SVDBFunction)ci ;
-				for(DocItem docItem: classDocItem.getChildren()) {
-					if(docItem.getName().equals(svdbFunc.getName())) {
+				for(DocTopic docItem: classDocItem.getChildren()) {
+					if(docItem.getTitle().equals(svdbFunc.getName())) {
 						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 						docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 						String symbol = docItem.getQualifiedName() ;
@@ -313,8 +313,8 @@ public class DocModelFactory {
 				SVDBVarDeclStmt svdbVarDeclStmt = (SVDBVarDeclStmt)ci ;
 				for(ISVDBChildItem child: svdbVarDeclStmt.getChildren()) {
 					SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)child ;
-					for(DocItem docItem: classDocItem.getChildren()) {
-						if(docItem.getName().equals(varDeclItem.getName())) {
+					for(DocTopic docItem: classDocItem.getChildren()) {
+						if(docItem.getTitle().equals(varDeclItem.getName())) {
 							docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 							docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 							String symbol = docItem.getQualifiedName() ;
@@ -334,11 +334,18 @@ public class DocModelFactory {
 
 		}
 	}
+	
+//	private void indexTopics(DocGenConfig cfg, DocModel model) {
+//		for(DocItem item: model.getDocItems()) {
+//			
+//		}
+//		
+//	}
 
 	private void indexClass(DocClassItem classItem, DocModel model) throws DocModelFactoryException {
-		String name = classItem.getName() ;
+		String name = classItem.getTitle() ;
 		String firstChar = name.substring(0, 1).toUpperCase() ;
-		Map<String, Map<String,DocItem>> classIndexMap = model.getCreateTopicIndexMap("class") ;
+		Map<String, Map<String,DocTopic>> classIndexMap = model.getCreateTopicIndexMap("class") ;
 		if(classIndexMap.containsKey(firstChar)) {
 			classIndexMap.get(firstChar)
 				.put(name, classItem) ;

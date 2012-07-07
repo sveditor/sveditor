@@ -11,7 +11,7 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocFile extends DocItem {
+public class DocFile extends DocTopic {
 	
 	String fDocPath ;
 

@@ -11,11 +11,14 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.IDocTopics;
+import net.sf.sveditor.core.docs.IDocTopicManager;
 
 public class DocModel {
 	
@@ -31,8 +34,20 @@ public class DocModel {
 	
 	private Map<String, DocFile> docFiles ;
 	
-	public Map<String, DocFile> getDocFiles() {
-		return docFiles;
+	public void addDocFile(DocFile docFile) {
+		docFiles.put(docFile.getTitle(),docFile) ;
+	}
+	
+	public DocFile getDocFile(String filePath) {
+		return docFiles.get(filePath) ;
+	}
+	
+	public Set<String> getFileSet() {
+		return docFiles.keySet() ;
+	}
+	
+	public Collection<DocTopic> getDocItems() {
+		return new HashSet<DocTopic>(docFiles.values()) ;
 	}
 
 	public void setDocFiles(Map<String, DocFile> docFiles) {
@@ -43,16 +58,16 @@ public class DocModel {
 	
 	private Map<String, Map<String, DocClassItem>> classMapByPkg ;
 	
-	private Map<String, Map<String, Map<String, DocItem>>> topicIndexMaps ;
+	private Map<String, Map<String, Map<String, DocTopic>>> topicIndexMaps ;
 	
-	private IDocTopics docTopics ;
+	private IDocTopicManager docTopicManager ;
 	
 	public DocModel() {
 		pkgMap = new HashMap<String, DocPkgItem>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocClassItem>>() ;
 		docFiles = new HashMap<String, DocFile>() ;
-		docTopics = new DocTopicManager() ;
-		topicIndexMaps = new HashMap<String, Map<String, Map<String,DocItem>>>() ;
+		docTopicManager = new DocTopicManager() ;
+		topicIndexMaps = new HashMap<String, Map<String, Map<String,DocTopic>>>() ;
 	}
 
 	public Map<String, DocPkgItem> getPkgMap() {
@@ -63,7 +78,7 @@ public class DocModel {
 		return classMapByPkg ;
 	}
 
-	public Map<String,Map<String,DocItem>> getTopicIndexMap(String topic) {
+	public Map<String,Map<String,DocTopic>> getTopicIndexMap(String topic) {
 		if(topicIndexMaps.containsKey(topic)) {
 			return topicIndexMaps.get(topic) ;
 		} else {
@@ -71,21 +86,21 @@ public class DocModel {
 		}
 	}
 	
-	public Map<String,Map<String,DocItem>> getCreateTopicIndexMap(String topic) {
-		Map<String,Map<String,DocItem>> res ;
+	public Map<String,Map<String,DocTopic>> getCreateTopicIndexMap(String topic) {
+		Map<String,Map<String,DocTopic>> res ;
 		res = getTopicIndexMap(topic) ;
 		if(res == null) {
-			res = new HashMap<String,Map<String,DocItem>>() ;
+			res = new HashMap<String,Map<String,DocTopic>>() ;
 			for(String key: indexKeys) {
-				res.put(key, new HashMap<String, DocItem>()) ;
+				res.put(key, new HashMap<String, DocTopic>()) ;
 			}
 			topicIndexMaps.put(topic, res) ;
 		}
 		return res ;
 	}
 
-	public IDocTopics getDocTopics() {
-		return docTopics ;
+	public IDocTopicManager getDocTopics() {
+		return docTopicManager ;
 	}
 		
 

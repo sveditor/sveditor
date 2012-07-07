@@ -11,7 +11,7 @@
 
 package net.sf.sveditor.core.docs.model;
 
-public class DocFuncItem extends DocItem {
+public class DocFuncItem extends DocTopic {
 
 	public int fFieldAttr ;
 	

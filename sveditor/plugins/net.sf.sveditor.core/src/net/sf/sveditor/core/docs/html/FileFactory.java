@@ -17,7 +17,7 @@ import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocClassItem;
 import net.sf.sveditor.core.docs.model.DocFile;
 import net.sf.sveditor.core.docs.model.DocFuncItem;
-import net.sf.sveditor.core.docs.model.DocItem;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocItemType;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
@@ -47,19 +47,19 @@ public class FileFactory {
 	
 	public String build(DocFile docFile) {
 		String res = HTMLUtils.STR_DOCTYPE ;
-		res += HTMLUtils.genHTMLHeadStart(getRelPathToHTML(docFile.getName()),"FIXME-I-NEED-A-TITLE") ;
+		res += HTMLUtils.genHTMLHeadStart(getRelPathToHTML(docFile.getTitle()),"FIXME-I-NEED-A-TITLE") ;
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
 		res += genContent(docFile) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getName()),"FIXME-I-NEED-A-SOMETHING") ;
+		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getTitle()),"FIXME-I-NEED-A-SOMETHING") ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
 	
 	
-	private String genSummaryStart(DocItem docItem) {
+	private String genSummaryStart(DocTopic docItem) {
 		String result = "" ;
 		result += docItem.getSummary() ;
 		return result ;
@@ -67,7 +67,7 @@ public class FileFactory {
 
 	private String genMemberDetail(DocClassItem classItem) {
 		String res = "" ;
-		for(DocItem child: classItem.getChildren()) {
+		for(DocTopic child: classItem.getChildren()) {
 			if(child.getType() == DocItemType.VARDECL) 
 				res += genDetailsVar(classItem, (DocVarDeclItem)child) ;
 			else if(child.getType() == DocItemType.FUNC) 
@@ -78,13 +78,13 @@ public class FileFactory {
 		return res ;
 	}
 
-	static String genSTRMain(DocItem docItem) {
+	static String genSTRMain(DocTopic docItem) {
 		String result =
 			  "<tr class=\"SMain\">"
 				   + "<td class=SIcon>"
-							 + "<img src=" + getRelPathToHTML(docItem.getDocFile().getName()) + HTMLIconUtils.getImagePath(docItem) + ">"
+							 + "<img src=" + getRelPathToHTML(docItem.getDocFile().getTitle()) + HTMLIconUtils.getImagePath(docItem) + ">"
 							 + "</td>"
-			+ "<td class=SEntry><a href=\"#" +docItem.getName()+ "\" >" +docItem.getName()+ "</a></td>" 
+			+ "<td class=SEntry><a href=\"#" +docItem.getTitle()+ "\" >" +docItem.getTitle()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
 		
 			result += docItem.getSummary() ;
@@ -108,7 +108,7 @@ public class FileFactory {
 		if(docFile.getChildren().size() > 1) {
 			res += genFileSummary(docFile) ;
 		}
-		for(DocItem contentItem: docFile.getChildren()) {
+		for(DocTopic contentItem: docFile.getChildren()) {
 			switch(contentItem.getType()) {
 			case CLASS: {
 				res += genClass(docFile, (DocClassItem)contentItem) ;
@@ -124,13 +124,13 @@ public class FileFactory {
 		String res = "" ;
 		res += genSummaryStart(docFile) ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(docFile.getName()) ;
+		res += HTMLUtils.genCTitle(docFile.getTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
-		for(DocItem docItem: docFile.getChildren()) {
+		for(DocTopic docItem: docFile.getChildren()) {
 			if(docItem instanceof DocClassItem){
 				res += genSTRMain(docFile) ;
 				res += genSummaryMembers(docFile, (DocClassItem)docItem) ;
@@ -169,7 +169,7 @@ public class FileFactory {
 
 	private String genSummaryMembers(DocFile docFile, DocClassItem classDocItem) {
 		String res = "" ;
-		for(DocItem child: classDocItem.getChildren()) {
+		for(DocTopic child: classDocItem.getChildren()) {
 			if(child.getType() == DocItemType.VARDECL) 
 				res += genSummaryVarDecl(docFile, classDocItem, (DocVarDeclItem)child) ;
 			else if(child.getType() == DocItemType.FUNC) 
@@ -184,12 +184,12 @@ public class FileFactory {
 		String res =
 				 "<tr class=\"SVariable SIndent2 SMarked\">" 
 			   + "<td class=SIcon>"
-						 + "<img src="  + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(varItem) + ">"
+						 + "<img src="  + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(varItem) + ">"
 						 + "</td>"
 			   + "<td class=SEntry><a href=\"#" 
-						 + classItem.getName()
-						 + "." + varItem.getName() 
-						 + "\">" + varItem.getName() + "</a>"
+						 + classItem.getTitle()
+						 + "." + varItem.getTitle() 
+						 + "\">" + varItem.getTitle() + "</a>"
 						 + "</td>"
 			   + "<td class=SDescription>"
 						 + varItem.getSummary()
@@ -202,12 +202,12 @@ public class FileFactory {
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=" + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(task) + ">"
+					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(task) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getName()
-					 + "." + task.getName() 
-					 + "\">" + task.getName() + "()</a>"
+					 + classItem.getTitle()
+					 + "." + task.getTitle() 
+					 + "\">" + task.getTitle() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
 					 + task.getSummary()
@@ -221,12 +221,12 @@ public class FileFactory {
 		String res = 
 			 "<tr class=\"SFunction SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=" + getRelPathToHTML(docFile.getName()) + HTMLIconUtils.getImagePath(func) + ">"
+					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(func) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getName()
-					 + "." + func.getName() 
-					 + "\">" + func.getName() + "()</a>"
+					 + classItem.getTitle()
+					 + "." + func.getTitle() 
+					 + "\">" + func.getTitle() + "()</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
 					 + func.getSummary()
@@ -239,9 +239,9 @@ public class FileFactory {
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classItem.getName() + "." + taskItem.getName()
+						  + classItem.getTitle() + "." + taskItem.getTitle()
 				    + "\"></a>"
-				    + taskItem.getName() + "()"
+				    + taskItem.getTitle() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
 		res += taskItem.getBody() ;
@@ -256,9 +256,9 @@ public class FileFactory {
 		String res = 
 			  "<div class=CFunction>"
 			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classDeclItem.getName() + "." + func.getName()
+						  + classDeclItem.getTitle() + "." + func.getTitle()
 				    + "\"></a>"
-				    + func.getName() + "()"
+				    + func.getTitle() + "()"
 				    + "</h3>"
 				    + "<div class=CBody>" ;
 		res += func.getBody() ;
@@ -275,9 +275,9 @@ public class FileFactory {
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 
-								  + classDeclItem.getName() + "." + varItem.getName()
+								  + classDeclItem.getTitle() + "." + varItem.getTitle()
 						    + "\"></a>"
-					    + varItem.getName()
+					    + varItem.getTitle()
 					    + "</h3>"
 					    + "<div class=CBody>" ; 
 		res += varItem.getBody() ;

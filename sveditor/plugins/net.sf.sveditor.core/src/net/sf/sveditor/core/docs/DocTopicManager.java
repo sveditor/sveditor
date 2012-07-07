@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DocTopicManager implements IDocTopics {
+public class DocTopicManager implements IDocTopicManager {
 	
 	public static String TOPIC_GENERAL 		= "general";
 //	public static String TOPIC_GENERIC 		= "generic";
