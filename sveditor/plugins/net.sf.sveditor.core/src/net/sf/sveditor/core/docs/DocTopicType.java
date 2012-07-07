@@ -12,7 +12,7 @@
 package net.sf.sveditor.core.docs ;
 
 
-class DocTopicType {
+public class DocTopicType {
 	
 	enum ScopeType { NORMAL, START, END, ALWAYS_GLOBAL } ;
 	

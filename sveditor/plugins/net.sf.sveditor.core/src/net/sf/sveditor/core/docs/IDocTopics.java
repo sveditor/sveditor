@@ -11,8 +11,12 @@
 
 package net.sf.sveditor.core.docs;
 
+import java.util.Collection;
+
 public interface IDocTopics {
 	
 	DocKeywordInfo getTopicType(String keyword) ;
+
+	Collection<DocTopicType> getAllTopicTypes() ;
 
 }

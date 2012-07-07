@@ -20,6 +20,7 @@ import java.util.Enumeration;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.docs.DocGenConfig;
+import net.sf.sveditor.core.docs.DocTopicType;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.model.DocFile;
 import net.sf.sveditor.core.docs.model.DocModel;
@@ -95,12 +96,16 @@ public class HTMLDocWriter implements IDocWriter {
 	}
 
 	private void writeIndices(DocGenConfig cfg, DocModel model) throws IOException {
-		writeClassIndex(cfg, model) ;
+		for(DocTopicType docTopicType: model.getDocTopics().getAllTopicTypes()) {
+			if(docTopicType.isIndex()) {
+				writeIndex(cfg, model, docTopicType) ;
+			}
+		}
 	}
 
-	private void writeClassIndex(DocGenConfig cfg, DocModel model) throws IOException {
+	private void writeIndex(DocGenConfig cfg, DocModel model, DocTopicType docTopicType) throws IOException {
 		
-		HTMLClassIndexFactory classIndexFactory = new HTMLClassIndexFactory(cfg) ;
+		HTMLIndexFactory classIndexFactory = new HTMLIndexFactory(cfg, docTopicType) ;
 		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
 		
 		File classIndexFile = new File(indexDir, "Classes.html") ;

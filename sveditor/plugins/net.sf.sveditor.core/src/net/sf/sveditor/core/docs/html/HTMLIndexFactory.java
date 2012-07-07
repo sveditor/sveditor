@@ -15,19 +15,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.model.DocClassItem;
+import net.sf.sveditor.core.docs.DocTopicType;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocModel;
-import net.sf.sveditor.core.docs.model.DocPkgItem;
 
-public class HTMLClassIndexFactory {
+public class HTMLIndexFactory {
 	
 	private DocGenConfig cfg ;
+	private DocTopicType docTopicType ;
 	
-	public HTMLClassIndexFactory(DocGenConfig cfg) {
+	public HTMLIndexFactory(DocGenConfig cfg, DocTopicType docTopicType) {
 		this.cfg = cfg ;
+		this.docTopicType = docTopicType ;
 	}
 	
 	public String build(DocModel model) {
@@ -42,7 +42,6 @@ public class HTMLClassIndexFactory {
 	}
 	
 	private String genIndex(String relPathToHTML, DocModel model) {
-//		Map<String, Map<String, Tuple<DocPkgItem,DocClassItem>>> classIdxMap = model.getClassIndexMap("class") ; 
 		Map<String, Map<String, DocItem>> classIdxMap = model.getTopicIndexMap("class") ;
 		if(classIdxMap == null) {
 			return "" ;
@@ -76,19 +75,14 @@ public class HTMLClassIndexFactory {
 						+"<td class=IHeading id=IFirstHeading>"
 							+ "<a name=\"" + idxKey + "\"></a>" + idxKey + "</td><td></td>"
 					+ "</tr>" ;
-//		   Map<String, Tuple<DocPkgItem, DocClassItem>> classMap = classIdxMap.get(idxKey) ;					
 		   Map<String, DocItem> classMap = classIdxMap.get(idxKey) ;
 		   ArrayList<String> sortedClassNames = new ArrayList<String>(classMap.keySet()) ;
 		   Collections.sort(sortedClassNames) ;
 		   for(String className: sortedClassNames) {
-//			   Tuple<DocPkgItem,DocClassItem> tuple = classMap.get(className) ;
 			   DocItem docItem = classMap.get(className) ;
-//			   String pkgName = tuple.first() == null ? "" : tuple.first().getName() ; 
-//			   String classRelPath = HTMLUtils.getHTMLRelPathForClass(cfg, pkgName, className).toString() ;
 			   res +=
 					  "<tr><td class=ISymbolPrefix id=IOnlySymbolPrefix>&nbsp;</td>" 
 						+ "<td class=IEntry>"
-//							+ "<a href=\"" + relPathToHTML + "/" + classRelPath + "#" + className + "\" " 
 							+ "<a href=\"" + relPathToHTML + "/files" + docItem.getDocFile().getDocPath() + ".html" + "#" + docItem.getQualifiedName() + "\" " 
 //								+ "id=link1 onMouseOver=\"ShowTip(event, 'tt1', 'link1')\" "
 //								+ "onMouseOut=\"HideTip('tt1')\" "

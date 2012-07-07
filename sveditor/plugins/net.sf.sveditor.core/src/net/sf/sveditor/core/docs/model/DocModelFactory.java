@@ -41,7 +41,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class DocModelFactory {
 	
-	private IDocCommentParser fParser ;
 	private LogHandle fLog ;
 	private SymbolTable fSymbolTable ;
 	
@@ -54,15 +53,15 @@ public class DocModelFactory {
 	
 	public DocModelFactory() {
 		fLog = LogFactory.getLogHandle("DocModelFactory") ;
-		fParser = new DocCommentParser() ;
 		fSymbolTable = new SymbolTable() ;
 	}
 
 	public DocModel build(DocGenConfig cfg) {
 		DocModel model = new DocModel() ;
+		IDocCommentParser docCommentParser = new DocCommentParser(model.getDocTopics()) ;
 		try {
 			buildInitialSymbolTableFromSVDB(cfg, model) ;
-			spinThroughComments(cfg, model) ;
+			spinThroughComments(cfg, model, docCommentParser) ;
 			gatherPackages(cfg, model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString()) ;
@@ -70,7 +69,7 @@ public class DocModelFactory {
 		return model ;
 	}
 
-	private void spinThroughComments(DocGenConfig cfg, DocModel model) {
+	private void spinThroughComments(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
 		HashSet<ISVDBIndex> visitedIndex = new HashSet<ISVDBIndex>() ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			ISVDBIndex index = pkgTuple.second() ;
@@ -96,7 +95,7 @@ public class DocModelFactory {
 								Set<DocItem> docTopics = new HashSet<DocItem>() ; // FIXME: this needs to be ordered
 								SVDBDocComment docCom = (SVDBDocComment)child ;
 								fLog.debug(ILogLevel.LEVEL_MID,"Found comment: " + docCom.getName()) ;
-								fParser.parse(docCom.getRawComment(),docTopics) ;
+								docCommentParser.parse(docCom.getRawComment(),docTopics) ;
 								for(DocItem topic: docTopics) {
 									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getName()) ;
 									switch(topic.getType()) {

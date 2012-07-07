@@ -14,6 +14,9 @@ package net.sf.sveditor.core.docs.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.docs.DocTopicManager;
+import net.sf.sveditor.core.docs.IDocTopics;
+
 public class DocModel {
 	
 	public static final String IndexKeyWierd = "$#!" ;
@@ -42,11 +45,13 @@ public class DocModel {
 	
 	private Map<String, Map<String, Map<String, DocItem>>> topicIndexMaps ;
 	
+	private IDocTopics docTopics ;
+	
 	public DocModel() {
 		pkgMap = new HashMap<String, DocPkgItem>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocClassItem>>() ;
 		docFiles = new HashMap<String, DocFile>() ;
-		
+		docTopics = new DocTopicManager() ;
 		topicIndexMaps = new HashMap<String, Map<String, Map<String,DocItem>>>() ;
 	}
 
@@ -77,6 +82,10 @@ public class DocModel {
 			topicIndexMaps.put(topic, res) ;
 		}
 		return res ;
+	}
+
+	public IDocTopics getDocTopics() {
+		return docTopics ;
 	}
 		
 

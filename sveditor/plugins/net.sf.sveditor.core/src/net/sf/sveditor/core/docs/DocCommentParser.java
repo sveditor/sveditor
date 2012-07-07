@@ -41,7 +41,6 @@ import net.sf.sveditor.core.docs.model.DocGeneralItem;
 import net.sf.sveditor.core.docs.model.DocItem;
 import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocVarDeclItem;
-import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -52,20 +51,26 @@ public class DocCommentParser implements IDocCommentParser {
 	private IDocTopics fDocTopics ;
 	
 	public DocCommentParser() {
+		this(null) ;
+	}
+	
+	public DocCommentParser(IDocTopics docTopics) {
 		fLog = LogFactory.getLogHandle("DocCommentParser") ;
-		fDocTopics = new DocTopics() ;
+		fDocTopics = docTopics ;
 	}
 	
 	private static Pattern fPatternHeaderLine = 
 			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
 	
 	private static Pattern fPatternIsDocComment = 
-//			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*?) *\\n.*",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 			Pattern.compile(".*? *([a-z0-9 ]*[a-z0-9]): +(.*?) *$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 	
     private static Pattern fPatternCodeSectionEnd = 
     		Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
 
+	/* (non-Javadoc)
+	 * @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	 */
 	public String isDocComment(String comment) {
 		
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
@@ -73,6 +78,9 @@ public class DocCommentParser implements IDocCommentParser {
 		for(String line: lines) {
 			Matcher matcher = fPatternIsDocComment.matcher(line) ;
 			if(matcher.matches()) {
+				if(fDocTopics == null) {
+					return matcher.group(2) ;
+				}
 				String keyword = matcher.group(1).toLowerCase() ;
 				if(fDocTopics.getTopicType(keyword) != null) {
 					return matcher.group(2) ;
@@ -87,13 +95,13 @@ public class DocCommentParser implements IDocCommentParser {
 		DocItem docItem ;
 		DocKeywordInfo kwi = fDocTopics.getTopicType(keyword.toLowerCase()) ;
 		String topicTypeName = kwi.getTopicType().getName() ;
-		if(topicTypeName == DocTopics.TOPIC_CLASS) {
+		if(topicTypeName == DocTopicManager.TOPIC_CLASS) {
 			docItem = new DocClassItem(topicTitle) ;
-		} else if(topicTypeName == DocTopics.TOPIC_TASK) {
+		} else if(topicTypeName == DocTopicManager.TOPIC_TASK) {
 			docItem = new DocTaskItem(topicTitle) ;
-		} else if(topicTypeName == DocTopics.TOPIC_FUNCTION) {
+		} else if(topicTypeName == DocTopicManager.TOPIC_FUNCTION) {
 			docItem = new DocFuncItem(topicTitle) ;
-		} else if(topicTypeName == DocTopics.TOPIC_PROPERTY) {
+		} else if(topicTypeName == DocTopicManager.TOPIC_PROPERTY) {
 			docItem = new DocVarDeclItem(topicTitle) ;
 		} else {
 			docItem = new DocGeneralItem(topicTitle) ;
@@ -322,7 +330,6 @@ public class DocCommentParser implements IDocCommentParser {
 		
     }
 
-	@SuppressWarnings("unused")
 	private boolean parseHeaderLine(Tuple<String, String> tupleKeywordTitle, String line) {
 		
 		

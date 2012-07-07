@@ -11,10 +11,12 @@
 
 package net.sf.sveditor.core.docs ;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DocTopics implements IDocTopics {
+public class DocTopicManager implements IDocTopics {
 	
 	public static String TOPIC_GENERAL 		= "general";
 //	public static String TOPIC_GENERIC 		= "generic";
@@ -40,22 +42,22 @@ public class DocTopics implements IDocTopics {
 	Map<String,DocTopicType>  singularKeywordMap ;	// singular keyword -> TopicType
 	Map<String,DocTopicType>  pluralKeywordMap ;	// plural keyword -> TopicType
 	
-	public DocTopics() {
+	public DocTopicManager() {
 		
 		topicTypeMap 		= new HashMap<String,DocTopicType>() ;
 		singularKeywordMap 	= new HashMap<String,DocTopicType>() ;
 		pluralKeywordMap   	= new HashMap<String,DocTopicType>() ;
 		
 		//													name				plural			index   pageTitleFirst		breakLists
-		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				true,	true,				false)) ;
+		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				false,	true,				false)) ;
 		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		true,	true,				false)) ;
 //		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		true,	false,				false)) ;
 //		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	true,	false,				false)) ;
 //		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		true,	false,				false)) ;
-		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"sections",		true,	true,				false)) ;
-		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		true,	false,				false)) ;
-		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	true,	false,				false)) ;
-		topicTypeMap.put(TOPIC_PROPERTY, 	new DocTopicType(TOPIC_PROPERTY,	"properties",	true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"sections",		false,	true,				false)) ;
+		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		false,	false,				false)) ;
+		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	false,	false,				false)) ;
+		topicTypeMap.put(TOPIC_PROPERTY, 	new DocTopicType(TOPIC_PROPERTY,	"properties",	false,	false,				false)) ;
 		
 		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 	"") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 	"classes") ;
@@ -88,6 +90,10 @@ public class DocTopics implements IDocTopics {
 		if(pluralKeywordMap.containsKey(keyword)) 
 			return new DocKeywordInfo(keyword, pluralKeywordMap.get(keyword), false) ;
 		return null ;
+	}
+
+	public Collection<DocTopicType> getAllTopicTypes() {
+		return new ArrayList<DocTopicType>(topicTypeMap.values()) ;
 	}
 	
 	
