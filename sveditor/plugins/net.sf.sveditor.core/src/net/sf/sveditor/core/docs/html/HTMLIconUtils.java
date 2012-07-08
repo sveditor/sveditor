@@ -18,9 +18,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.model.DocTaskItem;
 import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -87,17 +85,6 @@ public class HTMLIconUtils implements IHTMLIcons {
 		*/
 	}
 	
-//	public static Image getIcon(String key) {
-//		return SVUiPlugin.getImage(key);
-//	}
-//	
-//	public static Image getIcon(SVDBItemType type) {
-//		if (fImgDescMap.containsKey(type))  {
-//			return SVUiPlugin.getImage(fImgDescMap.get(type)); 
-//		}
-//		return null;
-//	}
-	
 	private static LogHandle log ;
 	
 	public static LogHandle getLog() {
@@ -109,7 +96,6 @@ public class HTMLIconUtils implements IHTMLIcons {
 	
 	public static String getImagePath(DocTopic docItem) {
 		if (docItem.getTopic() == DocTopicManager.TOPIC_VARIABLE) {
-//			DocVarDeclItem varDeclItem = (DocVarDeclItem)docItem ;
 			int attr = docItem.getAttr() ;
 			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
 				return FIELD_PRIV_OBJ ; 
@@ -119,7 +105,6 @@ public class HTMLIconUtils implements IHTMLIcons {
 				return FIELD_PUB_OBJ ; 
 			}
 		} else if(docItem.getTopic() == DocTopicManager.TOPIC_TASK) {
-//			DocTaskItem taskDeclItem = (DocTaskItem)docItem ;
 			int attr = docItem.getAttr() ;
 			if((attr & IFieldItemAttr.FieldAttr_Local) != 0) {
 				return TASK_PRIV_OBJ ; 

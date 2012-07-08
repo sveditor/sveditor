@@ -233,8 +233,6 @@ public class HTMLUtils {
 	}
 
 	public static File getHTMLFileForSrcPath(DocGenConfig cfg, String srcPath) {
-//		String srcPathCleaned = srcPath.replaceAll("\\.", "_") ;
-//		return new File(getFilesDir(cfg),srcPathCleaned+".html") ;
 		return new File(getFilesDir(cfg),srcPath+".html") ;
 	}	
 	

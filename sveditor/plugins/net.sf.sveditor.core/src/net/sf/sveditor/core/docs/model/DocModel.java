@@ -50,23 +50,16 @@ public class DocModel {
 		this.docFiles = docFiles;
 	}
 
-	private Map<String, DocPkgItem> pkgMap ;
-	
 	private Map<String, DocIndex> indexMap ;
 	
 	private IDocTopicManager docTopicManager ;
 	
 	
 	public DocModel() {
-		pkgMap = new HashMap<String, DocPkgItem>() ;
 		docFiles = new HashMap<String, DocFile>() ;
 		docTopicManager = new DocTopicManager() ;
 		indexMap = new HashMap<String, DocIndex>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocTopic>> () ;
-	}
-
-	public Map<String, DocPkgItem> getPkgMap() {
-		return pkgMap ;
 	}
 
 	public DocIndex getTopicIndexMap(String topic) {

@@ -16,9 +16,6 @@ import java.util.List;
 
 public class DocTopic implements IDocTopic {
 	
-	// FIXME: rename this class to DocTopic
-	
-//	private DocItemType fItemType ; // FIXME: This entire type should go away and be replaced by TopicType, or Keyword
 	private String fTitle ; 
 	private String fSummary ; 
 	private String fKeyword ;
@@ -30,10 +27,8 @@ public class DocTopic implements IDocTopic {
 	private String fEnclosingClass ; 
 	private DocFile fDocFile ;
 	
-//	public DocTopic(String name, DocItemType type) {
 	public DocTopic() {
 		fTitle = "" ;
-//		fItemType = "" ;
 		fChildren = new ArrayList<DocTopic>() ;
 		fSummary = "" ;
 		fBody = "" ;
@@ -77,13 +72,6 @@ public class DocTopic implements IDocTopic {
 		return fChildren ;
 	}
 
-//	public DocItemType getType() {
-//		return fItemType;
-//	}
-//
-//	public void setItemType(DocItemType itemType) {
-//		this.fItemType = itemType;
-//	}
 	
 	public String getSummary() {
 		return fSummary ;

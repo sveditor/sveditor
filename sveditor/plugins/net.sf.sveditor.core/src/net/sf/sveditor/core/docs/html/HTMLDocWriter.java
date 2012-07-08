@@ -75,7 +75,7 @@ public class HTMLDocWriter implements IDocWriter {
 	}
 
 	private void writeFile(DocGenConfig cfg, DocModel model, DocFile docFile) {
-		FileFactory fileFactory = new FileFactory(cfg) ;
+		HTMLFileFactory fileFactory = new HTMLFileFactory(cfg) ;
 		String srcPath = docFile.getDocPath() ;
 		log.debug(ILogLevel.LEVEL_MID, "Generating HTML doc for: " + srcPath) ;
 		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;

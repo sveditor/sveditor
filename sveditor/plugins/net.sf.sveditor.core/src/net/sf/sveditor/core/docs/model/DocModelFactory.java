@@ -108,7 +108,6 @@ public class DocModelFactory {
 									fileHasDocs = true ;
 									switch(kwi.getTopicType().getScopeType()) {
 										case START:
-//											parent = docFile ;
 											docFile.addChild(topic) ;
 											parent = topic ;
 											break ;
@@ -118,19 +117,6 @@ public class DocModelFactory {
 										default:
 											break ;
 									}
-//									parent.addChild(topic) ;
-//									switch(kwi.getTopicType().getScopeType()) {
-//										case TASK:
-//										case FUNC:
-//										case VARDECL:
-//									    case NORMAL:
-//											break ;
-//										case START:
-//										default:
-//											parent = topic ;
-//											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getTitle() + ")") ;
-//											break ;
-//									}
 								}
 							}
 						}						
@@ -250,10 +236,8 @@ public class DocModelFactory {
 								} else {
 									symbolEntry.setDocPath(docFile.getDocPath()) ;
 									symbolEntry.setDocumented(true) ;
-									//								docFiles.get(pkgDecl.getFile().getFilePath()).setEnclosingPkg(pkg.getName()) ;
 									docItem.setEnclosingPkg(pkg.getName()) ;
 									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem.getTitle().equals("class")) {
-//										indexClass((DocClassItem)docItem,model) ;  
 										gatherClassMembers(docItem, pkg, pkgDecl, model, isvdbIndex, docFile, ppFile) ;
 									}
 								}
@@ -368,22 +352,5 @@ public class DocModelFactory {
 			indexTopic(model,child) ;
 		}
 	}
-
-//	private void indexClass(DocClassItem classItem, DocModel model) throws DocModelFactoryException {
-//		String name = classItem.getTitle() ;
-//		String firstChar = name.substring(0, 1).toUpperCase() ;
-//		Map<String, Map<String,DocTopic>> classIndexMap = model.getCreateTopicIndexMap("class") ;
-//		if(classIndexMap.containsKey(firstChar)) {
-//			classIndexMap.get(firstChar)
-//				.put(name, classItem) ;
-//		} else if(firstChar.matches("[0123456789]")) {
-//			classIndexMap.get(DocModel.IndexKeyNum)
-//				.put(name,classItem) ;
-//		} else {
-//			classIndexMap.get(DocModel.IndexKeyWierd)
-//				.put(name,classItem) ;
-//		}
-//		
-//	}
 
 }

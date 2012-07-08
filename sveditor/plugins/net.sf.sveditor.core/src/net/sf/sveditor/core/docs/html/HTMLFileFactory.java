@@ -17,12 +17,12 @@ import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocFile;
 import net.sf.sveditor.core.docs.model.DocTopic;
 
-public class FileFactory {
+public class HTMLFileFactory {
 	
 	@SuppressWarnings("unused")
 	private DocGenConfig cfg ;
 	
-	public FileFactory(DocGenConfig cfg) {
+	public HTMLFileFactory(DocGenConfig cfg) {
 		this.cfg = cfg ;
 	}
 	
@@ -139,11 +139,8 @@ public class FileFactory {
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
 		for(DocTopic docItem: docFile.getChildren()) {
-//			if(docItem instanceof DocClassItem){
-				res += genSTRMain(docFile) ;
-//				res += genSummaryMembers(docFile, (DocClassItem)docItem) ;
-				res += genSummaryMembers(docFile, docItem) ;
-//			}
+			res += genSTRMain(docFile) ;
+			res += genSummaryMembers(docFile, docItem) ;
 		}
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
@@ -152,108 +149,17 @@ public class FileFactory {
 		res += HTMLUtils.genCTopicEnd() ;
 		return res ;
 	}
-	
-	/*
-
-	private String genClass(DocFile docFile, DocClassItem classItem) {
-		String res = "" ;
-		res += genClassStart() ;
-		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(classItem.getQualifiedName()) ;
-		res += HTMLUtils.genCBodyBegin() ;
-		res += genSummaryStart(classItem) ;
-		res += HTMLUtils.genSummaryBegin() ;
-		res += HTMLUtils.genSTitle() ;
-		res += HTMLUtils.genSBorderBegin() ;
-		res += HTMLUtils.genSTableBegin() ;
-		res += genSTRMain(classItem) ;
-		res += genSummaryMembers(docFile, classItem) ;
-		res += HTMLUtils.genSTableEnd() ;
-		res += HTMLUtils.genSBorderEnd() ;
-		res += HTMLUtils.genSummaryEnd() ;
-		res += HTMLUtils.genCBodyEnd() ;
-		res += HTMLUtils.genCTopicEnd() ;
-		res += genClassEnd() ;
-		res += genMemberDetail(classItem) ;		
-		return res ;
-	}
-	*/
 
 	private String genSummaryMembers(DocFile docFile, DocTopic docTopic) {
 		String res = "" ;
 		for(DocTopic child: docTopic.getChildren()) {
 			res += genSummaryForMemember(docFile, docTopic, child) ;
-//			if(child.getType() == DocItemType.VARDECL) 
-//				res += genSummaryVarDecl(docFile, docTopic, (DocVarDeclItem)child) ;
-//			else if(child.getType() == DocItemType.FUNC) 
-//				res += genSummaryFuncDecl(docFile, docTopic, (DocFuncItem)child) ;
-//			else if(child.getType() == DocItemType.TASK) 
-//				res += genSummaryTaskDecl(docFile, docTopic, (DocTaskItem)child) ;
 		}
 		return res ;
 	}
 	
-	/*
-
-	private String genSummaryVarDecl(DocFile docFile, DocClassItem classItem, DocVarDeclItem varItem) {
-		String res =
-				 "<tr class=\"SVariable SIndent2 SMarked\">" 
-			   + "<td class=SIcon>"
-						 + "<img src="  + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(varItem) + ">"
-						 + "</td>"
-			   + "<td class=SEntry><a href=\"#" 
-						 + classItem.getTitle()
-						 + "." + varItem.getTitle() 
-						 + "\">" + varItem.getTitle() + "</a>"
-						 + "</td>"
-			   + "<td class=SDescription>"
-						 + varItem.getSummary()
-						 + "</td>"
-			   + "</tr>" ;
-		return res ;
-	}
-	
-	private String genSummaryTaskDecl(DocFile docFile, DocClassItem classItem, DocTaskItem task) {
-		String res = 
-			 "<tr class=\"SFunction SIndent2\">" 
-		   + "<td class=SIcon>"
-					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(task) + ">"
-					 + "</td>"
-		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getTitle()
-					 + "." + task.getTitle() 
-					 + "\">" + task.getTitle() + "()</a>"
-					 + "</td>"
-		   + "<td class=SDescription>"
-					 + task.getSummary()
-					 + "</td>"
-		   + "</tr>" ;
-		return res ;
-	}
-
-
-	private String genSummaryFuncDecl(DocFile docFile, DocClassItem classItem, DocFuncItem func) {
-		String res = 
-			 "<tr class=\"SFunction SIndent2\">" 
-		   + "<td class=SIcon>"
-					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(func) + ">"
-					 + "</td>"
-		   + "<td class=SEntry><a href=\"#" 
-					 + classItem.getTitle()
-					 + "." + func.getTitle() 
-					 + "\">" + func.getTitle() + "()</a>"
-					 + "</td>"
-		   + "<td class=SDescription>"
-					 + func.getSummary()
-					 + "</td>"
-		   + "</tr>" ;
-		return res ;
-	}
-	*/
-	
 	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic) {
 		String res = 
-//			 "<tr class=\"SFunction SIndent2\">" 
 			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicName(topic.getTopic())
 			 	+ " SIndent2\">" 
 		   + "<td class=SIcon>"
@@ -270,70 +176,13 @@ public class FileFactory {
 		   + "</tr>" ;
 		return res ;
 	}
-	
-/*	
-	private String genDetailsTask(DocClassItem classItem, DocTaskItem taskItem) {
-		String res = 
-			  "<div class=CFunction>"
-			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classItem.getTitle() + "." + taskItem.getTitle()
-				    + "\"></a>"
-				    + taskItem.getTitle() + "()"
-				    + "</h3>"
-				    + "<div class=CBody>" ;
-		res += taskItem.getBody() ;
-		res +=
-				      "</div>"
-			    + "</div>"
-		    + "</div>" ;
-		return res ;
-	}
-
-	private String genDetailsFunc(DocClassItem classDeclItem, DocFuncItem func) {
-		String res = 
-			  "<div class=CFunction>"
-			    + "<div class=CTopic><h3 class=CTitle><a name=\"" 
-						  + classDeclItem.getTitle() + "." + func.getTitle()
-				    + "\"></a>"
-				    + func.getTitle() + "()"
-				    + "</h3>"
-				    + "<div class=CBody>" ;
-		res += func.getBody() ;
-		res +=
-				      "</div>"
-			    + "</div>"
-		    + "</div>" ;
-		return res ;
-	}
-
-	private String genDetailsVar(DocClassItem classDeclItem, DocVarDeclItem varItem) {
-		String res =
-				  "<div class=\"CVariable\">"
-				    + "<div class=CTopic>" 
-					    + "<h3 class=CTitle>"
-							+ "<a name=\"" 
-								  + classDeclItem.getTitle() + "." + varItem.getTitle()
-						    + "\"></a>"
-					    + varItem.getTitle()
-					    + "</h3>"
-					    + "<div class=CBody>" ; 
-		res += varItem.getBody() ;
-		res += 
-					      "</div>"
-				    + "</div>"
-			    + "</div>" ;
-		return res ;
-	}
-	*/
 
 	private String genDetails(DocTopic parent, DocTopic child) {
 		String res =
-//				  "<div class=\"CVariable\">"
 				  "<div class=" + HTMLUtils.genCSSClassForTopicName(child.getTopic()) + ">" 
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 
-//								  + classDeclItem.getTitle() + "." + varItem.getTitle()
 							      + parent.getTitle() + "." + child.getTitle()
 						    + "\"></a>"
 					    + child.getTitle()
