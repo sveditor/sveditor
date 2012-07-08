@@ -98,6 +98,7 @@ public class DocModelFactory {
 
 	private void spinThroughComments(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
 		HashSet<ISVDBIndex> visitedIndex = new HashSet<ISVDBIndex>() ;
+		fLog.debug(ILogLevel.LEVEL_MIN,"Gathering raw doc comments for each SVDBFile") ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			ISVDBIndex index = pkgTuple.second() ;
 			if(!visitedIndex.contains(index)) {
@@ -108,8 +109,11 @@ public class DocModelFactory {
 					if(ppFile == null) {
 						fLog.error("Failed to find pre proc file for: " + file) ;
 					} else {
-						fLog.debug(ILogLevel.LEVEL_MID,"Search for doc comments in: " + file) ;
+						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
+						fLog.debug(ILogLevel.LEVEL_MID,"| Entering file(" + file + ")") ;
+						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
 						String path = file ;
+						String shortFileName = new File(path).getName() ;
 						if (path.startsWith("${workspace_loc}")) {
 							path = path.substring("${workspace_loc}".length()) ;
 						}
@@ -121,13 +125,22 @@ public class DocModelFactory {
 							if(child instanceof SVDBDocComment) {
 								Set<DocTopic> docTopics = new HashSet<DocTopic>() ; 
 								SVDBDocComment docCom = (SVDBDocComment)child ;
-								fLog.debug(ILogLevel.LEVEL_MID,"Found comment: " + docCom.getName()) ;
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] +------------------------------------------------------------------------------------",
+												shortFileName)) ;
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | Parsing comment: %s",
+												shortFileName,
+												docCom.getName())) ;
 								docCommentParser.parse(docCom.getRawComment(),docTopics) ;
 								for(DocTopic topic: docTopics) {
 									IDocTopicManager topicMgr = model.getDocTopics() ;
 									DocKeywordInfo kwi = topicMgr.getTopicType(topic.getKeyword()) ;
 									// FIXME: check kwi != null
-									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getTitle()) ;
+									fLog.debug(ILogLevel.LEVEL_MID,
+											String.format("| [%s] |    Found topic: %s",
+													shortFileName,
+													topic.getTitle())) ;
 									fileHasDocs = true ;
 									switch(kwi.getTopicType().getScopeType()) {
 										case START:
@@ -141,8 +154,14 @@ public class DocModelFactory {
 											break ;
 									}
 								}
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] +------------------------------------------------------------------------------------",
+												shortFileName)) ;
 							}
 						}						
+						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
+						fLog.debug(ILogLevel.LEVEL_MID,"| Exiting file(" + file + ")") ;
+						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
 						if(fileHasDocs) {
 							model.addDocFile(docFile) ;
 						}
@@ -153,6 +172,8 @@ public class DocModelFactory {
 	}
 
 	private void buildInitialSymbolTableFromSVDB(DocGenConfig cfg, DocModel model) {
+		
+		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
 		
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
@@ -227,6 +248,7 @@ public class DocModelFactory {
 	}
 	
 	private void gatherPackages(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
+		fLog.debug(ILogLevel.LEVEL_MIN,"Iterating through SVDB to compliment Doc Comments") ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkg = pkgTuple.first() ;
 			Map<String, Map<String, DocTopic>> classMapByPkg = model.getClassMapByPkg() ;
@@ -242,6 +264,10 @@ public class DocModelFactory {
 									  SVDBDeclCacheItem pkg,
 									  Map<String, Map<String, DocTopic>> classMapByPkg, ISVDBIndex isvdbIndex)
 			throws DocModelFactoryException {
+		String pkgName = pkg.getName() ;
+		fLog.debug(ILogLevel.LEVEL_MID,"+------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_MID,"| Entering package: " + pkgName) ;
+		fLog.debug(ILogLevel.LEVEL_MID,"+------------------------------------------------------------") ;
 		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
 		if(pkgDecls != null) {
 			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
@@ -252,7 +278,8 @@ public class DocModelFactory {
 					if(docFile != null) {
 						for(DocTopic docItem: docFile.getChildren()) {
 							if(docItem.getTitle().equals(pkgDecl.getName())) {
-								fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for %s",symbol)) ;
+								fLog.debug(ILogLevel.LEVEL_MID, 
+										String.format("| [%s] Found doc comment for: %s", pkgName, symbol)) ;
 								SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
 								if(symbolEntry == null) {
 									fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
@@ -260,7 +287,7 @@ public class DocModelFactory {
 									symbolEntry.setDocPath(docFile.getDocPath()) ;
 									symbolEntry.setDocumented(true) ;
 									docItem.setEnclosingPkg(pkg.getName()) ;
-									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem.getTitle().equals("class")) {
+									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem.getTopic().equals("class")) {
 										gatherClassMembers(docItem, pkg, pkgDecl, model, isvdbIndex, docFile, ppFile) ;
 									}
 								}
@@ -287,6 +314,18 @@ public class DocModelFactory {
 									DocFile docFile,
 									SVDBFile ppFile ) {
 		SVDBClassDecl svdbClassDecl = (SVDBClassDecl)classDeclCacheItem.getSVDBItem() ;
+		String pkgName = pkgDeclCacheItem.getName() ;
+		String className = svdbClassDecl.getName() ;
+		fLog.debug(ILogLevel.LEVEL_MID,
+				String.format("| [%s] +------------------------------------------------------------",
+						pkgName)) ;
+		fLog.debug(ILogLevel.LEVEL_MID,
+				String.format("| [%s] | Entering class: %s",
+						pkgName, 
+						className)) ;
+		fLog.debug(ILogLevel.LEVEL_MID,
+				String.format("| [%s] +------------------------------------------------------------",
+						pkgName)) ;
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
@@ -299,7 +338,11 @@ public class DocModelFactory {
 						if(symbolEntry == null) {
 							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
-							fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
+							fLog.debug(ILogLevel.LEVEL_MID, 
+									String.format("| [%s] | [%s] Found doc item for task %s",
+											pkgName, 
+											className, 
+											symbol)) ;
 							symbolEntry.setDocPath(docFile.getDocPath()) ;
 							symbolEntry.setDocumented(true) ;
 						}
@@ -318,7 +361,11 @@ public class DocModelFactory {
 						if(symbolEntry == null) {
 							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
-							fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
+							fLog.debug(ILogLevel.LEVEL_MID, 
+									String.format("| [%s] | [%s] Found doc item for function %s",
+											pkgName, 
+											className, 
+											symbol)) ;
 							symbolEntry.setDocPath(docFile.getDocPath()) ;
 							symbolEntry.setDocumented(true) ;
 						}
@@ -339,7 +386,11 @@ public class DocModelFactory {
 							if(symbolEntry == null) {
 								fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 							} else {
-								fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for class member %s",symbol)) ;
+								fLog.debug(ILogLevel.LEVEL_MID, 
+										String.format("| [%s] | [%s] Found doc item for var %s",
+												pkgName, 
+												className, 
+												symbol)) ;
 								symbolEntry.setDocPath(docFile.getDocPath()) ;
 								symbolEntry.setDocumented(true) ;
 							}
@@ -348,8 +399,10 @@ public class DocModelFactory {
 					}
 				}
 			}
-
 		}
+		fLog.debug(ILogLevel.LEVEL_MID,
+				String.format("| [%s] +------------------------------------------------------------",
+						pkgName)) ;
 	}
 	
 	private void indexTopics(DocGenConfig cfg, DocModel model) {

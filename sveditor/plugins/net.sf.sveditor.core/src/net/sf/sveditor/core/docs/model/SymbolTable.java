@@ -46,12 +46,15 @@ public class SymbolTable {
 	}
 	
 	public void dumpSymbols() {
-		fLog.debug(ILogLevel.LEVEL_MID, "Symbol table dump:") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "| Symbol table dump") ;
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
 		List<String> sortedSymbols = new ArrayList<String>(getSymbolSet()) ;
-		Collections.sort(sortedSymbols) ;
-		for(String symbol: getSymbolSet()) {
-			fLog.debug(ILogLevel.LEVEL_MID, "  " + symbol) ; 
+		Collections.sort(sortedSymbols, String.CASE_INSENSITIVE_ORDER) ;
+		for(String symbol: sortedSymbols) {
+			fLog.debug(ILogLevel.LEVEL_MID, "|  " + symbol) ; 
 		}
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
 	}
 
 	public SymbolTableEntry getSymbol(String symbol) {
