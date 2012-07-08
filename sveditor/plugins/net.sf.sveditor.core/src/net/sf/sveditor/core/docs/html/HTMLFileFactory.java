@@ -48,7 +48,7 @@ public class HTMLFileFactory {
 		res += genContent(docFile) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getTitle()),"FIXME-I-NEED-A-SOMETHING") ;
+		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getTitle()),docFile.getPageTitle()) ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
@@ -167,7 +167,7 @@ public class HTMLFileFactory {
 		   + "<td class=SEntry><a href=\"#" 
 					 + parent.getTitle()
 					 + "." + topic.getTitle() 
-					 + "\">" + topic.getTitle() + "()</a>"
+					 + "\">" + topic.getTitle() + "</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
 					 + topic.getSummary()
