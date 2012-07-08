@@ -924,9 +924,9 @@ public class SVPreProcScanner implements ISVScanner {
 		if(!fInComment) { return ; }
 		fInComment = false ;
 		String comment = fCommentBuffer.toString() ;
-		String name = fDocCommentParser.isDocComment(comment) ;
-		if(name != null) { 
-			if(fObserver != null) { fObserver.comment(name, comment) ; }
+		String title = fDocCommentParser.isDocComment(comment) ;
+		if(title != null) { 
+			if(fObserver != null) { fObserver.comment( title, comment) ; }
 		}
 	}
 

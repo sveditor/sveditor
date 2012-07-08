@@ -223,6 +223,7 @@ public class DocModelFactory {
 									  SVDBDeclCacheItem pkg,
 									  Map<String, Map<String, DocClassItem>> classMapByPkg, ISVDBIndex isvdbIndex)
 			throws DocModelFactoryException {
+		fLog.debug(ILogLevel.LEVEL_MID, String.format( "Gathering classes for package(%s)", pkg.getName())) ;
 		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
 		if(pkgDecls != null) {
 			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
@@ -230,8 +231,10 @@ public class DocModelFactory {
 				if(ppFile != null) {
 					String symbol = String.format("%s::%s", pkg.getName(), pkgDecl.getName()) ;
 					DocFile docFile = model.getDocFile(pkgDecl.getFile().getFilePath()) ;
+					fLog.debug(ILogLevel.LEVEL_MID,String.format("Looking for comment for symbol(%s)", symbol)) ;
 					if(docFile != null) {
 						for(DocTopic docItem: docFile.getChildren()) {
+							fLog.debug(ILogLevel.LEVEL_MID,String.format("Is comment it(%s) for(%s)?", docItem.getTitle(), pkgDecl.getName())) ;
 							if(docItem.getTitle().equals(pkgDecl.getName())) {
 								fLog.debug(ILogLevel.LEVEL_MID, String.format("Found doc item for %s",symbol)) ;
 								SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
