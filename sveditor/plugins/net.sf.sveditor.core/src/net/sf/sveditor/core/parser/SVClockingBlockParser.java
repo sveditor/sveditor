@@ -31,7 +31,7 @@ public class SVClockingBlockParser extends SVParserBase {
 		parent.addChildItem(clk_blk);
 
 		try {
-			String type = "";
+			String type = null;
 			
 			// TODO: 
 			if (fLexer.peekKeyword("default", "global") ) {
@@ -46,9 +46,14 @@ public class SVClockingBlockParser extends SVParserBase {
 			clk_blk.setName(name);
 
 			clk_blk.setExpr(fParsers.exprParser().clocking_event());
+			fLexer.readOperator(";");
 
-			while (fLexer.peek() != null && !fLexer.peekKeyword("endclocking")) {
-				parsers().SVParser().scan_statement();
+			// Global clocking does not have a body
+			if (type == null || !type.equals("global")) {
+				while (fLexer.peek() != null && !fLexer.peekKeyword("endclocking")) {
+					clocking_item(clk_blk);
+				}
+			}
 
 				/*
 			if (fLexer.peekKeyword("default")) {
@@ -58,8 +63,6 @@ public class SVClockingBlockParser extends SVParserBase {
 				fLexer.readOperator(";");
 			} else if (fLexer.peekKeyword("input))
 				 */
-			}
-
 			clk_blk.setEndLocation(fLexer.getStartLocation());
 			fLexer.readKeyword("endclocking");
 
@@ -68,6 +71,68 @@ public class SVClockingBlockParser extends SVParserBase {
 				fLexer.readId();
 			}
 		} finally {
+		}
+	}
+	
+	private void clocking_item(SVDBClockingBlock clk_blk) throws SVParseException {
+		if (fLexer.peekKeyword("default")) {
+			// default 
+			default_skew();
+			fLexer.readOperator(";");
+		} else if (fLexer.peekKeyword("input", "output", "inout")) {
+			// clocking_direction list_of_clocking_decl_assign
+			String dir = fLexer.eatToken();
+			if (!dir.equals("inout")) {
+				if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+					clocking_skew();
+					if (dir.equals("input") && fLexer.peekKeyword("output")) {
+						fLexer.eatToken();
+						if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+							clocking_skew();
+						}
+					}
+				}
+			}
+		} else {
+			// {attribute_instance} assertion_item_declaration
+			fParsers.attrParser().parse(null);
+			assertion_item_declaration(clk_blk);
+			fLexer.eatToken();
+		}
+	}
+	
+	private void assertion_item_declaration(ISVDBAddChildItem parent) throws SVParseException {
+		String type = fLexer.readKeyword("property", "sequence", "let");
+		if (type.equals("property")) {
+			fParsers.propertyParser().property(parent);
+		} else if (type.equals("sequence")) {
+			fParsers.sequenceParser().sequence(parent);
+		} else {
+			error("let construct unsupported");
+		}
+	}
+
+	// TODO: save parsed information
+	private void default_skew() throws SVParseException {
+		fLexer.readKeyword("default");
+
+		String type = fLexer.readKeyword("input", "output");
+		clocking_skew();
+		if (type.equals("input") && fLexer.peekKeyword("output")) {
+			fLexer.readKeyword("output");
+			clocking_skew();
+		}
+	}
+
+	// TODO: save parsed information
+	private void clocking_skew() throws SVParseException {
+		if (fLexer.peekKeyword("posedge", "negedge")) {
+			fLexer.eatToken();
+			if (fLexer.peekOperator("#")) {
+				fParsers.exprParser().delay_expr(3);
+			}
+		} else {
+			fParsers.exprParser().delay_expr(3);
 		}
 	}
 	

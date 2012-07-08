@@ -42,18 +42,27 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestIndexFileRefs extends TestCase {
 
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+	
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
 		
-		if (fTmpDir != null) {
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
@@ -72,7 +81,7 @@ public class TestIndexFileRefs extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
-		IProject project_dir = TestUtils.createProject("uvm", uvm_src);
+		fProject = TestUtils.createProject("uvm", uvm_src);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -103,7 +112,6 @@ public class TestIndexFileRefs extends TestCase {
 		}
 		
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project_dir);
 	}
 
 	public void testUVMComponentRefs() {
@@ -120,7 +128,7 @@ public class TestIndexFileRefs extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
-		IProject project_dir = TestUtils.createProject("uvm", uvm_src);
+		fProject = TestUtils.createProject("uvm", uvm_src);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -158,7 +166,6 @@ public class TestIndexFileRefs extends TestCase {
 		System.out.println("Ref-find time: " + (ref_find_end-ref_find_start));
 		
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project_dir);
 	}
 	
 }

@@ -42,17 +42,28 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestArgFileIndex extends TestCase {
 	
 	private File				fTmpDir;
+	private IProject			fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
 		super.tearDown();
-//		TestUtils.delete(fTmpDir);
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 	}
 
 	public void testIncludePathPriority() {
@@ -61,9 +72,9 @@ public class TestArgFileIndex extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		final IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/arg_file_multi_include/", project_dir);
+		utils.copyBundleDirToWS("/data/arg_file_multi_include/", fProject);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {

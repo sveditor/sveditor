@@ -1590,30 +1590,30 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 			decl_cache.get(file.getFilePath()).clear();
 		}
 		
-		cacheDeclarations(file.getFilePath(), file);
+		cacheDeclarations(file.getFilePath(), file, false);
 	}
 	
-	private void cacheDeclarations(String filename, ISVDBChildParent scope) {
+	private void cacheDeclarations(String filename, ISVDBChildParent scope, boolean is_ft) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData.getDeclCacheMap();
 		List<SVDBDeclCacheItem> decl_list = decl_cache.get(filename);
 		
 		for (ISVDBChildItem item : scope.getChildren()) {
 			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
 				decl_list.add(new SVDBDeclCacheItem(this, filename, 
-						((SVDBPackageDecl)item).getName(), item.getType()));
-				cacheDeclarations(filename, (SVDBPackageDecl)item);
+						((SVDBPackageDecl)item).getName(), item.getType(), is_ft));
+				cacheDeclarations(filename, (SVDBPackageDecl)item, is_ft);
 			} else if (item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task,
 					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
 					SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl, 
 					SVDBItemType.TypedefStmt)) {
 				fLog.debug("Adding " + item.getType() + " " + ((ISVDBNamedItem)item).getName() + " to cache");
 				decl_list.add(new SVDBDeclCacheItem(this, filename, 
-						((ISVDBNamedItem)item).getName(), item.getType()));
+						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 			} else if (item.getType() == SVDBItemType.PreProcCond) {
-				cacheDeclarations(filename, (SVDBPreProcCond)item);
+				cacheDeclarations(filename, (SVDBPreProcCond)item, is_ft);
 			} else if (item.getType() == SVDBItemType.MacroDef) {
 				decl_list.add(new SVDBDeclCacheItem(this, filename, 
-						((ISVDBNamedItem)item).getName(), item.getType()));
+						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 			}
 		}
 	}

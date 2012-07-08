@@ -50,18 +50,26 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestUvmBasics extends TestCase {
 	
 	private File			fTmpDir;
+	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		
-		if (fTmpDir != null) {
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
+	
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}
@@ -402,7 +410,7 @@ public class TestUvmBasics extends TestCase {
 		
 		File listFile = new File(projDir, "file.list") ;
 		
-		IProject project = TestUtils.createProject(testName, projDir) ;
+		fProject = TestUtils.createProject(testName, projDir) ;
 		
 		SVFileUtils.writeToFile(listFile, listFileContent) ;
 		
@@ -503,7 +511,6 @@ public class TestUvmBasics extends TestCase {
 		assertEquals("No errors", 0, errors.size());
 		
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(project);		
 	}
 
 }
