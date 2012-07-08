@@ -31,14 +31,12 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.search.SVDBFindClassMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.objects.ObjectsTreeNode;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -104,112 +102,7 @@ public class TestUvmBasics extends TestCase {
 				null) ;
 
 	}	
-/*	
-	public void testUVMInPkgDeclCache() {
-		
-		SVCorePlugin.getDefault().enableDebug(false);
-		
-		String test_name = "testUVMInPkgDeclCache" ;
-		
-		File test_dir  = new File(fTmpDir,  test_name) ;
-		File proj_dir  = new File(test_dir, "uvm/examples/simple/basic_examples/pkg") ;
-		File uvm_dir   = new File(test_dir, "uvm") ;
-		File uvm_pkg   = new File(test_dir, "uvm/src/uvm_pkg.sv") ;
-		
-		StringBuilder list_file_conent = new StringBuilder();
-		
-		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
-								uvm_pkg.toString()+"\n" +
-		                        "test.sv\n") ;		
-		
-		HashSet<String> requiredClasses = TestUtils.newHashSet("lower",
-				                                               "myunit",
-				                                               "myunit_wrapper",
-				                                               "mydata_wrapper") ;
-		
-//		doTestUVMExample(test_name, 
-//				test_dir, 
-//				proj_dir, 
-//				list_file_conent.toString(),
-//				requiredClasses ) ;
-		
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(test_name);
-		
-//		requiredClasses.add("uvm_component") ;
-//		requiredClasses.add("uvm_sequence") ;
-//		requiredClasses.add("uvm_object") ;
-//		requiredClasses.add("uvm_sequencer") ;
-//		requiredClasses.add("uvm_agent") ;
-//		requiredClasses.add("uvm_transaction") ;
-		
-		test_dir.mkdirs();
-		
-		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
-		
-		File listFile = new File(proj_dir, "file.list") ;
-		
-		fProject = TestUtils.createProject(test_name, proj_dir) ;
-		
-		SVFileUtils.writeToFile(listFile, list_file_conent.toString()) ;
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-		
-		ISVDBIndex index = 
-			rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				listFile.toString(),
-				SVDBArgFileIndexFactory.TYPE, null);
-		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		
-		while (it.hasNext()) {
-			ISVDBItemBase item = it.nextItem();
-			if (item.getType() == SVDBItemType.Marker) {
-				SVDBMarker m = (SVDBMarker)item ;
-				if (m.getMarkerType() == MarkerType.Error) {
-					errors.add(m);
-				}
-			} else if (item.getType() == SVDBItemType.ClassDecl) {
-				String itemName = SVDBItem.getName(item) ;
-				if(requiredClasses.contains(itemName)) {
-					requiredClasses.remove(itemName) ;
-				}
-			} else if (SVDBStmt.isType(item, SVDBItemType.VarDeclStmt)) {
-				SVDBVarDeclStmt v = (SVDBVarDeclStmt)item;
-				SVDBVarDeclItem vi = (SVDBVarDeclItem)v.getChildren().iterator().next();
-				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
-						vi.getName() + " has a null TypeInfo", v.getTypeInfo());
-			}
-		}
-		
-		for (SVDBMarker m : errors) {
-			log.error("[ERROR] " + m.getMessage());
-		}
-		
-		assertEquals("Check that no errors were found", 0, errors.size());
-		
-		for(String className : requiredClasses) {
-			log.error("[ERROR] " + "Class \"" + className + "\" not found") ;
-		}
-		
-		assertTrue("Not all expected classes were parsed", requiredClasses.size()==0) ;
-		
-		for (SVDBMarker m : errors) {
-			log.error("[ERROR] " + m.getMessage());
-		}
-		assertEquals("No errors", 0, errors.size());
-		
-		LogFactory.removeLogHandle(log);
-	}	
-*/
-		
+	
 	public void testBasicExampleEventPool() {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
