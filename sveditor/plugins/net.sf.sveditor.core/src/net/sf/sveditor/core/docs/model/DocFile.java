@@ -14,6 +14,7 @@ package net.sf.sveditor.core.docs.model;
 public class DocFile extends DocTopic {
 	
 	String fDocPath ;
+	String fPageTitle ;
 
 	public DocFile(String name) {
 		super(name, "", "") ;
@@ -26,6 +27,14 @@ public class DocFile extends DocTopic {
 	
 	public String getDocPath() {
 		return fDocPath ;
+	}
+
+	public String getPageTitle() {
+		return fPageTitle ;
+	}
+	
+	public void setPageTitle(String pageTitle) {
+		fPageTitle = pageTitle ;
 	}
 
 }

@@ -11,6 +11,7 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,11 +67,33 @@ public class DocModelFactory {
 			buildInitialSymbolTableFromSVDB(cfg, model) ;
 			spinThroughComments(cfg, model, docCommentParser) ;
 			gatherPackages(cfg, model) ;
+			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString()) ;
 		}
 		return model ;
+	}
+
+	private void setPageTitles(DocGenConfig cfg, DocModel model) {
+		// If the first topic in the file has the "page title if first" attribute set,
+		// then use that as the title. Otherwise, just use the file name
+		IDocTopicManager topicMgr = model.getDocTopics() ;
+		for(DocFile docFile: model.getDocFiles()) {
+			boolean setFromTopic = false ;
+			for(DocTopic childTopic: docFile.getChildren()) {
+				DocKeywordInfo kwi = topicMgr.getTopicType(childTopic.getKeyword()) ;
+				if(kwi.getTopicType().isPageTitleIfFirst()) {
+					docFile.setPageTitle(childTopic.getTitle()) ;
+					setFromTopic = true ;
+				} 
+				break ;
+			}
+			if(!setFromTopic){
+				File file = new File(docFile.getTitle()) ;
+				docFile.setPageTitle(file.getName()) ;
+			}
+		}
 	}
 
 	private void spinThroughComments(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
@@ -338,7 +361,7 @@ public class DocModelFactory {
 			}
 		}
 		//
-		for(DocTopic item: model.getDocItems()) {
+		for(DocTopic item: model.getDocFiles()) {
 		  indexTopic(model, item);
 		}
 	}

@@ -42,7 +42,7 @@ public class HTMLFileFactory {
 	
 	public String build(DocFile docFile) {
 		String res = HTMLUtils.STR_DOCTYPE ;
-		res += HTMLUtils.genHTMLHeadStart(getRelPathToHTML(docFile.getTitle()),"FIXME-I-NEED-A-TITLE") ;
+		res += HTMLUtils.genHTMLHeadStart(getRelPathToHTML(docFile.getTitle()),docFile.getPageTitle()) ;
 		res += HTMLUtils.genBodyBegin("ContentPage") ;
 		res += HTMLUtils.genContentBegin() ;
 		res += genContent(docFile) ;
@@ -52,7 +52,6 @@ public class HTMLFileFactory {
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
-	
 	
 	private String genSummaryStart(DocTopic docItem) {
 		String result = "" ;
@@ -109,7 +108,7 @@ public class HTMLFileFactory {
 		String res = "" ;
 		res += genClassStart() ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(contentItem.getQualifiedName()) ;
+		res += HTMLUtils.genCTitle(contentItem.getTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
 		res += genSummaryStart(contentItem) ;
 		res += HTMLUtils.genSummaryBegin() ;
@@ -132,14 +131,14 @@ public class HTMLFileFactory {
 		String res = "" ;
 		res += genSummaryStart(docFile) ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
-		res += HTMLUtils.genCTitle(docFile.getTitle()) ;
+		res += HTMLUtils.genCTitle(docFile.getPageTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
 		for(DocTopic docItem: docFile.getChildren()) {
-			res += genSTRMain(docFile) ;
+			res += genSTRMain(docItem) ;
 			res += genSummaryMembers(docFile, docItem) ;
 		}
 		res += HTMLUtils.genSTableEnd() ;

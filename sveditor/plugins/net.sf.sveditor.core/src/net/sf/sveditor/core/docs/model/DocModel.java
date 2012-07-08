@@ -42,8 +42,8 @@ public class DocModel {
 		return docFiles.keySet() ;
 	}
 	
-	public Collection<DocTopic> getDocItems() {
-		return new HashSet<DocTopic>(docFiles.values()) ;
+	public Collection<DocFile> getDocFiles() {
+		return new HashSet<DocFile>(docFiles.values()) ;
 	}
 
 	public void setDocFiles(Map<String, DocFile> docFiles) {
