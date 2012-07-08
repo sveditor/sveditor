@@ -31,7 +31,10 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocGenConfig;
+import net.sf.sveditor.core.docs.DocKeywordInfo;
+import net.sf.sveditor.core.docs.DocTopicType;
 import net.sf.sveditor.core.docs.IDocCommentParser;
+import net.sf.sveditor.core.docs.IDocTopicManager;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -63,7 +66,7 @@ public class DocModelFactory {
 			buildInitialSymbolTableFromSVDB(cfg, model) ;
 			spinThroughComments(cfg, model, docCommentParser) ;
 			gatherPackages(cfg, model) ;
-//			indexTopics(cfg,model) ;
+			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString()) ;
 		}
@@ -93,34 +96,41 @@ public class DocModelFactory {
 						boolean fileHasDocs = false ;
 						for(ISVDBChildItem child: ppFile.getChildren()) {
 							if(child instanceof SVDBDocComment) {
-								Set<DocTopic> docTopics = new HashSet<DocTopic>() ; // FIXME: this needs to be ordered
+								Set<DocTopic> docTopics = new HashSet<DocTopic>() ; 
 								SVDBDocComment docCom = (SVDBDocComment)child ;
 								fLog.debug(ILogLevel.LEVEL_MID,"Found comment: " + docCom.getName()) ;
 								docCommentParser.parse(docCom.getRawComment(),docTopics) ;
 								for(DocTopic topic: docTopics) {
+									IDocTopicManager topicMgr = model.getDocTopics() ;
+									DocKeywordInfo kwi = topicMgr.getTopicType(topic.getKeyword()) ;
+									// FIXME: check kwi != null
 									fLog.debug(ILogLevel.LEVEL_MID,"Found topic: " + topic.getTitle()) ;
-									switch(topic.getType()) {
-										case CLASS:
-										case PACKAGE:
-											parent = docFile ;
-											break ;
-										default:
-											break ;
-									}
-									parent.addChild(topic) ;
 									fileHasDocs = true ;
-									switch(topic.getType()) {
-										case TASK:
-										case FUNC:
-										case VARDECL:
-											break ;
-										case CLASS:
-										case PACKAGE:	
-										default:
+									switch(kwi.getTopicType().getScopeType()) {
+										case START:
+//											parent = docFile ;
+											docFile.addChild(topic) ;
 											parent = topic ;
-											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getTitle() + ")") ;
+											break ;
+										case NORMAL:
+											parent.addChild(topic) ;
+											break ;
+										default:
 											break ;
 									}
+//									parent.addChild(topic) ;
+//									switch(kwi.getTopicType().getScopeType()) {
+//										case TASK:
+//										case FUNC:
+//										case VARDECL:
+//									    case NORMAL:
+//											break ;
+//										case START:
+//										default:
+//											parent = topic ;
+//											fLog.debug(ILogLevel.LEVEL_MID,"Parent changed to ("+ topic.getTitle() + ")") ;
+//											break ;
+//									}
 								}
 							}
 						}						
@@ -206,12 +216,12 @@ public class DocModelFactory {
 		}		
 		
 	}
-
+	
 	private void gatherPackages(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkg = pkgTuple.first() ;
-			Map<String, Map<String, DocClassItem>> classMapByPkg = model.getClassMapByPkg() ;
-			classMapByPkg.put(pkg.getName(), new HashMap<String, DocClassItem>()) ;
+			Map<String, Map<String, DocTopic>> classMapByPkg = model.getClassMapByPkg() ;
+			classMapByPkg.put(pkg.getName(), new HashMap<String, DocTopic>()) ;
 			if(pkg.getParent() == null) {
 				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
 			}
@@ -221,7 +231,7 @@ public class DocModelFactory {
 
 	private void gatherPackageClasses(DocModel model, 
 									  SVDBDeclCacheItem pkg,
-									  Map<String, Map<String, DocClassItem>> classMapByPkg, ISVDBIndex isvdbIndex)
+									  Map<String, Map<String, DocTopic>> classMapByPkg, ISVDBIndex isvdbIndex)
 			throws DocModelFactoryException {
 		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
 		if(pkgDecls != null) {
@@ -242,9 +252,9 @@ public class DocModelFactory {
 									symbolEntry.setDocumented(true) ;
 									//								docFiles.get(pkgDecl.getFile().getFilePath()).setEnclosingPkg(pkg.getName()) ;
 									docItem.setEnclosingPkg(pkg.getName()) ;
-									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem instanceof DocClassItem) {
-										indexClass((DocClassItem)docItem,model) ;  
-										gatherClassMembers((DocClassItem)docItem, pkg, pkgDecl, model, isvdbIndex, docFile, ppFile) ;
+									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem.getTitle().equals("class")) {
+//										indexClass((DocClassItem)docItem,model) ;  
+										gatherClassMembers(docItem, pkg, pkgDecl, model, isvdbIndex, docFile, ppFile) ;
 									}
 								}
 								break ;
@@ -262,7 +272,7 @@ public class DocModelFactory {
 		}
 	}
 	
-	private void gatherClassMembers(DocClassItem classDocItem, 
+	private void gatherClassMembers(DocTopic classDocItem, 
 									SVDBDeclCacheItem pkgDeclCacheItem, 
 									SVDBDeclCacheItem classDeclCacheItem, 
 									DocModel model, 
@@ -335,28 +345,45 @@ public class DocModelFactory {
 		}
 	}
 	
-//	private void indexTopics(DocGenConfig cfg, DocModel model) {
-//		for(DocItem item: model.getDocItems()) {
-//			
+	private void indexTopics(DocGenConfig cfg, DocModel model) {
+		// 
+		IDocTopicManager dtMan = model.getDocTopics() ;
+		for(DocTopicType docTopicType: dtMan.getAllTopicTypes()) {
+			if(docTopicType.isIndex()) {
+				model.getCreateTopicIndexMap(docTopicType.getName()) ;
+			}
+		}
+		//
+		for(DocTopic item: model.getDocItems()) {
+		  indexTopic(model, item);
+		}
+	}
+
+	private void indexTopic(DocModel model, DocTopic item) {
+		DocIndex docIndex = model.getTopicIndexMap(item.getTopic().toLowerCase()) ;	
+		if(docIndex != null) {
+			docIndex.indexTopic(item) ; 
+		}
+		for(DocTopic child: item.getChildren()) {
+			indexTopic(model,child) ;
+		}
+	}
+
+//	private void indexClass(DocClassItem classItem, DocModel model) throws DocModelFactoryException {
+//		String name = classItem.getTitle() ;
+//		String firstChar = name.substring(0, 1).toUpperCase() ;
+//		Map<String, Map<String,DocTopic>> classIndexMap = model.getCreateTopicIndexMap("class") ;
+//		if(classIndexMap.containsKey(firstChar)) {
+//			classIndexMap.get(firstChar)
+//				.put(name, classItem) ;
+//		} else if(firstChar.matches("[0123456789]")) {
+//			classIndexMap.get(DocModel.IndexKeyNum)
+//				.put(name,classItem) ;
+//		} else {
+//			classIndexMap.get(DocModel.IndexKeyWierd)
+//				.put(name,classItem) ;
 //		}
 //		
 //	}
-
-	private void indexClass(DocClassItem classItem, DocModel model) throws DocModelFactoryException {
-		String name = classItem.getTitle() ;
-		String firstChar = name.substring(0, 1).toUpperCase() ;
-		Map<String, Map<String,DocTopic>> classIndexMap = model.getCreateTopicIndexMap("class") ;
-		if(classIndexMap.containsKey(firstChar)) {
-			classIndexMap.get(firstChar)
-				.put(name, classItem) ;
-		} else if(firstChar.matches("[0123456789]")) {
-			classIndexMap.get(DocModel.IndexKeyNum)
-				.put(name,classItem) ;
-		} else {
-			classIndexMap.get(DocModel.IndexKeyWierd)
-				.put(name,classItem) ;
-		}
-		
-	}
 
 }

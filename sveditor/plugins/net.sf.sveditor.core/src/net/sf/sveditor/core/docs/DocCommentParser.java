@@ -33,14 +33,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.docs.model.DocClassItem;
-import net.sf.sveditor.core.docs.model.DocFuncItem;
-import net.sf.sveditor.core.docs.model.DocGeneralItem;
 import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.docs.model.DocTaskItem;
-import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -92,21 +86,32 @@ public class DocCommentParser implements IDocCommentParser {
 	}
 	
 	public DocTopic createDocItemForKeyword(String keyword, String topicTitle) {
-		DocTopic docItem ;
 		DocKeywordInfo kwi = fDocTopics.getTopicType(keyword.toLowerCase()) ;
-		String topicTypeName = kwi.getTopicType().getName() ;
-		if(topicTypeName == DocTopicManager.TOPIC_CLASS) {
-			docItem = new DocClassItem(topicTitle) ;
-		} else if(topicTypeName == DocTopicManager.TOPIC_TASK) {
-			docItem = new DocTaskItem(topicTitle) ;
-		} else if(topicTypeName == DocTopicManager.TOPIC_FUNCTION) {
-			docItem = new DocFuncItem(topicTitle) ;
-		} else if(topicTypeName == DocTopicManager.TOPIC_PROPERTY) {
-			docItem = new DocVarDeclItem(topicTitle) ;
-		} else {
-			docItem = new DocGeneralItem(topicTitle) ;
+		if(kwi == null) {
+			return null ;
 		}
+		DocTopic docItem ;
+		String topicTypeName = kwi.getTopicType().getName() ;
+		docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+		
+//		if(topicTypeName == DocTopicManager.TOPIC_CLASS) {
+//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+//		} else if(topicTypeName == DocTopicManager.TOPIC_TASK) {
+//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+////			docItem = new DocTaskItem(topicTitle) ;
+//		} else if(topicTypeName == DocTopicManager.TOPIC_FUNCTION) {
+//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+////			docItem = new DocFuncItem(topicTitle) ;
+//		} else if(topicTypeName == DocTopicManager.TOPIC_PROPERTY) {
+//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+////			docItem = new DocVarDeclItem(topicTitle) ;
+//		} else {
+//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
+//			docItem = new DocGeneralItem(topicTitle) ;
+//		}
+		
 		return docItem ;
+		
 	}
 
 	public void parse(String comment, Set<DocTopic> docTopics) {

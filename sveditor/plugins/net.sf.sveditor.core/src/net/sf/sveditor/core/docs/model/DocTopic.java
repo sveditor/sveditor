@@ -18,24 +18,35 @@ public class DocTopic implements IDocTopic {
 	
 	// FIXME: rename this class to DocTopic
 	
-	private DocItemType fItemType ; // FIXME: This entire type should go away and be replaced by TopicType, or Keyword
+//	private DocItemType fItemType ; // FIXME: This entire type should go away and be replaced by TopicType, or Keyword
 	private String fTitle ; 
 	private String fSummary ; 
+	private String fKeyword ;
+	
+	private String fTopic ; 
 	private String fBody ;
 	private List<DocTopic> fChildren ;
 	private String fEnclosingPkg ; 
 	private String fEnclosingClass ; 
 	private DocFile fDocFile ;
 	
-	public DocTopic(String name, DocItemType type) {
-		fTitle = name ;
-		fItemType = type ;
+//	public DocTopic(String name, DocItemType type) {
+	public DocTopic() {
+		fTitle = "" ;
+//		fItemType = "" ;
 		fChildren = new ArrayList<DocTopic>() ;
 		fSummary = "" ;
 		fBody = "" ;
 		fEnclosingPkg = "" ;
 		fEnclosingClass = "" ;
 		fDocFile = null ;
+	}
+
+	public DocTopic(String topicTitle, String topicTypeName, String keyword) {
+		this() ;
+		setTitle(topicTitle) ;
+		setTopic(topicTypeName) ;
+		setKeyword(keyword) ;
 	}
 
 	public String getQualifiedName() {
@@ -66,13 +77,13 @@ public class DocTopic implements IDocTopic {
 		return fChildren ;
 	}
 
-	public DocItemType getType() {
-		return fItemType;
-	}
-
-	public void setItemType(DocItemType itemType) {
-		this.fItemType = itemType;
-	}
+//	public DocItemType getType() {
+//		return fItemType;
+//	}
+//
+//	public void setItemType(DocItemType itemType) {
+//		this.fItemType = itemType;
+//	}
 	
 	public String getSummary() {
 		return fSummary ;
@@ -110,6 +121,31 @@ public class DocTopic implements IDocTopic {
 
 	public void setDocFile(DocFile docFile) {
 		this.fDocFile = docFile;
+	}
+	public String getKeyword() {
+		return fKeyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.fKeyword = keyword;
+	}
+
+	public String getTopic() {
+		return fTopic ;
+	}
+
+	public void setTopic(String topic) {
+		this.fTopic = topic;
+	}
+	
+	private int fFieldAttr ;
+
+	public void setAttr(int attr) {
+		fFieldAttr = attr ;
+	}
+
+	public int getAttr() {
+		return fFieldAttr ;
 	}
 
 

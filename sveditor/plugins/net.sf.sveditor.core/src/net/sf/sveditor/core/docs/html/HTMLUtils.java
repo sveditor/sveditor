@@ -141,6 +141,21 @@ public class HTMLUtils {
 		return result ;
 	}
 	
+	/**
+	 * @param topicName
+	 * @return The CSS class for the given topic. Ex. CFunction for topicName=function
+	 */
+	static String genCSSClassForTopicName(String topicName) {
+		String c = "C" ;
+		if(topicName == null || topicName.length() < 1) {
+			// FIXME: report error
+			return "CUnknown" ;
+		}
+		c = c + topicName.substring(0,1).toUpperCase() ;
+		c = c + topicName.substring(1).toLowerCase() ;
+		return c ;
+	}
+	
 	static String genMenu(String relPathToHTML, String title) {
 		String res = 
 			"<div id=Menu>"

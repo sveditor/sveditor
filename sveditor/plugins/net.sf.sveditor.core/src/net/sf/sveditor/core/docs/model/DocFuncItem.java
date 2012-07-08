@@ -12,6 +12,8 @@
 package net.sf.sveditor.core.docs.model;
 
 public class DocFuncItem extends DocTopic {
+	
+	/*
 
 	public int fFieldAttr ;
 	
@@ -26,5 +28,6 @@ public class DocFuncItem extends DocTopic {
 	public int getAttr() {
 		return fFieldAttr ;
 	}
+	*/
 
 }

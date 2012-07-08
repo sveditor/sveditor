@@ -17,6 +17,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.DocTopicType;
+import net.sf.sveditor.core.docs.model.DocIndex;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.docs.model.DocModel;
 
@@ -42,7 +43,8 @@ public class HTMLIndexFactory {
 	}
 	
 	private String genIndex(String relPathToHTML, DocModel model) {
-		Map<String, Map<String, DocTopic>> classIdxMap = model.getTopicIndexMap("class") ;
+//		Map<String, Map<String, DocTopic>> classIdxMap = model.getTopicIndexMap("class") ;
+		DocIndex classIdxMap = model.getTopicIndexMap("class") ;
 		if(classIdxMap == null) {
 			return "" ;
 		}
@@ -51,12 +53,12 @@ public class HTMLIndexFactory {
 				+ "<div class=IPageTitle>Class Index</div>"
 				+ "<div class=INavigationBar>" ;
 		boolean first = true ;
-		ArrayList<String> sortedIdxKeys = new ArrayList<String>(classIdxMap.keySet()) ;
+		ArrayList<String> sortedIdxKeys = new ArrayList<String>(classIdxMap.getMap().keySet()) ;
 		Collections.sort(sortedIdxKeys) ;
 		for(String idxKey: sortedIdxKeys) {
 			if(!first) { res += " &middot; " ; } 
 			else { first = false ; }
-			if(classIdxMap.get(idxKey).size() == 0) {
+			if(classIdxMap.getMap().get(idxKey).size() == 0) {
 				res += idxKey ;
 			} else {
 				res += "<a href=\"#" + idxKey.toUpperCase() 
@@ -69,13 +71,13 @@ public class HTMLIndexFactory {
 				"</div>"
 				+ "<table border=0 cellspacing=0 cellpadding=0>" ;
 		for(String idxKey: sortedIdxKeys) {
-		   if(classIdxMap.get(idxKey).size() == 0) { continue ; }
+		   if(classIdxMap.getMap().get(idxKey).size() == 0) { continue ; }
 		   res +=
 					  "<tr>"
 						+"<td class=IHeading id=IFirstHeading>"
 							+ "<a name=\"" + idxKey + "\"></a>" + idxKey + "</td><td></td>"
 					+ "</tr>" ;
-		   Map<String, DocTopic> classMap = classIdxMap.get(idxKey) ;
+		   Map<String, DocTopic> classMap = classIdxMap.getMap().get(idxKey) ;
 		   ArrayList<String> sortedClassNames = new ArrayList<String>(classMap.keySet()) ;
 		   Collections.sort(sortedClassNames) ;
 		   for(String className: sortedClassNames) {

@@ -16,7 +16,7 @@ public class DocFile extends DocTopic {
 	String fDocPath ;
 
 	public DocFile(String name) {
-		super(name, DocItemType.FILE) ;
+		super(name, "", "") ;
 		setDocFile(this) ;
 	}
 

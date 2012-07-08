@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.sveditor.core.docs.DocTopicType.ScopeType;
+
 public class DocTopicManager implements IDocTopicManager {
 	
 	public static String TOPIC_GENERAL 		= "general";
@@ -29,8 +31,8 @@ public class DocTopicManager implements IDocTopicManager {
 	public static String TOPIC_SECTION 		= "section";
 	public static String TOPIC_TASK 	    = "task";
 	public static String TOPIC_FUNCTION 	= "function";
-//	public static String TOPIC_VARIABLE 	= "variable";
-	public static String TOPIC_PROPERTY 	= "property";
+	public static String TOPIC_VARIABLE 	= "variable";
+//	public static String TOPIC_PROPERTY 	= "property";
 //	public static String TOPIC_TYPE 		= "type";
 //	public static String TOPIC_CONSTANT 	= "constant";
 //	public static String TOPIC_ENUMERATION 	= "enumeration";
@@ -48,16 +50,16 @@ public class DocTopicManager implements IDocTopicManager {
 		singularKeywordMap 	= new HashMap<String,DocTopicType>() ;
 		pluralKeywordMap   	= new HashMap<String,DocTopicType>() ;
 		
-		//													name				plural			index   pageTitleFirst		breakLists
-		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				false,	true,				false)) ;
-		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		true,	true,				false)) ;
-//		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		true,	false,				false)) ;
-//		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	true,	false,				false)) ;
-//		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		true,	false,				false)) ;
-		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"sections",		false,	true,				false)) ;
-		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		false,	false,				false)) ;
-		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	false,	false,				false)) ;
-		topicTypeMap.put(TOPIC_PROPERTY, 	new DocTopicType(TOPIC_PROPERTY,	"properties",	false,	false,				false)) ;
+		//													name				plural			scope				index   pageTitleFirst		breakLists
+		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				ScopeType.NORMAL, 	false,	true,				false)) ;
+		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		ScopeType.START,	true,	true,				false)) ;
+//		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		ScopeType.START,	true,	false,				false)) ;
+//		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	ScopeType.START,    true,	false,				false)) ;
+//		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		ScopeType.START,    true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"sections",		ScopeType.END,		false,	true,				false)) ;
+		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		ScopeType.NORMAL,	false,	false,				false)) ;
+		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	ScopeType.NORMAL,   false,	false,				false)) ;
+		topicTypeMap.put(TOPIC_VARIABLE, 	new DocTopicType(TOPIC_VARIABLE,	"variables",	ScopeType.NORMAL,   false,	false,				false)) ;
 		
 		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 	"") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 	"classes") ;
@@ -67,7 +69,7 @@ public class DocTopicManager implements IDocTopicManager {
 		registerKeywordForTopicType(TOPIC_TASK, 	"task", 	"tasks") ;
 		registerKeywordForTopicType(TOPIC_FUNCTION, "function", "functions") ;
 		registerKeywordForTopicType(TOPIC_FUNCTION, "func", 	"funcs") ;
-		registerKeywordForTopicType(TOPIC_PROPERTY, "property", "properties") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "variable", "variables") ;
 		
 	}
 
@@ -85,10 +87,11 @@ public class DocTopicManager implements IDocTopicManager {
 	}
 
 	public DocKeywordInfo getTopicType(String keyword) {
-		if(singularKeywordMap.containsKey(keyword)) 
-			return new DocKeywordInfo(keyword, singularKeywordMap.get(keyword), false) ;
-		if(pluralKeywordMap.containsKey(keyword)) 
-			return new DocKeywordInfo(keyword, pluralKeywordMap.get(keyword), false) ;
+		String kwLower = keyword.toLowerCase() ;
+		if(singularKeywordMap.containsKey(kwLower))
+			return new DocKeywordInfo(kwLower, singularKeywordMap.get(kwLower), false) ;
+		if(pluralKeywordMap.containsKey(kwLower.toLowerCase())) 
+			return new DocKeywordInfo(kwLower, pluralKeywordMap.get(kwLower), false) ;
 		return null ;
 	}
 

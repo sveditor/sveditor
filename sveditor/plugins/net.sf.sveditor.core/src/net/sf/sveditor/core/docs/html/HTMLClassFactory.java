@@ -11,15 +11,10 @@
 
 package net.sf.sveditor.core.docs.html;
 
-import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.model.DocClassItem;
-import net.sf.sveditor.core.docs.model.DocFuncItem;
-import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.docs.model.DocItemType;
-import net.sf.sveditor.core.docs.model.DocTaskItem;
-import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 
 public class HTMLClassFactory {
+	
+	/*
 	
 	@SuppressWarnings("unused")
 	private DocGenConfig cfg ;
@@ -243,6 +238,8 @@ public class HTMLClassFactory {
 			    + "</div>" ;
 		return res ;
 	}
+	
+	*/
 
 }
 

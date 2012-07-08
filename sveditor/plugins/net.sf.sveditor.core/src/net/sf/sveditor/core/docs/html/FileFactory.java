@@ -14,13 +14,8 @@ package net.sf.sveditor.core.docs.html;
 import java.io.File;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.model.DocClassItem;
 import net.sf.sveditor.core.docs.model.DocFile;
-import net.sf.sveditor.core.docs.model.DocFuncItem;
 import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.docs.model.DocItemType;
-import net.sf.sveditor.core.docs.model.DocTaskItem;
-import net.sf.sveditor.core.docs.model.DocVarDeclItem;
 
 public class FileFactory {
 	
@@ -65,15 +60,10 @@ public class FileFactory {
 		return result ;
 	}
 
-	private String genMemberDetail(DocClassItem classItem) {
+	private String genMemberDetail(DocTopic docTopic) {
 		String res = "" ;
-		for(DocTopic child: classItem.getChildren()) {
-			if(child.getType() == DocItemType.VARDECL) 
-				res += genDetailsVar(classItem, (DocVarDeclItem)child) ;
-			else if(child.getType() == DocItemType.FUNC) 
-				res += genDetailsFunc(classItem, (DocFuncItem)child) ;
-			else if(child.getType() == DocItemType.TASK) 
-				res += genDetailsTask(classItem, (DocTaskItem)child) ;
+		for(DocTopic child: docTopic.getChildren()) {
+			res += genDetails(docTopic, child) ;
 		}
 		return res ;
 	}
@@ -109,17 +99,35 @@ public class FileFactory {
 			res += genFileSummary(docFile) ;
 		}
 		for(DocTopic contentItem: docFile.getChildren()) {
-			switch(contentItem.getType()) {
-			case CLASS: {
-				res += genClass(docFile, (DocClassItem)contentItem) ;
-				break ;
-			}
-			default: { }
-			}
+			res += genContent(docFile, contentItem) ;
 		}
 		return res ;
 	}
 	
+	private String genContent(DocFile docFile, DocTopic contentItem) {
+
+		String res = "" ;
+		res += genClassStart() ;
+		res += HTMLUtils.genCTopicBegin("MainTopic") ;
+		res += HTMLUtils.genCTitle(contentItem.getQualifiedName()) ;
+		res += HTMLUtils.genCBodyBegin() ;
+		res += genSummaryStart(contentItem) ;
+		res += HTMLUtils.genSummaryBegin() ;
+		res += HTMLUtils.genSTitle() ;
+		res += HTMLUtils.genSBorderBegin() ;
+		res += HTMLUtils.genSTableBegin() ;
+		res += genSTRMain(contentItem) ;
+		res += genSummaryMembers(docFile, contentItem) ;
+		res += HTMLUtils.genSTableEnd() ;
+		res += HTMLUtils.genSBorderEnd() ;
+		res += HTMLUtils.genSummaryEnd() ;
+		res += HTMLUtils.genCBodyEnd() ;
+		res += HTMLUtils.genCTopicEnd() ;
+		res += genClassEnd() ;
+		res += genMemberDetail(contentItem) ;		
+		return res ;		
+	}
+
 	private String genFileSummary(DocFile docFile) {
 		String res = "" ;
 		res += genSummaryStart(docFile) ;
@@ -131,10 +139,11 @@ public class FileFactory {
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
 		for(DocTopic docItem: docFile.getChildren()) {
-			if(docItem instanceof DocClassItem){
+//			if(docItem instanceof DocClassItem){
 				res += genSTRMain(docFile) ;
-				res += genSummaryMembers(docFile, (DocClassItem)docItem) ;
-			}
+//				res += genSummaryMembers(docFile, (DocClassItem)docItem) ;
+				res += genSummaryMembers(docFile, docItem) ;
+//			}
 		}
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
@@ -143,6 +152,8 @@ public class FileFactory {
 		res += HTMLUtils.genCTopicEnd() ;
 		return res ;
 	}
+	
+	/*
 
 	private String genClass(DocFile docFile, DocClassItem classItem) {
 		String res = "" ;
@@ -166,19 +177,23 @@ public class FileFactory {
 		res += genMemberDetail(classItem) ;		
 		return res ;
 	}
+	*/
 
-	private String genSummaryMembers(DocFile docFile, DocClassItem classDocItem) {
+	private String genSummaryMembers(DocFile docFile, DocTopic docTopic) {
 		String res = "" ;
-		for(DocTopic child: classDocItem.getChildren()) {
-			if(child.getType() == DocItemType.VARDECL) 
-				res += genSummaryVarDecl(docFile, classDocItem, (DocVarDeclItem)child) ;
-			else if(child.getType() == DocItemType.FUNC) 
-				res += genSummaryFuncDecl(docFile, classDocItem, (DocFuncItem)child) ;
-			else if(child.getType() == DocItemType.TASK) 
-				res += genSummaryTaskDecl(docFile, classDocItem, (DocTaskItem)child) ;
+		for(DocTopic child: docTopic.getChildren()) {
+			res += genSummaryForMemember(docFile, docTopic, child) ;
+//			if(child.getType() == DocItemType.VARDECL) 
+//				res += genSummaryVarDecl(docFile, docTopic, (DocVarDeclItem)child) ;
+//			else if(child.getType() == DocItemType.FUNC) 
+//				res += genSummaryFuncDecl(docFile, docTopic, (DocFuncItem)child) ;
+//			else if(child.getType() == DocItemType.TASK) 
+//				res += genSummaryTaskDecl(docFile, docTopic, (DocTaskItem)child) ;
 		}
 		return res ;
 	}
+	
+	/*
 
 	private String genSummaryVarDecl(DocFile docFile, DocClassItem classItem, DocVarDeclItem varItem) {
 		String res =
@@ -234,7 +249,29 @@ public class FileFactory {
 		   + "</tr>" ;
 		return res ;
 	}
+	*/
 	
+	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic) {
+		String res = 
+//			 "<tr class=\"SFunction SIndent2\">" 
+			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicName(topic.getTopic())
+			 	+ " SIndent2\">" 
+		   + "<td class=SIcon>"
+					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
+					 + "</td>"
+		   + "<td class=SEntry><a href=\"#" 
+					 + parent.getTitle()
+					 + "." + topic.getTitle() 
+					 + "\">" + topic.getTitle() + "()</a>"
+					 + "</td>"
+		   + "<td class=SDescription>"
+					 + topic.getSummary()
+					 + "</td>"
+		   + "</tr>" ;
+		return res ;
+	}
+	
+/*	
 	private String genDetailsTask(DocClassItem classItem, DocTaskItem taskItem) {
 		String res = 
 			  "<div class=CFunction>"
@@ -287,7 +324,28 @@ public class FileFactory {
 			    + "</div>" ;
 		return res ;
 	}
+	*/
 
+	private String genDetails(DocTopic parent, DocTopic child) {
+		String res =
+//				  "<div class=\"CVariable\">"
+				  "<div class=" + HTMLUtils.genCSSClassForTopicName(child.getTopic()) + ">" 
+				    + "<div class=CTopic>" 
+					    + "<h3 class=CTitle>"
+							+ "<a name=\"" 
+//								  + classDeclItem.getTitle() + "." + varItem.getTitle()
+							      + parent.getTitle() + "." + child.getTitle()
+						    + "\"></a>"
+					    + child.getTitle()
+					    + "</h3>"
+					    + "<div class=CBody>" ; 
+		res += child.getBody() ;
+		res += 
+					      "</div>"
+				    + "</div>"
+			    + "</div>" ;
+		return res ;
+	}
 }
 
 
