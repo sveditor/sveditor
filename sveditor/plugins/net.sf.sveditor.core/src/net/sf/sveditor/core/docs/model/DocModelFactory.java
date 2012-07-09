@@ -275,10 +275,8 @@ public class DocModelFactory {
 				if(ppFile != null) {
 					String symbol = String.format("%s::%s", pkg.getName(), pkgDecl.getName()) ;
 					DocFile docFile = model.getDocFile(pkgDecl.getFile().getFilePath()) ;
-					fLog.debug(ILogLevel.LEVEL_MID,String.format("Looking for comment for symbol(%s)", symbol)) ;
 					if(docFile != null) {
 						for(DocTopic docItem: docFile.getChildren()) {
-							fLog.debug(ILogLevel.LEVEL_MID,String.format("Is comment it(%s) for(%s)?", docItem.getTitle(), pkgDecl.getName())) ;
 							if(docItem.getTitle().equals(pkgDecl.getName())) {
 								fLog.debug(ILogLevel.LEVEL_MID, 
 										String.format("| [%s] Found doc comment for: %s", pkgName, symbol)) ;

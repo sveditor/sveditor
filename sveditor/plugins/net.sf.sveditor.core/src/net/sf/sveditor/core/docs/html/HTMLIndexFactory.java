@@ -26,6 +26,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+@SuppressWarnings("unused")
 public class HTMLIndexFactory {
 	
 	private DocGenConfig cfg ;

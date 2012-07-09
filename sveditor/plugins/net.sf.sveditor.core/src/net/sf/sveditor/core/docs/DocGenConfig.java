@@ -22,6 +22,7 @@ public class DocGenConfig {
 	
 	private Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> fPackages ;
 	private File outputDir ;
+	private boolean includeUndocumentedPkgsInPkgIndex = true ;
 
 	public Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> getSelectedPackages() {
 		return fPackages;
@@ -35,6 +36,14 @@ public class DocGenConfig {
 	}
 	public File getOutputDir() {
 		return outputDir ;
+	}
+	
+	public boolean getIncludeUndocumentedPkgsInPkgIndex() {
+		return includeUndocumentedPkgsInPkgIndex;
+	}
+	public void setIncludeUndocumentedPkgsInPkgIndex(
+			boolean includeUndocumentedPkgsInPkgIndex) {
+		this.includeUndocumentedPkgsInPkgIndex = includeUndocumentedPkgsInPkgIndex;
 	}
 
 }
