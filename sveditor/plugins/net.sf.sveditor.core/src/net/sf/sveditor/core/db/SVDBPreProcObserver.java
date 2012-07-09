@@ -115,10 +115,10 @@ public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 	}
 
 	public void comment(String name, String comment) {
-		System.out.println("XXXX: RCVD COMMENT") ;
-		System.out.println("----------------------------------------------") ;
-		System.out.println(comment) ;
-		System.out.println("----------------------------------------------") ;
+//		System.out.println("XXXX: RCVD COMMENT") ;
+//		System.out.println("----------------------------------------------") ;
+//		System.out.println(comment) ;
+//		System.out.println("----------------------------------------------") ;
 		SVDBDocComment docCom = new SVDBDocComment(name, comment) ;
 		fScopeStack.peek().addItem(docCom) ;
 	}
