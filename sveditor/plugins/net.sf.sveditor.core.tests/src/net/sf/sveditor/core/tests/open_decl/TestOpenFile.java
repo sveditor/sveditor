@@ -46,23 +46,39 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOpenFile extends TestCase {
+	private File			fTmpDir;
+	private IProject		fProject;
 	
-	
+	@Override
+	protected void setUp() throws Exception {
+		fTmpDir = TestUtils.createTempDir();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
+	}
+
 	public void testRelPathOpenDecl() throws IOException {
 		String testname = "testRelPathOpenDecl";
-		File tmpdir = TestUtils.createTempDir();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
-		IProject subdir2_p = null;
 		
 		try {
 			BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
-			utils.copyBundleDirToFS("/data/pkg_rel_path_include/", tmpdir);
+			utils.copyBundleDirToFS("/data/pkg_rel_path_include/", fTmpDir);
 			
-			File subdir2 = new File(tmpdir, "pkg_rel_path_include/subdir1/subdir2");
+			File subdir2 = new File(fTmpDir, "pkg_rel_path_include/subdir1/subdir2");
 			
-			subdir2_p = TestUtils.createProject("subdir2", subdir2);
+			fProject = TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.init(TestIndexCacheFactory.instance(null));
@@ -98,8 +114,6 @@ public class TestOpenFile extends TestCase {
 			
 			log.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
 		} finally {
-			TestUtils.deleteProject(subdir2_p);
-			TestUtils.delete(tmpdir);
 		}
 		LogFactory.removeLogHandle(log);
 	}
@@ -115,9 +129,8 @@ public class TestOpenFile extends TestCase {
 			"	int			`MY_MACRO;\n" +	// 4
 			"endclass\n"					// 5
 			;
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
-		SVDBTestUtils.assertNoErrWarn(file);
-		SVDBTestUtils.assertFileHasElements(file, "c", "foo");
+		Tuple<SVDBFile, SVDBFile> file = SVDBTestUtils.parsePreProc(doc, testname, false);
+		SVDBTestUtils.assertFileHasElements(file.second(), "c", "foo");
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
 		int idx = doc.indexOf("`MY_MACRO");
@@ -127,7 +140,7 @@ public class TestOpenFile extends TestCase {
 		int lineno = 4;
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
-				file, lineno, scanner, target_index);
+				file.second(), lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
 		assertEquals(1, ret.size());

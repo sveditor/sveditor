@@ -44,7 +44,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private boolean				fExpandMacros;
 	private boolean				fEvalConditionals;
 	
-	private byte				fInputBuffer[] = new byte[1024 * 1024];
+	private byte				fInputBuffer[] = new byte[1024 * 8];
 	private int					fInputBufferIdx = 0;
 	private int					fInputBufferMax = 0;
 	private int					fUngetCh = -1;

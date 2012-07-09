@@ -1,4 +1,9 @@
+-- 0.9.5 Release --
 
+- #(nobug) - Correct a bug in the package cache that caused only declarations
+  from first-level include files from being processed
+
+------------------------------------------------------------------------------
 -- 0.9.4 Release --
 
 - #(nobug) - Correct an issue with the package cache not restoring
@@ -19,6 +24,9 @@
 - #(3536752) - Correct non-blocking event-trigger operator (--> to ->>)
 
 - #(3536783) - Correct parse bug involving an 'if' in a property statement
+
+- #(enh) - Parser structure changes and enhancements to the cache subsystem boost the
+  overall parse performance by 4-5x on sizeable parsing jobs
 
 ------------------------------------------------------------------------------
 -- 0.9.3 Release --

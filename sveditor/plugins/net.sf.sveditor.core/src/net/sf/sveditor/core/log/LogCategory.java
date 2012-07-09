@@ -32,6 +32,7 @@ public class LogCategory {
 	}
 	
 	public void setLogLevel(int level) {
+		fLogLevel = level;
 		for (int i=0; i<fLogHandles.size(); i++) {
 			WeakReference<ILogHandle> lr = fLogHandles.get(i);
 			if (lr.get() == null) {

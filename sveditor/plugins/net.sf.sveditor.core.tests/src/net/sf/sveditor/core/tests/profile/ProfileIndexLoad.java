@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class ProfileIndexLoad {
 	
 	File							fTmpDir;
+
 	
 	public void testLoadOVM(String ovm_home) {
 		String pname = "testLoadOVM";

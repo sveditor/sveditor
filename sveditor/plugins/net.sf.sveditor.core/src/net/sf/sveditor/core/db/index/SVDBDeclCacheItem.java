@@ -34,6 +34,9 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	
 	public String						fName;
 	public SVDBItemType					fType;
+	// Specifies whether this item is actually located in the FileTree view of the file.
+	// This will be the case for pre-processor items
+	public boolean						fIsFileTreeItem;
 	
 	public SVDBDeclCacheItem() {
 	}
@@ -42,11 +45,13 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 			ISVDBDeclCache 		parent, 
 			String 				filename, 
 			String 				name, 
-			SVDBItemType 		type) {
+			SVDBItemType 		type,
+			boolean				is_ft_item) {
 		fParent = parent;
 		fFileName = filename;
 		fName = name;
 		fType = type;
+		fIsFileTreeItem = is_ft_item;
 	}
 	
 	public void init(ISVDBDeclCache parent) {
@@ -67,6 +72,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	
 	public void setName(String name) {
 		fName = name;
+	}
+	
+	public boolean isFileTreeItem() {
+		return fIsFileTreeItem;
 	}
 	
 	public void setParent(ISVDBDeclCache parent) {

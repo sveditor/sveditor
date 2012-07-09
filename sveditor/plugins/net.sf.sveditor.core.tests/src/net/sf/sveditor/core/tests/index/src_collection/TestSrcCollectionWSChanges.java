@@ -58,6 +58,8 @@ public class TestSrcCollectionWSChanges extends TestCase
 	protected void tearDown() throws Exception {
 		super.tearDown();
 
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		
 		if (fTmpDir != null) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;

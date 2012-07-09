@@ -158,6 +158,7 @@ public enum SVDBItemType {
 	IncDecExpr,
 	InsideExpr,
 	LiteralExpr,
+	MinTypMaxExpr,
 	NamedArgExpr, // .ARG(value)
 	NullExpr,
 	ParamIdExpr,	
