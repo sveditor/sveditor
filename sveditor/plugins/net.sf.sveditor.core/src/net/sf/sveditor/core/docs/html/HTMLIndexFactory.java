@@ -94,7 +94,9 @@ public class HTMLIndexFactory {
 		   ArrayList<DocTopic> entries = new ArrayList<DocTopic>(idxMap.getMap().get(idxKey)) ;
 		   Collections.sort(entries, new Comparator<DocTopic>() {
 			public int compare(DocTopic o1, DocTopic o2) {
-				return o1.getQualifiedName().compareToIgnoreCase(o2.getQualifiedName()) ; }}) ;
+				return (o1.getTitle() + "::" + o1.getQualifiedName())
+							.compareToIgnoreCase(
+									(o2.getTitle() + "::" + o2.getQualifiedName())) ; }}) ;
 		   for(DocTopic entry: entries) {
 			   res +=
 					  "<tr><td class=ISymbolPrefix id=IOnlySymbolPrefix>&nbsp;</td>" 
