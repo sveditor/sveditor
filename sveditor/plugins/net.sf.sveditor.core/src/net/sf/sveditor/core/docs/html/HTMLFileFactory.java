@@ -171,8 +171,7 @@ public class HTMLFileFactory {
 					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
 		   + "<td class=SEntry><a href=\"#" 
-					 + parent.getTitle()
-					 + "." + topic.getTitle() 
+					 + topic.getQualifiedName()
 					 + "\">" + topic.getTitle() + "</a>"
 					 + "</td>"
 		   + "<td class=SDescription>"
@@ -188,7 +187,7 @@ public class HTMLFileFactory {
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 
-							      + parent.getTitle() + "." + child.getTitle()
+								+ child.getQualifiedName()
 						    + "\"></a>"
 					    + child.getTitle()
 					    + "</h3>"
