@@ -319,6 +319,7 @@ public class TestUvmBasics extends TestCase {
 			rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				listFile.toString(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
@@ -345,21 +346,35 @@ public class TestUvmBasics extends TestCase {
 		
 		if(requiredPkgDecls != null) {
 			for(String requiredPkgName: requiredPkgDecls.keySet()) {
+				log.debug("Searching for required package: " + requiredPkgName);
+				
 				List<SVDBDeclCacheItem> packages = index.findGlobalScopeDecl(new NullProgressMonitor(), "packages", new SVDBFindPackageMatcher()) ;
+			
 				// Hash up the pkgs by name
 				HashMap<String,SVDBDeclCacheItem> pkgMap = new HashMap<String,SVDBDeclCacheItem>() ;
+				log.debug("--> List of Packages");
 				for(SVDBDeclCacheItem pkg: packages) {
+					log.debug("  Package: " + pkg.getName());
 					pkgMap.put(pkg.getName(), pkg) ;
 				}
+				log.debug("<-- List of Packages");
+
+				assertTrue("Package " + requiredPkgName + " does not exist",
+						pkgMap.containsKey(requiredPkgName));
 				if(pkgMap.containsKey(requiredPkgName)) {
-					// Fetch all the packages content form the decl cache
-					List<SVDBDeclCacheItem> pkgDecls = index.findPackageDecl(new NullProgressMonitor(), pkgMap.get(requiredPkgName)) ; 
+					// Fetch all the packages content from the decl cache
+					List<SVDBDeclCacheItem> pkgDecls = index.findPackageDecl(new NullProgressMonitor(), pkgMap.get(requiredPkgName)); 
+					
+					assertNotNull("findPackageDecl returns null", pkgDecls);
 					if(pkgDecls != null) {
 						// Hash up all the pkg decls by name
 						HashMap<String, SVDBDeclCacheItem> pkgDeclMap = new HashMap<String,SVDBDeclCacheItem>() ;
+						log.debug("--> Content of package " + requiredPkgName);
 						for(SVDBDeclCacheItem decl: pkgDecls) {
+							log.debug("  Item: " + decl.getType() + " " + decl.getName());
 							pkgDeclMap.put(decl.getName(), decl) ;
 						}
+						log.debug("<-- Content of package " + requiredPkgName);
 						// Copy the required decl map so we can itterated over the copy while deleting from the original
 						HashSet<String> requiredPkgDeclsCopy = new HashSet<String>(requiredPkgDecls.get(requiredPkgName)) ;
 						// Search the map for all required package decls
