@@ -18,8 +18,8 @@ public class SVDBDocComment extends SVDBItem {
 	public SVDBDocComment() {
 		super("", SVDBItemType.DocComment) ;
 	}
-	public SVDBDocComment(String name, String comment) {
-		super(name, SVDBItemType.DocComment) ;
+	public SVDBDocComment(String title, String comment) {
+		super(title, SVDBItemType.DocComment) ;
 		fRawComment = comment ;
 	}
 	

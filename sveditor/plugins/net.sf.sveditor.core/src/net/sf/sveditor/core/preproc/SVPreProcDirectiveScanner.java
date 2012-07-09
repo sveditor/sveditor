@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -37,11 +39,14 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	private int						fLastCh  = -1;
 	private int						fLineno;
 	private StringBuffer				fTmpBuffer;
+	private StringBuilder				fCommentBuffer;
+	private boolean						fInComment;
 	private List<String>				fParamList;
 	private ISVPreProcScannerObserver	fObserver;
 	private ISVScanner					fScanner;
 	private IDefineProvider				fDefineProvider;
 	private ScanLocation				fScanLocation;
+	private IDocCommentParser   		fDocCommentParser;
 	private byte						fInBuffer[];
 	private int						fInBufferIdx;
 	private int						fInBufferMax;
@@ -74,7 +79,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		fTmpBuffer = new StringBuffer();
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
-		
+		fCommentBuffer = new StringBuilder();
+		fDocCommentParser = new DocCommentParser();
+		fInComment = false;
 		fInBuffer = new byte[1024*8];
 		fInBufferIdx = 0;
 		fInBufferMax = 0;
@@ -133,8 +140,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		int				ch, last_ch = -1;
 		int				end_comment[] = {-1, -1};
 		boolean			in_string = false;
-		StringBuilder	comment_buffer = new StringBuilder();
-		boolean			in_comment_section = false;
+//		StringBuilder	comment_buffer = new StringBuilder();
+//		boolean			in_comment_section = false;
+		boolean			foundSingleLineComment = false;
 		
 		if (fObserver != null) {
 			fObserver.enter_file(fFileName);
@@ -147,29 +155,34 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 					int ch2 = get_ch();
 
 					if (ch2 == '/') {
-						comment_buffer.append("//");
+						foundSingleLineComment = true ;
+//						fCommentBuffer.append("//");
+						beginComment();
 						while ((ch = get_ch()) != -1 && ch != '\n') { 
-							comment_buffer.append((char)ch);
+							fCommentBuffer.append((char)ch);
 						}
-						in_comment_section = true;
+//						in_comment_section = true;
+						fCommentBuffer.append('\n');
 						ch = ' ';
 						last_ch = ' ';
 					} else if (ch2 == '*') {
 						end_comment[0] = -1;
 						end_comment[1] = -1;
-
-						comment_buffer.append("/*");
-
+						beginComment();
+//						fCommentBuffer.append("/*");
 						while ((ch = get_ch()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
 
-							comment_buffer.append((char)ch);
+							fCommentBuffer.append((char)ch);
 
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
+								endComment() ;
 								break;
+							} else {
+								fCommentBuffer.append((char)ch);
 							}
-							in_comment_section = true;
+//							in_comment_section = true;
 						}
 						ch = ' ';
 						last_ch = ' ';
@@ -178,14 +191,15 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 					}
 				}
 
-				if (!Character.isWhitespace(ch) && in_comment_section) {
+				if (!Character.isWhitespace(ch) && fInComment) {
 					// Send accumulated comment to observer
 					// TODO: handle setting correct line
-					if (fObserver != null) {
-						fObserver.comment(comment_buffer.toString());
-					}
-					comment_buffer.setLength(0);
-					in_comment_section = false;
+//					if (fObserver != null) {
+//						fObserver.comment("",comment_buffer.toString());
+//					}
+					endComment() ;
+//					comment_buffer.setLength(0);
+//					in_comment_section = false;
 				}
 				
 				if (ch == '`') {
@@ -203,12 +217,30 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 				}
 			}
 			last_ch = ch;
+			
+			if(fInComment && !foundSingleLineComment && ((char)ch) == '\n') { endComment() ; }
+		
 		}
 		
 		if (fObserver != null) {
 			fObserver.leave_file();
 		}
 	}
+	
+	private void beginComment() {
+		if(!fInComment){ fCommentBuffer.setLength(0) ; }
+		fInComment = true ; 
+	}
+	
+	private void endComment() {
+		if(!fInComment) { return ; }
+		fInComment = false ;
+		String comment = fCommentBuffer.toString() ;
+		String title = fDocCommentParser.isDocComment(comment) ;
+		if(title != null) { 
+			if(fObserver != null) { fObserver.comment( title, comment) ; }
+		}
+	}	
 	
 	private String readLine(int ci) {
 		int last_ch = -1;
