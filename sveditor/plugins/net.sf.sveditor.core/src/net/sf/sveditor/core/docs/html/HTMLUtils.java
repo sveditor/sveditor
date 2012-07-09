@@ -12,8 +12,10 @@
 package net.sf.sveditor.core.docs.html;
 
 import java.io.File;
+import java.util.Collection;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
+import net.sf.sveditor.core.docs.DocTopicType;
 
 
 public class HTMLUtils {
@@ -156,7 +158,7 @@ public class HTMLUtils {
 		return c ;
 	}
 	
-	static String genMenu(String relPathToHTML, String title) {
+	static String genMenu(DocGenConfig cfg, String relPathToHTML, String title, Collection<DocTopicType> docTopicTypes) {
 		String res = 
 			"<div id=Menu>"
 				+ "<div class=MEntry>"
@@ -164,19 +166,23 @@ public class HTMLUtils {
 				+ "</div>"
 				+ "<div class=MEntry>"
 				+ "<div class=MGroup><a href=\"javascript:ToggleMenu('MGroupContent1')\">Index</a>"
-					+ "<div class=MGroupContent id=MGroupContent1>"
+					+ "<div class=MGroupContent id=MGroupContent1>" ; 
 //						+ "<div class=MEntry>"
 //							+ "<div class=MIndex><a href=\"" + relPathToHTML + "/index/General.html\">Everything</a> </div>"
 //						+ "</div>"
-						+ "<div class=MEntry>"
-							+ "<div class=MIndex><a href=\"" + relPathToHTML + "/index/Classes.html\">Classes</a></div>"
-						+ "</div>"
-//						+ "<div class=MEntry>"
-//							+ "<div class=MIndex><a href=\"" + relPathToHTML + "/index/Functions.html\">Functions</a></div>"
-//						+ "</div>"
-//						+ "<div class=MEntry>"
-//							+ "<div class=MIndex><a href=\"" + relPathToHTML + "/index/Variables.html\">Variables</a></div>"
-						+ "</div>"
+		for(DocTopicType docTopicType: docTopicTypes) {
+			if(!docTopicType.isIndex()) continue ;
+			res +=   	  "<div class=MEntry>"
+							+ "<div class=MIndex><a href=\"" 
+								+ relPathToHTML 
+								+ "/"
+								+ getHTMLRelPathForIndexOfTopic(cfg, docTopicType.getPluralName())
+								+ "\">"
+								+ docTopicType.getPluralNameCapitalized()
+								+ "</a></div>"
+						+ "</div>" ;
+		}
+		res += 			  "</div>"
 						+ "</div>"
 						+ "</div>"
 						+ "</div>"
@@ -199,11 +205,24 @@ public class HTMLUtils {
 				+ "</div>"
 		+ "<!--Menu-->" ;
 		return res ;
+	}	
+	
+	public static File getHTMLFileForIndexOfTopic(DocGenConfig cfg, String topicName) {
+		return new File(HTMLUtils.getHTMLDir(cfg),getHTMLRelPathForIndexOfTopic(cfg, topicName).toString()) ;
 	}
 	
-	public static File getHTMLRelPathForClass(DocGenConfig cfg, String pkgName, String className) {
-		return new File(new File(new File("classes"), pkgName), className + ".html") ;
+	public static File getHTMLRelPathForIndexOfTopic(DocGenConfig cfg, String topicNamePlural) {
+		String topicFileName = 
+				topicNamePlural.substring(0, 1).toUpperCase() +
+				topicNamePlural.substring(1).toLowerCase() +
+				".html";
+		File htmlRelIndexFile = new File(new File("index"), topicFileName) ;
+		return htmlRelIndexFile ;
 	}
+	
+//	public static File getHTMLRelPathForClass(DocGenConfig cfg, String pkgName, String className) {
+//		return new File(new File(new File("classes"), pkgName), className + ".html") ;
+//	}
 
 	public static File getHTMLFileForClass(DocGenConfig cfg, String pkgName, String className) {
 		return new File(getPkgClassDir(cfg,pkgName),className + ".html") ;

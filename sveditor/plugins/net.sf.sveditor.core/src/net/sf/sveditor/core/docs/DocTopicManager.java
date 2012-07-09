@@ -55,11 +55,11 @@ public class DocTopicManager implements IDocTopicManager {
 		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		ScopeType.START,	true,	true,				false)) ;
 //		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		ScopeType.START,	true,	false,				false)) ;
 //		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	ScopeType.START,    true,	false,				false)) ;
-//		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		ScopeType.START,    true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		ScopeType.START,    true,	true,				false)) ;
 		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"sections",		ScopeType.END,		false,	true,				false)) ;
-		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		ScopeType.NORMAL,	false,	false,				false)) ;
-		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	ScopeType.NORMAL,   false,	false,				false)) ;
-		topicTypeMap.put(TOPIC_VARIABLE, 	new DocTopicType(TOPIC_VARIABLE,	"variables",	ScopeType.NORMAL,   false,	false,				false)) ;
+		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		ScopeType.NORMAL,	true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	ScopeType.NORMAL,   true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_VARIABLE, 	new DocTopicType(TOPIC_VARIABLE,	"variables",	ScopeType.NORMAL,   true,	false,				false)) ;
 		
 		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 	"") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 	"classes") ;
@@ -70,6 +70,7 @@ public class DocTopicManager implements IDocTopicManager {
 		registerKeywordForTopicType(TOPIC_FUNCTION, "function", "functions") ;
 		registerKeywordForTopicType(TOPIC_FUNCTION, "func", 	"funcs") ;
 		registerKeywordForTopicType(TOPIC_VARIABLE, "variable", "variables") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "field", 	"fields") ;
 		
 	}
 

@@ -46,6 +46,10 @@ public class DocTopicType {
 	public String getName() {
 		return name;
 	}
+	
+	public String getNameCapitalized() {
+		return name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase() ;
+	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -53,6 +57,10 @@ public class DocTopicType {
 
 	public String getPluralName() {
 		return pluralName;
+	}
+	
+	public String getPluralNameCapitalized() {
+		return pluralName.substring(0,1).toUpperCase() + pluralName.substring(1).toLowerCase() ;
 	}
 	
 	public ScopeType getScopeType() {

@@ -15,15 +15,17 @@ import java.io.File;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.model.DocFile;
+import net.sf.sveditor.core.docs.model.DocModel;
 import net.sf.sveditor.core.docs.model.DocTopic;
 
 public class HTMLFileFactory {
 	
-	@SuppressWarnings("unused")
 	private DocGenConfig cfg ;
+	private DocModel model ;
 	
-	public HTMLFileFactory(DocGenConfig cfg) {
+	public HTMLFileFactory(DocGenConfig cfg, DocModel model) {
 		this.cfg = cfg ;
+		this.model = model ;
 	}
 	
 	public static String getRelPathToHTML(String path) {
@@ -48,7 +50,11 @@ public class HTMLFileFactory {
 		res += genContent(docFile) ;
 		res += HTMLUtils.genContentEnd() ;
 		res += HTMLUtils.genFooter() ;
-		res += HTMLUtils.genMenu(getRelPathToHTML(docFile.getTitle()),docFile.getPageTitle()) ;
+		res += HTMLUtils.genMenu(
+					cfg, 
+					getRelPathToHTML(docFile.getTitle()),
+					docFile.getPageTitle(),
+					model.getDocTopics().getAllTopicTypes()) ;
 		res += HTMLUtils.genBodyHTMLEnd() ;
 		return res ;
 	}
@@ -194,6 +200,9 @@ public class HTMLFileFactory {
 			    + "</div>" ;
 		return res ;
 	}
+	
+
+	
 }
 
 

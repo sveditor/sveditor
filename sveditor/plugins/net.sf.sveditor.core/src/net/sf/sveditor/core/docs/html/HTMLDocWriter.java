@@ -41,10 +41,10 @@ public class HTMLDocWriter implements IDocWriter {
 		public HTMLDocWriterException(Exception e) { super(e) ; }
 	}
 	
-	LogHandle log ;
+	LogHandle fLog ;
 	
 	public HTMLDocWriter() {
-		log = LogFactory.getLogHandle("HTMLDocWriter") ;
+		fLog = LogFactory.getLogHandle("HTMLDocWriter") ;
 	}
 
 	public void write(DocGenConfig cfg, DocModel model) {
@@ -53,7 +53,7 @@ public class HTMLDocWriter implements IDocWriter {
 			
 			sanityCheck(cfg,model) ;
 			
-			log.debug(ILogLevel.LEVEL_MIN, "Generating documentation at: " + cfg.getOutputDir()) ;
+			fLog.debug(ILogLevel.LEVEL_MIN, "Generating documentation at: " + cfg.getOutputDir()) ;
 			
 			buildDirTree(cfg, model) ;
 			
@@ -62,7 +62,7 @@ public class HTMLDocWriter implements IDocWriter {
 			writeIndices(cfg, model) ; 
 			
 		} catch (Exception e) {
-			log.error("Exception detected while generated HTML documentation", e) ;
+			fLog.error("Exception detected while generated HTML documentation", e) ;
 		} 
 
 	}
@@ -75,22 +75,22 @@ public class HTMLDocWriter implements IDocWriter {
 	}
 
 	private void writeFile(DocGenConfig cfg, DocModel model, DocFile docFile) {
-		HTMLFileFactory fileFactory = new HTMLFileFactory(cfg) ;
+		HTMLFileFactory fileFactory = new HTMLFileFactory(cfg, model) ;
 		String srcPath = docFile.getDocPath() ;
 		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
 		if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
-		log.debug(ILogLevel.LEVEL_MID, "Generating HTML file: " + outPath) ;
+		fLog.debug(ILogLevel.LEVEL_MID, "Generating HTML file: " + outPath) ;
 		FileOutputStream os;
 		try {
 			os = new FileOutputStream(outPath);
 			String fileContent = fileFactory.build(docFile) ;
 			if(fileContent == null || fileContent.isEmpty()) {
-				log.error("Unpexpectedly generated no content for: " + docFile.getTitle()) ;
+				fLog.error("Unpexpectedly generated no content for: " + docFile.getTitle()) ;
 			}
 			os.write(fileContent.getBytes()) ;
 			os.close() ;
 		} catch (Exception e) {
-			log.error("Exception while opening for write: " + outPath, e) ;
+			fLog.error("Exception while opening for write: " + outPath, e) ;
 		}
 	}
 
@@ -104,20 +104,33 @@ public class HTMLDocWriter implements IDocWriter {
 
 	private void writeIndex(DocGenConfig cfg, DocModel model, DocTopicType docTopicType) throws IOException {
 		
-		HTMLIndexFactory classIndexFactory = new HTMLIndexFactory(cfg, docTopicType) ;
-		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
+		HTMLIndexFactory indexFactory = new HTMLIndexFactory(cfg, docTopicType) ;
 		
-		File classIndexFile = new File(indexDir, "Classes.html") ;
+		String topicName = docTopicType.getName() ;
 		
-		log.debug(ILogLevel.LEVEL_MID, "Generating class index to: " + classIndexFile) ;
+		File indexFile = HTMLUtils.getHTMLFileForIndexOfTopic(cfg, docTopicType.getPluralName()) ;
 		
-		indexHtmFile = classIndexFile ; // FIXME: temp just to give the wizard something to open
+//		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
+//		String topicName = docTopicType.getName() ;
+//		String topicFileName = 
+//				topicName.substring(0, 1).toUpperCase() +
+//				topicName.substring(1).toLowerCase() +
+//				".html";
+//		
+//		File indexFile = new File(indexDir, topicFileName) ;
 		
-		if(!classIndexFile.getParentFile().exists()) classIndexFile.getParentFile().mkdirs() ;
+		fLog.debug(ILogLevel.LEVEL_MIN, 
+				String.format("Preparing index for topic(%s) at file(%s)", 
+						topicName,
+						indexFile.toString())) ;
+		
+		indexHtmFile = indexFile ; // FIXME: temp just to give the wizard something to open
+		
+		if(!indexFile.getParentFile().exists()) indexFile.getParentFile().mkdirs() ;
 		
 		FileOutputStream os ;
-		os = new FileOutputStream(classIndexFile) ;
-		os.write(classIndexFactory.build(model).getBytes()) ;
+		os = new FileOutputStream(indexFile) ;
+		os.write(indexFactory.build(model).getBytes()) ;
 		os.close() ;
 		
 	}
@@ -138,7 +151,7 @@ public class HTMLDocWriter implements IDocWriter {
 
 	private void buildDirTree(DocGenConfig cfg, DocModel model) throws Exception {
 		
-		log.debug(ILogLevel.LEVEL_MIN, "Building dir tree") ;
+		fLog.debug(ILogLevel.LEVEL_MIN, "Building dir tree") ;
 		
 		copyBundleDirToFS("html", cfg.getOutputDir()) ;
 
@@ -152,7 +165,7 @@ public class HTMLDocWriter implements IDocWriter {
 		
 		Enumeration<URL> entries = bundle.findEntries(srcBundlePath, "*", true) ;
 		
-		log.debug(ILogLevel.LEVEL_MID, "Copying bundle dir: " + srcBundlePath) ;
+		fLog.debug(ILogLevel.LEVEL_MID, "Copying bundle dir: " + srcBundlePath) ;
 		
 		while (entries.hasMoreElements()) {
 			URL url = (URL)entries.nextElement() ;
@@ -160,7 +173,7 @@ public class HTMLDocWriter implements IDocWriter {
 			String fileSubPath = url.getPath() ;
 			File target = new File(dstFSPathRoot, fileSubPath) ;
 			
-			log.debug(ILogLevel.LEVEL_MID, "Copying bundle path: " + fileSubPath) ;
+			fLog.debug(ILogLevel.LEVEL_MID, "Copying bundle path: " + fileSubPath) ;
 		
 			if (!target.getParentFile().exists()) {
 				if (!target.getParentFile().mkdirs()) {

@@ -11,7 +11,9 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class DocIndex {
@@ -26,15 +28,17 @@ public class DocIndex {
 		"O","P","Q","R","S","T","U",
 		"V","W","X","Y","Z"} ;
 	
-	private Map<String, Map<String,DocTopic>> fMap ;
+//	private Map<String, Map<String,DocTopic>> fMap ;
+	private Map<String, Collection<DocTopic>> fMap ;
 	
 	private String fTopicName ;
 	
 	public DocIndex(String topicName) {
 		setTopicName(topicName) ;
-		fMap = new HashMap<String,Map<String,DocTopic>>() ;
+//		fMap = new HashMap<String,Map<String,DocTopic>>() ;
+		fMap = new HashMap<String,Collection<DocTopic>>() ;
 		for(String key: indexKeys) {
-			fMap.put(key, new HashMap<String, DocTopic>()) ;
+			fMap.put(key, new HashSet<DocTopic>()) ;
 		}
 	}
 
@@ -46,7 +50,8 @@ public class DocIndex {
 		this.fTopicName = topicName;
 	}
 	
-	public Map<String, Map<String,DocTopic>> getMap() {
+//	public Map<String, Map<String,DocTopic>> getMap() {
+	public Map<String, Collection<DocTopic>> getMap() {
 		return fMap ;
 	}
 	
@@ -54,14 +59,14 @@ public class DocIndex {
 		String name = docTopic.getTitle() ;
 		String firstChar = name.substring(0, 1).toUpperCase() ;
 		if(fMap.containsKey(firstChar)) {
-			fMap.get(firstChar)
-				.put(name, docTopic) ;
+			fMap.get(firstChar).add(docTopic) ;
+//				.put(name, docTopic) ;
 		} else if(firstChar.matches("[0123456789]")) {
-			fMap.get(IndexKeyNum)
-				.put(name,docTopic) ;
+			fMap.get(IndexKeyNum).add(docTopic) ;
+//				.put(name,docTopic) ;
 		} else {
-			fMap.get(IndexKeyWierd)
-				.put(name,docTopic) ;
+			fMap.get(IndexKeyWierd).add(docTopic) ;
+//				.put(name,docTopic) ;
 		}		
 	}
 	

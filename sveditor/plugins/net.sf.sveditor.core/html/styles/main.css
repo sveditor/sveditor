@@ -677,9 +677,19 @@ blockquote {
         padding-top: 0;
         }
 
+    .ITable {
+    	width: 100%;
+	}
+
     .IEntry {
         font-size: 10pt;
         padding-left: 1ex;
+	width: 30%;
+        }
+    .IScope {
+        font-size: 10pt;
+        padding-left: 5ex;
+	width: 70%;
         }
     .PopupSearchResultsPage .IEntry {
         font-size: 8pt;
