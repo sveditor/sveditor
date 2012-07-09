@@ -1,4 +1,9 @@
+-- 0.9.5 Release --
 
+- #(nobug) - Correct a bug in the package cache that caused only declarations
+  from first-level include files from being processed
+
+------------------------------------------------------------------------------
 -- 0.9.4 Release --
 
 - #(nobug) - Correct an issue with the package cache not restoring
