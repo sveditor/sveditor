@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
@@ -34,11 +35,17 @@ public class HTMLIndexFactory {
 	private LogHandle fLog ;
 	String fIndexNameCapitalized ;
 	
+	private int ttID = 0 ;
+	private int linkID = 0 ;
+	
+	private HashMap<String,String> ttDescriptions ;
+	
 	public HTMLIndexFactory(DocGenConfig cfg, DocTopicType docTopicType) {
 		this.cfg = cfg ;
 		this.docTopicType = docTopicType ;
 		fLog = LogFactory.getLogHandle("HTMLIndexFactory") ;
 		fIndexNameCapitalized = docTopicType.getNameCapitalized() + " Index" ;
+		ttDescriptions = new HashMap<String,String>() ;
 	}
 	
 	public String build(DocModel model) {
@@ -98,30 +105,51 @@ public class HTMLIndexFactory {
 							.compareToIgnoreCase(
 									(o2.getTitle() + "::" + o2.getQualifiedName())) ; }}) ;
 		   for(DocTopic entry: entries) {
+			   String linkID = getNextLinkID() ;
+			   String ttID = getNextTTID() ;
 			   res +=
 					  "<tr><td class=ISymbolPrefix id=IOnlySymbolPrefix>&nbsp;</td>" 
 						+ "<td class=IEntry>"
 							+ "<a href=\"" + relPathToHTML + "/files" 
 								+ entry.getDocFile().getDocPath() 
 								+ ".html" + "#" + entry.getQualifiedName() + "\" " 
-//								+ "id=link1 onMouseOver=\"ShowTip(event, 'tt1', 'link1')\" "
-//								+ "onMouseOut=\"HideTip('tt1')\" "
-//								+ "class=ISymbol>" + entry.getTitle() + "</a> - " + entry.getQualifiedName() + ""
+								+ "id=" + linkID + " onMouseOver=\"ShowTip(event, '" + ttID + "', '" + linkID + "')\" "
+								+ "onMouseOut=\"HideTip('" + ttID + "')\" "
 								+ "class=ISymbol>" + entry.getTitle() + "</a>"
 						+ "</td>"
 						+ "<td class=IDescription>"
 							+ entry.getQualifiedName()
 			   	        + "</td>"
 					+ "</tr>" ;
+			   ttDescriptions.put(ttID, entry.getSummary()) ;
 		   }
 		}
 		res += 
-				  "</table>" 
-//				+ "<div class=CToolTip id=\"tt1\">"
-//					+ "<div class=CClass>The uvm_object class is the base class for all UVM data and hierarchical classes. </div>"
-//				+"</div>" 
-			+ "</div><!--Index-->" ;	
+				  "</table>"  ;
+		res += genToolTips() ;
+		res += "</div><!--Index-->" ;	
 		return res ;
+	}
+
+	private String genToolTips() {
+		String res = "" ;
+		for(String ttid: ttDescriptions.keySet()) {
+			res += 
+				  "<div class=CToolTip id=\"" + ttid +"\">"
+					+ "<div class=CClass>" + ttDescriptions.get(ttid) + "</div>"
+				+"</div>"  ;
+		}
+		return res ;
+	}
+
+	private String getNextTTID() {
+		ttID += 1 ;
+		return "tt" + ttID ;
+	}
+
+	private String getNextLinkID() {
+		linkID += 1 ;
+		return "linkID" + linkID ;
 	}
 
 
