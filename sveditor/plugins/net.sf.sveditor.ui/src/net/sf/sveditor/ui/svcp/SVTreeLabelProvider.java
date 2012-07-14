@@ -106,7 +106,9 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret.append("(");
 				for (int i=0; i<tf.getParams().size(); i++) {
 					SVDBParamPortDecl p = tf.getParams().get(i);
-					ret.append(p.getTypeName());
+					if (p.getTypeName() != null) {
+						ret.append(p.getTypeName());
+					}
 					if (i+1 < tf.getParams().size()) {
 						ret.append(", ");
 					}
