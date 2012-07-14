@@ -147,8 +147,23 @@ public class HTMLUtils {
 	 * @param topicName
 	 * @return The CSS class for the given topic. Ex. CFunction for topicName=function
 	 */
-	static String genCSSClassForTopicName(String topicName) {
+	static String genCSSClassForTopic(String topicName) {
 		String c = "C" ;
+		if(topicName == null || topicName.length() < 1) {
+			// FIXME: report error
+			return "CUnknown" ;
+		}
+		c = c + topicName.substring(0,1).toUpperCase() ;
+		c = c + topicName.substring(1).toLowerCase() ;
+		return c ;
+	}
+	
+	/**
+	 * @param topicName
+	 * @return The CSS class for the given topic within a summary. Ex. CFunction for topicName=function
+	 */
+	static String genCSSClassForTopicInSummary(String topicName) {
+		String c = "S" ;
 		if(topicName == null || topicName.length() < 1) {
 			// FIXME: report error
 			return "CUnknown" ;

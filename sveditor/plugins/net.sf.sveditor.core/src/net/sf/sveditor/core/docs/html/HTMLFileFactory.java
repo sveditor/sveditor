@@ -101,7 +101,7 @@ public class HTMLFileFactory {
 	private String genTopicStart(DocTopic contentItem) {
 		String res = 
 				"<div class=\""
-				  + HTMLUtils.genCSSClassForTopicName(contentItem.getTopic()) 
+				  + HTMLUtils.genCSSClassForTopic(contentItem.getTopic()) 
 				+"\">" ;
 		return res ;
 	}
@@ -179,26 +179,46 @@ public class HTMLFileFactory {
 	}
 	
 	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic) {
-		String res =
-			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicName(topic.getTopic())
+		String res = "" ;
+		if(topic.getTopic().equals("group")) {
+			res += 
+			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic())
 			 	+ " SIndent2\">" 
 		   + "<td class=SIcon>"
-					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
+//					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
-		   + "<td class=SEntry><a href=\"#" 
+		   + "<td colspan=2 class=SEntry><a href=\"#" 
 					 + topic.getQualifiedName()
 					 + "\">" + topic.getTitle() + "</a>"
 					 + "</td>"
+//		   + "<td class=SDescription>"
+//					 + topic.getSummary()
+//					 + "</td>"
+		   + "</tr>" ;
+		} else {
+			res += 
+			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic())
+			 	+ " SIndent3\">" 
+		   + "<td class=SIcon>"
+					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
+					 + "</td>"
+		   + "<td class=SEntry>"
+//	   				+ "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
+		   			+"<a href=\"#" 
+		   				+ topic.getQualifiedName()
+		   				+ "\">" + topic.getTitle() + "</a>"
+				 + "</td>"
 		   + "<td class=SDescription>"
 					 + topic.getSummary()
 					 + "</td>"
 		   + "</tr>" ;
+		}
 		return res ;
 	}
 
 	private String genDetails(DocTopic parent, DocTopic child) {
 		String res =
-				  "<div class=" + HTMLUtils.genCSSClassForTopicName(child.getTopic()) + ">" 
+				  "<div class=" + HTMLUtils.genCSSClassForTopic(child.getTopic()) + ">" 
 				    + "<div class=CTopic>" 
 					    + "<h3 class=CTitle>"
 							+ "<a name=\"" 

@@ -141,6 +141,10 @@ public class DocModelFactory {
 											String.format("| [%s] |    Found topic: %s",
 													shortFileName,
 													topic.getTitle())) ;
+									fLog.debug(ILogLevel.LEVEL_MID,
+											String.format("| [%s] |      	summary: %s",
+													shortFileName,
+													topic.getSummary())) ;
 									fileHasDocs = true ;
 									switch(kwi.getTopicType().getScopeType()) {
 										case START:
