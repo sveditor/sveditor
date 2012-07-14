@@ -2,6 +2,16 @@
 
 - #(nobug) - Correct a bug in the package cache that caused only declarations
   from first-level include files from being processed
+  
+- #(nobug) - Correct a string out-of-bounds when parsing a file with incomplete 
+  `include directives
+  
+- #(nobug) - Correct a NPE from the label provider when displaying a function 
+  with no type
+  
+- #(enh) - Implement content-assist for interface fields referenced via a virtual interface field. 
+  
+- #(?) - event data-type not recognized as field?
 
 ------------------------------------------------------------------------------
 -- 0.9.4 Release --
