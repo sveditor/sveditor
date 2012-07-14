@@ -73,23 +73,36 @@ public class HTMLFileFactory {
 		return res ;
 	}
 
-	static String genSTRMain(DocTopic docItem) {
-		String result =
+	static String genSTRMain(DocFile docFile, DocTopic topic) {
+		String res = "" ;
+		if(topic.getTopic().equals("section")) {
+			res += 
+			 "<tr class=SMain>"
+		   + "<td colspan=\"2\" class=SEntry><a href=\"#" 
+					 + topic.getQualifiedName()
+					 + "\">" + topic.getTitle() + "</a>"
+					 + "</td>"
+		   + "</tr>" ;
+		} else {
+			res +=
 			  "<tr class=\"SMain\">"
 				   + "<td class=SIcon>"
-							 + "<img src=" + getRelPathToHTML(docItem.getDocFile().getTitle()) + HTMLIconUtils.getImagePath(docItem) + ">"
+							 + "<img src=" + getRelPathToHTML(topic.getDocFile().getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 							 + "</td>"
-			+ "<td class=SEntry><a href=\"#" +docItem.getTitle()+ "\" >" +docItem.getTitle()+ "</a></td>" 
+			+ "<td class=SEntry><a href=\"#" +topic.getTitle()+ "\" >" +topic.getTitle()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
 		
-			result += docItem.getSummary() ;
-			result += "</tr>" ;
-		return result ;
+			res += topic.getSummary() ;
+			res += "</tr>" ;
+		}
+		return res ;
 	}	
 	
-	private String genClassStart() {
+	private String genTopicStart(DocTopic contentItem) {
 		String res = 
-				"<div class=\"CClass\">" ;
+				"<div class=\""
+				  + HTMLUtils.genCSSClassForTopicName(contentItem.getTopic()) 
+				+"\">" ;
 		return res ;
 	}
 	private String genClassEnd() {
@@ -104,7 +117,9 @@ public class HTMLFileFactory {
 			res += genFileSummary(docFile) ;
 		}
 		for(DocTopic contentItem: docFile.getChildren()) {
-			res += genContent(docFile, contentItem) ;
+			if(!contentItem.getTopic().equals("section")) {
+				res += genContent(docFile, contentItem) ;
+			}
 		}
 		return res ;
 	}
@@ -112,7 +127,7 @@ public class HTMLFileFactory {
 	private String genContent(DocFile docFile, DocTopic contentItem) {
 
 		String res = "" ;
-		res += genClassStart() ;
+		res += genTopicStart(contentItem) ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
 		res += HTMLUtils.genCTitle(contentItem.getTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
@@ -121,7 +136,7 @@ public class HTMLFileFactory {
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
-		res += genSTRMain(contentItem) ;
+		res += genSTRMain(docFile,contentItem) ;
 		res += genSummaryMembers(docFile, contentItem) ;
 		res += HTMLUtils.genSTableEnd() ;
 		res += HTMLUtils.genSBorderEnd() ;
@@ -144,7 +159,7 @@ public class HTMLFileFactory {
 		res += HTMLUtils.genSBorderBegin() ;
 		res += HTMLUtils.genSTableBegin() ;
 		for(DocTopic docItem: docFile.getChildren()) {
-			res += genSTRMain(docItem) ;
+			res += genSTRMain(docFile,docItem) ;
 			res += genSummaryMembers(docFile, docItem) ;
 		}
 		res += HTMLUtils.genSTableEnd() ;
@@ -164,7 +179,7 @@ public class HTMLFileFactory {
 	}
 	
 	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic) {
-		String res = 
+		String res =
 			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicName(topic.getTopic())
 			 	+ " SIndent2\">" 
 		   + "<td class=SIcon>"

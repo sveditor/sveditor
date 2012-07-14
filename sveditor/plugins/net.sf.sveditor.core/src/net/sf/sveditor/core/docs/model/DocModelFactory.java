@@ -150,6 +150,10 @@ public class DocModelFactory {
 										case NORMAL:
 											parent.addChild(topic) ;
 											break ;
+										case END:
+											parent = docFile ;
+											parent.addChild(topic) ;
+											break ;
 										default:
 											break ;
 									}

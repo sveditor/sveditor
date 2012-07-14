@@ -94,22 +94,6 @@ public class DocCommentParser implements IDocCommentParser {
 		String topicTypeName = kwi.getTopicType().getName() ;
 		docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
 		
-//		if(topicTypeName == DocTopicManager.TOPIC_CLASS) {
-//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
-//		} else if(topicTypeName == DocTopicManager.TOPIC_TASK) {
-//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
-////			docItem = new DocTaskItem(topicTitle) ;
-//		} else if(topicTypeName == DocTopicManager.TOPIC_FUNCTION) {
-//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
-////			docItem = new DocFuncItem(topicTitle) ;
-//		} else if(topicTypeName == DocTopicManager.TOPIC_PROPERTY) {
-//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
-////			docItem = new DocVarDeclItem(topicTitle) ;
-//		} else {
-//			docItem = new DocTopic(topicTitle, topicTypeName, keyword) ;
-//			docItem = new DocGeneralItem(topicTitle) ;
-//		}
-		
 		return docItem ;
 		
 	}
