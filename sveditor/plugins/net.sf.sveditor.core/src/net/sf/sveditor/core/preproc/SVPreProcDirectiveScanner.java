@@ -149,6 +149,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		}
 		
 		while ((ch = get_ch()) != -1) {
+			foundSingleLineComment = false ;
 			if (!in_string) {
 				// Handle comment
 				if (ch == '/') {

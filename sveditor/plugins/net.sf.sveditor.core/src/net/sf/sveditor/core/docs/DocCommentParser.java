@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocTopic;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -203,7 +204,6 @@ public class DocCommentParser implements IDocCommentParser {
 	    while(index < lines.length ) {
 	    
 	        // Everything but leading whitespace was removed beforehand.
-	    	
 
 	        if (inCodeSection) {
 	            if (fPatternCodeSectionEnd.matcher(lines[index]).matches()) {  inCodeSection = false ;  }

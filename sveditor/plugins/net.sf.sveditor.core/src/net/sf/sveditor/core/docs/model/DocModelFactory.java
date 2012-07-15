@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.docs.DocCommentCleaner;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.DocKeywordInfo;
@@ -148,6 +149,28 @@ public class DocModelFactory {
 										String.format("| [%s] | Parsing comment: %s",
 												shortFileName,
 												docCom.getName())) ;
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | +------------------------------------------------------------------------------------",
+												shortFileName)) ;
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | | Body:",
+												shortFileName)) ;
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | +------------------------------------------------------------------------------------",
+												shortFileName)) ;
+								String lines[] = DocCommentCleaner.splitCommentIntoLines(docCom.getRawComment()) ;
+								int lin_num=0 ;
+								for(String line: lines) {
+									fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | | [%03d]: %s",
+												shortFileName,
+												lin_num,
+												line)) ;
+									lin_num++ ;
+								}
+								fLog.debug(ILogLevel.LEVEL_MID,
+										String.format("| [%s] | +------------------------------------------------------------------------------------",
+												shortFileName)) ;
 								docCommentParser.parse(docCom.getRawComment(),docTopics) ;
 								for(DocTopic topic: docTopics) {
 									IDocTopicManager topicMgr = model.getDocTopics() ;
