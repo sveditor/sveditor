@@ -71,7 +71,7 @@ public class ProjectPathsContentProvider implements
 		int idx;
 		
 		synchronized (fProjectDataMap) {
-			ProjectPathsData tmp = new ProjectPathsData(pd);
+			ProjectPathsData tmp = new ProjectPathsData(pd, false);
 			idx = fProjectDataMap.indexOf(tmp);
 		}
 		
