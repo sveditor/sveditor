@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 

@@ -42,6 +42,12 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 
+/**
+ * Factory which produces a DocModel for a given DocGenConfig
+ * <p>
+ * @see DocModel
+ * @see DocGenConfig
+ */
 public class DocModelFactory {
 	
 	private LogHandle fLog ;
@@ -57,15 +63,18 @@ public class DocModelFactory {
 		fLog = LogFactory.getLogHandle("DocModelFactory") ;
 	}
 
+	/**
+	 * @param cfg Configuration defining the set to be generated.
+	 * @return A fully prepared DocModel indexed and cross referenced
+	 */
 	public DocModel build(DocGenConfig cfg) {
 		DocModel model = new DocModel() ;
 		IDocCommentParser docCommentParser = new DocCommentParser(model.getDocTopics()) ;
 		try {
-			buildInitialSymbolTableFromSVDB(cfg, model) ;
-			spinThroughComments(cfg, model, docCommentParser) ;
-			gatherPackages(cfg, model) ;
+			gatherSymbols(cfg, model) ;
+			gatherDocTopicsFromPreProcFiles(cfg, model, docCommentParser) ;
+			gatherPackageContentFromDeclCache(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
-			gatherClassHierarchies(cfg, model) ;
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
@@ -74,10 +83,10 @@ public class DocModelFactory {
 		return model ;
 	}
 
-	private void gatherClassHierarchies(DocGenConfig cfg, DocModel model) {
-		
-	}
-
+	/**
+	 * @param cfg Configuration to operate within
+	 * @param model The model to operate on
+	 */
 	private void assignSymbolsTheirDocFiles(DocGenConfig cfg, DocModel model) {
 		for(String symbol: model.getSymbolTable().getSymbolSet()) {
 			SymbolTableEntry entry = model.getSymbolTable().getSymbol(symbol) ;
@@ -95,6 +104,10 @@ public class DocModelFactory {
 		}
 	}
 
+	/**
+	 * @param cfg Configuration to operate within
+	 * @param model The model to operate on
+	 */
 	private void setPageTitles(DocGenConfig cfg, DocModel model) {
 		// If the first topic in the file has the "page title if first" attribute set,
 		// then use that as the title. Otherwise, just use the file name
@@ -116,7 +129,21 @@ public class DocModelFactory {
 		}
 	}
 
-	private void spinThroughComments(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
+	/**
+	 * Creates the first-pass model purely from DocTopics parsed from
+	 * the preprocessor view of each source file.
+	 * <p><p>
+	 * After this step:
+	 * <ul>
+	 * <li> The model has a DocFile for each preprocessor file which contains any DocTopic
+	 * <li> Each DocFile has a set of all DocTopics parsed from the raw doc comments found in the file
+	 * </ul>
+	 * <p>
+	 * @param cfg Configuration to operate within
+	 * @param model The model to operate on
+	 * @param docCommentParser
+	 */
+	private void gatherDocTopicsFromPreProcFiles(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
 		HashSet<ISVDBIndex> visitedIndex = new HashSet<ISVDBIndex>() ;
 		fLog.debug(ILogLevel.LEVEL_MIN,"Gathering raw doc comments for each SVDBFile") ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
@@ -221,7 +248,20 @@ public class DocModelFactory {
 		}
 	}
 
-	private void buildInitialSymbolTableFromSVDB(DocGenConfig cfg, DocModel model) {
+	/**
+	 * Populates the model's initial symbol table by gathering symbols 
+	 * from the declaration cache for all packages selected by the given configuration.
+	 * <p><p>
+	 * After this pass:
+	 * <ul>
+	 * </ul>
+	 * @param cfg Configuration to operate within
+	 * @param model The model to operate on
+	 * @see SymbolTableEntry
+	 * @see SymbolTable
+	 * 
+	 */
+	private void gatherSymbols(DocGenConfig cfg, DocModel model) {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
 		
@@ -231,13 +271,13 @@ public class DocModelFactory {
 			SymbolTableEntry pkgSTE = 
 					SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem.getFilename(), pkgDeclCacheItem) ;
 			model.getSymbolTable().addSymbol(pkgSTE) ;
-			gatherPackageSymbols(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
+			gatherSymbolsFromPackage(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
 		}
 		model.getSymbolTable().dumpSymbols() ;
-			
+		
 	}
 
-	private void gatherPackageSymbols(DocGenConfig cfg, 
+	private void gatherSymbolsFromPackage(DocGenConfig cfg, 
 										DocModel model, 
 										SVDBDeclCacheItem pkgDeclCacheItem, 
 										ISVDBIndex pkgSvdbIndex) {
@@ -249,15 +289,16 @@ public class DocModelFactory {
 					SymbolTableEntry classSTE = 
 							SymbolTableEntry.createClassEntry(pkgDeclCacheItem.getName(), pkgDecl.getName(), pkgSvdbIndex, pkgDecl.getFilename(), pkgDecl) ;
 					model.getSymbolTable().addSymbol(classSTE) ;
-					gatherClassSymbols(cfg,model,pkgSvdbIndex,pkgDeclCacheItem,pkgDecl) ;
+					gatherSymbolsFromClass(cfg,model,pkgSvdbIndex,pkgDeclCacheItem,pkgDecl) ;
 				}
 			}
 		} else {
 			fLog.debug(ILogLevel.LEVEL_MID,"No decls found for pkg(" + pkgDeclCacheItem.getName() + ")") ;
 		}
 	}
+			
 
-	private void gatherClassSymbols(DocGenConfig cfg, DocModel model,
+	private void gatherSymbolsFromClass(DocGenConfig cfg, DocModel model,
 			ISVDBIndex pkgSvdbIndex, SVDBDeclCacheItem pkgDeclCacheItem,
 			SVDBDeclCacheItem classDeclCacheItem) {
 		
@@ -300,8 +341,22 @@ public class DocModelFactory {
 		
 	}
 	
-	private void gatherPackages(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
-		fLog.debug(ILogLevel.LEVEL_MIN,"Iterating through SVDB to compliment Doc Comments") ;
+	/**
+	 * Compliments the first-pass DocTopic based model with the more detailed
+	 * information available from the SVDBDeclCacheItems and the SVDB itself.
+	 * <p><p>
+	 * Specifically:
+	 * <ul>
+	 * <li>
+	 * </ul>
+	 * <p>
+	 * @param cfg
+	 * @param model
+	 * @throws DocModelFactoryException
+	 */
+	private void gatherPackageContentFromDeclCache(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
+		fLog.debug(ILogLevel.LEVEL_MIN,
+				"Iterating through SVDB to compliment Doc Comments") ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkg = pkgTuple.first() ;
 			if(pkg.getParent() == null) {
@@ -319,9 +374,16 @@ public class DocModelFactory {
 		fLog.debug(ILogLevel.LEVEL_MID,"+------------------------------------------------------------") ;
 		fLog.debug(ILogLevel.LEVEL_MID,"| Entering package: " + pkgName) ;
 		fLog.debug(ILogLevel.LEVEL_MID,"+------------------------------------------------------------") ;
+		/*
+		 * Request, from the decl cache, all declarations within the given package and iterate over them
+		 */
 		List<SVDBDeclCacheItem> pkgDecls = pkg.getParent().findPackageDecl(new NullProgressMonitor(), pkg) ; 
 		if(pkgDecls != null) {
 			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
+				/*
+				 * For each decl cache item, search for an associate doc comment in the preprocessor
+				 * view of the file the item was declared in.
+				 */
 				SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), pkgDecl.getFile().getFilePath()) ;
 				if(ppFile != null) {
 					String symbol = String.format("%s::%s", pkg.getName(), pkgDecl.getName()) ;
