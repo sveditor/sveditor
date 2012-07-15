@@ -12,10 +12,8 @@
 package net.sf.sveditor.core.docs.model;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
@@ -67,12 +65,17 @@ public class DocModelFactory {
 			spinThroughComments(cfg, model, docCommentParser) ;
 			gatherPackages(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
+			gatherClassHierarchies(cfg, model) ;
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString()) ;
 		}
 		return model ;
+	}
+
+	private void gatherClassHierarchies(DocGenConfig cfg, DocModel model) {
+		
 	}
 
 	private void assignSymbolsTheirDocFiles(DocGenConfig cfg, DocModel model) {
@@ -301,18 +304,16 @@ public class DocModelFactory {
 		fLog.debug(ILogLevel.LEVEL_MIN,"Iterating through SVDB to compliment Doc Comments") ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkg = pkgTuple.first() ;
-			Map<String, Map<String, DocTopic>> classMapByPkg = model.getClassMapByPkg() ;
-			classMapByPkg.put(pkg.getName(), new HashMap<String, DocTopic>()) ;
 			if(pkg.getParent() == null) {
 				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
 			}
-			gatherPackageClasses(model, pkg, classMapByPkg, pkgTuple.second());			
+			gatherPackageClasses(model, pkg, pkgTuple.second());			
 		}
 	}
 
 	private void gatherPackageClasses(DocModel model, 
 									  SVDBDeclCacheItem pkg,
-									  Map<String, Map<String, DocTopic>> classMapByPkg, ISVDBIndex isvdbIndex)
+									  ISVDBIndex isvdbIndex)
 			throws DocModelFactoryException {
 		String pkgName = pkg.getName() ;
 		fLog.debug(ILogLevel.LEVEL_MID,"+------------------------------------------------------------") ;
