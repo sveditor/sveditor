@@ -15,10 +15,19 @@ public class DocFile extends DocTopic {
 	
 	String fDocPath ;
 	String fPageTitle ;
+	String fOutPath ;
 
 	public DocFile(String name) {
 		super(name, "", "") ;
 		setDocFile(this) ;
+	}
+	
+	public void setOutPath(String path) {
+		fOutPath = path ;
+	}
+	
+	public String getOutPath() {
+		return fOutPath ;
 	}
 
 	public void setDocPath(String path) {

@@ -57,6 +57,8 @@ public class HTMLDocWriter implements IDocWriter {
 			
 			buildDirTree(cfg, model) ;
 			
+			assignOutPaths(cfg, model) ;
+			
 			writeFiles(cfg, model) ;
 			
 			writeIndices(cfg, model) ; 
@@ -65,6 +67,15 @@ public class HTMLDocWriter implements IDocWriter {
 			fLog.error("Exception detected while generated HTML documentation", e) ;
 		} 
 
+	}
+
+	private void assignOutPaths(DocGenConfig cfg, DocModel model) {
+		for(String file: model.getFileSet()) {
+			DocFile docFile = model.getDocFile(file) ;
+			String srcPath = docFile.getDocPath() ;
+			File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
+			docFile.setOutPath(outPath.toString()) ;
+		}
 	}
 
 	private void writeFiles(DocGenConfig cfg, DocModel model) throws IOException {
@@ -76,8 +87,9 @@ public class HTMLDocWriter implements IDocWriter {
 
 	private void writeFile(DocGenConfig cfg, DocModel model, DocFile docFile) {
 		HTMLFileFactory fileFactory = new HTMLFileFactory(cfg, model) ;
-		String srcPath = docFile.getDocPath() ;
-		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
+//		String srcPath = docFile.getDocPath() ;
+//		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
+		File outPath = new File(docFile.getOutPath()) ;
 		if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
 		fLog.debug(ILogLevel.LEVEL_MID, "Generating HTML file: " + outPath) ;
 		FileOutputStream os;

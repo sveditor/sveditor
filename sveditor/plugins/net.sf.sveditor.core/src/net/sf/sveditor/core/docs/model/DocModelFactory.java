@@ -46,7 +46,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class DocModelFactory {
 	
 	private LogHandle fLog ;
-	private SymbolTable fSymbolTable ;
 	
 	private class DocModelFactoryException extends Exception {
 		private static final long serialVersionUID = -6656720421849741060L;
@@ -57,7 +56,6 @@ public class DocModelFactory {
 	
 	public DocModelFactory() {
 		fLog = LogFactory.getLogHandle("DocModelFactory") ;
-		fSymbolTable = new SymbolTable() ;
 	}
 
 	public DocModel build(DocGenConfig cfg) {
@@ -188,10 +186,10 @@ public class DocModelFactory {
 			ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
 			SymbolTableEntry pkgSTE = 
 					SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem) ;
-			fSymbolTable.addSymbol(pkgSTE) ;
+			model.getSymbolTable().addSymbol(pkgSTE) ;
 			gatherPackageSymbols(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
 		}
-		fSymbolTable.dumpSymbols() ;
+		model.getSymbolTable().dumpSymbols() ;
 			
 	}
 
@@ -206,7 +204,7 @@ public class DocModelFactory {
 				if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
 					SymbolTableEntry classSTE = 
 							SymbolTableEntry.createClassEntry(pkgDeclCacheItem.getName(), pkgDecl.getName(), pkgSvdbIndex, pkgDecl) ;
-					fSymbolTable.addSymbol(classSTE) ;
+					model.getSymbolTable().addSymbol(classSTE) ;
 					gatherClassSymbols(cfg,model,pkgSvdbIndex,pkgDeclCacheItem,pkgDecl) ;
 				}
 			}
@@ -228,7 +226,7 @@ public class DocModelFactory {
 								classDeclCacheItem.getName(), 
 								svdbTask.getName(), 
 								pkgSvdbIndex) ;
-				fSymbolTable.addSymbol(taskSTE) ;
+				model.getSymbolTable().addSymbol(taskSTE) ;
 			} else if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
 				SymbolTableEntry funcSTE =
@@ -236,7 +234,7 @@ public class DocModelFactory {
 								classDeclCacheItem.getName(), 
 								svdbFunction.getName(), 
 								pkgSvdbIndex) ;
-				fSymbolTable.addSymbol(funcSTE) ;
+				model.getSymbolTable().addSymbol(funcSTE) ;
 			} else if(ci.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
 				for(ISVDBChildItem varItem: varDecl.getChildren()) {
@@ -247,7 +245,7 @@ public class DocModelFactory {
 										classDeclCacheItem.getName(), 
 										varDeclItem.getName(), 
 										pkgSvdbIndex) ;
-						fSymbolTable.addSymbol(varSTE) ;
+						model.getSymbolTable().addSymbol(varSTE) ;
 					}
 				}
 			}
@@ -288,11 +286,11 @@ public class DocModelFactory {
 							if(docItem.getTitle().equals(pkgDecl.getName())) {
 								fLog.debug(ILogLevel.LEVEL_MID, 
 										String.format("| [%s] Found doc comment for: %s", pkgName, symbol)) ;
-								SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+								SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 								if(symbolEntry == null) {
 									fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 								} else {
-									symbolEntry.setDocPath(docFile.getDocPath()) ;
+									symbolEntry.setDocFile(docFile) ;
 									symbolEntry.setDocumented(true) ;
 									docItem.setEnclosingPkg(pkg.getName()) ;
 									if(pkgDecl.getType() == SVDBItemType.ClassDecl && docItem.getTopic().equals("class")) {
@@ -342,7 +340,7 @@ public class DocModelFactory {
 						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 						docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 						String symbol = docItem.getQualifiedName() ;
-						SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+						SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 						if(symbolEntry == null) {
 							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
@@ -351,7 +349,7 @@ public class DocModelFactory {
 											pkgName, 
 											className, 
 											symbol)) ;
-							symbolEntry.setDocPath(docFile.getDocPath()) ;
+							symbolEntry.setDocFile(docFile) ;
 							symbolEntry.setDocumented(true) ;
 						}
 						break ;
@@ -365,7 +363,7 @@ public class DocModelFactory {
 						docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 						docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 						String symbol = docItem.getQualifiedName() ;
-						SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+						SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 						if(symbolEntry == null) {
 							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
@@ -374,7 +372,7 @@ public class DocModelFactory {
 											pkgName, 
 											className, 
 											symbol)) ;
-							symbolEntry.setDocPath(docFile.getDocPath()) ;
+							symbolEntry.setDocFile(docFile) ;
 							symbolEntry.setDocumented(true) ;
 						}
 						break ;
@@ -390,7 +388,7 @@ public class DocModelFactory {
 							docItem.setEnclosingClass(classDeclCacheItem.getName()) ;
 							docItem.setEnclosingPkg(pkgDeclCacheItem.getName()) ;
 							String symbol = docItem.getQualifiedName() ;
-							SymbolTableEntry symbolEntry = fSymbolTable.getSymbol(symbol) ;
+							SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 							if(symbolEntry == null) {
 								fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
 							} else {
@@ -399,7 +397,7 @@ public class DocModelFactory {
 												pkgName, 
 												className, 
 												symbol)) ;
-								symbolEntry.setDocPath(docFile.getDocPath()) ;
+								symbolEntry.setDocFile(docFile) ;
 								symbolEntry.setDocumented(true) ;
 							}
 							break ;
@@ -436,5 +434,5 @@ public class DocModelFactory {
 			indexTopic(model,child) ;
 		}
 	}
-
+	
 }

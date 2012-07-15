@@ -12,7 +12,10 @@
 package net.sf.sveditor.core.docs.html;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.DocTopicType;
@@ -153,9 +156,15 @@ public class HTMLUtils {
 			// FIXME: report error
 			return "CUnknown" ;
 		}
-		c = c + topicName.substring(0,1).toUpperCase() ;
-		c = c + topicName.substring(1).toLowerCase() ;
+		c += capitalize(topicName) ;
 		return c ;
+	}
+	
+	static String capitalize(String in) {
+		String out = "" ;
+		out = out + in.substring(0,1).toUpperCase() ;
+		out = out + in.substring(1).toLowerCase() ;
+		return out ;
 	}
 	
 	/**
@@ -168,8 +177,7 @@ public class HTMLUtils {
 			// FIXME: report error
 			return "CUnknown" ;
 		}
-		c = c + topicName.substring(0,1).toUpperCase() ;
-		c = c + topicName.substring(1).toLowerCase() ;
+		c += capitalize(topicName) ;
 		return c ;
 	}
 	
@@ -269,5 +277,59 @@ public class HTMLUtils {
 	public static File getHTMLFileForSrcPath(DocGenConfig cfg, String srcPath) {
 		return new File(getFilesDir(cfg),srcPath+".html") ;
 	}	
+	
+	//
+	//   Replaces <NDMarkup> amp chars with their original symbols.
+	//
+	public static String restoreAmpChars(String text) {
+	
+	    text = text.replaceAll("&quot;","\"") ;
+	    text = text.replaceAll("&gt;",">") ;
+	    text = text.replaceAll("&lt;","<") ;
+	    text = text.replaceAll("&amp;","&") ;
+
+	    return text ;
+		
+    }
+
+	public static String makeRelativeURL(String basePath, String targetPath, boolean baseHasFileName) {
+		String ret = "" ; 
+		File baseFile = new File(basePath) ;
+		File targetFile = new File(targetPath) ;
+		if(baseHasFileName) {
+			baseFile = baseFile.getParentFile() ;
+		}
+		
+		List<String> baseDirs = new ArrayList<String>(Arrays.asList(baseFile.toString().split("/"))) ;
+		List<String> targetDirs = new ArrayList<String>(Arrays.asList(targetFile.toString().split("/"))) ;
+		
+		
+	    // Skip the parts of the path that are the same.
+		int idx = 0 ;
+		while(idx < baseDirs.size() && idx < targetDirs.size() && baseDirs.get(idx).equals(targetDirs.get(idx)))
+	        {
+				idx++ ;
+	        };
+	        
+	    baseDirs = baseDirs.subList(idx, baseDirs.size()) ;   
+	    targetDirs = targetDirs.subList(idx, targetDirs.size()) ;   
+	    
+
+	    // Back out of the base path until it reaches where they were similar.
+	    for(idx = 0 ; idx < baseDirs.size() ; idx++) 
+	        {
+	    	targetDirs.add(0,"..") ;
+	        } ;
+	        
+	    for(idx=0 ; idx< targetDirs.size() ; idx++) {
+	    	ret += targetDirs.get(idx) ;
+	    	if(targetDirs.size() > 1 && idx < (targetDirs.size()-1)) {
+	    		ret += "/" ;
+	    	}
+	    }
+		
+		return ret ;
+	}
+	
 	
 }

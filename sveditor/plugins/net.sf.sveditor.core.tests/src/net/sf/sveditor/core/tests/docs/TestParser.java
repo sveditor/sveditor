@@ -330,7 +330,7 @@ public class TestParser extends TestCase {
 	}
 	
 	public void testTitleAndClasses() throws Exception {
-		fDebug = true ;
+//		fDebug = true ;
 		String commentLines[] =  {
 			    "",
 			    "title: This is the page title",
@@ -354,6 +354,34 @@ public class TestParser extends TestCase {
 		expTopics.add(titleTopic) ;
 		
 		expTopics.add( new DocTopic("classA","class","class")) ;
+		expTopics.add( new DocTopic("classB","class","class")) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+	
+		
+	public void testBasicLink() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: classA",
+			    "",
+			    " This is classA",
+			    "",
+			    " There is a <classB> under it",
+			    "",
+			    "CLASS: classB",
+			    "" 
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classA = new DocTopic("classA","class","class") ;
+		classA.setBody("<p>This is classA</p><p><link target=\"classB\" name=\"classB\" original=\"&lt; classB &gt;\"> under it</p>") ;
+		classA.setSummary("This is classA") ;
+		
+		expTopics.add(classA) ;
 		expTopics.add( new DocTopic("classB","class","class")) ;
 		
 		runTest(commentLines, expTopics) ;

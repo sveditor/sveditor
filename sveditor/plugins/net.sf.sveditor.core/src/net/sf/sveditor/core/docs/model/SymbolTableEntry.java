@@ -5,18 +5,21 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 enum SymbolType { CLASS, PKG, CLASS_MEMBER } ;
 
-class SymbolTableEntry {
+public class SymbolTableEntry {
 	
 	private String symbol ;
 	private String pkgName ;
 	private String className ; 
 	private String memberName ;
+	private String topicType ;
+	
 	private SymbolType symbolType ;
 	private boolean isDocumented ;
 	private String docPath ; // Documentation path where item documentation is generated (for links)
 	
 	private ISVDBIndex svdbIndex ; // FIXME: is it necessary to carry this around?
 	private SVDBDeclCacheItem declCacheItem ; // FIXME: is it necessary to carry this around?
+	private DocFile docFile;
 	
 	public static SymbolTableEntry createPkgEntry(String pkgName, ISVDBIndex svdbIndex, SVDBDeclCacheItem declCacheItem) {
 		String symbolName = pkgName ;
@@ -53,6 +56,7 @@ class SymbolTableEntry {
 		this.pkgName = null ;
 		this.memberName = null ;
 		this.svdbIndex = null ;
+		this.topicType = "unknown" ;
 		this.declCacheItem = null ;
 		this.isDocumented = false ;
 	}
@@ -123,11 +127,27 @@ class SymbolTableEntry {
 	}
 
 	public String getDocPath() {
-		return docPath;
+		if(this.docFile != null) {
+			return docFile.getDocPath() ;
+		} else {
+			return "UNKNOWN-DOC-PATH-FOR-SYMBOL-" + getSymbol() ;
+		}
 	}
 
-	public void setDocPath(String docPath) {
-		this.docPath = docPath;
+	public void setDocFile(DocFile docFile) {
+	  this.docFile = docFile ;	
+	}
+	
+	public DocFile getDocFile() {
+		return this.docFile ;
+	}
+	
+	public String getTopicType() {
+		return topicType;
+	}
+
+	public void setTopicType(String topicType) {
+		this.topicType = topicType;
 	}
 
 }

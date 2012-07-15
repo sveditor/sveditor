@@ -64,5 +64,52 @@ public class SymbolTable {
 	public boolean symbolIsValid(String symbol) {
 		return fSymbolTable.containsKey(symbol) ;
 	}
+
+	public SymbolTableEntry resolveSymbol(DocTopic docTopic, String symbol) {
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_MID,
+				String.format("| Resolving(%s) from (%s)", symbol, docTopic.getQualifiedName())) ;
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+		String enclosingScope = docTopic.getQualifiedName() ;
+		SymbolTableEntry entry = null ;
+		int safetyCount = 0 ; // Watch for infinite loop
+		while(true) {
+			if(enclosingScope == null) {
+				fLog.debug(ILogLevel.LEVEL_MID, "| trying " + symbol) ;
+				if(fSymbolTable.containsKey(symbol)) {
+					entry = fSymbolTable.get(symbol) ;
+					fLog.debug(ILogLevel.LEVEL_MID,
+							String.format("| Found(%s)", symbol)) ;
+					break ;
+				} else {
+					fLog.debug(ILogLevel.LEVEL_MID, "| Failed to find symbol") ;
+					break ;
+				}
+			} else {
+				String trySymbol = enclosingScope + "::" + symbol ;
+				fLog.debug(ILogLevel.LEVEL_MID, "| trying " + trySymbol) ;
+				if(fSymbolTable.containsKey(trySymbol)) {
+					entry = fSymbolTable.get(trySymbol) ;
+					fLog.debug(ILogLevel.LEVEL_MID,
+							String.format("| Found(%s)", trySymbol)) ;
+					break ;
+				}
+				int index = enclosingScope.lastIndexOf("::") ;
+				if(index != -1) {
+					enclosingScope = enclosingScope.substring(0, index) ;
+				} else {
+					enclosingScope = null ;
+				}
+			}
+			safetyCount++ ;
+			if(safetyCount >= 50) {
+				fLog.error(String.format("Safety count kicked in while resolving(%s) from (%s)", symbol, docTopic.getQualifiedName())) ;
+				break ;
+			}
+			
+		}
+		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+		return entry ;
+	}
 	
 }

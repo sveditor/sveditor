@@ -953,18 +953,18 @@ public class DocCommentParser implements IDocCommentParser {
 	        	Tuple<Integer, Boolean> closingTagTuple = closingTag(textBlocks, index) ;
 	
 	            if (closingTagTuple.first() != -1) {
-//	                {
-//	                my $linkText;
-//	                $index++;
-//	
-//	                while ($index < $endingIndex)
-//	                    {
-//	                    $linkText .= $textBlocks[$index];
-//	                    $index++;
-//	                    };
-//	                # Index will be incremented again at the end of the loop.
-//	
-//	                $linkText = NaturalDocs::NDMarkup->ConvertAmpChars($linkText);
+	            	
+	            	String linkText = "" ;
+	            	index++ ;
+	            	
+	            	while(index < closingTagTuple.first()) {
+	            		linkText += textBlocks.get(index) ;
+	            		index++ ;
+	            	}
+	            	
+	                // Index will be incremented again at the end of the loop.
+	            	
+	            	linkText = convertAmpChars(linkText) ;
 //	
 //	                if ($linkText =~ /^(?:mailto\:)?((?:[a-z0-9\-_]+\.)*[a-z0-9\-_]+@(?:[a-z0-9\-]+\.)+[a-z]{2,4})$/i)
 //	                    {  $output .= '<email target="' . $1 . '" name="' . $1 . '">';  }
@@ -976,7 +976,11 @@ public class DocCommentParser implements IDocCommentParser {
 //	                    {  $output .= '<url target="' . $2 . '" name="' . $1 . '">';  }
 //	                else
 //	                    {  $output .= '<link target="' . $linkText . '" name="' . $linkText . '" original="&lt;' . $linkText . '&gt;">';  };
-//	    		
+	            	
+	            	{
+	            		output += String.format("<link target=\"%s\" name=\"%s\" original=\"&lt; %s &gt;\">", linkText, linkText, linkText) ;
+	            	}
+
 	            } else { // it's not a link.
 	                
 	                output += "&lt;" ;
@@ -1097,14 +1101,14 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	    // Possible closing tags
 	    //
-	    else if ( ( textBlocks.get(index).matches("^[\\*_>]$")) &&
+	    else if ( ( textBlocks.get(index).matches("^[\\*_\\>]$")) &&
 
 //	            // After it must be whitespace, the end of the text, or )}].,!?"';:-/*_.
 //	            ( $index + 1 == scalar @$textBlocks || $textBlocks->[$index+1] =~ /^[ \t\n\)\]\}\.\,\!\?\"\'\;\:\-\/\*\_]/ ||
 //	              # Links also get plurals, like <link>s, <linx>es, <link>'s, and <links>'.
 //	              ( $textBlocks->[$index] eq '>' && $textBlocks->[$index+1] =~ /^(?:es|s|\')/ ) ) &&
 	    		
-	    		( index+1 == textBlocks.size() || textBlocks.get(index).matches("^[ \\t\\n\\)\\]\\}\\.\\,\\!\\?\"\'\\;\\:\\-\\/\\*\\_]")) &&
+	    		( index+1 == textBlocks.size() || textBlocks.get(index+1).matches("^[ \\t\\n\\)\\]\\}\\.\\,\\!\\?\"\'\\;\\:\\-\\/\\*\\_].*")) &&
 
 	            // Notes for 2.0: Include closing quotes (99) and apostrophes (9).  Look into Unicode character classes as well.
 
@@ -1115,7 +1119,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	            ( $textBlocks->[$index] ne '>' || $textBlocks->[$index-1] !~ /[>=-]$/ ) &&
 //	
 	            // Make sure we don't accept * or _ after it unless it's >.
-	            ( !textBlocks.get(index).matches(">") || !textBlocks.get(index+1).matches("[\\*\\_]$")))
+	            ( !textBlocks.get(index).matches("\\>") || !textBlocks.get(index).matches("[\\*\\_]$")))
 	    {
 	        return TagType.POSSIBLE_CLOSING_TAG ;
 	    }
@@ -1160,7 +1164,9 @@ public class DocCommentParser implements IDocCommentParser {
 
 	    String closingTag = null ;
 
-	    if (textBlocks.get(index).matches("\\*") || textBlocks.get(index).matches("_"))
+	    if (textBlocks.get(index).matches("\\*")) 
+	        {  closingTag = ("\\*") ;  }
+	    else if(textBlocks.get(index).matches("_")) 
 	        {  closingTag = textBlocks.get(index) ;  }
 	    else if (textBlocks.get(index).matches("\\<"))
 	        {  closingTag = "\\>" ;  }
@@ -1206,7 +1212,7 @@ public class DocCommentParser implements IDocCommentParser {
 	                    }
 	                }
 	            
-	        } else if (textBlocks.get(index).equals(closingTag)) {
+	        } else if (textBlocks.get(index).matches(closingTag)) {
 
 	        	TagType tagType = tagType(textBlocks, index) ;
 
@@ -1223,7 +1229,7 @@ public class DocCommentParser implements IDocCommentParser {
 	        			result.setFirst(index) ;
 	        			result.setSecond(hasWhitespace) ;
 
-	        		} ;
+	        		} 
 
 	        	// If there are two opening tags of the same type, the first becomes literal and the next becomes part of a tag.
 	        	//
@@ -1476,21 +1482,6 @@ public class DocCommentParser implements IDocCommentParser {
 	    text = text.replaceAll(">","&gt;") ;
 	    text = text.replaceAll("\"","&quot;") ;
 	
-	    return text ;
-		
-    }
-	
-	//
-	//   Replaces <NDMarkup> amp chars with their original symbols.
-	//
-	@SuppressWarnings("unused")
-	private String restoreAmpChars(String text) {
-	
-	    text = text.replaceAll("&quot;","\"") ;
-	    text = text.replaceAll("&gt;",">") ;
-	    text = text.replaceAll("&lt;","<") ;
-	    text = text.replaceAll("&amp;","&") ;
-
 	    return text ;
 		
     }

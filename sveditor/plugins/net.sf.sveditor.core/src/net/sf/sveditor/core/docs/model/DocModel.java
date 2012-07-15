@@ -26,6 +26,8 @@ public class DocModel {
 	
 	private Map<String, Map<String, DocTopic>> classMapByPkg ;
 	
+	private SymbolTable fSymbolTable ;
+	
 	public Map<String, Map<String, DocTopic>> getClassMapByPkg() {
 		return classMapByPkg;
 	}
@@ -60,6 +62,11 @@ public class DocModel {
 		docTopicManager = new DocTopicManager() ;
 		indexMap = new HashMap<String, DocIndex>() ;
 		classMapByPkg = new HashMap<String, Map<String, DocTopic>> () ;
+		fSymbolTable = new SymbolTable() ;
+	}
+	
+	public SymbolTable getSymbolTable() {
+		return fSymbolTable ;
 	}
 
 	public DocIndex getTopicIndexMap(String topic) {
