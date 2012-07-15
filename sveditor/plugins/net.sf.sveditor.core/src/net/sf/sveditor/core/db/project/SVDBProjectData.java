@@ -50,7 +50,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private IProject								fProject;
 	private IPath 									fSVProjFilePath;
 	private SVProjectFileWrapper 					fFileWrapper;
-	private SVDBIndexCollection					fIndexCollection;
+	private SVDBIndexCollection						fIndexCollection;
 	private String									fProjectName;
 	private LogHandle								fLog;
 	private List<ISVDBProjectSettingsListener>		fListeners;
@@ -349,6 +349,22 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		// Also notify global listeners
 		if (refresh) {
 			SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
+		}
+	}
+	
+	public boolean equals(Object other) {
+		if (other instanceof SVDBProjectData) {
+			SVDBProjectData o = (SVDBProjectData)other;
+			boolean eq = true;
+			
+			System.out.println("equals: " + fProjectName + " == " + o.fProjectName);
+			
+			eq &= o.fProjectName.equals(fProjectName);
+			eq &= o.fFileWrapper.equals(fFileWrapper);
+		
+			return eq;
+		} else {
+			return false;
 		}
 	}
 }

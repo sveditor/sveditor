@@ -380,7 +380,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 
 		// Search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
-				leaf_item.getType() == SVDBItemType.TypeInfoStruct) {
+				leaf_item.getType() == SVDBItemType.TypeInfoStruct ||
+				leaf_item.getType() == SVDBItemType.InterfaceDecl) {
 			// Look for matching names in the target class
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
