@@ -69,9 +69,10 @@ public class HTMLFileFactory {
 		return res ;
 	}
 	
-	private String genSummaryStart(DocTopic docItem) {
+	private String genSummaryStart(DocFile docFile, DocTopic docItem) {
 		String result = "" ;
-		result += docItem.getSummary() ;
+//		result += docItem.getSummary() ;
+		result += convertNDMarkupToHTML(docFile, docItem, docItem.getBody()) ;
 		return result ;
 	}
 
@@ -83,7 +84,7 @@ public class HTMLFileFactory {
 		return res ;
 	}
 
-	static String genSTRMain(DocFile docFile, DocTopic topic) {
+	private String genSTRMain(DocFile docFile, DocTopic topic) {
 		String res = "" ;
 		if(topic.getTopic().equals("section")) {
 			res += 
@@ -103,6 +104,7 @@ public class HTMLFileFactory {
 			+ "<td class=SDescription>" ;
 		
 			res += topic.getSummary() ;
+//			res += convertNDMarkupToHTML(docFile, topic, topic.getBody()) ;
 			res += "</tr>" ;
 		}
 		return res ;
@@ -141,7 +143,7 @@ public class HTMLFileFactory {
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
 		res += HTMLUtils.genCTitle(contentItem.getTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
-		res += genSummaryStart(contentItem) ;
+		res += genSummaryStart(docFile, contentItem) ;
 		res += HTMLUtils.genSummaryBegin() ;
 		res += HTMLUtils.genSTitle() ;
 		res += HTMLUtils.genSBorderBegin() ;
@@ -160,7 +162,7 @@ public class HTMLFileFactory {
 
 	private String genFileSummary(DocFile docFile) {
 		String res = "" ;
-		res += genSummaryStart(docFile) ;
+		res += genSummaryStart(docFile, docFile) ;
 		res += HTMLUtils.genCTopicBegin("MainTopic") ;
 		res += HTMLUtils.genCTitle(docFile.getPageTitle()) ;
 		res += HTMLUtils.genCBodyBegin() ;
@@ -378,7 +380,7 @@ public class HTMLFileFactory {
 							}
 							newText += buildTextLink(docFile, docTopic, matcher.group(1), matcher.group(2), matcher.group(3)) ;
 							if(!matcher.hitEnd()) {
-								newText += text.substring(matcher.end()+1) ;
+								newText += text.substring(matcher.end()) ;
 							}
 							text = newText ;
 						} else {
@@ -478,24 +480,34 @@ public class HTMLFileFactory {
 
 	private String buildTextLink(DocFile docFile, DocTopic docTopic, String target, String name, String original) {
 		String plainTarget = HTMLUtils.restoreAmpChars(target) ;
-		String symbol = plainTarget ; // TODO: ND does some parsing on this
+		String symbol = SymbolTableEntry.cleanSymbol(plainTarget) ; // TODO: ND does some parsing on this
 		SymbolTableEntry symbolTableEntry = model.getSymbolTable().resolveSymbol(docTopic,symbol) ;
 		if(symbolTableEntry == null) {
+			fLog.error(
+					String.format("Failed to find symbol for link(%s) in docFile(%s)",
+							symbol,
+							docFile.getTitle())) ;
+			return original ;
+		} else	if(symbolTableEntry.getDocFile() == null) {
+			fLog.error(
+					String.format("Symbol(%s) appears in docFile(%s) appears to have no docFile",
+							symbol,
+							docFile.getTitle())) ;
 			return original ;
 		} else {
 			String link ;
 			String targetFile = null ;
-			if((symbolTableEntry.getDocFile() != docFile) && (symbolTableEntry.getDocFile() != null)) {
+			if(symbolTableEntry.getDocFile() != docFile) {
 				targetFile = HTMLUtils.makeRelativeURL(
 						docFile.getOutPath(), 
 						symbolTableEntry.getDocFile().getOutPath(), 
 						true) ;
 			}
 			link = "<a href=\"" ;
-			link 	+= "#" + symbolTableEntry.getSymbol() + "\"";
 			if(targetFile != null) {
 				link += targetFile ;
 			}
+			link 	+= "#" + symbolTableEntry.getSymbol() + "\"";
 			link 	+= "class=L" + HTMLUtils.capitalize(symbolTableEntry.getTopicType()) ;
 			link 	+= "> " + name ;
 			link += "</a>" ;

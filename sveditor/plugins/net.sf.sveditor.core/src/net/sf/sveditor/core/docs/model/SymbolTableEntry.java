@@ -150,4 +150,13 @@ public class SymbolTableEntry {
 		this.topicType = topicType;
 	}
 
+	public static String cleanSymbol(String symbol) {
+		String result = symbol ;
+		result = result.replaceAll("\\(.*\\)", "") ; // Remove parens on tasks/functions
+		result = result.replaceAll("\\.","::") ; // Replace . with ::
+		result = result.replaceAll("\\s*#\\s*", "") ; // Remove parameter stuff
+		return result ;
+		
+	}
+
 }

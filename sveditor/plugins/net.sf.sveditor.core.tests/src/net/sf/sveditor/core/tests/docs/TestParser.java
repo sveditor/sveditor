@@ -369,7 +369,8 @@ public class TestParser extends TestCase {
 			    "",
 			    " This is classA",
 			    "",
-			    " There is a <classB> under it",
+			    " There is a <classB> under it.",
+			    " Here is another <classB>.",
 			    "",
 			    "CLASS: classB",
 			    "" 
@@ -378,7 +379,10 @@ public class TestParser extends TestCase {
 		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
 		
 		DocTopic classA = new DocTopic("classA","class","class") ;
-		classA.setBody("<p>This is classA</p><p><link target=\"classB\" name=\"classB\" original=\"&lt; classB &gt;\"> under it</p>") ;
+		classA.setBody(
+				"<p>This is classA</p>" +
+				"<p>There is a <link target=\"classB\" name=\"classB\" original=\"&lt; classB &gt;\"> under it. " +
+				"Here is another <link target=\"classB\" name=\"classB\" original=\"&lt; classB &gt;\">.</p>") ;
 		classA.setSummary("This is classA") ;
 		
 		expTopics.add(classA) ;
