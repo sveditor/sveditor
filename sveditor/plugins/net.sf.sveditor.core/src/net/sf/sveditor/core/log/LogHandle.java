@@ -56,7 +56,7 @@ public class LogHandle implements ILogHandle {
 			// notify listeners
 			for (int i=0; i<fLogLevelListeners.size(); i++) {
 				WeakReference<ILogLevelListener> l = fLogLevelListeners.get(i);
-				if (l.get() == null) {
+				if (l == null || l.get() == null) {
 					fLogLevelListeners.remove(i);
 					i--;
 				} else {
