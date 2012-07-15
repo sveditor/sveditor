@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +87,23 @@ public class SVDBIndexUtil {
 						index.getBaseLocation() + " in project " + pdata.getName());
 				index_mgr = pdata.getProjectIndexMgr();
 				break;
+			} else if (path.startsWith("${workspace_loc}")) {
+				// Try searching with the filesystem path in case the user
+				// has specified the index in terms of the filesystem
+				String ws_path = path.substring("${workspace_loc}".length());
+				IFile f = ws_root.getFile(new Path(ws_path));
+				
+				if (f != null && f.exists()) {
+					File fs_file = f.getLocation().toFile();
+					result = pdata.getProjectIndexMgr().findPreProcFile(fs_file.getAbsolutePath(), false);
+					if (result.size() > 0) {
+						index = result.get(0).getIndex();
+						fLog.debug("File \"" + path + "\" is in index " + 
+								index.getBaseLocation() + " in project " + pdata.getName());
+						index_mgr = pdata.getProjectIndexMgr();
+						break;
+					}
+				}
 			}
 		}
 		

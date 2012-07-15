@@ -247,8 +247,12 @@ public class SVPreProcessor extends AbstractTextScanner {
 			
 			if (ch == '"') {
 				String inc = readString(ch);
-				
-				inc = inc.substring(1, inc.length()-1);
+
+				if (inc.length() > 2) {
+					inc = inc.substring(1, inc.length()-1);
+				} else {
+					inc = "";
+				}
 	
 				/** TODO: 
 				if (ifdef_enabled()) {
