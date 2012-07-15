@@ -915,7 +915,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	
 //	    my @tempTextBlocks = split(/([\*_<>\x1E\x1F])/, $text);
 		
-		String[] tempTextBlocks = text.split("((?<=[\\*_<>\\x1E\\x1F])|(?=[\\*_<>\\x1E\\x1F]))") ;
+		String[] tempTextBlocks = text.split("((?<=[~\\*_<>\\x1E\\x1F])|(?=[~\\*_<>\\x1E\\x1F]))") ;
 	
 	    // Since the symbols are considered dividers, empty strings could appear between two in a row or at the beginning/end of the
 	    // array.  This could seriously screw up TagType(), so we need to get rid of them.
@@ -986,6 +986,27 @@ public class DocCommentParser implements IDocCommentParser {
 	                output += "&lt;" ;
 	            }
 
+	    	} else if (textBlocks.get(index).matches("~")) {
+	    		
+	    		TagType tagType = tagType(textBlocks, index) ;
+	    		
+	    		
+	    		Tuple<Integer,Boolean> closingTagTuple = closingTag(textBlocks, index) ;
+	    		
+	             if (tagType == TagType.POSSIBLE_OPENING_TAG && closingTagTuple.first() != -1) {
+	                // ClosingTag() makes sure tags aren't opened multiple times in a row.
+	                bold = true ;
+	                output += "<i>" ;
+	                }
+	             else if (bold && tagType == TagType.POSSIBLE_CLOSING_TAG)
+	                {
+	                bold = false;
+	                output += "</i>";
+	                }
+	            else {
+	                output += "~" ;
+	                } ;
+	
 	    	} else if (textBlocks.get(index).matches("\\*")) {
 	    		
 	    		TagType tagType = tagType(textBlocks, index) ;
@@ -1077,7 +1098,7 @@ public class DocCommentParser implements IDocCommentParser {
 
 	    // Possible opening tags
 		//
-	    if ( textBlocks.get(index).matches("^[\\*_<]$") &&
+	    if ( textBlocks.get(index).matches("^[\\*_~<]$") &&
 
 	        // Before it must be whitespace, the beginning of the text, or ({["'-/*_.
 	        ( index == 0 || textBlocks.get(index-1).matches(".*[ \\t\\n\\(\\{\\[\"'\\-\\/\\*_]$")) &&
@@ -1093,7 +1114,7 @@ public class DocCommentParser implements IDocCommentParser {
 	        ( !textBlocks.get(index).matches("\\*") || !textBlocks.get(index+1).matches("^[\\=\\*]")) &&
 	
 	        // Make sure we don't accept * or _ before it unless it's <.
-	        ( textBlocks.get(index).matches("<") || index == 0 || !textBlocks.get(index-1).matches("[\\*\\_]$") ))
+	        ( textBlocks.get(index).matches("<") || index == 0 || !textBlocks.get(index-1).matches("[\\*\\_~]$") ))
 	     {
 	        return TagType.POSSIBLE_OPENING_TAG ;
 	     }
@@ -1101,7 +1122,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	    // Possible closing tags
 	    //
-	    else if ( ( textBlocks.get(index).matches("^[\\*_\\>]$")) &&
+	    else if ( ( textBlocks.get(index).matches("^[\\*_\\>~]$")) &&
 
 //	            // After it must be whitespace, the end of the text, or )}].,!?"';:-/*_.
 //	            ( $index + 1 == scalar @$textBlocks || $textBlocks->[$index+1] =~ /^[ \t\n\)\]\}\.\,\!\?\"\'\;\:\-\/\*\_]/ ||
@@ -1119,7 +1140,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	            ( $textBlocks->[$index] ne '>' || $textBlocks->[$index-1] !~ /[>=-]$/ ) &&
 //	
 	            // Make sure we don't accept * or _ after it unless it's >.
-	            ( !textBlocks.get(index).matches("\\>") || !textBlocks.get(index).matches("[\\*\\_]$")))
+	            ( !textBlocks.get(index).matches("\\>") || !textBlocks.get(index).matches("[\\*\\_~]$")))
 	    {
 	        return TagType.POSSIBLE_CLOSING_TAG ;
 	    }
@@ -1166,6 +1187,8 @@ public class DocCommentParser implements IDocCommentParser {
 
 	    if (textBlocks.get(index).matches("\\*")) 
 	        {  closingTag = ("\\*") ;  }
+	    else if(textBlocks.get(index).matches("~")) 
+	        {  closingTag = textBlocks.get(index) ;  }
 	    else if(textBlocks.get(index).matches("_")) 
 	        {  closingTag = textBlocks.get(index) ;  }
 	    else if (textBlocks.get(index).matches("\\<"))

@@ -177,6 +177,29 @@ public class TestParser extends TestCase {
 		
 	}
 		
+	public void testItalics() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "with some ~italic~ text",
+			    "",
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env","class","class") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class with some <i>italic</i> text</p>") ;
+		classDocTopic.setSummary("Description of the ubus_env class with some <i>italic</i> text") ;
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+		
 	public void testBoldMultiWord() throws Exception {
 //		fDebug = true ;
 		String commentLines[] =  {
