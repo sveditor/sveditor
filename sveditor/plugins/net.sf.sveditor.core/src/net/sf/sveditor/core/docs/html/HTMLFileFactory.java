@@ -184,18 +184,23 @@ public class HTMLFileFactory {
 
 	private String genSummaryMembers(DocFile docFile, DocTopic docTopic) {
 		String res = "" ;
+		boolean marked = false ;
 		for(DocTopic child: docTopic.getChildren()) {
-			res += genSummaryForMemember(docFile, docTopic, child) ;
+			res += genSummaryForMemember(docFile, docTopic, child, marked) ;
+			marked = !marked ;
 		}
 		return res ;
 	}
 	
-	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic) {
+	private String genSummaryForMemember(DocFile docFile, DocTopic parent, DocTopic topic, boolean marked) {
 		String res = "" ;
 		if(topic.getTopic().equals("group")) {
 			res += 
-			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic())
-			 	+ " SIndent2\">" 
+			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic()) ;
+			if(marked) {
+				res += " SMarked" ;
+			}
+			res += " SIndent2\">" 
 		   + "<td class=SIcon>"
 //					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
@@ -209,8 +214,11 @@ public class HTMLFileFactory {
 		   + "</tr>" ;
 		} else {
 			res += 
-			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic())
-			 	+ " SIndent3\">" 
+			 "<tr class=\"" + HTMLUtils.genCSSClassForTopicInSummary(topic.getTopic()) ;
+			if(marked) {
+				res += " SMarked" ;
+			}
+			res += " SIndent3\">" 
 		   + "<td class=SIcon>"
 					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
