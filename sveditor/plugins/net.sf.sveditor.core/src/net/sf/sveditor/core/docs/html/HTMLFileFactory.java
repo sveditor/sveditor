@@ -488,7 +488,7 @@ public class HTMLFileFactory {
 
 	private String buildTextLink(DocFile docFile, DocTopic docTopic, String target, String name, String original) {
 		String plainTarget = HTMLUtils.restoreAmpChars(target) ;
-		String symbol = SymbolTableEntry.cleanSymbol(plainTarget) ; // TODO: ND does some parsing on this
+		String symbol = SymbolTableEntry.cleanSymbol(plainTarget) ; 
 		SymbolTableEntry symbolTableEntry = model.getSymbolTable().resolveSymbol(docTopic,symbol) ;
 		if(symbolTableEntry == null) {
 			fLog.error(
@@ -498,7 +498,7 @@ public class HTMLFileFactory {
 			return original ;
 		} else	if(symbolTableEntry.getDocFile() == null) {
 			fLog.error(
-					String.format("Symbol(%s) appears in docFile(%s) appears to have no docFile",
+					String.format("Symbol(%s) in docFile(%s) appears to have no docFile",
 							symbol,
 							docFile.getTitle())) ;
 			return original ;

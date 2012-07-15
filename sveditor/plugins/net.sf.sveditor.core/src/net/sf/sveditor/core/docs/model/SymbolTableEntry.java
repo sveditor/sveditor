@@ -12,41 +12,44 @@ public class SymbolTableEntry {
 	private String className ; 
 	private String memberName ;
 	private String topicType ;
+	private String file ;
 	
 	private SymbolType symbolType ;
 	private boolean isDocumented ;
-	private String docPath ; // Documentation path where item documentation is generated (for links)
 	
 	private ISVDBIndex svdbIndex ; // FIXME: is it necessary to carry this around?
 	private SVDBDeclCacheItem declCacheItem ; // FIXME: is it necessary to carry this around?
 	private DocFile docFile;
 	
-	public static SymbolTableEntry createPkgEntry(String pkgName, ISVDBIndex svdbIndex, SVDBDeclCacheItem declCacheItem) {
+	public static SymbolTableEntry createPkgEntry(String pkgName, ISVDBIndex svdbIndex, String file, SVDBDeclCacheItem declCacheItem) {
 		String symbolName = pkgName ;
 		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.PKG) ;
 		result.setPkgName(pkgName) ;
 		result.setSvdbIndex(svdbIndex) ;
+		result.setFile(file) ;
 		result.setDeclCacheItem(declCacheItem) ;
 		return result ;
 	}
 	
-	public static SymbolTableEntry createClassEntry(String pkgName, String className, ISVDBIndex svdbIndex, SVDBDeclCacheItem declCacheItem) {
+	public static SymbolTableEntry createClassEntry(String pkgName, String className, ISVDBIndex svdbIndex, String file, SVDBDeclCacheItem declCacheItem) {
 		String symbolName = String.format("%s::%s", pkgName, className) ;
 		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.CLASS) ;
 		result.setPkgName(pkgName) ;
 		result.setClassName(className) ;
 		result.setSvdbIndex(svdbIndex) ;
+		result.setFile(file) ;
 		result.setDeclCacheItem(declCacheItem) ;
 		return result ;
 	}
 	
-	public static SymbolTableEntry createClassMemberEntry(String pkgName, String className, String memberName, ISVDBIndex svdbIndex) {
+	public static SymbolTableEntry createClassMemberEntry(String pkgName, String className, String memberName, ISVDBIndex svdbIndex, String file) {
 		String symbolName = String.format("%s::%s::%s", pkgName, className, memberName) ;
 		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.CLASS_MEMBER) ;
 		result.setPkgName(pkgName) ;
 		result.setClassName(className) ;
 		result.setMemberName(memberName) ;
 		result.setSvdbIndex(svdbIndex) ;
+		result.setFile(file) ;
 		return result ;
 	}
 	
@@ -158,5 +161,14 @@ public class SymbolTableEntry {
 		return result ;
 		
 	}
+	
+	public String getFile() {
+		return file;
+	}
+
+	public void setFile(String file) {
+		this.file = file;
+	}
+
 
 }
