@@ -25,30 +25,37 @@ public class ProjectPathsData implements IProjectPathsData {
 	private List<IProjectPathsData>			fPaths;
 	
 	public ProjectPathsData(SVDBProjectData pd) {
+		this(pd, true);
+		
+	}
+	
+	public ProjectPathsData(SVDBProjectData pd, boolean setup) {
 		fProjectData = pd;
 		fPaths = new ArrayList<IProjectPathsData>();
-		
-		SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
-		
-		List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
-		List<ISVDBIndex> srcCollectionIndexes = mgr.getSourceCollectionList();
-		List<ISVDBIndex> libIndexList = new ArrayList<ISVDBIndex>();
-		List<ISVDBIndex> argFileIndexList = new ArrayList<ISVDBIndex>();
-		
-		for (ISVDBIndex i : allLibIndexes) {
-			if (i.getTypeID().equals(SVDBArgFileIndexFactory.TYPE)) {
-				argFileIndexList.add(i);
-			} else {
-				libIndexList.add(i);
+	
+		if (setup) {
+			SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
+
+			List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
+			List<ISVDBIndex> srcCollectionIndexes = mgr.getSourceCollectionList();
+			List<ISVDBIndex> libIndexList = new ArrayList<ISVDBIndex>();
+			List<ISVDBIndex> argFileIndexList = new ArrayList<ISVDBIndex>();
+
+			for (ISVDBIndex i : allLibIndexes) {
+				if (i.getTypeID().equals(SVDBArgFileIndexFactory.TYPE)) {
+					argFileIndexList.add(i);
+				} else {
+					libIndexList.add(i);
+				}
 			}
+
+			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_SRC_COLLECTION,
+					this, "Source Collections", srcCollectionIndexes));
+			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_LIB_PATH,
+					this, "Library Paths", libIndexList));
+			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_ARG_FILE,
+					this, "Argument Files", argFileIndexList));
 		}
-		
-		fPaths.add(new LibIndexPath(LibIndexPath.TYPE_SRC_COLLECTION,
-				this, "Source Collections", srcCollectionIndexes));
-		fPaths.add(new LibIndexPath(LibIndexPath.TYPE_LIB_PATH,
-				this, "Library Paths", libIndexList));
-		fPaths.add(new LibIndexPath(LibIndexPath.TYPE_ARG_FILE,
-				this, "Argument Files", argFileIndexList));
 	}
 
 	public Object[] getChildren(Object parent) {
