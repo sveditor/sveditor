@@ -54,7 +54,6 @@ public class AssembleTocTask extends MatchingTask {
 	
 	public void setFiles(String files) {
 		fFiles = files.split(",");
-		
 		for (int i=0; i<fFiles.length; i++) {
 			fFiles[i] = fFiles[i].trim();
 		}

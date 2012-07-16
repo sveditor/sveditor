@@ -23,6 +23,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
+import net.sf.sveditor.core.tests.docs.DocsTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
 import net.sf.sveditor.core.tests.hierarchy.HierarchyTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
@@ -73,6 +74,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(new TestSuite(FileSetTests.class));
 		addTest(TemplateTests.suite());
 		addTest(HierarchyTests.suite());
+		addTest(DocsTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {
