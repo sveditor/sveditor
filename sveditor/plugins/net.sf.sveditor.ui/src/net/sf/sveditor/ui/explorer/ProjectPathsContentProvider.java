@@ -93,7 +93,6 @@ public class ProjectPathsContentProvider implements
 			
 			job.init("get project data", new Runnable() {
 				
-				@Override
 				public void run() {
 					// Time-consuming operation
 					ProjectPathsData paths_d = new ProjectPathsData(pd);
@@ -106,7 +105,6 @@ public class ProjectPathsContentProvider implements
 					if (d != null && !d.isDisposed()) {
 						// Notify the viewer that it must update
 						fViewer.getControl().getDisplay().asyncExec(new Runnable() {
-							@Override
 							public void run() {
 								fViewer.refresh();
 							}

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.ScanLocation;
@@ -51,6 +53,8 @@ public class SVPreProcScanner implements ISVScanner {
 	private int					fLineno;
 	private StringBuffer		fPPBuffer;
 	private StringBuffer		fTmpBuffer;
+	private StringBuffer		fCommentBuffer;
+	private boolean				fInComment;
 	private Stack<Integer>		fPreProcEn;
 	private List<String>		fParamList;
 	private ISVPreProcScannerObserver	fObserver;
@@ -60,6 +64,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fUnaccBuffer;
 	private boolean				fInString;
 	private int					fLastChPP;
+	private IDocCommentParser   fDocCommentParser;
 	public static final Set<String>	fIgnoredDirectives;
 	private static LogHandle	fLog = LogFactory.getLogHandle("SVPreProcScanner");
 	
@@ -89,13 +94,16 @@ public class SVPreProcScanner implements ISVScanner {
 		fPPBuffer  = new StringBuffer();
 		fTmpBuffer = new StringBuffer();
 		fUnaccBuffer = new StringBuffer();
+		fCommentBuffer = new StringBuffer();
 		fPreProcEn = new Stack<Integer>();
 		fParamList = new ArrayList<String>();
 		fScanLocation = new ScanLocation("", 0, 0);
+		fDocCommentParser = new DocCommentParser();
 		fExpandMacros     = false;
 		fEvalConditionals = false;
 		fInString         = false;
 		fLastChPP         = -1;
+		fInComment		  = false;
 	}
 	
 	public void setExpandMacros(boolean expand_macros) {
@@ -759,7 +767,7 @@ public class SVPreProcScanner implements ISVScanner {
 
 	public int get_ch() {
 		int ch = -1;
-		
+		boolean foundSingleLineComment = false ;
 		do {
 			while (true) {
 				if (fUnaccBuffer.length() > 0) {
@@ -773,19 +781,25 @@ public class SVPreProcScanner implements ISVScanner {
 					int ch2 = get_ch_ll();
 
 					if (ch2 == '/') {
-						while ((ch = get_ch_ll()) != -1 && ch != '\n') {}
+						foundSingleLineComment = true ;
+						beginComment() ;
+						while ((ch = get_ch_ll()) != -1 && ch != '\n') {
+							fCommentBuffer.append((char)ch) ;
+						}
+						fCommentBuffer.append('\n') ;
 					} else if (ch2 == '*') {
 						int end_comment[] = {-1, -1};
-
+						beginComment() ;
 						while ((ch = get_ch_ll()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
-
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
+								endComment() ;
 								break;
+							} else {
+								fCommentBuffer.append((char)ch) ;
 							}
 						}
-
 						ch = ' ';
 					} else {
 						unget_ch(ch2);
@@ -825,6 +839,8 @@ public class SVPreProcScanner implements ISVScanner {
 			}
 //			ch = get_ch_pp();
 		} while (!ifdef_enabled() && ch != -1);
+		
+		if(fInComment && !foundSingleLineComment && ((char)ch) == '\n') { endComment() ; }
 		
 		return ch;
 	}
@@ -900,6 +916,20 @@ public class SVPreProcScanner implements ISVScanner {
 	}
 	 */
 	
+	private void beginComment() {
+		if(!fInComment){ fCommentBuffer.setLength(0) ; }
+		fInComment = true ; 
+	}
+	private void endComment() {
+		if(!fInComment) { return ; }
+		fInComment = false ;
+		String comment = fCommentBuffer.toString() ;
+		String title = fDocCommentParser.isDocComment(comment) ;
+		if(title != null) { 
+			if(fObserver != null) { fObserver.comment( title, comment) ; }
+		}
+	}
+
 	private int get_ch_ll() {
 		int ch = -1;
 		int ch_l = -1;
