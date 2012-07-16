@@ -41,6 +41,16 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 	protected void createFieldEditors() {
 		GridData gd;
 		
+		Group general_group = new Group(getFieldEditorParent(), SWT.NONE);
+		gd = new GridData(GridData.FILL, GridData.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		general_group.setLayout(new GridLayout(2, false));
+		general_group.setLayoutData(gd);
+		general_group.setText("General");
+		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 
+				"Content Assist Timeout (ms)", general_group));
+
+		
 		Group tf_group = new Group(getFieldEditorParent(), SWT.NONE);
 		gd = new GridData(GridData.FILL, GridData.CENTER, true, false);
 		gd.horizontalSpan = 2;

@@ -34,4 +34,6 @@ public interface IJob {
 	
 	void join();
 	
+	boolean join(int wait_ms);
+	
 }
