@@ -10,6 +10,8 @@
   with no type
   
 - #(enh) - Implement content-assist for interface fields referenced via a virtual interface field. 
+
+- #(enh) - Add basic timeout support for content assist. 
   
 - #(?) - event data-type not recognized as field?
 

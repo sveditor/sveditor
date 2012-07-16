@@ -15,7 +15,7 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
@@ -32,18 +32,19 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.job_mgr.IJob;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.ui.ISVIcons;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -58,6 +59,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
+import org.eclipse.swt.widgets.Display;
 
 
 public class SVCompletionProcessor extends AbstractCompletionProcessor 
@@ -99,7 +101,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE));
 
 		fProposals.clear();
-		SVDocumentTextScanner scanner = new SVDocumentTextScanner(
+		final SVDocumentTextScanner scanner = new SVDocumentTextScanner(
 				viewer.getDocument(), offset);
 		scanner.setSkipComments(true);
 		
@@ -113,17 +115,54 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			e.printStackTrace();
 			return new ICompletionProposal[0];
 		}
+
+		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
+		IJob job = job_mgr.createJob();
+		final int lineno_f = lineno, linepos_f = linepos;
+		job.init("Content Assist", new Runnable() {
+			@Override
+			public void run() {
+				computeProposals(scanner, fEditor.getSVDBFile(), lineno_f, linepos_f);
+			}
+		});
 		
-		computeProposals(scanner, fEditor.getSVDBFile(), lineno, linepos);
+		job_mgr.queueJob(job);
 		
-		// convert SVProposal list to ICompletionProposal list
-		for (SVCompletionProposal p : fCompletionProposals) {
-			List<ICompletionProposal> cp = convertToProposal(p, viewer.getDocument()); 
- 
-			fProposals.addAll(cp);
+		// Now, wait for the job to complete
+		Display d = Display.getCurrent();
+		int wait_time_ms = 1;
+		IPreferenceStore p_store = SVUiPlugin.getDefault().getPreferenceStore();
+		int timeout_ms = p_store.getInt(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT);
+		
+		if (timeout_ms > 0) {
+			while (true) {
+				if (job.join(wait_time_ms)) {
+					break;
+				}
+				timeout_ms -= wait_time_ms;
+
+				if (timeout_ms < 0) {
+					break;
+				}
+				while (d.readAndDispatch()) { }
+			}
+		} else {
+			job.join();
+		}
+	
+		List<SVCompletionProposal> temp_p = new ArrayList<SVCompletionProposal>();
+		synchronized (fCompletionProposals) {
+			temp_p.addAll(fCompletionProposals);
 		}
 		
-		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);
+		// convert SVProposal list to ICompletionProposal list
+		for (SVCompletionProposal p : temp_p) {
+			List<ICompletionProposal> cp = convertToProposal(p, viewer.getDocument()); 
+
+			fProposals.addAll(cp);
+		}
+	
+		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);	
 	}
 	
 	private static int getIndentStringSize(String indent) {

@@ -38,6 +38,8 @@ public class SVEditorPrefsConstants {
 	
 	public static final String P_DEBUG_LEVEL_S 									= "debugLevel";
 	
+	public static final String P_CONTENT_ASSIST_TIMEOUT							= EDIT_SETTINGS + "contentAssistTimeout";
+	
 	public static final String P_CONTENT_ASSIST_TF_NAMED_PORTS_EN 				= EDIT_SETTINGS + "contentAssistTFNamedPortsEn";
 	public static final String P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT 				= EDIT_SETTINGS + "contentAssistTFLineWrapLimit";
 	public static final String P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE			= EDIT_SETTINGS + "contentAssistTFParamsPerLine";
