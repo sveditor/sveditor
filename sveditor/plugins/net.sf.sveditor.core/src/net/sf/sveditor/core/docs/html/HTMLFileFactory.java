@@ -35,7 +35,7 @@ public class HTMLFileFactory {
 	public HTMLFileFactory(DocGenConfig cfg, DocModel model) {
 		this.cfg = cfg ;
 		this.model = model ;
-		fLog = LogFactory.getLogHandle("DocModelFactory") ;
+		fLog = LogFactory.getLogHandle("HTMLFileFactory") ;
 	}
 	
 	public static String getRelPathToHTML(String path) {
@@ -491,13 +491,21 @@ public class HTMLFileFactory {
 		String symbol = SymbolTableEntry.cleanSymbol(plainTarget) ; 
 		SymbolTableEntry symbolTableEntry = model.getSymbolTable().resolveSymbol(docTopic,symbol) ;
 		if(symbolTableEntry == null) {
-			fLog.error(
+//			fLog.error(
+//					String.format("Failed to find symbol for link(%s) in docFile(%s)",
+//							symbol,
+//							docFile.getTitle())) ;
+			fLog.debug(ILogLevel.LEVEL_MIN,
 					String.format("Failed to find symbol for link(%s) in docFile(%s)",
 							symbol,
 							docFile.getTitle())) ;
 			return original ;
 		} else	if(symbolTableEntry.getDocFile() == null) {
-			fLog.error(
+//			fLog.error(
+//					String.format("Symbol(%s) in docFile(%s) appears to have no docFile",
+//							symbol,
+//							docFile.getTitle())) ;
+			fLog.debug(ILogLevel.LEVEL_MIN,
 					String.format("Symbol(%s) in docFile(%s) appears to have no docFile",
 							symbol,
 							docFile.getTitle())) ;

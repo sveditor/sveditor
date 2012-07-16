@@ -31,7 +31,7 @@ public class SymbolTable {
 	private Map<String,SymbolTableEntry> fSymbolTable ;
 
 	public SymbolTable() {
-		fLog = LogFactory.getLogHandle("DocModelFactory") ;
+		fLog = LogFactory.getLogHandle("SymbolTable") ;
 		fSymbolTable = new HashMap<String,SymbolTableEntry>() ;
 	}
 	

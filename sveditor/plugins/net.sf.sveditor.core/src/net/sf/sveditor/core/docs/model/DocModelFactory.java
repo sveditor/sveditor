@@ -93,7 +93,9 @@ public class DocModelFactory {
 			String file = entry.getFile() ;
 			DocFile docFile = model.getDocFile(file) ;
 			if(docFile == null) {
-				fLog.error(String.format("Failed to find docFile for symbol(%s)", symbol)) ;
+//				fLog.error(String.format("Failed to find docFile for symbol(%s)", symbol)) ;
+				fLog.debug(ILogLevel.LEVEL_MIN,
+						String.format("Failed to find docFile for symbol(%s)", symbol)) ;
 			} else {
 				fLog.debug(ILogLevel.LEVEL_MID,
 						String.format("Found symbol's(%s) docFile(%s)",
@@ -395,7 +397,9 @@ public class DocModelFactory {
 										String.format("| [%s] Found doc comment for: %s", pkgName, symbol)) ;
 								SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 								if(symbolEntry == null) {
-									fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+//									fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+									fLog.debug(ILogLevel.LEVEL_MIN,
+											"Couldn't find symbol entry for symbol(" + symbol + ")") ;
 								} else {
 									symbolEntry.setDocFile(docFile) ;
 									symbolEntry.setDocumented(true) ;
@@ -449,7 +453,9 @@ public class DocModelFactory {
 						String symbol = docItem.getQualifiedName() ;
 						SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 						if(symbolEntry == null) {
-							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+//							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+							fLog.debug(ILogLevel.LEVEL_MIN,
+									"Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
 							fLog.debug(ILogLevel.LEVEL_MID, 
 									String.format("| [%s] | [%s] Found doc item for task %s",
@@ -472,7 +478,9 @@ public class DocModelFactory {
 						String symbol = docItem.getQualifiedName() ;
 						SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 						if(symbolEntry == null) {
-							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+//							fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+							fLog.debug(ILogLevel.LEVEL_MIN,
+									"Couldn't find symbol entry for symbol(" + symbol + ")") ;
 						} else {
 							fLog.debug(ILogLevel.LEVEL_MID, 
 									String.format("| [%s] | [%s] Found doc item for function %s",
@@ -497,7 +505,9 @@ public class DocModelFactory {
 							String symbol = docItem.getQualifiedName() ;
 							SymbolTableEntry symbolEntry = model.getSymbolTable().getSymbol(symbol) ;
 							if(symbolEntry == null) {
-								fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+//								fLog.error("Couldn't find symbol entry for symbol(" + symbol + ")") ;
+								fLog.debug( ILogLevel.LEVEL_MIN,
+										"Couldn't find symbol entry for symbol(" + symbol + ")") ;
 							} else {
 								fLog.debug(ILogLevel.LEVEL_MID, 
 										String.format("| [%s] | [%s] Found doc item for var %s",
