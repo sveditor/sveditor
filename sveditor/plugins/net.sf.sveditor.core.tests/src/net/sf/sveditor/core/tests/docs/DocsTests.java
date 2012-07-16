@@ -20,6 +20,7 @@ public class DocsTests extends TestSuite {
 		TestSuite s = new TestSuite("DocsTests");
 		s.addTest(new TestSuite(TestCleaner.class));
 		s.addTest(new TestSuite(TestParser.class));
+		s.addTest(new TestSuite(TestModelFactory.class));
 		return s;
 	}
 

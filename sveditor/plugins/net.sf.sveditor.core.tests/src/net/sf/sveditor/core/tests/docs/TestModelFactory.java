@@ -79,9 +79,9 @@ public class TestModelFactory extends TestCase {
 		}
 	}	
 	
-	public void testBasicExamplePkg() {
+	public void testUVM() throws IOException {
 		
-		fDebug = true ;
+//		fDebug = true ;
 		
 		String test_name = "testBasicExamplePkg" ;
 		String bundle_dir_name = "basic_uvm" ;
@@ -98,7 +98,7 @@ public class TestModelFactory extends TestCase {
 	public void doTestUVMExample(
 			String 			testName, 
 			String			bundleDirName,
-			String			testBundleDir) {
+			String			testBundleDir) throws IOException {
 
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testName);
@@ -184,42 +184,34 @@ public class TestModelFactory extends TestCase {
 		fLog.debug(ILogLevel.LEVEL_OFF, "| >> tkdiff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "+-----------------------------------------------------------") ;
 		
-		try {
-			
-			FileWriter fw = new FileWriter(modelDumpPathAct.getPath()) ;
-			BufferedWriter bw = new BufferedWriter(fw) ;
-			model.dumpToFile(bw) ;
-			fw.close() ;
-			
-			List<String> expLines = TestUtils.fileToLines(modelDumpPathExp.getPath()) ;
-			List<String> actLines = TestUtils.fileToLines(modelDumpPathAct.getPath()) ;
-			
-			Patch patch = DiffUtils.diff(expLines, actLines) ;
-			
-			List<Delta> deltas = patch.getDeltas() ;
-			
-			int maxDeltas=20 ;
-			int cnt=0 ;
-			for(Delta delta: deltas) {
-				fLog.error(String.format("Delta %d",cnt)) ;
-				fLog.error("Exp: " + delta.getOriginal().toString()) ;
-				fLog.error("Act: " + delta.getRevised().toString()) ;
-				cnt++ ;
-				if(cnt >= maxDeltas) break ;
-			}
-			
-			assertTrue( 
-					String.format("Detected %d deltas against expected model dump.\n\tExp:%s\n\tAct:%s\n",
-							deltas.size(),
-							modelDumpPathExp.toString(),
-							modelDumpPathAct.toString()),
-					deltas.size()==0) ;
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace() ;
+		FileWriter fw = new FileWriter(modelDumpPathAct.getPath()) ;
+		BufferedWriter bw = new BufferedWriter(fw) ;
+		model.dumpToFile(bw) ;
+		fw.close() ;
+
+		List<String> expLines = TestUtils.fileToLines(modelDumpPathExp.getPath()) ;
+		List<String> actLines = TestUtils.fileToLines(modelDumpPathAct.getPath()) ;
+
+		Patch patch = DiffUtils.diff(expLines, actLines) ;
+
+		List<Delta> deltas = patch.getDeltas() ;
+
+		int maxDeltas=20 ;
+		int cnt=0 ;
+		for(Delta delta: deltas) {
+			fLog.error(String.format("Delta %d",cnt)) ;
+			fLog.error("Exp: " + delta.getOriginal().toString()) ;
+			fLog.error("Act: " + delta.getRevised().toString()) ;
+			cnt++ ;
+			if(cnt >= maxDeltas) break ;
 		}
+
+		assertTrue( 
+				String.format("Detected %d deltas against expected model dump.\n\tExp:%s\n\tAct:%s\n",
+						deltas.size(),
+						modelDumpPathExp.toString(),
+						modelDumpPathAct.toString()),
+						deltas.size()==0) ;
 
 		//
 		//
