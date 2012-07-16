@@ -13,17 +13,21 @@
 package net.sf.sveditor.core.tests.utils;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -294,5 +298,16 @@ public class TestUtils {
 	    }
 	    return set;
 	}
+	
+	public static List<String> fileToLines(String filename) throws IOException {
+		List<String> lines = new LinkedList<String>();
+		String line = "";
+		@SuppressWarnings("resource")
+		BufferedReader in = new BufferedReader(new FileReader(filename)) ;
+		while ((line = in.readLine()) != null) {
+			lines.add(line);
+		}
+		return lines;
+	}	
 	
 }

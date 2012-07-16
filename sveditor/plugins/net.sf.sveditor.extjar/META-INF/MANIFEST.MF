@@ -6,7 +6,10 @@ Bundle-Version: 1.2.3
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: asm-4.0.jar,
  .,
- asm-commons-4.0.jar
-Export-Package: org.objectweb.asm,
+ asm-commons-4.0.jar,
+ diffutils-1.2.1.jar
+Export-Package: difflib,
+ difflib.myers,
+ org.objectweb.asm,
  org.objectweb.asm.commons,
  org.objectweb.asm.signature

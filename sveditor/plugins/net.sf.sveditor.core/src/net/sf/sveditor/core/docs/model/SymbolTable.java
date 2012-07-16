@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +57,21 @@ public class SymbolTable {
 			fLog.debug(ILogLevel.LEVEL_MID, "|  " + symbol) ; 
 		}
 		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+	}
+	
+	public void dumpSymbolsToFile(Writer writer) throws IOException {
+		writer.write("+----------------------------------------------------------------------------------\n") ;
+		writer.write("| Symbol table dump\n") ;
+		writer.write("+----------------------------------------------------------------------------------\n") ;
+		List<String> sortedSymbols = new ArrayList<String>(getSymbolSet()) ;
+		Collections.sort(sortedSymbols, String.CASE_INSENSITIVE_ORDER) ;
+		for(String symbol: sortedSymbols) {
+			writer.write(String.format("|  %s\n", symbol)) ;
+			writer.write(String.format("|  		isDocumented(%s)\n", fSymbolTable.get(symbol).isDocumented())) ;
+			writer.write(String.format("|  		topicType(%s)\n", fSymbolTable.get(symbol).getTopicType())) ;
+			writer.write(String.format("|  		symbolType(%s)\n", fSymbolTable.get(symbol).getSymbolType())) ;
+		}
+		writer.write("+----------------------------------------------------------------------------------\n") ;
 	}
 
 	public SymbolTableEntry getSymbol(String symbol) {

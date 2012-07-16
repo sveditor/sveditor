@@ -11,6 +11,9 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,9 +121,15 @@ public class DocModel {
 	}
 	
 	/**
-	 * Gather and log statics for debug and testing
+	 * Dumps content of model to a text
+	 * file in a human readable format for debug and testing
+	 * purposes
+	 * <p><p>
+	 * @param fileWriter Where to write the dump to
+	 * @throws IOException 
 	 */
-	public void reportStatistics() {
+	public void dumpToFile(Writer writer) throws IOException {
+		fSymbolTable.dumpSymbolsToFile(writer) ;
 		
 	}
 
