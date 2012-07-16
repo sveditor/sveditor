@@ -79,16 +79,18 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	
 	protected void addProposal(SVCompletionProposal p) {
 		boolean found = false;
-		
-		for (SVCompletionProposal p_t : fCompletionProposals) {
-			if (p_t.equals(p)) {
-				found = true;
-				break;
+	
+		synchronized (fCompletionProposals) {
+			for (SVCompletionProposal p_t : fCompletionProposals) {
+				if (p_t.equals(p)) {
+					found = true;
+					break;
+				}
 			}
-		}
-		
-		if (!found) {
-			fCompletionProposals.add(p);
+
+			if (!found) {
+				fCompletionProposals.add(p);
+			}
 		}
 	}
 	
@@ -111,8 +113,10 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		SVExprScanner expr_scan = new SVExprScanner();
 //		SVExpressionUtils expr_utils = new SVExpressionUtils(
 //				new SVDBFindContentAssistNameMatcher());
-		
-		fCompletionProposals.clear();
+	
+		synchronized (fCompletionProposals) {
+			fCompletionProposals.clear();
+		}
 		
 		// Trigger characters and string prior to the trigger (if any)
 
@@ -1129,76 +1133,78 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	 * @param proposals
 	 */
 	private void order_proposals(String prefix, List<SVCompletionProposal> proposals) {
-		
-		// First eliminate any class typedefs for which the actual class is available
-		for (int i=0; i<proposals.size(); i++) {
-			SVCompletionProposal p = proposals.get(i);
-			if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
-				boolean found = false;
-				
-				for (SVCompletionProposal p_t : proposals) {
-					if (p_t != p && p_t.getItem() != null && 
-							SVDBItem.getName(p_t.getItem()).equals(SVDBItem.getName(p.getItem()))) {
-						found = true;
-						break;
+	
+		synchronized (proposals) {
+			// First eliminate any class typedefs for which the actual class is available
+			for (int i=0; i<proposals.size(); i++) {
+				SVCompletionProposal p = proposals.get(i);
+				if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
+					boolean found = false;
+
+					for (SVCompletionProposal p_t : proposals) {
+						if (p_t != p && p_t.getItem() != null && 
+								SVDBItem.getName(p_t.getItem()).equals(SVDBItem.getName(p.getItem()))) {
+							found = true;
+							break;
+						}
+					}
+
+					if (found) {
+						proposals.remove(i);
+						i--;
 					}
 				}
-				
-				if (found) {
-					proposals.remove(i);
-					i--;
+			}
+			for (int i = 0; i < proposals.size(); i++) {
+				SVCompletionProposal p_i = proposals.get(i);
+				for (int j = i + 1; j < proposals.size(); j++) {
+					SVCompletionProposal p_j = proposals.get(j);
+					String s_i, s_j;
+
+					if (p_i.getItem() != null) {
+						s_i = SVDBItem.getName(p_i.getItem());
+					} else {
+						s_i = p_i.getReplacement();
+					}
+
+					if (p_j.getItem() != null) {
+						s_j = SVDBItem.getName(p_j.getItem());
+					} else {
+						s_j = p_j.getReplacement();
+					}
+
+					if (s_i.compareTo(s_j) > 0) {
+						proposals.set(i, p_j);
+						proposals.set(j, p_i);
+						p_i = p_j;
+					}
 				}
 			}
-		}
-		for (int i = 0; i < proposals.size(); i++) {
-			SVCompletionProposal p_i = proposals.get(i);
-			for (int j = i + 1; j < proposals.size(); j++) {
-				SVCompletionProposal p_j = proposals.get(j);
-				String s_i, s_j;
-				
-				if (p_i.getItem() != null) {
-					s_i = SVDBItem.getName(p_i.getItem());
-				} else {
-					s_i = p_i.getReplacement();
-				}
-				
-				if (p_j.getItem() != null) {
-					s_j = SVDBItem.getName(p_j.getItem());
-				} else {
-					s_j = p_j.getReplacement();
-				}
 
-				if (s_i.compareTo(s_j) > 0) {
-					proposals.set(i, p_j);
-					proposals.set(j, p_i);
-					p_i = p_j;
-				}
-			}
-		}
-		
-		for (int i=0; i<proposals.size(); i++) {
-			SVCompletionProposal p_i = proposals.get(i);
-			for (int j=i+1; j<proposals.size(); j++) {
-				SVCompletionProposal p_j = proposals.get(j);
+			for (int i=0; i<proposals.size(); i++) {
+				SVCompletionProposal p_i = proposals.get(i);
+				for (int j=i+1; j<proposals.size(); j++) {
+					SVCompletionProposal p_j = proposals.get(j);
 
-				String s_i, s_j;
-				
-				if (p_i.getItem() != null) {
-					s_i = SVDBItem.getName(p_i.getItem());
-				} else {
-					s_i = p_i.getReplacement();
-				}
-				
-				if (p_j.getItem() != null) {
-					s_j = SVDBItem.getName(p_j.getItem());
-				} else {
-					s_j = p_j.getReplacement();
-				}
+					String s_i, s_j;
 
-				if (prefix.compareTo(s_i) < prefix.compareTo(s_j)) {
-					proposals.set(i, p_j);
-					proposals.set(j, p_i);
-					p_i = p_j;
+					if (p_i.getItem() != null) {
+						s_i = SVDBItem.getName(p_i.getItem());
+					} else {
+						s_i = p_i.getReplacement();
+					}
+
+					if (p_j.getItem() != null) {
+						s_j = SVDBItem.getName(p_j.getItem());
+					} else {
+						s_j = p_j.getReplacement();
+					}
+
+					if (prefix.compareTo(s_i) < prefix.compareTo(s_j)) {
+						proposals.set(i, p_j);
+						proposals.set(j, p_i);
+						p_i = p_j;
+					}
 				}
 			}
 		}
@@ -1211,18 +1217,20 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int 			replacementLength) {
 		boolean found = false;
 
-		// Check if we already have it in the proposal list?
-		for (SVCompletionProposal p : fCompletionProposals) {
-			if (p.getItem() != null && p.getItem() == it) {
-				found = true;
-				break;
+		synchronized (fCompletionProposals) {
+			// Check if we already have it in the proposal list?
+			for (SVCompletionProposal p : fCompletionProposals) {
+				if (p.getItem() != null && p.getItem() == it) {
+					found = true;
+					break;
+				}
 			}
-		}
-		
-		if (!found) {
-			debug("addProposal: " + SVDBItem.getName(it) + " " + it.getType());
-			addProposal(new SVCompletionProposal(it, prefix, 
-					replacementOffset, replacementLength));
+
+			if (!found) {
+				debug("addProposal: " + SVDBItem.getName(it) + " " + it.getType());
+				addProposal(new SVCompletionProposal(it, prefix, 
+						replacementOffset, replacementLength));
+			}
 		}
 	}
 	

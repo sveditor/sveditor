@@ -98,4 +98,17 @@ public class JobMgrJob implements IJob {
 			}
 		}
 	}
+	
+	public boolean join(int wait_ms) {
+		boolean job_done = false;
+		synchronized (fJobDoneMutex) {
+			if (!fJobDone) {
+				try {
+					fJobDoneMutex.wait(wait_ms);
+				} catch (InterruptedException e) { }
+			}
+			job_done = fJobDone;
+		}
+		return job_done;
+	}
 }
