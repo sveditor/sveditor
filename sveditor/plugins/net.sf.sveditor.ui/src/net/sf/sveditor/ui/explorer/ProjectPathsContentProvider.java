@@ -21,12 +21,18 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
+import net.sf.sveditor.core.job_mgr.IJob;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.ILock;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
 
 public class ProjectPathsContentProvider implements 
 		ITreeContentProvider, ISVDBProjectSettingsListener, ISVDBIndexChangeListener {
@@ -46,7 +52,13 @@ public class ProjectPathsContentProvider implements
 			SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(
 					(IProject)parentElement);
 			ProjectPathsData paths_d = getProjectPathsData(pd);
-			return new Object[] {paths_d};
+			
+			if (paths_d == null) {
+				// Not available, or not available yet
+				return new Object[0];
+			} else {
+				return new Object[] {paths_d};
+			}
 		} else if (parentElement instanceof IProjectPathsData) {
 			return ((IProjectPathsData)parentElement).getChildren(parentElement);
 		} else if (parentElement instanceof SVDBDirTreeNode) {
@@ -55,20 +67,54 @@ public class ProjectPathsContentProvider implements
 		return NO_ELEMENTS;
 	}
 	
-	private ProjectPathsData getProjectPathsData(SVDBProjectData pd) {
-		int idx = fProjectDataMap.indexOf(pd);
+	private ProjectPathsData getProjectPathsData(final SVDBProjectData pd) {
+		int idx;
+		
+		synchronized (fProjectDataMap) {
+			ProjectPathsData tmp = new ProjectPathsData(pd, false);
+			idx = fProjectDataMap.indexOf(tmp);
+		}
 		
 		if (idx == 0) {
 			return fProjectDataMap.get(idx);
 		} else if (idx == -1) {
-			while (fProjectDataMap.size() >= 15) {
-				// Remove
-				ProjectPathsData paths_d = fProjectDataMap.remove(0);
-				removeListeners(paths_d.getProjectData());
+			synchronized (fProjectDataMap) {
+				while (fProjectDataMap.size() >= 15) {
+					// Remove
+					ProjectPathsData paths_d = fProjectDataMap.remove(0);
+					removeListeners(paths_d.getProjectData());
+				}
 			}
-			ProjectPathsData paths_d = new ProjectPathsData(pd);
-			addListeners(pd);
-			return paths_d;
+			
+			// We don't currently have the project data. Create a new
+			// instance in a thread
+			IJobMgr job_mgr = SVCorePlugin.getJobMgr();
+			IJob job = job_mgr.createJob();
+			
+			job.init("get project data", new Runnable() {
+				
+				public void run() {
+					// Time-consuming operation
+					ProjectPathsData paths_d = new ProjectPathsData(pd);
+					addListeners(pd);
+					synchronized (fProjectDataMap) {
+						fProjectDataMap.add(paths_d);
+					}
+			
+					Display d = fViewer.getControl().getDisplay();
+					if (d != null && !d.isDisposed()) {
+						// Notify the viewer that it must update
+						fViewer.getControl().getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								fViewer.refresh();
+							}
+						});
+					}
+				}
+			});
+			job_mgr.queueJob(job);
+			
+			return null;
 		} else {
 			ProjectPathsData paths_d = fProjectDataMap.remove(idx);
 			fProjectDataMap.add(paths_d);

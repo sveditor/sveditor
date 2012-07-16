@@ -82,6 +82,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		fParent = parent;
 	}
 	
+	public ISVDBDeclCache getParent() {
+		return fParent ;
+	}
+	
 	public SVDBItemType getType() {
 		return fType;
 	}
