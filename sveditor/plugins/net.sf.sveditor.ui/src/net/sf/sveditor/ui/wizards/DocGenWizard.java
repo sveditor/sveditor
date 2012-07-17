@@ -31,6 +31,9 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IWorkbench;
@@ -103,17 +106,27 @@ public class DocGenWizard extends Wizard {
 	}
 
 	private void performOperation(DocGenConfig cfg, IProgressMonitor monitor) {
-		monitor.beginTask("Generating documentation", 3) ;
-		
-		DocModelFactory factory = new DocModelFactory() ;
-		DocModel model = factory.build(cfg) ;
-		
-		monitor.worked(1) ;
-		IDocWriter writer = new HTMLDocWriter() ;
-		writer.write(cfg, model) ;
-		monitor.worked(1) ;
-		openIndexHTML(writer.getIndexHTML(cfg, model)) ;
-		monitor.done() ;
+		class DocGenJob extends Job {
+			private final DocGenConfig cfg ;
+			public DocGenJob(String jobTitle, DocGenConfig cfg) {
+				super(jobTitle) ;
+				this.cfg = cfg ;
+			}
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				DocModelFactory factory = new DocModelFactory() ;
+				DocModel model = factory.build(cfg) ;
+				monitor.worked(1) ;
+				IDocWriter writer = new HTMLDocWriter() ;
+				writer.write(cfg, model) ;
+				monitor.worked(1) ;
+				openIndexHTML(writer.getIndexHTML(cfg, model)) ;
+				monitor.done() ;
+				return Status.OK_STATUS ;
+			}
+		}
+		DocGenJob job = new DocGenJob("Documentation Generation", cfg) ;
+		job.schedule() ;
 	}
 	
 	private void openIndexHTML(File indexHTML) {
