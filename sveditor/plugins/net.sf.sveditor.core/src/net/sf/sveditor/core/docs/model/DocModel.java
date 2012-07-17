@@ -11,7 +11,6 @@
 
 package net.sf.sveditor.core.docs.model;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
