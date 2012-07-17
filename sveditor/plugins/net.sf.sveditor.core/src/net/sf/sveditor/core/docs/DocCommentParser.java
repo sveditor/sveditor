@@ -28,8 +28,8 @@ package net.sf.sveditor.core.docs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,7 +98,7 @@ public class DocCommentParser implements IDocCommentParser {
 		
 	}
 
-	public void parse(String comment, Set<DocTopic> docTopics) {
+	public void parse(String comment, List<DocTopic> docTopics) {
 		
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
@@ -178,7 +178,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 //	private enum Scope { NONE, NORMAL, START, END, ALWAYS_GLOBAL } ;
 	
-	public int parseComment(String lines[], Set<DocTopic> parsedTopics) {
+	public int parseComment(String lines[], List<DocTopic> docTopics) {
 	
 	    int topicCount = 0 ;
 	    boolean prevLineBlank = true ;
@@ -245,7 +245,7 @@ public class DocCommentParser implements IDocCommentParser {
 	            	newDocItem.setBody(body) ;
 	            	newDocItem.setSummary(summary) ;
 	            	
-	            	parsedTopics.add(newDocItem) ;
+	            	docTopics.add(newDocItem) ;
 	            	
 //	                $package = $newTopic->Package();
 	            	
@@ -307,7 +307,7 @@ public class DocCommentParser implements IDocCommentParser {
         	newTopic.setBody(body) ;
         	newTopic.setSummary(summary) ;
         	
-        	parsedTopics.add(newTopic) ;
+        	docTopics.add(newTopic) ;
         	
         	topicCount++ ;
 

@@ -13,9 +13,13 @@ package net.sf.sveditor.core.docs.model;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,6 +89,12 @@ public class DocModel {
 		return docFiles.get(filePath) ;
 	}
 	
+	public List<String> getDocFileKeysSorted() {
+		List<String> sortedDocFileKeys = new ArrayList<String>(docFiles.keySet()) ;
+		Collections.sort(sortedDocFileKeys) ;
+		return sortedDocFileKeys ;
+	}
+	
 	public Set<String> getFileSet() {
 		return docFiles.keySet() ;
 	}
@@ -129,7 +139,114 @@ public class DocModel {
 	 */
 	public void dumpToFile(Writer writer) throws IOException {
 		fSymbolTable.dumpSymbolsToFile(writer) ;
+		/*
+		 * Generate a list of the DocFiles sorted by filename.
+		 */
+		List<DocFile> docFilesByName = new ArrayList<DocFile>(docFiles.values()) ;
+		Collections.sort(docFilesByName, new Comparator<DocFile>() {
+			public int compare(DocFile o1, DocFile o2) {
+				return o1.getSrcFileName().compareToIgnoreCase(o2.getSrcFileName()) ;
+			}
+		}) ;
 		
+		/*
+		 * Shallow dump of each DocFile
+		 */
+		writer.write(String.format(
+				"+-------------------------------------------------------------------\n")) ;
+		writer.write(String.format(
+				"| DocFile set\n")) ;
+		writer.write(String.format(
+				"+-------------------------------------------------------------------\n")) ;
+		for(DocFile docFile: docFilesByName) {
+			writer.write(String.format(
+					"| +-------------------------------------------------------------------\n")) ;
+			writer.write(String.format(
+					"| | DocFile: %s\n", docFile.getSrcFileName())) ;
+			writer.write(String.format(
+					"| +-------------------------------------------------------------------\n")) ;
+			writer.write(String.format(
+					"| | NumChildren(%d)\n", docFile.getChildren().size())) ;
+			writer.write(String.format(
+					"| | Summary(%s)\n", docFile.getSummary())) ;
+			writer.write(String.format(
+					"| +-------------------------------------------------------------------\n")) ;
+		}
+		writer.write(String.format(
+				"+-------------------------------------------------------------------\n")) ;
+		/*
+		 *  Deep dive into Each DocFile
+		 */
+		for(DocFile docFile: docFilesByName) {
+			String srcFileName = docFile.getSrcFileName() ;
+			writer.write(String.format(
+					"| +-------------------------------------------------------------------\n")) ;
+			writer.write(String.format(
+					"| | DocFile: %s\n", srcFileName)) ;
+			writer.write(String.format(
+					"| +-------------------------------------------------------------------\n")) ;
+			for(DocTopic childTopic: docFile.getChildren()) {
+				dumpTopic(writer, childTopic, String.format("| | [%s] ", srcFileName)) ;
+			}
+		}
+		
+	}
+
+	private void dumpTopic(Writer writer, DocTopic topic, String preFix)
+			throws IOException {
+		writer.write(String.format(
+				"%s+-------------------------------------------------------------------\n",
+				preFix)) ;
+		writer.write(String.format(
+				"%s| TopicTitle: %s\n",
+				preFix,
+				topic.getTitle())) ;
+		writer.write(String.format(
+				"%s+-------------------------------------------------------------------\n",
+				preFix)) ;
+		writer.write(String.format(
+				"%s| QualifiedName(%s)\n",
+				preFix,
+				topic.getQualifiedName())) ;
+		writer.write(String.format(
+				"%s| TopicType(%s)\n",
+				preFix,
+				topic.getTopic())) ;
+		writer.write(String.format(
+				"%s| Keyword(%s)\n",
+				preFix,
+				topic.getKeyword())) ;
+		writer.write(String.format(
+				"%s| NumChilderen(%d)\n",
+				preFix,
+				topic.getChildren().size())) ;
+		writer.write(String.format(
+				"%s| Summary(%s)\n",
+				preFix,
+				topic.getSummary())) ;
+		writer.write(String.format(
+				"%s| Body(%s)\n",
+				preFix,
+				topic.getBody())) ;
+		if(topic.getChildren().size() != 0) {
+			writer.write(String.format(
+					"%s| +-------------------------------------------------------------------\n",
+					preFix)) ;
+			writer.write(String.format(
+					"%s| | Children\n",
+					preFix)) ;
+			writer.write(String.format(
+					"%s| +-------------------------------------------------------------------\n",
+					preFix)) ;
+			for(DocTopic childTopic: topic.getChildren()) {
+				dumpTopic(writer, childTopic, String.format("%s| [%s] | ", 
+						preFix,
+						topic.getTitle())) ;
+			}
+		}
+		writer.write(String.format(
+				"%s+-------------------------------------------------------------------\n",
+				preFix)) ;
 	}
 
 }
