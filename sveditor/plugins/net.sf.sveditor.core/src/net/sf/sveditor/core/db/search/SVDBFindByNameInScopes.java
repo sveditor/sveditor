@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
@@ -62,6 +63,27 @@ public class SVDBFindByNameInScopes {
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
 				if (it instanceof SVDBVarDeclStmt) {
 					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getChildren()) {
+						if (it_t instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it_t, name)) {
+							boolean match = (types.length == 0);
+
+							for (SVDBItemType t : types) {
+								if (it_t.getType() == t) {
+									match = true;
+									break;
+								}
+							}
+							
+							if (match) {
+								ret.add(it_t);
+								
+								if (stop_on_first_match) {
+									break;
+								}
+							}
+						}
+					}
+				} else if (it instanceof SVDBModIfcInst) {
+					for (ISVDBItemBase it_t : ((SVDBModIfcInst)it).getChildren()) {
 						if (it_t instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it_t, name)) {
 							boolean match = (types.length == 0);
 

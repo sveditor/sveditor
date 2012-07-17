@@ -28,6 +28,8 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModportDecl;
+import net.sf.sveditor.core.db.SVDBModportItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -111,8 +113,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int					lineno,
 			int					linepos) {
 		SVExprScanner expr_scan = new SVExprScanner();
-//		SVExpressionUtils expr_utils = new SVExpressionUtils(
-//				new SVDBFindContentAssistNameMatcher());
 	
 		synchronized (fCompletionProposals) {
 			fCompletionProposals.clear();
@@ -396,6 +396,13 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					if (it.getType() == SVDBItemType.VarDeclStmt) {
 						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
 							debug("VarDeclItem: " + SVDBItem.getName(it_1));
+							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
+					} else if (it.getType() == SVDBItemType.ModportDecl) {
+						for (ISVDBItemBase it_1 : ((SVDBModportDecl)it).getChildren()) {
+							debug("ModportItem: " + SVDBItem.getName(it_1));
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
 								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 							}

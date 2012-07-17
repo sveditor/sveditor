@@ -23,6 +23,8 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -342,11 +344,18 @@ public class SVContentAssistExprVisitor {
 		} else if (item.getType() == SVDBItemType.PackageDecl) {
 			fLog.debug("    item " + SVDBItem.getName(item) + " is a package");
 			return item;
+		} else if (item.getType() == SVDBItemType.ModIfcInstItem) {
+			SVDBModIfcInstItem mod_ifc = (SVDBModIfcInstItem)item;
+			SVDBModIfcInst mod_ifc_p = (SVDBModIfcInst)mod_ifc.getParent();
+
+			type = mod_ifc_p.getTypeInfo();
 		}
 		
 		if (type != null) {
 			fLog.debug("    type is non-null: " + type.getType());
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
+				item = findTypedef(type.getName());
+			} else if (type.getType() == SVDBItemType.TypeInfoModuleIfc) {
 				item = findTypedef(type.getName());
 			} else if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 				item = type;

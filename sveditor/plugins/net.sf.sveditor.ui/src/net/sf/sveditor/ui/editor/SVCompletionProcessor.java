@@ -120,7 +120,6 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		IJob job = job_mgr.createJob();
 		final int lineno_f = lineno, linepos_f = linepos;
 		job.init("Content Assist", new Runnable() {
-			@Override
 			public void run() {
 				computeProposals(scanner, fEditor.getSVDBFile(), lineno_f, linepos_f);
 			}
