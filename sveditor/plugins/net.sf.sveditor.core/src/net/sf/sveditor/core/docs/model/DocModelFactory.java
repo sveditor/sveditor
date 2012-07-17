@@ -12,9 +12,9 @@
 package net.sf.sveditor.core.docs.model;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -172,7 +172,7 @@ public class DocModelFactory {
 						boolean fileHasDocs = false ;
 						for(ISVDBChildItem child: ppFile.getChildren()) {
 							if(child instanceof SVDBDocComment) {
-								Set<DocTopic> docTopics = new HashSet<DocTopic>() ; 
+								List<DocTopic> docTopics = new ArrayList<DocTopic>() ; 
 								SVDBDocComment docCom = (SVDBDocComment)child ;
 								fLog.debug(ILogLevel.LEVEL_MID,
 										String.format("| [%s] +------------------------------------------------------------------------------------",

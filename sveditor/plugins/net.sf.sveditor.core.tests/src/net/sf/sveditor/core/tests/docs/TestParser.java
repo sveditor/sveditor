@@ -11,7 +11,9 @@
 
 package net.sf.sveditor.core.tests.docs;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -426,7 +428,7 @@ public class TestParser extends TestCase {
 		
 		IDocCommentParser parser = new DocCommentParser(docTopicMgr) ;
 		
-		Set<DocTopic> actDocTopics = new HashSet<DocTopic>() ;
+		List<DocTopic> actDocTopics = new ArrayList<DocTopic>() ;
 		
 		parser.parseComment(commentLines, actDocTopics) ;
 		

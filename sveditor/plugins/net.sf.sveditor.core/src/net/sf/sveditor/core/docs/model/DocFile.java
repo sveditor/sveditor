@@ -11,6 +11,8 @@
 
 package net.sf.sveditor.core.docs.model;
 
+import java.io.File;
+
 public class DocFile extends DocTopic {
 	
 	String fDocPath ;
@@ -28,6 +30,14 @@ public class DocFile extends DocTopic {
 	
 	public String getOutPath() {
 		return fOutPath ;
+	}
+	
+	/**
+	 * @return File name alone without any containing directories
+	 */
+	public String getSrcFileName() {
+		File file = new File(fDocPath) ;
+		return file.getName() ;
 	}
 
 	public void setDocPath(String path) {
