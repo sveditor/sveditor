@@ -81,7 +81,7 @@ public class TestModelFactory extends TestCase {
 	
 	public void testUVM() throws IOException {
 		
-//		fDebug = true ;
+		fDebug = true ;
 		
 		String test_name = "testBasicExamplePkg" ;
 		String bundle_dir_name = "basic_uvm" ;
@@ -177,16 +177,27 @@ public class TestModelFactory extends TestCase {
 		File modelDumpPathAct = new File(testDir, "model_dump_act.txt") ;
 		File modelDumpPathExp = new File(cpBundleDir, "model_dump_exp.txt") ;
 		
-		fLog.debug(ILogLevel.LEVEL_OFF, "+-----------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| To debug, rerun test with fDebug==true then diff the dumps below") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathAct: " + modelDumpPathAct ) ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathExp: " + modelDumpPathExp ) ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "| >>   diff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "| >> tkdiff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "+-----------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| | If the differences are expected, check them in as golden") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| | <from-your-repo-root> cp " + modelDumpPathAct + " "
+													+ "sveditor/plugins/net.sf.sveditor.core.tests" 
+													+ testBundleDir 
+													+ "/model_dump_exp.txt") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
 		
 		FileWriter fw = new FileWriter(modelDumpPathAct.getPath()) ;
 		BufferedWriter bw = new BufferedWriter(fw) ;
 		model.dumpToFile(bw) ;
+		bw.close() ;
 		fw.close() ;
 
 		List<String> expLines = TestUtils.fileToLines(modelDumpPathExp.getPath()) ;
@@ -195,16 +206,6 @@ public class TestModelFactory extends TestCase {
 		Patch patch = DiffUtils.diff(expLines, actLines) ;
 
 		List<Delta> deltas = patch.getDeltas() ;
-
-		int maxDeltas=20 ;
-		int cnt=0 ;
-		for(Delta delta: deltas) {
-			fLog.error(String.format("Delta %d",cnt)) ;
-			fLog.error("Exp: " + delta.getOriginal().toString()) ;
-			fLog.error("Act: " + delta.getRevised().toString()) ;
-			cnt++ ;
-			if(cnt >= maxDeltas) break ;
-		}
 
 		assertTrue( 
 				String.format("Detected %d deltas against expected model dump.\n\tExp:%s\n\tAct:%s\n",
