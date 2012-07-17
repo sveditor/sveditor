@@ -62,18 +62,53 @@ public class DocTopicManager implements IDocTopicManager {
 		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	ScopeType.NORMAL,   true,	false,				false)) ;
 		topicTypeMap.put(TOPIC_VARIABLE, 	new DocTopicType(TOPIC_VARIABLE,	"variables",	ScopeType.NORMAL,   true,	false,				false)) ;
 		
-		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 	"") ;
-		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 	"classes") ;
-		registerKeywordForTopicType(TOPIC_PACKAGE, 	"package", 	"packages") ;
-		registerKeywordForTopicType(TOPIC_SECTION, 	"section", 	"") ;
-		registerKeywordForTopicType(TOPIC_SECTION, 	"title", 	"") ;
-		registerKeywordForTopicType(TOPIC_GROUP, 	"group", 	"") ;
-		registerKeywordForTopicType(TOPIC_VARIABLE, "field", 	"fields") ;
-		registerKeywordForTopicType(TOPIC_TASK, 	"task", 	"tasks") ;
-		registerKeywordForTopicType(TOPIC_FUNCTION, "function", "functions") ;
-		registerKeywordForTopicType(TOPIC_FUNCTION, "func", 	"funcs") ;
-		registerKeywordForTopicType(TOPIC_VARIABLE, "variable", "variables") ;
-		registerKeywordForTopicType(TOPIC_VARIABLE, "field", 	"fields") ;
+		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 		"") ;
+		
+		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 		"classes") ;
+		registerKeywordForTopicType(TOPIC_CLASS, 	"struct", 		"structs") ;
+		registerKeywordForTopicType(TOPIC_CLASS, 	"structure", 	"structures") ;
+		
+		registerKeywordForTopicType(TOPIC_PACKAGE, 	"package", 		"packages") ;
+		
+		registerKeywordForTopicType(TOPIC_SECTION, 	"section", 		"") ;
+		registerKeywordForTopicType(TOPIC_SECTION, 	"title", 		"") ;
+		
+		registerKeywordForTopicType(TOPIC_GROUP, 	"group", 		"") ;
+		
+		registerKeywordForTopicType(TOPIC_VARIABLE, "field", 		"fields") ;
+		
+		registerKeywordForTopicType(TOPIC_TASK, 	"task", 		"tasks") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "function", 	"functions") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "func", 		"funcs") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "method",   	"methods") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "meth", 		"meths") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "procedure",	"procedures") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "proc", 		"procs") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "routine",  	"routines") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "callback",  	"callbacks") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "constructor",  "constructors") ;
+		registerKeywordForTopicType(TOPIC_FUNCTION, "destructor",  	"destructors") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "variable", 	"variables") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "var", 			"vars") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "integer", 		"integers") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "uint", 		"uints") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "byte", 		"bytes") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "scalar", 		"scalars") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "array", 		"arrays") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "boolean", 		"booleans") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "bool", 		"bools") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "flag", 		"flags") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "bit", 			"bits") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "bitfield", 	"bitfields") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "field", 		"fields") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "pointer", 		"pointers") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "ptr", 			"ptrs") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "reference", 	"references") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "ref", 			"refs") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "object", 		"objects") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "character", 	"characters") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "string", 		"strings") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "handle", 		"handles") ;
 		
 	}
 
