@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -384,7 +385,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		// Search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct ||
-				leaf_item.getType() == SVDBItemType.InterfaceDecl) {
+				leaf_item.getType() == SVDBItemType.InterfaceDecl ||
+				leaf_item.getType() == SVDBItemType.ModuleDecl) {
 			// Look for matching names in the target class
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
@@ -406,6 +408,12 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
+					} else if (it.getType() == SVDBItemType.ModIfcInst) {
+						for (ISVDBItemBase it_1 : ((SVDBModIfcInst)it).getChildren()) {
+							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
 					} else if (it instanceof ISVDBNamedItem) {
 						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
 							addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
@@ -417,6 +425,18 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					SVDBClassDecl cls_decl = (SVDBClassDecl)si;
 					si = super_finder.find(cls_decl);
 				} else {
+					if (si.getType().isElemOf(SVDBItemType.InterfaceDecl)) {
+						// Search the ports of the interface handle
+						SVDBInterfaceDecl ifc = (SVDBInterfaceDecl)si;
+
+						for (SVDBParamPortDecl p : ifc.getPorts()) {
+							for (ISVDBItemBase vi : p.getChildren()) {
+								if (matcher.match((ISVDBNamedItem)vi, ctxt.fLeaf)) {
+									addProposal(vi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								}
+							}
+						}
+					}
 					si = null;
 				}
 			}

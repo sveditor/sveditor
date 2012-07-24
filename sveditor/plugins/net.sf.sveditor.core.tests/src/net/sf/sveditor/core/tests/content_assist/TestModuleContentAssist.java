@@ -181,6 +181,126 @@ public class TestModuleContentAssist extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 
+	public void testModuleHierarchyAssist() {
+		LogHandle log = LogFactory.getLogHandle("testModuleHierarchyAssist");
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 = 
+				"module sub;\n" +
+				"		int AAAA;\n" +
+				"		int AABB;\n" +
+				"endmodule\n" +
+				"\n" +
+				"module m1(input AAAA, output BBBB);\n" +
+				"	sub		u1;\n" +
+				"\n" +
+				"	initial begin\n" +
+				"		u<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"u1"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testModuleHierarchyAssist_2() {
+		LogHandle log = LogFactory.getLogHandle("testModuleHierarchyAssist_2");
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 = 
+				"module sub;\n" +
+				"		int AAAA;\n" +
+				"		int AABB;\n" +
+				"endmodule\n" +
+				"\n" +
+				"module m1(input AAAA, output BBBB);\n" +
+				"	sub		u1;\n" +
+				"\n" +
+				"	initial begin\n" +
+				"		u1.AA<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testModuleHierarchyAssist_3() {
+		LogHandle log = LogFactory.getLogHandle("testModuleHierarchyAssist_3");
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 = 
+				"module sub;\n" +
+				"		int AAAA;\n" +
+				"		int AABB;\n" +
+				"endmodule\n" +
+				"\n" +
+				"module sub_1;\n" +
+				"		sub s1();\n" +
+				"endmodule\n" +
+				"\n" +
+				"module m1(input AAAA, output BBBB);\n" +
+				"	sub_1	u1;\n" +
+				"\n" +
+				"	initial begin\n" +
+				"		u1.s1.AA<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
 	
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {

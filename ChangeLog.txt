@@ -18,6 +18,12 @@
 - #(enh) - Add content assist for modports of interface-type items
 
 - #(enh) - Add double-click support to the path browsers for project-paths setup
+
+- #(enh) - Add content assist for ports of interface-type items
+
+- #(enh) - Add content assist for hierarchical module paths
+
+- #(3547768) - Normalize paths to avoid cross-platform issues
   
 - #(?) - event data-type not recognized as field?
 

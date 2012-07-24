@@ -20,11 +20,13 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -273,6 +275,36 @@ public class SVContentAssistExprVisitor {
 		} else {
 			return null;
 		}
+	}
+	
+	private ISVDBItemBase findInModuleInterface(SVDBModuleDecl root, String name) {
+		ISVDBItemBase ret = null;
+		fLog.debug("findInModuleInterface: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+	
+		for (ISVDBChildItem c : root.getChildren()) {
+			if (c.getType() == SVDBItemType.VarDeclStmt) {
+				for (ISVDBChildItem i : ((SVDBVarDeclStmt)c).getChildren()) {
+					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
+						ret = i;
+						break;
+					}
+				}
+			} else if (c.getType() == SVDBItemType.ModIfcInst) {
+				for (ISVDBChildItem i : ((SVDBModIfcInst)c).getChildren()) {
+					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
+						ret = i;
+						break;
+					}
+				}
+			} else if (c instanceof ISVDBNamedItem) {
+				if (fNameMatcher.match((ISVDBNamedItem)c, name)) {
+					ret = c;
+					break;
+				}
+			}
+		}
+		
+		return ret;
 	}
 
 	private ISVDBItemBase findInTypeInfo(SVDBTypeInfo root, String name) {
@@ -561,6 +593,9 @@ public class SVContentAssistExprVisitor {
 				item = findInPackage((SVDBPackageDecl)item, expr.getId());
 			} else if (item.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 				item = findInTypeInfo((SVDBTypeInfo)item, expr.getId());
+			} else if (item.getType() == SVDBItemType.ModuleDecl ||
+					item.getType() == SVDBItemType.InterfaceDecl) {
+				item = findInModuleInterface((SVDBModuleDecl)item, expr.getId());
 			} else {
 				item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
 			}
