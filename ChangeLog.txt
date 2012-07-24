@@ -16,6 +16,10 @@
 - #(enh) - Add content assist for fields of interface-type module items
 
 - #(enh) - Add content assist for modports of interface-type items
+
+- #(enh) - Add content assist for ports of interface-type items
+
+- #(enh) - Add content assist for hierarcal module paths
   
 - #(?) - event data-type not recognized as field?
 

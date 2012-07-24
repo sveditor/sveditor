@@ -174,8 +174,52 @@ public class TestContentAssistInterface extends TestCase {
 			
 			ContentAssistTests.validateResults(new String[] {"ifc_if"}, proposals);
 			LogFactory.removeLogHandle(log);
-	}	
+	}
+	
+	public void testInterfaceModulePortAssist() {
+		String testname = "testInterfaceModulePortAssist";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 = 
+				"interface i1(input clk, input rst);\n" +
+				"\n" +
+				"\n" +
+				"	int			AAAA;\n" +
+				"	int			AABB;\n" +
+				"	int			BBBB;\n" +
+				"\n" +
+				"endinterface\n" +
+				"\n" +
+				"module top;\n" +
+				"	i1		ifc_if();\n" +
+				"\n" +
+				"	submodule s1(" +
+				"		.p1(ifc_if.c<<MARK>>\n" +
+				"	);\n" +
+				"endmodule"
+				;
+			
+			TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+			
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 
+			TestCompletionProcessor cp = new TestCompletionProcessor(testname, file, 
+					new FileIndexIterator(file));
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			ContentAssistTests.validateResults(new String[] {"clk"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}	
+	
 	public void testInterfaceModportModuleField() {
 		String testname = "testInterfaceModportModuleField";
 		LogHandle log = LogFactory.getLogHandle(testname);
