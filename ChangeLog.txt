@@ -16,6 +16,8 @@
 - #(enh) - Add content assist for fields of interface-type module items
 
 - #(enh) - Add content assist for modports of interface-type items
+
+- #(enh) - Add double-click support to the path browsers for project-paths setup
   
 - #(?) - event data-type not recognized as field?
 

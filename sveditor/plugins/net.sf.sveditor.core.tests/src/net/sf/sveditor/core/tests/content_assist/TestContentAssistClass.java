@@ -322,7 +322,7 @@ public class TestContentAssistClass extends TestCase {
 			"endclass\n" +
 			"\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 				
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
@@ -348,6 +348,7 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	
 	public void testContentAssistOnlyTopNew_1() {
 		String testname = "testContentAssistOnlyTopNew_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -483,7 +484,6 @@ public class TestContentAssistClass extends TestCase {
 				new String[] {"new"}, proposals);
 		LogFactory.removeLogHandle(log);
 	}
-
 
 }
 
