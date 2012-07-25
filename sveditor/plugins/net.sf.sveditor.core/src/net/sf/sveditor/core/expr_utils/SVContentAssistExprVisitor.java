@@ -20,13 +20,14 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.SVDBModuleDecl;
+import net.sf.sveditor.core.db.SVDBModportDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -48,14 +49,16 @@ import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-public class SVContentAssistExprVisitor {
+public class SVContentAssistExprVisitor implements ILogLevel {
 	private LogHandle					fLog;
 	private ISVDBIndexIterator			fIndexIt;
 	private ISVDBScopeItem				fScope;
@@ -277,7 +280,7 @@ public class SVContentAssistExprVisitor {
 		}
 	}
 	
-	private ISVDBItemBase findInModuleInterface(SVDBModuleDecl root, String name) {
+	private ISVDBItemBase findInModuleInterface(SVDBModIfcDecl root, String name) {
 		ISVDBItemBase ret = null;
 		fLog.debug("findInModuleInterface: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
 	
@@ -296,10 +299,28 @@ public class SVContentAssistExprVisitor {
 						break;
 					}
 				}
+			} else if (c.getType() == SVDBItemType.ModportDecl) {
+				for (ISVDBChildItem i : ((SVDBModportDecl)c).getChildren()) {
+					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
+						ret = i;
+						break;
+					}
+				}
 			} else if (c instanceof ISVDBNamedItem) {
 				if (fNameMatcher.match((ISVDBNamedItem)c, name)) {
 					ret = c;
 					break;
+				}
+			}
+		}
+		
+		if (ret == null) {
+			for (SVDBParamPortDecl p : root.getPorts()) {
+				for (ISVDBChildItem i : p.getChildren()) {
+					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
+						ret = i;
+						break;
+					}
 				}
 			}
 		}
@@ -429,18 +450,23 @@ public class SVContentAssistExprVisitor {
 		ISVDBItemBase ret = null;
 		
 		fLog.debug("--> findTypedef: " + name);
-		
-		if ((ret = findLocalTypedef(name)) == null) {
-			// Look globally
-			SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 	
-			List<ISVDBItemBase> item_l = finder_n.find(name);
-	
-			// Filter out the forward typedefs
-			filterFwdDecls(item_l);
+		if (name.indexOf('.') != -1 || name.indexOf("::") != -1) {
+			// Scoped type
+			fLog.debug("  [TODO] Handle scoped type \"" + name + "\"");
+		} else {
+			if ((ret = findLocalTypedef(name)) == null) {
+				// Look globally
+				SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
-			if (item_l.size() > 0) {
-				ret = item_l.get(0);
+				List<ISVDBItemBase> item_l = finder_n.find(name);
+
+				// Filter out the forward typedefs
+				filterFwdDecls(item_l);
+
+				if (item_l.size() > 0) {
+					ret = item_l.get(0);
+				}
 			}
 		}
 		
@@ -595,7 +621,9 @@ public class SVContentAssistExprVisitor {
 				item = findInTypeInfo((SVDBTypeInfo)item, expr.getId());
 			} else if (item.getType() == SVDBItemType.ModuleDecl ||
 					item.getType() == SVDBItemType.InterfaceDecl) {
-				item = findInModuleInterface((SVDBModuleDecl)item, expr.getId());
+				item = findInModuleInterface((SVDBModIfcDecl)item, expr.getId());
+			} else if (item.getType() == SVDBItemType.ModportItem) {
+				// TODO: find in modport
 			} else {
 				item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
 			}
