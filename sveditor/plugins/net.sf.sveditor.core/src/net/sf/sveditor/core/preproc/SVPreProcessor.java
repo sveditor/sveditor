@@ -145,6 +145,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 		int ch = -1;
 	
 		String type = readIdentifier(get_ch());
+	
+		if (type == null) {
+			type = "";
+		}
 		
 		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
 		
@@ -291,7 +295,8 @@ public class SVPreProcessor extends AbstractTextScanner {
 			enter_ifdef(false);
 		} else if (type.equals("endprotected")) {
 			leave_ifdef();
-		} else {
+		} else if (!type.equals("")) {
+			// Note: type="" occurs when no identifier followed the tick
 			// macro expansion.
 			// TODO: is TmpBuffer available?
 			fTmpBuffer.setLength(0);
