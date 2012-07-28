@@ -485,6 +485,201 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testStaticTypeAssist_1() {
+		String testname = "testStaticTypeAssist_1";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"class base;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	function new(int p1, int p2, int p3, int p4);\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	static base			m_base;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::m_ba<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {"m_base"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testStaticTypeAssist_2() {
+		String testname = "testStaticTypeAssist_2";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"class base;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	function new(int p1, int p2, int p3, int p4);\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	static base			m_base;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::m_base.AA<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testStaticTypeAssist_3() {
+		String testname = "testStaticTypeAssist_3";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"class base;\n" +
+			"	static int		AAAA;\n" +
+			"	static int		AABB;\n" +
+			"	function new(int p1, int p2, int p3, int p4);\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	static base			m_base;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::m_base::AA<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {"AAAA", "AABB"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testStaticTypeAssist_4() {
+		String testname = "testStaticTypeAssist_4";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"class base;\n" +
+			"	static int		AAAA;\n" +
+			"	int				AABB;\n" +
+			"	function new(int p1, int p2, int p3, int p4);\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	static base			m_base;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::m_base::AA<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {"AAAA"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
 }
 
 

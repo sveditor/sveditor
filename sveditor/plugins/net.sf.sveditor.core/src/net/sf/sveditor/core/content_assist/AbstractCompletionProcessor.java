@@ -378,6 +378,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			SVExprContext			ctxt,
 			ISVDBChildItem			src_scope,
 			ISVDBItemBase			leaf_item) {
+		boolean static_ref = ctxt.fTrigger.equals("::");
 		// Determine the type of the leaf item
 		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
 		
@@ -395,10 +396,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			while (si != null) {
 				for (ISVDBChildItem it : si.getChildren()) {
 					if (it.getType() == SVDBItemType.VarDeclStmt) {
-						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
-							debug("VarDeclItem: " + SVDBItem.getName(it_1));
-							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
+						// Ensure static ref is correct
+						if ((v.getAttr() & SVDBVarDeclStmt.FieldAttr_Static) != 0 == static_ref) {
+							for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
+								debug("VarDeclItem: " + SVDBItem.getName(it_1));
+								if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+									addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								}
 							}
 						}
 					} else if (it.getType() == SVDBItemType.ModportDecl) {

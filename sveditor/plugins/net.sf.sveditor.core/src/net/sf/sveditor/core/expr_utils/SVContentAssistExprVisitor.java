@@ -386,9 +386,9 @@ public class SVContentAssistExprVisitor {
 		if (type != null) {
 			fLog.debug("    type is non-null: " + type.getType());
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
-				item = findTypedef(type.getName());
+				item = findTypedef(null, type.getName());
 			} else if (type.getType() == SVDBItemType.TypeInfoModuleIfc) {
-				item = findTypedef(type.getName());
+				item = findTypedef(null, type.getName());
 			} else if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 				item = type;
 			}
@@ -403,7 +403,7 @@ public class SVContentAssistExprVisitor {
 					item = type;
 				} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 					// Lookup user-defined type name
-					item = findTypedef(type.getName());
+					item = findTypedef(null, type.getName());
 				} else {
 					// gone as far as we can go
 					break;
@@ -425,22 +425,53 @@ public class SVContentAssistExprVisitor {
 		return item;
 	}
 		
-	private ISVDBItemBase findTypedef(String name) {
+	private ISVDBItemBase findTypedef(ISVDBItemBase root, String name) {
 		ISVDBItemBase ret = null;
 		
 		fLog.debug("--> findTypedef: " + name);
-		
-		if ((ret = findLocalTypedef(name)) == null) {
-			// Look globally
-			SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
-	
-			List<ISVDBItemBase> item_l = finder_n.find(name);
-	
-			// Filter out the forward typedefs
-			filterFwdDecls(item_l);
 
-			if (item_l.size() > 0) {
-				ret = item_l.get(0);
+		if (root != null) {
+			String leaf = null;
+			if (root instanceof ISVDBChildParent) {
+				ISVDBChildParent p = (ISVDBChildParent)root;
+				for (ISVDBChildItem i : p.getChildren()) {
+					if (i.getType() == SVDBItemType.TypedefStmt) {
+						System.out.println("FIXME: TypedefStmt");
+					} else if (i.getType() == SVDBItemType.ModportDecl) {
+						for (ISVDBItemBase t : ((ISVDBChildParent)i).getChildren()) {
+							if (SVDBItem.getName(t).equals(name)) {
+								
+							}
+						}
+					}
+				}
+			} else {
+			}
+		} else {
+			// root==null
+			if (name.indexOf('.') != -1) {
+				System.out.println("root=" + root);
+				String root_name = name.substring(0, name.indexOf('.'));
+				String remainder = name.substring(name.indexOf('.')+1);
+				ISVDBItemBase type = findTypedef(null, root_name);
+				ret = findTypedef(type, remainder);
+				// TODO: find sub-name
+			} else if (name.indexOf("::") != -1) {
+				System.out.println("[FIXME] Handle static-field references");
+			} else {
+				if ((ret = findLocalTypedef(name)) == null) {
+					// Look globally
+					SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
+			
+					List<ISVDBItemBase> item_l = finder_n.find(name);
+			
+					// Filter out the forward typedefs
+					filterFwdDecls(item_l);
+
+					if (item_l.size() > 0) {
+						ret = item_l.get(0);
+					}
+				}
 			}
 		}
 		
@@ -581,7 +612,8 @@ public class SVContentAssistExprVisitor {
 			}
 			fResolveStack.push(item);
 		} else {
-			fLog.debug("Resolve : " + expr.getId() + " relative to " + fResolveStack.peek());
+			fLog.debug("Resolve : " + expr.getId() + " relative to " + 
+					fResolveStack.peek() + " " + SVDBItem.getName(fResolveStack.peek()));
 			ISVDBItemBase item = findType(fResolveStack.peek());
 			
 			if (item == null) {
