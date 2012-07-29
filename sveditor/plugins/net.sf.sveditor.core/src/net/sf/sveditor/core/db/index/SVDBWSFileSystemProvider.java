@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,10 +43,10 @@ import org.eclipse.core.runtime.Path;
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
 		IResourceChangeListener, IResourceDeltaVisitor {
 	
-	private List<ISVDBFileSystemChangeListener>			fChangeListeners;
+	private List<Reference<ISVDBFileSystemChangeListener>>			fChangeListeners;
 	
 	public SVDBWSFileSystemProvider() {
-		fChangeListeners = new ArrayList<ISVDBFileSystemChangeListener>();
+		fChangeListeners = new ArrayList<Reference<ISVDBFileSystemChangeListener>>();
 	}
 	
 	public void init(String path) {
@@ -409,11 +411,22 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	}
 
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
-		fChangeListeners.add(l);
+		synchronized (fChangeListeners) {
+			fChangeListeners.add(new WeakReference<ISVDBFileSystemChangeListener>(l));
+		}
 	}
 
 	public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
-		fChangeListeners.remove(l);
+		synchronized (fChangeListeners) {
+			for (int i=0; i<fChangeListeners.size(); i++) {
+				ISVDBFileSystemChangeListener ll = fChangeListeners.get(i).get();
+				
+				if (ll == null || ll == l) {
+					fChangeListeners.remove(i);
+					i--;
+				}
+			}
+		}
 	}
 
 	public synchronized boolean visit(IResourceDelta delta) throws CoreException {
@@ -425,17 +438,41 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			if (delta.getKind() == IResourceDelta.REMOVED) {
 				// remove from the queue (if present) and the index
-				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-					l.fileRemoved(file);
+				synchronized (fChangeListeners) {
+					for (int i=0; i<fChangeListeners.size(); i++) {
+						ISVDBFileSystemChangeListener l = fChangeListeners.get(i).get();
+						if (l == null) {
+							fChangeListeners.remove(i);
+							i--;
+						} else {
+							l.fileRemoved(file);
+						}
+					}
 				}
 			} else if (delta.getKind() == IResourceDelta.ADDED) {
-				for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-					l.fileAdded(file);
-				}
+				synchronized (fChangeListeners) {
+					for (int i=0; i<fChangeListeners.size(); i++) {
+						ISVDBFileSystemChangeListener l = fChangeListeners.get(i).get();
+						if (l == null) {
+							fChangeListeners.remove(i);
+							i--;
+						} else {
+							l.fileAdded(file);
+						}
+					}
+				}				
 			} else if (delta.getKind() == IResourceDelta.CHANGED) {
 				if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
-					for (ISVDBFileSystemChangeListener l : fChangeListeners) {
-						l.fileChanged(file);
+					synchronized (fChangeListeners) {
+						for (int i=0; i<fChangeListeners.size(); i++) {
+							ISVDBFileSystemChangeListener l = fChangeListeners.get(i).get();
+							if (l == null) {
+								fChangeListeners.remove(i);
+								i--;
+							} else {
+								l.fileChanged(file);
+							}
+						}
 					}
 				}
 			}

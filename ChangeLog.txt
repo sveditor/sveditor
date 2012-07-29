@@ -6,6 +6,9 @@
 - #(nobug) - Correct a string out-of-bounds when parsing a file with incomplete 
   `include directives
   
+- #(nobug) - Correct a parse bug when attempting to parse a partial 
+  pre-processor declaration (eg `)
+  
 - #(nobug) - Correct a NPE from the label provider when displaying a function 
   with no type
   
@@ -24,9 +27,14 @@
 - #(enh) - Add content assist for hierarchical module paths
 
 - #(3547768) - Normalize paths to avoid cross-platform issues
-  
-- #(?) - event data-type not recognized as field?
 
+- #(enh) - Add content assist for modport-type module ports
+
+- #(nobug) - Correct an issue with requesting content-assist at the very
+  end of a file. For me, this often resulted in receiving incorrect 
+  content suggestions for super classes
+
+  
 ------------------------------------------------------------------------------
 -- 0.9.4 Release --
 

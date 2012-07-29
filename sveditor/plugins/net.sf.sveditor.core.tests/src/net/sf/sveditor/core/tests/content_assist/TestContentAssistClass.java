@@ -348,6 +348,60 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testContentAssistBaseClassEOF() {
+		String testname = "testContentAssistBaseClassEOF";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc1 =
+			"class base;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	int		BBBB;\n" +
+			"	int		BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_2 #(int T) extends super_1;\n" +
+			"	int		CCCC;\n" +
+			"	int		CCDD;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class extends s<<MARK>>"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+		
+		log.debug("Cursor line: " + tt_utils.getLineMap().get("MARK"));
+		log.debug("Cursor pos: " + tt_utils.getPosMap().get("MARK"));
+		log.debug("Content: \"" + scanner.getContent() + "\"");
+		log.debug("Content length: " + scanner.getContent().length());
+//		int ch = scanner.get_ch();
+//		log.debug("Current char: " + (char)ch);
+//		scanner.unget_ch(ch);
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {"super_1", "super_2"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
 	
 	public void testContentAssistOnlyTopNew_1() {
 		String testname = "testContentAssistOnlyTopNew_1";

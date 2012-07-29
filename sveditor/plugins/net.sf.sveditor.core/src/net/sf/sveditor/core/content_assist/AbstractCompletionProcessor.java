@@ -30,6 +30,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModportDecl;
+import net.sf.sveditor.core.db.SVDBModportItem;
+import net.sf.sveditor.core.db.SVDBModportPortsDecl;
+import net.sf.sveditor.core.db.SVDBModportSimplePort;
+import net.sf.sveditor.core.db.SVDBModportSimplePortsDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -469,8 +473,21 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					}
 				}
 			}
-		} else if (leaf_item.getType() == SVDBItemType.ModportDecl) {
-			
+		} else if (leaf_item.getType() == SVDBItemType.ModportItem) {
+			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+			SVDBModportItem mpi = (SVDBModportItem)leaf_item;
+			for (SVDBModportPortsDecl pd : mpi.getPortsList()) {
+				if (pd.getType() == SVDBItemType.ModportSimplePortsDecl) {
+					SVDBModportSimplePortsDecl simple_pd = (SVDBModportSimplePortsDecl)pd;
+					for (SVDBModportSimplePort p : simple_pd.getPortList()) {
+						if (matcher.match(p, ctxt.fLeaf)) {
+							addProposal(p, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						}
+					}
+				} else {
+					fLog.debug(LEVEL_MIN, "Unhandled mod-port type " + pd.getType());
+				}
+			}
 		}
 	}
 	
