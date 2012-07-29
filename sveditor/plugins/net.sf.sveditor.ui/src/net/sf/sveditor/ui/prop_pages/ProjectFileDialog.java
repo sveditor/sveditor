@@ -4,6 +4,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -66,6 +69,12 @@ public class ProjectFileDialog extends Dialog {
 				if (sel.getFirstElement() != null) {
 					fPathStr = ((IResource)sel.getFirstElement()).getFullPath().toOSString();
 				}
+			}
+		});
+		
+		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				buttonPressed(IDialogConstants.OK_ID);
 			}
 		});
 		

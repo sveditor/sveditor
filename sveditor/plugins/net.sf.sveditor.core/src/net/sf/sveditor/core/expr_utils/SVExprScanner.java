@@ -58,13 +58,15 @@ public class SVExprScanner {
 		
 		boolean scan_fwd = scanner.getScanFwd();
 		scanner.setScanFwd(false);
-		debug("    First Ch (non-adjusted): \"" + (char)scanner.get_ch() + "\"");
-		scanner.unget_ch(-1);
+		c = scanner.get_ch();
+		debug("    First Ch (non-adjusted): \"" + (char)c + "\"");
+		scanner.unget_ch(c);
 		scanner.setScanFwd(scan_fwd);
 
 		// We'll start by scanning backwards. On entry, the
 		// cursor has been placed to read going forward
 		if (scanner.getScanFwd() && scanner.getPos() > 0) {
+			debug("    Scanning forward");
 			/*
 			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
 					scanner.get_str(scanner.getPos()-1, 1) + "\"");
@@ -87,9 +89,10 @@ public class SVExprScanner {
 		}
 		
 		scanner.setScanFwd(false);
-		
-		debug("    First Ch (adjusted): \"" + (char)scanner.get_ch() + "\"");
-		scanner.unget_ch(-1);
+	
+		c = scanner.get_ch();
+		debug("    First Ch (adjusted): \"" + (char)c + "\"");
+		scanner.unget_ch(c);
 
 		// Check whether we're currently in a string
 		if (isInString(scanner)) {

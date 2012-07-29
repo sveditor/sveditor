@@ -102,7 +102,7 @@ public class ProjectPathsContentProvider implements
 					}
 			
 					Display d = fViewer.getControl().getDisplay();
-					if (d != null && !d.isDisposed()) {
+					if (d != null && !d.isDisposed() && !fViewer.getControl().isDisposed()) {
 						// Notify the viewer that it must update
 						fViewer.getControl().getDisplay().asyncExec(new Runnable() {
 							public void run() {

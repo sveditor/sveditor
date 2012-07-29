@@ -725,4 +725,34 @@ public class SrcCollectionBasics extends TestCase {
 		index.dispose();
 	}
 
+	public void testSrcCollectWinPathsNormalize() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle("testSrcCollectWinPathsNormalize");
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		File project_dir = new File(fTmpDir, "project_dir");
+		
+		if (project_dir.exists()) {
+			TestUtils.delete(project_dir);
+		}
+		
+		utils.copyBundleDirToFS("/data/index/src_collection_data/", project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		
+		fProject = TestUtils.createProject("project", project_dir);
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				project_dir.getName(), 
+				"${workspace_loc}\\project\\src_collection_data",
+				SVDBSourceCollectionIndexFactory.TYPE, null);
+	
+		IndexTestUtils.assertFileHasElements(index, 
+				"src_collection_data_pkg", "cls1", "cls2");
+		index.dispose();
+		LogFactory.removeLogHandle(log);
+	}
+
 }
