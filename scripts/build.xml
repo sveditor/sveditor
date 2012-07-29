@@ -106,7 +106,6 @@
             </filterset>
         </copy>
 
-<!--
         <copy todir="${basedir}/../archive_tmp/features">
             <fileset dir="${gef_zest}/eclipse/features">
                 <include name="**/*"/>
@@ -118,6 +117,7 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
+<!--
   -->
 
         <!-- Create the P2 repository -->
@@ -158,11 +158,19 @@
         <move file="${repository}/content_1.xml"
               tofile="${repository}/content.xml"/>
 
+
         <jar destfile="${buildResult}/sveditor-${feature.version}.jar"
              basedir="${repository}"
              includes="*.xml, features/**, plugins/**"/>
 
-        <xmltask source="${basedir}/../etc/mappings.xml">
+	<copy todir="${buildDirectory}" overwrite="true">
+		<fileset dir="${basedir}/../etc" includes="mappings.xml"/>
+		<filterset begintoken="1" endtoken="3">
+			<filter token=".2." value="${feature.version}"/>
+		</filterset>
+	</copy>
+
+        <xmltask source="${buildDirectory}/mappings.xml">
             <copy path="/repository/mappings" 
                   buffer="artifacts_mappings"/>
         </xmltask>

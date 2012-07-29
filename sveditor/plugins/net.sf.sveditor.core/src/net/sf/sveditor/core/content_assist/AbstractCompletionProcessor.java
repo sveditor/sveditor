@@ -24,10 +24,16 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModportDecl;
+import net.sf.sveditor.core.db.SVDBModportItem;
+import net.sf.sveditor.core.db.SVDBModportPortsDecl;
+import net.sf.sveditor.core.db.SVDBModportSimplePort;
+import net.sf.sveditor.core.db.SVDBModportSimplePortsDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -111,8 +117,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int					lineno,
 			int					linepos) {
 		SVExprScanner expr_scan = new SVExprScanner();
-//		SVExpressionUtils expr_utils = new SVExpressionUtils(
-//				new SVDBFindContentAssistNameMatcher());
 	
 		synchronized (fCompletionProposals) {
 			fCompletionProposals.clear();
@@ -378,6 +382,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			SVExprContext			ctxt,
 			ISVDBChildItem			src_scope,
 			ISVDBItemBase			leaf_item) {
+		boolean static_ref = ctxt.fTrigger.equals("::");
 		// Determine the type of the leaf item
 		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
 		
@@ -385,7 +390,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		// Search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct ||
-				leaf_item.getType() == SVDBItemType.InterfaceDecl) {
+				leaf_item.getType() == SVDBItemType.InterfaceDecl ||
+				leaf_item.getType() == SVDBItemType.ModuleDecl) {
 			// Look for matching names in the target class
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
@@ -394,8 +400,25 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			while (si != null) {
 				for (ISVDBChildItem it : si.getChildren()) {
 					if (it.getType() == SVDBItemType.VarDeclStmt) {
-						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
-							debug("VarDeclItem: " + SVDBItem.getName(it_1));
+						SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
+						// Ensure static ref is correct
+						if ((v.getAttr() & SVDBVarDeclStmt.FieldAttr_Static) != 0 == static_ref) {
+							for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
+								debug("VarDeclItem: " + SVDBItem.getName(it_1));
+								if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+									addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								}
+							}
+						}
+					} else if (it.getType() == SVDBItemType.ModportDecl) {
+						for (ISVDBItemBase it_1 : ((SVDBModportDecl)it).getChildren()) {
+							debug("ModportItem: " + SVDBItem.getName(it_1));
+							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
+								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
+					} else if (it.getType() == SVDBItemType.ModIfcInst) {
+						for (ISVDBItemBase it_1 : ((SVDBModIfcInst)it).getChildren()) {
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
 								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 							}
@@ -411,6 +434,18 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					SVDBClassDecl cls_decl = (SVDBClassDecl)si;
 					si = super_finder.find(cls_decl);
 				} else {
+					if (si.getType().isElemOf(SVDBItemType.InterfaceDecl)) {
+						// Search the ports of the interface handle
+						SVDBInterfaceDecl ifc = (SVDBInterfaceDecl)si;
+
+						for (SVDBParamPortDecl p : ifc.getPorts()) {
+							for (ISVDBItemBase vi : p.getChildren()) {
+								if (matcher.match((ISVDBNamedItem)vi, ctxt.fLeaf)) {
+									addProposal(vi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								}
+							}
+						}
+					}
 					si = null;
 				}
 			}
@@ -438,8 +473,21 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					}
 				}
 			}
-		} else if (leaf_item.getType() == SVDBItemType.ModportDecl) {
-			
+		} else if (leaf_item.getType() == SVDBItemType.ModportItem) {
+			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+			SVDBModportItem mpi = (SVDBModportItem)leaf_item;
+			for (SVDBModportPortsDecl pd : mpi.getPortsList()) {
+				if (pd.getType() == SVDBItemType.ModportSimplePortsDecl) {
+					SVDBModportSimplePortsDecl simple_pd = (SVDBModportSimplePortsDecl)pd;
+					for (SVDBModportSimplePort p : simple_pd.getPortList()) {
+						if (matcher.match(p, ctxt.fLeaf)) {
+							addProposal(p, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						}
+					}
+				} else {
+					fLog.debug(LEVEL_MIN, "Unhandled mod-port type " + pd.getType());
+				}
+			}
 		}
 	}
 	

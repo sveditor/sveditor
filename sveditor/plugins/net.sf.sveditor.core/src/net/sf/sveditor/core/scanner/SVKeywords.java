@@ -301,6 +301,7 @@ public class SVKeywords {
 		"$monitoro",
 		"$monitoroff",
 		"$monitoron",
+		"$psprintf",
 		"$readmemb",
 		"$readmemh",
 		"$rewind",
