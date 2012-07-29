@@ -477,7 +477,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 		
 		for (int i=0; i<md.getParameters().size(); i++) {
-			String param = md.getParameters().get(i);
+			String param = md.getParameters().get(i).getName();
 			
 			d.append(param);
 			r.append("${");

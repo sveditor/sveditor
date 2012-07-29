@@ -227,6 +227,8 @@ public class SVExprScanner {
 						
 					if (tmp.equals("import")) {
 						ret.fType = ContextType.Import;
+					} else if (tmp.equals("extends")) {
+						ret.fType = ContextType.Extends;
 					}
 				}
 			}

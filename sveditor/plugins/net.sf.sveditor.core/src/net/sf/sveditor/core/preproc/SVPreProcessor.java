@@ -195,12 +195,12 @@ public class SVPreProcessor extends AbstractTextScanner {
 			// Skip entire line 
 			readLine(get_ch());
 		} else if (type.equals("define")) {
-			String def_id = null;
+//			String def_id = null;
 
 			// TODO: line numbers
 			ch = skipWhite(get_ch());
 			
-			def_id = readIdentifier(ch);
+			/*def_id = */readIdentifier(ch);
 			
 			fParamList.clear();
 			

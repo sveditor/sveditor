@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -28,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -702,10 +704,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
-	public void preproc_define(String key, List<String> params, String value) {
-		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
+	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
+		SVDBMacroDef def = new SVDBMacroDef(key, value);
 
 		setLocation(def);
+		
+		for (Tuple<String, String> p : params) {
+			SVDBMacroDefParam mp = new SVDBMacroDefParam(p.first(), p.second());
+			def.addParameter(mp);
+		}
 
 		if (def.getName() == null || def.getName().equals("")) {
 			// TODO: find filename

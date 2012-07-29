@@ -71,7 +71,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		if (fMacroCache.containsKey(key)) {
 			fMacroCache.get(key).setDef(value);
 		} else {
-			SVDBMacroDef def = new SVDBMacroDef(key, new ArrayList<String>(), value);
+			SVDBMacroDef def = new SVDBMacroDef(key, value);
 			fMacroCache.put(key, def);
 		}
 	}

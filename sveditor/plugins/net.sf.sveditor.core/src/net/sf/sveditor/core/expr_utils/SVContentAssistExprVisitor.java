@@ -68,7 +68,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
 	private SVDBFindParameterizedClass	fFindParameterizedClass;
-//	private boolean						fStaticAccess;
+	private boolean					fStaticAccess;
 	
 	private class SVAbortException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
@@ -231,8 +231,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	protected void field_access_expr(SVDBFieldAccessExpr expr) {
 		fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
 		visit(expr.getExpr());
-// 		fStaticAccess = expr.isStaticRef();
+ 		fStaticAccess = expr.isStaticRef();
 		visit(expr.getLeaf());
+		fStaticAccess = false;
 	}
 	
 	private ISVDBItemBase findInScopeHierarchy(String name) {
@@ -269,7 +270,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		SVDBFindByNameInClassHierarchy finder_h = 
 			new SVDBFindByNameInClassHierarchy(fIndexIt, fNameMatcher);
 		
-		List<ISVDBItemBase> items = finder_h.find(root, name);
+		List<ISVDBItemBase> items = finder_h.find(root, name, 
+				fStaticAccess, !fStaticAccess);
 
 		// Filter out the forward typedefs
 		filterFwdDecls(items);

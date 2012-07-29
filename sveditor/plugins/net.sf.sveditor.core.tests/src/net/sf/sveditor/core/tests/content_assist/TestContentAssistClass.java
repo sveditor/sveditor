@@ -295,6 +295,60 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testContentAssistSuperClass_1() {
+		String testname = "testContentAssistSuperClass_1";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc1 =
+			"module foo;\n" +
+			"endmodule\n" +
+			"\n" +
+			"function void bar;\n" +
+			"endfunction\n" +
+			"\n" +
+			"class base;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	int		BBBB;\n" +
+			"	int		BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_2 extends super_1;\n" +
+			"	int		CCCC;\n" +
+			"	int		CCDD;\n" +
+			"endclass\n" +
+			"\n" +
+			"class my_class extends <<MARK>>\n" +
+			"\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(new String[] {
+				"base", "super_1", "super_2"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testContentAssistBaseClass() {
 		String testname = "v";
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -734,6 +788,57 @@ public class TestContentAssistClass extends TestCase {
 				new String[] {"AAAA"}, proposals);
 		LogFactory.removeLogHandle(log);
 	}
+	
+	// Ensure that the expression-traversal code correctly
+	// excludes non-static fields when referenced in a static way
+	public void testStaticTypeAssist_5() {
+		String testname = "testStaticTypeAssist_5";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 =
+			"class base;\n" +
+			"	static int		AAAA;\n" +
+			"	int				AABB;\n" +
+			"	function new(int p1, int p2, int p3, int p4);\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	base			m_base;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::m_base::AA<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(
+				new String[] {}, proposals);
+		LogFactory.removeLogHandle(log);
+	}	
 }
 
 

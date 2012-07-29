@@ -14,6 +14,8 @@ package net.sf.sveditor.core.scanner;
 
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
+
 public interface ISVPreProcScannerObserver {
 	
 	void init(ISVScanner scanner);
@@ -22,7 +24,10 @@ public interface ISVPreProcScannerObserver {
 	
 	void leave_file();
 
-	void preproc_define(String key, List<String> params, String value);
+	void preproc_define(
+			String 							key, 
+			List<Tuple<String,String>> 		params, 
+			String 							value);
 	
 	void preproc_include(String path);
 	

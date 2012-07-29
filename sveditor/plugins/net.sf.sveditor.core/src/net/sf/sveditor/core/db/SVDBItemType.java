@@ -36,6 +36,7 @@ public enum SVDBItemType {
 	ModportTFPortsDecl,
 	ModportTFPort,
 	MacroDef,
+	MacroDefParam,
 	PreProcCond,
 	Include,
 	PackageDecl,
