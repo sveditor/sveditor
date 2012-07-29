@@ -1,3 +1,15 @@
+
+-- 0.9.6 Release --
+
+- #(enh) - Enhance content assist to only show static/non-static fields based
+  on preceeding expression (ie <expr>.<<CA_TRIGGER>> only shows non-static fields)
+  
+- #(enh) - Enhance class-extension content assist to only return class proposals
+
+- #(3545640) - Add support for macros with default-value parameters
+
+
+------------------------------------------------------------------------------
 -- 0.9.5 Release --
 
 - #(nobug) - Correct a bug in the package cache that caused only declarations

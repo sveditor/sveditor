@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
+import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -166,19 +167,46 @@ public class TestPreProc extends TestCase {
 	}
 	
 	public void testMacroArgDefaultValue() {
+		CoreReleaseTests.clearErrors();
 		String doc = 
 				"`define MSG(a, b = \"SUFFIX\") $display(a, b);\n" +
 				"`MSG(\"FOO\") //Both these result in: unexpected token in primary: \"=\" \n" +
 				"`MSG(\"FOO\", \"BAR\")\n"
 				;
 			String expected = 
-				"$display(\"FOO\", \"SUFFIX\");\n" +
-				"$display(\"FOO\", \"BAR\");\n"
+				"$display(\"FOO\", \"SUFFIX\");" +
+				"    $display(\"FOO\", \"BAR\");\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(false);
+			SVCorePlugin.getDefault().enableDebug(true);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testFileLine() {
+		CoreReleaseTests.clearErrors();
+		String doc = 
+				"uvm_report_warning(\"FOO\", stg,,`__FILE__,`__LINE__);\n" +
+				"\n"
+				;
+			String expected = 
+				"uvm_report_warning(\"FOO\", stg,,\"testFileLine\",1);\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(true);
+			LogHandle log = LogFactory.getLogHandle("testFileLine");
+			String result = SVDBTestUtils.preprocess(doc, "testFileLine");
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
 			
 			log.debug("Result:\n" + result.trim());
 			log.debug("====");
@@ -188,6 +216,32 @@ public class TestPreProc extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 	
+	public void testUndefExcluded() {
+		CoreReleaseTests.clearErrors();
+		String doc = 
+				"`ifdef UNDEFINED\n" +
+				"	content_1\n" +
+				"`else\n" +
+				"	content_2\n" +
+				"`endif\n"
+				;
+			String expected = 
+				"content_2\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(true);
+			LogHandle log = LogFactory.getLogHandle("testUndefExcluded");
+			String result = SVDBTestUtils.preprocess(doc, "testUndefExcluded");
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);		
+	}
 
 	public void disabled_testPreProcVMM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

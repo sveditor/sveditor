@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
@@ -56,7 +57,7 @@ public class SVPreProcScanner implements ISVScanner {
 	private StringBuffer		fCommentBuffer;
 	private boolean				fInComment;
 	private Stack<Integer>		fPreProcEn;
-	private List<String>		fParamList;
+	private List<Tuple<String, String>>		fParamList;
 	private ISVPreProcScannerObserver	fObserver;
 	private ISVScanner			fScanner;
 	private IDefineProvider		fDefineProvider;
@@ -96,7 +97,7 @@ public class SVPreProcScanner implements ISVScanner {
 		fUnaccBuffer = new StringBuffer();
 		fCommentBuffer = new StringBuffer();
 		fPreProcEn = new Stack<Integer>();
-		fParamList = new ArrayList<String>();
+		fParamList = new ArrayList<Tuple<String,String>>();
 		fScanLocation = new ScanLocation("", 0, 0);
 		fDocCommentParser = new DocCommentParser();
 		fExpandMacros     = false;
@@ -495,7 +496,7 @@ public class SVPreProcScanner implements ISVScanner {
 						break;
 					} else {
 						String p = readIdentifier_ll(ch);
-						fParamList.add(p);
+						fParamList.add(new Tuple<String, String>(p, null));
 					}
 					
 					ch = skipWhite_ll(get_ch_ll());

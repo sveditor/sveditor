@@ -57,6 +57,7 @@ import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
+import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -144,7 +145,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		 */
 
 		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
-		fLog.debug(LEVEL_MID, "ctxt: trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+		fLog.debug(LEVEL_MID, "ctxt: type=" + ctxt.fType + 
+				" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
 
 		if (ctxt.fTrigger != null) {
@@ -749,6 +751,15 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						add = false;
 					}
 				}
+			
+				// Filter out non-class proposals when we're dealing with
+				// content-assist for a base class
+				if (ctxt.fType == ContextType.Extends) {
+					fLog.debug("Extends: " + result.get(i).getType());
+					if (result.get(i).getType() != SVDBItemType.ClassDecl) {
+						add = false;
+					}
+				}
 				
 				if (add) {
 					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
@@ -769,78 +780,75 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
 			}
 			
-			for (ISVDBItemBase it : cl_l){
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			for (ISVDBItemBase it : cl_l) {
+				if (ctxt.fType == ContextType.Extends) {
+					if (it.getType() == SVDBItemType.ClassDecl) {
+						addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+				} else {
+					addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
 			}
 		} else {
 			fLog.debug("Global class find for \"" + ctxt.fLeaf + 
 			"\" returned no results");
 		}
 
-		// Try global task/function
-		SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
+		// Try global task/function 
+		if (ctxt.fType != ContextType.Extends) {
+			SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
 
-		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
-				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
-				SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
-		/*
+			List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
+					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
+					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
+			/*
 		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
-		 */
-		
-		// Remove any definitions of extern tasks/functions, 
-		// since the name prefix was incorrectly matched
-		for (int i=0; i<it_l.size(); i++) {
-			if (it_l.get(i).getType() == SVDBItemType.Function || 
-					it_l.get(i).getType() == SVDBItemType.Task) {
-				SVDBTask tf = (SVDBTask)it_l.get(i);
-				if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
-						tf.getName().contains("::")) {
-					it_l.remove(i);
-					i--;
-				}
-				
-				// Do not include tasks/functions unless they are completely
-				// global or members of a package
-				ISVDBItemBase scope_t = tf;
-				while (scope_t != null && 
-						scope_t.getType() != SVDBItemType.ClassDecl &&
-						scope_t.getType() != SVDBItemType.ModuleDecl) {
-					scope_t = ((ISVDBChildItem)scope_t).getParent();
-				}
+			 */
 
-				if (scope_t != null && 
-						(scope_t.getType() == SVDBItemType.ClassDecl ||
-						scope_t.getType() == SVDBItemType.ModuleDecl)) {
-					it_l.remove(i);
-					i--;
+			// Remove any definitions of extern tasks/functions, 
+			// since the name prefix was incorrectly matched
+			for (int i=0; i<it_l.size(); i++) {
+				if (it_l.get(i).getType() == SVDBItemType.Function || 
+						it_l.get(i).getType() == SVDBItemType.Task) {
+					SVDBTask tf = (SVDBTask)it_l.get(i);
+					if ((tf.getAttr() & IFieldItemAttr.FieldAttr_Extern) == 0 &&
+							tf.getName().contains("::")) {
+						it_l.remove(i);
+						i--;
+					}
+
+					// Do not include tasks/functions unless they are completely
+					// global or members of a package
+					ISVDBItemBase scope_t = tf;
+					while (scope_t != null && 
+							scope_t.getType() != SVDBItemType.ClassDecl &&
+							scope_t.getType() != SVDBItemType.ModuleDecl) {
+						scope_t = ((ISVDBChildItem)scope_t).getParent();
+					}
+
+					if (scope_t != null && 
+							(scope_t.getType() == SVDBItemType.ClassDecl ||
+							scope_t.getType() == SVDBItemType.ModuleDecl)) {
+						it_l.remove(i);
+						i--;
+					}
 				}
-			}
-		}
-		
-		if (it_l != null && it_l.size() > 0) {
-			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + "\" returned:");
-			for (ISVDBItemBase it : it_l) {
-				fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
 			}
 
-			for (ISVDBItemBase it : it_l) {
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+			if (it_l != null && it_l.size() > 0) {
+				fLog.debug("Global find-by-name \"" + ctxt.fLeaf + "\" returned:");
+				for (ISVDBItemBase it : it_l) {
+					fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
+				}
+
+				for (ISVDBItemBase it : it_l) {
+					addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				}
+			} else {
+				fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
+						"\" (2) returned no results");
 			}
-		} else {
-			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
-			"\" (2) returned no results");
 		}
-		
-		// Special case: If this is a constructor call, then do a 
-		// context lookup on the LHS
-		/*
-		if (root != null && ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
-				ctxt.fLeaf != null && "new".startsWith(ctxt.fLeaf)) {
-			fLog.debug("Looking for new in root=" + root);
-			findctxt.fTriggeredItems(root, "=", "new", src_scope, 
-					getIndexIterator(), max_matches, false, ret);
-		}
-		 */
 	}
 	
 	private boolean isSameScopeVarDecl(

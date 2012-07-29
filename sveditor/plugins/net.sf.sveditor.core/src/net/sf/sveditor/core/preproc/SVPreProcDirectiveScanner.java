@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
@@ -32,26 +33,26 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class SVPreProcDirectiveScanner extends AbstractTextScanner 
 	implements ISVScanner {
 	
-	private InputStream					fInput;
-	private String						fFileName;
+	private InputStream						fInput;
+	private String							fFileName;
 	
-	private int						fUngetCh = -1;
-	private int						fLastCh  = -1;
-	private int						fLineno;
-	private StringBuffer				fTmpBuffer;
-	private StringBuilder				fCommentBuffer;
+	private int							fUngetCh = -1;
+	private int							fLastCh  = -1;
+	private int							fLineno;
+	private StringBuffer					fTmpBuffer;
+	private StringBuilder					fCommentBuffer;
 	private boolean						fInComment;
-	private List<String>				fParamList;
-	private ISVPreProcScannerObserver	fObserver;
-	private ISVScanner					fScanner;
-	private IDefineProvider				fDefineProvider;
-	private ScanLocation				fScanLocation;
-	private IDocCommentParser   		fDocCommentParser;
-	private byte						fInBuffer[];
-	private int						fInBufferIdx;
-	private int						fInBufferMax;
-	public static final Set<String>	fIgnoredDirectives;
-	private static LogHandle			fLog = LogFactory.getLogHandle("SVPreProcDirectiveScanner");
+	private List<Tuple<String, String>>		fParamList;
+	private ISVPreProcScannerObserver		fObserver;
+	private ISVScanner						fScanner;
+	private IDefineProvider					fDefineProvider;
+	private ScanLocation					fScanLocation;
+	private IDocCommentParser   			fDocCommentParser;
+	private byte							fInBuffer[];
+	private int							fInBufferIdx;
+	private int							fInBufferMax;
+	public static final Set<String>		fIgnoredDirectives;
+	private static LogHandle				fLog = LogFactory.getLogHandle("SVPreProcDirectiveScanner");
 	
 	static {
 		fIgnoredDirectives = new HashSet<String>();
@@ -77,7 +78,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	
 	public SVPreProcDirectiveScanner() {
 		fTmpBuffer = new StringBuffer();
-		fParamList = new ArrayList<String>();
+		fParamList = new ArrayList<Tuple<String,String>>();
 		fScanLocation = new ScanLocation("", 0, 0);
 		fCommentBuffer = new StringBuilder();
 		fDocCommentParser = new DocCommentParser();
@@ -381,7 +382,28 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 						break;
 					} else {
 						String p = readIdentifier(ch);
-						fParamList.add(p);
+						String dflt = null;
+						
+						ch = skipWhite(get_ch());
+						
+						if (ch == '=') {
+							// Read default value
+							ch = skipWhite(get_ch());
+							if (ch == '"') {
+								// String
+								dflt = readString(ch);
+								dflt = "\"" + dflt + "\"";
+							} else {
+								// Read up to comma (?)
+								startCapture(ch);
+								while ((ch = get_ch()) != -1 && ch != ',') { }
+								unget_ch(ch);
+								dflt = endCapture();
+							}
+						} else {
+							unget_ch(ch);
+						}
+						fParamList.add(new Tuple<String, String>(p, dflt));
 					}
 					
 					ch = skipWhite(get_ch());
