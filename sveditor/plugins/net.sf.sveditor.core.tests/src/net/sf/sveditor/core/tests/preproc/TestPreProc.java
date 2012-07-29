@@ -191,7 +191,57 @@ public class TestPreProc extends TestCase {
 			assertEquals(expected.trim(), result.trim());
 			LogFactory.removeLogHandle(log);
 	}
+
+	public void testFileLine() {
+		CoreReleaseTests.clearErrors();
+		String doc = 
+				"uvm_report_warning(\"FOO\", stg,,`__FILE__,`__LINE__);\n" +
+				"\n"
+				;
+			String expected = 
+				"uvm_report_warning(\"FOO\", stg,,\"testFileLine\",1);\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(true);
+			LogHandle log = LogFactory.getLogHandle("testFileLine");
+			String result = SVDBTestUtils.preprocess(doc, "testFileLine");
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
 	
+	public void testUndefExcluded() {
+		CoreReleaseTests.clearErrors();
+		String doc = 
+				"`ifdef UNDEFINED\n" +
+				"	content_1\n" +
+				"`else\n" +
+				"	content_2\n" +
+				"`endif\n"
+				;
+			String expected = 
+				"content_2\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(true);
+			LogHandle log = LogFactory.getLogHandle("testUndefExcluded");
+			String result = SVDBTestUtils.preprocess(doc, "testUndefExcluded");
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);		
+	}
 
 	public void disabled_testPreProcVMM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

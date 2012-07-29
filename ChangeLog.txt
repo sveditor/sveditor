@@ -8,9 +8,6 @@
 
 - #(3545640) - Add support for macros with default-value parameters
 
-? #(nobug) - Support specification of default TF arguments by omitting them in
-  the parameter list
-  
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --
