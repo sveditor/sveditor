@@ -164,6 +164,30 @@ public class TestPreProc extends TestCase {
 			assertEquals(expected.trim(), result.trim());
 			LogFactory.removeLogHandle(log);
 	}
+	
+	public void testMacroArgDefaultValue() {
+		String doc = 
+				"`define MSG(a, b = \"SUFFIX\") $display(a, b);\n" +
+				"`MSG(\"FOO\") //Both these result in: unexpected token in primary: \"=\" \n" +
+				"`MSG(\"FOO\", \"BAR\")\n"
+				;
+			String expected = 
+				"$display(\"FOO\", \"SUFFIX\");\n" +
+				"$display(\"FOO\", \"BAR\");\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(false);
+			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
+			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+	
 
 	public void disabled_testPreProcVMM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
