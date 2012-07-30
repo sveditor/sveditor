@@ -8,6 +8,9 @@
 
 - #(3545640) - Add support for macros with default-value parameters
 
+- #(nobug) - Correct name-matching issue with content assist for ports in the
+  current module/interface
+
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --
