@@ -163,14 +163,14 @@
              basedir="${repository}"
              includes="*.xml, features/**, plugins/**"/>
 
-	<copy todir="${buildDirectory}" overwrite="true">
+	<copy todir="${basedir}/../archive_tmp" overwrite="true">
 		<fileset dir="${basedir}/../etc" includes="mappings.xml"/>
 		<filterset begintoken="1" endtoken="3">
 			<filter token=".2." value="${feature.version}"/>
 		</filterset>
 	</copy>
 
-        <xmltask source="${buildDirectory}/mappings.xml">
+        <xmltask source="${basedir}/../archive_tmp/mappings.xml">
             <copy path="/repository/mappings" 
                   buffer="artifacts_mappings"/>
         </xmltask>
@@ -179,7 +179,7 @@
                  dest="${repository}/artifacts_1.xml">
             <remove path="/repository/mappings"/>
             <insert path="/repository/properties" position="after"
-                file="${basedir}/../etc/mappings.xml"/>
+                file="${basedir}/../archive_tmp/mappings.xml"/>
         </xmltask>
 
         <move file="${repository}/artifacts_1.xml"
