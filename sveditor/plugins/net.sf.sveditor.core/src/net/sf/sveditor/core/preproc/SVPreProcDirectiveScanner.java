@@ -394,9 +394,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 								dflt = readString(ch);
 								dflt = "\"" + dflt + "\"";
 							} else {
-								// Read up to comma (?)
+								// Read up to comma or close bracket
 								startCapture(ch);
-								while ((ch = get_ch()) != -1 && ch != ',') { }
+								while ((ch = get_ch()) != -1 && ch != ',' && ch != ')') { }
 								unget_ch(ch);
 								dflt = endCapture();
 							}
@@ -548,11 +548,19 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 			fLastCh = ch;
 		}
 
+		if (ch != -1 && fCaptureEnabled) {
+			fCaptureBuffer.append((char)ch);
+		}
+
 		return ch;
 	}
 
 	public void unget_ch(int ch) {
 		fUngetCh = ch;
+
+		if (ch != -1 && fCaptureEnabled && fCaptureBuffer.length() > 0) {
+			fCaptureBuffer.deleteCharAt(fCaptureBuffer.length()-1);
+		}
 	}
 
 	// Unused

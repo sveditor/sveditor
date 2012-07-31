@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
@@ -18,7 +19,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 	private StringBuilder				fOutput;
 	private List<Integer>				fLineMap;
 	private StringBuilder				fTmpBuffer;
-	private List<String>				fParamList;
+	private List<Tuple<String, String>>	fParamList;
 	private Stack<Integer>				fPreProcEn;
 	private int						fLineno = 1;
 	private int						fLastCh;
@@ -46,7 +47,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 		fTmpBuffer = new StringBuilder();
 		fInput = input;
 		fDefineProvider = define_provider;
-		fParamList = new ArrayList<String>();
+		fParamList = new ArrayList<Tuple<String,String>>();
 		fFileName = filename;
 		fPreProcEn = new Stack<Integer>();
 		fLineMap = new ArrayList<Integer>();
@@ -216,7 +217,28 @@ public class SVPreProcessor extends AbstractTextScanner {
 						break;
 					} else {
 						String p = readIdentifier(ch);
-						fParamList.add(p);
+						String dflt = null;
+
+						ch = skipWhite(get_ch());
+
+						if (ch == '=') {
+							// Read default value
+							ch = skipWhite(get_ch());
+							if (ch == '"') {
+								// String
+								dflt = readString(ch);
+								dflt = "\"" + dflt + "\"";
+							} else {
+								// Read up to comma or close bracket
+								startCapture(ch);
+								while ((ch = get_ch()) != -1 && ch != ',' && ch != ')') { }
+								unget_ch(ch);
+								dflt = endCapture();
+							}
+						} else {
+							unget_ch(ch);
+						}
+						fParamList.add(new Tuple<String, String>(p, dflt));
 					}
 					
 					ch = skipWhite(get_ch());
@@ -520,6 +542,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 			fLastCh = ch;
 		}
 		
+		if (ch != -1 && fCaptureEnabled) {
+			fCaptureBuffer.append((char)ch);
+		}
+
 		return ch;
 	}
 	
@@ -529,6 +555,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 		} else {
 			fUngetCh[1] = fUngetCh[0];
 			fUngetCh[0] = ch;
+		}
+
+		if (ch != -1 && fCaptureEnabled && fCaptureBuffer.length() > 0) {
+			fCaptureBuffer.deleteCharAt(fCaptureBuffer.length()-1);
 		}
 	}
 
