@@ -496,7 +496,29 @@ public class SVPreProcScanner implements ISVScanner {
 						break;
 					} else {
 						String p = readIdentifier_ll(ch);
-						fParamList.add(new Tuple<String, String>(p, null));
+						String dflt = null;
+
+						ch = skipWhite_ll(get_ch_ll());
+
+						if (ch == '=') {
+							// Read default value
+							ch = skipWhite_ll(get_ch_ll());
+							if (ch == '"') {
+								// String
+								dflt = readString_ll(ch);
+								dflt = "\"" + dflt + "\"";
+							} else {
+								// Read up to comma or close bracket
+								StringBuilder buf = new StringBuilder();
+								buf.append((char)ch);
+								while ((ch = get_ch_ll()) != -1 && ch != ',' && ch != ')') { buf.append((char)ch); }
+								unget_ch(ch);
+								dflt = buf.toString();
+							}
+						} else {
+							unget_ch(ch);
+						}
+						fParamList.add(new Tuple<String, String>(p, dflt));
 					}
 					
 					ch = skipWhite_ll(get_ch_ll());
