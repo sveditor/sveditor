@@ -35,6 +35,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	
 	private InputStream						fInput;
 	private String							fFileName;
+	private boolean						fInProcess;
 	
 	private int							fUngetCh = -1;
 	private int							fLastCh  = -1;
@@ -145,6 +146,8 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 //		boolean			in_comment_section = false;
 		boolean			foundSingleLineComment = false;
 		
+		fInProcess = true;
+		
 		if (fObserver != null) {
 			fObserver.enter_file(fFileName);
 		}
@@ -227,6 +230,8 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		if (fObserver != null) {
 			fObserver.leave_file();
 		}
+		
+		fInProcess = false;
 	}
 	
 	private void beginComment() {
@@ -525,6 +530,11 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	
 	public int get_ch() {
 		int ch = -1;
+		
+		if (!fInProcess) {
+			throw new RuntimeException(
+					"SVPreProcDirectiveScanner.get_ch() cannot be called externally");
+		}
 		
 		if (fUngetCh != -1) {
 			ch = fUngetCh;

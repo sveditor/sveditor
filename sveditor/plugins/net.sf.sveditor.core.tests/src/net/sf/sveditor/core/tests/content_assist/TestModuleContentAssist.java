@@ -117,7 +117,7 @@ public class TestModuleContentAssist extends TestCase {
 		String doc1 = 
 				"module m1(input AAAA, output BBBB);\n" +
 				"	initial begin\n" +
-				"		int AAAA, AABB, c;\n" +
+				"		int ABAA, AABB, c;\n" +
 				"		c = A<<MARK>>\n" +
 				"	end\n" +
 				"endmodule\n"
@@ -139,9 +139,85 @@ public class TestModuleContentAssist extends TestCase {
 			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
 			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 			
-			validateResults(new String[] {"AAAA", "AABB"}, proposals);
+			validateResults(new String[] {"AAAA", "ABAA", "AABB"}, proposals);
 			LogFactory.removeLogHandle(log);
 	}
+	
+	public void testNestedBlockVariableAssist() {
+		LogHandle log = LogFactory.getLogHandle("testInitialBlockVariableAssist");
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc1 = 
+				"module m1;\n" +
+				"	initial begin\n" +
+				"		int AAAA, AABB, c;\n" +
+				"		begin\n" +
+				"			int ABAB;\n" +
+				"			c = A<<MARK>>\n" +
+				"		end\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB", "ABAB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}
+	
+	public void testNestedIfVariableAssist() {
+		LogHandle log = LogFactory.getLogHandle("testNestedIfVariableAssist");
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 = 
+				"module m1;\n" +							// 1
+				"	initial begin\n" +						// 2
+				"		int AAAA, AABB, c;\n" +				// 3
+				"		if (AAAA == 2) begin\n" +			// 4
+				"			int ABAB;\n" +					// 5
+				"			if (AABB == 3) begin\n" +		// 6
+				"				int AABA;\n" +
+				"				c = A<<MARK>>\n" +
+				"			end\n" +
+				"		end\n" +
+				"		end\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+			
+			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
+			TextTagPosUtils tt_utils = ini.second();
+			ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+			
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+			StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+
+			TestCompletionProcessor cp = new TestCompletionProcessor(
+					"testModulePortAssist", file, fIndex);
+			
+			scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+			cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+			
+			validateResults(new String[] {"AAAA", "AABB", "ABAB"}, proposals);
+			LogFactory.removeLogHandle(log);
+	}	
 
 	public void testInitialBlockVarFieldAssist() {
 		LogHandle log = LogFactory.getLogHandle("testInitialBlockVariableAssist");
@@ -222,7 +298,7 @@ public class TestModuleContentAssist extends TestCase {
 
 	public void testModuleHierarchyAssist_2() {
 		LogHandle log = LogFactory.getLogHandle("testModuleHierarchyAssist_2");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"module sub;\n" +
@@ -261,7 +337,7 @@ public class TestModuleContentAssist extends TestCase {
 
 	public void testModuleHierarchyAssist_3() {
 		LogHandle log = LogFactory.getLogHandle("testModuleHierarchyAssist_3");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"module sub;\n" +

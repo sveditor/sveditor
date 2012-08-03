@@ -45,7 +45,6 @@ import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 public class SVDBTestUtils {
 
@@ -222,12 +221,12 @@ public class SVDBTestUtils {
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		if (log != null) {
 			InputStream in = copier.copy();
-			SVPreProcScanner pp = new SVPreProcScanner();
+			
+			/*
+			SVPreProcDirectiveScanner pp = new SVPreProcDirectiveScanner();
 			pp.setDefineProvider(dp);
 
 			pp.init(in, filename);
-			pp.setExpandMacros(true);
-			pp.setEvalConditionals(true);
 
 			StringBuilder sb = new StringBuilder();
 			int ch;
@@ -238,6 +237,7 @@ public class SVDBTestUtils {
 			log.debug(sb.toString());
 		
 			in = copier.copy();
+			 */
 			SVPreProcessor preproc = new SVPreProcessor(in, filename, dp);
 			log.debug("Content (SVPreProc):");
 			log.debug(preproc.preprocess().toString());

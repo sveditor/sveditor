@@ -23,9 +23,9 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplication;
@@ -61,9 +61,7 @@ public class testPreProcessor implements IApplication {
 		
 		mp.setFileContext(scen_gen_ctxt);
 		
-		SVPreProcScanner sc = new SVPreProcScanner();
-		sc.setExpandMacros(true);
-		sc.setDefineProvider(dp);
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		
 		long start = System.currentTimeMillis();
 		log.debug("--> Scanning");

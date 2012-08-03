@@ -169,7 +169,7 @@ public class TestModelFactory extends TestCase {
 		//
 		
 		if(fDebug)
-			SVCorePlugin.getDefault().enableDebug(true) ;
+			SVCorePlugin.getDefault().enableDebug(false) ;
 		
 		DocModelFactory factory = new DocModelFactory() ;
 		DocModel model = factory.build(cfg) ;

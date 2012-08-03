@@ -14,42 +14,27 @@ package net.sf.sveditor.core.tests.parser;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseDataTypes extends TestCase {
-	
+
 	public void testTypedefVirtual() throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle("testTypedefVirtual");
+		String testname = "testTypedefVirtual";
 		String content =
 			"class foobar;\n" +
 			"    typedef virtual my_if #(FOO, BAR, BAZ) my_if_t;\n" +
 			"\n" +
 			"endclass\n";
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
-		parser.init(new StringInputStream(content), "test");
-		SVDBScopeItem scope = new SVDBScopeItem();
-		
-		parser.parsers().classParser().parse(scope, 0);
-		
-		assertTrue(scope.getChildren().iterator().hasNext());
-		SVDBClassDecl cls = (SVDBClassDecl)scope.getChildren().iterator().next();
-		
-		for (ISVDBItemBase it : cls.getChildren()) {
-			log.debug("it " + it.getType() + " " + SVDBItem.getName(it));
-		}
+		ParserTests.runTestStrDoc(testname, content, 
+				new String[] {"foobar", "my_if_t"});
 		LogFactory.removeLogHandle(log);
 	}
-
+	
 	public void testScopedTypeCast() throws SVParseException {
 		String testname = "testScopedTypeCast";
 		LogHandle log = LogFactory.getLogHandle(testname);

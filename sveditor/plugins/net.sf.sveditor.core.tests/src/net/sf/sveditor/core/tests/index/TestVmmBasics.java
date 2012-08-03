@@ -35,7 +35,9 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -251,13 +253,15 @@ public class TestVmmBasics extends TestCase {
 		
 		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		SVPreProcScanner pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		SVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+	
+		SVPreProcOutput pp_out = pp.preprocess();
 		
 		int ch, lineno=1;
 		StringBuilder sb_dbg = new StringBuilder();
 		sb_dbg.append(lineno + ": ");
 		StringBuilder sb = new StringBuilder();
-		while ((ch = pp.get_ch()) != -1) {
+		while ((ch = pp_out.get_ch()) != -1) {
 			sb_dbg.append((char)ch);
 			sb.append((char)ch);
 			if (ch == '\n') {
@@ -266,9 +270,8 @@ public class TestVmmBasics extends TestCase {
 			}
 		}
 		log.debug("Content\n" + sb_dbg.toString());
-		pp.close();
 		
-		SVDBTestUtils.parse(sb.toString(), "preProcessed.simple_sequencer.sv");
+		SVDBTestUtils.parse(log, sb.toString(), "preProcessed.simple_sequencer.sv", false);
 		
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
