@@ -10,6 +10,8 @@
 
 - #(nobug) - Correct name-matching issue with content assist for ports in the
   current module/interface
+  
+- #(3553812) - Add basic support for content assist of parameterized types
 
 
 ------------------------------------------------------------------------------

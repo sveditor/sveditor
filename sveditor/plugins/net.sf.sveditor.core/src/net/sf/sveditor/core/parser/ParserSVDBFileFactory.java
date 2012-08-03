@@ -46,8 +46,6 @@ import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
 import net.sf.sveditor.core.scanner.SVKeywords;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
-import net.sf.sveditor.core.scanner.SVScannerTextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -550,7 +548,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers) {
-		boolean use_incr_preproc = false;
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -568,22 +565,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 
 	
-		if (use_incr_preproc) {
-		SVPreProcScanner pp = new SVPreProcScanner();
-		pp.setDefineProvider(fDefineProvider);
-		pp.setScanner(this);
-		pp.setObserver(this);
-
-		pp.init(in, filename);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(fEvalConditionals);
-
-		fInput = new SVScannerTextScanner(pp);
-		} else {
-			SVPreProcessor preproc = new SVPreProcessor(
-					in, filename, fDefineProvider);
-			fInput = preproc.preprocess();
-		}
+		SVPreProcessor preproc = new SVPreProcessor(
+				in, filename, fDefineProvider);
+		fInput = preproc.preprocess();
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
@@ -623,16 +607,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fDefineProvider.addErrorListener(this);
 		}
 
-		SVPreProcScanner pp = new SVPreProcScanner();
-		pp.setDefineProvider(fDefineProvider);
-		pp.setScanner(this);
-		pp.setObserver(this);
-
-		pp.init(in, name);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(fEvalConditionals);
-
-		fInput = new SVScannerTextScanner(pp);
+		SVPreProcessor preproc = new SVPreProcessor(
+				in, name, fDefineProvider);
+		fInput = preproc.preprocess();
+		
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();

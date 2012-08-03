@@ -31,7 +31,9 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -81,11 +83,11 @@ public class TestPreProc extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 
 		InputStream in = new StringInputStream(content);
-		SVPreProcScanner pp_scanner = new SVPreProcScanner();
+		SVPreProcDirectiveScanner pp_scanner = new SVPreProcDirectiveScanner();
 		pp_scanner.init(in, "content");
 		SVDBPreProcObserver observer = new SVDBPreProcObserver();
 		pp_scanner.setObserver(observer);
-		pp_scanner.scan();
+		pp_scanner.process();
 		
 		// A passing test does not cause an exception
 	}
@@ -178,7 +180,7 @@ public class TestPreProc extends TestCase {
 				"    $display(\"FOO\", \"BAR\");\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			
@@ -192,6 +194,37 @@ public class TestPreProc extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 
+	public void testMacroArgDefaultValue_2() {
+		String testname = "testMacroArgDefaultValue_2";
+		CoreReleaseTests.clearErrors();
+		String doc = 
+				"`define A_PLUS_B(A, B = 2)  A + B\n" +
+				"int a1 = `A_PLUS_B(5, (6 - 2));\n" +
+				"int a2 = `A_PLUS_B((6 - 2), 5);\n" +
+				"int a3 = `A_PLUS_B((6 - 2), (7 - 5));\n" +
+				"int a4 = `A_PLUS_B(5);\n"
+				;
+			String expected = 
+				"int a1 =   5 + (6 - 2);\n" +
+				"int a2 =   (6 - 2) + 5;\n" +
+				"int a3 =   (6 - 2) + (7 - 5);\n" +
+				"int a4 =   5 + 2;\n"
+					;
+				
+			SVCorePlugin.getDefault().enableDebug(false);
+			LogHandle log = LogFactory.getLogHandle(testname);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+	
 	public void testFileLine() {
 		CoreReleaseTests.clearErrors();
 		String doc = 
@@ -202,7 +235,7 @@ public class TestPreProc extends TestCase {
 				"uvm_report_warning(\"FOO\", stg,,\"testFileLine\",1);\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testFileLine");
 			String result = SVDBTestUtils.preprocess(doc, "testFileLine");
 			
@@ -229,7 +262,7 @@ public class TestPreProc extends TestCase {
 				"content_2\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testUndefExcluded");
 			String result = SVDBTestUtils.preprocess(doc, "testUndefExcluded");
 			
@@ -444,17 +477,18 @@ public class TestPreProc extends TestCase {
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
-		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
-		assertNotNull(scanner);
+		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();
 		int ch;
+	
+		SVPreProcOutput pp_out = pp.preprocess();
 		
-		while ((ch = scanner.get_ch()) != -1) {
+		while ((ch = pp_out.get_ch()) != -1) {
 			sb.append((char)ch);
 		}
 		log.debug(sb.toString());
-		scanner.close();
 		
 		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);
@@ -537,13 +571,14 @@ public class TestPreProc extends TestCase {
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "uvm_fields.svh");
-		SVPreProcScanner scanner = index.createPreProcScanner(target.getAbsolutePath());
-		assertNotNull(scanner);
+		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();
 		int ch;
-		
-		while ((ch = scanner.get_ch()) != -1) {
+	
+		SVPreProcOutput pp_out = pp.preprocess();
+		while ((ch = pp_out.get_ch()) != -1) {
 			sb.append((char)ch);
 		}
 		int lineno=1;
@@ -562,7 +597,6 @@ public class TestPreProc extends TestCase {
 			line.setLength(0);
 			lineno++;
 		}
-		scanner.close();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = SVDBTestUtils.parse(log, sb.toString(), "uvm_fields.svh", markers);

@@ -122,6 +122,7 @@ public class StringTextScanner extends AbstractTextScanner
 	}
 	
 	public int getOffset() {
+//		return (fIdx + ((fUngetCh != -1)?-1:0));
 		return fIdx;
 	}
 	

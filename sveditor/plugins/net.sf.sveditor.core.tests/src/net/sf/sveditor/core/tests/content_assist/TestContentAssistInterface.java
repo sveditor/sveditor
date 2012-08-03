@@ -127,7 +127,7 @@ public class TestContentAssistInterface extends TestCase {
 	public void testInterfaceModuleFieldAssist() {
 		String testname = "testInterfaceModuleFieldAssist";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1();\n" +
@@ -179,7 +179,7 @@ public class TestContentAssistInterface extends TestCase {
 	public void testInterfaceModulePortAssist() {
 		String testname = "testInterfaceModulePortAssist";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1(input clk, input rst);\n" +
@@ -223,7 +223,7 @@ public class TestContentAssistInterface extends TestCase {
 	public void testInterfaceModportModuleField() {
 		String testname = "testInterfaceModportModuleField";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1();\n" +
@@ -269,7 +269,7 @@ public class TestContentAssistInterface extends TestCase {
 	public void testInterfaceModportModulePort() {
 		String testname = "testInterfaceModportModulePort";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1();\n" +
@@ -316,7 +316,7 @@ public class TestContentAssistInterface extends TestCase {
 	public void testInterfaceModportModulePort_1() {
 		String testname = "testInterfaceModportModulePort";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"interface i1();\n" +

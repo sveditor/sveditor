@@ -61,19 +61,15 @@ public class SVDBFindByNameInScopes {
 			
 			// First, search the local variables
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
+				fLog.debug("Scope " + SVDBItem.getName(context) + " child " + SVDBItem.getName(it));
 				if (it instanceof SVDBVarDeclStmt) {
 					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getChildren()) {
+						fLog.debug("  Variable " + SVDBItem.getName(it_t) + " (match " + name + ")");
 						if (it_t instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it_t, name)) {
-							boolean match = (types.length == 0);
-
-							for (SVDBItemType t : types) {
-								if (it_t.getType() == t) {
-									match = true;
-									break;
-								}
-							}
+							boolean match = (types.length == 0 || it_t.getType().isElemOf(types));
 							
 							if (match) {
+								fLog.debug("    Matches Variable " + SVDBItem.getName(it_t));
 								ret.add(it_t);
 								
 								if (stop_on_first_match) {

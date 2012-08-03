@@ -553,17 +553,28 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				scanner.replace(scanner.getOffset()-2, scanner.getOffset(), "");
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				int p_start = scanner.getOffset()-1;
-				
+				int p_end;
+
 				String key = scanner.readPreProcIdentifier(ch);
+		
+				debug("offset=" + scanner.getOffset() + " limit=" + scanner.getLimit());
+				if (scanner.getOffset() >= scanner.getLimit() && key.length() == 1) {
+//				if (key.length() == 1) {
+					debug("should extend to limit");
+					p_end = scanner.getOffset();
+//					p_end = scanner.getOffset()-1;
+				} else {
+					p_end = scanner.getOffset()-1;
+				}
 
 				int index = param_names.indexOf(key);
 				if (index != -1 && index < param_vals.size()) {
 					if (fDebugEn) {
 						debug("Replacing parameter \"" + key + "\" with \"" +
 								param_vals.get(index) + "\"");
+						debug("start_p=" + p_start + " end_p=" + p_end + " offset-1=" + (scanner.getOffset()-1));
 					}
-					scanner.replace(p_start, scanner.getOffset()-1, 
-							param_vals.get(index));
+					scanner.replace(p_start, p_end, param_vals.get(index));
 				}
 			}
 			
