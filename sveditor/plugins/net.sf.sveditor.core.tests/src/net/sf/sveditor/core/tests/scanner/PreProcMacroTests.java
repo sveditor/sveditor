@@ -22,9 +22,9 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 import org.apache.tools.ant.filters.StringInputStream;
 
@@ -32,6 +32,7 @@ public class PreProcMacroTests extends TestCase {
 	
 	public void testMultiTokenGlue() {
 		LogHandle log = LogFactory.getLogHandle("testMultiTokenGlue");
+		SVCorePlugin.getDefault().enableDebug(false);
 		String text = 
 			"`define analysis_closure_imp(data_type, target, func) \\\n" +
 			"typedef class target; \\\n" +
@@ -77,12 +78,12 @@ public class PreProcMacroTests extends TestCase {
 			"endclass";			
 			
 		InputStream in = new StringInputStream(text);
-		SVPreProcScanner 	sc = new SVPreProcScanner();
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		SVDBPreProcObserver ob = new SVDBPreProcObserver();
 
 		sc.init(in, "text");
 		sc.setObserver(ob);
-		sc.scan();
+		sc.process();
 
 		SVDBFile pp_file = ob.getFiles().get(0);
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
@@ -113,12 +114,12 @@ public class PreProcMacroTests extends TestCase {
 			"`define vmm_channel( T ) \\\n" +
 			"class `vmm_channel_( T ) extends vmm_channel;";
 		InputStream in = new StringInputStream(text);
-		SVPreProcScanner 	sc = new SVPreProcScanner();
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		SVDBPreProcObserver ob = new SVDBPreProcObserver();
 
 		sc.init(in, "text");
 		sc.setObserver(ob);
-		sc.scan();
+		sc.process();
 
 		SVDBFile pp_file = ob.getFiles().get(0);
 		SVDBFileTree ft_root = new SVDBFileTree((SVDBFile)pp_file.duplicate());
@@ -157,11 +158,11 @@ public class PreProcMacroTests extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 
 		InputStream in = new StringInputStream(content);
-		SVPreProcScanner pp_scanner = new SVPreProcScanner();
+		SVPreProcDirectiveScanner pp_scanner = new SVPreProcDirectiveScanner();
 		pp_scanner.init(in, "content");
 		SVDBPreProcObserver observer = new SVDBPreProcObserver();
 		pp_scanner.setObserver(observer);
-		pp_scanner.scan();
+		pp_scanner.process();
 		
 		SVDBFileTree ft = new SVDBFileTree(observer.getFiles().get(0));
 		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(null, null);

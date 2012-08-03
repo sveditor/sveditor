@@ -39,6 +39,7 @@ import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -177,7 +178,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			case FieldAccessExpr:
 				field_access_expr((SVDBFieldAccessExpr)expr);
 				break;
-				
+			
+			case ParamIdExpr:
 			case IdentifierExpr:
 				identifier_expr((SVDBIdentifierExpr)expr);
 				break;

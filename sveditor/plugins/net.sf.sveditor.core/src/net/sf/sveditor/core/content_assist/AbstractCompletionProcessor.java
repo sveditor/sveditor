@@ -629,21 +629,27 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			ISVDBChildParent		src_scope,
 			int						lineno,
 			int						linepos) {
+		fLog.debug("--> findPortCompletionProposals:");
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 		// TODO: only provide content assist if we are in a module/interface scope
+		fLog.debug("1");
 		if (src_scope == null || 
 				(src_scope.getType() != SVDBItemType.ModuleDecl &&
 				src_scope.getType() != SVDBItemType.InterfaceDecl)) {
+			fLog.debug("Return due to src_scope not Module or Interface (" + src_scope + ")");
 			return;
 		}
+		fLog.debug("2");
 		// First, need to find module/interface instance in question
 		SVDBModIfcInst inst = findInst(src_scope, lineno, linepos);
 		
+		fLog.debug("3");
 		if (inst == null) {
 			fLog.debug("failed to find target module/interface instantiation");
 			return;
 		}
 		
+		fLog.debug("4");
 		fLog.debug("instance type: " + inst.getTypeName());
 		
 		SVDBModIfcDecl decl;
@@ -666,6 +672,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				}
 			}
 		}
+		fLog.debug("<-- findPortCompletionProposals:");
 	}
 	
 	private SVDBModIfcInst findInst(ISVDBChildParent p, int lineno, int linepos) {
@@ -679,7 +686,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				}
 			} else if (c instanceof ISVDBChildParent) {
 				// We're done if the start of this scope is beyond our current line
-				if (c.getLocation().getLine() > lineno) {
+				if (c.getLocation() != null && c.getLocation().getLine() > lineno) {
 					break;
 				}
 				if ((last_inst = findInst((ISVDBChildParent)c, lineno, linepos)) != null) {
@@ -801,9 +808,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
 					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
 					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
-			/*
-		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
-			 */
 
 			// Remove any definitions of extern tasks/functions, 
 			// since the name prefix was incorrectly matched

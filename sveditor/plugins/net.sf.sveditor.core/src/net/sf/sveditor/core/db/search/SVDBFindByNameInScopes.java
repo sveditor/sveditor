@@ -61,19 +61,15 @@ public class SVDBFindByNameInScopes {
 			
 			// First, search the local variables
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
+				fLog.debug("Scope " + SVDBItem.getName(context) + " child " + SVDBItem.getName(it));
 				if (it instanceof SVDBVarDeclStmt) {
 					for (ISVDBItemBase it_t : ((SVDBVarDeclStmt)it).getChildren()) {
+						fLog.debug("  Variable " + SVDBItem.getName(it_t) + " (match " + name + ")");
 						if (it_t instanceof ISVDBNamedItem && fMatcher.match((ISVDBNamedItem)it_t, name)) {
-							boolean match = (types.length == 0);
-
-							for (SVDBItemType t : types) {
-								if (it_t.getType() == t) {
-									match = true;
-									break;
-								}
-							}
+							boolean match = (types.length == 0 || it_t.getType().isElemOf(types));
 							
 							if (match) {
+								fLog.debug("    Matches Variable " + SVDBItem.getName(it_t));
 								ret.add(it_t);
 								
 								if (stop_on_first_match) {
@@ -149,7 +145,7 @@ public class SVDBFindByNameInScopes {
 				for (SVDBParamPortDecl p : ((SVDBTask)context).getParams()) {
 					for (ISVDBChildItem pi : p.getChildren()) {
 						fLog.debug("check param \"" + SVDBItem.getName(pi) + "\"");
-						if (SVDBItem.getName(pi).equals(name)) {
+						if (fMatcher.match((ISVDBNamedItem)pi, name)) {
 							ret.add(pi);
 						
 							if (stop_on_first_match) {
@@ -169,6 +165,7 @@ public class SVDBFindByNameInScopes {
 			
 			// Next, if we check the class parameters if we're in a class scope,
 			// or the module ports/parameters if we're in an interface/module scope
+			fLog.debug("context type: " + context.getType());
 			if (context.getType() == SVDBItemType.ClassDecl) {
 //				SVDBClassDecl cls = (SVDBClassDecl)context;
 				
@@ -180,7 +177,8 @@ public class SVDBFindByNameInScopes {
 				for (SVDBParamPortDecl p : p_list) {
 					for (ISVDBChildItem c : p.getChildren()) {
 						SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
-						if (pi.getName().equals(name)) {
+						fLog.debug("  Check port " + pi.getName() + " == " + name);
+						if (fMatcher.match((ISVDBNamedItem)pi, name)) {
 							ret.add(pi);
 							if (ret.size() > 0 && stop_on_first_match) {
 								break;
