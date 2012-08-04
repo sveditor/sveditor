@@ -3,11 +3,13 @@ package net.sf.sveditor.core.preproc;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.scanner.IDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -18,7 +20,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 	private StringBuilder				fOutput;
 	private List<Integer>				fLineMap;
 	private StringBuilder				fTmpBuffer;
-	private List<String>				fParamList;
+	private List<Tuple<String, String>>	fParamList;
 	private Stack<Integer>				fPreProcEn;
 	private int						fLineno = 1;
 	private int						fLastCh;
@@ -26,6 +28,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 	private byte						fInBuffer[];
 	private int						fInBufferIdx;
 	private int						fInBufferMax;
+	private boolean					fInPreProcess;
 
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;
@@ -38,6 +41,29 @@ public class SVPreProcessor extends AbstractTextScanner {
 	// has been taken (ie `ifdef (true) ... ; `ifndef (false))
 	private static final int	PP_THIS_LEVEL_EN_BLOCK 	= 4;
 	
+	public static final Set<String>	fIgnoredDirectives;
+
+	static {
+		fIgnoredDirectives = new HashSet<String>();
+		fIgnoredDirectives.add("begin_keywords");
+		fIgnoredDirectives.add("celldefine");
+		fIgnoredDirectives.add("default_nettype");
+		fIgnoredDirectives.add("end_keywords");
+		fIgnoredDirectives.add("endcelldefine");
+		fIgnoredDirectives.add("protect");
+		fIgnoredDirectives.add("endprotect");
+		// Ignored for now
+		fIgnoredDirectives.add("line");
+		fIgnoredDirectives.add("nounconnected_drive");
+		fIgnoredDirectives.add("timescale");
+		// Ignored for now
+		fIgnoredDirectives.add("resetall");
+		fIgnoredDirectives.add("unconnected_drive");
+		// Ignored for now
+		fIgnoredDirectives.add("undef");
+		fIgnoredDirectives.add("undefineall");
+	}
+
 	public SVPreProcessor(
 			InputStream	 	input, 
 			String			filename,
@@ -46,7 +72,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 		fTmpBuffer = new StringBuilder();
 		fInput = input;
 		fDefineProvider = define_provider;
-		fParamList = new ArrayList<String>();
+		fParamList = new ArrayList<Tuple<String,String>>();
 		fFileName = filename;
 		fPreProcEn = new Stack<Integer>();
 		fLineMap = new ArrayList<Integer>();
@@ -60,6 +86,8 @@ public class SVPreProcessor extends AbstractTextScanner {
 		int end_comment[] = {-1, -1};
 		boolean in_string = false;
 		boolean ifdef_enabled = true;
+		
+		fInPreProcess = true;
 		
 		while ((ch = get_ch()) != -1) {
 			if (!in_string) {
@@ -138,6 +166,9 @@ public class SVPreProcessor extends AbstractTextScanner {
 			}
 		}
 		
+		fInPreProcess = false;
+		
+		
 		return new SVPreProcOutput(fOutput, fLineMap);
 	}
 	
@@ -145,6 +176,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 		int ch = -1;
 	
 		String type = readIdentifier(get_ch());
+	
+		if (type == null) {
+			type = "";
+		}
 		
 		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
 		
@@ -187,16 +222,16 @@ public class SVPreProcessor extends AbstractTextScanner {
 			enter_else();
 		} else if (type.equals("endif")) {
 			leave_ifdef();
-		} else if (SVPreProcScanner.fIgnoredDirectives.contains(type)) {
+		} else if (fIgnoredDirectives.contains(type)) {
 			// Skip entire line 
 			readLine(get_ch());
 		} else if (type.equals("define")) {
-			String def_id = null;
+//			String def_id = null;
 
 			// TODO: line numbers
 			ch = skipWhite(get_ch());
 			
-			def_id = readIdentifier(ch);
+			/*def_id = */readIdentifier(ch);
 			
 			fParamList.clear();
 			
@@ -212,7 +247,28 @@ public class SVPreProcessor extends AbstractTextScanner {
 						break;
 					} else {
 						String p = readIdentifier(ch);
-						fParamList.add(p);
+						String dflt = null;
+
+						ch = skipWhite(get_ch());
+
+						if (ch == '=') {
+							// Read default value
+							ch = skipWhite(get_ch());
+							if (ch == '"') {
+								// String
+								dflt = readString(ch);
+								dflt = "\"" + dflt + "\"";
+							} else {
+								// Read up to comma or close bracket
+								startCapture(ch);
+								while ((ch = get_ch()) != -1 && ch != ',' && ch != ')') { }
+								unget_ch(ch);
+								dflt = endCapture();
+							}
+						} else {
+							unget_ch(ch);
+						}
+						fParamList.add(new Tuple<String, String>(p, dflt));
 					}
 					
 					ch = skipWhite(get_ch());
@@ -291,7 +347,8 @@ public class SVPreProcessor extends AbstractTextScanner {
 			enter_ifdef(false);
 		} else if (type.equals("endprotected")) {
 			leave_ifdef();
-		} else {
+		} else if (!type.equals("")) {
+			// Note: type="" occurs when no identifier followed the tick
 			// macro expansion.
 			// TODO: is TmpBuffer available?
 			fTmpBuffer.setLength(0);
@@ -490,6 +547,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 	
 	public int get_ch() {
 		int ch = -1;
+		
+		if (!fInPreProcess) {
+			throw new RuntimeException("Cannot call SVPreProcessor.get_ch() outside preprocess()");
+		}
 		if (fUngetCh[0] != -1) {
 			ch = fUngetCh[0];
 			fUngetCh[0] = fUngetCh[1];
@@ -515,6 +576,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 			fLastCh = ch;
 		}
 		
+		if (ch != -1 && fCaptureEnabled) {
+			fCaptureBuffer.append((char)ch);
+		}
+
 		return ch;
 	}
 	
@@ -524,6 +589,10 @@ public class SVPreProcessor extends AbstractTextScanner {
 		} else {
 			fUngetCh[1] = fUngetCh[0];
 			fUngetCh[0] = ch;
+		}
+
+		if (ch != -1 && fCaptureEnabled && fCaptureBuffer.length() > 0) {
+			fCaptureBuffer.deleteCharAt(fCaptureBuffer.length()-1);
 		}
 	}
 

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
@@ -180,6 +181,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 			String 					type,
 			SVDBIndexConfig			config) {
 		ISVDBIndex ret = null;
+		
+		base_location = SVFileUtils.normalize(base_location);
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		

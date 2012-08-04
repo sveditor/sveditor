@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -54,10 +53,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private long							fNumFilesRead = 0;
 	private boolean						fDebugEn = false;
 
-	private int							fNumWriteBackThreads = 0;
-	private Thread							fWriteBackThread[];
-	private List<WriteBackInfo>				fWriteBackQueue;
-	
 	private int							fMaxCacheSize = 100;
 	
 	private static CacheFileInfo			fCacheHead;
@@ -125,22 +120,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		fLog.addLogLevelListener(this);
 		fPersistenceRdrSet = new ArrayList<IDBReader>(); 
 		fPersistenceWriterSet = new ArrayList<IDBWriter>();
-		fWriteBackQueue = new ArrayList<SVDBFileIndexCache.WriteBackInfo>();
-		
-		fNumWriteBackThreads = SVCorePlugin.getNumIndexCacheThreads();
-		
-		if (fNumWriteBackThreads > 0) {
-			fWriteBackThread = new Thread[fNumWriteBackThreads];
-			for (int i=0; i<fWriteBackThread.length; i++) {
-				fWriteBackThread[i] = new Thread(new Runnable() {
-					public void run() {
-						writeBackWorker();
-					}
-				}, "WriteBackWorker" + i);
-				fWriteBackThread[i].setPriority(Thread.MIN_PRIORITY);
-				fWriteBackThread[i].start();
-			}
-		}
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -527,20 +506,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void sync() {
 		IDBWriter writer = allocWriter();
 		
-		// Wait for the write-back jobs to complete
-		while (true) {
-			synchronized (fWriteBackQueue) {
-				if (fWriteBackQueue.size() == 0) {
-					break;
-				}
-				try {
-					fWriteBackQueue.wait(100);
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-		}
-		
 		try {
 			DataOutput out = fSVDBFS.openDataOutput("index");
 			if (out == null) {
@@ -617,112 +582,28 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		String target_dir = computePathDir(path);
 		String file_path = target_dir + "/preProcFile";
 	
-		if (fNumWriteBackThreads > 0) {
-			WriteBackInfo info = new WriteBackInfo(target_dir, file_path, file);
-			synchronized (fWriteBackQueue) {
-				// First, go through and look for any duplicates
-				for (int i=0; i<fWriteBackQueue.size(); i++) {
-					if (fWriteBackQueue.get(i).fType == WriteBackInfo.SVDB_FILE &&
-							fWriteBackQueue.get(i).fTargetDir.equals(target_dir) &&
-							fWriteBackQueue.get(i).fFilePath.equals(file_path)) {
-						fWriteBackQueue.remove(i);
-						i--;
-					}
-				}
-				fWriteBackQueue.add(info);
-				fWriteBackQueue.notify();
-			}
-		} else {
-			writeBackFileWorker(target_dir, file_path, file);
-		}
+		writeBackFileWorker(target_dir, file_path, file);
 	}
 
 	private void writeBackFile(String path, SVDBFile file) {
 		String target_dir = computePathDir(path);
 		String file_path = target_dir + "/file";
 		
-		if (fNumWriteBackThreads > 0) {
-			WriteBackInfo info = new WriteBackInfo(target_dir, file_path, file);
-			synchronized (fWriteBackQueue) {
-				fWriteBackQueue.add(info);
-				fWriteBackQueue.notify();
-			}
-		} else {
-			writeBackFileWorker(target_dir, file_path, file);
-		}
+		writeBackFileWorker(target_dir, file_path, file);
 	}
 	
 	private void writeBackFileTree(String path, SVDBFileTree file_tree) {
 		String target_dir = computePathDir(path);
 		String file_path = target_dir + "/fileTreeMap";
 
-		if (fNumWriteBackThreads > 0) {
-			WriteBackInfo info = new WriteBackInfo(target_dir, file_path, file_tree);
-			synchronized (fWriteBackQueue) {
-				// First, go through and look for any duplicates
-				for (int i=0; i<fWriteBackQueue.size(); i++) {
-					if (fWriteBackQueue.get(i).fType == WriteBackInfo.SVDB_FILE_TREE &&
-							fWriteBackQueue.get(i).fTargetDir.equals(target_dir) &&
-							fWriteBackQueue.get(i).fFilePath.equals(file_path)) {
-						fWriteBackQueue.remove(i);
-						i--;
-					}
-				}
-				fWriteBackQueue.add(info);
-				fWriteBackQueue.notify();
-			}
-		} else {
-			writeBackFileTreeWorker(target_dir, file_path, file_tree);
-		}
+		writeBackFileTreeWorker(target_dir, file_path, file_tree);
 	}
 	
 	private void writeBackMarkerList(String path, List<SVDBMarker> markers) {
 		String target_dir = computePathDir(path);
 		String file_path  = target_dir + "/markers";
 
-		if (fNumWriteBackThreads > 0) {
-			WriteBackInfo info = new WriteBackInfo(target_dir, file_path, markers);
-			synchronized (fWriteBackQueue) {
-				fWriteBackQueue.add(info);
-				fWriteBackQueue.notify();
-			}
-		} else {
-			writeBackMarkerListWorker(target_dir, file_path, markers);
-		}
-	}
-
-	private void writeBackWorker() {
-		while (true) {
-			WriteBackInfo info = null;
-			
-			synchronized (fWriteBackQueue) {
-				while (fWriteBackQueue.size() == 0) {
-					try {
-						fWriteBackQueue.wait();
-					} catch (InterruptedException e) {}
-				}
-				if (fWriteBackQueue.size() > 0) {
-					info = fWriteBackQueue.remove(fWriteBackQueue.size()-1);
-				}
-			}
-			
-			if (info != null) {
-				switch (info.fType) {
-					case WriteBackInfo.SVDB_FILE:
-//						System.out.println("WriteBack " + info.fFile.getFilePath());
-						writeBackFileWorker(info.fTargetDir, info.fFilePath, info.fFile);
-						break;
-					case WriteBackInfo.SVDB_FILE_TREE:
-//						System.out.println("WriteBack " + info.fFileTree.getFilePath());
-						writeBackFileTreeWorker(info.fTargetDir, info.fFilePath, info.fFileTree);
-						break;
-					case WriteBackInfo.MARKERS:
-//						System.out.println("WriteBack markers");
-						writeBackMarkerListWorker(info.fTargetDir, info.fFilePath, info.fMarkers);
-						break;
-				}
-			}
-		}
+		writeBackMarkerListWorker(target_dir, file_path, markers);
 	}
 
 	private void writeBackFileWorker(String target_dir, String file_path, SVDBFile file) {

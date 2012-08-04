@@ -16,8 +16,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.StringInputStream;
 
@@ -116,6 +119,19 @@ public class TextTagPosUtils {
 			
 			
 		} while (ch != -1);
+
+		/*
+		fStrippedData.size();
+		List<String> keys = new ArrayList<String>();
+		keys.addAll(fPosMap.keySet());
+		for (String key : keys) {
+			int pos = fPosMap.get(key);
+			if (pos >= fStrippedData.size()) {
+				fPosMap.remove(key);
+				fPosMap.put(key, fStrippedData.size()-1);
+			}
+		}
+		 */
 	}
 	
 	private int get_ch() {

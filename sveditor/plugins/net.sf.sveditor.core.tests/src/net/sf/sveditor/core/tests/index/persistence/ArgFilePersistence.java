@@ -40,7 +40,9 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -197,19 +199,21 @@ public class ArgFilePersistence extends TestCase
 
 		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
 		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
-		SVPreProcScanner scanner = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
+		SVPreProcessor pp = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
 		log.debug("--> Parse 1");
 		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null);
 		log.debug("<-- Parse 1");
+		
+		SVPreProcOutput pp_out = pp.preprocess();
 
 		StringBuilder tmp = new StringBuilder();
 		// Display the 
 		int line=1, ch;
 		tmp.append("" + line + ": ");
-		while ((ch = scanner.get_ch()) != -1) {
+		while ((ch = pp_out.get_ch()) != -1) {
 			tmp.append((char)ch);
 			bos.write((char)ch);
 			if (ch == '\n') {
@@ -218,7 +222,6 @@ public class ArgFilePersistence extends TestCase
 			}
 		}
 		log.debug(tmp.toString());
-		scanner.close();
 		
 		in = new ByteArrayInputStream(bos.toByteArray());
 		log.debug("--> parse()");
@@ -268,19 +271,21 @@ public class ArgFilePersistence extends TestCase
 		
 		String path = "${workspace_loc}/ovm_warning_unbalanced_paren/ovm_warning_unbalanced_paren.svh";
 		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
-		SVPreProcScanner scanner = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
+		SVPreProcessor pp = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
 		log.debug("--> Parse 1");
 		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null);
 		log.debug("<-- Parse 1");
+		
+		SVPreProcOutput pp_out = pp.preprocess();
 
 		StringBuilder tmp = new StringBuilder();
 		// Display the 
 		int line=1, ch;
 		tmp.append("" + line + ": ");
-		while ((ch = scanner.get_ch()) != -1) {
+		while ((ch = pp_out.get_ch()) != -1) {
 			tmp.append((char)ch);
 			bos.write((char)ch);
 			if (ch == '\n') {
@@ -289,7 +294,6 @@ public class ArgFilePersistence extends TestCase
 			}
 		}
 		log.debug(tmp.toString());
-		scanner.close();
 		
 		in = new ByteArrayInputStream(bos.toByteArray());
 		log.debug("--> parse()");

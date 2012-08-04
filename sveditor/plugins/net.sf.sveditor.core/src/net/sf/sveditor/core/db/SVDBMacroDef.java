@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
-	public List<String>			fParams;
-	public String					fDef;
+	public List<SVDBMacroDefParam>			fParams;
+	public String							fDef;
 
 	public SVDBMacroDef() {
 		super("", SVDBItemType.MacroDef);
@@ -25,11 +25,9 @@ public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
 	
 	public SVDBMacroDef(
 			String 				name, 
-			List<String>		params,
 			String				def) {
 		super(name, SVDBItemType.MacroDef);
-		fParams = new ArrayList<String>();
-		fParams.addAll(params);
+		fParams = new ArrayList<SVDBMacroDefParam>();
 		fDef = def;
 	}
 	
@@ -41,9 +39,15 @@ public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
 		fDef = def;
 	}
 	
-	public List<String> getParameters() {
+	public List<SVDBMacroDefParam> getParameters() {
 		return fParams;
 	}
+
+	public void addParameter(SVDBMacroDefParam p) {
+		fParams.add(p);
+		p.setParent(this);
+	}
+	
 
 	@Override
 	public void init(SVDBItemBase other) {
