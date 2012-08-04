@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.corba.se.impl.orb.ParserTable.TestBadServerIdHandler;
-
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.LogFactory;
@@ -66,6 +64,16 @@ public class DocCommentParser implements IDocCommentParser {
     
     private static Pattern fPatternDefinition =
 	        Pattern.compile("^(.+?) +- +([^ ].*)$") ;
+    
+	private static Pattern fPatternCodeSectionStart = 
+			Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE) ;
+	
+	private static Pattern headerLinePattern = 
+			Pattern.compile("^(.*)([^ ]):$") ;
+	
+	private static Pattern fSummaryPattern = 
+			Pattern.compile("^(?:<h>[^<]*<\\/h>)?<p>(.*?)(</p>|[\\.!\\?](?:[\\)}' ]|&quot;|&gt;)).*",Pattern.DOTALL) ;
+	
     		
 	/* (non-Javadoc)
 	 * @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
@@ -136,15 +144,6 @@ public class DocCommentParser implements IDocCommentParser {
 				   POSSIBLE_CLOSING_TAG,
 				   NOT_A_TAG } ;
 
-//	
-//	#
-//	#   var: package
-//	#
-//	#   A <SymbolString> representing the package normal topics will be a part of at the current point in the file.  This is a package variable
-//	#   because it needs to be reserved between function calls.
-//	#
-//	my $package;
-//	
 //	#
 //	#   hash: functionListIgnoredHeadings
 //	#
@@ -161,44 +160,16 @@ public class DocCommentParser implements IDocCommentParser {
 //	                                                       'args' => 1,
 //	                                                       'arg' => 1 );
 
-//#   Constants: ScopeType
-//#
-//#   The possible values for <Scope()>.
-//#
-//#   SCOPE_NORMAL - The topic stays in the current scope without affecting it.
-//#   SCOPE_START - The topic starts a scope.
-//#   SCOPE_END - The topic ends a scope, returning it to global.
-//#   SCOPE_ALWAYS_GLOBAL - The topic is always global, but it doesn't affect the current scope.
-//#
-//use constant SCOPE_NORMAL => 1;
-//use constant SCOPE_START => 2;
-//use constant SCOPE_END => 3;
-//use constant SCOPE_ALWAYS_GLOBAL => 4;
-
-//	#
-//	sub ParseComment #(commentLines, isJavaDoc, lineNumber, parsedTopics)
-//	    {
-//	    my ($self, $commentLines, $isJavaDoc, $lineNumber, $parsedTopics) = @_;
-//	
-	
-//	private enum Scope { NONE, NORMAL, START, END, ALWAYS_GLOBAL } ;
-	
 	public int parseComment(String lines[], List<DocTopic> docTopics) {
 	
 	    int topicCount = 0 ;
 	    boolean prevLineBlank = true ;
 	    boolean inCodeSection = false ;
 
-//	    my ($type, $scope, $isPlural, $title, $symbol);
-//	    #my $package;  # package variable.
-//	
 	    int index = 0 ;
 	    
-//	    Scope scope = Scope.NONE ;
-//	    String topicType = null ;
 	    String title = null ;
 	    String keyword = null ;
-//	    boolean isPlural = false ;
 	
 	    int bodyStart = 0 ;
 	    int bodyEnd = 0 ; // Note inclusive
@@ -224,8 +195,7 @@ public class DocCommentParser implements IDocCommentParser {
             }
 	
 	        // If the line has a recognized header and the previous line is blank...
-//	        else if (prevLineBlank && (($newKeyword, $newTitle) = $self->ParseHeaderLine($commentLines->[$index])) )
-	        
+	        // 
 	        else if(prevLineBlank && parseHeaderLine(tupleKeywordTitle, lines[index]))
 	            {
 	        	
@@ -233,17 +203,11 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	            if (topicCount != 0) {
 	            	
-	            	// FIXME: not sure if we need to care about scopes since we have the AST and preproc structures 
-	            	
-//	                if (scope == Scope.START || scope == Scope.END)
-//	                    {  $package = undef;  };
-	            	
 	            	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
 	            	String summary = "" ;
 	            	if(body != null) {
 	            		summary = getSummaryFromBody(body) ; 
 	            	}
-//	            	DocTopic newTopic = new DocTopic("todo-name-me",DocItemType.Topic, body, title, summary) ;
 	            	
 	            	DocTopic newDocItem = createDocItemForKeyword(keyword, title) ;
 	            	
@@ -251,8 +215,6 @@ public class DocCommentParser implements IDocCommentParser {
 	            	newDocItem.setSummary(summary) ;
 	            	
 	            	docTopics.add(newDocItem) ;
-	            	
-//	                $package = $newTopic->Package();
 	            	
                 }
 	            
@@ -281,9 +243,7 @@ public class DocCommentParser implements IDocCommentParser {
 	        else if (topicCount != 0) {
 	            prevLineBlank = false ;
 	            bodyEnd++ ;
-	            // FIXME: move pattern out into static... no need to keep recompiling
-	            Pattern patternCodeSectionStart = Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE) ;
-	            if(patternCodeSectionStart.matcher(lines[index]).matches()) {
+	            if(fPatternCodeSectionStart.matcher(lines[index]).matches()) {
 	            	inCodeSection = true ;
 	            }
 	            	
@@ -304,7 +264,6 @@ public class DocCommentParser implements IDocCommentParser {
         	if(body != null) {
         		summary = getSummaryFromBody(body) ; 
         	}
-//        	DocItem newTopic = new DocItem("todo-name-me",DocItemType.Topic, body, title, summary) ;
         	DocTopic newTopic = createDocItemForKeyword(keyword, title) ;
         	
         	newTopic.setBody(body) ;
@@ -331,19 +290,6 @@ public class DocCommentParser implements IDocCommentParser {
 			String keyWord = matcher.group(1) ;
 			String title = matcher.group(2) ;
 			
-			// FIXME: lookup topic.  for now just assume this is a known topic
-	
-	        // We need to do it this way because if you do "if (ND:T->KeywordInfo($keyword)" and the last element of the array it
-	        // returns is false, the statement is false.  That is really retarded, but there it is.
-//	        my ($type, undef, undef) = NaturalDocs::Topics->KeywordInfo($keyword);
-			
-//			if(fDocTopics.getTopicType(keyWord.toLowerCase()))
-//				return matcher.group(2) ;
-//			} 
-			
-	
-//	        if ($type) {  
-//			if(true) {
 			if(fDocTopics.getTopicType(keyWord.toLowerCase()) != null) {
 				tupleKeywordTitle.setFirst(keyWord) ;
 				tupleKeywordTitle.setSecond(title) ;
@@ -358,75 +304,7 @@ public class DocCommentParser implements IDocCommentParser {
     	}
 		
 	}
-	
-//	
-//	
-//	#
-//	#   Function: ParseHeaderLine
-//	#
-//	#   If the passed line is a topic header, returns the array ( keyword, title ).  Otherwise returns an empty array.
-//	#
-//	sub ParseHeaderLine #(line)
-//	    {
-//	    my ($self, $line) = @_;
-//	
-//	    if ($line =~ /^ *([a-z0-9 ]*[a-z0-9]): +(.*)$/i)
-//	        {
-//	        my ($keyword, $title) = ($1, $2);
-//	
-//	        # We need to do it this way because if you do "if (ND:T->KeywordInfo($keyword)" and the last element of the array it
-//	        # returns is false, the statement is false.  That is really retarded, but there it is.
-//	        my ($type, undef, undef) = NaturalDocs::Topics->KeywordInfo($keyword);
-//	
-//	        if ($type)
-//	            {  return ($keyword, $title);  }
-//	        else
-//	            {  return ( );  };
-//	        }
-//	    else
-//	        {  return ( );  };
-//	    };
-//	
-//	
-//	
-//	###############################################################################
-//	# Group: Support Functions
-//	
-//	
-//	#
-//	#   Function: MakeParsedTopic
-//	#
-//	#   Creates a <NaturalDocs::Parser::ParsedTopic> object for the passed parameters.  Scope is gotten from
-//	#   the package variable <package> instead of from the parameters.  The summary is generated from the body.
-//	#
-//	#   Parameters:
-//	#
-//	#       type         - The <TopicType>.  May be undef for headerless topics.
-//	#       title          - The title of the topic.  May be undef for headerless topics.
-//	#       package    - The package <SymbolString> the topic appears in.
-//	#       body        - The topic's body in <NDMarkup>.
-//	#       lineNumber - The topic's line number.
-//	#       isList         - Whether the topic is a list.
-//	#
-//	#   Returns:
-//	#
-//	#       The <NaturalDocs::Parser::ParsedTopic> object.
-//	#
-//	sub MakeParsedTopic #(type, title, package, body, lineNumber, isList)
-//	    {
-//	    my ($self, $type, $title, $package, $body, $lineNumber, $isList) = @_;
-//	
-//	    my $summary;
-//	
-//	    if (defined $body)
-//	        {  $summary = NaturalDocs::Parser->GetSummaryFromBody($body);  };
-//	
-//	    return NaturalDocs::Parser::ParsedTopic->New($type, $title, $package, undef, undef, $summary,
-//	                                                                         $body, $lineNumber, $isList);
-//	    };
-//	
-//	
-	
+
 	enum Tag { NONE, PARAGRAPH, BULLETLIST, DESCRIPTIONLIST, HEADING, PREFIXCODE, TAGCODE } ;
 	
 	private static final Map<Tag,String> fTagEnders ;
@@ -442,10 +320,6 @@ public class DocCommentParser implements IDocCommentParser {
 		fTagEnders.put(Tag.PREFIXCODE, "</pre></blockquote>") ;
 		fTagEnders.put(Tag.TAGCODE, "</code>") ;
 	}
-	
-//	            else if ($prevLineBlank && $commentLines->[$index] =~ /^(.*)([^ ]):$/) {
-	
-	private static Pattern headerLinePattern = Pattern.compile("^(.*)([^ ]):$") ;
 	
 	//
 	//    Function: FormatBody
@@ -617,7 +491,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	                if (($isList && !$ignoreListSymbols) || $type eq ::TOPIC_ENUMERATION()) {
 	                if(false) {
 //	                    $output .= '<ds>' . NaturalDocs::NDMarkup->ConvertAmpChars($entry) . '</ds><dd>';
-//	                    }
 	                } else {
 	                    output += "<de>" + convertAmpChars(entry) + "</de><dd>" ;
 	                } ;
@@ -632,8 +505,6 @@ public class DocCommentParser implements IDocCommentParser {
 	            //
 	            else if (prevLineBlank && headerLineMatcher.matches()) {
 	            
-//	                my $headerText = $1 . $2;
-	            	
 	            	String headerText = headerLineMatcher.group(1) + headerLineMatcher.group(2) ; 
 	            	
 	            	if(textBlock != null) {
@@ -1358,140 +1229,7 @@ public class DocCommentParser implements IDocCommentParser {
 //	#       you see when you *get* them are computed rather than literal.
 //	#
 //	
-//	
-//	###############################################################################
-//	# Group: Functions
-//	
-//	
-//	# Function: Type
-//	# Returns the <TopicType>.
-//	sub Type
-//	    {  return $_[0]->[TYPE];  };
-//	
-//	# Function: SetType
-//	# Replaces the <TopicType>.
-//	sub SetType #(type)
-//	    {  $_[0]->[TYPE] = $_[1];  };
-//	
-//	# Function: IsList
-//	# Returns whether the topic is a list.
-//	sub IsList
-//	    {  return $_[0]->[IS_LIST];  };
-//	
-//	# Function: SetIsList
-//	# Sets whether the topic is a list.
-//	sub SetIsList
-//	    {  $_[0]->[IS_LIST] = $_[1];  };
-//	
-//	# Function: Title
-//	# Returns the title of the topic.
-//	sub Title
-//	    {  return $_[0]->[TITLE];  };
-//	
-//	# Function: SetTitle
-//	# Replaces the topic title.
-//	sub SetTitle #(title)
-//	    {  $_[0]->[TITLE] = $_[1];  };
-//	
-//	#
-//	#   Function: Symbol
-//	#
-//	#   Returns the <SymbolString> defined by the topic.  It is fully resolved and does _not_ need to be joined with <Package()>.
-//	#
-//	#   Type-Specific Behavior:
-//	#
-//	#       - If the <TopicType> is always global, the symbol will be generated from the title only.
-//	#       - Everything else's symbols will be generated from the title and the package passed to <New()>.
-//	#
-//	sub Symbol
-//	    {
-//	    my ($self) = @_;
-//	
-//	    my $titleSymbol = NaturalDocs::SymbolString->FromText($self->[TITLE]);
-//	
-//	    if (NaturalDocs::Topics->TypeInfo($self->Type())->Scope() == ::SCOPE_ALWAYS_GLOBAL())
-//	        {  return $titleSymbol;  }
-//	    else
-//	        {
-//	        return NaturalDocs::SymbolString->Join( $self->[PACKAGE], $titleSymbol );
-//	        };
-//	    };
-//	
-//	
-//	#
-//	#   Function: Package
-//	#
-//	#   Returns the package <SymbolString> that the topic appears in.
-//	#
-//	#   Type-Specific Behavior:
-//	#
-//	#       - If the <TopicType> has scope, the package will be generated from both the title and the package passed to <New()>, not
-//	#         just the package.
-//	#       - If the <TopicType> is always global, the package will be the one passed to <New()>, even though it isn't part of it's
-//	#         <Symbol()>.
-//	#       - Everything else's package will be what was passed to <New()>, even if the title has separator symbols in it.
-//	#
-//	sub Package
-//	    {
-//	    my ($self) = @_;
-//	
-//	    # Headerless topics may not have a type yet.
-//	    if ($self->Type() && NaturalDocs::Topics->TypeInfo($self->Type())->Scope() == ::SCOPE_START())
-//	        {  return $self->Symbol();  }
-//	    else
-//	        {  return $self->[PACKAGE];  };
-//	    };
-//	
-//	
-//	# Function: SetPackage
-//	# Replaces the package the topic appears in.  This will behave the same way as the package parameter in <New()>.  Later calls
-//	# to <Package()> will still be generated according to its type-specific behavior.
-//	sub SetPackage #(package)
-//	    {  $_[0]->[PACKAGE] = $_[1];  };
-//	
-//	# Function: Using
-//	# Returns an arrayref of additional scope <SymbolStrings> available to the topic via "using" statements, or undef if none.
-//	sub Using
-//	    {  return $_[0]->[USING];  };
-//	
-//	# Function: SetUsing
-//	# Replaces the using arrayref of sope <SymbolStrings>.
-//	sub SetUsing #(using)
-//	    {  $_[0]->[USING] = $_[1];  };
-//	
-//	# Function: Prototype
-//	# Returns the prototype if one is defined.  Will be undef otherwise.
-//	sub Prototype
-//	    {  return $_[0]->[PROTOTYPE];  };
-//	
-//	# Function: SetPrototype
-//	# Replaces the function or variable prototype.
-//	sub SetPrototype #(prototype)
-//	    {  $_[0]->[PROTOTYPE] = $_[1];  };
-//	
-//	# Function: Summary
-//	# Returns the topic summary, if it exists, formatted in <NDMarkup>.
-//	sub Summary
-//	    {  return $_[0]->[SUMMARY];  };
-//	
-//	# Function: Body
-//	# Returns the topic's body, formatted in <NDMarkup>.  May be undef.
-//	sub Body
-//	    {  return $_[0]->[BODY];  };
-//	
-//	# Function: SetBody
-//	# Replaces the topic's body, formatted in <NDMarkup>.  May be undef.
-//	sub SetBody #(body)
-//	    {
-//	    my ($self, $body) = @_;
-//	    $self->[BODY] = $body;
-//	    };
-//	
-//	# Function: LineNumber
-//	# Returns the line the topic appears at in the file.
-//	sub LineNumber
-//	    {  return $_[0]->[LINE_NUMBER];  };
-//	
+
 
 	//
 	//   Substitutes certain characters with their <NDMarkup> amp chars.
@@ -1514,9 +1252,7 @@ public class DocCommentParser implements IDocCommentParser {
 
 		// Extract the first sentence from the leading paragraph, if any.  We'll tolerate a single header beforehand, but nothing else.
 		
-		Pattern pattern = Pattern.compile("^(?:<h>[^<]*<\\/h>)?<p>(.*?)(</p>|[\\.!\\?](?:[\\)}' ]|&quot;|&gt;)).*",Pattern.DOTALL) ;
-		
-		Matcher matcher = pattern.matcher(body) ;
+		Matcher matcher = fSummaryPattern.matcher(body) ;
 
 		if (matcher.matches()) {
         	summary = matcher.group(1) ;
