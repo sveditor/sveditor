@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.sun.corba.se.impl.orb.ParserTable.TestBadServerIdHandler;
+
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.LogFactory;
@@ -61,7 +63,10 @@ public class DocCommentParser implements IDocCommentParser {
 	
     private static Pattern fPatternCodeSectionEnd = 
     		Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
-
+    
+    private static Pattern fPatternDefinition =
+	        Pattern.compile("^(.+?) +- +([^ ].*)$") ;
+    		
 	/* (non-Javadoc)
 	 * @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	 */
@@ -259,8 +264,6 @@ public class DocCommentParser implements IDocCommentParser {
 //	            			+ keyword + ") title("
 //	            			+ title + ")") ;
 	            
-	            // FIXME: will want to grab keyword and associate it with topic... or something like that
-
 //	            my $typeInfo;
 //	            ($type, $typeInfo, $isPlural) = NaturalDocs::Topics->KeywordInfo($newKeyword);
 //	            $scope = $typeInfo->Scope();
@@ -485,6 +488,7 @@ public class DocCommentParser implements IDocCommentParser {
 	    	Matcher codeDesignatorMatcher = codeDesignatorPattern.matcher(lines[index]) ;
 	    	
 	    	Matcher headerLineMatcher = headerLinePattern.matcher(lines[index]) ;
+	    	Matcher definitionMatcher = fPatternDefinition.matcher(lines[index]) ;
 	    
 	        // If we're in a tagged code section...
 	    	//
@@ -589,53 +593,48 @@ public class DocCommentParser implements IDocCommentParser {
 	
 	                prevLineBlank = false ;
 	            }
-//	
-//	            # If the line looks like a description list entry...
-//	            elsif ($commentLines->[$index] =~ /^(.+?) +- +([^ ].*)$/ && $topLevelTag != TAG_PARAGRAPH)
-//	                {
-//	                my $entry = $1;
-//	                my $description = $2;
-//	
-//	                if (defined $textBlock)
-//	                    {  $output .= $self->RichFormatTextBlock($textBlock);  };
-//	
-//	                if ($topLevelTag == TAG_DESCRIPTIONLIST)
-//	                    {
-//	                    $output .= '</dd>';
-//	                    }
-//	                else #($topLevelTag != TAG_DESCRIPTIONLIST)
-//	                    {
-//	                    $output .= $tagEnders{$topLevelTag} . '<dl>';
-//	                    $topLevelTag = TAG_DESCRIPTIONLIST;
-//	                    };
-//	
-//	                if (($isList && !$ignoreListSymbols) || $type eq ::TOPIC_ENUMERATION())
-//	                    {
+	
+	            // If the line looks like a description list entry...
+	            //
+	            else if (definitionMatcher.matches() && topLevelTag != Tag.PARAGRAPH) {
+	            	
+	            	String entry = definitionMatcher.group(1) ;
+	            	String description = definitionMatcher.group(2) ;
+	            	
+	            	if (textBlock != null) {
+	            		output += richFormatTextBlock(textBlock) ;
+	            	}
+
+	                if (topLevelTag == Tag.DESCRIPTIONLIST) {
+	                    output += "</dd>" ;
+	                } else 
+	                {
+	                	output += fTagEnders.get(topLevelTag) + "<dl>" ;
+	                	topLevelTag = Tag.DESCRIPTIONLIST ;
+	                }
+	
+	                
+//	                if (($isList && !$ignoreListSymbols) || $type eq ::TOPIC_ENUMERATION()) {
+	                if(false) {
 //	                    $output .= '<ds>' . NaturalDocs::NDMarkup->ConvertAmpChars($entry) . '</ds><dd>';
 //	                    }
-//	                else
-//	                    {
-//	                    $output .= '<de>' . NaturalDocs::NDMarkup->ConvertAmpChars($entry) . '</de><dd>';
-//	                    };
-//	
-//	                $textBlock = $description;
-//	
-//	                $prevLineBlank = undef;
-//	                }
-//	
+	                } else {
+	                    output += "<de>" + convertAmpChars(entry) + "</de><dd>" ;
+	                } ;
+	
+	                textBlock = description ;
+	
+	                prevLineBlank = false ;
+	            	
+	            }
+
 	            // If the line could be a header...
-//	            else if ($prevLineBlank && $commentLines->[$index] =~ /^(.*)([^ ]):$/) {
+	            //
 	            else if (prevLineBlank && headerLineMatcher.matches()) {
 	            
 //	                my $headerText = $1 . $2;
 	            	
 	            	String headerText = headerLineMatcher.group(1) + headerLineMatcher.group(2) ; 
-//	
-//	                if (defined $textBlock)
-//	                    {
-//	                    $output .= $self->RichFormatTextBlock($textBlock);
-//	                    $textBlock = undef;
-//	                    }
 	            	
 	            	if(textBlock != null) {
 	            		output += richFormatTextBlock(textBlock) ;
