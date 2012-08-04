@@ -13,7 +13,6 @@ package net.sf.sveditor.ui.wizards ;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,8 +35,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
@@ -53,8 +52,6 @@ public class DocGenWizard extends Wizard {
 	public DocGenWizard() {
 		log = LogFactory.getLogHandle("DocGenWizard") ;
 	}
-	
-	
 
 	@Override
 	public boolean performFinish() {
@@ -120,35 +117,34 @@ public class DocGenWizard extends Wizard {
 				IDocWriter writer = new HTMLDocWriter() ;
 				writer.write(cfg, model) ;
 				monitor.worked(1) ;
-				openIndexHTML(writer.getIndexHTML(cfg, model)) ;
+				final File file = writer.getIndexHTML(cfg, model) ;
+				/* Internal browsers require access to the display so
+				 * we must sync back up with the UI thread */
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() { openIndexHTML(file) ; }
+				}) ;
 				monitor.done() ;
 				return Status.OK_STATUS ;
+			}
+			private void openIndexHTML(File indexHTML) {
+				try {
+					URL url = new URL("file://" + indexHTML) ;
+					IWorkbenchBrowserSupport browserSupport = workbench.getBrowserSupport() ;
+					IWebBrowser browser ;
+					int style = IWorkbenchBrowserSupport.AS_EDITOR ;
+					browser = browserSupport
+							.createBrowser(style, "SVEditor HTML Docs", "SVEditor HTML docs", "SVEditor HTML docs") ;
+					browser.openURL(url) ;
+				} catch (Exception e) {
+					log.error("Failed to open browser", e) ; 
+					return ;
+				}
 			}
 		}
 		DocGenJob job = new DocGenJob("Documentation Generation", cfg) ;
 		job.schedule() ;
 	}
 	
-	private void openIndexHTML(File indexHTML) {
-		IWorkbenchBrowserSupport browserSupport = workbench.getBrowserSupport() ;
-		URL url ;
-		try {
-			url = new URL("file://" + indexHTML) ;
-		} catch (MalformedURLException e) {
-			log.error("Failed to create url for indexHtml: " + indexHTML, e) ;
-			return ;
-		}
-		IWebBrowser browser ;
-		try {
-			browser = browserSupport
-					.createBrowser(IWorkbenchBrowserSupport.AS_EXTERNAL, null, 
-							"SVEditor HTML Docsl", "SVEditor HTML docs") ;
-			browser.openURL(url) ;
-		} catch (PartInitException e) {
-			log.error("Failed to open browser", e) ; 
-			return ;
-		}
-	}
 	
 
 }
