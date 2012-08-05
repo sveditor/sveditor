@@ -31,6 +31,7 @@ Export-Package: net.sf.sveditor.ui,
  net.sf.sveditor.ui.editor,
  net.sf.sveditor.ui.editor.actions,
  net.sf.sveditor.ui.explorer
-Import-Package: org.eclipse.draw2d,
+Import-Package: com.ibm.icu.text,
+ org.eclipse.draw2d,
  org.eclipse.zest.core.viewers
 
