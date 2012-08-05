@@ -11,7 +11,9 @@
  *******************************************************************************/
 package net.sf.sveditor.ui.text.hover;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -33,14 +35,14 @@ public class SVDocBrowserInformationControlInput extends BrowserInformationContr
 	 * Creates a new browser information control input.
 	 *
 	 * @param previous previous input, or <code>null</code> if none available
-	 * @param element the element, or <code>null</code> if none available
+	 * @param target the element, or <code>null</code> if none available
 	 * @param html HTML contents, must not be null
 	 * @param leadingImageWidth the indent required for the element image
 	 */
-	public SVDocBrowserInformationControlInput(SVDocBrowserInformationControlInput previous, ISVDBItemBase element, String html, int leadingImageWidth) {
+	public SVDocBrowserInformationControlInput(SVDocBrowserInformationControlInput previous, Tuple<ISVDBItemBase, SVDBFile> target, String html, int leadingImageWidth) {
 		super(previous);
 		Assert.isNotNull(html);
-		fElement= element;
+		fElement= target.first() ;
 		fHtml= html;
 		fLeadingImageWidth= leadingImageWidth;
 	}

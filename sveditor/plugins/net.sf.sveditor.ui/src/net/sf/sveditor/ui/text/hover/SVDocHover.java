@@ -13,109 +13,48 @@
 
 package net.sf.sveditor.ui.text.hover;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBDocComment;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.DocTopicManager;
+import net.sf.sveditor.core.docs.IDocCommentParser;
+import net.sf.sveditor.core.docs.IDocTopicManager;
+import net.sf.sveditor.core.docs.model.DocTopic;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.osgi.framework.Bundle;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Platform;
-
-import org.eclipse.jface.action.Action;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
-import org.eclipse.jface.internal.text.html.BrowserInformationControlInput;
-import org.eclipse.jface.internal.text.html.BrowserInput;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.StructuredSelection;
-
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension4;
-import org.eclipse.jface.text.IInputChangedListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchSite;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-
-import org.eclipse.ui.editors.text.EditorsUI;
-
-/*
-
-import org.eclipse.jdt.core.IAnnotatable;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ConstructorInvocation;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.QualifiedType;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
-import org.eclipse.jdt.internal.corext.dom.ASTNodes;
-import org.eclipse.jdt.internal.corext.javadoc.JavaDocLocations;
-import org.eclipse.jdt.internal.corext.util.JdtFlags;
-import org.eclipse.jdt.internal.corext.util.Messages;
-
-import org.eclipse.jdt.ui.JavaElementLabels;
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.jdt.ui.SharedASTProvider;
-import org.eclipse.jdt.ui.actions.OpenAttachedJavadocAction;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
-import org.eclipse.jdt.internal.ui.actions.OpenBrowserUtil;
-import org.eclipse.jdt.internal.ui.actions.SimpleSelectionProvider;
-import org.eclipse.jdt.internal.ui.infoviews.JavadocView;
-import org.eclipse.jdt.internal.ui.javaeditor.ASTProvider;
-import org.eclipse.jdt.internal.ui.text.javadoc.JavadocContentAccess2;
-import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
-import org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks;
-
-*/
 
 
 /**
@@ -124,6 +63,12 @@ import org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks;
  * @since 2.1
  */
 public class SVDocHover extends AbstractSVEditorTextHover {
+	
+	private LogHandle log ; 
+	
+	public SVDocHover() {
+		log = LogFactory.getLogHandle("SVDocHover") ;
+	}
 
 //	/**
 //	 * Action to go back to the previous input in the hover control.
@@ -476,7 +421,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 
 	/*
 	 * @see ITextHoverExtension#getHoverControlCreator()
-	 * @since 3.2
 	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
@@ -564,15 +508,31 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	}
 
 	private SVDocBrowserInformationControlInput internalGetHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-//		IJavaElement[] elements= getJavaElementsAt(textViewer, hoverRegion);
-//		if (elements == null || elements.length == 0)
-//			return null;
-		ISVDBItemBase element = getSVElementAt(textViewer, hoverRegion) ;
-		if(element == null) 
+		
+		Tuple<ISVDBItemBase, SVDBFile>  target = findTarget(hoverRegion) ;
+		
+		if(target == null)
 			return null ;
 
-//		return getHoverInfo(element, getEditorInputJavaElement(), hoverRegion, null);
-		return getHoverInfo(element, hoverRegion, null);
+		return getHoverInfo(target, hoverRegion, null);
+		
+	}
+	
+	private String genContent(List<DocTopic> topics) {
+		String res = "" ;
+		for(DocTopic topic: topics) {
+			res += genContentForTopic(topic) ;
+		}
+		return res ;
+	}		
+	
+	private String genContentForTopic(DocTopic topic) {
+		String res = "" ;
+		res += topic.getBody() ;
+		for(DocTopic childTopic: topic.getChildren()) {
+			res += genContentForTopic(childTopic) ;
+		}
+		return res ;
 	}
 
 	/**
@@ -583,20 +543,71 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @param hoverRegion the text range of the hovered word, or <code>null</code>
 	 * @param previousInput the previous input, or <code>null</code>
 	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
-	 * @since 3.4
 	 */
-//	private static SVDocBrowserInformationControlInput getHoverInfo(IJavaElement elements, ITypeRoot editorInputElement, IRegion hoverRegion, SVDocBrowserInformationControlInput previousInput) {
-	private static SVDocBrowserInformationControlInput getHoverInfo(ISVDBItemBase element, IRegion hoverRegion, SVDocBrowserInformationControlInput previousInput) {
+	private SVDocBrowserInformationControlInput getHoverInfo(Tuple<ISVDBItemBase, SVDBFile> target, IRegion hoverRegion, SVDocBrowserInformationControlInput previousInput) {
 		
-//		int nResults= elements.length;
 		StringBuffer buffer= new StringBuffer();
 		boolean hasContents= false;
-//		String base= null;
-//		IJavaElement element= null;
+		
+		ISVDBItemBase element = target.first() ;
+		
+		if(!(element instanceof ISVDBNamedItem )) {
+			return null ;
+		}
+		
+		ISVDBNamedItem namedItem = (ISVDBNamedItem)element ;
 
 		int leadingImageWidth= 0;
 		
 		hasContents = true ; // FIXME: temp
+		
+		ISVDBItemBase p = element ;
+		while (p != null && p.getType() != SVDBItemType.File) {
+			if (p instanceof ISVDBChildItem) {
+				p = ((ISVDBChildItem)p).getParent();
+			} else {
+				p = null;
+				break ;
+			}
+		}		
+		
+		if(p == null) {
+			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
+			return null ;
+		}
+		
+		SVDBFile ppFile = ((SVEditor)getEditor()).getSVDBIndex().getCache()
+							.getPreProcFile(new NullProgressMonitor(), ((SVDBFile)p).getFilePath()) ;
+		
+		SVDBDocComment docCom = null ;
+		
+		for(ISVDBChildItem child: ppFile.getChildren()) {
+			if(child instanceof SVDBDocComment) {
+				SVDBDocComment tryDocCom = (SVDBDocComment)child ;
+				if(tryDocCom.getName().equals(namedItem.getName())) {
+					log.debug(ILogLevel.LEVEL_MID,
+							String.format("Found doc comment for(%s)",namedItem.getName())) ;
+					docCom = tryDocCom ;
+					break ;
+				}
+			}
+		}
+		
+		if(docCom == null) {
+			log.debug(ILogLevel.LEVEL_MID,
+				String.format("Did not find doc comment for(%s)",namedItem.getName())) ;
+			return null ;
+		}
+		
+		List<DocTopic> docTopics = new ArrayList<DocTopic>() ;
+		
+		IDocTopicManager topicMgr = new DocTopicManager() ;
+		
+		IDocCommentParser docCommentParser = new DocCommentParser(topicMgr) ;
+			
+		docCommentParser.parse(docCom.getRawComment(), docTopics) ;
+		
+		buffer.append(genContent(docTopics)) ;
 
 //		if (nResults > 1) {
 //
@@ -679,16 +690,86 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 
 		if (buffer.length() > 0) {
 //			HTMLPrinter.insertPageProlog(buffer, 0, SVDocHover.getStyleSheet());
+			HTMLPrinter.insertPageProlog(buffer, 0) ;
 //			if (base != null) {
 //				int endHeadIdx= buffer.indexOf("</head>"); //$NON-NLS-1$
 //				buffer.insert(endHeadIdx, "\n<base href='" + base + "'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 //			}
-//			HTMLPrinter.addPageEpilog(buffer);
-			return new SVDocBrowserInformationControlInput(previousInput, element, buffer.toString(), leadingImageWidth);
+			HTMLPrinter.addPageEpilog(buffer);
+			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), leadingImageWidth);
 		}
 
 		return null;
 	}
+
+	
+	protected Tuple<ISVDBItemBase, SVDBFile> findTarget(IRegion hoverRegion) {
+		SVEditor editor = ((SVEditor)getEditor()) ;
+		IDocument doc = editor.getDocument() ;
+		
+		int offset = hoverRegion.getOffset() ;
+		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
+		scanner.setSkipComments(true) ;
+		
+		List<Tuple<ISVDBItemBase, SVDBFile>> items = null ;
+		
+		try {
+			items = OpenDeclUtils.openDecl(
+					editor.getSVDBFile(),
+					doc.getLineOfOffset(hoverRegion.getOffset()),
+					scanner,
+					editor.getIndexIterator());
+		} catch (BadLocationException e) {
+			log.error("Received bogus hover region", e) ;
+		}
+
+		if (items != null && items.size() > 0) {
+			return items.get(0);
+		} else {
+			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
+		}
+	}	
+	
+//	private void gatherDocForItem(ISVDBItemBase element, StringBuffer buffer) {
+//		
+//		Tuple<ISVDBItemBase,SVDBFile> target = findTarget(element) ;
+//		
+//		
+//	}
+	
+//	private Tuple<ISVDBItemBase, SVDBFile> findTarget(ISVDBItemBase element) {
+//		IDocument doc = ((SVEditor)getEditor()).getDocument() ;
+//		
+//			ISVDBIndexIterator	index_it) {
+//		
+//				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
+//						active_scope, SVDBFindDefaultNameMatcher.getDefault(), index_it);
+//				ISVDBItemBase item = v.findItem(expr);
+//				
+//				if (item != null) {
+//					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, inc_file));
+//				}
+//		
+//		
+//		
+//		ITextSelection sel = getTextSel();
+//		int offset = sel.getOffset() + sel.getLength();
+//
+//		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
+//		scanner.setSkipComments(true);
+//		
+//		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl(
+//				getTargetFile(), 
+//				getTextSel().getStartLine(),
+//				scanner,
+//				getIndexIt());
+//
+//		if (items.size() > 0) {
+//			return items.get(0);
+//		} else {
+//			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
+//		}
+//	}
 
 //	private static String getInfoText(IJavaElement element, ITypeRoot editorInputElement, IRegion hoverRegion, boolean allowImage) {
 //		long flags= getHeaderFlags(element);
@@ -737,17 +818,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 //		}
 //	}
 
-//	/*
-//	 * @since 3.4
-//	 */
-//	private static boolean isStaticFinal(IField field) {
-//		try {
-//			return JdtFlags.isFinal(field) && JdtFlags.isStatic(field);
-//		} catch (JavaModelException e) {
-//			JavaPlugin.log(e);
-//			return false;
-//		}
-//	}
 
 //	/**
 //	 * Returns the constant value for the given field.
@@ -936,176 +1006,14 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 //		buf.append("</div>"); //$NON-NLS-1$
 //	}
 
-//	public static void addAnnotations(StringBuffer buf, IJavaElement element, ITypeRoot editorInputElement, IRegion hoverRegion) {
-//		if (element instanceof IAnnotatable) {
-//			try {
-//				String annotationString= getAnnotations(element, editorInputElement, hoverRegion);
-//				if (annotationString != null) {
-//					buf.append("<div style='margin-bottom: 5px;'>"); //$NON-NLS-1$
-//					buf.append(annotationString);
-//					buf.append("</div>"); //$NON-NLS-1$
-//				}
-//			} catch (JavaModelException e) {
-//				// no annotations this time...
-//				buf.append("<br>"); //$NON-NLS-1$
-//			} catch (URISyntaxException e) {
-//				// no annotations this time...
-//				buf.append("<br>"); //$NON-NLS-1$
-//			}
-//		}
-//	}
 
-//	private static String getAnnotations(IJavaElement element, ITypeRoot editorInputElement, IRegion hoverRegion) throws URISyntaxException, JavaModelException {
-//		if (!(element instanceof IAnnotatable))
-//			return null;
-//		
-//		if (((IAnnotatable)element).getAnnotations().length == 0)
-//			return null;
-//		
-//		IBinding binding;
-//		ASTNode node= getHoveredASTNode(editorInputElement, hoverRegion);
-//		
-//		if (node == null) {
-//			ASTParser p= ASTParser.newParser(ASTProvider.SHARED_AST_LEVEL);
-//			p.setProject(element.getJavaProject());
-//			try {
-//				binding= p.createBindings(new IJavaElement[] { element }, null)[0];
-//			} catch (OperationCanceledException e) {
-//				return null;
-//			}
-//			
-//		} else {
-//			binding= resolveBinding(node);
-//		}
-//		
-//		if (binding == null)
-//			return null;
-//		
-//		IAnnotationBinding[] annotations= binding.getAnnotations();
-//		if (annotations.length == 0)
-//			return null;
-//		
-//		StringBuffer buf= new StringBuffer();
-//		for (int i= 0; i < annotations.length; i++) {
-//			//TODO: skip annotations that don't have an @Documented annotation?
-//			addAnnotation(buf, element, annotations[i]);
-//			buf.append("<br>"); //$NON-NLS-1$
-//		}
-//		
-//		return buf.toString();
-//	}
-//
-//	private static IBinding resolveBinding(ASTNode node) {
-//		if (node instanceof SimpleName) {
-//			// workaround for https://bugs.eclipse.org/62605 (constructor name resolves to type, not method)
-//			SimpleName simpleName= (SimpleName) node;
-//			StructuralPropertyDescriptor loc= simpleName.getLocationInParent();
-//			while (loc == QualifiedType.NAME_PROPERTY || loc == QualifiedName.NAME_PROPERTY|| loc == SimpleType.NAME_PROPERTY || loc == ParameterizedType.TYPE_PROPERTY) {
-//				node= node.getParent();
-//				loc= node.getLocationInParent();
-//			}
-//			if (loc == ClassInstanceCreation.TYPE_PROPERTY) {
-//				ClassInstanceCreation cic= (ClassInstanceCreation) node.getParent();
-//				IMethodBinding constructorBinding= cic.resolveConstructorBinding();
-//				if (constructorBinding == null)
-//					return null;
-//				ITypeBinding declaringClass= constructorBinding.getDeclaringClass();
-//				if (!declaringClass.isAnonymous())
-//					return constructorBinding;
-//				ITypeBinding superTypeDeclaration= declaringClass.getSuperclass().getTypeDeclaration();
-//				return resolveSuperclassConstructor(superTypeDeclaration, constructorBinding);
-//			}
-//			return simpleName.resolveBinding();
-//			
-//		} else if (node instanceof SuperConstructorInvocation) {
-//			return ((SuperConstructorInvocation) node).resolveConstructorBinding();
-//		} else if (node instanceof ConstructorInvocation) {
-//			return ((ConstructorInvocation) node).resolveConstructorBinding();
-//		} else {
-//			return null;
-//		}
-//	}
-//
-//	private static IBinding resolveSuperclassConstructor(ITypeBinding superClassDeclaration, IMethodBinding constructor) {
-//		IMethodBinding[] methods= superClassDeclaration.getDeclaredMethods();
-//		for (int i= 0; i < methods.length; i++) {
-//			IMethodBinding method= methods[i];
-//			if (method.isConstructor() && constructor.isSubsignature(method))
-//				return method;
-//		}
-//		return null;
-//	}
-//
-//	private static void addAnnotation(StringBuffer buf, IJavaElement element, IAnnotationBinding annotation) throws URISyntaxException {
-//		String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, annotation.getAnnotationType().getJavaElement());
-//		buf.append('@');
-//		addLink(buf, uri, annotation.getName());
-//		
-//		IMemberValuePairBinding[] mvPairs= annotation.getDeclaredMemberValuePairs();
-//		if (mvPairs.length > 0) {
-//			buf.append('(');
-//			for (int j= 0; j < mvPairs.length; j++) {
-//				if (j > 0) {
-//					buf.append(JavaElementLabels.COMMA_STRING);
-//				}
-//				IMemberValuePairBinding mvPair= mvPairs[j];
-//				String memberURI= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, mvPair.getMethodBinding().getJavaElement());
-//				addLink(buf, memberURI, mvPair.getName());
-//				buf.append('=');
-//				addValue(buf, element, mvPair.getValue());
-//			}
-//			buf.append(')');
-//		}
-//	}
-//
-//	private static void addValue(StringBuffer buf, IJavaElement element, Object value) throws URISyntaxException {
-//		// Note: To be bug-compatible with Javadoc from Java 5/6/7, we currently don't escape HTML tags in String-valued annotations.
-//		if (value instanceof ITypeBinding) {
-//			ITypeBinding typeBinding= (ITypeBinding)value;
-//			IJavaElement type= typeBinding.getJavaElement();
-//			if (type == null) {
-//				buf.append(typeBinding.getName());
-//			} else {
-//				String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, type);
-//				String name= type.getElementName();
-//				addLink(buf, uri, name);
-//			}
-//			buf.append(".class"); //$NON-NLS-1$
-//			
-//		} else if (value instanceof IVariableBinding) { // only enum constants
-//			IVariableBinding variableBinding= (IVariableBinding)value;
-//			IJavaElement variable= variableBinding.getJavaElement();
-//			String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, variable);
-//			String name= variable.getElementName();
-//			addLink(buf, uri, name);
-//				
-//		} else if (value instanceof IAnnotationBinding) {
-//			IAnnotationBinding annotationBinding= (IAnnotationBinding)value;
-//			addAnnotation(buf, element, annotationBinding);
-//			
-//		} else if (value instanceof String) {
-//			buf.append(ASTNodes.getEscapedStringLiteral((String)value));
-//			
-//		} else if (value instanceof Character) {
-//			buf.append(ASTNodes.getEscapedCharacterLiteral(((Character)value).charValue()));
-//			
-//		} else if (value instanceof Object[]) {
-//			Object[] values= (Object[])value;
-//			buf.append('{');
-//			for (int i= 0; i < values.length; i++) {
-//				if (i > 0) {
-//					buf.append(JavaElementLabels.COMMA_STRING);
-//				}
-//				addValue(buf, element, values[i]);
-//			}
-//			buf.append('}');
-//			
-//		} else { // primitive types (except char) or null
-//			buf.append(String.valueOf(value));
-//		}
-//	}
+
+
 //
 //	private static StringBuffer addLink(StringBuffer buf, String uri, String label) {
 //		return buf.append(JavaElementLinks.createLink(uri, label));
 //	}
+		
+
+		
 }
