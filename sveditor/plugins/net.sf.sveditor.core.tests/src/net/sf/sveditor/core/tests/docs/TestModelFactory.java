@@ -94,7 +94,6 @@ public class TestModelFactory extends TestCase {
 
 	}			
 	
-	
 	public void doTestUVMExample(
 			String 			testName, 
 			String			bundleDirName,
