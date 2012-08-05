@@ -13,6 +13,10 @@
 
 package net.sf.sveditor.ui.text.hover;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +41,7 @@ import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
@@ -55,6 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchSite;
+import org.osgi.framework.Bundle;
 
 
 /**
@@ -528,6 +534,9 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	
 	private String genContentForTopic(DocTopic topic) {
 		String res = "" ;
+		res += "<h4>" ;
+		res += topic.getTitle() ;
+		res += "</h4>" ;
 		res += topic.getBody() ;
 		for(DocTopic childTopic: topic.getChildren()) {
 			res += genContentForTopic(childTopic) ;
@@ -557,8 +566,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		
 		ISVDBNamedItem namedItem = (ISVDBNamedItem)element ;
 
-		int leadingImageWidth= 0;
-		
 		hasContents = true ; // FIXME: temp
 		
 		ISVDBItemBase p = element ;
@@ -686,17 +693,27 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		if (!hasContents)
 			return null;
 		
-		buffer.append("Hello!") ;
-
 		if (buffer.length() > 0) {
-//			HTMLPrinter.insertPageProlog(buffer, 0, SVDocHover.getStyleSheet());
-			HTMLPrinter.insertPageProlog(buffer, 0) ;
+			HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
+//			HTMLPrinter.insertPageProlog(buffer, 0) ;
 //			if (base != null) {
 //				int endHeadIdx= buffer.indexOf("</head>"); //$NON-NLS-1$
 //				buffer.insert(endHeadIdx, "\n<base href='" + base + "'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 //			}
 			HTMLPrinter.addPageEpilog(buffer);
-			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), leadingImageWidth);
+			
+			log.debug(ILogLevel.LEVEL_MID, 
+					"+------------------------------------------------------------------") ;
+			log.debug(ILogLevel.LEVEL_MID, 
+					"| HTML dump") ;
+			log.debug(ILogLevel.LEVEL_MID,
+					buffer.toString()) ;
+			log.debug(ILogLevel.LEVEL_MID, 
+					"+------------------------------------------------------------------") ;
+			log.debug(ILogLevel.LEVEL_MID, 
+					"+------------------------------------------------------------------") ;
+			
+			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), 0);
 		}
 
 		return null;
@@ -729,236 +746,57 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
 		}
 	}	
-	
-//	private void gatherDocForItem(ISVDBItemBase element, StringBuffer buffer) {
-//		
-//		Tuple<ISVDBItemBase,SVDBFile> target = findTarget(element) ;
-//		
-//		
-//	}
-	
-//	private Tuple<ISVDBItemBase, SVDBFile> findTarget(ISVDBItemBase element) {
-//		IDocument doc = ((SVEditor)getEditor()).getDocument() ;
-//		
-//			ISVDBIndexIterator	index_it) {
-//		
-//				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
-//						active_scope, SVDBFindDefaultNameMatcher.getDefault(), index_it);
-//				ISVDBItemBase item = v.findItem(expr);
-//				
-//				if (item != null) {
-//					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, inc_file));
-//				}
-//		
-//		
-//		
-//		ITextSelection sel = getTextSel();
-//		int offset = sel.getOffset() + sel.getLength();
-//
-//		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-//		scanner.setSkipComments(true);
-//		
-//		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl(
-//				getTargetFile(), 
-//				getTextSel().getStartLine(),
-//				scanner,
-//				getIndexIt());
-//
-//		if (items.size() > 0) {
-//			return items.get(0);
-//		} else {
-//			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
-//		}
-//	}
-
-//	private static String getInfoText(IJavaElement element, ITypeRoot editorInputElement, IRegion hoverRegion, boolean allowImage) {
-//		long flags= getHeaderFlags(element);
-//		StringBuffer label= new StringBuffer(JavaElementLinks.getElementLabel(element, flags));
-//		
-//		if (element.getElementType() == IJavaElement.FIELD) {
-//			String constantValue= getConstantValue((IField) element, editorInputElement, hoverRegion);
-//			if (constantValue != null) {
-//				constantValue= HTMLPrinter.convertToHTMLContentWithWhitespace(constantValue);
-//				IJavaProject javaProject= element.getJavaProject();
-//				if (JavaCore.INSERT.equals(javaProject.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, true)))
-//					label.append(' ');
-//				label.append('=');
-//				if (JavaCore.INSERT.equals(javaProject.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, true)))
-//					label.append(' ');
-//				label.append(constantValue);
-//			}
-//		}
-//		
-////		if (element.getElementType() == IJavaElement.METHOD) {
-////			IMethod method= (IMethod)element;
-////			//TODO: add default value for annotation type members, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=249016
-////		}
-//
-//		String imageName= null;
-//		if (allowImage) {
-//			URL imageUrl= JavaPlugin.getDefault().getImagesOnFSRegistry().getImageURL(element);
-//			if (imageUrl != null) {
-//				imageName= imageUrl.toExternalForm();
-//			}
-//		}
-//
-//		StringBuffer buf= new StringBuffer();
-//		addImageAndLabel(buf, element, imageName, 16, 16, label.toString(), 20, 2);
-//		return buf.toString();
-//	}
-
-//	private static long getHeaderFlags(IJavaElement element) {
-//		switch (element.getElementType()) {
-//			case IJavaElement.LOCAL_VARIABLE:
-//				return LOCAL_VARIABLE_FLAGS;
-//			case IJavaElement.TYPE_PARAMETER:
-//				return TYPE_PARAMETER_FLAGS;
-//			default:
-//				return LABEL_FLAGS;
-//		}
-//	}
 
 
-//	/**
-//	 * Returns the constant value for the given field.
-//	 *
-//	 * @param field the field
-//	 * @param editorInputElement the editor input element
-//	 * @param hoverRegion the hover region in the editor
-//	 * @return the constant value for the given field or <code>null</code> if none
-//	 * @since 3.4
-//	 */
-//	private static String getConstantValue(IField field, ITypeRoot editorInputElement, IRegion hoverRegion) {
-//		if (!isStaticFinal(field))
-//			return null;
-//
-//		ASTNode node= getHoveredASTNode(editorInputElement, hoverRegion);
-//		if (node == null)
-//			return null;
-//		
-//		Object constantValue= null;
-//		if (node.getNodeType() == ASTNode.SIMPLE_NAME) {
-//			IBinding binding= ((SimpleName)node).resolveBinding();
-//			if (binding != null && binding.getKind() == IBinding.VARIABLE) {
-//				IVariableBinding variableBinding= (IVariableBinding)binding;
-//				if (field.equals(variableBinding.getJavaElement())) {
-//					constantValue= variableBinding.getConstantValue();
-//				}
-//			}
-//		}
-//		if (constantValue == null)
-//			return null;
-//
-//		if (constantValue instanceof String) {
-//			return ASTNodes.getEscapedStringLiteral((String) constantValue);
-//
-//		} else if (constantValue instanceof Character) {
-//			String constantResult= ASTNodes.getEscapedCharacterLiteral(((Character) constantValue).charValue());
-//
-//			char charValue= ((Character) constantValue).charValue();
-//			String hexString= Integer.toHexString(charValue);
-//			StringBuffer hexResult= new StringBuffer("\\u"); //$NON-NLS-1$
-//			for (int i= hexString.length(); i < 4; i++) {
-//				hexResult.append('0');
-//			}
-//			hexResult.append(hexString);
-//			return formatWithHexValue(constantResult, hexResult.toString());
-//
-//		} else if (constantValue instanceof Byte) {
-//			int byteValue= ((Byte) constantValue).intValue() & 0xFF;
-//			return formatWithHexValue(constantValue, "0x" + Integer.toHexString(byteValue)); //$NON-NLS-1$
-//
-//		} else if (constantValue instanceof Short) {
-//			int shortValue= ((Short) constantValue).shortValue() & 0xFFFF;
-//			return formatWithHexValue(constantValue, "0x" + Integer.toHexString(shortValue)); //$NON-NLS-1$
-//
-//		} else if (constantValue instanceof Integer) {
-//			int intValue= ((Integer) constantValue).intValue();
-//			return formatWithHexValue(constantValue, "0x" + Integer.toHexString(intValue)); //$NON-NLS-1$
-//
-//		} else if (constantValue instanceof Long) {
-//			long longValue= ((Long) constantValue).longValue();
-//			return formatWithHexValue(constantValue, "0x" + Long.toHexString(longValue)); //$NON-NLS-1$
-//
-//		} else {
-//			return constantValue.toString();
-//		}
-//	}
 
-//	private static ASTNode getHoveredASTNode(ITypeRoot editorInputElement, IRegion hoverRegion) {
-//		if (editorInputElement == null)
-//			return null;
-//
-//		CompilationUnit unit= SharedASTProvider.getAST(editorInputElement, SharedASTProvider.WAIT_ACTIVE_ONLY, null);
-//		if (unit == null)
-//			return null;
-//		
-//		return NodeFinder.perform(unit, hoverRegion.getOffset(),	hoverRegion.getLength());
-//	}
-
-//	/**
-//	 * Creates and returns a formatted message for the given
-//	 * constant with its hex value.
-//	 *
-//	 * @param constantValue the constant value
-//	 * @param hexValue the hex value
-//	 * @return a formatted string with constant and hex values
-//	 * @since 3.4
-//	 */
-//	private static String formatWithHexValue(Object constantValue, String hexValue) {
-//		return Messages.format(SVHoverMessages.JavadocHover_constantValue_hexValue, new String[] { constantValue.toString(), hexValue });
-//	}
-
-//	/**
-//	 * Returns the Javadoc hover style sheet with the current Javadoc font from the preferences.
-//	 * @return the updated style sheet
-//	 * @since 3.4
-//	 */
-//	private static String getStyleSheet() {
-//		if (fgStyleSheet == null)
-//			fgStyleSheet= loadStyleSheet();
-//		String css= fgStyleSheet;
+	/**
+	 * Returns the SVDoc hover style sheet 
+	 * @return the updated style sheet
+	 */
+	private String getStyleSheet() {
+		if (fgStyleSheet == null)
+			fgStyleSheet= loadStyleSheet();
+		String css= fgStyleSheet;
 //		if (css != null) {
 //			FontData fontData= JFaceResources.getFontRegistry().getFontData(PreferenceConstants.APPEARANCE_JAVADOC_FONT)[0];
 //			css= HTMLPrinter.convertTopLevelFont(css, fontData);
 //		}
-//
-//		return css;
-//	}
-//
-//	/**
-//	 * Loads and returns the Javadoc hover style sheet.
-//	 * @return the style sheet, or <code>null</code> if unable to load
-//	 * @since 3.4
-//	 */
-//	private static String loadStyleSheet() {
-//		Bundle bundle= Platform.getBundle(JavaPlugin.getPluginId());
-//		URL styleSheetURL= bundle.getEntry("/JavadocHoverStyleSheet.css"); //$NON-NLS-1$
-//		if (styleSheetURL != null) {
-//			BufferedReader reader= null;
-//			try {
-//				reader= new BufferedReader(new InputStreamReader(styleSheetURL.openStream()));
-//				StringBuffer buffer= new StringBuffer(1500);
-//				String line= reader.readLine();
-//				while (line != null) {
-//					buffer.append(line);
-//					buffer.append('\n');
-//					line= reader.readLine();
-//				}
-//				return buffer.toString();
-//			} catch (IOException ex) {
-//				JavaPlugin.log(ex);
-//				return ""; //$NON-NLS-1$
-//			} finally {
-//				try {
-//					if (reader != null)
-//						reader.close();
-//				} catch (IOException e) {
-//				}
-//			}
-//		}
-//		return null;
-//	}
+
+		return css;
+	}
+
+	/**
+	 * Loads and returns the SVDoc hover style sheet.
+	 * @return the style sheet, or <code>null</code> if unable to load
+	 */
+	private String loadStyleSheet() {
+		Bundle bundle= Platform.getBundle(SVUiPlugin.PLUGIN_ID) ;
+		URL styleSheetURL= bundle.getEntry("/SVDocHoverStyleSheet.css"); //$NON-NLS-1$
+		if (styleSheetURL != null) {
+			BufferedReader reader= null;
+			try {
+				reader= new BufferedReader(new InputStreamReader(styleSheetURL.openStream()));
+				StringBuffer buffer= new StringBuffer(1500);
+				String line= reader.readLine();
+				while (line != null) {
+					buffer.append(line);
+					buffer.append('\n');
+					line= reader.readLine();
+				}
+				return buffer.toString();
+			} catch (IOException ex) {
+				log.error("Exception while loading style sheet", ex) ;
+				return ""; //$NON-NLS-1$
+			} finally {
+				try {
+					if (reader != null)
+						reader.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return null;
+	}
 
 //	public static void addImageAndLabel(StringBuffer buf, IJavaElement element, String imageSrcPath, int imageWidth, int imageHeight, String label, int labelLeft, int labelTop) {
 //		buf.append("<div style='word-wrap: break-word; position: relative; "); //$NON-NLS-1$
