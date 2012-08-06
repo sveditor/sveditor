@@ -187,6 +187,7 @@ public class SVEditor extends TextEditor
 			
 			if (new_in != null) {
 				fSVDBFile = new_in;
+				fIndexIterator.setFile(fSVDBFile);
 
 				addErrorMarkers(markers);
 			}
@@ -389,6 +390,7 @@ public class SVEditor extends TextEditor
 				}
 			} else { // regular workspace or filesystem path
 				if (ed_in instanceof FileEditorInput) {
+					// Regular in-workspace file
 					FileEditorInput fi = (FileEditorInput)ed_in;
 					fLog.debug(LEVEL_MIN, "Path \"" + fi.getFile().getFullPath() + 
 							"\" is in project " + fi.getFile().getProject().getName());
@@ -404,7 +406,7 @@ public class SVEditor extends TextEditor
 					
 					mgr.addProjectSettingsListener(this);
 				} else {
-					// Check whether another
+					// Outside-workspace file
 					fLog.debug(LEVEL_MIN, "URI instance: " + uri_in.getClass().getName());
 					fSVDBFilePath = SVFileUtils.normalize(uri_in.getURI().getPath());
 					fLog.debug(LEVEL_MIN, "Normalizing file \"" + uri_in.getURI().getPath() + "\" to \"" + fSVDBFilePath + "\"");
