@@ -13,6 +13,14 @@
   
 - #(3553812) - Add basic support for content assist of parameterized types
 
+- #(enh) - Generated documentation now opened within Eclipse
+
+- #(enh) - Support for definition lists in the documentation comments
+
+- #(3554595) - Correct a bug in the editor-specific index iterator that, 
+  in some cases, prevented content assist and open declaration from working
+  on declarations within the file.
+
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --

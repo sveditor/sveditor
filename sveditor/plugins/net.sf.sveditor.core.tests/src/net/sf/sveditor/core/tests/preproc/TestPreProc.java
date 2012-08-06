@@ -493,6 +493,54 @@ public class TestPreProc extends TestCase {
 		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testUvmTlm2DoRecordMacroExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testUvmTlm2DoRecordMacroExpansion");
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		utils.copyBundleFileToFS("/data/uvm_tlm2_generic_payload_fields.svh", fTmpDir);
+		
+		PrintStream ps = new PrintStream(new File(fTmpDir, "test.f"));
+				
+		ps.println("+incdir+./uvm/src");
+		ps.println("./uvm/src/uvm_pkg.sv");
+		ps.println("./uvm_tlm2_generic_payload_fields.svh");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				new NullProgressMonitor(), "GLOBAL", 
+				new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		File target = new File(fTmpDir, "uvm_tlm2_generic_payload_fields.svh");
+		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(pp);
+		
+		StringBuilder sb = new StringBuilder();
+		int ch;
+	
+		SVPreProcOutput pp_out = pp.preprocess();
+		
+		while ((ch = pp_out.get_ch()) != -1) {
+			sb.append((char)ch);
+		}
+		log.debug(sb.toString());
+		
+		assertTrue((sb.indexOf("end )") == -1));
+		LogFactory.removeLogHandle(log);
+	}
 	
 	public void testSingleLineCommentMacro() {
 		String doc = 
