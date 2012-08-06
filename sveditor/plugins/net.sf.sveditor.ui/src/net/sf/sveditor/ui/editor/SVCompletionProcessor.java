@@ -132,21 +132,20 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		int wait_time_ms = 1;
 		IPreferenceStore p_store = SVUiPlugin.getDefault().getPreferenceStore();
 		int timeout_ms = p_store.getInt(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT);
+		int timeout_remain = timeout_ms;
 		
-		if (timeout_ms > 0) {
-			while (true) {
-				if (job.join(wait_time_ms)) {
-					break;
-				}
-				timeout_ms -= wait_time_ms;
-
-				if (timeout_ms < 0) {
-					break;
-				}
-				while (d.readAndDispatch()) { }
+		while (true) {
+			if (job.join(wait_time_ms)) {
+				break;
 			}
-		} else {
-			job.join();
+			if (timeout_ms != 0) {
+				timeout_remain -= wait_time_ms;
+
+				if (timeout_remain < 0) {
+					break;
+				}
+			}
+			while (d.readAndDispatch()) { }
 		}
 	
 		List<SVCompletionProposal> temp_p = new ArrayList<SVCompletionProposal>();
@@ -478,7 +477,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 		
 		for (int i=0; i<md.getParameters().size(); i++) {
-			String param = md.getParameters().get(i);
+			String param = md.getParameters().get(i).getName();
 			
 			d.append(param);
 			r.append("${");

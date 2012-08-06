@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -28,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -44,8 +46,6 @@ import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
 import net.sf.sveditor.core.scanner.SVKeywords;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
-import net.sf.sveditor.core.scanner.SVScannerTextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -548,7 +548,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers) {
-		boolean use_incr_preproc = false;
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -566,22 +565,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 
 	
-		if (use_incr_preproc) {
-		SVPreProcScanner pp = new SVPreProcScanner();
-		pp.setDefineProvider(fDefineProvider);
-		pp.setScanner(this);
-		pp.setObserver(this);
-
-		pp.init(in, filename);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(fEvalConditionals);
-
-		fInput = new SVScannerTextScanner(pp);
-		} else {
-			SVPreProcessor preproc = new SVPreProcessor(
-					in, filename, fDefineProvider);
-			fInput = preproc.preprocess();
-		}
+		SVPreProcessor preproc = new SVPreProcessor(
+				in, filename, fDefineProvider);
+		fInput = preproc.preprocess();
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
@@ -621,16 +607,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fDefineProvider.addErrorListener(this);
 		}
 
-		SVPreProcScanner pp = new SVPreProcScanner();
-		pp.setDefineProvider(fDefineProvider);
-		pp.setScanner(this);
-		pp.setObserver(this);
-
-		pp.init(in, name);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(fEvalConditionals);
-
-		fInput = new SVScannerTextScanner(pp);
+		SVPreProcessor preproc = new SVPreProcessor(
+				in, name, fDefineProvider);
+		fInput = preproc.preprocess();
+		
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
@@ -702,10 +682,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
 	}
 
-	public void preproc_define(String key, List<String> params, String value) {
-		SVDBMacroDef def = new SVDBMacroDef(key, params, value);
+	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
+		SVDBMacroDef def = new SVDBMacroDef(key, value);
 
 		setLocation(def);
+		
+		for (Tuple<String, String> p : params) {
+			SVDBMacroDefParam mp = new SVDBMacroDefParam(p.first(), p.second());
+			def.addParameter(mp);
+		}
 
 		if (def.getName() == null || def.getName().equals("")) {
 			// TODO: find filename

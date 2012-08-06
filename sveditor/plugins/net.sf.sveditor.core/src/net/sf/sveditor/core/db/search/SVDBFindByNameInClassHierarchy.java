@@ -51,6 +51,15 @@ public class SVDBFindByNameInClassHierarchy {
 			ISVDBChildItem 		scope, 
 			String 				id,
 			SVDBItemType	...	types) {
+		return find(scope, id, false, false, types);
+	}
+	
+	public List<ISVDBItemBase> find(
+			ISVDBChildItem 		scope, 
+			String 				id,
+			boolean				exclude_nonstatic,
+			boolean				exclude_static,
+			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		
 		fLog.debug("--> find(" + ((scope != null)?SVDBItem.getName(scope):null) + " \"" + id + "\")");
@@ -109,9 +118,14 @@ public class SVDBFindByNameInClassHierarchy {
 
 				if (matches) {
 					if (it.getType() == SVDBItemType.VarDeclStmt) {
-						for (ISVDBChildItem it_t : ((SVDBVarDeclStmt)it).getChildren()) {
-							if (fMatcher.match((ISVDBNamedItem)it_t, id)) {
-								ret.add(it_t);
+						SVDBVarDeclStmt var = (SVDBVarDeclStmt)it;
+						boolean is_static = (var.getAttr() & SVDBVarDeclStmt.FieldAttr_Static) != 0;
+					
+						if ((is_static && !exclude_static) || (!is_static && !exclude_nonstatic)) {
+							for (ISVDBChildItem it_t : ((SVDBVarDeclStmt)it).getChildren()) {
+								if (fMatcher.match((ISVDBNamedItem)it_t, id)) {
+									ret.add(it_t);
+								}
 							}
 						}
 					} else if (it instanceof ISVDBNamedItem) {

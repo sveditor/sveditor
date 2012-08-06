@@ -70,7 +70,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			fMacroCache.get(key).setDef(value);
 		} else {
 			fMacroCache.put(key, 
-					new SVDBMacroDef(key, new ArrayList<String>(), value));
+					new SVDBMacroDef(key, value));
 		}
 	}
 

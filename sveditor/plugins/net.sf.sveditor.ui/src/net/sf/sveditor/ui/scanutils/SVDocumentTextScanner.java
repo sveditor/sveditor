@@ -153,11 +153,14 @@ public class SVDocumentTextScanner
 						try {
 							r = ext3.getPartition(SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
 						} catch (BadPartitioningException e) {}
-								
+						
 						if (!fSkipComments ||
 								(r != null && 
 								!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
 								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT))) {
+							if (fIdx >= fDoc.getLength()) {
+								fIdx = fDoc.getLength()-1;
+							}
 							ch = fDoc.getChar(fIdx);
 							fIdx--;
 							break;
@@ -172,8 +175,7 @@ public class SVDocumentTextScanner
 						}
 					}
 				}
-			} catch (BadLocationException e) {
-			}
+			} catch (BadLocationException e) {}
 		}
 		
 		return ch;

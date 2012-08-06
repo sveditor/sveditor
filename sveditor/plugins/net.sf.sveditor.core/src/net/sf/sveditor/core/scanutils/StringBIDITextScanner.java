@@ -58,6 +58,9 @@ public class StringBIDITextScanner
 				}
 			} else {
 				if ((fIdx-1) >= 0 && fData.length() > 0) {
+					if (fIdx >= fData.length()) {
+						fIdx = fData.length()-1;
+					}
 					ret = fData.charAt(fIdx);
 					fIdx--;
 				}
@@ -101,6 +104,10 @@ public class StringBIDITextScanner
 
 	public void seek(long pos) {
 		fIdx = (int)pos;
+	}
+	
+	public String getContent() {
+		return fData;
 	}
 
 	

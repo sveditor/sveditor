@@ -672,6 +672,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	private SVDBModportSimplePortsDecl modport_simple_ports_declaration(String dir) throws SVParseException {
 		SVDBModportSimplePortsDecl ret = new SVDBModportSimplePortsDecl();
+		if (fDebugEn) {
+			debug("--> modport_simple_ports_declaration: " + dir);
+		}
 		ret.setPortDir(dir);
 		
 		while (fLexer.peek() != null) {
@@ -687,6 +690,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				port.setExpr(fParsers.exprParser().expression());
 				fLexer.readOperator(")");
 			}
+			if (fDebugEn) {
+				debug(" -- Add port " + port.getPortId());
+			}
 			ret.addPort(port);
 			
 			if (fLexer.peekOperator(",")) {
@@ -698,6 +704,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			if (fLexer.peekKeyword()) {
 				break;
 			}
+		}
+		
+		if (fDebugEn) {
+			debug("<-- modport_simple_ports_declaration: " + dir);
 		}
 		
 		return ret;

@@ -19,6 +19,7 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -322,25 +323,43 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	 ****************************************************************/
 	private void expandMacro(
 			StringTextScanner		scanner,
-			SVDBMacroDef 			m, 
-			List<String> 			params) {
-		boolean expand_params = (params != null);
+			SVDBMacroDef 			m,
+			List<String> 			params_vals) {
+		boolean expand_params = (params_vals != null);
+		List<String> param_names = new ArrayList<String>();
+		
+		// Iterate through the specified and definition arguments,
+		// potentially adding default values
+		for (int i=0; i<m.getParameters().size(); i++) {
+			SVDBMacroDefParam mp = m.getParameters().get(i);
+			param_names.add(mp.getName());
+			if (i >= params_vals.size() && mp.getValue() != null) {
+				if (fDebugEn) {
+					debug("Using default value \"" + mp.getValue() + 
+							"\" for parameter " + mp.getName());
+				}
+				params_vals.add(mp.getValue());
+			}
+		}
+		
 		if (fDebugEn) {
 			debug("--> expandMacro(" + m.getName() + ")");
 			debug("    text=" + scanner.substring(scanner.getOffset(), scanner.getLimit()));
 		}
 		
 		if (expand_params) {
-			expand_params = (params.size() == m.getParameters().size());
-			if (params.size() != m.getParameters().size()) {
-				System.out.println("[ERROR] param count for macro \"" + 
+			expand_params = (params_vals.size() == param_names.size());
+			if (params_vals.size() != param_names.size()) {
+				fLog.error("param count for macro \"" + 
 						m.getName() + "\" doesn't match: " + 
-						params.size() + " vs " + m.getParameters().size());
-				System.out.println("    Location: " + fFilename + ":" + fLineno);
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					e.printStackTrace();
+						params_vals.size() + " vs " + m.getParameters().size());
+				fLog.error("    Location: " + fFilename + ":" + fLineno);
+				if (fDebugEn) {
+					try {
+						throw new Exception();
+					} catch (Exception e) {
+						fLog.debug("Location of mismatch", e);
+					}
 				}
 			}
 		}
@@ -374,8 +393,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 
 		// Expand the parameter references within the replacement
 		if (expand_params) {
-			expandParameterRefs(new StringTextScanner(scanner), 
-					m.getParameters(), params);
+			expandParameterRefs(new StringTextScanner(scanner), param_names, params_vals);
 		}
 
 		// Expand pre-processor references within the replacement
@@ -535,17 +553,28 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				scanner.replace(scanner.getOffset()-2, scanner.getOffset(), "");
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				int p_start = scanner.getOffset()-1;
-				
+				int p_end;
+
 				String key = scanner.readPreProcIdentifier(ch);
+		
+				debug("offset=" + scanner.getOffset() + " limit=" + scanner.getLimit());
+				if (scanner.getOffset() >= scanner.getLimit() && key.length() == 1) {
+//				if (key.length() == 1) {
+					debug("should extend to limit");
+					p_end = scanner.getOffset();
+//					p_end = scanner.getOffset()-1;
+				} else {
+					p_end = scanner.getOffset()-1;
+				}
 
 				int index = param_names.indexOf(key);
 				if (index != -1 && index < param_vals.size()) {
 					if (fDebugEn) {
 						debug("Replacing parameter \"" + key + "\" with \"" +
 								param_vals.get(index) + "\"");
+						debug("start_p=" + p_start + " end_p=" + p_end + " offset-1=" + (scanner.getOffset()-1));
 					}
-					scanner.replace(p_start, scanner.getOffset()-1, 
-							param_vals.get(index));
+					scanner.replace(p_start, p_end, param_vals.get(index));
 				}
 			}
 			

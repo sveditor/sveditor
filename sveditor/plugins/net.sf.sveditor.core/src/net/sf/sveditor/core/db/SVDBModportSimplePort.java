@@ -14,7 +14,7 @@ package net.sf.sveditor.core.db;
 
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBModportSimplePort extends SVDBChildItem {
+public class SVDBModportSimplePort extends SVDBChildItem implements ISVDBNamedItem {
 	public boolean				fIsMapped;
 	public String				fPortId;
 	public SVDBExpr			fExpr;
@@ -45,5 +45,9 @@ public class SVDBModportSimplePort extends SVDBChildItem {
 	
 	public SVDBExpr getExpr() {
 		return fExpr;
+	}
+
+	public String getName() {
+		return fPortId;
 	}
 }

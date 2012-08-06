@@ -94,7 +94,6 @@ public class TestModelFactory extends TestCase {
 
 	}			
 	
-	
 	public void doTestUVMExample(
 			String 			testName, 
 			String			bundleDirName,
@@ -169,7 +168,7 @@ public class TestModelFactory extends TestCase {
 		//
 		
 		if(fDebug)
-			SVCorePlugin.getDefault().enableDebug(true) ;
+			SVCorePlugin.getDefault().enableDebug(false) ;
 		
 		DocModelFactory factory = new DocModelFactory() ;
 		DocModel model = factory.build(cfg) ;

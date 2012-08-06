@@ -35,9 +35,6 @@ public class SelectionConverter {
 	}
 	
 	public static ISVDBItemBase getElementAtOffset(SVEditor editor) {
-		IDocument doc = editor.getDocumentProvider().getDocument(
-				editor.getEditorInput());
-		
 		ITextSelection sel = null ;
 		
 		ISelection sel_o = editor.getSelectionProvider().getSelection();
@@ -51,10 +48,20 @@ public class SelectionConverter {
 			
 		int offset = sel.getOffset() + sel.getLength();
 		
+		return getElementAt(editor, offset);
+				
+	}
+
+	public static ISVDBItemBase getElementAt(SVEditor editor, int offset) {
+		
+		IDocument doc = editor.getDocumentProvider().getDocument(
+				editor.getEditorInput());
+		
 		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset) ;
 		
 		SVExprScanner			expr_scanner = new SVExprScanner();
 		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
+		
 
 		if (expr_ctxt.fLeaf != null && 
 				(expr_ctxt.fTrigger == null || 
@@ -89,7 +96,6 @@ public class SelectionConverter {
 		}
 		
 		return null ;
-				
 	}
 
 

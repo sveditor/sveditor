@@ -1,3 +1,20 @@
+
+-- 0.9.6 Release --
+
+- #(enh) - Enhance content assist to only show static/non-static fields based
+  on preceeding expression (ie <expr>.<<CA_TRIGGER>> only shows non-static fields)
+  
+- #(enh) - Enhance class-extension content assist to only return class proposals
+
+- #(3545640) - Add support for macros with default-value parameters
+
+- #(nobug) - Correct name-matching issue with content assist for ports in the
+  current module/interface
+  
+- #(3553812) - Add basic support for content assist of parameterized types
+
+
+------------------------------------------------------------------------------
 -- 0.9.5 Release --
 
 - #(nobug) - Correct a bug in the package cache that caused only declarations
@@ -6,15 +23,35 @@
 - #(nobug) - Correct a string out-of-bounds when parsing a file with incomplete 
   `include directives
   
+- #(nobug) - Correct a parse bug when attempting to parse a partial 
+  pre-processor declaration (eg `)
+  
 - #(nobug) - Correct a NPE from the label provider when displaying a function 
   with no type
   
 - #(enh) - Implement content-assist for interface fields referenced via a virtual interface field. 
 
 - #(enh) - Add basic timeout support for content assist. 
-  
-- #(?) - event data-type not recognized as field?
 
+- #(enh) - Add content assist for fields of interface-type module items
+
+- #(enh) - Add content assist for modports of interface-type items
+
+- #(enh) - Add double-click support to the path browsers for project-paths setup
+
+- #(enh) - Add content assist for ports of interface-type items
+
+- #(enh) - Add content assist for hierarchical module paths
+
+- #(3547768) - Normalize paths to avoid cross-platform issues
+
+- #(enh) - Add content assist for modport-type module ports
+
+- #(nobug) - Correct an issue with requesting content-assist at the very
+  end of a file. For me, this often resulted in receiving incorrect 
+  content suggestions for super classes
+
+  
 ------------------------------------------------------------------------------
 -- 0.9.4 Release --
 

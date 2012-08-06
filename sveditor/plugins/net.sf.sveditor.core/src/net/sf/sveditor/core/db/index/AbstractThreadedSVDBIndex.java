@@ -55,11 +55,11 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -1315,14 +1315,14 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		InputStreamCopier copier = new InputStreamCopier(in);
 		in = null;
 
-		SVPreProcScanner sc = new SVPreProcScanner();
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		SVDBPreProcObserver ob = new SVDBPreProcObserver();
 		sc.setObserver(ob);
 
 		file_tree = file_tree.duplicate();
 
 		sc.init(copier.copy(), path);
-		sc.scan();
+		sc.process();
 
 		SVDBFile svdb_pp = ob.getFiles().get(0);
 
@@ -1468,7 +1468,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 	}
 
 	protected SVDBFile processPreProcFile(String path) {
-		SVPreProcScanner sc = new SVPreProcScanner();
+		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
 		SVDBPreProcObserver ob = new SVDBPreProcObserver();
 
 		sc.setObserver(ob);
@@ -1483,7 +1483,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		}
 
 		sc.init(in, path);
-		sc.scan();
+		sc.process();
 
 		getFileSystemProvider().closeStream(in);
 
@@ -1650,7 +1650,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return findFile(item.getFilename());
 	}
 
-	public SVPreProcScanner createPreProcScanner(String path) {
+	public SVPreProcDirectiveScanner createPreProcScanner(String path) {
 		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);
 		SVDBFileTree ft = findFileTree(path);
@@ -1669,12 +1669,10 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		IPreProcMacroProvider mp = createMacroProvider(ft);
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 
-		SVPreProcScanner pp = new SVPreProcScanner();
+		SVPreProcDirectiveScanner pp = new SVPreProcDirectiveScanner();
 		pp.setDefineProvider(dp);
 
 		pp.init(in, path);
-		pp.setExpandMacros(true);
-		pp.setEvalConditionals(true);
 
 		return pp;
 	}

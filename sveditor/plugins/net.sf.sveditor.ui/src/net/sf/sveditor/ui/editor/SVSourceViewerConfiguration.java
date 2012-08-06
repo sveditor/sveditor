@@ -22,6 +22,7 @@ import net.sf.sveditor.ui.text.ObjectsInformationControl;
 import net.sf.sveditor.ui.text.OutlineInformationControl;
 import net.sf.sveditor.ui.text.SVEditorProvider;
 import net.sf.sveditor.ui.text.SVElementProvider;
+import net.sf.sveditor.ui.text.hover.SVDocHover;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractInformationControlManager;
@@ -29,6 +30,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
@@ -232,6 +234,18 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return null;
 	}
 	 */
+	
+	public ITextHover getTextHover(ISourceViewer viewer, String contentType) {
+		if (!contentType.equals(SVDocumentPartitions.SV_STRING) &&
+			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
+			!contentType.equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
+//			return new SVEditorTextHover(fEditor, viewer) ;
+			SVDocHover hover = new SVDocHover() ;
+			hover.setEditor(fEditor) ;
+			return hover ;
+		}
+		return null;
+	}
 	
 	private IInformationControlCreator getObjectsPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
