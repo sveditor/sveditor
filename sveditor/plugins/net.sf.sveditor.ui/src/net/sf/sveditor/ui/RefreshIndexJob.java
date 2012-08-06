@@ -68,6 +68,7 @@ public class RefreshIndexJob extends Job {
 			try {
 				SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
 				index.loadIndex(sub);
+				index.rebuildIndex();
 			} catch (Exception e) {
 				fLog.error("Exception during index refresh: " + e.getMessage(), e);
 			}
