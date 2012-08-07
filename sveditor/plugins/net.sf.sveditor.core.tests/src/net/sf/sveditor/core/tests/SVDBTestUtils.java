@@ -41,10 +41,10 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.scanner.SVPreProcScanner;
 
 public class SVDBTestUtils {
 
@@ -221,12 +221,12 @@ public class SVDBTestUtils {
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		if (log != null) {
 			InputStream in = copier.copy();
-			SVPreProcScanner pp = new SVPreProcScanner();
+			
+			/*
+			SVPreProcDirectiveScanner pp = new SVPreProcDirectiveScanner();
 			pp.setDefineProvider(dp);
 
 			pp.init(in, filename);
-			pp.setExpandMacros(true);
-			pp.setEvalConditionals(true);
 
 			StringBuilder sb = new StringBuilder();
 			int ch;
@@ -237,6 +237,7 @@ public class SVDBTestUtils {
 			log.debug(sb.toString());
 		
 			in = copier.copy();
+			 */
 			SVPreProcessor preproc = new SVPreProcessor(in, filename, dp);
 			log.debug("Content (SVPreProc):");
 			log.debug(preproc.preprocess().toString());
@@ -262,12 +263,12 @@ public class SVDBTestUtils {
 	}
 
 	public static String preprocess(String content, final String filename) {
-		SVPreProcScanner pp_scanner = new SVPreProcScanner();
+		SVPreProcDirectiveScanner pp_scanner = new SVPreProcDirectiveScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
 		
 		SVDBPreProcObserver pp_observer = new SVDBPreProcObserver();
 		pp_scanner.setObserver(pp_observer);
-		pp_scanner.scan();
+		pp_scanner.process();
 		final SVDBFile pp_file = pp_observer.getFiles().get(0);
 		IPreProcMacroProvider macro_provider = new IPreProcMacroProvider() {
 
@@ -276,10 +277,9 @@ public class SVDBTestUtils {
 			
 			public SVDBMacroDef findMacro(String name, int lineno) {
 				if (name.equals("__FILE__")) {
-					return new SVDBMacroDef("__FILE__", new ArrayList<String>(), 
-							"\"" + filename + "\"");
+					return new SVDBMacroDef("__FILE__", "\"" + filename + "\"");
 				} else if (name.equals("__LINE__")) {
-					return new SVDBMacroDef("__LINE__", new ArrayList<String>(), "0");
+					return new SVDBMacroDef("__LINE__", "0");
 				} else {
 					for (ISVDBItemBase it : pp_file.getChildren()) {
 						if (it.getType() == SVDBItemType.MacroDef && 
@@ -293,6 +293,7 @@ public class SVDBTestUtils {
 			
 		};
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
+		/*
 		pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
 		pp_scanner.setExpandMacros(true);
@@ -303,8 +304,12 @@ public class SVDBTestUtils {
 		while ((c = pp_scanner.get_ch()) != -1) {
 			result.append((char)c);
 		}
-		
-		return result.toString();
+		 */
+		SVPreProcessor pp = new SVPreProcessor(
+				new StringInputStream(content), filename, dp);
+		SVPreProcOutput out = pp.preprocess();
+	
+		return out.toString();
 	}
 
 }

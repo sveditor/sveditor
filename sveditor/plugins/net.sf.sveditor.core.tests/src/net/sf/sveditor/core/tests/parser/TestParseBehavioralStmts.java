@@ -185,6 +185,24 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testVarDeclListForStmt", doc, new String[] { "t" });
 		
 	}
+
+	public void testOmittedTFCallParams() throws SVParseException {
+		String doc =
+			"class c;\n" +
+			"	function void foo(string A, int B=1, string C=2, int D=3);\n" +
+			"	endfunction\n" +
+			"\n" +
+			"	function bar();\n" +
+			"		foo(\"FOO\" ,,\"BAR\",4);\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testVarDeclListForStmt", doc, 
+				new String[] { "c", "foo", "bar" });
+	}
 	
 	private void runTest(
 			String			testname,

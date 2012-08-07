@@ -48,6 +48,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
@@ -128,6 +129,10 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		update_global_parameters();
 		
+	}
+	
+	public static IWorkbenchPage getActivePage() {
+		return getDefault().getActivePage() ;
 	}
 	
 	private void update_template_paths() {

@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
+import net.sf.sveditor.core.db.stmt.SVDBIfStmt;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -106,6 +107,7 @@ public class SVDBSearchUtils implements ILogLevel {
 	 * @return
 	 */
 	public static ISVDBScopeItem findActiveScope(ISVDBChildParent scope, int lineno) {
+		ISVDBScopeItem ret = null;
 		debug("findActiveScope: " + SVDBItem.getName(scope) + " " + lineno);
 		for (ISVDBItemBase it : scope.getChildren()) {
 			debug("    Child: " + SVDBItem.getName(it) + " " + (it instanceof ISVDBScopeItem));
@@ -115,33 +117,54 @@ public class SVDBSearchUtils implements ILogLevel {
 					((ISVDBBodyStmt)it).getBody() instanceof ISVDBScopeItem) {
 				it = ((ISVDBBodyStmt)it).getBody();
 				debug("        instanceof ISVDBBodyStmt: child=" + SVDBItem.getName(it));
-			}
-			
-			if (it instanceof ISVDBScopeItem) {
-				SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
-				ISVDBScopeItem s_it = (ISVDBScopeItem)it;
-				debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
-				if (s_it.getLocation() != null && end_loc != null) {
-					debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
-							it.getLocation().getLine() + "-" + 
-							((end_loc != null)?end_loc.getLine():-1));
-					if (lineno >= s_it.getLocation().getLine() && 
-							lineno <= end_loc.getLine()) {
-						ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
-						
-						if (s_it_p != null) {
-							return s_it_p;
-						} else {
-							return (ISVDBScopeItem)s_it;
-						}
+				if ((ret = findActiveScope_i(it, lineno)) != null) {
+					break;
+				}
+			} else if (it.getType() == SVDBItemType.IfStmt) {
+				SVDBIfStmt if_stmt = (SVDBIfStmt)it;
+				if (if_stmt.getIfStmt() != null) {
+					if ((ret = findActiveScope_i(if_stmt.getIfStmt(), lineno)) != null) {
+						break;
 					}
+				}
+				if (if_stmt.getElseStmt() != null) {
+					if ((ret = findActiveScope_i(if_stmt.getElseStmt(), lineno)) != null) {
+						break;
+					}
+				}
+			} else {
+				if ((ret = findActiveScope_i(it, lineno)) != null) {
+					break;
 				}
 			}
 		}
 		
-		return null;
+		return ret;
 	}
 
+	private static ISVDBScopeItem findActiveScope_i(ISVDBItemBase it, int lineno) {
+		if (it instanceof ISVDBScopeItem) {
+			SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
+			ISVDBScopeItem s_it = (ISVDBScopeItem)it;
+			debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
+			if (s_it.getLocation() != null && end_loc != null) {
+				debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
+						it.getLocation().getLine() + "-" + 
+						((end_loc != null)?end_loc.getLine():-1));
+				if (lineno >= s_it.getLocation().getLine() && 
+						lineno <= end_loc.getLine()) {
+					ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
+					
+					if (s_it_p != null) {
+						return s_it_p;
+					} else {
+						return (ISVDBScopeItem)s_it;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	private static void debug(String msg) {
 		fLog.debug(LEVEL_MAX, msg);

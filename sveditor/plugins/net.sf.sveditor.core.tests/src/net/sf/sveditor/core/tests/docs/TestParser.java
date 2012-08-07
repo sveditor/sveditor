@@ -85,7 +85,7 @@ public class TestParser extends TestCase {
 			    "Description of the ubus_env class",
 			    "" ,
 			    "This is a header line:",
-			    "",
+//			    "",
 			    "More stuff following header"
 		} ;
 
@@ -149,6 +149,45 @@ public class TestParser extends TestCase {
 		
 		classDocTopic.setBody("<p>Description of the ubus_env class</p><ul><li>bullet 1</li><li>bullet 2</li><li>bullet 3</li></ul>") ;
 		classDocTopic.setSummary("Description of the ubus_env class") ;
+		
+		expTopics.add(classDocTopic) ;
+		
+		runTest(commentLines, expTopics) ;
+		
+	}
+	
+	public void testDefinitionList() throws Exception {
+//		fDebug = true ;
+		String commentLines[] =  {
+			    "",
+			    "CLASS: ubus_env",
+			    "",
+			    "Description of the ubus_env class",
+			    "",
+			    "	First  - This is the first item.",
+			    "	Second - This is the second item.",
+			    "         	 This is more of the second item.",
+			    "	Third  - This is the third item.",
+			    "	This is more of the third item.",
+			    "",
+ 			    "	Some text after the definition list."
+		} ;
+
+		Set<DocTopic> expTopics = new HashSet<DocTopic>() ;
+		
+		DocTopic classDocTopic = new DocTopic("ubus_env","class","class") ;
+		
+		classDocTopic.setBody("<p>Description of the ubus_env class</p>"
+				              +"<dl><de>	First</de>" 
+							  	+"<dd>This is the first item.</dd>"
+							  		+"<de>	Second</de>"
+							    +"<dd>This is the second item. 	 This is more of the second item.</dd>"
+							     	+"<de>	Third</de>"
+							    +"<dd>This is the third item. 	This is more of the third item.</dd>"
+							  +"</dl>"
+							  +"<p>	Some text after the definition list.</p>") ;
+		classDocTopic.setSummary("Description of the ubus_env class") ;
+		
 		
 		expTopics.add(classDocTopic) ;
 		
@@ -455,8 +494,6 @@ public class TestParser extends TestCase {
 		}
 		
 		assertTrue("Unexpected topics parsed", actDocTopics.size()==0) ;
-		
-		fLog.debug(ILogLevel.LEVEL_OFF, "Done!") ;
 		
 	}
 

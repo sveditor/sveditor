@@ -1,3 +1,28 @@
+
+-- 0.9.6 Release --
+
+- #(enh) - Enhance content assist to only show static/non-static fields based
+  on preceeding expression (ie <expr>.<<CA_TRIGGER>> only shows non-static fields)
+  
+- #(enh) - Enhance class-extension content assist to only return class proposals
+
+- #(3545640) - Add support for macros with default-value parameters
+
+- #(nobug) - Correct name-matching issue with content assist for ports in the
+  current module/interface
+  
+- #(3553812) - Add basic support for content assist of parameterized types
+
+- #(enh) - Generated documentation now opened within Eclipse
+
+- #(enh) - Support for definition lists in the documentation comments
+
+- #(3554595) - Correct a bug in the editor-specific index iterator that, 
+  in some cases, prevented content assist and open declaration from working
+  on declarations within the file.
+
+
+------------------------------------------------------------------------------
 -- 0.9.5 Release --
 
 - #(nobug) - Correct a bug in the package cache that caused only declarations

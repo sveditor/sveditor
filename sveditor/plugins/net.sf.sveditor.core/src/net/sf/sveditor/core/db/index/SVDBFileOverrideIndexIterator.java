@@ -23,12 +23,14 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
+public class SVDBFileOverrideIndexIterator 
+		implements ISVDBIndexIterator, ILogLevel {
 	private ISVDBIndex				fIndex;
 	private SVDBFile				fFile;
 	private ISVDBIndexIterator		fSuperIterator;
@@ -45,6 +47,10 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 	
 	public void setIndexIt(ISVDBIndexIterator index_it) {
 		fSuperIterator = index_it;
+	}
+
+	public void setFile(SVDBFile file) {
+		fFile = file;
 	}
 	
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
@@ -74,7 +80,7 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 			String filepath = ret.get(i).getFile().getFilePath();
 			String filepath_f = fFile.getFilePath();
 			if (filepath != null && filepath.equals(filepath_f)) {
-				fLog.debug("Remove item \"" + ret.get(i).getName() + "\" because from active file");
+				fLog.debug(LEVEL_MID, "Remove item \"" + ret.get(i).getName() + "\" because from active file");
 				ret.remove(i);
 				i--;
 			}
@@ -114,7 +120,7 @@ public class SVDBFileOverrideIndexIterator implements ISVDBIndexIterator {
 							SVDBItemType.MacroDef);
 					ISVDBNamedItem ni = (ISVDBNamedItem)item;
 					if (matcher.match(ni, name)) {
-						fLog.debug("Add item \"" + ni.getName() + "\" to result");
+						fLog.debug(LEVEL_MID, "Add item \"" + ni.getName() + "\" to result");
 						result.add(new SVDBDeclCacheItem(this, fFile.getFilePath(), 
 								ni.getName(), ni.getType(), is_ft));
 					}

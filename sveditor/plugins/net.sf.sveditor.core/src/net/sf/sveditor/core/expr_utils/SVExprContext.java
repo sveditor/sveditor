@@ -17,7 +17,8 @@ public class SVExprContext {
 		String,
 		Untriggered,
 		Triggered,
-		Import
+		Import,
+		Extends
 	};
 	
 	// Document offset where 'leaf' begins

@@ -39,6 +39,7 @@ import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -68,7 +69,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
 	private SVDBFindParameterizedClass	fFindParameterizedClass;
-//	private boolean						fStaticAccess;
+	private boolean					fStaticAccess;
 	
 	private class SVAbortException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
@@ -177,7 +178,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			case FieldAccessExpr:
 				field_access_expr((SVDBFieldAccessExpr)expr);
 				break;
-				
+			
+			case ParamIdExpr:
 			case IdentifierExpr:
 				identifier_expr((SVDBIdentifierExpr)expr);
 				break;
@@ -231,8 +233,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	protected void field_access_expr(SVDBFieldAccessExpr expr) {
 		fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
 		visit(expr.getExpr());
-// 		fStaticAccess = expr.isStaticRef();
+ 		fStaticAccess = expr.isStaticRef();
 		visit(expr.getLeaf());
+		fStaticAccess = false;
 	}
 	
 	private ISVDBItemBase findInScopeHierarchy(String name) {
@@ -269,7 +272,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		SVDBFindByNameInClassHierarchy finder_h = 
 			new SVDBFindByNameInClassHierarchy(fIndexIt, fNameMatcher);
 		
-		List<ISVDBItemBase> items = finder_h.find(root, name);
+		List<ISVDBItemBase> items = finder_h.find(root, name, 
+				fStaticAccess, !fStaticAccess);
 
 		// Filter out the forward typedefs
 		filterFwdDecls(items);
