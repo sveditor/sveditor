@@ -33,6 +33,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {
@@ -1618,6 +1619,25 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"harness", "f4"});
 	}
 
+	public void testParseEvent() throws SVParseException {
+		String testname = "testParseEvent";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module my_module();\n" +
+			"	event some_event;\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		->  some_event;\n" +
+			"		->>      some_event;\n" +
+			"		->> #2ns some_event;\n" +
+			"		->> repeat (10) some_event;\n" +
+			"		->> @(posedge bob) some_event;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"some_event"});
+	}
+		
 	private void runTest(
 			String			testname,
 			String			doc,
