@@ -1623,17 +1623,18 @@ public class TestParseModuleBodyItems extends TestCase {
 		String testname = "testParseEvent";
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
-			"module my_module();\n" +
-			"	event some_event;\n" +
-			"	initial\n" +
-			"	begin\n" +
-			"		->  some_event;\n" +
-			"		->>      some_event;\n" +
-			"		->> #2ns some_event;\n" +
-			"		->> repeat (10) some_event;\n" +
-			"		->> @(posedge bob) some_event;\n" +
-			"	end\n" +
-			"endmodule\n"
+				"module my_module();\n" + 
+				"	event some_event;\n" + 
+				"   logic bob;\n" + 
+				"	initial\n" + 
+				"	begin\n" + 
+				"		->  some_event; // passes\n" + 
+				"		->>      some_event; // passes\n" + 
+				"		->> #2ns some_event; // passes\n" + 
+				"		->> repeat (10) @(posedge bob) some_event; // Modelsim doesn't like the repeat, but the LRM implies that it is valid\n" + 
+				"		->> @(posedge bob) some_event;\n" + 
+				"	end\n" + 
+				"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"some_event"});
 	}
