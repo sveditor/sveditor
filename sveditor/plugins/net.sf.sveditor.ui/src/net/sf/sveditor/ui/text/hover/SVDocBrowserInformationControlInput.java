@@ -78,6 +78,7 @@ public class SVDocBrowserInformationControlInput extends BrowserInformationContr
 	 */
 	@Override
 	public Object getInputElement() {
+		System.out.println("getInputElement: " + fElement + " " + fHtml);
 		return fElement == null ? (Object) fHtml : fElement;
 	}
 

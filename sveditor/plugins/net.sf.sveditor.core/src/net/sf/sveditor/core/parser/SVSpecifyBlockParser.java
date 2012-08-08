@@ -60,6 +60,8 @@ public class SVSpecifyBlockParser extends SVParserBase {
 				fLexer.readOperator(";");
 			} else if (fLexer.peekId() && system_timing_checks_kw.contains(fLexer.peek())) {
 				system_timing_checks(null);
+			} else if (fLexer.peekKeyword("if","ifnone")) {
+				state_dependent_path_declaration(null);
 			} else {
 				error("Unexpected specify-block item: " + fLexer.peek());
 			}
@@ -268,5 +270,19 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		if (has_paren) {
 			fLexer.readOperator(")");
 		}
+	}
+
+	// TODO: save data
+	private void state_dependent_path_declaration(ISVDBAddChildItem parent) throws SVParseException {
+		if (fLexer.peekKeyword("if")) {
+			fLexer.eatToken();
+			fLexer.readOperator("(");
+			fParsers.exprParser().module_path_expression();
+			fLexer.readOperator(")");
+		} else {
+			// ifnone
+			fParsers.exprParser().simple_path_expression();
+		}
+		
 	}
 }
