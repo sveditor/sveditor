@@ -38,7 +38,7 @@ import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 	private File				fDBDir;
-	private boolean			fAsyncClear = false;
+	private boolean			fAsyncClear = true;
 	private boolean			fDebugEn;
 	private LogHandle			fLog;
 	
@@ -47,6 +47,10 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 		fLog = LogFactory.getLogHandle("SVDBDirFS");
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
+	}
+	
+	public void setEnableAsyncClear(boolean en) {
+		fAsyncClear = en;
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {

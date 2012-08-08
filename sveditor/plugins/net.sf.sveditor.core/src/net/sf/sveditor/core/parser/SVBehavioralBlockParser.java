@@ -316,9 +316,48 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			}
 		} else if (fLexer.peekOperator("->>", "->", "-->")) {
 			SVDBEventTriggerStmt event_trigger = new SVDBEventTriggerStmt();
-			/* String tt = */ fLexer.eatToken();
+			String tt =  fLexer.eatToken();
 			
-			// TODO: handle [delay_or_event_control] after ->>
+			// Non-blocking operator can have a [delay_or_event_control] module
+			if (tt.equals("->>"))  {
+				// repeat
+				if (fLexer.peekKeyword("repeat")) {
+					SVDBRepeatStmt repeat = new SVDBRepeatStmt();
+					repeat.setLocation(start);
+					fLexer.eatToken();
+					fLexer.readOperator("(");
+					repeat.setExpr(parsers().exprParser().expression());
+					fLexer.readOperator(")");
+					// TODO: SGD - Matt, can I ask you to patch this thing	
+					//	parent.addChildItem(repeat);
+					// statement_int(repeat, false, false, consume_terminator);
+				}
+				// Or event
+				if (fLexer.peekOperator("@")) {
+					SVDBEventControlStmt event_stmt = new SVDBEventControlStmt();
+					fLexer.eatToken();
+					event_stmt.setExpr(parsers().exprParser().event_expression());
+					event_trigger.setDelayOrEventControl(event_stmt);
+					
+					// TODO: SGD - Matt, can I ask you to patch this thing  
+					// I am quite happy to completely flush the "delay_or_event_control" 
+					// to save some space in the DB... don't know if it adds value
+
+					// statement_or_null
+					// parent.addChildItem(event_stmt);
+					// statement_int(event_stmt, decl_allowed, ansi_decl, consume_terminator);
+				}
+				// Delay
+				else if (fLexer.peekOperator("#")) {
+					SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
+					
+					delay_stmt.setExpr(fParsers.exprParser().delay_expr(3));		// uses min/typ/max
+					event_trigger.setDelayOrEventControl(delay_stmt);
+					// TODO: SGD - Matt, can I ask you to patch this thing	
+					//	statement_int(delay_stmt, false, true, consume_terminator);
+				}
+			}
+			
 			
 			event_trigger.setHierarchicalEventIdentifier(parsers().exprParser().expression());
 			if (consume_terminator) {
