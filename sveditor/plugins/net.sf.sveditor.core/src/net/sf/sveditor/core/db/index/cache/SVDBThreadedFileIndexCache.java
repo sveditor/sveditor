@@ -15,7 +15,6 @@ package net.sf.sveditor.core.db.index.cache;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
-import java.io.RandomAccessFile;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
@@ -127,13 +126,16 @@ public class SVDBThreadedFileIndexCache implements ISVDBIndexCache, ILogLevelLis
 		return true;
 	}
 	
-	public void clear() {
+	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
+		
+		monitor.beginTask("Clear Cache", 1);
 		if (fDebugEn) {
 			fLog.debug("clear");
 		}
 		fFileCache.clear();
-		fSVDBFS.delete("");
+		fSVDBFS.delete(monitor, "");
+		monitor.done();
 	}
 
 	public void addFile(String path) {
@@ -352,7 +354,7 @@ public class SVDBThreadedFileIndexCache implements ISVDBIndexCache, ILogLevelLis
 			// TODO: should actually remove?
 			cfi.fSVDBFile = new WeakReference<SVDBFile>(null);
 			String target_dir = computePathDir(path);
-			fSVDBFS.delete(target_dir + "/file");
+			fSVDBFS.delete(null, target_dir + "/file");
 		} else {
 			cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 			cfi.fSVDBFileRef = file;
@@ -410,7 +412,7 @@ public class SVDBThreadedFileIndexCache implements ISVDBIndexCache, ILogLevelLis
 		String target_dir = computePathDir(path);
 
 		// remove backing cache, if it exists
-		fSVDBFS.delete(target_dir);
+		fSVDBFS.delete(null, target_dir);
 	}
 	
 	private String computePathDir(String path) {

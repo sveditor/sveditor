@@ -147,13 +147,15 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return true;
 	}
 	
-	public void clear() {
+	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "Clear Index Cache");
 		}
+		monitor.beginTask("Clear Cache", 1);
 		fFileCache.clear();
-		fSVDBFS.delete("");
+		fSVDBFS.delete(monitor, "");
+		monitor.done();
 	}
 
 	public void addFile(String path) {
@@ -378,7 +380,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			// TODO: should actually remove?
 			cfi.fSVDBFile = new WeakReference<SVDBFile>(null);
 			String target_dir = computePathDir(path);
-			fSVDBFS.delete(target_dir + "/file");
+			fSVDBFS.delete(null, target_dir + "/file");
 		} else {
 			cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 			cfi.fSVDBFileRef = file;
@@ -432,7 +434,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		String target_dir = computePathDir(path);
 
 		// remove backing cache, if it exists
-		fSVDBFS.delete(target_dir);
+		fSVDBFS.delete(null, target_dir);
 	}
 	
 	private String computePathDir(String path) {

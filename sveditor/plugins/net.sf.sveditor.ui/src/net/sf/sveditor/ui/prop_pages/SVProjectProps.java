@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -97,7 +98,7 @@ public class SVProjectProps extends PropertyPage implements
 		
 		fProjectData.setProjectFileWrapper(fProjectFileWrapper);
 		
-		fProjectData.getProjectIndexMgr().rebuildIndex();
+		fProjectData.getProjectIndexMgr().rebuildIndex(new NullProgressMonitor());
 		
 		return true;
 	}
