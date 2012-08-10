@@ -21,6 +21,10 @@
   in some cases, prevented content assist and open declaration from working
   on declarations within the file.
 
+- #(enh) - Move clear portion of index rebuild into the main portion
+  of the rebuild thread
+
+- #(enh) - Make index-cache clearing an asynchronous operation
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --
