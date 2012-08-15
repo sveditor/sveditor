@@ -46,6 +46,8 @@ public class SVDocBrowserInformationControlInput extends BrowserInformationContr
 		fHtml= html;
 		fLeadingImageWidth= leadingImageWidth;
 	}
+	
+	
 
 	/*
 	 * @see org.eclipse.jface.internal.text.html.BrowserInformationControlInput#getLeadingImageWidth()
@@ -78,7 +80,6 @@ public class SVDocBrowserInformationControlInput extends BrowserInformationContr
 	 */
 	@Override
 	public Object getInputElement() {
-		System.out.println("getInputElement: " + fElement + " " + fHtml);
 		return fElement == null ? (Object) fHtml : fElement;
 	}
 

@@ -21,6 +21,11 @@
   in some cases, prevented content assist and open declaration from working
   on declarations within the file.
 
+- #(enh) - Add a preference to switch between using the browser widget
+  for hover information and using the default hover widget. For some reason,
+  there appear to be problems with the browser widget on Ubuntu 12.04
+  
+  
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --

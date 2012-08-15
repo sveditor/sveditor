@@ -107,7 +107,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 								unget_ch(ch);
 							}
 						}
-						ch = ' ';
+						ch = '\n';
 						last_ch = ' ';
 					} else if (ch2 == '*') {
 						end_comment[0] = -1;

@@ -281,7 +281,8 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			fLexer.readOperator(")");
 		} else {
 			// ifnone
-			fParsers.exprParser().simple_path_expression();
+//			fParsers.exprParser().simple_path_expression();
+			error("ifnone unsupported");
 		}
 		
 	}

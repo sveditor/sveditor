@@ -141,8 +141,12 @@ public class TestUtils {
 				delete(i);
 			}
 		}
-		if (!item.delete()) {
-			TestCase.fail("Failed to delete \"" + item.getAbsolutePath() + "\"");
+		if (item.exists() && !item.delete()) {
+			if (item.isDirectory()) {
+				TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\"");
+			} else {
+				TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+			}
 		}
 	}
 	

@@ -176,11 +176,11 @@ public class TestPreProc extends TestCase {
 				"`MSG(\"FOO\", \"BAR\")\n"
 				;
 			String expected = 
-				"$display(\"FOO\", \"SUFFIX\");" +
-				"    $display(\"FOO\", \"BAR\");\n"
+				"$display(\"FOO\", \"SUFFIX\");  \n" +
+				" $display(\"FOO\", \"BAR\");\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(false);
+			SVCorePlugin.getDefault().enableDebug(true);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			
