@@ -496,7 +496,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 			fIndexState = IndexState_AllInvalid;
 			fCacheDataValid = false;
 			fIndexCacheData.clear();
-			fCache.clear();
+			fCache.clear(new NullProgressMonitor());
 			fMissingIncludes.clear();
 		} else {
 			fIsDirty = true;
@@ -505,7 +505,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 
-	public void rebuildIndex() {
+	public void rebuildIndex(IProgressMonitor monitor) {
 		invalidateIndex("Rebuild Index Requested", true);
 	}
 
@@ -626,7 +626,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		// Rebuild the index when something changes
 		if (!fIndexCacheData.getGlobalDefines().containsKey(key)
 				|| !fIndexCacheData.getGlobalDefines().get(key).equals(val)) {
-			rebuildIndex();
+			rebuildIndex(new NullProgressMonitor());
 		}
 	}
 
@@ -684,7 +684,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void clearFilesList() {
-		fCache.clear();
+		fCache.clear(new NullProgressMonitor());
 		fFileDirs.clear();
 	}
 

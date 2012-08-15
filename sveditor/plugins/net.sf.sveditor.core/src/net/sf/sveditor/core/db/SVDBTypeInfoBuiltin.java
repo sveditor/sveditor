@@ -59,6 +59,12 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 			ret += " unsigned";
 		}
 		
+		if (getVectorDim() != null && getVectorDim().size() > 0) {
+			for (SVDBVarDimItem dim : getVectorDim()) {
+				ret += dim.toString();
+			}
+		}
+		
 		return ret;
 	}
 

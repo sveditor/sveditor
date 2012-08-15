@@ -323,7 +323,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			if (fDebugEn) {
 				fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			}
-			invalidateIndex("Cache is invalid", true);
+			invalidateIndex(m, "Cache is invalid", true);
 		}
 		// set the version to check later
 		fIndexCacheData.setVersion(SVCorePlugin.getVersion());
@@ -536,7 +536,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 	}
 
-	protected void invalidateIndex(String reason, boolean force) {
+	protected void invalidateIndex(IProgressMonitor monitor, String reason, boolean force) {
 		if (fDebugEn) {
 			if (fAutoRebuildEn || force) {
 				fLog.debug(LEVEL_MIN, "InvalidateIndex: " +
@@ -552,7 +552,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fIndexState = IndexState_AllInvalid;
 			fCacheDataValid = false;
 			fIndexCacheData.clear();
-			fCache.clear();
+			fCache.clear(monitor);
 			fMissingIncludes.clear();
 			fDeferredPkgCacheFiles.clear();
 		} else {
@@ -560,8 +560,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 	}
 
-	public void rebuildIndex() {
-		invalidateIndex("Rebuild Index Requested", true);
+	public void rebuildIndex(IProgressMonitor monitor) {
+		invalidateIndex(monitor, "Rebuild Index Requested", true);
 	}
 
 	public ISVDBIndexCache getCache() {
@@ -609,7 +609,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public void fileRemoved(String path) {
 		synchronized (fCache) {
 			if (fCache.getFileList().contains(path)) {
-				invalidateIndex("File Removed", false);
+				invalidateIndex(new NullProgressMonitor(), "File Removed", false);
 			}
 		}
 	}
@@ -624,7 +624,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 		
 		if (fFileDirs.contains(p.getPath())) {
-			invalidateIndex("File Added", false);
+			invalidateIndex(new NullProgressMonitor(), "File Added", false);
 		}
 	}
 
@@ -681,7 +681,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		// Rebuild the index when something changes
 		if (!fIndexCacheData.getGlobalDefines().containsKey(key)
 				|| !fIndexCacheData.getGlobalDefines().get(key).equals(val)) {
-			rebuildIndex();
+			rebuildIndex(new NullProgressMonitor());
 		}
 	}
 
@@ -739,7 +739,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void clearFilesList() {
-		fCache.clear();
+		fCache.clear(new NullProgressMonitor());
 		fFileDirs.clear();
 	}
 
@@ -1409,7 +1409,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				// If the file does exist, but isn't included in the
 				// list of discovered files, invalidate the index,
 				// add the file, and try again
-				invalidateIndex("Failed to find FileTree for " + path, false);
+				invalidateIndex(new NullProgressMonitor(), "Failed to find FileTree for " + path, false);
 				addFile(path);
 				file_tree = findFileTree(path);
 				

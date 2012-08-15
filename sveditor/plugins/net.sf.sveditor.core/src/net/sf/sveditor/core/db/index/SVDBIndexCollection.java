@@ -26,7 +26,6 @@ import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
@@ -147,16 +146,16 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return fProject;
 	}
 	
-	public void rebuildIndex() {
+	public void rebuildIndex(IProgressMonitor monitor) {
 		for (ISVDBIndex i : getIndexList()) {
-			i.rebuildIndex();
+			i.rebuildIndex(monitor);
 		}
 		
 		clearStaleShadowIndexes();
 		for (int i=0; i<fShadowIndexList.size(); i++) {
 			ISVDBIndex index = fShadowIndexList.get(i).get();
 			if (index != null) {
-				index.rebuildIndex();
+				index.rebuildIndex(monitor);
 			}
 		}
 	}

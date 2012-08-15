@@ -22,6 +22,8 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 /**
  * 
  * @author ballance
@@ -151,7 +153,7 @@ public class SVDBFileFS implements ISVDBFS {
 	}
 
 
-	public void delete(String path) {
+	public void delete(IProgressMonitor monitor, String path) {
 		// TODO Auto-generated method stub
 		
 	}

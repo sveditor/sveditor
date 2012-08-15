@@ -100,7 +100,7 @@ public interface ISVDBIndex extends
 	/**
 	 * Forces a rebuild of the index
 	 */
-	void rebuildIndex();
+	void rebuildIndex(IProgressMonitor monitor);
 	
 	/**
 	 * 
