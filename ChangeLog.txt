@@ -27,7 +27,8 @@
 
 - #(nobug) - Correct code generator for method override to correctly generate
   vectored parameters
-  
+
+- #(enh) - Add support for content assist through class-local typedefs. 
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --

@@ -840,6 +840,54 @@ public class TestContentAssistClass extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}	
 
+	// Ensure that content assist is able to traverse typedefs
+	public void testStaticTypeAssist_6() {
+		String testname = "testStaticTypeAssist_6";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc1 =
+			"class base;\n" +
+			"	static function int create();\n" +
+			"	endfunction\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	typedef base		type_id;\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		super_1::type_id::cr<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n" +
+			"\n"
+			;
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(new String[] {"create"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testParameterizedTypeAssist_1() {
 		String testname = "testStaticTypeAssist_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
