@@ -590,7 +590,8 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
 			return null ;
 		}
-		
+
+		// TODO: should be looking at the live view of the editor
 		SVDBFile ppFile = ((SVEditor)getEditor()).getSVDBIndex().getCache()
 							.getPreProcFile(new NullProgressMonitor(), ((SVDBFile)p).getFilePath()) ;
 		

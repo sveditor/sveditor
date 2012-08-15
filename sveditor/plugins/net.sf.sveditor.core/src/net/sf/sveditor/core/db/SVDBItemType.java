@@ -161,6 +161,7 @@ public enum SVDBItemType {
 	LiteralExpr,
 	MinTypMaxExpr,
 	NamedArgExpr, // .ARG(value)
+	NameMappedExpr,
 	NullExpr,
 	ParamIdExpr,	
 	ParenExpr,
@@ -171,7 +172,6 @@ public enum SVDBItemType {
 	TFCallExpr,
 	UnaryExpr,
 	TypeExpr,
-	NameMappedExpr,
 	
 	// Property Expression Types
 	PropertySpecExpr,

@@ -180,7 +180,7 @@ public class TestPreProc extends TestCase {
 				" $display(\"FOO\", \"BAR\");\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			

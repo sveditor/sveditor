@@ -96,6 +96,13 @@ public class SVExprUtils {
 		return true;
 	}
 	
+	protected boolean range(PrintStream ps, SVDBRangeExpr expr) {
+		expr_to_string(ps, expr.getLeft());
+		ps.print(":");
+		expr_to_string(ps, expr.getRight());
+		return true;
+	}
+	
 	protected boolean identifier(PrintStream ps, SVDBIdentifierExpr expr) {
 		String id_path = getAccess(expr.getId());
 		ps.print(id_path);
@@ -261,34 +268,54 @@ public class SVExprUtils {
 	protected boolean expr_to_string(PrintStream ps, SVDBExpr expr) {
 		boolean ret = false;
 		switch (expr.getType()) {
-			case BinaryExpr: ret = binary(ps, (SVDBBinaryExpr)expr); break;
-			case ParenExpr: ret = paren(ps, (SVDBParenExpr)expr); break;
-			case IdentifierExpr: ret = identifier(ps, (SVDBIdentifierExpr)expr); break;
-			case LiteralExpr: ret = literal(ps, (SVDBLiteralExpr)expr); break;
 			case ArrayAccessExpr: ret = array_access(ps, (SVDBArrayAccessExpr)expr); break;
-			case UnaryExpr: ret = unary(ps, (SVDBUnaryExpr)expr); break;
-			case InsideExpr: ret = inside(ps, (SVDBInsideExpr)expr); break;
-			case ConcatenationExpr: ret = concatenation(ps, (SVDBConcatenationExpr)expr); break;
 			case AssignExpr: ret = assign(ps, (SVDBAssignExpr)expr); break;
-			case CastExpr: ret = cast(ps, (SVDBCastExpr)expr); break;
-			case CondExpr: ret = cond(ps, (SVDBCondExpr)expr); break;
-			case TFCallExpr: ret = tf_call(ps, (SVDBTFCallExpr)expr); break;
-			case FieldAccessExpr: ret = field_access(ps, (SVDBFieldAccessExpr)expr); break;
-			case RandomizeCallExpr: ret = randomize_call(ps, (SVDBRandomizeCallExpr)expr); break;
 			case AssignmentPatternExpr: ret = assignment_pattern(ps, (SVDBAssignmentPatternExpr)expr); break;
+			case AssignmentPatternRepeatExpr: 
+				// TODO:
+				break;
+			case AssociativeArrayElemAssignExpr:
+				// TODO:
+				break;
+			case BinaryExpr: ret = binary(ps, (SVDBBinaryExpr)expr); break;
+			case CastExpr: ret = cast(ps, (SVDBCastExpr)expr); break;
+			case ClockingEventExpr:
+				// TODO:
+				break;
+			case ConcatenationExpr: ret = concatenation(ps, (SVDBConcatenationExpr)expr); break;
+			case CondExpr: ret = cond(ps, (SVDBCondExpr)expr); break;
+			// TODO: CrossBinsSelectConditionExpr
+			// TODO: CtorExpr
+			// TODO: CycleDelayExpr
+			case FieldAccessExpr: ret = field_access(ps, (SVDBFieldAccessExpr)expr); break;
+			// TODO: FirstMatchExpr
+			case IdentifierExpr: ret = identifier(ps, (SVDBIdentifierExpr)expr); break;
 			case IncDecExpr: ret = incdec(ps, (SVDBIncDecExpr)expr); break;
+			case InsideExpr: ret = inside(ps, (SVDBInsideExpr)expr); break;
+			case LiteralExpr: ret = literal(ps, (SVDBLiteralExpr)expr); break;
+			// TODO: MinTypMaxExpr
+			// TODO: NamedArgExpr
+			// TODO: NameMappedExpr
 			case NullExpr: 
 				ret = true;
 				ps.print("null");
 				break;
-			case StringExpr:
-				ret = true;
-				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
-				break;
+			// TODO: ParamIdExpr
+			case ParenExpr: ret = paren(ps, (SVDBParenExpr)expr); break;
+			// TODO: PropertyWeakStrongExpr
+			case RandomizeCallExpr: ret = randomize_call(ps, (SVDBRandomizeCallExpr)expr); break;
+			// TODO: RangeDollarBoundExpr
+			case RangeExpr: ret = range(ps, (SVDBRangeExpr)expr); break;
+			case TFCallExpr: ret = tf_call(ps, (SVDBTFCallExpr)expr); break;
+			case UnaryExpr: ret = unary(ps, (SVDBUnaryExpr)expr); break;
 			case TypeExpr: {
 				SVDBTypeExpr type = (SVDBTypeExpr)expr;
 				ps.print("Type: " + type.getTypeInfo());
 			} break;
+			case StringExpr:
+				ret = true;
+				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
+				break;
 			
 			default:
 				try {

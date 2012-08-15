@@ -58,9 +58,15 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		if ((getAttr() & TypeAttr_Unsigned) != 0) {
 			ret += " unsigned";
 		}
-		
+	
 		if (getVectorDim() != null && getVectorDim().size() > 0) {
 			for (SVDBVarDimItem dim : getVectorDim()) {
+				ret += dim.toString();
+			}
+		} 
+
+		if (getArrayDim() != null && getArrayDim().size() > 0) {
+			for (SVDBVarDimItem dim : getArrayDim()) {
 				ret += dim.toString();
 			}
 		}
@@ -106,7 +112,5 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		setAttr(o.getAttr());
 		setVectorDim(o.getVectorDim());
 	}
-	
-	
 
 }

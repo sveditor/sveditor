@@ -843,7 +843,7 @@ public class TestContentAssistClass extends TestCase {
 	public void testParameterizedTypeAssist_1() {
 		String testname = "testStaticTypeAssist_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class base #(int A=1, int B=2);\n" +
@@ -888,7 +888,7 @@ public class TestContentAssistClass extends TestCase {
 	public void testParameterizedTypeAssist_2() {
 		String testname = "testStaticTypeAssist_2";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class base #(int A=1, int B=2);\n" +
