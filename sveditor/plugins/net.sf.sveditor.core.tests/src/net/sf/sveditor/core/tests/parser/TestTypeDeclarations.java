@@ -62,51 +62,24 @@ public class TestTypeDeclarations extends TestCase {
 	}
 
 	public void testTypeParameterizedClass() {
-		String content = 
-			"class t;\n" +
-			"	function f();\n" +
-			"		item_t #(int unsigned)::set(5);\n" +
-			"	endfunction\n" +
-			"endclass\n"
-			;
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
-
-		SVDBTestUtils.assertNoErrWarn(file);
-
-		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+		testTypeCastInFunction("		item_t #(int unsigned)::set(5);\n");
 	}
 
 	public void testBuiltinTypeCast() {
-		String content = 
-			"class t;\n" +
-			"	function f();\n" +
-			"		int i = int'(test_func());\n" +
-			"	endfunction\n" +
-			"endclass\n"
-			;
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
-
-		SVDBTestUtils.assertNoErrWarn(file);
-
-		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+		testTypeCastInFunction("		int i = int'(test_func());\n");
 	}
-
+	
+	public void testIntegralTypeCast() {
+		testTypeCastInFunction("		bit[5:0] i = 6'(test_func());\n");
+	}
+	
 	public void testVoidCast() {
-		String content = 
-			"class t;\n" +
-			"	function f();\n" +
-			"		void'(test_func());\n" +
-			"	endfunction\n" +
-			"endclass\n"
-			;
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
-
-		SVDBTestUtils.assertNoErrWarn(file);
-
-		SVDBTestUtils.assertFileHasElements(file, "t", "f");
+		testTypeCastInFunction("		void'(test_func());\n");
+	}
+	
+	public void testConstTypeCast() {
+		//const cast not supported by Questa at the moment it seems.
+		testTypeCastInFunction("		int i = const'(test_func());\n");
 	}
 
 	public void testParameterizedFieldInit() {
@@ -138,6 +111,22 @@ public class TestTypeDeclarations extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 
 		SVDBTestUtils.assertFileHasElements(file, "t", "str_int_map1", "str_int_map2");
+	}
+	
+	protected void testTypeCastInFunction(String castExpresson) {
+		String content = 
+			"class t;\n" +
+			"	function f();\n" +
+			castExpresson +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, "testParameterizedFieldTypeInit");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t", "f");
 	}
 
 }
