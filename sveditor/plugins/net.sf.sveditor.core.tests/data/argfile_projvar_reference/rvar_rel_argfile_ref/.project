@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>rvar_rel_argfile_ref</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<variableList>
+		<variable>
+			<name>TOP_DIR</name>
+			<value>$%7BPROJECT_LOC%7D/top_dir</value>
+		</variable>
+	</variableList>
+</projectDescription>

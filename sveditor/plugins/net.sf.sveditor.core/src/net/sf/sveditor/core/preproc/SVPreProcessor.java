@@ -175,17 +175,17 @@ public class SVPreProcessor extends AbstractTextScanner {
 	private void handle_preproc_directive() {
 		int ch = -1;
 		
-		while ((ch = get_ch()) != -1 && 
-				Character.isWhitespace(ch) && ch != '\n') { }
-		
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+	
+		String type;
 		if (ch == -1) {
-			return;
-		}
-	
-		String type = readIdentifier(ch);
-	
-		if (type == null) {
 			type = "";
+		} else {
+			type = readIdentifier(ch);
+	
+			if (type == null) {
+				type = "";
+			}
 		}
 		
 		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {

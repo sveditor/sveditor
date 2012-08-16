@@ -619,6 +619,33 @@ public class TestPreProc extends TestCase {
 		assertEquals(expected.trim(), result.trim());
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testMangledMacroRef() {
+		String testname = "testMangledMacroRef";
+		String doc = 
+				"`define MY_MACRO(P) ABC P\n" +
+				"\n" +
+				"`MY_MACRO(A)\n" +
+				"` \n" + // Ensure this doesn't trigger a crash
+				"\n" +
+				"(\n"
+				;
+			String expected =
+				"ABC A\n" +
+				"(\n"
+				;
+				
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
+	}
 	
 	public void testUVMFieldArrayIntExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
