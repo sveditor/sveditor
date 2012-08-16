@@ -62,16 +62,7 @@ public class SVArgFileCodeScanner extends RuleBasedScanner {
 
 	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 
-		WordRule wordRule = new WordRule(new IWordDetector() {
-			public boolean isWordPart(char c) {
-				return (Character.isJavaIdentifierPart(c) || c == '+');
-			}
-			
-			public boolean isWordStart(char c) {
-				return (Character.isJavaIdentifierStart(c) || c == '-' || c == '+');
-			}
-		}, default_t);
-		
+		WordRule wordRule = new WordRule(new SVArgFileWordDetector(), default_t);
 		
 		// Argument File keywords
 		for (String kw : SVFScanner.fRecognizedSwitches) {

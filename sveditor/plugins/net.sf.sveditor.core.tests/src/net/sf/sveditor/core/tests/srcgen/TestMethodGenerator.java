@@ -206,4 +206,33 @@ public class TestMethodGenerator extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testBitVecParamFunction() throws SVParseException {
+		String testname = "testBitVecParamFunction";
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"function void foobar(bit[31:0] a);\n" +
+			"    a = 5;\n" +
+			"endfunction\n";
+		String exp = 
+			"    /**\n" +
+			"     * foobar()\n" +
+			"     *\n" +
+			"     * Override from class \n" +
+			"     */\n" +
+			"    function void foobar(input bit[31:0] a);\n" +
+			"\n" +
+			"    endfunction\n";
+		
+		SVDBTask tf = parse_tf(content, testname);
+		
+		MethodGenerator gen = new MethodGenerator();
+		
+		String src = gen.generate(tf);
+		
+		log.debug("src:\n" + src);
+		
+		IndentComparator.compare(log, testname, exp, src);
+		LogFactory.removeLogHandle(log);
+	}
 }

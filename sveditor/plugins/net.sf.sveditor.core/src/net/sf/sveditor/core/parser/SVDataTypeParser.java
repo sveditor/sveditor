@@ -101,6 +101,10 @@ public class SVDataTypeParser extends SVParserBase {
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
 		SVDBTypeInfo type = null;
 		SVToken tok;
+		
+		if (fDebugEn) {
+			debug("--> data_type " + fLexer.peek());
+		}
 
 		qualifiers |= parsers().SVParser().scan_qualifiers(false);
 		tok = fLexer.consumeToken();
@@ -119,6 +123,9 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			while (fLexer.peekOperator("[")) {
+				if (fDebugEn) {
+					debug("  IntegerVectorType vector");
+				}
 				builtin_type.setArrayDim(vector_dim());
 			}
 			type = builtin_type;
@@ -141,13 +148,15 @@ public class SVDataTypeParser extends SVParserBase {
 					String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
 					fLexer.readOperator(")");		//
 					// TODO: Do something with the strengths
-				}
-				else  {
+				} else {
 					fLexer.ungetToken(tok);// restore the (
 				}
 			}
 			// Array dimensions
 			if (fLexer.peekOperator("[")) {
+				if (fDebugEn) {
+					debug("  vector type");
+				}
 				builtin_type.setVectorDim(vector_dim());
 			}
 			// Delay 3
@@ -326,12 +335,19 @@ public class SVDataTypeParser extends SVParserBase {
 			// A sized enum is allowed to have a duplicate bit-width assigned
 			if (fLexer.peekOperator("[")) {
 				// TODO: this is a bit lax, since var_dim allows '$', '*', '<type>' array dimension
+				if (fDebugEn) {
+					debug("  sized enum type");
+				}
 				type.setArrayDim(var_dim());
 			}
 		}
 		
 		if (type == null) {
 			error("Unknown type starting with \"" + fLexer.peek() + "\"");
+		}
+		
+		if (fDebugEn) {
+			debug("<-- data_type " + fLexer.peek());
 		}
 		
 		return type;
@@ -507,6 +523,7 @@ public class SVDataTypeParser extends SVParserBase {
 		while (fLexer.peek() != null) {
 			fLexer.readOperator("[");
 			SVDBVarDimItem dim = new SVDBVarDimItem();
+			dim.setDimType(DimType.Sized);
 
 			debug("--> expression");
 			SVDBExpr expr = parsers().exprParser().expression();

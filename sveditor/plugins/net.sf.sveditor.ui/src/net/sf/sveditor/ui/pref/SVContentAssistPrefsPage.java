@@ -49,6 +49,8 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 		general_group.setText("General");
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 
 				"Content Assist Timeout (ms)", general_group));
+		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER, 
+				"Hover Uses Browser:", general_group));
 
 		
 		Group tf_group = new Group(getFieldEditorParent(), SWT.NONE);
@@ -76,6 +78,7 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 				"Line-Wrap Limit: ", mod_ifc_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE, 
 				"Max Ports Per Line:", mod_ifc_group));
+		
 	}
 
 }

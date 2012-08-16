@@ -173,6 +173,7 @@ public class TestIndexCache extends TestCase {
 			public ISVDBIndexCache createIndexCache(String project_name,
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
+				fs.setEnableAsyncClear(false);
 				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
 				return cache;
 			}
