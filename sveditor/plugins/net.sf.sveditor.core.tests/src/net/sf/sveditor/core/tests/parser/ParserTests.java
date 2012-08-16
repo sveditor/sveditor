@@ -43,6 +43,7 @@ public class ParserTests extends TestSuite {
 		// LineNumbers
 		s.addTest(new TestSuite(TestParseLineNumbers.class));
 		s.addTest(new TestSuite(TestParseModuleBodyItems.class));
+//		s.addTest(new TestSuite(TestParseSpecify.class));
 		s.addTest(new TestSuite(TestParseProgramBlocks.class));
 		// ErrorRecovery
 		s.addTest(new TestSuite(TestParserErrorRecovery.class));

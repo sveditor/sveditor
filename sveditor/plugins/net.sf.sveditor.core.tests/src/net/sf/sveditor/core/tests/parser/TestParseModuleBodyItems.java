@@ -1640,22 +1640,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"harness", "f4"});
 	}
 	
-	public void testSpecifyBlock() throws SVParseException {
-		String testname = "testSpecifyBlock";
+	public void testNonBlockingDelayAssign() {
 		String doc = 
-				"module delay (in, out);\n" +
-				" input  in;\n" +
-				" output out;\n" +
-				"\n" +
-				" assign out = in;\n" +
-				"\n" +
-				" specify\n" +
-				" (in => out) = (600,600);\n" +
-				" endspecify\n" +
-				"endmodule\n"
+				"module my_module();\n" +
+				" event some_event;\n" +
+				" initial\n" +
+				" begin\n" +
+				" ->> some_event; // passes\n" +
+				" ->> #2ns some_event; // fails ... doesn't like the #2ns\n" +
+				" end\n" +
+				" endmodule\n"
 				;
-		SVCorePlugin.getDefault().enableDebug(false);
-		runTest(testname, doc, new String[] {"delay"});
 	}
 	
 	public void testSpecifyBlock_2() throws SVParseException {
@@ -1719,7 +1714,6 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
-
 
 }
 

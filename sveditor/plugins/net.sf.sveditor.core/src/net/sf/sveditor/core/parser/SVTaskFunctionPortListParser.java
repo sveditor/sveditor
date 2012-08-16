@@ -17,8 +17,12 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
+import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
+import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class SVTaskFunctionPortListParser extends SVParserBase {
 	
@@ -63,14 +67,16 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				dir |= SVDBParamPortDecl.Direction_Var;
 			}
 			
-			SVDBTypeInfo type = 
-				parsers().dataTypeParser().data_type(0);
+			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 
 			// This could be a continuation of the same type: int a, b, c
 			if (fLexer.peekOperator("[")) {
-				fLexer.startCapture();
-				fLexer.skipPastMatch("[", "]");
-				fLexer.endCapture();
+				List<SVDBVarDimItem> dim = fParsers.dataTypeParser().vector_dim();
+				if (type instanceof SVDBTypeInfoBuiltin) {
+					((SVDBTypeInfoBuiltin)type).setVectorDim(dim);
+				} else {
+					// TODO:
+				}
 			}
 
 			String id;
