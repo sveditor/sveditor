@@ -17,6 +17,9 @@
 
 - #(enh) - Support for definition lists in the documentation comments
 
+- #(enh) - Documentation comments now displayed when hovering a reference
+  to the element
+
 - #(3554595) - Correct a bug in the editor-specific index iterator that, 
   in some cases, prevented content assist and open declaration from working
   on declarations within the file.
@@ -29,6 +32,10 @@
   vectored parameters
 
 - #(enh) - Add support for content assist through class-local typedefs. 
+
+- #(3558081) - Correct an issue with space between ` and a macro name (eg ` MY_MACRO).
+
+- #(nobug) - Correct an issue with incomplete macro reference on its own line (eg ` ).
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --
