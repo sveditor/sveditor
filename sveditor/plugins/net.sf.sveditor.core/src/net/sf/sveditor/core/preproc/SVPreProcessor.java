@@ -107,7 +107,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 								unget_ch(ch);
 							}
 						}
-						ch = ' ';
+						ch = '\n';
 						last_ch = ' ';
 					} else if (ch2 == '*') {
 						end_comment[0] = -1;
@@ -174,8 +174,15 @@ public class SVPreProcessor extends AbstractTextScanner {
 	
 	private void handle_preproc_directive() {
 		int ch = -1;
+		
+		while ((ch = get_ch()) != -1 && 
+				Character.isWhitespace(ch) && ch != '\n') { }
+		
+		if (ch == -1) {
+			return;
+		}
 	
-		String type = readIdentifier(get_ch());
+		String type = readIdentifier(ch);
 	
 		if (type == null) {
 			type = "";

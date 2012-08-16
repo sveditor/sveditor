@@ -38,6 +38,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -45,6 +46,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
@@ -245,7 +247,11 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
-			if (BrowserInformationControl.isAvailable(parent)) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+			
+			// Use the browser widget if available and the user enables it
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tbm);
@@ -339,8 +345,10 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
 //			String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
-			if (BrowserInformationControl.isAvailable(parent)) {
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tooltipAffordanceString) {
 				BrowserInformationControl iControl= new BrowserInformationControl(parent, "", "todo") {
@@ -582,7 +590,8 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
 			return null ;
 		}
-		
+
+		// TODO: should be looking at the live view of the editor
 		SVDBFile ppFile = ((SVEditor)getEditor()).getSVDBIndex().getCache()
 							.getPreProcFile(new NullProgressMonitor(), ((SVDBFile)p).getFilePath()) ;
 		
@@ -712,7 +721,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 					"+------------------------------------------------------------------") ;
 			log.debug(ILogLevel.LEVEL_MID, 
 					"+------------------------------------------------------------------") ;
-			
+
 			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), 0);
 		}
 
