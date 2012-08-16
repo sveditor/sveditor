@@ -1,4 +1,7 @@
 
+-- 0.9.7 Release --
+
+------------------------------------------------------------------------------
 -- 0.9.6 Release --
 
 - #(enh) - Enhance content assist to only show static/non-static fields based
