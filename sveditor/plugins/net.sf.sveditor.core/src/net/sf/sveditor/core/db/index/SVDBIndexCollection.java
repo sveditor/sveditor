@@ -36,6 +36,7 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
 		ILogLevel {
@@ -80,6 +81,51 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		if (fMgr != null) {
 			fMgr.addIndexCollection(this);
 		}
+	}
+	
+	public void loadIndex(IProgressMonitor monitor) {
+		SubProgressMonitor sm = new SubProgressMonitor(monitor, 1);
+		
+		sm.beginTask("loadIndex",
+				fSourceCollectionList.size() + 
+				fIncludePathList.size() + 
+				fLibraryPathList.size() + 
+				fPluginLibraryList.size() + 
+				fShadowIndexList.size());
+		
+		synchronized (fSourceCollectionList) {
+			for (ISVDBIndex index : fSourceCollectionList) {
+				index.loadIndex(new SubProgressMonitor(sm, 1));
+			}
+		}
+		
+		synchronized (fIncludePathList) {
+			for (ISVDBIndex index : fIncludePathList) {
+				index.loadIndex(new SubProgressMonitor(sm, 1));
+			}
+		}
+		
+		synchronized (fLibraryPathList) {
+			for (ISVDBIndex index : fLibraryPathList) {
+				index.loadIndex(new SubProgressMonitor(sm, 1));
+			}
+		}
+		
+		synchronized (fPluginLibraryList) {
+			for (ISVDBIndex index : fPluginLibraryList) {
+				index.loadIndex(new SubProgressMonitor(sm, 1));
+			}
+		}
+		
+		synchronized (fShadowIndexList) {
+			for (Reference<ISVDBIndex> iref : fShadowIndexList) {
+				if (iref.get() != null) {
+					iref.get().loadIndex(new SubProgressMonitor(sm, 1));
+				}
+			}
+		}
+	
+		sm.done();
 	}
 	
 	/**

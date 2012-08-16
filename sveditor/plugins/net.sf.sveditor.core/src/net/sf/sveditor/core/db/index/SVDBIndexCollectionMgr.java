@@ -5,6 +5,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 public class SVDBIndexCollectionMgr {
 	
 	private List<Reference<SVDBIndexCollection>>			fIndexCollectionList;
@@ -40,5 +43,23 @@ public class SVDBIndexCollectionMgr {
 		return fCreateShadowIndexes;
 	}
 	
+	public void loadIndex(IProgressMonitor monitor) {
+		SubProgressMonitor sm = new SubProgressMonitor(monitor, 1);
+		
+		synchronized (fIndexCollectionList) {
+			sm.beginTask("loadIndex", fIndexCollectionList.size());
+			for (int i=0; i<fIndexCollectionList.size(); i++) {
+				if (fIndexCollectionList.get(i).get() == null) {
+					fIndexCollectionList.remove(i);
+					i--;
+				} else {
+					fIndexCollectionList.get(i).get().loadIndex(
+							new SubProgressMonitor(sm, 1));
+				}
+			}
+		}
+		
+		sm.done();
+	}
 
 }

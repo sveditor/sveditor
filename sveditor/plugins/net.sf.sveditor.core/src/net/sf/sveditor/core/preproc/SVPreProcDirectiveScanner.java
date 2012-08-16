@@ -328,8 +328,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		
 		// Skip any whitespace (up to end-of-line) between
 		// the ` and the directive
-		while ((ch = get_ch()) != -1 && 
-				Character.isWhitespace(ch) && ch != '\n') { }
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
 		
 		if (ch == -1) {
 			return;
