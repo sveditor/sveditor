@@ -6,14 +6,12 @@ public class SVArgFileWordDetector implements IWordDetector {
 	private boolean				fStartsWithPlus;
 	private char				fLastCh = ' ';
 
-	@Override
 	public boolean isWordStart(char c) {
 		fStartsWithPlus = (c == '+');
 		fLastCh = ' ';
 		return (Character.isJavaIdentifierStart(c) || c == '+' || c == '-');
 	}
 
-	@Override
 	public boolean isWordPart(char c) {
 		if (fLastCh == '+' && fStartsWithPlus) {
 			return false;
