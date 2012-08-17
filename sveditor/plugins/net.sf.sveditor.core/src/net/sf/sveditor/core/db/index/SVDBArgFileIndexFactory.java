@@ -12,8 +12,6 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.Map;
-
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
@@ -27,11 +25,13 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			SVDBIndexConfig 		config) {
 		ISVDBFileSystemProvider fs_provider;
 		
-		if (base_location.startsWith("${workspace_loc}")) {
+//		if (base_location.startsWith("${workspace_loc}")) {
 			fs_provider = new SVDBWSFileSystemProvider();
+			/*
 		} else {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
+		 */
 
 		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				projectName, base_location, fs_provider, cache, config);
