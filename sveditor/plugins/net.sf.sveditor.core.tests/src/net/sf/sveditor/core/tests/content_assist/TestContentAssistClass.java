@@ -844,7 +844,7 @@ public class TestContentAssistClass extends TestCase {
 	public void testStaticTypeAssist_6() {
 		String testname = "testStaticTypeAssist_6";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 =
 			"class base;\n" +

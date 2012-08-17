@@ -586,7 +586,7 @@ public class TestPreProc extends TestCase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -610,7 +610,7 @@ public class TestPreProc extends TestCase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -637,7 +637,7 @@ public class TestPreProc extends TestCase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
