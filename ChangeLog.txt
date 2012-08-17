@@ -1,6 +1,8 @@
 
 -- 0.9.7 Release --
 
+- #(3558622) - Correct const-cast and integer-cast parse errors
+
 ------------------------------------------------------------------------------
 -- 0.9.6 Release --
 

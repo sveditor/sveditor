@@ -894,9 +894,9 @@ public class SVExprParser extends SVParserBase {
 				fLexer.ungetToken(tok);
 				a = assignment_pattern_expr();
 			} else {
-				fLexer.ungetToken(tok);
-				if (fDebugEn) {debug("    castExpr");}
-				fLexer.eatToken();
+//				fLexer.ungetToken(tok);
+				if (fDebugEn) {debug("    castExpr " + fLexer.peek());}
+//				fLexer.eatToken();
 				// MSB: new cast expression
 				a = new SVDBCastExpr(a, expression());
 			}
@@ -1052,7 +1052,7 @@ public class SVExprParser extends SVParserBase {
 				ret = new SVDBNullExpr();
 			} else if (fLexer.isIdentifier() || 
 					SVKeywords.isBuiltInType(fLexer.peek()) ||
-					fLexer.peekKeyword("new","default","local")) {
+					fLexer.peekKeyword("new","default","local","const")) {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}
@@ -1090,7 +1090,8 @@ public class SVExprParser extends SVParserBase {
 					}
 				} else if (id.equals("new")) {
 					ret = ctor_call();
-				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
+				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
+						fLexer.peekKeyword("const")) {
 					fLexer.startCapture();
 					fLexer.eatToken();
 					if (fLexer.peekKeyword("signed","unsigned")) {
