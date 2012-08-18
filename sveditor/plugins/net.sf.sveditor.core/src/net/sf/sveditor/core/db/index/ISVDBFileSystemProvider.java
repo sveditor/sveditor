@@ -21,6 +21,9 @@ public interface ISVDBFileSystemProvider {
 	String				MARKER_TYPE_WARNING = "WARNING";
 	String				MARKER_TYPE_INFO    = "INFO";
 	
+	String				PATHFMT_FILESYSTEM = "PATHFMT_FS";
+	String				PATHFMT_WORKSPACE  = "PATHFMT_WS";
+	
 	void init(String root);
 	
 	void dispose();
@@ -37,9 +40,10 @@ public interface ISVDBFileSystemProvider {
 	 * Resolve any relative references
 	 * 
 	 * @param path
+	 * @param fmt - 
 	 * @return
 	 */
-	String resolvePath(String path);
+	String resolvePath(String path, String fmt);
 	
 	boolean fileExists(String path);
 	

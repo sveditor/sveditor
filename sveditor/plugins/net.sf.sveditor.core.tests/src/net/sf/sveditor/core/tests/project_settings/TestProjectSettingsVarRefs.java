@@ -7,10 +7,16 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -47,8 +53,10 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		*/
 	}
 
-	public void testArgFileWorkspaceRelRef() {
+	public void testArgFileWorkspaceRelRef() throws CoreException {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
 				"/data/argfile_projvar_reference/workspace_rel_argfile_ref",
@@ -60,12 +68,29 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
 		
 		index_collection.loadIndex(new NullProgressMonitor());
+		
+		InputStream in = null;
+
+		IFile parameters_sv = root.getFile(new Path("/" + p.getName() + "/top_dir/parameters.sv"));
+		in = parameters_sv.getContents();
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		
+		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
+				"${workspace_loc}/" + p.getName() + "/top_dir/parameters.sv", markers);
+		
+		assertNotNull(file);
+		assertEquals(0, markers.size());
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 	public void testResourceVarProjVarRef() throws CoreException {
+		String testname = "testResourceVarProjVarRef";
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
 				"/data/argfile_projvar_reference/rvar_rel_argfile_ref",
@@ -83,10 +108,26 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		IFile parameters_sv = root.getFile(new Path("/" + p.getName() + "/top_dir/parameters.sv"));
 		in = parameters_sv.getContents();
 		
+		String target_file = "${workspace_loc}/" + p.getName() + "/top_dir/parameters.sv";
+		
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
+				target_file, p.getName(), false);
+		
+		assertNotNull(result);
+		log.debug("ISVDBIndex: " + result.first().getBaseLocation());
+		log.debug("Index Files:");
+		for (String file : result.first().getFileList(new NullProgressMonitor())) {
+			log.debug("  " + file);
+		}
+		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
-		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
-				"${workspace_loc}/" + p.getName() + "/top_dir/parameters.sv", markers);
+		SVDBFile file = result.second().parse(
+				new NullProgressMonitor(), in, target_file, markers);
+		
+		assertNotNull(file);
+		assertEquals(0, markers.size());
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 }

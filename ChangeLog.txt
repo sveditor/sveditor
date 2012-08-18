@@ -3,6 +3,11 @@
 
 - #(3558622) - Correct const-cast and integer-cast parse errors
 
+- #(3558008) - Correct bug involving conflict between workspace/filesystem paths.
+
+- #(nobug) - Explicitly set hover foreground/background to avoid Ubuntu
+  12.04 ugliness (black background / white foreground)
+
 ------------------------------------------------------------------------------
 -- 0.9.6 Release --
 

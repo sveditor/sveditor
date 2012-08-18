@@ -27,11 +27,13 @@ public class SVDBShadowIndexFactory implements ISVDBIndexFactory {
 		
 		fLog.debug("createSVDBIndex: " + project_name + " ; " + base_location);
 		
+		fs_provider = new SVDBWSFileSystemProvider();
+		/*
 		if (base_location.startsWith("${workspace_loc}")) {
-			fs_provider = new SVDBWSFileSystemProvider();
 		} else {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
+		 */
 
 		ret = new SVDBShadowIndex(project_name, base_location, 
 				fs_provider, cache, config);

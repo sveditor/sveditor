@@ -301,51 +301,91 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		return ret;
 	}
 	
-	public String resolvePath(String path) {
-		if (!path.startsWith("${workspace_loc}")) {
-			return path;
-		}
-		
-		// Trim workspace_loc off so we can recognize when we've reached the root
-		path = path.substring("${workspace_loc}".length());
-		StringBuilder ret = new StringBuilder();
-		
-		int i=path.length()-1;
-		int end;
-		int skipCnt = 0;
-		
-		while (i >= 0) {
-			// scan backwards find the next path element
-			end = ret.length();
-			
-			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
-				ret.append(path.charAt(i));
-				i--;
-			}
-			
-			if (i != -1) {
-				ret.append("/");
-				i--;
-			}
+	public String resolvePath(String path, String fmt) {
+		boolean ws_path = path.startsWith("${workspace_loc}");
 
-			if ((ret.length() - end) > 0) {
-				String str = ret.substring(end, ret.length()-1);
-				if (str.equals("..")) {
-					skipCnt++;
-					// remove .. element
-					ret.setLength(end);
-				} else if (skipCnt > 0) {
-					ret.setLength(end);
-					skipCnt--;
+		if (ws_path) {
+			// Trim workspace_loc off so we can recognize when we've reached the root
+			path = path.substring("${workspace_loc}".length());
+			StringBuilder ret = new StringBuilder();
+
+			int i=path.length()-1;
+			int end;
+			int skipCnt = 0;
+
+			while (i >= 0) {
+				// scan backwards find the next path element
+				end = ret.length();
+
+				while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+					ret.append(path.charAt(i));
+					i--;
+				}
+
+				if (i != -1) {
+					ret.append("/");
+					i--;
+				}
+
+				if ((ret.length() - end) > 0) {
+					String str = ret.substring(end, ret.length()-1);
+					if (str.equals("..")) {
+						skipCnt++;
+						// remove .. element
+						ret.setLength(end);
+					} else if (skipCnt > 0) {
+						ret.setLength(end);
+						skipCnt--;
+					}
 				}
 			}
+
+			if (skipCnt > 0) {
+				throw new RuntimeException("exceeded skipCnt");
+			}
+			path = ret.reverse().toString();
 		}
 		
-		if (skipCnt > 0) {
-			throw new RuntimeException("exceeded skipCnt");
+		if (fmt != null) {
+			if (fmt.equals(ISVDBFileSystemProvider.PATHFMT_FILESYSTEM)) {
+				if (ws_path) {
+					// Map to a filesystem location
+					if (isDir("${workspace_loc}" + path)) {
+						IContainer c = SVFileUtils.getWorkspaceFolder(path);
+						if (c != null) {
+							path = c.getLocation().toOSString();
+						}
+					} else {
+						IFile f = SVFileUtils.getWorkspaceFile(path);
+						if (f != null) {
+							path = f.getLocation().toOSString();
+						}
+					}
+				}
+			} else if (fmt.equals(ISVDBFileSystemProvider.PATHFMT_WORKSPACE)) {
+				if (!ws_path) {
+					// See if we can map to a workspace location
+					
+					if (isDir(path)) {
+						IContainer c = SVFileUtils.findWorkspaceFolder(path);
+						if (c != null) {
+							path = "${workspace_loc}" + c.getFullPath();
+						}
+					} else {
+						IFile f = SVFileUtils.findWorkspaceFile(path);
+						if (f != null) {
+							path = "${workspace_loc}" + f.getFullPath();
+						}
+					}
+				}
+			}
+		} else {
+			if (ws_path) {
+				path = "${workspace_loc}" + path;
+			}
 		}
 		
-		return ret.reverse().toString();
+		return path;
 	}
 	
 	protected String normalizePath(String path) {
