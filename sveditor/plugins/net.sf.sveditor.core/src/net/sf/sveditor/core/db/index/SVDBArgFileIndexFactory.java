@@ -47,11 +47,13 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 			SVDBIndexConfig		 	config) {
 		ISVDBFileSystemProvider fs_provider;
 		
+		fs_provider = new SVDBWSFileSystemProvider();
+		/*
 		if (base_location.startsWith("${workspace_loc}")) {
-			fs_provider = new SVDBWSFileSystemProvider();
 		} else {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
+		 */
 
 		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				projectName, base_location, arguments, fs_provider, cache, config);

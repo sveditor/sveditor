@@ -389,29 +389,29 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
-		
-		// Search the indexes in order
-		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
-			for (ISVDBIndex index : index_l) {
-				if ((result = index.findPreProcFile(path)) != null) {
-					ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+
+			// Search the indexes in order
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					if ((result = index.findPreProcFile(path)) != null) {
+						ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+					}
 				}
 			}
-		}
 
-		if (ret.size() == 0 && search_shadow) {
-			clearStaleShadowIndexes();
-			synchronized (fShadowIndexList) {
-				for (int i=0; i<fShadowIndexList.size(); i++) {
-					ISVDBIndex index = fShadowIndexList.get(i).get();
-					if (index != null) {
-						if ((result = index.findPreProcFile(path)) != null) {
-							ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+			if (ret.size() == 0 && search_shadow) {
+				clearStaleShadowIndexes();
+				synchronized (fShadowIndexList) {
+					for (int i=0; i<fShadowIndexList.size(); i++) {
+						ISVDBIndex index = fShadowIndexList.get(i).get();
+						if (index != null) {
+							if ((result = index.findPreProcFile(path)) != null) {
+								ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+							}
 						}
 					}
 				}
 			}
-		}
 		
 		return ret;
 	}
@@ -463,7 +463,9 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		
 		if (result.size() > 0) {
 			// Use the parser from the associated index
-			ret = result.get(0).getIndex().parse(monitor, in, path, markers);
+			// Specify the file path in the same way that the index sees it
+			SVDBFile file = result.get(0).getItem();
+			ret = result.get(0).getIndex().parse(monitor, in, file.getFilePath(), markers);
 		} else {
 			// Create a shadow index using the current directory
 //			String dir = SVFileUtils.getPathParent(path);
