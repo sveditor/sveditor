@@ -1585,8 +1585,26 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public synchronized SVDBFile findPreProcFile(String path) {
+		String r_path = path;
+		SVDBFile file = null;
+
 		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
-		return fCache.getPreProcFile(new NullProgressMonitor(), path);
+		
+		// Cycle through the various path formats
+		for (String fmt : new String[] {null, 
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM}) {
+			if (fmt != null) {
+				r_path = fFileSystemProvider.resolvePath(path, fmt);
+			}
+			file = fCache.getPreProcFile(new NullProgressMonitor(), r_path);
+			
+			if (file != null) {
+				break;
+			}
+		}
+		
+		return file;
 	}
 
 	protected SVDBFile processPreProcFile(String path) {

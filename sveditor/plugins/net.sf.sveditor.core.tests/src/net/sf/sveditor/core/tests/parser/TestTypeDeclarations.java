@@ -66,12 +66,12 @@ public class TestTypeDeclarations extends TestCase {
 	}
 
 	public void testBuiltinTypeCast() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		testTypeCastInFunction("		int i = int'(test_func());\n");
 	}
 	
 	public void testIntegralTypeCast() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		testTypeCastInFunction("		bit[5:0] i = 6'(test_func());\n");
 	}
 	
@@ -81,7 +81,7 @@ public class TestTypeDeclarations extends TestCase {
 	
 	public void testConstTypeCast() {
 		//const cast not supported by Questa at the moment it seems.
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		testTypeCastInFunction("		int i = const'(test_func());\n");
 	}
 

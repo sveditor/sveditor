@@ -168,7 +168,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		}
 	}
 	
-	public String resolvePath(String path) {
+	public String resolvePath(String path, String fmt) {
 		return path;
 	}
 
