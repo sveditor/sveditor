@@ -42,11 +42,13 @@ import net.sf.sveditor.core.tests.templates.TemplateTests;
 public class CoreReleaseTests extends TestSuite {
 	
 	private static List<Exception>		fErrors = new ArrayList<Exception>();
+	private static ILogListener		fErrorLogListener;
 	
 	static {
-		LogFactory.getDefault().addLogListener(new ILogListener() {
+		fErrorLogListener = new ILogListener() {
 			public void message(ILogHandle handle, int type, int level, String message) {
 				if (type == ILogListener.Type_Error) {
+					System.out.println("MSG: " + message);
 					try {
 						throw new Exception("[" + handle.getName() + "] " + message);
 					} catch (Exception e) {
@@ -54,7 +56,8 @@ public class CoreReleaseTests extends TestSuite {
 					}
 				}
 			}
-		});
+		};
+		LogFactory.getDefault().addLogListener(fErrorLogListener);
 	}
 	
 	public CoreReleaseTests() {

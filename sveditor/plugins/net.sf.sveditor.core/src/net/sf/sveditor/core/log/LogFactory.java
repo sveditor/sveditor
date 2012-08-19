@@ -123,14 +123,16 @@ public class LogFactory implements ILogListener {
 
 
 	public void message(ILogHandle handle, int type, int level, String message) {
-		for (int i=0; i<fLogListeners.size(); i++) {
-			WeakReference<ILogListener> lr = fLogListeners.get(i);
-			
-			if (lr.get() == null) {
-				fLogListeners.remove(i);
-				i--;
-			} else {
-				lr.get().message(handle, type, level, message);
+		synchronized (fLogListeners) {
+			for (int i=0; i<fLogListeners.size(); i++) {
+				WeakReference<ILogListener> lr = fLogListeners.get(i);
+
+				if (lr.get() == null) {
+					fLogListeners.remove(i);
+					i--;
+				} else {
+					lr.get().message(handle, type, level, message);
+				}
 			}
 		}
 	}
