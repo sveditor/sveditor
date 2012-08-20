@@ -28,6 +28,9 @@ package net.sf.sveditor.core.docs ;
 
 import java.util.regex.Pattern ;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 /**
  * Removes any extraneous formatting and whitespace from the comment.  Eliminates 
  * comment boxes, horizontal lines, trailing whitespace from lines, and expands all tab characters.  
@@ -40,6 +43,12 @@ public class DocCommentCleaner {
 	public static String TAB_EXPANSION = "   " ;
 	
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
+	
+	private static LogHandle				fLog;
+	
+	static {
+		fLog = LogFactory.getLogHandle("DocCommentCleaner");
+	}
 	
 	/* 
 	 * 
@@ -111,75 +120,68 @@ public class DocCommentCleaner {
 	            // More content means any previous blank lines are no longer tolerated in vertical line detection.  They are only
 	            // acceptable at the end of the comment.
 	
-	            if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END)
-	                {  leftSide = Uniformity.IS_NOT_UNIFORM;  }
-	            if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END)
-	                {  rightSide = Uniformity.IS_NOT_UNIFORM;  }
+	            if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
+	            	fLog.debug("leftSide <= IS_UNIFORM_IF_AT_END");
+	            	leftSide = Uniformity.IS_NOT_UNIFORM;  
+	            }
+	            if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
+	            	fLog.debug("rightSide <= IS_UNIFORM_IF_AT_END");
+	            	rightSide = Uniformity.IS_NOT_UNIFORM;  
+	            }
 
 
 //	            # Detect vertical lines.  Lines are only lines if they are followed by whitespace or a connected horizontal line.
 //	            # Otherwise we may accidentally detect lines from short comments that just happen to have every first or last
 //	            # character the same.
 //	
-//	            if ($leftSide != IS_NOT_UNIFORM)
-//	                {
-//	                if ($line =~ /^([^a-zA-Z0-9])\1*(?: |$)/)
-//	                    {
-//	                    if ($leftSide == DONT_KNOW)
-//	                        {
-//	                        $leftSide = IS_UNIFORM;
-//	                        $leftSideChar = $1;
-//	                        }
-//	                    else # ($leftSide == IS_UNIFORM)  Other choices already ruled out.
-//	                        {
-//	                        if ($leftSideChar ne $1)
-//	                            {  $leftSide = IS_NOT_UNIFORM;  };
-//	                        };
-//	                    }
+	            if (leftSide != Uniformity.IS_NOT_UNIFORM) {
+	                if (line.matches("^([^a-zA-Z0-9])\1*(?: |$)")) {
+	                    if (leftSide == Uniformity.DONT_KNOW) {
+	                        leftSide = Uniformity.IS_UNIFORM;
+//TODO:	                        leftSideChar = $1;
+                        } else { // # ($leftSide == IS_UNIFORM)  Other choices already ruled out.
+//TODO:	                        if (leftSideChar != $1) {  
+//TODO:	                        	leftSide = Uniformity.IS_NOT_UNIFORM;  
+//TODO:                        	}
+	                    }
+	                }
 //	                # We'll tolerate the lack of symbols on the left on the first line, because it may be a
 //	                # /* Function: Whatever
 //	                #  * Description.
 //	                #  */
 //	                # comment which would have the leading /* blanked out.
-//	                elsif ($index != 0)
-//	                    {
-//	                    $leftSide = IS_NOT_UNIFORM;
-//	                    };
-//	                };
-//	
-//	            if ($rightSide != IS_NOT_UNIFORM)
-//	                {
-//	                if ($line =~ / ([^a-zA-Z0-9])\1*$/)
-//	                    {
-//	                    if ($rightSide == DONT_KNOW)
-//	                        {
-//	                        $rightSide = IS_UNIFORM;
-//	                        $rightSideChar = $1;
-//	                        }
-//	                    else # ($rightSide == IS_UNIFORM)  Other choices already ruled out.
-//	                        {
-//	                        if ($rightSideChar ne $1)
-//	                            {  $rightSide = IS_NOT_UNIFORM;  };
-//	                        };
-//	                    }
-//	                else
-//	                    {
-//	                    $rightSide = IS_NOT_UNIFORM;
-//	                    };
-//	                };
+                } else if (index != 0) {
+                    leftSide = Uniformity.IS_NOT_UNIFORM;
+                }
+
+	            if (rightSide != Uniformity.IS_NOT_UNIFORM) {
+	            	if (line.matches(" ([^a-zA-Z0-9])\1*$")) {
+	                    if (rightSide == Uniformity.DONT_KNOW) {
+	                        rightSide = Uniformity.IS_UNIFORM;
+//TODO:	                        rightSideChar = $1;
+	                    } else { // # ($rightSide == IS_UNIFORM)  Other choices already ruled out.
+//TODO:                    if (rightSideChar != $1) {  
+//TODO:                    	rightSide = Uniformity.IS_NOT_UNIFORM;  
+//TODO:                   };
+	                    }
+	            	} else {
+	                    rightSide = Uniformity.IS_NOT_UNIFORM;
+                    }
+                }
 //	
 //	            # We'll remove vertical lines later if they're uniform throughout the entire comment.
-	            
             } 
 			
         	index++ ;
         }
 	
 	
-	    if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END)
-	        {  leftSide = Uniformity.IS_UNIFORM;  }
-	    if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END)
-	        {  rightSide = Uniformity.IS_UNIFORM;  }
+	    if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
+	    	leftSide = Uniformity.IS_UNIFORM;
+	    }
+	    if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
+	    	rightSide = Uniformity.IS_UNIFORM;  
+    	}
 	
 	    index = 0;
 	    inCodeSection = false ;
@@ -190,13 +192,11 @@ public class DocCommentCleaner {
 	    	//
 	        if (lines[index].matches("^ *([^a-zA-Z0-9 ])\\1{3,}") ||
 	            ( lines[index].length() < 256 &&
-	              lines[index].matches("^ *([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$" )))
-	        	{
-	        	if (!inCodeSection)
-	        		{  lines[index] = "" ;  }
-	        	}
-	
-	        else {
+	              lines[index].matches("^ *([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$" ))) {
+	        	if (!inCodeSection) {  
+	        		lines[index] = "" ;  
+        		}
+        	} else {
 		        // Clear vertical lines.
 	
 		        if (leftSide == Uniformity.IS_UNIFORM) {

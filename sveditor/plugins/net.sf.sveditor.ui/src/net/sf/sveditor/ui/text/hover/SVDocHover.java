@@ -403,7 +403,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 				return this;
 			}
 
-			@Override
 			public IInformationControl createInformationControl(Shell parent) {
 				IInformationControl c = fCreator.createInformationControl(parent);
 				if (c instanceof DefaultInformationControl) {
