@@ -129,9 +129,14 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
+	/**
+	 * Tests that errors are not encountered after an incorrect
+	 * argument-file path is changed to the correct one
+	 * 
+	 * @throws CoreException
+	 */
 	public void testArgFilePathChange() throws CoreException {
 		String testname = "testArgFilePathChange";
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
