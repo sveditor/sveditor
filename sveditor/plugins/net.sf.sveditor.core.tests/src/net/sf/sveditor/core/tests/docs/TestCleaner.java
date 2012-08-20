@@ -43,6 +43,33 @@ public class TestCleaner extends TestCase {
 		
 	}
 
+	public void testLeadingCommentMarkRemoval() throws Exception {
+//		fDebug = true ;
+		String comment [] = {
+			  "",
+			  "*",										// Entire line should be removed
+			  "* class: the_class   ",					// Only trailing white should be removed (spaces)
+			  "*",										// Entire line should be removed even with white space at end
+			  "* class_with_tabs: the_class		",		// Only trailing white should be removed (tabs)
+			  "* class_with_tabs: the_class	  	",		// Only trailing white should be removed (tabs and spaces)
+			  "*",
+			  "*",
+			  "  ",
+			  "" } ; 
+		String cleanedContent[] = {
+			  "",
+			  "",
+			  "class: the_class" ,
+			  "",
+			  "class_with_tabs: the_class",
+			  "class_with_tabs: the_class",
+			  "",
+			  "",
+			  "",
+			  "" } ;
+		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
+	}
+	
 	private void runTest(String string, String comment[], String expCleanedComment[]) throws Exception {
 		
     	if(comment.length != expCleanedComment.length) {
@@ -55,7 +82,7 @@ public class TestCleaner extends TestCase {
 			logComment("Expecting comment", expCleanedComment) ;
 		}
 		
-		DocCommentCleaner.clean(comment) ;
+		DocCommentCleaner.clean(comment);
 		
 		if(fDebug) {
 			logComment("Cleaned comment", comment) ;
