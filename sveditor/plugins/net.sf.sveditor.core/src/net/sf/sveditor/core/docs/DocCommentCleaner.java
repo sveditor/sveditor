@@ -26,7 +26,8 @@
 
 package net.sf.sveditor.core.docs ;
 
-import java.util.regex.Pattern ;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -45,9 +46,14 @@ public class DocCommentCleaner {
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
 	
 	private static LogHandle				fLog;
+	private static boolean				fDebugEn = true;
+   	private static Pattern fLeftVerticalLineStripPattern;
+   	private static Pattern fRightVerticalLineStripPattern;
 	
 	static {
 		fLog = LogFactory.getLogHandle("DocCommentCleaner");
+		fLeftVerticalLineStripPattern = Pattern.compile("^ *([^a-zA-Z0-9 ])\\1*");
+		fRightVerticalLineStripPattern = Pattern.compile(" *([^a-zA-Z0-9 ])\\1*$");
 	}
 	
 	/* 
@@ -58,6 +64,8 @@ public class DocCommentCleaner {
 		
 		Uniformity leftSide = Uniformity.DONT_KNOW ;
 		Uniformity rightSide = Uniformity.DONT_KNOW ;
+		int leftSideChar = -1;
+		int rightSideChar = -1;
 		
 //	    my $tabLength = NaturalDocs::Settings->TabLength();
 		
@@ -89,16 +97,37 @@ public class DocCommentCleaner {
 //	        my $line = $commentLines->[$index];
 //	        $line =~ s/^ +//;
 			
-			String line = lines[index] ;
+			String line = lines[index];
+			line = line.trim();
+			
+			if (fDebugEn) {
+				fLog.debug("line: " + line);
+				fLog.debug("  UniformityState: " + leftSide + " " + rightSide);
+				fLog.debug("  leftSideChar: " + 
+						((leftSideChar != -1)?(char)leftSideChar:"-1") +
+						" rightSideChar: " + 
+						((rightSideChar != -1)?(char)rightSideChar:"-1"));
+			}
 			
 	        // If the line is blank...
 			//
 			if(line.length()==0) {
+				if (fDebugEn) {
+					fLog.debug("line-length is 0");
+				}
 	            // If we have a potential vertical line, this only acceptable if it's at the end of the comment.
-	            if (leftSide == Uniformity.IS_UNIFORM)
-	                {  leftSide = Uniformity.IS_UNIFORM_IF_AT_END ; }
-	            if (rightSide == Uniformity.IS_UNIFORM)
-	                {  rightSide = Uniformity.IS_UNIFORM_IF_AT_END ; }
+	            if (leftSide == Uniformity.IS_UNIFORM) {
+	            	leftSide = Uniformity.IS_UNIFORM_IF_AT_END;
+	            	if (fDebugEn) {
+	            		fLog.debug("leftSide => " + leftSide);
+	            	}
+            	}
+	            if (rightSide == Uniformity.IS_UNIFORM) {
+	            	rightSide = Uniformity.IS_UNIFORM_IF_AT_END; 
+	            	if (fDebugEn) {
+	            		fLog.debug("rightSide => " + rightSide);
+	            	}
+            	}
             }
 
 	        // If there's at least four symbols in a row, it's a horizontal line.  The second regex supports differing edge characters.  It
@@ -109,6 +138,9 @@ public class DocCommentCleaner {
 			else if (line.matches("^([^a-zA-Z0-9 ])\\1{3,}$") ||
 					 ((line.length() < 256) &&
 							 line.matches("^([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$/"))) {
+				if (fDebugEn) {
+					fLog.debug("Matches horizontal-line pattern");
+				}
 			
 	            // Ignore it.  This has no effect on the vertical line detection.  We want to keep it in the output though in case it was
 	            // in a code section.
@@ -116,17 +148,24 @@ public class DocCommentCleaner {
 	        // If the line is not blank or a horizontal line...
 			//
 			} else {
+				if (fDebugEn) {
+					fLog.debug("line >0 length and does not match horizontal line");
+				}
 	        	
 	            // More content means any previous blank lines are no longer tolerated in vertical line detection.  They are only
 	            // acceptable at the end of the comment.
 	
 	            if (leftSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
-	            	fLog.debug("leftSide <= IS_UNIFORM_IF_AT_END");
 	            	leftSide = Uniformity.IS_NOT_UNIFORM;  
+	            	if (fDebugEn) {
+	            		fLog.debug("leftSide => " + leftSide);
+	            	}
 	            }
 	            if (rightSide == Uniformity.IS_UNIFORM_IF_AT_END) {  
-	            	fLog.debug("rightSide <= IS_UNIFORM_IF_AT_END");
 	            	rightSide = Uniformity.IS_NOT_UNIFORM;  
+	            	if (fDebugEn) {
+	            		fLog.debug("rightSide => " + rightSide);
+	            	}
 	            }
 
 
@@ -135,14 +174,18 @@ public class DocCommentCleaner {
 //	            # character the same.
 //	
 	            if (leftSide != Uniformity.IS_NOT_UNIFORM) {
-	                if (line.matches("^([^a-zA-Z0-9])\1*(?: |$)")) {
+	            	Pattern p = Pattern.compile("^([^a-zA-Z0-9])\1*(?: |$)");
+	            	Matcher m = p.matcher(line);
+	                if (m.matches()) {
+	                	int g1_char = m.group(1).charAt(0);
 	                    if (leftSide == Uniformity.DONT_KNOW) {
 	                        leftSide = Uniformity.IS_UNIFORM;
-//TODO:	                        leftSideChar = $1;
+	                        leftSideChar = g1_char;
                         } else { // # ($leftSide == IS_UNIFORM)  Other choices already ruled out.
-//TODO:	                        if (leftSideChar != $1) {  
-//TODO:	                        	leftSide = Uniformity.IS_NOT_UNIFORM;  
-//TODO:                        	}
+                        	
+                        	if (leftSideChar != g1_char) {  
+                        		leftSide = Uniformity.IS_NOT_UNIFORM;  
+                        	}
 	                    }
 	                }
 //	                # We'll tolerate the lack of symbols on the left on the first line, because it may be a
@@ -155,14 +198,17 @@ public class DocCommentCleaner {
                 }
 
 	            if (rightSide != Uniformity.IS_NOT_UNIFORM) {
-	            	if (line.matches(" ([^a-zA-Z0-9])\1*$")) {
+	            	Pattern p = Pattern.compile(" ([^a-zA-Z0-9])\1*$");
+	            	Matcher m = p.matcher(line);
+	            	if (m.matches()) {
+	            		int g1_char = m.group(1).charAt(0);
 	                    if (rightSide == Uniformity.DONT_KNOW) {
 	                        rightSide = Uniformity.IS_UNIFORM;
-//TODO:	                        rightSideChar = $1;
+	                        rightSideChar = g1_char;
 	                    } else { // # ($rightSide == IS_UNIFORM)  Other choices already ruled out.
-//TODO:                    if (rightSideChar != $1) {  
-//TODO:                    	rightSide = Uniformity.IS_NOT_UNIFORM;  
-//TODO:                   };
+	                    	if (rightSideChar != g1_char) {
+	                    		rightSide = Uniformity.IS_NOT_UNIFORM;
+	                    	}
 	                    }
 	            	} else {
 	                    rightSide = Uniformity.IS_NOT_UNIFORM;
@@ -193,20 +239,36 @@ public class DocCommentCleaner {
 	        if (lines[index].matches("^ *([^a-zA-Z0-9 ])\\1{3,}") ||
 	            ( lines[index].length() < 256 &&
 	              lines[index].matches("^ *([^a-zA-Z0-9 ])\\1*([^a-zA-Z0-9 ])\\2{3,}([^a-zA-Z0-9 ])\\3*$" ))) {
-	        	if (!inCodeSection) {  
+	        	if (!inCodeSection) {
 	        		lines[index] = "" ;  
         		}
         	} else {
 		        // Clear vertical lines.
 	
 		        if (leftSide == Uniformity.IS_UNIFORM) {
+		        	if (fDebugEn) {
+		        		fLog.debug("pre-apply LHS stripping: line=" + lines[index]);
+		        	}
 		            // This works because every line should either start this way, be blank, or be the first line that doesn't start with a
 		            // symbol.
-		            lines[index].replace("^ *([^a-zA-Z0-9 ])\\1*","") ;
+//		            lines[index] = lines[index].replace("^ *([^a-zA-Z0-9 ])\\1*","") ;
+		        	Matcher m = fLeftVerticalLineStripPattern.matcher(lines[index]);
+		        	if (fDebugEn) {
+		        		if (m.matches()) {
+		        			fLog.debug("match: " + m.matches() + " " + m.group(1));
+		        		} else {
+		        			fLog.debug("match: " + m.matches());
+		        		}
+		        	}
+		        	lines[index] = m.replaceFirst("");
+		        	if (fDebugEn) {
+		        		fLog.debug("post-apply LHS stripping: line=" + lines[index]);
+		        	}
 	            }
 	
 		        if (rightSide == Uniformity.IS_UNIFORM) {
-		            lines[index].replace(" *([^a-zA-Z0-9 ])\\1*$","") ;
+		        	Matcher m = fRightVerticalLineStripPattern.matcher(lines[index]);
+		            lines[index] = m.replaceFirst("");
 	            }
 	
 		        // Clear horizontal lines again if there were vertical lines.  This catches lines that were separated from the verticals by

@@ -179,8 +179,6 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
 
-							fCommentBuffer.append((char)ch);
-
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
 								endComment() ;
 								break;

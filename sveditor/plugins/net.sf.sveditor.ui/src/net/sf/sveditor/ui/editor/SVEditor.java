@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -112,7 +113,9 @@ public class SVEditor extends TextEditor
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBFile						fSVDBFile;
-	private ISVDBIndex						fSVDBIndex;
+	private SVDBFile						fSVDBFilePP;
+	private SVDBFileOverrideIndex			fSVDBIndex;
+	private List<SVDBMarker>				fMarkers;
 	private String							fFile;
 	private SVDBIndexCollection				fIndexMgr;
 	private LogHandle						fLog;
@@ -181,13 +184,16 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
-			SVDBFile new_in = fIndexMgr.parse(
+			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
 					getProgressMonitor(), sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			
 			if (new_in != null) {
-				fSVDBFile = new_in;
+				fSVDBFile = new_in.second();
+				fSVDBFilePP = new_in.first();
 				fIndexIterator.setFile(fSVDBFile);
+				fSVDBIndex.setFile(fSVDBFile);
+				fSVDBIndex.setFilePP(fSVDBFilePP);
 
 				addErrorMarkers(markers);
 			}
@@ -209,6 +215,8 @@ public class SVEditor extends TextEditor
 	
 	public SVEditor() {
 		super();
+		
+		fMarkers = new ArrayList<SVDBMarker>();
 		
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
@@ -240,6 +248,7 @@ public class SVEditor extends TextEditor
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);
+		fSVDBFilePP = new SVDBFile(fFile);
 		fIndexIterator = new SVDBFileOverrideIndexIterator(fSVDBFile);
 		
 		// Fixup documents that have \r and not \r\n
@@ -329,7 +338,8 @@ public class SVEditor extends TextEditor
 		
 		synchronized (this) {
 			fProjectSettingsJob = null;
-			fSVDBIndex = index;
+			fSVDBIndex = new SVDBFileOverrideIndex(
+					fSVDBFile, fSVDBFilePP, index, fIndexIterator, fMarkers);
 			fIndexMgr = index_mgr;
 			fIndexIterator.setIndexIt(fIndexMgr);
 			fIndexIterator.setIndex(fSVDBIndex);
@@ -417,7 +427,8 @@ public class SVEditor extends TextEditor
 							SVDBIndexUtil.findIndexFile(fSVDBFilePath, null, true);
 					
 					// TODO: What happens with no index
-					fSVDBIndex = result.first();
+					fSVDBIndex = new SVDBFileOverrideIndex(fSVDBFile, fSVDBFilePP, 
+							result.first(), fIndexIterator, fMarkers);
 					fIndexMgr  = result.second();
 					fIndexIterator.setIndex(fSVDBIndex);
 					fIndexIterator.setIndexIt(fIndexMgr);
