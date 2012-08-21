@@ -1,9 +1,11 @@
+-- 0.9.8 Release --
 
 - #(nobug) - Improve doc-comment stripping to support multi-line comments
 
 - #(nobug) - Update SVEditor to correctly provide the 'live' pre-processor
   view for the doc-comment hover
   
+------------------------------------------------------------------------------
 -- 0.9.7 Release --
 
 - #(3558622) - Correct const-cast and integer-cast parse errors
