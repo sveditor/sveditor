@@ -5,6 +5,10 @@
 - #(nobug) - Update SVEditor to correctly provide the 'live' pre-processor
   view for the doc-comment hover
   
+- #(nobug) - Fixes to lookup functionality underlying content assist to 
+  correctly search up past single-statement behavioral scopes, such as
+  if and while.
+  
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --
 

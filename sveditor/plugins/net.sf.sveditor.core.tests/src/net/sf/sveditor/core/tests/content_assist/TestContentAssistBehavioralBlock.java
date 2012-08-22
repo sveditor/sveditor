@@ -229,4 +229,59 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testStructFieldAssistInForIfScope() {
+		String testname = "testStructFieldAssistInForIfScope";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class cls1;\n" +
+			" typedef struct {\n" +
+			" int AA;\n" +
+			" int AB;\n" +
+			" int BA;\n" +
+			" int BB;\n" +
+			" } my_struct;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			" 	for (int i=0; i<5; i++) begin\n" +
+			" 		if (i == 2) begin\n" +
+			"			myfunc(f1.<<MARK>>\n" +
+			" 		end\n" +
+			"	end\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB", "BA", "BB");
+	}
+	
+	public void testStructFieldAssistInForScope() {
+		String testname = "testStructFieldAssistInForScope";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class cls1;\n" +
+			" typedef struct {\n" +
+			" int AA;\n" +
+			" int AB;\n" +
+			" int BA;\n" +
+			" int BB;\n" +
+			" } my_struct;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			" 	for (int i=0; i<5; i++) begin\n" +
+			"		myfunc(f1.<<MARK>>\n" +
+			"	end\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB", "BA", "BB");
+	}
 }

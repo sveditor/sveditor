@@ -195,7 +195,10 @@ public class SVDBFindByNameInScopes {
 				break;
 			}
 
-			context = context.getParent();
+			while ((context = context.getParent()) != null && 
+					!(context instanceof ISVDBChildParent)) { }
+			
+			fLog.debug("parent: " + ((context != null)?context.getType():"NULL"));
 		}
 
 		fLog.debug("<-- find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + " name=" + name);

@@ -53,7 +53,7 @@ public class TestCleaner extends TestCase {
 	}
 
 	public void testLeadingCommentMarkRemoval() throws Exception {
-		fDebug = true ;
+		// fDebug = true ;
 		String comment [] = {
 			  "*",
 			  "*",										// Entire line should be removed

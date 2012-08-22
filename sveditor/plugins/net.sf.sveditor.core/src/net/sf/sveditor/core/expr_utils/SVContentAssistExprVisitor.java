@@ -524,8 +524,13 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 					ret = c;
 				}
 			}
-			if (scope.getParent() instanceof ISVDBChildParent) {
-				scope = (ISVDBChildParent)scope.getParent();
+			
+			// Skip over non-parent scopes
+			ISVDBChildItem c = scope;
+			while ((c = c.getParent()) != null && !(c instanceof ISVDBChildParent)) { }
+		
+			if (c != null) {
+				scope = (ISVDBChildParent)c;
 			} else {
 				scope = null;
 			}
