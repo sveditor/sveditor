@@ -9,6 +9,10 @@
   correctly search up past single-statement behavioral scopes, such as
   if and while.
   
+- #(nobug) - Correct content-assist problem inside do/while blocks. Since
+  a content-assist scenario typically results in a temporary syntax error,
+  the do/while block was not being added to the AST.
+  
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --
 
