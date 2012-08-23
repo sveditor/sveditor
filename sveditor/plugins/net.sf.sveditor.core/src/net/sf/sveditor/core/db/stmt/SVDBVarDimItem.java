@@ -66,5 +66,35 @@ public class SVDBVarDimItem extends SVDBStmt {
 	public void setTypeInfo(SVDBTypeInfo type_info) {
 		fTypeInfo = type_info;
 	}
+	
+	public String toString() {
+		String ret = "[";
+	
+		if (fDimType != null) {
+			switch (fDimType) {
+				case Associative:
+					if (fTypeInfo != null) {
+						ret += fTypeInfo.toString();
+					}
+					break;
 
+			case Queue:
+				ret += "$";
+				break;
+
+			case Sized: 
+				if (fExpr != null) {
+					ret += fExpr.toString();
+				}
+				break;
+
+			case Unsized:
+				break;
+			}
+		}
+		
+		ret += "]";
+		
+		return ret;
+	}
 }

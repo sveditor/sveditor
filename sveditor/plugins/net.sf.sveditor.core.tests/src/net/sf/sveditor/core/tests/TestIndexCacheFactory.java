@@ -45,8 +45,11 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 			if (!target.isDirectory()) {
 				TestCase.assertTrue(target.mkdirs());
 			}
-			
-			SVDBFileIndexCache cache = new SVDBFileIndexCache(new SVDBDirFS(target));
+		
+			SVDBDirFS fs = new SVDBDirFS(target);
+			// Always disable for tests
+			fs.setEnableAsyncClear(false);
+			SVDBFileIndexCache cache = new SVDBFileIndexCache(fs);
 //			SVDBThreadedFileIndexCache cache = new SVDBThreadedFileIndexCache(new SVDBDirFS(target));
 			
 			return cache;

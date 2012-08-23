@@ -65,13 +65,16 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 	public void initLoad(IProgressMonitor monitor) {
 	}
 
-	public void clear() {
+	public void clear(IProgressMonitor monitor) {
+		
+		monitor.beginTask("Clear Cache", 1);
 		fFileList.clear();
 		fFileMap.clear();
 		fFileTreeMap.clear();
 		fLastModifiedMap.clear();
 		fPreProcFileMap.clear();
 		fMarkerMap.clear();
+		monitor.done();
 	}
 
 	public Set<String> getFileList() {

@@ -37,7 +37,6 @@ import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.SVDBDefaultPersistenceRW;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -63,6 +62,8 @@ public class TestIndexCache extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		SVCorePlugin.getJobMgr().dispose();
+		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 		}
@@ -95,6 +96,7 @@ public class TestIndexCache extends TestCase {
 			public ISVDBIndexCache createIndexCache(String project_name,
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
+				fs.setEnableAsyncClear(false);
 				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
 				return cache;
 			}
@@ -171,6 +173,7 @@ public class TestIndexCache extends TestCase {
 			public ISVDBIndexCache createIndexCache(String project_name,
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
+				fs.setEnableAsyncClear(false);
 				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
 				return cache;
 			}

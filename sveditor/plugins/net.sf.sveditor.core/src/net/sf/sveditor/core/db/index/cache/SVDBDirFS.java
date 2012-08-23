@@ -28,6 +28,9 @@ import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Random;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
@@ -47,6 +50,10 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 		fLog = LogFactory.getLogHandle("SVDBDirFS");
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
+	}
+	
+	public void setEnableAsyncClear(boolean en) {
+		fAsyncClear = en;
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -181,13 +188,13 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 		return file.lastModified();
 	}
 	
-	public void delete(String path) {
+	public void delete(IProgressMonitor monitor, String path) {
 		if (path.equals("")) {
 			if (fDBDir.exists()) {
 				if (fAsyncClear) {
 					async_clear(fDBDir);
 				} else {
-					delete_tree(fDBDir);
+					delete_tree(monitor, fDBDir);
 				}
 			}
 		} else {
@@ -196,7 +203,7 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 			debug("Delete \"" + file.getAbsolutePath() + "\"");
 
 			if (file.isDirectory()) {
-				delete_tree(file);
+				delete_tree(new SubProgressMonitor(monitor, 1), file);
 			} else if (file.isFile()) {
 				file.delete();
 			}
@@ -219,7 +226,7 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 		if (!root.renameTo(newname)) {
 			fLog.debug(LEVEL_MIN, "Failed to rename cache directory");
 			// delete in-line
-			delete_tree(root);
+			delete_tree(null, root);
 			return;
 		}
 		
@@ -236,27 +243,33 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 				if (fDebugEn) {
 					fLog.debug(LEVEL_MID, "Deleteing old cache");
 				}
-				delete_tree(newname);
+				delete_tree(null, newname);
 			}
 		});
 		job_mgr.queueJob(job);
 	}
 	
-	private void delete_tree(File p) {
+	private void delete_tree(IProgressMonitor monitor, File p) {
 		if (p.isFile()) {
 			p.delete();
 		} else {
 			if (p.exists()) {
 				File file_l[] = p.listFiles();
 				if (file_l != null) {
+					if (monitor != null) {
+						monitor.beginTask("Delete Cache", 1);
+					}
 					for (File f : file_l) {
 						if (f.getName().equals("..") || f.getName().equals(".")) {
 							debug("[ERROR] " + f.getName());
 							continue;
 						}
 						if (f.isDirectory()) {
-							delete_tree(f);
+							delete_tree(null, f);
 						}
+					}
+					if (monitor != null) {
+						monitor.done();
 					}
 				}
 				file_l = p.listFiles();

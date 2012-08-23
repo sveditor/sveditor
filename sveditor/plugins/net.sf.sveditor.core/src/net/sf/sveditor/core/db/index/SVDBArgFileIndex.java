@@ -24,6 +24,7 @@ import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileIndex extends AbstractSVDBIndex {
@@ -217,7 +218,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		fLog.debug("File changed: " + path);
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file
-			invalidateIndex("Argument File Changed: " + path, false);
+			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
 		}
 		super.fileChanged(path);
 	}

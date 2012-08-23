@@ -48,6 +48,9 @@ public class SVEditorPrefsConstants {
 	public static final String P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT 		= EDIT_SETTINGS + "contentAssistModIfcInstLineWrapLimit";
 	public static final String P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE 	= EDIT_SETTINGS + "contentAssistModIfcInstPortsPerLine";
 	
+	public static final String P_CONTENT_ASSIST_HOVER_USES_BROWSER				= EDIT_SETTINGS + "contentAssistHoverUsesBrowser";
+	public static final String P_CONTENT_ASSIST_HOVER_BG_COLOR					= EDIT_SETTINGS + "contentAssistHoverBgColor";
+	public static final String P_CONTENT_ASSIST_HOVER_FG_COLOR					= EDIT_SETTINGS + "contentAssistHoverFgColor";
 	
 	// SV Template Paths
 	public static final String P_SV_TEMPLATE_PATHS								= TEMPLATE_SETTINGS + "svTemplatePaths";

@@ -18,7 +18,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -41,10 +40,12 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 
 public class TestUtils {
@@ -141,8 +142,12 @@ public class TestUtils {
 				delete(i);
 			}
 		}
-		if (!item.delete()) {
-			TestCase.fail("Failed to delete \"" + item.getAbsolutePath() + "\"");
+		if (item.exists() && !item.delete()) {
+			if (item.isDirectory()) {
+				TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\"");
+			} else {
+				TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+			}
 		}
 	}
 	
@@ -309,5 +314,31 @@ public class TestUtils {
 		}
 		return lines;
 	}	
+	
+	public static IProject importProject(File project) {
+		IProjectDescription pd = null;
+		IWorkspace ws = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = ws.getRoot();
+	
+		try {
+			pd = ws.loadProjectDescription(
+					new Path(new File(project, ".project").getAbsolutePath()));
+		} catch (CoreException e) {
+			TestCase.fail("Failed to load project description: " + 
+					project.getAbsolutePath() + ": " + e.getMessage());
+		}
+	
+		IProject p = root.getProject(pd.getName());
+		
+		try {
+			p.create(pd, null);
+			p.open(null);
+		} catch (CoreException e) {
+			TestCase.fail("Failed to open project: " + 
+					project.getAbsolutePath() + ": " + e.getMessage());
+		}
+		
+		return p;
+	}
 	
 }

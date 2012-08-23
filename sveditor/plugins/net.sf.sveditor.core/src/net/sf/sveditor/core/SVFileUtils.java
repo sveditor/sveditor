@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -97,6 +98,47 @@ public class SVFileUtils {
 		}
 		
 		return p;
+	}
+	
+	public static IFile getWorkspaceFile(String path) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFile f = null;
+		
+		path = normalize(path);
+
+		f = root.getFile(new Path(path));
+		
+		if (!f.exists()) {
+			f = null;
+		}
+		
+		return f;
+	}
+
+	/**
+	 * Attempts to map a filesystem path to a workspace one
+	 * @param path
+	 * @return
+	 */
+	public static IFile findWorkspaceFile(String path) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		IFile f = root.getFileForLocation(new Path(path));
+		
+		return f;
+	}
+	
+	/**
+	 * Attempts to map a filesystem path to a workspace one
+	 * @param path
+	 * @return
+	 */
+	public static IContainer findWorkspaceFolder(String path) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		
+		IContainer c = root.getContainerForLocation(new Path(path));
+		
+		return c;
 	}
 	
     private static String convertToHex(byte[] data) { 

@@ -325,8 +325,20 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 
 	private void handle_preproc_directive() {
 		int ch = -1;
+		
+		// Skip any whitespace (up to end-of-line) between
+		// the ` and the directive
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+		
+		if (ch == -1) {
+			return;
+		}
 	
-		String type = readIdentifier(get_ch());
+		String type = readIdentifier(ch);
+		
+		if (type == null) {
+			type = "";
+		}
 
 		fScanLocation.setLineNo(fLineno);
 

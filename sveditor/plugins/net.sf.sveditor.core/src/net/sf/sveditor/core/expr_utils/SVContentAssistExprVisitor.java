@@ -21,7 +21,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -39,7 +38,6 @@ import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
-import net.sf.sveditor.core.db.expr.SVDBParamIdExpr;
 import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -50,7 +48,6 @@ import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindParameterizedClass;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
-import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -407,6 +404,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			SVDBModIfcInst mod_ifc_p = (SVDBModIfcInst)mod_ifc.getParent();
 
 			type = mod_ifc_p.getTypeInfo();
+		} else if (item.getType() == SVDBItemType.TypedefStmt) {
+			type = ((SVDBTypedefStmt)item).getTypeInfo();
 		}
 		
 		if (type != null) {

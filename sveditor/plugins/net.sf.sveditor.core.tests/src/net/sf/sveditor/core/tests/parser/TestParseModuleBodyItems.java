@@ -1640,22 +1640,17 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"harness", "f4"});
 	}
 	
-	public void testSpecifyBlock() throws SVParseException {
-		String testname = "testSpecifyBlock";
+	public void testNonBlockingDelayAssign() {
 		String doc = 
-				"module delay (in, out);\n" +
-				" input  in;\n" +
-				" output out;\n" +
-				"\n" +
-				" assign out = in;\n" +
-				"\n" +
-				" specify\n" +
-				" (in => out) = (600,600);\n" +
-				" endspecify\n" +
-				"endmodule\n"
+				"module my_module();\n" +
+				" event some_event;\n" +
+				" initial\n" +
+				" begin\n" +
+				" ->> some_event; // passes\n" +
+				" ->> #2ns some_event; // fails ... doesn't like the #2ns\n" +
+				" end\n" +
+				" endmodule\n"
 				;
-		SVCorePlugin.getDefault().enableDebug(false);
-		runTest(testname, doc, new String[] {"delay"});
 	}
 	
 	public void testSpecifyBlock_2() throws SVParseException {
@@ -1689,6 +1684,26 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"delay"});
 	}
 
+	public void testParseEvent() throws SVParseException {
+		String testname = "testParseEvent";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module my_module();\n" + 
+				"	event some_event;\n" + 
+				"   logic bob;\n" + 
+				"	initial\n" + 
+				"	begin\n" + 
+				"		->  some_event; // passes\n" + 
+				"		->>      some_event; // passes\n" + 
+				"		->> #2ns some_event; // passes\n" + 
+				"		->> repeat (10) @(posedge bob) some_event; // Modelsim doesn't like the repeat, but the LRM implies that it is valid\n" + 
+				"		->> @(posedge bob) some_event;\n" + 
+				"	end\n" + 
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"some_event"});
+	}
+		
 	private void runTest(
 			String			testname,
 			String			doc,
@@ -1699,7 +1714,6 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
 	}
-
 
 }
 

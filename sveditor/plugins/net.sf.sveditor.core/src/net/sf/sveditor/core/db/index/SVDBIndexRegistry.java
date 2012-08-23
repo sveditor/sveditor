@@ -300,7 +300,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 		return ret;
 	}
 	
-	public void rebuildIndex(String project) {
+	public void rebuildIndex(IProgressMonitor monitor, String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
 		
 		clearStaleIndexes();
@@ -309,7 +309,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 			for (Reference<ISVDBIndex> i : fIndexList) {
 				ISVDBIndex index = i.get();
 				if (index != null && index.getProject().equals(project)) {
-					index.rebuildIndex();
+					index.rebuildIndex(monitor);
 				}
 			}
 		}

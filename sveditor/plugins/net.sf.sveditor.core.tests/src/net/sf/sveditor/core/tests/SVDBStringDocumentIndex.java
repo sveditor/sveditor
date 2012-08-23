@@ -46,7 +46,7 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			}
 			public void init(String root) {}
 			public long getLastModifiedTime(String path) {return 0;}
-			public String resolvePath(String path) {return path;}
+			public String resolvePath(String path, String fmt) {return path;}
 			public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
 			public void dispose() {}
 			public void closeStream(InputStream in) {}

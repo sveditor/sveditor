@@ -124,6 +124,86 @@ public class SVExprParser extends SVParserBase {
 		return expr;
 	}
 	
+	private final static Set<String> fUnaryModulePathOperators;
+	private final static Set<String> fBinaryModulePathOperators;
+	static {
+		fUnaryModulePathOperators = new HashSet<String>();
+		fUnaryModulePathOperators.add("!");
+		fUnaryModulePathOperators.add("~");
+		fUnaryModulePathOperators.add("&");
+		fUnaryModulePathOperators.add("~&");
+		fUnaryModulePathOperators.add("|");
+		fUnaryModulePathOperators.add("~|");
+		fUnaryModulePathOperators.add("^");
+		fUnaryModulePathOperators.add("~^");
+		fUnaryModulePathOperators.add("^~");
+		
+		fBinaryModulePathOperators = new HashSet<String>();
+		fBinaryModulePathOperators.add("==");
+		fBinaryModulePathOperators.add("!=");
+		fBinaryModulePathOperators.add("&&");
+		fBinaryModulePathOperators.add("||");
+		fBinaryModulePathOperators.add("&");
+		fBinaryModulePathOperators.add("|");
+		fBinaryModulePathOperators.add("^");
+		fBinaryModulePathOperators.add("^~");
+		fBinaryModulePathOperators.add("~^");
+	}
+	
+	public SVDBExpr module_path_expression() throws SVParseException {
+		SVDBExpr ret = null;
+		if (fDebugEn) {
+			debug("--> module_path_expression() " + fLexer.peek());
+		}
+		if (fLexer.peekOperator(fUnaryModulePathOperators)) {
+			fLexer.eatToken();
+			module_path_primary();
+		} 
+		
+		if (fLexer.peekOperator(fBinaryModulePathOperators)) {
+			String op = fLexer.eatToken();
+			module_path_expression();
+		}
+		
+		module_path_primary();
+			
+		if (fDebugEn) {
+			debug("<-- module_path_expression() " + fLexer.peek());
+		}
+		return ret;
+	}
+	
+	private SVDBExpr module_path_primary() throws SVParseException {
+		SVDBExpr ret = null;
+		if (fLexer.peekNumber()) {
+			ret = literalExpr();
+		} else if (fLexer.peekId()) {
+			// id | function_subroutine_call
+			ret = idExpr();
+			// TODO: function_subroutine_call
+			if (fLexer.peekOperator("(")) {
+				error("function_subroutine_call unsupported");
+			}
+		} else if (fLexer.peekOperator("{")) {
+			error("module_path_concatenation|module_path_multiple_concatenation unsupported");
+			// module_path_concatenation | module_path_multiple_concatenation
+			fLexer.eatToken(); // {
+			if (fLexer.peekOperator("{")) {
+				// module_path_multiple_concatenation
+				// TODO:
+			} else {
+				
+			}
+		} else if (fLexer.peekOperator("(")) {
+			// module_path_mintypmax_expression
+			// TODO:
+			error("module_path_mintypmax_expression unsupported");
+		}
+		return ret;
+	}
+
+	
+	
 	public SVDBExpr cycle_delay() throws SVParseException {
 		SVDBCycleDelayExpr expr = new SVDBCycleDelayExpr();
 		expr.setLocation(fLexer.getStartLocation());
@@ -814,9 +894,9 @@ public class SVExprParser extends SVParserBase {
 				fLexer.ungetToken(tok);
 				a = assignment_pattern_expr();
 			} else {
-				fLexer.ungetToken(tok);
-				if (fDebugEn) {debug("    castExpr");}
-				fLexer.eatToken();
+//				fLexer.ungetToken(tok);
+				if (fDebugEn) {debug("    castExpr " + fLexer.peek());}
+//				fLexer.eatToken();
 				// MSB: new cast expression
 				a = new SVDBCastExpr(a, expression());
 			}
@@ -972,7 +1052,7 @@ public class SVExprParser extends SVParserBase {
 				ret = new SVDBNullExpr();
 			} else if (fLexer.isIdentifier() || 
 					SVKeywords.isBuiltInType(fLexer.peek()) ||
-					fLexer.peekKeyword("new","default","local")) {
+					fLexer.peekKeyword("new","default","local","const")) {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}
@@ -1010,7 +1090,8 @@ public class SVExprParser extends SVParserBase {
 					}
 				} else if (id.equals("new")) {
 					ret = ctor_call();
-				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
+				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
+						fLexer.peekKeyword("const")) {
 					fLexer.startCapture();
 					fLexer.eatToken();
 					if (fLexer.peekKeyword("signed","unsigned")) {

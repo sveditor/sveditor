@@ -69,7 +69,7 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		return f.lastModified();
 	}
 	
-	public String resolvePath(String path) {
+	public String resolvePath(String path, String fmt) {
 		return path;
 	}
 
@@ -77,9 +77,7 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		InputStream in = null;
 		
 		try {
-			InputStream t_in = new FileInputStream(path);
-			// in = new BufferedInputStream(t_in, 4*1024);
-			in = t_in;
+			in = new FileInputStream(path);
 		} catch (IOException e) { }
 		
 		return in;

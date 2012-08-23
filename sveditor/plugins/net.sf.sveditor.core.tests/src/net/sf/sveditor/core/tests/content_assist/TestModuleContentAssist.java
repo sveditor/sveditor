@@ -181,7 +181,7 @@ public class TestModuleContentAssist extends TestCase {
 	
 	public void testNestedIfVariableAssist() {
 		LogHandle log = LogFactory.getLogHandle("testNestedIfVariableAssist");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc1 = 
 				"module m1;\n" +							// 1

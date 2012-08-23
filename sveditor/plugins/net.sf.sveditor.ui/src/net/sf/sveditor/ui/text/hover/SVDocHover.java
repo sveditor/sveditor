@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
@@ -37,14 +38,17 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
@@ -56,6 +60,7 @@ import org.eclipse.jface.text.IInformationControlExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -245,7 +250,11 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
-			if (BrowserInformationControl.isAvailable(parent)) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+			
+			// Use the browser widget if available and the user enables it
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tbm);
@@ -339,8 +348,14 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
 //			String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
-			if (BrowserInformationControl.isAvailable(parent)) {
+			Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+			Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tooltipAffordanceString) {
 				BrowserInformationControl iControl= new BrowserInformationControl(parent, "", "todo") {
@@ -352,11 +367,49 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 						return fInformationPresenterControlCreator;
 					}
 				};
+				iControl.setBackgroundColor(bg_color);
+				iControl.setForegroundColor(fg_color);
 //				addLinkListener(iControl);
 				return iControl;
 			} else {
 //				return new DefaultInformationControl(parent, tooltipAffordanceString);
-				return new DefaultInformationControl(parent, "todo");
+				DefaultInformationControl hover = new SVDefaultInformationControl(
+						parent, "todo", bg_color, fg_color);
+				return hover;
+			}
+		}
+		
+		private final class SVDefaultInformationControl extends DefaultInformationControl 
+			implements IInformationControlCreator {
+			IInformationControlCreator		fCreator;
+			Color							fBgColor;
+			Color							fFgColor;
+			
+			public SVDefaultInformationControl(
+					Shell parent, 
+					String msg,
+					Color			bg_color,
+					Color			fg_color) {
+				super(parent, msg);
+				setBackgroundColor(bg_color);
+				setForegroundColor(fg_color);
+				fBgColor = bg_color;
+				fFgColor = fg_color;
+			}
+
+			@Override
+			public IInformationControlCreator getInformationPresenterControlCreator() {
+				fCreator = super.getInformationPresenterControlCreator();
+				return this;
+			}
+
+			public IInformationControl createInformationControl(Shell parent) {
+				IInformationControl c = fCreator.createInformationControl(parent);
+				if (c instanceof DefaultInformationControl) {
+					((DefaultInformationControl)c).setBackgroundColor(fBgColor);
+					((DefaultInformationControl)c).setForegroundColor(fFgColor);
+				}
+				return c;
 			}
 		}
 
@@ -583,26 +636,32 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
 			return null ;
 		}
-		
+
 		// Grap the preprocessor view of the file then
 		// search it for a doc comment for the given element
 		//
-		SVDBFile ppFile = ((SVEditor)getEditor()).getSVDBIndex().getCache()
-							.getPreProcFile(new NullProgressMonitor(), ((SVDBFile)p).getFilePath()) ;
+
+		// TODO: should be looking at the live view of the editor
+		ISVDBIndex index = ((SVEditor)getEditor()).getSVDBIndex();
+		SVDBFile ppFile = index.findPreProcFile(((SVDBFile)p).getFilePath());
 		
 		SVDBDocComment docCom = null ;
-		
-		for(ISVDBChildItem child: ppFile.getChildren()) {
-			if(child instanceof SVDBDocComment) {
-				SVDBDocComment tryDocCom = (SVDBDocComment)child ;
-				if(tryDocCom.getName().equals(namedItem.getName())) {
-					log.debug(ILogLevel.LEVEL_MID,
-							String.format("Found doc comment for(%s)",namedItem.getName())) ;
-					docCom = tryDocCom ;
-					hasContents = true ;
-					break ;
+	
+		if (ppFile != null) {
+			for(ISVDBChildItem child: ppFile.getChildren()) {
+				if(child instanceof SVDBDocComment) {
+					SVDBDocComment tryDocCom = (SVDBDocComment)child ;
+					if(tryDocCom.getName().equals(namedItem.getName())) {
+						log.debug(ILogLevel.LEVEL_MID,
+								String.format("Found doc comment for(%s)",namedItem.getName())) ;
+						docCom = tryDocCom ;
+						break ;
+					}
 				}
 			}
+		} else {
+			log.debug(ILogLevel.LEVEL_MID, "Failed to find pre-proc file " + 
+					((SVDBFile)p).getFilePath());
 		}
 		
 		if(docCom == null) {
@@ -643,7 +702,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 					"+------------------------------------------------------------------") ;
 			log.debug(ILogLevel.LEVEL_MID, 
 					"+------------------------------------------------------------------") ;
-			
+
 			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), 0);
 		}
 
