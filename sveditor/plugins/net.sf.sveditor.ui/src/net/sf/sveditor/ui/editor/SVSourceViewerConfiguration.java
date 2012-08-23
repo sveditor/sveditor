@@ -22,6 +22,7 @@ import net.sf.sveditor.ui.text.ObjectsInformationControl;
 import net.sf.sveditor.ui.text.OutlineInformationControl;
 import net.sf.sveditor.ui.text.SVEditorProvider;
 import net.sf.sveditor.ui.text.SVElementProvider;
+import net.sf.sveditor.ui.text.hover.ISVEditorTextHover;
 import net.sf.sveditor.ui.text.hover.SVDocHover;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -240,7 +241,8 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
 			!contentType.equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
 //			return new SVEditorTextHover(fEditor, viewer) ;
-			SVDocHover hover = new SVDocHover() ;
+//			SVDocHover hover = new SVDocHover() ;
+			ISVEditorTextHover hover = new SVDocHover() ;
 			hover.setEditor(fEditor) ;
 			return hover ;
 		}

@@ -619,8 +619,9 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		
 		ISVDBNamedItem namedItem = (ISVDBNamedItem)element ;
 
-		hasContents = true ; // FIXME: temp
-		
+		// Find file the element is contained in so
+		// that we can get the preprocessor view
+		//
 		ISVDBItemBase p = element ;
 		while (p != null && p.getType() != SVDBItemType.File) {
 			if (p instanceof ISVDBChildItem) {
@@ -636,6 +637,10 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			return null ;
 		}
 
+		// Grap the preprocessor view of the file then
+		// search it for a doc comment for the given element
+		//
+
 		// TODO: should be looking at the live view of the editor
 		ISVDBIndex index = ((SVEditor)getEditor()).getSVDBIndex();
 		SVDBFile ppFile = index.findPreProcFile(((SVDBFile)p).getFilePath());
@@ -647,6 +652,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 				if(child instanceof SVDBDocComment) {
 					SVDBDocComment tryDocCom = (SVDBDocComment)child ;
 					if(tryDocCom.getName().equals(namedItem.getName())) {
+						hasContents = true ;
 						log.debug(ILogLevel.LEVEL_MID,
 								String.format("Found doc comment for(%s)",namedItem.getName())) ;
 						docCom = tryDocCom ;
@@ -674,80 +680,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		docCommentParser.parse(docCom.getRawComment(), docTopics) ;
 		
 		buffer.append(genContent(docTopics)) ;
-
-//		if (nResults > 1) {
-//
-//			for (int i= 0; i < elements.length; i++) {
-//				HTMLPrinter.startBulletList(buffer);
-//				IJavaElement curr= elements[i];
-//				if (curr instanceof IMember || curr.getElementType() == IJavaElement.LOCAL_VARIABLE) {
-//					String label= JavaElementLabels.getElementLabel(curr, getHeaderFlags(curr));
-//					String link;
-//					try {
-//						String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, curr);
-//						link= JavaElementLinks.createLink(uri, label);
-//					} catch (URISyntaxException e) {
-//						JavaPlugin.log(e);
-//						link= label;
-//					}
-//					HTMLPrinter.addBullet(buffer, link);
-//					hasContents= true;
-//				}
-//				HTMLPrinter.endBulletList(buffer);
-//			}
-//
-//		} else {
-//
-//			element= elements[0];
-//			if (element instanceof IMember) {
-//				HTMLPrinter.addSmallHeader(buffer, getInfoText(element, editorInputElement, hoverRegion, true));
-//				buffer.append("<br>"); //$NON-NLS-1$
-//				addAnnotations(buffer, element, editorInputElement, hoverRegion);
-//				IMember member= (IMember) element;
-//				Reader reader;
-//				try {
-////					reader= JavadocContentAccess.getHTMLContentReader(member, true, true);
-//					String content= JavadocContentAccess2.getHTMLContent(member, true);
-//					reader= content == null ? null : new StringReader(content);
-//
-//					// Provide hint why there's no Javadoc
-//					if (reader == null && member.isBinary()) {
-//						boolean hasAttachedJavadoc= JavaDocLocations.getJavadocBaseLocation(member) != null;
-//						IPackageFragmentRoot root= (IPackageFragmentRoot)member.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-//						boolean hasAttachedSource= root != null && root.getSourceAttachmentPath() != null;
-//						IOpenable openable= member.getOpenable();
-//						boolean hasSource= openable.getBuffer() != null;
-//
-//						if (!hasAttachedSource && !hasAttachedJavadoc)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachments);
-//						else if (!hasAttachedJavadoc && !hasSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachedJavadoc);
-//						else if (!hasAttachedSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachedSource);
-//						else if (!hasSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noInformation);
-//
-//					} else {
-//						base= JavaDocLocations.getBaseURL(member);
-//					}
-//
-//				} catch (JavaModelException ex) {
-//					reader= new StringReader(SVHoverMessages.JavadocHover_error_gettingJavadoc);
-//					JavaPlugin.log(ex);
-//				}
-//
-//				if (reader != null) {
-//					HTMLPrinter.addParagraph(buffer, reader);
-//				}
-//				hasContents= true;
-//
-//			} else if (element.getElementType() == IJavaElement.LOCAL_VARIABLE || element.getElementType() == IJavaElement.TYPE_PARAMETER) {
-//				addAnnotations(buffer, element, editorInputElement, hoverRegion);
-//				HTMLPrinter.addSmallHeader(buffer, getInfoText(element, editorInputElement, hoverRegion, true));
-//				hasContents= true;
-//			}
-//			leadingImageWidth= 20;
-//		}
 
 		if (!hasContents)
 			return null;
@@ -816,11 +748,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		if (fgStyleSheet == null)
 			fgStyleSheet= loadStyleSheet();
 		String css= fgStyleSheet;
-//		if (css != null) {
-//			FontData fontData= JFaceResources.getFontRegistry().getFontData(PreferenceConstants.APPEARANCE_JAVADOC_FONT)[0];
-//			css= HTMLPrinter.convertTopLevelFont(css, fontData);
-//		}
-
 		return css;
 	}
 
