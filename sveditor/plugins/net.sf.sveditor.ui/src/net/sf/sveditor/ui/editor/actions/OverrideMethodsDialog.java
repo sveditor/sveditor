@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.editor.actions;
 
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -108,7 +109,9 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		
 		
 		public Object[] getElements(Object inputElement) {
-			return fMethodsFinder.getClassSet().toArray();
+			Set<SVDBClassDecl> cls_set = fMethodsFinder.getClassSet();
+			
+			return cls_set.toArray();
 		}
 
 		public Object[] getChildren(Object parentElement) {
