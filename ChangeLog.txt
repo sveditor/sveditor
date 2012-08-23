@@ -13,6 +13,13 @@
   a content-assist scenario typically results in a temporary syntax error,
   the do/while block was not being added to the AST.
   
+- #(nobug) - Correct sorting regression in the Override Methods dialog. 
+  Now, classes are properly sorted by inheritance order.
+
+- #(nobug) - Correct issues with Module Hierarchy view. Now module 
+  hierarchy is properly displayed and elements of module instances are
+  displayed correctly.
+
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --
 

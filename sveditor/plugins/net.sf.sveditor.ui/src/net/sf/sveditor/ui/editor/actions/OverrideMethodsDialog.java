@@ -148,7 +148,7 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
-			if (e1 instanceof SVDBModIfcDecl) {
+			if (e1 instanceof SVDBClassDecl) {
 				SVDBClassDecl c1 = (SVDBClassDecl)e1;
 				SVDBClassDecl c2 = (SVDBClassDecl)e2;
 				
