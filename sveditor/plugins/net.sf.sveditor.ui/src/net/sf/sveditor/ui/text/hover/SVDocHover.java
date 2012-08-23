@@ -652,6 +652,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 				if(child instanceof SVDBDocComment) {
 					SVDBDocComment tryDocCom = (SVDBDocComment)child ;
 					if(tryDocCom.getName().equals(namedItem.getName())) {
+						hasContents = true ;
 						log.debug(ILogLevel.LEVEL_MID,
 								String.format("Found doc comment for(%s)",namedItem.getName())) ;
 						docCom = tryDocCom ;
