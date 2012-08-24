@@ -18,10 +18,15 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.search.SVDBFindClassDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
@@ -61,6 +66,39 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 		}		
 		return node ;
 	}
+
+	public DiagNode createNodeForModule(DiagModel model, SVDBModIfcDecl moduleDecl) {
+		DiagNode node = model.getVisitedClass(moduleDecl.getName()) ;
+		if(node != null) {
+			return node ;
+		}
+		node = new DiagNode(moduleDecl.getName(), moduleDecl) ;
+		model.addNode(node) ;
+		// TODO: show ports?
+		if (moduleDecl.getPorts() != null) {
+			
+		}
+		for(ISVDBChildItem child: moduleDecl.getChildren()) {
+			if(child.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt childVarDecl = (SVDBVarDeclStmt)child ;
+				for(ISVDBChildItem var: childVarDecl.getChildren()) {
+					if(var instanceof SVDBVarDeclItem) {
+						SVDBVarDeclItem declItem = (SVDBVarDeclItem)var ;
+						node.addMember(declItem) ;
+					}
+				}
+			} else if(child.getType() == SVDBItemType.Function) {
+				SVDBFunction funcItem = (SVDBFunction)child ;
+				node.addFunction(funcItem) ;
+			} else if(child.getType() == SVDBItemType.Task) {
+				SVDBTask taskItem = (SVDBTask)child ;
+				node.addTask(taskItem) ;
+			}
+			
+		}
+		
+		return node ;
+	}
 	
 	public void createNodesAndConnectionsForContainedClasses(DiagModel model, DiagNode node) {
 		if(node.getSVDBItem() == null || node.getSVDBItem().getType() != SVDBItemType.ClassDecl) {
@@ -84,6 +122,30 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 				}
 			}
 			
+		}		
+	}
+
+	public void createNodesAndConnectionsForContainedModules(DiagModel model, DiagNode node) {
+		if(node.getSVDBItem() == null || node.getSVDBItem().getType() != SVDBItemType.ModuleDecl) {
+			return ;
+		}
+		SVDBModuleDecl moduleDecl = (SVDBModuleDecl)node.getSVDBItem();
+		for(ISVDBChildItem child: moduleDecl.getChildren()) {
+			if(child.getType() == SVDBItemType.ModIfcInst) {
+				SVDBModIfcInst modInst = (SVDBModIfcInst)child;
+				
+				// Check for members of user defined type (class?) as
+				// connected to
+				SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndex);
+				List<ISVDBChildItem> result = finder.find(modInst.getTypeName());
+			
+				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ModuleDecl) {
+					DiagNode kidNode = createNodeForModule(model, (SVDBModuleDecl)result.get(0));
+					DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, kidNode) ;
+					model.addConnection(con) ;
+					node.addContainedClass(kidNode) ;
+				}
+			}
 		}		
 	}
 	

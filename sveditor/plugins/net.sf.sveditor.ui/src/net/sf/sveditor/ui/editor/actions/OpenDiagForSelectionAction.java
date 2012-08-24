@@ -19,10 +19,12 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.diagrams.ClassDiagModelFactory;
 import net.sf.sveditor.core.diagrams.DiagModel;
 import net.sf.sveditor.core.diagrams.IDiagModelFactory;
+import net.sf.sveditor.core.diagrams.ModuleDiagModelFactory;
 import net.sf.sveditor.core.diagrams.PackageClassDiagModelFactory;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -73,7 +75,8 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 			ISVDBItemBase itemBase = SelectionConverter.getElementAtOffset(fEditor) ;
 			
 			if(itemBase != null && (itemBase.getType() == SVDBItemType.ClassDecl ||
-									itemBase.getType() == SVDBItemType.PackageDecl)) {
+									itemBase.getType() == SVDBItemType.PackageDecl ||
+									itemBase.getType() == SVDBItemType.ModuleDecl)) {
 			
 				try {
 					IWorkbench workbench = PlatformUI.getWorkbench();
@@ -89,6 +92,8 @@ public class OpenDiagForSelectionAction extends TextEditorAction {
 						factory = new ClassDiagModelFactory(fEditor.getSVDBIndex(), (SVDBClassDecl)itemBase) ;
 					} else if(itemBase.getType() == SVDBItemType.PackageDecl) {
 						factory = new PackageClassDiagModelFactory(fEditor.getSVDBIndex(), (SVDBPackageDecl)itemBase) ;
+					} else if (itemBase.getType() == SVDBItemType.ModuleDecl) {
+						factory = new ModuleDiagModelFactory(fEditor.getSVDBIndex(), (SVDBModuleDecl)itemBase) ;
 					}
 						
 					if(factory != null) {

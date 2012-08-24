@@ -136,7 +136,6 @@ public class BrowseClasses extends SelectionStatusDialog
 			}
 		});
 		fClassList.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				okPressed();
 			}

@@ -56,7 +56,7 @@ public class SVClassHierarchyCP implements ITreeContentProvider {
 	}
 
 	public Object[] getChildren(Object parentElement) {
-		if (parentElement instanceof SVDBModIfcDecl) {
+		if (parentElement instanceof SVDBClassDecl) {
 			List<ISVDBItemBase> ret = SVDBSearchUtils.findItemsByType(
 					(SVDBModIfcDecl)parentElement,
 					SVDBItemType.Function, SVDBItemType.Task);
