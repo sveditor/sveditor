@@ -978,6 +978,96 @@ public class TestContentAssistClass extends TestCase {
 				new String[] {"AABB"}, proposals);
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testContentAssistIgnoreBaseClassTF() {
+		LogHandle log = LogFactory.getLogHandle("testContentAssistIgnoreBaseClassTF");
+		String doc1 =
+			"class foobar;\n" +
+			"	int		AAAA;\n" +
+			"	int		AABB;\n" +
+			"	int		BBCC;\n" +
+			"endclass\n" +
+			"\n" +
+			"\n" +
+			"class my_class;\n" +
+			"	foobar		m_field;\n" +
+			"\n" +
+			"	extern task my_task();\n" +
+			"\n" +
+			"endclass\n" +
+			"class my_class2;\n" +
+			"	foobar		m_field2;\n" +
+			"\n" +
+			"	extern task my_task();\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"task my_class::my_task();\n" +
+			"	m_<<MARK>>\n" +
+			"endtask\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+				
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(new String[] {"m_field"}, proposals);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testContentAssistOnlyTopTF_1() {
+		String testname = "testContentAssistOnlyTopTF_1";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class base;\n" +
+			"	task AAAA();\n" +
+			"	endtask\n" +
+			"\n" +
+			"	function AABB();\n" +
+			"	endfunction\n" +
+			"\n" +
+			"	function BBAA();\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	task AAAA();\n" +
+			"	endtask\n" +
+			"\n" +
+			"	function AABB();\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"module top;\n" +
+			"	function foo;\n" +
+			"		super_1 f;\n" +
+			"		f.AA<<MARK>>\n" +
+			"	endfunction\n" +
+			"endmodule\n" +
+			"\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AAAA", "AABB");
+	}
+	
 }
 
 

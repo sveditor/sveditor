@@ -19,6 +19,11 @@
 - #(nobug) - Correct issues with Module Hierarchy view. Now module 
   hierarchy is properly displayed and elements of module instances are
   displayed correctly.
+  
+- #(nobug) - Support array-type parameters for task/function override.
+
+- #(nobug) - Update content assist to filter out task/function proposals
+  from super classes.
 
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --

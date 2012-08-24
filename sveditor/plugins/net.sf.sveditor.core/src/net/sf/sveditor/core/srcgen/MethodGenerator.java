@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class MethodGenerator {
 	
@@ -84,6 +85,29 @@ public class MethodGenerator {
 			for (ISVDBChildItem c : p.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				new_tf.append(vi.getName());
+				
+				if (vi.getArrayDim() != null) {
+					for (SVDBVarDimItem di : vi.getArrayDim()) {
+						switch (di.getDimType()) {
+							case Associative:
+								new_tf.append("[");
+								new_tf.append(di.getTypeInfo().toString());
+								new_tf.append("]");
+								break;
+							case Queue:
+								new_tf.append("[$]");
+								break;
+							case Sized:
+								new_tf.append("[");
+								new_tf.append(di.getExpr().toString());
+								new_tf.append("]");
+								break;
+							case Unsized:
+								new_tf.append("[]");
+								break;
+						}
+					}
+				}
 				
 				new_tf.append(", ");
 			}
