@@ -161,12 +161,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 
 					if (ch2 == '/') {
 						foundSingleLineComment = true ;
-//						fCommentBuffer.append("//");
 						beginComment();
 						while ((ch = get_ch()) != -1 && ch != '\n') { 
 							fCommentBuffer.append((char)ch);
 						}
-//						in_comment_section = true;
 						fCommentBuffer.append('\n');
 						ch = ' ';
 						last_ch = ' ';
@@ -174,7 +172,6 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 						end_comment[0] = -1;
 						end_comment[1] = -1;
 						beginComment();
-//						fCommentBuffer.append("/*");
 						while ((ch = get_ch()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
@@ -182,8 +179,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
 								endComment() ;
 								break;
+							} else {
+								fCommentBuffer.append((char)ch);
 							}
-//							in_comment_section = true;
 						}
 						ch = ' ';
 						last_ch = ' ';
@@ -231,7 +229,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	}
 	
 	private void beginComment() {
-		if(!fInComment){ fCommentBuffer.setLength(0) ; }
+		if(!fInComment){ 
+			fCommentBuffer.setLength(0);
+		}
 		fInComment = true ; 
 	}
 	
