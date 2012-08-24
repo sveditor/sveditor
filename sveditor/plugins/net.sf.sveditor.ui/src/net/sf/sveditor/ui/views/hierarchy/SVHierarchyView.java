@@ -12,8 +12,10 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
@@ -100,7 +102,20 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 					HierarchyTreeNode hn = (HierarchyTreeNode)elem;
 					fViewerFilter.setTarget(hn);
 					fSelectedClass.setText(hn.getName());
-					fMemberList.setInput(hn.getItemDecl());
+					if (hn.getItemDecl() != null) {
+						ISVDBChildItem it = hn.getItemDecl();
+						if (it.getType() == SVDBItemType.ClassDecl) {
+							fMemberList.setInput(it);
+						} else if (it.getType().isElemOf(SVDBItemType.ModIfcInstItem, SVDBItemType.VarDeclItem)) {
+							// Set the context to the parent item
+							ISVDBItemBase type = hn.getItemType();
+							fMemberList.setInput(type);
+						} else {
+							fMemberList.setInput(it);
+						}
+					} else {
+						fMemberList.setInput(hn.getItemDecl());
+					}
 				} else {
 					fMemberList.setInput(null);
 					fSelectedClass.setText("");

@@ -215,6 +215,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			SVDBDoWhileStmt do_while = new SVDBDoWhileStmt();
 			do_while.setLocation(start);
 			fLexer.eatToken();
+			parent.addChildItem(do_while);
 			
 			statement(do_while, false,false);
 			fLexer.readKeyword("while");
@@ -222,7 +223,6 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			do_while.setCond(parsers().exprParser().expression());
 			fLexer.readOperator(")");
 			fLexer.readOperator(";");
-			parent.addChildItem(do_while);
 		} else if (fLexer.peekKeyword("repeat")) {
 			SVDBRepeatStmt repeat = new SVDBRepeatStmt();
 			repeat.setLocation(start);

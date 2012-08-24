@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -28,7 +29,7 @@ public interface ISVDBIndex extends
 	public void init(IProgressMonitor monitor);
 
 	
-	SVDBFile parse(
+	Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor monitor,
 			InputStream in, 
 			String path, 

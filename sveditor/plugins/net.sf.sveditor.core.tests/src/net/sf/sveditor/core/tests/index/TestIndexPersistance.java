@@ -114,7 +114,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		
 		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path);
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		file = index.parse(new NullProgressMonitor(), in, path, errors);
+		file = index.parse(new NullProgressMonitor(), in, path, errors).second();
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
@@ -139,7 +139,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 
 		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(new NullProgressMonitor(), in, path, null);
+		file = index.parse(new NullProgressMonitor(), in, path, null).second();
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);
@@ -192,7 +192,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path);
 		
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();		
-		file = index.parse(new NullProgressMonitor(), in, path, errors);
+		file = index.parse(new NullProgressMonitor(), in, path, errors).second();
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
@@ -217,7 +217,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		fRebuildCount=0;
 
 		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path); 
-		file = index.parse(new NullProgressMonitor(), in, path, null);
+		file = index.parse(new NullProgressMonitor(), in, path, null).second();
 		
 		assertNotNull(file);
 		assertEquals(0, fRebuildCount);

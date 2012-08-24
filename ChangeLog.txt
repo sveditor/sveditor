@@ -1,5 +1,37 @@
 -- 0.9.8 Release --
 
+- #(nobug) - Improve doc-comment stripping to support multi-line comments
+
+- #(nobug) - Update SVEditor to correctly provide the 'live' pre-processor
+  view for the doc-comment hover
+  
+- #(nobug) - Fixes to lookup functionality underlying content assist to 
+  correctly search up past single-statement behavioral scopes, such as
+  if and while.
+  
+- #(nobug) - Correct content-assist problem inside do/while blocks. Since
+  a content-assist scenario typically results in a temporary syntax error,
+  the do/while block was not being added to the AST.
+  
+- #(nobug) - Correct sorting regression in the Override Methods dialog. 
+  Now, classes are properly sorted by inheritance order.
+
+- #(nobug) - Correct issues with Module Hierarchy view. Now module 
+  hierarchy is properly displayed and elements of module instances are
+  displayed correctly.
+  
+- #(nobug) - Correct an issue with the class-browse functionality of
+  the New Class wizard. A class-cast exception was thrown due to changes
+  in the SVEditor database.
+  
+- #(enh) - Add double-click handler for New Class wizard. This reduces 
+  the number of mouse clicks required to create a new class.
+
+- #(nobug) - Support array-type parameters for task/function override.
+
+- #(nobug) - Update content assist to filter out task/function proposals
+  from super classes.
+
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --
 
@@ -9,6 +41,7 @@
 
 - #(nobug) - Explicitly set hover foreground/background to avoid Ubuntu
   12.04 ugliness (black background / white foreground)
+  
 
 ------------------------------------------------------------------------------
 -- 0.9.6 Release --

@@ -29,7 +29,7 @@ public class DiagNode {
 	private HashSet<DiagNode> fContainedClasses ;
 	
 	private ISVDBItemBase fISVDBItem ;
-	
+
 	private List<SVDBVarDeclItem> fMemberDecls ;
 	private List<SVDBFunction> fFuncDecls ;
 	private List<SVDBTask> fTaskDecls ;

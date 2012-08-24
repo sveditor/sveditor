@@ -115,7 +115,7 @@ public class TestContentAssistBasics extends TestCase {
 	public void testOVMMacroContentAssist() {
 //		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testOVMMacroContentAssist";
-		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_OFF);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		String doc1 = 

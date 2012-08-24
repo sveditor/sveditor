@@ -17,11 +17,15 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
+import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 
 public class HierarchyTests extends TestCase {
@@ -29,6 +33,7 @@ public class HierarchyTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("HierarchyTests");
 		suite.addTest(new TestSuite(HierarchyTests.class));
+		suite.addTest(new TestSuite(TestModuleHierarchy.class));
 		return suite;
 	}
 	
@@ -105,5 +110,65 @@ public class HierarchyTests extends TestCase {
 		assertNotNull(c2_2_2);
 		assertEquals("c2_2_2", c2_2_2.getName());
 	}
+
+	public static void runModuleHierarchyTest(
+			String			testname,
+			String			doc,
+			String			top,
+			String	...		paths) {
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname);
+		ModuleHierarchyTreeFactory tf = new ModuleHierarchyTreeFactory(index_it);
+
+		SVDBFindNamedModIfcClassIfc mod_finder = new SVDBFindNamedModIfcClassIfc(index_it);
+		List<ISVDBChildItem> mod_l = mod_finder.find(top);
+		assertEquals(1, mod_l.size());
 	
+		// root, target
+		HierarchyTreeNode h = tf.build((SVDBModIfcDecl)mod_l.get(0));
+		
+		assertEquals(top, h.getName());
+		
+		for (String path : paths) {
+			String path_split[] = path.split("\\.");
+			for (int i=0; i<path_split.length; i++) {
+				path_split[i] = path_split[i].trim();
+			}
+		
+			HierarchyTreeNode n = find(h, path_split, 1);
+			assertNotNull(n);
+		}
+	}
+	
+	public static HierarchyTreeNode find(HierarchyTreeNode parent, String path[], int idx) {
+		HierarchyTreeNode target = null;
+		
+		for (HierarchyTreeNode c : parent.getChildren()) {
+			if (c.getName().equals(path[idx])) {
+				target = c;
+				break;
+			}
+		}
+		
+		if (target == null) {
+			StringBuilder path_str = new StringBuilder();
+			StringBuilder avail_elems = new StringBuilder();
+			for (HierarchyTreeNode c : parent.getChildren()) {
+				avail_elems.append(c.getName());
+				avail_elems.append(" ");
+			}
+			for (int i=0; i<=idx; i++) {
+				path_str.append(path[i]);
+				if (i+1 <= idx) {
+					path_str.append(".");
+				}
+			}
+			TestCase.fail("Failed to find path: " + path_str.toString() +
+					" ; Available: " + avail_elems.toString());
+		}
+
+		if (idx+1 < path.length) {
+			find(target, path, idx+1);
+		}
+		return target;
+	}
 }

@@ -167,5 +167,5 @@ public class SVDBFileOverrideIndexIterator
 		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
 		public boolean hasNext(SVDBItemType... type_list) { return false; }
 	};
-
 }
+

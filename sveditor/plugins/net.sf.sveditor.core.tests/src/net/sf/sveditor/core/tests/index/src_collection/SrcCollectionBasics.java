@@ -605,7 +605,7 @@ public class SrcCollectionBasics extends TestCase {
 				"project_dir_src_collection_module/new_class.svh").getAbsolutePath();
 		FileInputStream in = new FileInputStream(
 				new File(project_dir, "project_dir_src_collection_module/new_class.svh"));				
-		SVDBFile new_class_file = index.parse(new NullProgressMonitor(), in, new_class_path, null);
+		SVDBFile new_class_file = index.parse(new NullProgressMonitor(), in, new_class_path, null).second();
 		
 		assertNotNull(new_class_file);
 		index.dispose();
@@ -659,7 +659,7 @@ public class SrcCollectionBasics extends TestCase {
 		
 		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
 		String file_path = "${workspace_loc}/a/top.v";
-		SVDBFile file = index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null);
+		SVDBFile file = index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null).second();
 		
 		SVDBTestUtils.assertFileHasElements(file, "top");
 		ISVDBItemBase top = SVDBTestUtils.findInFile(file, "top");

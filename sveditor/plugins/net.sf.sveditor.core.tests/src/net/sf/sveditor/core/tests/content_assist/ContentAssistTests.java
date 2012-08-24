@@ -12,9 +12,22 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.FileIndexIterator;
+import net.sf.sveditor.core.tests.TextTagPosUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -55,5 +68,31 @@ public class ContentAssistTests extends TestCase {
 			System.out.println("[ERROR] Unexpected proposal " + p.getReplacement());
 		}
 		assertEquals("Unexpected proposals", 0, proposals.size());
+	}
+	
+	public static void runTest(String testname, String doc, String ... expected) {
+		LogHandle log = LogFactory.getLogHandle(testname);
+
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(expected, proposals);
+		LogFactory.removeLogHandle(log);		
 	}
 }
