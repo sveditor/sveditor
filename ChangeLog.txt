@@ -19,6 +19,13 @@
 - #(nobug) - Correct issues with Module Hierarchy view. Now module 
   hierarchy is properly displayed and elements of module instances are
   displayed correctly.
+  
+- #(nobug) - Correct an issue with the class-browse functionality of
+  the New Class wizard. A class-cast exception was thrown due to changes
+  in the SVEditor database.
+  
+- #(enh) - Add double-click handler for New Class wizard. This reduces 
+  the number of mouse clicks required to create a new class.
 
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --

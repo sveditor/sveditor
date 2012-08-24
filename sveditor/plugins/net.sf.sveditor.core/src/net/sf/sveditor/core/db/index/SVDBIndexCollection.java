@@ -322,6 +322,11 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void addShadowIndex(String dir, ISVDBIndex index) {
+		if (index == null) {
+			fLog.error("Attempt to add null shadow index for dir \"" + dir + "\"");
+			return;
+		}
+		
 		fLog.debug("addShadowIndex: " + dir + "(" + index.getBaseLocation() + ")");
 		
 		IncludeProvider p = new IncludeProvider(index);

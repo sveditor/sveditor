@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemBase;
@@ -61,10 +62,12 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 		fCheckboxTree.addCheckStateListener(new ICheckStateListener() {
 
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				if (event.getElement() instanceof SVDBModIfcDecl) {
+				Object elem = event.getElement();
+
+				if (elem instanceof SVDBClassDecl) {
 					ITreeContentProvider cp = (ITreeContentProvider)
 						fCheckboxTree.getContentProvider();
-
+					
 					boolean any_checked = false;
 					for (Object c : cp.getChildren(event.getElement())) {
 						if (fCheckboxTree.getChecked(c)) {
@@ -72,13 +75,27 @@ public class OverrideMethodsDialog extends CheckedTreeSelectionDialog {
 							break;
 						}
 					}
-					
-					for (Object c : cp.getChildren(event.getElement())) {
-						fCheckboxTree.setChecked(c, !any_checked); 
-					}
-					
+				
 					if (any_checked) {
-						fCheckboxTree.setChecked(event.getElement(), !any_checked);
+						for (Object c : cp.getChildren(event.getElement())) {
+							fCheckboxTree.setChecked(c, false);
+						}
+						fCheckboxTree.setChecked(event.getElement(), false);
+					} else {
+						for (Object c : cp.getChildren(event.getElement())) {
+							fCheckboxTree.setChecked(c, true);
+						}
+						fCheckboxTree.setChecked(event.getElement(), true);
+					}
+				} else {
+					ITreeContentProvider cp = (ITreeContentProvider)
+						fCheckboxTree.getContentProvider();
+
+					Object parent_o = cp.getParent(elem);
+					
+					if (parent_o != null && parent_o instanceof SVDBClassDecl) {
+						// Update the check-box state
+						
 					}
 				}
 			}
