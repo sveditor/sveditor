@@ -408,7 +408,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 							for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
 								debug("VarDeclItem: " + SVDBItem.getName(it_1));
 								if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-									addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}
@@ -416,18 +416,18 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						for (ISVDBItemBase it_1 : ((SVDBModportDecl)it).getChildren()) {
 							debug("ModportItem: " + SVDBItem.getName(it_1));
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
 					} else if (it.getType() == SVDBItemType.ModIfcInst) {
 						for (ISVDBItemBase it_1 : ((SVDBModIfcInst)it).getChildren()) {
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
 					} else if (it instanceof ISVDBNamedItem) {
 						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
-							addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(it, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					}
 				}
@@ -443,7 +443,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						for (SVDBParamPortDecl p : ifc.getPorts()) {
 							for (ISVDBItemBase vi : p.getChildren()) {
 								if (matcher.match((ISVDBNamedItem)vi, ctxt.fLeaf)) {
-									addProposal(vi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(vi, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}
@@ -1275,14 +1275,40 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			String			prefix,
 			int 			replacementOffset, 
 			int 			replacementLength) {
+		addProposal(it, prefix, false, replacementOffset, replacementLength);
+	}
+
+	protected void addProposal(
+			ISVDBItemBase 	it,
+			String			prefix,
+			boolean			name_based_check,
+			int 			replacementOffset, 
+			int 			replacementLength) {
 		boolean found = false;
 
 		synchronized (fCompletionProposals) {
 			// Check if we already have it in the proposal list?
 			for (SVCompletionProposal p : fCompletionProposals) {
-				if (p.getItem() != null && p.getItem() == it) {
-					found = true;
-					break;
+				if (p.getItem() != null) {
+					if (p.getItem() == it) {
+						found = true;
+						break;
+					} else if (name_based_check) {
+						if (p.getItem() instanceof ISVDBNamedItem &&
+								it instanceof ISVDBNamedItem) {
+							ISVDBNamedItem i1 = (ISVDBNamedItem)p.getItem();
+							ISVDBNamedItem i2 = (ISVDBNamedItem)it;
+							if (i1.getName() == null || i1.getName() == null) {
+								if (i1.getName() == i2.getName()) {
+									found = true;
+									break;
+								}
+							} else if (i1.getName().equals(i2.getName())) {
+								found = true;
+								break;
+							}
+						}
+					}
 				}
 			}
 

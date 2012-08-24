@@ -27,6 +27,11 @@
 - #(enh) - Add double-click handler for New Class wizard. This reduces 
   the number of mouse clicks required to create a new class.
 
+- #(nobug) - Support array-type parameters for task/function override.
+
+- #(nobug) - Update content assist to filter out task/function proposals
+  from super classes.
+
 ------------------------------------------------------------------------------
 -- 0.9.7 Release --
 
