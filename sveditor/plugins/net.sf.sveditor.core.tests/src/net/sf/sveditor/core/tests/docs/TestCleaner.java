@@ -1,9 +1,18 @@
 package net.sf.sveditor.core.tests.docs;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.SVDBDocComment;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.docs.DocCommentCleaner;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase ;
 
 public class TestCleaner extends TestCase {
@@ -44,9 +53,9 @@ public class TestCleaner extends TestCase {
 	}
 
 	public void testLeadingCommentMarkRemoval() throws Exception {
-//		fDebug = true ;
+		// fDebug = true ;
 		String comment [] = {
-			  "",
+			  "*",
 			  "*",										// Entire line should be removed
 			  "* class: the_class   ",					// Only trailing white should be removed (spaces)
 			  "*",										// Entire line should be removed even with white space at end
@@ -54,15 +63,15 @@ public class TestCleaner extends TestCase {
 			  "* class_with_tabs: the_class	  	",		// Only trailing white should be removed (tabs and spaces)
 			  "*",
 			  "*",
-			  "  ",
-			  "" } ; 
+			  "*",
+			  "*" } ; 
 		String cleanedContent[] = {
 			  "",
 			  "",
-			  "class: the_class" ,
+			  " class: the_class" ,
 			  "",
-			  "class_with_tabs: the_class",
-			  "class_with_tabs: the_class",
+			  " class_with_tabs: the_class",
+			  " class_with_tabs: the_class",
 			  "",
 			  "",
 			  "",
@@ -70,7 +79,57 @@ public class TestCleaner extends TestCase {
 		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
 	}
 	
+	public void testSVPreProc_1() throws Exception {
+		String testname = "testSVPreProc_1";
+		String doc = 
+				"/**\n" +
+				" * CLASS: my_class\n" +
+				" * This is the class description\n" +
+				" *\n" +
+				" */\n" +
+				" class my_class;\n" +
+				" endclass\n"
+				;
+		Tuple<SVDBFile, SVDBFile> r = SVDBTestUtils.parsePreProc(doc, testname, false);
+		
+		SVDBFile pp_file = r.first();
+		SVDBDocComment dc = null;
+		for (ISVDBChildItem c : pp_file.getChildren()) {
+			if (c.getType() == SVDBItemType.DocComment) {
+				dc = (SVDBDocComment)c;
+			}
+		}
+	
+		assertTrue(dc.getRawComment().contains("CLASS: my_class"));
+	}
+	
+	public void testSVPreProc_2() throws Exception {
+		String testname = "testSVPreProc_2";
+		String doc = 
+				"//\n" +
+				"// CLASS: my_class\n" +
+				"// This is the class description\n" +
+				"//\n" +
+				"//\n" +
+				" class my_class;\n" +
+				" endclass\n"
+				;
+		Tuple<SVDBFile, SVDBFile> r = SVDBTestUtils.parsePreProc(doc, testname, false);
+		
+		SVDBFile pp_file = r.first();
+		SVDBDocComment dc = null;
+		for (ISVDBChildItem c : pp_file.getChildren()) {
+			if (c.getType() == SVDBItemType.DocComment) {
+				dc = (SVDBDocComment)c;
+			}
+		}
+	
+		assertTrue(dc.getRawComment().contains("CLASS: my_class"));
+	}
+	
 	private void runTest(String string, String comment[], String expCleanedComment[]) throws Exception {
+		
+		SVCorePlugin.getDefault().enableDebug(fDebug);
 		
     	if(comment.length != expCleanedComment.length) {
     		throw(new Exception("Len of input lines(" + comment.length + ")"

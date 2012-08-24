@@ -267,7 +267,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		try {
 			class_1_2_db = index.parse(new NullProgressMonitor(), 
 					new StringInputStream(class_str), 
-					"${workspace_loc}" + class_1_2_file.getFullPath(), null);
+					"${workspace_loc}" + class_1_2_file.getFullPath(), null).second();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Failed to open class_1_2.svh: " + e.getMessage());

@@ -16,9 +16,11 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.log.LogFactory;
@@ -36,11 +38,18 @@ public class ModuleHierarchyTreeFactory {
 	}
 	
 	public HierarchyTreeNode build(SVDBModIfcDecl mod) {
-		return build_s(null, mod);
+		return build_s(null, mod, null);
 	}
 	
-	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcDecl mod) {
-		HierarchyTreeNode ret = new HierarchyTreeNode(parent, mod.getName(), mod);
+	private HierarchyTreeNode build_s(HierarchyTreeNode parent, SVDBModIfcDecl mod, SVDBModIfcInstItem inst_item) {
+		HierarchyTreeNode ret;
+		if (inst_item != null) {
+			// Instance in the tree
+			ret = new HierarchyTreeNode(parent, inst_item.getName(), inst_item, mod);
+		} else {
+			// Root of the tree
+			ret = new HierarchyTreeNode(parent, mod.getName(), mod);
+		}
 		
 		for (ISVDBItemBase it : mod.getChildren()) {
 			if (it.getType() == SVDBItemType.ModIfcInst) {
@@ -50,14 +59,17 @@ public class ModuleHierarchyTreeFactory {
 				}
 				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
 						SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl);
-				
-				if (it_l.size() > 0) {
-					HierarchyTreeNode n = build_s(ret, (SVDBModIfcDecl)it_l.get(0));
-					n.setItemDecl(inst);
-					ret.addChild(n);
-				} else if (it instanceof ISVDBNamedItem) {
-					// ERROR: Unknown module
-					ret.addChild(new HierarchyTreeNode(ret, ((ISVDBNamedItem)it).getName()));
+			
+				for (SVDBModIfcInstItem inst_i : inst.getInstList()) {
+					if (it_l.size() > 0) {
+						HierarchyTreeNode n = build_s(ret, (SVDBModIfcDecl)it_l.get(0), inst_i);
+						n.setItemDecl(inst_i);
+						ret.addChild(n);
+					} else if (it instanceof ISVDBNamedItem) {
+						// ERROR: Unknown module
+						fLog.error("Unknown module type" + SVDBItem.getName(it));
+						ret.addChild(new HierarchyTreeNode(ret, ((ISVDBNamedItem)it).getName()));
+					}
 				}
 			}
 		}

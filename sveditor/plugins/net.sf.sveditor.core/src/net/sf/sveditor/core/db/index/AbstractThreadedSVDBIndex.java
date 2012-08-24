@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
@@ -1266,7 +1267,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return ret;
 	}
 
-	public SVDBFile parse(
+	public Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor	monitor, 
 			InputStream 		in,
 			String 				path, 
@@ -1352,7 +1353,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		// propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
 		// addMarkers(path, svdb_f);
 
-		return svdb_f;
+		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {

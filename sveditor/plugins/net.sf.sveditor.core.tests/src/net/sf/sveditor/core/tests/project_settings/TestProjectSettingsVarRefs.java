@@ -76,7 +76,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
-				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv", markers);
+				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv", markers).second();
 		
 		assertNotNull(file);
 		assertEquals(0, markers.size());
@@ -122,7 +122,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFile file = result.second().parse(
-				new NullProgressMonitor(), in, target_file, markers);
+				new NullProgressMonitor(), in, target_file, markers).second();
 		
 		assertNotNull(file);
 		assertEquals(0, markers.size());

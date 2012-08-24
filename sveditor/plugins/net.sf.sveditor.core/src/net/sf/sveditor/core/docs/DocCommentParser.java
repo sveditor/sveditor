@@ -79,7 +79,6 @@ public class DocCommentParser implements IDocCommentParser {
 	 * @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	 */
 	public String isDocComment(String comment) {
-		
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
 		for(String line: lines) {

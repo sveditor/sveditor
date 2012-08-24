@@ -23,6 +23,7 @@ import java.util.Set;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
@@ -321,6 +322,11 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void addShadowIndex(String dir, ISVDBIndex index) {
+		if (index == null) {
+			fLog.error("Attempt to add null shadow index for dir \"" + dir + "\"");
+			return;
+		}
+		
 		fLog.debug("addShadowIndex: " + dir + "(" + index.getBaseLocation() + ")");
 		
 		IncludeProvider p = new IncludeProvider(index);
@@ -448,8 +454,8 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	 * Parse content from the input stream in the context 
 	 * of this index.
 	 */
-	public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
-		SVDBFile ret = null;
+	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
+		Tuple<SVDBFile, SVDBFile> ret = null;
 		
 		path = SVFileUtils.normalize(path);
 		

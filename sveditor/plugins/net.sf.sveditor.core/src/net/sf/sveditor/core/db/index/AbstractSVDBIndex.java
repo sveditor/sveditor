@@ -1389,7 +1389,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		return ret;
 	}
 
-	public SVDBFile parse(
+	public Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor	monitor, 
 			InputStream 		in,
 			String 				path, 
@@ -1475,7 +1475,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		// propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
 		// addMarkers(path, svdb_f);
 
-		return svdb_f;
+		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {

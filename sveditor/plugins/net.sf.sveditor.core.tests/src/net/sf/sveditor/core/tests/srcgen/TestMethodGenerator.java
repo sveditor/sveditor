@@ -235,4 +235,124 @@ public class TestMethodGenerator extends TestCase {
 		IndentComparator.compare(log, testname, exp, src);
 		LogFactory.removeLogHandle(log);
 	}
+	
+	public void testVectoredParam_1() throws SVParseException {
+		String testname = "testVectoredParam_1";
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"function void foobar(bit[31:0] a[]);\n" +
+			"    a = 5;\n" +
+			"endfunction\n";
+		String exp = 
+			"    /**\n" +
+			"     * foobar()\n" +
+			"     *\n" +
+			"     * Override from class \n" +
+			"     */\n" +
+			"    function void foobar(input bit[31:0] a[]);\n" +
+			"\n" +
+			"    endfunction\n";
+		
+		SVDBTask tf = parse_tf(content, testname);
+		
+		MethodGenerator gen = new MethodGenerator();
+		
+		String src = gen.generate(tf);
+		
+		log.debug("src:\n" + src);
+		
+		IndentComparator.compare(log, testname, exp, src);
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testVectoredParam_2() throws SVParseException {
+		String testname = "testVectoredParam_2";
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"function void foobar(bit[31:0] a[$]);\n" +
+			"    a = 5;\n" +
+			"endfunction\n";
+		String exp = 
+			"    /**\n" +
+			"     * foobar()\n" +
+			"     *\n" +
+			"     * Override from class \n" +
+			"     */\n" +
+			"    function void foobar(input bit[31:0] a[$]);\n" +
+			"\n" +
+			"    endfunction\n";
+		
+		SVDBTask tf = parse_tf(content, testname);
+		
+		MethodGenerator gen = new MethodGenerator();
+		
+		String src = gen.generate(tf);
+		
+		log.debug("src:\n" + src);
+		
+		IndentComparator.compare(log, testname, exp, src);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testVectoredParam_3() throws SVParseException {
+		String testname = "testVectoredParam_3";
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"function void foobar(bit[31:0] a[4]);\n" +
+			"    a = 5;\n" +
+			"endfunction\n";
+		String exp = 
+			"    /**\n" +
+			"     * foobar()\n" +
+			"     *\n" +
+			"     * Override from class \n" +
+			"     */\n" +
+			"    function void foobar(input bit[31:0] a[4]);\n" +
+			"\n" +
+			"    endfunction\n";
+		
+		SVDBTask tf = parse_tf(content, testname);
+		
+		MethodGenerator gen = new MethodGenerator();
+		
+		String src = gen.generate(tf);
+		
+		log.debug("src:\n" + src);
+		
+		IndentComparator.compare(log, testname, exp, src);
+		LogFactory.removeLogHandle(log);
+	}	
+	
+	public void testVectoredParam_4() throws SVParseException {
+		String testname = "testVectoredParam_4";
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String content =
+			"function void foobar(bit[31:0] a[string]);\n" +
+			"    a = 5;\n" +
+			"endfunction\n";
+		String exp = 
+			"    /**\n" +
+			"     * foobar()\n" +
+			"     *\n" +
+			"     * Override from class \n" +
+			"     */\n" +
+			"    function void foobar(input bit[31:0] a[string]);\n" +
+			"\n" +
+			"    endfunction\n";
+		
+		SVDBTask tf = parse_tf(content, testname);
+		
+		MethodGenerator gen = new MethodGenerator();
+		
+		String src = gen.generate(tf);
+		
+		log.debug("src:\n" + src);
+		
+		IndentComparator.compare(log, testname, exp, src);
+		LogFactory.removeLogHandle(log);
+	}	
 }

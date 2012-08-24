@@ -95,6 +95,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 					}
 				}
 			}
+
 			return ret; 
 		} else if (element instanceof ISVDBNamedItem) {
 			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
@@ -106,8 +107,8 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret.append("(");
 				for (int i=0; i<tf.getParams().size(); i++) {
 					SVDBParamPortDecl p = tf.getParams().get(i);
-					if (p.getTypeName() != null) {
-						ret.append(p.getTypeName());
+					if (p.getTypeInfo() != null) {
+						ret.append(p.getTypeInfo().toString());
 					}
 					if (i+1 < tf.getParams().size()) {
 						ret.append(", ");
