@@ -31,7 +31,6 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
-import net.sf.sveditor.core.db.index.SVDBFileOverrideIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
@@ -124,8 +123,6 @@ public class SVEditor extends TextEditor
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean						fPendingUpdateSVDBFile;
-	private SVDBFileOverrideIndexIterator	fIndexIterator;
-	
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
@@ -191,7 +188,6 @@ public class SVEditor extends TextEditor
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
-				fIndexIterator.setFile(fSVDBFile);
 				fSVDBIndex.setFile(fSVDBFile);
 				fSVDBIndex.setFilePP(fSVDBFilePP);
 
@@ -249,7 +245,6 @@ public class SVEditor extends TextEditor
 		
 		fSVDBFile = new SVDBFile(fFile);
 		fSVDBFilePP = new SVDBFile(fFile);
-		fIndexIterator = new SVDBFileOverrideIndexIterator(fSVDBFile);
 		
 		// Fixup documents that have \r and not \r\n
 		IDocument doc = getDocument();
@@ -338,11 +333,9 @@ public class SVEditor extends TextEditor
 		
 		synchronized (this) {
 			fProjectSettingsJob = null;
-			fSVDBIndex = new SVDBFileOverrideIndex(
-					fSVDBFile, fSVDBFilePP, index, fIndexIterator, fMarkers);
 			fIndexMgr = index_mgr;
-			fIndexIterator.setIndexIt(fIndexMgr);
-			fIndexIterator.setIndex(fSVDBIndex);
+			fSVDBIndex = new SVDBFileOverrideIndex(
+					fSVDBFile, fSVDBFilePP, index, fIndexMgr, fMarkers);
 		}
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
@@ -427,11 +420,9 @@ public class SVEditor extends TextEditor
 							SVDBIndexUtil.findIndexFile(fSVDBFilePath, null, true);
 					
 					// TODO: What happens with no index
-					fSVDBIndex = new SVDBFileOverrideIndex(fSVDBFile, fSVDBFilePP, 
-							result.first(), fIndexIterator, fMarkers);
 					fIndexMgr  = result.second();
-					fIndexIterator.setIndex(fSVDBIndex);
-					fIndexIterator.setIndexIt(fIndexMgr);
+					fSVDBIndex = new SVDBFileOverrideIndex(fSVDBFile, fSVDBFilePP, 
+							result.first(), fIndexMgr, fMarkers);
 					fLog.debug(LEVEL_MIN, "File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
 				}
 			}
@@ -600,44 +591,8 @@ public class SVEditor extends TextEditor
 		
 	}
 	
-	/*
-	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
-		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
-		public boolean hasNext(SVDBItemType... type_list) { return false; }
-	};
-	
-	private ISVDBIndexIterator SVEditorIndexIterator = new ISVDBIndexIterator() {
-		public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-			if (fIndexMgr != null) {
-				SVDBIndexCollectionItemIterator it = 
-					(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator(monitor);
-
-				it.setOverride(fSVDBIndex, fSVDBFile);
-
-				return it;
-			} else {
-				return SVEmptyItemIterator;
-			}
-		}
-
-		public List<SVDBDeclCacheItem> findGlobalScopeDecl(
-				IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
-			return fIndexMgr.findGlobalScopeDecl(monitor, name, matcher);
-		}
-
-		public List<SVDBDeclCacheItem> findPackageDecl(
-				IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) {
-			return fIndexMgr.findPackageDecl(monitor, pkg_item);
-		}
-
-		public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-			return fIndexMgr.getDeclFile(monitor, item);
-		}
-	};
-	 */
-	
 	public ISVDBIndexIterator getIndexIterator() {
-		return fIndexIterator;
+		return fSVDBIndex;
 	}
 	
 	public IDocument getDocument() {

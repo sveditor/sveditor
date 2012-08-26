@@ -41,7 +41,22 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class OpenDeclUtils {
 	
-	public static List<Tuple<ISVDBItemBase, SVDBFile>> openDecl(
+	public static List<Tuple<ISVDBItemBase, SVDBFile>> openDecl_2(
+			SVDBFile			file,
+			int					line,
+			IBIDITextScanner	scanner,
+			ISVDBIndexIterator	index_it) {
+		List<OpenDeclResult> result = openDecl(file, line, scanner, index_it);
+		
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
+		for (OpenDeclResult r : result) {
+			ret.add(new Tuple<ISVDBItemBase, SVDBFile>(r.getItem(), r.getFile()));
+		}
+		
+		return ret;
+	}
+	
+	public static List<OpenDeclResult> openDecl(
 			SVDBFile			file,
 			int					line,
 			IBIDITextScanner	scanner,
@@ -77,7 +92,7 @@ public class OpenDeclUtils {
 			log.debug(ILogLevel.LEVEL_MID, "active_scope: null");
 		}
 
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
+		List<OpenDeclResult> ret = new ArrayList<OpenDeclResult>();
 
 		// If this is an include lookup, then use a different matching strategy
 		if (expr_ctxt.fTrigger != null && expr_ctxt.fTrigger.equals("`")) {
@@ -89,11 +104,14 @@ public class OpenDeclUtils {
 						SVDBFindDefaultNameMatcher.getDefault())) {
 					if (it.getType() == SVDBItemType.MacroDef) {
 						// System.out.println("Add macro " + SVDBItem.getName(it.getSVDBItem()));
-						ret.add(new Tuple<ISVDBItemBase, SVDBFile>(it.getSVDBItem(), it.getFile())); 
+						ret.add(new OpenDeclResult(
+								it.getFile(),
+								it.getFilePP(),
+								it.getSVDBItem()));
 					}
 				}
 			}
-		} else {
+		} else { // not a pre-processor expression
 			SVExprUtilsParser expr_parser = new SVExprUtilsParser(expr_ctxt, true);
 			SVDBExpr expr = null;
 			
@@ -110,7 +128,10 @@ public class OpenDeclUtils {
 				ISVDBItemBase item = v.findItem(expr);
 				
 				if (item != null) {
-					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, inc_file));
+					ret.add(new OpenDeclResult(
+							inc_file,
+							null,
+							item));
 				}
 			}
 		}
@@ -127,9 +148,9 @@ public class OpenDeclUtils {
 		 */
 		
 		log.debug(ILogLevel.LEVEL_MID, "Result:");
-		for (Tuple<ISVDBItemBase, SVDBFile> r : ret) {
+		for (OpenDeclResult r : ret) {
 			String ind="";
-			ISVDBItemBase i = r.first();
+			ISVDBItemBase i = r.getItem();
 			while (i != null) {
 				log.debug(ILogLevel.LEVEL_MID, ind + SVDBItem.getName(i));
 				ind += "    ";
@@ -145,7 +166,7 @@ public class OpenDeclUtils {
 	}
 	
 	private static void findMatchingIncludeFiles(
-			List<Tuple<ISVDBItemBase, SVDBFile>>	ret,
+			List<OpenDeclResult>					ret,
 			SVExprContext 							expr_ctxt,
 			ISVDBIndexIterator						index_it) {
 		String target = expr_ctxt.fLeaf;
@@ -167,12 +188,20 @@ public class OpenDeclUtils {
 				// only a leaf name in the filename
 				if (filename.equals(leaf)) {
 					SVDBFile item = new SVDBFile(filename);
-					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, item));
+					// FIXME:
+					ret.add(new OpenDeclResult(
+							item,
+							item,
+							item));
 				}
 			} else {
 				if (filename.endsWith(target)) {
 					SVDBFile item = new SVDBFile(filename);
-					ret.add(new Tuple<ISVDBItemBase, SVDBFile>(item, item));
+					// FIXME:
+					ret.add(new OpenDeclResult(
+							item,
+							item,
+							item));
 				}
 			}
 		}

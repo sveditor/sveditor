@@ -450,6 +450,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return ret;
 	}
 	
+	
 	/**
 	 * Parse content from the input stream in the context 
 	 * of this index.
@@ -488,7 +489,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				
 				fLog.debug(LEVEL_MID, "Creating shadow index for file \"" + path + "\"");
 				if (fProject != null) {
-					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+//					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 					
 					// See if the index exists
 					synchronized (fShadowIndexList) {
@@ -588,6 +589,64 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return ret;
 	}
 	
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		SVDBFile ret = null;
+		
+		// Search the indexes in order
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				if ((ret = index.findFile(monitor, path)) != null) {
+					break;
+				}
+			}
+		}
+	
+		if (ret == null) {
+			clearStaleShadowIndexes();
+			synchronized (fShadowIndexList) {
+				for (int i=0; i<fShadowIndexList.size(); i++) {
+					ISVDBIndex index = fShadowIndexList.get(i).get();
+					if (index != null) {
+						if ((ret = index.findFile(monitor, path)) != null) {
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		SVDBFile ret = null;
+		
+		// Search the indexes in order
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				if ((ret = index.findPreProcFile(monitor, path)) != null) {
+					break;
+				}
+			}
+		}
+	
+		if (ret == null) {
+			clearStaleShadowIndexes();
+			synchronized (fShadowIndexList) {
+				for (int i=0; i<fShadowIndexList.size(); i++) {
+					ISVDBIndex index = fShadowIndexList.get(i).get();
+					if (index != null) {
+						if ((ret = index.findPreProcFile(monitor, path)) != null) {
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		return ret;		
+	}
+	
 	private void findGlobalScopeDeclProjRef(
 			List<SVDBDeclCacheItem>			ret,
 			String							name,
@@ -683,6 +742,18 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
 			for (ISVDBIndex index : index_l) {
 				SVDBFile tmp = index.getDeclFile(monitor, item);
+				if (tmp != null) {
+					return tmp;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				SVDBFile tmp = index.getDeclFilePP(monitor, item);
 				if (tmp != null) {
 					return tmp;
 				}

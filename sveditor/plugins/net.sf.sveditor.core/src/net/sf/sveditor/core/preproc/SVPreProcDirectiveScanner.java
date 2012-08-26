@@ -241,7 +241,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		String comment = fCommentBuffer.toString() ;
 		String title = fDocCommentParser.isDocComment(comment) ;
 		if(title != null) { 
-			if(fObserver != null) { fObserver.comment( title, comment) ; }
+			if (fObserver != null) {
+				fLog.debug("Saving doc comment (title=" + title + "): " + comment);
+				fObserver.comment( title, comment) ; 
+			}
 		}
 	}	
 	

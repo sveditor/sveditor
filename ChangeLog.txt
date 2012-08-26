@@ -1,6 +1,10 @@
 
 -- 0.9.9 Release --
 
+- #(nobug) - Enhance doc-comment finder to recurse through pre-processor file
+  scopes (eg `ifdef scope) to locate doc comments.
+
+
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
 

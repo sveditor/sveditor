@@ -660,6 +660,14 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return fCache.getFileList();
 	}
 	
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		return findFile(path);
+	}
+	
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		return findPreProcFile(path);
+	}
+	
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
 		
@@ -1651,6 +1659,12 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return findFile(item.getFilename());
 	}
 
+	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		
+		return findPreProcFile(item.getFilename());
+	}
+	
 	public SVPreProcDirectiveScanner createPreProcScanner(String path) {
 		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);

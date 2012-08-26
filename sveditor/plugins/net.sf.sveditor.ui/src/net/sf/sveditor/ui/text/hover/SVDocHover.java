@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
@@ -43,6 +43,7 @@ import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
@@ -606,10 +607,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @param previousInput the previous input, or <code>null</code>
 	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
 	 */
-	private SVDocBrowserInformationControlInput getHoverInfo(Tuple<ISVDBItemBase, SVDBFile> target, IRegion hoverRegion, SVDocBrowserInformationControlInput previousInput) {
+	private SVDocBrowserInformationControlInput getHoverInfo(
+			Tuple<ISVDBItemBase, SVDBFile> 		target, 
+			IRegion 							hoverRegion, 
+			SVDocBrowserInformationControlInput previousInput) {
 		
 		StringBuffer buffer= new StringBuffer();
-		boolean hasContents= false;
 		
 		ISVDBItemBase element = target.first() ;
 		
@@ -617,57 +620,15 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			return null ;
 		}
 		
-		ISVDBNamedItem namedItem = (ISVDBNamedItem)element ;
-
-		// Find file the element is contained in so
-		// that we can get the preprocessor view
-		//
-		ISVDBItemBase p = element ;
-		while (p != null && p.getType() != SVDBItemType.File) {
-			if (p instanceof ISVDBChildItem) {
-				p = ((ISVDBChildItem)p).getParent();
-			} else {
-				p = null;
-				break ;
-			}
-		}		
+		ISVDBIndexIterator index_it = ((SVEditor)getEditor()).getSVDBIndex();
 		
-		if(p == null) {
-			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
-			return null ;
-		}
+		// Find the doc comment corresponding to the specified element
+		SVDBFindDocComment finder = new SVDBFindDocComment(index_it);
+		SVDBDocComment docCom = finder.find(new NullProgressMonitor(), element);
 
-		// Grap the preprocessor view of the file then
-		// search it for a doc comment for the given element
-		//
-
-		// TODO: should be looking at the live view of the editor
-		ISVDBIndex index = ((SVEditor)getEditor()).getSVDBIndex();
-		SVDBFile ppFile = index.findPreProcFile(((SVDBFile)p).getFilePath());
-		
-		SVDBDocComment docCom = null ;
-	
-		if (ppFile != null) {
-			for(ISVDBChildItem child: ppFile.getChildren()) {
-				if(child instanceof SVDBDocComment) {
-					SVDBDocComment tryDocCom = (SVDBDocComment)child ;
-					if(tryDocCom.getName().equals(namedItem.getName())) {
-						hasContents = true ;
-						log.debug(ILogLevel.LEVEL_MID,
-								String.format("Found doc comment for(%s)",namedItem.getName())) ;
-						docCom = tryDocCom ;
-						break ;
-					}
-				}
-			}
-		} else {
-			log.debug(ILogLevel.LEVEL_MID, "Failed to find pre-proc file " + 
-					((SVDBFile)p).getFilePath());
-		}
-		
 		if(docCom == null) {
 			log.debug(ILogLevel.LEVEL_MID,
-				String.format("Did not find doc comment for(%s)",namedItem.getName())) ;
+				String.format("Did not find doc comment for(%s)", SVDBItem.getName(element)));
 			return null ;
 		}
 		
@@ -681,9 +642,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		
 		buffer.append(genContent(docTopics)) ;
 
-		if (!hasContents)
-			return null;
-		
 		if (buffer.length() > 0) {
 			HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
 //			HTMLPrinter.insertPageProlog(buffer, 0) ;
@@ -722,7 +680,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		List<Tuple<ISVDBItemBase, SVDBFile>> items = null ;
 		
 		try {
-			items = OpenDeclUtils.openDecl(
+			items = OpenDeclUtils.openDecl_2(
 					editor.getSVDBFile(),
 					doc.getLineOfOffset(hoverRegion.getOffset()),
 					scanner,

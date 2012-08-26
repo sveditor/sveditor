@@ -84,16 +84,13 @@ public class DocCommentParser implements IDocCommentParser {
 		for(String line: lines) {
 			Matcher matcher = fPatternIsDocComment.matcher(line) ;
 			if(matcher.matches()) {
-				System.out.println("line: \"" + line + "\" does match");
 				if(fDocTopics == null) {
-					return matcher.group(2) ;
+					return matcher.group(2);
 				}
 				String keyword = matcher.group(1).toLowerCase() ;
 				if(fDocTopics.getTopicType(keyword) != null) {
 					return matcher.group(2) ;
 				} 
-			} else {
-				System.out.println("line: \"" + line + "\" does not match");
 			}
 		}
 		

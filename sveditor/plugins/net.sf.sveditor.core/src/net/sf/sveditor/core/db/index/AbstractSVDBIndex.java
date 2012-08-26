@@ -713,6 +713,92 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList();
 	}
+
+	/**
+	 * Implementation of ISVDBIndexIterator findFile()
+	 */
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		String r_path = path;
+		SVDBFile ret = null;
+		ensureIndexState(monitor, IndexState_FileTreeValid);
+
+		for (String fmt : new String[] {null, 
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM}) {
+			if (fmt != null) {
+				r_path = fFileSystemProvider.resolvePath(path, fmt);
+			}
+			synchronized (fCache) {
+				ret = fCache.getFile(monitor, r_path);
+			}
+			
+			if (ret != null) {
+				break;
+			}
+		}
+
+		if (ret == null) {
+			SVDBFileTree ft_root;
+			synchronized (fCache) {
+				ft_root = fCache.getFileTree(monitor, path);
+			}
+
+			if (ft_root != null) {
+				IPreProcMacroProvider mp = createMacroProvider(ft_root);
+				processFile(ft_root, mp);
+				
+				synchronized (fCache) {
+					ret = fCache.getFile(monitor, path);
+				}
+			} else {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					fLog.error("File Path \"" + path + "\" not in index", e);
+					for (String p : getFileList(monitor)) {
+						System.out.println("path: " + p);
+					}
+				}
+			}
+		}
+
+		if (ret == null) {
+			try {
+				throw new Exception("File \"" + path + "\" not found");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return ret;
+	}
+
+	/**
+	 * Implementation of ISVDBIndexIterator method
+	 */
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		String r_path = path;
+		SVDBFile file = null;
+
+		ensureIndexState(monitor, IndexState_FileTreeValid);
+		
+		// Cycle through the various path formats
+		for (String fmt : new String[] {null, 
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM}) {
+			if (fmt != null) {
+				r_path = fFileSystemProvider.resolvePath(path, fmt);
+			}
+			file = fCache.getPreProcFile(new NullProgressMonitor(), r_path);
+			
+			if (file != null) {
+				break;
+			}
+		}
+		
+		return file;		
+	}
+			
 	
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
@@ -1485,48 +1571,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public SVDBFile findFile(String path) {
-		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
-
-		SVDBFile ret;
-
-		synchronized (fCache) {
-			ret = fCache.getFile(new NullProgressMonitor(), path);
-		}
-
-		if (ret == null) {
-			SVDBFileTree ft_root;
-			synchronized (fCache) {
-				ft_root = fCache.getFileTree(new NullProgressMonitor(), path);
-			}
-
-			if (ft_root != null) {
-				IPreProcMacroProvider mp = createMacroProvider(ft_root);
-				processFile(ft_root, mp);
-				
-				synchronized (fCache) {
-					ret = fCache.getFile(new NullProgressMonitor(), path);
-				}
-			} else {
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					fLog.error("File Path \"" + path + "\" not in index", e);
-					for (String p : getFileList(new NullProgressMonitor())) {
-						System.out.println("path: " + p);
-					}
-				}
-			}
-		}
-
-		if (ret == null) {
-			try {
-				throw new Exception("File \"" + path + "\" not found");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		return ret;
+		return findFile(new NullProgressMonitor(), path);
 	}
 
 	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
@@ -1585,26 +1630,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	public synchronized SVDBFile findPreProcFile(String path) {
-		String r_path = path;
-		SVDBFile file = null;
-
-		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
-		
-		// Cycle through the various path formats
-		for (String fmt : new String[] {null, 
-				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
-				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM}) {
-			if (fmt != null) {
-				r_path = fFileSystemProvider.resolvePath(path, fmt);
-			}
-			file = fCache.getPreProcFile(new NullProgressMonitor(), r_path);
-			
-			if (file != null) {
-				break;
-			}
-		}
-		
-		return file;
+		return findPreProcFile(new NullProgressMonitor(), path);
 	}
 
 	protected SVDBFile processPreProcFile(String path) {
@@ -2075,6 +2101,25 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		return file;
 	}
 
+	// FIXME:
+	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		
+		SVDBFile file = null;
+
+		// If this is a pre-processor item, then return the FileTree view of the file
+		if (item.isFileTreeItem()) {
+			SVDBFileTree ft = findFileTree(item.getFilename());
+			if (ft != null) {
+				file = ft.getSVDBFile();
+			}
+		} else {
+			file = findFile(item.getFilename());
+		}
+	
+		return file;
+	}
+	
 	public SVPreProcessor createPreProcScanner(String path) {
 		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);
