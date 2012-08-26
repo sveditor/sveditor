@@ -53,8 +53,8 @@ public class DocTopicManager implements IDocTopicManager {
 		//													name				plural			scope				index   pageTitleFirst		breakLists
 		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				ScopeType.NORMAL, 	false,	true,				false)) ;
 		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		ScopeType.START,	true,	true,				false)) ;
-//		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		ScopeType.START,	true,	false,				false)) ;
-//		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	ScopeType.START,    true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		ScopeType.START,	true,	true,				false)) ;
+		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	ScopeType.START,    true,	true,				false)) ;
 		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		ScopeType.START,    true,	true,				false)) ;
 		topicTypeMap.put(TOPIC_SECTION, 	new DocTopicType(TOPIC_SECTION,		"",				ScopeType.END,		false,	true,				false)) ;
 		topicTypeMap.put(TOPIC_GROUP, 		new DocTopicType(TOPIC_GROUP,		"",				ScopeType.NORMAL,	false,	false,				false)) ;
@@ -69,6 +69,9 @@ public class DocTopicManager implements IDocTopicManager {
 		registerKeywordForTopicType(TOPIC_CLASS, 	"structure", 	"structures") ;
 		
 		registerKeywordForTopicType(TOPIC_PACKAGE, 	"package", 		"packages") ;
+		
+		registerKeywordForTopicType(TOPIC_MODULE, 	"module", 		"modules") ;
+		registerKeywordForTopicType(TOPIC_INTERFACE,"interface", 	"interfaces") ;
 		
 		registerKeywordForTopicType(TOPIC_SECTION, 	"section", 		"") ;
 		registerKeywordForTopicType(TOPIC_SECTION, 	"title", 		"") ;
