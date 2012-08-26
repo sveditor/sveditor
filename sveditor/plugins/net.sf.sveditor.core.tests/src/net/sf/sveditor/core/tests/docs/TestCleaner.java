@@ -76,7 +76,63 @@ public class TestCleaner extends TestCase {
 			  "" } ;
 		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
 	}
-		
+	public void testLeadingCommentMarkRemovalButNotCodeBlock() throws Exception {
+		// fDebug = true ;
+		String comment [] = {
+			  "*",
+			  "*",										// Entire line should be removed
+			  "* class: the_class   ",					// Only trailing white should be removed (spaces)
+			  "*",										// Entire line should be removed even with white space at end
+			  "* This is the class description",
+			  "*",
+			  "* | This is code block line 1",
+			  "* | This is code block line 2",
+			  "* | This is code block line 3",
+			  "* | This is code block line 4",
+			  "*" } ; 
+		String cleanedContent[] = {
+			  "",
+			  "",
+			  " class: the_class" ,
+			  "",
+			  " This is the class description",
+			  "",
+			  " | This is code block line 1",
+			  " | This is code block line 2",
+			  " | This is code block line 3",
+			  " | This is code block line 4",
+			  "" } ;
+		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
+	}
+				
+
+	public void testCodeBlockNotRemoved() throws Exception {
+		// fDebug = true ;
+		String comment [] = {
+			  "",										
+			  " class: the_class",					
+			  "",										
+			  " This is the class description",
+			  "",
+			  " | This is code block line 1",
+			  " | This is code block line 2",
+			  " | This is code block line 3",
+			  " | This is code block line 4",
+			  "" } ; 
+		String cleanedContent[] = {
+			  "",
+			  " class: the_class" ,
+			  "",
+			  " This is the class description",
+			  "",
+			  " | This is code block line 1",
+			  " | This is code block line 2",
+			  " | This is code block line 3",
+			  " | This is code block line 4",
+			  "" } ;
+		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
+	}
+				
 	public void testSVPreProc_1() throws Exception {
 		String testname = "testSVPreProc_1";
 		String doc = 
