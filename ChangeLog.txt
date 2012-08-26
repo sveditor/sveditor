@@ -15,6 +15,11 @@
 - #(3561911) - Correct Doc Hover removes links. Links in NaturalDocs comments
   are now replaced with plaintext.
   
+- #(3561910) - Correct issue where doc-comment parser was being too aggressive
+  in removing what appeared to be vertical lines.
+
+- #(enh) - Add new-file wizards for module, interface, and package.
+  
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
 
