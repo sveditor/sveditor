@@ -642,6 +642,15 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		IDocTopicManager topicMgr = new DocTopicManager() ;
 		
 		IDocCommentParser docCommentParser = new DocCommentParser(topicMgr) ;
+		
+		log.debug(ILogLevel.LEVEL_MID, 
+				"+------------------------------------------------------------------") ;
+		log.debug(ILogLevel.LEVEL_MID, 
+				"| Raw Comment") ;
+		log.debug(ILogLevel.LEVEL_MID,
+				"| " + docCom.getRawComment()) ;
+		log.debug(ILogLevel.LEVEL_MID, 
+				"+------------------------------------------------------------------") ;
 			
 		docCommentParser.parse(docCom.getRawComment(), docTopics) ;
 		
