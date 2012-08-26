@@ -76,7 +76,7 @@ public class TestCleaner extends TestCase {
 			  "" } ;
 		runTest("testLeadingCommentMarkRemoval", comment, cleanedContent) ;
 	}
-	
+		
 	public void testSVPreProc_1() throws Exception {
 		String testname = "testSVPreProc_1";
 		String doc = 
@@ -123,9 +123,47 @@ public class TestCleaner extends TestCase {
 			}
 		}
 	
+		assertNotNull(dc);
 		assertTrue(dc.getRawComment().contains("CLASS: my_class"));
 	}
 	
+	/*
+	 * Makes sure the pre proc does excessively remove vertical lines. Have
+	 * to be sure that those for code blocks remain for the final parser to see
+	 */
+	public void testSVPreProc_3() throws Exception {
+		String testname = "testSVPreProc_3";
+		String doc = 
+				"//\n" +
+				"// CLASS: my_class\n" +
+				"// This is the class description\n" +
+				"// with a code block\n" +
+				"// | this is some code ;\n" +
+				"// | and more ;\n" +
+				"// | yup, and more ;\n" +
+				"// | this is the end of the code ;\n" +
+				"//\n" +
+				"//\n" +
+				" class my_class;\n" +
+				" endclass\n"
+				;
+		Tuple<SVDBFile, SVDBFile> r = SVDBTestUtils.parsePreProc(doc, testname, false);
+		
+		SVDBFile pp_file = r.first();
+		SVDBDocComment dc = null;
+		for (ISVDBChildItem c : pp_file.getChildren()) {
+			if (c.getType() == SVDBItemType.DocComment) {
+				dc = (SVDBDocComment)c;
+			}
+		}
+	
+		assertNotNull(dc);
+		assertTrue(dc.getRawComment().contains("| this is some code ;")) ;
+		assertTrue(dc.getRawComment().contains("| and more ;")) ;
+		assertTrue(dc.getRawComment().contains("| yup, and more ;")) ;
+		assertTrue(dc.getRawComment().contains("| this is the end of the code ;")) ;
+	}
+		
 	private void runTest(String string, String comment[], String expCleanedComment[]) throws Exception {
 		
 		SVCorePlugin.getDefault().enableDebug(fDebug);
