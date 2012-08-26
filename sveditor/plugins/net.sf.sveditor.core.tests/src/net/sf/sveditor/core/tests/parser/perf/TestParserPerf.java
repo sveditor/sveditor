@@ -154,7 +154,7 @@ public class TestParserPerf extends TestCase {
 		long fullparse_end = System.currentTimeMillis();
 		
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
-		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
+//		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
 		/*
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
@@ -194,7 +194,7 @@ public class TestParserPerf extends TestCase {
 		index.loadIndex(new NullProgressMonitor());
 		long fullparse_end = System.currentTimeMillis();
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
-		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
+//		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
 	}
 	
 }

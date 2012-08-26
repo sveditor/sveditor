@@ -4,6 +4,8 @@
 - #(nobug) - Enhance doc-comment finder to recurse through pre-processor file
   scopes (eg `ifdef scope) to locate doc comments.
 
+- #(enh) - New Class wizard and Override Method wizard now add NaturalDoc
+  comments.
 
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --

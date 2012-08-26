@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.db.search;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -13,6 +11,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVDBFindDocComment {
 	private ISVDBIndexIterator			fIndexIt;
@@ -57,6 +57,11 @@ public class SVDBFindDocComment {
 		} else {
 			fLog.debug(ILogLevel.LEVEL_MID, "Failed to find pre-proc file " + 
 					((SVDBFile)p).getFilePath());
+			/*
+			for (String path : fIndexIt.getFileList(new NullProgressMonitor())) {
+				fLog.debug(ILogLevel.LEVEL_MAX, "  Path: " + path);
+			}
+			 */
 		}
 	
 		return comment;

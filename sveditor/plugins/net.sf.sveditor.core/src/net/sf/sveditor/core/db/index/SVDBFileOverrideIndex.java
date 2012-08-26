@@ -2,7 +2,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -22,6 +21,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFileOverrideIndex 
 	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel {
@@ -216,8 +216,8 @@ public class SVDBFileOverrideIndex
 		fIndex.setIncludeFileProvider(inc_provider);
 	}
 
-	public Set<String> getFileList(IProgressMonitor monitor) {
-		return fIndex.getFileList(monitor);	
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
+		return fSuperIterator.getFileList(monitor);	
 	}
 	
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
@@ -240,7 +240,7 @@ public class SVDBFileOverrideIndex
 		if (fFile.getFilePath().equals(path)) {
 			return fFile;
 		} else {
-			return fIndex.findFile(path);
+			return fSuperIterator.findFile(new NullProgressMonitor(), path);
 		}
 	}
 
@@ -248,7 +248,7 @@ public class SVDBFileOverrideIndex
 		if (fFile.getFilePath().equals(path)) {
 			return fFilePP;
 		} else {
-			return fIndex.findPreProcFile(path);
+			return fSuperIterator.findPreProcFile(new NullProgressMonitor(), path);
 		}
 	}
 

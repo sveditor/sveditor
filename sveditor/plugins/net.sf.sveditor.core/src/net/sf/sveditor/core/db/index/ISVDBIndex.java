@@ -77,7 +77,7 @@ public interface ISVDBIndex extends
 	 */
 	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
-	Set<String> getFileList(IProgressMonitor monitor);
+	Iterable<String> getFileList(IProgressMonitor monitor);
 	
 	List<SVDBMarker> getMarkers(String path);
 

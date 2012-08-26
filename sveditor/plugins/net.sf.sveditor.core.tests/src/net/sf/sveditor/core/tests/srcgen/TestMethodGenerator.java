@@ -45,7 +45,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -73,7 +73,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -95,13 +95,14 @@ public class TestMethodGenerator extends TestCase {
 	
 	public void testParamClassRetFunction() throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle("testParamClassRetFunction");
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content =
 			"function foo_c #(bar_c) foobar();\n" +
 			"    a = 5;\n" +
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -129,7 +130,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -157,7 +158,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -186,7 +187,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -216,7 +217,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -246,7 +247,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -276,7 +277,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -306,7 +307,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +
@@ -336,7 +337,7 @@ public class TestMethodGenerator extends TestCase {
 			"endfunction\n";
 		String exp = 
 			"    /**\n" +
-			"     * foobar()\n" +
+			"     * Function: foobar\n" +
 			"     *\n" +
 			"     * Override from class \n" +
 			"     */\n" +

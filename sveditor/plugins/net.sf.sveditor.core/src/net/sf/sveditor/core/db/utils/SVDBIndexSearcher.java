@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.utils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,11 +42,19 @@ public class SVDBIndexSearcher {
 	}
 	
 	public SVDBIndexSearcher(ISVDBIndex index) {
-		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
+		Set<String> filelist = new HashSet<String>();
+		for (String path : index.getFileList(new NullProgressMonitor())) {
+			filelist.add(path);
+		}
+		fIndexMap.put(index, filelist);
 	}
 
 	public void addIndex(ISVDBIndex index) {
-		fIndexMap.put(index, index.getFileList(new NullProgressMonitor()));
+		Set<String> filelist = new HashSet<String>();
+		for (String path : index.getFileList(new NullProgressMonitor())) {
+			filelist.add(path);
+		}
+		fIndexMap.put(index, filelist);
 	}
 	
 	/**

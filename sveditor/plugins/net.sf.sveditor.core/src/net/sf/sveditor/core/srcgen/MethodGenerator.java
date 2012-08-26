@@ -28,13 +28,14 @@ public class MethodGenerator {
 	public String generate(SVDBTask tf) {
 		StringBuilder new_tf = new StringBuilder();
 		String classname = "";
+		String tf_type = (tf.getType() == SVDBItemType.Task)?"Task":"Function";
 		
 		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.ClassDecl) {
 			classname = ((ISVDBNamedItem)tf.getParent()).getName();
 		}
 		
 		new_tf.append("    /**\n" +
-					  "     * " + tf.getName() + "()\n" +
+					  "     * " + tf_type + ": " + tf.getName() + "\n" +
 					  "     *\n" +
 					  "     * Override from class " + classname + "\n" +
 					  "     */\n");

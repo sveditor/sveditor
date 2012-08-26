@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.Tuple;
@@ -599,6 +598,9 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 					break;
 				}
 			}
+			if (ret != null) {
+				break;
+			}
 		}
 	
 		if (ret == null) {
@@ -627,6 +629,9 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				if ((ret = index.findPreProcFile(monitor, path)) != null) {
 					break;
 				}
+			}
+			if (ret != null) {
+				break;
 			}
 		}
 	

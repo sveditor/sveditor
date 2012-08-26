@@ -19,7 +19,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -115,7 +114,7 @@ public class TestIndexCache extends TestCase {
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 
-		Set<String> l_1 = index.getFileList(new NullProgressMonitor());
+		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
 		/* SVDBFile f1_1 = */index.findFile(l_1.iterator().next());
 		
 		end = System.currentTimeMillis();
@@ -137,7 +136,7 @@ public class TestIndexCache extends TestCase {
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 
-		Set<String> l = index.getFileList(new NullProgressMonitor());
+		Iterable<String> l = index.getFileList(new NullProgressMonitor());
 		for (String file : l) {
 			/*SVDBFile f1 = */index.findFile(file);
 		}
@@ -192,7 +191,7 @@ public class TestIndexCache extends TestCase {
 				"${workspace_loc}/uvm/src/uvm_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 
-		Set<String> l_1 = index.getFileList(new NullProgressMonitor());
+		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
 		/* SVDBFile f1_1 = */index.findFile(l_1.iterator().next());
 		
 		end = System.currentTimeMillis();
@@ -271,7 +270,7 @@ public class TestIndexCache extends TestCase {
 				"${workspace_loc}/uvm/src/uvm_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
 
-		Set<String> l_1 = index.getFileList(new NullProgressMonitor());
+		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
 		/*SVDBFile f1_1 = */index.findFile(l_1.iterator().next());
 		
 		end = System.currentTimeMillis();

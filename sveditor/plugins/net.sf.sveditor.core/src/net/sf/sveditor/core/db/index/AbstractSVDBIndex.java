@@ -709,7 +709,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * getFileList() -- returns a list of files handled by this index The file
 	 * list is valid after: - Root File discovery - Pre-processor parse
 	 */
-	public Set<String> getFileList(IProgressMonitor monitor) {
+	public Iterable<String> getFileList(IProgressMonitor monitor) {
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList();
 	}

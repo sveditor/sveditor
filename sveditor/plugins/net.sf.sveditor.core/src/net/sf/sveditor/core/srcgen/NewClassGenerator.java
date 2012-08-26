@@ -62,7 +62,12 @@ public class NewClassGenerator {
 			"`ifndef INCLUDED_" + subst_filename + "\n" +
 			"`define INCLUDED_" + subst_filename + "\n" +
 			"\n";
-		
+
+		template += "/**\n";
+		template += " * Class: " + clsname + "\n";
+		template += " * \n";
+		template += " * TODO: Add class documentation\n";
+		template += " */\n";
 		template += "class " + clsname;
 
 		SVDBClassDecl superclass_decl = null;

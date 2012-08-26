@@ -14,7 +14,6 @@ package net.sf.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.dirtree.SVDBDirTreeFactory;
@@ -34,7 +33,7 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		
 		fRoots = new ArrayList<SVDBDirTreeNode>();
 		
-		Set<String> filelist = fIndex.getFileList(new NullProgressMonitor());
+		Iterable<String> filelist = fIndex.getFileList(new NullProgressMonitor());
 		
 		SVDBDirTreeFactory tree_factory = new SVDBDirTreeFactory();
 		for (String f : filelist) {

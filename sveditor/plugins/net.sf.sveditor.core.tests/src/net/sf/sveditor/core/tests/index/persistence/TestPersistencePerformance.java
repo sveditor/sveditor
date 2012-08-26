@@ -19,16 +19,12 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.RandomAccessFile;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -221,7 +217,7 @@ public class TestPersistencePerformance extends TestCase {
 				"${workspace_loc}/ubus/examples/questa.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 
-		Set<String> files = index.getFileList(new NullProgressMonitor());
+		Iterable<String> files = index.getFileList(new NullProgressMonitor());
 //		SVDBDelegatingPersistenceRW delegate = SVDBDelegatingPersistenceRW.createDefault();
 		SVDBPersistenceRW delegate = new SVDBPersistenceRW();
 
@@ -351,7 +347,7 @@ public class TestPersistencePerformance extends TestCase {
 				"${workspace_loc}/ubus/examples/questa.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 
-		Set<String> files = index.getFileList(new NullProgressMonitor());
+		Iterable<String> files = index.getFileList(new NullProgressMonitor());
 		SVDBPersistenceRW delegate = new SVDBPersistenceRW();
 
 		IDBWriter writer = delegate;
