@@ -12,34 +12,32 @@
 
 package net.sf.sveditor.ui.wizards;
 
-import net.sf.sveditor.core.srcgen.NewClassGenerator;
+import net.sf.sveditor.core.srcgen.NewModuleGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
-	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVClassWizard";
+public class NewSVModuleWizard extends AbstractNewSVItemFileWizard {
+	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVModuleWizard";
 
-	public NewSVClassWizard() {
+	public NewSVModuleWizard() {
 		super();
 	}
 	
 	
 	@Override
 	protected AbstractNewSVItemFileWizardPage createPage() {
-		return new NewSVClassWizardPage();
+		return new NewSVModuleWizardPage();
 	}
 
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
-		NewClassGenerator gen = new NewClassGenerator();
+		NewModuleGenerator gen = new NewModuleGenerator();
 		
 		gen.generate(getIndexIterator(monitor), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
-				fPage.getOption(NewSVClassWizardPage.SUPER_CLASS, null),
-				fPage.getOption(NewSVClassWizardPage.OVERRIDE_NEW, "true").equals("true"),
 				monitor);
 	}
 

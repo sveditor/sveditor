@@ -156,6 +156,33 @@
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVInterfaceWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVModuleWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVPackageWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>            
       <navigatorContent
             activeByDefault="true"
             appearsBefore="org.eclipse.ui.navigator.resourceContent"
@@ -676,6 +703,33 @@
             id="net.sf.sveditor.ui.newSVTWizard"
             name="SystemVerilog Template Descriptor">
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVPackageWizard"
+            icon="icons/edecl16/package.gif"
+            id="net.sf.sveditor.ui.newSVPackageWizard"
+            name="SystemVerilog Package"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVInterfaceWizard"
+            icon="icons/edecl16/int_obj.gif"
+            id="net.sf.sveditor.ui.newSVInterfaceWizard"
+            name="SystemVerilog Interface"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVModuleWizard"
+            icon="icons/edecl16/module_obj.gif"
+            id="net.sf.sveditor.ui.newSVModuleWizard"
+            name="SystemVerilog Module"
+            project="false">
+      </wizard>      
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
