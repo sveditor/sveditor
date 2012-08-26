@@ -407,4 +407,42 @@ public class TestOpenClass extends TestCase {
 		assertEquals("foo", SVDBItem.getName(item));
 	}
 
+	public void testOpenMethodrefAtBeginning() {
+		String testname = "testOpenMethodrefAtBeginning";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"class foo;\n" +
+			"  function void get_data();\n" +
+			"  endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar extends foo;\n" +
+			"    foo      m_foo;\n" +
+			"\n" +
+			"    function new();\n" +
+			"        set_data(get_data());\n" + // 10
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("set_data");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"set_data(".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 10, 
+				scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.Function, ret.get(0).first().getType());
+		assertEquals("get_data", SVDBItem.getName(ret.get(0).first()));
+	}
 }

@@ -7,6 +7,11 @@
 - #(enh) - New Class wizard and Override Method wizard now add NaturalDoc
   comments.
 
+- #(nobug) - Fix a bug in the expression scanner (used for open declaration,
+  doc hover, etc) involving expressions next to operators such as parens:
+  "(get_name(), " for example. Now the identifiers are correctly located
+  even when the cursor is at the beginning of the name.
+  
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
 
