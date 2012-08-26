@@ -11,6 +11,9 @@
   doc hover, etc) involving expressions next to operators such as parens:
   "(get_name(), " for example. Now the identifiers are correctly located
   even when the cursor is at the beginning of the name.
+
+- #(3561911) - Correct Doc Hover removes links. Links in NaturalDocs comments
+  are now replaced with plaintext.
   
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
