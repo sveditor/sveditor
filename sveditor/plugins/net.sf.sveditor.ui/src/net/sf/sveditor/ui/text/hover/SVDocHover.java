@@ -32,6 +32,7 @@ import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.docs.IDocTopicManager;
+import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -580,8 +581,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	
 	private String genContent(List<DocTopic> topics) {
 		String res = "" ;
+		HTMLFromNDMarkup markupConverter = new HTMLFromNDMarkup() ;
 		for(DocTopic topic: topics) {
-			res += genContentForTopic(topic) ;
+			String html = "" ;
+			html = genContentForTopic(topic) ;
+			html = markupConverter.convertNDMarkupToHTML(null, topic, html, HTMLFromNDMarkup.NDMarkupToHTMLStyle.Tooltip) ;
+			res += html ;
 		}
 		return res ;
 	}		
