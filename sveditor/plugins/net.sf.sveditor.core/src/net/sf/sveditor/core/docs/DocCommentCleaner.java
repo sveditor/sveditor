@@ -174,7 +174,7 @@ public class DocCommentCleaner {
 //	            # character the same.
 //	
 	            if (leftSide != Uniformity.IS_NOT_UNIFORM) {
-	            	Pattern p = Pattern.compile("^([^a-zA-Z0-9])\1*(?: |$)");
+	            	Pattern p = Pattern.compile("^([^a-zA-Z0-9])\1*(?: |$)(.*$)?");
 	            	Matcher m = p.matcher(line);
 	                if (m.matches()) {
 	                	int g1_char = m.group(1).charAt(0);
@@ -187,15 +187,15 @@ public class DocCommentCleaner {
                         		leftSide = Uniformity.IS_NOT_UNIFORM;  
                         	}
 	                    }
-	                }
 //	                # We'll tolerate the lack of symbols on the left on the first line, because it may be a
 //	                # /* Function: Whatever
 //	                #  * Description.
 //	                #  */
 //	                # comment which would have the leading /* blanked out.
-                } else if (index != 0) {
-                    leftSide = Uniformity.IS_NOT_UNIFORM;
-                }
+	                } else if (index != 0) {
+	                	leftSide = Uniformity.IS_NOT_UNIFORM;
+	                }
+				}
 
 	            if (rightSide != Uniformity.IS_NOT_UNIFORM) {
 	            	Pattern p = Pattern.compile(" ([^a-zA-Z0-9])\1*$");
