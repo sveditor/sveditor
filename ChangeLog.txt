@@ -21,6 +21,8 @@
 - #(enh) - Add new-file wizards for module, interface, and package.
 
 - #(3561934) - Add support for Doc Comment 'Interface' and 'Module' topics
+
+- #(3562206) - Disable excessive debug output from comment parser
   
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
