@@ -1,4 +1,7 @@
 
+-- 1.0.0 Release --
+
+------------------------------------------------------------------------------
 -- 0.9.9 Release --
 
 - #(nobug) - Enhance doc-comment finder to recurse through pre-processor file
