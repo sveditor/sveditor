@@ -19,6 +19,8 @@
   in removing what appeared to be vertical lines.
 
 - #(enh) - Add new-file wizards for module, interface, and package.
+
+- #(3561934) - Add support for Doc Comment 'Interface' and 'Module' topics
   
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
