@@ -46,7 +46,7 @@ public class DocCommentCleaner {
 	private enum Uniformity { DONT_KNOW, IS_UNIFORM, IS_UNIFORM_IF_AT_END, IS_NOT_UNIFORM } ;
 	
 	private static LogHandle				fLog;
-	private static boolean				fDebugEn = true;
+	private static boolean				fDebugEn = false;
    	private static Pattern fLeftVerticalLineStripPattern;
    	private static Pattern fRightVerticalLineStripPattern;
 	

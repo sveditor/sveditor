@@ -1,4 +1,12 @@
 
+-- 1.0.0 Release --
+- #(enh) - Add Open Type dialog to assist in quickly and easily navigate 
+  to an arbitrary type
+  
+- #(enh) - Change Objects Quick View to use Hover colors. This makes things
+  look better on Ubuntu 12.04
+
+------------------------------------------------------------------------------
 -- 0.9.9 Release --
 
 - #(nobug) - Enhance doc-comment finder to recurse through pre-processor file
@@ -20,11 +28,9 @@
 
 - #(enh) - Add new-file wizards for module, interface, and package.
 
-- #(enh) - Add Open Type dialog to assist in quickly and easily navigate 
-  to an arbitrary type
-  
-- #(enh) - Change Objects Quick View to use Hover colors. This makes things
-  look better on Ubuntu 12.04
+- #(3561934) - Add support for Doc Comment 'Interface' and 'Module' topics
+
+- #(3562206) - Disable excessive debug output from comment parser
   
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --
