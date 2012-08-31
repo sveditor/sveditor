@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.text.HierarchyInformationControl;
 import net.sf.sveditor.ui.text.ObjectsInformationControl;
 import net.sf.sveditor.ui.text.OutlineInformationControl;
@@ -26,6 +27,7 @@ import net.sf.sveditor.ui.text.hover.ISVEditorTextHover;
 import net.sf.sveditor.ui.text.hover.SVDocHover;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.AbstractInformationControlManager;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -51,6 +53,7 @@ import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
@@ -252,9 +255,17 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	private IInformationControlCreator getObjectsPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
+				IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
 				int shellStyle= SWT.RESIZE;
 				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-				return new ObjectsInformationControl(parent, shellStyle, treeStyle, commandId);
+				ObjectsInformationControl obj = new ObjectsInformationControl(parent, shellStyle, treeStyle, commandId);
+				obj.setBackgroundColor(bg_color);
+				obj.setForegroundColor(fg_color);
+				return obj;
 			}
 		};
 	}	

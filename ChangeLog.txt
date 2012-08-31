@@ -19,6 +19,12 @@
   in removing what appeared to be vertical lines.
 
 - #(enh) - Add new-file wizards for module, interface, and package.
+
+- #(enh) - Add Open Type dialog to assist in quickly and easily navigate 
+  to an arbitrary type
+  
+- #(enh) - Change Objects Quick View to use Hover colors. This makes things
+  look better on Ubuntu 12.04
   
 ------------------------------------------------------------------------------
 -- 0.9.8 Release --

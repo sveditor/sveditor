@@ -54,6 +54,7 @@ import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
+import net.sf.sveditor.ui.editor.actions.OpenTypeAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
@@ -511,12 +512,17 @@ public class SVEditor extends TextEditor
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		
+		
 		FindReferencesAction fr_action = new FindReferencesAction(bundle, this);
 		fr_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.find.references");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", fr_action);
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
-
+		
+		OpenTypeAction ot_action = new OpenTypeAction(bundle, this);
+		ot_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction", ot_action);
+		
 		OpenTypeHierarchyAction th_action = new OpenTypeHierarchyAction(bundle, this);
 		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction", th_action);
@@ -626,6 +632,8 @@ public class SVEditor extends TextEditor
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				"net.sf.sveditor.ui.override.tf");
 		
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
