@@ -66,6 +66,11 @@ public class SVDBFindDocComment {
 	
 		return comment;
 	}
+	
+	private String cleanCommentNameForMatch(String commentName) {
+		String cleaned = commentName.replaceAll("[\\t\\s]*#.*","") ;
+		return cleaned ;
+	}
 
 	private SVDBDocComment find_comment(ISVDBChildParent p, ISVDBItemBase item) {
 		SVDBDocComment comment = null;
@@ -73,7 +78,8 @@ public class SVDBFindDocComment {
 			fLog.debug("Find (" + SVDBItem.getName(item) + ") Child: " + SVDBItem.getName(child));
 			if (child.getType() == SVDBItemType.DocComment) {
 				SVDBDocComment tryDocCom = (SVDBDocComment)child;
-				if (tryDocCom.getName().equals(SVDBItem.getName(item))) {
+				String nameCleaned = cleanCommentNameForMatch(tryDocCom.getName()) ;
+				if (nameCleaned.equals(SVDBItem.getName(item))) {
 					fLog.debug(ILogLevel.LEVEL_MID,
 							String.format("Found doc comment for(%s)", SVDBItem.getName(item)));
 					comment = tryDocCom;
