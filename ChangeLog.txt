@@ -1,6 +1,9 @@
 
 -- 1.0.0 Release --
 
+- #(3554883) - Correct bug with Doc Hover not finding doc comment for 
+  a parameterized class.
+
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
 
