@@ -128,6 +128,67 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		sm.done();
 	}
 	
+	public boolean isLoaded() {
+		boolean loaded = true;
+	
+		synchronized (fSourceCollectionList) {
+			for (ISVDBIndex index : fSourceCollectionList) {
+				loaded &= index.isLoaded();
+			}
+		}
+		
+		synchronized (fIncludePathList) {
+			for (ISVDBIndex index : fIncludePathList) {
+				loaded &= index.isLoaded();
+			}
+		}
+		
+		synchronized (fLibraryPathList) {
+			for (ISVDBIndex index : fLibraryPathList) {
+				loaded &= index.isLoaded();
+			}
+		}
+		
+		synchronized (fPluginLibraryList) {
+			for (ISVDBIndex index : fPluginLibraryList) {
+				loaded &= index.isLoaded();
+			}
+		}
+		
+		return loaded;
+	}
+	
+	public boolean isFileListLoaded() {
+		boolean loaded = true;
+	
+		synchronized (fSourceCollectionList) {
+			for (ISVDBIndex index : fSourceCollectionList) {
+				loaded &= index.isFileListLoaded();
+			}
+		}
+		
+		synchronized (fIncludePathList) {
+			for (ISVDBIndex index : fIncludePathList) {
+				loaded &= index.isFileListLoaded();
+			}
+		}
+		
+		synchronized (fLibraryPathList) {
+			for (ISVDBIndex index : fLibraryPathList) {
+				loaded &= index.isFileListLoaded();
+			}
+		}
+		
+		synchronized (fPluginLibraryList) {
+			for (ISVDBIndex index : fPluginLibraryList) {
+				loaded &= index.isFileListLoaded();
+				loaded &= index.isLoaded();
+			}
+		}
+		
+		return loaded;
+	}	
+	
 	/**
 	 * Called by the IndexCollectionMgr when a global setting
 	 * is changed
@@ -422,6 +483,10 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public List<SVDBSearchResult<SVDBFile>> findFile(String path) {
+		return findFile(path, true);
+	}
+	
+	public List<SVDBSearchResult<SVDBFile>> findFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
 		
@@ -434,7 +499,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 		
-		if (ret.size() == 0) {
+		if (ret.size() == 0 && search_shadow) {
 			clearStaleShadowIndexes();
 			for (int i=0; i<fShadowIndexList.size(); i++) {
 				ISVDBIndex index = fShadowIndexList.get(i).get();

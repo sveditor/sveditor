@@ -343,8 +343,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		monitor.done();
 	}
 	
-	public void loadIndex(IProgressMonitor monitor) {
+	public synchronized void loadIndex(IProgressMonitor monitor) {
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
+	}
+	
+	public synchronized boolean isLoaded() {
+		return (fIndexState >= IndexState_AllFilesParsed);
+	}
+	
+	public synchronized boolean isFileListLoaded() {
+		return (fIndexState >= IndexState_FileTreeValid);
 	}
 
 	/**
@@ -751,6 +759,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					ret = fCache.getFile(monitor, path);
 				}
 			} else {
+				/*
 				try {
 					throw new Exception();
 				} catch (Exception e) {
@@ -759,9 +768,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						System.out.println("path: " + p);
 					}
 				}
+				 */
 			}
 		}
 
+		/*
 		if (ret == null) {
 			try {
 				throw new Exception("File \"" + path + "\" not found");
@@ -769,6 +780,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				e.printStackTrace();
 			}
 		}
+		 */
 
 		return ret;
 	}
@@ -1412,13 +1424,6 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				l.index_rebuilt();
 			}
 		}
-	}
-
-	public boolean isLoaded() {
-		/**
-		 * return (fIndexFileMapValid && fPreProcFileMapValid);
-		 */
-		return true; // deprecated
 	}
 
 	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {

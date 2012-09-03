@@ -24,7 +24,9 @@
       </editor>
       <editor
             class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
+            contributorClass="net.sf.sveditor.ui.argfile.editor.SVArgFileActionContributor"
             default="true"
+            icon="icons/eview16/configs.gif"
             id="net.sf.sveditor.ui.argfile.editor"
             name="SystemVerilog Argument File Editor">
          <contentTypeBinding
@@ -872,6 +874,21 @@ endclass
                </objectClass>
                <objectClass
                      name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
+      <decorator
+            class="net.sf.sveditor.ui.svcp.SVDBFileDecorator"
+            id="net.sf.sveditor.ui.svIndexFileDecorator"
+            label="SV Index File Decorator"
+            lightweight="true"
+            location="TOP_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
                </objectClass>
             </or>
          </enablement>
