@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.explorer;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 
@@ -30,6 +31,10 @@ public class SVExplorerDecoratingLabelProvider extends DecoratingLabelProvider {
 		return super.getImage(element);
 	}
 
-	
+	@Override
+	public ILabelProvider getLabelProvider() {
+		// TODO Auto-generated method stub
+		return super.getLabelProvider();
+	}
 	
 }

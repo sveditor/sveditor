@@ -271,6 +271,14 @@ public class SVDBFileOverrideIndex
 	public void loadIndex(IProgressMonitor monitor) {
 		fIndex.loadIndex(monitor);
 	}
+	
+	public boolean isLoaded() {
+		return fIndex.isLoaded();
+	}
+	
+	public boolean isFileListLoaded() {
+		return fIndex.isFileListLoaded();
+	}
 
 	public SVDBIndexConfig getConfig() {
 		return fIndex.getConfig();

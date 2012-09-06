@@ -1,8 +1,17 @@
 
 -- 1.0.0 Release --
+- #(enh) - Add Open Type dialog to assist in quickly and easily navigate 
+  to an arbitrary type
+  
+- #(enh) - Change Objects Quick View to use Hover colors. This makes things
+  look better on Ubuntu 12.04
 
 - #(3554883) - Correct bug with Doc Hover not finding doc comment for 
   a parameterized class.
+
+- #(enh) Add decorators to files in the Project Explorer that reflect whether
+  a file is managed by the index in the containing project. This can be 
+  helpful in troubleshooting index configuration.
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --

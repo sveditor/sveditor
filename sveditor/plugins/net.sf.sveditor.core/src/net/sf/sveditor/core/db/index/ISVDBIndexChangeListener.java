@@ -14,6 +14,14 @@ package net.sf.sveditor.core.db.index;
 
 import net.sf.sveditor.core.db.SVDBFile;
 
+/**
+ * Listener interface that notifies about index events. 
+ * Note: to avoid thread deadlock, listener-method
+ * implementations should not call the index directly.
+ * 
+ * @author ballance
+ *
+ */
 public interface ISVDBIndexChangeListener {
 	
 	int FILE_ADDED   = 1;
