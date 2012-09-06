@@ -28,7 +28,6 @@ public interface ISVDBIndex extends
 	
 	public void init(IProgressMonitor monitor);
 
-	
 	Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor monitor,
 			InputStream in, 
@@ -115,6 +114,18 @@ public interface ISVDBIndex extends
 	ISVDBIndexCache getCache();
 	
 	void loadIndex(IProgressMonitor monitor);
+
+	/**
+	 * Quickly report whether the index is loaded and ready
+	 * @return
+	 */
+	boolean isLoaded();
+	
+	/**
+	 * Quickly report whether the list of files is available
+	 * @return
+	 */
+	boolean isFileListLoaded();
 	
 	SVDBIndexConfig getConfig();
 	

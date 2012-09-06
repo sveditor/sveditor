@@ -33,6 +33,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fOpenTypeAction;
 	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
 	protected RetargetTextEditorAction fOpenObjectsAction;
@@ -61,10 +62,16 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
 		
+		
 		fFindReferencesAction = new RetargetTextEditorAction(
 				bundle, "FindReferences.");
 		fFindReferencesAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.find.references");
+		
+		fOpenTypeAction = new RetargetTextEditorAction(
+				bundle, "OpenType.");
+		fOpenTypeAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.open.type");
 
 		fOpenTypeHierarchyAction = new RetargetTextEditorAction(
 				bundle, "OpenTypeHierarchy.");
@@ -115,6 +122,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
 			editMenu.add(fOpenTypeHierarchyAction);
+			editMenu.add(fOpenTypeAction);
 			editMenu.add(fOpenObjectsAction);
 			editMenu.add(fOpenQuickObjectsAction);
 			editMenu.add(fFindReferencesAction);
@@ -136,6 +144,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fOpenTypeAction);
 			editMenu.add(fOpenTypeHierarchyAction);
 			editMenu.add(fOpenQuickObjectsAction);
 			editMenu.add(fOpenObjectsAction);
@@ -153,6 +162,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
+		fOpenTypeAction.setAction(getAction(editor, "OpenType"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
 		fOpenObjectsAction.setAction(getAction(editor, "OpenObjects"));
 		fOpenQuickObjectsAction.setAction(getAction(editor, "OpenQuickObjects"));

@@ -62,6 +62,7 @@ import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
+import org.eclipse.core.filesystem.provider.FileTree;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -1219,6 +1220,10 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		 * return (fIndexFileMapValid && fPreProcFileMapValid);
 		 */
 		return true; // deprecated
+	}
+	
+	public boolean isFileListLoaded() {
+		return (fIndexState >= IndexState_FileTreeValid);
 	}
 
 	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
