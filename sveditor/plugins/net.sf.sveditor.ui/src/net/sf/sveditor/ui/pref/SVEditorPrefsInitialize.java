@@ -54,6 +54,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_KEYWORD_S, SWT.BOLD);
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
+		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
 		
 		// Index Preferences

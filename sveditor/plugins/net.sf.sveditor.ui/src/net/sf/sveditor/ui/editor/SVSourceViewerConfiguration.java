@@ -224,21 +224,6 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return new String[] {"//", ""};
 	}
 	
-	
-	
-	/** Text hover disabled
-	@Override
-	public ITextHover getTextHover(ISourceViewer viewer, String contentType) {
-		if (!contentType.equals(SVDocumentPartitions.SV_STRING) &&
-			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
-			!contentType.equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
-			return new SVEditorTextHover(fEditor, viewer);
-		}
-		
-		return null;
-	}
-	 */
-	
 	public ITextHover getTextHover(ISourceViewer viewer, String contentType) {
 		if (!contentType.equals(SVDocumentPartitions.SV_STRING) &&
 			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
@@ -273,9 +258,18 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	private IInformationControlCreator getOutlinePresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
+				IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
 				int shellStyle= SWT.RESIZE;
 				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-				return new OutlineInformationControl(parent, shellStyle, treeStyle, commandId);
+				OutlineInformationControl outline = new OutlineInformationControl(parent, shellStyle, treeStyle, commandId);
+				outline.setBackgroundColor(bg_color);
+				outline.setForegroundColor(fg_color);
+				
+				return outline;
 			}
 		};
 	}	
@@ -283,9 +277,19 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	private IInformationControlCreator getHierarchyPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
+				IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
 				int shellStyle= SWT.RESIZE;
 				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-				return new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId) ;
+				HierarchyInformationControl h = new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId) ;
+				
+				h.setBackgroundColor(bg_color);
+				h.setForegroundColor(fg_color);
+				
+				return h;
 			}
 		};
 	}	

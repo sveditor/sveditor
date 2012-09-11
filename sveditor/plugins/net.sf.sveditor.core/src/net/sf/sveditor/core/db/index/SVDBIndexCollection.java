@@ -456,6 +456,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
 
+		synchronized (fFileSearchOrder) {
 			// Search the indexes in order
 			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
 				for (ISVDBIndex index : index_l) {
@@ -464,20 +465,21 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 					}
 				}
 			}
+		}
 
-			if (ret.size() == 0 && search_shadow) {
-				clearStaleShadowIndexes();
-				synchronized (fShadowIndexList) {
-					for (int i=0; i<fShadowIndexList.size(); i++) {
-						ISVDBIndex index = fShadowIndexList.get(i).get();
-						if (index != null) {
-							if ((result = index.findPreProcFile(path)) != null) {
-								ret.add(new SVDBSearchResult<SVDBFile>(result, index));
-							}
+		if (ret.size() == 0 && search_shadow) {
+			clearStaleShadowIndexes();
+			synchronized (fShadowIndexList) {
+				for (int i=0; i<fShadowIndexList.size(); i++) {
+					ISVDBIndex index = fShadowIndexList.get(i).get();
+					if (index != null) {
+						if ((result = index.findPreProcFile(path)) != null) {
+							ret.add(new SVDBSearchResult<SVDBFile>(result, index));
 						}
 					}
 				}
 			}
+		}
 		
 		return ret;
 	}
@@ -491,10 +493,12 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		SVDBFile result;
 		
 		// Search the indexes in order
-		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
-			for (ISVDBIndex index : index_l) {
-				if ((result = index.findFile(path)) != null) {
-					ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+		synchronized (fFileSearchOrder) {
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					if ((result = index.findFile(path)) != null) {
+						ret.add(new SVDBSearchResult<SVDBFile>(result, index));
+					}
 				}
 			}
 		}

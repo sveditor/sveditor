@@ -9,9 +9,12 @@
 - #(3554883) - Correct bug with Doc Hover not finding doc comment for 
   a parameterized class.
 
-- #(enh) Add decorators to files in the Project Explorer that reflect whether
+- #(enh) - Add decorators to files in the Project Explorer that reflect whether
   a file is managed by the index in the containing project. This can be 
   helpful in troubleshooting index configuration.
+  
+- #(3566435) - Change log-output scheme to, by default, output only to the
+  logfile. Also change output to the console to only be from a single thread
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --

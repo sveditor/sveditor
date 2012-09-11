@@ -41,6 +41,8 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 					{"Minimum", "LEVEL_MIN"}, 
 					{"Medium", "LEVEL_MID"},
 					{"Maximum", "LEVEL_MAX"}}, getFieldEditorParent()));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, 
+				"Debug to Console:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

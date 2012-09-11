@@ -39,8 +39,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
-import org.eclipse.jface.text.information.InformationPresenter;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -66,6 +64,13 @@ import org.osgi.framework.BundleContext;
  */
 public class SVUiPlugin extends AbstractUIPlugin 
 	implements IPropertyChangeListener, ILogListener, IExternalTemplatePathProvider {
+	
+	private class LogMessage {
+		ILogHandle				handle;
+		int						type;
+		int						level;
+		String					message;
+	}
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
@@ -79,6 +84,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private MessageConsoleStream				fStderrStream;
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
+	private boolean							fDebugConsole;
 	public static final String				CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
 	public static final String				SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
 	
@@ -92,6 +98,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	private TemplateParameterProvider			fGlobalPrefsProvider;
 	
+	private List<LogMessage>					fLogMessageQueue;
+	private boolean							fLogMessageScheduled;
+	
 	/**
 	 * Small change 1
 	 */
@@ -102,6 +111,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public SVUiPlugin() {
 		fImageMap = new WeakHashMap<String, Image>();
 		fGlobalPrefsProvider = new TemplateParameterProvider();
+		fLogMessageQueue = new ArrayList<SVUiPlugin.LogMessage>();
 	}
 
 	/*
@@ -236,6 +246,10 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)) {
 			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel((String)event.getNewValue()));
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S)) {
+			synchronized (fLogMessageQueue) {
+				fDebugConsole = (Boolean)event.getNewValue();
+			}
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS)) {
 			// propagate to template registry
 			update_template_paths();
@@ -247,24 +261,59 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
-	public void message(ILogHandle handle, int type, int level, String message) {
-		MessageConsoleStream out = null;
-		
-		if (type == ILogListener.Type_Error) {
-			out = getStderrStream();
-		} else if (type == ILogListener.Type_Info) {
-			out = getStdoutStream();
-		} else if (SVCorePlugin.getDefault().getDebugLevel() >= level) {
-			if ((type & ILogListener.Type_Error) != 0) {
-				out = getStderrStream();
-			} else {
-				out = getStdoutStream();
+	
+	private Runnable logMessageRunnable = new Runnable() {
+		public void run() {
+			synchronized (fLogMessageQueue) {
+				for (LogMessage msg : fLogMessageQueue) {
+					ILogHandle handle = msg.handle;
+					int type = msg.type;
+					int level = msg.level;
+					String message = msg.message;
+					MessageConsoleStream out = null;
+
+					if (type == ILogListener.Type_Error) {
+						out = getStderrStream();
+					} else if (type == ILogListener.Type_Info) {
+						out = getStdoutStream();
+					} else if (SVCorePlugin.getDefault().getDebugLevel() >= level) {
+						if ((type & ILogListener.Type_Error) != 0) {
+							out = getStderrStream();
+						} else {
+							out = getStdoutStream();
+						}
+					}
+
+					if (out != null) {
+						out.println("[" + handle.getName() + "] " + message);
+					}
+				}
+				fLogMessageQueue.clear();
+				fLogMessageScheduled = false;
 			}
 		}
-		
-		if (out != null) {
-			out.println("[" + handle.getName() + "] " + message);
+	};
+	
+	public void message(ILogHandle handle, int type, int level, String message) {
+		synchronized (fLogMessageQueue) {
+			if (!fDebugConsole && type != ILogListener.Type_Error) {
+				// No output to console
+				return;
+			}
+			LogMessage msg = new LogMessage();
+			msg.handle = handle;
+			msg.type = type;
+			msg.level = level;
+			msg.message = message;
+			
+			fLogMessageQueue.add(msg);
+			
+			if (!fLogMessageScheduled) {
+				Display.getDefault().asyncExec(logMessageRunnable);
+				fLogMessageScheduled = true;
+			}
 		}
+
 	}
 	
 	public ResourceBundle getResources() {
