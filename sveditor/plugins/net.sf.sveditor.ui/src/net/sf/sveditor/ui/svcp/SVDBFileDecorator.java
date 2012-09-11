@@ -138,7 +138,6 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 		}
 
 		public void index_rebuilt() {
-			System.out.println("notify index rebuilt");
 			queueWork(this);
 		}
 	};

@@ -37,6 +37,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_ENABLE_SHADOW_INDEX								= "enableShadowIndex";
 	
 	public static final String P_DEBUG_LEVEL_S 									= "debugLevel";
+	public static final String P_DEBUG_CONSOLE_S 									= "debugConsole";
 	
 	public static final String P_CONTENT_ASSIST_TIMEOUT							= EDIT_SETTINGS + "contentAssistTimeout";
 	
