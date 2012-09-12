@@ -15,6 +15,10 @@
   
 - #(3566435) - Change log-output scheme to, by default, output only to the
   logfile. Also change output to the console to only be from a single thread
+  
+- #(3566723) - Convert Doc Hover error to a debug message
+
+- #(3566760) - Change SVEditor console to not auto-raise on output.
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
