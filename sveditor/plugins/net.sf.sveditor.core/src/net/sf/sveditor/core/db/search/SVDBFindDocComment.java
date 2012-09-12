@@ -45,7 +45,9 @@ public class SVDBFindDocComment {
 		}
 		
 		if (p == null) {
-			fLog.error(String.format("Failed to find file for type(%s)",
+			fLog.debug(
+					ILogLevel.LEVEL_MID,
+					String.format("Failed to find file for type(%s)",
 					SVDBItem.getName(item)));
 			return null;
 		}
