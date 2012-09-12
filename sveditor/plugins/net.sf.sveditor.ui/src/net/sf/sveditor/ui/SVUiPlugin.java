@@ -384,7 +384,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public MessageConsoleStream getStdoutStream() {
 		if (fStdoutStream == null) {
 			fStdoutStream = getConsole().newMessageStream();
-			fStdoutStream.setActivateOnWrite(true);
+			fStdoutStream.setActivateOnWrite(false);
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
 					fStdoutStream.setColor(
@@ -398,7 +398,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public MessageConsoleStream getStderrStream() {
 		if (fStderrStream == null) {
 			fStderrStream = getConsole().newMessageStream();
-			fStderrStream.setActivateOnWrite(true);
+			fStderrStream.setActivateOnWrite(false);
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
 					fStderrStream.setColor(

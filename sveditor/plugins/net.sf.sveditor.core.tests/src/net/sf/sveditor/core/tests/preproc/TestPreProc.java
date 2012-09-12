@@ -647,6 +647,29 @@ public class TestPreProc extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 	
+	public void testRecursiveMacroRef() {
+		String testname = "testRecursiveMacroRef";
+		String doc =
+				"//Overly simplistic example\n" +
+				"`define M1 `M1\n" +
+				" task abc();\n" +
+				"	`M1\n" +
+				" endtask\n"
+				;
+		String expected = "";
+		
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);		
+	}
+	
 	public void testUVMFieldArrayIntExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testUVMFieldArrayIntExpansion");
