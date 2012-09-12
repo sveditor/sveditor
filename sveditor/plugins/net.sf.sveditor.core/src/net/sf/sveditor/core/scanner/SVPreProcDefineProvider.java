@@ -501,6 +501,11 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			// Skip over the parameter-separator or the closing paren
 			debug("    Try Skip: next ch=" + (char)ch);
 			if (ch == ',' || ch == ')') {
+				if(ch == ')') {
+					//Last parameter parsed
+					ch = scanner.get_ch();
+					break;
+				}
 				ch = scanner.get_ch();
 			}
 		}
