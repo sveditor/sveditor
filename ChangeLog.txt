@@ -20,6 +20,8 @@
 
 - #(3566760) - Change SVEditor console to not auto-raise on output.
 
+- #(3566727) - Correct Literal decimal 'X' not supported
+
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
 

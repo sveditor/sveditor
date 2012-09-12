@@ -1023,7 +1023,8 @@ public class SVLexer extends SVToken {
 	}
 
 	private int readDecNumber(int ch) throws SVParseException {
-		while (ch >= '0' && ch <= '9' || ch == '_') {
+		while (ch >= '0' && ch <= '9' || ch == '_' || ch == '?' ||
+				ch == 'z' || ch == 'Z' || ch == 'x' || ch == 'X') {
 			append_ch(ch);
 			ch = fScanner.get_ch();
 		}
