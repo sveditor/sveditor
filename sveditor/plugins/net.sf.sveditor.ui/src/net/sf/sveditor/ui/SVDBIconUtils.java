@@ -58,6 +58,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.ModIfcInstItem, MOD_IFC_INST_OBJ);
 		fImgDescMap.put(SVDBItemType.VarDeclItem, FIELD_PUB_OBJ);
 		fImgDescMap.put(SVDBItemType.Task, TASK_PUB_OBJ);
+		fImgDescMap.put(SVDBItemType.TypedefStmt, ENUM_TYPE_OBJ);
 	}
 	
 	public static Image getIcon(String key) {

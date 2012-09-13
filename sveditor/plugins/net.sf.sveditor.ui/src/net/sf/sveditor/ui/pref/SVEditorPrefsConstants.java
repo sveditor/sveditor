@@ -67,6 +67,10 @@ public class SVEditorPrefsConstants {
 	public static final String P_OUTLINE_SHOW_MODULE_INSTANCES                  	= OUTLINE_SETTINGS + "outlineShowModuleInstances";
 	public static final String P_OUTLINE_SHOW_SIGNAL_DECLARATIONS               	= OUTLINE_SETTINGS + "outlineShowSignalDeclarations";
 	public static final String P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS        	= OUTLINE_SETTINGS + "outlineShowTaskFunctionDeclarations";
+	public static final String P_OUTLINE_SHOW_ENUM_TYPEDEFS                     	= OUTLINE_SETTINGS + "outlineShowEnumTypedefs";
+	public static final String P_OUTLINE_SHOW_ASSERTION_PROPERTIES              	= OUTLINE_SETTINGS + "outlineShowAssertionProperties";
+	public static final String P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS           	= OUTLINE_SETTINGS + "outlineShowCoverPointGroupCross";
+	public static final String P_OUTLINE_SHOW_CONSTRAINTS                       	= OUTLINE_SETTINGS + "outlineShowConstraints";
 	public static final String P_OUTLINE_SORT                                   	= OUTLINE_SETTINGS + "outlineSort";
 	
 }
