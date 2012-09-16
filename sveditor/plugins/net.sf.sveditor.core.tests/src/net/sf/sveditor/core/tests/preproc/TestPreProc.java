@@ -656,7 +656,10 @@ public class TestPreProc extends TestCase {
 				"	`M1\n" +
 				" endtask\n"
 				;
-		String expected = "";
+		String expected = 
+				"task abc();\n" +
+				"	 `M1\n" +
+				" endtask\n";
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
