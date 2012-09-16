@@ -59,7 +59,7 @@ public class TestFindDocComments extends TestCase {
 		String testname = "testFindUvmReportObject";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		

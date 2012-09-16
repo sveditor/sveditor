@@ -410,7 +410,7 @@ public class TestOpenClass extends TestCase {
 	public void testOpenMethodrefAtBeginning() {
 		String testname = "testOpenMethodrefAtBeginning";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +
 			"  function void get_data();\n" +

@@ -95,7 +95,7 @@ public class TestMethodGenerator extends TestCase {
 	
 	public void testParamClassRetFunction() throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle("testParamClassRetFunction");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"function foo_c #(bar_c) foobar();\n" +
 			"    a = 5;\n" +
@@ -239,7 +239,7 @@ public class TestMethodGenerator extends TestCase {
 	
 	public void testVectoredParam_1() throws SVParseException {
 		String testname = "testVectoredParam_1";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String content =
 			"function void foobar(bit[31:0] a[]);\n" +
@@ -269,7 +269,7 @@ public class TestMethodGenerator extends TestCase {
 
 	public void testVectoredParam_2() throws SVParseException {
 		String testname = "testVectoredParam_2";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String content =
 			"function void foobar(bit[31:0] a[$]);\n" +
@@ -299,7 +299,7 @@ public class TestMethodGenerator extends TestCase {
 	
 	public void testVectoredParam_3() throws SVParseException {
 		String testname = "testVectoredParam_3";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String content =
 			"function void foobar(bit[31:0] a[4]);\n" +
@@ -329,7 +329,7 @@ public class TestMethodGenerator extends TestCase {
 	
 	public void testVectoredParam_4() throws SVParseException {
 		String testname = "testVectoredParam_4";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String content =
 			"function void foobar(bit[31:0] a[string]);\n" +

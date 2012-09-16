@@ -1,11 +1,6 @@
-- #(enh) Added additional filters to outline view
-         - CoverPoint/Group/Cross/Bins
-         - Assertion/Property/Seuqnces
-         - Constraints
-         - Enum/Typedef
 
 -- 1.0.0 Release --
-- #(enh) - Add Open Type dialog to assist in quickly and easily navigate 
+- #(enh) - Add Open Type dialog to assist in quickly and easily navigating 
   to an arbitrary type
   
 - #(enh) - Change Objects Quick View to use Hover colors. This makes things
@@ -24,6 +19,18 @@
 - #(3566723) - Convert Doc Hover error to a debug message
 
 - #(3566760) - Change SVEditor console to not auto-raise on output.
+
+- #(3566727) - Correct Literal decimal 'X' not supported
+
+- #(3566417) - Correct a bug with macro default parameters
+
+- #(enh) Added additional filters to outline view
+         - CoverPoint/Group/Cross/Bins
+         - Assertion/Property/Seuqnces
+         - Constraints
+         - Enum/Typedef
+
+- #(3566419) - Correct stack overflow with recursive macro references
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --

@@ -433,6 +433,23 @@ public class SVProjectFileWrapper {
 		return fGlobalDefines;
 	}
 	
+	public void addGlobalDefine(String key, String val) {
+		synchronized (fGlobalDefines) {
+			boolean found = false;
+			for (int i=0; i<fGlobalDefines.size(); i++) {
+				if (fGlobalDefines.get(i).first().equals(key)) {
+					fGlobalDefines.set(i, new Tuple<String, String>(key, val));
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) {
+				fGlobalDefines.add(new Tuple<String, String>(key, val));
+			}
+		}
+	}
+	
 	public List<SVDBSourceCollection> getSourceCollections() {
 		return fSourceCollections;
 	}

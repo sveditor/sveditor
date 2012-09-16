@@ -6,7 +6,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 public class TestModuleHierarchy extends TestCase {
 
 	public void testModuleSubHierarchy() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module m1;\n" +
 			"endmodule\n" +
