@@ -1,8 +1,3 @@
-- #(enh) Added additional filters to outline view
-         - CoverPoint/Group/Cross/Bins
-         - Assertion/Property/Seuqnces
-         - Constraints
-         - Enum/Typedef
 
 -- 1.0.0 Release --
 - #(enh) - Add Open Type dialog to assist in quickly and easily navigating 
@@ -29,11 +24,14 @@
 
 - #(3566417) - Correct a bug with macro default parameters
 
-- #(enh) - Outline View filtering enhanced to support: Constraints, 
-  Enumerated Types/Typedefs, Assertion/Sequences/Properties, 
-  CoverPoints/Groups/Cross/Bins
+- #(enh) Added additional filters to outline view
+         - CoverPoint/Group/Cross/Bins
+         - Assertion/Property/Seuqnces
+         - Constraints
+         - Enum/Typedef
 
-- 
+- #(3566419) - Correct stack overflow with recursive macro references
+
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
 

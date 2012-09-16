@@ -185,7 +185,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		String testname = "testProjectDefine_1";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj_1", fTmpDir);
