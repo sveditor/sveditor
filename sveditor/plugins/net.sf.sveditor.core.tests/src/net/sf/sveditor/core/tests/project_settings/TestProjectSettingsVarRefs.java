@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
@@ -20,6 +21,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -39,6 +41,10 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		File db = new File(fTmpDir, "db");
+		assertTrue(db.mkdirs());
+		rgy.init(new TestIndexCacheFactory(db));
 		fProject = null;
 	}
 
@@ -133,19 +139,20 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	public void testProjectDefine() throws CoreException {
 		String testname = "testProjectDefine";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+//		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
 		
 //		fProject = TestUtils.importProject(new File(fTmpDir, "arg_file_define_proj"));
-		fProject = TestUtils.createProject("arg_file_define_proj",  
+		fProject = TestUtils.createProject(testname,
 				new File(fTmpDir, "arg_file_define_proj"));
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 		
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
 		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
+		wrapper.addArgFilePath("${workspace_loc}/" + testname + "/arg_file_define_proj.f");
 		pdata.setProjectFileWrapper(wrapper);
 		
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
@@ -155,6 +162,39 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		IndexTestUtils.assertFileHasElements(index_collection, "arg_file_define_proj");
 	}
 
+	public void testProjectDefineChange() throws CoreException {
+		String testname = "testProjectDefineChange";
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+//		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		CoreReleaseTests.clearErrors();
+
+		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
+		
+//		fProject = TestUtils.importProject(new File(fTmpDir, "arg_file_define_proj"));
+		fProject = TestUtils.createProject(testname,
+				new File(fTmpDir, "arg_file_define_proj"));
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		
+		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
+		wrapper.addArgFilePath("${workspace_loc}/" + testname + "/arg_file_define_proj.f");
+		pdata.setProjectFileWrapper(wrapper);
+		
+		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
+		
+		index_collection.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertDoesNotContain(index_collection, "arg_file_define_proj");
+		
+		wrapper = pdata.getProjectFileWrapper();
+		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
+		pdata.setProjectFileWrapper(wrapper);
+		
+		index_collection = pdata.getProjectIndexMgr();
+		index_collection.loadIndex(new NullProgressMonitor());
+		IndexTestUtils.assertFileHasElements(index_collection, "arg_file_define_proj");
+	}
+	
 	public void testProjectUndefined() throws CoreException {
 		String testname = "testProjectUndefined";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
