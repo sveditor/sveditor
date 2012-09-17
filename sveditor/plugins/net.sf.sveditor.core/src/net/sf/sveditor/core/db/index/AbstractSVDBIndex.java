@@ -184,6 +184,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected boolean checkCacheValid() {
 		boolean valid = true;
 		String version = SVCorePlugin.getVersion();
@@ -200,18 +201,44 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		
 		// Confirm that global defines are the same
 		if (fConfig != null) {
-			/*
-			 * TEMP: if
-			 * (fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
-			 * Map<String, String> define_map = (Map<String, String>)
-			 * fConfig.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
-			 * 
-			 * for (String key : define_map.keySet()) { if
-			 * (!fIndexCacheData.getGlobalDefines().containsKey(key) ||
-			 * !fIndexCacheData
-			 * .getGlobalDefines().get(key).equals(define_map.get(key))) { valid
-			 * = false; break; } } }
-			 */
+			// First check to see if all configured global defines are present
+			if (fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
+				Map<String, String> define_map = 
+						(Map<String, String>)fConfig.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
+				if (define_map.size() != fIndexCacheData.getGlobalDefines().size()) {
+					if (fDebugEn) {
+						fLog.debug(LEVEL_MID, "Cache invalid -- size of global defines is different");
+					}
+					valid = false;
+				} else {
+					// Check all defines
+					for (Entry<String, String> e : define_map.entrySet()) {
+						if (fIndexCacheData.getGlobalDefines().containsKey(e.getKey())) {
+							if (!fIndexCacheData.getGlobalDefines().get(e.getKey()).equals(e.getValue())) {
+								if (fDebugEn) {
+									fLog.debug(LEVEL_MID, "Cache invalid -- define " +
+										e.getKey() + " has a different value");
+								}
+								valid = false;
+								break;
+							}
+						} else {
+							if (fDebugEn) {
+								fLog.debug(LEVEL_MID, "Cache invalid -- define " +
+										e.getKey() + " not in cache");
+							}
+							valid = false;
+							break;
+						}
+					}
+				}
+			} else if (fIndexCacheData.getGlobalDefines().size() > 0) {
+				// Local index has defines and the incoming config does not
+				if (fDebugEn) {
+					fLog.debug(LEVEL_MID, "Cache invalid -- no global defines, and cache has");
+				}
+				valid = false;
+			}
 		}
 
 		if (fCache.getFileList().size() > 0) {
