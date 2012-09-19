@@ -37,6 +37,10 @@
  
 - #(nobug) - Correct a bug in the Source Collection dialog that prevented 
   users from changing the default file extensions
+  
+- #(nobug) - Correct issues with content assist for types and enumerators 
+  in the package and class scopes
+
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
