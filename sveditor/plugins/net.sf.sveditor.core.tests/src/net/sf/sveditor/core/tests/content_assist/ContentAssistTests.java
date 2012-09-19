@@ -36,16 +36,18 @@ public class ContentAssistTests extends TestCase {
 	
 	public static Test suite() {
 		TestSuite suite = new TestSuite("ContentAssistTests");
-		suite.addTest(new TestSuite(TestContentAssistBasics.class));
-		suite.addTest(new TestSuite(TestContentAssistEnum.class));
-		suite.addTest(new TestSuite(TestContentAssistStruct.class));
-		suite.addTest(new TestSuite(TestContentAssistBuiltins.class));
 		suite.addTest(new TestSuite(TestArrayContentAssist.class));
-		suite.addTest(new TestSuite(TestParamClassContentAssist.class));
-		suite.addTest(new TestSuite(TestModuleContentAssist.class));
-		suite.addTest(new TestSuite(TestContentAssistClass.class));
-		suite.addTest(new TestSuite(TestContentAssistInterface.class));
+		suite.addTest(new TestSuite(TestContentAssistBasics.class));
 		suite.addTest(new TestSuite(TestContentAssistBehavioralBlock.class));
+		suite.addTest(new TestSuite(TestContentAssistBuiltins.class));
+		suite.addTest(new TestSuite(TestContentAssistClass.class));
+		suite.addTest(new TestSuite(TestContentAssistEnum.class));
+		suite.addTest(new TestSuite(TestContentAssistInterface.class));
+		suite.addTest(new TestSuite(TestContentAssistStruct.class));
+		suite.addTest(new TestSuite(TestContentAssistTaskFunction.class));
+		suite.addTest(new TestSuite(TestContentAssistTypes.class));
+		suite.addTest(new TestSuite(TestModuleContentAssist.class));
+		suite.addTest(new TestSuite(TestParamClassContentAssist.class));
 		
 		return suite;
 	}
