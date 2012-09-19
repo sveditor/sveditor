@@ -156,13 +156,12 @@ public class AddSourceCollectionDialog extends Dialog {
 		}
 		fIncludes.setEditable(!fUseDefaults);
 		fIncludes.setEnabled(!fUseDefaults);
-		fIncludes.addSelectionListener(new SelectionListener() {
-		
-			public void widgetSelected(SelectionEvent e) {
+		fIncludes.addModifyListener(new ModifyListener() {
+			
+			public void modifyText(ModifyEvent e) {
 				fIncludeStr = fIncludes.getText();
+				
 			}
-		
-			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
 		g = new Group(pattern_group, SWT.NONE);
@@ -177,13 +176,10 @@ public class AddSourceCollectionDialog extends Dialog {
 		}
 		fExcludes.setEditable(!fUseDefaults);
 		fExcludes.setEnabled(!fUseDefaults);
-		fExcludes.addSelectionListener(new SelectionListener() {
-		
-			public void widgetSelected(SelectionEvent e) {
+		fExcludes.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
 				fExcludeStr = fExcludes.getText();
 			}
-		
-			public void widgetDefaultSelected(SelectionEvent e) {}
 		});
 		
 		Composite button_bar = new Composite(frame, SWT.NONE);
