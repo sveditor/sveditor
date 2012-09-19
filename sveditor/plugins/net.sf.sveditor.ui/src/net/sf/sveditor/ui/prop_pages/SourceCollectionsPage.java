@@ -156,6 +156,7 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 				sc.getExcludes().addAll(
 						SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
 			}
+			
 			fSourceCollections.add(sc);
 			fSourceCollectionsTree.refresh();
 		}
@@ -170,6 +171,7 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 			SVDBSourceCollection sc = (SVDBSourceCollection)sel.getFirstElement();
 			
 			dlg.setBase(sc.getBaseLocation());
+			dlg.setUseDefaultPattern(sc.getDefaultIncExcl());
 			dlg.setIncludes(sc.getIncludesStr());
 			dlg.setExcludes(sc.getExcludesStr());
 			
@@ -183,6 +185,8 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 							SVDBSourceCollection.parsePatternList(dlg.getIncludes()));
 					sc.getExcludes().addAll(
 							SVDBSourceCollection.parsePatternList(dlg.getExcludes()));
+				} else {
+					
 				}
 				
 				fSourceCollections.set(sc_idx, sc);
@@ -244,8 +248,8 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 			IncExclWrapper inc = new IncExclWrapper();
 			inc.fParent = sc;
 
-			if (sc.getIncludes().size() == 0) {
-				inc.fLabel = "Includes: (Default)";
+			if (sc.getDefaultIncExcl()) {
+				inc.fLabel = "Includes: (Default) " + sc.getIncludesStr();
 			} else {
 				inc.fLabel = "Includes: " + sc.getIncludesStr();
 			}
@@ -253,8 +257,8 @@ public class SourceCollectionsPage implements ISVProjectPropsPage,
 			IncExclWrapper exc = new IncExclWrapper();
 			exc.fParent = sc;
 
-			if (sc.getExcludes().size() == 0) {
-				exc.fLabel = "Excludes: (Default)";
+			if (sc.getDefaultIncExcl()) {
+				exc.fLabel = "Excludes: (Default) " + sc.getExcludesStr();
 			} else {
 				exc.fLabel = "Excludes: " + sc.getExcludesStr();
 			}
