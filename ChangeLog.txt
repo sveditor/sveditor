@@ -40,6 +40,9 @@
   
 - #(nobug) - Correct issues with content assist for types and enumerators 
   in the package and class scopes
+  
+- #(nobug) - Correct a bug that prevented class parameters from being
+  presented as content-assist proposals  
 
 
 ------------------------------------------------------------------------------

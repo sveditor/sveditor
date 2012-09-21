@@ -80,5 +80,21 @@ public class TestContentAssistTypes extends TestCase {
 		ContentAssistTests.runTest(testname, doc, 
 				"my_enum_t", "MY_ENUM_A", "MY_ENUM_B");
 	}
+	
+	public void testClassParam() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String testname = "testEnumAssistClassScope";
+		String doc =
+				"class src_c #(type my_type=int);\n" +
+				"\n" +
+				"	function src_c();\n" +
+				"		my_<<MARK>>\n" +
+				"	endfunction\n" +
+				"endclass\n"
+				;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"my_type");
+	}
 
 }
