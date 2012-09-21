@@ -418,6 +418,8 @@ public class SVKeywords {
 		"$set_coverage_db_name",
 		"$load_coverage_db",
 		"$random",
+		"$urandom",
+		"$urandom_range",
 		"$dist_chi_square",
 		"$dist_erlang",
 		"$dist_exponential",
