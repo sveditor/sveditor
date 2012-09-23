@@ -34,14 +34,18 @@ import net.sf.sveditor.core.db.SVDBModportItem;
 import net.sf.sveditor.core.db.SVDBModportPortsDecl;
 import net.sf.sveditor.core.db.SVDBModportSimplePort;
 import net.sf.sveditor.core.db.SVDBModportSimplePortsDecl;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
+import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
+import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
@@ -55,9 +59,9 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
-import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
@@ -412,6 +416,22 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 								}
 							}
 						}
+					} else if (it.getType() == SVDBItemType.TypedefStmt) {
+						SVDBTypedefStmt td_stmt = (SVDBTypedefStmt)it;
+						if (matcher.match(td_stmt, ctxt.fLeaf)) {
+							addProposal(td_stmt, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+						}
+						if (td_stmt.getTypeInfo() != null && 
+								td_stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+							SVDBTypeInfoEnum enum_type = (SVDBTypeInfoEnum)td_stmt.getTypeInfo();
+							// Match against enumerators
+							for (SVDBTypeInfoEnumerator enumerator : enum_type.getEnumerators()) {
+								if (matcher.match(enumerator, ctxt.fLeaf)) {
+									addProposal(enumerator, ctxt.fLeaf, true, 
+											ctxt.fStart, ctxt.fLeaf.length());
+								}
+							}
+						}
 					} else if (it.getType() == SVDBItemType.ModportDecl) {
 						for (ISVDBItemBase it_1 : ((SVDBModportDecl)it).getChildren()) {
 							debug("ModportItem: " + SVDBItem.getName(it_1));
@@ -451,6 +471,58 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					si = null;
 				}
 			}
+		} else if (leaf_item.getType() == SVDBItemType.PackageDecl) {
+			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+			if (!static_ref) {
+				fLog.debug("Warning: non-static reference to package type");
+			}
+		
+			ISVDBIndexIterator index_it = getIndexIterator();
+	
+			SVDBPackageDecl pkg_decl = (SVDBPackageDecl)leaf_item;
+			List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(
+					new NullProgressMonitor(), pkg_decl.getName(), 
+					new SVDBFindByNameMatcher(SVDBItemType.PackageDecl));
+			
+			if (result.size() > 0) {
+				SVDBDeclCacheItem pkg_item = result.get(0);
+				List<SVDBDeclCacheItem> pkg_items = index_it.findPackageDecl(new NullProgressMonitor(), pkg_item);
+				
+				for (SVDBDeclCacheItem ci : pkg_items) {
+					ISVDBItemBase item = ci.getSVDBItem();
+					if (item.getType() == SVDBItemType.TypedefStmt) {
+						SVDBTypedefStmt td_stmt = (SVDBTypedefStmt)item;
+						if (matcher.match(td_stmt, ctxt.fLeaf)) {
+							addProposal(td_stmt, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+						}
+						if (td_stmt.getTypeInfo() != null && 
+								td_stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+							SVDBTypeInfoEnum enum_type = (SVDBTypeInfoEnum)td_stmt.getTypeInfo();
+							// Match against enumerators
+							for (SVDBTypeInfoEnumerator enumerator : enum_type.getEnumerators()) {
+								if (matcher.match(enumerator, ctxt.fLeaf)) {
+									addProposal(enumerator, ctxt.fLeaf, true, 
+											ctxt.fStart, ctxt.fLeaf.length());
+								}
+							}
+						}						
+					} else if (item instanceof ISVDBNamedItem) {
+						ISVDBNamedItem ni = (ISVDBNamedItem)item;
+						fLog.debug("Note: checking package item \"" + ni.getName() + "\"");
+						if (matcher.match(ni, ctxt.fLeaf)) {
+							addProposal(item, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+						}
+					} else {
+						fLog.debug("Note: checking package item is not named item " +
+								SVDBItem.getName(item));
+					}
+				}
+
+			} else {
+				fLog.debug("Failed to find package declaration \"" + pkg_decl.getName() + "\"");
+			}
+			System.out.println("Package Decl");
+			
 		} else if (leaf_item.getType() == SVDBItemType.VarDeclItem) {
 			// Get the field type
 			ISVDBItemBase item_type = getItemType(leaf_item);

@@ -35,7 +35,15 @@
 - #(3566786) - Correct issue where index does not react to a change in the 
   global definition set
  
+- #(nobug) - Correct a bug in the Source Collection dialog that prevented 
+  users from changing the default file extensions
   
+- #(nobug) - Correct issues with content assist for types and enumerators 
+  in the package and class scopes
+  
+- #(nobug) - Correct a bug that prevented class parameters from being
+  presented as content-assist proposals  
+
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
