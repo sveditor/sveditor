@@ -328,6 +328,8 @@ public class SVKeywords {
 		
 		"$exit",
 		"$stime",
+		"$time",
+		"$realtime",
 		"$printtimescale",
 		"$timeformat",
 		"$bitstoreal",
