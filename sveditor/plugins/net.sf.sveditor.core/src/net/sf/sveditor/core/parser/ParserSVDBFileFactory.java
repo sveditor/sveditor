@@ -70,17 +70,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private ScanLocation fStartLocation;
 
 	private IDefineProvider fDefineProvider;
-	private boolean fEvalConditionals = true;
 
-	private SVDBFile fFile;
-	private Stack<SVDBScopeItem> fScopeStack;
+	private SVDBFile 					fFile;
+	private Stack<SVDBScopeItem> 		fScopeStack;
 	private SVParsers 					fSVParsers;
-	private List<SVParseException> 		fParseErrors;
-	private int							fParseErrorMax;
+	private int						fParseErrorCount;
+	private int						fParseErrorMax;
 	private LogHandle					fLog;
-	private boolean						fDebugEn;
+	private boolean					fDebugEn;
 	private List<SVDBMarker>			fMarkers;
-	private boolean						fDisableErrors;
+	private boolean					fDisableErrors;
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		// Setup logging
@@ -95,18 +94,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (dp != null) {
 			setDefineProvider(dp);
 		}
-		
-		fParseErrors = new ArrayList<SVParseException>();
-		fParseErrorMax = 5;
+	
+		fParseErrorCount = 0;
+		fParseErrorMax = 100;
 	}
 
 	public void setDefineProvider(IDefineProvider p) {
 		fDefineProvider = p;
 	}
 
-	public void setEvalConditionals(boolean eval) {
-		fEvalConditionals = eval;
-	}
+	public void setEvalConditionals(boolean eval) { }
 
 	public ScanLocation getStmtLocation() {
 		if (fStmtLocation == null) {
@@ -583,6 +580,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			}
 		} catch (EOFException e) {
 			e.printStackTrace();
+		} catch (SVAbortParseException e) {
+			// error limit exceeded
 		}
 
 		if (fScopeStack.size() > 0
@@ -712,7 +711,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void comment(String comment, String name) {}
 
 	public boolean error_limit_reached() {
-		return (fParseErrorMax > 0 && fParseErrors.size() >= fParseErrorMax);
+		return (fParseErrorMax > 0 && fParseErrorCount >= fParseErrorMax);
 	}
 
 	public SVLexer lexer() {
@@ -724,9 +723,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void error(SVParseException e) throws SVParseException {
-		/** TMP:
-		fParseErrors.add(e);
-		 */
+		fParseErrorCount++;
 
 		error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
 		
@@ -735,6 +732,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				e.getFilename() + ":" + e.getLineno();
 		if (fDebugEn) {
 			fLog.debug("Parse Error: " + msg, e);
+		}
+		
+		if (error_limit_reached()) {
+			throw new SVAbortParseException();
 		}
 		
 		throw e;

@@ -44,6 +44,10 @@
 - #(nobug) - Correct a bug that prevented class parameters from being
   presented as content-assist proposals  
 
+- #(enh) - Add missing system tasks: $time, $realtime, $urandom, $urandom_range
+
+- #(3571086) - Limit maximum errors per file. Currently, error limit is 
+  hard-coded to 100
 
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
