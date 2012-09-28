@@ -59,11 +59,6 @@ public class SVDBFindByNameInScopes {
 		fLog.debug("--> find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + 
 				" type=" + ((context != null)?context.getType():"null") + " name=" + name);
 		
-		// Check class/module/interface parameters first
-		if (context.getType() == SVDBItemType.ClassDecl) {
-		}
-		
-
 		// Search up the scope
 		while (context != null && context instanceof ISVDBChildParent) {
 			
