@@ -48,7 +48,12 @@
 
 - #(3571086) - Limit maximum errors per file. Currently, error limit is 
   hard-coded to 100
-
+  
+- Update SVEditor Project Properties to place Library Path and Source Collection
+  methods of specifying index paths on a new Deprecated tab. These methods of
+  specifying index paths will gradually be removed. New development will focus
+  on the Argument File method of index specification.
+  
 ------------------------------------------------------------------------------
 -- 0.9.9 Release --
 
