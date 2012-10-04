@@ -33,6 +33,7 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -174,6 +175,20 @@ public class TestUtils {
 	public static void copy(ByteArrayOutputStream in, IFile out) {
 		try {
 			InputStream  in_s = new ByteArrayInputStream(in.toByteArray());
+
+			if (out.exists()) {
+				out.setContents(in_s, true, false, new NullProgressMonitor());
+			} else {
+				out.create(in_s, true, new NullProgressMonitor());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+	
+	public static void copy(String in, IFile out) {
+		try {
+			InputStream  in_s = new StringInputStream(in);
 
 			if (out.exists()) {
 				out.setContents(in_s, true, false, new NullProgressMonitor());
