@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -63,9 +64,13 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 					SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 					SVDBProjectData pdata = pmgr.getProjectData(p);
 					SVDBIndexCollection index = pdata.getProjectIndexMgr();
+					
+					String path = "${workspace_loc}" + elem.getFullPath().toOSString();
+					
+					path = SVFileUtils.normalize(path);
 
-					List<SVDBSearchResult<SVDBFile>> res = index.findFile(
-							"${workspace_loc}" + elem.getFullPath().toOSString(), false);
+					List<SVDBSearchResult<SVDBFile>> res = index.findFile(path, false); 
+							
 
 					synchronized (fManagedByIndex) {
 						Map<String, Boolean> proj_map = fManagedByIndex.get(p.getName());
