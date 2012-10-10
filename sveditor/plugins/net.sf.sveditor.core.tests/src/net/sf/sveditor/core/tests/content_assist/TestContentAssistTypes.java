@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 public class TestContentAssistTypes extends TestCase {
 	
 	public void testTypeAssistPackageScope() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testTypeAssistPackageScope";
 		String doc =
 				"package pkg;\n" +
@@ -24,7 +24,7 @@ public class TestContentAssistTypes extends TestCase {
 	}
 
 	public void testEnumAssistPackageScope() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testEnumAssistPackageScope";
 		String doc =
 				"package pkg;\n" +
@@ -82,7 +82,7 @@ public class TestContentAssistTypes extends TestCase {
 	}
 	
 	public void testClassParam() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testEnumAssistClassScope";
 		String doc =
 				"class src_c #(type my_type=int);\n" +

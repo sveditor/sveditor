@@ -322,11 +322,11 @@ public class TestUtils {
 	public static List<String> fileToLines(String filename) throws IOException {
 		List<String> lines = new LinkedList<String>();
 		String line = "";
-		@SuppressWarnings("resource")
 		BufferedReader in = new BufferedReader(new FileReader(filename)) ;
 		while ((line = in.readLine()) != null) {
 			lines.add(line);
 		}
+		in.close();
 		return lines;
 	}	
 	

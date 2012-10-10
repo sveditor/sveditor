@@ -76,6 +76,7 @@ public class ArgFilePersistence extends TestCase
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 
+		/*
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 		}
@@ -83,6 +84,7 @@ public class ArgFilePersistence extends TestCase
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
+		 */
 	}
 	
 	/*
