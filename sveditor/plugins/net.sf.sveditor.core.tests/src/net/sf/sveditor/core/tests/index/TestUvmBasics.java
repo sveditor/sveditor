@@ -277,8 +277,15 @@ public class TestUvmBasics extends TestCase {
 				null) ;
 
 	}				
+	
+	public void testParse() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		String tlm2_generic_payload = "${workspace_loc}/src/tlm2/uvm_tlm2_generic_payload.svh";
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);		
+	}
 			
-	public void doTestUVMExample(String 			testName, 
+	protected void doTestUVMExample(String 			testName, 
 								 File 				testDir, 
 								 File 				projDir, 
 								 String 			listFileContent, 

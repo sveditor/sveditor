@@ -573,12 +573,29 @@
                style="push">
          </action>
       </actionSet>
+      <actionSet
+            id="net.sf.sveditor.ui.svArgFileActions"
+            label="SV ArgFile Actions"
+            visible="false">
+         <action
+               definitionId="net.sf.sveditor.ui.argfile.editor.open.file"
+               id="net.sf.sveditor.ui.svArgFileOpenFile"
+               label="Open File"
+               retarget="true"
+               style="push">
+         </action>
+      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
       <context
             id="net.sf.sveditor.ui.svEditorContext"
             name="SVEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
+      <context
+            id="net.sf.sveditor.ui.svArgFileEditorContext"
+            name="SVArgFileEditor Context"
             parentId="org.eclipse.ui.textEditorScope">
       </context>
    </extension>
@@ -961,5 +978,22 @@ endclass
             SVEditor template settings, including template repository paths and template variables
          </description>
       </transfer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            contextId="net.sf.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open File"
+            id="net.sf.sveditor.ui.editor.argfile.open.file"
+            name="Open File">
+      </command>
    </extension>
 </plugin>

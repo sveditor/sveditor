@@ -26,7 +26,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	@Override
 	protected void createActions() {
 		super.createActions();
-		
+	
 		ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
 
 		OpenDeclarationAction od_action = new OpenDeclarationAction(bundle, this);
@@ -39,8 +39,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 
 	@Override
 	protected void initializeKeyBindingScopes() {
-		// TODO Auto-generated method stub
 		super.initializeKeyBindingScopes();
+		setKeyBindingScopes(new String[] {SVUiPlugin.PLUGIN_ID + ".svArgFileEditorContext"});
 	}
 
 

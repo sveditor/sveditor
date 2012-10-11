@@ -95,7 +95,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(

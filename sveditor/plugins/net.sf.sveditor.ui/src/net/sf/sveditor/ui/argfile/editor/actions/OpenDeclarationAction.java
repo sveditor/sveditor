@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -54,6 +55,12 @@ public class OpenDeclarationAction extends TextEditorAction {
 	@Override
 	public void run() {
 		debug("OpenDeclarationAction.run()");
+		IDocument doc = getDocument();
+		ITextSelection sel = getTextSel();
+		int offset = sel.getOffset() + sel.getLength();
+		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset);
+		
+		
 
 		/*
 		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();
