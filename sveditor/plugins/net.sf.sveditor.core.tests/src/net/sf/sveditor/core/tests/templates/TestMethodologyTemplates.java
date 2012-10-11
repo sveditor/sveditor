@@ -54,7 +54,7 @@ public class TestMethodologyTemplates extends TestCase {
 
 	public void testUvmAgent() {
 		LogHandle log = LogFactory.getLogHandle("testUvmAgent");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		TemplateRegistry rgy = new TemplateRegistry(true);
 		TemplateInfo tmpl = rgy.findTemplate("org.uvmworld.uvm.uvm_agent");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -88,6 +88,7 @@ public class TestMethodologyTemplates extends TestCase {
 		
 		try {
 			PrintStream ps = new PrintStream(new File(fTmpDir, "test_agent_pkg.f"));
+			ps.println("+define+QUESTA");
 			ps.println("+incdir+./uvm/src");
 			ps.println("./uvm/src/uvm_pkg.sv");
 			ps.close();

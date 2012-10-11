@@ -95,7 +95,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
@@ -140,7 +140,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		String testname = "testProjectDefine";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 //		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
@@ -166,7 +166,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		String testname = "testProjectDefineChange";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 //		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);

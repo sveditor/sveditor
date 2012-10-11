@@ -37,7 +37,16 @@ public class InputStreamCopier {
 					fOut.write(data, 0, size);
 				}
 				fIn.close();
+				fIn = null;
 			} catch (IOException e) {}
+		
+			/*
+			if (fIn != null) {
+				try {
+					fIn.close();
+				} catch (IOException e) {}
+			}
+			 */
 		}
 
 		return new ByteArrayInputStream(fOut.toByteArray());

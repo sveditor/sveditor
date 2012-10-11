@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,21 +24,30 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
+import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.SVDBRefType;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -277,12 +288,135 @@ public class TestUvmBasics extends TestCase {
 				null) ;
 
 	}				
-	
-	public void testParse() {
+
+	public void testUVMIncludeRefs() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		String tlm2_generic_payload = "${workspace_loc}/src/tlm2/uvm_tlm2_generic_payload.svh";
+		LogHandle log = LogFactory.getLogHandle("testXbusExample");
 		
-		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);		
+		File test_dir = new File(fTmpDir, "testXbusExample");
+		if (test_dir.exists()) {
+			TestUtils.delete(test_dir);
+		}
+		test_dir.mkdirs();
+		
+		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
+		File uvm_src = new File(test_dir, "uvm/src");
+		
+		fProject = TestUtils.createProject("uvm", uvm_src);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+		index.setGlobalDefine("QUESTA", "");
+		
+		IndexTestUtils.assertNoErrWarn(log, index);
+		
+		for (String filename : index.getFileList(new NullProgressMonitor())) {
+			SVDBFileRefCollector finder = new SVDBFileRefCollector();
+			SVDBFile file = index.findFile(filename);
+			System.out.println("[VISIT FILE] " + filename);
+			finder.visitFile(file);
+			SVDBRefCacheEntry ref = finder.getReferences();
+		
+			for (SVDBRefType t : SVDBRefType.values()) {
+				System.out.println("    TYPE: " + t);
+				for (String n : ref.getRefSet(t)) {
+					System.out.println("        NAME: " + n);
+				}
+			}
+		}
+		
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testParseUvmTLM2GenericPayload() throws IOException {
+		String testname = "testParseUvmTLM2GenericPayload";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(new TestIndexCacheFactory(new File(fTmpDir, "db")));
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		
+		PrintStream ps;
+		File pdir = new File(fTmpDir, testname);
+		
+		fProject = TestUtils.createProject(testname, pdir);
+		
+		ps = new PrintStream(new File(pdir, testname + ".f"));
+		ps.println("+incdir+../uvm/src");
+		ps.println("+define+QUESTA");
+//		ps.println("../uvm/src/uvm_pkg.sv");
+		ps.println(testname + ".sv");
+		ps.close();
+		
+		ps = new PrintStream(new File(pdir, testname + ".sv"));
+		ps.println("`include \"uvm_macros.svh\"");
+		ps.println("class " + testname + ";");
+		ps.println("  function void do_record(uvm_recorder recorder);");
+		ps.println("	if (!is_recording_enabled())");
+		ps.println("		return;");
+		ps.println("	super.do_record(recorder);");
+		ps.println("	`uvm_record_field(\"address\",m_address)");
+		ps.println("	MARKER_PRE = 1;");
+		ps.println("	`uvm_record_field(\"command\",m_command.name())");
+		ps.println("	MARKER_POST = 1;");
+		ps.println("	`uvm_record_field(\"data_length\",m_length)");
+		ps.println("	`uvm_record_field(\"byte_enable_length\",m_length)");
+		ps.println("	`uvm_record_field(\"response_status\",m_response_status.name())");
+		ps.println("	`uvm_record_field(\"streaming_width\",m_streaming_width)");
+		ps.println("");
+		ps.println("	for (int i=0; i < m_length; i++)");
+		ps.println("		`uvm_record_field($sformatf(\"\\data[%0d] \", i), m_data[i])");
+		ps.println("");
+		ps.println("	for (int i=0; i < m_byte_enable_length; i++)");
+		ps.println("		`uvm_record_field($sformatf(\"\\byte_en[%0d] \", i), m_byte_enable[i])");
+		ps.println("");
+		ps.println("	foreach (m_extensions[ext])");
+		ps.println("		m_extensions[ext].record(recorder);");
+		ps.println("	endfunction");
+		ps.println("endclass");
+		ps.close();
+
+		AbstractSVDBIndex index = (AbstractSVDBIndex)rgy.findCreateIndex(
+				new NullProgressMonitor(), testname, 
+				"${workspace_loc}/" + testname + "/" + testname + ".f",
+				SVDBArgFileIndexFactory.TYPE, null);
+
+		SVPreProcessor pp = index.createPreProcScanner(
+				"${workspace_loc}/" + testname + "/" + testname + ".sv");
+		SVPreProcOutput pp_out = pp.preprocess();
+		
+		StringBuilder sb = new StringBuilder();
+		int ch, lineno=1;
+		
+		while ((ch = pp_out.get_ch()) != -1) {
+			
+			if (ch == '\n') {
+				log.debug(lineno + ": " + sb.toString());
+				lineno++;
+				sb.setLength(0);
+			} else {
+				sb.append((char)ch);
+			}
+		}
+		if (sb.length() > 0) {
+			log.debug(lineno + ": " + sb.toString());
+		}
+		
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(log, index);
 	}
 			
 	protected void doTestUVMExample(String 			testName, 

@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
@@ -228,8 +229,15 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 				SVDBFileTree inc = null;
 				String it_leaf = new File(((ISVDBNamedItem)it).getName()).getName();
 				if (!fMissingIncludes.contains(it_leaf)) {
+					if (fDebugEn) {
+						List<String> inc_f = context.getIncludedFiles();
+						fLog.debug("    There are " + ((inc_f != null)?inc_f.size():"null") + " included files");
+					}
 					for (String inc_s : context.getIncludedFiles()) {
 						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
+						if (fDebugEn) {
+							fLog.debug("    inc_s: " + inc_s + " -> " + inc_t);
+						}
 
 						if (inc_t != null) {
 							if (fDebugEn) {
@@ -254,8 +262,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 							}
 						}
 					} else {
-						fLog.error("Failed to find \"" + 
-								((ISVDBNamedItem)it).getName() + "\" in this-file-tree");
+						fLog.error("Failed to find \"" + SVDBItem.getName(it) + "\" in this-file-tree");
 						fMissingIncludes.add(it_leaf);
 						if (fDebugEn) {
 							for (String inc_s : context.getIncludedFiles()) {

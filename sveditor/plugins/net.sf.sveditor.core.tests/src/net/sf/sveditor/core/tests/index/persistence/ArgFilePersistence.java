@@ -76,6 +76,7 @@ public class ArgFilePersistence extends TestCase
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 
+		/*
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 		}
@@ -83,6 +84,7 @@ public class ArgFilePersistence extends TestCase
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
+		 */
 	}
 	
 	/*
@@ -235,7 +237,7 @@ public class ArgFilePersistence extends TestCase
 
 	public void testOvmWarningUnbalancedParen() throws DBFormatException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testOvmWarningUnbalancedParen";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		

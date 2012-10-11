@@ -1,6 +1,10 @@
 
 -- 1.0.1 Release --
 
+- #(nobug) - Correct a couple of places where paths were not being correctly
+  normalized (back-slashes converted to forward slashes). This resulted in 
+  some problems on the Windows platform.
+
 ------------------------------------------------------------------------------
 -- 1.0.0 Release --
 - #(enh) - Add Open Type dialog to assist in quickly and easily navigating 

@@ -93,6 +93,7 @@ public class TestIndexFileRefs extends TestCase {
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+		index.setGlobalDefine("QUESTA", "");
 		
 		IndexTestUtils.assertNoErrWarn(log, index);
 		
@@ -140,6 +141,7 @@ public class TestIndexFileRefs extends TestCase {
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+		index.setGlobalDefine("QUESTA", "");
 		
 		long index_build_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());

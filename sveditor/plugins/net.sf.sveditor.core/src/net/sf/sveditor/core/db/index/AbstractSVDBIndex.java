@@ -756,6 +756,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		String r_path = path;
 		SVDBFile ret = null;
+		if (fDebugEn) {
+			fLog.debug("--> findFile: " + path);
+		}
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 
 		for (String fmt : new String[] {null, 
@@ -809,6 +812,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 		 */
+		
+		if (fDebugEn) {
+			fLog.debug("--> findFile: " + path + " ret=" + ret);
+		}
 
 		return ret;
 	}
@@ -1286,7 +1293,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		String norm_path = null;
 
 		if (fDebugEn) {
-			fLog.debug("resolvePath: " + path_orig);
+			fLog.debug("--> resolvePath: " + path_orig);
 		}
 
 		// relative to the base location or one of the include paths
@@ -1336,11 +1343,22 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
 			}
 		}
+		
+		norm_path = (norm_path != null) ? norm_path : path_orig;
+		
+		if (fDebugEn) {
+			fLog.debug("<-- resolvePath: " + path_orig + " " + norm_path);
+		}
 
-		return (norm_path != null) ? norm_path : path_orig;
+		return norm_path;
 	}
 
 	private String resolveRelativePath(String base, String path) {
+		String ret = null;
+		if (fDebugEn) {
+			fLog.debug("--> resolveRelativePath: base=" + base + " path=" + path);
+		}
+		
 		// path = getResolvedBaseLocationDir() + "/" + path;
 		String norm_path = normalizePath(base + "/" + path);
 
@@ -1350,7 +1368,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 
 		if (fFileSystemProvider.fileExists(norm_path)) {
-			return norm_path;
+			ret = norm_path;
 		} else if (getBaseLocation().startsWith("${workspace_loc}")) {
 			// This could be a reference outside the workspace. Check
 			// whether we should reference this as a filesystem path
@@ -1379,13 +1397,19 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 
 			if (fDebugEn) {
-				fLog.debug("base_dir=" + base_dir);
+				fLog.debug("base_dir=" + ((base_dir != null)?base_dir.getFullPath().toOSString():null));
 			}
 
 			if (base_dir != null && base_dir.exists()) {
 				IPath base_dir_p = base_dir.getLocation();
 				if (base_dir_p != null) {
+					if (fDebugEn) {
+						fLog.debug("Location of base_dir: " + base_dir_p.toOSString());
+					}
 					File path_f_t = new File(base_dir_p.toFile(), path);
+					if (fDebugEn) {
+						fLog.debug("Checking if path exists: " + path_f_t.getAbsolutePath() + " " + path_f_t.exists());
+					}
 					try {
 						if (path_f_t.exists()) {
 							if (fDebugEn) {
@@ -1394,7 +1418,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 							}
 							norm_path = SVFileUtils.normalize(path_f_t
 									.getCanonicalPath());
-							return norm_path;
+							ret = norm_path;
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -1403,7 +1427,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 
-		return null;
+		if (fDebugEn) {
+			fLog.debug("<-- resolveRelativePath: base=" + base + " path=" + path + " ret=" + ret);
+		}
+		return ret;
 	}
 
 	protected String normalizePath(String path) {
