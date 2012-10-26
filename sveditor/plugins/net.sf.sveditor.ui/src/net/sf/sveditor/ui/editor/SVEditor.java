@@ -189,8 +189,10 @@ public class SVEditor extends TextEditor
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
-				fSVDBIndex.setFile(fSVDBFile);
-				fSVDBIndex.setFilePP(fSVDBFilePP);
+				if (fSVDBIndex != null) {
+					fSVDBIndex.setFile(fSVDBFile);
+					fSVDBIndex.setFilePP(fSVDBFilePP);
+				}
 
 				addErrorMarkers(markers);
 			}

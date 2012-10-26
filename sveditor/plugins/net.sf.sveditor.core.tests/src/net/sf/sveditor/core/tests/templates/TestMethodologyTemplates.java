@@ -88,6 +88,7 @@ public class TestMethodologyTemplates extends TestCase {
 		
 		try {
 			PrintStream ps = new PrintStream(new File(fTmpDir, "test_agent_pkg.f"));
+			ps.println("+define+QUESTA");
 			ps.println("+incdir+./uvm/src");
 			ps.println("./uvm/src/uvm_pkg.sv");
 			ps.close();
