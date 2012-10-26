@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -69,6 +70,8 @@ public class SVFilePropertyPage extends PropertyPage implements
 
 		// Determine how indexing is handled for this file
 		String file_path = "${workspace_loc}" + file.getFullPath().toOSString();
+		
+		file_path = SVFileUtils.normalize(file_path);
 		
 //		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();

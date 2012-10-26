@@ -23,6 +23,8 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -44,9 +46,11 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		IResourceChangeListener, IResourceDeltaVisitor {
 	
 	private List<Reference<ISVDBFileSystemChangeListener>>			fChangeListeners;
+	private LogHandle												fLog;
 	
 	public SVDBWSFileSystemProvider() {
 		fChangeListeners = new ArrayList<Reference<ISVDBFileSystemChangeListener>>();
+		fLog = LogFactory.getLogHandle("SVDBWSFileSystemProvider");
 	}
 	
 	public void init(String path) {
@@ -303,6 +307,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	
 	public String resolvePath(String path, String fmt) {
 		boolean ws_path = path.startsWith("${workspace_loc}");
+		
+		fLog.debug("--> resolvePath path=" + path + " fmt=" + fmt);
 
 		if (ws_path) {
 			// Trim workspace_loc off so we can recognize when we've reached the root
@@ -384,7 +390,11 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 				path = "${workspace_loc}" + path;
 			}
 		}
+	
+		// Ensure we properly use forward slashes
+		path = SVFileUtils.normalize(path);
 		
+		fLog.debug("<-- resolvePath path=" + path + " fmt=" + fmt);
 		return path;
 	}
 	

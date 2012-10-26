@@ -79,7 +79,7 @@ public class IndexTests extends TestSuite {
 		TestCase.assertEquals("Failed to find " + name, 1, result.size());
 		SVDBDeclCacheItem item_c = result.get(0);
 		TestCase.assertNotNull(item_c.getSVDBItem());
-		TestCase.assertEquals("item is not of type " + type, item_c.getSVDBItem().getType());
+		TestCase.assertEquals("item is not of type " + type, type, item_c.getSVDBItem().getType());
 	}
 
 }

@@ -23,6 +23,7 @@ public class SVToken {
 	protected boolean						fIsTime;
 	protected boolean						fIsIdentifier;
 	protected boolean						fIsKeyword;
+	protected boolean						fIsPath;
 	protected SVDBLocation					fStartLocation;
 
 	public SVToken duplicate() {
@@ -34,6 +35,7 @@ public class SVToken {
 		ret.fIsTime        = fIsTime;
 		ret.fIsIdentifier  = fIsIdentifier;
 		ret.fIsKeyword     = fIsKeyword;
+		ret.fIsPath        = fIsPath;
 		ret.fStartLocation = fStartLocation.duplicate();
 		
 		return ret;
@@ -51,6 +53,10 @@ public class SVToken {
 		return fIsOperator;
 	}
 	
+	public boolean isPath() {
+		return fIsPath;
+	}
+	
 	/**
 	 * Return is true when the number is
 	 * a time constant
@@ -59,6 +65,10 @@ public class SVToken {
 	 */
 	public boolean isTime() {
 		return fIsTime;
+	}
+	
+	public boolean isString() {
+		return fIsString;
 	}
 	
 	public boolean isKeyword() {

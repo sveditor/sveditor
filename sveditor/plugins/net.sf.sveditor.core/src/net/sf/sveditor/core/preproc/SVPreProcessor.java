@@ -568,6 +568,9 @@ public class SVPreProcessor extends AbstractTextScanner {
 				try {
 					fInBufferMax = fInput.read(fInBuffer, 0, fInBuffer.length);
 					fInBufferIdx = 0;
+					if (fInBufferMax <= 0) {
+						fInput.close();
+					}
 				} catch (IOException e) {}
 			}
 			if (fInBufferIdx < fInBufferMax) {
