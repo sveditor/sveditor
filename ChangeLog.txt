@@ -4,6 +4,8 @@
 - #(nobug) - Correct a couple of places where paths were not being correctly
   normalized (back-slashes converted to forward slashes). This resulted in 
   some problems on the Windows platform.
+  
+- #(3579865) - Corrected a parse bug involving clocking blocks
 
 ------------------------------------------------------------------------------
 -- 1.0.0 Release --

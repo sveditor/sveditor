@@ -92,6 +92,27 @@ public class TestParserSVStdExamples extends TestCase {
 				"/data/parser/13.5.4_tf_1.svh", 
 				new String[] {"c"});
 	}
+	
+	public void test_14_3_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_14_3_1", 
+				"/data/parser/14.3_1.svh", 
+				new String[] {"t"});
+	}
+	
+	public void test_14_4_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_14_4_1", 
+				"/data/parser/14.4_1.svh", 
+				new String[] {"t"});
+	}
+	
+	public void test_14_5_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest("test_14_5_1", 
+				"/data/parser/14.5_1.svh", 
+				new String[] {"t"});
+	}
 
 	public void test_16_3_0_assert_1() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
