@@ -1,4 +1,12 @@
 
+-- 1.0.2 Release --
+
+- #(nobug) - Improve performance of pre-processor when files contain many
+  references to undefined macros.
+  
+- #(3554076) - Correct parsing of specify-if statements
+
+------------------------------------------------------------------------------
 -- 1.0.1 Release --
 
 - #(nobug) - Correct a couple of places where paths were not being correctly
