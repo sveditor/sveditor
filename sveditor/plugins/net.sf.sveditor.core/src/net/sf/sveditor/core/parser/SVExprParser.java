@@ -271,6 +271,32 @@ public class SVExprParser extends SVParserBase {
 		return expr;
 	}
 	
+	public SVDBExpr path_delay_value() throws SVParseException {
+		boolean in_parens = fLexer.peekOperator("(");
+		
+		if (in_parens) {
+			fLexer.eatToken();
+		}
+
+		while (fLexer.peek() != null) {
+			expression();
+			
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
+		}
+
+		
+		if (in_parens) {
+			fLexer.readOperator(")");
+		}
+	
+		// TODO:
+		return null;
+	}
+	
 	private SVDBExpr delay_value() throws SVParseException {
 		SVDBExpr ret = null;
 		if (fDebugEn) {debug("--> delay_value() : " + fLexer.peek());}

@@ -387,6 +387,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * @param state
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor super_monitor, int state) {
+		long start_time=0, end_time=0;
 		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 		if (fIndexState < IndexState_RootFilesDiscovered
@@ -394,6 +395,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			if (fDebugEn) {
 				fLog.debug("Moving index to state RootFilesDiscovered from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			discoverRootFiles(m);
@@ -401,23 +403,34 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fCache.sync();
 			fIndexState = IndexState_RootFilesDiscovered;
 			fIsDirty = false;
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to RootFilesDiscovered: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
 			if (fDebugEn) {
 				fLog.debug("Moving index to state FilesPreProcessed from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			preProcessFiles(m);
 			fIndexState = IndexState_FilesPreProcessed;
 			fIsDirty = false;
+			
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to FilesPreProcessed: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
 			if (fDebugEn) {
 				fLog.debug("Moving index to state FileTreeValid from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			buildFileTree(m);
@@ -426,9 +439,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			propagateAllMarkers();
 			notifyIndexRebuilt();
 			fIsDirty = false;
+			
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to FileTreeValid: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
+			if (fDebugEn) {
+				start_time = System.currentTimeMillis();
+			}
+			
 			if (fCacheDataValid) {
 				SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 				fCache.initLoad(m);
@@ -447,6 +469,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						}
 					}
 				}
+			}
+			
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MID, "Move to AllFilesParsed: " + (end_time-start_time));
 			}
 		}
 	
