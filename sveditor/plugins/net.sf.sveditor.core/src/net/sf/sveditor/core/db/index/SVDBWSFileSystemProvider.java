@@ -56,26 +56,36 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 	public void init(String path) {
 		IFile 		file;
 		IContainer 	folder = null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IWorkspaceRoot root = null;
+		boolean is_ws_path = false;
+		
+		try {
+			root = ResourcesPlugin.getWorkspace().getRoot();
+		} catch (IllegalStateException e) {
+			// workspace isn't open
+		}
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
+			is_ws_path = true;
 		}
 		
 		try {
-			folder = root.getFolder(new Path(path));
+			if (is_ws_path) {
+				folder = root.getFolder(new Path(path));
 
-			if (!folder.exists()) {
-				file = root.getFile(new Path(path));
-				folder = file.getParent();
-				
 				if (!folder.exists()) {
-					folder = null;
+					file = root.getFile(new Path(path));
+					folder = file.getParent();
+
+					if (!folder.exists()) {
+						folder = null;
+					}
 				}
 			}
 		} catch (IllegalArgumentException e) {} // Happens when the folder is a project
 		
-		if (folder == null) {
+		if (folder == null && root != null) {
 			// Try looking at open projects
 			String pname = path;
 			
@@ -98,8 +108,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 				folder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) { }
 		}
-		
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);		
+
+		if (root != null) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		}
 	}
 
 	public void addMarker(

@@ -16,10 +16,12 @@ import java.io.File;
 import java.net.URL;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -177,6 +179,42 @@ public class TestParserPerf extends TestCase {
 		assertEquals("No errors", 0, errors.size());
 		 */
 	}	
+
+	public void testManyIfdefs() {
+	
+		SVCorePlugin.testInit();
+		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+		
+		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
+		System.out.println("plugin_class: " + plugin_class.toExternalForm());
+		String path = plugin_class.toExternalForm();
+		path = path.substring("file:".length());
+		path = path.substring(0, path.length()-(cls_path.length()+"/class/".length()));
+		
+		File proj_zip = new File(new File(path), "/data/performance/many_ifdefs/ProjectIncdir.zip");
+
+		TestUtils.unpackZipToFS(proj_zip, fTmpDir);
+
+		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
+		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
+		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+	
+		File project_incdir = new File(fTmpDir, "ProjectIncdir");
+		File project_incdir_f = new File(project_incdir, "ProjectIncdir.f");
+		
+		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
+				project_incdir_f.getAbsolutePath(), 
+				SVDBArgFileIndexFactory.TYPE,
+				factory, 
+				null);
+		
+		long fullparse_start = System.currentTimeMillis();
+		index.loadIndex(new NullProgressMonitor());
+		long fullparse_end = System.currentTimeMillis();
+		
+		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+	}
 	
 	public void testOpenSparc() {
 		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
