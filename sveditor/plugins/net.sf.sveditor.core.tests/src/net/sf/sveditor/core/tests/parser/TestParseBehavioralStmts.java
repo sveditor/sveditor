@@ -204,6 +204,26 @@ public class TestParseBehavioralStmts extends TestCase {
 				new String[] { "c", "foo", "bar" });
 	}
 	
+	public void testAssertBodyTFDottedArgs() {
+		String testname = "testAssertBodyTFDottedArgs";
+		String doc = 
+				"module m;\n" +
+				"function bit test_assert(int arg1, int arg2);\n" +
+				" return 0;\n" +
+				" endfunction\n" +
+				"\n" +
+				" initial begin\n" +
+				" assert(test_assert(0, 1)); //ok\n" +
+				" assert(test_assert(0, .arg2(1))); // not ok -- unexpected .\n" +
+				" end\n" +
+				"endmodule\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest(testname, doc, 
+				new String[] { "m", "test_assert"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

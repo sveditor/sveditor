@@ -1254,27 +1254,38 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public List<SVDBExpr> arguments() throws SVParseException {
+		List<SVDBExpr> arguments = null;
+		
 		if (fDebugEn) {debug("--> arguments()");}
 		fLexer.readOperator("(");
+	
+		// An argument list (tf-call) is neither an assertion nor an event context
+		fAssertionExpr.push(false);
+		fEventExpr.push(false);
+	
+		try {
+			if (fLexer.peekOperator(")")) {
+				fLexer.eatToken();
+				return new ArrayList<SVDBExpr>();
+			}
 		
-		if (fLexer.peekOperator(")")) {
-			fLexer.eatToken();
-			return new ArrayList<SVDBExpr>();
+			arguments = argumentList();
+		
+			fLexer.readOperator(")");
+		} finally {
+			fAssertionExpr.pop();
+			fEventExpr.pop();
 		}
-		
-		List<SVDBExpr> arguments = argumentList();
-		
-		fLexer.readOperator(")");
-		
 		if (fDebugEn) {debug("<-- arguments()");}
 		return arguments;
 	}
 	
 	private List<SVDBExpr>  argumentList() throws SVParseException {
 		List<SVDBExpr> arguments = new ArrayList<SVDBExpr>();
-		if (fDebugEn) {debug("--> argumentList()");}
+		if (fDebugEn) {debug("--> argumentList() " + fLexer.peek());}
 		
 		for (;;) {
+			if (fDebugEn) {debug("   argument: " + fLexer.peek());}
 			if (fLexer.peekOperator(".")) {
 				// named argument
 				fLexer.eatToken();
@@ -1294,7 +1305,9 @@ public class SVExprParser extends SVParserBase {
 				// default value for this parameter
 				arguments.add(new SVDBLiteralExpr(""));
 			} else {
+				if (fDebugEn) {debug("   --> argument_expr " + fLexer.peek());}
 				arguments.add(expression());
+				if (fDebugEn) {debug("   <-- argument_expr " + fLexer.peek());}
 			}
 			
 			if (fLexer.peekOperator(",")) {

@@ -1,4 +1,10 @@
 
+-- 1.0.3 Release --
+
+- #(3552370) - Parse error when using a named-parameter reference within an assert statement
+
+
+------------------------------------------------------------------------------
 -- 1.0.2 Release --
 
 - #(nobug) - Improve performance of pre-processor when files contain many
