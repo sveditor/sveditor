@@ -56,6 +56,8 @@ import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -2062,6 +2064,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				} else {
 					fLog.debug("pkgname is null");
+				}
+			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)item;
+				
+				for (ISVDBChildItem ci : decl.getChildren()) {
+					SVDBVarDeclItem di = (SVDBVarDeclItem)ci;
+					fLog.debug(LEVEL_MID, "Adding var declaration: " + di.getName());
+					
+					if (decl_list != null) {
+						decl_list.add(new SVDBDeclCacheItem(this, filename, 
+							di.getName(), SVDBItemType.VarDeclItem, is_ft));
+					}
 				}
 			} else if (item.getType() == SVDBItemType.TypedefStmt) {
 				// Add entries for the typedef

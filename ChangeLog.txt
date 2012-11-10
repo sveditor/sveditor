@@ -3,6 +3,8 @@
 
 - #(3552370) - Parse error when using a named-parameter reference within an assert statement
 
+- #(3554653) - Correct bug preventing global/package variable declarations from appearing in 
+  content-assist results
 
 ------------------------------------------------------------------------------
 -- 1.0.2 Release --

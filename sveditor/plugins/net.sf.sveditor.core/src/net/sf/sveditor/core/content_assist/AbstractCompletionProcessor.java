@@ -873,13 +873,13 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			"\" returned no results");
 		}
 
-		// Try global task/function 
+		// Try global task/function/variables 
 		if (ctxt.fType != ContextType.Extends) {
 			SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
 
 			List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
 					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
-					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
+					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt, SVDBItemType.VarDeclItem);
 
 			// Remove any definitions of extern tasks/functions, 
 			// since the name prefix was incorrectly matched
