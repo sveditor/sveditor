@@ -5,6 +5,9 @@
 
 - #(3554653) - Correct bug preventing global/package variable declarations from appearing in 
   content-assist results
+  
+- #(3573724) - Correct 'Content Assist Shows Blank Item' issue. ModuleInst items were
+  being added to the proposal list in addition to ModuleInstItem items.
 
 ------------------------------------------------------------------------------
 -- 1.0.2 Release --
