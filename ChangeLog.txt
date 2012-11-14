@@ -1,6 +1,9 @@
 - #(nobug) - Outline view button fixup, the default states of buttons weren't being
 correctly on some buttons
 
+- #(nobug) - Captured names of generate statements if they are there.  This will make 
+  generate statements in the outline view more useful.
+
 -- 1.0.2 Release --
 - #(nobug) - Parser speedups surrounding missing `defines
 
