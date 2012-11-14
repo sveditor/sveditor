@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBCoverpoint;
 import net.sf.sveditor.core.db.SVDBCoverpointBins;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
+import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -100,7 +101,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		}
 
 		// Generate blocks
-		else if ((hide_generate_blocks == true) && (element instanceof SVDBGenerateBlock))  {
+		else if ((hide_generate_blocks == true) && ((element instanceof SVDBGenerateBlock) || (element instanceof SVDBGenerateIf)))  {
 			return false;
 		}
 		
