@@ -104,8 +104,11 @@ public class SVOutlinePage extends ContentOutlinePage
 		DefaultContentFilter.HideModuleInstances     (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
 		DefaultContentFilter.HideTaskFunctions       (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
 		DefaultContentFilter.HideVariableDeclarations(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
-	
-		
+		DefaultContentFilter.HideEnumTypedefs        (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ENUM_TYPEDEFS));
+		DefaultContentFilter.HideAssertionProperties (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSERTION_PROPERTIES));
+		DefaultContentFilter.HideCoverPointGroupCross(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS));
+		DefaultContentFilter.HideConstraints         (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS));
+
 		getTreeViewer().setContentProvider(fContentProvider);
 		getTreeViewer().addFilter(DefaultContentFilter);
 		// Check whether we have sorting enabled or not

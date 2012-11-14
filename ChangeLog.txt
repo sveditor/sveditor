@@ -1,3 +1,8 @@
+- #(nobug) - Outline view button fixup, the default states of buttons weren't being
+correctly on some buttons
+
+-- 1.0.2 Release --
+- #(nobug) - Parser speedups surrounding missing `defines
 
 -- 1.0.1 Release --
 
