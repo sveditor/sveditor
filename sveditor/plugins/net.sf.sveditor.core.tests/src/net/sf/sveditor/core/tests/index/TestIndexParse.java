@@ -184,7 +184,7 @@ public class TestIndexParse extends TestCase {
 		String testname = "testRecursiveIncludeParse";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		fProject = TestUtils.createProject("recursive_include", fTmpDir);
 		

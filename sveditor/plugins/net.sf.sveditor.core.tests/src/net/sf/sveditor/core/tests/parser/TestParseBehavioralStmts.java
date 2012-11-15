@@ -218,7 +218,7 @@ public class TestParseBehavioralStmts extends TestCase {
 				" end\n" +
 				"endmodule\n"
 				;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest(testname, doc, 
 				new String[] { "m", "test_assert"});

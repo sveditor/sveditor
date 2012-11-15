@@ -119,7 +119,7 @@ public class TestParseDataTypes extends TestCase {
 
 	/** TODO: Await clarification
 	public void testMultiDimRegArrayDecl() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testMultiDimWireArrayDecl";
 		String content =
 			"module m;\n" +

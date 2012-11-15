@@ -64,7 +64,8 @@ public class SVExprParser extends SVParserBase {
 	public static boolean					fUseFullExprParser = true;
 	private Stack<Boolean>					fEventExpr;
 	private Stack<Boolean>					fAssertionExpr;
-	private boolean							fEnableNameMappedPrimary = false;
+	private Stack<Boolean>					fArglistExpr;
+	private boolean						fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -72,6 +73,8 @@ public class SVExprParser extends SVParserBase {
 		fAssertionExpr.push(false);
 		fEventExpr = new Stack<Boolean>();
 		fEventExpr.push(false);
+		fArglistExpr = new Stack<Boolean>();
+		fArglistExpr.push(false);
 //		fExprDump = new SVExprDump(System.out);
 	}
 	
@@ -431,7 +434,8 @@ public class SVExprParser extends SVParserBase {
 			expr = new SVDBBinaryExpr(expr, "iff", expression());
 		}
 		
-		if (fEventExpr.peek() && fLexer.peekOperator(",")) {
+		if ((fEventExpr.peek() && !fArglistExpr.peek()) 
+				&& fLexer.peekOperator(",")) {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, ",", expression());
 		}
@@ -441,8 +445,9 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr hierarchical_identifier() throws SVParseException {
-		if (fDebugEn) {debug("--> hierarchical_identifier - " + fLexer.peek());}
 		SVDBExpr ret;
+		
+		if (fDebugEn) {debug("--> hierarchical_identifier - " + fLexer.peek());}
 		String id = fLexer.readId();
 		
 		if (fLexer.peekOperator(".","::")) {
@@ -451,7 +456,9 @@ public class SVExprParser extends SVParserBase {
 		} else {
 			ret = new SVDBIdentifierExpr(id);
 		}
+		
 		if (fDebugEn) {debug("<-- hierarchical_identifier - " + fLexer.peek());}
+		
 		return ret;
 	}
 	
@@ -1261,7 +1268,7 @@ public class SVExprParser extends SVParserBase {
 	
 		// An argument list (tf-call) is neither an assertion nor an event context
 		fAssertionExpr.push(false);
-		fEventExpr.push(false);
+		fArglistExpr.push(true);
 	
 		try {
 			if (fLexer.peekOperator(")")) {
@@ -1274,7 +1281,7 @@ public class SVExprParser extends SVParserBase {
 			fLexer.readOperator(")");
 		} finally {
 			fAssertionExpr.pop();
-			fEventExpr.pop();
+			fArglistExpr.pop();
 		}
 		if (fDebugEn) {debug("<-- arguments()");}
 		return arguments;

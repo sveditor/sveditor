@@ -63,7 +63,7 @@ public class TestContentAssistSystem extends TestCase {
 	public void testGlobalFieldRef() {
 		String testname = "testGlobalFieldRef";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc = 
 			"class c1;\n" +
@@ -94,7 +94,7 @@ public class TestContentAssistSystem extends TestCase {
 	public void testShadowSVBuiltinProjectFile() {
 		String testname = "testFindSVBuiltinProcessProject";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class c1;\n" +
@@ -132,7 +132,7 @@ public class TestContentAssistSystem extends TestCase {
 	public void testShadowSVBuiltinNonProjectFile() {
 		String testname = "testShadowSVBuiltinNonProjectFile";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class c1;\n" +

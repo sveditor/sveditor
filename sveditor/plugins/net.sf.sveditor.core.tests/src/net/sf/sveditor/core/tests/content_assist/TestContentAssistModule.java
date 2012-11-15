@@ -20,7 +20,7 @@ public class TestContentAssistModule extends TestCase {
 	
 	public void testModuleBlankItems() {
 		String testname = "testModuleBlankItems";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module m(a, b);\n" +
 			"    \n" +
