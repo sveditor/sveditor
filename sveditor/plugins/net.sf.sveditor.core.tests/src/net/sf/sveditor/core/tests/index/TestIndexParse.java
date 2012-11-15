@@ -25,6 +25,9 @@ import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -44,12 +47,23 @@ import org.eclipse.core.runtime.Path;
 public class TestIndexParse extends TestCase {
 	
 	private File					fTmpDir;
+	private IProject				fProject;
+	private BundleUtils				fUtils;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
+		fUtils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			db.delete();
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
 	}
 	
 	@Override
@@ -59,28 +73,27 @@ public class TestIndexParse extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+			fProject = null;
+		}
+		
 		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
+			if (fTmpDir.exists()) {
+				TestUtils.delete(fTmpDir);
+			}
 			fTmpDir = null;
 		}
 	}
 	
 	public void testWSLibIndexParse() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
 		IProject project_dir = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/project_dir/", project_dir);
+		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
@@ -96,19 +109,11 @@ public class TestIndexParse extends TestCase {
 	}
 
 	public void testWSArgFileIndexParse() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
 		IProject project_dir = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/project_dir/", project_dir);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
+		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
@@ -126,19 +131,11 @@ public class TestIndexParse extends TestCase {
 	}
 
 	public void testWSSourceCollectionIndexParse() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
 		IProject project_dir = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/project_dir/", project_dir);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
+		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
@@ -183,4 +180,27 @@ public class TestIndexParse extends TestCase {
 		}
 	}
 
+	public void testRecursiveIncludeParse() {
+		String testname = "testRecursiveIncludeParse";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		fProject = TestUtils.createProject("recursive_include", fTmpDir);
+		
+		fUtils.copyBundleDirToWS("/data/recursive_include", fProject);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), 
+				"recursive_include", 
+				"${workspace_loc}/recursive_include/recursive_include/recursive_include.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(log, index);
+		IndexTestUtils.assertFileHasElements(index,
+				"t1", "t2");
+	}
 }

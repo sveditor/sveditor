@@ -81,7 +81,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 			fFirstSearch = false;
 		}
 		if (fLastLineno < lineno) {
-			collectThisFileMacros(lineno);
+			Set<String> processed_paths = new HashSet<String>();
+			collectThisFileMacros(processed_paths, lineno);
 			fLastLineno = lineno;
 		}
 		
@@ -198,11 +199,12 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 		return false;
 	}
 	
-	private void collectThisFileMacros(int lineno) {
-		collectThisFileMacros(fContext, fContext.getSVDBFile(), lineno);
+	private void collectThisFileMacros(Set<String> processed_paths, int lineno) {
+		collectThisFileMacros(processed_paths, fContext, fContext.getSVDBFile(), lineno);
 	}
 	
 	private boolean collectThisFileMacros(
+			Set<String>				processed_paths,
 			SVDBFileTree			context,
 			ISVDBScopeItem 			scope, 
 			int 					lineno) {
@@ -211,7 +213,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					it.getLocation().getLine() > lineno && lineno != -1) {
 				return false;
 			} else if (it instanceof ISVDBScopeItem) {
-				if (!collectThisFileMacros(context, (ISVDBScopeItem)it, lineno)) {
+				if (!collectThisFileMacros(processed_paths, context, (ISVDBScopeItem)it, lineno)) {
 					return false;
 				}
 			} else if (it.getType() == SVDBItemType.MacroDef) {
@@ -255,7 +257,11 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 					if (inc != null) {
 						if (inc.getSVDBFile() != null) {
 							// Collect all macros
-							collectThisFileMacros(inc, inc.getSVDBFile(), -1);
+							String path = inc.getSVDBFile().getFilePath();
+							if (!processed_paths.contains(path)) {
+								processed_paths.add(path);
+								collectThisFileMacros(processed_paths, inc, inc.getSVDBFile(), -1);
+							}
 						} else {
 							if (fDebugEn) {
 								fLog.debug("Include file \"" + inc.getFilePath() + "\" missing");
