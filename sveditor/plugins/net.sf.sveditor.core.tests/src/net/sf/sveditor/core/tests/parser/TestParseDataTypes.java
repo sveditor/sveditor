@@ -117,18 +117,24 @@ public class TestParseDataTypes extends TestCase {
 				new String[] {"m", "V1", "V2", "V3"});
 	}
 
+	/** TODO: Await clarification
 	public void testMultiDimRegArrayDecl() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String testname = "testMultiDimWireArrayDecl";
 		String content =
 			"module m;\n" +
-			"	reg [3:0][7:0] fred;\n" +
+			"	wire [3:0][7:0] fred;\n" +
 			"endmodule\n" +
 			"\n" +
 			"class c;\n" +
-			"	reg [3:0][7:0] barney;\n" +
+			"	wire [3:0][7:0] barney;\n" +
+			"\n" +
 			"	task tf;\n" +
 			"		reg [3:0][7:0] wilma;\n" +
+			"	endtask\n" +
+			"\n" +
+			"	function void f;\n" +
+			"		wire [3:0][7:0] wilma;\n" +
 			"	endtask\n" +
 			"endclass\n"
 			;
@@ -136,6 +142,7 @@ public class TestParseDataTypes extends TestCase {
 		runTest(testname, content,
 				new String[] {"m", "c", "fred", "barney", "tf"});
 	}
+	 */
 
 	public void testPackedEnumArrayDecl() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);

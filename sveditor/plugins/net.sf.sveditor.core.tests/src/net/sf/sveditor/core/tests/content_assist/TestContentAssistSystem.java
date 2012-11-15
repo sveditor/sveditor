@@ -1,14 +1,23 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -18,6 +27,8 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+
+import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
 
 import junit.framework.TestCase;
 
@@ -79,5 +90,87 @@ public class TestContentAssistSystem extends TestCase {
 		
 		LogFactory.removeLogHandle(log);		
 	}
+	
+	public void testShadowSVBuiltinProjectFile() {
+		String testname = "testFindSVBuiltinProcessProject";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc =
+			"class c1;\n" +
+			"	int				my_q[$];\n" +
+			"	function void foo;\n" +
+			"		my_q.s<<MARK>>\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
 
+		fProject = TestUtils.createProject("project");
+		
+		fUtils.copyBundleDirToWS("/data/content_assist/simple_proj/", fProject);
+		
+		TestUtils.copy(
+				"class c1;\n" +
+				"endclass\n",
+				fProject.getFile("simple_proj/c1.svh"));
+
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
+				"${workspace_loc}/project/simple_proj/c1.svh", 
+				"project", 
+				true);
+		
+		assertNotNull(result);
+		assertNotNull(result.first());
+		assertNotNull(result.second());
+		
+		ContentAssistTests.runTest(testname, doc, result.second(), 
+				"size");
+		
+		LogFactory.removeLogHandle(log);		
+	}
+
+	public void testShadowSVBuiltinNonProjectFile() {
+		String testname = "testShadowSVBuiltinNonProjectFile";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String doc =
+			"class c1;\n" +
+			"	int				my_q[$];\n" +
+			"	function void foo;\n" +
+			"		my_q.s<<MARK>>\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+
+		fProject = TestUtils.createProject("project");
+		
+		fUtils.copyBundleDirToWS("/data/content_assist/simple_proj/", fProject);
+	
+		File c1 = new File(fTmpDir, "c1.svh");
+		TestUtils.copy(
+				"class c1;\n" +
+				"endclass\n",
+				c1);
+
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
+				c1.getAbsolutePath(),
+				null,
+				true);
+		
+		assertNotNull(result);
+		assertNotNull(result.first());
+		assertNotNull(result.second());
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = new SVDBFile(c1.getAbsolutePath());
+		
+		SVDBFileOverrideIndex index = new SVDBFileOverrideIndex(
+				file, null, result.first(), result.second(), markers);
+		
+		ContentAssistTests.runTest(testname, doc, index, "size");
+		
+		LogFactory.removeLogHandle(log);		
+	}
+	
 }

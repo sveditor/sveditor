@@ -8,6 +8,8 @@
   
 - #(3573724) - Correct 'Content Assist Shows Blank Item' issue. ModuleInst items were
   being added to the proposal list in addition to ModuleInstItem items.
+  
+- #(3582495) - Correct bug in the pre-processor's handling of recursively-included files
 
 ------------------------------------------------------------------------------
 -- 1.0.2 Release --
