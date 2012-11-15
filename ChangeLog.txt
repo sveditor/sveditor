@@ -1,4 +1,7 @@
 
+-- 1.0.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.0.3 Release --
 
 - #(3552370) - Parse error when using a named-parameter reference within an assert statement
