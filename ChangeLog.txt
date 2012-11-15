@@ -1,11 +1,3 @@
-- #(nobug) - Outline view button fixup, the default states of buttons weren't being
-correctly on some buttons
-
-- #(nobug) - Captured names of generate statements if they are there.  This will make 
-  generate statements in the outline view more useful.
-
--- 1.0.2 Release --
-- #(nobug) - Parser speedups surrounding missing `defines
 
 -- 1.0.3 Release --
 
@@ -18,6 +10,12 @@ correctly on some buttons
   being added to the proposal list in addition to ModuleInstItem items.
   
 - #(3582495) - Correct bug in the pre-processor's handling of recursively-included files
+
+- #(nobug) - Outline view button fixup, the default states of buttons weren't being
+  correctly on some buttons
+
+- #(nobug) - Captured names of generate statements if they are there.  This will make 
+  generate statements in the outline view more useful.
 
 ------------------------------------------------------------------------------
 -- 1.0.2 Release --
