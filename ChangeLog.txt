@@ -1,3 +1,5 @@
+- #(3566347) Tab behavior when pasting code, which is auto-indented
+
 - #(nobug) - Outline view button fixup, the default states of buttons weren't being
 correctly on some buttons
 
