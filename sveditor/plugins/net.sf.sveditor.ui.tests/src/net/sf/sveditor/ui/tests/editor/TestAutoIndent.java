@@ -70,10 +70,12 @@ public class TestAutoIndent extends TestCase {
 			"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
 			"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 			"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-			"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n"
+			"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"endmodule\n"
 			;
-
+		// Type & then paste, to make sure that what we type, and what we get are identical!
 		tester.type(content);
+		tester.paste(content);
 		
 		String result = tester.getContent();
 		
@@ -96,11 +98,73 @@ public class TestAutoIndent extends TestCase {
 			"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
 			"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 			"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-			"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n"
+			"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"endmodule\n"
 			;
 		
 		System.out.println("Result:\n" + result);
-		IndentComparator.compare("testBasicIndent", expected, result);
+		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
+		// to the result when we paste
+		IndentComparator.compare("testBasicIndent", expected+expected, result);
+	}
+	
+	public void testAutoIndentInitial() throws BadLocationException {
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		String content = 
+				"module foo;\n" +
+						"initial begin\n" +
+						"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"end\n" +
+						"initial\n" +
+						"begin\n" +
+						"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"end\n" +
+						"initial\n" +
+						"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"endmodule\n"
+						;
+		// Type & then paste, to make sure that what we type, and what we get are identical!
+		tester.type(content);
+		tester.paste(content);
+		
+		String result = tester.getContent();
+		
+		String expected = 
+				"module foo;\n" +
+						"	initial begin\n" +
+						"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"	end\n" +
+						"	initial\n" +
+						"	begin\n" +
+						"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"	end\n" +
+						"	initial\n" +
+						"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"endmodule\n"
+						;
+		
+		System.out.println("Result:\n" + result);
+		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
+		// to the result when we paste
+		IndentComparator.compare("testAutoIndentInitial", expected+expected, result);
 	}
 	
 	public void testAutoPostSingleComment() throws BadLocationException {
@@ -129,11 +193,12 @@ public class TestAutoIndent extends TestCase {
 
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(content);
+		tester.paste(content);
 		
 		String result = tester.getContent();
 		
 		System.out.println("Result:\n" + result);
-		IndentComparator.compare("testBasicIndent", expected, result);
+		IndentComparator.compare("testBasicIndent", expected+expected, result);
 	}
 
 	public void testPaste() throws BadLocationException {
@@ -180,19 +245,21 @@ public class TestAutoIndent extends TestCase {
 		String expected = 
 			"module t();\n" +
 			"	logic a;\n" +
-			"endmodule\n" +
+			"endmodule\n";
+		String expected_text = 
 			"	logic a;\n" 
 			;
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
-		tester.setCaretOffset(first.length());
+		tester.paste(first);		// Paste to make sure we get an identical result to when we type stuff
+		tester.setCaretOffset(first.length()*2+1);
 		tester.paste(text);
 		
 		String content = tester.getContent();
 
 		System.out.println("content=\"" + content + "\"");
-		IndentComparator.compare("testPasteModule", expected, content);
+		IndentComparator.compare("testPasteModule", expected+expected+expected_text, content);
 	}
 	
 	public void testPasteAlwaysComb() throws BadLocationException {
@@ -261,11 +328,12 @@ public class TestAutoIndent extends TestCase {
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(content);
+		tester.paste(content);	// make sure that if we paste the same code, that we get the same if we had typed it
 		
 		String result = tester.getContent();
 
 		System.out.println("Result:\n" + result);
-		IndentComparator.compare("testModuleWires", expected, result);
+		IndentComparator.compare("testModuleWires", expected+expected, result);
 	}
 
 	public void testModuleWiresPastePost() throws BadLocationException {
