@@ -1215,8 +1215,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
 		if (tok.isOp(":")) {
-			tok = next_s();
-			tok = next_s();
+			tok = next_s();		// consume the label
+			tok = next_s();		// now move token to the next identifier ... 
 		}
 		return tok;
 	}
