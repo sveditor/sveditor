@@ -53,11 +53,24 @@ public class TestAutoIndent extends TestCase {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		String content = 
 			"module foo;\n" +
+			"always @(posedge clk) begin\n" +
+			"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"end\n" +
+			"always @(posedge clk)\n" +
+			"begin\n" +
+			"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"end\n" +
 			"always @(posedge clk)\n" +
 			"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
 			"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 			"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-			"else if"
+			"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n"
 			;
 
 		tester.type(content);
@@ -66,11 +79,24 @@ public class TestAutoIndent extends TestCase {
 		
 		String expected = 
 			"module foo;\n" +
+			"	always @(posedge clk) begin\n" +
+			"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"	end\n" +
+			"	always @(posedge clk)\n" +
+			"	begin\n" +
+			"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+			"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+			"	end\n" +
 			"	always @(posedge clk)\n" +
 			"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
 			"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 			"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-			"		else if"
+			"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n"
 			;
 		
 		System.out.println("Result:\n" + result);
@@ -375,13 +401,13 @@ public class TestAutoIndent extends TestCase {
 			"	end\n" +
 			"\n" +
 			"	if (foo)\n" +
-			"		begin\n" +
-			"			a = 5;\n" +
-			"		end\n" +
+			"	begin\n" +
+			"		a = 5;\n" +
+			"	end\n" +
 			"	else\n" +
-			"		begin\n" +
-			"			b = 6;\n" +
-			"		end\n" +
+			"	begin\n" +
+			"		b = 6;\n" +
+			"	end\n" +
 			"endmodule\n"
 			;
 		
