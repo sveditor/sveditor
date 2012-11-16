@@ -65,6 +65,7 @@ public class TestOvmBasics extends TestCase {
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		
 		if (fTmpDir != null && fTmpDir.exists()) {

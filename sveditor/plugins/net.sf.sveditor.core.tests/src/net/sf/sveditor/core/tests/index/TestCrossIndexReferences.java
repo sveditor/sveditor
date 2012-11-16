@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -23,11 +24,13 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
@@ -37,16 +40,29 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestCrossIndexReferences extends TestCase {
 	private File				fTmpDir;
+	private List<IProject>		fProjects;
 	
 	@Override
 	protected void setUp() throws Exception {
+		fProjects = new ArrayList<IProject>();
 		fTmpDir = TestUtils.createTempDir();
 		CoreReleaseTests.clearErrors();
+		
+		File db = new File(fTmpDir, "db");
+		TestCase.assertTrue(db.mkdirs());
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-//		TestUtils.delete(fTmpDir);
+		for (IProject p : fProjects) {
+			TestUtils.deleteProject(p);
+		}
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
@@ -57,10 +73,13 @@ public class TestCrossIndexReferences extends TestCase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
+		fProjects.add(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
+		fProjects.add(p2);
+		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});
 		p2.setDescription(p2_desc,  new NullProgressMonitor());
@@ -97,10 +116,13 @@ public class TestCrossIndexReferences extends TestCase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
+		fProjects.add(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
+		fProjects.add(p2);
+		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});
 		p2.setDescription(p2_desc,  new NullProgressMonitor());
@@ -141,10 +163,13 @@ public class TestCrossIndexReferences extends TestCase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
+		fProjects.add(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
+		fProjects.add(p2);
+		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});
 		p2.setDescription(p2_desc,  new NullProgressMonitor());

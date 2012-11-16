@@ -457,8 +457,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 			
 			if (ch == '"') {
 				String inc = readString_ll(ch);
-				
-				inc = inc.substring(1, inc.length()-1);
+
+				if (inc.length() >= 2) {
+					inc = inc.substring(1, inc.length()-1);
+				}
 				
 				fLog.debug("Include: last char=\"" + inc.charAt(inc.length()-1) + "\"");
 				

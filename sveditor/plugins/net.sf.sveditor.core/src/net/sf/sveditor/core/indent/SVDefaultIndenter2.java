@@ -280,7 +280,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			boolean begin_is_start_line = tok.isStartLine();
 			
 			if (begin_is_start_line) {
-				enter_scope(tok);
+				leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 				start_of_scope(tok);
 			}
 			
@@ -297,18 +297,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				if (tok.isId("end")) {
 					leave_scope(tok);
-					if (begin_is_start_line) {
-						leave_scope();
-					}
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
 					tok = next_s();
-					// TODO: Why does setting indent here cause 
-					// new-line positioning of 'begin' to work properly?
-					if (begin_is_start_line) {
-						set_indent(tok, false);
-					}
 					
 					tok = consume_labeled_block(tok);
 					break;
@@ -1223,8 +1215,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
 		if (tok.isOp(":")) {
-			tok = next_s();
-			tok = next_s();
+			tok = next_s();		// consume the label
+			tok = next_s();		// now move token to the next identifier ... 
 		}
 		return tok;
 	}
