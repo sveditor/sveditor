@@ -49,9 +49,11 @@ public class TestFindDocComments extends TestCase {
 	protected void tearDown() throws Exception {
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
+			fTmpDir = null;
 		}
 	}
 

@@ -72,7 +72,10 @@ public class TestContentAssistBuiltins extends TestCase {
 		super.tearDown();
 
 		fIndexRgy.save_state();
-		TestUtils.delete(fTmpDir);
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 	}
 
 	public void testCovergroupOption() {

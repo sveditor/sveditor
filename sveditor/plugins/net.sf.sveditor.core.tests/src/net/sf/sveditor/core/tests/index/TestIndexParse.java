@@ -78,10 +78,8 @@ public class TestIndexParse extends TestCase {
 			fProject = null;
 		}
 		
-		if (fTmpDir != null) {
-			if (fTmpDir.exists()) {
-				TestUtils.delete(fTmpDir);
-			}
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 	}

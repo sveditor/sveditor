@@ -234,15 +234,6 @@ public class TestUtils {
 			utils.copyBundleDirToWS(data_file, project);
 		}
 		
-		File db = new File(tmpdir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		TestCase.assertTrue(db.mkdirs());
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-	
 		return project;
 	}
 

@@ -58,7 +58,7 @@ public class ArgFilePersistence extends TestCase
 	implements ISVDBIndexChangeListener {
 	
 	private File					fTmpDir;
-	private int						fIndexRebuilt;
+	private int					fIndexRebuilt;
 	private IProject				fProject;
 
 	@Override
@@ -76,15 +76,14 @@ public class ArgFilePersistence extends TestCase
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 
-		/*
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
-		 */
 	}
 	
 	/*
@@ -308,6 +307,80 @@ public class ArgFilePersistence extends TestCase
 
 		LogFactory.removeLogHandle(log);
 	}
+	
+	public void testOvmErrorUnbalancedParen() throws DBFormatException {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testOvmErrorUnbalancedParen";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		File test_dir = new File(fTmpDir, testname);
+		if (test_dir.exists()) {
+			test_dir.delete();
+		}
+		test_dir.mkdirs();
+		
+		log.debug("test_dir: " + test_dir.getAbsolutePath());
+
+		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
+		utils.copyBundleDirToFS("/data/ovm_error_unbalanced_paren", test_dir);
+		File test_proj = new File(test_dir, "ovm_error_unbalanced_paren");
+		
+		assertTrue(test_proj.isDirectory());
+
+		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
+
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+
+		ISVDBIndex target_index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/ovm_error_unbalanced_paren/ovm_error_unbalanced_paren.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		
+		String path = "${workspace_loc}/ovm_error_unbalanced_paren/ovm_error_unbalanced_paren.svh";
+		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
+		SVPreProcessor pp = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		InputStream in = fs.openStream(path);
+
+		log.debug("--> Parse 1");
+		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null).second();
+		log.debug("<-- Parse 1");
+		
+		SVPreProcOutput pp_out = pp.preprocess();
+
+		StringBuilder tmp = new StringBuilder();
+		// Display the 
+		int line=1, ch;
+		tmp.append("" + line + ": ");
+		while ((ch = pp_out.get_ch()) != -1) {
+			tmp.append((char)ch);
+			bos.write((char)ch);
+			if (ch == '\n') {
+				line++;
+				tmp.append("" + line + ": ");
+			}
+		}
+		log.debug("PreProcessed Info:\n" + tmp.toString());
+		
+		in = new ByteArrayInputStream(bos.toByteArray());
+		log.debug("--> parse()");
+		file = target_index.parse(new NullProgressMonitor(), in, path, null).second();
+		log.debug("<-- parse()");
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		IndexTestUtils.assertNoErrWarn(log, target_index);
+
+		LogFactory.removeLogHandle(log);
+	}	
 
 	public void testWSArgFileTimestampChanged() {
 		ByteArrayOutputStream	 	out;

@@ -35,31 +35,41 @@ import org.eclipse.core.runtime.Path;
 
 public class WSArgFileIndexChanges extends TestCase {
 	
+	private File				fTmpDir;
+	private IProject			fProject;
+	
+	@Override
+	protected void setUp() throws Exception {
+		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
+	}
+
 	@Override
 	protected void tearDown() throws Exception {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
 	}
 
 	public void testArgFileChange() {
-		File tmpdir = TestUtils.createTempDir();
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		try {
-			int_testArgFileChange(tmpdir);
-		} catch (RuntimeException e) {
-			throw e;
-		} finally {
-			TestUtils.delete(tmpdir);
-		}
+		int_testArgFileChange(fTmpDir);
 	}
 	
 	private void int_testArgFileChange(File tmpdir) {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		final IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
 		File db = new File(tmpdir, "db");
 		if (db.exists()) {
@@ -107,7 +117,7 @@ public class WSArgFileIndexChanges extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		out = new ByteArrayOutputStream();
 		ps = new PrintStream(out);
@@ -118,7 +128,7 @@ public class WSArgFileIndexChanges extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/basic_lib.f")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
 
 		it = index.getItemIterator(new NullProgressMonitor());
 		class1_it = null;

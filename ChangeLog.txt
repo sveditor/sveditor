@@ -1,7 +1,9 @@
 
 -- 1.0.4 Release --
 
-- #(3566347) Tab behavior when pasting code, which is auto-indented
+- #(3566347) - Tab behavior when pasting code, which is auto-indented
+
+- #(3587919) - Correct issue with pre-processor interpreting parens in quoted strings
 
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
