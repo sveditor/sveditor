@@ -81,7 +81,7 @@ public class TestModelFactory extends TestCase {
 	
 	public void testUVM() throws IOException {
 		
-//		fDebug = true ;
+		fDebug = false ;
 		
 		String test_name = "testBasicExamplePkg" ;
 		String bundle_dir_name = "basic_uvm" ;

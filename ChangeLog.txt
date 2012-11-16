@@ -1,6 +1,8 @@
 
 -- 1.0.4 Release --
 
+- #(3566347) Tab behavior when pasting code, which is auto-indented
+
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
 
