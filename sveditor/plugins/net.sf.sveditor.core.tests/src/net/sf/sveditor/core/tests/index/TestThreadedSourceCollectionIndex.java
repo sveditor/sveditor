@@ -39,9 +39,10 @@ public class TestThreadedSourceCollectionIndex extends TestCase {
 	protected void tearDown() throws Exception {
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		
-		if (fTmpDir.exists()) {
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	}

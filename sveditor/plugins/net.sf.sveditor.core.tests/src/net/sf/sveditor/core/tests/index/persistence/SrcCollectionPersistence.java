@@ -40,13 +40,15 @@ import org.eclipse.core.runtime.Path;
 public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChangeListener {
 	
 	private File					fTmpDir;
-	private int						fIndexRebuildCnt;
+	private IProject				fProject;
+	private int					fIndexRebuildCnt;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 	
 	@Override
@@ -56,7 +58,11 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 		
-		if (fTmpDir != null) {
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
@@ -70,9 +76,9 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		
 		fIndexRebuildCnt = 0;
 		
-		IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -128,7 +134,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
@@ -151,7 +157,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		assertNotNull("located class1_2", target_it);
 		assertEquals("class1_2", SVDBItem.getName(target_it));
 		
-		TestUtils.deleteProject(project_dir);
+		TestUtils.deleteProject(fProject);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -159,9 +165,9 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSNoChange");
 		
-		IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -229,7 +235,7 @@ public class SrcCollectionPersistence extends TestCase implements ISVDBIndexChan
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		TestUtils.deleteProject(project_dir);
+		TestUtils.deleteProject(fProject);
 		LogFactory.removeLogHandle(log);
 	}
 

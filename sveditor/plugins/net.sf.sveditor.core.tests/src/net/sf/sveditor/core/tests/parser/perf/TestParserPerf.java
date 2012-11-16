@@ -42,7 +42,7 @@ public class TestParserPerf extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 //		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-//		TestUtils.delete(fTmpDir);
+		TestUtils.delete(fTmpDir);
 		// TODO Auto-generated method stub
 		super.tearDown();
 	}

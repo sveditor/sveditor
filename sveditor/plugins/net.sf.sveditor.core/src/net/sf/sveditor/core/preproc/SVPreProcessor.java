@@ -381,15 +381,23 @@ public class SVPreProcessor extends AbstractTextScanner {
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
 
-						int matchLevel=1;
+						// Read the parameter list
+						int matchLevel=1, last_ch = -1;
+						boolean in_string = false;
 
 						do {
 							ch = get_ch();
 
-							if (ch == '(') {
-								matchLevel++;
-							} else if (ch == ')') {
-								matchLevel--;
+							if (!in_string) {
+								if (ch == '(') {
+									matchLevel++;
+								} else if (ch == ')') {
+									matchLevel--;
+								} else if (ch == '\"' && last_ch != '\\') {
+									in_string = true;
+								}
+							} else if (ch == '\"' && last_ch != '\\') {
+								in_string = false;
 							}
 
 							if (ch != -1) {

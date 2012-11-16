@@ -61,10 +61,12 @@ public class TestArgFileIndex extends TestCase {
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		
 		if (fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
+			fTmpDir = null;
 		}
 	}
 

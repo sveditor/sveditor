@@ -12,10 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.Map;
-
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.log.LogFactory;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
