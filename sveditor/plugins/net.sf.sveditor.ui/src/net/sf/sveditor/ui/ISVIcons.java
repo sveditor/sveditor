@@ -28,7 +28,7 @@ public interface ISVIcons {
 	String COVERPOINT_OBJ = OBJ_ICONS + "coverpoint_16_16.gif";
 	String COVERPOINT_CROSS_OBJ = OBJ_ICONS + "coverpoint_cross_16_16.gif";
 	String SEQUENCE_OBJ = OBJ_ICONS + "sequence_16_16.gif";
-	String ASSERT_OBJ = OBJ_ICONS + "sequence_16_16.gif";		// TODO Create an ICON for assertions
+	String ASSERT_OBJ = OBJ_ICONS + "property_16_16.gif";		// TODO Create an ICON for assertions
 	String PROPERTY_OBJ  = OBJ_ICONS + "property_16_16.gif";
 	String MOD_IFC_INST_OBJ = OBJ_ICONS + "mod_ifc_inst.gif";
 	String LOCAL_OBJ        = OBJ_ICONS + "localvariable_obj.gif";
