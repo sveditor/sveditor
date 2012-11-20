@@ -1,6 +1,10 @@
+- #(nobug) Added icon for assertions in outline view - currently using Property icon, which is what
+           we use for the filter in the Outline view
+
 - #(3566347) Tab behavior when pasting code, which is auto-indented
    Generally cleaned up some of the auto-indenter behavior
 
+-- 1.0.3 Release --
 - #(nobug) - Outline view button fixup, the default states of buttons weren't being
 correctly on some buttons
 
