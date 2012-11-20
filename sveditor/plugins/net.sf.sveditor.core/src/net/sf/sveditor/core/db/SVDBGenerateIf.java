@@ -21,7 +21,8 @@ public class SVDBGenerateIf extends SVDBChildItem implements ISVDBAddChildItem {
 	public SVDBExpr		fExpr;
 	public ISVDBChildItem	fIfBody;
 	public ISVDBChildItem	fElseBody;
-	
+	public String			fName;
+
 	public SVDBGenerateIf() {
 		super(SVDBItemType.GenerateIf);
 	}

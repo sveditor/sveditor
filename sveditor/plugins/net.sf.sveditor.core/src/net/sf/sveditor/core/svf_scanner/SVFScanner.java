@@ -423,9 +423,11 @@ public class SVFScanner {
 						!Character.isWhitespace(ch)) {
 					tmp.append((char)ch);
 				}
-				
-				if(!tmp.toString().matches(".*\\.(c|h|cpp|hpp)$")){
-					fFilePaths.add(tmp.toString());
+			
+				String path = tmp.toString();
+				path = path.trim();
+				if(!path.matches(".*\\.(c|h|cpp|hpp)$")){
+					fFilePaths.add(path);
 				}
 			}
 		}

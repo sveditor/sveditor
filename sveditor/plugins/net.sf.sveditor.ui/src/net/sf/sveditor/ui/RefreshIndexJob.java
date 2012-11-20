@@ -21,6 +21,7 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -52,7 +53,7 @@ public class RefreshIndexJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (fIndexRebuildList) {
-			monitor.beginTask("Refreshing Indexes", fIndexRebuildList.size());
+			monitor.beginTask("Refreshing Indexes", 2*fIndexRebuildList.size());
 		}
 		
 		while (true) {
@@ -66,12 +67,15 @@ public class RefreshIndexJob extends Job {
 			}
 		
 			try {
-				SubProgressMonitor sub = new SubProgressMonitor(monitor, 1);
+				SubProgressMonitor sub;
+				sub = new SubProgressMonitor(monitor, 1);
+				index.rebuildIndex(sub);
 				index.loadIndex(sub);
 			} catch (Exception e) {
 				fLog.error("Exception during index refresh: " + e.getMessage(), e);
 			}
 		}
+		
 		monitor.done();
 		fParent.refreshJobComplete();
 		

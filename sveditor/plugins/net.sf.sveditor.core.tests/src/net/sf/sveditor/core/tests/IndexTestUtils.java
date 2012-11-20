@@ -90,7 +90,7 @@ public class IndexTestUtils {
 			ISVDBItemBase it = item_it.nextItem();
 			String name = SVDBItem.getName(it);
 			if (exp.contains(name)) {
-				TestCase.fail("Index contails \"" + name + "\"");
+				TestCase.fail("Index contains \"" + name + "\"");
 			}
 		}
 	}

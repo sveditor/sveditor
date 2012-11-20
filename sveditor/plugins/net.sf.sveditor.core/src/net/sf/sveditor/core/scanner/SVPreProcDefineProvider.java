@@ -13,8 +13,10 @@
 package net.sf.sveditor.core.scanner;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -168,6 +170,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			ch = scanner.skipWhite(scanner.get_ch());
 			
 			SVDBMacroDef m = fMacroProvider.findMacro(key, fLineno);
+			Set<String> referenced_macros = new HashSet<String>();
 			
 			if (m == null) {
 				error("macro \"" + key + "\" undefined");
@@ -228,7 +231,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				if (fDebugEn) {
 					debug("pre-expand: str=" + scanner.getStorage());
 				}
-				expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
+				expandMacroRefs(
+						new StringTextScanner(scanner, scanner.getOffset()),
+						referenced_macros);
 				if (fDebugEn) {
 					debug("post-expand: str=" + scanner.getStorage());
 				}
@@ -237,7 +242,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				
 				scanner_s = new StringTextScanner(scanner, 
 						macro_start, scanner.getOffset());
-				expandMacro(scanner_s, m, params);
+				expandMacro(scanner_s, m, params, referenced_macros);
 				
 				if (fDebugEn) {
 					debug("Expansion of " + m.getName() + " is: " +
@@ -251,7 +256,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				StringTextScanner scanner_s = new StringTextScanner(
 						scanner, macro_start, scanner.getOffset());
 				
-				expandMacro(scanner_s, m, null);
+				expandMacro(scanner_s, m, null, referenced_macros);
 				
 				scanner.seek(scanner_s.getOffset()-1);
 				
@@ -324,7 +329,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private void expandMacro(
 			StringTextScanner		scanner,
 			SVDBMacroDef 			m,
-			List<String> 			params_vals) {
+			List<String> 			params_vals,
+			Set<String>				referenced_params) {
 		boolean expand_params = (params_vals != null);
 		List<String> param_names = new ArrayList<String>();
 		
@@ -397,7 +403,13 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 
 		// Expand pre-processor references within the replacement
-		expandMacroRefs(new StringTextScanner(scanner));
+		if (!referenced_params.contains(m.getName())){ 
+			referenced_params.add(m.getName());
+			expandMacroRefs(new StringTextScanner(scanner), referenced_params);
+			referenced_params.remove(m.getName());
+		} else {
+			// TODO:
+		}
 		
 		if (fDebugEn) {
 			debug("    text=" + scanner.getStorage().toString());
@@ -501,6 +513,11 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			// Skip over the parameter-separator or the closing paren
 			debug("    Try Skip: next ch=" + (char)ch);
 			if (ch == ',' || ch == ')') {
+				if(ch == ')') {
+					//Last parameter parsed
+					ch = scanner.get_ch();
+					break;
+				}
 				ch = scanner.get_ch();
 			}
 		}
@@ -587,7 +604,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 	
-	private void expandMacroRefs(StringTextScanner scanner) {
+	private void expandMacroRefs(StringTextScanner scanner, Set<String> referenced_params) {
 		int ch;
 		int iteration = 0;
 		int marker = -1;
@@ -704,7 +721,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								if (fDebugEn) {
 									debug("    calling expandMacroRefs: \"" + scanner.getStorage().substring(scanner.getOffset()) + "\"");
 								}
-								expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()));
+								expandMacroRefs(new StringTextScanner(scanner, scanner.getOffset()), referenced_params);
 								sub_p = parse_params(sub_m, scanner);
 								ch = scanner.get_ch();
 							}
@@ -740,19 +757,27 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								scanner, m_start, m_end);
 						
 						if (sub_m != null) {
-							if (scanner.getOffset() > scanner.getLimit()) {
-								System.out.println("scanner offset > limit before sub-expand iteration "
-										+ iteration);
-								System.out.println("    sub-expand of " + sub_m.getName());
-							}
-							expandMacro(scanner_s, sub_m, sub_p);
-							
-							scanner.seek(scanner_s.getOffset()-1);
-							
-							if (scanner.getOffset() > scanner.getLimit()) {
-								System.out.println("scanner offset > limit after sub-expand iteration "
-										+ iteration);
-								System.out.println("    sub-expand of " + sub_m.getName());
+							if (!referenced_params.contains(key)) {
+								referenced_params.add(key);
+								if (scanner.getOffset() > scanner.getLimit()) {
+									System.out.println("scanner offset > limit before sub-expand iteration "
+											+ iteration);
+									System.out.println("    sub-expand of " + sub_m.getName());
+								}
+								expandMacro(scanner_s, sub_m, sub_p, referenced_params);
+								referenced_params.remove(key);
+
+								scanner.seek(scanner_s.getOffset()-1);
+
+								if (scanner.getOffset() > scanner.getLimit()) {
+									System.out.println("scanner offset > limit after sub-expand iteration "
+											+ iteration);
+									System.out.println("    sub-expand of " + sub_m.getName());
+								}
+							} else {
+								if (fDebugEn) {
+									debug("Macro \"" + key + "\" being recursively referenced");
+								}
 							}
 						} else {
 							if (fDebugEn) {

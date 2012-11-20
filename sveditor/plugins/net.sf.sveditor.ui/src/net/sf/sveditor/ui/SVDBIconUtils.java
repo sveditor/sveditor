@@ -52,12 +52,15 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.InitialStmt, INITIAL_OBJ);
 		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
+		fImgDescMap.put(SVDBItemType.GenerateIf, GENERATE_OBJ);
+		fImgDescMap.put(SVDBItemType.GenerateFor, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.ClockingBlock, CLOCKING_OBJ);
 		fImgDescMap.put(SVDBItemType.ImportItem, IMPORT_OBJ);
 		fImgDescMap.put(SVDBItemType.ModIfcInst, MOD_IFC_INST_OBJ);
 		fImgDescMap.put(SVDBItemType.ModIfcInstItem, MOD_IFC_INST_OBJ);
 		fImgDescMap.put(SVDBItemType.VarDeclItem, FIELD_PUB_OBJ);
 		fImgDescMap.put(SVDBItemType.Task, TASK_PUB_OBJ);
+		fImgDescMap.put(SVDBItemType.TypedefStmt, ENUM_TYPE_OBJ);
 	}
 	
 	public static Image getIcon(String key) {

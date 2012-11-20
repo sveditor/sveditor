@@ -98,8 +98,8 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 		fFSProvider.removeFileSystemChangeListener(l);
 	}
 
-	public String resolvePath(String path) {
-		return fFSProvider.resolvePath(path);
+	public String resolvePath(String path, String fmt) {
+		return fFSProvider.resolvePath(path, fmt);
 	}
 
 }

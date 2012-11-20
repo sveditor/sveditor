@@ -81,6 +81,24 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		getCache().setFile(fFile.getFilePath(), fFile);
 		return null;
 	}
+	
+	@Override
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		if (fFile.getFilePath().equals(path)) {
+			return fFile;
+		} else {
+			return super.findFile(monitor, path);
+		}
+	}
+
+	@Override
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		if (fPPFile != null && fPPFile.getFilePath().equals(path)) {
+			return fPPFile;
+		} else {
+			return super.findPreProcFile(monitor, path);
+		}
+	}
 
 	@Override
 	protected void parseFiles(IProgressMonitor monitor) {

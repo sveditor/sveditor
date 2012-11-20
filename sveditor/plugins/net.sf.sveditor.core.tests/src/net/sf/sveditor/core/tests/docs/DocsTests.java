@@ -21,6 +21,7 @@ public class DocsTests extends TestSuite {
 		s.addTest(new TestSuite(TestCleaner.class));
 		s.addTest(new TestSuite(TestParser.class));
 		s.addTest(new TestSuite(TestModelFactory.class));
+		s.addTest(new TestSuite(TestFindDocComments.class));
 		return s;
 	}
 

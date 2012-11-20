@@ -41,7 +41,7 @@ public class TestCompletionProcessor extends AbstractCompletionProcessor {
 		fIndexIterator = iterator;
 		fLog = LogFactory.getLogHandle("TestCompletionProcessor");
 	}
-
+	
 	@Override
 	protected ISVDBIndexIterator getIndexIterator() {
 		return fIndexIterator;

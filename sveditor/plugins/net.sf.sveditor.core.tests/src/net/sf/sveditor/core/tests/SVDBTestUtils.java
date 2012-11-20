@@ -12,6 +12,10 @@
 
 package net.sf.sveditor.core.tests;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOError;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +49,7 @@ import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class SVDBTestUtils {
 
@@ -159,6 +164,19 @@ public class SVDBTestUtils {
 			TestCase.assertEquals("Unexpected errors", 0, markers.size());
 		}
 		return file;
+	}
+	
+	public static Tuple<SVDBFile, SVDBFile> parse(LogHandle log, File file, List<SVDBMarker> markers) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+		} catch (IOException e) {
+			TestCase.fail("Failed to open file \"" + file.getAbsolutePath() + "\": " + e.getMessage());
+		}
+		
+		Tuple<SVDBFile, SVDBFile> ret = parse(log, in, file.getName(), markers);
+		
+		return ret;
 	}
 	
 	public static SVDBFile parse(LogHandle log, String content, String filename, boolean exp_err) {

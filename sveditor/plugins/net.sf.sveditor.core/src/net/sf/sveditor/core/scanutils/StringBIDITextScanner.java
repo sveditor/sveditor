@@ -18,8 +18,8 @@ import java.util.List;
 public class StringBIDITextScanner 
 	extends AbstractTextScanner implements IBIDITextScanner {
 	private String				fData;
-	private int					fIdx;
-	private int					fUngetCh;
+	private int				fIdx;
+	private int				fUngetCh;
 	List<Integer>				fLineOffsets;
 	
 	public StringBIDITextScanner(String data) {
@@ -57,7 +57,7 @@ public class StringBIDITextScanner
 					fIdx++;
 				}
 			} else {
-				if ((fIdx-1) >= 0 && fData.length() > 0) {
+				if (fIdx >= 0 && fData.length() > 0) {
 					if (fIdx >= fData.length()) {
 						fIdx = fData.length()-1;
 					}

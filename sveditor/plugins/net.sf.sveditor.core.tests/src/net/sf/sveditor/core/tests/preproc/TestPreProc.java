@@ -176,8 +176,8 @@ public class TestPreProc extends TestCase {
 				"`MSG(\"FOO\", \"BAR\")\n"
 				;
 			String expected = 
-				"$display(\"FOO\", \"SUFFIX\");" +
-				"    $display(\"FOO\", \"BAR\");\n"
+				"$display(\"FOO\", \"SUFFIX\");  \n" +
+				" $display(\"FOO\", \"BAR\");\n"
 					;
 				
 			SVCorePlugin.getDefault().enableDebug(false);
@@ -493,6 +493,54 @@ public class TestPreProc extends TestCase {
 		assertTrue((sb.indexOf("end )") == -1));
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testUvmTlm2DoRecordMacroExpansion() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle("testUvmTlm2DoRecordMacroExpansion");
+		
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		if (fTmpDir.exists()) {
+			TestUtils.delete(fTmpDir);
+		}
+		assertTrue(fTmpDir.mkdirs());
+		
+		File db = new File(fTmpDir, "db");
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		utils.copyBundleFileToFS("/data/uvm_tlm2_generic_payload_fields.svh", fTmpDir);
+		
+		PrintStream ps = new PrintStream(new File(fTmpDir, "test.f"));
+				
+		ps.println("+incdir+./uvm/src");
+		ps.println("./uvm/src/uvm_pkg.sv");
+		ps.println("./uvm_tlm2_generic_payload_fields.svh");
+		ps.flush();
+		ps.close();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+
+		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+				new NullProgressMonitor(), "GLOBAL", 
+				new File(fTmpDir, "test.f").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE, null);
+		File target = new File(fTmpDir, "uvm_tlm2_generic_payload_fields.svh");
+		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		assertNotNull(pp);
+		
+		StringBuilder sb = new StringBuilder();
+		int ch;
+	
+		SVPreProcOutput pp_out = pp.preprocess();
+		
+		while ((ch = pp_out.get_ch()) != -1) {
+			sb.append((char)ch);
+		}
+		log.debug(sb.toString());
+		
+		assertTrue((sb.indexOf("end )") == -1));
+		LogFactory.removeLogHandle(log);
+	}
 	
 	public void testSingleLineCommentMacro() {
 		String doc = 
@@ -521,6 +569,110 @@ public class TestPreProc extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 
+	public void testSpaceSeparatedMacroRef() {
+		String testname = "testSpaceSeparatedMacroRef";
+		String doc = 
+				"`define MY_MACRO(P) ABC P\n" +
+				"\n" +
+				"` MY_MACRO(A)\n" +
+				"`MY_MACRO(B)\n" +
+				"`   MY_MACRO(C)\n"
+				;
+			String expected =
+				" ABC A\n" +
+				" ABC B\n" +
+				" ABC C\n"
+				;
+				
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testIncompleteMacroRef() {
+		String testname = "testIncompleteMacroRef";
+		String doc = 
+				"`define MY_MACRO(P) ABC P\n" +
+				"\n" +
+				"` \n" + // Ensure this doesn't trigger a crash
+				"`MY_MACRO(A)\n"
+				;
+			String expected =
+				"ABC A\n" 
+				;
+				
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testMangledMacroRef() {
+		String testname = "testMangledMacroRef";
+		String doc = 
+				"`define MY_MACRO(P) ABC P\n" +
+				"\n" +
+				"`MY_MACRO(A)\n" +
+				"` \n" + // Ensure this doesn't trigger a crash
+				"\n" +
+				"(\n"
+				;
+			String expected =
+				"ABC A\n" +
+				"(\n"
+				;
+				
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testRecursiveMacroRef() {
+		String testname = "testRecursiveMacroRef";
+		String doc =
+				"//Overly simplistic example\n" +
+				"`define M1 `M1\n" +
+				" task abc();\n" +
+				"	`M1\n" +
+				" endtask\n"
+				;
+		String expected = 
+				"task abc();\n" +
+				"	 `M1\n" +
+				" endtask\n";
+		
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);		
+	}
+	
 	public void testUVMFieldArrayIntExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testUVMFieldArrayIntExpansion");

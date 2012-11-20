@@ -66,7 +66,14 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 	}
 	
 	public StyledString getStyledText(Object element) {
-		if (element instanceof SVDBVarDeclItem) {
+		if (element == null) {
+			return new StyledString("null");
+		}
+		
+		if (element instanceof SVDBDeclCacheItem) {
+			SVDBDeclCacheItem item = (SVDBDeclCacheItem)element;
+			return new StyledString(item.getName());
+		} else if (element instanceof SVDBVarDeclItem) {
 			SVDBVarDeclItem var = (SVDBVarDeclItem)element;
 			SVDBVarDeclStmt var_r = var.getParent();
 			StyledString ret = new StyledString(var.getName());
@@ -95,6 +102,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 					}
 				}
 			}
+
 			return ret; 
 		} else if (element instanceof ISVDBNamedItem) {
 			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
@@ -106,8 +114,8 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret.append("(");
 				for (int i=0; i<tf.getParams().size(); i++) {
 					SVDBParamPortDecl p = tf.getParams().get(i);
-					if (p.getTypeName() != null) {
-						ret.append(p.getTypeName());
+					if (p.getTypeInfo() != null) {
+						ret.append(p.getTypeInfo().toString());
 					}
 					if (i+1 < tf.getParams().size()) {
 						ret.append(", ");
@@ -199,9 +207,6 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret = new StyledString(element.toString());
 			}
 			return ret;
-		} else if (element instanceof SVDBDeclCacheItem) {
-			SVDBDeclCacheItem item = (SVDBDeclCacheItem)element;
-			return new StyledString(item.getName());
 		} else {
 			return new StyledString(element.toString());
 		}

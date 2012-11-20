@@ -1,4 +1,175 @@
 
+-- 1.0.4 Release --
+
+- #(3566347) - Tab behavior when pasting code, which is auto-indented
+
+- #(3587919) - Correct issue with pre-processor interpreting parens in quoted strings
+
+------------------------------------------------------------------------------
+-- 1.0.3 Release --
+
+- #(3552370) - Parse error when using a named-parameter reference within an assert statement
+
+- #(3554653) - Correct bug preventing global/package variable declarations from appearing in 
+  content-assist results
+  
+- #(3573724) - Correct 'Content Assist Shows Blank Item' issue. ModuleInst items were
+  being added to the proposal list in addition to ModuleInstItem items.
+  
+- #(3582495) - Correct bug in the pre-processor's handling of recursively-included files
+
+- #(nobug) - Outline view button fixup, the default states of buttons weren't being
+  correctly on some buttons
+
+- #(nobug) - Captured names of generate statements if they are there.  This will make 
+  generate statements in the outline view more useful.
+
+------------------------------------------------------------------------------
+-- 1.0.2 Release --
+
+- #(nobug) - Improve performance of pre-processor when files contain many
+  references to undefined macros.
+  
+- #(3554076) - Correct parsing of specify-if statements
+
+------------------------------------------------------------------------------
+-- 1.0.1 Release --
+
+- #(nobug) - Correct a couple of places where paths were not being correctly
+  normalized (back-slashes converted to forward slashes). This resulted in 
+  some problems on the Windows platform.
+  
+- #(3579865) - Corrected a parse bug involving clocking blocks
+
+------------------------------------------------------------------------------
+-- 1.0.0 Release --
+- #(enh) - Add Open Type dialog to assist in quickly and easily navigating 
+  to an arbitrary type
+  
+- #(enh) - Change Objects Quick View to use Hover colors. This makes things
+  look better on Ubuntu 12.04
+
+- #(3554883) - Correct bug with Doc Hover not finding doc comment for 
+  a parameterized class.
+
+- #(enh) - Add decorators to files in the Project Explorer that reflect whether
+  a file is managed by the index in the containing project. This can be 
+  helpful in troubleshooting index configuration.
+  
+- #(3566435) - Change log-output scheme to, by default, output only to the
+  logfile. Also change output to the console to only be from a single thread
+  
+- #(3566723) - Convert Doc Hover error to a debug message
+
+- #(3566760) - Change SVEditor console to not auto-raise on output.
+
+- #(3566727) - Correct Literal decimal 'X' not supported
+
+- #(3566417) - Correct a bug with macro default parameters
+
+- #(enh) Added additional filters to outline view
+         - CoverPoint/Group/Cross/Bins
+         - Assertion/Property/Seuqnces
+         - Constraints
+         - Enum/Typedef
+
+- #(3566419) - Correct stack overflow with recursive macro references
+
+- #(3566786) - Correct issue where index does not react to a change in the 
+  global definition set
+ 
+- #(nobug) - Correct a bug in the Source Collection dialog that prevented 
+  users from changing the default file extensions
+  
+- #(nobug) - Correct issues with content assist for types and enumerators 
+  in the package and class scopes
+  
+- #(nobug) - Correct a bug that prevented class parameters from being
+  presented as content-assist proposals  
+
+- #(enh) - Add missing system tasks: $time, $realtime, $urandom, $urandom_range
+
+- #(3571086) - Limit maximum errors per file. Currently, error limit is 
+  hard-coded to 100
+  
+- Update SVEditor Project Properties to place Library Path and Source Collection
+  methods of specifying index paths on a new Deprecated tab. These methods of
+  specifying index paths will gradually be removed. New development will focus
+  on the Argument File method of index specification.
+  
+------------------------------------------------------------------------------
+-- 0.9.9 Release --
+
+- #(nobug) - Enhance doc-comment finder to recurse through pre-processor file
+  scopes (eg `ifdef scope) to locate doc comments.
+
+- #(enh) - New Class wizard and Override Method wizard now add NaturalDoc
+  comments.
+
+- #(nobug) - Fix a bug in the expression scanner (used for open declaration,
+  doc hover, etc) involving expressions next to operators such as parens:
+  "(get_name(), " for example. Now the identifiers are correctly located
+  even when the cursor is at the beginning of the name.
+
+- #(3561911) - Correct Doc Hover removes links. Links in NaturalDocs comments
+  are now replaced with plaintext.
+  
+- #(3561910) - Correct issue where doc-comment parser was being too aggressive
+  in removing what appeared to be vertical lines.
+
+- #(enh) - Add new-file wizards for module, interface, and package.
+
+- #(3561934) - Add support for Doc Comment 'Interface' and 'Module' topics
+
+- #(3562206) - Disable excessive debug output from comment parser
+  
+------------------------------------------------------------------------------
+-- 0.9.8 Release --
+
+- #(nobug) - Improve doc-comment stripping to support multi-line comments
+
+- #(nobug) - Update SVEditor to correctly provide the 'live' pre-processor
+  view for the doc-comment hover
+  
+- #(nobug) - Fixes to lookup functionality underlying content assist to 
+  correctly search up past single-statement behavioral scopes, such as
+  if and while.
+  
+- #(nobug) - Correct content-assist problem inside do/while blocks. Since
+  a content-assist scenario typically results in a temporary syntax error,
+  the do/while block was not being added to the AST.
+  
+- #(nobug) - Correct sorting regression in the Override Methods dialog. 
+  Now, classes are properly sorted by inheritance order.
+
+- #(nobug) - Correct issues with Module Hierarchy view. Now module 
+  hierarchy is properly displayed and elements of module instances are
+  displayed correctly.
+  
+- #(nobug) - Correct an issue with the class-browse functionality of
+  the New Class wizard. A class-cast exception was thrown due to changes
+  in the SVEditor database.
+  
+- #(enh) - Add double-click handler for New Class wizard. This reduces 
+  the number of mouse clicks required to create a new class.
+
+- #(nobug) - Support array-type parameters for task/function override.
+
+- #(nobug) - Update content assist to filter out task/function proposals
+  from super classes.
+
+------------------------------------------------------------------------------
+-- 0.9.7 Release --
+
+- #(3558622) - Correct const-cast and integer-cast parse errors
+
+- #(3558008) - Correct bug involving conflict between workspace/filesystem paths.
+
+- #(nobug) - Explicitly set hover foreground/background to avoid Ubuntu
+  12.04 ugliness (black background / white foreground)
+  
+
+------------------------------------------------------------------------------
 -- 0.9.6 Release --
 
 - #(enh) - Enhance content assist to only show static/non-static fields based
@@ -13,6 +184,34 @@
   
 - #(3553812) - Add basic support for content assist of parameterized types
 
+- #(enh) - Generated documentation now opened within Eclipse
+
+- #(enh) - Support for definition lists in the documentation comments
+
+- #(enh) - Documentation comments now displayed when hovering a reference
+  to the element
+
+- #(3554595) - Correct a bug in the editor-specific index iterator that, 
+  in some cases, prevented content assist and open declaration from working
+  on declarations within the file.
+
+- #(enh) - Move clear portion of index rebuild into the main portion
+  of the rebuild thread
+
+- #(enh) - Make index-cache clearing an asynchronous operation
+
+- #(enh) - Add a preference to switch between using the browser widget
+  for hover information and using the default hover widget. For some reason,
+  there appear to be problems with the browser widget on Ubuntu 12.04
+
+- #(nobug) - Correct code generator for method override to correctly generate
+  vectored parameters
+
+- #(enh) - Add support for content assist through class-local typedefs. 
+
+- #(3558081) - Correct an issue with space between ` and a macro name (eg ` MY_MACRO).
+
+- #(nobug) - Correct an issue with incomplete macro reference on its own line (eg ` ).
 
 ------------------------------------------------------------------------------
 -- 0.9.5 Release --

@@ -60,7 +60,7 @@ public class SVLexer extends SVToken {
 
 	public static final String MiscOps[] = { ":", "::", ":/", ":=", "+:", "-:", // array-index
 																				// operators
-			",", ";", ".", ".*", "'", "->", "->>", "#", "##", "@", "@@", "(*", "*)",
+			",", ";", ".", ".*", "'", "->", "->>", "-->", "#", "##", "@", "@@", "(*", "*)",
 			// Assertion operators
 			"=>", "|=>", "|->", "#-#", "#=#", "##",
 			"--", "++"};
@@ -995,8 +995,16 @@ public class SVLexer extends SVToken {
 			}
 
 			if (ch == '\'') {
-				append_ch(ch);
-				ch = readBasedNumber(fScanner.get_ch());
+				int ch2 = fScanner.get_ch();
+				int ch2_l;
+				if ((ch2_l = Character.toLowerCase(ch2)) == 'o' ||
+						ch2_l == 'h' || ch2_l == 'b' || ch2_l == 'd') {
+					append_ch(ch);
+					ch = readBasedNumber(ch2);
+				} else {
+					// Likely an integer cast
+					fScanner.unget_ch(ch2);
+				}
 			} else {
 				// Really just a decimal number. Insert the
 				// whitespace
@@ -1015,7 +1023,8 @@ public class SVLexer extends SVToken {
 	}
 
 	private int readDecNumber(int ch) throws SVParseException {
-		while (ch >= '0' && ch <= '9' || ch == '_') {
+		while (ch >= '0' && ch <= '9' || ch == '_' || 
+				ch == 'z' || ch == 'Z' || ch == 'x' || ch == 'X') {
 			append_ch(ch);
 			ch = fScanner.get_ch();
 		}

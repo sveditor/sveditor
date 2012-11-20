@@ -229,4 +229,176 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testStructFieldAssistInForIfScope() {
+		String testname = "testStructFieldAssistInForIfScope";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class cls1;\n" +
+			" typedef struct {\n" +
+			" int AA;\n" +
+			" int AB;\n" +
+			" int BA;\n" +
+			" int BB;\n" +
+			" } my_struct;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			" 	for (int i=0; i<5; i++) begin\n" +
+			" 		if (i == 2) begin\n" +
+			"			myfunc(f1.<<MARK>>\n" +
+			" 		end\n" +
+			"	end\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB", "BA", "BB");
+	}
+	
+	public void testStructFieldAssistInForScope() {
+		String testname = "testStructFieldAssistInForScope";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class cls1;\n" +
+			" typedef struct {\n" +
+			" int AA;\n" +
+			" int AB;\n" +
+			" int BA;\n" +
+			" int BB;\n" +
+			" } my_struct;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			" 	for (int i=0; i<5; i++) begin\n" +
+			"		myfunc(f1.<<MARK>>\n" +
+			"	end\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB", "BA", "BB");
+	}
+	
+	public void testPackageScopeGlobalVarDecl() {
+		String testname = "testGlobalVarDecl";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"package foo;\n" +
+			"	int AA;\n" +
+			"	int AB;\n" +
+			"	int BA;\n" +
+			"	int BB;\n" +
+			"endpackage\n" +
+			"\n" +
+			"class cls1;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			"	A<<MARK>>\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB");
+	}
+	
+	public void testRootScopeGlobalVarDecl() {
+		String testname = "testRootScopeGlobalVarDecl";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			// These fields might effectively be in a
+			// package scope, but due to code structure
+			// would appear as shown below
+			"int AA;\n" +
+			"int AB;\n" +
+			"int BA;\n" +
+			"int BB;\n" +
+			"\n" +
+			"class cls1;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			"	A<<MARK>>\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB");
+	}
+
+	public void testRootScopeGlobalClassVarDecl() {
+		String testname = "testRootScopeGlobalClassVarDecl";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			// These fields might effectively be in a
+			// package scope, but due to code structure
+			// would appear as shown below
+			"\n" +
+			"class c1;\n" +
+			"	int AA;\n" +
+			"	int AB;\n" +
+			"	int BA;\n" +
+			"	int BB;\n" +
+			"endclass\n" +
+			"\n" +
+			"const c1 c1_inst = foo();\n" +
+			"\n" +
+			"class cls1;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			"	c1_inst.A<<MARK>>\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB");
+	}
+	
+	public void testRootScopeGlobalClassVarDecl_2() {
+		String testname = "testRootScopeGlobalClassVarDecl_2";
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			// These fields might effectively be in a
+			// package scope, but due to code structure
+			// would appear as shown below
+			"\n" +
+			"class c1;\n" +
+			"	int AA;\n" +
+			"	int AB;\n" +
+			"	int BA;\n" +
+			"	int BB;\n" +
+			"endclass\n" +
+			"\n" +
+			"const c1 c1_inst = foo();\n" +
+			"\n" +
+			"class cls1;\n" +
+			"\n" +
+			" my_struct			f1;\n" +
+			"\n" +
+			" function void func();\n" +
+			"	c1_<<MARK>>\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"c1_inst");
+	}	
 }

@@ -161,12 +161,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 
 					if (ch2 == '/') {
 						foundSingleLineComment = true ;
-//						fCommentBuffer.append("//");
 						beginComment();
 						while ((ch = get_ch()) != -1 && ch != '\n') { 
 							fCommentBuffer.append((char)ch);
 						}
-//						in_comment_section = true;
 						fCommentBuffer.append('\n');
 						ch = ' ';
 						last_ch = ' ';
@@ -174,12 +172,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 						end_comment[0] = -1;
 						end_comment[1] = -1;
 						beginComment();
-//						fCommentBuffer.append("/*");
 						while ((ch = get_ch()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
-
-							fCommentBuffer.append((char)ch);
 
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
 								endComment() ;
@@ -187,7 +182,6 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 							} else {
 								fCommentBuffer.append((char)ch);
 							}
-//							in_comment_section = true;
 						}
 						ch = ' ';
 						last_ch = ' ';
@@ -235,7 +229,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	}
 	
 	private void beginComment() {
-		if(!fInComment){ fCommentBuffer.setLength(0) ; }
+		if(!fInComment){ 
+			fCommentBuffer.setLength(0);
+		}
 		fInComment = true ; 
 	}
 	
@@ -245,7 +241,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		String comment = fCommentBuffer.toString() ;
 		String title = fDocCommentParser.isDocComment(comment) ;
 		if(title != null) { 
-			if(fObserver != null) { fObserver.comment( title, comment) ; }
+			if (fObserver != null) {
+				fLog.debug("Saving doc comment (title=" + title + "): " + comment);
+				fObserver.comment( title, comment) ; 
+			}
 		}
 	}	
 	
@@ -282,7 +281,6 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 	}
 
 	private String readString_ll(int ci) {
-		
 		fTmpBuffer.setLength(0);
 		int last_ch = -1;
 		
@@ -316,7 +314,7 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 			ci = get_ch();
 		}
 
-		if (ci != -1) {
+		if (ci != -1 && ci != '\n' && ci != '\r') {
 			fTmpBuffer.append((char)ci);
 		}
 		
@@ -325,8 +323,20 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 
 	private void handle_preproc_directive() {
 		int ch = -1;
+		
+		// Skip any whitespace (up to end-of-line) between
+		// the ` and the directive
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+		
+		if (ch == -1) {
+			return;
+		}
 	
-		String type = readIdentifier(get_ch());
+		String type = readIdentifier(ch);
+		
+		if (type == null) {
+			type = "";
+		}
 
 		fScanLocation.setLineNo(fLineno);
 
@@ -447,8 +457,12 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 			
 			if (ch == '"') {
 				String inc = readString_ll(ch);
+
+				if (inc.length() >= 2) {
+					inc = inc.substring(1, inc.length()-1);
+				}
 				
-				inc = inc.substring(1, inc.length()-1);
+				fLog.debug("Include: last char=\"" + inc.charAt(inc.length()-1) + "\"");
 				
 				if (fObserver != null) {
 					fObserver.preproc_include(inc);

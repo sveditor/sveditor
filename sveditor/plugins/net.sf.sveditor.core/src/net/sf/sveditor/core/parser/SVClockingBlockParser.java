@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClockingBlock;
-import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVClockingBlockParser extends SVParserBase {
 	
@@ -75,14 +74,21 @@ public class SVClockingBlockParser extends SVParserBase {
 	}
 	
 	private void clocking_item(SVDBClockingBlock clk_blk) throws SVParseException {
+		if (fDebugEn) {
+			debug("clocking_item: " + fLexer.peek());
+		}
 		if (fLexer.peekKeyword("default")) {
 			// default 
 			default_skew();
 			fLexer.readOperator(";");
 		} else if (fLexer.peekKeyword("input", "output", "inout")) {
-			// clocking_direction list_of_clocking_decl_assign
+			// TODO: Add to AST
+			// clocking_direction [clocking_skew] list_of_clocking_decl_assign
 			String dir = fLexer.eatToken();
 			if (!dir.equals("inout")) {
+				if (fDebugEn) {
+					debug("post-direction: " + fLexer.peek());
+				}
 				if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
 					clocking_skew();
 					if (dir.equals("input") && fLexer.peekKeyword("output")) {
@@ -92,6 +98,23 @@ public class SVClockingBlockParser extends SVParserBase {
 						}
 					}
 				}
+				
+				while (fLexer.peek() != null) {
+					fLexer.readId();
+				
+					if (fLexer.peekOperator("=")) {
+						fLexer.eatToken();
+						fParsers.exprParser().expression();
+					}
+					
+					if (fLexer.peekOperator(",")) {
+						fLexer.eatToken();
+					} else {
+						break;
+					}
+				}
+				
+				fLexer.readOperator(";");
 			}
 		} else {
 			// {attribute_instance} assertion_item_declaration

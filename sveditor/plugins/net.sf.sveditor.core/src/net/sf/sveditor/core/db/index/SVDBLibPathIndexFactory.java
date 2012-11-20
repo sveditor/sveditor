@@ -25,11 +25,13 @@ public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {
 			SVDBIndexConfig			config) {
 		ISVDBFileSystemProvider fs_provider;
 		
+		fs_provider = new SVDBWSFileSystemProvider();
+		/*
 		if (base_location.startsWith("${workspace_loc}")) {
-			fs_provider = new SVDBWSFileSystemProvider();
 		} else {
 			fs_provider = new SVDBFSFileSystemProvider();
 		}
+		 */
 		
 		ISVDBIndex index = new SVDBLibIndex(
 				project_name, base_location, fs_provider, cache, config);

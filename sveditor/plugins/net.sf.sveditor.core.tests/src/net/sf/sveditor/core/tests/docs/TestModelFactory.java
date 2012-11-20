@@ -73,15 +73,17 @@ public class TestModelFactory extends TestCase {
 	
 		if (fProject != null && !fDebug) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		if (fTmpDir != null && fTmpDir.exists() &&!fDebug) {
 			TestUtils.delete(fTmpDir);
+			fTmpDir = null;
 		}
 	}	
 	
 	public void testUVM() throws IOException {
 		
-//		fDebug = true ;
+		fDebug = false ;
 		
 		String test_name = "testBasicExamplePkg" ;
 		String bundle_dir_name = "basic_uvm" ;

@@ -20,7 +20,6 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
@@ -31,6 +30,8 @@ import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -60,7 +61,7 @@ public class BrowseClasses extends SelectionStatusDialog
 	private boolean					fModifyInProgress;
 	
 	private TableViewer				fClassList;
-	private SVDBModIfcDecl		fSelectedClass;
+	private SVDBClassDecl			fSelectedClass;
 	private ISVDBIndexIterator		fIndexIt;
 	private List<SVDBItem>			fProposals;
 	
@@ -83,7 +84,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		}
 	}
 	
-	public SVDBModIfcDecl getSelectedClass() {
+	public SVDBClassDecl getSelectedClass() {
 		return fSelectedClass;
 	}
 	
@@ -128,10 +129,15 @@ public class BrowseClasses extends SelectionStatusDialog
 					fSelectedClass = null;
 					updateStatus(new Status(IStatus.ERROR, SVUiPlugin.PLUGIN_ID, "No class selected"));
 				} else {
-					fSelectedClass = (SVDBModIfcDecl)sel.getFirstElement();
+					fSelectedClass = (SVDBClassDecl)sel.getFirstElement();
 					updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
 							"Selected class \"" + fSelectedClass.getName() + "\""));
 				}
+			}
+		});
+		fClassList.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				okPressed();
 			}
 		});
 
@@ -180,7 +186,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		
 		sel = (IStructuredSelection)fClassList.getSelection();
 		if (sel != null && sel.getFirstElement() != null) {
-			fSelectedClass = (SVDBModIfcDecl)sel.getFirstElement();
+			fSelectedClass = (SVDBClassDecl)sel.getFirstElement();
 			updateStatus(new Status(IStatus.OK, SVUiPlugin.PLUGIN_ID, 
 					"Selected class \"" + fSelectedClass.getName() + "\""));
 		} else {

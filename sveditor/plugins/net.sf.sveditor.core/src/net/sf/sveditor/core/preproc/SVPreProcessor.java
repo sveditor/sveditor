@@ -107,7 +107,7 @@ public class SVPreProcessor extends AbstractTextScanner {
 								unget_ch(ch);
 							}
 						}
-						ch = ' ';
+						ch = '\n';
 						last_ch = ' ';
 					} else if (ch2 == '*') {
 						end_comment[0] = -1;
@@ -174,11 +174,18 @@ public class SVPreProcessor extends AbstractTextScanner {
 	
 	private void handle_preproc_directive() {
 		int ch = -1;
+		
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
 	
-		String type = readIdentifier(get_ch());
-	
-		if (type == null) {
+		String type;
+		if (ch == -1) {
 			type = "";
+		} else {
+			type = readIdentifier(ch);
+	
+			if (type == null) {
+				type = "";
+			}
 		}
 		
 		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
@@ -374,15 +381,23 @@ public class SVPreProcessor extends AbstractTextScanner {
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
 
-						int matchLevel=1;
+						// Read the parameter list
+						int matchLevel=1, last_ch = -1;
+						boolean in_string = false;
 
 						do {
 							ch = get_ch();
 
-							if (ch == '(') {
-								matchLevel++;
-							} else if (ch == ')') {
-								matchLevel--;
+							if (!in_string) {
+								if (ch == '(') {
+									matchLevel++;
+								} else if (ch == ')') {
+									matchLevel--;
+								} else if (ch == '\"' && last_ch != '\\') {
+									in_string = true;
+								}
+							} else if (ch == '\"' && last_ch != '\\') {
+								in_string = false;
 							}
 
 							if (ch != -1) {
@@ -561,6 +576,9 @@ public class SVPreProcessor extends AbstractTextScanner {
 				try {
 					fInBufferMax = fInput.read(fInBuffer, 0, fInBuffer.length);
 					fInBufferIdx = 0;
+					if (fInBufferMax <= 0) {
+						fInput.close();
+					}
 				} catch (IOException e) {}
 			}
 			if (fInBufferIdx < fInBufferMax) {

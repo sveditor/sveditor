@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionListenerAction;
@@ -82,15 +83,17 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 				} catch (CoreException e) {}
 				
 				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
+				/*
 				for (ISVDBIndex index : index_list) {
 					fLog.debug(LEVEL_MIN, "rebuildIndex " + index.getBaseLocation());
 					index.rebuildIndex();
 				}
+				 */
 				SVUiPlugin.getDefault().refreshIndexList(index_list);
 			}
 			
 			// Finally, rebuild global index
-			rgy.rebuildIndex(SVDBIndexRegistry.GLOBAL_PROJECT);
+			rgy.rebuildIndex(new NullProgressMonitor(), SVDBIndexRegistry.GLOBAL_PROJECT);
 		}
 	}
 

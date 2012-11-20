@@ -21,6 +21,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
@@ -36,6 +37,7 @@ import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -59,10 +61,12 @@ public class TestArgFileIndex extends TestCase {
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
+			fProject = null;
 		}
 		
 		if (fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
+			fTmpDir = null;
 		}
 	}
 
@@ -145,6 +149,52 @@ public class TestArgFileIndex extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testWindowsPathArgFileInclude() {
+		String testname = "testWindowsPathArgFileInclude";
+		
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		IFile file1_f = project_dir.getFile("file1.f");
+		TestUtils.copy(
+				"-f ${workspace_loc}\\" + testname + "\\file2.f\n" +
+				"module_1.sv\n", file1_f);
+
+		IFile file2_f = project_dir.getFile("file2.f");
+		TestUtils.copy(
+				"module_2.sv\n", file2_f);
+		
+		IFile module_1_sv = project_dir.getFile("module_1.sv");
+		TestUtils.copy(
+				"module module_1;\n" +
+				"endmodule\n", 
+				module_1_sv);
+		
+		IFile module_2_sv = project_dir.getFile("module_2.sv");
+		TestUtils.copy(
+				"module module_2;\n" +
+				"endmodule\n", 
+				module_2_sv);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/file1.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+
+		index.loadIndex(new NullProgressMonitor());
+	
+		IndexTests.assertContains(index, "module_1", SVDBItemType.ModuleDecl);
+		IndexTests.assertContains(index, "module_2", SVDBItemType.ModuleDecl);
+		
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testArgFileIncludePath() throws IOException {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

@@ -99,7 +99,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
 		scanner.setSkipComments(true);
 		
-		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl_2(
 				getTargetFile(), 
 				getTextSel().getStartLine(),
 				scanner,

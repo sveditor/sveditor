@@ -58,7 +58,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"m_f".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -109,7 +109,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"ext_class.cl".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 22, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -145,7 +145,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"m_foo.fie".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 9, scanner, target_index);
 		
 //		System.out.println(ret.size() + " items");
@@ -180,7 +180,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"m_foo.fie".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 9, scanner, target_index);
 		
 //		System.out.println(ret.size() + " items");
@@ -218,7 +218,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"m_foo.fie".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 12, scanner, target_index);
 		
 //		System.out.println(ret.size() + " items");
@@ -257,7 +257,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"m_foo.fie".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 12, scanner, target_index);
 		
 //		System.out.println(ret.size() + " items");
@@ -290,7 +290,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"foo::fo".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -325,7 +325,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"extends f".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -359,7 +359,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"virtual f".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -397,7 +397,7 @@ public class TestOpenClass extends TestCase {
 		scanner.seek(idx+"extends f".length());
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -407,4 +407,42 @@ public class TestOpenClass extends TestCase {
 		assertEquals("foo", SVDBItem.getName(item));
 	}
 
+	public void testOpenMethodrefAtBeginning() {
+		String testname = "testOpenMethodrefAtBeginning";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo;\n" +
+			"  function void get_data();\n" +
+			"  endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar extends foo;\n" +
+			"    foo      m_foo;\n" +
+			"\n" +
+			"    function new();\n" +
+			"        set_data(get_data());\n" + // 10
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("set_data");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"set_data(".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 10, 
+				scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.Function, ret.get(0).first().getType());
+		assertEquals("get_data", SVDBItem.getName(ret.get(0).first()));
+	}
 }

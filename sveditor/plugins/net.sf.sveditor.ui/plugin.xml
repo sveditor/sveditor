@@ -24,7 +24,9 @@
       </editor>
       <editor
             class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
+            contributorClass="net.sf.sveditor.ui.argfile.editor.SVArgFileActionContributor"
             default="true"
+            icon="icons/eview16/configs.gif"
             id="net.sf.sveditor.ui.argfile.editor"
             name="SystemVerilog Argument File Editor">
          <contentTypeBinding
@@ -156,6 +158,33 @@
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVInterfaceWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVModuleWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVPackageWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>            
       <navigatorContent
             activeByDefault="true"
             appearsBefore="org.eclipse.ui.navigator.resourceContent"
@@ -345,6 +374,12 @@
             id="net.sf.sveditor.ui.docs.generate"
             name="Generate Docs">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Type"
+            id="net.sf.sveditor.ui.editor.open.type"
+            name="Open Type">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -414,6 +449,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+SHIFT+D">
       </key>
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.type"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+T">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
@@ -457,13 +498,11 @@
                id="net.sf.sveditor.ui.svOpenObjectsAction"
                label="Open Objects"
                retarget="true">
-               retarget="true">
          </action>
          <action
                definitionId="net.sf.sveditor.ui.editor.open.quick.objects"
                id="net.sf.sveditor.ui.svOpenQuickObjectsAction"
                label="Open Quick Objects"
-               retarget="true">
                retarget="true">
          </action>
          <action
@@ -471,7 +510,6 @@
                id="net.sf.sveditor.ui.svOpenQuickOutlineAction"
                label="Open Quick Outline"
                retarget="true">
-            retarget="true">
          </action>
          <action
                id="net.sf.sveditor.ui.svAddBlockCommentAction"
@@ -493,14 +531,18 @@
                id="net.sf.sveditor.ui.svOpenQuickHierarchyAction"
                label="Open Quick Type Hierarchy"
                retarget="true">
-            retarget="true">
          </action>
          <action
                definitionId="net.sf.sveditor.ui.editor.open.diag.selection"
                id="net.sf.sveditor.ui.svOpenDiagForSelectionAction"
                label="Open Diag for Selection"
                retarget="true">
-            retarget="true">
+         </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.type"
+               id="net.sf.sveditor.ui.svOpenTypeAction"
+               label="Open Type"
+               retarget="true">
          </action>
       </actionSet>
       <actionSet
@@ -531,12 +573,29 @@
                style="push">
          </action>
       </actionSet>
+      <actionSet
+            id="net.sf.sveditor.ui.svArgFileActions"
+            label="SV ArgFile Actions"
+            visible="false">
+         <action
+               definitionId="net.sf.sveditor.ui.argfile.editor.open.file"
+               id="net.sf.sveditor.ui.svArgFileOpenFile"
+               label="Open File"
+               retarget="true"
+               style="push">
+         </action>
+      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
       <context
             id="net.sf.sveditor.ui.svEditorContext"
             name="SVEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
+      <context
+            id="net.sf.sveditor.ui.svArgFileEditorContext"
+            name="SVArgFileEditor Context"
             parentId="org.eclipse.ui.textEditorScope">
       </context>
    </extension>
@@ -676,6 +735,33 @@
             id="net.sf.sveditor.ui.newSVTWizard"
             name="SystemVerilog Template Descriptor">
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVPackageWizard"
+            icon="icons/edecl16/package.gif"
+            id="net.sf.sveditor.ui.newSVPackageWizard"
+            name="SystemVerilog Package"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVInterfaceWizard"
+            icon="icons/edecl16/int_obj.gif"
+            id="net.sf.sveditor.ui.newSVInterfaceWizard"
+            name="SystemVerilog Interface"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.NewSVModuleWizard"
+            icon="icons/edecl16/module_obj.gif"
+            id="net.sf.sveditor.ui.newSVModuleWizard"
+            name="SystemVerilog Module"
+            project="false">
+      </wizard>      
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
@@ -809,6 +895,21 @@ endclass
             </or>
          </enablement>
       </decorator>
+      <decorator
+            class="net.sf.sveditor.ui.svcp.SVDBFileDecorator"
+            id="net.sf.sveditor.ui.svIndexFileDecorator"
+            label="SV Index File Decorator"
+            lightweight="true"
+            location="TOP_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
    </extension>
    <extension
          point="org.eclipse.compare.contentViewers">
@@ -877,5 +978,22 @@ endclass
             SVEditor template settings, including template repository paths and template variables
          </description>
       </transfer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            contextId="net.sf.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open File"
+            id="net.sf.sveditor.ui.editor.argfile.open.file"
+            name="Open File">
+      </command>
    </extension>
 </plugin>

@@ -23,6 +23,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -103,32 +105,56 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
 		
 		if (file != null) {
-			for (ISVDBChildItem c : file.getChildren()) {
-				if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
-					return c;
-				} else if (c instanceof ISVDBChildParent) {
-					ISVDBItemBase i = getSVDBItem((ISVDBChildParent)c);
-					if (i != null) {
-						return i;
-					}
-				} else if (getType() == SVDBItemType.TypeInfoEnumerator && 
-						c.getType() == SVDBItemType.TypedefStmt) {
-					SVDBTypedefStmt stmt = (SVDBTypedefStmt)c;
-					if (stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
-						SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)stmt.getTypeInfo();
-						// Search through enumerator
-						for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
-							if (en.getName().equals(getName())) {
-								return en;
-							}
+			return findSVDBItem(file);
+		}
+		
+		return null;
+	}
+	
+	private ISVDBItemBase findSVDBItem(ISVDBChildParent scope) {
+		
+		for (ISVDBChildItem c : scope.getChildren()) {
+			
+			if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
+				return c;
+			} else if (getType() == SVDBItemType.TypeInfoEnumerator && 
+					c.getType() == SVDBItemType.TypedefStmt) {
+				SVDBTypedefStmt stmt = (SVDBTypedefStmt)c;
+				if (stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)stmt.getTypeInfo();
+					// Search through enumerator
+					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+						if (en.getName().equals(getName())) {
+							return en;
 						}
 					}
+				}
+			} else if (getType() == SVDBItemType.VarDeclItem &&
+					c.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt vs = (SVDBVarDeclStmt)c;
+				for (ISVDBChildItem ci : vs.getChildren()) {
+					SVDBVarDeclItem vi = (SVDBVarDeclItem)ci;
+					if (vi.getName().equals(getName())) {
+						return vi;
+					}
+				}
+			} else if (c.getType() == SVDBItemType.PackageDecl) {
+				ISVDBItemBase tmp = findSVDBItem((ISVDBChildParent)c);
+				
+				if (tmp != null) {
+					return tmp;
+				}
+			} else if (c instanceof ISVDBChildParent) {
+				ISVDBItemBase i = getSVDBItem((ISVDBChildParent)c);
+				if (i != null) {
+					return i;
 				}
 			}
 		}
 		
 		return null;
 	}
+	
 	
 	private ISVDBItemBase getSVDBItem(ISVDBChildParent p) {
 		for (ISVDBChildItem c : p.getChildren()) {
@@ -148,5 +174,13 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		}
 	}
 	
+	public SVDBFile getFilePP() {
+		if (fParent == null) {
+			System.out.println("Parent of " + fType + " " + fName + " is null");
+			return null ;
+		} else {
+			return fParent.getDeclFilePP(new NullProgressMonitor(), this);
+		}
+	}
 }
 

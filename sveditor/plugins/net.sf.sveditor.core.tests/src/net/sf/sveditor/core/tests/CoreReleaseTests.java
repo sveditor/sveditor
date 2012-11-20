@@ -22,6 +22,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.docs.DocsTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
@@ -42,11 +43,13 @@ import net.sf.sveditor.core.tests.templates.TemplateTests;
 public class CoreReleaseTests extends TestSuite {
 	
 	private static List<Exception>		fErrors = new ArrayList<Exception>();
+	private static ILogListener		fErrorLogListener;
 	
 	static {
-		LogFactory.getDefault().addLogListener(new ILogListener() {
+		fErrorLogListener = new ILogListener() {
 			public void message(ILogHandle handle, int type, int level, String message) {
 				if (type == ILogListener.Type_Error) {
+					System.out.println("MSG: " + message);
 					try {
 						throw new Exception("[" + handle.getName() + "] " + message);
 					} catch (Exception e) {
@@ -54,10 +57,12 @@ public class CoreReleaseTests extends TestSuite {
 					}
 				}
 			}
-		});
+		};
+		LogFactory.getDefault().addLogListener(fErrorLogListener);
 	}
 	
 	public CoreReleaseTests() {
+		addTest(ArgFileOpenDeclTests.suite());
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(ParserTests.suite());
 		addTest(new TestSuite(PreProcMacroTests.class));

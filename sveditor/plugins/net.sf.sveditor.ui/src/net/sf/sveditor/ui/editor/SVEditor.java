@@ -30,7 +30,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBFileOverrideIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
@@ -54,6 +54,7 @@ import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
+import net.sf.sveditor.ui.editor.actions.OpenTypeAction;
 import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
@@ -112,7 +113,9 @@ public class SVEditor extends TextEditor
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
 	private SVDBFile						fSVDBFile;
-	private ISVDBIndex						fSVDBIndex;
+	private SVDBFile						fSVDBFilePP;
+	private SVDBFileOverrideIndex			fSVDBIndex;
+	private List<SVDBMarker>				fMarkers;
 	private String							fFile;
 	private SVDBIndexCollection				fIndexMgr;
 	private LogHandle						fLog;
@@ -121,8 +124,6 @@ public class SVEditor extends TextEditor
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean						fPendingUpdateSVDBFile;
-	private SVDBFileOverrideIndexIterator	fIndexIterator;
-	
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
@@ -181,12 +182,17 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
-			SVDBFile new_in = fIndexMgr.parse(
+			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
 					getProgressMonitor(), sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			
 			if (new_in != null) {
-				fSVDBFile = new_in;
+				fSVDBFile = new_in.second();
+				fSVDBFilePP = new_in.first();
+				if (fSVDBIndex != null) {
+					fSVDBIndex.setFile(fSVDBFile);
+					fSVDBIndex.setFilePP(fSVDBFilePP);
+				}
 
 				addErrorMarkers(markers);
 			}
@@ -208,6 +214,8 @@ public class SVEditor extends TextEditor
 	
 	public SVEditor() {
 		super();
+		
+		fMarkers = new ArrayList<SVDBMarker>();
 		
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
@@ -239,7 +247,7 @@ public class SVEditor extends TextEditor
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);
-		fIndexIterator = new SVDBFileOverrideIndexIterator(fSVDBFile);
+		fSVDBFilePP = new SVDBFile(fFile);
 		
 		// Fixup documents that have \r and not \r\n
 		IDocument doc = getDocument();
@@ -328,10 +336,9 @@ public class SVEditor extends TextEditor
 		
 		synchronized (this) {
 			fProjectSettingsJob = null;
-			fSVDBIndex = index;
 			fIndexMgr = index_mgr;
-			fIndexIterator.setIndexIt(fIndexMgr);
-			fIndexIterator.setIndex(fSVDBIndex);
+			fSVDBIndex = new SVDBFileOverrideIndex(
+					fSVDBFile, fSVDBFilePP, index, fIndexMgr, fMarkers);
 		}
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
@@ -389,6 +396,7 @@ public class SVEditor extends TextEditor
 				}
 			} else { // regular workspace or filesystem path
 				if (ed_in instanceof FileEditorInput) {
+					// Regular in-workspace file
 					FileEditorInput fi = (FileEditorInput)ed_in;
 					fLog.debug(LEVEL_MIN, "Path \"" + fi.getFile().getFullPath() + 
 							"\" is in project " + fi.getFile().getProject().getName());
@@ -404,7 +412,7 @@ public class SVEditor extends TextEditor
 					
 					mgr.addProjectSettingsListener(this);
 				} else {
-					// Check whether another
+					// Outside-workspace file
 					fLog.debug(LEVEL_MIN, "URI instance: " + uri_in.getClass().getName());
 					fSVDBFilePath = SVFileUtils.normalize(uri_in.getURI().getPath());
 					fLog.debug(LEVEL_MIN, "Normalizing file \"" + uri_in.getURI().getPath() + "\" to \"" + fSVDBFilePath + "\"");
@@ -415,10 +423,9 @@ public class SVEditor extends TextEditor
 							SVDBIndexUtil.findIndexFile(fSVDBFilePath, null, true);
 					
 					// TODO: What happens with no index
-					fSVDBIndex = result.first();
 					fIndexMgr  = result.second();
-					fIndexIterator.setIndex(fSVDBIndex);
-					fIndexIterator.setIndexIt(fIndexMgr);
+					fSVDBIndex = new SVDBFileOverrideIndex(fSVDBFile, fSVDBFilePP, 
+							result.first(), fIndexMgr, fMarkers);
 					fLog.debug(LEVEL_MIN, "File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
 				}
 			}
@@ -507,12 +514,17 @@ public class SVEditor extends TextEditor
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		
+		
 		FindReferencesAction fr_action = new FindReferencesAction(bundle, this);
 		fr_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.find.references");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", fr_action);
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction", false);
-
+		
+		OpenTypeAction ot_action = new OpenTypeAction(bundle, this);
+		ot_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction", ot_action);
+		
 		OpenTypeHierarchyAction th_action = new OpenTypeHierarchyAction(bundle, this);
 		th_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.type.hierarchy");
 		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction", th_action);
@@ -587,44 +599,8 @@ public class SVEditor extends TextEditor
 		
 	}
 	
-	/*
-	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
-		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
-		public boolean hasNext(SVDBItemType... type_list) { return false; }
-	};
-	
-	private ISVDBIndexIterator SVEditorIndexIterator = new ISVDBIndexIterator() {
-		public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-			if (fIndexMgr != null) {
-				SVDBIndexCollectionItemIterator it = 
-					(SVDBIndexCollectionItemIterator)fIndexMgr.getItemIterator(monitor);
-
-				it.setOverride(fSVDBIndex, fSVDBFile);
-
-				return it;
-			} else {
-				return SVEmptyItemIterator;
-			}
-		}
-
-		public List<SVDBDeclCacheItem> findGlobalScopeDecl(
-				IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
-			return fIndexMgr.findGlobalScopeDecl(monitor, name, matcher);
-		}
-
-		public List<SVDBDeclCacheItem> findPackageDecl(
-				IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) {
-			return fIndexMgr.findPackageDecl(monitor, pkg_item);
-		}
-
-		public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-			return fIndexMgr.getDeclFile(monitor, item);
-		}
-	};
-	 */
-	
 	public ISVDBIndexIterator getIndexIterator() {
-		return fIndexIterator;
+		return fSVDBIndex;
 	}
 	
 	public IDocument getDocument() {
@@ -658,6 +634,8 @@ public class SVEditor extends TextEditor
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				"net.sf.sveditor.ui.override.tf");
 		
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeHierarchyAction");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,

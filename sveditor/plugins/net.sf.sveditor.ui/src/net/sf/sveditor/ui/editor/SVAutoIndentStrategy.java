@@ -105,7 +105,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			indenter.setAdaptiveIndent(true);
 			indenter.setAdaptiveIndentEnd(target_lineno);
-			
+			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
+
 			// The goal, here, is to format the entire document
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event

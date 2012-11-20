@@ -81,7 +81,9 @@ public class SVExprScanner {
 			scanner.seek(pos-1);
 			int prev_ch = scanner.get_ch();
 			
-			if (Character.isWhitespace(prev_ch)) {
+			if (Character.isWhitespace(prev_ch) || prev_ch == '"' || 
+					(SVCharacter.isSVIdentifierPart(c) && 
+							!SVCharacter.isSVIdentifierPart(prev_ch))) {
 				scanner.seek(pos);
 			} else {
 				scanner.seek(pos-1);

@@ -43,6 +43,24 @@ public interface ISVDBDeclCache {
 	Iterable<String> getFileList(IProgressMonitor monitor);
 
 	/**
+	 * Finds the AST for the specified path
+	 * 
+	 * @param monitor
+	 * @param filename
+	 * @return
+	 */
+	SVDBFile findFile(IProgressMonitor monitor, String filename);
+
+	/**
+	 * Finds the pre-processor AST for the specified path
+	 * 
+	 * @param monitor
+	 * @param filename
+	 * @return
+	 */
+	SVDBFile findPreProcFile(IProgressMonitor monitor, String filename);
+	
+	/**
 	 * Returns a list of declarations from within the specified package scope
 	 * 
 	 * @param pkg_item
@@ -57,6 +75,15 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item);
+	
+	/**
+	 * Returns the pre-processor version of the file in which the specified 
+	 * declaration-cache item is defined
+	 * 
+	 * @param item
+	 * @return
+	 */
+	SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item);
 
 	List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor, String name, ISVDBRefMatcher matcher);
 

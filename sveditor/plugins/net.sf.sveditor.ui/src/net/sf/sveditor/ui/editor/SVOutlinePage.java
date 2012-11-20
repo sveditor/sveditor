@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
@@ -70,6 +71,10 @@ public class SVOutlinePage extends ContentOutlinePage
 	private Action                      ToggleModuleInstances;
 	private Action                      ToggleInclude;
 	private Action                      ToggleTaskFunction;
+	private Action                      ToggleEnumTypedefs;
+	private Action                      ToggleAssertionProperties;
+	private Action                      ToggleCoverPointGroupCross;
+	private Action                      ToggleConstraints;
 	private Action                      ToggleSort;
 	private SVDBDefaultContentFilter    DefaultContentFilter;
 	private ViewerComparator            ViewerComapartor;
@@ -99,8 +104,11 @@ public class SVOutlinePage extends ContentOutlinePage
 		DefaultContentFilter.HideModuleInstances     (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
 		DefaultContentFilter.HideTaskFunctions       (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
 		DefaultContentFilter.HideVariableDeclarations(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
-	
-		
+		DefaultContentFilter.HideEnumTypedefs        (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ENUM_TYPEDEFS));
+		DefaultContentFilter.HideAssertionProperties (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSERTION_PROPERTIES));
+		DefaultContentFilter.HideCoverPointGroupCross(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS));
+		DefaultContentFilter.HideConstraints         (SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS));
+
 		getTreeViewer().setContentProvider(fContentProvider);
 		getTreeViewer().addFilter(DefaultContentFilter);
 		// Check whether we have sorting enabled or not
@@ -488,18 +496,66 @@ public class SVOutlinePage extends ContentOutlinePage
 		ToggleTaskFunction.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Task));
 		pageSite.getActionBars().getToolBarManager().add(ToggleTaskFunction);
 		
+		// Add button to toggle Enumerated Types & Typedefs statements on and off
+		ToggleEnumTypedefs = new Action("Enum/Typedef", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleEnumTypedefs.setChecked(DefaultContentFilter.ToggleEnumTypedefs());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ENUM_TYPEDEFS, ToggleEnumTypedefs.isChecked());
+				refresh();
+			}
+		};
+		ToggleEnumTypedefs.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.TypedefStmt));
+		pageSite.getActionBars().getToolBarManager().add(ToggleEnumTypedefs);
+		
+		// Add button to toggle Constraints statements on and off
+		ToggleConstraints = new Action("Constraints", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleConstraints.setChecked(DefaultContentFilter.ToggleConstraints());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS, ToggleConstraints.isChecked());
+				refresh();
+			}
+		};
+		ToggleConstraints.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Constraint));
+		pageSite.getActionBars().getToolBarManager().add(ToggleConstraints);
+		
+		// Add button to toggle AssertionProperties statements on and off
+		ToggleAssertionProperties = new Action("Assertions/Properties/Sequences", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleAssertionProperties.setChecked(DefaultContentFilter.ToggleAssertionProperties());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSERTION_PROPERTIES, ToggleAssertionProperties.isChecked());
+				refresh();
+			}
+		};
+		ToggleAssertionProperties.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Property));
+		pageSite.getActionBars().getToolBarManager().add(ToggleAssertionProperties);
+		
+		// Add button to toggle Coverpoint/Groupstatements on and off
+		ToggleCoverPointGroupCross= new Action("CoverGroup/CrossCover/CoverPoint", Action.AS_CHECK_BOX) {
+			public void run() { 
+				ToggleCoverPointGroupCross.setChecked(DefaultContentFilter.ToggleCoverPointGroupCross());
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS, ToggleCoverPointGroupCross.isChecked());
+				refresh();
+			}
+		};
+		ToggleCoverPointGroupCross.setImageDescriptor(SVDBIconUtils.getImageDescriptor(SVDBItemType.Coverpoint));
+		pageSite.getActionBars().getToolBarManager().add(ToggleCoverPointGroupCross);
+		
 		// Set up which of the content filters are enabled
 		// Now, format the new addition if auto-indent is enabled
 		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
-		ToggleSort           .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT));
-		ToggleAlways         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
-		ToggleAssign         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
-		ToggleDefines        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
-		ToggleGenerate       .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
-		ToggleInclude        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
-		ToggleInitial        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));
-		ToggleModuleInstances.setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
-		ToggleTaskFunction   .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
-		ToggleVariables      .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
+		ToggleSort                .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SORT));
+		ToggleAlways              .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ALWAYS_BLOCKS));
+		ToggleAssign              .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSIGN_STATEMENTS));
+		ToggleDefines             .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_DEFINE_STATEMENTS));
+		ToggleGenerate            .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_GENERATE_BLOCKS));
+		ToggleInclude             .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INCLUDE_FILES));
+		ToggleInitial             .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS));
+		ToggleModuleInstances     .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_MODULE_INSTANCES));
+		ToggleTaskFunction        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_TASK_FUNCTION_DECLARATIONS));
+		ToggleEnumTypedefs        .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ENUM_TYPEDEFS));
+		ToggleAssertionProperties .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_ASSERTION_PROPERTIES));
+		ToggleCoverPointGroupCross.setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS));
+		ToggleConstraints         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS));
+		ToggleVariables           .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
 	}
 }

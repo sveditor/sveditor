@@ -21,23 +21,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.docs.IDocTopicManager;
+import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
 import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -45,6 +49,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
@@ -56,6 +62,7 @@ import org.eclipse.jface.text.IInformationControlExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -245,7 +252,11 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
-			if (BrowserInformationControl.isAvailable(parent)) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+			
+			// Use the browser widget if available and the user enables it
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tbm);
@@ -339,8 +350,14 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		 */
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
+			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
 //			String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
-			if (BrowserInformationControl.isAvailable(parent)) {
+			Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+			Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));
+			if (BrowserInformationControl.isAvailable(parent) &&
+					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 //				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
 //				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tooltipAffordanceString) {
 				BrowserInformationControl iControl= new BrowserInformationControl(parent, "", "todo") {
@@ -352,11 +369,49 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 						return fInformationPresenterControlCreator;
 					}
 				};
+				iControl.setBackgroundColor(bg_color);
+				iControl.setForegroundColor(fg_color);
 //				addLinkListener(iControl);
 				return iControl;
 			} else {
 //				return new DefaultInformationControl(parent, tooltipAffordanceString);
-				return new DefaultInformationControl(parent, "todo");
+				DefaultInformationControl hover = new SVDefaultInformationControl(
+						parent, "todo", bg_color, fg_color);
+				return hover;
+			}
+		}
+		
+		private final class SVDefaultInformationControl extends DefaultInformationControl 
+			implements IInformationControlCreator {
+			IInformationControlCreator		fCreator;
+			Color							fBgColor;
+			Color							fFgColor;
+			
+			public SVDefaultInformationControl(
+					Shell parent, 
+					String msg,
+					Color			bg_color,
+					Color			fg_color) {
+				super(parent, msg);
+				setBackgroundColor(bg_color);
+				setForegroundColor(fg_color);
+				fBgColor = bg_color;
+				fFgColor = fg_color;
+			}
+
+			@Override
+			public IInformationControlCreator getInformationPresenterControlCreator() {
+				fCreator = super.getInformationPresenterControlCreator();
+				return this;
+			}
+
+			public IInformationControl createInformationControl(Shell parent) {
+				IInformationControl c = fCreator.createInformationControl(parent);
+				if (c instanceof DefaultInformationControl) {
+					((DefaultInformationControl)c).setBackgroundColor(fBgColor);
+					((DefaultInformationControl)c).setForegroundColor(fFgColor);
+				}
+				return c;
 			}
 		}
 
@@ -526,8 +581,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	
 	private String genContent(List<DocTopic> topics) {
 		String res = "" ;
+		HTMLFromNDMarkup markupConverter = new HTMLFromNDMarkup() ;
 		for(DocTopic topic: topics) {
-			res += genContentForTopic(topic) ;
+			String html = "" ;
+			html = genContentForTopic(topic) ;
+			html = markupConverter.convertNDMarkupToHTML(null, topic, html, HTMLFromNDMarkup.NDMarkupToHTMLStyle.Tooltip) ;
+			res += html ;
 		}
 		return res ;
 	}		
@@ -553,10 +612,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @param previousInput the previous input, or <code>null</code>
 	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
 	 */
-	private SVDocBrowserInformationControlInput getHoverInfo(Tuple<ISVDBItemBase, SVDBFile> target, IRegion hoverRegion, SVDocBrowserInformationControlInput previousInput) {
+	private SVDocBrowserInformationControlInput getHoverInfo(
+			Tuple<ISVDBItemBase, SVDBFile> 		target, 
+			IRegion 							hoverRegion, 
+			SVDocBrowserInformationControlInput previousInput) {
 		
 		StringBuffer buffer= new StringBuffer();
-		boolean hasContents= false;
 		
 		ISVDBItemBase element = target.first() ;
 		
@@ -564,45 +625,15 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			return null ;
 		}
 		
-		ISVDBNamedItem namedItem = (ISVDBNamedItem)element ;
+		ISVDBIndexIterator index_it = ((SVEditor)getEditor()).getSVDBIndex();
+		
+		// Find the doc comment corresponding to the specified element
+		SVDBFindDocComment finder = new SVDBFindDocComment(index_it);
+		SVDBDocComment docCom = finder.find(new NullProgressMonitor(), element);
 
-		hasContents = true ; // FIXME: temp
-		
-		ISVDBItemBase p = element ;
-		while (p != null && p.getType() != SVDBItemType.File) {
-			if (p instanceof ISVDBChildItem) {
-				p = ((ISVDBChildItem)p).getParent();
-			} else {
-				p = null;
-				break ;
-			}
-		}		
-		
-		if(p == null) {
-			log.error(String.format("Failed to find file for type(%s)",namedItem.getName())) ;
-			return null ;
-		}
-		
-		SVDBFile ppFile = ((SVEditor)getEditor()).getSVDBIndex().getCache()
-							.getPreProcFile(new NullProgressMonitor(), ((SVDBFile)p).getFilePath()) ;
-		
-		SVDBDocComment docCom = null ;
-		
-		for(ISVDBChildItem child: ppFile.getChildren()) {
-			if(child instanceof SVDBDocComment) {
-				SVDBDocComment tryDocCom = (SVDBDocComment)child ;
-				if(tryDocCom.getName().equals(namedItem.getName())) {
-					log.debug(ILogLevel.LEVEL_MID,
-							String.format("Found doc comment for(%s)",namedItem.getName())) ;
-					docCom = tryDocCom ;
-					break ;
-				}
-			}
-		}
-		
 		if(docCom == null) {
 			log.debug(ILogLevel.LEVEL_MID,
-				String.format("Did not find doc comment for(%s)",namedItem.getName())) ;
+				String.format("Did not find doc comment for(%s)", SVDBItem.getName(element)));
 			return null ;
 		}
 		
@@ -611,88 +642,20 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		IDocTopicManager topicMgr = new DocTopicManager() ;
 		
 		IDocCommentParser docCommentParser = new DocCommentParser(topicMgr) ;
+		
+		log.debug(ILogLevel.LEVEL_MID, 
+				"+------------------------------------------------------------------") ;
+		log.debug(ILogLevel.LEVEL_MID, 
+				"| Raw Comment") ;
+		log.debug(ILogLevel.LEVEL_MID,
+				"| " + docCom.getRawComment()) ;
+		log.debug(ILogLevel.LEVEL_MID, 
+				"+------------------------------------------------------------------") ;
 			
 		docCommentParser.parse(docCom.getRawComment(), docTopics) ;
 		
 		buffer.append(genContent(docTopics)) ;
 
-//		if (nResults > 1) {
-//
-//			for (int i= 0; i < elements.length; i++) {
-//				HTMLPrinter.startBulletList(buffer);
-//				IJavaElement curr= elements[i];
-//				if (curr instanceof IMember || curr.getElementType() == IJavaElement.LOCAL_VARIABLE) {
-//					String label= JavaElementLabels.getElementLabel(curr, getHeaderFlags(curr));
-//					String link;
-//					try {
-//						String uri= JavaElementLinks.createURI(JavaElementLinks.JAVADOC_SCHEME, curr);
-//						link= JavaElementLinks.createLink(uri, label);
-//					} catch (URISyntaxException e) {
-//						JavaPlugin.log(e);
-//						link= label;
-//					}
-//					HTMLPrinter.addBullet(buffer, link);
-//					hasContents= true;
-//				}
-//				HTMLPrinter.endBulletList(buffer);
-//			}
-//
-//		} else {
-//
-//			element= elements[0];
-//			if (element instanceof IMember) {
-//				HTMLPrinter.addSmallHeader(buffer, getInfoText(element, editorInputElement, hoverRegion, true));
-//				buffer.append("<br>"); //$NON-NLS-1$
-//				addAnnotations(buffer, element, editorInputElement, hoverRegion);
-//				IMember member= (IMember) element;
-//				Reader reader;
-//				try {
-////					reader= JavadocContentAccess.getHTMLContentReader(member, true, true);
-//					String content= JavadocContentAccess2.getHTMLContent(member, true);
-//					reader= content == null ? null : new StringReader(content);
-//
-//					// Provide hint why there's no Javadoc
-//					if (reader == null && member.isBinary()) {
-//						boolean hasAttachedJavadoc= JavaDocLocations.getJavadocBaseLocation(member) != null;
-//						IPackageFragmentRoot root= (IPackageFragmentRoot)member.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-//						boolean hasAttachedSource= root != null && root.getSourceAttachmentPath() != null;
-//						IOpenable openable= member.getOpenable();
-//						boolean hasSource= openable.getBuffer() != null;
-//
-//						if (!hasAttachedSource && !hasAttachedJavadoc)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachments);
-//						else if (!hasAttachedJavadoc && !hasSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachedJavadoc);
-//						else if (!hasAttachedSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noAttachedSource);
-//						else if (!hasSource)
-//							reader= new StringReader(SVHoverMessages.JavadocHover_noInformation);
-//
-//					} else {
-//						base= JavaDocLocations.getBaseURL(member);
-//					}
-//
-//				} catch (JavaModelException ex) {
-//					reader= new StringReader(SVHoverMessages.JavadocHover_error_gettingJavadoc);
-//					JavaPlugin.log(ex);
-//				}
-//
-//				if (reader != null) {
-//					HTMLPrinter.addParagraph(buffer, reader);
-//				}
-//				hasContents= true;
-//
-//			} else if (element.getElementType() == IJavaElement.LOCAL_VARIABLE || element.getElementType() == IJavaElement.TYPE_PARAMETER) {
-//				addAnnotations(buffer, element, editorInputElement, hoverRegion);
-//				HTMLPrinter.addSmallHeader(buffer, getInfoText(element, editorInputElement, hoverRegion, true));
-//				hasContents= true;
-//			}
-//			leadingImageWidth= 20;
-//		}
-
-		if (!hasContents)
-			return null;
-		
 		if (buffer.length() > 0) {
 			HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
 //			HTMLPrinter.insertPageProlog(buffer, 0) ;
@@ -712,7 +675,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 					"+------------------------------------------------------------------") ;
 			log.debug(ILogLevel.LEVEL_MID, 
 					"+------------------------------------------------------------------") ;
-			
+
 			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), 0);
 		}
 
@@ -731,7 +694,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		List<Tuple<ISVDBItemBase, SVDBFile>> items = null ;
 		
 		try {
-			items = OpenDeclUtils.openDecl(
+			items = OpenDeclUtils.openDecl_2(
 					editor.getSVDBFile(),
 					doc.getLineOfOffset(hoverRegion.getOffset()),
 					scanner,
@@ -757,11 +720,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		if (fgStyleSheet == null)
 			fgStyleSheet= loadStyleSheet();
 		String css= fgStyleSheet;
-//		if (css != null) {
-//			FontData fontData= JFaceResources.getFontRegistry().getFontData(PreferenceConstants.APPEARANCE_JAVADOC_FONT)[0];
-//			css= HTMLPrinter.convertTopLevelFont(css, fontData);
-//		}
-
 		return css;
 	}
 

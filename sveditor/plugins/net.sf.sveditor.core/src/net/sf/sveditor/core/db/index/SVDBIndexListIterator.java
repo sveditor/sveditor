@@ -18,7 +18,6 @@ import java.util.List;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
@@ -78,7 +77,35 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		
 		return ret;
 	}
+	
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		SVDBFile ret = null;
+		
+		synchronized (fIndexIteratorList) {
+			for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+				ret = index_it.findFile(monitor, path);
+				if (ret != null) {
+					break;
+				}
+			}
+		}
+		return ret;
+	}
 
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		SVDBFile ret = null;
+		
+		synchronized (fIndexIteratorList) {
+			for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+				ret = index_it.findPreProcFile(monitor, path);
+				if (ret != null) {
+					break;
+				}
+			}
+		}
+		return ret;
+	}
+	
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
@@ -92,6 +119,16 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
 			SVDBFile tmp = index_it.getDeclFile(monitor, item);
+			if (tmp != null) {
+				return tmp;
+			}
+		}
+		return null;
+	}
+
+	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			SVDBFile tmp = index_it.getDeclFilePP(monitor, item);
 			if (tmp != null) {
 				return tmp;
 			}

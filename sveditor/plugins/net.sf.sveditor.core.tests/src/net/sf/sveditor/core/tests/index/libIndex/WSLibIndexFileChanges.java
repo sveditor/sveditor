@@ -36,45 +36,48 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 public class WSLibIndexFileChanges extends TestCase {
+	
+	private File				fTmpDir;
+	private IProject			fProject;
 
 	@Override
 	protected void setUp() throws Exception {
-		// TODO Auto-generated method stub
-		super.setUp();
+		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		SVCorePlugin.getJobMgr().dispose();
+		
+		if (fProject != null) {
+			TestUtils.deleteProject(fProject);
+		}
+		
+		System.out.println("fTmpDir=" + fTmpDir);
+		System.out.println("exists: " + fTmpDir.exists());
+		
+		if (fTmpDir != null && fTmpDir.exists()) {
+			System.out.println("Deleting tmpdir");
+			TestUtils.delete(fTmpDir);
+		}
 	}
 	
 	
 	public void testMissingIncludeAdded() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		File tmpdir = TestUtils.createTempDir();
 	
-		try {
-			int_testMissingIncludeAdded("testMissingIncludeAdded", tmpdir);
-		} catch (RuntimeException e) {
-			throw e;
-		} finally {
-			TestUtils.delete(tmpdir);
-		}
+		int_testMissingIncludeAdded("testMissingIncludeAdded", fTmpDir);
 	}
 	
 	private void int_testMissingIncludeAdded(String testname, File tmpdir) throws RuntimeException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		IProject project_dir = TestUtils.createProject("project");
+		fProject = TestUtils.createProject("project");
 		
-		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", project_dir);
-		
-		File db = new File(tmpdir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
+		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", fProject);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(tmpdir));
@@ -110,7 +113,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, project_dir.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
+		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_missing_inc/class1_2.svh")));
 
 		log.debug(">> SLEEP");
 		// Wait a bit...
@@ -136,7 +139,7 @@ public class WSLibIndexFileChanges extends TestCase {
 
 		assertNotNull("Expect to find class1", class1_it);
 		assertNotNull("Expect to find class1_2", class1_2_it);
-		index.dispose();
+//		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 }

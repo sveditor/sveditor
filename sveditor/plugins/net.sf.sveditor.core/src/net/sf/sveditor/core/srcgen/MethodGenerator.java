@@ -21,19 +21,21 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class MethodGenerator {
 	
 	public String generate(SVDBTask tf) {
 		StringBuilder new_tf = new StringBuilder();
 		String classname = "";
+		String tf_type = (tf.getType() == SVDBItemType.Task)?"Task":"Function";
 		
 		if (tf.getParent() != null && tf.getParent().getType() == SVDBItemType.ClassDecl) {
 			classname = ((ISVDBNamedItem)tf.getParent()).getName();
 		}
 		
 		new_tf.append("    /**\n" +
-					  "     * " + tf.getName() + "()\n" +
+					  "     * " + tf_type + ": " + tf.getName() + "\n" +
 					  "     *\n" +
 					  "     * Override from class " + classname + "\n" +
 					  "     */\n");
@@ -84,6 +86,29 @@ public class MethodGenerator {
 			for (ISVDBChildItem c : p.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				new_tf.append(vi.getName());
+				
+				if (vi.getArrayDim() != null) {
+					for (SVDBVarDimItem di : vi.getArrayDim()) {
+						switch (di.getDimType()) {
+							case Associative:
+								new_tf.append("[");
+								new_tf.append(di.getTypeInfo().toString());
+								new_tf.append("]");
+								break;
+							case Queue:
+								new_tf.append("[$]");
+								break;
+							case Sized:
+								new_tf.append("[");
+								new_tf.append(di.getExpr().toString());
+								new_tf.append("]");
+								break;
+							case Unsized:
+								new_tf.append("[]");
+								break;
+						}
+					}
+				}
 				
 				new_tf.append(", ");
 			}

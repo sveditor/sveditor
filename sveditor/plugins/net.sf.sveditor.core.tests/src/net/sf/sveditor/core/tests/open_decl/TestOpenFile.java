@@ -52,6 +52,7 @@ public class TestOpenFile extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+		fProject = null;
 	}
 
 	@Override
@@ -105,7 +106,7 @@ public class TestOpenFile extends TestCase {
 			scanner.seek(content.indexOf("target_inc_file.svh")+1);
 			fs_provider.closeStream(in);
 			
-			List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+			List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 					file, 4, scanner, target_index);
 			
 			assertEquals(1, ret.size());
@@ -139,7 +140,7 @@ public class TestOpenFile extends TestCase {
 
 		int lineno = 4;
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file.second(), lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");

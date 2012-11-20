@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -59,12 +60,13 @@ public class SVProjectProps extends PropertyPage implements
 		fProjectFileWrapper = fProjectData.getProjectFileWrapper().duplicate();
 		
 		// Create property pages
-		fPropertyPages.add(new GlobalDefinesPage(p));
-		fPropertyPages.add(new SourceCollectionsPage(p));
+//		fPropertyPages.add(new GlobalDefinesPage(p));
+//		fPropertyPages.add(new SourceCollectionsPage(p));
 		// fPropertyPages.add(new IncludePathsPage(p));
-		fPropertyPages.add(new LibraryPathsPage(p));
+//		fPropertyPages.add(new LibraryPathsPage(p));
 		fPropertyPages.add(new ArgumentFilePathsPage(p));
 		fPropertyPages.add(new PluginLibPrefsPage());
+		fPropertyPages.add(new DeprecatedPropertiesPage(p));
 		
 		TabFolder folder = new TabFolder(parent, SWT.NONE);
 		
@@ -97,7 +99,7 @@ public class SVProjectProps extends PropertyPage implements
 		
 		fProjectData.setProjectFileWrapper(fProjectFileWrapper);
 		
-		fProjectData.getProjectIndexMgr().rebuildIndex();
+		fProjectData.getProjectIndexMgr().rebuildIndex(new NullProgressMonitor());
 		
 		return true;
 	}

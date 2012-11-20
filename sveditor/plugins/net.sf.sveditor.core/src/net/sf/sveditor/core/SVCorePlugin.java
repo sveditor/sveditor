@@ -86,6 +86,7 @@ public class SVCorePlugin extends Plugin
 	private int							fNumIndexCacheThreads = 0;
 	private int							fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
+	private boolean						fEnableAsyncCacheClear;
 	
 	/**
 	 * The constructor
@@ -117,8 +118,19 @@ public class SVCorePlugin extends Plugin
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	
+		// Enable by default
+		fEnableAsyncCacheClear = true;
 		
 		LogFactory.getDefault().addLogListener(this);
+	}
+	
+	public void setTestMode() {
+		fEnableAsyncCacheClear = false;
+	}
+	
+	public boolean getEnableAsyncCacheClear() {
+		return fEnableAsyncCacheClear;
 	}
 	
 	/**
@@ -211,6 +223,7 @@ public class SVCorePlugin extends Plugin
 	
 	public static void testInit() {
 		fPlugin = new SVCorePlugin();
+		LogFactory.getDefault().addLogListener(fPlugin);
 	}
 	
 	public SVDBProjectManager getProjMgr() {
@@ -281,6 +294,7 @@ public class SVCorePlugin extends Plugin
 		}
 		
 		SVDBDirFS fs = new SVDBDirFS(cache_dir);
+		fs.setEnableAsyncClear(fEnableAsyncCacheClear);
 		ISVDBIndexCache ret = new SVDBFileIndexCache(fs);
 
 		return ret;
@@ -377,7 +391,7 @@ public class SVCorePlugin extends Plugin
 	}
 
 	public static String getVersion() {
-		if (fPlugin != null) {
+		if (fPlugin != null && fPlugin.getBundle() != null) {
 			Version v = fPlugin.getBundle().getVersion();
 			return v.getMajor() + "." + v.getMinor() + "." + v.getMicro();
 		} else {

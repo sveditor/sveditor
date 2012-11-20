@@ -19,8 +19,10 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -54,10 +56,22 @@ public class SVDBFindByNameInScopes {
 			boolean					stop_on_first_match,
 			SVDBItemType	...		types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
-		fLog.debug("--> find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + " name=" + name);
-
+		fLog.debug("--> find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + 
+				" type=" + ((context != null)?context.getType():"null") + " name=" + name);
+		
 		// Search up the scope
 		while (context != null && context instanceof ISVDBChildParent) {
+			
+			if (context.getType() == SVDBItemType.ClassDecl) {
+				SVDBClassDecl cls = (SVDBClassDecl)context;
+				if (cls.getParameters() != null) {
+					for (SVDBModIfcClassParam p : cls.getParameters()) {
+						if (fMatcher.match(p, name)) {
+							ret.add(p);
+						}
+					}
+				}
+			}
 			
 			// First, search the local variables
 			for (ISVDBItemBase it : ((ISVDBChildParent)context).getChildren()) {
@@ -195,7 +209,10 @@ public class SVDBFindByNameInScopes {
 				break;
 			}
 
-			context = context.getParent();
+			while ((context = context.getParent()) != null && 
+					!(context instanceof ISVDBChildParent)) { }
+			
+			fLog.debug("parent: " + ((context != null)?context.getType():"NULL"));
 		}
 
 		fLog.debug("<-- find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + " name=" + name);

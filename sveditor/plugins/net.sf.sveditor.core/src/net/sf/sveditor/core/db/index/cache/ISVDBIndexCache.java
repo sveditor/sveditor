@@ -67,7 +67,7 @@ public interface ISVDBIndexCache {
 	/**
 	 * Invalidate this cache, clearing any backing storage
 	 */
-	void clear();
+	void clear(IProgressMonitor monitor);
 	
 	/**
 	 * Return a list of the file paths present in this

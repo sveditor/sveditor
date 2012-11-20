@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
@@ -24,6 +25,7 @@ import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileIndex extends AbstractSVDBIndex {
@@ -107,6 +109,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	
 	private void processArgFile(IProgressMonitor monitor, String path) {
 		InputStream in = null;
+		
+		path = SVFileUtils.normalize(path);
+		
 		if (fArguments != null) {
 			in = new StringInputStream(fArguments.toString());
 		} else if (getFileSystemProvider().fileExists(path)) {
@@ -187,6 +192,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			getFileSystemProvider().closeStream(in);
 			
 			for (String arg_file : scanner.getArgFilePaths()) {
+				arg_file = SVFileUtils.normalize(arg_file);
 				arg_file = SVDBIndexUtil.expandVars(arg_file, fProjectName, fInWorkspaceOk);
 				if (!cd.getArgFilePaths().contains(arg_file)) {
 					processArgFile(new SubProgressMonitor(monitor, 4), arg_file); 
@@ -217,7 +223,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		fLog.debug("File changed: " + path);
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file
-			invalidateIndex("Argument File Changed: " + path, false);
+			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
 		}
 		super.fileChanged(path);
 	}

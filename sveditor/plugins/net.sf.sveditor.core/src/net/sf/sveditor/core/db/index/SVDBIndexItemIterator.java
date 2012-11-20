@@ -12,9 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -31,9 +29,8 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 	private SVDBFile						fOverrideFile;
 	private ISVDBItemBase					fCurrent;
 	
-	public SVDBIndexItemIterator(Set<String> file_list, ISVDBIndex index) {
-		Set<String> set_t = new HashSet<String>(file_list);
-		fFilePathIterator = set_t.iterator();
+	public SVDBIndexItemIterator(Iterable<String> file_list, ISVDBIndex index) {
+		fFilePathIterator = file_list.iterator();
 		fScopeStack = new Stack<Iterator<ISVDBChildItem>>();
 		fIndex = index;
 	}

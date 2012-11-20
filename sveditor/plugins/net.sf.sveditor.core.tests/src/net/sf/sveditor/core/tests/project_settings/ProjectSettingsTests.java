@@ -42,6 +42,8 @@ public class ProjectSettingsTests extends TestCase {
 	public static TestSuite suite() {
 		TestSuite s = new TestSuite("ProjectSettingsTests");
 		s.addTest(new TestSuite(ProjectSettingsTests.class));
+		s.addTest(new TestSuite(TestProjectSettingsVarRefs.class));
+		s.addTest(new TestSuite(TestProjectSettingChanges.class));
 		return s;
 	}
 	

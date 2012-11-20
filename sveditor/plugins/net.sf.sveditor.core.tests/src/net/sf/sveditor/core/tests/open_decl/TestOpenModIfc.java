@@ -52,7 +52,7 @@ public class TestOpenModIfc extends TestCase {
 		scanner.seek(idx+1);
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -84,7 +84,7 @@ public class TestOpenModIfc extends TestCase {
 		scanner.seek(idx+1);
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -123,7 +123,7 @@ public class TestOpenModIfc extends TestCase {
 		scanner.seek(idx+1);
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 7, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -168,7 +168,7 @@ public class TestOpenModIfc extends TestCase {
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		int lineno = 14;
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -214,7 +214,7 @@ public class TestOpenModIfc extends TestCase {
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		int lineno = 15;
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -262,7 +262,7 @@ public class TestOpenModIfc extends TestCase {
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		int lineno = 17;
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");
@@ -307,7 +307,7 @@ public class TestOpenModIfc extends TestCase {
 
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		int lineno = 14;
-		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl(
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, lineno, scanner, target_index);
 		
 		log.debug(ret.size() + " items");

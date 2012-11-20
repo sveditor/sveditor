@@ -23,6 +23,8 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -44,34 +46,46 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		IResourceChangeListener, IResourceDeltaVisitor {
 	
 	private List<Reference<ISVDBFileSystemChangeListener>>			fChangeListeners;
+	private LogHandle												fLog;
 	
 	public SVDBWSFileSystemProvider() {
 		fChangeListeners = new ArrayList<Reference<ISVDBFileSystemChangeListener>>();
+		fLog = LogFactory.getLogHandle("SVDBWSFileSystemProvider");
 	}
 	
 	public void init(String path) {
 		IFile 		file;
 		IContainer 	folder = null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IWorkspaceRoot root = null;
+		boolean is_ws_path = false;
+		
+		try {
+			root = ResourcesPlugin.getWorkspace().getRoot();
+		} catch (IllegalStateException e) {
+			// workspace isn't open
+		}
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
+			is_ws_path = true;
 		}
 		
 		try {
-			folder = root.getFolder(new Path(path));
+			if (is_ws_path) {
+				folder = root.getFolder(new Path(path));
 
-			if (!folder.exists()) {
-				file = root.getFile(new Path(path));
-				folder = file.getParent();
-				
 				if (!folder.exists()) {
-					folder = null;
+					file = root.getFile(new Path(path));
+					folder = file.getParent();
+
+					if (!folder.exists()) {
+						folder = null;
+					}
 				}
 			}
 		} catch (IllegalArgumentException e) {} // Happens when the folder is a project
 		
-		if (folder == null) {
+		if (folder == null && root != null) {
 			// Try looking at open projects
 			String pname = path;
 			
@@ -94,8 +108,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 				folder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) { }
 		}
-		
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);		
+
+		if (root != null) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		}
 	}
 
 	public void addMarker(
@@ -301,51 +317,97 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		return ret;
 	}
 	
-	public String resolvePath(String path) {
-		if (!path.startsWith("${workspace_loc}")) {
-			return path;
-		}
+	public String resolvePath(String path, String fmt) {
+		boolean ws_path = path.startsWith("${workspace_loc}");
 		
-		// Trim workspace_loc off so we can recognize when we've reached the root
-		path = path.substring("${workspace_loc}".length());
-		StringBuilder ret = new StringBuilder();
-		
-		int i=path.length()-1;
-		int end;
-		int skipCnt = 0;
-		
-		while (i >= 0) {
-			// scan backwards find the next path element
-			end = ret.length();
-			
-			while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
-				ret.append(path.charAt(i));
-				i--;
-			}
-			
-			if (i != -1) {
-				ret.append("/");
-				i--;
-			}
+		fLog.debug("--> resolvePath path=" + path + " fmt=" + fmt);
 
-			if ((ret.length() - end) > 0) {
-				String str = ret.substring(end, ret.length()-1);
-				if (str.equals("..")) {
-					skipCnt++;
-					// remove .. element
-					ret.setLength(end);
-				} else if (skipCnt > 0) {
-					ret.setLength(end);
-					skipCnt--;
+		if (ws_path) {
+			// Trim workspace_loc off so we can recognize when we've reached the root
+			path = path.substring("${workspace_loc}".length());
+			StringBuilder ret = new StringBuilder();
+
+			int i=path.length()-1;
+			int end;
+			int skipCnt = 0;
+
+			while (i >= 0) {
+				// scan backwards find the next path element
+				end = ret.length();
+
+				while (i>=0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+					ret.append(path.charAt(i));
+					i--;
+				}
+
+				if (i != -1) {
+					ret.append("/");
+					i--;
+				}
+
+				if ((ret.length() - end) > 0) {
+					String str = ret.substring(end, ret.length()-1);
+					if (str.equals("..")) {
+						skipCnt++;
+						// remove .. element
+						ret.setLength(end);
+					} else if (skipCnt > 0) {
+						ret.setLength(end);
+						skipCnt--;
+					}
 				}
 			}
+
+			if (skipCnt > 0) {
+				throw new RuntimeException("exceeded skipCnt");
+			}
+			path = ret.reverse().toString();
 		}
 		
-		if (skipCnt > 0) {
-			throw new RuntimeException("exceeded skipCnt");
+		if (fmt != null) {
+			if (fmt.equals(ISVDBFileSystemProvider.PATHFMT_FILESYSTEM)) {
+				if (ws_path) {
+					// Map to a filesystem location
+					if (isDir("${workspace_loc}" + path)) {
+						IContainer c = SVFileUtils.getWorkspaceFolder(path);
+						if (c != null) {
+							path = c.getLocation().toOSString();
+						}
+					} else {
+						IFile f = SVFileUtils.getWorkspaceFile(path);
+						if (f != null) {
+							path = f.getLocation().toOSString();
+						}
+					}
+				}
+			} else if (fmt.equals(ISVDBFileSystemProvider.PATHFMT_WORKSPACE)) {
+				if (!ws_path) {
+					// See if we can map to a workspace location
+					
+					if (isDir(path)) {
+						IContainer c = SVFileUtils.findWorkspaceFolder(path);
+						if (c != null) {
+							path = "${workspace_loc}" + c.getFullPath();
+						}
+					} else {
+						IFile f = SVFileUtils.findWorkspaceFile(path);
+						if (f != null) {
+							path = "${workspace_loc}" + f.getFullPath();
+						}
+					}
+				}
+			}
+		} else {
+			if (ws_path) {
+				path = "${workspace_loc}" + path;
+			}
 		}
+	
+		// Ensure we properly use forward slashes
+		path = SVFileUtils.normalize(path);
 		
-		return ret.reverse().toString();
+		fLog.debug("<-- resolvePath path=" + path + " fmt=" + fmt);
+		return path;
 	}
 	
 	protected String normalizePath(String path) {

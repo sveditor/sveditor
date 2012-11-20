@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -27,8 +28,7 @@ public interface ISVDBIndex extends
 	
 	public void init(IProgressMonitor monitor);
 
-	
-	SVDBFile parse(
+	Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor monitor,
 			InputStream in, 
 			String path, 
@@ -76,7 +76,7 @@ public interface ISVDBIndex extends
 	 */
 	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
-	Set<String> getFileList(IProgressMonitor monitor);
+	Iterable<String> getFileList(IProgressMonitor monitor);
 	
 	List<SVDBMarker> getMarkers(String path);
 
@@ -100,7 +100,7 @@ public interface ISVDBIndex extends
 	/**
 	 * Forces a rebuild of the index
 	 */
-	void rebuildIndex();
+	void rebuildIndex(IProgressMonitor monitor);
 	
 	/**
 	 * 
@@ -114,6 +114,18 @@ public interface ISVDBIndex extends
 	ISVDBIndexCache getCache();
 	
 	void loadIndex(IProgressMonitor monitor);
+
+	/**
+	 * Quickly report whether the index is loaded and ready
+	 * @return
+	 */
+	boolean isLoaded();
+	
+	/**
+	 * Quickly report whether the list of files is available
+	 * @return
+	 */
+	boolean isFileListLoaded();
 	
 	SVDBIndexConfig getConfig();
 	

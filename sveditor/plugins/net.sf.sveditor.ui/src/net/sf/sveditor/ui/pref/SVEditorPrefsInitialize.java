@@ -42,6 +42,11 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_COMMENT_C, new RGB(0, 128, 0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_STRING_C, new RGB(42, 0, 255));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_KEYWORD_C, new RGB(128, 0, 64));
+		
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR, 
+				new RGB(0xFF,0xFF,0xC0));
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR, 
+				new RGB(0x00,0x00,0x00));
 
 		store.setDefault(SVEditorPrefsConstants.P_DEFAULT_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_COMMENT_S, SWT.NORMAL);
@@ -49,6 +54,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_KEYWORD_S, SWT.BOLD);
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
+		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
 		
 		// Index Preferences
@@ -56,6 +62,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, false);
 		
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 0);
+		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER, false);
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN, false);
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT, 80);
 		// 0 means don't bother splitting the parameters across lines

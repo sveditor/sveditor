@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
@@ -61,6 +62,7 @@ import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
+import org.eclipse.core.filesystem.provider.FileTree;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -496,7 +498,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 			fIndexState = IndexState_AllInvalid;
 			fCacheDataValid = false;
 			fIndexCacheData.clear();
-			fCache.clear();
+			fCache.clear(new NullProgressMonitor());
 			fMissingIncludes.clear();
 		} else {
 			fIsDirty = true;
@@ -505,7 +507,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 //		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 	}
 
-	public void rebuildIndex() {
+	public void rebuildIndex(IProgressMonitor monitor) {
 		invalidateIndex("Rebuild Index Requested", true);
 	}
 
@@ -626,7 +628,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		// Rebuild the index when something changes
 		if (!fIndexCacheData.getGlobalDefines().containsKey(key)
 				|| !fIndexCacheData.getGlobalDefines().get(key).equals(val)) {
-			rebuildIndex();
+			rebuildIndex(new NullProgressMonitor());
 		}
 	}
 
@@ -659,6 +661,14 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return fCache.getFileList();
 	}
 	
+	public SVDBFile findFile(IProgressMonitor monitor, String path) {
+		return findFile(path);
+	}
+	
+	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
+		return findPreProcFile(path);
+	}
+	
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
 		
@@ -684,7 +694,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void clearFilesList() {
-		fCache.clear();
+		fCache.clear(new NullProgressMonitor());
 		fFileDirs.clear();
 	}
 
@@ -1211,6 +1221,10 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		 */
 		return true; // deprecated
 	}
+	
+	public boolean isFileListLoaded() {
+		return (fIndexState >= IndexState_FileTreeValid);
+	}
 
 	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
 		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(fCache, file_tree, fMissingIncludes);
@@ -1266,7 +1280,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return ret;
 	}
 
-	public SVDBFile parse(
+	public Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor	monitor, 
 			InputStream 		in,
 			String 				path, 
@@ -1352,7 +1366,7 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		// propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
 		// addMarkers(path, svdb_f);
 
-		return svdb_f;
+		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
@@ -1650,6 +1664,12 @@ public abstract class AbstractThreadedSVDBIndex implements ISVDBIndex,
 		return findFile(item.getFilename());
 	}
 
+	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		
+		return findPreProcFile(item.getFilename());
+	}
+	
 	public SVPreProcDirectiveScanner createPreProcScanner(String path) {
 		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);

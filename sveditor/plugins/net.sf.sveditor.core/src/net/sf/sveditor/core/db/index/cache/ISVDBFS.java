@@ -21,6 +21,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 public interface ISVDBFS {
 	
 	String getRoot();
@@ -58,7 +60,7 @@ public interface ISVDBFS {
 	
 	long lastModified(String path);
 	
-	void delete(String path);
+	void delete(IProgressMonitor monitor, String path);
 	
 	void mkdirs(String path);
 	
