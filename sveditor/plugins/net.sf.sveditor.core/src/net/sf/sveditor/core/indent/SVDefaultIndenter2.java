@@ -283,13 +283,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 				start_of_scope(tok);
 			}
-			
-			tok = next_s();
-			// If we have a labeled begin statement, go ahead and skip over it
-			if (tok.fImage.equals(":"))  {
-				tok = next_s();		// consume the label
-				tok = next_s();		// Now have the next real statement
-			}
+			// begin often has : <label>  consume this if it is there
+			tok = consume_labeled_block(next_s());
 
 			if (!begin_is_start_line) {
 				enter_scope(tok);
@@ -306,9 +301,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
-					tok = next_s();
-					
-					tok = consume_labeled_block(tok);
+					tok = consume_labeled_block(next_s());
 					break;
 				} else {
 					// Indent statement. Note that we're already in the
@@ -509,7 +502,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
 				tok = indent_struct_union_enum("");
 				fQualifiers = 0;
-			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final")) {
+			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final") || tok.isId("generate")) {
 				// enter_scope(tok);
 				tok = next_s();
 				
@@ -784,7 +777,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// Ensure that any comments at the beginning of the
 			// block are indented correctly
 			start_of_scope(tok);
-			tok = next_s();
+			// begin often has : <label>  consume this if it is there
+			tok = consume_labeled_block(next_s());
+
 			enter_scope(tok);
 			
 			while (tok != null) {
@@ -796,9 +791,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
-					tok = next_s();
-					
-					tok = consume_labeled_block(tok);
+					tok = consume_labeled_block(next_s());
 					break;
 				} else {
 					tok = indent_block_or_statement(parent, true);

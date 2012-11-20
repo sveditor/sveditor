@@ -105,7 +105,7 @@ public class TestAutoIndent extends TestCase {
 		System.out.println("Result:\n" + result);
 		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
 		// to the result when we paste
-		IndentComparator.compare("testBasicIndent", expected+expected, result);
+		IndentComparator.compare("testAutoIndentAlways", expected+expected, result);
 	}
 	
 	public void testAutoIndentInitial() throws BadLocationException {
@@ -167,6 +167,43 @@ public class TestAutoIndent extends TestCase {
 		IndentComparator.compare("testAutoIndentInitial", expected+expected, result);
 	}
 	
+	public void testGenerateFor() throws BadLocationException {
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		String content = 
+			"module foo;\n" +
+			"generate begin : named_gen\n" +
+			"for (i=0; i<5; i++)\n" +
+			"begin : named_for\n" +
+			"submod sm ();\n" +
+			"end\n" +
+			"end\n" +
+			"endgenerate\n" +
+			"endmodule\n"
+			;
+		// Type & then paste, to make sure that what we type, and what we get are identical!
+		tester.type(content);
+		tester.paste(content);
+		
+		String result = tester.getContent();
+		
+		String expected = 
+				"module foo;\n" +
+				"	generate begin : named_gen\n" +
+				"		for (i=0; i<5; i++)\n" +
+				"		begin : named_for\n" +
+				"			submod sm ();\n" +
+				"		end\n" +
+				"	end\n" +
+				"	endgenerate\n" +
+				"endmodule\n"
+			;
+		
+		System.out.println("Result:\n" + result);
+		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
+		// to the result when we paste
+		IndentComparator.compare("testGenerateFor", expected+expected, result);
+	}
+
 	public void testAutoPostSingleComment() throws BadLocationException {
 		String content =
 			"class foo;\n" +
@@ -198,7 +235,7 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 		
 		System.out.println("Result:\n" + result);
-		IndentComparator.compare("testBasicIndent", expected+expected, result);
+		IndentComparator.compare("testAutoPostSingleComment", expected+expected, result);
 	}
 
 	public void testPaste() throws BadLocationException {
