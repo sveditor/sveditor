@@ -285,6 +285,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			
 			tok = next_s();
+			// If we have a labeled begin statement, go ahead and skip over it
+			if (tok.fImage.equals(":"))  {
+				tok = next_s();		// consume the label
+				tok = next_s();		// Now have the next real statement
+			}
+
 			if (!begin_is_start_line) {
 				enter_scope(tok);
 			} else {
@@ -818,6 +824,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	
+	/**
+	 * This thing figures out what kind of statment we have to deal with, and calls
+	 * the appropriate indenter (if/for/case etc)
+	 * @param parent
+	 * @return
+	 */
 	private SVIndentToken indent_stmt(String parent) {
 		SVIndentToken tok = current_s();
 		
@@ -862,6 +874,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = next_s();
 		}  */
 		else {
+			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.
 			boolean do_next = true;
 			while (!tok.isOp(";")) {
 				if (parent != null) {
@@ -1221,6 +1234,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	
+	/**
+	 * Loops till number of open braces "(" == number of close braces ")"
+	 *  Can be used to consume (i=0; i<10; i++) etc
+	 * @return
+	 */
 	private SVIndentToken consume_expression() {
 		SVIndentToken tok = current();
 		int n_lbrace=0, n_rbrace=0;
