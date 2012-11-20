@@ -522,11 +522,12 @@ public class TestAutoIndent extends TestCase {
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(content);
+		tester.paste(content);	// make sure that paste parses the same as typing
 		
 		String result = tester.getContent();
 		
 		System.out.println("Result:\n" + content);
-		IndentComparator.compare("", expected, result);
+		IndentComparator.compare("", expected+expected, result);
 	}
 	
 	
