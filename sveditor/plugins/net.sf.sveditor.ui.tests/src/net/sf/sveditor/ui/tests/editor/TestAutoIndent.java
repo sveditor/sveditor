@@ -489,6 +489,47 @@ public class TestAutoIndent extends TestCase {
 	}
 
 	
+	public void testAutoIndentFor() throws BadLocationException {
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String content = 
+						"module t();\n" +
+						"initial\n" +
+						"begin\n" +
+						"for (i=0; i<10; i++) begin : some_label\n" +
+						"for (j=0; j<10; j++)\n" +
+						"begin : some_label2\n" +
+						"foo = bar;\n" +
+						"end\n" +
+						"end\n" +
+						"end\n" +
+						"endmodule\n"
+						;
+		String expected = 
+						"module t();\n" +
+						"	initial\n" +
+						"	begin\n" +
+						"		for (i=0; i<10; i++) begin : some_label\n" +
+						"			for (j=0; j<10; j++)\n" +
+						"			begin : some_label2\n" +
+						"				foo = bar;\n" +
+						"			end\n" +
+						"		end\n" +
+						"	end\n" +
+						"endmodule\n"
+						;
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(content);
+		
+		String result = tester.getContent();
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare("", expected, result);
+	}
+	
+	
 	public void testCovergroup() throws BadLocationException {
 		String input = 
 			"class foobar;\n\n" +
