@@ -86,8 +86,11 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(if_blk);
 		
 		if (fLexer.peekKeyword("begin")) {
-//			if_blk.fName = "if: " + 
-			begin_end_block(if_blk);
+			if_blk.fName = "if";
+			String strng = begin_end_block(if_blk);
+			if (strng != null)  {
+				if_blk.fName += ": " + strng;
+			}
 			/*
 			fLexer.eatToken();
 			if (fLexer.peekOperator(":")) {
