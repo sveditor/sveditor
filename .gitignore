@@ -1,3 +1,7 @@
 *.html
 *.class
 *.gif
+*.properties
+.svproject
+stylesheet.css
+package-list
