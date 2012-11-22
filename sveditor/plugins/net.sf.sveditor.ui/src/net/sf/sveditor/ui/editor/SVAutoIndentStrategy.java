@@ -257,6 +257,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     					doc_str.reverse();
     					
     					if ((doc_str.toString().startsWith("end") ||
+    							doc_str.toString().equals("begin") ||
     							doc_str.toString().equals("while") ||
     							doc_str.toString().equals("join") ||
     							doc_str.toString().equals("join_any") ||
