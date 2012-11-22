@@ -316,15 +316,36 @@ public class TestParseDataTypes extends TestCase {
 		runTest(testname, content, new String[] {"tb_env", "build", "int0_if"});
 	}
 	
-
+	public void testBitsConcatAssign() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testBitsConcatAssign";
+		String content =
+			" `define A_SIZED_TO_B(a,b) {{($bits(b)-$bits(a)){1'b0}},a}\n" +
+			"\n" +
+			"module top;\n" +
+			" logic [4:0] fred;\n" +
+			" logic [6:0] mary;\n" +
+			" logic [6:0] tim;\n" +
+			" always_comb\n" +
+			" begin\n" +
+			" tim = 5;\n" +
+			" tim = `A_SIZED_TO_B(fred, mary);\n" +
+			" end\n" +
+			"endmodule\n"
+			;
+		runTest(testname, content, new String[] {"top"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
+		LogFactory.removeLogHandle(log);
 	}
 
 }

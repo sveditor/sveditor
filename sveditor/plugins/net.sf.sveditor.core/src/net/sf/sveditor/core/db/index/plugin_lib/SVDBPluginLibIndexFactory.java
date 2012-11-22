@@ -29,7 +29,7 @@ public class SVDBPluginLibIndexFactory implements ISVDBIndexFactory {
 			SVDBIndexConfig			config) {
 		for (SVDBPluginLibDescriptor d : SVCorePlugin.getDefault().getPluginLibList()) {
 			if (d.getId().equals(base_location)) {
-				return new SVDBPluginLibIndex(project, d.getNamespace(), d.getPath(), cache);
+				return new SVDBPluginLibIndex(project, d.getId(), d.getNamespace(), d.getPath(), cache);
 			}
 		}
 		

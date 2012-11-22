@@ -15,7 +15,7 @@ package net.sf.sveditor.core.scanutils;
 
 public class StringTextScanner extends AbstractTextScanner 
 	implements IRandomAccessTextScanner {
-	private StringBuilder		fStr;
+	private StringBuilder			fStr;
 	private int					fIdx;
 	private int					fLimit;
 	private int					fUngetCh;
@@ -78,7 +78,7 @@ public class StringTextScanner extends AbstractTextScanner
 		}
 	}
 	
-	public int charAt(int pos) {
+	public char charAt(int pos) {
 		return fStr.charAt(pos);
 	}
 
@@ -92,12 +92,16 @@ public class StringTextScanner extends AbstractTextScanner
 
 	public int get_ch() {
 		int ch = -1;
-		
+	
+		/*
 		if (fUngetCh != -1) {
 			ch = fUngetCh;
 			fUngetCh = -1;
+			fIdx++;
 			return ch;
-		} else if (fIdx < fStr.length() && 
+		} else 
+		 */
+		if (fIdx < fStr.length() && 
 				(fLimit == -1 || fIdx < fLimit)) {
 			ch = fStr.charAt(fIdx);
 			fIdx++;
@@ -118,7 +122,11 @@ public class StringTextScanner extends AbstractTextScanner
 	}
 	
 	public void unget_ch(int ch) {
-		fUngetCh = ch;
+//		fUngetCh = ch;
+		
+		if (ch != -1) {
+			fIdx--;
+		}
 	}
 	
 	public int getOffset() {
@@ -145,12 +153,6 @@ public class StringTextScanner extends AbstractTextScanner
 		if (fLimit != -1) {
 			fLimit += (len - (end-start));
 		}
-		
-		/*
-		if (fParent != null) {
-			fParent.update_idx_replace(start, end, len);
-		}
-		 */
 	}
 	
 	public void replace(int start, int end, String replace) {
@@ -176,12 +178,6 @@ public class StringTextScanner extends AbstractTextScanner
 		if (fLimit != -1) {
 			fLimit -= (end-start);
 		}
-	
-		/*
-		if (fParent != null) {
-			fParent.update_idx_delete(start, end);
-		}
-		 */
 	}
 	
 	public void delete(int start, int end) {

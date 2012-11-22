@@ -224,6 +224,30 @@ public class TestParseBehavioralStmts extends TestCase {
 				new String[] { "m", "test_assert"});
 	}
 	
+	public void testListFindWith() {
+		String testname = "testListFindWith";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m;\n" +
+			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
+			"		uint temp_q_list[$];\n" +
+			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
+			"		if (temp_q_list.size())\n" +
+			"		begin\n" +
+			"			return (1'b1);\n" +
+			"		end\n" +
+			"		else\n" +
+			"		begin\n" +
+			"			return (1'b0);\n" +
+			"		end\n" +
+			"	endfunction: check_for_element\n" +
+			"endmodule\n" 
+  			;
+		
+		runTest(testname, doc, 
+				new String[] { "m"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

@@ -202,6 +202,8 @@ public class SVTemplateParameterPage extends WizardPage {
 	}
 	
 	private void updateFilenamesDescription() {
+		String src_folder_str = (fSourceFolderStr != null)?fSourceFolderStr:"";
+		
 		if (fFileTable != null && !fFileTable.getTable().isDisposed()) {
 			fFileTable.setSourceFolder(fSourceFolderStr);
 			fFileTable.setTemplate(fTemplate);
