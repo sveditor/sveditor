@@ -1019,9 +1019,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			
 			SVDBFile file = processPreProcFile(path);
 			synchronized (fCache) {
-				fCache.setPreProcFile(path, file);
-				fCache.setLastModified(path, 
-						fFileSystemProvider.getLastModifiedTime(path));
+				if (file != null) {
+					fCache.setPreProcFile(path, file);
+					fCache.setLastModified(path, 
+							fFileSystemProvider.getLastModifiedTime(path));
+				}
 			}
 			
 			synchronized(monitor) {

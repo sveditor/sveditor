@@ -31,9 +31,9 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private static final boolean		fDebugEn				= false;
 	private static final boolean		fDebugChEn				= false;
-	private boolean						fDebugUndefinedMacros	= false;
+	private boolean					fDebugUndefinedMacros	= false;
 	private String						fFilename;
-	private int							fLineno;
+	private int						fLineno;
 	private Stack<String>				fExpandStack;
 	private Stack<Boolean>				fEnableOutputStack;
 	private LogHandle					fLog;
@@ -158,6 +158,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		// Read the macro name
 		String key = scanner.readPreProcIdentifier(scanner.get_ch());
 		
+		if (fDebugEn) {
+			debug("  key=\"" + key + "\"");
+		}
+		
 		if (key == null) {
 			ch = scanner.get_ch();
 			fLog.error("Failed to read macro name starting with " + (char)ch);
@@ -179,21 +183,6 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							fFilename + ":" + fLineno);
 				}
 				
-				/*
-				if (fDebugUndefinedMacros) {
-					fLog.debug("macro \"" + key + "\" undefined @ " +
-							fFilename + ":" + fLineno);
-					walkStack();
-					boolean tmp = fDebugEnS;
-					fDebugEnS = true;
-					fIndent = 0;
-					if (fContext != null) {
-						searchContext(fContext, key);
-					}
-					fDebugEnS = tmp;
-				}
-				 */
-
 				if (ch == '(') {
 					ch = skipPastMatchSkipStrings(scanner, '(', ')');
 					scanner.unget_ch(ch);
@@ -228,12 +217,16 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				// Before parsing the parameters, make all macro substitutions
 				StringTextScanner scanner_s;
 
+				
+				scanner_s = new StringTextScanner(scanner, scanner.getOffset());
+				
 				if (fDebugEn) {
 					debug("pre-expand: str=" + scanner.getStorage());
+					debug("  start=" + (char)scanner_s.charAt(scanner_s.getOffset()));
 				}
-				expandMacroRefs(
-						new StringTextScanner(scanner, scanner.getOffset()),
-						referenced_macros);
+				
+				expandMacroRefs(scanner_s, referenced_macros);
+				
 				if (fDebugEn) {
 					debug("post-expand: str=" + scanner.getStorage());
 				}
@@ -255,6 +248,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				// Simple -- just replace the text range with the macro text
 				StringTextScanner scanner_s = new StringTextScanner(
 						scanner, macro_start, scanner.getOffset());
+				
+				if (fDebugEn) {
+					debug("Replacing \"" + 
+							(char)scanner_s.charAt(scanner_s.getOffset()) + "\" .. \"" +
+							(char)scanner_s.charAt(scanner_s.getLimit()-1) + "\"");
+				}
 				
 				expandMacro(scanner_s, m, null, referenced_macros);
 				
@@ -334,6 +333,11 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		boolean expand_params = (params_vals != null);
 		List<String> param_names = new ArrayList<String>();
 		
+		if (fDebugEn) {
+			debug("--> expandMacro(" + m.getName() + ")");
+			debug("    text=" + scanner.substring(scanner.getOffset(), scanner.getLimit()));
+		}
+		
 		// Iterate through the specified and definition arguments,
 		// potentially adding default values
 		for (int i=0; i<m.getParameters().size(); i++) {
@@ -347,12 +351,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				params_vals.add(mp.getValue());
 			}
 		}
-		
-		if (fDebugEn) {
-			debug("--> expandMacro(" + m.getName() + ")");
-			debug("    text=" + scanner.substring(scanner.getOffset(), scanner.getLimit()));
-		}
-		
+
 		if (expand_params) {
 			expand_params = (params_vals.size() == param_names.size());
 			if (params_vals.size() != param_names.size()) {
@@ -394,18 +393,33 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			scanner.replace(scanner.getOffset(), scanner.getLimit(), "");
 		} else {
 			// Replace the text and adjust the limits
-			scanner.replace(scanner.getOffset(), scanner.getLimit(), m.getDef());
+			int start = scanner.getOffset();
+			int limit = scanner.getLimit();
+
+			scanner.replace(start, limit, m.getDef());
+			if (fDebugEn) {
+				debug("  existing: " + (limit-start) + " new: " + m.getDef().length());
+			}
 		}
 
 		// Expand the parameter references within the replacement
 		if (expand_params) {
-			expandParameterRefs(new StringTextScanner(scanner), param_names, params_vals);
+			StringTextScanner scanner_p = new StringTextScanner(scanner);
+			expandParameterRefs(scanner_p, param_names, params_vals);
 		}
 
 		// Expand pre-processor references within the replacement
 		if (!referenced_params.contains(m.getName())){ 
 			referenced_params.add(m.getName());
-			expandMacroRefs(new StringTextScanner(scanner), referenced_params);
+			StringTextScanner scanner_p = new StringTextScanner(scanner);
+			
+			if (fDebugEn) {
+				debug("  pre-expandMacroRefs: \"" + 
+					(char)scanner_p.charAt(scanner_p.getOffset()) + "\" \"" +
+					(char)scanner_p.charAt(scanner_p.getLimit()-1) + "\"");
+			}
+			
+			expandMacroRefs(scanner_p, referenced_params);
 			referenced_params.remove(m.getName());
 		} else {
 			// TODO:
@@ -550,39 +564,53 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		int ch;
 
 		if (fDebugEn) {
+			debug("--> expandParameterRefs");
+			
 			for (int i=0; i<param_names.size(); i++) {
 				debug("Param[" + i + "] " + param_names.get(i) + " = " +
 						param_vals.get(i));
 			}
 			
-			debug("--> expandParameterRefs");
 			debug("pre=" + scanner.getStorage());
+			
+			debug("offset=" + (char)scanner.charAt(scanner.getOffset()) + 
+					" limit=" + (char)scanner.charAt(scanner.getLimit()-1));
 		}
 
 		// Read individual identifiers. Ignore un-escaped strings
 		int last_ch = -1;
 		while ((ch = scanner.get_ch()) != -1) {
+			if (fDebugChEn) {
+				debug("  ch=" + (char)ch + " last_ch=" + (char)last_ch);
+			}
 			if (ch == '"' && last_ch != '`') {
 				// un-escaped string
 				while ((ch = scanner.get_ch()) != -1 && ch != '"') { }
 			} else if (ch == '`' && last_ch == '`') {
 				// Handle `` as a token separator
+				if (fDebugEn) {
+					debug("replace ``");
+				}
 				scanner.replace(scanner.getOffset()-2, scanner.getOffset(), "");
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				int p_start = scanner.getOffset()-1;
 				int p_end;
 
 				String key = scanner.readPreProcIdentifier(ch);
-		
-				debug("offset=" + scanner.getOffset() + " limit=" + scanner.getLimit());
+
+				if (fDebugEn) {
+					debug("offset=" + scanner.getOffset() + " limit=" + scanner.getLimit());
+				}
+				p_end = scanner.getOffset();
+/*				
 				if (scanner.getOffset() >= scanner.getLimit() && key.length() == 1) {
-//				if (key.length() == 1) {
 					debug("should extend to limit");
 					p_end = scanner.getOffset();
 //					p_end = scanner.getOffset()-1;
 				} else {
 					p_end = scanner.getOffset()-1;
 				}
+ */				
 
 				int index = param_names.indexOf(key);
 				if (index != -1 && index < param_vals.size()) {
@@ -599,8 +627,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 
 		if (fDebugEn) {
-			debug("<-- expandParameterRefs");
 			debug("post=" + scanner.getStorage());
+			debug("<-- expandParameterRefs");
 		}
 	}
 	
@@ -613,13 +641,15 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			debug("--> expandMacroRefs");
 			debug("pre=" + scanner.getStorage().substring(scanner.getOffset(), scanner.getLimit()));
 		}
-		
+
 		while ((ch = scanner.get_ch()) != -1) {
 			iteration++;
 			
 			if (fDebugChEn) {
-				debug("ch=\"" + (char)ch + "\"");
+				debug("current: \"" + scanner.getStorage().toString() + "\"");
+				debug("ch=\"" + (char)ch + "\" iteration=" + iteration + " " + scanner.getOffset());
 			}
+
 			if (ch == '`') {
 				int macro_start = scanner.getOffset()-1;
 				int ch2 = scanner.get_ch();
@@ -636,7 +666,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					
 					// Expect an identifier
 					int m_start = scanner.getOffset()-2;
-					
+//					int m_start = scanner.getOffset()-1;
+
 					ch = scanner.skipWhite(ch2);
 
 					// Skip any non-identifier characters
@@ -700,13 +731,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					} else {
 						SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
 						List<String> sub_p = null;
-						ch = scanner.get_ch();
 						
 						if (fDebugEn) {
 							debug("    ref=\"" + key + "\"");
 						}
 						
-						int m_end = scanner.getOffset();
+						int m_end;
 						
 						if (hasParameters(key, fLineno)) {
 							// TODO: Need to expand parameter references in this macro call
@@ -714,7 +744,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							if (fDebugEn) {
 								debug("    \"" + key + "\" has parameters");
 							}
-							ch = scanner.skipWhite(ch);
+							ch = scanner.skipWhite(scanner.get_ch());
 							
 							if (ch == '(') {
 								// expand macros in parameter list
@@ -725,22 +755,23 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								sub_p = parse_params(sub_m, scanner);
 								ch = scanner.get_ch();
 							}
+							if (ch != -1) {
+								// Back up if we didn't end by exhausing the buffer. 
+								// We don't want to replace the character following the macro
+								scanner.unget_ch(ch);
+							}
 							m_end = scanner.getOffset();
 						} else {
 							debug("    \"" + key + "\" doesn't have parameters");
+							m_end = scanner.getOffset();
 						}
 						
 						// Now, expand this macro
 						if (fDebugEn) {
 							debug("post-param parse: ch=" + (char)ch);
 						}
-						if (ch != -1) {
-							// Back up if we didn't end by exhausing the buffer. 
-							// We don't want to replace the character following the macro
-							scanner.unget_ch(ch);
-							m_end--;
-						} 
-						
+					
+						// This is an unexpected 
 						if ((m_end-1) >= scanner.getStorage().length()) {
 							System.out.println("m_end=" + m_end + " storage.length=" +
 									scanner.getStorage().length() + 
@@ -753,12 +784,14 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							debug("    text for expansion ends with \"" + 
 									scanner.getStorage().charAt(m_end-1) + "\"");
 						}
+
 						StringTextScanner scanner_s = new StringTextScanner(
 								scanner, m_start, m_end);
 						
 						if (sub_m != null) {
 							if (!referenced_params.contains(key)) {
 								referenced_params.add(key);
+								// This is unexpected
 								if (scanner.getOffset() > scanner.getLimit()) {
 									System.out.println("scanner offset > limit before sub-expand iteration "
 											+ iteration);
@@ -767,8 +800,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								expandMacro(scanner_s, sub_m, sub_p, referenced_params);
 								referenced_params.remove(key);
 
-								scanner.seek(scanner_s.getOffset()-1);
+								scanner.seek(scanner_s.getOffset());
 
+								// This is unexpected
 								if (scanner.getOffset() > scanner.getLimit()) {
 									System.out.println("scanner offset > limit after sub-expand iteration "
 											+ iteration);
@@ -789,6 +823,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						}
 					}
 				}
+			}
+			
+			if (fDebugChEn) {
+				debug("end iteration: ch=\"" + (char)ch + "\" iteration=" + iteration + " " + scanner.getOffset());
 			}
 		}
 		
