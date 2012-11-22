@@ -53,6 +53,21 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
+	public void testTaskFunctionWithSoftArg() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content = 
+			"class foobar;\n" +
+			"\n" +
+			"    function void foo_func(int soft);\n" +
+			"        a = 7;\n" +
+			"        b = 6;\n" +
+			"    endfunction\n" + // endfunction without : <name>
+			"\n" +
+			"endclass\n";
+		runTest("testTaskFunctionWithSoftArg", content, 
+				new String[] {"foobar", "foo_func"});
+	}
+
 	public void testImplicitVectoredReturnFunction() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
