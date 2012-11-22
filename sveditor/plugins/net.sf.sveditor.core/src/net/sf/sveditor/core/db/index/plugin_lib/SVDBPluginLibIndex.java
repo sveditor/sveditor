@@ -60,10 +60,12 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	
 	public SVDBPluginLibIndex(
 			String 			project, 
+			String			index_id,
 			String			plugin_ns,
 			String			root,
 			ISVDBIndexCache	cache) {
-		super(project, "plugin:/" + plugin_ns + "/" + root, null, cache, null);
+//		super(project, "plugin:/" + plugin_ns + "/" + root, null, cache, null);
+		super(project, index_id, null, cache, null);
 
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 		fRootFile = root;
@@ -74,6 +76,13 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		setFileSystemProvider(this);
 	}
 	
+	@Override
+	public String getResolvedBaseLocation() {
+		return "plugin:/" + fPluginNS + "/" + fRootFile;
+	}
+
+
+
 	public String getTypeID() {
 		return SVDBPluginLibIndexFactory.TYPE;
 	}
@@ -82,52 +91,8 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	protected void discoverRootFiles(IProgressMonitor monitor) {
 		clearFilesList();
 		clearIncludePaths();
-		addFile(getBaseLocation());
+		addFile(getResolvedBaseLocation());
 		addIncludePath(getResolvedBaseLocationDir());
-		
-		/*
-		Enumeration<URL> entries = 
-			(Enumeration<URL>)fBundle.findEntries(root_dir, "*", true);
-		
-		if (entries == null) {
-			fLog.error("Failed to find bundle entry \"" + root_dir + "\"");
-		}
-		
-		while (entries.hasMoreElements()) {
-			URL url = entries.nextElement();
-			
-			if (url.getFile().endsWith("/")) {
-				continue;
-			}
-			
-			String ext = "";
-			String path = url.getFile(); 
-			if (path.lastIndexOf('.') != -1) {
-				ext = path.substring(path.lastIndexOf('.'));
-			}
-			
-			if (!fSVExtensions.contains(ext)) {
-				continue;
-			}
-
-			boolean ignore = false;
-			for (String ignore_dir : fIgnoreDirs) {
-				if (path.contains(ignore_dir)) {
-					ignore = true;
-					break;
-				}
-			}
-			
-			if (ignore) {
-				continue;
-			}
-
-			String full_path = "plugin:/" + fPluginNS + path;
-			
-			fLog.debug("Adding file \"" + full_path + "\"");
-			addFile(full_path);
-		}
-		 */
 	}
 
 	public boolean isDir(String path) {

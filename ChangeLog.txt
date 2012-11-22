@@ -5,6 +5,15 @@
 
 - #(3587919) - Correct issue with pre-processor interpreting parens in quoted strings
 
+- #(nobug) - Correct an issue with naming of the plugin lib index, which prevents
+  multiple instances from accumulating
+  
+- #(nobug) - Correct a parse bug with event activation with a repeat (->> repeat(10)...)
+
+- #(nobug) - Correct a pre-processor issue that caused problems with a 
+  concatenation expression
+
+
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
 

@@ -44,20 +44,26 @@ public class SVFilesystemFileMatcher extends AbstractSVFileMatcher {
 					paths.add(parent.getAbsolutePath());
 				}
 			}
-		} else {
-			for (File file : parent.listFiles()) {
-				if (file.isDirectory()) {
-					if (include_dir(file.getAbsolutePath())) {
-						findIncludedPaths(base, paths, file);
-					}
-				} else {
-					if (include_file(file.getAbsolutePath())) {
-						if (!paths.contains(file.getAbsolutePath())) {
-							paths.add(file.getAbsolutePath());
+		} else if (parent.isDirectory()) {
+			File file_list[] = parent.listFiles();
+		
+			if (file_list != null) {
+				for (File file : file_list) {
+					if (file.isDirectory()) {
+						if (include_dir(file.getAbsolutePath())) {
+							findIncludedPaths(base, paths, file);
+						}
+					} else {
+						if (include_file(file.getAbsolutePath())) {
+							if (!paths.contains(file.getAbsolutePath())) {
+								paths.add(file.getAbsolutePath());
+							}
 						}
 					}
 				}
 			}
+		} else {
+			fLog.error("Base path \"" + parent.getAbsolutePath() + "\" does not exist");
 		}
 	}
 }
