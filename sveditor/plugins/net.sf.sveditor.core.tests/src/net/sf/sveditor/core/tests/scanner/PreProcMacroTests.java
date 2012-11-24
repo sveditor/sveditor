@@ -107,7 +107,7 @@ public class PreProcMacroTests extends TestCase {
 	}
 
 	public void testNestedExpansion() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testNestedExpansion");
 		String text = 
 			"`define vmm_channel_( T ) T``_channel\n" +

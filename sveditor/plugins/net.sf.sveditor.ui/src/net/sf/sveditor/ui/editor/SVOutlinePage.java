@@ -26,6 +26,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
@@ -38,10 +42,12 @@ import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
@@ -56,36 +62,60 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 
 public class SVOutlinePage extends ContentOutlinePage 
 	implements IShowInTarget, IAdaptable, 
-			Runnable, ISVDBChangeListener {
+			Runnable, ISVDBChangeListener, ILogLevelListener {
 	private SVDBFile					fSVDBFile;
 	private SVTreeContentProvider		fContentProvider;
 	private SVEditor					fEditor;
-	private boolean						fIgnoreSelectionChange = false;
+	private boolean					fIgnoreSelectionChange = false;
 	private ISVDBItemBase				fLastSelection;
-	private Action                      ToggleAssign;
-	private Action                      ToggleAlways;
-	private Action                      ToggleDefines;
-	private Action                      ToggleInitial;
-	private Action                      ToggleGenerate;
-	private Action                      ToggleVariables;
-	private Action                      ToggleModuleInstances;
-	private Action                      ToggleInclude;
-	private Action                      ToggleTaskFunction;
-	private Action                      ToggleEnumTypedefs;
-	private Action                      ToggleAssertionProperties;
-	private Action                      ToggleCoverPointGroupCross;
-	private Action                      ToggleConstraints;
-	private Action                      ToggleSort;
-	private SVDBDefaultContentFilter    DefaultContentFilter;
-	private ViewerComparator            ViewerComapartor;
+	private Action                     ToggleAssign;
+	private Action                     ToggleAlways;
+	private Action                     ToggleDefines;
+	private Action                     ToggleInitial;
+	private Action                     ToggleGenerate;
+	private Action                     ToggleVariables;
+	private Action                     ToggleModuleInstances;
+	private Action                     ToggleInclude;
+	private Action                     ToggleTaskFunction;
+	private Action                     ToggleEnumTypedefs;
+	private Action                     ToggleAssertionProperties;
+	private Action                     ToggleCoverPointGroupCross;
+	private Action                     ToggleConstraints;
+	private Action                     ToggleSort;
+	private SVDBDefaultContentFilter	DefaultContentFilter;
+	private ViewerComparator			ViewerComapartor;
+	private LogHandle					fLog;
+	private boolean					fDebugEn;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
 		fContentProvider = new SVTreeContentProvider();
 		
 		fSVDBFile = new SVDBFile("");
+		
+		fLog = LogFactory.getLogHandle("SVOutlinePage");
+		fDebugEn = fLog.isEnabled();
 	}
 	
+	@Override
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = handle.isEnabled();
+	}
+
+
+
+	public ITreeContentProvider getContentProvider() {
+		return fContentProvider;
+	}
+	
+	@Override
+	public void setSelection(ISelection selection) {
+		if (fDebugEn) {
+			fLog.debug("setSelection: " + selection);
+		}
+		super.setSelection(selection);
+	}
+
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 
@@ -139,6 +169,13 @@ public class SVOutlinePage extends ContentOutlinePage
 		// Get initial contents
 		refresh();
 	}
+	
+	public void clearIgnoreSelectionChange() {
+		if (fDebugEn) {
+			fLog.debug("clearIgnoreSelectionChange");
+		}
+		fIgnoreSelectionChange = false;
+	}
 
 	
 	public void SVDBFileChanged(SVDBFile file, List<SVDBItem> adds,
@@ -152,12 +189,18 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	public void refresh() {
 		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
+			if (fDebugEn) {
+				fLog.debug("refresh: schedule refresh of content");
+			}
 			Display.getDefault().asyncExec(this);
 		}
 	}
 
 	public void run() {
 		if (getTreeViewer() != null && !getTreeViewer().getControl().isDisposed()) {
+			if (fDebugEn) {
+				fLog.debug("run: refresh content");
+			}
 			fSVDBFile = fEditor.getSVDBFile();
 			
 			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
@@ -170,6 +213,10 @@ public class SVOutlinePage extends ContentOutlinePage
 			setExpansionPaths(exp_path_list);
 			
 			setSavedSelection(sel);
+		} else {
+			if (fDebugEn) {
+				fLog.debug("run: ignore due to page closing");
+			}
 		}
 	}
 	
@@ -230,28 +277,38 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 	
 	private void setSavedSelection(ISelection sel) {
+		if (fDebugEn) {
+			fLog.debug("--> setSavedSelection: set fIgnoreSelectionChange=true");
+		}
 		fIgnoreSelectionChange = true;
-		if (!sel.isEmpty() && sel instanceof IStructuredSelection) {
-			List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
-			IStructuredSelection ss = (IStructuredSelection)sel;
-			List<ISVDBItemBase> new_sel_l = new ArrayList<ISVDBItemBase>();
-			List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
-			
-			for (Object sel_it : ss.toList()) {
-				if (sel_it instanceof ISVDBItemBase) {
-					path.clear();
-					target_path.clear();
-					buildFullPath(path, (ISVDBItemBase)sel_it);
-					
-					if (lookupPath(fSVDBFile, path.iterator(), target_path)) {
-						ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
-						new_sel_l.add(sel_t);
+		try {
+			if (!sel.isEmpty() && sel instanceof IStructuredSelection) {
+				List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
+				IStructuredSelection ss = (IStructuredSelection)sel;
+				List<ISVDBItemBase> new_sel_l = new ArrayList<ISVDBItemBase>();
+				List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+
+				for (Object sel_it : ss.toList()) {
+					if (sel_it instanceof ISVDBItemBase) {
+						path.clear();
+						target_path.clear();
+						buildFullPath(path, (ISVDBItemBase)sel_it);
+
+						if (lookupPath(fSVDBFile, path.iterator(), target_path)) {
+							ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
+							new_sel_l.add(sel_t);
+						}
 					}
 				}
+				StructuredSelection new_sel = new StructuredSelection(new_sel_l);
+
+				getTreeViewer().setSelection(new_sel);
 			}
-			StructuredSelection new_sel = new StructuredSelection(new_sel_l);
-			
-			getTreeViewer().setSelection(new_sel);
+		} finally {
+			fIgnoreSelectionChange = false;
+		}
+		if (fDebugEn) {
+			fLog.debug("<-- setSavedSelection: set fIgnoreSelectionChange=true");
 		}
 	}
 	
@@ -337,19 +394,45 @@ public class SVOutlinePage extends ContentOutlinePage
 
 			
 			public void selectionChanged(SelectionChangedEvent event) {
+				if (fDebugEn) {
+					fLog.debug("selectionChanged: " + event.getSelection() + " fIgnoreSelectionChange=" + fIgnoreSelectionChange);
+				}
+				
 				if (fIgnoreSelectionChange) {
-					fIgnoreSelectionChange = false;
+					if (fDebugEn) {
+						fLog.debug("  Toggle fIgnoreSelectionChange=false and return");
+					}
+//					fIgnoreSelectionChange = false;
 					return;
 				}
 				
 				removeSelectionChangedListener(this);
 				
+				if (fDebugEn) {
+					if (event.getSelection() == null) {
+						fLog.debug("  Selection is null");
+					} else {
+						fLog.debug("  Selection is of type " + event.getSelection().getClass().getName());
+					}
+				}
+
 				if (event.getSelection() instanceof StructuredSelection) {
 					StructuredSelection sel = (StructuredSelection)event.getSelection();
+					if (fDebugEn) {
+						if (sel.getFirstElement() == null) {
+							fLog.debug("  Selection target is null");
+						} else {
+							fLog.debug("  Selection target is of type " + sel.getFirstElement().getClass().getName());
+						}
+					}
 					if (sel.getFirstElement() instanceof ISVDBItemBase) {
 						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
 						
 						if (fLastSelection == null || !fLastSelection.equals(it, true)) {
+							if (fDebugEn) {
+								fLog.debug("Setting SVEditor selection: " + SVDBItem.getName(it) + " @ " + 
+										((it.getLocation() != null)?it.getLocation().getLine():-1));
+							}
 							fEditor.setSelection(it, false);
 							fLastSelection = it;
 						}
