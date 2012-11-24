@@ -481,7 +481,7 @@ public class SVKeywords {
 	public static final Set<String>					fBuiltinTypes;
 	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
-	private static final Map<String, Boolean>		fKeywordMap;
+	private static final Map<String, Boolean>			fKeywordMap;
 	public static final Set<String>					fBuiltinGates_with_Strength;
 	public static final Set<String>					fBuiltinGates_no_Strength;
 	public static final Set<String>					fBuiltinGates;

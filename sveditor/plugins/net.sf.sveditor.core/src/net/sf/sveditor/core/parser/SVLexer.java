@@ -26,11 +26,17 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVLexer extends SVToken {
+	public enum Context {
+		Default,
+		Constraint
+	}
+	
 	private ITextScanner fScanner;
 	// 2- and 3-character operator prefixes
 	private Set<String>	fSeqPrefixes[];
-	private Set<String> fOperatorSet;
-	private Set<String> fKeywordSet;
+	private Set<String> 			fOperatorSet;
+	private Set<String> 			fDefaultKeywordSet;
+	private Set<String> 			fConstraintKeywordSet;
 
 	private List<ISVTokenListener> fTokenListeners;
 
@@ -49,6 +55,7 @@ public class SVLexer extends SVToken {
 	private Stack<SVToken> fUngetStack;
 	private boolean 		fInAttr;
 	private LogHandle		fLog;
+	private Context			fContext;
 
 	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
@@ -95,7 +102,8 @@ public class SVLexer extends SVToken {
 			new HashSet<String>()
 		};
 
-		fKeywordSet = new HashSet<String>();
+		fDefaultKeywordSet = new HashSet<String>();
+		fConstraintKeywordSet = new HashSet<String>();
 
 		fStringBuffer = new StringBuilder();
 		fCaptureBuffer = new StringBuilder();
@@ -119,9 +127,21 @@ public class SVLexer extends SVToken {
 			if (kw.endsWith("*")) {
 				kw = kw.substring(0, kw.length() - 1);
 			}
-			fKeywordSet.add(kw);
+			fDefaultKeywordSet.add(kw);
 		}
+		
+		fConstraintKeywordSet.addAll(fDefaultKeywordSet);
+		
+		// Customize
+		fDefaultKeywordSet.remove("soft");
+		
 		fEOF = false;
+		
+		setContext(Context.Default);
+	}
+	
+	public void setContext(Context ctxt) {
+		fContext = ctxt;
 	}
 
 	public void addTokenListener(ISVTokenListener l) {
@@ -818,10 +838,22 @@ public class SVLexer extends SVToken {
 			fImage = fStringBuffer.toString();
 
 			if (fIsIdentifier) {
-				if ((fIsKeyword = fKeywordSet.contains(fImage))) {
-					if (SVKeywords.isSVKeyword(fImage)) {
-						fIsIdentifier = false;
-					}
+				switch (fContext) {
+					case Default:
+						if ((fIsKeyword = fDefaultKeywordSet.contains(fImage))) {
+							if (SVKeywords.isSVKeyword(fImage)) {
+								fIsIdentifier = false;
+							}
+						}
+						break;
+						
+					case Constraint:
+						if ((fIsKeyword = fConstraintKeywordSet.contains(fImage))) {
+							if (SVKeywords.isSVKeyword(fImage)) {
+								fIsIdentifier = false;
+							}
+						}
+						break;
 				}
 			}
 			fTokenConsumed = false;
