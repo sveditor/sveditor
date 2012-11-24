@@ -17,6 +17,9 @@
 
 - #(3588993) - Correct bug involving outline view incorrectly setting the 
   selection in the editor after an editor change.
+  
+- #(3588757) - Update lexer to support multiple contexts. This is the first
+  step toward supporting multiple language variants.
 
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
