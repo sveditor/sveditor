@@ -71,7 +71,7 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testLibIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		CoreReleaseTests.clearErrors();
 		

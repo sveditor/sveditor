@@ -15,6 +15,9 @@
 
 - #(nobug) Capture names of for loops in generate blocks if given
 
+- #(3588993) - Correct bug involving outline view incorrectly setting the 
+  selection in the editor after an editor change.
+
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
 

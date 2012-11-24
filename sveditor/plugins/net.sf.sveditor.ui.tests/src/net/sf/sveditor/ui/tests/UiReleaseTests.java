@@ -22,6 +22,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
+import net.sf.sveditor.ui.tests.editor.TestOutlineViewOperations;
 import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
 import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
@@ -30,6 +31,7 @@ public class UiReleaseTests extends TestSuite {
 	
 	public UiReleaseTests() {
 		addTest(new TestSuite(TestAutoIndent.class));
+		addTest(new TestSuite(TestOutlineViewOperations.class));
 		addTest(new TestSuite(TestOverrideMethods.class));
 		addTest(new TestSuite(TestUserLevelOperations.class));
 	}

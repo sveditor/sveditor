@@ -60,7 +60,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 
 	
 	public void testWSLibMissingIncludeDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
