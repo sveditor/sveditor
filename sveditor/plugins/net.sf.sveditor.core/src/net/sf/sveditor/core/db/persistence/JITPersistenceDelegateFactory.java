@@ -153,7 +153,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 			}
 		}
 		
-		long start = System.currentTimeMillis();
+//		long start = System.currentTimeMillis();
 		build_boilerplate(cw);
 		
 		for (SVDBItemType t : fTypeClassMap.keySet()) {
@@ -175,10 +175,12 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 			e.printStackTrace();
 		}
 		
+		/*
 		long end = System.currentTimeMillis();
-		
+	
 		System.out.println("Class-build time: " + (end-start));
 		System.out.println("Size: " + cw.toByteArray().length);
+		 */
 	}
 	
 	private void build_boilerplate(ClassWriter cw) {

@@ -54,7 +54,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testTaskFunctionWithSoftArg() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 			"class foobar;\n" +
 			"\n" +
