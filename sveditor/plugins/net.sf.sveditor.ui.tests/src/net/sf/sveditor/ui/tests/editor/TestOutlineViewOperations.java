@@ -81,7 +81,7 @@ public class TestOutlineViewOperations extends TestCase {
 	public void testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewSelectionPreservation_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		cleanupWorkspace();
 
 		CoreReleaseTests.clearErrors();
