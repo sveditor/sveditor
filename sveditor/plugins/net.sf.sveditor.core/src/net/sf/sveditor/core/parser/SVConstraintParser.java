@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.stmt.SVDBConstraintSetStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
+import net.sf.sveditor.core.parser.SVLexer.Context;
 
 public class SVConstraintParser extends SVParserBase {
 	
@@ -36,22 +37,27 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBConstraint c = new SVDBConstraint();
 		c.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("constraint");
-		
-		c.setName(fParsers.SVParser().scopedIdentifier(false));
+		fLexer.setContext(Context.Constraint);
+	
+		try {
+			c.setName(fParsers.SVParser().scopedIdentifier(false));
 
-		// Forward declaration
-		if (fLexer.peekOperator(";")) {
-			fLexer.eatToken();
-		} else {
-			fLexer.readOperator("{");
+			// Forward declaration
+			if (fLexer.peekOperator(";")) {
+				fLexer.eatToken();
+			} else {
+				fLexer.readOperator("{");
 
-			parent.addChildItem(c);
+				parent.addChildItem(c);
 
-			while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
-				c.addChildItem(constraint_set_item());
+				while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
+					c.addChildItem(constraint_set_item());
+				}
+
+				fLexer.readOperator("}");
 			}
-
-			fLexer.readOperator("}");
+		} finally {
+			fLexer.setContext(Context.Default);
 		}
 	}
 	
