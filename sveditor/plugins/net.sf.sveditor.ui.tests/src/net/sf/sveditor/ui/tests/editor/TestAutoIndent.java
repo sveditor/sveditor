@@ -178,6 +178,13 @@ public class TestAutoIndent extends TestCase {
 			"end\n" +
 			"end\n" +
 			"endgenerate\n" +
+			"generate begin : named_gen\n" +
+			"for (i=0; i<5; i++)\n" +
+			"begin : named_for\n" +
+			"submod sm ();\n" +
+			"end\n" +
+			"end\n" +
+			"endgenerate\n" +
 			"endmodule\n"
 			;
 		// Type & then paste, to make sure that what we type, and what we get are identical!
@@ -188,6 +195,13 @@ public class TestAutoIndent extends TestCase {
 		
 		String expected = 
 				"module foo;\n" +
+				"	generate begin : named_gen\n" +
+				"		for (i=0; i<5; i++)\n" +
+				"		begin : named_for\n" +
+				"			submod sm ();\n" +
+				"		end\n" +
+				"	end\n" +
+				"	endgenerate\n" +
 				"	generate begin : named_gen\n" +
 				"		for (i=0; i<5; i++)\n" +
 				"		begin : named_for\n" +
