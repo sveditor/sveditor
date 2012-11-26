@@ -517,6 +517,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					tok = indent_block_or_statement(null, false);
 //					leave_scope();
 				}
+				// look for and consume endgenerate
+				if (tok.isId("endgenerate"))  {
+					tok = next_s();
+				}
 				
 				fQualifiers = 0;
 			} else if (tok.isId("covergroup")) {

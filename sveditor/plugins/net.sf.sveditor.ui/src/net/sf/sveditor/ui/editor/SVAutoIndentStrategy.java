@@ -255,7 +255,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     						}
     					}
     					doc_str.reverse();
-    					
+    					// unindent the following if typed
     					if ((doc_str.toString().startsWith("end") ||
     							doc_str.toString().equals("begin") ||
     							doc_str.toString().equals("while") ||
