@@ -280,11 +280,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			boolean begin_is_start_line = tok.isStartLine();
 			
 			if (begin_is_start_line) {
-				enter_scope(tok);
+				leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 				start_of_scope(tok);
 			}
-			
-			tok = next_s();
+			// begin often has : <label>  consume this if it is there
+			tok = consume_labeled_block(next_s());
+
 			if (!begin_is_start_line) {
 				enter_scope(tok);
 			} else {
@@ -297,20 +298,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				if (tok.isId("end")) {
 					leave_scope(tok);
-					if (begin_is_start_line) {
-						leave_scope();
-					}
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
-					tok = next_s();
-					// TODO: Why does setting indent here cause 
-					// new-line positioning of 'begin' to work properly?
-					if (begin_is_start_line) {
-						set_indent(tok, false);
-					}
-					
-					tok = consume_labeled_block(tok);
+					tok = consume_labeled_block(next_s());
 					break;
 				} else {
 					// Indent statement. Note that we're already in the
@@ -511,7 +502,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
 				tok = indent_struct_union_enum("");
 				fQualifiers = 0;
-			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final")) {
+			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final") || tok.isId("generate")) {
 				// enter_scope(tok);
 				tok = next_s();
 				
@@ -786,7 +777,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// Ensure that any comments at the beginning of the
 			// block are indented correctly
 			start_of_scope(tok);
-			tok = next_s();
+			// begin often has : <label>  consume this if it is there
+			tok = consume_labeled_block(next_s());
+
 			enter_scope(tok);
 			
 			while (tok != null) {
@@ -798,9 +791,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					if (fDebugEn) {
 						debug("Setting indent \"" + peek_indent() + "\"");
 					}
-					tok = next_s();
-					
-					tok = consume_labeled_block(tok);
+					tok = consume_labeled_block(next_s());
 					break;
 				} else {
 					tok = indent_block_or_statement(parent, true);
@@ -826,6 +817,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	
+	/**
+	 * This thing figures out what kind of statment we have to deal with, and calls
+	 * the appropriate indenter (if/for/case etc)
+	 * @param parent
+	 * @return
+	 */
 	private SVIndentToken indent_stmt(String parent) {
 		SVIndentToken tok = current_s();
 		
@@ -870,6 +867,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = next_s();
 		}  */
 		else {
+			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.
 			boolean do_next = true;
 			while (!tok.isOp(";")) {
 				if (parent != null) {
@@ -1223,12 +1221,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
 		if (tok.isOp(":")) {
-			tok = next_s();
-			tok = next_s();
+			tok = next_s();		// consume the label
+			tok = next_s();		// now move token to the next identifier ... 
 		}
 		return tok;
 	}
 	
+	/**
+	 * Loops till number of open braces "(" == number of close braces ")"
+	 *  Can be used to consume (i=0; i<10; i++) etc
+	 * @return
+	 */
 	private SVIndentToken consume_expression() {
 		SVIndentToken tok = current();
 		int n_lbrace=0, n_rbrace=0;

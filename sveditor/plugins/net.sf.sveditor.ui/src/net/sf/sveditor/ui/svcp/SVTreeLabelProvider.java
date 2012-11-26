@@ -16,6 +16,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
@@ -179,6 +180,9 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			}
 			
 			return ret;
+		} else if (element instanceof SVDBGenerateIf) {
+			SVDBGenerateIf it = (SVDBGenerateIf)element;
+			return (new StyledString (it.fName));
 		} else if (element instanceof ISVDBItemBase) {
 			ISVDBItemBase it = (ISVDBItemBase)element;
 			StyledString ret = null;

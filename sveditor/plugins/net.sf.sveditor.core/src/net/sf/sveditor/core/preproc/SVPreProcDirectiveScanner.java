@@ -252,6 +252,14 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		int last_ch = -1;
 		
 		fTmpBuffer.setLength(0);
+		
+		// Skip any leading whitespace. Do not include
+		// in the
+		while (ci != -1 && (ci == ' ' || ci == '\t')) {
+			last_ch = ci;
+			ci = get_ch();
+		}
+		
 		while (ci != -1 && ci != '\n' || last_ch == '\\') {
 			if (last_ch == '\\' && ci == '\n') {
 				if (fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\r') {
@@ -457,8 +465,10 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 			
 			if (ch == '"') {
 				String inc = readString_ll(ch);
-				
-				inc = inc.substring(1, inc.length()-1);
+
+				if (inc.length() >= 2) {
+					inc = inc.substring(1, inc.length()-1);
+				}
 				
 				fLog.debug("Include: last char=\"" + inc.charAt(inc.length()-1) + "\"");
 				

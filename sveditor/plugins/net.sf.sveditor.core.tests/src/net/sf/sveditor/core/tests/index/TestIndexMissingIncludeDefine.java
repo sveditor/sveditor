@@ -18,6 +18,7 @@ import java.io.InputStream;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -78,7 +79,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
-		int_TestMissingIncludeDefine(index, "${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 2);
+		int_TestMissingIncludeDefine(index, "${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 3);
 	}
 
 	public void testWSArgFileMissingIncludeDefine() {
@@ -140,6 +141,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		while (it.hasNext()) {
 			it.nextItem();
 		}
+		
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
 

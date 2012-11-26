@@ -16,23 +16,28 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.swt.widgets.Display;
 
 public class AutoEditTester {
 	private Map<String, IAutoEditStrategy> fStrategyMap = new HashMap<String, IAutoEditStrategy>();
-	private IDocument fDoc;
-	private String fPartitioning;
-	private int fCaretOffset;
+	private IDocument 			fDoc;
+	private String 				fPartitioning;
+	private int 				fCaretOffset;
+	private LogHandle			fLog;
 
 	public AutoEditTester(IDocument doc, String partitioning) {
 		super();
 		fDoc = doc;
 		fPartitioning = partitioning;
+		fLog = LogFactory.getLogHandle("AutoEditTester");
 	}
 	
 	public IDocument getDocument() {
@@ -60,9 +65,27 @@ public class AutoEditTester {
 	}
 	
 	public void type(String text) throws BadLocationException {
+		type(text, -1);
+	}
+	
+	public void type(String text, int pos) throws BadLocationException {
+		fLog.debug("--> type \"" + text + "\"");
 		for (int i = 0; i < text.length(); ++i) {
 			type(text.charAt(i));
 		}
+		
+		if (pos != -1) {
+			setCaretOffset(pos);
+		}
+
+		for (int i=0; i<10; i++) {
+			fLog.debug("  delay iteration " + i);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {}
+			while (Display.getDefault().readAndDispatch()) {}
+		}
+		fLog.debug("<-- type ...");
 	}
 
 	public void type(char c) throws BadLocationException {

@@ -12,8 +12,6 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
 	private SVDBIndexCollection								fGlobalIndexMgr;
-	private List<Reference<ISVDBIndex>>						fIndexList;
+	private List<ISVDBIndex>								fIndexList;
 	private ISVDBIndexCacheFactory							fCacheFactory;
 	private boolean										fAutoRebuildEn;
 	private LogHandle										fLog;
@@ -63,7 +61,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	}
 	
 	public SVDBIndexRegistry(boolean standalone_test_mode) {
-		fIndexList = new ArrayList<Reference<ISVDBIndex>>();
+		fIndexList = new ArrayList<ISVDBIndex>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
 		fAutoRebuildEn = true;
 		fIndexCollectionMgr = new SVDBIndexCollectionMgr();
@@ -74,10 +72,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 		
 		clearStaleIndexes();
 		
-		for (Reference<ISVDBIndex> i : fIndexList) {
-			if (i.get() != null) {
-				i.get().setEnableAutoRebuild(fAutoRebuildEn);
-			}
+		for (ISVDBIndex i : fIndexList) {
+			i.setEnableAutoRebuild(fAutoRebuildEn);
 		}
 	}
 	
@@ -86,6 +82,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	}
 	
 	public void init(ISVDBIndexCacheFactory cache_factory) {
+		fLog.debug(LEVEL_MIN, "SVDBIndexRegistry.init()");
 		fCacheFactory = cache_factory;
 		fIndexList.clear();
 		
@@ -93,6 +90,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	}
 
 	public void test_init(ISVDBIndexCacheFactory cache_factory) {
+		fLog.debug(LEVEL_MIN, "SVDBIndexRegistry.test_init()");
 		fCacheFactory = cache_factory;
 		fIndexList.clear();
 	}
@@ -100,10 +98,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 	public List<ISVDBIndex> getAllProjectLists() {
 		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				if (i.get() != null) { 
-					ret.add(i.get());
-				}
+			for (ISVDBIndex i : fIndexList) {
+				ret.add(i);
 			}
 		}
 		return ret ;
@@ -115,9 +111,9 @@ public class SVDBIndexRegistry implements ILogLevel {
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				if (i.get() != null && i.get().getProject().equals(project)) {
-					ret.add(i.get());
+			for (ISVDBIndex i : fIndexList) {
+				if (i.getProject().equals(project)) {
+					ret.add(i);
 				}
 			}
 		}
@@ -131,9 +127,9 @@ public class SVDBIndexRegistry implements ILogLevel {
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				if (i.get() != null) {
-					ret.add(i.get());
+			for (ISVDBIndex i : fIndexList) {
+				if (i != null) {
+					ret.add(i);
 				}
 			}
 		}
@@ -144,7 +140,10 @@ public class SVDBIndexRegistry implements ILogLevel {
 	public void disposeIndex(ISVDBIndex index) {
 		fLog.debug(LEVEL_MID, "Dispose Index " + index.getBaseLocation() + " ; " + index.getConfig());
 		synchronized (fIndexList) {
-			fIndexList.remove(index);
+			fLog.debug(LEVEL_MIN, "Remove index \"" + index.getBaseLocation() + "\"");
+			if (!fIndexList.remove(index)) {
+				fLog.debug(LEVEL_MIN, "Warning: Index not managed by registry");
+			}
 		}
 		index.dispose();
 	}
@@ -184,15 +183,17 @@ public class SVDBIndexRegistry implements ILogLevel {
 		
 		base_location = SVFileUtils.normalize(base_location);
 		
-		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
+		fLog.debug("findCreateIndex: " + base_location + " ; " + type + " " + project);
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				ISVDBIndex index = i.get();
-				if (index != null && index.getProject().equals(project) &&
-						index.getBaseLocation().equals(base_location) &&
-						index.getTypeID().equals(type)) {
-					ret = index;
+			for (ISVDBIndex i : fIndexList) {
+				fLog.debug("  Checking: " + i.getBaseLocation() + " ; " + 
+						i.getTypeID() + " ; " + i.getProject());
+				if (i.getProject().equals(project) &&
+						i.getBaseLocation().equals(base_location) &&
+						i.getTypeID().equals(type)) {
+					fLog.debug("  found match");
+					ret = i;
 					break;
 				}
 			}
@@ -229,7 +230,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 			ret.init(m);
 			
 			synchronized (fIndexList) {
-				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
+				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
+				fIndexList.add(ret);
 			}
 		} else {
 			fLog.debug("    Index already exists");
@@ -268,12 +270,11 @@ public class SVDBIndexRegistry implements ILogLevel {
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				ISVDBIndex index = i.get();
-				if (index != null && index.getProject().equals(project) &&
-						index.getBaseLocation().equals(base_location) &&
-						index.getTypeID().equals(type)) {
-					ret = index;
+			for (ISVDBIndex i : fIndexList) {
+				if (i.getProject().equals(project) &&
+						i.getBaseLocation().equals(base_location) &&
+						i.getTypeID().equals(type)) {
+					ret = i;
 					break;
 				}
 			}
@@ -291,7 +292,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 			ret.init(m);
 			
 			synchronized (fIndexList) {
-				fIndexList.add(new WeakReference<ISVDBIndex>(ret));
+				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
+				fIndexList.add(ret);
 			}
 		} else {
 			fLog.debug("    Index already exists");
@@ -306,10 +308,9 @@ public class SVDBIndexRegistry implements ILogLevel {
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				ISVDBIndex index = i.get();
-				if (index != null && index.getProject().equals(project)) {
-					index.rebuildIndex(monitor);
+			for (ISVDBIndex i : fIndexList) {
+				if (i.getProject().equals(project)) {
+					i.rebuildIndex(monitor);
 				}
 			}
 		}
@@ -322,21 +323,17 @@ public class SVDBIndexRegistry implements ILogLevel {
 		fLog.debug("save_state()");
 		
 		synchronized (fIndexList) {
-			for (Reference<ISVDBIndex> i : fIndexList) {
-				ISVDBIndex index = i.get();
-				if (index != null) {
-					index.dispose();
-				}
+			for (ISVDBIndex i : fIndexList) {
+				i.dispose();
 			}
 		}
 		
 		if (fCacheFactory != null) {
 			List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
 			synchronized (fIndexList) {
-				for (Reference<ISVDBIndex> i : fIndexList) {
-					ISVDBIndex index = i.get();
-					if (index != null && !cache_l.contains(index.getCache()) && index.getCache() != null) {
-						cache_l.add(index.getCache());
+				for (ISVDBIndex i : fIndexList) {
+					if (!cache_l.contains(i.getCache()) && i.getCache() != null) {
+						cache_l.add(i.getCache());
 					}
 				}
 			}
@@ -344,6 +341,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 			// Compact the cache-storage area
 			fCacheFactory.compactCache(cache_l);
 		}
+		
+		fIndexList.clear();
 	}
 	
 	
@@ -375,6 +374,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	}
 	
 	private void clearStaleIndexes() {
+		/*
 		synchronized (fIndexList) {
 			for (int i=0; i<fIndexList.size(); i++) {
 				if (fIndexList.get(i).get() == null) {
@@ -384,6 +384,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 				}
 			}
 		}
+		 */
 	}
 	
 }

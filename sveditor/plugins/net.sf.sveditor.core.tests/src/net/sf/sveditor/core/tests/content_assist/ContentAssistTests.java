@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -43,7 +44,9 @@ public class ContentAssistTests extends TestCase {
 		suite.addTest(new TestSuite(TestContentAssistClass.class));
 		suite.addTest(new TestSuite(TestContentAssistEnum.class));
 		suite.addTest(new TestSuite(TestContentAssistInterface.class));
+		suite.addTest(new TestSuite(TestContentAssistModule.class));
 		suite.addTest(new TestSuite(TestContentAssistStruct.class));
+		suite.addTest(new TestSuite(TestContentAssistSystem.class));
 		suite.addTest(new TestSuite(TestContentAssistTaskFunction.class));
 		suite.addTest(new TestSuite(TestContentAssistTypes.class));
 		suite.addTest(new TestSuite(TestModuleContentAssist.class));
@@ -52,7 +55,9 @@ public class ContentAssistTests extends TestCase {
 		return suite;
 	}
 
-	public static void validateResults(String expected[], List<SVCompletionProposal> proposals) {
+	public static void validateResults(
+			String 	expected[], 
+			List<SVCompletionProposal> proposals) {
 		for (String exp : expected) {
 			boolean found = false;
 			for (int i=0; i<proposals.size(); i++) {
@@ -67,7 +72,7 @@ public class ContentAssistTests extends TestCase {
 		}
 		
 		for (SVCompletionProposal p : proposals) {
-			System.out.println("[ERROR] Unexpected proposal " + p.getReplacement());
+			System.out.println("[ERROR] Unexpected proposal \"" + p.getReplacement() + "\"");
 		}
 		assertEquals("Unexpected proposals", 0, proposals.size());
 	}
@@ -88,6 +93,66 @@ public class ContentAssistTests extends TestCase {
 
 		TestCompletionProcessor cp = new TestCompletionProcessor(
 				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(expected, proposals);
+		LogFactory.removeLogHandle(log);		
+	}
+	
+	public static void runTest(
+			String 			testname, 
+			String 			doc, 
+			String			expected[],
+			String			unexpected[]) {
+		LogHandle log = LogFactory.getLogHandle(testname);
+
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		ContentAssistTests.validateResults(expected, proposals);
+		LogFactory.removeLogHandle(log);		
+	}	
+
+	public static void runTest(
+			String 					testname, 
+			String 					doc, 
+			ISVDBIndexIterator		index_it,
+			String 		... 		expected) {
+		LogHandle log = LogFactory.getLogHandle(testname);
+
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, index_it);
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 

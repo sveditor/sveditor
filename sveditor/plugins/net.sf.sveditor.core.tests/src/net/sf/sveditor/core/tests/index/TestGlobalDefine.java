@@ -21,12 +21,12 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -48,6 +48,13 @@ public class TestGlobalDefine extends TestCase {
 		super.setUp();
 		
 		fTmpDir = TestUtils.createTempDir();
+		
+		File db = new File(fTmpDir, "db");
+		assertTrue(db.mkdirs());
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(db));
+		SVCorePlugin.getDefault().getProjMgr().init();
 	}
 	
 	@Override
@@ -64,30 +71,24 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testLibIndexGlobalDefine() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		CoreReleaseTests.clearErrors();
 		
 		IProject project_dir = TestUtils.createProject("project");
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-		SVCorePlugin.getDefault().getProjMgr().init();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
-				"${workspace_loc}/project/basic_lib_global_defs/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
 		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
+		
+		SVProjectFileWrapper fw = p_data.getProjectFileWrapper();
+		fw.getLibraryPaths().add(
+				new SVDBPath("${workspace_loc}/project/basic_lib_global_defs/basic_lib_pkg.sv"));
+		p_data.setProjectFileWrapper(fw);
 	
 		try {
-			int_testGlobalDefine("testLibIndexGlobalDefine", p_data, index);
+			int_testGlobalDefine("testLibIndexGlobalDefine", p_data, null);
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
@@ -102,23 +103,15 @@ public class TestGlobalDefine extends TestCase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-		SVCorePlugin.getDefault().getProjMgr().init();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
-				"${workspace_loc}/project/basic_lib_global_defs/proj.f", 
-				SVDBArgFileIndexFactory.TYPE, null);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
 		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
 		
+		SVProjectFileWrapper fw = p_data.getProjectFileWrapper();
+		fw.addArgFilePath("${workspace_loc}/project/basic_lib_global_defs/proj.f");
+		p_data.setProjectFileWrapper(fw);
+		
 		try {
-			int_testGlobalDefine("testArgFileIndexGlobalDefine", p_data, index);
+			int_testGlobalDefine("testArgFileIndexGlobalDefine", p_data, null);
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
@@ -135,23 +128,15 @@ public class TestGlobalDefine extends TestCase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-		SVCorePlugin.getDefault().getProjMgr().init();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), pname, 
-				"${workspace_loc}/project/basic_lib_global_defs",
-				SVDBSourceCollectionIndexFactory.TYPE, null);
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
 		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
+		SVProjectFileWrapper fw = p_data.getProjectFileWrapper();
+		fw.getSourceCollections().add(new SVDBSourceCollection(
+				"${workspace_loc}/project/basic_lib_global_defs", true));
+		p_data.setProjectFileWrapper(fw);
 		
 		try {
-			int_testGlobalDefine("testSourceCollectionIndexGlobalDefine", p_data, index);
+			int_testGlobalDefine("testSourceCollectionIndexGlobalDefine", p_data, null);
 		} finally {
 			TestUtils.deleteProject(project_dir);
 		}
@@ -174,7 +159,8 @@ public class TestGlobalDefine extends TestCase {
 		p_wrap = project_data.getProjectFileWrapper();
 		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
 		
-		ISVDBItemIterator index_it = index.getItemIterator(new NullProgressMonitor());
+		SVDBIndexCollection index_mgr = project_data.getProjectIndexMgr();
+		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		
 		ISVDBItemBase class1_it = null;
 		while (index_it.hasNext()) {

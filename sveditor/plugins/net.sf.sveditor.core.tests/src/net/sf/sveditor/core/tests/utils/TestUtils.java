@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -200,6 +201,16 @@ public class TestUtils {
 		}
 	}
 
+	public static void copy(String in, File out) {
+		try {
+			PrintStream ps = new PrintStream(out);
+			ps.print(in);
+			ps.close();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+	
 	public static IProject createProject(String name) {
 		return createProject(name, null);
 	}
@@ -223,15 +234,6 @@ public class TestUtils {
 			utils.copyBundleDirToWS(data_file, project);
 		}
 		
-		File db = new File(tmpdir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		TestCase.assertTrue(db.mkdirs());
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-	
 		return project;
 	}
 

@@ -124,6 +124,180 @@ public class TestPreProc extends TestCase {
 			LogFactory.removeLogHandle(log);
 	}
 	
+	public void testMacroBasics_1() {
+		String testname = "testMacroBasics_1";
+		String doc = 
+				"`define MACRO_A 5\n" +
+				"int i = `MACRO_A;\n"
+				;
+			String expected =
+				"int i = 5;\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+	
+	public void testMacroBasics_2() {
+		String testname = "testMacroBasics_2";
+		String doc = 
+				"`define MACRO_A(a) a\n" +
+				"int i = `MACRO_A(5);\n"
+				;
+			String expected =
+				"int i = 5;\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testMacroBasics_3() {
+		String testname = "testMacroBasics_3";
+		String doc = 
+				"`define MACRO_A(a,b) a``b\n" +
+				"int i = `MACRO_A(2,5);\n"
+				;
+			String expected =
+				"int i = 25;\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testMacroBasics_4() {
+		String testname = "testMacroBasics_4";
+		String doc = 
+				"`define ABC 123\n" +
+				"`define DEF 456\n" +
+				"`define GHI 789\n" +
+				"\n" +
+				"`define MACRO `\"`ABC`\"\n" +
+				"\n" +
+				"`MACRO\n"
+				;
+			String expected =
+				"\"123\"\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testMacroBasics_5() {
+		String testname = "testMacroBasics_5";
+		String doc = 
+				"`define ABC 123\n" +
+				"`define DEF 456\n" +
+				"`define GHI 789\n" +
+				"\n" +
+				"`define MACRO `\"`ABC``-```DEF`\"\n" +
+				"\n" +
+				"`MACRO\n"
+				;
+			String expected =
+				"\"123-456\"\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testMacroBasics_6() {
+		String testname = "testMacroBasics_6";
+		String doc = 
+				"`define ABC  12\n" +
+				"`define DEF  34\n" +
+				"`define GHI  67\n" +
+				"\n" +
+				"`define MACRO `\"`ABC``-```DEF`\"\n" +
+				"\n" +
+				"`MACRO\n"
+				;
+			String expected =
+				"\"12-34\"\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+	
+	public void testMacroBasics_7() {
+		String testname = "testMacroBasics_7";
+		String doc = 
+				"`define ABC 1\n" +
+				"`define DEF 4\n" +
+				"`define GHI 7\n" +
+				"\n" +
+				"`define MACRO `\"`ABC``-```DEF`\"\n" +
+				"\n" +
+				"`MACRO\n"
+				;
+			String expected =
+				"\"1-4\"\n"
+				;
+				
+			LogHandle log = LogFactory.getLogHandle(testname);
+			SVCorePlugin.getDefault().enableDebug(false);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+	
 	public void testMacroArgExpansion() {
 		String doc = 
 				"`define test(ID) int MY_``ID``_FIELD\n" +
@@ -153,7 +327,7 @@ public class TestPreProc extends TestCase {
 				"`test(A);\n"
 				;
 			String expected = 
-				"int  foo;\n"
+				"int foo;\n"
 				;
 				
 			SVCorePlugin.getDefault().enableDebug(false);
@@ -167,6 +341,59 @@ public class TestPreProc extends TestCase {
 			assertEquals(expected.trim(), result.trim());
 			LogFactory.removeLogHandle(log);
 	}
+
+	public void testMacroArgLastExpansion() {
+		String doc = 
+				"`define A_SIZED_TO_B(a,b) {{($bits(b)-$bits(a)){1'b0}},a}\n" +
+				"\n" +
+				"`A_SIZED_TO_B(fred, mary);\n"
+				;
+		
+			String expected = 
+				" {{($bits(mary)-$bits(fred)){1'b0}},fred};\n"
+				;
+	
+			String testname = "testMacroArgLastExpansion";
+			SVCorePlugin.getDefault().enableDebug(false);
+			LogHandle log = LogFactory.getLogHandle(testname);
+			String result = SVDBTestUtils.preprocess(doc, testname);
+			
+			log.debug("Result:\n" + result.trim());
+			log.debug("====");
+			log.debug("Expected:\n" + expected.trim());
+			log.debug("====");
+			assertEquals(expected.trim(), result.trim());
+			LogFactory.removeLogHandle(log);
+	}
+
+	public void testOvmVersion() {
+		String doc = 
+				"`define OVM_NAME OVM\n" +
+				"`define OVM_MAJOR_REV 2\n" +
+				"`define OVM_MINOR_REV 0\n" +
+				"`define OVM_FIX_REV   3\n" +
+				"\n" +
+				"`define OVM_VERSION_STRING `\"`OVM_NAME``-```OVM_MAJOR_REV``.```OVM_MINOR_REV``.```OVM_FIX_REV`\"\n" +
+				"\n" +
+				"`OVM_VERSION_STRING\n"
+				;
+		
+		String expected = 
+				"\"OVM-2.0.3\""
+				;
+
+		String testname = "testOvmVersion";
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);
+	}
 	
 	public void testMacroArgDefaultValue() {
 		CoreReleaseTests.clearErrors();
@@ -177,7 +404,7 @@ public class TestPreProc extends TestCase {
 				;
 			String expected = 
 				"$display(\"FOO\", \"SUFFIX\");  \n" +
-				" $display(\"FOO\", \"BAR\");\n"
+				"$display(\"FOO\", \"BAR\");\n"
 					;
 				
 			SVCorePlugin.getDefault().enableDebug(false);
@@ -205,10 +432,10 @@ public class TestPreProc extends TestCase {
 				"int a4 = `A_PLUS_B(5);\n"
 				;
 			String expected = 
-				"int a1 =   5 + (6 - 2);\n" +
-				"int a2 =   (6 - 2) + 5;\n" +
-				"int a3 =   (6 - 2) + (7 - 5);\n" +
-				"int a4 =   5 + 2;\n"
+				"int a1 = 5 + (6 - 2);\n" +
+				"int a2 = (6 - 2) + 5;\n" +
+				"int a3 = (6 - 2) + (7 - 5);\n" +
+				"int a4 = 5 + 2;\n"
 					;
 				
 			SVCorePlugin.getDefault().enableDebug(false);
@@ -579,9 +806,9 @@ public class TestPreProc extends TestCase {
 				"`   MY_MACRO(C)\n"
 				;
 			String expected =
-				" ABC A\n" +
-				" ABC B\n" +
-				" ABC C\n"
+				"ABC A\n" +
+				"ABC B\n" +
+				"ABC C\n"
 				;
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -658,7 +885,7 @@ public class TestPreProc extends TestCase {
 				;
 		String expected = 
 				"task abc();\n" +
-				"	 `M1\n" +
+				"	`M1\n" +
 				" endtask\n";
 		
 		LogHandle log = LogFactory.getLogHandle(testname);

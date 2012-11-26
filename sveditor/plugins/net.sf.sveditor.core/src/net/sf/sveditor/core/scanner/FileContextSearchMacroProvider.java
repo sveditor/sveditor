@@ -12,12 +12,11 @@
 
 package net.sf.sveditor.core.scanner;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -28,6 +27,8 @@ import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	private Map<String, SVDBMacroDef>	fMacroCache;
@@ -93,7 +94,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 		SVDBMacroDef ret;
 		debug_s(indent(fIndent++) + "--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
 		
-		if ((ret = fMacroCache.get(key)) == null) {
+		if (!fMacroCache.containsKey(key)) {
 			if ((ret = searchDown(context, context, key)) == null) {
 				for (String ib_s : context.getIncludedByFiles()) {
 					SVDBFileTree ib; 
@@ -116,9 +117,13 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 					fMacroCache.remove(key);
 				}
 				fMacroCache.put(key, ret);
+			} else {
+				fMacroCache.put(key, null);
 			}
+		} else {
+			ret = fMacroCache.get(key);
 		}
-
+		
 		debug_s(indent(--fIndent) + "<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
 		return ret;
 	}

@@ -1,9 +1,72 @@
 
+-- 1.0.4 Release --
+
+- #(3566347) - Tab behavior when pasting code, which is auto-indented
+
+- #(3587919) - Correct issue with pre-processor interpreting parens in quoted strings
+
+- #(nobug) - Correct an issue with naming of the plugin lib index, which prevents
+  multiple instances from accumulating
+  
+- #(nobug) - Correct a parse bug with event activation with a repeat (->> repeat(10)...)
+
+- #(nobug) - Correct a pre-processor issue that caused problems with a 
+  concatenation expression
+
+- #(nobug) Capture names of for loops in generate blocks if given
+
+- #(3588993) - Correct bug involving outline view incorrectly setting the 
+  selection in the editor after an editor change.
+  
+- #(3588757) - Update lexer to support multiple contexts. This is the first
+  step toward supporting multiple language variants.
+  
+- #(nobug) - Enhance auto-indenter to support generate blocks
+
+------------------------------------------------------------------------------
+-- 1.0.3 Release --
+
+- #(3552370) - Parse error when using a named-parameter reference within an assert statement
+
+- #(3554653) - Correct bug preventing global/package variable declarations from appearing in 
+  content-assist results
+  
+- #(3573724) - Correct 'Content Assist Shows Blank Item' issue. ModuleInst items were
+  being added to the proposal list in addition to ModuleInstItem items.
+  
+- #(3582495) - Correct bug in the pre-processor's handling of recursively-included files
+
+- #(nobug) Outline View Updates:
+      - Added icon for assertions in outline view - currently using Property icon, which is what
+           we use for the filter in the Outline view
+      - Updated names of generate, generate for and generate_if blocks to outline view
+
+- #(3566347) Tab behavior when pasting code, which is auto-indented
+   Generally cleaned up some of the auto-indenter behavior
+
+-- 1.0.3 Release --
+- #(nobug) - Outline view button fixup, the default states of buttons weren't being
+  correctly on some buttons
+
+- #(nobug) - Captured names of generate statements if they are there.  This will make 
+  generate statements in the outline view more useful.
+
+------------------------------------------------------------------------------
+-- 1.0.2 Release --
+
+- #(nobug) - Improve performance of pre-processor when files contain many
+  references to undefined macros.
+  
+- #(3554076) - Correct parsing of specify-if statements
+
+------------------------------------------------------------------------------
 -- 1.0.1 Release --
 
 - #(nobug) - Correct a couple of places where paths were not being correctly
   normalized (back-slashes converted to forward slashes). This resulted in 
   some problems on the Windows platform.
+  
+- #(3579865) - Corrected a parse bug involving clocking blocks
 
 ------------------------------------------------------------------------------
 -- 1.0.0 Release --

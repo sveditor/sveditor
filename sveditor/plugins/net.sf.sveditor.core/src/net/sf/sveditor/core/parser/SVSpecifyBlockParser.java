@@ -43,9 +43,15 @@ public class SVSpecifyBlockParser extends SVParserBase {
 
 	// TODO: save specify_block info
 	public SVDBItem parse(ISVDBAddChildItem parent) throws SVParseException {
+		if (fDebugEn) {
+			debug("--> specify::parse()");
+		}
 		fLexer.readKeyword("specify");
 		
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endspecify")) {
+			if (fDebugEn) {
+				debug(" specify item: " + fLexer.peek());
+			}
 			if (fLexer.peekKeyword("specparam")) {
 				specparam_declaration(null);
 			} else if (fLexer.peekKeyword("pulsestyle_onevent", "pulsestyle_ondetect",
@@ -54,14 +60,17 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			} else if (fLexer.peekOperator("(")) {
 				// path_declaration
 				path_declaration();
-				
-				fLexer.readOperator("=");
-				list_of_path_delay_expressions();
+
+				if (fLexer.peekOperator("=")) {
+					fLexer.readOperator("=");
+					list_of_path_delay_expressions();
+				}
 				fLexer.readOperator(";");
 			} else if (fLexer.peekId() && system_timing_checks_kw.contains(fLexer.peek())) {
 				system_timing_checks(null);
 			} else if (fLexer.peekKeyword("if","ifnone")) {
 				state_dependent_path_declaration(null);
+				fLexer.readOperator(";");
 			} else {
 				error("Unexpected specify-block item: " + fLexer.peek());
 			}
@@ -69,11 +78,18 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		
 		fLexer.readKeyword("endspecify");
 		
+		if (fDebugEn) {
+			debug("<-- specify::parse()");
+		}
+		
 		return null;
 	}
 
 	// TODO: save data
 	public void specparam_declaration(ISVDBAddChildItem parent) throws SVParseException {
+		if (fDebugEn) {
+			debug("--> specparam_declaration");
+		}
 		fLexer.readKeyword("specparam");
 		if (fLexer.peekOperator("[")) {
 			fParsers.dataTypeParser().packed_dim();
@@ -92,6 +108,9 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		}
 		
 		fLexer.readOperator(";");
+		if (fDebugEn) {
+			debug("<-- specparam_declaration");
+		}
 	}
 	
 	private void system_timing_checks(ISVDBAddChildItem parent) throws SVParseException {
@@ -207,9 +226,20 @@ public class SVSpecifyBlockParser extends SVParserBase {
 	// TODO: store data
 	private void path_declaration() throws SVParseException {
 		int count=0;
+	
+		if (fDebugEn) {
+			debug("--> path_declaration " + fLexer.peek());
+		}
 		
 		fLexer.readOperator("(");
 		while (fLexer.peek()  != null) {
+			if (fDebugEn) {
+				debug("  loop1: " + fLexer.peek());
+			}
+			if (fLexer.peekKeyword("posedge", "negedge", "edge")) {
+				// TODO: save
+				fLexer.eatToken();
+			}
 			specify_inout_terminal_descriptor();
 			count++;
 			if (fLexer.peekOperator(",")) {
@@ -218,7 +248,10 @@ public class SVSpecifyBlockParser extends SVParserBase {
 				break;
 			}
 		}
-		
+	
+		if (fDebugEn) {
+			debug("  count: " + count + " " + fLexer.peek());
+		}
 		if (count > 1) {
 			fLexer.readOperator("*>");
 		} else {
@@ -226,7 +259,15 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		}
 		
 		// output-terminal descriptors
+		boolean output_paren = fLexer.peekOperator("(");
+		if (output_paren) {
+			fLexer.eatToken();
+		}
+		
 		while (fLexer.peek()  != null) {
+			if (fDebugEn) {
+				debug("  loop2: " + fLexer.peek());
+			}
 			specify_inout_terminal_descriptor();
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
@@ -235,16 +276,45 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			}
 		}
 		
+		if (output_paren) {
+			if (fLexer.peekOperator("-", "+")) {
+				// TODO: save
+				fLexer.eatToken();
+			}
+		
+			fLexer.readOperator(":");
+			// data_source_expression
+			// TODO: save expression
+			fParsers.exprParser().expression();
+		}
+		
+		if (output_paren) {
+			fLexer.readOperator(")");
+		}
+		
 		fLexer.readOperator(")");
+		
+		fLexer.readOperator("=");
+		fParsers.exprParser().path_delay_value();
+		
+		if (fDebugEn) {
+			debug("<-- path_declaration " + fLexer.peek());
+		}
 	}
 	
 	private void specify_inout_terminal_descriptor() throws SVParseException {
+		if (fDebugEn) {
+			debug("--> specify_inout_terminal_descriptor " + fLexer.peek());
+		}
 		fLexer.readId();
 		
 		if (fLexer.peekOperator("[")) {
 			fLexer.eatToken();
 			fParsers.exprParser().const_or_range_expression();
 			fLexer.readOperator("]");
+		}
+		if (fDebugEn) {
+			debug("<-- specify_inout_terminal_descriptor " + fLexer.peek());
 		}
 	}
 	
@@ -274,16 +344,25 @@ public class SVSpecifyBlockParser extends SVParserBase {
 
 	// TODO: save data
 	private void state_dependent_path_declaration(ISVDBAddChildItem parent) throws SVParseException {
+		if (fDebugEn) {
+			debug("--> state_dependent_path_declaration " + fLexer.peek());
+		}
 		if (fLexer.peekKeyword("if")) {
 			fLexer.eatToken();
 			fLexer.readOperator("(");
 			fParsers.exprParser().module_path_expression();
 			fLexer.readOperator(")");
+			
+			// simple_path_declaration | edge_sensitive_path_declaration
+			path_declaration();
 		} else {
 			// ifnone
 //			fParsers.exprParser().simple_path_expression();
 			error("ifnone unsupported");
 		}
 		
+		if (fDebugEn) {
+			debug("<-- state_dependent_path_declaration " + fLexer.peek());
+		}
 	}
 }

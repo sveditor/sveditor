@@ -132,12 +132,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		fLog.debug(LEVEL_MID, 
 				"computeProposals: " + 
 						active_file.getFilePath() + ":" + lineno + ":" + linepos);
-
+				
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
 		
 		if (src_scope != null) {
 			fLog.debug(LEVEL_MID, "src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
+		} else {
+			fLog.debug(LEVEL_MID, "failed to find source scope");
 		}
 
 		/*
@@ -839,6 +841,16 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						add = false;
 					}
 				}
+			
+				// Transform any module-instance proposals to module-inst-item proposals
+				if (result.get(i).getType() == SVDBItemType.ModIfcInst) {
+					SVDBModIfcInst mi = (SVDBModIfcInst)result.get(i);
+					
+					for (ISVDBChildItem ci : mi.getChildren()) {
+						addProposal(ci, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					}
+					add = false;
+				}
 				
 				if (add) {
 					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
@@ -873,13 +885,13 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			"\" returned no results");
 		}
 
-		// Try global task/function 
+		// Try global task/function/variables 
 		if (ctxt.fType != ContextType.Extends) {
 			SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
 
 			List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
 					SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
-					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt);
+					SVDBItemType.PackageDecl, SVDBItemType.TypedefStmt, SVDBItemType.VarDeclItem);
 
 			// Remove any definitions of extern tasks/functions, 
 			// since the name prefix was incorrectly matched
@@ -1357,7 +1369,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int 			replacementOffset, 
 			int 			replacementLength) {
 		boolean found = false;
-
+		
 		synchronized (fCompletionProposals) {
 			// Check if we already have it in the proposal list?
 			for (SVCompletionProposal p : fCompletionProposals) {

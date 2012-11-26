@@ -107,6 +107,7 @@ public class PreProcMacroTests extends TestCase {
 	}
 
 	public void testNestedExpansion() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testNestedExpansion");
 		String text = 
 			"`define vmm_channel_( T ) T``_channel\n" +
@@ -135,7 +136,7 @@ public class PreProcMacroTests extends TestCase {
 		String result = dp.expandMacro("`vmm_channel( foo )", "text", 1);
 		
 		log.debug("result: \"" + result + "\"");
-		assertEquals("class  foo_channel extends vmm_channel;", result.trim());
+		assertEquals("class foo_channel extends vmm_channel;", result.trim());
 		
 		LogFactory.removeLogHandle(log);
 	}

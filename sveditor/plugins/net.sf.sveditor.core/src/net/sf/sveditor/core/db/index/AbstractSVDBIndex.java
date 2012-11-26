@@ -56,6 +56,8 @@ import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -387,6 +389,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 * @param state
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor super_monitor, int state) {
+		long start_time=0, end_time=0;
 		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 		if (fIndexState < IndexState_RootFilesDiscovered
@@ -394,6 +397,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			if (fDebugEn) {
 				fLog.debug("Moving index to state RootFilesDiscovered from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			discoverRootFiles(m);
@@ -401,23 +405,34 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			fCache.sync();
 			fIndexState = IndexState_RootFilesDiscovered;
 			fIsDirty = false;
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to RootFilesDiscovered: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
 			if (fDebugEn) {
 				fLog.debug("Moving index to state FilesPreProcessed from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			preProcessFiles(m);
 			fIndexState = IndexState_FilesPreProcessed;
 			fIsDirty = false;
+			
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to FilesPreProcessed: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
 			if (fDebugEn) {
 				fLog.debug("Moving index to state FileTreeValid from "
 						+ fIndexState);
+				start_time = System.currentTimeMillis();
 			}
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			buildFileTree(m);
@@ -426,9 +441,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			propagateAllMarkers();
 			notifyIndexRebuilt();
 			fIsDirty = false;
+			
+			if (fDebugEn) {
+				end_time = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "Move to FileTreeValid: " + (end_time-start_time));
+			}
 		}
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
+			if (fDebugEn) {
+				start_time = System.currentTimeMillis();
+			}
+			
 			if (fCacheDataValid) {
 				SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 				fCache.initLoad(m);
@@ -447,6 +471,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						}
 					}
 				}
+			}
+			
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MID, "Move to AllFilesParsed: " + (end_time-start_time));
 			}
 		}
 	
@@ -991,9 +1019,11 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			
 			SVDBFile file = processPreProcFile(path);
 			synchronized (fCache) {
-				fCache.setPreProcFile(path, file);
-				fCache.setLastModified(path, 
-						fFileSystemProvider.getLastModifiedTime(path));
+				if (file != null) {
+					fCache.setPreProcFile(path, file);
+					fCache.setLastModified(path, 
+							fFileSystemProvider.getLastModifiedTime(path));
+				}
 			}
 			
 			synchronized(monitor) {
@@ -2036,6 +2066,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 						((ISVDBNamedItem)item).getName(), item.getType(), is_ft));
 				} else {
 					fLog.debug("pkgname is null");
+				}
+			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt decl = (SVDBVarDeclStmt)item;
+				
+				for (ISVDBChildItem ci : decl.getChildren()) {
+					SVDBVarDeclItem di = (SVDBVarDeclItem)ci;
+					fLog.debug(LEVEL_MID, "Adding var declaration: " + di.getName());
+					
+					if (decl_list != null) {
+						decl_list.add(new SVDBDeclCacheItem(this, filename, 
+							di.getName(), SVDBItemType.VarDeclItem, is_ft));
+					}
 				}
 			} else if (item.getType() == SVDBItemType.TypedefStmt) {
 				// Add entries for the typedef

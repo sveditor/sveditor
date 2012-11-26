@@ -46,7 +46,7 @@ public class SVEditorTester implements ISVEditor {
 		fSVDBFile 		= file;
 		fTextSel    	= null;
 	}
-	
+
 	public SVEditorTester(String doc, String filename) throws BadLocationException {
 		fAutoEditTester = UiReleaseTests.createAutoEditTester();
 		fAutoEditTester.setContent(doc);

@@ -231,6 +231,7 @@ public class SVCorePlugin extends Plugin
 	
 	public static void testInit() {
 		fPlugin = new SVCorePlugin();
+		LogFactory.getDefault().addLogListener(fPlugin);
 	}
 	
 	public SVDBProjectManager getProjMgr() {
@@ -398,7 +399,7 @@ public class SVCorePlugin extends Plugin
 	}
 
 	public static String getVersion() {
-		if (fPlugin != null) {
+		if (fPlugin != null && fPlugin.getBundle() != null) {
 			Version v = fPlugin.getBundle().getVersion();
 			return v.getMajor() + "." + v.getMinor() + "." + v.getMicro();
 		} else {

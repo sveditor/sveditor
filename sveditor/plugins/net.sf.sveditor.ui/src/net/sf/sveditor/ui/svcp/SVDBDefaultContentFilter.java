@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBCoverpoint;
 import net.sf.sveditor.core.db.SVDBCoverpointBins;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
 import net.sf.sveditor.core.db.SVDBGenerateBlock;
+import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -30,6 +31,7 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
+import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -100,7 +102,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		}
 
 		// Generate blocks
-		else if ((hide_generate_blocks == true) && (element instanceof SVDBGenerateBlock))  {
+		else if ((hide_generate_blocks == true) && ((element instanceof SVDBGenerateBlock) || (element instanceof SVDBGenerateIf)))  {
 			return false;
 		}
 		
@@ -153,7 +155,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 			return false;
 		}
 		
-		// Enumerated Typess / Typedef declarations
+		// Enumerated Types / Typedef declarations
 		else if ((hide_enum_typedefs == true) && 
 				(
 						(element instanceof SVDBTypedefStmt) || 
@@ -175,6 +177,12 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 						(element instanceof SVDBInclude) ||		// include files 
 						(element instanceof SVDBImportItem)		// import statements
 					)
+				)  {
+			return false;		}
+		
+		// This section contains miscellaneous stuff in the DB, that we don't want displayed
+		else if (
+						(element instanceof SVDBBlockStmt) // Begin / end pairs - always hide 
 				)  {
 			return false;		}
 		
