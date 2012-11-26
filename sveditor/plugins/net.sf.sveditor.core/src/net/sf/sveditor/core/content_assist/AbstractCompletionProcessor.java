@@ -132,12 +132,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		fLog.debug(LEVEL_MID, 
 				"computeProposals: " + 
 						active_file.getFilePath() + ":" + lineno + ":" + linepos);
-
+				
 		ISVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
 				active_file, lineno);
 		
 		if (src_scope != null) {
 			fLog.debug(LEVEL_MID, "src_scope: " + src_scope.getType() + " " + SVDBItem.getName(src_scope));
+		} else {
+			fLog.debug(LEVEL_MID, "failed to find source scope");
 		}
 
 		/*

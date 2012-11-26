@@ -20,6 +20,8 @@
   
 - #(3588757) - Update lexer to support multiple contexts. This is the first
   step toward supporting multiple language variants.
+  
+- #(nobug) - Enhance auto-indenter to support generate blocks
 
 ------------------------------------------------------------------------------
 -- 1.0.3 Release --
