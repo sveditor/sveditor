@@ -97,7 +97,6 @@ public class SVOutlinePage extends ContentOutlinePage
 		fDebugEn = fLog.isEnabled();
 	}
 	
-	@Override
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();
 	}
