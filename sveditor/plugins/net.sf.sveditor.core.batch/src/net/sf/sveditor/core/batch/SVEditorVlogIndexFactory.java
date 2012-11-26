@@ -23,7 +23,8 @@ import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 
 public class SVEditorVlogIndexFactory {
-	
+
+	/*
 	public static ISVDBIndex vlog(String args[]) {
 		return vlog_loc(System.getProperty("user.dir"), args);
 	}
@@ -54,5 +55,6 @@ public class SVEditorVlogIndexFactory {
 		
 		return index;
 	}
+	 */
 
 }

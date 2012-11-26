@@ -20,6 +20,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IDecoration;
@@ -30,11 +33,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-public class SVDBFileDecorator implements ILightweightLabelDecorator {
+public class SVDBFileErrorDecorator 
+		implements ILightweightLabelDecorator, IResourceChangeListener {
 	private List<ILabelProviderListener>					fListeners;
 	private Thread											fLookupThread;
 	private Map<String, Map<String, Boolean>>				fManagedByIndex;
 	private Map<SVDBIndexCollection, IndexChangeListener>	fProjectListeners;
+	private WeakHashMap<Object, Object>						fManagedObjects;
 	private List<Object>									fWorkQueue;
 	
 	private Runnable lookupRunnable = new Runnable() {
@@ -108,7 +113,7 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 	private Runnable fireChangeRunnable = new Runnable() {
 		
 		public void run() {
-			LabelProviderChangedEvent ev = new LabelProviderChangedEvent(SVDBFileDecorator.this);
+			LabelProviderChangedEvent ev = new LabelProviderChangedEvent(SVDBFileErrorDecorator.this);
 			for (ILabelProviderListener l : fListeners) {
 				l.labelProviderChanged(ev);
 			}
@@ -140,11 +145,14 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 		}
 	};
 	
-	public SVDBFileDecorator() {
+	public SVDBFileErrorDecorator() {
 		fListeners = new ArrayList<ILabelProviderListener>();
 		fWorkQueue = new ArrayList<Object>();
 		fManagedByIndex = new HashMap<String, Map<String,Boolean>>();
-		fProjectListeners = new WeakHashMap<SVDBIndexCollection, SVDBFileDecorator.IndexChangeListener>();
+		fProjectListeners = new WeakHashMap<SVDBIndexCollection, SVDBFileErrorDecorator.IndexChangeListener>();
+		fManagedObjects = new WeakHashMap<Object, Object>();
+	
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 
 	public void addListener(ILabelProviderListener listener) {
@@ -163,6 +171,7 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 		synchronized (fListeners) {
 			fListeners.clear();
 		}
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
 
 	public boolean isLabelProperty(Object element, String property) {
@@ -182,9 +191,12 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 			}
 		}
 	}
+	
+	public void resourceChanged(IResourceChangeEvent event) {
+		
+	}
 
 	public void decorate(Object element, IDecoration decoration) {
-		ImageDescriptor image = null;
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		
 		if (workbench.isClosing()) {
@@ -197,16 +209,7 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 			
 			synchronized (fManagedByIndex) {
 				Map<String, Boolean> proj_map = fManagedByIndex.get(file.getProject().getName());
-				if (proj_map != null && proj_map.containsKey(path)) {
-					if (proj_map.get(path)) {
-						image = SVUiPlugin.getImageDescriptor(
-								"/icons/ovr16/indexed_6x6.gif");
-					}
-					
-					if (image != null) {
-						decoration.addOverlay(image);
-					}	
-				} else {
+				if (proj_map == null || !proj_map.containsKey(path)) {
 					SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 					SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
 					SVDBIndexCollection index = pdata.getProjectIndexMgr();
@@ -224,13 +227,6 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 						}
 						List<SVDBSearchResult<SVDBFile>> res = index.findFile("${workspace_loc}" + path, false);
 						proj_map.put(path, (res != null && res.size() > 0));
-						if (proj_map.get(path)) {
-							image = SVUiPlugin.getImageDescriptor("/icons/ovr16/indexed_6x6.gif");
-						}
-
-						if (image != null) {
-							decoration.addOverlay(image);
-						}	
 					} else {
 						// Queue a job to do the same thing...
 						queueWork(element);
@@ -238,5 +234,18 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 				}
 			}
 		}
+		
+		IResource res = (IResource) element;
+		try {
+			if (res.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE) >= IMarker.SEVERITY_ERROR) {
+				ImageDescriptor image = SVUiPlugin.getImageDescriptor(
+						"/icons/ovr16/error_co.gif");
+				if (image != null) {
+					decoration.addOverlay(image);
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}		
 	}
 }

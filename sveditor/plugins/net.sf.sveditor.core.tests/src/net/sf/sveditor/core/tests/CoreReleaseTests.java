@@ -23,6 +23,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
+import net.sf.sveditor.core.tests.argfile.parser.ArgFileParserTests;
 import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
 import net.sf.sveditor.core.tests.docs.DocsTests;
 import net.sf.sveditor.core.tests.fileset.FileSetTests;
@@ -63,6 +64,7 @@ public class CoreReleaseTests extends TestSuite {
 	
 	public CoreReleaseTests() {
 		addTest(ArgFileOpenDeclTests.suite());
+		addTest(ArgFileParserTests.suite());
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(ParserTests.suite());
 		addTest(new TestSuite(PreProcMacroTests.class));

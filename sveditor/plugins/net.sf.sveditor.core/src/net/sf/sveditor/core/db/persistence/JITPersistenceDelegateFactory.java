@@ -116,6 +116,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fTargetPkgList.add("net.sf.sveditor.core.db");
 		fTargetPkgList.add("net.sf.sveditor.core.db.expr");
 		fTargetPkgList.add("net.sf.sveditor.core.db.stmt");
+		fTargetPkgList.add("net.sf.sveditor.core.db.argfile");
 
 		fClassList.add(SVDBFile.class);
 //		fClassList.add(SVDBScopeItem.class);

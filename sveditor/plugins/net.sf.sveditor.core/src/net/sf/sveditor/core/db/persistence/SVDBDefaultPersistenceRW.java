@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -83,16 +84,15 @@ public class SVDBDefaultPersistenceRW extends SVDBPersistenceRWDelegateBase {
 				for (SVDBItemType v : SVDBItemType.values()) {
 					String key = "SVDB" + v.name();
 					Class cls = null;
-					for (String pref : new String [] {"net.sf.sveditor.core.db.", 
-							"net.sf.sveditor.core.db.stmt.",
-					"net.sf.sveditor.core.db.expr."}) {
+					for (String pref : SVCorePlugin.getPersistencePkgs()) {
 						try {
 							cls = cl.loadClass(pref + key);
+							break;
 						} catch (Exception e) { }
 					}
 
 					if (cls == null) {
-						System.out.println("Failed to locate class " + key);
+						System.out.println("SVDBDefaultPersistenceRW: Failed to locate class " + key);
 					} else {
 						fClassMap.put(v, cls);
 					}
