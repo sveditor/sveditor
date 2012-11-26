@@ -73,6 +73,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.information.IInformationPresenter;
@@ -82,6 +83,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
@@ -182,9 +184,11 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
+			fLog.debug("--> re-parse file");
 			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
 					getProgressMonitor(), sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
+			fLog.debug("<-- re-parse file");
 			
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
@@ -686,6 +690,14 @@ public class SVEditor extends TextEditor
 		// Remove handles to shadow index
 		fSVDBIndex = null;
 		fIndexMgr  = null;
+	}
+	
+	public SVSourceViewerConfiguration getSourceViewerConfig() {
+		return (SVSourceViewerConfiguration)getSourceViewerConfiguration();
+	}
+	
+	public ITextViewer getTextViewer() {
+		return (ITextViewer)getSourceViewer();
 	}
 
 	public void createPartControl(Composite parent) {

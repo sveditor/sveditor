@@ -14,12 +14,9 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;

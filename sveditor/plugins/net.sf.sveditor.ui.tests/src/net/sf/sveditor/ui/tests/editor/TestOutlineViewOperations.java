@@ -12,18 +12,11 @@
 
 package net.sf.sveditor.ui.tests.editor;
 
-import java.io.File;
-
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFunction;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -49,35 +42,10 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.views.contentoutline.ContentOutline;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-public class TestOutlineViewOperations extends TestCase {
-	private File			fTmpDir;
-	private IProject		fProject;
-	private SVEditor		fEditor;
+public class TestOutlineViewOperations extends EditorTestCaseBase {
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-		
-		if (fEditor != null) {
-			fEditor.close(false);
-		}
-	}
-
 	public void testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewSelectionPreservation_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -87,7 +55,8 @@ public class TestOutlineViewOperations extends TestCase {
 		CoreReleaseTests.clearErrors();
 //		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
-		fProject = TestUtils.createProject(testname);
+		IProject project = TestUtils.createProject(testname);
+		addProject(project);
 		
 		// Create simple class file
 		String class_file =
@@ -102,16 +71,17 @@ public class TestOutlineViewOperations extends TestCase {
 				"\n"
 				;
 		
-		TestUtils.copy(class_file, fProject.getFile("cls1.svh"));
+		TestUtils.copy(class_file, project.getFile("cls1.svh"));
 		
 		// Setup appropriate project settings
 //		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-//		SVDBProjectData p_data = p_mgr.getProjectData(fProject);
+//		SVDBProjectData p_data = p_mgr.getProjectData(project);
 		
 		IEditorPart cls1_svh = SVEditorUtil.openEditor("${workspace_loc}/" + testname + "/cls1.svh");
 		assertNotNull(cls1_svh);
 		assertTrue((cls1_svh instanceof SVEditor));
-		fEditor = (SVEditor)cls1_svh;
+		SVEditor editor = (SVEditor)cls1_svh;
+		addEditor(editor);
 		
 		// Propagate events
 		while (Display.getDefault().readAndDispatch()) {}
@@ -120,10 +90,10 @@ public class TestOutlineViewOperations extends TestCase {
 		assertNotNull(outline_v);
 		while (Display.getDefault().readAndDispatch()) {}
 		
-		SVOutlinePage outline = (SVOutlinePage)fEditor.getAdapter(IContentOutlinePage.class);
+		SVOutlinePage outline = (SVOutlinePage)editor.getAdapter(IContentOutlinePage.class);
 
 		ITreeContentProvider cp = outline.getContentProvider();
-		Object roots[] = cp.getElements(fEditor.getSVDBFile());
+		Object roots[] = cp.getElements(editor.getSVDBFile());
 		
 		for (Object r : roots) {
 			log.debug("r=" + r);
@@ -146,10 +116,10 @@ public class TestOutlineViewOperations extends TestCase {
 		SVDBFunction f = (SVDBFunction)((IStructuredSelection)sel).getFirstElement();
 		assertEquals("cls1::f1", f.getName());
 
-		ITextSelection text_sel = (ITextSelection)fEditor.getSelectionProvider().getSelection();
+		ITextSelection text_sel = (ITextSelection)editor.getSelectionProvider().getSelection();
 		log.debug("editor sel: " + text_sel.getStartLine());
 	
-		IDocument doc = fEditor.getDocument();
+		IDocument doc = editor.getDocument();
 		IRegion region = doc.getLineInformationOfOffset(text_sel.getOffset());
 		String line = doc.get(region.getOffset(), region.getLength());
 		assertTrue(line.contains("function void cls1::f1"));
@@ -157,19 +127,19 @@ public class TestOutlineViewOperations extends TestCase {
 	
 		// Now, modify the document
 		log.debug("--> Add 'class cls2' to document");
-		fEditor.setSelection(0, 0, true);
+		editor.setSelection(0, 0, true);
 		while (Display.getDefault().readAndDispatch()) {}
-		text_sel = (ITextSelection)fEditor.getSelectionProvider().getSelection();
+		text_sel = (ITextSelection)editor.getSelectionProvider().getSelection();
 		log.debug("Selection: " + text_sel.getStartLine());
 		doc.replace(0, 0, "class cls2; endclass\n");
 		while (Display.getDefault().readAndDispatch()) {}
-		text_sel = (ITextSelection)fEditor.getSelectionProvider().getSelection();
+		text_sel = (ITextSelection)editor.getSelectionProvider().getSelection();
 
 		Thread.sleep(100);
 		while (Display.getDefault().readAndDispatch()) {}
 		log.debug("<-- Add 'class cls2' to document");
 		
-		text_sel = (ITextSelection)fEditor.getSelectionProvider().getSelection();
+		text_sel = (ITextSelection)editor.getSelectionProvider().getSelection();
 		assertEquals(0, text_sel.getStartLine());
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
@@ -188,21 +158,4 @@ public class TestOutlineViewOperations extends TestCase {
 		}
 	}
 	
-	private SVEditor findEditor(String path) {
-		SVEditor ret = null;
-		
-		IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		for (IWorkbenchPage p : w.getPages()) {
-			for (IEditorReference ed : p.getEditorReferences()) {
-				if (ed.getName().endsWith(path)) {
-					IEditorPart ed_p = ed.getEditor(true);
-					if (ed_p instanceof SVEditor) {
-						ret = (SVEditor)ed_p;
-						break;
-					}
-				}
-			}
-		}
-		return ret;
-	}
 }

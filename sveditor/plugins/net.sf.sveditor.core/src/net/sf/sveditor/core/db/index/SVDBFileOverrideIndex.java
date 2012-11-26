@@ -53,6 +53,10 @@ public class SVDBFileOverrideIndex
 	public void setFilePP(SVDBFile file) {
 		fFilePP = file;
 	}
+	
+	public ISVDBIndex getBaseIndex() {
+		return fIndex;
+	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		if (fSuperIterator != null) {
