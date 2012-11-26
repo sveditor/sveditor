@@ -52,8 +52,8 @@ import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
@@ -375,7 +375,7 @@ public class SVCorePlugin extends Plugin
 		return ret;
 	}
 	
-	public void propagateMarker(IFile file, int severity, int lineno, String msg) {
+	public void propagateMarker(IResource file, int severity, int lineno, String msg) {
 		if (fMarkerPropagationJob == null) {
 			fMarkerPropagationJob = new SVMarkerPropagationJob();
 		}

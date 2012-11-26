@@ -120,11 +120,43 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			final int				lineno,
 			final String			msg) {
 		if (path.startsWith("${workspace_loc}")) {
+			IResource target = null;
 			path = path.substring("${workspace_loc}".length());
+		
+			/*
+			if (path.startsWith("/")) {
+				path = path.substring(1);
+			}
+			 */
 			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
-			final IFile file = root.getFile(new Path(path));
+			try {
+				target = root.getFile(new Path(path));
+				if (!target.exists()) {
+					target = null;
+				}
+			} catch (IllegalArgumentException e) {}
+
+			if (target == null) {
+				try {
+					target = root.getFolder(new Path(path));
+				} catch (IllegalArgumentException e) {
+					// Likely because the path is a project-only path (eg /a)
+					// e.printStackTrace();
+				}
+			}
+		
+			if (target == null) {
+				// Try project
+				try {
+					if (path.startsWith("/")) {
+						path = path.substring(1);
+					}
+					target = root.getProject(path);
+				} catch (IllegalArgumentException e) {}
+			}
+
 			int severity;
 			if (type.equals(MARKER_TYPE_ERROR)) {
 				severity = IMarker.SEVERITY_ERROR;
@@ -133,8 +165,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			} else {
 				severity = IMarker.SEVERITY_INFO;
 			}
-			
-			SVCorePlugin.getDefault().propagateMarker(file, severity, lineno, msg);
+		
+			if (target != null) {
+				SVCorePlugin.getDefault().propagateMarker(target, severity, lineno, msg);
+			}
 		}
 	}
 

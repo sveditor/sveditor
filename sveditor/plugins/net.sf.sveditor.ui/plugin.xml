@@ -877,6 +877,7 @@ endclass
    </extension>
    <extension
          point="org.eclipse.ui.decorators">
+         <!--
       <decorator
             class="net.sf.sveditor.ui.explorer.ProblemLabelDecorator"
             id="net.sf.sveditor.ui.svErrorDecorator"
@@ -895,6 +896,7 @@ endclass
             </or>
          </enablement>
       </decorator>
+        -->
       <decorator
             class="net.sf.sveditor.ui.svcp.SVDBFileDecorator"
             id="net.sf.sveditor.ui.svIndexFileDecorator"
@@ -906,6 +908,21 @@ endclass
             <or>
                <objectClass
                      name="org.eclipse.core.resources.IFile">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
+      <decorator
+            class="net.sf.sveditor.ui.svcp.SVDBFileErrorDecorator"
+            id="net.sf.sveditor.ui.svIndexErrorDecorator"
+            label="SV Index Error Decorator"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IResource">
                </objectClass>
             </or>
          </enablement>

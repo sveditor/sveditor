@@ -30,14 +30,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -103,7 +101,19 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		// Add an include path for the arg file location
 		addIncludePath(getResolvedBaseLocationDir());
 		
-		processArgFile(new SubProgressMonitor(monitor, 4), getResolvedBaseLocation());
+		String resolved_argfile_path = getResolvedBaseLocation();
+		if (getFileSystemProvider().fileExists(resolved_argfile_path)) {
+			processArgFile(new SubProgressMonitor(monitor, 4), getResolvedBaseLocation());
+		} else {
+			String msg = "Argument file \"" + getBaseLocation() + "\" (\"" + 
+					getResolvedBaseLocation() + "\") does not exist";
+			fLog.error(msg);
+			if (getProject() != null) {
+				getFileSystemProvider().addMarker(
+						"${workspace_loc}/" + getProject(),
+						ISVDBFileSystemProvider.MARKER_TYPE_ERROR, 0, msg);
+			}
+		}
 		
 		monitor.done();
 	}
