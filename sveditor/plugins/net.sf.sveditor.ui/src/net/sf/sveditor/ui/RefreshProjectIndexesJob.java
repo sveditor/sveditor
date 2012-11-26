@@ -33,14 +33,16 @@ public class RefreshProjectIndexesJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		
-		for (SVDBProjectData p : mgr.getProjectList()) {
-			List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
-			SVUiPlugin.getDefault().refreshIndexList(index_list);
+		if (SVCorePlugin.getDefault() != null) {
+			SVDBProjectManager mgr = SVCorePlugin.getDefault().getProjMgr();
+			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			
+			for (SVDBProjectData p : mgr.getProjectList()) {
+				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
+				SVUiPlugin.getDefault().refreshIndexList(index_list);
+			}
 		}
-		
+
 		return Status.OK_STATUS;
 	}
 

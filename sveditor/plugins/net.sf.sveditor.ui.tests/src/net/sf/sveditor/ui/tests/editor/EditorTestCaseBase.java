@@ -6,20 +6,25 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
+import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVOutlinePage;
+import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -131,8 +136,36 @@ public class EditorTestCaseBase extends TestCase {
 		assertTrue((ed instanceof SVEditor));
 		
 		while (Display.getDefault().readAndDispatch()) {}
+	
+		SVEditor sv_ed = (SVEditor)ed;
+		if (!fEditors.contains(sv_ed)) {
+			fEditors.add(sv_ed);
+		}
 		
-		return (SVEditor)ed;		
+		return sv_ed;
+	}
+
+	protected Tuple<SVEditor, AutoEditTester> openAutoEditTester(String path) throws PartInitException {
+		IEditorPart ed = SVEditorUtil.openEditor(path);
+		assertNotNull(ed);
+		assertTrue((ed instanceof SVEditor));
+		
+		while (Display.getDefault().readAndDispatch()) {}
+	
+		SVEditor sv_ed = (SVEditor)ed;
+		if (!fEditors.contains(sv_ed)) {
+			fEditors.add(sv_ed);
+		}
+		
+		AutoEditTester auto_edit = new AutoEditTester(
+				sv_ed.getDocument(), 
+				SVDocumentPartitions.SV_PARTITIONING);
+		
+		auto_edit.setAutoEditStrategy(
+				IDocument.DEFAULT_CONTENT_TYPE, 
+				new SVAutoIndentStrategy(null, SVDocumentPartitions.SV_PARTITIONING));
+		
+		return new Tuple<SVEditor, AutoEditTester>(sv_ed, auto_edit);
 	}
 	
 	protected SVOutlinePage getOutlineView(IEditorPart editor) throws PartInitException {
