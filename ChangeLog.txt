@@ -1,6 +1,9 @@
 
 -- 1.0.5 Release --
 
+- #(nobug) - Correct a keyword conflict on the 'unique' keyword. It should be 
+  treated as a keyword in a constraint context, but as an identifier elsewhere.
+
 ------------------------------------------------------------------------------
 -- 1.0.4 Release --
 

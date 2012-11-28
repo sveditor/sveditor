@@ -226,9 +226,9 @@ public class TestParseBehavioralStmts extends TestCase {
 	
 	public void testListFindWith() {
 		String testname = "testListFindWith";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
-			"module m;\n" +
+			"class m;\n" +
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
 			"		uint temp_q_list[$];\n" +
 			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
@@ -241,11 +241,51 @@ public class TestParseBehavioralStmts extends TestCase {
 			"			return (1'b0);\n" +
 			"		end\n" +
 			"	endfunction: check_for_element\n" +
-			"endmodule\n" 
+			"endclass\n" 
   			;
 		
 		runTest(testname, doc, 
 				new String[] { "m"});
+	}
+
+	public void testListFindWith_2() {
+		String testname = "testListFindWith_2";
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
+			"		uint temp_q_list[$];\n" +
+			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
+			"		if (temp_q_list.size())\n" +
+			"		begin\n" +
+			"			return (1'b1);\n" +
+			"		end\n" +
+			"		else\n" +
+			"		begin\n" +
+			"			return (1'b0);\n" +
+			"		end\n" +
+			"	endfunction: check_for_element\n"
+			;
+		
+		runTest(testname, doc, 
+				new String[] { "check_for_element"});
+	}
+
+	public void testListUnique() {
+		String testname = "testListUnique";
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"class c;\n" +
+			"	rand bit [4:0] q_number[];\n" +
+			"	bit [4:0] temp_q_list[$];\n" +
+			"\n" +
+			"	function f;\n" +
+			"		temp_q_list = q_number.unique(); // <- expecting one of keyword ‘endfunction’ received ‘unique’.\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+		
+		runTest(testname, doc, 
+				new String[] { "c", "f"});
 	}
 	
 	private void runTest(
