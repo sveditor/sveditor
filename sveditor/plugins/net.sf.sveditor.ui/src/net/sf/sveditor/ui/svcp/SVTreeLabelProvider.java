@@ -182,7 +182,15 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			return ret;
 		} else if (element instanceof SVDBGenerateIf) {
 			SVDBGenerateIf it = (SVDBGenerateIf)element;
-			return (new StyledString (it.fName));
+			if (it.fName != null)  {
+				return (new StyledString (it.fName));
+			}
+			// This will occur if a if statement within an initial block etc is suddenly recognized as a "generateif"
+			// The parser doesn't do a good job of casting from the if to the genif, and fname seems to be off in the weeds
+			// TODO: Fix this properly - See Tracker # 3591399
+			else  {
+				return (new StyledString ("if"));
+			}
 		} else if (element instanceof ISVDBItemBase) {
 			ISVDBItemBase it = (ISVDBItemBase)element;
 			StyledString ret = null;
