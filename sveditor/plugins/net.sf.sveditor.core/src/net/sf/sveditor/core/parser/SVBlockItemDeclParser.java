@@ -59,7 +59,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			// String id = fLexer.eatToken();
 			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) && !fLexer.peekKeyword("void")) ||
 					!SVKeywords.isSVKeyword(fLexer.peek()) || 
-					fLexer.peekKeyword("struct","enum","virtual")) {
+					fLexer.peekKeyword("struct","union","enum","virtual")) {
 				String name = null;
 				// Data declaration or statement
 				if (type == null) {
