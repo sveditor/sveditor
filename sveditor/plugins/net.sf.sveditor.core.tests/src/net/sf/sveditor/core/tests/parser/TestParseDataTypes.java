@@ -64,6 +64,19 @@ public class TestParseDataTypes extends TestCase {
 				new String [] {"foo", "my_var"});
 	}
 
+	public void testTypedefAnonymousFwdDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foo;\n" +
+			"    typedef foo_enum_t;\n" +
+			"    foo_enum_t        my_var;\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTypedefEnumFwdDecl", content,
+				new String [] {"foo", "my_var"});
+	}
+	
 	public void testEnumVarTFScope() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

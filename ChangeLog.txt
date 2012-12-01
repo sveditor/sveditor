@@ -21,6 +21,10 @@
       ARG3
     )
 
+- #(nobug) - Add support for anonymous-type forward declarations. For example:
+  typedef my_fwd_decl;
+  
+  
 
 ------------------------------------------------------------------------------
 -- 1.0.4 Release --
