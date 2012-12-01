@@ -31,7 +31,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 public class TestContentAssist extends EditorTestCaseBase {
 
 	public void testContentAssistBuiltinShadow() throws CoreException, InterruptedException, BadLocationException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		CoreReleaseTests.clearErrors();
 

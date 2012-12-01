@@ -96,7 +96,20 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fDeclKeywordsNonANSI.add("ref");
 	}
 	
-	private boolean statement_int(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl, boolean consume_terminator) throws SVParseException {
+	private boolean statement_int(
+			ISVDBAddChildItem 	parent, 
+			boolean 			decl_allowed, 
+			boolean 			ansi_decl, 
+			boolean 			consume_terminator) throws SVParseException {
+		return statement_int(parent, decl_allowed, ansi_decl, consume_terminator, false);
+	}
+
+	private boolean statement_int(
+			ISVDBAddChildItem 	parent, 
+			boolean 			decl_allowed, 
+			boolean 			ansi_decl, 
+			boolean 			consume_terminator,
+			boolean				could_be_case_item) throws SVParseException {
 		if (fDebugEn) {
 			debug("--> statement " + fLexer.peek() + " @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		}
@@ -456,13 +469,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			
 			if (fLexer.peekOperator(":")) {
 				// Labeled statement
-				String label = id.getImage();
-				fLexer.eatToken();
-				SVDBLabeledStmt l_stmt = new SVDBLabeledStmt();
-				l_stmt.setLocation(start);
-				l_stmt.setLabel(label);
-				parent.addChildItem(l_stmt);
-				statement(l_stmt, decl_allowed, ansi_decl);
+				if (!could_be_case_item) {
+					String label = id.getImage();
+					fLexer.eatToken();
+					SVDBLabeledStmt l_stmt = new SVDBLabeledStmt();
+					l_stmt.setLocation(start);
+					l_stmt.setLabel(label);
+					parent.addChildItem(l_stmt);
+					statement(l_stmt, decl_allowed, ansi_decl);
+				}
 			} else {
 				fLexer.ungetToken(id);
 
@@ -740,6 +755,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 		String type_s = fLexer.eatToken();
 		CaseType type = null;
+		List<SVToken> token_l = new ArrayList<SVToken>();
 		
 		if (type_s.equals("case")) {
 			type = CaseType.Case;
@@ -787,7 +803,50 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				}
 				fLexer.readOperator(":");
 			}
-			statement(item);
+			
+			// Peek ahead to see whether we have a body
+			if (fDebugEn) {
+				debug("  post-':' -- " + fLexer.peek());
+			}
+			
+			if (fLexer.peekId() || fLexer.peekNumber() || 
+					fLexer.peekOperator("{", "(", "+", "-")) {
+				SVDBBlockStmt null_block = new SVDBBlockStmt();
+				SVCapturingTokenListener tl = new SVCapturingTokenListener();
+				fLexer.addTokenListener(tl);
+				
+				try {
+					// Read an statement
+					if (fLexer.peekNumber()) {
+						fParsers.exprParser().expression();
+					} else {
+						statement_int(null_block, false, true, true, true);
+					}
+				} catch (SVParseException e) {
+					// Ignore parse error (if any)
+				} finally {
+					fLexer.removeTokenListener(tl);
+				}
+
+				if (fDebugEn) {
+					debug("  post speculative-expression parse: " + fLexer.peek());
+				}
+				if (fLexer.peekOperator(",", ":")) {
+					// Null statement
+				
+					fLexer.ungetToken(tl.getTokenList());
+				} else {
+					// Non-null statement
+					fLexer.ungetToken(tl.getTokenList());
+					if (fDebugEn) {
+						debug("  post-unget: " + fLexer.peek());
+					}
+					statement(item);
+				}
+			} else if (!fLexer.peekKeyword("endcase")) {
+				statement(item);
+			}
+		
 			case_stmt.addCaseItem(item);
 		}
 		fLexer.readKeyword("endcase");

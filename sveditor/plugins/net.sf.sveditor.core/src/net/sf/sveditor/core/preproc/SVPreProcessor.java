@@ -373,10 +373,17 @@ public class SVPreProcessor extends AbstractTextScanner {
 					// Try to read the parameter list
 					ch = get_ch();
 					// skip up to new-line or non-whitespace
-					while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
-						ch = get_ch();
+					if (!is_defined) {
+						// For undefined macros, only search up to end-of-line
+						while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+							ch = get_ch();
+						}
+					} else {
+						// For defined macros, skip all whitespace
+						while (ch != -1 && Character.isWhitespace(ch)) {
+							ch = get_ch();
+						}
 					}
-					// ch = skipWhite_ll(ch);
 
 					if (ch == '(') {
 						fTmpBuffer.append((char)ch);
