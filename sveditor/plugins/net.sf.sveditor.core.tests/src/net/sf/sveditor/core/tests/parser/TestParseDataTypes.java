@@ -191,6 +191,18 @@ public class TestParseDataTypes extends TestCase {
 				new String[] {"my_class"});
 	}
 	
+	public void testParamClassConstAssign() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	function void f();\n" +
+			"		mim_request.my_ecc     = common_pkg::data_seq_item#(TXD_MIM_RQ_W)::ECC_NONE;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(getName(), content, new String[] {"c", "f"});
+	}
+	
 	public void testStructPackedSignedUnsigned() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

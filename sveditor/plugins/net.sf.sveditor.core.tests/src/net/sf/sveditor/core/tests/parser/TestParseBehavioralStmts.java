@@ -70,6 +70,58 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testVarDeclForStmt", doc, new String[] { "a" });
 	}
 
+	public void testCaseNonBody() throws SVParseException {
+		String doc = 
+			"class c;\n" +
+			"	function f;\n" +
+			"		begin\n" +
+			"			case (frame_type)\n" +
+			"				TXDMA_CHAIN_BDE:\n" +
+			"					case (word_counter)\n" +
+			"						0:  begin\n" +
+			"						end\n" +
+			"						1:  begin\n" +
+			"						end\n" +
+			"						default:\n" +
+			"						begin\n" +
+			"						end\n" +
+			"					endcase\n" +
+			"				TXDMA_CHAIN_INL:\n" +
+			"				TXDMA_CHAIN_CMP:\n" +
+			"				TXDMA_CHAIN_NO:\n" +
+			"				//  begin\n" +
+			"				//  end\n" +
+			"			endcase\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest(getName(), doc, new String[] { "c", "f" });
+	}
+
+	public void testCaseNonBlockingDelayAssign() throws SVParseException {
+		String doc = 
+			"class c;\n" +
+			"	function f;\n" +
+			"		begin\n" +
+			"			case (frame_type)\n" +
+			"				1: a <= #1 25;\n" +
+			"				2:\n" +
+			"				3:\n" +
+			"			endcase\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest(getName(), doc, new String[] { "c", "f" });
+	}
+
 	public void testNonBlockingEventTrigger() throws SVParseException {
 		String doc =
 			"module t;\n" +
@@ -226,7 +278,7 @@ public class TestParseBehavioralStmts extends TestCase {
 	
 	public void testListFindWith() {
 		String testname = "testListFindWith";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class m;\n" +
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
@@ -250,7 +302,7 @@ public class TestParseBehavioralStmts extends TestCase {
 
 	public void testListFindWith_2() {
 		String testname = "testListFindWith_2";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
 			"		uint temp_q_list[$];\n" +
@@ -272,7 +324,7 @@ public class TestParseBehavioralStmts extends TestCase {
 
 	public void testListUnique() {
 		String testname = "testListUnique";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class c;\n" +
 			"	rand bit [4:0] q_number[];\n" +
