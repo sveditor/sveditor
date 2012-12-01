@@ -343,7 +343,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		for (int i=0; i<m.getParameters().size(); i++) {
 			SVDBMacroDefParam mp = m.getParameters().get(i);
 			param_names.add(mp.getName());
-			if (i >= params_vals.size() && mp.getValue() != null) {
+			if ((params_vals == null || i >= params_vals.size()) && mp.getValue() != null) {
 				if (fDebugEn) {
 					debug("Using default value \"" + mp.getValue() + 
 							"\" for parameter " + mp.getName());

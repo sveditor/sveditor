@@ -64,6 +64,19 @@ public class TestParseDataTypes extends TestCase {
 				new String [] {"foo", "my_var"});
 	}
 
+	public void testTypedefAnonymousFwdDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foo;\n" +
+			"    typedef foo_enum_t;\n" +
+			"    foo_enum_t        my_var;\n" +
+			"endclass\n"
+			;
+		
+		runTest("testTypedefEnumFwdDecl", content,
+				new String [] {"foo", "my_var"});
+	}
+	
 	public void testEnumVarTFScope() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
@@ -189,6 +202,18 @@ public class TestParseDataTypes extends TestCase {
 		
 		runTest("testVirtualInterfaceClassParam", content,
 				new String[] {"my_class"});
+	}
+	
+	public void testParamClassConstAssign() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	function void f();\n" +
+			"		mim_request.my_ecc     = common_pkg::data_seq_item#(TXD_MIM_RQ_W)::ECC_NONE;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(getName(), content, new String[] {"c", "f"});
 	}
 	
 	public void testStructPackedSignedUnsigned() throws SVParseException {

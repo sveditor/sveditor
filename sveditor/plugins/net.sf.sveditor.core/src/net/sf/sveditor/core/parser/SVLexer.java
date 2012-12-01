@@ -134,6 +134,7 @@ public class SVLexer extends SVToken {
 		
 		// Customize
 		fDefaultKeywordSet.remove("soft");
+		fDefaultKeywordSet.remove("unique");
 		
 		fEOF = false;
 		

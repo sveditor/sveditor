@@ -14,6 +14,8 @@ package net.sf.sveditor.core.tests.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase;
@@ -68,6 +70,58 @@ public class TestParseBehavioralStmts extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testVarDeclForStmt", doc, new String[] { "a" });
+	}
+
+	public void testCaseNonBody() throws SVParseException {
+		String doc = 
+			"class c;\n" +
+			"	function f;\n" +
+			"		begin\n" +
+			"			case (frame_type)\n" +
+			"				TXDMA_CHAIN_BDE:\n" +
+			"					case (word_counter)\n" +
+			"						0:  begin\n" +
+			"						end\n" +
+			"						1:  begin\n" +
+			"						end\n" +
+			"						default:\n" +
+			"						begin\n" +
+			"						end\n" +
+			"					endcase\n" +
+			"				TXDMA_CHAIN_INL:\n" +
+			"				TXDMA_CHAIN_CMP:\n" +
+			"				TXDMA_CHAIN_NO:\n" +
+			"				//  begin\n" +
+			"				//  end\n" +
+			"			endcase\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest(getName(), doc, new String[] { "c", "f" });
+	}
+
+	public void testCaseNonBlockingDelayAssign() throws SVParseException {
+		String doc = 
+			"class c;\n" +
+			"	function f;\n" +
+			"		begin\n" +
+			"			case (frame_type)\n" +
+			"				1: a <= #1 25;\n" +
+			"				2:\n" +
+			"				3:\n" +
+			"			endcase\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest(getName(), doc, new String[] { "c", "f" });
 	}
 
 	public void testNonBlockingEventTrigger() throws SVParseException {
@@ -228,7 +282,7 @@ public class TestParseBehavioralStmts extends TestCase {
 		String testname = "testListFindWith";
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
-			"module m;\n" +
+			"class m;\n" +
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
 			"		uint temp_q_list[$];\n" +
 			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
@@ -241,18 +295,101 @@ public class TestParseBehavioralStmts extends TestCase {
 			"			return (1'b0);\n" +
 			"		end\n" +
 			"	endfunction: check_for_element\n" +
-			"endmodule\n" 
+			"endclass\n" 
   			;
 		
 		runTest(testname, doc, 
 				new String[] { "m"});
 	}
+
+	public void testListFindWith_2() {
+		String testname = "testListFindWith_2";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
+			"		uint temp_q_list[$];\n" +
+			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
+			"		if (temp_q_list.size())\n" +
+			"		begin\n" +
+			"			return (1'b1);\n" +
+			"		end\n" +
+			"		else\n" +
+			"		begin\n" +
+			"			return (1'b0);\n" +
+			"		end\n" +
+			"	endfunction: check_for_element\n"
+			;
+		
+		runTest(testname, doc, 
+				new String[] { "check_for_element"});
+	}
+
+	public void testListUnique() {
+		String testname = "testListUnique";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class c;\n" +
+			"	rand bit [4:0] q_number[];\n" +
+			"	bit [4:0] temp_q_list[$];\n" +
+			"\n" +
+			"	function f;\n" +
+			"		temp_q_list = q_number.unique(); // <- expecting one of keyword ‘endfunction’ received ‘unique’.\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+		
+		runTest(testname, doc, 
+				new String[] { "c", "f"});
+	}
+	
+	public void testRandomizeWithInMacro() {
+		// This test ends up verifying that the '(' for a macro
+		// with arguments can be separated by any amount of
+		// whitespace
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define msg_fatal(msg)\n" +
+			"`define randcheck(arg) begin\\\n" +
+			" bit pass_fail; \\\n" +
+			" pass_fail = (arg); \\\n" +
+			" if (pass_fail === 0) `msg_fatal((`\"arg failed to randomize`\")); \\\n" +
+			" end\n" +
+			"\n" +
+			"class c;\n" +
+			"	function f;\n" +
+			"		for (int iocb_count = 0; iocb_count < iocb_this_hqp; iocb_count++)\n" +
+            "       begin\n" +
+            "       qs_iocb_c               test_iocb;          ///< IOCB\n" +
+            "       test_iocb = test_hqp.append_iocb();\n" +
+            "       `randcheck\n" +
+            "           (\n" +
+            "           test_iocb.randomize() with\n" +
+            "               {\n" +
+            "               iocb_tx_opcode == TXDMA_OPCODE_1_FCOE;\n" +
+            "               iocb_tx_enable_t10 == 0;\n" +
+            "               iocb_tx_queue inside {[MIN_QUEUE:MAX_QUEUE]};\n" +
+            "               iocb_tx_chain_count == 1;\n" +
+            "               }\n" +
+            "           )\n" +
+            "       if (1)\n" +
+            "           begin\n" +
+            "           test_iocb.print();\n" +
+            "           end\n" +
+            "        end\n" + // end forloop
+			"    endfunction\n" +
+            "endclass\n"
+			;
+		
+		runTest(getName(), doc, new String[] {"c", "f"});
+	}
+
 	
 	private void runTest(
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
