@@ -12,6 +12,14 @@
 
 - #(nobug) - Correct a parse error with referencing a const field in a 
   parameterized class. For example: a = pkg::cls#(mytype)::const_value;
+  
+- #(nobug) - Correct pre-processor issue involving macro references with
+  the opening paren of the argument list being placed on a new line. For example:
+  `my_macro
+    (
+      ARG1, ARG2,
+      ARG3
+    )
 
 
 ------------------------------------------------------------------------------

@@ -14,6 +14,8 @@ package net.sf.sveditor.core.tests.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase;
@@ -340,11 +342,54 @@ public class TestParseBehavioralStmts extends TestCase {
 				new String[] { "c", "f"});
 	}
 	
+	public void testRandomizeWithInMacro() {
+		// This test ends up verifying that the '(' for a macro
+		// with arguments can be separated by any amount of
+		// whitespace
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define msg_fatal(msg)\n" +
+			"`define randcheck(arg) begin\\\n" +
+			" bit pass_fail; \\\n" +
+			" pass_fail = (arg); \\\n" +
+			" if (pass_fail === 0) `msg_fatal((`\"arg failed to randomize`\")); \\\n" +
+			" end\n" +
+			"\n" +
+			"class c;\n" +
+			"	function f;\n" +
+			"		for (int iocb_count = 0; iocb_count < iocb_this_hqp; iocb_count++)\n" +
+            "       begin\n" +
+            "       qs_iocb_c               test_iocb;          ///< IOCB\n" +
+            "       test_iocb = test_hqp.append_iocb();\n" +
+            "       `randcheck\n" +
+            "           (\n" +
+            "           test_iocb.randomize() with\n" +
+            "               {\n" +
+            "               iocb_tx_opcode == TXDMA_OPCODE_1_FCOE;\n" +
+            "               iocb_tx_enable_t10 == 0;\n" +
+            "               iocb_tx_queue inside {[MIN_QUEUE:MAX_QUEUE]};\n" +
+            "               iocb_tx_chain_count == 1;\n" +
+            "               }\n" +
+            "           )\n" +
+            "       if (1)\n" +
+            "           begin\n" +
+            "           test_iocb.print();\n" +
+            "           end\n" +
+            "        end\n" + // end forloop
+			"    endfunction\n" +
+            "endclass\n"
+			;
+		
+		runTest(getName(), doc, new String[] {"c", "f"});
+	}
+
+	
 	private void runTest(
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
