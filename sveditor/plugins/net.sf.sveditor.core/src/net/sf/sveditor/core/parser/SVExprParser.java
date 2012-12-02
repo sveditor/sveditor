@@ -1329,18 +1329,19 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr selector(SVDBExpr expr) throws SVParseException {
-		if (fDebugEn) {debug("--> selector()");}
+		if (fDebugEn) {debug("--> selector() " + fLexer.peek());}
 		if (fLexer.peekOperator(".", "::")) {
 			String q = fLexer.eatToken();
 			
 			fLexer.peek();
 			if (fLexer.isIdentifier() || fLexer.peekKeyword("new", "super", "this")) {
-				String id = fLexer.eatToken();
+				SVToken id_tok = fLexer.consumeToken();
+				String id = id_tok.getImage();
 				
 				if (fLexer.peekOperator("(*")) {
 					fParsers.attrParser().parse(null);
 				}
-				
+
 				if (fLexer.peekOperator("(") || fLexer.peekKeyword("with")) {
 					if (id.equals("randomize")) {
 						return randomize_call(expr);
@@ -1350,38 +1351,36 @@ public class SVExprParser extends SVParserBase {
 						return tf_noargs_with_call(expr, id);
 					}
 				}
-				// '.' identifier
-				if (fDebugEn) {debug("<-- selector()");}
-				return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
-						new SVDBIdentifierExpr(id));
+				if (q.equals(".")) {
+					// '.' identifier
+					if (fDebugEn) {debug("<-- selector() - IdentifierExpr");}
+					return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
+							new SVDBIdentifierExpr(id));
+				} else {
+					// '::' identifier|parameterized_classtype
+					
+					if (fLexer.peekOperator("#")) {
+						// Parameterized class type
+						fLexer.ungetToken(id_tok);
+						SVDBTypeExpr rhs = new SVDBTypeExpr();
+						rhs.setLocation(fLexer.getStartLocation());
+					
+						SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
+						rhs.setTypeInfo(info);
+						if (fDebugEn) {
+							debug("  rhs=" + rhs);
+							debug("<-- selector() - DataType");
+						}
+						return new SVDBFieldAccessExpr(expr, true, rhs);
+					} else {
+						if (fDebugEn) {debug("<-- selector() - IdentifierExpr(2)");}
+						return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
+								new SVDBIdentifierExpr(id));
+					}
+				}
 			}
 		}
-		/*
-		// TODO: Seems redundant
-		if (peekKeyword("this")) {
-			// '.' 'this'
-			eatToken();
-			return new SVDBIdentifierExpr("this");
-		}
-		if (peekKeyword("super")) {
-			eatToken();
-			
-			readOperator(".");
-			String id;
-			if (peekKeyword("new", "super", "this")) {
-				id = fLexer.eatToken();
-			} else {
-				id = readIdentifier();
-			}
-			
-			if (!peekOperator("(")) {
-				// '.' super '.' identifier
-				return new SVDBQualifiedSuperFieldRefExpr(expr, id);
-			}
-		}
-		 */
-		// END: Seems redundant
-		
+
 		// TODO: keyword new
 		// TODO: keyword class`
 		

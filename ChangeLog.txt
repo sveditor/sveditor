@@ -1,9 +1,33 @@
 
--- 1.0.5 Release --
-
+-- 1.0.6 Release --
 - #(enh) - Argument-File Index now adds errors for missing root argument files
   to the project on which they are specified.
 
+-- 1.0.5 Release --
+
+- #(nobug) - Correct a keyword conflict on the 'unique' keyword. It should be 
+  treated as a keyword in a constraint context, but as an identifier elsewhere.
+  
+- #(nobug) - Correct a parse bug involving empty case items
+
+- #(3591399) - Parser error - Null-Pointer-Exception involving generate-if statements
+
+- #(nobug) - Enable enums and unions to be declared in behavioral blocks (eg tasks)
+
+- #(nobug) - Correct a parse error with referencing a const field in a 
+  parameterized class. For example: a = pkg::cls#(mytype)::const_value;
+  
+- #(nobug) - Correct pre-processor issue involving macro references with
+  the opening paren of the argument list being placed on a new line. For example:
+  `my_macro
+    (
+      ARG1, ARG2,
+      ARG3
+    )
+
+- #(nobug) - Add support for anonymous-type forward declarations. For example:
+  typedef my_fwd_decl;
+  
 ------------------------------------------------------------------------------
 -- 1.0.4 Release --
 

@@ -119,7 +119,23 @@ public class TestParseFunction extends TestCase {
 		parse_tf(content, testname);
 	}
 
-
+	public void testTaskWithUnion() throws SVParseException {
+		String testname = "testTaskWithUnion";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			" task test_with_union;\n" +
+			"   union packed {\n" +
+			"       logic [31:0] vector;\n" +
+			"       struct packed {\n" +
+			"          logic[31:16] top;\n" +
+			"          logic[15:0] bottom;\n" +
+			"       } fields;\n" +
+			"   } union_xyz;\n" +
+			" endtask;\n"
+		    ;
+		parse_tf(content, testname);
+		
+	}
 
 	// Tests that local variables are correctly recognized and that 
 	// cast expressions are skipped appropriately

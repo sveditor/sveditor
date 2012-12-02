@@ -436,21 +436,23 @@ public class SVDataTypeParser extends SVParserBase {
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
 		if (type.getType() != SVDBItemType.TypeInfoFwdDecl) {
-			String id = fLexer.readId();
+			if (fLexer.peekOperator(";")) {
+				// It's an anonymous forward declaration
+				SVDBTypeInfoFwdDecl fd_type = new SVDBTypeInfoFwdDecl("<<Anonymous>>", type.getName());
+				typedef = new SVDBTypedefStmt(fd_type, fd_type.getName());
+				typedef.setLocation(start);
+			} else {
+				String id = fLexer.readId();
 
-			// TODO: dimension
-			if (fLexer.peekOperator("[")) {
-				type.setArrayDim(var_dim());
-			}
-
-			typedef = new SVDBTypedefStmt(type, id);
-
-			typedef.setLocation(start);
-			/*
-				if (fScopeStack.size() > 0) {
-					fScopeStack.peek().addItem(typedef);
+				// TODO: dimension
+				if (fLexer.peekOperator("[")) {
+					type.setArrayDim(var_dim());
 				}
-			 */
+
+				typedef = new SVDBTypedefStmt(type, id);
+
+				typedef.setLocation(start);
+			}
 		} else {
 			typedef = new SVDBTypedefStmt(type, type.getName());
 			typedef.setLocation(start);
