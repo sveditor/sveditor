@@ -561,14 +561,8 @@ public class SVDataTypeParser extends SVParserBase {
 
 			if (fLexer.peekOperator("]")) {
 				dim.setDimType(DimType.Unsized);
-			} else if (fLexer.peekOperator("$")) {
-				error("Unsupported packed dimension \"$\"");
-				fLexer.eatToken();
-			} else if (fLexer.peekOperator("*")) {
-				fLexer.eatToken();
-				error("Unsupported packed dimension \"*\"");
 			} else {
-				dim.setExpr(parsers().exprParser().expression());
+				dim.setExpr(fParsers.exprParser().const_or_range_expression());
 			}
 			ret.add(dim);
 

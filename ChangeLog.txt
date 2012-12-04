@@ -1,6 +1,11 @@
 
 -- 1.0.6 Release --
 
+- #(nobug) - Correct a parse error involving sized enum-variable types. 
+  For example: my_enum_type [3:2] enum_var;
+ 
+ 
+
 ------------------------------------------------------------------------------
 -- 1.0.5 Release --
 
