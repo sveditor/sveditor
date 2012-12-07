@@ -3,8 +3,12 @@ package net.sf.sveditor.core.argfile.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -22,6 +26,8 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 	private int						fInBufferMax;
 	private boolean					fInPreProcess;
 	private ISVArgFileVariableProvider	fVarProvider;
+	private boolean					fDebugEn = true;
+	private LogHandle					fLog;
 
 	public SVArgFilePreProcessor(
 			InputStream	 	input, 
@@ -36,6 +42,7 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 		fInBuffer = new byte[8*1024];
 		fInBufferIdx = 0;
 		fInBufferMax = 0;
+		fLog = LogFactory.getLogHandle("SVArgFilePreProcessor");
 	}
 	
 	public SVArgFilePreProcOutput preprocess() {
@@ -111,9 +118,12 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 		boolean exp_brace = (ch == '{');
 		
 		fTmpBuffer.setLength(0);
+		fTmpBuffer.append('$');
 		
 		if (!exp_brace) {
 			unget_ch(ch);
+		} else {
+			fTmpBuffer.append('{');
 		}
 		
 		while ((ch = get_ch()) != -1) {
@@ -136,12 +146,20 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 		if (exp_brace) {
 			if (ch != '}') {
 				// TODO: Error
+				unget_ch(ch);
+			} else {
+				fTmpBuffer.append((char)ch);
 			}
 		} else {
 			unget_ch(ch);
 		}
+
+		// Now, submit the variable to the expansion logic
+		String val = expand_variable(fTmpBuffer.toString());
+		fOutput.append(val);
 		
 		// Check whether the VariableProvider provides this variable
+		/*
 		String var = fTmpBuffer.toString();
 		if (fVarProvider != null) {
 			if (fVarProvider.providesVar(var)) {
@@ -153,6 +171,98 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 		} else {
 			// TODO: 
 			fOutput.append(fTmpBuffer);
+		}
+		 */
+	}
+	
+	private String expand_variable(String in) {
+		int refs;
+		StringBuilder out = new StringBuilder(in);
+		Set<String> exp_vars = new HashSet<String>();
+		
+		do {
+			refs = 0;
+			for (int i=0; i<out.length(); i++) {
+				if (charAt(out, i) == '$') {
+					int start=-1, end=-1;
+					i++;
+					boolean exp_brace = (charAt(out, i) == '{');
+					
+					if (exp_brace) {
+						i++;
+					}
+					start = i;
+					
+					while (i < out.length()) {
+						if (exp_brace) {
+							if (charAt(out, i) == '}' || Character.isWhitespace(charAt(out, i))) {
+								break;
+							}
+						} else {
+							char ch = charAt(out, i);
+							if (!(
+									(ch >= 'a' && ch <= 'z') ||
+									(ch >= 'A' && ch <= 'Z') ||
+									(ch >= '0' && ch <= '9') ||
+									(ch == '_'))) {
+								break;
+							}
+						}
+						i++;
+					}
+					
+					if (i < out.length()) {
+						end = i;
+					} else {
+						end = out.length();
+					}
+				
+					/*
+					if (exp_brace && charAt(out, end-1) != '}') {
+						// TODO: error
+					} 
+					 */
+			
+					String key = out.substring(start, end);
+					if (fDebugEn) {
+						fLog.debug("key=" + key);
+					}
+					if (!exp_vars.contains(key)) {
+						refs++;
+						exp_vars.add(key);
+						String no_val = "$" + ((exp_brace)?"{":"") +
+										key + ((exp_brace)?"}":"");
+						String val = no_val;
+						
+						if (fVarProvider != null) {
+							if (fVarProvider.providesVar(key)) {
+								val = fVarProvider.expandVar(key);
+							}
+						}
+						
+						int replace_start = start - ((exp_brace)?2:1);
+						int replace_end = end + ((exp_brace)?1:0);
+						
+						out.replace(replace_start, replace_end, val);
+						if (fDebugEn) {
+							fLog.debug("post-replace: " + out.toString());
+						}
+						i += (val.length()-no_val.length());
+					} else {
+						// TODO: Recursive expansion
+					}
+				}
+			}
+		} while (refs > 0);
+		
+		return out.toString();
+	}
+	
+	private static char charAt(StringBuilder sb, int idx) {
+		if (idx < 0 || idx >= sb.length()) {
+			return Character.MAX_VALUE;
+		} else {
+			return sb.charAt(idx);
 		}
 	}
 	

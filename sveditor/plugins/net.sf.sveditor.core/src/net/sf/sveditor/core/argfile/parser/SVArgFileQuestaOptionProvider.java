@@ -135,6 +135,8 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.Incdir;
 		} else if (name.equals("-f")) {
 			return OptionType.ArgFileInc;
+		} else if (name.equals("-y")) {
+			return OptionType.SrcLibPath;
 		} else if (fOptions.containsKey(name)) {
 			return OptionType.Ignored;
 		} else {

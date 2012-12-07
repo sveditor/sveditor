@@ -196,7 +196,8 @@ public enum SVDBItemType {
 	ArgFileIncDirStmt,
 	ArgFilePathStmt,
 	ArgFileDefineStmt,
-	ArgFileIncFileStmt
+	ArgFileIncFileStmt,
+	ArgFileSrcLibPathStmt
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

@@ -45,6 +45,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private String							fBaseLocation;
 	private Map<String, CacheFileInfo>		fFileCache;
+	private Map<String, CacheFileInfo>		fArgFileCache;
 	private ISVDBFS							fSVDBFS;
 	private Object							fIndexData;
 	private LogHandle						fLog;
@@ -115,6 +116,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public SVDBFileIndexCache(ISVDBFS fs) {
 		fSVDBFS = fs;
 		fFileCache = new HashMap<String, SVDBFileIndexCache.CacheFileInfo>();
+		fArgFileCache = new HashMap<String, SVDBFileIndexCache.CacheFileInfo>();
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 		fDebugEn = fLog.isEnabled();
 		fLog.addLogLevelListener(this);
@@ -154,15 +156,31 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 		monitor.beginTask("Clear Cache", 1);
 		fFileCache.clear();
+		fArgFileCache.clear();
 		fSVDBFS.delete(monitor, "");
 		monitor.done();
 	}
 
-	public void addFile(String path) {
-		getCacheFileInfo(path, true);
+	public void addFile(String path, boolean is_argfile) {
+		if (is_argfile) {
+			getArgFileCacheFileInfo(path, false);
+		} else {
+			getCacheFileInfo(path, true);
+		}
 	}
 	
 	private CacheFileInfo getCacheFileInfo(String path, boolean create) {
+		if (fDebugEn) {
+			fLog.debug("getCacheFileInfo: " + path + " " + create);
+
+			if (create && path.endsWith(".f")) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		synchronized (fFileCache) {
 			CacheFileInfo file = null;
 			if (!fFileCache.containsKey(path)) {
@@ -184,9 +202,42 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			return file;
 		}
 	}
+
+	private CacheFileInfo getArgFileCacheFileInfo(String path, boolean create) {
+		synchronized (fArgFileCache) {
+			CacheFileInfo file = null;
+			if (!fArgFileCache.containsKey(path)) {
+				if (create) {
+					file = new CacheFileInfo();
+					fArgFileCache.put(path, file);
+				}
+			} else {
+				file = fArgFileCache.get(path);
+			}
+			
+			if (file != null) {
+				if (file.fCached) {
+					moveElementToTail(file);
+				} else {
+					addElementToTail(file);
+				}
+			}
+			return file;
+		}
+	}
 	
-	public void setMarkers(String path, List<SVDBMarker> markers) {
-		CacheFileInfo cfi = getCacheFileInfo(path, true);
+	public void setMarkers(String path, List<SVDBMarker> markers, boolean is_argfile) {
+		CacheFileInfo cfi;
+		
+		if (is_argfile) {
+			cfi = getArgFileCacheFileInfo(path, true);
+		} else {
+			cfi = getCacheFileInfo(path, true);
+		}
+		
+		if (fDebugEn) {
+			fLog.debug("setMarkers: " + path + " (" + markers.size() + ")");
+		}
 
 		cfi.fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
 		
@@ -197,7 +248,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	public List<SVDBMarker> getMarkers(String path) {
-		CacheFileInfo cfi = getCacheFileInfo(path, false);
+		CacheFileInfo cfi;
+		
+		if ((cfi = getCacheFileInfo(path, false)) == null) {
+			cfi = getArgFileCacheFileInfo(path, false);
+		}
 		
 		List<SVDBMarker> m = (cfi != null)?cfi.fMarkers.get():null;
 		if (m == null) {
@@ -211,9 +266,15 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			}
 		}
 		
+		if (fDebugEn) {
+			fLog.debug("setMarkers: " + path + " (" + ((m == null)?"null":m.size()) + ")");
+		}
+	
+		/*
 		if (m == null) {
 			m = new ArrayList<SVDBMarker>();
 		}
+		 */
 		
 		return m;
 	}
@@ -222,6 +283,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public boolean init(IProgressMonitor monitor, Object index_data) {
 		boolean valid = false;
 		fFileCache.clear();
+		fArgFileCache.clear();
 		fBaseLocation = "";
 		fIndexData = index_data;
 		IDBReader rdr = allocReader();
@@ -235,11 +297,19 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				rdr.init(in);
 				fBaseLocation = rdr.readString();
 				List<String> file_list = rdr.readStringList();
+				List<String> arg_file_list = rdr.readStringList();
 				List<Long> timestamp_list = rdr.readLongList();
+				List<Long> arg_timestamp_list = rdr.readLongList();
 				for (int i=0; i<file_list.size(); i++) {
 					String path = file_list.get(i);
 					CacheFileInfo cfi = getCacheFileInfo(path, true);
 					cfi.fLastModified = timestamp_list.get(i);
+				}
+				
+				for (int i=0; i<arg_file_list.size(); i++) {
+					String path = arg_file_list.get(i);
+					CacheFileInfo cfi = getArgFileCacheFileInfo(path, true);
+					cfi.fLastModified = arg_timestamp_list.get(i);
 				}
 
 				fSVDBFS.closeInput(in);
@@ -281,12 +351,31 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		 */
 	}
 
-	public Set<String> getFileList() {
-		return fFileCache.keySet();
+	public synchronized Set<String> getFileList(boolean is_argfile) {
+		if (fDebugEn) {
+			fLog.debug("--> getFileList: " + is_argfile);
+		}
+		Set<String> ret;
+		if (is_argfile) {
+			ret = fArgFileCache.keySet();
+		} else {
+			ret = fFileCache.keySet();
+		}
+		if (fDebugEn) {
+			for (String p : ret) {
+				fLog.debug("  path: " + p);
+			}
+			fLog.debug("<-- getFileList: " + is_argfile);
+		}
+		return ret;
 	}
 	
 	public long getLastModified(String path) {
-		CacheFileInfo cfi = getCacheFileInfo(path, false);
+		CacheFileInfo cfi;
+		
+		if ((cfi = getCacheFileInfo(path, false)) == null) {
+			cfi = getArgFileCacheFileInfo(path, false);
+		}
 		
 		if (cfi != null) {
 			return cfi.fLastModified;
@@ -296,7 +385,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return -1;
 	}
 	
-	public void setLastModified(String path, long timestamp) {
+	public void setLastModified(String path, long timestamp, boolean is_argfile) {
 		if (timestamp == -1) {
 			try {
 				throw new Exception();
@@ -305,7 +394,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				e.printStackTrace();
 			}
 		}
-		CacheFileInfo cfi = getCacheFileInfo(path, true);
+		CacheFileInfo cfi;
+		
+		if (is_argfile) {
+			cfi = getArgFileCacheFileInfo(path, true);
+		} else {
+			cfi = getCacheFileInfo(path, true);
+		}
 		cfi.fLastModified = timestamp;
 	}
 
@@ -330,7 +425,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {
-		CacheFileInfo cfi = getCacheFileInfo(path, false);
+		CacheFileInfo cfi;
+		
+		if ((cfi = getCacheFileInfo(path, false)) == null) {
+			cfi = getArgFileCacheFileInfo(path, false);
+		}
 
 		SVDBFile file = (cfi != null)?cfi.fSVDBFile.get():null;
 		
@@ -349,6 +448,28 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 		
 		return file;
+	}
+	
+	public SVDBFile getArgFile(IProgressMonitor monitor, String path) {
+		CacheFileInfo cfi = getArgFileCacheFileInfo(path, false);
+
+		SVDBFile file = (cfi != null)?cfi.fSVDBFile.get():null;
+		
+		if (file == null) {
+			String target_dir = computePathDir(path);
+			
+			if (fSVDBFS.fileExists(target_dir + "/file")) {
+				cfi = getCacheFileInfo(path, true);
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/file");
+				file = readFile(in, path);
+				fSVDBFS.closeInput(in);
+				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
+				cfi.fSVDBFileRef = file;
+				fNumFilesRead++;
+			}
+		}
+		
+		return file;	
 	}
 
 	public void setPreProcFile(String path, SVDBFile file) {
@@ -370,8 +491,25 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		
 	}
 
-	public void setFile(String path, SVDBFile file) {
-		CacheFileInfo cfi = getCacheFileInfo(path, true);
+	public void setFile(String path, SVDBFile file, boolean is_argfile) {
+		CacheFileInfo cfi;
+		
+		if (fDebugEn) {
+			fLog.debug("setFile: path=" + path + " is_argfile=" + is_argfile);
+		}
+		
+		if (is_argfile) {
+			cfi = getArgFileCacheFileInfo(path, true);
+		} else {
+			if (path.endsWith(".f")) {
+				try {
+					throw new Exception();
+				} catch (Exception e ) {
+					e.printStackTrace();
+				}
+			}
+			cfi = getCacheFileInfo(path, true);
+		}
 		
 		if (file == null) {
 			if (fDebugEn) {
@@ -388,7 +526,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			writeBackFile(path, file);
 		}
 	}
-
+	
 	public void setFileTree(String path, SVDBFileTree file_tree) {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
 		cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(file_tree);
@@ -424,9 +562,16 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 
-	public void removeFile(String path) {
-		CacheFileInfo file = fFileCache.get(path);
-		fFileCache.remove(path);
+	public void removeFile(String path, boolean is_argfile) {
+		CacheFileInfo file;
+		
+		if (is_argfile) {
+			file = fArgFileCache.get(path);
+			fArgFileCache.remove(path);
+		} else {
+			file = fFileCache.get(path);
+			fFileCache.remove(path);
+		}
 		
 		// Remove from linked list
 		removeElement(file);
@@ -438,15 +583,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	private String computePathDir(String path) {
-		/*
-		String ret = path;
-		ret = ret.replace('/', '_');
-		ret = ret.replace('$', '_');
-		ret = ret.replace('{', '_');
-		ret = ret.replace('}', '_');
-
-		return ret;
-		 */
 		return SVFileUtils.computeMD5(path);
 	}
 	
@@ -516,11 +652,25 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			writer.init(out);
 			writer.writeString(fBaseLocation);
 			List<String> tmp = new ArrayList<String>();
+			
+			tmp.clear();
 			tmp.addAll(fFileCache.keySet());
 			writer.writeStringList(tmp);
+	
+			tmp.clear();
+			tmp.addAll(fArgFileCache.keySet());
+			writer.writeStringList(tmp);
+			
 			List<Long> timestamp_list = new ArrayList<Long>();
 			for (String path : fFileCache.keySet()) {
 				CacheFileInfo cfi = getCacheFileInfo(path, true);
+				timestamp_list.add(cfi.fLastModified);
+			}
+			writer.writeLongList(timestamp_list);
+			
+			timestamp_list.clear();
+			for (String path : fArgFileCache.keySet()) {
+				CacheFileInfo cfi = getArgFileCacheFileInfo(path, true);
 				timestamp_list.add(cfi.fLastModified);
 			}
 			writer.writeLongList(timestamp_list);

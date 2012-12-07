@@ -61,10 +61,13 @@ public class ArgFilePersistence extends TestCase
 	private File					fTmpDir;
 	private int					fIndexRebuilt;
 	private IProject				fProject;
+	private SVCorePlugin			fCorePlugin;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		fCorePlugin = SVCorePlugin.getDefault();
 		
 		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
@@ -384,6 +387,7 @@ public class ArgFilePersistence extends TestCase
 	}	
 
 	public void testWSArgFileTimestampChanged() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		ByteArrayOutputStream	 	out;
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -398,7 +402,7 @@ public class ArgFilePersistence extends TestCase
 			db.delete();
 		}
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		SVDBIndexRegistry rgy = fCorePlugin.getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
@@ -430,10 +434,13 @@ public class ArgFilePersistence extends TestCase
 		// Sleep to ensure that the timestamp is different
 		log.debug("[NOTE] pre-sleep");
 		try {
-			Thread.sleep(2000);
+//			Thread.sleep(2000);
+			Thread.sleep(1500);
 		} catch (InterruptedException e) {
+			log.error("Interruped");
 			e.printStackTrace();
 		}
+//		fCorePlugin.enableDebug(true);
 		log.debug("[NOTE] post-sleep");
 
 		// Change class1.svh
@@ -456,16 +463,27 @@ public class ArgFilePersistence extends TestCase
 		
 		// Now, write back the file
 		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
-
+	
+		// This test checks that, on re-creation, timestamp changes are noticed
+		rgy.disposeIndex(index);
+		
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		
+		/*
+		index.rebuildIndex(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
+		 */
+		
 		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
+			
+			log.debug("tmp_it: " + tmp_it);
 			
 			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
 				target_it = tmp_it;
@@ -622,7 +640,8 @@ public class ArgFilePersistence extends TestCase
 		ByteArrayOutputStream out;
 		PrintStream ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testFSArgFileTimestampChanged");
+		LogHandle log = LogFactory.getLogHandle(getName());
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		

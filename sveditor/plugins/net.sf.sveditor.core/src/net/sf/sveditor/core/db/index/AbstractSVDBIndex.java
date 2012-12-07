@@ -72,6 +72,7 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -90,6 +91,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	private static final int IndexState_AllFilesParsed 		= (IndexState_FileTreeValid + 1);
 
 	public  String 									fProjectName;
+	private IProject								fProject;
 	private String 									fBaseLocation;
 	private String 									fResolvedBaseLocation;
 	private String 									fBaseLocationDir;
@@ -151,6 +153,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		
 		fFileDirs = new HashSet<String>();
 		fDeferredPkgCacheFiles = new ArrayList<Tuple<String,List<String>>>();
+		
+		// Try to obtain the project handle
+		try {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			fProject = root.getProject(fProjectName);
+		} catch (IllegalArgumentException e) {}
 	}
 
 	public AbstractSVDBIndex(String project, String base_location,
@@ -243,8 +251,8 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 
-		if (fCache.getFileList().size() > 0) {
-			for (String path : fCache.getFileList()) {
+		if (fCache.getFileList(false).size() > 0) {
+			for (String path : fCache.getFileList(false)) {
 				long fs_timestamp = fFileSystemProvider
 						.getLastModifiedTime(path);
 				long cache_timestamp = fCache.getLastModified(path);
@@ -345,7 +353,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 			
 			// Register all files with the directory set
-			for (String f : fCache.getFileList()) {
+			for (String f : fCache.getFileList(false)) {
 				addFileDir(f);
 			}
 		} else {
@@ -496,7 +504,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		fLog.debug(LEVEL_MAX, "parseFiles");
 		
 		synchronized (fCache) {
-			paths.addAll(fCache.getFileList());
+			paths.addAll(fCache.getFileList(false));
 		}
 		final SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 		m.beginTask("Parsing Files", paths.size());
@@ -658,21 +666,21 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public void fileChanged(String path) {
 		synchronized (fCache) {
-			if (fCache.getFileList().contains(path)) {
+			if (fCache.getFileList(false).contains(path)) {
 //				invalidateIndex();
 				if (fDebugEn) {
 					fLog.debug(LEVEL_MIN, "fileChanged: " + path);
 				}
-				fCache.setFile(path, null);
+				fCache.setFile(path, null, false);
 				fCache.setLastModified(path, 
-						getFileSystemProvider().getLastModifiedTime(path));
+						getFileSystemProvider().getLastModifiedTime(path), false);
 			}
 		}
 	}
 
 	public void fileRemoved(String path) {
 		synchronized (fCache) {
-			if (fCache.getFileList().contains(path)) {
+			if (fCache.getFileList(false).contains(path)) {
 				invalidateIndex(new NullProgressMonitor(), "File Removed", false);
 			}
 		}
@@ -698,6 +706,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	
 	public String getProject() {
 		return fProjectName;
+	}
+	
+	public IProject getProjectHndl() {
+		return fProject;
 	}
 
 	public String getResolvedBaseLocation() {
@@ -775,7 +787,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	 */
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
 		ensureIndexState(monitor, IndexState_FileTreeValid);
-		return fCache.getFileList();
+		return fCache.getFileList(false);
 	}
 
 	/**
@@ -877,14 +889,20 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
+
+		List<SVDBMarker> markers = fCache.getMarkers(path);
 		
-		return fCache.getMarkers(path);
+		if (fDebugEn) {
+			fLog.debug("markers for " + path + ": " + markers.size());
+		}
+		
+		return markers;
 	}
 
-	protected void addFile(String path) {
+	protected void addFile(String path, boolean is_argfile) {
 		synchronized (fCache) {
-			fCache.addFile(path);
-			fCache.setLastModified(path, getFileSystemProvider().getLastModifiedTime(path));
+			fCache.addFile(path, is_argfile);
+			fCache.setLastModified(path, getFileSystemProvider().getLastModifiedTime(path), is_argfile);
 		}
 		
 		addFileDir(path);
@@ -905,7 +923,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void propagateAllMarkers() {
-		Set<String> file_list = fCache.getFileList();
+		Set<String> file_list = fCache.getFileList(false);
 		for (String path : file_list) {
 			if (path != null) {
 				propagateMarkers(path);
@@ -958,7 +976,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	protected void preProcessFiles(final IProgressMonitor monitor) {
 		final List<String> paths = new ArrayList<String>();
 		synchronized (fCache) {
-			paths.addAll(fCache.getFileList());
+			paths.addAll(fCache.getFileList(false));
 		}
 		
 		monitor.beginTask("Pre-Process Files", paths.size());
@@ -1022,7 +1040,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				if (file != null) {
 					fCache.setPreProcFile(path, file);
 					fCache.setLastModified(path, 
-							fFileSystemProvider.getLastModifiedTime(path));
+							fFileSystemProvider.getLastModifiedTime(path), false);
 				}
 			}
 			
@@ -1034,12 +1052,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	protected void buildFileTree(final IProgressMonitor monitor) {
 		final List<String> paths = new ArrayList<String>(); 
-		paths.addAll(getCache().getFileList());
+		paths.addAll(getCache().getFileList(false));
 		final List<String> missing_includes = new ArrayList<String>();
+	
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MAX, "buildFileTree: File List");
+			for (String path : paths) {
+				fLog.debug("  path: " + path);
+			}
+		}
 		
-		fLog.debug(LEVEL_MAX, "buildFileTree");
 		monitor.beginTask("Building File Tree", paths.size());
-
+		
 		// Decide how many threads to spawn.
 		// Want each thread to work on at least 16 files
 		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
@@ -1117,7 +1141,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			if (pp_file == null) {
 				fLog.error("Failed to get pp_file \"" + path + "\" from cache");
 			} else {
-			SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
+				SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
 				Set<String> included_files = new HashSet<String>();
 				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
 				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
@@ -1134,7 +1158,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 
 		if (fDebugEn) {
-			fLog.debug("setFileTree " + root.getFilePath());
+			fLog.debug("buildPreProcFileMap " + root.getFilePath());
 		}
 		if (!working_set.containsKey(root.getFilePath())) {
 			working_set.put(root.getFilePath(), root);
@@ -1162,8 +1186,18 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				missing_includes, included_files, working_set);
 
 		synchronized (fCache) {
+			if (root.getFilePath().endsWith(".f")) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			fCache.setFileTree(root.getFilePath(), root);
-			fCache.setMarkers(root.getFilePath(), markers);
+			if (fDebugEn) {
+				fLog.debug("Setting markers (2) for " + root.getFilePath() + " " + markers.size());
+			}
+			fCache.setMarkers(root.getFilePath(), markers, false);
 		}
 	}
 
@@ -1282,10 +1316,10 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				}
 
 				file = processPreProcFile(inc_path);
-				addFile(inc_path);
+				addFile(inc_path, true);
 				fCache.setPreProcFile(inc_path, file);
 				fCache.setLastModified(inc_path, 
-						fFileSystemProvider.getLastModifiedTime(inc_path));
+						fFileSystemProvider.getLastModifiedTime(inc_path), false);
 				break;
 			} else {
 				if (fDebugEn) {
@@ -1310,7 +1344,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				if (fDebugEn) {
 					fLog.debug("findIncludedFile: adding file \"" + path + "\"");
 				}
-				addFile(res_path);
+				addFile(res_path, true);
 				return new SVDBSearchResult<SVDBFile>(pp_file, this);
 			}
 		}
@@ -1604,7 +1638,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				// list of discovered files, invalidate the index,
 				// add the file, and try again
 				invalidateIndex(new NullProgressMonitor(), "Failed to find FileTree for " + path, false);
-				addFile(path);
+				addFile(path, true);
 				file_tree = findFileTree(path);
 				
 				// If auto-rebuild is disabled, then we do 
@@ -1724,11 +1758,16 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		fFileSystemProvider.clearMarkers(path_s);
 
-		fCache.setFile(path.getFilePath(), svdb_f);
-		fCache.setLastModified(path.getFilePath(), 
-				fFileSystemProvider.getLastModifiedTime(
-						path.getFilePath()));
-		fCache.setMarkers(path.getFilePath(), markers);
+		synchronized (fCache) {
+			fCache.setFile(path.getFilePath(), svdb_f, false);
+			fCache.setLastModified(path.getFilePath(), 
+					fFileSystemProvider.getLastModifiedTime(
+							path.getFilePath()), false);
+			if (fDebugEn) {
+				fLog.debug("Setting markers (1) for " + path.getFilePath() + " " + markers.size());
+			}
+			fCache.setMarkers(path.getFilePath(), markers, false);
+		}
 
 		fFileSystemProvider.closeStream(in);
 		propagateMarkers(path.getFilePath());
@@ -1812,7 +1851,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public Iterable<String> getFileNames(IProgressMonitor monitor) {
 		return new Iterable<String>() {
 			public Iterator<String> iterator() {
-				return fCache.getFileList().iterator();
+				return fCache.getFileList(false).iterator();
 			}
 		};
 	}

@@ -65,7 +65,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
-		addFile(fFile.getFilePath());
+		addFile(fFile.getFilePath(), false);
 	}
 	
 	@Override
@@ -78,7 +78,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		// Do Nothing
 		cacheDeclarations(fFile);
 		cacheReferences(fFile);
-		getCache().setFile(fFile.getFilePath(), fFile);
+		getCache().setFile(fFile.getFilePath(), fFile, false);
 		return null;
 	}
 	

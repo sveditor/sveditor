@@ -94,7 +94,8 @@ public class SVCorePlugin extends Plugin
 	private int							fNumIndexCacheThreads = 0;
 	private int							fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
-	private boolean						fEnableAsyncCacheClear;
+	private static boolean				fEnableAsyncCacheClear;
+	private static boolean				fTestMode = false;
 	
 	/**
 	 * The constructor
@@ -133,8 +134,13 @@ public class SVCorePlugin extends Plugin
 		LogFactory.getDefault().addLogListener(this);
 	}
 	
-	public void setTestMode() {
+	public static void setTestMode() {
 		fEnableAsyncCacheClear = false;
+		fTestMode = true;
+	}
+	
+	public static boolean getTestMode() {
+		return fTestMode;
 	}
 	
 	public boolean getEnableAsyncCacheClear() {

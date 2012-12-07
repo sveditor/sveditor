@@ -118,7 +118,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		// Try for a declaration here
 		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-				fLexer.isIdentifier() || fLexer.peekKeyword("typedef","struct","union","enum","virtual")) {
+				fLexer.isIdentifier() || fLexer.peekKeyword(
+						"parameter", "localparam", "typedef","struct","union","enum","virtual")) {
 //			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
 
 			if (fDebugEn) {debug(" -- possible variable declaration " + fLexer.peek());}
@@ -131,6 +132,13 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					error("declaration in a post-declaration location");
 				}
 				parsers().blockItemDeclParser().parse(parent, null, start, consume_terminator);
+				return decl_allowed;
+			} else if (fLexer.peekKeyword("parameter", "localparam")) {
+				if (!decl_allowed) {
+					error("declaration in a post-declaration location");
+				}
+				parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
+
 				return decl_allowed;
 			} else {
 				// May be a declaration. Let's see
@@ -204,8 +212,6 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		if (fLexer.peekKeyword("begin")) {
 			block_stmt(parent);
-		} else if (fLexer.peekKeyword("parameter","localparam")) {
-				parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
 		} else if (fLexer.peekKeyword("unique","unique0","priority")) {
 			// TODO: ignore unique_priority for now
 			fLexer.eatToken();

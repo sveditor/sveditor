@@ -16,6 +16,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
@@ -60,6 +61,8 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	}
 
 	public void testArgFileWorkspaceRelRef() throws CoreException {
+		LogHandle log = LogFactory.getLogHandle(getName());
+		SVCorePlugin.getDefault().enableDebug(true);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		CoreReleaseTests.clearErrors();
@@ -82,12 +85,22 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
+		List<SVDBSearchResult<SVDBFile>> result = index_collection.findFile(
+				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv");
+		
+		IndexTestUtils.assertNoErrWarn(log, index_collection);
+		
+		// Ensure we can locate the file
+		assertEquals(1, result.size());
+		
 		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
 				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv", markers).second();
 		
 		assertNotNull(file);
 		assertEquals(0, markers.size());
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		
+		LogFactory.removeLogHandle(log);
 	}
 
 	public void testResourceVarProjVarRef() throws CoreException {
@@ -95,7 +108,7 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(

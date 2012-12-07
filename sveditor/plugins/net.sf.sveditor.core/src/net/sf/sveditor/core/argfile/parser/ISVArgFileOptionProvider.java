@@ -11,7 +11,8 @@ public interface ISVArgFileOptionProvider {
 		Ignored,
 		Incdir,
 		Define,
-		ArgFileInc
+		ArgFileInc,
+		SrcLibPath // -y <path>
 	}
 	
 	OptionType getOptionType(String name);

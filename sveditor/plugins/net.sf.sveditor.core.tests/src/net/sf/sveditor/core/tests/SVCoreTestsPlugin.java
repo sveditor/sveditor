@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import net.sf.sveditor.core.SVCorePlugin;
+
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
@@ -46,6 +48,7 @@ public class SVCoreTestsPlugin extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		SVCorePlugin.setTestMode();
 	}
 
 	/*

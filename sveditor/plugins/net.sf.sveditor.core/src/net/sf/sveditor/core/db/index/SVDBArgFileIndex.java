@@ -15,10 +15,11 @@ package net.sf.sveditor.core.db.index;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.argfile.parser.SVArgFileParser;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
@@ -29,11 +30,13 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.parser.SVParseException;
-import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -68,17 +71,16 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	
 	@Override
 	protected boolean checkCacheValid() {
-		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
-
-		int i=0;
-		for (String arg_file : cd.getArgFilePaths()) {
-			long ts = getFileSystemProvider().getLastModifiedTime(arg_file);
-			long ts_c = cd.getArgFileTimestamps().get(i);
-			if (ts > ts_c) {
-				fLog.debug("    arg_file " + arg_file + " ts=" + ts + " cached ts=" + ts_c);
-				return false;
+		
+		synchronized (getCache()) {
+			for (String arg_file : getCache().getFileList(true)) {
+				long ts = getFileSystemProvider().getLastModifiedTime(arg_file);
+				long ts_c = getCache().getLastModified(arg_file);
+				if (ts > ts_c) {
+					fLog.debug("    arg_file " + arg_file + " ts=" + ts + " cached ts=" + ts_c);
+					return false;
+				}
 			}
-			i++;
 		}
 
 		return super.checkCacheValid();
@@ -93,10 +95,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		clearDefines();
 		
 		monitor.beginTask("Discover Root Files", 4);
-		
-		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
-		cd.getArgFileTimestamps().clear();
-		cd.getArgFilePaths().clear();
 		
 		// Add an include path for the arg file location
 		addIncludePath(getResolvedBaseLocationDir());
@@ -134,15 +132,19 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		} else if ((in = getFileSystemProvider().openStream(resolved_path)) != null) {
 			long last_modified = getFileSystemProvider().getLastModifiedTime(resolved_path);
 			processed_paths.add(resolved_path);
+			ISVArgFileVariableProvider vp = SVCorePlugin.getVariableProvider(getProjectHndl());
 			SVArgFilePreProcessor pp = new SVArgFilePreProcessor(
-					in, resolved_path, null);
+					in, resolved_path, vp);
 			
 			SVArgFilePreProcOutput pp_out = pp.preprocess();
 			
 			SVArgFileLexer lexer = new SVArgFileLexer();
 			lexer.init(null, pp_out);
 			
-			SVArgFileParser parser = new SVArgFileParser(getFileSystemProvider());
+			SVArgFileParser parser = new SVArgFileParser(
+					SVFileUtils.getPathParent(getBaseLocation()),
+					getResolvedBaseLocationDir(),
+					getFileSystemProvider());
 			parser.init(lexer, path);
 		
 			try {
@@ -151,6 +153,20 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 
 			
 			processed_paths.add(resolved_path);
+			
+			synchronized (getCache()) {
+				if (fDebugEn) {
+					fLog.debug("File: " + resolved_path + " has " + markers.size() + " errors");
+				}
+				getCache().setMarkers(resolved_path, markers, true);
+				getCache().setFile(resolved_path, ret, true);
+				getCache().setLastModified(resolved_path, last_modified, true);
+				
+				if (fDebugEn) {
+					fLog.debug("File(cached): " + resolved_path + " has " + 
+							getCache().getMarkers(resolved_path).size() + " errors");
+				}
+			}
 			
 			// Locate the included files in this argument file
 			List<SVDBMarker> sub_markers = new ArrayList<SVDBMarker>();
@@ -170,7 +186,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 						markers.add(m);
 					} else {
 						// Propagate any markers
-						/*
 						synchronized (sub_markers) {
 							for (SVDBMarker m : sub_markers) {
 								if (m.getMarkerType() == MarkerType.Error) {
@@ -184,15 +199,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 											m.getLocation().getLine(),
 											m.getMessage());
 								}
+							}
 						} 
-						 */
 					}
-				}
-				
-				synchronized (getCache()) {
-					getCache().setMarkers(resolved_path, markers);
-					getCache().setFile(resolved_path, ret);
-					getCache().setLastModified(resolved_path, last_modified);
 				}
 			}
 
@@ -218,28 +227,66 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	}
 	
 	private void processArgFile(IProgressMonitor monitor, String path) {
-		InputStream in = null;
-		
 		path = SVFileUtils.normalize(path);
 	
 		List<String> processed_paths = new ArrayList<String>();
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFile argfile = parseArgFile(path, processed_paths, markers);
-		
-		System.out.println("ARGFILE: " + argfile);
-		for (String pf : processed_paths) {
-			System.out.println("Processed File: " + pf);
+
+		if (argfile != null) {
+
+			/*
+			SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
+			synchronized (cd) {
+				cd.getArgFiles().add(argfile);
+			}
+			 */
+			
+			for (ISVDBChildItem ci : argfile.getChildren()) {
+				if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {
+					// Process the included file
+					SVDBArgFileIncFileStmt stmt = (SVDBArgFileIncFileStmt)ci;
+					String sub_path = stmt.getPath();
+					// TODO: handle monitor
+					processArgFile(new NullProgressMonitor(), sub_path);
+				} else if (ci.getType() == SVDBItemType.ArgFileIncDirStmt) {
+					SVDBArgFileIncDirStmt stmt = (SVDBArgFileIncDirStmt)ci;
+					addIncludePath(stmt.getIncludePath());
+				} else if (ci.getType() == SVDBItemType.ArgFileDefineStmt) {
+					SVDBArgFileDefineStmt stmt = (SVDBArgFileDefineStmt)ci;
+					addDefine(stmt.getKey(), stmt.getValue());
+				} else if (ci.getType() == SVDBItemType.ArgFilePathStmt) {
+					SVDBArgFilePathStmt stmt = (SVDBArgFilePathStmt)ci;
+					String res_f = resolvePath(stmt.getPath(), fInWorkspaceOk);
+
+					if (getFileSystemProvider().fileExists(res_f)) {
+						addFile(res_f, false);
+					} else {
+						markers.add(new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
+								"Path \"" + res_f + "\" does not exist"));
+					}
+				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
+					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
+					
+					if (getFileSystemProvider().isDir(stmt.getSrcLibPath())) {
+						List<String> paths = getFileSystemProvider().getFiles(stmt.getSrcLibPath());
+						Set<String> exts = SVFScanner.getSrcExts();
+						for (String file_p : paths) {
+							int last_dot = file_p.lastIndexOf('.');
+							if (last_dot != -1) {
+								String ext = file_p.substring(last_dot);
+								if (exts.contains(ext)) {
+									addFile(file_p, false);
+								}
+							}
+						}
+					}
+				}					
+			}
 		}
-		
-		if (getFileSystemProvider().fileExists(path)) {
-			// Fully-specified path
-			in = getFileSystemProvider().openStream(path);
-		} else if (getFileSystemProvider().fileExists(getResolvedBaseLocationDir() + "/" + path)) {
-			// Try base location-relative
-			in = getFileSystemProvider().openStream(getResolvedBaseLocationDir() + "/" + path);
-		}
-		
+
+		/*
 		monitor.beginTask("Process arg file " + path, 4);
 		
 		if (in != null) {
@@ -324,12 +371,14 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			monitor.done();
 			fLog.error("failed to open file \"" + path + "\"");
 		}
+		 */
 	}
 
 	@Override
 	public void dispose() {
+
+		/*
 		SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
-		
 		synchronized (cd) {
 			cd.getArgFileTimestamps().clear();
 			for (String arg_file : cd.getArgFilePaths()) {
@@ -338,6 +387,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 				cd.getArgFileTimestamps().add(ts);
 			}
 		}
+		 */
 		
 		super.dispose();
 	}
@@ -351,4 +401,5 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		}
 		super.fileChanged(path);
 	}
+	
 }

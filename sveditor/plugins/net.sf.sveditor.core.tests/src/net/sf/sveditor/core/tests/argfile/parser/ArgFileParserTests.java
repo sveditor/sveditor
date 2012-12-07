@@ -59,7 +59,9 @@ public class ArgFileParserTests extends TestSuite {
 		SVArgFileLexer lexer = new SVArgFileLexer();
 		lexer.init(null, pp_out);
 		
-		SVArgFileParser parser = new SVArgFileParser(new SVDBWSFileSystemProvider());
+		SVArgFileParser parser = new SVArgFileParser(
+				"", "",
+				new SVDBWSFileSystemProvider());
 		parser.init(lexer, testname);
 		
 		SVDBFile file = new SVDBFile(testname);
