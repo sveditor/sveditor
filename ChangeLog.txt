@@ -1,6 +1,19 @@
 
 -- 1.0.6 Release --
 
+- #(nobug) - Correct a parse error involving sized enum-variable types. 
+  For example: my_enum_type [3:2] enum_var;
+  
+- #(nobug) - Correct an issue with the template processor that prevented
+  substitution of variables in some cases where the value will be used 
+  as a variable. For example, in a PERL script:
+  $${MY_VAR_NAME} = $ENV{${MY_VAR_NAME}}
+
+- #(3482275) - Implement highlighting of matching words in the document. 
+  The implementation is pretty basic, and simply highlights all matching
+  words to the selected word regardless of the context of the matching
+  word.
+
 ------------------------------------------------------------------------------
 -- 1.0.5 Release --
 
