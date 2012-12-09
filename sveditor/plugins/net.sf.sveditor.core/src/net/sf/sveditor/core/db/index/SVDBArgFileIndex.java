@@ -168,12 +168,12 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 				}
 			}
 			
+			/*
 			// Locate the included files in this argument file
-			List<SVDBMarker> sub_markers = new ArrayList<SVDBMarker>();
 			for (ISVDBChildItem stmt : ret.getChildren()) {
 				if (stmt.getType() == SVDBItemType.ArgFileIncFileStmt) {
 					SVDBArgFileIncFileStmt argfile_stmt = (SVDBArgFileIncFileStmt)stmt;
-					sub_markers.clear();
+					List<SVDBMarker> sub_markers = new ArrayList<SVDBMarker>();
 			
 					SVDBFile sub_argfile = parseArgFile(
 							argfile_stmt.getPath(),
@@ -184,28 +184,10 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 						SVDBMarker m = sub_markers.get(0);
 						m.setLocation(argfile_stmt.getLocation());
 						markers.add(m);
-					} else {
-						// Propagate any markers
-						synchronized (sub_markers) {
-							for (SVDBMarker m : sub_markers) {
-								if (m.getMarkerType() == MarkerType.Error) {
-									getFileSystemProvider().addMarker(resolved_path, 
-											ISVDBFileSystemProvider.MARKER_TYPE_ERROR,
-											m.getLocation().getLine(),
-											m.getMessage());
-								} else if (m.getMarkerType() == MarkerType.Warning) {
-									getFileSystemProvider().addMarker(resolved_path, 
-											ISVDBFileSystemProvider.MARKER_TYPE_WARNING,
-											m.getLocation().getLine(),
-											m.getMessage());
-								}
-							}
-						} 
 					}
 				}
 			}
 
-			/*
 			synchronized (markers) {
 				for (SVDBMarker m : markers) {
 					if (m.getMarkerType() == MarkerType.Error) {
@@ -233,23 +215,29 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFile argfile = parseArgFile(path, processed_paths, markers);
+	
+		synchronized (getCache()) {
+			getCache().setFile(path, argfile, true);
+		}
 
 		if (argfile != null) {
 
-			/*
-			SVDBArgFileIndexCacheData cd = (SVDBArgFileIndexCacheData)getCacheData();
-			synchronized (cd) {
-				cd.getArgFiles().add(argfile);
-			}
-			 */
-			
 			for (ISVDBChildItem ci : argfile.getChildren()) {
 				if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {
 					// Process the included file
 					SVDBArgFileIncFileStmt stmt = (SVDBArgFileIncFileStmt)ci;
-					String sub_path = stmt.getPath();
+					String sub_path = resolvePath(stmt.getPath(), fInWorkspaceOk);
+					
 					// TODO: handle monitor
-					processArgFile(new NullProgressMonitor(), sub_path);
+					if (getFileSystemProvider().fileExists(sub_path)) {
+						processArgFile(new NullProgressMonitor(), sub_path);
+					} else {
+						SVDBMarker m = new SVDBMarker(
+								MarkerType.Error, MarkerKind.MissingInclude, 
+								"Path \"" + sub_path + "\" does not exist");
+						m.setLocation(stmt.getLocation());
+						markers.add(m);
+					}
 				} else if (ci.getType() == SVDBItemType.ArgFileIncDirStmt) {
 					SVDBArgFileIncDirStmt stmt = (SVDBArgFileIncDirStmt)ci;
 					addIncludePath(stmt.getIncludePath());
@@ -263,8 +251,11 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					if (getFileSystemProvider().fileExists(res_f)) {
 						addFile(res_f, false);
 					} else {
-						markers.add(new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
-								"Path \"" + res_f + "\" does not exist"));
+						SVDBMarker m = new SVDBMarker(
+								MarkerType.Error, MarkerKind.MissingInclude, 
+								"Path \"" + res_f + "\" does not exist");
+						m.setLocation(stmt.getLocation());
+						markers.add(m);
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
@@ -281,9 +272,32 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 								}
 							}
 						}
+					} else {
+						SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
+								"Library Path directory \"" + stmt.getSrcLibPath() + "\" does not exist");
+						m.setLocation(stmt.getLocation());
+						markers.add(m);
 					}
-				}					
+				}
 			}
+
+			// Save the markers, which might have been updated
+			synchronized (getCache()) {
+				getCache().setMarkers(path, markers, true);
+			}
+			
+			// Propagate markers to filesystem
+			getFileSystemProvider().clearMarkers(path);
+			for (SVDBMarker m : markers) {
+				String msg = m.getMessage();
+				int lineno = m.getLocation().getLine();
+				String type = ISVDBFileSystemProvider.MARKER_TYPE_ERROR;
+
+				getFileSystemProvider().addMarker(path, type, lineno, msg);
+			}
+		} else {
+			// Problem with root argument file
+			// TODO: propagate markers
 		}
 
 		/*
@@ -401,5 +415,4 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		}
 		super.fileChanged(path);
 	}
-	
 }
