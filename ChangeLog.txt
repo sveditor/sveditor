@@ -9,8 +9,10 @@
   as a variable. For example, in a PERL script:
   $${MY_VAR_NAME} = $ENV{${MY_VAR_NAME}}
 
- 
- 
+- #(3482275) - Implement highlighting of matching words in the document. 
+  The implementation is pretty basic, and simply highlights all matching
+  words to the selected word regardless of the context of the matching
+  word.
 
 ------------------------------------------------------------------------------
 -- 1.0.5 Release --

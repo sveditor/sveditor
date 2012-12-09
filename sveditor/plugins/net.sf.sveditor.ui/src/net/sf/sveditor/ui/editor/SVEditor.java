@@ -71,7 +71,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
@@ -83,10 +85,11 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -126,6 +129,7 @@ public class SVEditor extends TextEditor
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean						fPendingUpdateSVDBFile;
+	private boolean						fOccurrenceHighlightDebounceActive;
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
@@ -235,8 +239,7 @@ public class SVEditor extends TextEditor
 	}
 	
 	@Override
-	public void init(IEditorSite site, IEditorInput input)
-			throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
 		
 		if (input instanceof IURIEditorInput) {
@@ -276,6 +279,9 @@ public class SVEditor extends TextEditor
 		if (replacements > 0) {
 			fLog.note("Replaced " + replacements + " occurrences of '\\r' without '\\n' in file " + fFile);
 		}
+
+		
+//		getSelectionProvider().addSelectionChangedListener(selectionChangedListener);
 		
 		// Hook into the SVDB management structure
 		initSVDBMgr();
@@ -683,6 +689,8 @@ public class SVEditor extends TextEditor
 			fCharacterMatcher = null;
 		}
 		
+		getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
+		
 		SVCorePlugin.getDefault().getProjMgr().removeProjectSettingsListener(this);
 		SVUiPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(
 				fPropertyChangeListener);
@@ -727,6 +735,7 @@ public class SVEditor extends TextEditor
 			}
 		}
 		
+		getSourceViewer().getSelectionProvider().addSelectionChangedListener(selectionChangedListener);
 		
 		/**
 		 * Add semantic highlighting
@@ -864,6 +873,66 @@ public class SVEditor extends TextEditor
 		}
 	}
 	
+	private void clearOccurrenceHighlight() {
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		// Clear annotations
+		@SuppressWarnings("unchecked")
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			if (ann.getType().equals("net.sf.sveditor.ui.occurrences")) {
+				ann_model.removeAnnotation(ann);
+			}
+		}
+	}
+
+	private void updateWordSelectionHighlight() {
+		ITextSelection sel = (ITextSelection)getSourceViewer().getSelectionProvider().getSelection();
+		
+		clearOccurrenceHighlight();
+		
+		if (sel.getText() != null && !sel.getText().trim().equals("")) {
+			boolean single_word = true;
+			
+			for (int i=0; i<sel.getText().length(); i++) {
+				char ch = sel.getText().charAt(i);
+				if (Character.isWhitespace(ch)) {
+					single_word = false;
+					break;
+				}
+			}
+			
+			if (single_word) {
+				IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+				FindReplaceDocumentAdapter finder = new FindReplaceDocumentAdapter(doc);
+				IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+				
+				// Iterate through the document
+				int start = 0;
+				while (true) {
+					IRegion region = null;
+					
+					try {
+						region = finder.find(start, sel.getText(), true, true, true, false);
+					} catch (BadLocationException e) {}
+					
+					if (region != null) {
+						Annotation ann = new Annotation(
+								"net.sf.sveditor.ui.occurrences",
+								false, "");
+						Position position = new Position(region.getOffset(), region.getLength());
+						ann_model.addAnnotation(ann, position);
+						
+						start = region.getOffset()+region.getLength();
+					} else {
+						break;
+					}
+				}
+			}
+		}
+	}
+	
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
@@ -886,5 +955,25 @@ public class SVEditor extends TextEditor
 				getSourceViewer().getTextWidget().update();
 			}
 	};
-
+	
+	private ISelectionChangedListener selectionChangedListener = 
+			new ISelectionChangedListener() {
+				
+		public void selectionChanged(SelectionChangedEvent event) {
+			if (event.getSelection() instanceof ITextSelection) {
+				if (!fOccurrenceHighlightDebounceActive) {
+					fOccurrenceHighlightDebounceActive = true;
+					Display.getDefault().timerExec(500, occurrenceHighlightDebounce);
+				}
+			}
+		}
+	};
+	
+	private Runnable occurrenceHighlightDebounce = new Runnable() {
+		
+		public void run() {
+			fOccurrenceHighlightDebounceActive = false;
+			updateWordSelectionHighlight();
+		}
+	};
 }
