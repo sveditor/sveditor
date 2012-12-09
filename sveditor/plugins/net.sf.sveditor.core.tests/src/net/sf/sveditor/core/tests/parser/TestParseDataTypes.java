@@ -60,10 +60,23 @@ public class TestParseDataTypes extends TestCase {
 			"endclass\n"
 			;
 		
-		runTest("testTypedefEnumFwdDecl", content,
+		runTest(getName(), content,
 				new String [] {"foo", "my_var"});
 	}
 
+	public void testSizedEnumVar() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class foo;\n" +
+			"    pkg_scope::my_type_e       mode_unsized;\n" +
+			"    pkg_scope::my_type_e [4:1] mode_sized;\n" +
+			"endclass\n"
+			;
+		
+		runTest(getName(), content,
+				new String [] {"foo", "mode_unsized", "mode_sized"});
+	}
+	
 	public void testTypedefAnonymousFwdDecl() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
@@ -87,7 +100,7 @@ public class TestParseDataTypes extends TestCase {
 			"endclass\n"
 			;
 		
-		runTest("testTypedefEnumFwdDecl", content,
+		runTest(getName(), content,
 				new String [] {"foo", "enum_var"});
 	}
 
@@ -101,7 +114,7 @@ public class TestParseDataTypes extends TestCase {
 			"endclass\n"
 			;
 		
-		runTest("testTypedefEnumFwdDecl", content,
+		runTest(getName(), content,
 				new String [] {"foo", "struct_var"});
 	}
 

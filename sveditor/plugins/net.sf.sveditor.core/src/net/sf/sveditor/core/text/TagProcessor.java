@@ -48,11 +48,18 @@ public class TagProcessor {
 	}
 	
 	public int process(InputStream in, OutputStream out) throws IOException {
-		int ch;
+		int ch, unget_ch = -1;
 		int n_replacements = 0;
 		StringBuilder sb = new StringBuilder();
 		
-		while ((ch = in.read()) != -1) {
+		while (true) {
+			if (unget_ch != -1) {
+				ch = unget_ch;
+				unget_ch = -1;
+			} else if ((ch = in.read()) == -1) {
+				break;
+			}
+
 			if (ch == '$') {
 				int ch2 = in.read();
 				
@@ -94,9 +101,7 @@ public class TagProcessor {
 					}
 				} else {
 					out.write((char)ch);
-					if (ch2 != -1) {
-						out.write((char)ch2);
-					}
+					unget_ch = ch2;
 				}
 			} else {
 				out.write((char)ch);
