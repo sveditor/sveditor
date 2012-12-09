@@ -3,6 +3,12 @@
 
 - #(nobug) - Correct a parse error involving sized enum-variable types. 
   For example: my_enum_type [3:2] enum_var;
+  
+- #(nobug) - Correct an issue with the template processor that prevented
+  substitution of variables in some cases where the value will be used 
+  as a variable. For example, in a PERL script:
+  $${MY_VAR_NAME} = $ENV{${MY_VAR_NAME}}
+
  
  
 
