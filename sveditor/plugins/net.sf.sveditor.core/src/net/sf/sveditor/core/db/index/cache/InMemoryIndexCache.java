@@ -34,6 +34,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 	private Map<String, SVDBFile>			fFileMap;
 	private Map<String, SVDBFile>			fArgFileMap;
 	private Map<String, SVDBFileTree>		fFileTreeMap;
+	private Map<String, SVDBFileTree>		fArgFileTreeMap;
 	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	
 	public InMemoryIndexCache() {
@@ -44,6 +45,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		fFileMap = new HashMap<String, SVDBFile>();
 		fArgFileMap = new HashMap<String, SVDBFile>();
 		fFileTreeMap = new HashMap<String, SVDBFileTree>();
+		fArgFileTreeMap = new HashMap<String, SVDBFileTree>();
 		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
 	
@@ -76,6 +78,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		fArgFileList.clear();
 		fFileMap.clear();
 		fFileTreeMap.clear();
+		fArgFileTreeMap.clear();
 		fLastModifiedMap.clear();
 		fPreProcFileMap.clear();
 		fMarkerMap.clear();
@@ -161,15 +164,26 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap.put(path, file);
 	}
 
-	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path) {
-		return fFileTreeMap.get(path);
+	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile) {
+		if (is_argfile) {
+			return fArgFileTreeMap.get(path);
+		} else {
+			return fFileTreeMap.get(path);
+		}
 	}
 
-	public void setFileTree(String path, SVDBFileTree file) {
-		if (fFileTreeMap.containsKey(path)) {
-			fFileTreeMap.remove(path);
+	public void setFileTree(String path, SVDBFileTree file, boolean is_argfile) {
+		if (is_argfile) {
+			if (fArgFileTreeMap.containsKey(path)) {
+				fArgFileTreeMap.remove(path);
+			}
+			fArgFileTreeMap.put(path, file);
+		} else {
+			if (fFileTreeMap.containsKey(path)) {
+				fFileTreeMap.remove(path);
+			}
+			fFileTreeMap.put(path, file);
 		}
-		fFileTreeMap.put(path, file);
 	}
 
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {

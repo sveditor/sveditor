@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -110,7 +111,7 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
-	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel {
+	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, ISVDBIndexChangeListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -812,6 +813,16 @@ public class SVEditor extends TextEditor
 		return getSourceViewer();
 	}
 	
+	public void index_changed(int reason, SVDBFile file) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void index_rebuilt() {
+		// Force a rebuild to pick up latest errors
+		updateSVDBFile();
+	}
+
 	/**
 	 * Clears error annotations
 	 */
@@ -832,6 +843,7 @@ public class SVEditor extends TextEditor
 
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
+			System.out.println("annotationType: " + ann.getType());
 			if (ann.getType().equals("org.eclipse.ui.workbench.texteditor.error")) {
 				ann_model.removeAnnotation(ann);
 			}
@@ -853,6 +865,8 @@ public class SVEditor extends TextEditor
 		for (SVDBMarker marker : markers) {
 			Annotation ann = null;
 			int line = -1;
+			
+			System.out.println("marker: " + marker.getMessage() + " " + marker.getMarkerType());
 
 			if (marker.getMarkerType() == MarkerType.Error) {
 				ann = new Annotation(
@@ -951,8 +965,10 @@ public class SVEditor extends TextEditor
 			public void propertyChange(PropertyChangeEvent event) {
 				SVColorManager.clear();
 				getCodeScanner().updateRules();
-				getSourceViewer().getTextWidget().redraw();
-				getSourceViewer().getTextWidget().update();
+				if (getSourceViewer() != null && getSourceViewer().getTextWidget() != null) {
+					getSourceViewer().getTextWidget().redraw();
+					getSourceViewer().getTextWidget().update();
+				}
 			}
 	};
 	

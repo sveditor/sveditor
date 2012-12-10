@@ -527,20 +527,29 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 	}
 	
-	public void setFileTree(String path, SVDBFileTree file_tree) {
+	public void setFileTree(String path, SVDBFileTree file_tree, boolean is_argfile) {
 		CacheFileInfo cfi = getCacheFileInfo(path, true);
+		
+		if (is_argfile) {
+			cfi = getArgFileCacheFileInfo(path, true);
+		} else {
+			cfi = getCacheFileInfo(path, true);
+		}
+		
 		cfi.fSVDBFileTree = (Reference<SVDBFileTree>)createRef(file_tree);
 		cfi.fSVDBFileTreeRef = file_tree;
 		
-		if (path == null) {
-			System.out.println("Null path");
-		}
-
 		writeBackFileTree(path, file_tree);
 	}
 	
-	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path) {
-		CacheFileInfo cfi = getCacheFileInfo(path, false);
+	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile) {
+		CacheFileInfo cfi;
+		
+		if (is_argfile) {
+			cfi = getArgFileCacheFileInfo(path, false);
+		} else {
+			cfi = getCacheFileInfo(path, false);
+		}
 		
 		SVDBFileTree ft = (cfi != null)?cfi.fSVDBFileTree.get():null;
 		

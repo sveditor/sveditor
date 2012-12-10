@@ -3,6 +3,8 @@
 
 - #(enh) - Argument-File Index now adds errors for missing root argument files
   to the project on which they are specified.
+  
+- #(enh) - Initial work on argument-file parse and error propagation
 
 ------------------------------------------------------------------------------
 -- 1.0.6 Release --

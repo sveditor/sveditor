@@ -97,9 +97,9 @@ public interface ISVDBIndexCache {
 	/**
 	 * Returns the file tree for the specified file
 	 */
-	SVDBFileTree getFileTree(IProgressMonitor monitor, String path);
+	SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile);
 	
-	void setFileTree(String path, SVDBFileTree file);
+	void setFileTree(String path, SVDBFileTree file, boolean is_argfile);
 	
 	/**
 	 * Returns the full-parse view of the file

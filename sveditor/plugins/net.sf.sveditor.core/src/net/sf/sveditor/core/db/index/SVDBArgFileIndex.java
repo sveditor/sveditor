@@ -107,6 +107,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					getResolvedBaseLocation() + "\") does not exist";
 			fLog.error(msg);
 			if (getProject() != null) {
+				// TODO: must save this somewhere...
 				getFileSystemProvider().addMarker(
 						"${workspace_loc}/" + getProject(),
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR, 0, msg);
@@ -287,14 +288,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			}
 			
 			// Propagate markers to filesystem
-			getFileSystemProvider().clearMarkers(path);
-			for (SVDBMarker m : markers) {
-				String msg = m.getMessage();
-				int lineno = m.getLocation().getLine();
-				String type = ISVDBFileSystemProvider.MARKER_TYPE_ERROR;
-
-				getFileSystemProvider().addMarker(path, type, lineno, msg);
-			}
+			propagateMarkers(path);
 		} else {
 			// Problem with root argument file
 			// TODO: propagate markers
@@ -409,10 +403,17 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	@Override
 	public void fileChanged(String path) {
 		fLog.debug("File changed: " + path);
+		synchronized (getCache()) {
+			if (getCache().getFileList(true).contains(path)) {
+				invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
+			}
+		}
+		/*
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file
 			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
 		}
+		 */
 		super.fileChanged(path);
 	}
 }

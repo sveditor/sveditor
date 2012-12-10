@@ -469,6 +469,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				parseFiles(monitor);
 			}
 			fIndexState = IndexState_AllFilesParsed;
+			notifyIndexRebuilt();
 			fIsDirty = false;
 			synchronized (fDeferredPkgCacheFiles) {
 				for (Tuple<String, List<String>> e : fDeferredPkgCacheFiles) {
@@ -576,7 +577,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			if (ret == null) {
 				SVDBFileTree ft_root;
 				synchronized (fCache) {
-					ft_root = fCache.getFileTree(new NullProgressMonitor(), path);
+					ft_root = fCache.getFileTree(new NullProgressMonitor(), path, false);
 				}
 				
 				if (ft_root == null) {
@@ -819,7 +820,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		if (ret == null) {
 			SVDBFileTree ft_root;
 			synchronized (fCache) {
-				ft_root = fCache.getFileTree(monitor, path);
+				ft_root = fCache.getFileTree(monitor, path, false);
 			}
 
 			if (ft_root != null) {
@@ -923,10 +924,12 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void propagateAllMarkers() {
-		Set<String> file_list = fCache.getFileList(false);
-		for (String path : file_list) {
-			if (path != null) {
-				propagateMarkers(path);
+		for (boolean is_argfile : new boolean[] {false, true}) {
+			Set<String> file_list = fCache.getFileList(is_argfile);
+			for (String path : file_list) {
+				if (path != null) {
+					propagateMarkers(path);
+				}
 			}
 		}
 	}
@@ -1125,7 +1128,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 			
 			synchronized (fCache) {
-				if (fCache.getFileTree(new NullProgressMonitor(), path) != null) {
+				if (fCache.getFileTree(new NullProgressMonitor(), path, false) != null) {
 					continue;
 				}
 			}
@@ -1144,7 +1147,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				SVDBFileTree ft_root = new SVDBFileTree( (SVDBFile) pp_file.duplicate());
 				Set<String> included_files = new HashSet<String>();
 				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
-				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set);
+				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set, null, true);
 			}
 		}
 	}
@@ -1154,7 +1157,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			SVDBFileTree 				root,
 			List<String>				missing_includes,
 			Set<String>					included_files,
-			Map<String, SVDBFileTree>	working_set) {
+			Map<String, SVDBFileTree>	working_set,
+			List<SVDBMarker>			markers,
+			boolean						update_cache) {
 		SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
 
 		if (fDebugEn) {
@@ -1164,11 +1169,13 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			working_set.put(root.getFilePath(), root);
 		}
 
-		synchronized (fCache) {
-			if (!working_set.containsKey(root.getFilePath())) {
-				System.out.println("FileTree " + root.getFilePath() + " not in working set");
+		if (update_cache) {
+			synchronized (fCache) {
+				if (!working_set.containsKey(root.getFilePath())) {
+					System.out.println("FileTree " + root.getFilePath() + " not in working set");
+				}
+				fCache.setFileTree(root.getFilePath(), root, false);
 			}
-			fCache.setFileTree(root.getFilePath(), root);
 		}
 
 		if (parent != null) {
@@ -1180,24 +1187,28 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					createPreProcMacroProvider(root, working_set)));
 		}
 
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		if (markers == null) {
+			markers = new ArrayList<SVDBMarker>();
+		}
 		included_files.add(root.getFilePath());
 		addPreProcFileIncludeFiles(root, root.getSVDBFile(), markers, 
 				missing_includes, included_files, working_set);
 
-		synchronized (fCache) {
-			if (root.getFilePath().endsWith(".f")) {
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					e.printStackTrace();
+		if (update_cache) {
+			synchronized (fCache) {
+				if (root.getFilePath().endsWith(".f")) {
+					try {
+						throw new Exception();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
+				fCache.setFileTree(root.getFilePath(), root, false);
+				if (fDebugEn) {
+					fLog.debug("Setting markers (2) for " + root.getFilePath() + " " + markers.size());
+				}
+				fCache.setMarkers(root.getFilePath(), markers, false);
 			}
-			fCache.setFileTree(root.getFilePath(), root);
-			if (fDebugEn) {
-				fLog.debug("Setting markers (2) for " + root.getFilePath() + " " + markers.size());
-			}
-			fCache.setMarkers(root.getFilePath(), markers, false);
 		}
 	}
 
@@ -1239,7 +1250,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 								+ " included files");
 					}
 					if (!included_files.contains(f.getItem().getFilePath())) {
-						buildPreProcFileMap(root, ft, missing_includes, included_files, working_set);
+						buildPreProcFileMap(root, ft, missing_includes, included_files, working_set, null, true);
 					}
 				} else {
 					String missing_path = ((ISVDBNamedItem) it).getName();
@@ -1653,15 +1664,29 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 			}
 		}
 		
+		// Now, build the 'real' filetree
+		file_tree = file_tree.duplicate();
+		List<String> missing_includes = new ArrayList<String>();
+		Set<String> included_files = new HashSet<String>();
+		Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
+		List<SVDBMarker> markers_e = new ArrayList<SVDBMarker>();
+		buildPreProcFileMap(null, file_tree, missing_includes, included_files, working_set, markers, false);
+		
 		markers.clear();
+		
+		// TODO: Need to be more intelligent about this
+		/*
 		List<SVDBMarker> markers_e = fCache.getMarkers(path); 
 		if (markers_e != null) {
+		 */
 			for (SVDBMarker m : markers_e) {
 				if (m.getKind() == MarkerKind.MissingInclude) {
 					markers.add(m);
 				}
 			}
+			/*
 		}
+		 */
 
 		InputStreamCopier copier = new InputStreamCopier(in);
 		in = null;
@@ -1813,7 +1838,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 	public synchronized SVDBFileTree findFileTree(String path) {
 		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
-		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path);
+		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path, false);
 
 		return ft;
 	}
@@ -1830,7 +1855,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		SVDBFileTree ft = new SVDBFileTree(path);
 		
 		synchronized (fCache) {
-			fCache.setFileTree(path, ft);
+			fCache.setFileTree(path, ft, false);
 		}
 		
 		return ft;
@@ -2003,7 +2028,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 					cacheDeclarations(processed_files, file.getFilePath(), 
 							null, pkgname, pkgitem_list, file, false);
 					// Now, get the file tree and add sub-included files
-					SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), abs_pp_file.getFilePath());
+					SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), abs_pp_file.getFilePath(), false);
 					SVDBFile pp_file = ft.getSVDBFile();
 					synchronized (pp_file) {
 						for (ISVDBChildItem item : pp_file.getChildren()) {
@@ -2076,7 +2101,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				
 				// Search the FileTree to find files included within the package
 				if (!is_ft) {
-					SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), filename);
+					SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), filename, false);
 					if (ft != null) {
 						cachePkgDeclFileTree(ft.getSVDBFile(), pkg_map.get(pkg.getName()), pkg);
 					} else {

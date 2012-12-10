@@ -116,7 +116,9 @@ public class SVArgFileParser {
 						path = resolvePath(path);
 						
 						if (!fFSProvider.fileExists(path)) {
-							error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist");
+							error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
+									"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+
 						}
 						stmt.setIncludePath(path);
 						
@@ -166,7 +168,8 @@ public class SVArgFileParser {
 							String path = resolvePath(incs.get(0));
 							if (!fFSProvider.fileExists(path)) {
 								error(tok.getStartLocation(), 
-										"Argument-file path \"" + path + "\" does not exist");
+										"Argument-file path \"" + path + "\" does not exist; " +
+										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 							}
 							stmt.setPath(path);
 							file.addChildItem(stmt);
@@ -181,7 +184,8 @@ public class SVArgFileParser {
 						path = resolvePath(path);
 						if (!fFSProvider.isDir(path)) {
 							error(tok.getStartLocation(),
-									"Source library path \"" + path + "\" does not exist");
+									"Source library path \"" + path + "\" does not exist; " + 
+										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 						}
 						stmt.setSrcLibPath(path);
 						file.addChildItem(stmt);
@@ -203,7 +207,8 @@ public class SVArgFileParser {
 				String path = resolvePath(p.getPath());
 				
 				if (!fFSProvider.fileExists(path)) {
-					error(loc, "Path \"" + path + "\" does not exist");
+					error(loc, "Path \"" + path + "\" does not exist; " + 
+						"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 				}
 			}
 		}
