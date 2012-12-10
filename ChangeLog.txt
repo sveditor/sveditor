@@ -1,7 +1,10 @@
 
+-- 1.0.7 Release --
+
 - #(enh) - Argument-File Index now adds errors for missing root argument files
   to the project on which they are specified.
-  
+
+------------------------------------------------------------------------------
 -- 1.0.6 Release --
 
 - #(nobug) - Correct a parse error involving sized enum-variable types. 
