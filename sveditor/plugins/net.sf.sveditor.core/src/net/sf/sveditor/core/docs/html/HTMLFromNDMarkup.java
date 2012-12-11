@@ -203,10 +203,25 @@ public class HTMLFromNDMarkup {
 //
 //            # Add double spaces too.
 //            $text = $self->AddDoubleSpaces($text);
-//
-				// Headings
-				text = text.replaceAll("\\<h\\>","<h4 class=CHeading>") ;
-				text = text.replaceAll("\\</h\\>","</h4>") ;
+				
+				
+				// Following are a couple of hacks to get
+				// a decent looking output in the tooltip BrowserInformationControl.
+				// It seems to ignore paragraph tags, and ignores heading tags
+				// where there are stylesheet class specifications.
+				
+				if(style != NDMarkupToHTMLStyle.Tooltip) {
+
+					// Headings
+					text = text.replaceAll("\\<h\\>","<h4 class=CHeading>") ;
+					text = text.replaceAll("\\</h\\>","</h4>") ;
+					
+				}
+				
+				if(style == NDMarkupToHTMLStyle.Tooltip) {
+					text = text.replaceAll("\\<h4 class=CHeading\\>", "<br><h4>") ;
+					text = text.replaceAll("\\</p\\>","</p><br>") ;
+				}
 //
 //            # Description Lists
 //            $text =~ s/<dl>/<table border=0 cellspacing=0 cellpadding=0 class=CDescriptionList>/g;
