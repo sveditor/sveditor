@@ -1,6 +1,11 @@
 
 -- 1.0.7 Release --
 
+- #(enh) - Enable template files to be described as 'executable'
+
+- #(nobug) - Correct another template variable-expansion corner case involving
+  nested bracketed variables: ${${MY_TEMPLATE_VAR}}
+
 ------------------------------------------------------------------------------
 -- 1.0.6 Release --
 

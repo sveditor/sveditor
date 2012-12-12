@@ -14,8 +14,10 @@ package net.sf.sveditor.core.templates;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 
@@ -25,6 +27,7 @@ public class TemplateInfo {
 	private String							fCategoryId;
 	private String							fDescription;
 	private List<Tuple<String, String>>		fTemplateList;
+	private Map<String, Boolean>			fExecutableMap;
 	private List<TemplateParameter>			fParameters;
 	private ITemplateInStreamProvider		fStreamProvider;
 	
@@ -39,6 +42,7 @@ public class TemplateInfo {
 		fCategoryId 	= (category_id != null)?category_id:"";
 		fDescription	= description;
 		fTemplateList	= new ArrayList<Tuple<String,String>>();
+		fExecutableMap  = new HashMap<String, Boolean>();
 		fParameters		= new ArrayList<TemplateParameter>();
 		fStreamProvider = stream_provider;
 	}
@@ -81,6 +85,21 @@ public class TemplateInfo {
 	
 	public void addTemplate(String template, String filename) {
 		addTemplate(new Tuple<String, String>(template, filename));
+	}
+	
+	public void setExecutable(String path, boolean is_executable) {
+		if (fExecutableMap.containsKey(path)) {
+			fExecutableMap.remove(path);
+		}
+		fExecutableMap.put(path, is_executable);
+	}
+	
+	public boolean getExecutable(String path) {
+		if (fExecutableMap.containsKey(path)) {
+			return fExecutableMap.get(path);
+		} else {
+			return false;
+		}
 	}
 	
 	/**

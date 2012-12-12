@@ -16,6 +16,6 @@ import java.io.InputStream;
 
 public interface ITemplateFileCreator {
 	
-	void createFile(String path, InputStream content);
+	void createFile(String path, InputStream content, boolean executable);
 	
 }
