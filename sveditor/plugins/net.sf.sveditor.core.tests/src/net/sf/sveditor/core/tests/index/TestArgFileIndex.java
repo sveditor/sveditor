@@ -394,4 +394,40 @@ public class TestArgFileIndex extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	/**
+	 * This test ensures that relative file paths in included argument files are
+	 * resolved relative to the directory of the root argument file 
+	 * @throws IOException
+	 */
+	public void testMultiArgFileSingleRootDir() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		String data_root = "/data/arg_file_multi_include_single_root/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/arg_file_multi_include_single_root/arg_file_multi_include.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		IndexTestUtils.assertDoesNotContain(index, "class1_dir1", "class2_dir2");
+		IndexTestUtils.assertFileHasElements(index, "class1_root", "class2_root");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
+	}
 }

@@ -31,7 +31,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 	private boolean 					fTokenConsumed;
 
 	private StringBuilder 				fStringBuffer;
-	private static final boolean		fDebugEn = false;
+	private static final boolean		fDebugEn = true;
 	private boolean 					fEOF;
 
 	private StringBuilder				fCaptureBuffer;
@@ -390,7 +390,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 
 			fTokenConsumed = false;
 			if (fDebugEn) {
-				debug("next_token(): \"" + fImage + "\"");
+				debug("next_token(): \"" + fImage + "\" @ " + getStartLocation().getLine());
 			}
 			if (fDebugEn) {
 				fLog.debug("<-- next_token_int()");

@@ -12,6 +12,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.argfile.parser.SVArgFileParser;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
+import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -126,6 +127,59 @@ public class ArgFileParserTests extends TestSuite {
 		TestCase.assertEquals("Wrong number of items in parse tree",
 				expected.length, idx);
 		LogFactory.removeLogHandle(log);
+	}
+	
+	public static SVDBFile parse(
+			LogHandle						log,
+			ISVArgFileVariableProvider		vp,
+			String							testname,
+			String 							content,
+			List<SVDBMarker>				markers) throws SVParseException {
+		
+		if (vp == null) {
+			// make vp empty
+			vp = new SVArgFileVariableProviderList();
+		}
+		InputStream in = new StringInputStream(content);
+		SVArgFilePreProcessor pp = new SVArgFilePreProcessor(
+				in, testname, vp);
+		
+		SVArgFilePreProcOutput pp_out = pp.preprocess();
+
+		SVArgFileLexer lexer = new SVArgFileLexer();
+		lexer.init(null, pp_out);
+		
+		SVArgFileParser parser = new SVArgFileParser(
+				"", "",
+				new SVDBWSFileSystemProvider());
+		parser.init(lexer, testname);
+		
+		SVDBFile file = new SVDBFile(testname);
+		if (markers == null) {
+			markers = new ArrayList<SVDBMarker>();
+		}
+		parser.parse(file, markers);
+		
+		return file;
+	}
+
+	public static SVArgFilePreProcOutput preprocess(
+			LogHandle						log,
+			ISVArgFileVariableProvider		vp,
+			String							testname,
+			String 							content) {
+		
+		if (vp == null) {
+			// make vp empty
+			vp = new SVArgFileVariableProviderList();
+		}
+		InputStream in = new StringInputStream(content);
+		SVArgFilePreProcessor pp = new SVArgFilePreProcessor(
+				in, testname, vp);
+		
+		SVArgFilePreProcOutput pp_out = pp.preprocess();
+
+		return pp_out;
 	}
 
 }

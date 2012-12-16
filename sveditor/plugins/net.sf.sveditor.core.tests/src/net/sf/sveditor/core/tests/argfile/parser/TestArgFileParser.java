@@ -1,8 +1,16 @@
 package net.sf.sveditor.core.tests.argfile.parser;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
@@ -12,9 +20,23 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestArgFileParser extends TestCase {
+	private File				fTmpDir;
 	
+	@Override
+	protected void setUp() throws Exception {
+		fTmpDir = TestUtils.createTempDir();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		if (fTmpDir != null && fTmpDir.isDirectory()) {
+			TestUtils.delete(fTmpDir);
+		}
+	}
+
 	public void testOptionLexer() throws SVParseException {
 		String testname = "testOptionLexer";
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -30,7 +52,6 @@ public class TestArgFileParser extends TestCase {
 			log.debug("Token: \"" + lexer.getImage() + "\"");
 			lexer.consumeToken();
 		}
-
 	}
 	
 	public void testStringArguments() throws SVParseException {
@@ -114,5 +135,35 @@ public class TestArgFileParser extends TestCase {
 				new SVDBArgFileIncFileStmt("/tools/argfiles/argfile1.f"),
 				new SVDBArgFileIncFileStmt("/tools/argfiles/argfile2.f")
 		});
+	}
+	
+	public void testLocations() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(getName());
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		
+		String content =
+				"\n" +									// 1
+				"+incdir+/home/mballance\n" +			// 2
+				"\n" +									// 3
+				"\n" +									// 4
+				"/home/mballance/class1.sv\n" +			// 5
+				"/home/mballance/class2.sv\n" +			// 6
+				"\n" +									// 7
+				"\n" +									// 8
+				"/home/mballance/class3.sv\n" +			// 9
+				"\n";
+				
+
+		SVDBFile file = ArgFileParserTests.parse(log, null, getName(), content, markers);
+	
+		// Check line numbers
+		int lineno[] = new int[] {2, 5, 6, 9};
+		int idx = 0;
+		for (ISVDBItemBase it : file.getChildren()) {
+			assertTrue(idx < lineno.length);
+			assertEquals("lineno for " + it.getType(), lineno[idx], it.getLocation().getLine());
+		}
 	}
 }

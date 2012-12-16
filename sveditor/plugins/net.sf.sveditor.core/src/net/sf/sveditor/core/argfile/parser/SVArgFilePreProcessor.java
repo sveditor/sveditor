@@ -16,6 +16,9 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 	private String						fFileName;
 	private InputStream					fInput;
 	private StringBuilder				fOutput;
+	/**
+	 * Contains a map of indexes into the output at which lines start
+	 */
 	private List<Integer>				fLineMap;
 	private StringBuilder				fTmpBuffer;
 	private int						fLineno = 1;
@@ -294,6 +297,10 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 			}
 			if (fLastCh == '\n') {
 				// Save a marker for the line in the line-map
+				System.out.println("Newline @ \"" + (char)ch + "\"");
+				System.out.println(">> Current Output:");
+				System.out.println(fOutput.toString());
+				System.out.println("<< Current Output:");
 				fLineMap.add(fOutput.length()-1);
 				fLineno++;
 			}

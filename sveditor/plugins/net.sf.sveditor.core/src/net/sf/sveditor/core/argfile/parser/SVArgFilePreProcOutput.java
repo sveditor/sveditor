@@ -36,6 +36,10 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 		fUngetCh1 = -1;
 		fUngetCh2 = -1;
 	}
+	
+	public List<Integer> getLineMap() {
+		return fLineMap;
+	}
 
 	public int get_ch() {
 		int ch = -1;

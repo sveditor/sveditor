@@ -2,9 +2,12 @@ package net.sf.sveditor.core.tests.argfile.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import junit.framework.TestCase;
 
@@ -50,6 +53,42 @@ public class TestArgFilePreProcessor extends TestCase {
 	
 		ArgFileParserTests.runParserTest(vp, testname, content, 
 				new SVDBArgFilePathStmt("/tools/value1/value2"));
+	}
+	
+	public void testPreProcLineMap() {
+		LogHandle log = LogFactory.getLogHandle(getName());
+		String content =
+				"\n" +
+				"line2\n" +
+				"line3\n" +
+				"\n" +
+				"\n" +
+				"line4\n"
+				;
+		
+		SVArgFilePreProcOutput pp_out = ArgFileParserTests.preprocess(log, null, getName(), content);
+		
+		for (int idx : pp_out.getLineMap()) {
+			System.out.println("idx: " + idx);
+		}
+		
+		int lineno = 0;
+		int ch;
+		while ((ch = pp_out.get_ch()) != -1) {
+			/*
+			int c_lineno = pp_out.getLocation().getLineNo();
+			if (c_lineno != lineno) {
+				lineno = c_lineno;
+//				System.out.print("" + lineno + ": ");
+			}
+			 */
+			System.out.print((char)ch);
+			if (ch == '\n') {
+				System.out.print("L" + pp_out.getLocation().getLineNo() + ": ");
+			}
+		}
+	
+		LogFactory.removeLogHandle(log);
 	}
 
 }
