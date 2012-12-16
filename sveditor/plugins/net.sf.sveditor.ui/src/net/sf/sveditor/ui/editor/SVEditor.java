@@ -177,17 +177,33 @@ public class SVEditor extends TextEditor
 	
 	
 	private class UpdateSVDBFileJob extends Job {
-		public UpdateSVDBFileJob() {
+		private IDocument fDocument;
+		
+		public UpdateSVDBFileJob(IDocument doc) {
 			super("Update SVDBFile");
+			fDocument = doc;
 		}
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
+			IDocument doc;
 			IEditorInput ed_in = getEditorInput();
-			IDocument doc = getDocumentProvider().getDocument(ed_in);
+			if (fDocument != null) {
+				doc = fDocument;
+			} else {
+				doc = getDocumentProvider().getDocument(ed_in);
+			}
+		
+			if (doc == null) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					fLog.error("Document NULL during UpdateSVDBFileJob", e);
+				}
+			}
+			
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-
 			fLog.debug("--> re-parse file");
 			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
 					getProgressMonitor(), sin, fSVDBFilePath, markers);
@@ -212,7 +228,7 @@ public class SVEditor extends TextEditor
 			synchronized (SVEditor.this) {
 				fUpdateSVDBFileJob = null;
 				if (fPendingUpdateSVDBFile) {
-					updateSVDBFile();
+					updateSVDBFile(fDocument);
 				}
 			}
 			
@@ -353,7 +369,7 @@ public class SVEditor extends TextEditor
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
 		} else {
-			updateSVDBFile();
+			updateSVDBFile(null);
 		}
 	}
 
@@ -444,14 +460,14 @@ public class SVEditor extends TextEditor
 		}
 	}
 
-	void updateSVDBFile() {
+	void updateSVDBFile(IDocument doc) {
 		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fIndexMgr);
 		
 		if (fIndexMgr != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
 					fPendingUpdateSVDBFile = false;
-					fUpdateSVDBFileJob = new UpdateSVDBFileJob();
+					fUpdateSVDBFileJob = new UpdateSVDBFileJob(doc);
 					fUpdateSVDBFileJob.schedule();
 				}
 			} else {
@@ -688,8 +704,10 @@ public class SVEditor extends TextEditor
 			fCharacterMatcher.dispose();
 			fCharacterMatcher = null;
 		}
-		
-		getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
+
+		if (getSelectionProvider() != null) {
+			getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
+		}
 		
 		SVCorePlugin.getDefault().getProjMgr().removeProjectSettingsListener(this);
 		SVUiPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(
