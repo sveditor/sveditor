@@ -36,7 +36,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.IValueVariable;
@@ -311,7 +310,8 @@ public class SVDBIndexUtil {
 			try {
 				exp_path = mgr.performStringSubstitution(exp_path);
 			} catch (CoreException e) {
-				e.printStackTrace();
+//				System.out.println("Expansion failure: " + path + "; " + project);
+//				e.printStackTrace();
 			}
 		}
 		

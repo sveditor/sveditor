@@ -13,8 +13,10 @@ package net.sf.sveditor.core.tests.docs;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -195,7 +197,7 @@ public class TestModelFactory extends TestCase {
 		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
 		
-		FileWriter fw = new FileWriter(modelDumpPathAct.getPath()) ;
+		OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(modelDumpPathAct.getPath()), Charset.forName("UTF-8") ) ;
 		BufferedWriter bw = new BufferedWriter(fw) ;
 		model.dumpToFile(bw) ;
 		bw.close() ;

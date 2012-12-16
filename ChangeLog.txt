@@ -6,6 +6,14 @@
   
 - #(enh) - Initial work on argument-file parse and error propagation
 
+- #(enh) - Enable template files to be described as 'executable'
+
+- #(nobug) - Correct another template variable-expansion corner case involving
+  nested bracketed variables: ${${MY_TEMPLATE_VAR}}
+  
+- #(nobug) - Correct a null-pointer-exception that occasionally occurred 
+  when the editor was first opened.   
+
 ------------------------------------------------------------------------------
 -- 1.0.6 Release --
 

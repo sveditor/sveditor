@@ -68,7 +68,11 @@ public class TagProcessor {
 
 					for (int i=0; i<80; i++) {
 
-						if ((ch = in.read()) == '}' || ch == -1) {
+						if ((ch = in.read()) == '}' || ch == -1 ||
+								!((ch >= 'a' && ch <= 'z') ||
+								  (ch >= 'A' && ch <= 'Z') ||
+								  (ch >= '0' && ch <= '9') ||
+								  ch == '_' || ch == '.')) {
 							break;
 						}
 						sb.append((char)ch);
@@ -95,9 +99,8 @@ public class TagProcessor {
 						out.write('$');
 						out.write('{');
 						out.write(val.getBytes());
-						if (ch != -1) {
-							out.write((char)ch);
-						}
+						// Unget the last char
+						unget_ch = ch;
 					}
 				} else {
 					out.write((char)ch);
