@@ -38,7 +38,9 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestArgFileIndex extends TestCase {
@@ -191,6 +193,69 @@ public class TestArgFileIndex extends TestCase {
 	
 		IndexTests.assertContains(index, "module_1", SVDBItemType.ModuleDecl);
 		IndexTests.assertContains(index, "module_2", SVDBItemType.ModuleDecl);
+		
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testArgFileRelPath() throws CoreException {
+		String testname = getName();
+		
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		
+		IFile file1_f = project_dir.getFile("file1.f");
+		TestUtils.copy(
+				"+incdir+subdir\n" +
+				"test_pkg.sv\n",
+				file1_f);
+
+		IFolder subdir = project_dir.getFolder("subdir");
+		subdir.create(true, true, new NullProgressMonitor());
+		
+		IFile test_pkg_sv = project_dir.getFile("test_pkg.sv");
+		TestUtils.copy(
+				"package test_pkg;\n" +
+				"	`include \"cls1.svh\"\n" +
+				"	`include \"cls2.svh\"\n" +
+				"endpackage\n",
+				test_pkg_sv);
+		
+		IFile cls1_svh = project_dir.getFile("cls1.svh");
+		TestUtils.copy(
+				"class cls1;\n" +
+				"endclass\n",
+				cls1_svh);
+		
+		IFile cls2_svh = subdir.getFile("cls2.svh");
+		TestUtils.copy(
+				"class cls2;\n" +
+				"endclass\n",
+				cls2_svh);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/file1.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+
+		index.loadIndex(new NullProgressMonitor());
+	
+		IndexTests.assertContains(index, "cls1", SVDBItemType.ClassDecl);
+		IndexTests.assertContains(index, "cls2", SVDBItemType.ClassDecl);
+		
+		Iterable<String> filelist = index.getFileList(new NullProgressMonitor());
+	
+		// Confirm that all paths start with ${workspace_loc}
+		for (String path : filelist) {
+			assertTrue(path.startsWith("${workspace_loc}"));
+			log.debug("File: \"" + path + "\"");
+		}
 		
 		LogFactory.removeLogHandle(log);
 	}

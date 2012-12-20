@@ -27,7 +27,7 @@ public class TemplateFSFileCreator implements ITemplateFileCreator {
 	}
 
 	
-	public void createFile(String path, InputStream content) {
+	public void createFile(String path, InputStream content, boolean executable) {
 		File file = new File(fRoot, path);
 		byte tmp[] = new byte[16384];
 		int len;
@@ -45,6 +45,10 @@ public class TemplateFSFileCreator implements ITemplateFileCreator {
 
 			fos.close();
 		} catch (IOException e) { }
+		
+		if (executable) {
+			file.setExecutable(true);
+		}
 	}
 
 

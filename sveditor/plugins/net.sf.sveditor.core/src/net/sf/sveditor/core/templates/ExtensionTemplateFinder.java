@@ -78,7 +78,10 @@ public class ExtensionTemplateFinder extends AbstractTemplateFinder {
 				for (IConfigurationElement tmpl : ce_c.getChildren()) {
 					String template = tmpl.getAttribute("template");
 					String tmpl_name = tmpl.getAttribute("name");
+					String executable = tmpl.getAttribute("execute");
 					info.addTemplate(new Tuple<String, String>(template, tmpl_name));
+					info.setExecutable(template, 
+							(executable != null && executable.equals("true")));
 				}
 			} else if (ce_c.getName().equals("parameters")) {
 				for (IConfigurationElement p : ce_c.getChildren()) {

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui.wizards.templates;
 
+import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -145,9 +146,8 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 					monitor.beginTask("Creating Files", 5 /*fParamsPage.getFileNames().size()*/);
 					TemplateProcessor templ_proc = new TemplateProcessor(new ITemplateFileCreator() {
 
-						public void createFile(String path, InputStream content) {
+						public void createFile(String path, InputStream content, boolean executable) {
 							IFile file = folder.getFile(new Path(path));
-							
 
 							monitor.worked(1);
 							try {
@@ -162,6 +162,11 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 								}
 							} catch (CoreException e) {
 								e.printStackTrace();
+							}
+						
+							if (executable) {
+								File file_f = file.getLocation().toFile();
+								file_f.setExecutable(true);
 							}
 						}
 					});

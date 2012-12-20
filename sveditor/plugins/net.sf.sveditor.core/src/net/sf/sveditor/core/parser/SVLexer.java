@@ -28,6 +28,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class SVLexer extends SVToken {
 	public enum Context {
 		Default,
+		Expression,
 		Constraint
 	}
 	
@@ -37,6 +38,7 @@ public class SVLexer extends SVToken {
 	private Set<String> 			fOperatorSet;
 	private Set<String> 			fDefaultKeywordSet;
 	private Set<String> 			fConstraintKeywordSet;
+	private Set<String>				fExprKeywordSet;
 
 	private List<ISVTokenListener> fTokenListeners;
 
@@ -104,6 +106,7 @@ public class SVLexer extends SVToken {
 
 		fDefaultKeywordSet = new HashSet<String>();
 		fConstraintKeywordSet = new HashSet<String>();
+		fExprKeywordSet = new HashSet<String>();
 
 		fStringBuffer = new StringBuilder();
 		fCaptureBuffer = new StringBuilder();
@@ -131,10 +134,14 @@ public class SVLexer extends SVToken {
 		}
 		
 		fConstraintKeywordSet.addAll(fDefaultKeywordSet);
+		fExprKeywordSet.addAll(fDefaultKeywordSet);
 		
 		// Customize
 		fDefaultKeywordSet.remove("soft");
-		fDefaultKeywordSet.remove("unique");
+		
+		// Remove 'unique' from the Expression set, since
+		// unique() is a supported function
+		fExprKeywordSet.remove("unique");
 		
 		fEOF = false;
 		
@@ -143,6 +150,10 @@ public class SVLexer extends SVToken {
 	
 	public void setContext(Context ctxt) {
 		fContext = ctxt;
+	}
+	
+	public Context getContext() {
+		return fContext;
 	}
 
 	public void addTokenListener(ISVTokenListener l) {
@@ -839,22 +850,26 @@ public class SVLexer extends SVToken {
 			fImage = fStringBuffer.toString();
 
 			if (fIsIdentifier) {
+				Set<String> kw = null;
+				
 				switch (fContext) {
 					case Default:
-						if ((fIsKeyword = fDefaultKeywordSet.contains(fImage))) {
-							if (SVKeywords.isSVKeyword(fImage)) {
-								fIsIdentifier = false;
-							}
-						}
+						kw = fDefaultKeywordSet;
 						break;
 						
 					case Constraint:
-						if ((fIsKeyword = fConstraintKeywordSet.contains(fImage))) {
-							if (SVKeywords.isSVKeyword(fImage)) {
-								fIsIdentifier = false;
-							}
-						}
+						kw = fConstraintKeywordSet;
 						break;
+						
+					case Expression:
+						kw = fExprKeywordSet;
+						break;
+				}
+				
+				if ((fIsKeyword = kw.contains(fImage))) {
+					if (SVKeywords.isSVKeyword(fImage)) {
+						fIsIdentifier = false;
+					}
 				}
 			}
 			fTokenConsumed = false;

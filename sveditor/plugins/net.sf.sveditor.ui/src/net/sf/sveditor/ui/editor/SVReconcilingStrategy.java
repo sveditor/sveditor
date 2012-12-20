@@ -34,7 +34,7 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	public void reconcile(IRegion partition) {
 		reconcileSource();
 		if (fEditor != null) {
-			fEditor.updateSVDBFile();
+			fEditor.updateSVDBFile(fDocument);
 		}
 	}
 
@@ -42,7 +42,7 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
 		reconcileSource();
 		if (fEditor != null) {
-			fEditor.updateSVDBFile();
+			fEditor.updateSVDBFile(fDocument);
 		}
 	}
 
@@ -55,7 +55,7 @@ public class SVReconcilingStrategy implements IReconcilingStrategy,
 	public void initialReconcile() {
 		reconcileSource();
 		if (fEditor != null) {
-			fEditor.updateSVDBFile();
+			fEditor.updateSVDBFile(fDocument);
 		}
 	}
 	

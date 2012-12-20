@@ -132,6 +132,13 @@
                </appInfo>
             </annotation>
          </attribute>
+         <attribute name="executable" type="boolean">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
