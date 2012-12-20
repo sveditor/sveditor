@@ -122,11 +122,14 @@ public class SVTParser {
 				Element file = (Element)file_list.item(i);
 				String filename = file.getAttribute("name");
 				String tmpl_path = file.getAttribute("template");
+				String executable = file.getAttribute("executable");
 			
 				filename = filename.trim();
 				tmpl_path = tmpl_path.trim();
 				
 				t.addTemplate(fTemplateBase + "/" + tmpl_path, filename);
+				t.setExecutable(fTemplateBase + "/" + tmpl_path, 
+						(executable != null && executable.equals("true")));
 			}
 		}
 		

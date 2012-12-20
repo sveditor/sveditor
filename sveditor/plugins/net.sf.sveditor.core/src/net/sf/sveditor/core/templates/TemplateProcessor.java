@@ -97,7 +97,7 @@ public class TemplateProcessor {
 				in_ind = in_t;
 			}
 
-			fStreamProvider.createFile(name, in_ind);
+			fStreamProvider.createFile(name, in_ind, template.getExecutable(templ));
 			template.closeTemplate(in);
 		}
 		

@@ -71,7 +71,21 @@ public class TestParserSVStdExamples extends TestCase {
 				"/data/parser/7.3.0_union_1.svh", 
 				new String[] {"c", "num", "tagged_st", "ts"});
 	}
+	
+	public void test_12_4_2_unique_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest(getName(), 
+				"/data/parser/12.4.2_1.svh",
+				new String[] {"c", "foo"});
+	} 
 
+	public void test_12_4_2_unique_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		runTest(getName(), 
+				"/data/parser/12.4.2_2.svh",
+				new String[] {"c", "foo"});
+	} 
+	
 	public void test_13_5_3_tf_1() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_13_5_3_tf_1", 
