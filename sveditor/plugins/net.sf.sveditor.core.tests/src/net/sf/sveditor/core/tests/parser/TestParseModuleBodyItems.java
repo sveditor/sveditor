@@ -1739,6 +1739,29 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"some_event"});
 	}
 	
+	public void testMacroModuleDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+			"`ifndef PRC_XTC_CFG\n" +
+			" `define PRC_XTC_CFG prclx4_1_40\n" +
+			"`endif\n" +
+			"`define PRC_CFG_XTENSA(cfg) \\\n" +
+			" `define Xm_``cfg``_XTTOP_TAP \\\n" +
+			" `define Xm_``cfg``_XTTOP_SETUP_ALREADY_LOADED \\\n" +
+			" `define PRC_TAP_MODULE Xm_``cfg``TAP \\\n" +
+			" `ifdef PRC_XTC_ISS_COSIM \\\n" +
+			" `define PRC_XTC_MODULE Xtensa0_prc \\\n" +
+			" `else \\\n" +
+			" `define PRC_XTC_MODULE Xm_``cfg``Xtensa \\\n" +
+			" `endif \\\n" +
+			" `define PRC_PIF_CHECKER Xm_``cfg``_pif_checker\n" +
+			"module top;\n" +
+			" `PRC_CFG_XTENSA(`PRC_XTC_CFG)\n" +
+			"endmodule"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"top"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

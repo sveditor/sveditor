@@ -9,6 +9,10 @@
 - #(nobug) - Correct a null-pointer-exception that occasionally occurred 
   when the editor was first opened.   
 
+- #(nobug) - Resolve ambiguity between 'unique' used as a keyword, and 
+  'unique' used as a built-in function
+  
+- #(nobug) - Add support for unique0 keyword
 
 ------------------------------------------------------------------------------
 -- 1.0.6 Release --
