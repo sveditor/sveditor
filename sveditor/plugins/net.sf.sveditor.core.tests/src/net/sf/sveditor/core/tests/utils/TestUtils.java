@@ -144,11 +144,29 @@ public class TestUtils {
 				delete(i);
 			}
 		}
-		if (item.exists() && !item.delete()) {
-			if (item.isDirectory()) {
-				TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\"");
-			} else {
-				TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+		
+		for (int i=0; i<2; i++) {
+			if (item.exists()) {
+				if (!item.delete()) {
+					if( i == 0) {
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {}
+					} else {
+						if (item.isDirectory()) {
+							StringBuilder ex_files = new StringBuilder();
+							File files[] = item.listFiles();
+							if (files != null) {
+								for (File f : files) {
+									ex_files.append(f.getName() + " ");
+								}
+							}
+							TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\" sub-files: " + ex_files.toString());
+						} else {
+							TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+						}
+					}
+				}
 			}
 		}
 	}
@@ -282,11 +300,15 @@ public class TestUtils {
 	}
 
 	public static void deleteProject(IProject project_dir) {
-		try {
-			project_dir.close(new NullProgressMonitor());
-			project_dir.delete(true, true, new NullProgressMonitor());
-		} catch (CoreException e) {
-			e.printStackTrace();
+		if (project_dir != null && project_dir.exists()) {
+			try {
+				project_dir.close(new NullProgressMonitor());
+				project_dir.delete(true, true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
+						e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 

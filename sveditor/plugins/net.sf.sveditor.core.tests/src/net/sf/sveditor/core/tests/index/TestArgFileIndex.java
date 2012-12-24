@@ -272,8 +272,9 @@ public class TestArgFileIndex extends TestCase {
 		if (project_dir_f.exists()) {
 			TestUtils.delete(project_dir_f);
 		}
-		
-		final IProject project_dir = TestUtils.createProject("testArgFileIncludePath_project", project_dir_f);
+	
+		fProject = TestUtils.createProject("testArgFileIncludePath_project", project_dir_f);
+		final IProject project_dir = fProject;
 		utils.copyBundleDirToWS("/data/arg_file_include_path/", project_dir);
 		
 		File db = new File(fTmpDir, "db");
@@ -394,8 +395,9 @@ public class TestArgFileIndex extends TestCase {
 
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		
-		final IProject project_dir = TestUtils.createProject(testname + "_project");
+	
+		fProject = TestUtils.createProject(testname + "_project");
+		final IProject project_dir = fProject;
 		
 		utils.copyBundleDirToWS("/data/multi_arg_file/", project_dir);
 		
@@ -425,8 +427,9 @@ public class TestArgFileIndex extends TestCase {
 
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		
-		final IProject project_dir = TestUtils.createProject(testname + "_project");
+	
+		fProject = TestUtils.createProject(testname + "_project");
+		final IProject project_dir = fProject;
 		File proj_subdir = new File(fTmpDir, "proj_subdir");
 		assertTrue(proj_subdir.mkdirs());
 		

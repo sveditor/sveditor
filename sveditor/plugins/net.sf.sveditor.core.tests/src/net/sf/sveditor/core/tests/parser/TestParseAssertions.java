@@ -85,4 +85,20 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"t"});
 	}
 
+	public void testPropertyNot() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String testname = getName();
+		String doc =
+			"module t;\n" +
+			"    // dend should never unknown.\n" +
+			"	ERROR_DEND_IS_UNKNOWN : assert property (disable iff ( !checks_enabled || rst || $isunknown(rst) || before_reset) ds |-> (not $isunknown(dend)));\n" +
+			"\n" +
+			"// data should never unknown.\n" +
+			"	ERROR_DATA_IS_UNKNOWN : assert property (disable iff ( !checks_enabled || rst || $isunknown(rst) || before_reset) ds |-> (not $isunknown(data)));\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"t"});
+	}
 }
