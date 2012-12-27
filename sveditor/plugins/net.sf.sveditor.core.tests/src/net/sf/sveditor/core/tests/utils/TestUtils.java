@@ -39,7 +39,9 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
@@ -208,6 +210,16 @@ public class TestUtils {
 			ps.close();
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+	
+	public static void mkdir(IContainer c, String dir) {
+		IFolder f = c.getFolder(new Path(dir));
+		
+		try {
+			f.create(true, true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			TestCase.fail("Failed to create directory \"" + dir + "\": " + e.getMessage());
 		}
 	}
 	

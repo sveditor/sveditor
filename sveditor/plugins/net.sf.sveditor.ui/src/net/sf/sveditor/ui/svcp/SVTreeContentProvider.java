@@ -65,9 +65,13 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 						c.add(ci);
 					}
 				}
+			} else {
+				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
 			}
 			
 			return c.toArray();
+		} else {
+			
 		}
 		
 		/*

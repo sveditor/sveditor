@@ -364,7 +364,6 @@ public class SVArgFileLexer extends SVArgFileToken {
 				// Read follow-on option
 				readStringOrPath(sb, ch);
 				fOptionVal = sb.toString();
-				System.out.println("optionVal=" + fOptionVal);
 			} else {
 				fScanner.unget_ch(ch);
 			}

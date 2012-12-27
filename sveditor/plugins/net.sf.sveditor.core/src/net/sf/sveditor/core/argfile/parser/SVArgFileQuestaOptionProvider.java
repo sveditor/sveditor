@@ -164,7 +164,6 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 	public List<String> getIncPaths(String option, String arg) {
 		if (option.startsWith("+incdir+")) {
 			List<String> ret = new ArrayList<String>();
-			System.out.println("option=" + option + " path=" + arg);
 			ret.add(arg);
 			return ret;
 		} else {

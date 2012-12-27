@@ -861,7 +861,6 @@ public class SVEditor extends TextEditor
 
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
-			System.out.println("annotationType: " + ann.getType());
 			if (ann.getType().equals("org.eclipse.ui.workbench.texteditor.error")) {
 				ann_model.removeAnnotation(ann);
 			}
@@ -884,8 +883,6 @@ public class SVEditor extends TextEditor
 			Annotation ann = null;
 			int line = -1;
 			
-			System.out.println("marker: " + marker.getMessage() + " " + marker.getMarkerType());
-
 			if (marker.getMarkerType() == MarkerType.Error) {
 				ann = new Annotation(
 						"org.eclipse.ui.workbench.texteditor.error", 

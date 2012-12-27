@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -101,7 +102,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		
 		String resolved_argfile_path = getResolvedBaseLocation();
 		if (getFileSystemProvider().fileExists(resolved_argfile_path)) {
-			processArgFile(new SubProgressMonitor(monitor, 4), getResolvedBaseLocation());
+			processArgFile(new SubProgressMonitor(monitor, 4), null, getResolvedBaseLocation());
 		} else {
 			String msg = "Argument file \"" + getBaseLocation() + "\" (\"" + 
 					getResolvedBaseLocation() + "\") does not exist";
@@ -119,7 +120,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	
 	private SVDBFile parseArgFile(
 			String				path,
-			List<String>		processed_paths,
+			Set<String>			processed_paths,
 			List<SVDBMarker>	markers) {
 		SVDBFile ret = new SVDBFile(path);
 		InputStream in = null;
@@ -209,10 +210,12 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		return ret;
 	}
 	
-	private void processArgFile(IProgressMonitor monitor, String path) {
+	private void processArgFile(IProgressMonitor monitor, Set<String> processed_paths, String path) {
 		path = SVFileUtils.normalize(path);
-	
-		List<String> processed_paths = new ArrayList<String>();
+
+		if (processed_paths == null) {
+			processed_paths = new HashSet<String>();
+		}
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFile argfile = parseArgFile(path, processed_paths, markers);
@@ -231,13 +234,22 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					
 					// TODO: handle monitor
 					if (getFileSystemProvider().fileExists(sub_path)) {
-						processArgFile(new NullProgressMonitor(), sub_path);
+						if (!processed_paths.contains(sub_path)) {
+							processArgFile(new NullProgressMonitor(), processed_paths, sub_path);
+						} else {
+							SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
+									"Recursive inclusion of file \"" + path + "\" (" + sub_path + ")");
+							m.setLocation(stmt.getLocation());
+							markers.add(m);
+						}
 					} else {
+						/** 
 						SVDBMarker m = new SVDBMarker(
 								MarkerType.Error, MarkerKind.MissingInclude, 
 								"Path \"" + sub_path + "\" does not exist");
 						m.setLocation(stmt.getLocation());
 						markers.add(m);
+						 */
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileIncDirStmt) {
 					SVDBArgFileIncDirStmt stmt = (SVDBArgFileIncDirStmt)ci;
@@ -251,12 +263,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 
 					if (getFileSystemProvider().fileExists(res_f)) {
 						addFile(res_f, false);
-					} else {
-						SVDBMarker m = new SVDBMarker(
-								MarkerType.Error, MarkerKind.MissingInclude, 
-								"Path \"" + res_f + "\" does not exist");
-						m.setLocation(stmt.getLocation());
-						markers.add(m);
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;

@@ -32,8 +32,8 @@ public class OpenDeclarationAction extends TextEditorAction {
 	public OpenDeclarationAction(
 			ResourceBundle			bundle,
 			SVArgFileEditor			editor) {
-		super(bundle, "OpenDeclaration.", editor);
-		fLog = LogFactory.getLogHandle("OpenDeclarationAction");
+		super(bundle, "ArgFileOpenFile.", editor);
+		fLog = LogFactory.getLogHandle("ArgFileOpenFile");
 		fEditor = editor;
 		update();
 	}
@@ -60,7 +60,9 @@ public class OpenDeclarationAction extends TextEditorAction {
 		int offset = sel.getOffset() + sel.getLength();
 		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset);
 		
+		scanner.setSkipComments(true);
 		
+		System.out.println("OpenDeclarationAction");
 
 		/*
 		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();

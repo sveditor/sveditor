@@ -40,14 +40,23 @@ public class ArgFileParserTests extends TestSuite {
 			String				testname,
 			String				content,
 			SVDBArgFileStmt	...	expected) throws SVParseException {
-		runParserTest(null, testname, content, expected);
+		runParserTest(null, testname, content, null, expected);
+	}
+
+	public static void runParserTest(
+			String				testname,
+			String				content,
+			SVDBMarker			exp_errors[],
+			SVDBArgFileStmt		expected[]) throws SVParseException {
+		runParserTest(null, testname, content, exp_errors, expected);
 	}
 	
 	public static void runParserTest(
 			ISVArgFileVariableProvider		vp,
 			String							testname,
 			String							content,
-			SVDBArgFileStmt ...				expected) throws SVParseException {
+			SVDBMarker						exp_errors[],
+			SVDBArgFileStmt 				expected[]) throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle(testname);
 	
 		InputStream in = new StringInputStream(content);
@@ -67,7 +76,23 @@ public class ArgFileParserTests extends TestSuite {
 		
 		SVDBFile file = new SVDBFile(testname);
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		parser.parse(file, markers);
+		
+		SVParseException parse_e = null;
+		
+		try {
+			parser.parse(file, markers);
+		} catch (SVParseException e) {
+			parse_e = e;
+		}
+		
+		if (exp_errors == null || exp_errors.length == 0) {
+			if (parse_e != null) {
+				throw parse_e;
+			}
+		} else {
+			// Expected errors
+			TestCase.assertEquals(exp_errors.length, markers.size());
+		}
 		
 		int idx = 0;
 		

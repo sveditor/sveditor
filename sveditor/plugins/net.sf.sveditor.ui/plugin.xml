@@ -581,8 +581,7 @@
                definitionId="net.sf.sveditor.ui.argfile.editor.open.file"
                id="net.sf.sveditor.ui.svArgFileOpenFile"
                label="Open File"
-               retarget="true"
-               style="push">
+               retarget="true">
          </action>
       </actionSet>
    </extension>
@@ -999,6 +998,7 @@ endclass
    <extension
          point="org.eclipse.ui.bindings">
       <key
+            commandId="net.sf.sveditor.ui.argfile.editor.open.file"
             contextId="net.sf.sveditor.ui.svArgFileEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
@@ -1009,7 +1009,7 @@ endclass
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open File"
-            id="net.sf.sveditor.ui.editor.argfile.open.file"
+            id="net.sf.sveditor.ui.argfile.editor.open.file"
             name="Open File">
       </command>
    </extension>

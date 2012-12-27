@@ -112,15 +112,20 @@ public class SVArgFileParser {
 									tok.getOptionVal());
 							path = inc_path_l.get(0);
 						}
-					
-						path = resolvePath(path);
-						
-						if (!fFSProvider.fileExists(path)) {
-							error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
-									"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 
+						if (path != null) {
+							path = resolvePath(path);
+
+							if (!fFSProvider.fileExists(path)) {
+								error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
+										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+
+							}
+							stmt.setIncludePath(path);
+						} else {
+							error(tok.getStartLocation(), "No include-file path provided");
+							stmt.setIncludePath("");
 						}
-						stmt.setIncludePath(path);
 						
 						file.addChildItem(stmt);
 						} break;
@@ -165,13 +170,19 @@ public class SVArgFileParser {
 							error(tok.getStartLocation(), "No argument-file path provided");
 						} else {
 							String inc = incs.get(0);
-							String path = resolvePath(incs.get(0));
-							if (!fFSProvider.fileExists(path)) {
-								error(tok.getStartLocation(), 
-										"Argument-file path \"" + path + "\" does not exist; " +
-										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+							
+							if (inc != null) {
+								String path = resolvePath(incs.get(0));
+								if (!fFSProvider.fileExists(path)) {
+									error(tok.getStartLocation(), 
+											"Argument-file path \"" + path + "\" does not exist; " +
+													"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+								}
+								stmt.setPath(path);
+							} else {
+								error(tok.getStartLocation(), "No argument-file path provided");
+								stmt.setPath("");
 							}
-							stmt.setPath(path);
 							file.addChildItem(stmt);
 						}
 						} break;
@@ -431,6 +442,6 @@ public class SVArgFileParser {
 			m.setLocation(location);
 			fMarkers.add(m);
 		}
-		System.out.println("[ERROR] " + msg);
+//		System.out.println("[ERROR] " + msg);
 	}
 }

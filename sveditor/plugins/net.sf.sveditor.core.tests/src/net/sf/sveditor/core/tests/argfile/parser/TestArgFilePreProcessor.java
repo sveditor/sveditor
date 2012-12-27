@@ -1,15 +1,15 @@
 package net.sf.sveditor.core.tests.argfile.parser;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
-import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
-import junit.framework.TestCase;
 
 public class TestArgFilePreProcessor extends TestCase {
 	
@@ -23,8 +23,10 @@ public class TestArgFilePreProcessor extends TestCase {
 		SVCorePlugin.setenv("VARIABLE1", "value1");
 		SVCorePlugin.setenv("VARIABLE2", "value2");
 	
-		ArgFileParserTests.runParserTest(vp, testname, content, 
-				new SVDBArgFileDefineStmt("value1", "value2"));
+		ArgFileParserTests.runParserTest(vp, testname, content, null,
+				new SVDBArgFileStmt[] {
+					new SVDBArgFileDefineStmt("value1", "value2")
+				});
 	}
 	
 	public void testNonBraceDelimitedVarExpansion() throws SVParseException {
@@ -37,8 +39,10 @@ public class TestArgFilePreProcessor extends TestCase {
 		SVCorePlugin.setenv("VARIABLE1", "value1");
 		SVCorePlugin.setenv("VARIABLE2", "value2");
 	
-		ArgFileParserTests.runParserTest(vp, testname, content, 
-				new SVDBArgFileDefineStmt("value1", "value2"));
+		ArgFileParserTests.runParserTest(vp, testname, content, null,
+				new SVDBArgFileStmt[] {
+					new SVDBArgFileDefineStmt("value1", "value2")
+				});
 	}
 	
 	public void testNonBraceDelimitedVarExpansion2() throws SVParseException {
@@ -51,8 +55,10 @@ public class TestArgFilePreProcessor extends TestCase {
 		SVCorePlugin.setenv("VARIABLE1", "value1");
 		SVCorePlugin.setenv("VARIABLE2", "value2");
 	
-		ArgFileParserTests.runParserTest(vp, testname, content, 
-				new SVDBArgFilePathStmt("/tools/value1/value2"));
+		ArgFileParserTests.runParserTest(vp, testname, content, null,
+				new SVDBArgFileStmt[] {
+					new SVDBArgFilePathStmt("/tools/value1/value2")
+				});
 	}
 	
 	public void testPreProcLineMap() {

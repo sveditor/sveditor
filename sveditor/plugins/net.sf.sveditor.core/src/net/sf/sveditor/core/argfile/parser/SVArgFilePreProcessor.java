@@ -297,10 +297,12 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 			}
 			if (fLastCh == '\n') {
 				// Save a marker for the line in the line-map
+				/*
 				System.out.println("Newline @ \"" + (char)ch + "\"");
 				System.out.println(">> Current Output:");
 				System.out.println(fOutput.toString());
 				System.out.println("<< Current Output:");
+				 */
 				fLineMap.add(fOutput.length()-1);
 				fLineno++;
 			}
