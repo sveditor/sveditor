@@ -1,4 +1,8 @@
 
+- #(nobug) - Add support for assertion unary 'not'
+
+- #(3597783) - Correct issues with UVM Agent template
+
 -- 1.0.7 Release --
 
 - #(enh) - Enable template files to be described as 'executable'
@@ -13,8 +17,6 @@
   'unique' used as a built-in function
   
 - #(nobug) - Add support for unique0 keyword
-
-- #(nobug) - Add support for assertion unary-not
 
 ------------------------------------------------------------------------------
 -- 1.0.6 Release --
