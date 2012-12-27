@@ -1058,4 +1058,15 @@ endclass
             name="net.sf.sveditor.ui.occurrences">
       </type>
    </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.annotationModelCreation">
+      <factory
+            class="net.sf.sveditor.ui.argfile.editor.SVArgFileAnnotationModelFactory"
+            contentTypeId="net.sf.sveditor.core.argfile">
+      </factory>
+      <factory
+            class="net.sf.sveditor.ui.editor.SVEditorAnnotationModelFactory"
+            contentTypeId="systemverilog">
+      </factory>
+   </extension>
 </plugin>
