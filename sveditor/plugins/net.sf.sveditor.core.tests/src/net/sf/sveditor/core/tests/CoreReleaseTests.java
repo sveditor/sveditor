@@ -42,6 +42,8 @@ import net.sf.sveditor.core.tests.project_settings.ProjectSettingsTests;
 import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 import net.sf.sveditor.core.tests.templates.TemplateTests;
+import net.sf.sveditor.core.tests.templates.sim.TemplateSimTests;
+import net.sf.sveditor.core.tests.templates.sim.TestUVMTemplates;
 
 public class CoreReleaseTests extends TestSuite {
 	
@@ -86,6 +88,8 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(TemplateTests.suite());
 		addTest(HierarchyTests.suite());
 		addTest(DocsTests.suite());
+		
+		addTest(TemplateSimTests.suite());
 	}
 	
 	public static List<Exception> getErrors() {
