@@ -56,6 +56,7 @@ import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.expr.SVDBTypeExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
+import net.sf.sveditor.core.parser.SVLexer.Context;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVExprParser extends SVParserBase {
@@ -426,20 +427,28 @@ public class SVExprParser extends SVParserBase {
 	 */
 	public SVDBExpr expression() throws SVParseException {
 		SVDBExpr expr = null;
-		if (fDebugEn) {debug("--> expression() " + fLexer.peek());}
-		expr = assignmentExpression();
 		
-		if (fEventExpr.peek() && fLexer.peekKeyword("iff")) {
-			fLexer.eatToken();
-			expr = new SVDBBinaryExpr(expr, "iff", expression());
-		}
+		Context saved_ctxt = fLexer.getContext();
+		fLexer.setContext(Context.Expression);
 		
-		if ((fEventExpr.peek() && !fArglistExpr.peek()) 
-				&& fLexer.peekOperator(",")) {
-			fLexer.eatToken();
-			expr = new SVDBBinaryExpr(expr, ",", expression());
+		try {
+			if (fDebugEn) {debug("--> expression() " + fLexer.peek());}
+			expr = assignmentExpression();
+
+			if (fEventExpr.peek() && fLexer.peekKeyword("iff")) {
+				fLexer.eatToken();
+				expr = new SVDBBinaryExpr(expr, "iff", expression());
+			}
+
+			if ((fEventExpr.peek() && !fArglistExpr.peek()) 
+					&& fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+				expr = new SVDBBinaryExpr(expr, ",", expression());
+			}
+			if (fDebugEn) {debug("<-- expression() after=" + fLexer.peek());}
+		} finally {
+			fLexer.setContext(saved_ctxt);
 		}
-		if (fDebugEn) {debug("<-- expression() after=" + fLexer.peek());}
 		
 		return expr; 
 	}

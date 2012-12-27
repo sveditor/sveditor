@@ -111,7 +111,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			boolean 			consume_terminator,
 			boolean				could_be_case_item) throws SVParseException {
 		if (fDebugEn) {
-			debug("--> statement " + fLexer.peek() + " @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
+			debug("--> statement " + fLexer.peek() + " is_kw=" + fLexer.isKeyword() +
+					" @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		}
 		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
 		SVDBLocation start = fLexer.getStartLocation();
@@ -125,7 +126,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (fDebugEn) {debug(" -- possible variable declaration " + fLexer.peek());}
 
 			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-					fLexer.peekKeyword("typedef","struct","union", "enum","virtual")) {
+					fLexer.peekKeyword("typedef","struct","union","enum","virtual")) {
 				// Definitely a declaration
 				if (fDebugEn) {debug(" -- variable declaration 1 " + fLexer.peek());}
 				if (!decl_allowed) {

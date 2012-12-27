@@ -222,6 +222,7 @@ public class SVKeywords {
 		"typedef*",
 		"union*",
 		"unique*",
+		"unique0*",
 		"unsigned",
 		"use",
 		"uwire",

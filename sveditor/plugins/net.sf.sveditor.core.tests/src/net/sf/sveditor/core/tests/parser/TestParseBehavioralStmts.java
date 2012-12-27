@@ -12,13 +12,13 @@
 
 package net.sf.sveditor.core.tests.parser;
 
+import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import junit.framework.TestCase;
 
 public class TestParseBehavioralStmts extends TestCase {
 
