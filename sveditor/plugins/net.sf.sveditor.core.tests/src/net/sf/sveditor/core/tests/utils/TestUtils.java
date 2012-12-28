@@ -22,22 +22,22 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -144,11 +144,29 @@ public class TestUtils {
 				delete(i);
 			}
 		}
-		if (item.exists() && !item.delete()) {
-			if (item.isDirectory()) {
-				TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\"");
-			} else {
-				TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+		
+		for (int i=0; i<2; i++) {
+			if (item.exists()) {
+				if (!item.delete()) {
+					if( i == 0) {
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {}
+					} else {
+						if (item.isDirectory()) {
+							StringBuilder ex_files = new StringBuilder();
+							File files[] = item.listFiles();
+							if (files != null) {
+								for (File f : files) {
+									ex_files.append(f.getName() + " ");
+								}
+							}
+							TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\" sub-files: " + ex_files.toString());
+						} else {
+							TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+						}
+					}
+				}
 			}
 		}
 	}
@@ -282,11 +300,15 @@ public class TestUtils {
 	}
 
 	public static void deleteProject(IProject project_dir) {
-		try {
-			project_dir.close(new NullProgressMonitor());
-			project_dir.delete(true, true, new NullProgressMonitor());
-		} catch (CoreException e) {
-			e.printStackTrace();
+		if (project_dir != null && project_dir.exists()) {
+			try {
+				project_dir.close(new NullProgressMonitor());
+				project_dir.delete(true, true, new NullProgressMonitor());
+			} catch (CoreException e) {
+				TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
+						e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -357,5 +379,97 @@ public class TestUtils {
 		
 		return p;
 	}
+
+	public static List<String> grep(
+			List<String>			in,
+			String					or_list[],
+			String					and_list[]) {
+		List<String> ret = new ArrayList<String>();
+		Pattern or_pattern_list[] = new Pattern[or_list.length];
+		Pattern and_pattern_list[] = new Pattern[and_list.length];
+		
+		for (int i=0; i<or_list.length; i++) {
+			or_pattern_list[i] = Pattern.compile(or_list[i]);
+		}
+		
+		for (int i=0; i<and_list.length; i++) {
+			and_pattern_list[i] = Pattern.compile(and_list[i]);
+		}
 	
+			for (String line : in) {
+				boolean have_match = false;
+				
+				System.out.println("line: " + line);
+				
+				for (Pattern p : or_pattern_list) {
+					System.out.println("  match against \"" + p.pattern() + "\": " + 
+							p.matcher(line).matches());
+					if (p.matcher(line).matches()) {
+						have_match = true;
+						break;
+					}
+				}
+			
+				if (have_match) {
+					for (Pattern p : and_pattern_list) {
+						if (!p.matcher(line).matches()) {
+							have_match = false;
+						}
+					}
+				}
+				
+				if (have_match) {
+					ret.add(line);
+				}
+			}
+	
+		return ret;
+	}
+	
+	public static List<String> read(InputStream in) {
+		String line;
+		InputStreamReader rdr = new InputStreamReader(in);
+		BufferedReader reader = new BufferedReader(rdr);
+		List<String> ret = new ArrayList<String>();
+		
+		try {
+			while ((line = reader.readLine()) != null) {
+				ret.add(line);
+			}
+		} catch (IOException e) {}
+		
+		return ret;
+	}
+	
+	public static List<String> sed(
+			List<String> in,
+			String patterns[]) {
+		List<String> ret = new ArrayList<String>();
+		Pattern pattern_list[] = new Pattern[patterns.length];
+		String replace_list[] = new String[patterns.length];
+		
+		for (int i=0; i<patterns.length; i++) {
+			char first_ch = patterns[i].charAt(0);
+			int end_pattern_idx = patterns[i].indexOf(first_ch, 1);
+			String pattern = patterns[i].substring(1, end_pattern_idx);
+			int end_replace_idx = patterns[i].indexOf(first_ch, end_pattern_idx+1);
+			String replace = patterns[i].substring(end_pattern_idx+1, end_replace_idx);
+			
+			System.out.println("Search: \"" + pattern + "\"");
+			System.out.println("Replace: \"" + replace + "\"");
+			
+			pattern_list[i] = Pattern.compile(pattern);
+			replace_list[i] = replace;
+		}
+		
+		for (String line : in) {
+			for (int i=0; i<patterns.length; i++) {
+				line = pattern_list[i].matcher(line).replaceAll(replace_list[i]);
+			}
+		
+			ret.add(line);
+		}
+		
+		return ret;
+	}
 }

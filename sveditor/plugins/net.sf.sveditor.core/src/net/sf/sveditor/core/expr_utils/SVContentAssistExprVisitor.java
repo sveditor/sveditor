@@ -142,7 +142,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				return fResolveStack.pop();
 			}
 		} catch (SVAbortException e) {
-			e.printStackTrace();
+			fLog.debug("findItem failed: " + e.getMessage(), e);
 		}
 
 		return null;
