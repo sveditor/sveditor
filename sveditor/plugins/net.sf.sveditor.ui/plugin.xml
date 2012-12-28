@@ -923,6 +923,12 @@ endclass
                <objectClass
                      name="org.eclipse.core.resources.IResource">
                </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
             </or>
          </enablement>
       </decorator>
