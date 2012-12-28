@@ -445,4 +445,48 @@ public class TestOpenClass extends TestCase {
 		assertEquals(SVDBItemType.Function, ret.get(0).first().getType());
 		assertEquals("get_data", SVDBItem.getName(ret.get(0).first()));
 	}
+
+	public void testOpenForeachVarDeclaration() {
+		String testname = getName();
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo;\n" +
+			"  function void get_data();\n" +
+			"  endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar;\n" +
+			"\n" +
+			"    function void do_something();\n" +
+			"        bit[3:0] arr[];\n" +
+			"        foreach (arr[i]) begin\n" +
+			"            foo cls_inst;\n" +
+			"\n" +
+			"            cls_inst = do_something_else();\n" +
+			"        end\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("cls_inst =");
+		log.debug("index: " + idx);
+		scanner.seek(idx+2);
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 10, 
+				scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
+		assertEquals("cls_inst", SVDBItem.getName(ret.get(0).first()));
+	}
+
 }
