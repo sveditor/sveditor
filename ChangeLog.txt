@@ -5,6 +5,10 @@
 
 - #(3597783) - Correct issues with UVM Agent template
 
+- #(enh) - Update indexed-files decorator to decorate folders containing
+  indexed files as well. This should make it easier to understand
+  which files are being indexed.
+
 ------------------------------------------------------------------------------
 -- 1.0.7 Release --
 
