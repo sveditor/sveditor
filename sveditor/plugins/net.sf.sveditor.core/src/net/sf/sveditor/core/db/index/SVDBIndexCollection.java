@@ -182,7 +182,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		synchronized (fPluginLibraryList) {
 			for (ISVDBIndex index : fPluginLibraryList) {
 				loaded &= index.isFileListLoaded();
-				loaded &= index.isLoaded();
 			}
 		}
 		

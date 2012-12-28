@@ -1,9 +1,12 @@
 ${file_header}
+
 class ${name}_monitor extends uvm_monitor;
-	
+
 	uvm_analysis_port #(${name}_seq_item)			ap;
 	
 	${name}_config									m_cfg;
+	
+	const string report_id = "${name}_monitor";
 	
 	`uvm_component_utils(${name}_monitor)
 	
@@ -13,17 +16,17 @@ class ${name}_monitor extends uvm_monitor;
 	
 	function void build_phase(uvm_phase phase);
 		super.build_phase(phase);
-		
-		m_cfg = ${name}_config::get_config(this, "@name@_config");
-		
+	
+		// Obtain the config object
+		m_cfg = ${name}_config::get_config(this);
+	
+		// Create the analysis port
+		ap = new("ap", this);
+
 	endfunction
 	
 	function void connect_phase(uvm_phase phase);
-		super.connnect_phase(phase);
-	endfunction
-	
-	function void end_of_elaboration_phase(uvm_phase phase);
-		print_config();
+		super.connect_phase(phase);
 	endfunction
 	
 	task run_phase(uvm_phase phase);
@@ -34,4 +37,3 @@ class ${name}_monitor extends uvm_monitor;
 endclass
 
 ${file_footer}
-

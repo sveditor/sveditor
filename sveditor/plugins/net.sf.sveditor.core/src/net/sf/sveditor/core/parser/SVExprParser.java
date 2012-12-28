@@ -900,8 +900,9 @@ public class SVExprParser extends SVParserBase {
 			return ret;
 		}
 		if (fLexer.peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~") ||
-				(fAssertionExpr.peek() && fLexer.peekOperator("*"))) {
-			String op = fLexer.readOperator();
+				(fAssertionExpr.peek() && 
+						(fLexer.peekOperator("*") || fLexer.peekKeyword("not")))) {
+			String op = fLexer.eatToken();
 			SVDBUnaryExpr ret = new SVDBUnaryExpr(op, unaryExpression());
 			
 			if (fDebugEn) {debug("<-- unaryExpression " + op);}
