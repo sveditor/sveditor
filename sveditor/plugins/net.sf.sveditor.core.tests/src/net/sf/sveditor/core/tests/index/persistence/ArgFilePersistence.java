@@ -237,7 +237,7 @@ public class ArgFilePersistence extends TestCase
 
 	public void testOvmWarningUnbalancedParen() throws DBFormatException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String testname = "testOvmWarningUnbalancedParen";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
