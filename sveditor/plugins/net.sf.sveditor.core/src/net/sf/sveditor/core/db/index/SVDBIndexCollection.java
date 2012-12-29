@@ -652,6 +652,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				ret.addIterable(index.getFileList(new NullProgressMonitor()));
 			}
 		}
+
 		Set<SVDBIndexCollection>	already_searched = new HashSet<SVDBIndexCollection>();
 		getFileList(ret, already_searched, false);
 		
@@ -775,10 +776,12 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 
 	private void getFileList(
 			StringIterableIterator 			ret, 
-			Set<SVDBIndexCollection> 	already_searched,
+			Set<SVDBIndexCollection> 		already_searched,
 			boolean							search_local) {
 		if (!already_searched.contains(this)) {
 			already_searched.add(this);
+		} else {
+			return;
 		}
 		
 		if (search_local) {
@@ -793,8 +796,13 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		if (fProjectRefProvider != null) {
 			for (String ref : fProjectRefs) {
 				SVDBIndexCollection mgr_t = fProjectRefProvider.resolveProjectRef(ref);
+				if (!already_searched.contains(mgr_t)) {
+					already_searched.add(mgr_t);
+				} else {
+					continue;
+				}
 				if (mgr_t != null && !already_searched.contains(mgr_t)) {
-					ret.addIterable(mgr_t.getFileList(new NullProgressMonitor()));
+					mgr_t.getFileList(ret, already_searched, search_local);
 				}
 			}
 		}

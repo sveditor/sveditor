@@ -63,11 +63,14 @@ public class TestCrossIndexReferences extends TestCase {
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
-		assertEquals(0, CoreReleaseTests.getErrors().size());
+		StringBuilder sb = new StringBuilder();
+		for (Exception err : CoreReleaseTests.getErrors()){
+			sb.append(err.getMessage() + " ");
+		}
+		assertEquals(sb.toString(), 0, CoreReleaseTests.getErrors().size());
 	}
 
 	public void testBasicArgFileIndexCrossRef() throws CoreException {
-		String testname = "testBasicArgFileIndexCrossRef";
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(
@@ -95,7 +98,7 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
@@ -110,7 +113,6 @@ public class TestCrossIndexReferences extends TestCase {
 	}
 	
 	public void testCircularArgFileIndexCrossRef() throws CoreException {
-		String testname = "testCircularArgFileIndexCrossRef";
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(
@@ -142,7 +144,7 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
@@ -157,7 +159,6 @@ public class TestCrossIndexReferences extends TestCase {
 	}
 
 	public void testIteratorCircularArgFileIndexCrossRef() throws CoreException {
-		String testname = "testIteratorCircularArgFileIndexCrossRef";
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(
@@ -189,7 +190,7 @@ public class TestCrossIndexReferences extends TestCase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
+		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
 		
 		ISVDBItemIterator it = p2_index.getItemIterator(new NullProgressMonitor());

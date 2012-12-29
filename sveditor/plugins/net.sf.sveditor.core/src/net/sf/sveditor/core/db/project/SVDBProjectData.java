@@ -43,31 +43,38 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private IProject								fProject;
-	private IPath 									fSVProjFilePath;
 	private SVProjectFileWrapper 					fFileWrapper;
 	private SVDBIndexCollection						fIndexCollection;
 	private String									fProjectName;
 	private LogHandle								fLog;
 	private List<ISVDBProjectSettingsListener>		fListeners;
 
-	public SVDBProjectData(
-			IProject					project,
-			SVProjectFileWrapper 		wrapper, 
-			IPath 						projfile_path) {
+	public SVDBProjectData(IProject	project) {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fProject = project;
 		fLog = LogFactory.getLogHandle("SVDBProjectData");
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project.getName();
-		fSVProjFilePath = projfile_path;
 		
 		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
+	
+		IFile svproject = project.getFile(".svproject");
 		
+		SVProjectFileWrapper wrapper;
+		
+		if (svproject.exists()) {
+			wrapper = readProjectFile(svproject);
+		} else {
+			// Create defaults
+			wrapper = new SVProjectFileWrapper();
+			SVDBProjectManager.setupDefaultProjectFile(wrapper);
+		}
+
+		// Initialize to null, so initial setup is performed
 		fFileWrapper = null;
 		setProjectFileWrapper(wrapper, false);
 	}
@@ -112,16 +119,26 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		
 		return fIndexCollection;
 	}
-
-	public void refreshProjectFile() {
+	
+	private SVProjectFileWrapper readProjectFile(IFile svproject) {
+		SVProjectFileWrapper wrapper = null;
+		
 		try {
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-					fSVProjFilePath);
-			InputStream in = file.getContents();
-
-			fFileWrapper = new SVProjectFileWrapper(in);
+			svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+			InputStream in = svproject.getContents();
+			wrapper = new SVProjectFileWrapper(in);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	
+		return wrapper;
+	}
+
+	public void refreshProjectFile() {
+		SVProjectFileWrapper wrapper = readProjectFile(fProject.getFile(".svproject"));
+		
+		if (wrapper != null) {
+			fFileWrapper = wrapper;
 		}
 	}
 
@@ -146,11 +163,21 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		
 		fFileWrapper = w;
 		
+		// Only write settings to the filesystem
+		// if they are non-default values
+		if (set_contents) {
+			SVProjectFileWrapper default_settings = new SVProjectFileWrapper();
+			SVDBProjectManager.setupDefaultProjectFile(default_settings);
+			
+			if (default_settings.equals(w)) {
+				set_contents = false;
+			}
+		}
+		
 		if (set_contents) {
 			try {
-				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(
-						fSVProjFilePath);
-
+				IFile file = fProject.getFile(".svproject");
+				
 				file.refreshLocal(IResource.DEPTH_ONE, null);
 
 				ByteArrayOutputStream out = new ByteArrayOutputStream();

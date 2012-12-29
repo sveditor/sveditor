@@ -29,12 +29,13 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
+public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel {
 	private ISVDBIndexCache					fIndexCache;
 	private Map<String, SVDBMacroDef>		fMacroCache;
 	private Set<String>						fMissingIncludes;
@@ -268,7 +269,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider {
 							}
 						}
 					} else {
-						fLog.error("Failed to find \"" + SVDBItem.getName(it) + "\" in this-file-tree");
+						fLog.debug(LEVEL_MIN, "Failed to find \"" + SVDBItem.getName(it) + "\" in this-file-tree");
 						fMissingIncludes.add(it_leaf);
 						if (fDebugEn) {
 							for (String inc_s : context.getIncludedFiles()) {

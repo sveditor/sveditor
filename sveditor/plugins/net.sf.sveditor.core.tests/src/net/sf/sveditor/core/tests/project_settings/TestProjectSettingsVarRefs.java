@@ -5,14 +5,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
@@ -22,7 +20,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -34,45 +32,21 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-public class TestProjectSettingsVarRefs extends TestCase {
-	private File				fTmpDir;
-	private IProject			fProject;
+public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 	
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		File db = new File(fTmpDir, "db");
-		assertTrue(db.mkdirs());
-		rgy.init(new TestIndexCacheFactory(db));
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		} 
-	}
-
 	public void testArgFileWorkspaceRelRef() throws CoreException {
 		LogHandle log = LogFactory.getLogHandle(getName());
 		SVCorePlugin.getDefault().enableDebug(true);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
 				"/data/argfile_projvar_reference/workspace_rel_argfile_ref",
 				fTmpDir);
 		
-		fProject = TestUtils.importProject(new File(fTmpDir, "workspace_rel_argfile_ref"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		IProject project = TestUtils.importProject(new File(fTmpDir, "workspace_rel_argfile_ref"));
+		addProject(project);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
 		
@@ -80,13 +54,13 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		
 		InputStream in = null;
 
-		IFile parameters_sv = root.getFile(new Path("/" + fProject.getName() + "/top_dir/parameters.sv"));
+		IFile parameters_sv = root.getFile(new Path("/" + project.getName() + "/top_dir/parameters.sv"));
 		in = parameters_sv.getContents();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		List<SVDBSearchResult<SVDBFile>> result = index_collection.findFile(
-				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv");
+				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv");
 		
 		IndexTestUtils.assertNoErrWarn(log, index_collection);
 		
@@ -94,13 +68,10 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		assertEquals(1, result.size());
 		
 		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
-				"${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv", markers).second();
+				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv", markers).second();
 		
 		assertNotNull(file);
 		assertEquals(0, markers.size());
-		assertEquals(0, CoreReleaseTests.getErrors().size());
-		
-		LogFactory.removeLogHandle(log);
 	}
 
 	public void testResourceVarProjVarRef() throws CoreException {
@@ -115,8 +86,9 @@ public class TestProjectSettingsVarRefs extends TestCase {
 				"/data/argfile_projvar_reference/rvar_rel_argfile_ref",
 				fTmpDir);
 		
-		fProject = TestUtils.importProject(new File(fTmpDir, "rvar_rel_argfile_ref"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		IProject project = TestUtils.importProject(new File(fTmpDir, "rvar_rel_argfile_ref"));
+		addProject(project);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
 		
@@ -124,13 +96,13 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	
 		InputStream in = null;
 
-		IFile parameters_sv = root.getFile(new Path("/" + fProject.getName() + "/top_dir/parameters.sv"));
+		IFile parameters_sv = root.getFile(new Path("/" + project.getName() + "/top_dir/parameters.sv"));
 		in = parameters_sv.getContents();
 		
-		String target_file = "${workspace_loc}/" + fProject.getName() + "/top_dir/parameters.sv";
+		String target_file = "${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv";
 		
 		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
-				target_file, fProject.getName(), false);
+				target_file, project.getName(), false);
 		
 		assertNotNull(result);
 		log.debug("ISVDBIndex: " + result.first().getBaseLocation());
@@ -152,16 +124,15 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	public void testProjectDefine() throws CoreException {
 		String testname = "testProjectDefine";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-//		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
 		
-//		fProject = TestUtils.importProject(new File(fTmpDir, "arg_file_define_proj"));
-		fProject = TestUtils.createProject(testname,
+		IProject project = TestUtils.createProject(testname,
 				new File(fTmpDir, "arg_file_define_proj"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		addProject(project);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
 		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
@@ -180,14 +151,14 @@ public class TestProjectSettingsVarRefs extends TestCase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 //		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
 		
 //		fProject = TestUtils.importProject(new File(fTmpDir, "arg_file_define_proj"));
-		fProject = TestUtils.createProject(testname,
+		IProject project = TestUtils.createProject(testname,
 				new File(fTmpDir, "arg_file_define_proj"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		addProject(project);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
 		wrapper.addArgFilePath("${workspace_loc}/" + testname + "/arg_file_define_proj.f");
@@ -209,17 +180,14 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	}
 	
 	public void testProjectUndefined() throws CoreException {
-		String testname = "testProjectUndefined";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
 		
-		fProject = TestUtils.createProject("arg_file_define_proj",  
+		IProject project = TestUtils.createProject("arg_file_define_proj",  
 				new File(fTmpDir, "arg_file_define_proj"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 
 		/*
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
@@ -235,17 +203,14 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	}
 
 	public void testProjectDefine_1() throws CoreException {
-		String testname = "testProjectDefine_1";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/arg_file_define_proj_1", fTmpDir);
 		
-		fProject = TestUtils.createProject("arg_file_define_proj_1",  
+		IProject project = TestUtils.createProject("arg_file_define_proj_1",  
 				new File(fTmpDir, "arg_file_define_proj_1"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
 		wrapper.addArgFilePath("${workspace_loc}/arg_file_define_proj_1/arg_file_define_proj.f");
@@ -267,16 +232,13 @@ public class TestProjectSettingsVarRefs extends TestCase {
 	 * @throws CoreException
 	 */
 	public void testArgFilePathChange() throws CoreException {
-		String testname = "testArgFilePathChange";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
-		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS("/data/project_settings_proj1", fTmpDir);
 		
-		fProject = TestUtils.importProject(new File(fTmpDir, "project_settings_proj1"));
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		IProject project = TestUtils.importProject(new File(fTmpDir, "project_settings_proj1"));
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		SVDBIndexCollection index_collection = null;
 		SVProjectFileWrapper fw;
 		

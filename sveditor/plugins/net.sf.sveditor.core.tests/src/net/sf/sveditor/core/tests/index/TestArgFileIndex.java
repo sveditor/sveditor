@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -33,7 +32,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -43,52 +42,20 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestArgFileIndex extends TestCase {
+public class TestArgFileIndex extends SVTestCaseBase {
 	
-	private File				fTmpDir;
-	private IProject			fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-		super.tearDown();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
-	}
-
 	public void testIncludePathPriority() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testIncludePathPriority");
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		fProject = TestUtils.createProject("project");
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
 		
-		utils.copyBundleDirToWS("/data/arg_file_multi_include/", fProject);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
+		utils.copyBundleDirToWS("/data/arg_file_multi_include/", project);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
@@ -123,16 +90,11 @@ public class TestArgFileIndex extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(true);
 		
 		final IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/arg_file_libpath/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
@@ -159,6 +121,7 @@ public class TestArgFileIndex extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
 		
 		IFile file1_f = project_dir.getFile("file1.f");
 		TestUtils.copy(
@@ -182,7 +145,6 @@ public class TestArgFileIndex extends TestCase {
 				module_2_sv);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
@@ -205,6 +167,7 @@ public class TestArgFileIndex extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
 		
 		
 		IFile file1_f = project_dir.getFile("file1.f");
@@ -237,7 +200,6 @@ public class TestArgFileIndex extends TestCase {
 				cls2_svh);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
@@ -269,21 +231,12 @@ public class TestArgFileIndex extends TestCase {
 		
 		File project_dir_f = new File(fTmpDir, "testArgFileIncludePath_project");
 		
-		if (project_dir_f.exists()) {
-			TestUtils.delete(project_dir_f);
-		}
-	
-		fProject = TestUtils.createProject("testArgFileIncludePath_project", project_dir_f);
-		final IProject project_dir = fProject;
+		final IProject project_dir = TestUtils.createProject("testArgFileIncludePath_project", project_dir_f);
+		addProject(project_dir);
+
 		utils.copyBundleDirToWS("/data/arg_file_include_path/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
@@ -325,16 +278,11 @@ public class TestArgFileIndex extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject("testEnvVarExpansion_project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/arg_file_env_var/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/testEnvVarExpansion_project/arg_file_env_var/arg_file_env_var.f", 
@@ -396,18 +344,12 @@ public class TestArgFileIndex extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 	
-		fProject = TestUtils.createProject(testname + "_project");
-		final IProject project_dir = fProject;
+		final IProject project_dir = TestUtils.createProject(testname + "_project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/multi_arg_file/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file/multi_arg_file.f", 
@@ -428,8 +370,9 @@ public class TestArgFileIndex extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 	
-		fProject = TestUtils.createProject(testname + "_project");
-		final IProject project_dir = fProject;
+		final IProject project_dir = TestUtils.createProject(testname + "_project");
+		addProject(project_dir);
+
 		File proj_subdir = new File(fTmpDir, "proj_subdir");
 		assertTrue(proj_subdir.mkdirs());
 		
@@ -443,13 +386,7 @@ public class TestArgFileIndex extends TestCase {
 			assertTrue(utils.deleteWSFile(project_dir, "multi_arg_file_env_var/"));
 		}
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file_env_var/multi_arg_file.f", 
