@@ -423,7 +423,6 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_multi_include_single_root/arg_file_multi_include.f", 

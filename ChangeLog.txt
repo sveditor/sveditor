@@ -1,13 +1,13 @@
 
 -- 1.0.9 Release --
 
-------------------------------------------------------------------------------
--- 1.0.8 Release --
-
 - #(enh) - Argument-File Index now adds errors for missing root argument files
   to the project on which they are specified.
   
 - #(enh) - Initial work on argument-file parse and error propagation
+
+------------------------------------------------------------------------------
+-- 1.0.8 Release --
 
 - #(nobug) - Add support for assertion unary 'not'
 
