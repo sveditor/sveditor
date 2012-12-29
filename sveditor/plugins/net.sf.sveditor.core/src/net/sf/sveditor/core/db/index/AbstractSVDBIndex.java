@@ -882,6 +882,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void addFile(String path) {
+		fLog.debug("addFile: " + path);
 		synchronized (fCache) {
 			fCache.addFile(path);
 			fCache.setLastModified(path, getFileSystemProvider().getLastModifiedTime(path));
@@ -900,6 +901,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	}
 
 	protected void clearFilesList() {
+		fLog.debug("clearFilesList");
 		fCache.clear(new NullProgressMonitor());
 		fFileDirs.clear();
 	}

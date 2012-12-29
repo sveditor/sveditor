@@ -125,13 +125,14 @@ public class SVUiPlugin extends AbstractUIPlugin
 		// add console listener
 		LogFactory.getDefault().addLogListener(this);
 		
-		getPreferenceStore().addPropertyChangeListener(this);
-		
-		SVCorePlugin.getDefault().setDebugLevel(getDebugLevel(
-				getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
-		
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
-				getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
+		// Don't change settings if we're in test mode
+		if (!SVCorePlugin.getTestMode()) {
+			getPreferenceStore().addPropertyChangeListener(this);
+			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel(
+					getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
+			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
+					getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
+		}
 		
 		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
 		rgy.addPathProvider(this);
@@ -142,7 +143,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 	}
 	
 	public static IWorkbenchPage getActivePage() {
-		return getDefault().getActivePage() ;
+		return null;
+//		return getDefault().getActivePage() ;
 	}
 	
 	private void update_template_paths() {

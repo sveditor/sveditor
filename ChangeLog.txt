@@ -11,6 +11,9 @@
   
 - #(nobug) - Remove a stack-trace print that occurred when an expression
   traversal failed. Convert to a debug message.  
+  
+- #(3148929) - .svproject files are now only created when the content
+  is different than the default content.
 
 ------------------------------------------------------------------------------
 -- 1.0.7 Release --

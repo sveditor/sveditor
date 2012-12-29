@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.core.db.project;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +21,7 @@ import java.util.WeakHashMap;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
@@ -92,6 +87,7 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		if (fProjectMap.containsKey(proj.getFullPath())) {
 			ret = fProjectMap.get(proj.getFullPath());
 		} else {
+			/*
 			IFile svproject;
 			SVProjectFileWrapper f_wrapper = null;
 			if ((svproject = proj.getFile(".svproject")).exists()) {
@@ -131,8 +127,9 @@ public class SVDBProjectManager implements IResourceChangeListener {
 					e.printStackTrace();
 				}
 			}
+			 */
 			
-			ret = new SVDBProjectData(proj, f_wrapper, svproject.getFullPath());
+			ret = new SVDBProjectData(proj);
 			
 			fProjectMap.put(proj.getFullPath(), ret);
 		}
@@ -146,7 +143,7 @@ public class SVDBProjectManager implements IResourceChangeListener {
 	 * 
 	 * @param file_wrapper
 	 */
-	private static void setupDefaultProjectFile(SVProjectFileWrapper file_wrapper) {
+	public static void setupDefaultProjectFile(SVProjectFileWrapper file_wrapper) {
 		List<SVDBPluginLibDescriptor> lib_d = SVCorePlugin.getDefault().getPluginLibList();
 		
 		for (SVDBPluginLibDescriptor d : lib_d) {

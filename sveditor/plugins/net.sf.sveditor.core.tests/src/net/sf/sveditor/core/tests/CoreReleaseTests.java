@@ -41,7 +41,6 @@ import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
 import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
 import net.sf.sveditor.core.tests.templates.TemplateTests;
 import net.sf.sveditor.core.tests.templates.sim.TemplateSimTests;
-import net.sf.sveditor.core.tests.templates.sim.TestUVMTemplates;
 
 public class CoreReleaseTests extends TestSuite {
 	

@@ -50,7 +50,7 @@ public class TestUVMTemplates extends TestCase {
 	}
 
 	private void core_testUVMAgent(String sim) throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		TemplateRegistry rgy = new TemplateRegistry(true);
 		TemplateInfo tmpl = rgy.findTemplate("org.uvmworld.uvm.uvm_agent");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

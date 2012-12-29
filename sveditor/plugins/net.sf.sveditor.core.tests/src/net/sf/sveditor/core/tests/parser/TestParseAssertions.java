@@ -86,7 +86,7 @@ public class TestParseAssertions extends TestCase {
 	}
 
 	public void testPropertyNot() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = getName();
 		String doc =
 			"module t;\n" +
