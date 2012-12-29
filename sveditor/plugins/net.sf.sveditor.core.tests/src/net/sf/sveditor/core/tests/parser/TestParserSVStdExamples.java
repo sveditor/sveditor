@@ -73,14 +73,14 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 	
 	public void test_12_4_2_unique_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest(getName(), 
 				"/data/parser/12.4.2_1.svh",
 				new String[] {"c", "foo"});
 	} 
 
 	public void test_12_4_2_unique_2() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest(getName(), 
 				"/data/parser/12.4.2_2.svh",
 				new String[] {"c", "foo"});

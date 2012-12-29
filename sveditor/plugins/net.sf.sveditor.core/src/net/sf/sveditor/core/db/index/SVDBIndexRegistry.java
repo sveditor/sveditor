@@ -42,13 +42,13 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  *
  */
 public class SVDBIndexRegistry implements ILogLevel {
-	public static final String							GLOBAL_PROJECT = "GLOBAL";
+	public static final String								GLOBAL_PROJECT = "GLOBAL";
 	
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
 	private SVDBIndexCollection								fGlobalIndexMgr;
 	private List<ISVDBIndex>								fIndexList;
 	private ISVDBIndexCacheFactory							fCacheFactory;
-	private boolean										fAutoRebuildEn;
+	private boolean											fAutoRebuildEn;
 	private LogHandle										fLog;
 
 	/**
