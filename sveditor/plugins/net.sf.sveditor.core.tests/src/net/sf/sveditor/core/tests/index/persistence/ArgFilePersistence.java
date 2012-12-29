@@ -40,10 +40,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -68,6 +66,7 @@ public class ArgFilePersistence extends TestCase
 		
 		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
+		SVCorePlugin.setTestMode();
 	}
 	
 	@Override
@@ -256,6 +255,7 @@ public class ArgFilePersistence extends TestCase
 		assertTrue(test_proj.isDirectory());
 
 		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
+//		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
@@ -270,6 +270,16 @@ public class ArgFilePersistence extends TestCase
 				"${workspace_loc}/ovm_warning_unbalanced_paren/ovm_warning_unbalanced_paren.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
+		log.debug("--> loadIndex");
+		target_index.loadIndex(new NullProgressMonitor());
+		log.debug("<-- loadIndex");
+		
+		log.debug("--> fileList");
+		Iterable<String> file_list = target_index.getFileList(new NullProgressMonitor());
+		for (String file : file_list) {
+			log.debug("File: " + file);
+		}
+		log.debug("<-- fileList");
 		
 		String path = "${workspace_loc}/ovm_warning_unbalanced_paren/ovm_warning_unbalanced_paren.svh";
 		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
@@ -330,6 +340,7 @@ public class ArgFilePersistence extends TestCase
 		assertTrue(test_proj.isDirectory());
 
 		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
+//		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {

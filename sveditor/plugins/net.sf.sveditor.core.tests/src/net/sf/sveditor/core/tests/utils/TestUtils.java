@@ -25,12 +25,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -61,6 +61,17 @@ public class TestUtils {
 	public static File createTempDir() {
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 		File ret = null;
+	
+		UUID uuid = UUID.randomUUID();
+		ret = new File(tmpdir, 
+				"sveditor_tmp_" + uuid.toString());
+		
+		TestCase.assertFalse(ret.exists());
+		TestCase.assertTrue(ret.mkdirs());
+	
+		return ret;
+
+		/*
 
 		for (int i=0; i<10000; i++) {
 			File try_dir = new File(tmpdir, "sveditor_tmp_" + i);
@@ -73,8 +84,8 @@ public class TestUtils {
 				break;
 			}
 		}
-		
 		return ret;
+		 */
 	}
 	
 	public static void unpackZipToFS(
@@ -169,6 +180,24 @@ public class TestUtils {
 				}
 			}
 		}
+	}
+
+	public static boolean safe_delete(File item) {
+		if (item.isDirectory()) {
+			for (File i : item.listFiles()) {
+				if (!safe_delete(i)) {
+					return false;
+				}
+			}
+		}
+		
+		if (item.exists()) {
+			if (!item.delete()) {
+				return false;
+			} 
+		}
+		
+		return true;
 	}
 	
 	public static void copy(ByteArrayOutputStream in, File out) {
@@ -399,11 +428,7 @@ public class TestUtils {
 			for (String line : in) {
 				boolean have_match = false;
 				
-				System.out.println("line: " + line);
-				
 				for (Pattern p : or_pattern_list) {
-					System.out.println("  match against \"" + p.pattern() + "\": " + 
-							p.matcher(line).matches());
 					if (p.matcher(line).matches()) {
 						have_match = true;
 						break;
@@ -454,9 +479,6 @@ public class TestUtils {
 			String pattern = patterns[i].substring(1, end_pattern_idx);
 			int end_replace_idx = patterns[i].indexOf(first_ch, end_pattern_idx+1);
 			String replace = patterns[i].substring(end_pattern_idx+1, end_replace_idx);
-			
-			System.out.println("Search: \"" + pattern + "\"");
-			System.out.println("Replace: \"" + replace + "\"");
 			
 			pattern_list[i] = Pattern.compile(pattern);
 			replace_list[i] = replace;

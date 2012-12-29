@@ -1740,7 +1740,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testMacroModuleDecl() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"`ifndef PRC_XTC_CFG\n" +
 			" `define PRC_XTC_CFG prclx4_1_40\n" +
