@@ -19,7 +19,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -37,40 +36,14 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class SrcCollectionBasics extends TestCase {
-	
-	private File					fTmpDir;
-	private IProject				fProject;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
-	}
+public class SrcCollectionBasics extends SVTestCaseBase {
 	
 	public void testFindSourceRecursePkg() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -86,7 +59,6 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_pkg/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_pkg");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -142,14 +114,9 @@ public class SrcCollectionBasics extends TestCase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			project_dir.delete();
-		}
-		
 		utils.copyBundleDirToFS("/project_dir_src_collection_nopkg/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_nopkg");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -196,7 +163,6 @@ public class SrcCollectionBasics extends TestCase {
 		assertNotNull("located def_task", def_task);
 		assertEquals("class1", SVDBItem.getName(class1));
 		
-		// rgy.save_state();
 		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
@@ -214,14 +180,9 @@ public class SrcCollectionBasics extends TestCase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			TestUtils.delete(project_dir);
-		}
-		
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -290,14 +251,9 @@ public class SrcCollectionBasics extends TestCase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			TestUtils.delete(project_dir);
-		}
-		
 		utils.copyBundleDirToFS("/project_dir_src_collection_module_missing_inc/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module_missing_inc");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -364,15 +320,9 @@ public class SrcCollectionBasics extends TestCase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			TestUtils.delete(project_dir);
-		}
-		
 		utils.copyBundleDirToFS("/data/basic_module_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
-		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_module_project");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -421,15 +371,9 @@ public class SrcCollectionBasics extends TestCase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			TestUtils.delete(project_dir);
-		}
-		
 		utils.copyBundleDirToFS("/data/basic_interface_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
-		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_interface_project");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -485,8 +429,6 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_program_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
-		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "basic_program_project");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -542,7 +484,6 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/project_dir_src_collection_module/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
 		File path = new File(project_dir, "project_dir_src_collection_module");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -630,20 +571,21 @@ public class SrcCollectionBasics extends TestCase {
 			sub2.delete();
 		}
 		
-		fProject = TestUtils.createProject("a", new File(sub3, "a"));
+		IProject project = TestUtils.createProject("a", new File(sub3, "a"));
+		addProject(project);
+
 
 		String data_dir = "/project_dir_src_collection_ws_ext_inc";
-		utils.copyBundleFileToWS(data_dir + "/top.v", fProject);
+		utils.copyBundleFileToWS(data_dir + "/top.v", project);
 		utils.copyBundleFileToFS(data_dir + "/xx.svh", sub3);
 		utils.copyBundleFileToFS(data_dir + "/xxx.svh", sub2);
 		utils.copyBundleFileToFS(data_dir + "/xxxx.svh", sub1);
 		utils.copyBundleFileToFS(data_dir + "/xxxxx.svh", testdir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(null));
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-				fProject.getName(), "${workspace_loc}/a", 
+				project.getName(), "${workspace_loc}/a", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.setGlobalDefine("TEST_MODE", "1");
 		
@@ -683,8 +625,6 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/caps_extension_files/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestIndexCacheFactory(project_dir));
-		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		File path = new File(project_dir, "caps_extension_files");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -740,9 +680,9 @@ public class SrcCollectionBasics extends TestCase {
 		utils.copyBundleDirToFS("/data/index/src_collection_data/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
 		
-		fProject = TestUtils.createProject("project", project_dir);
+		IProject project = TestUtils.createProject("project", project_dir);
+		addProject(project);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				project_dir.getName(), 
