@@ -1643,7 +1643,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		path = SVFileUtils.normalize(path);
 
-		SVDBFileTree file_tree = findFileTree(path);
+		SVDBFileTree file_tree = findFileTree(path, false);
 
 		if (file_tree == null) {
 			if (getFileSystemProvider().fileExists(path)) {
@@ -1652,7 +1652,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				// add the file, and try again
 				invalidateIndex(new NullProgressMonitor(), "Failed to find FileTree for " + path, false);
 				addFile(path, true);
-				file_tree = findFileTree(path);
+				file_tree = findFileTree(path, false);
 				
 				// If auto-rebuild is disabled, then we do 
 				// a bit more work to create a reasonable representation
@@ -1838,9 +1838,9 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		return file;
 	}
 
-	public synchronized SVDBFileTree findFileTree(String path) {
+	public synchronized SVDBFileTree findFileTree(String path, boolean is_argfile) {
 		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
-		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path, false);
+		SVDBFileTree ft = fCache.getFileTree(new NullProgressMonitor(), path, is_argfile);
 
 		return ft;
 	}
@@ -1944,7 +1944,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 				file,
 				false);
 	
-		SVDBFileTree ft = findFileTree(file.getFilePath());
+		SVDBFileTree ft = findFileTree(file.getFilePath(), false);
 		if (ft != null) {
 			cacheDeclarations(
 					processed_files,
@@ -2276,7 +2276,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		// If this is a pre-processor item, then return the FileTree view of the file
 		if (item.isFileTreeItem()) {
-			SVDBFileTree ft = findFileTree(item.getFilename());
+			SVDBFileTree ft = findFileTree(item.getFilename(), false);
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}
@@ -2295,7 +2295,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 
 		// If this is a pre-processor item, then return the FileTree view of the file
 		if (item.isFileTreeItem()) {
-			SVDBFileTree ft = findFileTree(item.getFilename());
+			SVDBFileTree ft = findFileTree(item.getFilename(), false);
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}
@@ -2309,7 +2309,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 	public SVPreProcessor createPreProcScanner(String path) {
 		path = SVFileUtils.normalize(path);
 		InputStream in = getFileSystemProvider().openStream(path);
-		SVDBFileTree ft = findFileTree(path);
+		SVDBFileTree ft = findFileTree(path, false);
 
 		if (ft == null) {
 			// Map<String, SVDBFileTree> m = getFileTreeMap(new

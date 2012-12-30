@@ -102,7 +102,8 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		
 		String resolved_argfile_path = getResolvedBaseLocation();
 		if (getFileSystemProvider().fileExists(resolved_argfile_path)) {
-			processArgFile(new SubProgressMonitor(monitor, 4), null, getResolvedBaseLocation());
+			processArgFile(new SubProgressMonitor(monitor, 4), 
+					null, null, getResolvedBaseLocation());
 		} else {
 			String msg = "Argument file \"" + getBaseLocation() + "\" (\"" + 
 					getResolvedBaseLocation() + "\") does not exist";
@@ -210,7 +211,11 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		return ret;
 	}
 	
-	private void processArgFile(IProgressMonitor monitor, Set<String> processed_paths, String path) {
+	private void processArgFile(
+			IProgressMonitor	monitor, 
+			SVDBFileTree		parent,
+			Set<String> 		processed_paths, 
+			String 				path) {
 		path = SVFileUtils.normalize(path);
 
 		if (processed_paths == null) {
@@ -218,7 +223,13 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		}
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
+		SVDBFileTree ft = new SVDBFileTree(path);
 		SVDBFile argfile = parseArgFile(path, processed_paths, markers);
+		
+		if (parent != null) {
+			ft.addIncludedByFile(parent.getFilePath());
+			parent.addIncludedFile(path);
+		}
 	
 		synchronized (getCache()) {
 			getCache().setFile(path, argfile, true);
@@ -235,7 +246,8 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					// TODO: handle monitor
 					if (getFileSystemProvider().fileExists(sub_path)) {
 						if (!processed_paths.contains(sub_path)) {
-							processArgFile(new NullProgressMonitor(), processed_paths, sub_path);
+							processArgFile(new NullProgressMonitor(), 
+									ft, processed_paths, sub_path);
 						} else {
 							SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 									"Recursive inclusion of file \"" + path + "\" (" + sub_path + ")");
@@ -291,6 +303,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			// Save the markers, which might have been updated
 			synchronized (getCache()) {
 				getCache().setMarkers(path, markers, true);
+				getCache().setFileTree(path, ft, true);
 			}
 			
 			// Propagate markers to filesystem

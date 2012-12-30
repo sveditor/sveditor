@@ -27,6 +27,7 @@ public class SVDBFileOverrideIndex
 	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel {
 	private SVDBFile				fFile;
 	private SVDBFile				fFilePP;
+	private SVDBFileTree			fFileTree;
 	private ISVDBIndex				fIndex;
 	private ISVDBIndexIterator		fSuperIterator;
 	private List<SVDBMarker>		fMarkers;
@@ -226,6 +227,15 @@ public class SVDBFileOverrideIndex
 	
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		return findFile(path);
+	}
+	
+	public SVDBFileTree findFileTree(String path, boolean is_argfile) {
+		// TODO: probably incorrect
+		if (fFile.getFilePath().equals(path)) {
+			return fFileTree;
+		} else {
+			return null;
+		}
 	}
 
 	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {

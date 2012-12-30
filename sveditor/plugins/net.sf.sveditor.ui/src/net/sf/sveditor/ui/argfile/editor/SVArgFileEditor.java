@@ -6,30 +6,39 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.argfile.parser.SVArgFileParser;
+import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
+import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
-import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IMenuManager;
@@ -52,12 +61,11 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	private SVArgFileCodeScanner			fCodeScanner;
 	private LogHandle						fLog;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
-	private boolean						fPendingUpdateSVDBFile;
+	private boolean							fPendingUpdateSVDBFile;
 	private String							fFile;
 	private SVDBFile						fSVDBFile;
 	private SVArgFileOutlinePage			fOutline;
 	private ISVDBFileSystemProvider			fFSProvider;
-
 	
 	public SVArgFileEditor() {
 		fLog = LogFactory.getLogHandle("SVArgFileEditor");
@@ -150,6 +158,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		} else {
 			fPendingUpdateSVDBFile = true;
 		}
+		
+
 		/** TODO:
 		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fIndexMgr);
 	
@@ -272,10 +282,80 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		
-			// TODO: locate actual base location
+
+			// Search for the index to which this file belongs
+			String project = null;
+			String root_file = null;
+			
+			if (fFile.startsWith("${workspace_loc}")) {
+				String fullpath = fFile.substring("${workspace_loc}".length());
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				
+				IFile file = root.getFile(new Path(fullpath));
+				
+				if (file != null) {
+					project = file.getProject().getName();
+				}
+			}
+			
+			Tuple<ISVDBIndex, SVDBIndexCollection> result = 
+					SVDBIndexUtil.findArgFileIndex(fFile, project);
+			
+			if (result != null) {
+				// Located the index to which this arg-file belongs
+				ISVDBIndex index = result.first();
+				
+				SVDBFileTree ft = index.findFileTree(fFile, true);
+				
+				// Search up to find the root filetree
+				
+				if (ft != null) {
+					while (ft.getIncludedByFiles().size() > 0) {
+						String ft_path = ft.getIncludedByFiles().get(0);
+						SVDBFileTree ft_next = index.findFileTree(ft_path, true);
+
+						if (ft_next == null) {
+							break;
+						} else {
+							ft = ft_next;
+						}
+					}
+				} else {
+					System.out.println("Failed to find path " + fFile + " in index " + index.getBaseLocation());
+				}
+			
+				if (ft != null) {
+					root_file = ft.getFilePath();
+				}
+			}
+
 			String base_location = SVFileUtils.getPathParent(fFile);
 			String resolved_base_location = base_location;
+			ISVArgFileVariableProvider var_provider = null;
+			IProject var_provider_project = null;
+			
+			if (root_file != null) {
+				base_location = SVFileUtils.getPathParent(root_file);
+				resolved_base_location = base_location;
+				
+//				System.out.println("root_file=" + root_file);
+				
+				if (root_file.startsWith("${workspace_loc}")) {
+					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+					String root_path = root_file.substring("${workspace_loc}".length());
+//					System.out.println("root_path=" + root_path);
+					IFile root_path_file = root.getFile(new Path(root_path));
+					
+					if (root_path_file != null) {
+						var_provider_project = root_path_file.getProject();
+					}
+				}
+			}
+
+//			System.out.println("var_provider_project=" + var_provider_project);
+			var_provider = SVCorePlugin.getVariableProvider(var_provider_project);
+			SVArgFilePreProcessor pp = new SVArgFilePreProcessor(sin, fFile, var_provider);
+			SVArgFilePreProcOutput pp_out = pp.preprocess();
 			
 			SVArgFileParser p = new SVArgFileParser(
 					base_location,
@@ -283,8 +363,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 					fFSProvider);
 		
 			SVArgFileLexer l = new SVArgFileLexer();
-			l.init(null, new InputStreamTextScanner(sin, fFile));
-			p.init(l, fFile);
+			l.init(null, pp_out);
 			
 			p.init(l, fFile);
 
@@ -296,29 +375,6 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			addErrorMarkers(markers);
 			
 			fSVDBFile = file;
-			
-			/*
-			fLog.debug("--> re-parse file");
-			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
-					getProgressMonitor(), sin, fSVDBFilePath, markers);
-			fSVDBFile.clearChildren();
-			fLog.debug("<-- re-parse file");
-			
-			if (new_in != null) {
-				fSVDBFile = new_in.second();
-				fSVDBFilePP = new_in.first();
-				if (fSVDBIndex != null) {
-					fSVDBIndex.setFile(fSVDBFile);
-					fSVDBIndex.setFilePP(fSVDBFilePP);
-				}
-
-				addErrorMarkers(markers);
-			}
-			 */
-
-			if (fOutline != null) {
-				fOutline.refresh();
-			}
 			
 			synchronized (SVArgFileEditor.this) {
 				fUpdateSVDBFileJob = null;

@@ -451,7 +451,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 	}
 	
-	
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
@@ -496,6 +495,24 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		} else {
 			return result.get(0).getIndex().getMarkers(path);
 		}
+	}
+	
+	public List<SVDBSearchResult<SVDBFileTree>> findFileTree(String path, boolean is_argfile) {
+		List<SVDBSearchResult<SVDBFileTree>> ret = new ArrayList<SVDBSearchResult<SVDBFileTree>>();
+		SVDBFileTree result;
+		
+		// Search the indexes in order
+		synchronized (fFileSearchOrder) {
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					if ((result = index.findFileTree(path, is_argfile)) != null) {
+						ret.add(new SVDBSearchResult<SVDBFileTree>(result, index));
+					}
+				}
+			}
+		}
+		
+		return ret;		
 	}
 	
 	public List<SVDBSearchResult<SVDBFile>> findFile(String path, boolean search_shadow) {

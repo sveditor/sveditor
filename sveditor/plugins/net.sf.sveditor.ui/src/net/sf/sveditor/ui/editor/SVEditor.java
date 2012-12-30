@@ -64,6 +64,9 @@ import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -111,7 +114,8 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
-	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, ISVDBIndexChangeListener {
+	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
+			ISVDBIndexChangeListener, IResourceChangeListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -267,6 +271,7 @@ public class SVEditor extends TextEditor
 				fFile = uri.getPath();
 			}
 		} else if (input instanceof IFileEditorInput) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
@@ -717,6 +722,9 @@ public class SVEditor extends TextEditor
 		// Remove handles to shadow index
 		fSVDBIndex = null;
 		fIndexMgr  = null;
+
+		// Remove the resource listener
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	
 	public SVSourceViewerConfiguration getSourceViewerConfig() {
@@ -1007,4 +1015,14 @@ public class SVEditor extends TextEditor
 			updateWordSelectionHighlight();
 		}
 	};
+
+	public void resourceChanged(IResourceChangeEvent event) {
+		if (event.getResource() != null && 
+				event.getResource().getFullPath().toOSString().equals(fFile)) {
+			// Re-parse the file and update markers if the file changes 
+			// outside the editor. 
+			updateSVDBFile(getDocument());
+		}
+	}
+	
 }
