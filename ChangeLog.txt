@@ -1,4 +1,7 @@
 
+-- 1.1.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.0.9 Release --
 
 - #(enh) - Major update to support for argument files. Argument files are
