@@ -1,6 +1,12 @@
 
 -- 1.0.9 Release --
 
+- #(enh) - Major update to support for argument files. Argument files are
+  now treated as first-class members of the index subsystem, enabling
+  tracking of errors from argument files. The argument-file editor 
+  now parses the argument file to show missing-file paths on-the-fly. 
+  The editor also supports navigation to referenced file paths.
+
 - #(enh) - Argument-File Index now adds errors for missing root argument files
   to the project on which they are specified.
   
