@@ -247,14 +247,16 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
+		/** Outline disabled for now
 		if (adapter.equals(IContentOutlinePage.class)) {
 			if (fOutline == null) {
 				fOutline = new SVArgFileOutlinePage(this);
 			}
 			return fOutline;
 		} else {
+		 */
 			return super.getAdapter(adapter);
-		}
+//		}
 	}
 
 	/**

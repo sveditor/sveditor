@@ -62,12 +62,12 @@ public class SVArgFileOutlinePage extends ContentOutlinePage
 	private SVDBFile					fSVDBFile;
 	private SVTreeContentProvider		fContentProvider;
 	private SVArgFileEditor				fEditor;
-	private boolean					fIgnoreSelectionChange = false;
+	private boolean						fIgnoreSelectionChange = false;
 	private ISVDBItemBase				fLastSelection;
 	private SVDBDefaultContentFilter	DefaultContentFilter;
 	private ViewerComparator			ViewerComapartor;
 	private LogHandle					fLog;
-	private boolean					fDebugEn;
+	private boolean						fDebugEn;
 	private SortAction					ToggleSort;
 	
 	public SVArgFileOutlinePage(SVArgFileEditor editor) {
