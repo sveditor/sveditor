@@ -1,8 +1,10 @@
 package net.sf.sveditor.core.tests.project_settings;
 
 import java.io.File;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -58,6 +60,8 @@ public class TestProjectSettingChanges extends TestCase {
 	}
 	
 	public void testRemoveErrorIndex() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		List<SVDBMarker> markers;
 		fProject = TestUtils.createProject("error_index");
 		
 		String error_argfile = 
@@ -99,7 +103,9 @@ public class TestProjectSettingChanges extends TestCase {
 		p_index.loadIndex(new NullProgressMonitor());
 		
 		// Ensure that we see errors
-		assertTrue(CoreReleaseTests.getErrors().size() > 0);
+//		assertTrue(CoreReleaseTests.getErrors().size() > 0);
+		markers = p_index.getMarkers("${workspace_loc}/error_index/error_argfile.f");
+		assertTrue((markers.size() > 0));
 	
 		// Now, update the index settings and ensure that 
 		// no errors are seen

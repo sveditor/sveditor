@@ -13,10 +13,8 @@
 package net.sf.sveditor.core.scanner;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
@@ -101,7 +99,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 					if (fWorkingSet.containsKey(ib_s)) {
 						ib = fWorkingSet.get(ib_s);
 					} else {
-						ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+						ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
 					}
 					if (ib == null) {
 						fLog.error("Failed to obtain path \"" + ib_s + "\" from the FileTree Cache");
@@ -170,7 +168,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 					if (fWorkingSet.containsKey(inc_s)) {
 						inc = fWorkingSet.get(inc_s);
 					} else {
-						inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
+						inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s, false);
 					}
 					 
 					debug_s(indent(fIndent) + "    searching included file \"" + ((inc !=null)?inc.getFilePath():"NULL") + "\"");
@@ -212,7 +210,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 				if (fWorkingSet.containsKey(is_s)) {
 					is = fWorkingSet.get(is_s);
 				} else {
-					is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s);
+					is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s, false);
 				}
 				
 				if (is == null) {
@@ -229,7 +227,7 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 							if (fWorkingSet.containsKey(ib_s)) {
 								ib = fWorkingSet.get(ib_s);
 							} else {
-								ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+								ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
 							}
 							if ((m = searchUp(boundary, ib, context, key)) != null) {
 								break;

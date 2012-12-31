@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBIndexIterator  */{
 	private SVDBFile				fFile;
+	private SVDBFileTree			fFileTree;
 	private SVDBFile				fPPFile;
 	Map<String, SVDBFile>			fFileMap;
 	
@@ -65,7 +66,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 
 	@Override
 	protected void discoverRootFiles(IProgressMonitor monitor) {
-		addFile(fFile.getFilePath());
+		addFile(fFile.getFilePath(), false);
 	}
 	
 	@Override
@@ -78,7 +79,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		// Do Nothing
 		cacheDeclarations(fFile);
 		cacheReferences(fFile);
-		getCache().setFile(fFile.getFilePath(), fFile);
+		getCache().setFile(fFile.getFilePath(), fFile, false);
 		return null;
 	}
 	
@@ -90,7 +91,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 			return super.findFile(monitor, path);
 		}
 	}
-
+	
 	@Override
 	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
 		if (fPPFile != null && fPPFile.getFilePath().equals(path)) {
@@ -111,8 +112,8 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 	}
 
 	@Override
-	public synchronized SVDBFileTree findFileTree(String path) {
-		if (fPPFile != null) {
+	public synchronized SVDBFileTree findFileTree(String path, boolean is_argfile) {
+		if (fPPFile != null && !is_argfile) {
 			SVDBFileTree ft = new SVDBFileTree(
 					(SVDBFile)fPPFile.duplicate());
 			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
@@ -120,6 +121,8 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 			ft_utils.resolveConditionals(ft, new SVPreProcDefineProvider(
 					createPreProcMacroProvider(ft, working_set)));
 			return ft;
+		} else if (fFile.getFilePath().equals(path)) {
+			return fFileTree;
 		} else {
 			return null;
 		}

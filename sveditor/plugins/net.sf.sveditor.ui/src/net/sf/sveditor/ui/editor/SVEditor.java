@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -63,6 +64,9 @@ import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -110,7 +114,8 @@ import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
-	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel {
+	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
+			ISVDBIndexChangeListener, IResourceChangeListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -266,6 +271,7 @@ public class SVEditor extends TextEditor
 				fFile = uri.getPath();
 			}
 		} else if (input instanceof IFileEditorInput) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
@@ -716,6 +722,9 @@ public class SVEditor extends TextEditor
 		// Remove handles to shadow index
 		fSVDBIndex = null;
 		fIndexMgr  = null;
+
+		// Remove the resource listener
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
 	
 	public SVSourceViewerConfiguration getSourceViewerConfig() {
@@ -830,6 +839,16 @@ public class SVEditor extends TextEditor
 		return getSourceViewer();
 	}
 	
+	public void index_changed(int reason, SVDBFile file) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void index_rebuilt() {
+		// Force a rebuild to pick up latest errors
+		updateSVDBFile(getDocument());
+	}
+
 	/**
 	 * Clears error annotations
 	 */
@@ -871,7 +890,7 @@ public class SVEditor extends TextEditor
 		for (SVDBMarker marker : markers) {
 			Annotation ann = null;
 			int line = -1;
-
+			
 			if (marker.getMarkerType() == MarkerType.Error) {
 				ann = new Annotation(
 						"org.eclipse.ui.workbench.texteditor.error", 
@@ -969,8 +988,10 @@ public class SVEditor extends TextEditor
 			public void propertyChange(PropertyChangeEvent event) {
 				SVColorManager.clear();
 				getCodeScanner().updateRules();
-				getSourceViewer().getTextWidget().redraw();
-				getSourceViewer().getTextWidget().update();
+				if (getSourceViewer() != null && getSourceViewer().getTextWidget() != null) {
+					getSourceViewer().getTextWidget().redraw();
+					getSourceViewer().getTextWidget().update();
+				}
 			}
 	};
 	
@@ -994,4 +1015,14 @@ public class SVEditor extends TextEditor
 			updateWordSelectionHighlight();
 		}
 	};
+
+	public void resourceChanged(IResourceChangeEvent event) {
+		if (event.getResource() != null && 
+				event.getResource().getFullPath().toOSString().equals(fFile)) {
+			// Re-parse the file and update markers if the file changes 
+			// outside the editor. 
+			updateSVDBFile(getDocument());
+		}
+	}
+	
 }

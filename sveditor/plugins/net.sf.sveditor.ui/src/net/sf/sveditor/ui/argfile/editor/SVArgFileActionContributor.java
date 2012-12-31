@@ -22,28 +22,27 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 		ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
 		
 		fOpenDeclarationAction = new RetargetTextEditorAction(
-				bundle, "OpenDeclaration.");
+				bundle, "ArgFileOpenFile.");
 		fOpenDeclarationAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.declaration");		
+				"net.sf.sveditor.ui.argfile.editor.open.file");
 	}
 	
 	public void contributeToMenu(IMenuManager mm) {
 		super.contributeToMenu(mm);
 	
-		/*
 		IMenuManager editMenu = 
 				mm.findMenuUsingPath(IWorkbenchActionConstants.M_EDIT);
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fOpenDeclarationAction);
 		}
+		/*
 		 */
 	}
 	
 	public void init(IActionBars bars) {
 		super.init(bars);
 	
-		/*
 		IMenuManager menuManager = bars.getMenuManager();
 		IMenuManager editMenu = menuManager.findMenuUsingPath(
 				IWorkbenchActionConstants.M_EDIT);
@@ -52,18 +51,21 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 			editMenu.add(new Separator());
 			editMenu.add(fOpenDeclarationAction);
 		}
+		/*
 		 */
 	}
 
 	private void doSetActiveEditor(IEditorPart part) {
 		super.setActiveEditor(part);
 
-		/*
 		ITextEditor editor= null;
-		if (part instanceof ITextEditor)
+		if (part instanceof ITextEditor) {
 			editor= (ITextEditor) part;
-
-		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
+//			fOpenDeclarationAction.setAction(getAction(editor, "ArgFileOpenFile"));
+			fOpenDeclarationAction.setAction(getAction(editor, 
+					SVUiPlugin.PLUGIN_ID + ".svArgFileOpenFile"));
+		}
+		/*
 		 */
 	}
 

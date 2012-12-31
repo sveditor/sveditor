@@ -190,7 +190,14 @@ public enum SVDBItemType {
 	CoverBinsExpr,
 	
 	// Documentation types
-	DocComment
+	DocComment,
+	
+	// Argument-File Tokens
+	ArgFileIncDirStmt,
+	ArgFilePathStmt,
+	ArgFileDefineStmt,
+	ArgFileIncFileStmt,
+	ArgFileSrcLibPathStmt
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

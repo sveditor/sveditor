@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
@@ -220,9 +221,7 @@ public class SVDBItemUtils {
 		for (SVDBItemType v : SVDBItemType.values()) {
 			String key = "SVDB" + v.name();
 			Class cls = null;
-			for (String pref : new String [] {"net.sf.sveditor.core.db.", 
-					"net.sf.sveditor.core.db.stmt.",
-			"net.sf.sveditor.core.db.expr."}) {
+			for (String pref : SVCorePlugin.getPersistencePkgs()) {
 				try {
 					cls = cl.loadClass(pref + key);
 				} catch (Exception e) { }

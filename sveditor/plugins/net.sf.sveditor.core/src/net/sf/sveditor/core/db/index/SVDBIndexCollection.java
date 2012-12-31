@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.Tuple;
@@ -450,7 +451,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 	}
 	
-	
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
@@ -485,6 +485,34 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	
 	public List<SVDBSearchResult<SVDBFile>> findFile(String path) {
 		return findFile(path, true);
+	}
+	
+	public List<SVDBMarker> getMarkers(String path) {
+		List<SVDBSearchResult<SVDBFile>> result = findFile(path);
+		
+		if (result.size() == 0) {
+			return null;
+		} else {
+			return result.get(0).getIndex().getMarkers(path);
+		}
+	}
+	
+	public List<SVDBSearchResult<SVDBFileTree>> findFileTree(String path, boolean is_argfile) {
+		List<SVDBSearchResult<SVDBFileTree>> ret = new ArrayList<SVDBSearchResult<SVDBFileTree>>();
+		SVDBFileTree result;
+		
+		// Search the indexes in order
+		synchronized (fFileSearchOrder) {
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					if ((result = index.findFileTree(path, is_argfile)) != null) {
+						ret.add(new SVDBSearchResult<SVDBFileTree>(result, index));
+					}
+				}
+			}
+		}
+		
+		return ret;		
 	}
 	
 	public List<SVDBSearchResult<SVDBFile>> findFile(String path, boolean search_shadow) {
@@ -556,7 +584,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				
 				fLog.debug(LEVEL_MID, "Creating shadow index for file \"" + path + "\"");
 				if (fProject != null) {
-//					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 					
 					// See if the index exists
 					synchronized (fShadowIndexList) {
@@ -572,11 +600,10 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 					
 					if (index != null) {
 						index = SVDBShadowIndexFactory.create(fProject, path);
+					} else {
+						index = rgy.findCreateIndex(new NullProgressMonitor(),
+								fProject, path, SVDBShadowIndexFactory.TYPE, null);
 					}
-					/*
-					index = rgy.findCreateIndex(new NullProgressMonitor(),
-						fProject, path, SVDBShadowIndexFactory.TYPE, null);
-					 */
 				} else {
 					System.out.println("[TODO] create shadow index for " +
 							"non-project file");

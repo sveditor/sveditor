@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprContext;
 import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprScanner;
-import net.sf.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -53,6 +52,7 @@ public class TestArgFileOpenPathDecl extends TestCase {
 		assertEquals("../../foo", ctxt.fLeaf);
 		assertEquals("+incdir+", ctxt.fRoot);
 	}
+
 	
 	public void testArgFileScanner_IncPath() {
 		String testname = "testArgFileScanner_IncPath";
@@ -75,4 +75,31 @@ public class TestArgFileOpenPathDecl extends TestCase {
 		assertEquals("../../foo", ctxt.fLeaf);
 		assertEquals("-INC", ctxt.fRoot);
 	}	
+
+	public void testArgFileScanner_PathAfterIncPath() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc =
+			"+incdir+${DIR}/files/incpath\n" +
+			"${DIR}/files/file1.sv\n" +
+			"${DIR}/files/file2.sv\n" +
+			"\n"
+			;
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("${DIR}/files/file1.sv");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"${DIR}/files/fil".length());
+		
+		SVArgFileExprScanner expr_scanner = new SVArgFileExprScanner();
+		SVArgFileExprContext ctxt = expr_scanner.extractExprContext(scanner, true);
+		
+		log.debug("ctxt.fLeaf=" + ctxt.fLeaf);
+		log.debug("ctxt.fRoot=" + ctxt.fRoot);
+	
+		assertEquals(null, ctxt.fRoot);
+		assertEquals("${DIR}/files/file1.sv", ctxt.fLeaf);
+	}
+	
 }

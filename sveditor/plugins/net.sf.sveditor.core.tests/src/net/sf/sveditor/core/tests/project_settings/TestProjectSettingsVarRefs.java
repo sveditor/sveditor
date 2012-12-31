@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
@@ -34,6 +35,8 @@ import org.eclipse.core.runtime.Path;
 public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 	
 	public void testArgFileWorkspaceRelRef() throws CoreException {
+		LogHandle log = LogFactory.getLogHandle(getName());
+		SVCorePlugin.getDefault().enableDebug(true);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
@@ -56,6 +59,14 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
+		List<SVDBSearchResult<SVDBFile>> result = index_collection.findFile(
+				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv");
+		
+		IndexTestUtils.assertNoErrWarn(log, index_collection);
+		
+		// Ensure we can locate the file
+		assertEquals(1, result.size());
+		
 		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
 				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv", markers).second();
 		
@@ -68,7 +79,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(

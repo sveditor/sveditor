@@ -28,18 +28,24 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public class InMemoryIndexCache implements ISVDBIndexCache {
 	private Object							fData;
 	private Set<String>						fFileList;
+	private Set<String>						fArgFileList;
 	private Map<String, Long>				fLastModifiedMap;
 	private Map<String, SVDBFile>			fPreProcFileMap;
 	private Map<String, SVDBFile>			fFileMap;
+	private Map<String, SVDBFile>			fArgFileMap;
 	private Map<String, SVDBFileTree>		fFileTreeMap;
+	private Map<String, SVDBFileTree>		fArgFileTreeMap;
 	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	
 	public InMemoryIndexCache() {
 		fFileList = new HashSet<String>();
+		fArgFileList = new HashSet<String>();
 		fLastModifiedMap = new HashMap<String, Long>();
 		fPreProcFileMap = new HashMap<String, SVDBFile>();
 		fFileMap = new HashMap<String, SVDBFile>();
+		fArgFileMap = new HashMap<String, SVDBFile>();
 		fFileTreeMap = new HashMap<String, SVDBFileTree>();
+		fArgFileTreeMap = new HashMap<String, SVDBFileTree>();
 		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
 	
@@ -69,23 +75,51 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		
 		monitor.beginTask("Clear Cache", 1);
 		fFileList.clear();
+		fArgFileList.clear();
 		fFileMap.clear();
 		fFileTreeMap.clear();
+		fArgFileTreeMap.clear();
 		fLastModifiedMap.clear();
 		fPreProcFileMap.clear();
 		fMarkerMap.clear();
 		monitor.done();
 	}
 
-	public Set<String> getFileList() {
-		return fFileList;
+	public Set<String> getFileList(boolean is_argfile) {
+		if (is_argfile) {
+			return fArgFileList;
+		} else {
+			Set<String> ret = new HashSet<String>();
+			// The filelist is the union
+			for (String f : fFileList) {
+				if (!ret.contains(f)) {
+					ret.add(f);
+				}
+			}
+			for (String f : fFileMap.keySet()) {
+				if (!ret.contains(f)) {
+					ret.add(f);
+				}
+			}
+			for (String f : fPreProcFileMap.keySet()) {
+				if (!ret.contains(f)) {
+					ret.add(f);
+				}
+			}
+			for (String f : fFileTreeMap.keySet()) {
+				if (!ret.contains(f)) {
+					ret.add(f);
+				}
+			}
+			return ret;
+		}
 	}
 	
 	public List<SVDBMarker> getMarkers(String path) {
 		return fMarkerMap.get(path);
 	}
 
-	public void setMarkers(String path, List<SVDBMarker> markers) {
+	public void setMarkers(String path, List<SVDBMarker> markers, boolean is_argfile) {
 		if (fMarkerMap.containsKey(path)) {
 			fMarkerMap.remove(path);
 		}
@@ -100,16 +134,22 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		}
 	}
 
-	public void setLastModified(String path, long timestamp) {
+	public void setLastModified(String path, long timestamp, boolean is_argfile) {
 		if (fLastModifiedMap.containsKey(path)) {
 			fLastModifiedMap.remove(path);
 		}
 		fLastModifiedMap.put(path, timestamp);
 	}
 
-	public void addFile(String path) {
-		if (!fFileList.contains(path)) {
-			fFileList.add(path);
+	public void addFile(String path, boolean is_argfile) {
+		if (is_argfile) {
+			if (!fArgFileList.contains(path)) {
+				fArgFileList.add(path);
+			}
+		} else {
+			if (!fFileList.contains(path)) {
+				fFileList.add(path);
+			}
 		}
 	}
 
@@ -124,33 +164,55 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		fPreProcFileMap.put(path, file);
 	}
 
-	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path) {
-		return fFileTreeMap.get(path);
+	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile) {
+		if (is_argfile) {
+			return fArgFileTreeMap.get(path);
+		} else {
+			return fFileTreeMap.get(path);
+		}
 	}
 
-	public void setFileTree(String path, SVDBFileTree file) {
-		if (fFileTreeMap.containsKey(path)) {
-			fFileTreeMap.remove(path);
+	public void setFileTree(String path, SVDBFileTree file, boolean is_argfile) {
+		if (is_argfile) {
+			if (fArgFileTreeMap.containsKey(path)) {
+				fArgFileTreeMap.remove(path);
+			}
+			fArgFileTreeMap.put(path, file);
+		} else {
+			if (fFileTreeMap.containsKey(path)) {
+				fFileTreeMap.remove(path);
+			}
+			fFileTreeMap.put(path, file);
 		}
-		fFileTreeMap.put(path, file);
 	}
 
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {
 		return fFileMap.get(path);
 	}
 
-	public void setFile(String path, SVDBFile file) {
-		if (fFileMap.containsKey(path)) {
-			fFileMap.remove(path);
+	public void setFile(String path, SVDBFile file, boolean is_argfile) {
+		if (is_argfile) {
+			if (fArgFileMap.containsKey(path)) {
+				fArgFileMap.remove(path);
+			}
+			fArgFileMap.put(path, file);
+		} else {
+			if (fFileMap.containsKey(path)) {
+				fFileMap.remove(path);
+			}
+			fFileMap.put(path, file);
 		}
-		fFileMap.put(path, file);
 	}
 
-	public void removeFile(String path) {
-		fFileList.remove(path);
-		fPreProcFileMap.remove(path);
-		fFileMap.remove(path);
-		fFileTreeMap.remove(path);
+	public void removeFile(String path, boolean is_argfile) {
+		if (is_argfile) {
+			fArgFileMap.remove(path);
+		} else {
+			fFileList.remove(path);
+			fPreProcFileMap.remove(path);
+			fFileMap.remove(path);
+			fFileTreeMap.remove(path);			
+		}
 	}
 
 	public void sync() {
@@ -158,4 +220,25 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 
 	}
 
+	public Set<String> getArgFileList() {
+		return fArgFileMap.keySet();
+	}
+
+	public SVDBFile getArgFile(IProgressMonitor monitor, String path) {
+		return fArgFileMap.get(path);
+	}
+
+	public void setArgFile(String path, SVDBFile file) {
+		if (fArgFileMap.containsKey(path)) {
+			fArgFileMap.remove(path);
+		}
+		if (file != null) {
+			fArgFileMap.put(path, file);
+		}
+	}
+
+	public void removeArgFile(String path) {
+		fArgFileMap.remove(path);
+	}
+	
 }

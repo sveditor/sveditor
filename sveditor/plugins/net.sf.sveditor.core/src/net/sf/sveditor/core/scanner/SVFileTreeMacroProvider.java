@@ -112,7 +112,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel
 		file_list.add(ib);
 		while (ib.getIncludedByFiles().size() > 0) {
 			String ib_s = ib.getIncludedByFiles().get(0); 
-			ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s);
+			ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
 			file_list.add(ib);
 		}
 		
@@ -161,7 +161,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel
 						fLog.debug("Searching included files of " + file.getFilePath() + " for " + leaf);
 					}
 					for (String inc_s : file.getIncludedFiles()) {
-						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
+						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s, false);
 						
 						if (inc_t != null) {
 							if (fDebugEn) {
@@ -237,7 +237,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel
 						fLog.debug("    There are " + ((inc_f != null)?inc_f.size():"null") + " included files");
 					}
 					for (String inc_s : context.getIncludedFiles()) {
-						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s);
+						SVDBFileTree inc_t = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s, false);
 						if (fDebugEn) {
 							fLog.debug("    inc_s: " + inc_s + " -> " + inc_t);
 						}
