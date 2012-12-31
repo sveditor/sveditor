@@ -16,8 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -35,7 +35,7 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
  */
 public class SVMarkerPropagationJob extends Job {
 	private class MarkerInfo {
-		IFile				fFile;
+		IResource			fFile;
 		int					fSeverity;
 		int					fLineno;
 		String				fMsg;
@@ -87,7 +87,7 @@ public class SVMarkerPropagationJob extends Job {
 	}
 	
 	
-	public void addMarker(IFile file, int severity, int lineno, String msg) {
+	public void addMarker(IResource file, int severity, int lineno, String msg) {
 		MarkerInfo info = new MarkerInfo();
 		info.fFile = file;
 		info.fSeverity = severity;

@@ -23,18 +23,27 @@ public class SVDBFileTree {
 	private boolean					fProcessed;
 	
 	public String					fFilePath;
+	
+	// Handle to the pre-processed view of the file.
+	// Unused in the ArgFile context
 	public SVDBFile					fSVDBFile;
+	
+	// List of files included in this file
 	public List<String>				fIncludedFiles;
+	
+	// List of files in which this file is included
 	public List<String>				fIncludedByFiles;
 
 	public SVDBFileTree() {
 		fFilePath = null;
+		fSVDBFile = null;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
 	}
 
 	public SVDBFileTree(String path) {
 		fFilePath = path;
+		fSVDBFile = null;
 
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
@@ -84,6 +93,12 @@ public class SVDBFileTree {
 	
 	public List<String> getIncludedByFiles() {
 		return fIncludedByFiles;
+	}
+	
+	public void addIncludedByFile(String path) {
+		if (!fIncludedByFiles.contains(path)) {
+			fIncludedByFiles.add(path);
+		}
 	}
 
 	public boolean equals(Object other) {

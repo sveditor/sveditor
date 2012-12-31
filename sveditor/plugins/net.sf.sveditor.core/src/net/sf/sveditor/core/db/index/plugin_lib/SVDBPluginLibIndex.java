@@ -91,7 +91,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	protected void discoverRootFiles(IProgressMonitor monitor) {
 		clearFilesList();
 		clearIncludePaths();
-		addFile(getResolvedBaseLocation());
+		addFile(getResolvedBaseLocation(), false);
 		addIncludePath(getResolvedBaseLocationDir());
 	}
 

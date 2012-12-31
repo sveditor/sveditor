@@ -470,9 +470,9 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 					inc = inc.substring(1, inc.length()-1);
 				}
 				
-				fLog.debug("Include: last char=\"" + inc.charAt(inc.length()-1) + "\"");
 				
 				if (fObserver != null) {
+					fLog.debug("Include: \"" + inc + "\"");
 					fObserver.preproc_include(inc);
 				}
 			}

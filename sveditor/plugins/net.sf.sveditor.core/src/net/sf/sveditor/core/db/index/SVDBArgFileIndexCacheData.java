@@ -15,17 +15,22 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBFile;
+
 public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
 	public List<String>			fArgFilePaths;
 	public List<Long>			fArgFileTimestamps;
+	public List<SVDBFile>		fArgFiles = new ArrayList<SVDBFile>();
 	
 	public SVDBArgFileIndexCacheData(String base_location) {
 		super(base_location);
 		fArgFileTimestamps = new ArrayList<Long>();
 		fArgFilePaths = new ArrayList<String>();
+		fArgFiles = new ArrayList<SVDBFile>();
 	}
-	
+
+	/*
 	public List<Long> getArgFileTimestamps() {
 		return fArgFileTimestamps;
 	}
@@ -33,5 +38,13 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	public List<String> getArgFilePaths() {
 		return fArgFilePaths;
 	}
+	
+	public List<SVDBFile> getArgFiles() {
+		if (fArgFiles == null) {
+			fArgFiles = new ArrayList<SVDBFile>();
+		}
+		return fArgFiles;
+	}
+	 */
 	
 }

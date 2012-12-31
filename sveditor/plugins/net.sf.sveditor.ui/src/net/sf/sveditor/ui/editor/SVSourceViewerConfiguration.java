@@ -210,14 +210,10 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return new MonoReconciler(new SVReconcilingStrategy(fEditor), false);
 	}
 	
-	
-	
 	@Override
 	public IAnnotationHover getAnnotationHover(ISourceViewer viewer) {
 		return new DefaultAnnotationHover();
 	}
-
-
 
 	@Override
 	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {

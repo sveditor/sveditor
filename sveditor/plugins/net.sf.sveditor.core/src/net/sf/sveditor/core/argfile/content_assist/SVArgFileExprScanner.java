@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.argfile.content_assist;
 
 import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprContext.ArgFileContextType;
-import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -141,10 +140,24 @@ public class SVArgFileExprScanner {
 				c = scanner.get_ch();
 				debug("c=" + (char)c);
 				c = scanner.skipWhite(c);
+				debug("post-ws c=" + (char)c);
+				
+				boolean is_plusarg = (c == '+');
 			
 				if (c == '+' || Character.isJavaIdentifierPart(c)) {
 					ret.fRoot = readOption(scanner, c);
+					
 					debug("option root=" + ret.fRoot);
+		
+					if (is_plusarg) {
+						if (!ret.fRoot.startsWith("+")) {
+							// Not really a plusarg
+							ret.fRoot = null;
+						}
+					} else if (!ret.fRoot.startsWith("-")) {
+						// Not really an option
+						ret.fRoot = null;
+					}
 				}
 
 				/*
@@ -520,13 +533,18 @@ public class SVArgFileExprScanner {
 		while ((c = scanner.get_ch()) != -1) {
 			if ((is_plusarg && c == '+') || 
 				c == '-' || Character.isWhitespace(c)) {
+				// Unget the last character to ensure that it
+				// is included in the final option
+				if (!Character.isWhitespace(c)) {
+					scanner.unget_ch(c);
+				}
 				break;
 			}
 		}
 
 		fLog.debug("scanner.getPos=" + scanner.getPos() + " c=" + (char)c);
 		end_pos = (scanner.getPos() < 0)?0:scanner.getPos();
-	
+		
 		fLog.debug("end_pos=" + end_pos);
 		return scanner.get_str(end_pos, (int)(start_pos-end_pos));
 	}

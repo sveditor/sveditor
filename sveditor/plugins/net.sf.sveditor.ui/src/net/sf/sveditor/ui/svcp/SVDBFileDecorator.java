@@ -26,13 +26,15 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 
 public class SVDBFileDecorator implements ILightweightLabelDecorator {
 	private List<ILabelProviderListener>		fListeners;
 	private Thread								fLookupThread;
 	private Map<String, Set<String>>			fManagedByIndex;
 	private Map<SVDBIndexCollection, IndexChangeListener>	fProjectListeners;
-	private List<Object>						fWorkQueue;
+	private List<Object>									fWorkQueue;
 	
 	private Runnable lookupRunnable = new Runnable() {
 		
@@ -94,14 +96,6 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 			}
 			
 			Display.getDefault().asyncExec(fireChangeRunnable);
-			/**
-			// We're done
-			synchronized (this) {
-				if (!fFireChangeRunnableQueued) {
-					fFireChangeRunnableQueued = true;
-				}
-			}
-			 */
 		}
 	};
 	
@@ -185,6 +179,11 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 
 	public void decorate(Object element, IDecoration decoration) {
 		ImageDescriptor image = null;
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		
+		if (workbench.isClosing()) {
+			return;
+		}
 		
 		if (element instanceof IResource) {
 			IResource rsrc = (IResource)element;
@@ -201,6 +200,10 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 					if (image != null) {
 						decoration.addOverlay(image);
 					}
+					
+					if (image != null) {
+						decoration.addOverlay(image);
+					}	
 				} else {
 					SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 					SVDBProjectData pdata = pmgr.getProjectData(rsrc.getProject());
@@ -225,6 +228,10 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 								decoration.addOverlay(image);
 							}	
 						}
+
+						if (image != null) {
+							decoration.addOverlay(image);
+						}	
 					} else {
 						// Queue a job to do the same thing...
 						queueWork(element);

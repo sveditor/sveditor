@@ -88,6 +88,15 @@ public interface ISVDBIndex extends
 	 * @return
 	 */
 	SVDBFile findFile(String path);
+
+	/**
+	 * Finds the specified FileTree within this index. Returns 'null' 
+	 * if it cannot be located
+	 * 
+	 * @param path
+	 * @return
+	 */
+	SVDBFileTree findFileTree(String path, boolean is_argfile);
 	
 	/**
 	 * Finds the specified file within the pre-processor index

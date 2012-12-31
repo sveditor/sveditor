@@ -26,7 +26,7 @@ public class SVDBShadowIndex extends AbstractSVDBIndex {
 	protected void discoverRootFiles(IProgressMonitor monitor) {
 		fLog.debug(LEVEL_MIN, "discoverRootFiles");
 
-		addFile(getResolvedBaseLocation());
+		addFile(getResolvedBaseLocation(), false);
 		addIncludePath(SVFileUtils.getPathParent(getResolvedBaseLocation()));
 	}
 

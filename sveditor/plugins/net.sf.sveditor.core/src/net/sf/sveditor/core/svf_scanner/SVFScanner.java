@@ -37,7 +37,7 @@ public class SVFScanner {
 	private Map<String, String>					fDefineMap;
 	private List<String>						fFilePaths;
 	private List<String>						fLibPaths;
-	private Set<String>							fSrcExtensions;
+	private static Set<String>					fSrcExtensions;
 	private List<String>						fIncludedArgFiles;
 	public static final Map<String, Integer>	fIgnoredSwitches;
 	public static final Set<String>			fSupportedSwitches;
@@ -170,6 +170,13 @@ public class SVFScanner {
 		fRecognizedSwitches = new HashSet<String>();
 		fRecognizedSwitches.addAll(fIgnoredSwitches.keySet());
 		fRecognizedSwitches.addAll(fSupportedSwitches);
+		
+		fSrcExtensions		= new HashSet<String>();
+		
+		fSrcExtensions.add(".sv");
+		fSrcExtensions.add(".v");
+		fSrcExtensions.add(".vl");
+		fSrcExtensions.add(".vlog");
 	}
 	
 	public SVFScanner() {
@@ -178,12 +185,6 @@ public class SVFScanner {
 		fFilePaths 			= new ArrayList<String>();
 		fLibPaths			= new ArrayList<String>();
 		fIncludedArgFiles 	= new ArrayList<String>();
-		fSrcExtensions		= new HashSet<String>();
-		
-		fSrcExtensions.add(".sv");
-		fSrcExtensions.add(".v");
-		fSrcExtensions.add(".vl");
-		fSrcExtensions.add(".vlog");
 		
 		fLog = LogFactory.getLogHandle("SVArgFileScanner");
 	}
@@ -200,7 +201,7 @@ public class SVFScanner {
 		return fLibPaths;
 	}
 	
-	public Set<String> getSrcExts() {
+	public static Set<String> getSrcExts() {
 		return fSrcExtensions;
 	}
 	

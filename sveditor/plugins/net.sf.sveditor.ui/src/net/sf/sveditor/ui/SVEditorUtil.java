@@ -85,6 +85,12 @@ public class SVEditorUtil {
 	}
 	
 	public static IEditorPart openEditor(String file) throws PartInitException {
+		return openEditor(file, new String[] {SVUiPlugin.PLUGIN_ID + ".editor"});
+	}
+	
+	public static IEditorPart openEditor(
+			String 			file,
+			String			restrict_editor_ids[]) throws PartInitException {
 		IFile f = null;
 		String name = "";
 		IEditorPart ret = null;
@@ -115,9 +121,20 @@ public class SVEditorUtil {
 				for (IEditorReference ed_r : page.getEditorReferences()) {
 					String id = ed_r.getId();
 
-					if (!id.equals(SVUiPlugin.PLUGIN_ID + ".editor")) {
-						continue;
+					if (restrict_editor_ids != null && restrict_editor_ids.length > 0) {
+						boolean found = false;
+						for (String rid : restrict_editor_ids) {
+							if (id.equals(rid)) {
+								found = true;
+								break;
+							}
+						}
+						
+						if (!found) {
+							continue;
+						}
 					}
+					
 					IEditorInput in = null;
 
 					in = ed_r.getEditorInput();

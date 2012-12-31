@@ -95,7 +95,10 @@ public class SVDBIndexItemIterator implements ISVDBItemIterator {
 			} else if (!fScopeStack.empty()) {
 				fScopeIterator = fScopeStack.pop();
 			} else if (fFilePathIterator.hasNext()) {
-				String path = fFilePathIterator.next();
+				String path;
+				synchronized (fFilePathIterator) {
+					path = fFilePathIterator.next();
+				}
 				SVDBFile file = fIndex.findFile(path);
 				
 				// Replace the file from the database with the override file

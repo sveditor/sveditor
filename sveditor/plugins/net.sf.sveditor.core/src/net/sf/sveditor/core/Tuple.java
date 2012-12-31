@@ -38,5 +38,26 @@ public class Tuple<T1, T2> {
 		second = s;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public boolean equals(Object obj) {
+		if (obj instanceof Tuple) {
+			Tuple<T1, T2> t = (Tuple<T1, T2>)obj;
+			boolean eq = true;
+			
+			if (t.first == null || first == null) {
+				eq &= (t.first == first);
+			} else {
+				eq &= t.first.equals(first);
+			}
+			if (t.second == null || second == null) {
+				eq &= (t.second == second);
+			} else {
+				eq &= t.second.equals(second);
+			}
+			return eq;
+		} else {
+			return super.equals(obj);
+		}
+	}
 
 }

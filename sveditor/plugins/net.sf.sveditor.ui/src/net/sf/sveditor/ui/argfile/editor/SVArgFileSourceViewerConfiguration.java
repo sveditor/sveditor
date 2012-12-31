@@ -1,7 +1,6 @@
 package net.sf.sveditor.ui.argfile.editor;
 
 import net.sf.sveditor.ui.editor.SVCodeScanner;
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVEditorColors;
 import net.sf.sveditor.ui.editor.SVPresentationReconciler;
 
@@ -9,9 +8,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
+import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.jface.text.source.DefaultAnnotationHover;
+import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
@@ -21,6 +24,16 @@ public class SVArgFileSourceViewerConfiguration extends
 	
 	public SVArgFileSourceViewerConfiguration(SVArgFileEditor editor) {
 		 fEditor = editor;
+	}
+	
+	@Override
+	public IReconciler getReconciler(ISourceViewer sourceViewer) {
+		return new MonoReconciler(new SVArgFileReconcilingStrategy(fEditor), false);
+	}
+	
+	@Override
+	public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
+		return new DefaultAnnotationHover();
 	}
 
 	@Override

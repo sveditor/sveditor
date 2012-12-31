@@ -24,6 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFileEnvVarProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -47,7 +52,10 @@ import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -373,7 +381,7 @@ public class SVCorePlugin extends Plugin
 		return ret;
 	}
 	
-	public void propagateMarker(IFile file, int severity, int lineno, String msg) {
+	public void propagateMarker(IResource file, int severity, int lineno, String msg) {
 		if (fMarkerPropagationJob == null) {
 			fMarkerPropagationJob = new SVMarkerPropagationJob();
 		}
@@ -443,6 +451,23 @@ public class SVCorePlugin extends Plugin
 		} else {
 			return System.getenv(key);
 		}
+	}
+	
+	public static ISVArgFileVariableProvider getVariableProvider(IProject project) {
+		SVArgFileVariableProviderList ret = new SVArgFileVariableProviderList();
+		
+		if (project != null) {
+			ret.addProvider(new SVArgFileProjectRsrcVarProvider(project));
+		}
+		
+		try {
+			IWorkspace ws = ResourcesPlugin.getWorkspace();
+			ret.addProvider(new SVArgFilePathVariableProvider(ws.getPathVariableManager()));
+		} catch (IllegalStateException e) {}
+		
+		ret.addProvider(new SVArgFileEnvVarProvider());
+		
+		return ret;
 	}
 	
 	public static int getNumIndexCacheThreads() {

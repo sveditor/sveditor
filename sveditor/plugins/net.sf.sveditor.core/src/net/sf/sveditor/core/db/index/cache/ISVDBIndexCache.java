@@ -75,17 +75,17 @@ public interface ISVDBIndexCache {
 	 * 
 	 * @return
 	 */
-	Set<String> getFileList();
+	Set<String> getFileList(boolean is_argfile);
 	
 	long getLastModified(String path);
 	
-	void setLastModified(String path, long timestamp);
+	void setLastModified(String path, long timestamp, boolean is_argfile);
 	
-	void addFile(String path);
+	void addFile(String path, boolean is_argfile);
 	
 	List<SVDBMarker> getMarkers(String path);
 	
-	void setMarkers(String path, List<SVDBMarker> markers);
+	void setMarkers(String path, List<SVDBMarker> markers, boolean is_argfile);
 	
 	/**
 	 * Returns the pre-processor view of the file
@@ -97,18 +97,18 @@ public interface ISVDBIndexCache {
 	/**
 	 * Returns the file tree for the specified file
 	 */
-	SVDBFileTree getFileTree(IProgressMonitor monitor, String path);
+	SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile);
 	
-	void setFileTree(String path, SVDBFileTree file);
+	void setFileTree(String path, SVDBFileTree file, boolean is_argfile);
 	
 	/**
 	 * Returns the full-parse view of the file
 	 */
 	SVDBFile getFile(IProgressMonitor monitor, String path);
 	
-	void setFile(String path, SVDBFile file);
+	void setFile(String path, SVDBFile file, boolean is_argfile);
 	
-	void removeFile(String path);
+	void removeFile(String path, boolean is_argfile);
 	
 	/**
 	 * Synchronize the cache with the backing storage

@@ -52,5 +52,7 @@ public interface ISVIcons {
 	String TASK_PUB_OBJ = DECL_ICONS + "public_co.gif";
 	String IMPORT_OBJ = DECL_ICONS + "impc_obj.gif";
 	
+	String VIEW_ICONS = "icons/eview16/";
+	String ARGFILE = VIEW_ICONS + "configs.gif";
 	
 }

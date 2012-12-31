@@ -59,7 +59,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 			for (int i=0; i<fFileMatcherList.size(); i++) {
 				AbstractSVFileMatcher matcher = fFileMatcherList.get(i);
 				List<String> file_paths = matcher.findIncludedPaths();
-				Set<String> cache_files = getCache().getFileList();
+				Set<String> cache_files = getCache().getFileList(false);
 				List<String> tmp_cache_files = new ArrayList<String>();
 
 				tmp_cache_files.addAll(cache_files);
@@ -135,7 +135,7 @@ public class SVDBSourceCollectionIndex extends AbstractSVDBIndex {
 			for (String path : file_paths) {
 				String rp = resolvePath(path, fInWorkspaceOk);
 				fLog.debug(LEVEL_MID, "Adding root file \"" + rp + "\"");
-				addFile(rp);
+				addFile(rp, false);
 				addIncludePath(SVFileUtils.getPathParent(rp));
 			}
 		}

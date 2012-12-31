@@ -50,7 +50,14 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 		
 		// Add an include path for the library file location
 		addIncludePath(getResolvedBaseLocationDir());
-		addFile(getResolvedBaseLocation());
+		addFile(getResolvedBaseLocation(), false);
+		
+		if (fDebugEn) {
+			fLog.debug("Root Files:");
+			for (String path : getCache().getFileList(false)) {
+				fLog.debug("  Root File: " + path);
+			}
+		}
 		
 		monitor.done();
 	}

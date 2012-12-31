@@ -168,6 +168,64 @@ public class SVDBIndexUtil {
 		}
 	}
 
+	public static Tuple<ISVDBIndex, SVDBIndexCollection> findArgFileIndex(String path, String project) {
+		ISVDBIndex 				index     = null;
+		SVDBIndexCollection	index_mgr = null;
+		IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+
+		// Sort the project list so we check the active project's
+		// index first
+		List<IProject> projects = new ArrayList<IProject>();
+		for (IProject p : ws_root.getProjects()) {
+			if (project != null && p.getName().equals(project)) {
+				projects.add(0, p);
+			} else {
+				projects.add(p);
+			}
+		}
+		
+		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
+
+		for (IProject p : projects) {
+			// Ignore projects that are closed
+			if (!p.isOpen()) {
+				continue;
+			}
+			SVDBProjectData pdata = p_mgr.getProjectData(p);
+			List<SVDBSearchResult<SVDBFile>> result = pdata.getProjectIndexMgr().findFile(path, true);
+			if (result.size() > 0) {
+				index = result.get(0).getIndex();
+				fLog.debug("ArgFile \"" + path + "\" is in index " + 
+						index.getBaseLocation() + " in project " + pdata.getName());
+				index_mgr = pdata.getProjectIndexMgr();
+				break;
+			} else if (path.startsWith("${workspace_loc}")) {
+				// Try searching with the filesystem path in case the user
+				// has specified the index in terms of the filesystem
+				String ws_path = path.substring("${workspace_loc}".length());
+				IFile f = ws_root.getFile(new Path(ws_path));
+				
+				if (f != null && f.exists()) {
+					File fs_file = f.getLocation().toFile();
+					result = pdata.getProjectIndexMgr().findFile(fs_file.getAbsolutePath(), true);
+					if (result.size() > 0) {
+						index = result.get(0).getIndex();
+						fLog.debug("ArgFile \"" + path + "\" is in index " + 
+								index.getBaseLocation() + " in project " + pdata.getName());
+						index_mgr = pdata.getProjectIndexMgr();
+						break;
+					}
+				}
+			}
+		}
+		
+		if (index != null) {
+			return new Tuple<ISVDBIndex, SVDBIndexCollection>(index, index_mgr);
+		} else {
+			return null;
+		}
+	}
+	
 	public static String expandVars(String path, String projectname, boolean in_workspace_ok) {
 
 		boolean workspace_prefix = path.startsWith("${workspace_loc}");
