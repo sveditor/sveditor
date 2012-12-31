@@ -1,5 +1,7 @@
 package net.sf.sveditor.ui.argfile.editor;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,6 +17,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.argfile.parser.SVArgFileParser;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
+import net.sf.sveditor.core.argfile.parser.SVArgFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -32,10 +35,12 @@ import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -66,6 +71,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	private SVDBFile						fSVDBFile;
 	private SVArgFileOutlinePage			fOutline;
 	private ISVDBFileSystemProvider			fFSProvider;
+	private boolean							fDebugEn = true;
 	
 	public SVArgFileEditor() {
 		fLog = LogFactory.getLogHandle("SVArgFileEditor");
@@ -251,7 +257,288 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		}
 	}
 
+	/**
+	 * Resolves the path relative to the root file for this
+	 * argument file, and the active variable providers
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public String resolvePath(String path_orig) {
+		Tuple<String, ISVArgFileVariableProvider> context = findArgFileContext();
 
+		String path = path_orig;
+		String norm_path = null;
+
+		if (fDebugEn) {
+			fLog.debug("--> resolvePath: " + path_orig);
+		}
+		
+		// First, expand any variables in the path
+		path = SVArgFileUtils.expandVars(path, context.second());
+
+		// relative to the base location or one of the include paths
+		if (path.startsWith("..")) {
+			if (fDebugEn) {
+				fLog.debug("    path starts with ..");
+			}
+			if ((norm_path = resolveRelativePath(context.first(), path)) == null) {
+				/*
+				for (String inc_path : fIndexCacheData.getIncludePaths()) {
+					if (fDebugEn) {
+						fLog.debug("    Check: " + inc_path + " ; " + path);
+					}
+					if ((norm_path = resolveRelativePath(inc_path, path)) != null) {
+						break;
+					}
+				}
+				 */
+			} else {
+				if (fDebugEn) {
+					fLog.debug("norm_path=" + norm_path);
+				}
+			}
+		} else {
+			if (path.equals(".")) {
+				path = context.first();
+			} else if (path.startsWith(".")) {
+				path = context.first() + "/" + path.substring(2);
+			} else {
+				if (!fFSProvider.fileExists(path)) {
+					// See if this is an implicit path
+					String imp_path = context.first() + "/" + path;
+
+					if (fFSProvider.fileExists(imp_path)) {
+						// This path is an implicit relative path that is
+						// relative to the base directory
+						path = imp_path;
+					}
+				}
+			}
+			norm_path = normalizePath(path);
+		}
+		
+		if (norm_path != null && !norm_path.startsWith("${workspace_loc}")) {
+			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = ws_root.getFileForLocation(new Path(norm_path));
+			if (file != null && file.exists()) {
+				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
+			}
+		}
+		
+		norm_path = (norm_path != null) ? norm_path : path_orig;
+		
+		if (fDebugEn) {
+			fLog.debug("<-- resolvePath: " + path_orig + " " + norm_path);
+		}
+
+		return norm_path;		
+	}
+
+	private String resolveRelativePath(
+			String		base_location,
+			String 		path) {
+		String ret = null;
+		if (fDebugEn) {
+			fLog.debug("--> resolveRelativePath: base=" + base_location + " path=" + path);
+		}
+		
+		// path = getResolvedBaseLocationDir() + "/" + path;
+		String norm_path = normalizePath(base_location + "/" + path);
+
+		if (fDebugEn) {
+			fLog.debug("    Checking normalizedPath: " + norm_path
+					+ " ; ResolvedBaseLocation: " + base_location);
+		}
+
+		if (fFSProvider.fileExists(norm_path)) {
+			ret = norm_path;
+		} else if (base_location.startsWith("${workspace_loc}")) {
+			// This could be a reference outside the workspace. Check
+			// whether we should reference this as a filesystem path
+			// by computing the absolute path
+			String base_loc = base_location;
+			if (fDebugEn) {
+				fLog.debug("Possible outside-workspace path: " + base_loc);
+			}
+			base_loc = base_loc.substring("${workspace_loc}".length());
+
+			if (fDebugEn) {
+				fLog.debug("    base_loc: " + base_loc);
+			}
+
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer base_dir = null;
+			try {
+				base_dir = root.getFolder(new Path(base_loc));
+			} catch (IllegalArgumentException e) {
+			}
+
+			if (base_dir == null) {
+				if (base_loc.length() > 0) {
+					base_dir = root.getProject(base_loc.substring(1));
+				}
+			}
+
+			if (fDebugEn) {
+				fLog.debug("base_dir=" + ((base_dir != null)?base_dir.getFullPath().toOSString():null));
+			}
+
+			if (base_dir != null && base_dir.exists()) {
+				IPath base_dir_p = base_dir.getLocation();
+				if (base_dir_p != null) {
+					if (fDebugEn) {
+						fLog.debug("Location of base_dir: " + base_dir_p.toOSString());
+					}
+					File path_f_t = new File(base_dir_p.toFile(), path);
+					if (fDebugEn) {
+						fLog.debug("Checking if path exists: " + path_f_t.getAbsolutePath() + " " + path_f_t.exists());
+					}
+					try {
+						if (path_f_t.exists()) {
+							if (fDebugEn) {
+								fLog.debug("Path does exist outside the project: "
+										+ path_f_t.getCanonicalPath());
+							}
+							norm_path = SVFileUtils.normalize(path_f_t
+									.getCanonicalPath());
+							ret = norm_path;
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+
+		if (fDebugEn) {
+			fLog.debug("<-- resolveRelativePath: base=" + base_location + " path=" + path + " ret=" + ret);
+		}
+		return ret;
+	}
+
+	protected static String normalizePath(String path) {
+		StringBuilder ret = new StringBuilder();
+
+		int i = path.length() - 1;
+		int end;
+		int skipCnt = 0;
+
+		// First, skip any trailing '/'
+		while (i >= 0 && (path.charAt(i) == '/' || path.charAt(i) == '\\')) {
+			i--;
+		}
+
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+
+			while (i >= 0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length() - 1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+
+		return ret.reverse().toString();
+	}
+	
+	/**
+	 * 
+	 * @return <resolved_base_location, variable_provider>
+	 */
+	private Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
+		// Search for the index to which this file belongs
+		String project = null;
+		String root_file = null;
+		
+		if (fFile.startsWith("${workspace_loc}")) {
+			String fullpath = fFile.substring("${workspace_loc}".length());
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = root.getFile(new Path(fullpath));
+			
+			if (file != null) {
+				project = file.getProject().getName();
+			}
+		}
+		
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = 
+				SVDBIndexUtil.findArgFileIndex(fFile, project);
+		
+		if (result != null) {
+			// Located the index to which this arg-file belongs
+			ISVDBIndex index = result.first();
+			
+			SVDBFileTree ft = index.findFileTree(fFile, true);
+			
+			// Search up to find the root filetree
+			
+			if (ft != null) {
+				while (ft.getIncludedByFiles().size() > 0) {
+					String ft_path = ft.getIncludedByFiles().get(0);
+					SVDBFileTree ft_next = index.findFileTree(ft_path, true);
+
+					if (ft_next == null) {
+						break;
+					} else {
+						ft = ft_next;
+					}
+				}
+			} else {
+				System.out.println("Failed to find path " + fFile + " in index " + index.getBaseLocation());
+			}
+		
+			if (ft != null) {
+				root_file = ft.getFilePath();
+			}
+		}
+
+		String base_location = SVFileUtils.getPathParent(fFile);
+		String resolved_base_location = base_location;
+		ISVArgFileVariableProvider var_provider = null;
+		IProject var_provider_project = null;
+		
+		if (root_file != null) {
+			base_location = SVFileUtils.getPathParent(root_file);
+			resolved_base_location = base_location;
+			
+//			System.out.println("root_file=" + root_file);
+			
+			if (root_file.startsWith("${workspace_loc}")) {
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				String root_path = root_file.substring("${workspace_loc}".length());
+//				System.out.println("root_path=" + root_path);
+				IFile root_path_file = root.getFile(new Path(root_path));
+				
+				if (root_path_file != null) {
+					var_provider_project = root_path_file.getProject();
+				}
+			}
+		}
+
+//		System.out.println("var_provider_project=" + var_provider_project);
+		var_provider = SVCorePlugin.getVariableProvider(var_provider_project);
+		
+		return new Tuple<String, ISVArgFileVariableProvider>(resolved_base_location, var_provider);
+	}
 
 
 	private class UpdateSVDBFileJob extends Job {
@@ -283,83 +570,14 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
-			// Search for the index to which this file belongs
-			String project = null;
-			String root_file = null;
-			
-			if (fFile.startsWith("${workspace_loc}")) {
-				String fullpath = fFile.substring("${workspace_loc}".length());
-				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-				
-				IFile file = root.getFile(new Path(fullpath));
-				
-				if (file != null) {
-					project = file.getProject().getName();
-				}
-			}
-			
-			Tuple<ISVDBIndex, SVDBIndexCollection> result = 
-					SVDBIndexUtil.findArgFileIndex(fFile, project);
-			
-			if (result != null) {
-				// Located the index to which this arg-file belongs
-				ISVDBIndex index = result.first();
-				
-				SVDBFileTree ft = index.findFileTree(fFile, true);
-				
-				// Search up to find the root filetree
-				
-				if (ft != null) {
-					while (ft.getIncludedByFiles().size() > 0) {
-						String ft_path = ft.getIncludedByFiles().get(0);
-						SVDBFileTree ft_next = index.findFileTree(ft_path, true);
-
-						if (ft_next == null) {
-							break;
-						} else {
-							ft = ft_next;
-						}
-					}
-				} else {
-					System.out.println("Failed to find path " + fFile + " in index " + index.getBaseLocation());
-				}
-			
-				if (ft != null) {
-					root_file = ft.getFilePath();
-				}
-			}
-
-			String base_location = SVFileUtils.getPathParent(fFile);
-			String resolved_base_location = base_location;
-			ISVArgFileVariableProvider var_provider = null;
-			IProject var_provider_project = null;
-			
-			if (root_file != null) {
-				base_location = SVFileUtils.getPathParent(root_file);
-				resolved_base_location = base_location;
-				
-//				System.out.println("root_file=" + root_file);
-				
-				if (root_file.startsWith("${workspace_loc}")) {
-					IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-					String root_path = root_file.substring("${workspace_loc}".length());
-//					System.out.println("root_path=" + root_path);
-					IFile root_path_file = root.getFile(new Path(root_path));
-					
-					if (root_path_file != null) {
-						var_provider_project = root_path_file.getProject();
-					}
-				}
-			}
-
-//			System.out.println("var_provider_project=" + var_provider_project);
-			var_provider = SVCorePlugin.getVariableProvider(var_provider_project);
-			SVArgFilePreProcessor pp = new SVArgFilePreProcessor(sin, fFile, var_provider);
+			Tuple<String, ISVArgFileVariableProvider> context = findArgFileContext();
+			SVArgFilePreProcessor pp = new SVArgFilePreProcessor(sin, fFile, 
+					context.second());
 			SVArgFilePreProcOutput pp_out = pp.preprocess();
 			
 			SVArgFileParser p = new SVArgFileParser(
-					base_location,
-					resolved_base_location, 
+					context.first(), // different than resolved base location? // different than resolved base location? // different than resolved base location? // different than resolved base location?
+					context.first(),
 					fFSProvider);
 		
 			SVArgFileLexer l = new SVArgFileLexer();

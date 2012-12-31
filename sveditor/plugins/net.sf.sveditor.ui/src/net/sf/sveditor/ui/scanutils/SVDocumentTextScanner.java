@@ -33,13 +33,19 @@ public class SVDocumentTextScanner
 	private String					fName;
 	private int						fUngetCh;
 	private boolean					fSkipComments;
-	
+	private String					fDocPartition;
+	private String					fDocCommentPartitions[];
+
 	public SVDocumentTextScanner(
 			IDocument 				doc,
+			String					doc_partition,
+			String					doc_comment_partitions[],
 			String					name,
 			int						offset,
 			boolean 				scan_fwd,
 			boolean					skip_comments) {
+		fDocPartition = doc_partition;
+		fDocCommentPartitions = doc_comment_partitions;
 		fDoc     = doc;
 		fName    = name;
 		fOffset  = -1;
@@ -49,11 +55,34 @@ public class SVDocumentTextScanner
 		fLimit   = -1;
 		fSkipComments = skip_comments;
 	}
+
+	@Deprecated
+	public SVDocumentTextScanner(
+			IDocument 				doc,
+			String					name,
+			int						offset,
+			boolean 				scan_fwd,
+			boolean					skip_comments) {
+		this(doc, SVDocumentPartitions.SV_PARTITIONING, 
+				new String[] {
+					SVDocumentPartitions.SV_MULTILINE_COMMENT,
+					SVDocumentPartitions.SV_SINGLELINE_COMMENT},
+				name, offset, scan_fwd, skip_comments);
+	}
 	
 	public SVDocumentTextScanner(
 			IDocument 				doc,
 			int						offset) {
 		this(doc, "", offset, true, false);
+	}
+	
+	public SVDocumentTextScanner(
+			IDocument 				doc,
+			String					doc_partition,
+			String					doc_comment_partitions[],
+			int						offset) {
+		this(doc, doc_partition, doc_comment_partitions,
+				"", offset, true, false);
 	}
 
 	public SVDocumentTextScanner(
@@ -107,6 +136,15 @@ public class SVDocumentTextScanner
 		
 		return new ScanLocation(fName, lineno, linepos);
 	}
+	
+	protected boolean isCommentPartition(ITypedRegion r) {
+		for (String cp : fDocCommentPartitions) {
+			if (r.getType().equals(cp)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public int get_ch() {
 		int ch = -1;
@@ -125,13 +163,10 @@ public class SVDocumentTextScanner
 						(fLimit != -1 && (fIdx <= fLimit))) {
 						ITypedRegion r = null;
 						try {
-							r = ext3.getPartition(SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
+							r = ext3.getPartition(fDocPartition, fIdx, false);
 						} catch (BadPartitioningException e) {}
 								
-						if (!fSkipComments ||
-								(r != null && 
-								!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
-								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT))) {
+						if (!fSkipComments || (r != null && !isCommentPartition(r))) {
 							ch = fDoc.getChar(fIdx);
 							fIdx++;
 							break;
@@ -151,13 +186,13 @@ public class SVDocumentTextScanner
 					while (fIdx >= fOffset) {
 						ITypedRegion r = null;
 						try {
-							r = ext3.getPartition(SVDocumentPartitions.SV_PARTITIONING, fIdx, false);
-						} catch (BadPartitioningException e) {}
+							r = ext3.getPartition(fDocPartition, fIdx, false);
+						} catch (BadPartitioningException e) {
+							System.out.println("badLocation: " + fIdx);
+							break;
+						}
 						
-						if (!fSkipComments ||
-								(r != null && 
-								!r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
-								!r.getType().equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT))) {
+						if (!fSkipComments || (r != null && !isCommentPartition(r))) {
 							if (fIdx >= fDoc.getLength()) {
 								fIdx = fDoc.getLength()-1;
 							}

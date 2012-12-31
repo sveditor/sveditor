@@ -14,20 +14,24 @@ package net.sf.sveditor.ui.argfile.editor.actions;
 
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.argfile.editor.SVArgFileDocumentPartitions;
 import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OpenDeclarationAction extends TextEditorAction {
 	private SVArgFileEditor			fEditor;
 	private LogHandle				fLog;
-	private boolean				fDebugEn = true;
+	private boolean					fDebugEn = true;
 
 	public OpenDeclarationAction(
 			ResourceBundle			bundle,
@@ -58,11 +62,33 @@ public class OpenDeclarationAction extends TextEditorAction {
 		IDocument doc = getDocument();
 		ITextSelection sel = getTextSel();
 		int offset = sel.getOffset() + sel.getLength();
-		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, offset);
+		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, 
+				SVArgFileDocumentPartitions.SV_ARGFILE_PARTITIONING,
+				new String[] {
+					SVArgFileDocumentPartitions.SV_ARGFILE_SINGLELINE_COMMENT,
+					SVArgFileDocumentPartitions.SV_ARGFILE_MULTILINE_COMMENT},
+				offset);
 		
 		scanner.setSkipComments(true);
 		
 		System.out.println("OpenDeclarationAction");
+		
+		String path = SVArgFileOpenDeclaration.openDecl(scanner);
+		
+		if (path != null) {
+			// Must use the context of this editor to resolve
+			// the final path
+			path = fEditor.resolvePath(path);
+			System.out.println("Resolved path: " + path);
+
+			try {
+				SVEditorUtil.openEditor(path, null);
+			} catch (PartInitException e) {
+				// TODO: log failure
+			}
+			/*
+			 */
+		}
 
 		/*
 		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();

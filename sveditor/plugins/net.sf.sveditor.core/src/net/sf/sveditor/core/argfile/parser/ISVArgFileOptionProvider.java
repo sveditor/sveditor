@@ -6,7 +6,7 @@ import net.sf.sveditor.core.Tuple;
 
 public interface ISVArgFileOptionProvider {
 	
-	enum OptionType {
+	public enum OptionType {
 		Unrecognized,
 		Ignored,
 		Incdir,

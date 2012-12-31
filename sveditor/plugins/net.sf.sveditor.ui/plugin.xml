@@ -1078,7 +1078,7 @@ endclass
       </factory>
       <factory
             class="net.sf.sveditor.ui.editor.SVEditorAnnotationModelFactory"
-            contentTypeId="systemverilog">
+            contentTypeId="net.sf.sveditor.core.systemverilog">
       </factory>
    </extension>
 </plugin>
