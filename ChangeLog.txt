@@ -1,6 +1,8 @@
 
 -- 1.1.0 Release --
 
+- #(enh) Add outline view for the ArgView editor
+
 ------------------------------------------------------------------------------
 -- 1.0.9 Release --
 

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -115,6 +116,7 @@ public class SVArgFileParser {
 
 						if (path != null) {
 							path = resolvePath(path);
+							System.out.println("resolved path: " + path);
 
 							if (!fFSProvider.fileExists(path)) {
 								error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
@@ -211,11 +213,12 @@ public class SVArgFileParser {
 				SVDBArgFilePathStmt p = new SVDBArgFilePathStmt();
 				SVDBLocation loc = fLexer.getStartLocation();
 				p.setLocation(loc);
-				p.setPath(fLexer.eatToken());
+				String path = fLexer.eatToken();
 				file.addChildItem(p);
 				
 				// Try to resolve path
-				String path = resolvePath(p.getPath());
+				path = resolvePath(path);
+				p.setPath(path);
 				
 				if (!fFSProvider.fileExists(path)) {
 					error(loc, "Path \"" + path + "\" does not exist; " + 
@@ -302,6 +305,11 @@ public class SVArgFileParser {
 			IFile file = ws_root.getFileForLocation(new Path(norm_path));
 			if (file != null && file.exists()) {
 				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
+			} else {
+				IContainer folder = ws_root.getContainerForLocation(new Path(norm_path));
+				if (folder != null && folder.exists()) {
+					norm_path = "${workspace_loc}" + folder.getFullPath().toOSString();
+				}
 			}
 		}
 		

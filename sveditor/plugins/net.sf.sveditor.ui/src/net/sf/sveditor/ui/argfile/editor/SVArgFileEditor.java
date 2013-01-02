@@ -19,6 +19,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
 import net.sf.sveditor.core.argfile.parser.SVArgFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -102,15 +103,55 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		fFSProvider = new SVDBWSFileSystemProvider();
 		fFSProvider.init(SVFileUtils.getPathParent(fFile));
 	}
-	
+
 	public SVDBFile getSVDBFile() {
 		return fSVDBFile;
 	}
 	
 	public void setSelection(ISVDBItemBase it, boolean set_cursor) {
+		int start = -1;
+		int end   = -1;
 		
+		if (it.getLocation() != null) {
+			start = it.getLocation().getLine();
+			
+			if (it instanceof ISVDBScopeItem &&
+					((ISVDBScopeItem)it).getEndLocation() != null) {
+				end = ((ISVDBScopeItem)it).getEndLocation().getLine();
+			}
+			setSelection(start, end, set_cursor);
+		}		
 	}
 
+	public void setSelection(int start, int end, boolean set_cursor) {
+		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+		
+		// Lineno is used as an offset
+		if (start > 0) {
+			start--;
+		}
+		
+		if (end == -1) {
+			end = start;
+		}
+		try {
+			int offset    = doc.getLineOffset(start);
+			int last_line = doc.getLineOfOffset(doc.getLength()-1);
+			
+			if (end > last_line) {
+				end = last_line;
+			}
+			int offset_e = doc.getLineOffset(end);
+			setHighlightRange(offset, (offset_e-offset), false);
+			if (set_cursor) {
+				getSourceViewer().getTextWidget().setCaretOffset(offset);
+			}
+			selectAndReveal(offset, 0, offset, (offset_e-offset));
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public SVArgFileCodeScanner getCodeScanner() {
 		return fCodeScanner;
 	}
@@ -247,16 +288,14 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
-		/** Outline disabled for now
 		if (adapter.equals(IContentOutlinePage.class)) {
 			if (fOutline == null) {
 				fOutline = new SVArgFileOutlinePage(this);
 			}
 			return fOutline;
 		} else {
-		 */
 			return super.getAdapter(adapter);
-//		}
+		}
 	}
 
 	/**
@@ -595,6 +634,10 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			addErrorMarkers(markers);
 			
 			fSVDBFile = file;
+			
+			if (fOutline != null) {
+				fOutline.refresh();
+			}
 			
 			synchronized (SVArgFileEditor.this) {
 				fUpdateSVDBFileJob = null;
