@@ -103,6 +103,37 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 					"${DIR}/file2.sv"});
 	}
 
+	public void testIncdirVarPathProjectRelative() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"+incdir+${DIR}/f<<MARK>>\n" 
+			;
+		
+		IProject p = TestUtils.createProject(
+				getName(), new File(fTmpDir, getName()));
+		addProject(p);
+
+		p.getFolder("dir1").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir2").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir3").create(true, true, new NullProgressMonitor());
+
+		TestUtils.copy("", p.getFile("dir1/file1.sv"));
+		TestUtils.copy("", p.getFile("dir1/file2.sv"));
+		TestUtils.copy("", p.getFile("dir1/1_file.sv"));
+		TestUtils.copy("", p.getFile("dir1/2_file.sv"));
+		p.getFolder("dir1/folder1").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir1/folder2").create(true, true, new NullProgressMonitor());
+		
+
+		TestArgFileVariableProvider this_vp = new TestArgFileVariableProvider();
+		this_vp.setVar("DIR", "dir1");
+
+		runTest(doc, "${workspace_loc}/" + getName(), p, this_vp,
+				new String[] {
+					"${DIR}/folder1",
+					"${DIR}/folder2"});
+	}
+
 	/*
 	public void testFileOptionContentAssist() {
 		String doc =

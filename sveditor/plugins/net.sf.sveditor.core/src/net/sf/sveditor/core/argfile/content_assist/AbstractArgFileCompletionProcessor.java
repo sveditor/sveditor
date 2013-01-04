@@ -182,7 +182,7 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 						}
 					} else {
 						// Dir path
-						if (fFileSystemProvider.isDir(file)) {
+						if (fFileSystemProvider.isDir(full_file)) {
 							if (matches(file, proposal_leaf)) {
 								addProposal(ctxt, proposal);
 							}

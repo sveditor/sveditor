@@ -161,6 +161,7 @@ public class SVArgFileExprScanner {
 							// The token includes another '+', indicating that
 							// we have an option with a value
 							ret.fRoot = elem.substring(0, next_plusarg+1);
+							ret.fStart += ret.fRoot.length();
 							// TODO: Setting for fStart (?)
 							ret.fLeaf = elem.substring(next_plusarg+1);
 						} else {
