@@ -32,6 +32,7 @@ public class ArgFileParserTests extends TestSuite {
 	public static TestSuite suite() {
 		TestSuite suite = new TestSuite();
 		suite.addTestSuite(TestArgFileParser.class);
+		suite.addTestSuite(TestArgFileExprScanner.class);
 		
 		return suite;
 	}

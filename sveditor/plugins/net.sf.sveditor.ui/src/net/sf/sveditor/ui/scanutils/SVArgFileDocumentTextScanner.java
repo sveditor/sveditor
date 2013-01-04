@@ -12,32 +12,32 @@
 
 package net.sf.sveditor.ui.scanutils;
 
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import net.sf.sveditor.ui.argfile.editor.SVArgFileDocumentPartitions;
 
 import org.eclipse.jface.text.IDocument;
 
-public class SVDocumentTextScanner extends SVDocumentTextScannerBase {
+public class SVArgFileDocumentTextScanner extends SVDocumentTextScannerBase {
 	
-	public SVDocumentTextScanner(
+	public SVArgFileDocumentTextScanner(
 			IDocument 				doc,
 			String					name,
 			int						offset,
 			boolean 				scan_fwd,
 			boolean					skip_comments) {
-		super(doc, SVDocumentPartitions.SV_PARTITIONING, 
+		super(doc, SVArgFileDocumentPartitions.SV_ARGFILE_PARTITIONING,
 				new String[] {
-					SVDocumentPartitions.SV_MULTILINE_COMMENT,
-					SVDocumentPartitions.SV_SINGLELINE_COMMENT},
+					SVArgFileDocumentPartitions.SV_ARGFILE_SINGLELINE_COMMENT,
+					SVArgFileDocumentPartitions.SV_ARGFILE_MULTILINE_COMMENT},
 				name, offset, scan_fwd, skip_comments);
 	}
 	
-	public SVDocumentTextScanner(
+	public SVArgFileDocumentTextScanner(
 			IDocument 				doc,
 			int						offset) {
 		this(doc, "", offset, true, false);
 	}
 	
-	public SVDocumentTextScanner(
+	public SVArgFileDocumentTextScanner(
 			IDocument 				doc,
 			int						offset,
 			int						limit) {

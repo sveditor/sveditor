@@ -505,7 +505,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	 * 
 	 * @return <resolved_base_location, variable_provider>
 	 */
-	private Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
+	public Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
 		// Search for the index to which this file belongs
 		String project = null;
 		String root_file = null;

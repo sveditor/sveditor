@@ -24,7 +24,7 @@ public class SVArgFileExprContext {
 	// Document offset where 'leaf' begins
 	public int 						fStart;
 	
-	public ArgFileContextType				fType;
+	public ArgFileContextType		fType;
 	
 	// Root of the expression
 	public String					fRoot;

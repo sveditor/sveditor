@@ -3,6 +3,11 @@
 
 - #(enh) Add outline view for the ArgFile editor
 
+- #(enh) Add content assist for the ArgFile editor
+  - Content assist is provided for path references (both directory and file)
+  - Content assist is provided for variable references
+
+
 ------------------------------------------------------------------------------
 -- 1.0.9 Release --
 

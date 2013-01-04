@@ -4,14 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
@@ -29,6 +21,13 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 public class SVArgFileParser {
 	private SVArgFileOptionProviderList			fOptionProviders;
@@ -116,7 +115,6 @@ public class SVArgFileParser {
 
 						if (path != null) {
 							path = resolvePath(path);
-							System.out.println("resolved path: " + path);
 
 							if (!fFSProvider.fileExists(path)) {
 								error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
