@@ -60,7 +60,7 @@ public class TestProjectSettingChanges extends TestCase {
 	}
 	
 	public void testRemoveErrorIndex() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		List<SVDBMarker> markers;
 		fProject = TestUtils.createProject("error_index");
 		

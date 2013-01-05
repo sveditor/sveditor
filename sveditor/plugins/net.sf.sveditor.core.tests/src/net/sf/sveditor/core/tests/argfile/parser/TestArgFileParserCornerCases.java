@@ -11,7 +11,7 @@ public class TestArgFileParserCornerCases extends TestCase {
 
 	public void testMissingArgFileIncPath() throws SVParseException {
 		String testname = "testArgFileInc";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"-f /tools/argfiles/argfile1.f\n" +
 				"-file /tools/argfiles/argfile2.f\n" +

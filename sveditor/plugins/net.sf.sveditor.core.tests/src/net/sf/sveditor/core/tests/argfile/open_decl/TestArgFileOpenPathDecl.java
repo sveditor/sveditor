@@ -56,7 +56,7 @@ public class TestArgFileOpenPathDecl extends TestCase {
 	
 	public void testArgFileScanner_IncPath() {
 		String testname = "testArgFileScanner_IncPath";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"-INC ../../foo\n" + // << Mark is here
@@ -78,7 +78,7 @@ public class TestArgFileOpenPathDecl extends TestCase {
 
 	public void testArgFileScanner_PathAfterIncPath() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"+incdir+${DIR}/files/incpath\n" +

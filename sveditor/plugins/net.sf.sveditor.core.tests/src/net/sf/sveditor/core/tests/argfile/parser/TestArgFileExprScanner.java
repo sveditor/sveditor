@@ -11,7 +11,7 @@ import net.sf.sveditor.core.tests.TextTagPosUtils;
 public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 
 	public void testFilePathContentAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"${workspace_loc}/foo.sv\n" +
 			"+incdir+${workspace_loc}/path1/path2/a<<MARK>>\n"
@@ -21,7 +21,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 
 	public void testFileOptionContentAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"${workspace_loc}/foo.sv\n" +
 			"-I <<MARK>>\n"
@@ -31,7 +31,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 
 	public void testIncdirPathContentAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"${workspace_loc}/foo.sv\n" +
 			"+incdir+/tools/include/<<MARK>>\n"
@@ -41,7 +41,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 	
 	public void testPlusargOptionAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"+inc<<MARK>>\n";
 			;
@@ -50,7 +50,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 	
 	public void testOptionAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"-I<<MARK>>\n";
 			;
@@ -59,7 +59,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 
 	public void testEmptyAssist_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"<<MARK>>\n";
 			;
@@ -68,7 +68,7 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 	}
 	
 	public void testEmptyAssist_2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"/foo/bar <<MARK>>\n";
 			;

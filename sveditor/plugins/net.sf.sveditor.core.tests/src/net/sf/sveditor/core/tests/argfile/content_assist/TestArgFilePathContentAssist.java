@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 
 	public void testFilePathWorkspaceRelative() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"${workspace_loc}/" + getName() + "/dir1/f<<MARK>>\n" 
 			;
@@ -48,7 +48,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testFilePathProjectRelative() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"dir1/f<<MARK>>\n" 
 			;
@@ -73,7 +73,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testFileVarPathProjectRelative() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"${DIR}/f<<MARK>>\n" 
 			;
@@ -104,7 +104,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testIncdirVarPathProjectRelative() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"+incdir+${DIR}/f<<MARK>>\n" 
 			;
@@ -135,7 +135,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testIncdirRelPath() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"+incdir+d<<MARK>>\n" 
 			;
@@ -161,7 +161,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testIncdirUpdirPath() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"+incdir+../d<<MARK>>\n" 
 			;
@@ -193,7 +193,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 			"-I <<MARK>>\n"
 			;
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
@@ -210,7 +210,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 			"+incdir+/tools/include/<<MARK>>\n"
 			;
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
