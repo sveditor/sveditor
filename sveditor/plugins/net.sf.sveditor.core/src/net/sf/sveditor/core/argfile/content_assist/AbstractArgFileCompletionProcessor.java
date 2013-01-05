@@ -86,6 +86,8 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 		String proposal_base = "";
 		String proposal_leaf = "";
 		
+		fLog.debug("leaf=" + ctxt.fLeaf + " root=" + ctxt.fRoot);
+		
 		if (ctxt.fLeaf != null && !ctxt.fLeaf.trim().equals("")) {
 			// Completion with a path specified
 			
@@ -112,27 +114,45 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 			}
 			
 			if (!var_request) {
-				if (ctxt.fLeaf.endsWith("/")) {
-					// no leaf supplied
-					proposal_base = ctxt.fLeaf;
-					proposal_leaf = "";
-				} else {
-					// Leaf path supplied
-					proposal_base = SVFileUtils.getPathParent(ctxt.fLeaf) + "/";
-					proposal_leaf = SVFileUtils.getPathLeaf(ctxt.fLeaf);
-				}
+				// Determine what to use at the resolved_base
+				if (ctxt.fLeaf.indexOf('/') != -1 ||
+						ctxt.fLeaf.indexOf('\\') != -1) {
+					// It makes sense to provide proposals from the parent
+					
+					if (ctxt.fLeaf.endsWith("/") || ctxt.fLeaf.endsWith("\\")) {
+						// Proposal request doesn't really have a leaf
+						proposal_base = ctxt.fLeaf;
+						proposal_leaf = "";
+						resolved_base = ctxt.fLeaf;
+					} else {
+						// Proposal request does have a leaf. We should resolve
+						// relative to the base of the leaf
+						proposal_base = SVFileUtils.getPathParent(ctxt.fLeaf) + "/";
+						proposal_leaf = SVFileUtils.getPathLeaf(ctxt.fLeaf);
+						resolved_base = SVFileUtils.getPathParent(ctxt.fLeaf);
+					}
 				
-				resolved_base = SVArgFileUtils.expandVars(proposal_base, fVarProvider);
+					resolved_base = SVArgFileUtils.expandVars(resolved_base, fVarProvider);
 
-				/*
-				proposal = proposal_base + full_file.substring(resolved_base.length());
-				proposal = SVFileUtils.getPathParent(proposal_base) + "/" + file;
-				 */
-				
-				if (!fFileSystemProvider.isDir(resolved_base)) {
-					resolved_base = SVArgFileUtils.expandVars(
-							fBaseLocationDir + "/" + proposal_base, fVarProvider);
+					if (!fFileSystemProvider.isDir(resolved_base)) {
+						// Try prepending the base location
+						String tmp_resolved_base = fBaseLocationDir + "/" + resolved_base;
+					
+						if (fFileSystemProvider.isDir(tmp_resolved_base)) {
+							resolved_base = tmp_resolved_base;
+						} else {
+							fLog.debug("Neither resolved_base=" + resolved_base + 
+									" nor tmp_resolved_base=" + tmp_resolved_base + " exist");
+						}
+					}
+				} else {
+					// We should just use the supplied BaseLocation
+					proposal_base = "";
+					proposal_leaf = ctxt.fLeaf;
+					resolved_base = fBaseLocationDir;
 				}
+
+				fLog.debug("initial resolved_base: " + resolved_base);
 			}
 		} else {
 			// Completion without a path specified
@@ -161,17 +181,6 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 					String file = SVFileUtils.getPathLeaf(full_file);
 					String proposal;
 					
-					/*
-					if (proposal_base.equals("")) {
-						proposal = full_file.substring(resolved_base.length());
-					} else {
-						proposal = proposal_base + full_file.substring(resolved_base.length());
-					}
-					 */
-					/*
-					proposal = proposal_base + full_file.substring(resolved_base.length());
-					proposal = SVFileUtils.getPathParent(proposal_base) + "/" + file;
-					 */
 					proposal = proposal_base + file;
 					
 					fLog.debug("file path: " + file);

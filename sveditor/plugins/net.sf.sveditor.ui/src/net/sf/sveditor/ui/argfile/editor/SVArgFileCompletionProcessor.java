@@ -39,6 +39,8 @@ public class SVArgFileCompletionProcessor extends AbstractArgFileCompletionProce
 		scanner.setSkipComments(true);
 		
 		Tuple<String, ISVArgFileVariableProvider> ctxt = fEditor.findArgFileContext();
+		
+		System.out.println("Context: " + ctxt.first());
 		init(new SVDBWSFileSystemProvider(), ctxt.first(), null, ctxt.second());
 	
 		int lineno = -1, linepos = -1;

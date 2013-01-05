@@ -176,17 +176,20 @@ public class SVArgFileExprScanner {
 					if (ret.fRoot == null) {
 						// Try reading another token
 						c = scanner.get_ch();
-						c = scanner.skipWhite(c);
-						scanner.unget_ch(c);
-						debug("unget_ch=" + (char)c);
-						elem = readToken(scanner, false);
-						
-						debug("elem_2=" + elem);
-						
-						if (elem != null && elem.length() > 0) {
-							// plusargs not applicable here
-							if (elem.charAt(0) == '-') {
-								ret.fRoot = elem;
+						fLog.debug("c=" + (char)c);
+						if (c != -1) {
+							c = scanner.skipWhite(c);
+							scanner.unget_ch(c);
+							debug("unget_ch=" + (char)c);
+							elem = readToken(scanner, false);
+
+							debug("elem_2=" + elem);
+
+							if (elem != null && elem.length() > 0) {
+								// plusargs not applicable here
+								if (elem.charAt(0) == '-') {
+									ret.fRoot = elem;
+								}
 							}
 						}
 					}
@@ -206,80 +209,6 @@ public class SVArgFileExprScanner {
 					}
 				}
 			}
-
-			/*
-//			if (SVCharacter.isSVIdentifierPart((c = scanner.get_ch()))) {
-			if (isPathPart((c = scanner.get_ch()))) { // SVCharacter.isSVIdentifierPart((c = scanner.get_ch()))) {
-				debug("notInString c=\"" + (char)c + "\"");
-				scanner.unget_ch(c);
-				String id = readIdentifier(scanner, leaf_scan_fwd);
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				ret.fLeaf = id;
-				
-				debug("id=\"" + id + "\"");
-
-				// See if we're working with a triggered expression
-				ret.fTrigger = readTriggerStr(scanner, true);
-				debug("trigger=\"" + ret.fTrigger + "\"");
-				
-				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
-					// Read an expression
-					ret.fType = ContextType.Triggered;
-					ret.fRoot = readPath(scanner);
-					
-					if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
-						ret.fRoot = null;
-					}
-				} else if (ret.fTrigger == null) {
-					ret.fType = ContextType.Untriggered;
-						
-					// Just process the identifier
-					c = scanner.skipWhite(scanner.get_ch());
-					
-					if (c == '=') {
-						int c2 = scanner.get_ch();
-						if (c2 != '=' && c2 != '>' &&
-								c2 != '<' && c2 != '&' &&
-								c2 != '|' && c2 != '+' &&
-								c2 != '-') {
-							c = scanner.skipWhite(c2);
-							ret.fTrigger = "=";
-						}
-					}
-					
-					if (SVCharacter.isSVIdentifierPart(c)) {
-						scanner.unget_ch(c);
-						ret.fRoot = readIdentifier(scanner, false);
-					}
-				}
-			} else {
-				// backup and try for a triggered identifier
-				debug("notInId: ch=\"" + (char)c + "\"");
-				
-				scanner.unget_ch(c);
-				
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				
-				if ((ret.fTrigger = readTriggerStr(scanner, true)) != null) {
-					ret.fType = ContextType.Triggered;
-					
-					if (scan_fwd) {
-						scanner.setScanFwd(true);
-						c = scanner.get_ch();
-						fLog.debug("post-trigger c=\"" + (char)c + "\"");
-						ret.fLeaf = readIdentifier(scanner, true);
-						
-						// Now, back up to ensure that we get the pre-trigger portion
-						scanner.setScanFwd(false);
-						c = scanner.get_ch();
-						fLog.debug("post-leaf c=\"" + (char)c + "\"");
-					} else {
-						ret.fLeaf = "";
-					}
-					ret.fRoot = readPath(scanner);
-				}
-			}
-			 */
 		}
 		
 		debug("<-- extractExprContext()");
@@ -291,6 +220,8 @@ public class SVArgFileExprScanner {
 		if (ret.fRoot == null && ret.fTrigger == null && ret.fLeaf == null) {
 			ret.fLeaf = "";
 		}
+		
+		fLog.debug("ret.fRoot=" + ret.fRoot + " ret.fLeaf=" + ret.fLeaf);
 		
 		return ret;
 	}
@@ -394,10 +325,11 @@ public class SVArgFileExprScanner {
 	
 		if (ch == -1) {
 			start_pos = 0;
+			seek = -1;
 		} else {
 			start_pos = scanner.getPos() + 2;
+			seek = scanner.getPos() + 1;
 		}
-		seek = scanner.getPos() + 1;
 //		seek = scanner.getPos();
 		
 		if (scan_fwd) {
@@ -410,8 +342,9 @@ public class SVArgFileExprScanner {
 			end_pos = scanner.getPos() - 1;
 		}
 
-		scanner.setScanFwd(is_scan_fwd);
+		fLog.debug("  seek " + seek);
 		scanner.seek(seek);
+		scanner.setScanFwd(is_scan_fwd);
 
 		fLog.debug("<-- readToken(scan_fwd=" + scan_fwd + ")");
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
