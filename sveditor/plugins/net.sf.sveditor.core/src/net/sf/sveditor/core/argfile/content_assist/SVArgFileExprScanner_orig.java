@@ -18,12 +18,12 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
-public class SVArgFileExprScanner {
+public class SVArgFileExprScanner_orig {
 
 	private boolean 						fDebugEn = true;
 	private LogHandle						fLog;
 
-	public SVArgFileExprScanner() {
+	public SVArgFileExprScanner_orig() {
 		fLog = LogFactory.getLogHandle("SVArgFileExprScanner");
 	}
 	

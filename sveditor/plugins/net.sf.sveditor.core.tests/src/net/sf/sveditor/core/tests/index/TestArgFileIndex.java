@@ -87,7 +87,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSLibPath");
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject("project");
 		addProject(project_dir);

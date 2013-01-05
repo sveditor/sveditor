@@ -2,6 +2,7 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
@@ -34,4 +35,9 @@ public class SVArgFileEnvVarProvider implements ISVArgFileVariableProvider {
 		return fProvidedVars;
 	}
 
+	public Set<String> getVariables() {
+		return System.getenv().keySet();
+	}
+
+	
 }

@@ -2,8 +2,8 @@ package net.sf.sveditor.core.tests.argfile.open_decl;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprContext;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprScanner;
+import net.sf.sveditor.core.argfile.parser.SVArgFileExprContext;
+import net.sf.sveditor.core.argfile.parser.SVArgFileExprScanner;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -78,7 +78,7 @@ public class TestArgFileOpenPathDecl extends TestCase {
 
 	public void testArgFileScanner_PathAfterIncPath() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"+incdir+${DIR}/files/incpath\n" +

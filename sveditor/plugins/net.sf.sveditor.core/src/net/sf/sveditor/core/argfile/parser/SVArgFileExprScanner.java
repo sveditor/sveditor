@@ -46,6 +46,8 @@ public class SVArgFileExprScanner {
 			IBIDITextScanner 		scanner,
 			boolean					leaf_scan_fwd) {
 		SVArgFileExprContext ret = new SVArgFileExprContext();
+		ret.fType = ContextType.PathComplete;
+		
 		debug("--> extractExprContext()");
 
 		int c = -1;
@@ -93,10 +95,9 @@ public class SVArgFileExprScanner {
 		// Check whether we're currently in a string
 		if (isInString(scanner)) {
 			debug("isInString()");
-			// It's most likely that we're looking at an include
+			// A string should only show up as part of a file path
+			// or the argument to an option
 			
-			ret.fType = ContextType.String;
-
 			ret.fLeaf = readString(scanner, leaf_scan_fwd);
 			
 			long seek = scanner.getPos();
@@ -135,96 +136,76 @@ public class SVArgFileExprScanner {
 					ret.fRoot = "include";
 				}
 			}
-		} else {
-			if (SVCharacter.isSVIdentifierPart((c = scanner.get_ch()))) {
-				debug("notInString c=\"" + (char)c + "\"");
+		} else { // Not in a string
+			// Read a ws-delimited element. This could either be 
+			// an option or a path
+			c = scanner.get_ch();
+			
+			if (!Character.isWhitespace(c)) {
 				scanner.unget_ch(c);
-				String id = readIdentifier(scanner, leaf_scan_fwd);
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				ret.fLeaf = id;
+				String elem = readToken(scanner, leaf_scan_fwd);
 				
-				debug("id=\"" + id + "\"");
+				debug("elem=" + elem);
+				
+				if (elem != null && elem.length() > 0) {
+					ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-back mode
+					
+					if (elem.charAt(0) == '-') {
+						// Content-assist for option
+						ret.fLeaf = elem;
+						ret.fType = ContextType.OptionComplete;
+					} else if (elem.charAt(0) == '+') {
+						int next_plusarg;
 
-				// See if we're working with a triggered expression
-				ret.fTrigger = readTriggerStr(scanner, true);
-				debug("trigger=\"" + ret.fTrigger + "\"");
-				
-				if (ret.fTrigger != null && !ret.fTrigger.equals("`")) {
-					// Read an expression
-					ret.fType = ContextType.Triggered;
-					ret.fRoot = readExpression(scanner);
-					
-					if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
-						ret.fRoot = null;
+						if ((next_plusarg = elem.indexOf('+', 1)) != -1) {
+							// The token includes another '+', indicating that
+							// we have an option with a value
+							ret.fRoot = elem.substring(0, next_plusarg+1);
+							ret.fStart += ret.fRoot.length();
+							// TODO: Setting for fStart (?)
+							ret.fLeaf = elem.substring(next_plusarg+1);
+						} else {
+							// mid-option. Content assist for plusarg
+							ret.fLeaf = elem;
+						}
+					} else {
+						// Should be a path
+						ret.fLeaf = elem;
 					}
-				} else if (ret.fTrigger == null) {
-					ret.fType = ContextType.Untriggered;
-						
-					// Just process the identifier
-					c = scanner.skipWhite(scanner.get_ch());
 					
-					if (c == '=') {
-						int c2 = scanner.get_ch();
-						if (c2 != '=' && c2 != '>' &&
-								c2 != '<' && c2 != '&' &&
-								c2 != '|' && c2 != '+' &&
-								c2 != '-') {
-							c = scanner.skipWhite(c2);
-							ret.fTrigger = "=";
+					if (ret.fRoot == null) {
+						// Try reading another token
+						c = scanner.get_ch();
+						fLog.debug("c=" + (char)c);
+						if (c != -1) {
+							c = scanner.skipWhite(c);
+							scanner.unget_ch(c);
+							debug("unget_ch=" + (char)c);
+							elem = readToken(scanner, false);
+
+							debug("elem_2=" + elem);
+
+							if (elem != null && elem.length() > 0) {
+								// plusargs not applicable here
+								if (elem.charAt(0) == '-') {
+									ret.fRoot = elem;
+								}
+							}
 						}
 					}
-					
-					if (SVCharacter.isSVIdentifierPart(c)) {
-						scanner.unget_ch(c);
-						ret.fRoot = readIdentifier(scanner, false);
-					}
 				}
 			} else {
-				// backup and try for a triggered identifier
-				debug("notInId: ch=\"" + (char)c + "\"");
+				// We're in a whitespace region. Check whether we're
+				// just after an option
 				
-				scanner.unget_ch(c);
+				c = scanner.skipWhite(c);
 				
-				ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-backward mode
-				
-				if ((ret.fTrigger = readTriggerStr(scanner, true)) != null) {
-					ret.fType = ContextType.Triggered;
-					
-					if (scan_fwd) {
-						scanner.setScanFwd(true);
-						c = scanner.get_ch();
-						fLog.debug("post-trigger c=\"" + (char)c + "\"");
-						ret.fLeaf = readIdentifier(scanner, true);
-						
-						// Now, back up to ensure that we get the pre-trigger portion
-						scanner.setScanFwd(false);
-						c = scanner.get_ch();
-						fLog.debug("post-leaf c=\"" + (char)c + "\"");
-					} else {
-						ret.fLeaf = "";
-					}
-					ret.fRoot = readExpression(scanner);
-				}
-			}
-		}
-		
-		if (ret.fType != ContextType.String) {
-			if (ret.fRoot != null && ret.fRoot.equals("import")) {
-				ret.fType = ContextType.Import;
-			} else {
-				// Read preceeding token. It's possible we need to change this type
-				c = scanner.skipWhite(scanner.get_ch());
-
-				if (SVCharacter.isSVIdentifierPart(c)) {
+				if (c != -1) {
 					scanner.unget_ch(c);
-					String tmp = readIdentifier(scanner, false);
-					
-					fLog.debug("preceeding token: " + tmp.toString());
-						
-					if (tmp.equals("import")) {
-						ret.fType = ContextType.Import;
-					} else if (tmp.equals("extends")) {
-						ret.fType = ContextType.Extends;
+					String elem = readToken(scanner, leaf_scan_fwd);
+					if (elem != null && elem.startsWith("-")) {
+						ret.fStart = (int)scanner.getPos()+1; // compensate for begin in scan-back mode
+						ret.fRoot = elem;
 					}
 				}
 			}
@@ -235,10 +216,12 @@ public class SVArgFileExprScanner {
 		if (ret.fRoot != null && ret.fRoot.trim().equals("")) {
 			ret.fRoot = null;
 		}
-		
+
 		if (ret.fRoot == null && ret.fTrigger == null && ret.fLeaf == null) {
 			ret.fLeaf = "";
 		}
+		
+		fLog.debug("ret.fRoot=" + ret.fRoot + " ret.fLeaf=" + ret.fLeaf);
 		
 		return ret;
 	}
@@ -273,84 +256,6 @@ public class SVArgFileExprScanner {
 		return ret;
 	}
 	
-	private String readExpression(IBIDITextScanner scanner) {
-		int ch;
-		String trigger = null;
-		
-		fLog.debug("--> readExpression");
-		// Continue moving backwards
-		scanner.setScanFwd(false);
-		
-		ch = scanner.skipWhite(scanner.get_ch());
-		scanner.unget_ch(ch);
-		long end_pos = scanner.getPos(), start_pos;
-		
-		do {
-			ch = scanner.skipWhite(scanner.get_ch());
-			fLog.debug("    trigger=\"" + trigger + "\" ch=\"" + (char)ch + "\"");
-			
-			if (ch == ')') {
-				scanner.skipPastMatch(")(");
-				// Could be a function
-				fLog.debug("    post ')(' char is: " + (char)ch);
-				ch = scanner.skipWhite(scanner.get_ch());
-				if (SVCharacter.isSVIdentifierPart(ch)) {
-					scanner.readIdentifier(ch);
-				} else {
-					scanner.unget_ch(ch);
-				}
-			} else if (ch == ']') {
-				// Skip what's in an array reference
-				ch = scanner.skipPastMatch("][");
-				ch = scanner.skipWhite(scanner.get_ch());
-				if (SVCharacter.isSVIdentifierPart(ch)) {
-					scanner.readIdentifier(ch);
-				} else {
-					scanner.unget_ch(ch);
-				}
-			} else if (SVCharacter.isSVIdentifierPart(ch)) {
-				scanner.readIdentifier(ch);
-			} else {
-				fLog.debug("end readExpression: unknown ch \"" + (char)ch + "\"");
-				start_pos = (scanner.getPos()+2);
-				break;
-			}
-			start_pos = (scanner.getPos()+1);
-		} while ((trigger = readTriggerStr(scanner, false)) != null);
-		
-		fLog.debug("<-- readExpression");
-		
-		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
-	}
-
-	/**
-	 * 
-	 * @param scanner
-	 * @return
-	 */
-	private String readTriggerStr(IBIDITextScanner scanner, boolean allow_colon) {
-		long start_pos = scanner.getPos();
-		scanner.setScanFwd(false);
-		int ch = scanner.skipWhite(scanner.get_ch());
-		
-		if (ch == '.' || ch == '`') {
-			return "" + (char)ch;
-		} else if (ch == ':') {
-			int ch2 = scanner.get_ch();
-			
-			if (ch2 == ':') {
-				return "::";
-			} else if (allow_colon) {
-				return ":";
-			}
-		}
-		
-		// If we didn't identify a trigger, then restore the
-		// previous position
-		scanner.seek(start_pos);
-		return null;
-	}
-
 	/**
 	 * Read a string surrounding the current position. The scanner will
 	 * be left at the beginning of the string.
@@ -404,46 +309,47 @@ public class SVArgFileExprScanner {
 		}
 	}
 
-	/**
-	 * readIdentifier()
-	 * 
-	 * Reads the identifier surrounding the current location. 
-	 * 
-	 * @param scanner
-	 * @param scan_fwd
-	 * @return
-	 */
-	private String readIdentifier(IBIDITextScanner scanner, boolean scan_fwd) {
+	private String readToken(IBIDITextScanner scanner, boolean scan_fwd) {
 		int ch;
-		fLog.debug("--> readIdentifier(scan_fwd=" + scan_fwd + ")");
+		fLog.debug("--> readToken(scan_fwd=" + scan_fwd + ")");
 		
 		long end_pos = (scanner.getScanFwd())?scanner.getPos():(scanner.getPos()+1);
 		long start_pos = -1, seek;
+		boolean is_scan_fwd = scanner.getScanFwd();
 		
-		// First, scan back to the string beginning
+		// First, scan back to the beginning
 		scanner.setScanFwd(false);
 		while ((ch = scanner.get_ch()) != -1 &&
-				SVCharacter.isSVIdentifierPart(ch)) { }
-		
-		start_pos = scanner.getPos() + 2;
-		seek = scanner.getPos() + 1;
+				!Character.isWhitespace(ch)) {
+		}
+	
+		if (ch == -1) {
+			start_pos = 0;
+			seek = -1;
+		} else {
+			start_pos = scanner.getPos() + 2;
+			seek = scanner.getPos() + 1;
+		}
+//		seek = scanner.getPos();
 		
 		if (scan_fwd) {
 			scanner.setScanFwd(true);
 			scanner.seek(start_pos);
 			
 			while ((ch = scanner.get_ch()) != -1 &&
-					SVCharacter.isSVIdentifierPart(ch)) { }
+					!Character.isWhitespace(ch)) { }
 			
 			end_pos = scanner.getPos() - 1;
 		}
-		
-		scanner.seek(seek);
 
-		fLog.debug("<-- readIdentifier(scan_fwd=" + scan_fwd + ")");
+		fLog.debug("  seek " + seek);
+		scanner.seek(seek);
+		scanner.setScanFwd(is_scan_fwd);
+
+		fLog.debug("<-- readToken(scan_fwd=" + scan_fwd + ")");
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
 	}
-
+	
 	private void debug(String msg) {
 		if (fDebugEn) {
 			fLog.debug(msg);

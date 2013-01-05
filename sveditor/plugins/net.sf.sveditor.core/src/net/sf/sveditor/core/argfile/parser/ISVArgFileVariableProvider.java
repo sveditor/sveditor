@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.argfile.parser;
 
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 
@@ -30,4 +31,9 @@ public interface ISVArgFileVariableProvider {
 	 */
 	List<Tuple<String, String>> getRequestedVars();
 
+	/**
+	 * Returns variables provided by this provider
+	 * @return
+	 */
+	Set<String> getVariables();
 }

@@ -46,7 +46,7 @@ public class TestSystemParse extends TestCase {
 	}
 	
 	public void testRecursiveInclude() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File tmpdir = TestUtils.createTempDir();
 		
 		try {

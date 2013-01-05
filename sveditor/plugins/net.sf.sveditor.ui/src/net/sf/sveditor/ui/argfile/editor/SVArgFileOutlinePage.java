@@ -76,15 +76,13 @@ public class SVArgFileOutlinePage extends ContentOutlinePage
 		
 		fSVDBFile = new SVDBFile("");
 		
-		fLog = LogFactory.getLogHandle("SVOutlinePage");
+		fLog = LogFactory.getLogHandle("SVArgFileOutlinePage");
 		fDebugEn = fLog.isEnabled();
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();
 	}
-
-
 
 	public ITreeContentProvider getContentProvider() {
 		return fContentProvider;

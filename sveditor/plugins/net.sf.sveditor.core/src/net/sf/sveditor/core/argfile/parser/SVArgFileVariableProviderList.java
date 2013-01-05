@@ -1,7 +1,9 @@
 package net.sf.sveditor.core.argfile.parser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 
@@ -53,4 +55,20 @@ public class SVArgFileVariableProviderList implements
 		return ret;
 	}
 
+	public Set<String> getVariables() {
+		HashSet<String> ret = new HashSet<String>();
+		
+		for (ISVArgFileVariableProvider p : fProviders) {
+			Set<String> vs = p.getVariables();
+			for (String v : vs) {
+				if (!ret.contains(v)) {
+					ret.add(v);
+				}
+			}
+		}
+		
+		return ret;
+	}
+
+	
 }

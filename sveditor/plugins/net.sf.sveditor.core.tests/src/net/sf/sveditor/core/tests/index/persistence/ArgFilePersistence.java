@@ -398,7 +398,7 @@ public class ArgFilePersistence extends TestCase
 	}	
 
 	public void testWSArgFileTimestampChanged() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ByteArrayOutputStream	 	out;
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -451,7 +451,7 @@ public class ArgFilePersistence extends TestCase
 			log.error("Interruped");
 			e.printStackTrace();
 		}
-//		fCorePlugin.enableDebug(true);
+//		fCorePlugin.enableDebug(false);
 		log.debug("[NOTE] post-sleep");
 
 		// Change class1.svh
@@ -652,7 +652,7 @@ public class ArgFilePersistence extends TestCase
 		PrintStream ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(getName());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
