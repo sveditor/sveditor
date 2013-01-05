@@ -1,13 +1,9 @@
 package net.sf.sveditor.core.argfile.open_decl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprContext;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileExprScanner;
-import net.sf.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
+import net.sf.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
+import net.sf.sveditor.core.argfile.parser.SVArgFileExprContext;
+import net.sf.sveditor.core.argfile.parser.SVArgFileExprScanner;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;

@@ -36,7 +36,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 	
 	public void testArgFileWorkspaceRelRef() throws CoreException {
 		LogHandle log = LogFactory.getLogHandle(getName());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
@@ -79,7 +79,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(

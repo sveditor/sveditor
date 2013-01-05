@@ -26,7 +26,12 @@ import net.sf.sveditor.core.db.SVDBParamValueAssign;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
@@ -192,6 +197,41 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			else  {
 				return (new StyledString ("if"));
 			}
+		} else if (element instanceof SVDBArgFileStmt) {
+			SVDBArgFileStmt stmt = (SVDBArgFileStmt)element;
+			String ret = null;
+			switch (stmt.getType()) {
+				case ArgFilePathStmt:
+					ret = ((SVDBArgFilePathStmt)stmt).getPath();
+					break;
+					
+				case ArgFileIncDirStmt:
+					ret = ((SVDBArgFileIncDirStmt)stmt).getIncludePath();
+					break;
+					
+				case ArgFileIncFileStmt:
+					ret = ((SVDBArgFileIncFileStmt)stmt).getPath();
+					break;
+					
+				case ArgFileDefineStmt: {
+					SVDBArgFileDefineStmt ds = (SVDBArgFileDefineStmt)stmt;
+					if (ds.getValue() != null) {
+						ret = ds.getKey() + " = " + ds.getValue();
+					} else {
+						ret = ds.getKey();
+					}
+					} break;
+					
+				case ArgFileSrcLibPathStmt:
+					ret = ((SVDBArgFileSrcLibPathStmt)stmt).getSrcLibPath();
+					break;
+				
+				default:
+					ret = stmt.toString();
+					break;
+			}
+			
+			return new StyledString(ret);
 		} else if (element instanceof ISVDBItemBase) {
 			ISVDBItemBase it = (ISVDBItemBase)element;
 			StyledString ret = null;

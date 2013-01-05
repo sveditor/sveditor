@@ -19,23 +19,40 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
 
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 
 public class SVFileUtils {
 	private static Pattern					fWinPathPattern;
 	public static boolean					fIsWinPlatform;
+	private static boolean					fDebugEn;
+	private static LogHandle				fLog;
+	private static ILogLevelListener		fLogListener = new ILogLevelListener() {
+		
+		public void logLevelChanged(ILogHandle handle) {
+			fDebugEn = handle.isEnabled();
+		}
+	};
 	
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
+		fLog = LogFactory.getLogHandle("SVFileUtils");
+		fDebugEn = fLog.isEnabled();
+		fLog.addLogLevelListener(fLogListener);
 	}
-	
 	
 	public static String getPathParent(String path) {
 		String parent = new File(path).getParent();
@@ -193,5 +210,211 @@ public class SVFileUtils {
     	}
     	file.delete();
     }
-    
+  
+    /**
+     * Resolves a path to its full path. Removes any 
+     * @param path_orig
+     * @param in_workspace_ok
+     * @return
+     */
+	public static String resolvePath(
+			String 					path_orig, 
+			String					base_location,
+			ISVDBFileSystemProvider	fs_provider,
+			boolean 				in_workspace_ok) {
+		String path = path_orig;
+		String norm_path = null;
+
+		if (fDebugEn) {
+			fLog.debug("--> resolvePath: " + path_orig);
+		}
+
+		// relative to the base location or one of the include paths
+		if (path.startsWith("..")) {
+			if (fDebugEn) {
+				fLog.debug("    path starts with ..");
+			}
+			if ((norm_path = resolveRelativePath(base_location, fs_provider, path)) == null) {
+				/*
+				for (String inc_path : fIndexCacheData.getIncludePaths()) {
+					if (fDebugEn) {
+						fLog.debug("    Check: " + inc_path + " ; " + path);
+					}
+					if ((norm_path = resolveRelativePath(inc_path, path)) != null) {
+						break;
+					}
+				}
+				 */
+			} else {
+				if (fDebugEn) {
+					fLog.debug("norm_path=" + norm_path);
+				}
+			}
+		} else {
+			if (path.equals(".")) {
+				path = base_location;
+			} else if (path.startsWith(".")) {
+				path = base_location + "/" + path.substring(2);
+			} else {
+				if (!fs_provider.fileExists(path) && !fs_provider.isDir(path)) {
+					// See if this is an implicit path
+					String imp_path = base_location + "/" + path;
+
+					if (fs_provider.fileExists(imp_path) || fs_provider.isDir(imp_path)) {
+						// This path is an implicit relative path that is
+						// relative to the base directory
+						path = imp_path;
+					}
+				}
+			}
+			norm_path = normalizePath(path);
+		}
+		
+		if (norm_path != null && !norm_path.startsWith("${workspace_loc}") && in_workspace_ok) {
+			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+			
+			IFile file = ws_root.getFileForLocation(new Path(norm_path));
+			if (file != null && file.exists()) {
+				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
+			} else {
+				IContainer folder = ws_root.getContainerForLocation(new Path(norm_path));
+				if (folder != null && folder.exists()) {
+					norm_path = "${workspace_loc}" + folder.getFullPath().toOSString();
+				}
+			}
+		}
+		
+		norm_path = (norm_path != null) ? norm_path : path_orig;
+		
+		if (fDebugEn) {
+			fLog.debug("<-- resolvePath: " + path_orig + " " + norm_path);
+		}
+
+		return norm_path;
+	}
+
+	private static String resolveRelativePath(
+			String 						base_location,
+			ISVDBFileSystemProvider		fs_provider,
+			String 						path) {
+		String ret = null;
+		if (fDebugEn) {
+			fLog.debug("--> resolveRelativePath: base=" + base_location + " path=" + path);
+		}
+		
+		// path = getResolvedBaseLocationDir() + "/" + path;
+		String norm_path = normalizePath(base_location + "/" + path);
+
+		if (fDebugEn) {
+			fLog.debug("    Checking normalizedPath: " + norm_path
+					+ " ; ResolvedBaseLocation: " + base_location);
+		}
+
+		if (fs_provider.fileExists(norm_path) || fs_provider.isDir(norm_path)) {
+			ret = norm_path;
+		} else if (base_location.startsWith("${workspace_loc}")) {
+			// This could be a reference outside the workspace. Check
+			// whether we should reference this as a filesystem path
+			// by computing the absolute path
+			String base_loc = base_location;
+			if (fDebugEn) {
+				fLog.debug("Possible outside-workspace path: " + base_loc);
+			}
+			base_loc = base_loc.substring("${workspace_loc}".length());
+
+			if (fDebugEn) {
+				fLog.debug("    base_loc: " + base_loc);
+			}
+
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IContainer base_dir = null;
+			try {
+				base_dir = root.getFolder(new Path(base_loc));
+			} catch (IllegalArgumentException e) {
+			}
+
+			if (base_dir == null) {
+				if (base_loc.length() > 0) {
+					base_dir = root.getProject(base_loc.substring(1));
+				}
+			}
+
+			if (fDebugEn) {
+				fLog.debug("base_dir=" + ((base_dir != null)?base_dir.getFullPath().toOSString():null));
+			}
+
+			if (base_dir != null && base_dir.exists()) {
+				IPath base_dir_p = base_dir.getLocation();
+				if (base_dir_p != null) {
+					if (fDebugEn) {
+						fLog.debug("Location of base_dir: " + base_dir_p.toOSString());
+					}
+					File path_f_t = new File(base_dir_p.toFile(), path);
+					if (fDebugEn) {
+						fLog.debug("Checking if path exists: " + path_f_t.getAbsolutePath() + " " + path_f_t.exists());
+					}
+					try {
+						if (path_f_t.exists()) {
+							if (fDebugEn) {
+								fLog.debug("Path does exist outside the project: "
+										+ path_f_t.getCanonicalPath());
+							}
+							norm_path = SVFileUtils.normalize(path_f_t
+									.getCanonicalPath());
+							ret = norm_path;
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+
+		if (fDebugEn) {
+			fLog.debug("<-- resolveRelativePath: base=" + base_location + " path=" + path + " ret=" + ret);
+		}
+		return ret;
+	}
+
+	private static String normalizePath(String path) {
+		StringBuilder ret = new StringBuilder();
+
+		int i = path.length() - 1;
+		int end;
+		int skipCnt = 0;
+
+		// First, skip any trailing '/'
+		while (i >= 0 && (path.charAt(i) == '/' || path.charAt(i) == '\\')) {
+			i--;
+		}
+
+		while (i >= 0) {
+			// scan backwards find the next path element
+			end = ret.length();
+
+			while (i >= 0 && path.charAt(i) != '/' && path.charAt(i) != '\\') {
+				ret.append(path.charAt(i));
+				i--;
+			}
+
+			if (i != -1) {
+				ret.append("/");
+				i--;
+			}
+
+			if ((ret.length() - end) > 0) {
+				String str = ret.substring(end, ret.length() - 1);
+				if (str.equals("..")) {
+					skipCnt++;
+					// remove .. element
+					ret.setLength(end);
+				} else if (skipCnt > 0) {
+					ret.setLength(end);
+					skipCnt--;
+				}
+			}
+		}
+
+		return ret.reverse().toString();
+	}    
 }

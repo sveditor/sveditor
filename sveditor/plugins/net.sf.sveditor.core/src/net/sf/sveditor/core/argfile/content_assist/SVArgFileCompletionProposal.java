@@ -1,19 +1,37 @@
 package net.sf.sveditor.core.argfile.content_assist;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 
 public class SVArgFileCompletionProposal {
 	
 	private String				fPrefix;
-	private int				fReplacementOffset;
-	private int				fReplacementLength;
+	private String				fReplacement;
+	private int					fReplacementOffset;
+	private int					fReplacementLength;
 
 	public SVArgFileCompletionProposal(
 			String			prefix,
+			String			replacement,
 			int				replacementOffset,
 			int				replacementLength) {
-		fPrefix = prefix;
-		fReplacementOffset = replacementOffset;
-		fReplacementLength = replacementLength;
+		fPrefix 			= prefix;
+		fReplacement 		= replacement;
+		fReplacementOffset 	= replacementOffset;
+		fReplacementLength 	= replacementLength;
+	}
+	
+	public String getPrefix() {
+		return fPrefix;
+	}
+	
+	public String getReplacement() {
+		return fReplacement;
+	}
+	
+	public int getReplacementOffset() {
+		return fReplacementOffset;
+	}
+	
+	public int getReplacementLength() {
+		return fReplacementLength;
 	}
 }

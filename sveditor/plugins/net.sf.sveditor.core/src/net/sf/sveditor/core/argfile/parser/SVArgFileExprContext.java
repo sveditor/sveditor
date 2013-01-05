@@ -14,12 +14,10 @@ package net.sf.sveditor.core.argfile.parser;
 
 public class SVArgFileExprContext {
 	public enum ContextType {
-		String,
-		Untriggered,
-		Triggered,
-		Import,
-		Extends
+		OptionComplete,
+		PathComplete,
 	};
+	
 	
 	// Document offset where 'leaf' begins
 	public int 						fStart;

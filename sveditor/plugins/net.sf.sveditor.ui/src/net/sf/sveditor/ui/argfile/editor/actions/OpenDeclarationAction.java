@@ -18,9 +18,8 @@ import net.sf.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.argfile.editor.SVArgFileDocumentPartitions;
 import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import net.sf.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -62,12 +61,7 @@ public class OpenDeclarationAction extends TextEditorAction {
 		IDocument doc = getDocument();
 		ITextSelection sel = getTextSel();
 		int offset = sel.getOffset() + sel.getLength();
-		SVDocumentTextScanner scanner = new SVDocumentTextScanner(doc, 
-				SVArgFileDocumentPartitions.SV_ARGFILE_PARTITIONING,
-				new String[] {
-					SVArgFileDocumentPartitions.SV_ARGFILE_SINGLELINE_COMMENT,
-					SVArgFileDocumentPartitions.SV_ARGFILE_MULTILINE_COMMENT},
-				offset);
+		SVArgFileDocumentTextScanner scanner = new SVArgFileDocumentTextScanner(doc, offset);
 		
 		scanner.setSkipComments(true);
 		

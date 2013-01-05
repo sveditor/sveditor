@@ -16,6 +16,10 @@ public interface ISVIcons {
 	
 	String OBJ_ICONS = "icons/edecl16/";
 	String FILE_OBJ = "icons/vlog_16_16.gif";
+	String FOLDER_OBJ = "icons/eview16/folder.gif";
+	String H_FOLDER_OBJ = "icons/eview16/hfolder_obj.gif";
+	String SV_LIB = "icons/eview16/sv_lib.gif";
+	
 	String MODULE_OBJ = OBJ_ICONS + "module_obj.gif";
 	String CONFIG_OBJ = OBJ_ICONS + "config_obj.gif";
 	String INT_OBJ = OBJ_ICONS + "int_obj.gif";

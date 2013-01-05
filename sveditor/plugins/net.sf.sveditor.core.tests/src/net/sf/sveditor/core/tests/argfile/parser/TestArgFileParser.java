@@ -40,7 +40,7 @@ public class TestArgFileParser extends TestCase {
 	public void testOptionLexer() throws SVParseException {
 		String testname = "testOptionLexer";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"-f /tools/usr/dir/file.f\n" +
 				"";
@@ -57,7 +57,7 @@ public class TestArgFileParser extends TestCase {
 	public void testStringArguments() throws SVParseException {
 		String testname = "testOptionLexer";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"\"This is a string\"\"and this is another\"\n" +
 				"-f /tools/usr/dir/file.f\n" +
@@ -76,7 +76,7 @@ public class TestArgFileParser extends TestCase {
 	public void testPlusArgs() throws SVParseException {
 		String testname = "testPlusArgs";
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"+define+foo=bar +my_plusarg=bar\n" +
 				"";
@@ -93,7 +93,7 @@ public class TestArgFileParser extends TestCase {
 
 	public void testIncOpts() throws SVParseException {
 		String testname = "testIncOpts";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"+incdir+/tools/include // Questa/VCS format\n" +
 				"-Incdir /tools/include2 // NCSim format\n" +
@@ -107,7 +107,7 @@ public class TestArgFileParser extends TestCase {
 	
 	public void testDefOpts() throws SVParseException {
 		String testname = "testDefOpts";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"+define+bar1=baz // Questa/VCS format\n" +
 				"+define+foo1 // Questa/VCS format\n" +
@@ -125,7 +125,7 @@ public class TestArgFileParser extends TestCase {
 
 	public void testArgFileInc() throws SVParseException {
 		String testname = "testArgFileInc";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"-f /tools/argfiles/argfile1.f\n" +
 				"-file /tools/argfiles/argfile2.f\n" +
@@ -138,7 +138,7 @@ public class TestArgFileParser extends TestCase {
 	}
 	
 	public void testLocations() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(getName());
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();

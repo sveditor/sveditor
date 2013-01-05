@@ -2,7 +2,9 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 
@@ -45,5 +47,16 @@ public class SVArgFilePathVariableProvider implements
 	public List<Tuple<String, String>> getRequestedVars() {
 		return fProvidedVars;
 	}
+
+	public Set<String> getVariables() {
+		HashSet<String> ret = new HashSet<String>();
+		
+		for (String key : fPathVariableManager.getPathVariableNames()) {
+			ret.add(key);
+		}
+		
+		return ret;
+	}
+
 
 }

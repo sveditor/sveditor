@@ -3,9 +3,13 @@ package net.sf.sveditor.ui.argfile.editor;
 import net.sf.sveditor.ui.editor.SVCodeScanner;
 import net.sf.sveditor.ui.editor.SVEditorColors;
 import net.sf.sveditor.ui.editor.SVPresentationReconciler;
+import net.sf.sveditor.ui.editor.SVTemplateCompletionProcessor;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -21,6 +25,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 public class SVArgFileSourceViewerConfiguration extends
 		SourceViewerConfiguration {
 	private SVArgFileEditor				fEditor;
+	private ContentAssistant			fContentAssist;
 	
 	public SVArgFileSourceViewerConfiguration(SVArgFileEditor editor) {
 		 fEditor = editor;
@@ -102,6 +107,26 @@ public class SVArgFileSourceViewerConfiguration extends
 	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
 		return SVArgFileDocumentPartitions.SV_ARGFILE_PARTITIONING;
 	}
-	
+
+	@Override
+	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+		if (fContentAssist == null) {
+			fContentAssist = new ContentAssistant();
+			IContentAssistProcessor p = new SVArgFileCompletionProcessor(fEditor);
+
+			fContentAssist.setContentAssistProcessor(p,
+					IDocument.DEFAULT_CONTENT_TYPE);
+			/*
+			 */
+			fContentAssist.setInformationControlCreator(
+					getInformationControlCreator(sourceViewer));
+			fContentAssist.enableAutoActivation(true);
+			fContentAssist.enableAutoInsert(true);
+			fContentAssist.enablePrefixCompletion(true);
+		}
+		
+		return fContentAssist;		
+	}
+
 	
 }
