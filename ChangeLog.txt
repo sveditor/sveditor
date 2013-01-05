@@ -1,4 +1,7 @@
 
+-- 1.1.1 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.0 Release --
 
 - #(enh) Add outline view for the ArgFile editor
