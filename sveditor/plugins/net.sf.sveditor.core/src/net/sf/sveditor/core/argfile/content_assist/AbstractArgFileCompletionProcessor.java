@@ -132,7 +132,9 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 						resolved_base = SVFileUtils.getPathParent(ctxt.fLeaf);
 					}
 				
-					resolved_base = SVArgFileUtils.expandVars(resolved_base, fVarProvider);
+					resolved_base = SVFileUtils.resolvePath(
+							SVArgFileUtils.expandVars(resolved_base, fVarProvider),
+							fBaseLocationDir, fFileSystemProvider, true);
 
 					if (!fFileSystemProvider.isDir(resolved_base)) {
 						// Try prepending the base location
@@ -191,7 +193,8 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 						}
 					} else {
 						// Dir path
-						if (fFileSystemProvider.isDir(full_file)) {
+						if (fFileSystemProvider.isDir(full_file) &&
+								!file.startsWith(".")) { // Filter out resources (eg .svn)
 							if (matches(file, proposal_leaf)) {
 								addProposal(ctxt, proposal);
 							}
