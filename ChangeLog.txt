@@ -1,6 +1,9 @@
 
 -- 1.1.1 Release --
 
+- #(nobug) - Overly-aggressive ignore pattern in .gitignore prevented an
+  icon from being committed. Add missing icon and correct .gitignore
+
 ------------------------------------------------------------------------------
 -- 1.1.0 Release --
 
