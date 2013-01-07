@@ -53,21 +53,18 @@ public class SVArgFileExprScanner {
 		int c = -1;
 		
 		boolean scan_fwd = scanner.getScanFwd();
+		long scan_pos = scanner.getPos();
 		scanner.setScanFwd(false);
 		c = scanner.get_ch();
-		debug("    First Ch (non-adjusted): \"" + (char)c + "\"");
-		scanner.unget_ch(c);
+		debug("    First Ch (non-adjusted, scanning back): \"" + (char)c + "\"");
+		scanner.seek(scan_pos);
 		scanner.setScanFwd(scan_fwd);
 
 		// We'll start by scanning backwards. On entry, the
 		// cursor has been placed to read going forward
 		if (scanner.getScanFwd() && scanner.getPos() > 0) {
-			debug("    Scanning forward");
-			/*
-			debug("Adjust position: old=\"" + scanner.get_str(scanner.getPos(), 1) + "\" new=\"" +
-					scanner.get_str(scanner.getPos()-1, 1) + "\"");
-			 */
 			long pos = scanner.getPos();
+			debug("    Scanning forward (pos=" + pos + ")");
 
 			// If the previous character is whitespace, then 
 			// the cursor is likely positioned at the beginning
