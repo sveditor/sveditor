@@ -185,6 +185,31 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 					"../dir3"
 		});
 	}
+
+	public void testContentAssistEndOfInput() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"+incdir+../dir<<MARK>>"
+			;
+		
+		IProject p = TestUtils.createProject(
+				getName(), new File(fTmpDir, getName()));
+		addProject(p);
+
+		p.getFolder("di1").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir2").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir3").create(true, true, new NullProgressMonitor());
+
+		TestUtils.copy("", p.getFile("d_file1.sv"));
+		TestUtils.copy("", p.getFile("d_file2.sv"));
+		TestUtils.copy("", p.getFile("d_file3.sv"));
+		
+		runTest(doc, "${workspace_loc}/" + getName() + "/dir1", p, null,
+				new String[] {
+					"../dir2",
+					"../dir3"
+		});
+	}
 	
 	/*
 	public void testFileOptionContentAssist() {
@@ -238,6 +263,9 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 		
 		TestArgFileCompletionProcessor cp = new TestArgFileCompletionProcessor(fLog);
 		cp.init(new SVDBWSFileSystemProvider(), base_location, project, vp);
+		
+		fLog.debug("MARK offset=" + tt_utils.getPosMap().get("MARK") + 
+				" doc.length=" + tt_utils.getStrippedData().length());
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 		

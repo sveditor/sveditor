@@ -87,10 +87,12 @@ public class StringBIDITextScanner
 	}
 
 	public void unget_ch(int ch) {
-		if (fScanFwd) {
-			fIdx--;
-		} else {
-			fIdx++;
+		if (ch != -1) {
+			if (fScanFwd) {
+				fIdx--;
+			} else {
+				fIdx++;
+			}
 		}
 	}
 
