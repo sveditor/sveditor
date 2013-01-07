@@ -84,6 +84,9 @@ public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 		
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
+		fLog.debug("MARK offset=" + tt_utils.getPosMap().get("MARK") + 
+				" doc.length=" + doc.length());
+		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 		SVArgFileExprScanner expr_scanner = new SVArgFileExprScanner();
 		
