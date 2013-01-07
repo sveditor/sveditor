@@ -65,68 +65,25 @@ public class OpenDeclarationAction extends TextEditorAction {
 		
 		scanner.setSkipComments(true);
 		
-		System.out.println("OpenDeclarationAction");
-		
 		String path = SVArgFileOpenDeclaration.openDecl(scanner);
 		
 		if (path != null) {
 			// Must use the context of this editor to resolve
 			// the final path
 			path = fEditor.resolvePath(path);
-			System.out.println("Resolved path: " + path);
 
 			try {
 				SVEditorUtil.openEditor(path, null);
 			} catch (PartInitException e) {
 				// TODO: log failure
 			}
-			/*
-			 */
 		}
-
-		/*
-		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();
-
-		try {
-			if (target.first() != null) {
-				fLog.debug("Open file for item \"" + SVDBItem.getName(target.first())); 
-				SVEditorUtil.openEditor(target.first());
-			} else if (target.second() != null) {
-				SVEditorUtil.openEditor(target.second().getFilePath());
-			}
-		} catch (PartInitException e) {
-			fLog.error("Failed to open declaration in editor", e);
-		}
-		 */
 	}
 
 	protected IDocument getDocument() {
 		return fEditor.getDocumentProvider().getDocument(fEditor.getEditorInput());
 	}
 
-	/*
-	protected Tuple<ISVDBItemBase, SVDBFile> findTarget() {
-		IDocument doc = getDocument();
-		ITextSelection sel = getTextSel();
-		int offset = sel.getOffset() + sel.getLength();
-
-		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		scanner.setSkipComments(true);
-		
-		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl_2(
-				getTargetFile(), 
-				getTextSel().getStartLine(),
-				scanner,
-				getIndexIt());
-
-		if (items.size() > 0) {
-			return items.get(0);
-		} else {
-			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
-		}
-	}
-	 */
-	
 	private void debug(String msg) {
 		if (fDebugEn) {
 			fLog.debug(msg);
