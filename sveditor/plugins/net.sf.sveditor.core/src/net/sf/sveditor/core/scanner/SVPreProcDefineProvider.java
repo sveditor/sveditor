@@ -31,9 +31,9 @@ import net.sf.sveditor.core.scanutils.StringTextScanner;
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private static final boolean		fDebugEn				= false;
 	private static final boolean		fDebugChEn				= false;
-	private boolean					fDebugUndefinedMacros	= false;
+	private boolean						fDebugUndefinedMacros	= false;
 	private String						fFilename;
-	private int						fLineno;
+	private int							fLineno;
 	private Stack<String>				fExpandStack;
 	private Stack<Boolean>				fEnableOutputStack;
 	private LogHandle					fLog;
@@ -43,7 +43,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	public SVPreProcDefineProvider(IPreProcMacroProvider macro_provider) {
 		fExpandStack = new Stack<String>();
 		fEnableOutputStack = new Stack<Boolean>();
-		fLog = LogFactory.getLogHandle("PreProcDefineProvider");
+		fLog = LogFactory.getLogHandle("SVPreProcDefineProvider");
 
 		fMacroProvider  = macro_provider;
 		fErrorListeners = new ArrayList<IPreProcErrorListener>();
@@ -340,15 +340,17 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		// Iterate through the specified and definition arguments,
 		// potentially adding default values
-		for (int i=0; i<m.getParameters().size(); i++) {
-			SVDBMacroDefParam mp = m.getParameters().get(i);
-			param_names.add(mp.getName());
-			if ((params_vals == null || i >= params_vals.size()) && mp.getValue() != null) {
-				if (fDebugEn) {
-					debug("Using default value \"" + mp.getValue() + 
-							"\" for parameter " + mp.getName());
+		if (m.getParameters() != null) {
+			for (int i=0; i<m.getParameters().size(); i++) {
+				SVDBMacroDefParam mp = m.getParameters().get(i);
+				param_names.add(mp.getName());
+				if ((params_vals == null || i >= params_vals.size()) && mp.getValue() != null) {
+					if (fDebugEn) {
+						debug("Using default value \"" + mp.getValue() + 
+								"\" for parameter " + mp.getName());
+					}
+					params_vals.add(mp.getValue());
 				}
-				params_vals.add(mp.getValue());
 			}
 		}
 
@@ -728,6 +730,83 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 								marker = -1;
 							}
 						}
+					} else if (key.equals("define")) {
+						SVDBMacroDef m = new SVDBMacroDef();
+						// TODO: save file?
+
+						// TODO: line numbers
+						ch = scanner.skipWhite(scanner.get_ch());
+						
+						m.setName(scanner.readIdentifier(ch));
+						
+						ch = scanner.get_ch();
+						
+						if (ch == '(') {
+							// Has parameters
+							
+							do {
+								ch = scanner.skipWhite(scanner.get_ch());
+								
+								if (!(Character.isJavaIdentifierPart(ch))) {
+									break;
+								} else {
+									String p = scanner.readIdentifier(ch);
+									String dflt = null;
+
+									ch = scanner.skipWhite(scanner.get_ch());
+
+									if (ch == '=') {
+										// Read default value
+										ch = scanner.skipWhite(scanner.get_ch());
+										if (ch == '"') {
+											// String
+											dflt = scanner.readString(ch);
+											dflt = "\"" + dflt + "\"";
+										} else {
+											// Read up to comma or close bracket
+											scanner.startCapture(ch);
+											while ((ch = scanner.get_ch()) != -1 && ch != ',' && ch != ')') { }
+											scanner.unget_ch(ch);
+											dflt = scanner.endCapture();
+										}
+									} else {
+										scanner.unget_ch(ch);
+									}
+									
+									m.addParameter(new SVDBMacroDefParam(p, dflt));
+								}
+								
+								ch = scanner.skipWhite(scanner.get_ch());
+							} while (ch == ',');
+							
+							if (ch == ')') {
+								ch = scanner.get_ch();
+							}
+						}
+
+						// Now, read the remainder of the definition
+						String define = readLine(scanner, ch);
+						
+						if (define == null) {
+							define = ""; // define this macro as existing
+						}
+
+						/* We should carry-through the single-line comments. However, this is only
+						 * true in the case of a single-line macro. Multi-line macros get to keep
+						 * their single-line comments
+						 */ 
+						int last_comment;
+						if ((last_comment = define.lastIndexOf("//")) != -1) {
+							int lr = define.indexOf('\n', last_comment);
+							if (lr == -1) {
+								// Nothing beyond this comment
+								define = define.substring(0, define.indexOf("//"));
+							}
+						}
+						
+						m.setDef(define);
+						
+						fMacroProvider.addMacro(m);
 					} else {
 						SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
 						List<String> sub_p = null;
@@ -841,7 +920,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		SVDBMacroDef m = fMacroProvider.findMacro(key, lineno);
 		
 		if (m != null) {
-			return (m.getParameters().size() != 0);
+			return (m.getParameters() != null &&
+					m.getParameters().size() != 0);
 		} else {
 			return false;
 		}
@@ -871,4 +951,36 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 	}
 
+	private String readLine(ITextScanner scanner, int ci) {
+		StringBuilder buffer = new StringBuilder();
+		int last_ch = -1;
+		
+		buffer.setLength(0);
+		while (ci != -1 && ci != '\n' || last_ch == '\\') {
+			if (last_ch == '\\' && ci == '\n') {
+				if (buffer.charAt(buffer.length()-1) == '\r') {
+					buffer.setLength(buffer.length()-1);
+				}
+				if (buffer.charAt(buffer.length()-1) == '\\') {
+					buffer.setCharAt(buffer.length()-1, '\n');
+				}
+			} else {
+				buffer.append((char)ci);
+			}
+
+			if (ci != '\r') {
+				last_ch = ci;
+			}
+
+			ci = scanner.get_ch();
+		}
+		
+		scanner.unget_ch(ci);
+
+		if (buffer.length() == 0) {
+			return null;
+		} else {
+			return buffer.toString();
+		}
+	}	
 }
