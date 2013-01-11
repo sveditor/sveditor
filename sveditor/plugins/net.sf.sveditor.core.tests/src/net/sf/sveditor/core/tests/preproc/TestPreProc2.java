@@ -66,7 +66,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"`A\n",
 				inc_provider,
 				"\n" +
-				"BB\n"
+				"\n" +
+				" BB\n"
 				);
 	}	
 
@@ -84,7 +85,10 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"`MACRO_20\n",
 				inc_provider,
 				"\n" +
-				"BB\n"
+				"\n" +
+				" \n" +
+				"	\n" +
+				" 5\n"
 				);
 	}
 	
@@ -120,8 +124,12 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"`A\n",
 				inc_provider,
 				"\n" +
+				"\n" +
+				"\n" +
+				"\n" +
 				"  \n" +
-				"5\n");
+				"\n" +
+				" 5\n");
 	}
 	
 	private void runTest(

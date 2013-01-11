@@ -186,9 +186,13 @@ public class TestUtils {
 
 	public static boolean safe_delete(File item) {
 		if (item.isDirectory()) {
-			for (File i : item.listFiles()) {
-				if (!safe_delete(i)) {
-					return false;
+			File files[] = item.listFiles();
+			
+			if (files != null) {
+				for (File i : files) {
+					if (!safe_delete(i)) {
+						return false;
+					}
 				}
 			}
 		}

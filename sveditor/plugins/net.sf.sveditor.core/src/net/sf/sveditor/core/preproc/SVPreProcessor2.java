@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
@@ -284,6 +285,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			
 			if (ch == '(') {
 				// Has parameters
+				List<SVDBMacroDefParam> param_list = new ArrayList<SVDBMacroDefParam>();
 				
 				do {
 					ch = skipWhite(get_ch());
@@ -314,11 +316,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							unget_ch(ch);
 						}
 						
-						m.addParameter(new SVDBMacroDefParam(p, dflt));
+						param_list.add(new SVDBMacroDefParam(p, dflt));
 					}
 					
 					ch = skipWhite(get_ch());
 				} while (ch == ',');
+				
+				m.setParameters(param_list);
 				
 				if (ch == ')') {
 					ch = get_ch();
@@ -475,9 +479,18 @@ public class SVPreProcessor2 extends AbstractTextScanner
 
 				if (fDefineProvider != null) {
 						try {
-							// TODO:
+							String exp = fDefineProvider.expandMacro(
+											fTmpBuffer.toString(), fFileName, fLineno);
+							if (fDebugEn) {
+								fLog.debug("Expansion of \"" + 
+										fTmpBuffer.toString() + "\" == " + exp);
+							}
+							InputData in = new InputData(new StringInputStream(exp), "ANONYMOUS");
+							fInputStack.push(in);
+							/*
 							fOutput.append(fDefineProvider.expandMacro(
 									fTmpBuffer.toString(), fFileName, fLineno));
+							 */
 						} catch (Exception e) {
 							/*
 							System.out.println("Exception while expanding \"" + 
@@ -619,6 +632,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				ch = in.fUngetCh[0];
 				in.fUngetCh[0] = in.fUngetCh[1];
 				in.fUngetCh[1] = -1;
+				break;
 			} else if (in.fEof) {
 				// TODO: handle end-of-file activities
 				if (fInputStack.size() > 1) {

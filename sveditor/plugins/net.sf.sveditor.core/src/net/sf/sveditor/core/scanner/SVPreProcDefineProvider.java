@@ -731,13 +731,14 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							}
 						}
 					} else if (key.equals("define")) {
-						SVDBMacroDef m = new SVDBMacroDef();
+//						SVDBMacroDef m = new SVDBMacroDef();
 						// TODO: save file?
 
 						// TODO: line numbers
 						ch = scanner.skipWhite(scanner.get_ch());
 						
-						m.setName(scanner.readIdentifier(ch));
+//						m.setName(scanner.readIdentifier(ch));
+						scanner.readIdentifier(ch);
 						
 						ch = scanner.get_ch();
 						
@@ -773,7 +774,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 										scanner.unget_ch(ch);
 									}
 									
-									m.addParameter(new SVDBMacroDefParam(p, dflt));
+//									m.addParameter(new SVDBMacroDefParam(p, dflt));
 								}
 								
 								ch = scanner.skipWhite(scanner.get_ch());
@@ -804,9 +805,9 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 							}
 						}
 						
-						m.setDef(define);
+//						m.setDef(define);
 						
-						fMacroProvider.addMacro(m);
+//						fMacroProvider.addMacro(m);
 					} else {
 						SVDBMacroDef sub_m = fMacroProvider.findMacro(key, fLineno);
 						List<String> sub_p = null;
