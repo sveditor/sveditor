@@ -3,6 +3,8 @@
 
 - #(nobug) - Correct issue with Open Declaration in an argument file
   when the path extends to the end of the file.
+  
+- #(nobug) - Correct a content-assist bug involving content post-!=
 
 ------------------------------------------------------------------------------
 -- 1.1.1 Release --
