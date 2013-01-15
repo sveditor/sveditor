@@ -80,6 +80,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private boolean					fDebugEn;
 	private List<SVDBMarker>			fMarkers;
 	private boolean					fDisableErrors;
+	
+	public ParserSVDBFileFactory() {
+		this(null);
+	}
 
 	public ParserSVDBFileFactory(IDefineProvider dp) {
 		// Setup logging
@@ -91,10 +95,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		setDefineProvider(dp);
 		fScopeStack = new Stack<SVDBScopeItem>();
 
-		if (dp != null) {
-			setDefineProvider(dp);
-		}
-	
 		fParseErrorCount = 0;
 		fParseErrorMax = 100;
 	}
@@ -102,8 +102,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	public void setDefineProvider(IDefineProvider p) {
 		fDefineProvider = p;
 	}
-
-	public void setEvalConditionals(boolean eval) { }
 
 	public ScanLocation getStmtLocation() {
 		if (fStmtLocation == null) {
@@ -597,6 +595,52 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		return fFile;
 	}
 
+	public SVDBFile parse(
+			ITextScanner		in,
+			String				filename,
+			List<SVDBMarker>	markers) {
+		fScopeStack.clear();
+		
+		fFile = new SVDBFile(filename);
+		fScopeStack.clear();
+		fScopeStack.push(fFile);
+
+		fMarkers = markers;
+		
+		if (fMarkers == null) {
+			fMarkers = new ArrayList<SVDBMarker>();
+		}
+
+		fInput = in;
+		fLexer = new SVLexer();
+		fLexer.init(this, in);
+		
+		fSVParsers = new SVParsers();
+		fSVParsers.init(this);
+
+		try {
+			while (fLexer.peek() != null) {
+				top_level_item(fFile);
+			}
+		} catch (SVParseException e) {
+			if (fDebugEn) {
+				debug("ParseException: post-process()", e);
+			}
+		} catch (EOFException e) {
+			e.printStackTrace();
+		} catch (SVAbortParseException e) {
+			// error limit exceeded
+		}
+
+		if (fScopeStack.size() > 0
+				&& fScopeStack.peek().getType() == SVDBItemType.File) {
+			setEndLocation(fScopeStack.peek());
+			fScopeStack.pop();
+		}
+
+		return fFile;
+	}
+	
 	public void init(InputStream in, String name) {
 		fScopeStack.clear();
 		fFile = new SVDBFile(name);

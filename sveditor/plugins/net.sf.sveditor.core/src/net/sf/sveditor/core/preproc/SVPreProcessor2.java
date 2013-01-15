@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
@@ -42,6 +43,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean						fDebugEn = true;
 	
 	private Stack<InputData>			fInputStack;
+	private Map<String, SVDBFileTree>	fFileTreeMap;
 	
 	private static class InputData {
 		InputStream				fInput;
@@ -53,6 +55,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		int						fLastCh;
 		int						fUngetCh[] = {-1,-1};
 		boolean					fEof;
+		// Macros referenced by this file
+		Map<String, String>		fRefMacros;
+		SVDBFileTree			fFileTree;
 		
 		InputData(InputStream in, String filename) {
 			fLineno = 1;
@@ -63,6 +68,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fInBufferMax = 0;
 			fLastCh = -1;
 			fEof = false;
+			fRefMacros = new HashMap<String, String>();
 		}
 	}
 	
@@ -105,6 +111,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider) {
 		fMacroMap = new HashMap<String, SVDBMacroDef>();
+		fFileTreeMap = new HashMap<String, SVDBFileTree>();
 		fInputStack = new Stack<SVPreProcessor2.InputData>();
 		fOutput = new StringBuilder();
 		fTmpBuffer = new StringBuilder();
@@ -376,6 +383,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							}
 							fInputStack.push(new InputData(in.second(), in.first()));
 						} else {
+							// TODO: add missing-include error
 							if (fDebugEn) {
 								fLog.debug("Failed to find include file " + inc);
 							}
@@ -705,7 +713,18 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	}
 	
 	public SVDBMacroDef findMacro(String name, int lineno) {
-		return fMacroMap.get(name);
+		SVDBMacroDef m = fMacroMap.get(name);
+		InputData in = fInputStack.peek();
+		
+		// TODO: Add macro reference to current file data
+		in.fRefMacros.remove(name);
+		if (m == null) {
+			in.fRefMacros.put(name, null);
+		} else {
+			in.fRefMacros.put(name, m.getDef());
+		}
+		
+		return m;
 	}
 
 	public void addMacro(SVDBMacroDef macro) {

@@ -158,7 +158,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		try {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			fProject = root.getProject(fProjectName);
-		} catch (IllegalArgumentException e) {}
+		} catch (IllegalStateException e) {}
 	}
 
 	public AbstractSVDBIndex(String project, String base_location,
@@ -1413,12 +1413,15 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		}
 		
 		if (norm_path != null && !norm_path.startsWith("${workspace_loc}") && in_workspace_ok) {
-			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+			IWorkspaceRoot ws_root = null;
 			
-			IFile file = ws_root.getFileForLocation(new Path(norm_path));
-			if (file != null && file.exists()) {
-				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
-			}
+			try {
+				ws_root = ResourcesPlugin.getWorkspace().getRoot();
+				IFile file = ws_root.getFileForLocation(new Path(norm_path));
+				if (file != null && file.exists()) {
+					norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
+				}
+			} catch (IllegalStateException e) {}
 		}
 		
 		norm_path = (norm_path != null) ? norm_path : path_orig;
