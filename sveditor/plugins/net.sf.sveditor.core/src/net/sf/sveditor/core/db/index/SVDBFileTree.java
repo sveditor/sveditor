@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
@@ -33,6 +34,9 @@ public class SVDBFileTree {
 	
 	// List of files in which this file is included
 	public List<String>				fIncludedByFiles;
+	
+	// TODO: 
+	public Map<String, String>		fReferencedMacros;
 
 	public SVDBFileTree() {
 		fFilePath = null;

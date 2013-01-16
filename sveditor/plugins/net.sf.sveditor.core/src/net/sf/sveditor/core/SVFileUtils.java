@@ -271,15 +271,21 @@ public class SVFileUtils {
 		}
 		
 		if (norm_path != null && !norm_path.startsWith("${workspace_loc}") && in_workspace_ok) {
-			IWorkspaceRoot ws_root = ResourcesPlugin.getWorkspace().getRoot();
+			IWorkspaceRoot ws_root = null;
 			
-			IFile file = ws_root.getFileForLocation(new Path(norm_path));
-			if (file != null && file.exists()) {
-				norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
-			} else {
-				IContainer folder = ws_root.getContainerForLocation(new Path(norm_path));
-				if (folder != null && folder.exists()) {
-					norm_path = "${workspace_loc}" + folder.getFullPath().toOSString();
+			try {
+				ws_root =ResourcesPlugin.getWorkspace().getRoot();
+			} catch (IllegalStateException e) {}
+		
+			if (ws_root != null) {
+				IFile file = ws_root.getFileForLocation(new Path(norm_path));
+				if (file != null && file.exists()) {
+					norm_path = "${workspace_loc}" + file.getFullPath().toOSString();
+				} else {
+					IContainer folder = ws_root.getContainerForLocation(new Path(norm_path));
+					if (folder != null && folder.exists()) {
+						norm_path = "${workspace_loc}" + folder.getFullPath().toOSString();
+					}
 				}
 			}
 		}

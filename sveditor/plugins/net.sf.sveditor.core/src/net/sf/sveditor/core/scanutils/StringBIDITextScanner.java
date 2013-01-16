@@ -59,10 +59,12 @@ public class StringBIDITextScanner
 			} else {
 				if (fIdx >= 0 && fData.length() > 0) {
 					if (fIdx >= fData.length()) {
+						ret = fData.charAt(fData.length()-1);
 						fIdx = fData.length()-1;
+					} else {
+						ret = fData.charAt(fIdx);
+						fIdx--;
 					}
-					ret = fData.charAt(fIdx);
-					fIdx--;
 				}
 			}
 		}

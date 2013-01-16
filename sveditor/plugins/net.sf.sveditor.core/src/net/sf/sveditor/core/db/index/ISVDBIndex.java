@@ -14,7 +14,6 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;

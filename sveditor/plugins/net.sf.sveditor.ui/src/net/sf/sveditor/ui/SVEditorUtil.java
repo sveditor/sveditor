@@ -201,7 +201,13 @@ public class SVEditorUtil {
 
 				// TODO: need to connect up index to filesystem
 			}
-			ret = w.getActivePage().openEditor(ed_in, desc.getId());
+			
+			if (desc != null) {
+				ret = w.getActivePage().openEditor(ed_in, desc.getId());
+			} else {
+				fLog.error("Failed to find descriptor for file \"" + 
+						leaf_name + "\"");
+			}
 		} else {
 			IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			w.getActivePage().activate(ret);

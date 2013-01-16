@@ -84,10 +84,11 @@ public class SVArgFileExprScanner {
 		}
 		
 		scanner.setScanFwd(false);
-	
+
+		scan_pos = scanner.getPos();
 		c = scanner.get_ch();
 		debug("    First Ch (adjusted): \"" + (char)c + "\"");
-		scanner.unget_ch(c);
+		scanner.seek(scan_pos);
 
 		// Check whether we're currently in a string
 		if (isInString(scanner)) {
@@ -308,7 +309,7 @@ public class SVArgFileExprScanner {
 
 	private String readToken(IBIDITextScanner scanner, boolean scan_fwd) {
 		int ch;
-		fLog.debug("--> readToken(scan_fwd=" + scan_fwd + ")");
+		fLog.debug("--> readToken(scan_fwd=" + scan_fwd + ") pos=" + scanner.getPos());
 		
 		long end_pos = (scanner.getScanFwd())?scanner.getPos():(scanner.getPos()+1);
 		long start_pos = -1, seek;
@@ -318,6 +319,7 @@ public class SVArgFileExprScanner {
 		scanner.setScanFwd(false);
 		while ((ch = scanner.get_ch()) != -1 &&
 				!Character.isWhitespace(ch)) {
+			debug("ch=" + (char)ch);
 		}
 	
 		if (ch == -1) {
@@ -335,15 +337,22 @@ public class SVArgFileExprScanner {
 			
 			while ((ch = scanner.get_ch()) != -1 &&
 					!Character.isWhitespace(ch)) { }
-			
-			end_pos = scanner.getPos() - 1;
+		
+			fLog.debug("Changing end_pos from " + end_pos + " to " +
+					(scanner.getPos()-1));
+			if (ch != -1) {
+				end_pos = scanner.getPos() - 1;
+			} else {
+				end_pos = scanner.getPos();
+			}
 		}
 
 		fLog.debug("  seek " + seek);
 		scanner.seek(seek);
 		scanner.setScanFwd(is_scan_fwd);
 
-		fLog.debug("<-- readToken(scan_fwd=" + scan_fwd + ")");
+		fLog.debug("<-- readToken(scan_fwd=" + scan_fwd + ") start_pos=" + start_pos + 
+				" end_pos=" + end_pos);
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos));
 	}
 	
