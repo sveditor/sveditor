@@ -174,7 +174,7 @@ public class SVExprScanner {
 						if (c2 != '=' && c2 != '>' &&
 								c2 != '<' && c2 != '&' &&
 								c2 != '|' && c2 != '+' &&
-								c2 != '-') {
+								c2 != '-' && c2 != '!') {
 							c = scanner.skipWhite(c2);
 							ret.fTrigger = "=";
 						}

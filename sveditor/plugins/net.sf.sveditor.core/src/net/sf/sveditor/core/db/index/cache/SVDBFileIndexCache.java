@@ -180,6 +180,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 					e.printStackTrace();
 				}
 			}
+			/*
+			 */
 		}
 		synchronized (fFileCache) {
 			CacheFileInfo file = null;
@@ -255,11 +257,16 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 		
 		List<SVDBMarker> m = (cfi != null)?cfi.fMarkers.get():null;
+		
 		if (m == null) {
 			String parent_dir = computePathDir(path);
 			String target_file = parent_dir + "/markers";
-			if (fSVDBFS.fileExists(target_file)){
-				cfi = getCacheFileInfo(path, true);
+			if (fSVDBFS.fileExists(target_file)) {
+				if (fSVDBFS.fileExists(parent_dir + "/argfile")) {
+					cfi = getArgFileCacheFileInfo(path, true);
+				} else {
+					cfi = getCacheFileInfo(path, true);
+				}
 				m = readMarkerList(target_file);
 				cfi.fMarkers = (Reference<List<SVDBMarker>>)createRef(m);
 				cfi.fMarkersRef = m;
@@ -407,7 +414,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public SVDBFile getPreProcFile(IProgressMonitor monitor, String path) {
 		CacheFileInfo cfi = getCacheFileInfo(path, false);
 		SVDBFile pp_file = (cfi != null)?cfi.fSVDBPreProcFile.get():null;
-		
+	
 		if (pp_file == null) {
 			String target_dir = computePathDir(path);
 			
@@ -432,13 +439,21 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 
 		SVDBFile file = (cfi != null)?cfi.fSVDBFile.get():null;
-		
+	
 		if (file == null) {
 			String target_dir = computePathDir(path);
 			
 			if (fSVDBFS.fileExists(target_dir + "/file")) {
 				cfi = getCacheFileInfo(path, true);
 				DataInput in = fSVDBFS.openDataInput(target_dir + "/file");
+				file = readFile(in, path);
+				fSVDBFS.closeInput(in);
+				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
+				cfi.fSVDBFileRef = file;
+				fNumFilesRead++;
+			} else if (fSVDBFS.fileExists(target_dir + "/argfile")) {
+				cfi = getArgFileCacheFileInfo(path, true);
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/argfile");
 				file = readFile(in, path);
 				fSVDBFS.closeInput(in);
 				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
@@ -454,13 +469,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		CacheFileInfo cfi = getArgFileCacheFileInfo(path, false);
 
 		SVDBFile file = (cfi != null)?cfi.fSVDBFile.get():null;
-		
+
 		if (file == null) {
 			String target_dir = computePathDir(path);
 			
-			if (fSVDBFS.fileExists(target_dir + "/file")) {
-				cfi = getCacheFileInfo(path, true);
-				DataInput in = fSVDBFS.openDataInput(target_dir + "/file");
+			if (fSVDBFS.fileExists(target_dir + "/argfile")) {
+				cfi = getArgFileCacheFileInfo(path, true);
+				DataInput in = fSVDBFS.openDataInput(target_dir + "/argfile");
 				file = readFile(in, path);
 				fSVDBFS.closeInput(in);
 				cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
@@ -493,6 +508,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 
 	public void setFile(String path, SVDBFile file, boolean is_argfile) {
 		CacheFileInfo cfi;
+		String name;
 		
 		if (fDebugEn) {
 			fLog.debug("setFile: path=" + path + " is_argfile=" + is_argfile);
@@ -500,6 +516,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		
 		if (is_argfile) {
 			cfi = getArgFileCacheFileInfo(path, true);
+			name = "argfile";
 		} else {
 			if (path.endsWith(".f")) {
 				try {
@@ -509,6 +526,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 				}
 			}
 			cfi = getCacheFileInfo(path, true);
+			name = "file";
 		}
 		
 		if (file == null) {
@@ -518,17 +536,17 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			// TODO: should actually remove?
 			cfi.fSVDBFile = new WeakReference<SVDBFile>(null);
 			String target_dir = computePathDir(path);
-			fSVDBFS.delete(null, target_dir + "/file");
+			fSVDBFS.delete(null, target_dir + "/" + name);
 		} else {
 			cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 			cfi.fSVDBFileRef = file;
 
-			writeBackFile(path, file);
+			writeBackFile(path, file, is_argfile);
 		}
 	}
 	
 	public void setFileTree(String path, SVDBFileTree file_tree, boolean is_argfile) {
-		CacheFileInfo cfi = getCacheFileInfo(path, true);
+		CacheFileInfo cfi;
 		
 		if (is_argfile) {
 			cfi = getArgFileCacheFileInfo(path, true);
@@ -746,9 +764,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		writeBackFileWorker(target_dir, file_path, file);
 	}
 
-	private void writeBackFile(String path, SVDBFile file) {
+	private void writeBackFile(String path, SVDBFile file, boolean is_argfile) {
 		String target_dir = computePathDir(path);
-		String file_path = target_dir + "/file";
+		String file_path = target_dir + 
+				((is_argfile)?"/argfile":"/file");
 		
 		writeBackFileWorker(target_dir, file_path, file);
 	}

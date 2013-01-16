@@ -14,9 +14,10 @@ import junit.framework.TestCase;
 
 public class SVCoreTestCaseBase extends TestCase {
 	
-	protected File				fTmpDir;
-	protected LogHandle		fLog;
-	protected List<IProject>	fProjectList;
+	protected File						fTmpDir;
+	protected LogHandle					fLog;
+	protected List<IProject>			fProjectList;
+	protected TestIndexCacheFactory		fCacheFactory;
 	
 
 	@Override
@@ -28,6 +29,9 @@ public class SVCoreTestCaseBase extends TestCase {
 		fLog = LogFactory.getLogHandle(getName());
 		
 		fTmpDir = TestUtils.createTempDir();
+		
+		fCacheFactory = new TestIndexCacheFactory(
+				new File(fTmpDir, "db"));
 	}
 
 	@Override

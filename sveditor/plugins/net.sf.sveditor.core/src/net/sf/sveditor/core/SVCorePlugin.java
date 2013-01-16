@@ -162,6 +162,11 @@ public class SVCorePlugin extends Plugin
 		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
 	}
 	
+	public void setTestDebugLevel(int level) {
+		fDebugLevel = level;
+		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
+	}
+	
 	public int getDebugLevel() {
 		return fDebugLevel;
 	}

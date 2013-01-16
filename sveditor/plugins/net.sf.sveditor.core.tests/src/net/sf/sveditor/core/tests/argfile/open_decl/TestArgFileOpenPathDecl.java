@@ -101,5 +101,29 @@ public class TestArgFileOpenPathDecl extends TestCase {
 		assertEquals(null, ctxt.fRoot);
 		assertEquals("${DIR}/files/file1.sv", ctxt.fLeaf);
 	}
+
+	public void testArgFileScanner_EndOfInput() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String doc =
+			"+incdir+${DIR}/files/incpath\n" +
+			"${DIR}/files/file1.sv\n" +
+			"${DIR}/files/file2.sv"
+			;
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("${DIR}/files/file2.sv");
+		log.debug("index: " + idx);
+		scanner.seek(idx+"${DIR}/files/file2.sv".length());
+		
+		SVArgFileExprScanner expr_scanner = new SVArgFileExprScanner();
+		SVArgFileExprContext ctxt = expr_scanner.extractExprContext(scanner, true);
+		
+		log.debug("ctxt.fLeaf=" + ctxt.fLeaf);
+		log.debug("ctxt.fRoot=" + ctxt.fRoot);
 	
+		assertEquals(null, ctxt.fRoot);
+		assertEquals("${DIR}/files/file2.sv", ctxt.fLeaf);
+	}
 }

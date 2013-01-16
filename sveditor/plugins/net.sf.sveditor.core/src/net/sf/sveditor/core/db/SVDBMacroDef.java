@@ -42,6 +42,13 @@ public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
 	public List<SVDBMacroDefParam> getParameters() {
 		return fParams;
 	}
+	
+	public void setParameters(List<SVDBMacroDefParam> params) {
+		fParams = params;
+		for (SVDBMacroDefParam p : params) {
+			p.setParent(this);
+		}
+	}
 
 	public void addParameter(SVDBMacroDefParam p) {
 		fParams.add(p);

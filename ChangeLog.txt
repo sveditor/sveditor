@@ -1,6 +1,14 @@
 
 -- 1.1.2 Release --
 
+- #(nobug) - Correct issue with Open Declaration in an argument file
+  when the path extends to the end of the file.
+  
+- #(nobug) - Correct a content-assist bug involving content post-!=
+
+- #(nobug) - Update quick-view shortcuts to be function in all
+  content regions -- code, comment, etc
+
 ------------------------------------------------------------------------------
 -- 1.1.1 Release --
 

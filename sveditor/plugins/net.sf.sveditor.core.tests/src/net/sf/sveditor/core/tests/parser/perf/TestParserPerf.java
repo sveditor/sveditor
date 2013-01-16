@@ -18,9 +18,12 @@ import java.net.URL;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -234,5 +237,22 @@ public class TestParserPerf extends TestCase {
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
 //		System.out.println("Files: " + index.getFileList(new NullProgressMonitor()).size());
 	}
-	
+
+	public void testOpenSparc2() {
+		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
+
+		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		
+		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+				opensparc_design.getAbsolutePath(),
+				new SVDBFSFileSystemProvider(),
+				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
+				null);
+		index.init(new NullProgressMonitor());
+				
+		long fullparse_start = System.currentTimeMillis();
+		index.loadIndex(new NullProgressMonitor());
+		long fullparse_end = System.currentTimeMillis();
+		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+	}
 }
