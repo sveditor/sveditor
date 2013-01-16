@@ -1,4 +1,7 @@
 
+-- 1.1.3 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.2 Release --
 
 - #(nobug) - Correct issue with Open Declaration in an argument file
