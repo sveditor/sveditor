@@ -292,14 +292,18 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	
 	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
-		presenter= new InformationPresenter(
+		
+		presenter = new InformationPresenter(
 				getObjectsPresenterControlCreator(sourceViewer, 
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.objects")) ;
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new SVEditorProvider(fEditor);
-		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		for (String ct : getConfiguredContentTypes(sourceViewer)) {
+			presenter.setInformationProvider(provider, ct);
+		}
 		presenter.setSizeConstraints(50, 20, true, false);
+
 		return presenter;
 	}	
 	
@@ -311,7 +315,9 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new SVEditorProvider(fEditor);
-		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		for (String ct : getConfiguredContentTypes(sourceViewer)) {
+			presenter.setInformationProvider(provider, ct);
+		}
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
 	}	
@@ -324,7 +330,9 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
 		IInformationProvider provider = new SVElementProvider(fEditor); 
-		presenter.setInformationProvider(provider, IDocument.DEFAULT_CONTENT_TYPE);
+		for (String ct : getConfiguredContentTypes(sourceViewer)) {
+			presenter.setInformationProvider(provider, ct);
+		}
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
 	}	

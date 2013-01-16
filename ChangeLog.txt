@@ -6,6 +6,9 @@
   
 - #(nobug) - Correct a content-assist bug involving content post-!=
 
+- #(nobug) - Update quick-view shortcuts to be function in all
+  content regions -- code, comment, etc
+
 ------------------------------------------------------------------------------
 -- 1.1.1 Release --
 

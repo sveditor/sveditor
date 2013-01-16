@@ -34,8 +34,9 @@ public class OpenQuickObjectsViewAction extends TextEditorAction {
 
 	@Override
 	public void run() {
+		// TODO: 
 			
-		fEditor.getQuickObjectsPresenter().showInformation() ;
+		fEditor.getQuickObjectsPresenter().showInformation();
 	};
 
 }
