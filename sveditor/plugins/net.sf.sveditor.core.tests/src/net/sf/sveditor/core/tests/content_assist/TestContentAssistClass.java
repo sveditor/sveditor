@@ -1067,7 +1067,37 @@ public class TestContentAssistClass extends TestCase {
 		ContentAssistTests.runTest(testname, doc, 
 				"AAAA", "AABB");
 	}
-	
+
+	public void testContentAssistOnlyTopTF_2() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			"class base;\n" +
+			"	virtual task AAAA();\n" +
+			"	endtask\n" +
+			"\n" +
+			"	virtual function AABB();\n" +
+			"	endfunction\n" +
+			"\n" +
+			"	virtual function BBAA();\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class super_1 extends base;\n" +
+			"	virtual task AAAA();\n" +
+			"	endtask\n" +
+			"\n" +
+			"	virtual function AABB();\n" +
+			"		AAA<<MARK>>\n" +
+			"	endfunction\n" +
+			"endclass\n" +
+			"\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AAAA");
+	}
 }
 
 
