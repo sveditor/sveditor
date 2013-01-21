@@ -18,7 +18,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 	public void testBasicInclude() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File dir1 = new File(fTmpDir, "dir1");
 		File dir2 = new File(fTmpDir, "dir2");
 		
@@ -55,7 +55,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testBasicDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -72,7 +72,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}	
 
 	public void testRecursiveDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -93,7 +93,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testDefineFromInclude() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File dir1 = new File(fTmpDir, "dir1");
 		File dir2 = new File(fTmpDir, "dir2");
 		

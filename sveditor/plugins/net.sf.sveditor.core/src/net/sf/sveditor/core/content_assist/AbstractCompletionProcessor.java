@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.content_assist;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -71,7 +73,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 
 public abstract class AbstractCompletionProcessor implements ILogLevel {
-	protected List<SVCompletionProposal>		fCompletionProposals;
+//	protected List<SVCompletionProposal>		fCompletionProposals;
+	protected Map<Integer, List<SVCompletionProposal>>		fCompletionProposalMap;
+	protected List<SVCompletionProposal>					fCompletionProposals;
 	
 	protected LogHandle							fLog;
 	/**
@@ -81,7 +85,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	 */
 	
 	public AbstractCompletionProcessor() {
-		fCompletionProposals = new ArrayList<SVCompletionProposal>();
+		fCompletionProposalMap = new HashMap<Integer, List<SVCompletionProposal>>();
 	}
 	
 	protected abstract ISVDBIndexIterator getIndexIterator();
@@ -91,22 +95,37 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	protected void addProposal(SVCompletionProposal p) {
 		boolean found = false;
 	
-		synchronized (fCompletionProposals) {
-			for (SVCompletionProposal p_t : fCompletionProposals) {
-				if (p_t.equals(p)) {
-					found = true;
+		synchronized (fCompletionProposalMap) {
+			for (Integer priority : fCompletionProposalMap.keySet()) {
+				for (SVCompletionProposal p_t : fCompletionProposalMap.get(priority)) {
+					if (p_t.equals(p)) {
+						found = true;
+						break;
+					}
+				}
+				if (found) {
 					break;
 				}
 			}
 
 			if (!found) {
-				fCompletionProposals.add(p);
+				if (!fCompletionProposalMap.containsKey(p.getPriorityCategory())) {
+					fCompletionProposalMap.put(p.getPriorityCategory(), 
+							new ArrayList<SVCompletionProposal>());
+				}
+				fLog.debug("addProposal \"" + p.getReplacement() + "\": category=" + 
+						p.getPriorityCategory() + " priority=" + p.getPriority());
+				fCompletionProposalMap.get(p.getPriorityCategory()).add(p);
 			}
 		}
 	}
 	
 	public List<SVCompletionProposal> getCompletionProposals() {
-		return fCompletionProposals;
+		if (fCompletionProposals != null) {
+			return fCompletionProposals;
+		} else {
+			return new ArrayList<SVCompletionProposal>();
+		}
 	}
 
 	public void computeProposals(
@@ -123,8 +142,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int					linepos) {
 		SVExprScanner expr_scan = new SVExprScanner();
 	
-		synchronized (fCompletionProposals) {
-			fCompletionProposals.clear();
+		synchronized (fCompletionProposalMap) {
+			fCompletionProposalMap.clear();
 		}
 		
 		// Trigger characters and string prior to the trigger (if any)
@@ -141,14 +160,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		} else {
 			fLog.debug(LEVEL_MID, "failed to find source scope");
 		}
-
-		/*
-		if (src_scope == null) {
-			debug("In global scope -- failed to find scope position @ " + lineno);
-		} else {
-			debug("Source scope: " + src_scope.getName());
-		}
-		 */
 
 		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
 		fLog.debug(LEVEL_MID, "ctxt: type=" + ctxt.fType + 
@@ -241,150 +252,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			findUntriggeredProposals(ctxt, src_scope);
 		}
 
-		/*
-		// If this is an include lookup, then use a different matching strategy
-		if (ctxt.fTrigger != null && ctxt.fRoot != null &&
-				ctxt.fTrigger.equals("`") && ctxt.fRoot.equals("include")) {
-			expr_utils.setMatcher(new SVDBContentAssistIncludeNameMatcher());
-		}
-		
-		List<ISVDBItemBase> items = expr_utils.findItems(
-				getIndexIterator(), src_scope, ctxt, true);
-		
-		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
-				ctxt.fRoot != null && ctxt.fRoot.startsWith("include")) {
-			String replacement = "";
-
-			for (ISVDBItemBase it : items) {
-				if (!(it instanceof ISVDBNamedItem)) {
-					continue;
-				}
-				File file = new File(((ISVDBNamedItem)it).getName());
-				replacement = file.getName();
-				
-				// Add quotes in if not present already...
-				if (!scanner.get_str(ctxt.fStart-1, 1).equals("\"")) {
-					replacement = "\"" + replacement;
-				}
-				replacement += "\"";
-				
-				addProposal(new SVCompletionProposal(
-						replacement, ctxt.fStart, ctxt.fLeaf.length()));
-			}
-		} else {
-			for (ISVDBItemBase it : items) {
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
-			}
-			
-			if (ctxt.fTrigger == null && !ctxt.fLeaf.trim().equals("")) {
-				// Finally, add any keyword proposals
-				String lc_leaf = ctxt.fLeaf.toLowerCase();
-				for (String kw : SVKeywords.getKeywords()) {
-					kw = kw.toLowerCase();
-					if (kw.startsWith(lc_leaf)) {
-						addProposal(new SVCompletionProposal(kw, ctxt.fStart, ctxt.fLeaf.length(),
-								SVCompletionProposalType.Keyword));
-					}
-				}
-			}
-		}
-		 */
-		
-		order_proposals(ctxt.fLeaf, fCompletionProposals);
+		fCompletionProposals = order_proposals(ctxt.fLeaf, fCompletionProposalMap);
 	}
-	
-	/**
-	 * findUntriggeredProposal
-	 * 
-	 * Find a proposal based on a request for content assist that did not start
-	 * with a trigger string ( . ` ::)
-	 * 
-	 * These proposals are made based on the prefix string and elements from the
-	 * index
-	 * 
-	 * @param proposals
-	 * @param leaf
-	private void findUntriggeredProposal(
-			IBIDITextScanner			scanner,
-			String 						root,
-			String 						trigger,
-			String 						leaf,
-			int 						start) {
-		ISVDBIndexIterator index_iterator = getIndexIterator();
-		
-		debug("findUntriggeredProposal: root=" + root + " leaf=" + leaf);
-
-		scanner.seek(start);
-		int lineno = scanner.getLocation().getLineNo();
-
-		SVDBScopeItem src_scope = SVDBSearchUtils.findActiveScope(
-				getSVDBFile(), lineno);
-		
-		if (src_scope == null) {
-			System.out.println("[WARN] cannot locate source scope");
-		}
-
-		// Figure out which scope we're in and collect info from there...
-
-		// Begin working outwards
-		while (src_scope != null) {
-			
-			if (src_scope.getType() == SVDBItemType.Task || 
-					src_scope.getType() == SVDBItemType.Function) {
-				SVDBTaskFuncScope tf = (SVDBTaskFuncScope)src_scope;
-				
-				for (SVDBTaskFuncParam p : tf.getParams()) {
-					if (isPrefix(leaf, p)) {
-						addProposal(p, start, leaf.length());
-					}
-				}
-			}
-
-			// TODO: Search this scope and enclosing scopes for functions,
-			// tasks, and variables
-			// TODO: If one of the enclosing scopes is a class scope, then
-			// search the base-class tree as well
-			addMatchingTasksVars(src_scope, root, trigger, leaf, start);
-
-			if (src_scope.getType() == SVDBItemType.Class) {
-				addClassHierarchyItems(index_iterator, 
-						(SVDBModIfcClassDecl)src_scope, root, trigger,
-						leaf, start);
-			}
-
-			src_scope = src_scope.getParent();
-		}
-
-		for (SVDBItem it : getSVDBFile().getItems()) {
-			if (it.getType() == SVDBItemType.VarDecl
-					|| it.getType() == SVDBItemType.Task
-					|| it.getType() == SVDBItemType.Function) {
-				if (it.getName() != null && (leaf.equals("") 
-						|| isPrefix(leaf, it))) {
-					addProposal(it, start, leaf.length());
-				}
-			} else if (it.getType() == SVDBItemType.Module
-					|| it.getType() == SVDBItemType.Class) {
-				// TODO: recurse and search the scope for this
-			}
-		}
-
-		// Collect all matching class names from the build path
-		ISVDBItemIterator<SVDBItem> item_it = index_iterator.getItemIterator();
-		
-		while (item_it.hasNext()) {
-			SVDBItem it = item_it.nextItem();
-			
-			if (it.getName() != null && 
-					(it.getType() != SVDBItemType.File) &&
-					(it.getType() != SVDBItemType.Macro) &&
-					(it.getType() != SVDBItemType.Include) &&
-					(leaf.equals("") || isPrefix(leaf, it))) {
-				addProposal(it, start, leaf.length());
-			}
-		}
-	}
-	 */
 	
 	private void findTriggeredProposals(
 			SVExprContext			ctxt,
@@ -394,7 +263,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		// Determine the type of the leaf item
 		fLog.debug("findTriggeredProposals: " + leaf_item.getType());
 		
-
 		// Search up hierarchy ?
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct ||
@@ -404,6 +272,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
 			ISVDBChildParent si = (ISVDBChildParent)leaf_item;
+			int scope_level = 0;
 			
 			while (si != null) {
 				for (ISVDBChildItem it : si.getChildren()) {
@@ -414,14 +283,18 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 							for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
 								debug("VarDeclItem: " + SVDBItem.getName(it_1));
 								if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-									addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(it_1, ctxt.fLeaf, scope_level, 
+											SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+											true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}
 					} else if (it.getType() == SVDBItemType.TypedefStmt) {
 						SVDBTypedefStmt td_stmt = (SVDBTypedefStmt)it;
 						if (matcher.match(td_stmt, ctxt.fLeaf)) {
-							addProposal(td_stmt, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(td_stmt, ctxt.fLeaf, scope_level,
+									SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 						if (td_stmt.getTypeInfo() != null && 
 								td_stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
@@ -429,8 +302,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 							// Match against enumerators
 							for (SVDBTypeInfoEnumerator enumerator : enum_type.getEnumerators()) {
 								if (matcher.match(enumerator, ctxt.fLeaf)) {
-									addProposal(enumerator, ctxt.fLeaf, true, 
-											ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(enumerator, ctxt.fLeaf, scope_level,
+											SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+											true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}
@@ -438,18 +312,26 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						for (ISVDBItemBase it_1 : ((SVDBModportDecl)it).getChildren()) {
 							debug("ModportItem: " + SVDBItem.getName(it_1));
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+								// TODO: is this really category behavioral-scope?
+								addProposal(it_1, ctxt.fLeaf, scope_level,
+										SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+										true, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
 					} else if (it.getType() == SVDBItemType.ModIfcInst) {
 						for (ISVDBItemBase it_1 : ((SVDBModIfcInst)it).getChildren()) {
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+								// TODO: is this really category behavioral-scope?
+								addProposal(it_1, ctxt.fLeaf, scope_level,
+										SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+										true, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
 					} else if (it instanceof ISVDBNamedItem) {
 						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
-							addProposal(it, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(it, ctxt.fLeaf, scope_level,
+									SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					}
 				}
@@ -465,13 +347,16 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						for (SVDBParamPortDecl p : ifc.getPorts()) {
 							for (ISVDBItemBase vi : p.getChildren()) {
 								if (matcher.match((ISVDBNamedItem)vi, ctxt.fLeaf)) {
-									addProposal(vi, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(vi, ctxt.fLeaf, scope_level,
+											SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+											true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}
 					}
 					si = null;
 				}
+				scope_level++;
 			}
 		} else if (leaf_item.getType() == SVDBItemType.PackageDecl) {
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
@@ -495,7 +380,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					if (item.getType() == SVDBItemType.TypedefStmt) {
 						SVDBTypedefStmt td_stmt = (SVDBTypedefStmt)item;
 						if (matcher.match(td_stmt, ctxt.fLeaf)) {
-							addProposal(td_stmt, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(td_stmt, ctxt.fLeaf, 0,
+									SVCompletionProposal.PRIORITY_PACKAGE_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 						if (td_stmt.getTypeInfo() != null && 
 								td_stmt.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
@@ -503,8 +390,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 							// Match against enumerators
 							for (SVDBTypeInfoEnumerator enumerator : enum_type.getEnumerators()) {
 								if (matcher.match(enumerator, ctxt.fLeaf)) {
-									addProposal(enumerator, ctxt.fLeaf, true, 
-											ctxt.fStart, ctxt.fLeaf.length());
+									addProposal(enumerator, ctxt.fLeaf, 0,
+											SVCompletionProposal.PRIORITY_PACKAGE_SCOPE,
+											true, ctxt.fStart, ctxt.fLeaf.length());
 								}
 							}
 						}						
@@ -512,7 +400,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						ISVDBNamedItem ni = (ISVDBNamedItem)item;
 						fLog.debug("Note: checking package item \"" + ni.getName() + "\"");
 						if (matcher.match(ni, ctxt.fLeaf)) {
-							addProposal(item, ctxt.fLeaf, true, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(item, ctxt.fLeaf, 0,
+									SVCompletionProposal.PRIORITY_PACKAGE_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					} else {
 						fLog.debug("Note: checking package item is not named item " +
@@ -539,12 +429,16 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 						for (ISVDBItemBase it_1 : ((SVDBVarDeclStmt)it).getChildren()) {
 							debug("VarDeclItem: " + SVDBItem.getName(it_1));
 							if (matcher.match((ISVDBNamedItem)it_1, ctxt.fLeaf)) {
-								addProposal(it_1, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+								addProposal(it_1, ctxt.fLeaf, 0,
+										SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+										true, ctxt.fStart, ctxt.fLeaf.length());
 							}
 						}
 					} else if (it instanceof ISVDBNamedItem) {
 						if (matcher.match((ISVDBNamedItem)it, ctxt.fLeaf)) {
-							addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(it, ctxt.fLeaf, 0,
+									SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					}
 				}
@@ -557,7 +451,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					SVDBModportSimplePortsDecl simple_pd = (SVDBModportSimplePortsDecl)pd;
 					for (SVDBModportSimplePort p : simple_pd.getPortList()) {
 						if (matcher.match(p, ctxt.fLeaf)) {
-							addProposal(p, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+							addProposal(p, ctxt.fLeaf, 0,
+									SVCompletionProposal.PRIORITY_MOD_IFC_CLS_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
 						}
 					}
 				} else {
@@ -573,22 +469,22 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			ISVDBItemBase			item) {
 		fLog.debug("Looking for assign-triggered identifier \"" + ctxt.fLeaf + "\"");
 		List<ISVDBItemBase> result = new ArrayList<ISVDBItemBase>();
-		List<ISVDBItemBase> tmp = null;
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
-		
-		SVDBFindByNameInScopes finder_s = 
-			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
-		tmp = finder_s.find(src_scope, ctxt.fLeaf, false);
-		
-		result.addAll(tmp);
+	
+		FindByNameInScopes finder_s = new FindByNameInScopes(
+				ctxt, getIndexIterator(), matcher);
 
-		SVDBFindByNameInClassHierarchy finder_h =
-			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
+		finder_s.find(src_scope, ctxt.fLeaf, false);
 
-		tmp = finder_h.find(src_scope, ctxt.fLeaf);
-		
-		result.addAll(tmp);
+		FindByNameInClassHierarchy finder_h = new FindByNameInClassHierarchy(
+				ctxt, getIndexIterator(), matcher);
 
+		finder_h.find(src_scope, ctxt.fLeaf);
+
+// Result is already added
+//		result.addAll(tmp);
+
+		// TODO:
 		if (result.size() > 0) {
 			for (int i=0; i<result.size(); i++) {
 				boolean add = true;
@@ -599,7 +495,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				}
 				
 				if (add) {
-					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					addProposal(result.get(i), ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
 				}
 			}
 		}
@@ -618,7 +516,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			}
 			
 			for (ISVDBItemBase it : cl_l){
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(it, ctxt.fLeaf, 0,
+						SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+						true, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		} else {
 			fLog.debug("Global class find for \"" + ctxt.fLeaf + 
@@ -628,11 +528,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		// Try global task/function
 		SVDBFindByName finder_tf = new SVDBFindByName(getIndexIterator(), matcher);
 
-		/*
-		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf,
-				SVDBItemType.Task, SVDBItemType.Function, SVDBItemType.VarDeclStmt,
-				SVDBItemType.PackageDecl);
-		 */
 		List<ISVDBItemBase> it_l = finder_tf.find(ctxt.fLeaf);
 		
 		// Remove any definitions of extern tasks/functions, 
@@ -671,8 +566,11 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				fLog.debug("    " + it.getType() + " " + ((ISVDBNamedItem)it).getName());
 			}
 
+			// TODO: Tag with priority
 			for (ISVDBItemBase it : it_l) {
-				addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(it, ctxt.fLeaf, 0,
+						SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+						true, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		} else {
 			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
@@ -691,7 +589,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				if (c.getType() == SVDBItemType.Function) {
 					SVDBFunction f = (SVDBFunction)c;
 					if (f.getName().equals("new")) {
-						addProposal(c, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						addProposal(c, ctxt.fLeaf, 0,
+								SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+								true, ctxt.fStart, ctxt.fLeaf.length());
 					}
 				}
 			}
@@ -742,7 +642,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		for (SVDBParamPortDecl p : decl.getPorts()) {
 			for (ISVDBChildItem pi : p.getChildren()) {
 				if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
-					addProposal(pi, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					addProposal(pi, ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_MOD_IFC_CLS_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
 				}
 			}
 		}
@@ -798,13 +700,15 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		fLog.debug("Looking for un-ctxt.fTriggered identifier \"" + ctxt.fLeaf + "\"");
 		List<ISVDBItemBase> result = null;
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
-		SVDBFindByNameInScopes finder_s =
-			new SVDBFindByNameInScopes(getIndexIterator(), matcher);
+		
+		UntriggeredFindByNameInScopes finder_s = new UntriggeredFindByNameInScopes(
+				ctxt, src_scope, getIndexIterator(), matcher);
 
 		fLog.debug("Searching in scope hierarchy");
 		result = finder_s.find(src_scope, ctxt.fLeaf, false);
 		
 		fLog.debug("    " + result.size() + " results");
+/* MSB:
 		for (int i=0; i<result.size(); i++) {
 			// It's possible that the local variable that we're declaring
 			// will appear in the proposals. Don't add these proposals. 
@@ -813,50 +717,13 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		}
+ */		
 
-		SVDBFindByNameInClassHierarchy finder_h =
-			new SVDBFindByNameInClassHierarchy(getIndexIterator(), matcher);
+		UntriggeredFindByNameInClassHierarchy finder_h =
+			new UntriggeredFindByNameInClassHierarchy(ctxt, getIndexIterator(), matcher);
 
-		result = finder_h.find(src_scope, ctxt.fLeaf);
-
-		if (result.size() > 0) {
-			for (int i=0; i<result.size(); i++) {
-				boolean add = true;
-				
-				if (ctxt.fTrigger != null && ctxt.fTrigger.equals("=") &&
-						"new".startsWith(ctxt.fLeaf)) {
-					// This is possibly a call to 'new'. We'll add
-					// a proposal for this later based on the base type
-					if (result.get(i).getType() == SVDBItemType.Function &&
-							((ISVDBNamedItem)result.get(i)).getName().equals("new")) {
-						add = false;
-					}
-				}
-			
-				// Filter out non-class proposals when we're dealing with
-				// content-assist for a base class
-				if (ctxt.fType == ContextType.Extends) {
-					fLog.debug("Extends: " + result.get(i).getType());
-					if (result.get(i).getType() != SVDBItemType.ClassDecl) {
-						add = false;
-					}
-				}
-			
-				// Transform any module-instance proposals to module-inst-item proposals
-				if (result.get(i).getType() == SVDBItemType.ModIfcInst) {
-					SVDBModIfcInst mi = (SVDBModIfcInst)result.get(i);
-					
-					for (ISVDBChildItem ci : mi.getChildren()) {
-						addProposal(ci, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
-					}
-					add = false;
-				}
-				
-				if (add) {
-					addProposal(result.get(i), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
-				}
-			}
-		}
+		// Add Class Hierarchy items
+		finder_h.find(src_scope, ctxt.fLeaf);
 
 		// Try type names
 		SVDBFindNamedModIfcClassIfc finder_cls =
@@ -874,10 +741,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			for (ISVDBItemBase it : cl_l) {
 				if (ctxt.fType == ContextType.Extends) {
 					if (it.getType() == SVDBItemType.ClassDecl) {
-						addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+						addProposal(it, ctxt.fLeaf, 0,
+								SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+								true, ctxt.fStart, ctxt.fLeaf.length());
 					}
 				} else {
-					addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					addProposal(it, ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
 				}
 			}
 		} else {
@@ -930,7 +801,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				}
 
 				for (ISVDBItemBase it : it_l) {
-					addProposal(it, ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+					addProposal(it, ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
 				}
 			} else {
 				fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
@@ -962,7 +835,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			List<SVDBFile> it_l = finder.find(ctxt.fLeaf);
 
 			if (it_l.size() > 0) {
-				addProposal(it_l.get(0), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(it_l.get(0), ctxt.fLeaf, 0,
+						SVCompletionProposal.PRIORITY_PREPROC_SCOPE,
+						true, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		} else {
 			// most likely a macro call
@@ -971,7 +846,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			
 			for (SVDBDeclCacheItem i : result) {
 				fLog.debug(LEVEL_MID, "Macro: " + i.getName());
-				addProposal(i.getSVDBItem(), ctxt.fLeaf, ctxt.fStart, ctxt.fLeaf.length());
+				addProposal(i.getSVDBItem(), ctxt.fLeaf, 0,
+						SVCompletionProposal.PRIORITY_PREPROC_SCOPE,
+						true, ctxt.fStart, ctxt.fLeaf.length());
 			}
 		}
 	}
@@ -1021,339 +898,111 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		return target;
 	}
 
-	/**
-	 * Find proposals that result from a triggered content-assist request
-	 * 
-	 * Typical strings will be something like: a.b<request>
-	 * 
-	 * @param viewer
-	 * @param src_scope
-	 * @param pre_trigger_idx
-	 * @param trigger
-	 * @param leaf
-	 * @param start
-	 * @param proposals
-	private void findTriggeredProposals(
-			IBIDITextScanner	scanner,
-			SVDBScopeItem		src_scope,
-			String				root,
-			String				trigger,
-			String				leaf,
-			int					start) {
-		ISVDBIndexIterator index_iterator = getIndexIterator();
-		SVExpressionUtils expr_utils = new SVExpressionUtils();
-		
-		debug("findTriggeredProposals: " + src_scope.getName() + 
-				" pre=" + leaf + " trigger=" + trigger);
-		
-		debug("    preTrigger=" + leaf);
-		List<SVDBItem> info = expr_utils.processPreTriggerPortion(
-				index_iterator, src_scope, root, true);
-		
-		final List<SVDBItem> result_f = new ArrayList<SVDBItem>();
-		
-		if (info != null && info.size() > 0) {
-			// Get the last item
-			SVDBItem res = info.get(info.size()-1);
-			final String pre_f = leaf;
-			
-			debug("use " + res.getName());
-			
-			SVDBModIfcClassDecl res_c = (SVDBModIfcClassDecl)res;
-			SVDBFindSuperClass finder_sc = new SVDBFindSuperClass(index_iterator);
-
-			while (res_c != null) {
-				
-				for (SVDBItem it : res_c.getItems()) {
-					if (isPrefix(pre_f, it)) {
-						result_f.add(it);
-					}
-				}
-
-				if (res_c.getSuperClass() != null) {
-					res_c = finder_sc.find(res_c);
-				} else {
-					res_c = null;
-				}
-			}
-		}
-		
-		for (SVDBItem it : result_f) {
-			addProposal(it, start, leaf.length());
-		}
-	}
-	 */
-
-	/**
-	private void addMatchingTasksVars(
-			SVDBScopeItem 	src_scope, 
-			String 			root, 
-			String 			trigger, 
-			String 			pre, 
-			int 			start) {
-		debug("addMatchingTasksVars: " + src_scope.getName() + " pre=" + pre);
-
-		for (SVDBItem it : src_scope.getItems()) {
-			debug("    it=" + it.getName() + " type=" +	it.getType());
-			if (it.getType() == SVDBItemType.Task
-					|| it.getType() == SVDBItemType.Function
-					|| it.getType() == SVDBItemType.VarDecl
-					|| it.getType() == SVDBItemType.TaskFuncParam) {
-				if (isPrefix(pre, it)) {
-					addProposal(it, start, pre.length());
-				}
-			}
-		}
-	}
-	 */
-	
-	/**
-	private void addMacroProposals(
-			String							pre,
-			SVDBScopeItem					scope,
-			int								replacementOffset) {
-		
-		for (SVDBItem it : scope.getItems()) {
-			if (it.getType() == SVDBItemType.Macro) {
-				if (it.getName() != null && 
-						(pre.equals("") || isPrefix(pre, it))) {
-					addProposal(it, replacementOffset, pre.length());
-				}
-			} else if (it instanceof ISVDBScopeItem) {
-				addMacroProposals(
-						pre, (ISVDBScopeItem)it, replacementOffset);
-			}
-		}
-	}
-	 */
-
-
-	/**
-	 * Traverse the class hierarchy and add tasks, functions, and members to the
-	 * completion proposals
-	 * 
-	 * @param searcher
-	 * @param src_scope
-	 * @param doc
-	 * @param root
-	 * @param trigger
-	 * @param pre
-	 * @param start
-	 * @param proposals
-	private void addClassHierarchyItems(
-			ISVDBIndexIterator			index_it,
-			SVDBModIfcClassDecl 		src_scope, 
-			String 						root,
-			String 						trigger, 
-			String 						pre, 
-			int 						start) {
-		debug("addClassHierarchyItems()");
-
-		while (true) {
-			debug("src_scope=" + src_scope.getName()
-					+ " superClass=" + src_scope.getSuperClass());
-			SVDBModIfcClassDecl src_scope_t = src_scope;
-			SVDBFindNamedModIfcClassIfc finder_class =
-				new SVDBFindNamedModIfcClassIfc(index_it);
-			
-			if (src_scope.getSuperClass() == null
-					|| (src_scope = finder_class.find(
-							src_scope.getSuperClass())) == null) {
-				debug("End expansion: " + src_scope_t.getName());
-				debug("    SuperClass="	+ src_scope_t.getSuperClass());
-				debug("    Find="
-						+ finder_class.find(src_scope_t.getSuperClass()));
-				break;
-			}
-
-			addMatchingTasksVars(src_scope, root, trigger, pre, start);
-		}
-	}
-	 */
-
-	/**
-	 * findPreProcProposals()
-	 * 
-	 * Find macro completion proposals
-	 * 
-	 * @param proposals
-	 * @param pre
-	private void findPreProcProposals(
-			IBIDITextScanner			scanner,
-			String 						root, 
-			String 						trigger, 
-			String 						pre,
-			int 						start) {
-		ISVDBIndexIterator index_it = getIndexIterator();
-
-		if (pre.startsWith("include")) {
-			boolean leading_quote = false, trailing_quote = false;
-			String replacement = "";
-
-			// Look at the point beyond the '`include'
-			String post_include = pre.substring("include".length());
-
-			start += "include".length();
-
-			// Now, account for any whitespace
-			while (post_include.length() > 0
-					&& Character.isWhitespace(post_include.charAt(0))) {
-				post_include = post_include.substring(1);
-				start++;
-			}
-
-			if (post_include.startsWith("\"")) {
-				// strip away the quote
-				leading_quote = true;
-				post_include = post_include.substring(1);
-				start++;
-			}
-
-			// look for include files that match the user-specified pattern
-			
-			// Collect all matching class names from the build path
-			ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
-			
-			while (item_it.hasNext()) {
-				SVDBItem it = item_it.nextItem();
-				
-				if (it.getType() != SVDBItemType.Include) {
-					continue;
-				}
-				
-				File file = new File(it.getName());
-				
-				if (file.getName().toLowerCase().startsWith(post_include.toLowerCase())) {
-					replacement = file.getName();
-
-					// Add quotes in if not present already...
-					if (!leading_quote) {
-						replacement = "\"" + replacement;
-					}
-					if (!trailing_quote) {
-						replacement += "\"";
-					}
-
-					int replacement_length = post_include.length();
-					// replacementString
-					// replacementOffset
-					// replacementLength
-					// cursorPosition
-					addProposal(new SVCompletionProposal(replacement,
-							start, replacement_length));
-				}
-			}
-		} else {
-			for (String p : fBuiltInMacroProposals) {
-				if (p.toLowerCase().startsWith(pre.toLowerCase())) {
-					addProposal(new SVCompletionProposal(p, start, pre.length()));
-				}
-			}
-			ISVDBItemIterator<SVDBItem> item_it = index_it.getItemIterator();
-			
-			while (item_it.hasNext()) {
-				SVDBItem it = item_it.nextItem();
-				
-				if (it.getType() == SVDBItemType.Macro &&
-						isPrefix(pre, it)) {
-					addProposal(it, start, pre.length());
-				}
-				debug("it=" + it.getName());
-			}
-		}
-	}
-	 */
-
-
 	protected boolean isPrefix(String pre, SVDBItem it) {
 		return it.getName().toLowerCase().startsWith(pre.toLowerCase());
 	}
 
-	/**
-	 * order_proposals()
-	 * 
-	 * Re-order the proposals to be in alphabetical order
-	 * 
-	 * @param proposals
-	 */
-	private void order_proposals(String prefix, List<SVCompletionProposal> proposals) {
+	private List<SVCompletionProposal> order_proposals(
+			String										prefix, 
+			Map<Integer, List<SVCompletionProposal>> 	proposals) {
+		List<SVCompletionProposal> ret = new ArrayList<SVCompletionProposal>();
 	
 		synchronized (proposals) {
-			// First eliminate any class typedefs for which the actual class is available
-			for (int i=0; i<proposals.size(); i++) {
-				SVCompletionProposal p = proposals.get(i);
-				if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
-					boolean found = false;
+			
+			for (int category=0; category <= SVCompletionProposal.PRIORITY_MAX; category++) {
+				if (!proposals.containsKey(category)) {
+					continue;
+				}
+				
+		
+				List<SVCompletionProposal> pl = proposals.get(category);
+				
+				fLog.debug("PriorityCategory " + category + " proposals");
+				for (SVCompletionProposal p : pl) {
+					fLog.debug("  " + p.getReplacement());
+				}
+				
+				// First eliminate any class typedefs for which the actual class is available
+				for (int i=0; i<pl.size(); i++) {
+					SVCompletionProposal p = pl.get(i);
+					if (p.getItem() != null && SVDBStmt.isType(p.getItem(), SVDBItemType.TypedefStmt)) {
+						boolean found = false;
 
-					for (SVCompletionProposal p_t : proposals) {
-						if (p_t != p && p_t.getItem() != null && 
-								SVDBItem.getName(p_t.getItem()).equals(SVDBItem.getName(p.getItem()))) {
-							found = true;
-							break;
+						for (SVCompletionProposal p_t : pl) {
+							if (p_t != p && p_t.getItem() != null && 
+									SVDBItem.getName(p_t.getItem()).equals(SVDBItem.getName(p.getItem()))) {
+								found = true;
+								break;
+							}
+						}
+
+						if (found) {
+							proposals.remove(i);
+							i--;
 						}
 					}
-
-					if (found) {
-						proposals.remove(i);
-						i--;
+				}
+				
+				Map<Integer, List<SVCompletionProposal>> proposal_order = new HashMap<Integer, List<SVCompletionProposal>>();
+				int max_priority = -1;
+				for (SVCompletionProposal p : pl) {
+					if (!proposal_order.containsKey(p.getPriority())) {
+						proposal_order.put(p.getPriority(), new ArrayList<SVCompletionProposal>());
+					}
+					if (p.getPriority() > max_priority) {
+						max_priority = p.getPriority();
+					}
+					proposal_order.get(p.getPriority()).add(p);
+				}
+				
+				for (int priority=0; priority <= max_priority; priority++) {
+					if (proposal_order.containsKey(priority)) {
+						List<SVCompletionProposal> p = proposal_order.get(priority);
+						fLog.debug("Adding category " + category + " priority " + priority + " proposals");
+						alphabetize(p);
+						ret.addAll(p);
 					}
 				}
 			}
-			for (int i = 0; i < proposals.size(); i++) {
-				SVCompletionProposal p_i = proposals.get(i);
-				for (int j = i + 1; j < proposals.size(); j++) {
-					SVCompletionProposal p_j = proposals.get(j);
-					String s_i, s_j;
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * 
+	 * @param prefix
+	 * @param proposals
+	 */
+	private static void alphabetize(List<SVCompletionProposal> proposals) {
+		for (int i = 0; i < proposals.size(); i++) {
+			SVCompletionProposal p_i = proposals.get(i);
+			for (int j = i + 1; j < proposals.size(); j++) {
+				SVCompletionProposal p_j = proposals.get(j);
+				String s_i, s_j;
 
-					if (p_i.getItem() != null) {
-						s_i = SVDBItem.getName(p_i.getItem());
-					} else {
-						s_i = p_i.getReplacement();
-					}
-
-					if (p_j.getItem() != null) {
-						s_j = SVDBItem.getName(p_j.getItem());
-					} else {
-						s_j = p_j.getReplacement();
-					}
-
-					if (s_i.compareTo(s_j) > 0) {
-						proposals.set(i, p_j);
-						proposals.set(j, p_i);
-						p_i = p_j;
-					}
+				if (p_i.getItem() != null) {
+					s_i = SVDBItem.getName(p_i.getItem());
+				} else {
+					s_i = p_i.getReplacement();
 				}
-			}
 
-			for (int i=0; i<proposals.size(); i++) {
-				SVCompletionProposal p_i = proposals.get(i);
-				for (int j=i+1; j<proposals.size(); j++) {
-					SVCompletionProposal p_j = proposals.get(j);
+				if (p_j.getItem() != null) {
+					s_j = SVDBItem.getName(p_j.getItem());
+				} else {
+					s_j = p_j.getReplacement();
+				}
 
-					String s_i, s_j;
-
-					if (p_i.getItem() != null) {
-						s_i = SVDBItem.getName(p_i.getItem());
-					} else {
-						s_i = p_i.getReplacement();
-					}
-
-					if (p_j.getItem() != null) {
-						s_j = SVDBItem.getName(p_j.getItem());
-					} else {
-						s_j = p_j.getReplacement();
-					}
-
-					if (prefix.compareTo(s_i) < prefix.compareTo(s_j)) {
-						proposals.set(i, p_j);
-						proposals.set(j, p_i);
-						p_i = p_j;
-					}
+				if (s_i.compareTo(s_j) > 0) {
+					proposals.set(i, p_j);
+					proposals.set(j, p_i);
+					p_i = p_j;
 				}
 			}
 		}
 	}
 
+	/*
 	protected void addProposal(
 			ISVDBItemBase 	it,
 			String			prefix,
@@ -1361,45 +1010,57 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			int 			replacementLength) {
 		addProposal(it, prefix, false, replacementOffset, replacementLength);
 	}
+	 */
 
 	protected void addProposal(
 			ISVDBItemBase 	it,
 			String			prefix,
+			int				priority,
+			int				priority_category,
 			boolean			name_based_check,
 			int 			replacementOffset, 
 			int 			replacementLength) {
 		boolean found = false;
 		
-		synchronized (fCompletionProposals) {
+		synchronized (fCompletionProposalMap) {
 			// Check if we already have it in the proposal list?
-			for (SVCompletionProposal p : fCompletionProposals) {
-				if (p.getItem() != null) {
-					if (p.getItem() == it) {
-						found = true;
-						break;
-					} else if (name_based_check) {
-						if (p.getItem() instanceof ISVDBNamedItem &&
-								it instanceof ISVDBNamedItem) {
-							ISVDBNamedItem i1 = (ISVDBNamedItem)p.getItem();
-							ISVDBNamedItem i2 = (ISVDBNamedItem)it;
-							if (i1.getName() == null || i1.getName() == null) {
-								if (i1.getName() == i2.getName()) {
+			for (int c : fCompletionProposalMap.keySet()) {
+				for (SVCompletionProposal p : fCompletionProposalMap.get(c)) {
+					if (p.getItem() != null) {
+						if (p.getItem() == it) {
+							found = true;
+							break;
+						} else if (name_based_check) {
+							if (p.getItem() instanceof ISVDBNamedItem &&
+									it instanceof ISVDBNamedItem) {
+								ISVDBNamedItem i1 = (ISVDBNamedItem)p.getItem();
+								ISVDBNamedItem i2 = (ISVDBNamedItem)it;
+								if (i1.getName() == null || i1.getName() == null) {
+									if (i1.getName() == i2.getName()) {
+										found = true;
+										break;
+									}
+								} else if (i1.getName().equals(i2.getName())) {
 									found = true;
 									break;
 								}
-							} else if (i1.getName().equals(i2.getName())) {
-								found = true;
-								break;
 							}
 						}
 					}
+				}
+				if (found) {
+					break;
 				}
 			}
 
 			if (!found) {
 				debug("addProposal: " + SVDBItem.getName(it) + " " + it.getType());
-				addProposal(new SVCompletionProposal(it, prefix, 
-						replacementOffset, replacementLength));
+				SVCompletionProposal p = new SVCompletionProposal(
+						it, prefix, replacementOffset, replacementLength);
+				p.setPriorityCategory(priority_category);
+				p.setPriority(priority);
+				
+				addProposal(p);
 			}
 		}
 	}
@@ -1408,4 +1069,150 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		fLog.debug(msg);
 	}
 
+	private class UntriggeredFindByNameInScopes extends SVDBFindByNameInScopes {
+		private SVExprContext						fCtxt;
+		private ISVDBChildItem						fSrcScope;
+		
+		public UntriggeredFindByNameInScopes(
+				SVExprContext						ctxt,
+				ISVDBChildItem						src_scope,
+				ISVDBIndexIterator 					index_it,
+				SVDBFindContentAssistNameMatcher 	matcher) {
+			super(index_it, matcher);
+			fCtxt = ctxt;
+			fSrcScope = src_scope;
+		}
+
+		@Override
+		protected void add(ISVDBItemBase item, Scope scope, int scope_level) {
+			boolean add = true;
+		
+			if (SVDBItem.getName(item).equals(fCtxt.fLeaf) &&
+					isSameScopeVarDecl(fSrcScope, item)) {
+				add = false;
+			}
+			
+			if (add) {
+				super.add(item, scope, scope_level);
+				addProposal(item, fCtxt.fLeaf, scope_level,
+						SVCompletionProposal.PRIORITY_BEHAVIORAL_SCOPE,
+						true, fCtxt.fStart, fCtxt.fLeaf.length());
+			}
+		}
+	}
+
+	private class FindByNameInScopes extends SVDBFindByNameInScopes {
+		private SVExprContext						fCtxt;
+		
+		public FindByNameInScopes(
+				SVExprContext						ctxt,
+				ISVDBIndexIterator 					index_it,
+				SVDBFindContentAssistNameMatcher 	matcher) {
+			super(index_it, matcher);
+			fCtxt = ctxt;
+		}
+
+		@Override
+		protected void add(ISVDBItemBase item, Scope scope, int scope_level) {
+			boolean add = true;
+			
+			if (item.getType() == SVDBItemType.Function &&
+					SVDBItem.getName(item).equals("new")) {
+				add = false;
+			}
+			
+			if (add) {
+				super.add(item, scope, scope_level);		
+				addProposal(item, fCtxt.fLeaf, scope_level,
+						SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+						true, fCtxt.fStart, fCtxt.fLeaf.length());
+			}
+		}
+	}
+	
+	private class UntriggeredFindByNameInClassHierarchy extends SVDBFindByNameInClassHierarchy {
+		private SVExprContext					fCtxt;
+		
+		public UntriggeredFindByNameInClassHierarchy(
+				SVExprContext						ctxt,
+				ISVDBIndexIterator					index_it,
+				SVDBFindContentAssistNameMatcher	matcher) {
+			super(index_it, matcher);
+			fCtxt = ctxt;
+		}
+
+		@Override
+		protected void add(ISVDBItemBase item, int scope_level) {
+			boolean add = true;
+
+			if (fCtxt.fTrigger != null && fCtxt.fTrigger.equals("=") &&
+					"new".startsWith(fCtxt.fLeaf)) {
+				// This is possibly a call to 'new'. We'll add
+				// a proposal for this later based on the base type
+				if (item.getType() == SVDBItemType.Function &&
+						SVDBItem.getName(item).equals("new")) {
+					add = false;
+				}
+			}
+		
+			// Filter out non-class proposals when we're dealing with
+			// content-assist for a base class
+			if (fCtxt.fType == ContextType.Extends) {
+				fLog.debug("Extends: " + item.getType());
+				if (item.getType() != SVDBItemType.ClassDecl) {
+					add = false;
+				}
+			}
+		
+			// Transform any module-instance proposals to module-inst-item proposals
+			if (item.getType() == SVDBItemType.ModIfcInst) {
+				SVDBModIfcInst mi = (SVDBModIfcInst)item;
+			
+				// TODO:
+				for (ISVDBChildItem ci : mi.getChildren()) {
+					addProposal(ci, fCtxt.fLeaf, scope_level,
+							SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+							false, fCtxt.fStart, fCtxt.fLeaf.length());
+				}
+				add = false;
+			}
+			
+			// TODO: Add proposal with priority
+			if (add) {
+				fLog.debug("Add UntriggeredClassHierarchy proposal: " +
+						"scope_level=" + scope_level + " " + SVDBItem.getName(item));
+				addProposal(item, fCtxt.fLeaf, scope_level,
+						SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+						true, fCtxt.fStart, fCtxt.fLeaf.length());
+			}			
+		}
+	}
+	
+	private class FindByNameInClassHierarchy extends SVDBFindByNameInClassHierarchy {
+		private SVExprContext						fCtxt;
+		
+		public FindByNameInClassHierarchy(
+				SVExprContext						ctxt,
+				ISVDBIndexIterator					index_it,
+				SVDBFindContentAssistNameMatcher	matcher) {
+			super(index_it, matcher);
+			fCtxt = ctxt;
+		}
+
+		@Override
+		protected void add(ISVDBItemBase item, int scope_level) {
+			boolean add = true;
+			
+			if (item.getType() == SVDBItemType.Function &&
+					SVDBItem.getName(item).equals("new")) {
+				add = false;
+			}
+			
+			if (add) {
+				addProposal(item, fCtxt.fLeaf, scope_level,
+						SVCompletionProposal.PRIORITY_CLS_HIERARCHY_SCOPE,
+						true, fCtxt.fStart, fCtxt.fLeaf.length());
+			}
+		}
+	}
 }

@@ -36,6 +36,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
@@ -276,6 +277,11 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							replacementOffset, replacementLength, 
 							import_all.length(), SVDBIconUtils.getIcon(it),
 							null, null, null);
+				} break;
+				
+				case VarDeclItem: {
+					cp = createVarItemProposal(
+							it, doc, replacementOffset, replacementLength);					
 				} break;
 		
 				default:
@@ -537,6 +543,61 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 
 		Template t = new Template(
 				d.toString(), "", "CONTEXT", r.toString(), true);
+		
+		return new TemplateProposal(t, ctxt,
+				new Region(replacementOffset, replacementLength), 
+				SVDBIconUtils.getIcon(it));
+	}
+
+	private ICompletionProposal createVarItemProposal(
+			ISVDBItemBase 				it,
+			IDocument					doc,
+			int							replacementOffset,
+			int							replacementLength) {
+		TemplateContext ctxt = new DocumentTemplateContext(
+				new TemplateContextType("CONTEXT"),
+				doc, replacementOffset, replacementLength);
+		
+		StringBuilder d = new StringBuilder();
+		StringBuilder r = new StringBuilder();
+		SVDBVarDeclItem var = (SVDBVarDeclItem)it;
+		
+		r.append(SVDBItem.getName(it));
+		d.append(SVDBItem.getName(it));
+	
+		/*
+		if (cl.getParameters() != null && cl.getParameters().size() > 0) {
+			r.append(" #(");
+			for (int i=0; i<cl.getParameters().size(); i++) {
+				SVDBModIfcClassParam pm = cl.getParameters().get(i);
+
+				r.append("${");
+				r.append(pm.getName());
+				r.append("}");
+				
+				if (i+1 < cl.getParameters().size()) {
+					r.append(", ");
+				}
+			}
+			r.append(")");
+		}
+		 */
+	
+		String description = "";
+		if (var.getParent() != null) {
+			SVDBVarDeclStmt var_stmt = (SVDBVarDeclStmt)var.getParent();
+			if (var_stmt.getTypeInfo() != null) {
+				d.append(" : " + var_stmt.getTypeInfo().toString());
+			}
+			
+			if (var_stmt.getParent() != null && 
+					var_stmt.getParent().getType() == SVDBItemType.ClassDecl) {
+				description = SVDBItem.getName(var_stmt.getParent());
+			}
+		}
+
+		Template t = new Template( d.toString(), description, 
+				"CONTEXT", r.toString(), true);
 		
 		return new TemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 

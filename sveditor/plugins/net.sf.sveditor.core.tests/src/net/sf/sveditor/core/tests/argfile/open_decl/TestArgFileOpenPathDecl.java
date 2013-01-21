@@ -104,7 +104,7 @@ public class TestArgFileOpenPathDecl extends TestCase {
 
 	public void testArgFileScanner_EndOfInput() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"+incdir+${DIR}/files/incpath\n" +

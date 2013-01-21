@@ -45,6 +45,7 @@ public class ContentAssistTests extends TestCase {
 		suite.addTest(new TestSuite(TestContentAssistEnum.class));
 		suite.addTest(new TestSuite(TestContentAssistInterface.class));
 		suite.addTest(new TestSuite(TestContentAssistModule.class));
+		suite.addTest(new TestSuite(TestContentAssistPriority.class));
 		suite.addTest(new TestSuite(TestContentAssistStruct.class));
 		suite.addTest(new TestSuite(TestContentAssistSystem.class));
 		suite.addTest(new TestSuite(TestContentAssistTaskFunction.class));
@@ -54,27 +55,51 @@ public class ContentAssistTests extends TestCase {
 		
 		return suite;
 	}
+	
+	public static void validateResults(
+			String 						expected[], 
+			List<SVCompletionProposal>	proposals) {
+		validateResults(expected, proposals, false);
+	}
 
 	public static void validateResults(
-			String 	expected[], 
-			List<SVCompletionProposal> proposals) {
-		for (String exp : expected) {
+			String 						expected[], 
+			List<SVCompletionProposal>	proposals,
+			boolean						ordered) {
+		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {
+			String exp = expected[exp_idx];
 			boolean found = false;
-			for (int i=0; i<proposals.size(); i++) {
-				if (proposals.get(i).getReplacement().equals(exp)) {
-					found = true;
-					proposals.remove(i);
-					break;
+			
+			if (ordered) {
+				if (exp_idx < proposals.size()) {
+					if (proposals.get(exp_idx).getReplacement().equals(exp)) {
+						proposals.set(exp_idx, null);
+						found = true;
+					}
+				}
+			} else {
+				for (int i=0; i<proposals.size(); i++) {
+					if (proposals.get(i).getReplacement().equals(exp)) {
+						found = true;
+						proposals.remove(i);
+						break;
+					}
 				}
 			}
 			
 			assertTrue("Failed to find content proposal " + exp, found);
 		}
 		
+		StringBuilder unexp = new StringBuilder("Unexpected proposals: ");
+		int nonnull_proposals = 0;
 		for (SVCompletionProposal p : proposals) {
-			System.out.println("[ERROR] Unexpected proposal \"" + p.getReplacement() + "\"");
+			if (p != null) {
+				nonnull_proposals++;
+				unexp.append(p.getReplacement());
+				unexp.append(" ");
+			}
 		}
-		assertEquals("Unexpected proposals", 0, proposals.size());
+		assertEquals(unexp.toString(), 0, nonnull_proposals);
 	}
 	
 	public static void runTest(String testname, String doc, String ... expected) {
@@ -99,7 +124,37 @@ public class ContentAssistTests extends TestCase {
 		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
-		ContentAssistTests.validateResults(expected, proposals);
+		ContentAssistTests.validateResults(expected, proposals, false);
+		LogFactory.removeLogHandle(log);		
+	}
+
+	public static void runTestOrder(String testname, String doc, String ... expected) {
+		LogHandle log = LogFactory.getLogHandle(testname);
+
+		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
+		
+		for (ISVDBItemBase it : file.getChildren()) {
+			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
+		}
+
+		TestCompletionProcessor cp = new TestCompletionProcessor(
+				log, file, new FileIndexIterator(file));
+		
+		scanner.seek(tt_utils.getPosMap().get("MARK"));
+
+		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
+		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
+		
+		for (SVCompletionProposal p : proposals) {
+			log.debug("   Proposal: " + p.getReplacement());
+		}
+		
+		ContentAssistTests.validateResults(expected, proposals, true);
 		LogFactory.removeLogHandle(log);		
 	}
 	
@@ -129,7 +184,7 @@ public class ContentAssistTests extends TestCase {
 		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
-		ContentAssistTests.validateResults(expected, proposals);
+		ContentAssistTests.validateResults(expected, proposals, false);
 		LogFactory.removeLogHandle(log);		
 	}	
 
@@ -159,7 +214,7 @@ public class ContentAssistTests extends TestCase {
 		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
 		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
 		
-		ContentAssistTests.validateResults(expected, proposals);
+		ContentAssistTests.validateResults(expected, proposals, false);
 		LogFactory.removeLogHandle(log);		
 	}
 }

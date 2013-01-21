@@ -97,6 +97,7 @@ public class TestContentAssistBasics extends TestCase {
 					rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 
 							SVCoreTestsPlugin.OVM_LIBRARY_ID, 
 							SVDBPluginLibIndexFactory.TYPE, null));
+			fIndexCollectionOVMMgr.loadIndex(new NullProgressMonitor());
 		}
 		return fIndexCollectionOVMMgr;
 	}
@@ -472,19 +473,6 @@ public class TestContentAssistBasics extends TestCase {
 		log.debug("new_f parent is " + new_f.getParent().getType() + " " + 
 				SVDBItem.getName(new_f.getParent()));
 
-		/*
-		ISVDBItemIterator<SVDBItem> index_it = fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
-		
-		SVDBItem myclass_1 = null;
-		while (index_it.hasNext()) {
-			SVDBItem it_t = index_it.nextItem();
-			if (it_t.getName().equals("myclass_1")) {
-				myclass_1 = it_t;
-			}
-		}
-		assertNotNull("Failed to find object for myclass_1", myclass_1);
-		 */
-		
 		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
 		assertEquals("Expect field name to be 'new_field'", "new_field", 
 				SVDBItem.getName(new_field));
