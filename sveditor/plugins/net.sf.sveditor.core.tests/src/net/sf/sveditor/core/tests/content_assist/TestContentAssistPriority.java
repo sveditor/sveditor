@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 public class TestContentAssistPriority extends TestCase {
 	
 	public void testUntriggeredClassHierarchy() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class cls1;\n" +
 			"  int			m_def;\n" +
@@ -39,7 +39,7 @@ public class TestContentAssistPriority extends TestCase {
 	}
 	
 	public void testTriggeredClassHierarchy() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class cls1;\n" +
 			"  int			m_def;\n" +
@@ -73,7 +73,7 @@ public class TestContentAssistPriority extends TestCase {
 	}
 
 	public void testLocalScopeVars() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class cls1;\n" +
 			"  int			m_def;\n" +
@@ -113,7 +113,7 @@ public class TestContentAssistPriority extends TestCase {
 	}
 	
 	public void testFieldClassOrdering() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class m_cls2;\n" +
 			"endclass\n" +
