@@ -1,4 +1,7 @@
 
+-- 1.1.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.3 Release --
 
 - #(nobug) - Filter content-assist proposals for super- tasks/functions 
