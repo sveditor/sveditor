@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBFindNamedModIfcClassIfc {
 	private ISVDBIndexIterator			fIndexIt;
 	private ISVDBFindNameMatcher		fMatcher;
+	private List<ISVDBChildItem>		fRet;
 	
 	public SVDBFindNamedModIfcClassIfc(
 			ISVDBIndexIterator 		index_it,
@@ -37,8 +38,10 @@ public class SVDBFindNamedModIfcClassIfc {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 
-	public List<ISVDBChildItem> find(String type_name) {
+	public synchronized List<ISVDBChildItem> find(String type_name) {
 		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+		
+		fRet = ret;
 
 		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
 				new NullProgressMonitor(), type_name, fMatcher);

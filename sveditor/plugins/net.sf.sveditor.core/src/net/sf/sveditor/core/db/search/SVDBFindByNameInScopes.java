@@ -37,8 +37,14 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBFindByNameInScopes {
-	private ISVDBFindNameMatcher			fMatcher;
-	private LogHandle						fLog;
+	public enum Scope {
+		ScopeLocalVars,
+		ScopeModIfcClsVars,
+	}
+	
+	private   ISVDBFindNameMatcher			fMatcher;
+	private   LogHandle						fLog;
+	protected List<ISVDBItemBase>			fRet;
 	
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it) {
 		fMatcher = SVDBFindDefaultNameMatcher.getDefault();
@@ -50,24 +56,36 @@ public class SVDBFindByNameInScopes {
 		fLog = LogFactory.getLogHandle("SVDBFindByNameInScopes");
 	}
 	
-	public List<ISVDBItemBase> find(
+	protected void add(
+			ISVDBItemBase 		item,
+			Scope				scope,
+			int					scope_level) {
+		fRet.add(item);
+	}
+	
+	public synchronized List<ISVDBItemBase> find(
 			ISVDBChildItem			context,
 			String					name,
 			boolean					stop_on_first_match,
 			SVDBItemType	...		types) {
+		int scope_level = 0;
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
 		fLog.debug("--> find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + 
 				" type=" + ((context != null)?context.getType():"null") + " name=" + name);
 		
+		fRet = ret;
+		
 		// Search up the scope
-		while (context != null && context instanceof ISVDBChildParent) {
+		while (context != null && 
+				context.getType() != SVDBItemType.File && 
+				context instanceof ISVDBChildParent) {
 			
 			if (context.getType() == SVDBItemType.ClassDecl) {
 				SVDBClassDecl cls = (SVDBClassDecl)context;
 				if (cls.getParameters() != null) {
 					for (SVDBModIfcClassParam p : cls.getParameters()) {
 						if (fMatcher.match(p, name)) {
-							ret.add(p);
+							add(p, Scope.ScopeModIfcClsVars, scope_level);
 						}
 					}
 				}
@@ -84,7 +102,7 @@ public class SVDBFindByNameInScopes {
 							
 							if (match) {
 								fLog.debug("    Matches Variable " + SVDBItem.getName(it_t));
-								ret.add(it_t);
+								add(it_t, Scope.ScopeModIfcClsVars, scope_level);
 								
 								if (stop_on_first_match) {
 									break;
@@ -105,7 +123,7 @@ public class SVDBFindByNameInScopes {
 							}
 							
 							if (match) {
-								ret.add(it_t);
+								add(it_t, Scope.ScopeModIfcClsVars, scope_level);
 								
 								if (stop_on_first_match) {
 									break;
@@ -119,7 +137,7 @@ public class SVDBFindByNameInScopes {
 					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)((SVDBTypedefStmt)it).getTypeInfo();
 					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
 						if (fMatcher.match(en, name)) {
-							ret.add(en);
+							add(en, Scope.ScopeModIfcClsVars, scope_level);
 							if (stop_on_first_match) {
 								break;
 							}
@@ -140,7 +158,7 @@ public class SVDBFindByNameInScopes {
 						}
 						
 						if (match) {
-							ret.add(it);
+							add(it, Scope.ScopeModIfcClsVars, scope_level);
 							
 							if (stop_on_first_match) {
 								break;
@@ -160,7 +178,7 @@ public class SVDBFindByNameInScopes {
 					for (ISVDBChildItem pi : p.getChildren()) {
 						fLog.debug("check param \"" + SVDBItem.getName(pi) + "\"");
 						if (fMatcher.match((ISVDBNamedItem)pi, name)) {
-							ret.add(pi);
+							add(pi, Scope.ScopeLocalVars, scope_level);
 						
 							if (stop_on_first_match) {
 								break;
@@ -193,7 +211,8 @@ public class SVDBFindByNameInScopes {
 						SVDBVarDeclItem pi = (SVDBVarDeclItem)c;
 						fLog.debug("  Check port " + pi.getName() + " == " + name);
 						if (fMatcher.match((ISVDBNamedItem)pi, name)) {
-							ret.add(pi);
+							add(pi, Scope.ScopeModIfcClsVars, scope_level);
+
 							if (ret.size() > 0 && stop_on_first_match) {
 								break;
 							}
@@ -213,6 +232,7 @@ public class SVDBFindByNameInScopes {
 					!(context instanceof ISVDBChildParent)) { }
 			
 			fLog.debug("parent: " + ((context != null)?context.getType():"NULL"));
+			scope_level++;
 		}
 
 		fLog.debug("<-- find: context=" + ((context!=null)?SVDBItem.getName(context):"null") + " name=" + name);

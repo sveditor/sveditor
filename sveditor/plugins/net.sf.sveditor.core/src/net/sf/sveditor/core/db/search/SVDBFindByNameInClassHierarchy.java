@@ -26,7 +26,6 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
@@ -37,6 +36,7 @@ public class SVDBFindByNameInClassHierarchy {
 	private LogHandle						fLog;
 	private ISVDBFindNameMatcher			fMatcher;
 	private SVDBFindDefaultNameMatcher		fDefaultMatcher;
+	protected List<ISVDBItemBase>			fRet;
 	
 	
 	public SVDBFindByNameInClassHierarchy(
@@ -46,6 +46,10 @@ public class SVDBFindByNameInClassHierarchy {
 		fMatcher = matcher;
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
 		fLog = LogFactory.getLogHandle("FindByNameInClassHierarchy");
+	}
+	
+	protected void add(ISVDBItemBase item, int scope_level) {
+		fRet.add(item);
 	}
 	
 	public List<ISVDBItemBase> find(
@@ -62,6 +66,9 @@ public class SVDBFindByNameInClassHierarchy {
 			boolean				exclude_static,
 			SVDBItemType	...	types) {
 		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		int scope_level = 0;
+		
+		fRet = ret;
 		
 		fLog.debug("--> find(" + ((scope != null)?SVDBItem.getName(scope):null) + " \"" + id + "\")");
 		for (SVDBItemType t : types) {
@@ -125,13 +132,13 @@ public class SVDBFindByNameInClassHierarchy {
 						if ((is_static && !exclude_static) || (!is_static && !exclude_nonstatic)) {
 							for (ISVDBChildItem it_t : ((SVDBVarDeclStmt)it).getChildren()) {
 								if (fMatcher.match((ISVDBNamedItem)it_t, id)) {
-									ret.add(it_t);
+									add(it_t, scope_level);
 								}
 							}
 						}
 					} else if (it instanceof ISVDBNamedItem) {
 						if (fMatcher.match((ISVDBNamedItem)it, id)) {
-							ret.add(it);
+							add(it, scope_level);
 						}
 					}
 				}
@@ -157,6 +164,7 @@ public class SVDBFindByNameInClassHierarchy {
 			} else {
 				scope = null;
 			}
+			scope_level++;
 		}
 		
 		fLog.debug("<-- find(\"" + id + "\") returns " + ret.size() + " results");
