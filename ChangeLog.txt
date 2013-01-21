@@ -1,4 +1,6 @@
+- #(240) Block Comment Behavior results in nested block comments
 
+------------------------------------------------------------------------------
 -- 1.0.5 Release --
 - #(3591399) - Parser error - Null-Pointer-Exception
 
