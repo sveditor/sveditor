@@ -1,6 +1,9 @@
 
 -- 1.1.4 Release --
 
+- #(nobug) - Boost performance of macro processing when many macros are
+  referenced.
+
 ------------------------------------------------------------------------------
 -- 1.1.3 Release --
 

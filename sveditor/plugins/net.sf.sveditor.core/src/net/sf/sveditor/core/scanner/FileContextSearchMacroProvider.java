@@ -33,6 +33,8 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	private ISVDBIndexCache				fIndexCache;
 	private Map<String, SVDBFileTree>	fWorkingSet;
 	private SVDBFileTree				fContext;
+	private boolean						fSearchedDown;
+	private boolean						fSearchedUp;
 	private boolean						fDebugEnS = false;
 	private int							fIndent = 0;
 	private LogHandle					fLog;
@@ -90,39 +92,40 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			SVDBFileTree 	context,
 			String 			key) {
 		SVDBMacroDef ret;
-		debug_s(indent(fIndent++) + "--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
-		
-		if (!fMacroCache.containsKey(key)) {
-			if ((ret = searchDown(context, context, key)) == null) {
-				for (String ib_s : context.getIncludedByFiles()) {
-					SVDBFileTree ib; 
-					if (fWorkingSet.containsKey(ib_s)) {
-						ib = fWorkingSet.get(ib_s);
-					} else {
-						ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
-					}
-					if (ib == null) {
-						fLog.error("Failed to obtain path \"" + ib_s + "\" from the FileTree Cache");
-						fLog.error("    File context is: " + fContext.getFilePath());
-						continue;
-					}
-					ret = searchUp(context, ib, context, key);
-				}
-			}
-			
-			if (ret != null) {
-				if (fMacroCache.containsKey(key)) {
-					fMacroCache.remove(key);
-				}
-				fMacroCache.put(key, ret);
-			} else {
-				fMacroCache.put(key, null);
-			}
-		} else {
-			ret = fMacroCache.get(key);
+		if (fDebugEnS) {
+			debug_s(indent(fIndent++) + "--> searchContext(" + context.getFilePath() + ", \"" + key + "\")");
 		}
 		
-		debug_s(indent(--fIndent) + "<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
+		if (!fSearchedDown) {
+			searchDown(context, context, key);
+			fSearchedDown = true;
+		}
+		
+		if (fMacroCache.containsKey(key)) {
+			ret = fMacroCache.get(key);
+		} else if (!fSearchedUp) {
+			for (String ib_s : context.getIncludedByFiles()) {
+				SVDBFileTree ib; 
+				if (fWorkingSet.containsKey(ib_s)) {
+					ib = fWorkingSet.get(ib_s);
+				} else {
+					ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
+				}
+				if (ib == null) {
+					fLog.error("Failed to obtain path \"" + ib_s + "\" from the FileTree Cache");
+					fLog.error("    File context is: " + fContext.getFilePath());
+					continue;
+				}
+				ret = searchUp(context, ib, context, key);
+			}
+			fSearchedUp = true;
+		}
+		
+		ret = fMacroCache.get(key);
+		
+		if (fDebugEnS) {
+			debug_s(indent(--fIndent) + "<-- searchContext(" + context.getFilePath() + ", \"" + key + "\"");
+		}
 		return ret;
 	}
 	
@@ -136,52 +139,57 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	 */
 	private SVDBMacroDef searchLocal(SVDBFileTree file, ISVDBScopeItem context, String key) {
 		SVDBMacroDef m = null;
-		debug_s(indent(fIndent++) + "--> searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
+		if (fDebugEnS) {
+			debug_s(indent(fIndent++) + "--> searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
+		}
 
 		for (ISVDBItemBase it : context.getItems()) {
-			debug_s("    it=" + ((ISVDBNamedItem)it).getName());
-			if (it.getType() == SVDBItemType.MacroDef && 
-					((ISVDBNamedItem)it).getName().equals(key)) {
-				m = (SVDBMacroDef)it;
+			if (fDebugEnS) {
+				debug_s("    it=" + ((ISVDBNamedItem)it).getName());
+			}
+			if (it.getType() == SVDBItemType.MacroDef) {
+				SVDBMacroDef mt = (SVDBMacroDef)it;
+				fMacroCache.put(mt.getName(), mt);
 			} else if (it instanceof ISVDBScopeItem) {
 				m = searchLocal(file, (ISVDBScopeItem)it, key);
 			}
-			
-			if (m != null) {
-				break;
-			}
 		}
-		
-		debug_s(indent(--fIndent) + "<-- searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
+
+		if (fDebugEnS) {
+			debug_s(indent(--fIndent) + "<-- searchLocal(" + file.getFilePath() + ", \"" + key + "\"");
+		}
 		return m;
 	}
 	
 	private SVDBMacroDef searchDown(SVDBFileTree boundary, SVDBFileTree context, String key) {
 		SVDBMacroDef m = null;
-		
-		debug_s(indent(fIndent++) + "--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
+
+		if (fDebugEnS) {
+			debug_s(indent(fIndent++) + "--> searchDown(" + context.getFilePath() + ", \"" + key + "\")");
+		}
 
 		if (context.getSVDBFile() != null) {
-			if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-				for (String inc_s : context.getIncludedFiles()) {
-					SVDBFileTree inc;
-					if (fWorkingSet.containsKey(inc_s)) {
-						inc = fWorkingSet.get(inc_s);
-					} else {
-						inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s, false);
-					}
-					 
+			searchLocal(context, context.getSVDBFile(), key);
+			for (String inc_s : context.getIncludedFiles()) {
+				SVDBFileTree inc;
+				if (fWorkingSet.containsKey(inc_s)) {
+					inc = fWorkingSet.get(inc_s);
+				} else {
+					inc = fIndexCache.getFileTree(new NullProgressMonitor(), inc_s, false);
+				}
+
+				if (fDebugEnS) {
 					debug_s(indent(fIndent) + "    searching included file \"" + ((inc !=null)?inc.getFilePath():"NULL") + "\"");
-					if (inc != null && inc.getSVDBFile() != null) {
-						if ((m = searchDown(boundary, inc, key)) != null) {
-							break;
-						}
-					}
+				}
+				if (inc != null && inc.getSVDBFile() != null) {
+					searchDown(boundary, inc, key);
 				}
 			}
 		}
-		
-		debug_s(indent(--fIndent) + "<-- searchDown(" + context.getFilePath() + ", \"" + key + "\")");
+	
+		if (fDebugEnS) {
+			debug_s(indent(--fIndent) + "<-- searchDown(" + context.getFilePath() + ", \"" + key + "\")");
+		}
 		return m;
 	}
 	
@@ -199,12 +207,14 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 			SVDBFileTree	child,
 			String 			key) {
 		SVDBMacroDef m = null;
+
+		if (fDebugEnS) {
+			debug_s(indent(fIndent++) + "--> searchUp(" + context.getFilePath() + ", " + key + ")");
+		}
 		
-		debug_s(indent(fIndent++) + "--> searchUp(" + context.getFilePath() + ", " + key + ")");
-		
-		if ((m = searchLocal(context, context.getSVDBFile(), key)) == null) {
-			List<String> inc_files = context.getIncludedFiles();
-			synchronized (inc_files) {
+		searchLocal(context, context.getSVDBFile(), key);
+		List<String> inc_files = context.getIncludedFiles();
+		synchronized (inc_files) {
 			for (String is_s : inc_files) {
 				SVDBFileTree is;
 				if (fWorkingSet.containsKey(is_s)) {
@@ -212,41 +222,40 @@ public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 				} else {
 					is = fIndexCache.getFileTree(new NullProgressMonitor(), is_s, false);
 				}
-				
+
 				if (is == null) {
 					// File doesn't exist
 					continue;
 				}
-				
+
 				if (!is.getFilePath().equals(child.getFilePath()) && (is != boundary)) {
-					debug_s(indent(fIndent) + "    included file: " + is.getFilePath());
-				
-					if ((m = searchDown(boundary, is, key)) == null) {
-						for (String ib_s : context.getIncludedByFiles()) {
-							SVDBFileTree ib;
-							if (fWorkingSet.containsKey(ib_s)) {
-								ib = fWorkingSet.get(ib_s);
-							} else {
-								ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
-							}
-							if ((m = searchUp(boundary, ib, context, key)) != null) {
-								break;
-							}
+					if (fDebugEnS) {
+						debug_s(indent(fIndent) + "    included file: " + is.getFilePath());
+					}
+
+					searchDown(boundary, is, key);
+					for (String ib_s : context.getIncludedByFiles()) {
+						SVDBFileTree ib;
+						if (fWorkingSet.containsKey(ib_s)) {
+							ib = fWorkingSet.get(ib_s);
+						} else {
+							ib = fIndexCache.getFileTree(new NullProgressMonitor(), ib_s, false);
 						}
+						searchUp(boundary, ib, context, key);
 					}
 				} else {
-					debug_s(indent(fIndent) + "    SKIP included file: " + is.getFilePath()
-							+ " is-boundary: " + (is == boundary));
+					if (fDebugEnS) {
+						debug_s(indent(fIndent) + "    SKIP included file: " + is.getFilePath()
+								+ " is-boundary: " + (is == boundary));
+					}
 				}
-				
-				if (m != null) {
-					break;
-				}
-			}
+
 			}
 		}
 
-		debug_s(indent(--fIndent) + "<-- searchUp(" + context.getFilePath() + ", " + key + ")");
+		if (fDebugEnS) {
+			debug_s(indent(--fIndent) + "<-- searchUp(" + context.getFilePath() + ", " + key + ")");
+		}
 		return m;
 	}
 
