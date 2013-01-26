@@ -74,7 +74,7 @@ public class SVLexer extends SVToken {
 			"=>", "|=>", "|->", "#-#", "#=#", "##",
 			"--", "++"};
 
-	private static final String AllOperators[];
+	public static final String AllOperators[];
 
 	static {
 		AllOperators = new String[RelationalOps.length + GroupingOps.length
