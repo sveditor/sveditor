@@ -1,6 +1,8 @@
 
 -- 1.1.4 Release --
 
+- #(240) Block Comment Behavior results in nested block comments
+
 ------------------------------------------------------------------------------
 -- 1.1.3 Release --
 

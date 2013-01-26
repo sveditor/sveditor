@@ -69,9 +69,13 @@ public class AddBlockCommentAction extends BlockCommentAction {
 		String partType= partition.getType();
 		
 		Assert.isTrue(partOffset <= offset, "illegal partition"); //$NON-NLS-1$
+		// if we are in a mult-line comment, return without adding a comment
+		if (partType == SVDocumentPartitions.SV_MULTILINE_COMMENT)  {
+			return;
+		}
 		
 		// first partition: mark start of comment
-		if (partType == IDocument.DEFAULT_CONTENT_TYPE) {
+		else if (partType == IDocument.DEFAULT_CONTENT_TYPE) {
 			// Java code: right where selection starts
 			edits.add(factory.createEdit(offset, 0, getCommentStart()));
 		} else if (isSpecialPartition(partType)) {
@@ -128,7 +132,11 @@ public class AddBlockCommentAction extends BlockCommentAction {
 
 		String partType= partition.getType();
 		
-		if (partType == IDocument.DEFAULT_CONTENT_TYPE) {
+		// if we are in a mult-line comment, return without adding a comment
+		if (partType == SVDocumentPartitions.SV_MULTILINE_COMMENT)  {
+			return;
+		}
+		else if (partType == IDocument.DEFAULT_CONTENT_TYPE) {
 			// normal java: end comment where selection ends
 			edits.add(factory.createEdit(endOffset, 0, getCommentEnd()));
 		} else if (isSpecialPartition(partType)) {
