@@ -1,0 +1,29 @@
+{| style="border-collapse: separate; border-spacing: 0; border-width: 1px; border-style: solid; border-color: #000; padding: 0"
+|-
+! style="border-style: solid; border-width: 1px" | Feature
+! style="border-style: solid; border-width: 1px" | Activating 
+! style="border-style: solid; border-width: 1px" | Shortcut 
+|-
+| style="border-style: solid; border-width: 1px" | <b>Open Declaration</b> <br/> Navigates to the location of the item's declaration (class, module, interface, field, method)
+| style="border-style: solid; border-width: 1px" | [[Image:feature_open_declaration.gif]] 
+| style="border-style: solid; border-width: 1px" | F3
+|-
+| style="border-style: solid; border-width: 1px" | <b>Open Type Hierarchy</b> <br/> Opens the Type Hierarchy view for the specified class or module
+| style="border-style: solid; border-width: 1px" | [[Image:feature_open_type_hierarchy.gif]] 
+| style="border-style: solid; border-width: 1px" | F4
+|-
+| style="border-style: solid; border-width: 1px" | <b>Doc Hover</b> <br/> Code documentation is displayed when hovering over a documented element
+| style="border-style: solid; border-width: 1px" | [[Image:feature_doc_hover.gif]] 
+| style="border-style: solid; border-width: 1px" | ''None''
+|-
+| style="border-style: solid; border-width: 1px" | <b>New Class/Interface/Module Wizards</b> <br/> Wizards to quickly create new files containing a class, interface, or module
+| style="border-style: solid; border-width: 1px" | [[Image:feature_new_class_module_interface_wizards.gif]] 
+| style="border-style: solid; border-width: 1px" | ''None''
+|-
+| style="border-style: solid; border-width: 1px" | <b>Open Class Diagram</b> <br/> Displays a UML-style class diagram of the target class
+| style="border-style: solid; border-width: 1px" | [[Image:feature_open_class_diagram.gif]] 
+| style="border-style: solid; border-width: 1px" | ''None''
+|-
+|}
+
+
