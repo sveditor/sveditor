@@ -18,7 +18,7 @@ Begin creating an Eclipse project by selecting New->Project... from the main men
 
 Expand the ''General'' category, if required, and select ''Project'', as shown below.
 
-[[Image:setup_sve_project__general_project.gif]]
+[[Image:setup_sve_project__general_project.jpg]]
 
 Next, the project name must be specified and the physical location of the source files selected. To do this:
 * Specify the project name as ''ubus''

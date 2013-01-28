@@ -1,0 +1,106 @@
+<project>
+
+	<property name="userguide.dir" value="${basedir}/user_guide"/>
+	<property name="output.dir" value="${basedir}/output"/>
+	<property name="docbook.xsl" 
+		value="/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl"/>
+	
+	<path id="wikitext.classpath">
+		<fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
+		</fileset>
+	</path>
+	
+	<taskdef classpathref="wikitext.classpath" 
+      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
+	
+	<target name="all" depends="mk_user_guide_pdf,mk_user_guide_html"/>
+	
+	<target name="mk_user_guide_pdf" depends="collect_files">
+		<wikitext-to-docbook markupLanguage="MediaWiki"
+		    bookTitle="SVEditor User Guide"
+		    file="${output.dir}/sveditor_user_guide.mediawiki"/>
+		<exec executable="xsltproc" failonerror="true">
+			<arg value="-o"/>
+			<arg value="${output.dir}/sveditor_user_guide.fo"/>
+			<arg value="${docbook.xsl}"/>
+			<arg value="${output.dir}/sveditor_user_guide.xml"/>
+		</exec>
+		<exec executable="fop" failonerror="true">
+			<arg value="-pdf"/>
+			<arg value="${output.dir}/sveditor_user_guide.pdf"/>
+			<arg value="-fo"/>
+			<arg value="${output.dir}/sveditor_user_guide.fo"/>
+		</exec>
+	</target>
+	
+	<target name="mk_user_guide_html" depends="collect_files">
+		<delete dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html/imgs"/>
+		
+		<copy todir="${output.dir}/html/imgs">
+			<fileset dir="${output.dir}"
+				includes="*.gif,*.jpg"/>
+		</copy>
+		
+		<copy todir="${output.dir}/html">
+			<fileset dir="${output.dir}"
+				includes="sveditor_user_guide.mediawiki"/>
+		</copy>
+		
+		<wikitext-to-html markupLanguage="MediaWiki"
+		    title="SVEditor User Guide"
+		    file="${output.dir}/html/sveditor_user_guide.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+	</target>
+
+	<target name="mk_user_guide_help" depends="collect_files">
+		<delete dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html/imgs"/>
+		
+		<copy todir="${output.dir}/html/imgs">
+			<fileset dir="${output.dir}"
+				includes="*.gif,*.jpg"/>
+		</copy>
+		
+		<copy todir="${output.dir}/help">
+			<fileset dir="${output.dir}"
+				includes="sveditor_user_guide.mediawiki"/>
+		</copy>
+		
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki"
+		    title="SVEditor User Guide"
+		    file="${output.dir}/help/sveditor_user_guide.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+		
+	</target>
+	
+	<target name="collect_files">
+		<!-- Copy image files -->
+		<delete dir="${output.dir}"/>
+		<mkdir dir="${output.dir}"/>
+		
+		<copy todir="${output.dir}" flatten="true">
+			<fileset dir="${userguide.dir}"
+				includes="**/*.gif,**/*.jpg"/>
+		</copy>
+		
+		<!-- Now, build the doc -->
+		<concat destfile="${output.dir}/sveditor_user_guide.mediawiki">
+			<filelist dir="${userguide.dir}">
+				<file name="sveditor_features/sveditor_features.mediawiki"/>
+				<file name="setting_up_an_sveditor_project/setting_up_an_sveditor_project.mediawiki"/>
+			</filelist>
+		</concat>
+	</target>
+
+  <target name="mkdoc">
+
+  </target>
+
+</project>
+
