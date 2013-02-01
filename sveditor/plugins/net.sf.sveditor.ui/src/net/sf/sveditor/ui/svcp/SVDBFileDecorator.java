@@ -185,8 +185,15 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 			return;
 		}
 		
+		
 		if (element instanceof IResource) {
 			IResource rsrc = (IResource)element;
+		
+			// Escape if the resource is closed
+			if (!rsrc.isAccessible()) {
+				return;
+			}
+			
 			String path = "${workspace_loc}" + rsrc.getFullPath().toOSString();
 			String project_name = rsrc.getProject().getName();
 			

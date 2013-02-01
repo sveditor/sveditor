@@ -1,0 +1,7 @@
+
+<project name="web">
+	<filelist id="web_files" dir="${web.dir}">
+		<file name="pages/main.mediawiki"/>
+	</filelist>
+</project>
+

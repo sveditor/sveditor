@@ -1,0 +1,20 @@
+<project name="properties">
+	<property name="srcdir" value="${basedir}"/>
+	<property name="userguide.dir" value="${srcdir}/user_guide"/>
+	<property name="tmpdir" value="${basedir}/output"/>
+	<property name="output.dir" value="${basedir}"/>
+	<property name="docbook.xsl" 
+		value="/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl"/>
+	<property name="docbook.xhtml.xsl" 
+		value="/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/xhtml-1_1/docbook.xsl"/>
+
+	<path id="wikitext.classpath">
+		<fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
+		</fileset>
+	</path>
+	
+	<taskdef classpathref="wikitext.classpath" 
+      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
+
+</project>

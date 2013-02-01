@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.help.toc">
       <toc
-            file="toc.xml"
+            file="help/user_guide-toc.xml"
             primary="true">
       </toc>
    </extension>

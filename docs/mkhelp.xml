@@ -1,0 +1,43 @@
+
+<project name="mkhelp">
+	<property name="srcdir" value="${basedir}"/>
+	<property name="userguide.dir" value="${srcdir}/user_guide"/>
+	<property name="tmpdir" value="${basedir}/output"/>
+	<property name="output.dir" value="${basedir}"/>
+
+	<import file="${srcdir}/userguide.xml"/>
+
+	<path id="wikitext.classpath">
+		<fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
+		</fileset>
+	</path>
+	
+	<taskdef classpathref="wikitext.classpath" 
+      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
+
+	<target name="mk_user_guide_help">
+		<delete dir="${output.dir}/help"/>
+		<mkdir dir="${output.dir}/help"/>
+		<mkdir dir="${output.dir}/help/imgs"/>
+		
+		<copy todir="${output.dir}/help/imgs" flatten="true">
+			<fileset dir="${userguide.dir}"
+				includes="**/*.gif,**/*.jpg"/>
+		</copy>
+		
+		<concat destfile="${output.dir}/help/user_guide.mediawiki">
+			<filelist refid="userguide_files"/>
+		</concat>
+		
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki"
+			title="SVEditor User Guide"
+			multipleOutputFiles="true"
+			helpPrefix="help"
+			file="${output.dir}/help/user_guide.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+	</target>
+
+</project>
+

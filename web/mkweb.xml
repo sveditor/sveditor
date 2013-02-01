@@ -1,0 +1,81 @@
+<project>
+	<property name="srcdir" value="${basedir}"/>
+	<property name="web.dir" value="${srcdir}"/>
+	<property name="tmpdir" value="${basedir}/output"/>
+	<property name="output.dir" value="${basedir}"/>
+	<property name="docbook.xhtml.xsl" 
+		value="/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/xhtml-1_1/docbook.xsl"/>
+
+	<import file="${srcdir}/web.xml"/>
+
+	<path id="wikitext.classpath">
+		<fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
+		</fileset>
+	</path>
+	
+	<taskdef classpathref="wikitext.classpath" 
+      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
+	
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+		<classpath path="${basedir}/../scripts/xmltask.jar"/>
+	</taskdef>
+	
+	<target name="mk_html">
+		<delete dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html/imgs"/>
+
+		<concat destfile="${output.dir}/html/web.mediawiki">
+			<filelist refid="web_files"/>
+		</concat>
+		
+		<copy todir="${output.dir}/html/imgs">
+			<fileset dir="${web.dir}/pages"
+				includes="*.gif,*.jpg"/>
+		</copy>
+		
+		<wikitext-to-html markupLanguage="MediaWiki"
+			title="SVEditor"
+			multipleOutputFiles="true"
+			linkRel=""
+			file="${output.dir}/html/web.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+
+<!--
+		<wikitext-to-docbook markupLanguage="MediaWiki"
+		    bookTitle="SVEditor"
+		    file="${output.dir}/html/web.mediawiki"/>
+		
+		<exec executable="xsltproc" failonerror="true">
+			<arg value="-o"/>
+			<arg value="${output.dir}/html/sveditor.html"/>
+			<arg value="${docbook.xhtml.xsl}"/>
+			<arg value="${output.dir}/html/sveditor.xml"/>
+		</exec>
+  -->
+	</target>
+
+	
+	<target name="collect_files">
+		<!-- Copy image files -->
+		<delete dir="${output.dir}"/>
+		<mkdir dir="${output.dir}"/>
+		
+		<copy todir="${output.dir}" flatten="true">
+			<fileset dir="${userguide.dir}"
+				includes="**/*.gif,**/*.jpg"/>
+		</copy>
+		
+		<!-- Now, build the doc -->
+		<concat destfile="${output.dir}/sveditor_user_guide.mediawiki">
+		</concat>
+	</target>
+
+  <target name="mkdoc">
+
+  </target>
+
+</project>
+

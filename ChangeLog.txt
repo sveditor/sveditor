@@ -6,6 +6,12 @@
 
 - #(nobug) - Boost performance of macro processing when many macros are
   referenced.
+  
+- #(enh) - Add the following file extensions to the recognized set:
+  .vh, .vp, .vs, .svp, .svi, .v95, .v95p  
+  
+- #(241) - Resolve 'Resource Closed' exceptions from the decorators that
+  add indexed and error annotations to files in the project explorer.
 
 
 ------------------------------------------------------------------------------
