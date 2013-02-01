@@ -1,10 +1,15 @@
 <project>
-
-	<property name="userguide.dir" value="${basedir}/user_guide"/>
-	<property name="output.dir" value="${basedir}/output"/>
+	<property name="srcdir" value="${basedir}"/>
+	<property name="userguide.dir" value="${srcdir}/user_guide"/>
+	<property name="tmpdir" value="${basedir}/output"/>
+	<property name="output.dir" value="${basedir}"/>
 	<property name="docbook.xsl" 
 		value="/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl"/>
-	
+	<property name="docbook.xhtml.xsl" 
+		value="/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/xhtml-1_1/docbook.xsl"/>
+
+	<import file="${srcdir}/userguide.xml"/>
+
 	<path id="wikitext.classpath">
 		<fileset dir="${eclipse.home}/plugins">
 			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
@@ -14,32 +19,71 @@
 	<taskdef classpathref="wikitext.classpath" 
       resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
 	
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+		<classpath path="${basedir}/../scripts/xmltask.jar"/>
+	</taskdef>
+	
 	<target name="all" depends="mk_user_guide_pdf,mk_user_guide_html"/>
 	
-	<target name="mk_user_guide_pdf" depends="collect_files">
+	<target name="mk_user_guide_pdf">
+		<delete dir="${output.dir}/pdf"/>
+		<mkdir dir="${output.dir}/pdf"/>
+
+		<copy todir="${output.dir}/pdf" flatten="true">
+			<fileset dir="${userguide.dir}"
+				includes="**/*.gif,**/*.jpg"/>
+		</copy>
+		
+		<concat destfile="${output.dir}/pdf/sveditor_user_guide.mediawiki">
+			<filelist refid="userguide_files"/>
+		</concat>
+
 		<wikitext-to-docbook markupLanguage="MediaWiki"
 		    bookTitle="SVEditor User Guide"
-		    file="${output.dir}/sveditor_user_guide.mediawiki"/>
+		    file="${output.dir}/pdf/sveditor_user_guide.mediawiki"/>
 		<exec executable="xsltproc" failonerror="true">
 			<arg value="-o"/>
-			<arg value="${output.dir}/sveditor_user_guide.fo"/>
+			<arg value="${output.dir}/pdf/sveditor_user_guide.fo1"/>
 			<arg value="${docbook.xsl}"/>
-			<arg value="${output.dir}/sveditor_user_guide.xml"/>
+			<arg value="${output.dir}/pdf/sveditor_user_guide.xml"/>
 		</exec>
+
+		<!-- Ensure we set image attributes properly -->
+		<xmltask source="${output.dir}/pdf/sveditor_user_guide.fo1"
+                         dest="${output.dir}/pdf/sveditor_user_guide.fo">
+                  <remove path="//fo:external-graphic/@width"/>
+                  <remove path="//fo:external-graphic/@height"/>
+                  <remove path="//fo:external-graphic/@content-height"/>
+                  <replace path="//fo:external-graphic/@content-width"
+                           withText="scale-down-to-fit"/>
+                  <attr path="//fo:external-graphic"
+                           attr="inline-progression-dimension.maximum"
+                           value="100%"/>
+		</xmltask>
+<!--
+		<xmltask source="${output.dir}/sveditor_user_guide.fo1"
+                         dest="${output.dir}/sveditor_user_guide.fo">
+                  <remove path="//fo:external-graphic/@width"/>
+                  <remove path="//fo:external-graphic/@height"/>
+                  <remove path="//fo:external-graphic/@content-height"/>
+                  <replace path="//fo:external-graphic/@content-width"
+                           withText="70%"/>
+		</xmltask>
+  -->
+
 		<exec executable="fop" failonerror="true">
 			<arg value="-pdf"/>
-			<arg value="${output.dir}/sveditor_user_guide.pdf"/>
+			<arg value="${output.dir}/pdf/sveditor_user_guide.pdf"/>
 			<arg value="-fo"/>
-			<arg value="${output.dir}/sveditor_user_guide.fo"/>
+			<arg value="${output.dir}/pdf/sveditor_user_guide.fo"/>
 		</exec>
 	</target>
 	
-	<target name="mk_user_guide_html" depends="collect_files">
+	<target name="mk_user_guide_html">
 		<delete dir="${output.dir}/html"/>
 		<mkdir dir="${output.dir}/html"/>
-		<mkdir dir="${output.dir}/html/imgs"/>
 		
-		<copy todir="${output.dir}/html/imgs">
+		<copy todir="${output.dir}/html">
 			<fileset dir="${output.dir}"
 				includes="*.gif,*.jpg"/>
 		</copy>
@@ -48,36 +92,19 @@
 			<fileset dir="${output.dir}"
 				includes="sveditor_user_guide.mediawiki"/>
 		</copy>
+
+		<wikitext-to-docbook markupLanguage="MediaWiki"
+		    bookTitle="SVEditor User Guide"
+		    file="${output.dir}/html/sveditor_user_guide.mediawiki"/>
 		
-		<wikitext-to-html markupLanguage="MediaWiki"
-		    title="SVEditor User Guide"
-		    file="${output.dir}/html/sveditor_user_guide.mediawiki"
-			formatOutput="true"
-			prependImagePrefix="imgs"/>
+		<exec executable="xsltproc" failonerror="true">
+			<arg value="-o"/>
+			<arg value="${output.dir}/html/sveditor_user_guide.html"/>
+			<arg value="${docbook.xhtml.xsl}"/>
+			<arg value="${output.dir}/html/sveditor_user_guide.xml"/>
+		</exec>
 	</target>
 
-	<target name="mk_user_guide_help" depends="collect_files">
-		<delete dir="${output.dir}/html"/>
-		<mkdir dir="${output.dir}/html"/>
-		<mkdir dir="${output.dir}/html/imgs"/>
-		
-		<copy todir="${output.dir}/html/imgs">
-			<fileset dir="${output.dir}"
-				includes="*.gif,*.jpg"/>
-		</copy>
-		
-		<copy todir="${output.dir}/help">
-			<fileset dir="${output.dir}"
-				includes="sveditor_user_guide.mediawiki"/>
-		</copy>
-		
-		<wikitext-to-eclipse-help markupLanguage="MediaWiki"
-		    title="SVEditor User Guide"
-		    file="${output.dir}/help/sveditor_user_guide.mediawiki"
-			formatOutput="true"
-			prependImagePrefix="imgs"/>
-		
-	</target>
 	
 	<target name="collect_files">
 		<!-- Copy image files -->
@@ -91,10 +118,6 @@
 		
 		<!-- Now, build the doc -->
 		<concat destfile="${output.dir}/sveditor_user_guide.mediawiki">
-			<filelist dir="${userguide.dir}">
-				<file name="sveditor_features/sveditor_features.mediawiki"/>
-				<file name="setting_up_an_sveditor_project/setting_up_an_sveditor_project.mediawiki"/>
-			</filelist>
 		</concat>
 	</target>
 

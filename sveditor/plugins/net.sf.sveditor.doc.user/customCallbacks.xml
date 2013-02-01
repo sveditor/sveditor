@@ -1,15 +1,12 @@
 <project name="customCallbacks" default="post.compile">
 
-<!--
-	<taskdef name="wikitext-to-eclipse-help" 
-    	classname="org.eclipse.mylyn.wikitext.core.util.anttask.MarkupToEclipseHelpTask"/>
-	<taskdef resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties"/>
-  -->
 	<path id="wikitext.classpath">
 		<fileset dir="${eclipse.home}/plugins">
 			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
 		</fileset>
 	</path>
+
+	<property name="docs.dir" value="${basedir}/../../../docs"/>
 
 	<taskdef classpathref="wikitext.classpath" resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
 	
@@ -24,6 +21,7 @@
 	</target>
 
 	<target name="docs">
+<!--
 		<taskdef name="assemble_toc" 
 			classname="net.sf.sveditor.doc.user.tasks.AssembleTocTask">
 			<classpath path="${basedir}/bin"/>
@@ -41,14 +39,15 @@
 					overwrite="true"
 					helpPrefix="editing_sv_files"
 					file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
-		<!--
-		<wikitext-to-xslfo markupLanguage="MediaWiki" 
-			file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
-		  -->
 		<assemble_toc files="${basedir}/preparing_sv_project/preparing_sv_project-toc.xml,
 							${basedir}/editing_sv_files/editing_sv_files-toc.xml"
 			output="${basedir}/toc.xml" label="SVEditor User Guide">
 		</assemble_toc>
+  -->
+		<ant antfile="${docs.dir}/mkhelp.xml" 
+			target="mk_user_guide_help">
+			<property name="srcdir" value="${docs.dir}"/>
+		</ant>
 	</target>
 	
 	<target name="clean_docs">

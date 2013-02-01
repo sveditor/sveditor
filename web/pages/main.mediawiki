@@ -1,0 +1,49 @@
+= SystemVerilog Development Environment for Eclipse =
+
+
+SVEditor is an Eclipse-based IDE (Integrated Development Environment) for Verilog and SystemVerilog development. It provides a colorizing editor for SystemVerilog with support for content assist and cross-linking between SystemVerilog files.
+
+[[Image:sv_file_outline.gif]]
+
+== Getting Started ==
+For information on installing SVEditor and creating your first project, see the [[Getting_Started|Getting Started]] guide.
+
+== SVEditor Features ==
+A cheat sheet of SVEditor's features, and how to access them, can be found in the [[SVEditor_Features|SVEditor Features]] table.
+
+== Staying Up-to-Date ==
+SVEditor is on Facebook. Like us on Facebook [http://www.facebook.com/sveditor http://www.facebook.com/sveditor] to stay up-to-date with release info, tutorials, and other information.
+
+
+== User Guide == 
+For information on installing and using SVEditor, see the [[User_Guide|User Guide]].
+
+== Developer Guide ==
+For information on setting up a development environment for developing SVEditor, see the [[Developer_Guide|Developer Guide]].
+
+== Multimedia ==
+[[Multimedia]]
+
+
+[[User_Guide]]
+
+<!--
+SVEditor is most-easily installed via the Eclipse Update Site. Just add the SVEditor Update Site (http://sveditor.sourceforge.net/update) to your Eclipse installation! See the [https://sourceforge.net/projects/sveditor/files/docs/Getting%20Started%20with%20SVEditor%20v1.0.pdf/download Getting Started] guide for more-detailed instructions.
+
+<big>'''MediaWiki has been successfully installed.'''</big>
+
+Consult the [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] for information on using the wiki software.
+
+== Getting started ==
+* [http://www.mediawiki.org/wiki/Manual:Configuration_settings Configuration settings list]
+* [http://www.mediawiki.org/wiki/Manual:FAQ MediaWiki FAQ]
+* [http://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]
+
+== Developers ==
+[[DevelopersMain:Developer's Documentation]]
+
+== Project Logo ==
+Click on the following image to upload a new version of the PNG logo image for your project:
+
+[[Image:MediaWikiSidebarLogo.png]]
+-->
