@@ -556,7 +556,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		String resolved_base_location = base_location;
 		ISVArgFileVariableProvider var_provider = null;
 		IProject var_provider_project = null;
-		
+	
 		if (root_file != null) {
 			base_location = SVFileUtils.getPathParent(root_file);
 			resolved_base_location = base_location;
@@ -575,7 +575,6 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			}
 		}
 
-//		System.out.println("var_provider_project=" + var_provider_project);
 		var_provider = SVCorePlugin.getVariableProvider(var_provider_project);
 		
 		return new Tuple<String, ISVArgFileVariableProvider>(resolved_base_location, var_provider);

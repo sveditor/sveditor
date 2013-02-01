@@ -1,6 +1,7 @@
 *.html
 *.class
 sveditor/plugins/net.sf.sveditor.doc.dev/api_docs/resources/*.gif
+sveditor/plugins/net.sf.sveditor.doc.user/help/*
 *.properties
 .svproject
 stylesheet.css
