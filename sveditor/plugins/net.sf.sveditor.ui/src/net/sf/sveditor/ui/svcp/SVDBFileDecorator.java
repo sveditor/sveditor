@@ -30,9 +30,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
 public class SVDBFileDecorator implements ILightweightLabelDecorator {
-	private List<ILabelProviderListener>		fListeners;
-	private Thread								fLookupThread;
-	private Map<String, Set<String>>			fManagedByIndex;
+	private List<ILabelProviderListener>					fListeners;
+	private Thread											fLookupThread;
+	private Map<String, Set<String>>						fManagedByIndex;
 	private Map<SVDBIndexCollection, IndexChangeListener>	fProjectListeners;
 	private List<Object>									fWorkQueue;
 	

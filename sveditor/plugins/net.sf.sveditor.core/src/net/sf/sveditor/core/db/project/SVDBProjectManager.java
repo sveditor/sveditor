@@ -159,16 +159,30 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		if (event.getDelta() != null) {
 			try {
 				event.getDelta().accept(new IResourceDeltaVisitor() {
-					
 					public boolean visit(IResourceDelta delta)
 							throws CoreException {
 						IProject p = delta.getResource().getProject();
 						if (p != null && fProjectMap.containsKey(p.getFullPath())) {
-							if (delta.getResource().equals(".project") && delta.getKind() == IResourceDelta.CHANGED) {
+							if (delta.getKind() != IResourceDelta.REMOVED) {
+								String name = delta.getResource().getName();
+								
+								if (name.equals(".project") || name.equals(".svproject")) {
+									if (!changed_project.contains(p)) {
+										System.out.println("Project " + p.getName() + " properties changed");
+										changed_project.add(p);
+									}
+								}
+							}
+							/*
+							if ((delta.getResource().equals(".project") ||
+									delta.getResource().equals(".svproject")) && 
+								(delta.getKind() == IResourceDelta.CHANGED ||
+										delta.getKind() == IResourceDelta.ADDED)) {
 								if (!changed_project.contains(p)) {
 									changed_project.add(p);
 								}
 							}
+							 */
 						}
 						return true;
 					}

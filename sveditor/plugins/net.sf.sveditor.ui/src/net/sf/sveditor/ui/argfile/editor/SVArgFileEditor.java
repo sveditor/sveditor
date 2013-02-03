@@ -99,6 +99,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
+		fFile = SVFileUtils.normalize(fFile);
+		
 		fSVDBFile = new SVDBFile(fFile);
 		fFSProvider = new SVDBWSFileSystemProvider();
 		fFSProvider.init(SVFileUtils.getPathParent(fFile));
@@ -550,6 +552,10 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			if (ft != null) {
 				root_file = ft.getFilePath();
 			}
+		} else {
+			// Failed to find argfile via indexed files.
+			// Use this file as the root file
+			root_file = fFile;
 		}
 
 		String base_location = SVFileUtils.getPathParent(fFile);
