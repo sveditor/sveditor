@@ -254,7 +254,7 @@ public class SVDBProjectManager implements
 	
 	@Override
 	public void pathVariableChanged(IPathVariableChangeEvent event) {
-		System.out.println("pathVariableChanged");
+//		System.out.println("pathVariableChanged");
 	}
 
 	private class RefreshJob extends Job {

@@ -22,6 +22,8 @@ public class SVArgFileVCSOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.Incdir;
 		} else if (name.equals("-f")) {
 			return OptionType.ArgFileInc;
+		} else if (name.equals("-F")) {
+			return OptionType.ArgFileRootInc;
 		} else if (name.equals("-y")) {
 			return OptionType.SrcLibPath;
 		} else if (fOptions.containsKey(name)) {

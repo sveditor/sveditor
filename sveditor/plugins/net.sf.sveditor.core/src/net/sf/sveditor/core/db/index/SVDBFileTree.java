@@ -22,8 +22,17 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 public class SVDBFileTree {
 	@SVDBDoNotSaveAttr
 	private boolean					fProcessed;
-	
+
+	// 
 	public String					fFilePath;
+
+	// Specifies whether this file defines a new
+	// root scope. This flag is used by 
+	// argument files. An argument file included
+	// with -F will have this flag set. An
+	// argument file included with -f will have 
+	// this flag cleared
+	public boolean					fIncludeRoot;
 	
 	// Handle to the pre-processed view of the file.
 	// Unused in the ArgFile context
@@ -59,6 +68,14 @@ public class SVDBFileTree {
 		fSVDBFile = file;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+	}
+	
+	public boolean isIncludeRoot() {
+		return fIncludeRoot;
+	}
+	
+	public void setIncludeRoot(boolean root) {
+		fIncludeRoot = root;
 	}
 	
 	public boolean getFileProcessed() {

@@ -359,7 +359,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		// Initialize the cache
 		m = new SubProgressMonitor(monitor, 1);
 		fIndexCacheData = createIndexCacheData();
-		fCacheDataValid = fCache.init(m, fIndexCacheData);
+		fCacheDataValid = fCache.init(m, fIndexCacheData, fBaseLocation);
 
 		if (fCacheDataValid) {
 			fCacheDataValid = checkCacheValid();

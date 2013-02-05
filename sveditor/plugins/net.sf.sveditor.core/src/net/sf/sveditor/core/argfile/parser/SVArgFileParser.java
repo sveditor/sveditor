@@ -144,10 +144,15 @@ public class SVArgFileParser {
 						file.addChildItem(stmt);
 						} break;
 						
-					case ArgFileInc: {
+					case ArgFileInc: 
+					case ArgFileRootInc: {
 						SVDBArgFileIncFileStmt stmt = new SVDBArgFileIncFileStmt();
 						stmt.setLocation(tok.getStartLocation());
 						List<String> incs;
+						
+					
+						// Flag the root-include status
+						stmt.setRootInclude((type == OptionType.ArgFileRootInc));
 						
 						if (arg_count > 0) {
 							incs = fOptionProviders.getArgFilePaths(

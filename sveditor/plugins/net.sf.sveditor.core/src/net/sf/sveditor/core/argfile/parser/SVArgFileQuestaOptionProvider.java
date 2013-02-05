@@ -126,6 +126,7 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		fOptions.put("-y", 1);
 		fOptions.put("-v", 1);
 		fOptions.put("-f", 1);
+		fOptions.put("-F", 1);
 	}
 
 	public OptionType getOptionType(String name) {
@@ -135,6 +136,8 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.Incdir;
 		} else if (name.equals("-f")) {
 			return OptionType.ArgFileInc;
+		} else if (name.equals("-F")) {
+			return OptionType.ArgFileRootInc;
 		} else if (name.equals("-y")) {
 			return OptionType.SrcLibPath;
 		} else if (fOptions.containsKey(name)) {

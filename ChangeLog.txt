@@ -16,6 +16,11 @@
 
 - #(229) - Detect project close and remove associated indexes.
 
+- #(enh) - Add support for the argument file -F switch. This switch includes
+  an argument file, just as the -f switch does. However, file paths within 
+  the included argument file are resolved relative to the directory containing
+  the included argument file.
+
 ------------------------------------------------------------------------------
 -- 1.1.4 Release --
 

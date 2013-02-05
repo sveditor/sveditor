@@ -11,7 +11,8 @@ public interface ISVArgFileOptionProvider {
 		Ignored,
 		Incdir,
 		Define,
-		ArgFileInc,
+		ArgFileInc,      // -f path
+		ArgFileRootInc,  // -F path
 		SrcLibPath // -y <path>
 	}
 	

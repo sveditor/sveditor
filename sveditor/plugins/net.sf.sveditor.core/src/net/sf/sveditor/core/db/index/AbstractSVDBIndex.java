@@ -86,7 +86,7 @@ public abstract class AbstractSVDBIndex implements ISVDBIndex,
 		ILogLevelListener, ILogLevel {
 	private static final int IndexState_AllInvalid 			= 0;
 	private static final int IndexState_RootFilesDiscovered	= (IndexState_AllInvalid + 1);
-	private static final int IndexState_FilesPreProcessed		= (IndexState_RootFilesDiscovered + 1);
+	private static final int IndexState_FilesPreProcessed	= (IndexState_RootFilesDiscovered + 1);
 	private static final int IndexState_FileTreeValid 		= (IndexState_FilesPreProcessed + 1);
 	private static final int IndexState_AllFilesParsed 		= (IndexState_FileTreeValid + 1);
 

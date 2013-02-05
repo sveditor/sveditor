@@ -535,7 +535,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			// Search up to find the root filetree
 			
 			if (ft != null) {
-				while (ft.getIncludedByFiles().size() > 0) {
+				// Scan up to the root, stopping if we find a root file
+				while (ft.getIncludedByFiles().size() > 0 && !ft.isIncludeRoot()) {
 					String ft_path = ft.getIncludedByFiles().get(0);
 					SVDBFileTree ft_next = index.findFileTree(ft_path, true);
 
