@@ -214,34 +214,37 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 				} else {
 					SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 					SVDBProjectData pdata = pmgr.getProjectData(rsrc.getProject());
-					SVDBIndexCollection index = pdata.getProjectIndexMgr();
-				
-					if (index.isFileListLoaded()) {
-						if (proj_map == null) {
-							proj_map = new HashSet<String>();
-							fManagedByIndex.put(project_name, proj_map);
-							if (!fProjectListeners.containsKey(index)) {
-								IndexChangeListener l = new IndexChangeListener(project_name);
-								fProjectListeners.put(index, l);
-								index.addIndexChangeListener(l);
+					
+					if (pdata != null) {
+						SVDBIndexCollection index = pdata.getProjectIndexMgr();
+
+						if (index.isFileListLoaded()) {
+							if (proj_map == null) {
+								proj_map = new HashSet<String>();
+								fManagedByIndex.put(project_name, proj_map);
+								if (!fProjectListeners.containsKey(index)) {
+									IndexChangeListener l = new IndexChangeListener(project_name);
+									fProjectListeners.put(index, l);
+									index.addIndexChangeListener(l);
+								}
+								loadProjectFiles(proj_map, index);
 							}
-							loadProjectFiles(proj_map, index);
-						}
-						
-						if (proj_map.contains(path)) {
-							image = SVUiPlugin.getImageDescriptor(
-									"/icons/ovr16/indexed_6x6.gif");
+
+							if (proj_map.contains(path)) {
+								image = SVUiPlugin.getImageDescriptor(
+										"/icons/ovr16/indexed_6x6.gif");
+								if (image != null) {
+									decoration.addOverlay(image);
+								}	
+							}
+
 							if (image != null) {
 								decoration.addOverlay(image);
 							}	
+						} else {
+							// Queue a job to do the same thing...
+							queueWork(element);
 						}
-
-						if (image != null) {
-							decoration.addOverlay(image);
-						}	
-					} else {
-						// Queue a job to do the same thing...
-						queueWork(element);
 					}
 				}
 			}

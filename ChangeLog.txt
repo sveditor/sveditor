@@ -14,6 +14,7 @@
 - #(nobug) - Correct a bug with assignment content assist. Now, content assist
   works with part-select of LHS: my_var[3:0] = <ASSIST>
 
+- #(229) - Detect project close and remove associated indexes.
 
 ------------------------------------------------------------------------------
 -- 1.1.4 Release --

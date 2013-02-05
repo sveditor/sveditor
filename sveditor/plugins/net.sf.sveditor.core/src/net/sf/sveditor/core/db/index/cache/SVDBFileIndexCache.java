@@ -44,6 +44,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 @SuppressWarnings({"rawtypes","unchecked"})
 public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private String							fBaseLocation;
+	private String							fBaseLocationInfo;
 	private Map<String, CacheFileInfo>		fFileCache;
 	private Map<String, CacheFileInfo>		fArgFileCache;
 	private ISVDBFS							fSVDBFS;
@@ -52,15 +53,15 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	private List<IDBReader>					fPersistenceRdrSet;
 	private List<IDBWriter>					fPersistenceWriterSet;
 	private long							fNumFilesRead = 0;
-	private boolean						fDebugEn = false;
+	private boolean							fDebugEn = false;
 
-	private int							fMaxCacheSize = 100;
+	private int								fMaxCacheSize = 100;
 	
 	private static CacheFileInfo			fCacheHead;
 	private static CacheFileInfo			fCacheTail;
-	private static int					fCacheSize;
+	private static int						fCacheSize;
 	
-	private boolean						fUseSoftRef = true;
+	private boolean							fUseSoftRef = true;
 
 	final class CacheFileInfo {
 		public boolean						fCached;
@@ -74,7 +75,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		public SVDBFile						fSVDBFileRef;
 		public Reference<List<SVDBMarker>>	fMarkers;
 		public List<SVDBMarker>				fMarkersRef;
-		public long						fLastModified;
+		public long							fLastModified;
 		
 		public CacheFileInfo() {
 			fSVDBPreProcFile = (Reference<SVDBFile>)createRef(null);
@@ -135,7 +136,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void removeStoragePath(List<File> db_path_list) {
 		fSVDBFS.removeStoragePath(db_path_list);
 	}
-
+	
 	public void setIndexData(Object data) {
 		fIndexData = data;
 	}
@@ -152,7 +153,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
 		if (fDebugEn) {
-			fLog.debug(LEVEL_MID, "Clear Index Cache");
+			Exception e = null;
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				e = ex;
+			}
+			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo, e);
 		}
 		monitor.beginTask("Clear Cache", 1);
 		fFileCache.clear();
@@ -287,10 +294,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 
 
-	public boolean init(IProgressMonitor monitor, Object index_data) {
+	public boolean init(IProgressMonitor monitor, Object index_data, String base_location) {
 		boolean valid = false;
 		fFileCache.clear();
 		fArgFileCache.clear();
+		fBaseLocationInfo = base_location;
 		fBaseLocation = "";
 		fIndexData = index_data;
 		IDBReader rdr = allocReader();

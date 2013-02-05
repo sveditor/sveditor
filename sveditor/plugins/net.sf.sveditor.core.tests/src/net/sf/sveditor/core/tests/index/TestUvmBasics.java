@@ -54,6 +54,8 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestUvmBasics extends TestCase {
@@ -338,7 +340,7 @@ public class TestUvmBasics extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 	
-	public void testParseUvmTLM2GenericPayload() throws IOException {
+	public void testParseUvmTLM2GenericPayload() throws IOException, CoreException {
 		String testname = "testParseUvmTLM2GenericPayload";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -389,10 +391,15 @@ public class TestUvmBasics extends TestCase {
 		ps.println("endclass");
 		ps.close();
 
+		// Ensure the project is up-to-date with new files
+		fProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+
 		AbstractSVDBIndex index = (AbstractSVDBIndex)rgy.findCreateIndex(
-				new NullProgressMonitor(), testname, 
+				new NullProgressMonitor(), testname + "_1", 
 				"${workspace_loc}/" + testname + "/" + testname + ".f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.loadIndex(new NullProgressMonitor());
 
 		SVPreProcessor pp = index.createPreProcScanner(
 				"${workspace_loc}/" + testname + "/" + testname + ".sv");

@@ -60,7 +60,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project.getName();
 		
-		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
+//		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
 	
 		IFile svproject = project.getFile(".svproject");
 		
@@ -81,6 +81,10 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		// Initialize to null, so initial setup is performed
 		fFileWrapper = null;
 		setProjectFileWrapper(wrapper, false);
+	}
+	
+	public IProject getProject() {
+		return fProject;
 	}
 	
 	public SVDBIndexCollection resolveProjectRef(String path) {
@@ -139,7 +143,12 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	}
 
 	public void refreshProjectFile() {
-		SVProjectFileWrapper wrapper = readProjectFile(fProject.getFile(".svproject"));
+		IFile svproject = fProject.getFile(".svproject");
+		SVProjectFileWrapper wrapper = null;
+		
+		if (svproject.exists()) {
+			wrapper = readProjectFile(fProject.getFile(".svproject"));
+		}
 		
 		if (wrapper != null) {
 			fFileWrapper = wrapper;
@@ -195,7 +204,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			try {
 				IFile file = fProject.getFile(".svproject");
 				
-				file.refreshLocal(IResource.DEPTH_ONE, null);
+// MSB:				file.refreshLocal(IResource.DEPTH_ONE, null);
 
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				fFileWrapper.toStream(out);
@@ -245,8 +254,12 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			}
 		}
 		
-		if (refresh && fIndexCollection != null) {
-			setProjectPaths(fIndexCollection, fFileWrapper, refresh);
+		if (refresh || fIndexCollection == null) {
+			if (fIndexCollection == null) {
+				fIndexCollection = createProjectIndex();
+			} else {
+				setProjectPaths(fIndexCollection, fFileWrapper, refresh);
+			}
 		}
 	}
 	
@@ -373,7 +386,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		
 		// Remove leftover indexes
 		for (ISVDBIndex i : project_indexes) {
-			rgy.disposeIndex(i);
+			rgy.disposeIndex(i, "Removing leftover project indexes");
 		}
 		
 		// Push defines to all indexes. This may cause index rebuild
@@ -400,8 +413,6 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		if (other instanceof SVDBProjectData) {
 			SVDBProjectData o = (SVDBProjectData)other;
 			boolean eq = true;
-			
-			System.out.println("equals: " + fProjectName + " == " + o.fProjectName);
 			
 			eq &= o.fProjectName.equals(fProjectName);
 			eq &= o.fFileWrapper.equals(fFileWrapper);

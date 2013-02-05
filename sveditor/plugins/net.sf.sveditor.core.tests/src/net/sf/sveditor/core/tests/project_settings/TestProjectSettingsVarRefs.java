@@ -79,7 +79,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
@@ -100,9 +100,11 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		in = parameters_sv.getContents();
 		
 		String target_file = "${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv";
-		
+
+		log.debug("--> findIndexFile: " + target_file);
 		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
 				target_file, project.getName(), false);
+		log.debug("<-- findIndexFile: " + target_file);
 		
 		assertNotNull(result);
 		log.debug("ISVDBIndex: " + result.first().getBaseLocation());

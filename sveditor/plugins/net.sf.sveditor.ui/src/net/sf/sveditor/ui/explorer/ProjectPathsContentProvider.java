@@ -20,14 +20,12 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.ILock;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -39,7 +37,7 @@ public class ProjectPathsContentProvider implements
 	private List<ProjectPathsData>				fProjectDataMap;
 	private static Object 						NO_ELEMENTS[] = new Object[0];
 	private Viewer								fViewer;
-	private boolean							fRefreshQueued;
+	private boolean								fRefreshQueued;
 	private IElementComparer					fDefaultComparer;
 	
 	public ProjectPathsContentProvider() {
@@ -170,6 +168,11 @@ public class ProjectPathsContentProvider implements
 	}
 
 	public void projectSettingsChanged(SVDBProjectData data) {
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		if (!pmgr.isManagedProject(data.getProject())) {
+			// Project was deleted
+		}
 		doRefresh();
 	}
 	

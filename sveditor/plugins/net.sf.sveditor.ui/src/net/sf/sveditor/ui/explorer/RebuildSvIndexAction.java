@@ -17,7 +17,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -81,8 +84,18 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 				try {
 					p.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 				} catch (CoreException e) {}
+			
+				SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+				SVDBProjectData pd = pmgr.getProjectData(p);
+			
+				SVDBIndexCollection ic = pd.getProjectIndexMgr();
+//				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
+				List<ISVDBIndex> index_list = ic.getIndexList();
 				
-				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
+				for (ISVDBIndex index : index_list) {
+					fLog.debug(LEVEL_MIN, "  Rebuild index " + index.getBaseLocation());
+				}
+
 				/*
 				for (ISVDBIndex index : index_list) {
 					fLog.debug(LEVEL_MIN, "rebuildIndex " + index.getBaseLocation());

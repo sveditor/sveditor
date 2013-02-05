@@ -54,7 +54,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 	}
 	
 	public void removeStoragePath(List<File> db_path_list) {}
-
+	
 	public void setIndexData(Object data) {
 		fData = data;
 	}
@@ -63,7 +63,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		return fData;
 	}
 
-	public boolean init(IProgressMonitor monitor, Object index_data) {
+	public boolean init(IProgressMonitor monitor, Object index_data, String base_location) {
 		fData = index_data;
 		return true;
 	}

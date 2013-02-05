@@ -102,12 +102,14 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 				}
 			}
 		}
-		
+	
+		/** MSB: Don't refresh here
 		if (folder != null) {
 			try {
 				folder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) { }
 		}
+		 */
 
 		if (root != null) {
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
