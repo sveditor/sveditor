@@ -252,7 +252,6 @@ public class SVDBProjectManager implements
 		}
 	}
 	
-	@Override
 	public void pathVariableChanged(IPathVariableChangeEvent event) {
 //		System.out.println("pathVariableChanged");
 	}
