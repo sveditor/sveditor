@@ -1,4 +1,7 @@
 
+-- 1.1.6 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.5 Release --
 
 - #(nobug) - Correct a recently-introduced bug that prevented the project 
