@@ -175,6 +175,14 @@ public class SVDBFileOverrideIndex
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
 		return fIndex.findIncludedFile(leaf);
 	}
+	
+	public ISVDBFileSystemProvider getFileSystemProvider() {
+		return fIndex.getFileSystemProvider();
+	}
+	
+	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {
+		fIndex.setFileSystemProvider(fs_provider);
+	}
 
 	public void init(IProgressMonitor monitor) {
 		fIndex.init(monitor);

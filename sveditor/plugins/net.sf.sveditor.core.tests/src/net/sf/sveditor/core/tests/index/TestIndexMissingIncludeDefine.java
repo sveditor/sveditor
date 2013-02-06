@@ -132,8 +132,8 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 			String						path,
 			int							expected_errors) {
 		SaveMarkersFileSystemProvider fs_provider_m = new SaveMarkersFileSystemProvider(
-					((AbstractSVDBIndex)index).getFileSystemProvider());
-		((AbstractSVDBIndex)index).setFileSystemProvider(fs_provider_m);
+					index.getFileSystemProvider());
+		index.setFileSystemProvider(fs_provider_m);
 		
 		// Force the file database to be built
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());

@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -394,7 +395,7 @@ public class TestUvmBasics extends TestCase {
 		// Ensure the project is up-to-date with new files
 		fProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
-		AbstractSVDBIndex index = (AbstractSVDBIndex)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), testname + "_1", 
 				"${workspace_loc}/" + testname + "/" + testname + ".f",
 				SVDBArgFileIndexFactory.TYPE, null);

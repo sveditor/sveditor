@@ -81,9 +81,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-public abstract class AbstractSVDBIndex implements ISVDBIndex,
+public abstract class AbstractSVDBIndex implements 
+		ISVDBIndex, ISVDBIndexInt, 
 		ISVDBRefFinder, ISVDBFileSystemChangeListener, 
-		ILogLevelListener, ILogLevel {
+		ILogLevelListener, ILogLevel  {
 	private static final int IndexState_AllInvalid 			= 0;
 	private static final int IndexState_RootFilesDiscovered	= (IndexState_AllInvalid + 1);
 	private static final int IndexState_FilesPreProcessed	= (IndexState_RootFilesDiscovered + 1);
