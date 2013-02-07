@@ -416,11 +416,16 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	@Override
 	public void fileChanged(String path) {
 		fLog.debug("File changed: " + path);
+		boolean contains_path = false;
+		
 		synchronized (getCache()) {
-			if (getCache().getFileList(true).contains(path)) {
-				invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
-			}
+			contains_path = getCache().getFileList(true).contains(path);
 		}
+
+		if (contains_path) {
+			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
+		}
+	
 		/*
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file

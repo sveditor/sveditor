@@ -691,10 +691,13 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	public void fileRemoved(String path) {
+		boolean invalidate = false;
 		synchronized (fCache) {
-			if (fCache.getFileList(false).contains(path)) {
-				invalidateIndex(new NullProgressMonitor(), "File Removed", false);
-			}
+			invalidate = fCache.getFileList(false).contains(path);
+		}
+		
+		if (invalidate) {
+			invalidateIndex(new NullProgressMonitor(), "File Removed", false);
 		}
 	}
 
