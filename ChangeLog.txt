@@ -1,4 +1,7 @@
 
+-- 1.1.7 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.6 Release --
 
 - #(nobug) - Correct a thread deadlock related to indexing and other threads
