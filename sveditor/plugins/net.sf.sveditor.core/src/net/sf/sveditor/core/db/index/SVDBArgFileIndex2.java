@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
@@ -39,6 +38,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -115,24 +115,21 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	private SVDBBaseIndexCacheData fIndexCacheData;
 	private boolean fCacheDataValid;
 
-	protected Set<String> fMissingIncludes;
+	private Set<String> fMissingIncludes;
 
 	//
 	// Map of filename to list of package names
 	// Used to track files that have not yet been processed, and whose
 	// content will need to be added to the package content cache
 	//
-	protected List<Tuple<String, List<String>>> fDeferredPkgCacheFiles;
-
-	private ISVDBIncludeFileProvider fIncludeFileProvider;
+	private List<Tuple<String, List<String>>> fDeferredPkgCacheFiles;
 
 	private List<ISVDBIndexChangeListener> fIndexChangeListeners;
 
-	protected static Pattern fWinPathPattern;
-	protected LogHandle fLog;
-	private ISVDBFileSystemProvider fFileSystemProvider;
+	private LogHandle fLog;
+	private ISVDBFileSystemProvider 		fFileSystemProvider;
+	private ISVDBIncludeFileProvider		fIncludeFileProvider;
 
-	protected boolean fLoadUpToDate;
 	private ISVDBIndexCache fCache;
 
 	private SVDBIndexConfig fConfig;
@@ -140,22 +137,18 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	// Manages a list of the directories that managed files are stored in
 	private Set<String> fFileDirs;
 
-	protected boolean fDebugEn;
+	private boolean fDebugEn;
 
-	protected boolean fInWorkspaceOk;
+	private boolean fInWorkspaceOk;
 
 	/**
 	 * True if the root file list is valid.
 	 */
 	private int fIndexState;
-	protected boolean fAutoRebuildEn;
-	protected boolean fIsDirty;
+	private boolean fAutoRebuildEn;
+	private boolean fIsDirty;
 
-	static {
-		fWinPathPattern = Pattern.compile("\\\\");
-	}
-
-	protected SVDBArgFileIndex2(String project) {
+	private SVDBArgFileIndex2(String project) {
 		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 		fProjectName = project;
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
@@ -208,7 +201,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected boolean checkCacheValid() {
+	private boolean checkCacheValid() {
 		boolean valid = true;
 		String version = SVCorePlugin.getVersion();
 
@@ -304,6 +297,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 			if (fDebugEn) {
 				fLog.debug("Checking missing-include list added files");
 			}
+			/** TODO: 
 			for (String path : getCacheData().getMissingIncludeFiles()) {
 				SVDBSearchResult<SVDBFile> res = findIncludedFile(path);
 				if (res != null) {
@@ -319,6 +313,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 					break;
 				}
 			}
+			 */
 		}
 
 		if (valid) {
@@ -515,84 +510,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		monitor.done();
 	}
 
-	/**
-	 * pre-conditions: - discoverFiles - preProcessFiles -
-	 * 
-	 * @param monitor
-	 */
-	protected void parseFiles(IProgressMonitor monitor) {
-		final List<String> paths = new ArrayList<String>();
-
-		fLog.debug(LEVEL_MAX, "parseFiles");
-
-		synchronized (fCache) {
-			paths.addAll(fCache.getFileList(false));
-		}
-		final SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-		m.beginTask("Parsing Files", paths.size());
-
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		parseFilesJob(paths, m);
-
-		m.done();
-	}
-
-	protected void parseFilesJob(List<String> paths, IProgressMonitor monitor) {
-		while (true) {
-			String path = null;
-			synchronized (paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-
-			if (path == null) {
-				break;
-			}
-
-			SVDBFile ret;
-
-			synchronized (fCache) {
-				ret = fCache.getFile(new NullProgressMonitor(), path);
-			}
-
-			if (ret == null) {
-				SVDBFileTree ft_root;
-				synchronized (fCache) {
-					ft_root = fCache.getFileTree(new NullProgressMonitor(),
-							path, false);
-				}
-
-				if (ft_root == null) {
-					try {
-						throw new Exception();
-					} catch (Exception e) {
-						fLog.error("File Path \"" + path + "\" not in index "
-								+ getBaseLocation(), e);
-						for (String p : getFileList(new NullProgressMonitor())) {
-							fLog.error("path: " + p);
-						}
-					}
-
-				}
-				if (ft_root != null) {
-					IPreProcMacroProvider mp = createMacroProvider(ft_root);
-					processFile(ft_root, mp);
-				}
-
-				synchronized (fCache) {
-					ret = fCache.getFile(new NullProgressMonitor(), path);
-				}
-			}
-
-			synchronized (monitor) {
-				monitor.worked(1);
-			}
-		}
-	}
-
-	protected void invalidateIndex(IProgressMonitor monitor, String reason,
+	private void invalidateIndex(IProgressMonitor monitor, String reason,
 			boolean force) {
 		if (fDebugEn) {
 			if (fAutoRebuildEn || force) {
@@ -629,7 +547,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return fConfig;
 	}
 
-	protected SVDBBaseIndexCacheData getCacheData() {
+	private SVDBBaseIndexCacheData getCacheData() {
 		return fIndexCacheData;
 	}
 
@@ -759,19 +677,19 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		fIndexCacheData.clearGlobalDefines();
 	}
 
-	protected void clearDefines() {
+	private void clearDefines() {
 		fIndexCacheData.clearDefines();
 	}
 
-	protected void addDefine(String key, String val) {
+	private void addDefine(String key, String val) {
 		fIndexCacheData.addDefine(key, val);
 	}
 
-	protected void clearIncludePaths() {
+	private void clearIncludePaths() {
 		fIndexCacheData.clearIncludePaths();
 	}
 
-	protected void addIncludePath(String path) {
+	private void addIncludePath(String path) {
 		fIndexCacheData.addIncludePath(path);
 	}
 
@@ -883,7 +801,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return markers;
 	}
 
-	protected void addFile(String path, boolean is_argfile) {
+	private void addFile(String path, boolean is_argfile) {
 		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
 		synchronized (fCache) {
 			fCache.addFile(path, is_argfile);
@@ -894,7 +812,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		addFileDir(path);
 	}
 
-	protected void addFileDir(String file_path) {
+	private void addFileDir(String file_path) {
 		File f = new File(file_path);
 		File p = f.getParentFile();
 
@@ -903,24 +821,13 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		}
 	}
 
-	protected void clearFilesList() {
+	private void clearFilesList() {
 		fLog.debug("clearFilesList");
 		fCache.clear(new NullProgressMonitor());
 		fFileDirs.clear();
 	}
 
-	protected void propagateAllMarkers() {
-		for (boolean is_argfile : new boolean[] { false, true }) {
-			Set<String> file_list = fCache.getFileList(is_argfile);
-			for (String path : file_list) {
-				if (path != null) {
-					propagateMarkers(path);
-				}
-			}
-		}
-	}
-
-	protected void propagateMarkers(String path) {
+	private void propagateMarkers(String path) {
 		List<SVDBMarker> ml = fCache.getMarkers(path);
 		getFileSystemProvider().clearMarkers(path);
 
@@ -949,133 +856,11 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	 * 
 	 * @return
 	 */
-	protected SVDBBaseIndexCacheData createIndexCacheData() {
+	private SVDBBaseIndexCacheData createIndexCacheData() {
 		return new SVDBArgFileIndexCacheData(getBaseLocation());
 	}
 
-	/**
-	 * 
-	 */
-	protected void preProcessFiles(final IProgressMonitor monitor) {
-		final List<String> paths = new ArrayList<String>();
-		synchronized (fCache) {
-			paths.addAll(fCache.getFileList(false));
-		}
-
-		monitor.beginTask("Pre-Process Files", paths.size());
-
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		preProcessFilesJob(paths, monitor);
-
-		monitor.done();
-	}
-
-	protected void preProcessFilesJob(List<String> paths,
-			IProgressMonitor monitor) {
-		while (true) {
-			String path = null;
-			synchronized (paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-			// Reached the end of the list
-			if (path == null) {
-				break;
-			}
-
-			SubProgressMonitor m = null;
-			synchronized (monitor) {
-				m = new SubProgressMonitor(monitor, 1);
-				m.beginTask("Process " + path, 1);
-			}
-
-			SVDBFile file = processPreProcFile(path);
-			synchronized (fCache) {
-				if (file != null) {
-					fCache.setPreProcFile(path, file);
-					fCache.setLastModified(path,
-							fFileSystemProvider.getLastModifiedTime(path),
-							false);
-				}
-			}
-
-			synchronized (monitor) {
-				m.done();
-			}
-		}
-	}
-
-	protected void buildFileTree(final IProgressMonitor monitor) {
-		final List<String> paths = new ArrayList<String>();
-		paths.addAll(getCache().getFileList(false));
-		final List<String> missing_includes = new ArrayList<String>();
-
-		if (fDebugEn) {
-			fLog.debug(LEVEL_MAX, "buildFileTree: File List");
-			for (String path : paths) {
-				fLog.debug("  path: " + path);
-			}
-		}
-
-		monitor.beginTask("Building File Tree", paths.size());
-
-		// Decide how many threads to spawn.
-		// Want each thread to work on at least 16 files
-		buildFileTreeJob(paths, missing_includes, monitor);
-
-		getCacheData().clearMissingIncludeFiles();
-		for (String path : missing_includes) {
-			getCacheData().addMissingIncludeFile(path);
-		}
-
-		monitor.done();
-	}
-
-	protected void buildFileTreeJob(List<String> paths,
-			List<String> missing_includes, IProgressMonitor monitor) {
-		while (true) {
-			String path = null;
-
-			synchronized (paths) {
-				if (paths.size() > 0) {
-					path = paths.remove(0);
-				}
-			}
-
-			if (path == null) {
-				break;
-			}
-
-			synchronized (fCache) {
-				if (fCache.getFileTree(new NullProgressMonitor(), path, false) != null) {
-					continue;
-				}
-			}
-
-			SVDBFile pp_file;
-
-			synchronized (fCache) {
-				pp_file = fCache
-						.getPreProcFile(new NullProgressMonitor(), path);
-
-			}
-
-			if (pp_file == null) {
-				fLog.error("Failed to get pp_file \"" + path + "\" from cache");
-			} else {
-				SVDBFileTree ft_root = new SVDBFileTree(
-						(SVDBFile) pp_file.duplicate());
-				Set<String> included_files = new HashSet<String>();
-				Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
-				buildPreProcFileMap(null, ft_root, missing_includes,
-						included_files, working_set, null, true);
-			}
-		}
-	}
-
-	protected void buildPreProcFileMap(SVDBFileTree parent, SVDBFileTree root,
+	private void buildPreProcFileMap(SVDBFileTree parent, SVDBFileTree root,
 			List<String> missing_includes, Set<String> included_files,
 			Map<String, SVDBFileTree> working_set, List<SVDBMarker> markers,
 			boolean update_cache) {
@@ -1133,10 +918,13 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		}
 	}
 
-	private void addPreProcFileIncludeFiles(SVDBFileTree root,
-			ISVDBScopeItem scope, List<SVDBMarker> markers,
-			List<String> missing_includes, Set<String> included_files,
-			Map<String, SVDBFileTree> working_set) {
+	private void addPreProcFileIncludeFiles(
+			SVDBFileTree 				root,
+			ISVDBScopeItem 				scope, 
+			List<SVDBMarker> 			markers,
+			List<String> 				missing_includes, 
+			Set<String> 				included_files,
+			Map<String, SVDBFileTree> 	working_set) {
 		for (int i = 0; i < scope.getItems().size(); i++) {
 			ISVDBItemBase it = scope.getItems().get(i);
 
@@ -1147,8 +935,12 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 				}
 
 				// Look local first
-				SVDBSearchResult<SVDBFile> f = findIncludedFileGlobal(((ISVDBNamedItem) it)
-						.getName());
+				SVDBSearchResult<SVDBFile> f = null;
+
+				System.out.println("TODO: findIncludedFileGlobal");
+				/** TODO:
+				f = findIncludedFileGlobal(((ISVDBNamedItem) it) .getName());
+				 */
 
 				if (f != null) {
 					if (fDebugEn) {
@@ -1204,7 +996,47 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 			}
 		}
 	}
+	
+	public SVDBSearchResult<String> findIncludedFilePath(String path) {
+		String file = null;
 
+		String res_path = resolvePath(path, fInWorkspaceOk);
+
+		if (fFileSystemProvider.fileExists(res_path)) {
+			return new SVDBSearchResult<String>(res_path, this);
+		}
+		
+		for (String inc_dir : fIndexCacheData.getIncludePaths()) {
+			String inc_path = resolvePath(inc_dir + "/" + path, fInWorkspaceOk);
+			if (fFileSystemProvider.fileExists(inc_path)) {
+				if (fDebugEn) {
+					fLog.debug("findIncludedFilePath: located include \"" + path + "\"");
+				}
+
+				file = inc_path;
+				break;
+			}
+			/*
+			else {
+				if (fDebugEn) {
+					fLog.debug("findIncludedFile: file \"" + inc_path
+							+ "\" does not exist");
+				}
+			}
+			 */
+		}
+
+		if (file != null) {
+			if (fDebugEn) {
+				fLog.debug("findIncludedFile: Found and parsed new include file");
+			}
+			return new SVDBSearchResult<String>(file, this);
+		}
+
+		return null;
+	}
+
+	/*
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String path) {
 		SVDBFile file = null;
 
@@ -1285,8 +1117,9 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 
 		return null;
 	}
+	 */
 
-	protected String resolvePath(String path_orig, boolean in_workspace_ok) {
+	private String resolvePath(String path_orig, boolean in_workspace_ok) {
 		String path = path_orig;
 		String norm_path = null;
 
@@ -1446,7 +1279,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return ret;
 	}
 
-	protected String normalizePath(String path) {
+	private String normalizePath(String path) {
 		StringBuilder ret = new StringBuilder();
 
 		int i = path.length() - 1;
@@ -1504,15 +1337,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		}
 	}
 
-	protected void notifyIndexRebuilt() {
-		synchronized (fIndexChangeListeners) {
-			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-				l.index_rebuilt();
-			}
-		}
-	}
-
-	protected IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
+	private IPreProcMacroProvider createMacroProvider(SVDBFileTree file_tree) {
 		SVFileTreeMacroProvider mp = new SVFileTreeMacroProvider(fCache,
 				file_tree, fMissingIncludes);
 
@@ -1528,7 +1353,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return mp;
 	}
 
-	protected IPreProcMacroProvider createPreProcMacroProvider(
+	private IPreProcMacroProvider createPreProcMacroProvider(
 			SVDBFileTree file, Map<String, SVDBFileTree> working_set) {
 		FileContextSearchMacroProvider mp = new FileContextSearchMacroProvider(
 				fCache, working_set);
@@ -1546,6 +1371,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return mp;
 	}
 
+	/*
 	public SVDBSearchResult<SVDBFile> findIncludedFileGlobal(String leaf) {
 		SVDBSearchResult<SVDBFile> ret = findIncludedFile(leaf);
 
@@ -1565,6 +1391,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 
 		return ret;
 	}
+	 */
 
 	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,
 			InputStream in, String path, List<SVDBMarker> markers) {
@@ -1680,7 +1507,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return findFile(new NullProgressMonitor(), path);
 	}
 
-	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
+	private void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
 
@@ -1747,33 +1574,6 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return findPreProcFile(new NullProgressMonitor(), path);
 	}
 
-	protected SVDBFile processPreProcFile(String path) {
-		// SVPreProcScanner sc = new SVPreProcScanner();
-		SVPreProcDirectiveScanner sc = new SVPreProcDirectiveScanner();
-		SVDBPreProcObserver ob = new SVDBPreProcObserver();
-
-		sc.setObserver(ob);
-
-		fLog.debug("processPreProcFile: path=" + path);
-		InputStream in = fFileSystemProvider.openStream(path);
-
-		if (in == null) {
-			fLog.error(getClass().getName() + ": failed to open \"" + path
-					+ "\"");
-			return null;
-		}
-
-		sc.init(in, path);
-		// sc.scan();
-		sc.process();
-
-		getFileSystemProvider().closeStream(in);
-
-		SVDBFile file = ob.getFiles().get(0);
-
-		return file;
-	}
-
 	public synchronized SVDBFileTree findFileTree(String path,
 			boolean is_argfile) {
 		ensureIndexState(new NullProgressMonitor(), IndexState_FileTreeValid);
@@ -1791,7 +1591,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	 * @param path
 	 * @return
 	 */
-	protected SVDBFileTree incrCreateFileTree(String path) {
+	private SVDBFileTree incrCreateFileTree(String path) {
 		SVDBFileTree ft = new SVDBFileTree(path);
 
 		synchronized (fCache) {
@@ -1826,7 +1626,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	 * @param filename
 	 * @param scope
 	 */
-	protected void cacheDeclarations(SVDBFile file) {
+	private void cacheDeclarations(SVDBFile file) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = fIndexCacheData
 				.getDeclCacheMap();
 
@@ -1945,10 +1745,13 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 				fLog.debug("Searching for relative path");
 			}
 
+			System.out.println("TODO: findIncludedFile");
+			/** TODO: 
 			SVDBSearchResult<SVDBFile> r = findIncludedFile(inc);
 			if (r != null) {
 				abs_pp_file = r.getItem();
 			}
+			 */
 		}
 
 		if (abs_pp_file != null) {
@@ -2158,7 +1961,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		}
 	}
 
-	protected void cacheReferences(SVDBFile file) {
+	private void cacheReferences(SVDBFile file) {
 		SVDBFileRefCollector collector = new SVDBFileRefCollector();
 		collector.visitFile(file);
 
@@ -2306,7 +2109,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		return SVDBArgFileIndexFactory.TYPE;
 	}
 
-	protected void discoverRootFiles(IProgressMonitor monitor) {
+	private void discoverRootFiles(IProgressMonitor monitor) {
 		fLog.debug("discoverRootFiles - " + getBaseLocation());
 
 		clearFilesList();

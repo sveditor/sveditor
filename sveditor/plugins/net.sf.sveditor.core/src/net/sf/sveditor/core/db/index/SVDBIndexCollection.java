@@ -25,6 +25,7 @@ import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
@@ -872,7 +873,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return null;
 	}
 
-	private class IncludeProvider implements ISVDBIncludeFileProvider {
+	private class IncludeProvider implements ISVDBIncludeFileProviderObsolete {
 		ISVDBIndex					fIndex;
 		List<List<ISVDBIndex>>		fSearchPath;
 		
@@ -890,8 +891,8 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			
 			for (List<ISVDBIndex> index_l : fSearchPath) {
 				for (ISVDBIndex index : index_l) {
-					if (index != fIndex) {
-						ret = index.findIncludedFile(leaf);
+					if (index != fIndex && index instanceof ISVDBIncludeFileProviderObsolete) {
+						ret = ((ISVDBIncludeFileProviderObsolete)index).findIncludedFile(leaf);
 						
 						fLog.debug("Search index \"" + index.getBaseLocation() + "\" for \"" + leaf + "\" (" + ret + ")");
 						
@@ -913,6 +914,37 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			return ret;
 		}
 		
+		public SVDBSearchResult<String> findIncludedFilePath(String leaf) {
+			SVDBSearchResult<String> ret = null;
+			
+			for (List<ISVDBIndex> index_l : fSearchPath) {
+				for (ISVDBIndex index : index_l) {
+					if (index != fIndex) {
+						ret = index.findIncludedFilePath(leaf);
+						
+						fLog.debug("Search index \"" + index.getBaseLocation() + "\" for \"" + leaf + "\" (" + ret + ")");
+						
+						if (ret != null) {
+							break;
+						}
+					}
+				}
+				if (ret != null) {
+					break;
+				}
+			}
+			
+			if (ret == null) {
+				// TODO:
+				/*
+				Set<SVDBIndexCollection> searched_projects = new HashSet<SVDBIndexCollection>();
+				ret = findIncludedFileProjRefs(SVDBIndexCollection.this, leaf, searched_projects);
+				 */
+			}
+			
+			return ret;			
+		}
+
 		private SVDBSearchResult<SVDBFile> findIncludedFileProjRefs(
 				SVDBIndexCollection		mgr,
 				String						leaf,
@@ -925,12 +957,15 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			if (mgr != SVDBIndexCollection.this) {
 				// Only re-search if we're looking at another index
 				for (ISVDBIndex index : mgr.getIndexList()) {
-					ret = index.findIncludedFile(leaf);
-					
-					fLog.debug("Search index \"" + index.getBaseLocation() + "\" for \"" + leaf + "\" (" + ret + ")");
-					
-					if (ret != null) {
-						break;
+					if (index instanceof ISVDBIncludeFileProviderObsolete) {
+						ret = ((ISVDBIncludeFileProviderObsolete)index).findIncludedFile(leaf);
+
+						fLog.debug("Search index \"" + index.getBaseLocation() + 
+								"\" for \"" + leaf + "\" (" + ret + ")");
+
+						if (ret != null) {
+							break;
+						}
 					}
 				}
 			}

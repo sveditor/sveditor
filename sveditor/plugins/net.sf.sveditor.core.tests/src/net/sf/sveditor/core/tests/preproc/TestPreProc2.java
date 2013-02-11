@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
@@ -18,7 +19,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 	public void testBasicInclude() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		File dir1 = new File(fTmpDir, "dir1");
 		File dir2 = new File(fTmpDir, "dir2");
 		
@@ -143,10 +144,24 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVPreProcOutput output = preproc.preprocess(markers);
+		
+		for (String file : output.getFileList()) {
+			fLog.debug("File: " + file);
+		}
+		
+		printFileTree("", output.getFileTree());
 
 		fLog.debug("Output:\n" + output.toString());
 		
 		assertEquals(exp, output.toString());
+	}
+	
+	private void printFileTree(String ind, SVDBFileTree ft) {
+		fLog.debug(ind + "FileTree: " + ft.fFilePath);
+		
+		for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
+			printFileTree(ind + "  ", ft_s);
+		}
 	}
 
 }

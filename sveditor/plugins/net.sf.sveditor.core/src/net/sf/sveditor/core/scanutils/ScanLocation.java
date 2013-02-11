@@ -15,6 +15,7 @@ package net.sf.sveditor.core.scanutils;
 
 public class ScanLocation implements IScanLocation {
 	private String			fFile;
+	private int				fFileId;
 	private int				fLineno;
 	private int				fLinepos;
 	
@@ -24,12 +25,22 @@ public class ScanLocation implements IScanLocation {
 		fLinepos = linepos;
 	}
 	
+	public ScanLocation(int file_id, int lineno, int linepos) {
+		fFileId  = file_id;
+		fLineno  = lineno;
+		fLinepos = linepos;
+	}
+	
 	public String getFileName() {
 		return fFile;
 	}
 	
 	public void setFileName(String name) {
 		fFile = name;
+	}
+	
+	public int getFileId() {
+		return fFileId;
 	}
 	
 	public int getLineNo() {

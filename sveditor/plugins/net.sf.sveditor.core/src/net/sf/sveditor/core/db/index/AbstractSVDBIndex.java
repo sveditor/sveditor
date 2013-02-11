@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -84,7 +85,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 public abstract class AbstractSVDBIndex implements 
 		ISVDBIndex, ISVDBIndexInt, 
 		ISVDBRefFinder, ISVDBFileSystemChangeListener, 
-		ILogLevelListener, ILogLevel  {
+		ILogLevelListener, ILogLevel,
+		ISVDBIncludeFileProviderObsolete {
 	private static final int IndexState_AllInvalid 			= 0;
 	private static final int IndexState_RootFilesDiscovered	= (IndexState_AllInvalid + 1);
 	private static final int IndexState_FilesPreProcessed	= (IndexState_RootFilesDiscovered + 1);
@@ -109,7 +111,7 @@ public abstract class AbstractSVDBIndex implements
 	// 
 	protected List<Tuple<String, List<String>>>	fDeferredPkgCacheFiles;
 
-	private ISVDBIncludeFileProvider 				fIncludeFileProvider;
+	private ISVDBIncludeFileProvider				fIncludeFileProvider;
 
 	private List<ISVDBIndexChangeListener>			fIndexChangeListeners;
 
@@ -1388,6 +1390,11 @@ public abstract class AbstractSVDBIndex implements
 
 		return null;
 	}
+	
+	public SVDBSearchResult<String> findIncludedFilePath(String leaf) {
+		// MSB: Legacy index does not support
+		return null;
+	}
 
 	protected String resolvePath(String path_orig, boolean in_workspace_ok) {
 		String path = path_orig;
@@ -1641,8 +1648,8 @@ public abstract class AbstractSVDBIndex implements
 		SVDBSearchResult<SVDBFile> ret = findIncludedFile(leaf);
 
 		if (ret == null) {
-			if (fIncludeFileProvider != null) {
-				ret = fIncludeFileProvider.findIncludedFile(leaf);
+			if (fIncludeFileProvider != null && fIncludeFileProvider instanceof ISVDBIncludeFileProviderObsolete) {
+				ret = ((ISVDBIncludeFileProviderObsolete)fIncludeFileProvider).findIncludedFile(leaf);
 				if (fDebugEn) {
 					fLog.debug("Searching for \"" + leaf + "\" in global (ret="
 							+ ret + ")");

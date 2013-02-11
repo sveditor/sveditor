@@ -12,12 +12,12 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
@@ -28,22 +28,26 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcessor2 extends AbstractTextScanner 
 		implements IPreProcErrorListener, IPreProcMacroProvider {
-	private Map<String, SVDBMacroDef>	fMacroMap;
-	private ISVPreProcIncFileProvider	fIncFileProvider;
-	private String						fFileName;
-	private StringBuilder				fOutput;
-	private List<Integer>				fLineMap;
-	private StringBuilder				fTmpBuffer;
-	private List<Tuple<String, String>>	fParamList;
-	private Stack<Integer>				fPreProcEn;
-	private List<SVDBMarker>			fMarkers;
-	private SVPreProcDefineProvider		fDefineProvider;
-	private boolean						fInPreProcess;
-	private LogHandle					fLog;
-	private boolean						fDebugEn = true;
+	private Map<String, SVDBMacroDef>		fMacroMap;
+	private ISVPreProcIncFileProvider		fIncFileProvider;
+	private String							fFileName;
+	private StringBuilder					fOutput;
+	private List<Integer>					fLineMap;
+
+	// List of offset,file-id pairs
+	private List<Tuple<Integer,Integer>>	fFileMap;
+	private List<String>					fFileList;
+	private StringBuilder					fTmpBuffer;
+	private List<Tuple<String, String>>		fParamList;
+	private Stack<Integer>					fPreProcEn;
+	private List<SVDBMarker>				fMarkers;
+	private SVPreProcDefineProvider			fDefineProvider;
+	private boolean							fInPreProcess;
+	private LogHandle						fLog;
+	private boolean							fDebugEn = true;
 	
-	private Stack<InputData>			fInputStack;
-	private Map<String, SVDBFileTree>	fFileTreeMap;
+	private Stack<InputData>				fInputStack;
+	private SVDBFileTree					fFileTree;
 	
 	private static class InputData {
 		InputStream				fInput;
@@ -111,16 +115,17 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider) {
 		fMacroMap = new HashMap<String, SVDBMacroDef>();
-		fFileTreeMap = new HashMap<String, SVDBFileTree>();
 		fInputStack = new Stack<SVPreProcessor2.InputData>();
 		fOutput = new StringBuilder();
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
 		fLineMap = new ArrayList<Integer>();
-		
+		fFileMap = new ArrayList<Tuple<Integer,Integer>>();
+		fFileList = new ArrayList<String>();
+
 		fFileName = filename;
-		fInputStack.push(new InputData(input, filename));
+		enter_file(filename, input);
 		fIncFileProvider = inc_provider;
 		
 		fDefineProvider = new SVPreProcDefineProvider(this);
@@ -218,7 +223,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fInPreProcess = false;
 		
 		
-		return new SVPreProcOutput(fOutput, fLineMap);
+		SVPreProcOutput ret = new SVPreProcOutput(
+				fOutput, fLineMap, fFileMap, fFileList);
+		ret.setFileTree(fInputStack.peek().fFileTree);
+		
+		return ret;
 	}
 	
 	private void handle_preproc_directive() {
@@ -251,7 +260,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			} else {
 				remainder = "";
 			}
-			
+		
+			// Add a new entry to the referenced macros 
+			add_macro_reference(remainder);
+
 			if (type.equals("ifdef")) {
 				if (fDebugEn) {
 					fLog.debug("ifdef \"" + remainder + "\": " +
@@ -381,7 +393,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 								fLog.debug("Switching from file " + 
 										curr_in.fFilename + " to " + in.first());
 							}
-							fInputStack.push(new InputData(in.second(), in.first()));
+							// TODO: Add tracking data for new file
+							
+							enter_file(in.first(), in.second());
 						} else {
 							// TODO: add missing-include error
 							if (fDebugEn) {
@@ -434,6 +448,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			// If we're in a disabled section, don't try to expand
 			if (ifdef_enabled()) {
 				// Read the full string
+			
+				// Add a reference for this macro
+				add_macro_reference(type);
 
 				boolean is_defined = fDefineProvider.isDefined(type, fLineno);
 				if (fDefineProvider.hasParameters(type, fLineno) || !is_defined) {
@@ -495,10 +512,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							}
 							InputData in = new InputData(new StringInputStream(exp), "ANONYMOUS");
 							fInputStack.push(in);
-							/*
-							fOutput.append(fDefineProvider.expandMacro(
-									fTmpBuffer.toString(), fFileName, fLineno));
-							 */
 						} catch (Exception e) {
 							/*
 							System.out.println("Exception while expanding \"" + 
@@ -511,6 +524,53 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 		}
+	}
+	
+	private void enter_file(String filename, InputStream in) {
+		if (!fFileList.contains(filename)) {
+			fFileList.add(filename);
+		}
+		int file_idx = fFileList.indexOf(filename);
+		
+		// Add a marker noting that we're switching to a new file
+		fFileMap.add(new Tuple<Integer, Integer>(fOutput.length(), file_idx));
+		
+		InputData in_data = new InputData(in, filename);
+		
+		
+		in_data.fFileTree = new SVDBFileTree(filename);
+	
+		if (!fInputStack.empty()) {
+			InputData p_data = fInputStack.peek();
+			in_data.fFileTree.setParent(p_data.fFileTree);
+			p_data.fFileTree.fIncludedFileTrees.add(in_data.fFileTree);
+		}
+
+		fInputStack.push(in_data);
+	}
+	
+	private void leave_file() {
+		InputData in = fInputStack.pop();
+		
+		int file_idx = fFileList.indexOf(in.fFilename);
+
+		// We will not have registered ANONYMOUS files
+		if (file_idx != -1) {
+			// Add a marker noting that we're switching to a new file
+			fFileMap.add(new Tuple<Integer, Integer>(fOutput.length(), file_idx));
+		}
+	}
+	
+	private void add_macro_reference(String macro) {
+		InputData in = fInputStack.peek();
+		in.fFileTree.fReferencedMacros.remove(macro);
+		SVDBMacroDef def = fMacroMap.get(macro);
+		
+		if (def == null) {
+			in.fFileTree.fReferencedMacros.put(macro, null);
+		} else {
+			in.fFileTree.fReferencedMacros.put(macro, def.getDef());
+		}		
 	}
 	
 	private void enter_ifdef(boolean enabled) {
@@ -642,9 +702,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				in.fUngetCh[1] = -1;
 				break;
 			} else if (in.fEof) {
-				// TODO: handle end-of-file activities
+				// TODO: Signal move back to previous 
 				if (fInputStack.size() > 1) {
-					fInputStack.pop();
+					leave_file();
 					continue;
 				} else {
 					// Always leave one on the stack

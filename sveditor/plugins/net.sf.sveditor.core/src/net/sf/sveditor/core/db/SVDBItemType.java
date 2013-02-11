@@ -18,6 +18,7 @@ import java.util.Map;
 @SuppressWarnings("rawtypes")
 public enum SVDBItemType {
 	File,
+	FileTree,
 	ModuleDecl,
 	ClassDecl,
 	ConfigDecl,
