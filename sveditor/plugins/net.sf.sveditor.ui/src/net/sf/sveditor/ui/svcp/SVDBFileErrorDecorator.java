@@ -242,18 +242,16 @@ public class SVDBFileErrorDecorator
 		}
 		
 		IResource res = (IResource) element;
-		if(res.isAccessible()) {
-			try {
-				if (res.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE) >= IMarker.SEVERITY_ERROR) {
-					ImageDescriptor image = SVUiPlugin.getImageDescriptor(
-							"/icons/ovr16/error_co.gif");
-					if (image != null) {
-						decoration.addOverlay(image);
-					}
+		try {
+			if (res.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE) >= IMarker.SEVERITY_ERROR) {
+				ImageDescriptor image = SVUiPlugin.getImageDescriptor(
+						"/icons/ovr16/error_co.gif");
+				if (image != null) {
+					decoration.addOverlay(image);
 				}
-			} catch (CoreException e) {
-				e.printStackTrace();
 			}
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
 	}
 }
