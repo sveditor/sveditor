@@ -83,6 +83,45 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testAbsIncludePathPriority() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle(getName());
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
+		
+		utils.copyBundleDirToWS("/data/arg_file_multi_include_multi_root/", project);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemBase class1_dir2 = null, class3_dir2 = null;
+		
+		while (it.hasNext()) {
+			ISVDBItemBase tmp_it = it.nextItem();
+			String name = SVDBItem.getName(tmp_it);
+			
+			log.debug("Item: " + tmp_it.getType() + " " + name);
+			
+			if (name.equals("class1_dir2")) {
+				class1_dir2 = tmp_it;
+			} else if (name.equals("class3")) {
+				class3_dir2 = tmp_it;
+			}
+		}
+		
+		assertNull("Incorrectly found class1_dir2", class1_dir2);
+		assertNotNull("Failed to find class1_dir1", class3_dir2);
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testWSLibPath() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSLibPath");

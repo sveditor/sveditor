@@ -99,6 +99,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
+		fFile = SVFileUtils.normalize(fFile);
+		
 		fSVDBFile = new SVDBFile(fFile);
 		fFSProvider = new SVDBWSFileSystemProvider();
 		fFSProvider.init(SVFileUtils.getPathParent(fFile));
@@ -533,7 +535,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			// Search up to find the root filetree
 			
 			if (ft != null) {
-				while (ft.getIncludedByFiles().size() > 0) {
+				// Scan up to the root, stopping if we find a root file
+				while (ft.getIncludedByFiles().size() > 0 && !ft.isIncludeRoot()) {
 					String ft_path = ft.getIncludedByFiles().get(0);
 					SVDBFileTree ft_next = index.findFileTree(ft_path, true);
 
@@ -550,13 +553,17 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			if (ft != null) {
 				root_file = ft.getFilePath();
 			}
+		} else {
+			// Failed to find argfile via indexed files.
+			// Use this file as the root file
+			root_file = fFile;
 		}
 
 		String base_location = SVFileUtils.getPathParent(fFile);
 		String resolved_base_location = base_location;
 		ISVArgFileVariableProvider var_provider = null;
 		IProject var_provider_project = null;
-		
+	
 		if (root_file != null) {
 			base_location = SVFileUtils.getPathParent(root_file);
 			resolved_base_location = base_location;
@@ -575,7 +582,6 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 			}
 		}
 
-//		System.out.println("var_provider_project=" + var_provider_project);
 		var_provider = SVCorePlugin.getVariableProvider(var_provider_project);
 		
 		return new Tuple<String, ISVArgFileVariableProvider>(resolved_base_location, var_provider);

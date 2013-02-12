@@ -102,8 +102,11 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		
 		String resolved_argfile_path = getResolvedBaseLocation();
 		if (getFileSystemProvider().fileExists(resolved_argfile_path)) {
+			// Top argument file is, by default, root
 			processArgFile(new SubProgressMonitor(monitor, 4), 
-					null, null, getResolvedBaseLocation());
+					null, null, 
+					getResolvedBaseLocationDir(),
+					getResolvedBaseLocation(), false);
 		} else {
 			String msg = "Argument file \"" + getBaseLocation() + "\" (\"" + 
 					getResolvedBaseLocation() + "\") does not exist";
@@ -121,12 +124,14 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	
 	private SVDBFile parseArgFile(
 			String				path,
+			String				base_location_dir,
 			Set<String>			processed_paths,
 			List<SVDBMarker>	markers) {
 		SVDBFile ret = new SVDBFile(path);
 		InputStream in = null;
 		
-		String resolved_path = resolvePath(path, true);
+		String resolved_path = SVFileUtils.resolvePath(
+				path, base_location_dir, getFileSystemProvider(), true);
 	
 		if (processed_paths.contains(resolved_path)) {
 			ret = null;
@@ -145,9 +150,14 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			lexer.init(null, pp_out);
 			
 			SVArgFileParser parser = new SVArgFileParser(
+					base_location_dir, base_location_dir,
+					getFileSystemProvider());
+			/*
+			SVArgFileParser parser = new SVArgFileParser(
 					SVFileUtils.getPathParent(getBaseLocation()),
 					getResolvedBaseLocationDir(),
 					getFileSystemProvider());
+			 */
 			parser.init(lexer, path);
 		
 			try {
@@ -160,6 +170,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			synchronized (getCache()) {
 				if (fDebugEn) {
 					fLog.debug("File: " + resolved_path + " has " + markers.size() + " errors");
+					for (SVDBMarker m : markers) {
+						fLog.debug("  " + m.getMessage());
+					}
 				}
 				getCache().setMarkers(resolved_path, markers, true);
 				getCache().setFile(resolved_path, ret, true);
@@ -170,38 +183,6 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 							getCache().getMarkers(resolved_path).size() + " errors");
 				}
 			}
-			
-			/*
-			// Locate the included files in this argument file
-			for (ISVDBChildItem stmt : ret.getChildren()) {
-				if (stmt.getType() == SVDBItemType.ArgFileIncFileStmt) {
-					SVDBArgFileIncFileStmt argfile_stmt = (SVDBArgFileIncFileStmt)stmt;
-					List<SVDBMarker> sub_markers = new ArrayList<SVDBMarker>();
-			
-					SVDBFile sub_argfile = parseArgFile(
-							argfile_stmt.getPath(),
-							processed_paths, sub_markers);
-					
-					if (sub_argfile == null) {
-						// Failed to find the file or it's already been processed
-						SVDBMarker m = sub_markers.get(0);
-						m.setLocation(argfile_stmt.getLocation());
-						markers.add(m);
-					}
-				}
-			}
-
-			synchronized (markers) {
-				for (SVDBMarker m : markers) {
-					if (m.getMarkerType() == MarkerType.Error) {
-						getFileSystemProvider().addMarker(resolved_path, 
-								ISVDBFileSystemProvider.MARKER_TYPE_ERROR,
-								m.getLocation().getLine(),
-								m.getMessage());
-					}
-				}
-			} 
-			 */
 		} else {
 			ret = null;
 			markers.add(new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
@@ -215,7 +196,9 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			IProgressMonitor	monitor, 
 			SVDBFileTree		parent,
 			Set<String> 		processed_paths, 
-			String 				path) {
+			String				base_location_dir,
+			String 				path,
+			boolean				is_root) {
 		path = SVFileUtils.normalize(path);
 
 		if (processed_paths == null) {
@@ -224,7 +207,17 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
 		SVDBFileTree ft = new SVDBFileTree(path);
-		SVDBFile argfile = parseArgFile(path, processed_paths, markers);
+		ft.setIncludeRoot((is_root || parent == null));
+		
+		String sub_base_location_dir = base_location_dir;
+		
+		if (is_root) {
+			sub_base_location_dir = SVFileUtils.getPathParent(path);
+		}
+		
+		// parse the argument file 
+		SVDBFile argfile = parseArgFile(path, sub_base_location_dir,
+				processed_paths, markers);
 		
 		if (parent != null) {
 			ft.addIncludedByFile(parent.getFilePath());
@@ -247,7 +240,8 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 					if (getFileSystemProvider().fileExists(sub_path)) {
 						if (!processed_paths.contains(sub_path)) {
 							processArgFile(new NullProgressMonitor(), 
-									ft, processed_paths, sub_path);
+									ft, processed_paths, sub_base_location_dir, 
+									sub_path, stmt.isRootInclude());
 						} else {
 							SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 									"Recursive inclusion of file \"" + path + "\" (" + sub_path + ")");
@@ -422,11 +416,16 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 	@Override
 	public void fileChanged(String path) {
 		fLog.debug("File changed: " + path);
+		boolean contains_path = false;
+		
 		synchronized (getCache()) {
-			if (getCache().getFileList(true).contains(path)) {
-				invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
-			}
+			contains_path = getCache().getFileList(true).contains(path);
 		}
+
+		if (contains_path) {
+			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
+		}
+	
 		/*
 		if (path.equals(getResolvedBaseLocation())) {
 			// Invalidate, since this is the root file

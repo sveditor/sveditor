@@ -4,6 +4,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBArgFileIncFileStmt extends SVDBArgFileStmt {
 	public String					fPath;
+	public boolean					fRootInclude;
 	
 	public SVDBArgFileIncFileStmt() {
 		super(SVDBItemType.ArgFileIncFileStmt);
@@ -20,5 +21,13 @@ public class SVDBArgFileIncFileStmt extends SVDBArgFileStmt {
 	
 	public void setPath(String path) {
 		fPath = path;
+	}
+	
+	public boolean isRootInclude() {
+		return fRootInclude;
+	}
+	
+	public void setRootInclude(boolean root) {
+		fRootInclude = root;
 	}
 }

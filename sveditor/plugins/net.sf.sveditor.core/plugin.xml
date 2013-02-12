@@ -8,7 +8,7 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="v, vl, vlog, sv, svh, vh"
+            file-extensions="v, vl, vlog, sv, svh, vh, vp, vs, svp, svi, v95, v95p"
             id="systemverilog"
             name="SystemVerilog"
             priority="normal">

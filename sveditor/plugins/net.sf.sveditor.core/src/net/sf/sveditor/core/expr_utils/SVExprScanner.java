@@ -183,6 +183,10 @@ public class SVExprScanner {
 					if (SVCharacter.isSVIdentifierPart(c)) {
 						scanner.unget_ch(c);
 						ret.fRoot = readIdentifier(scanner, false);
+					} else {
+						// Default back to untriggered 
+						ret.fTrigger = null;
+						ret.fType = ContextType.Untriggered;
 					}
 				}
 			} else {

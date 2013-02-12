@@ -153,7 +153,7 @@ public class TestIndexParse extends TestCase {
 	private void int_testIndexParse(ISVDBIndex index, String path) {
 		String path_n = SVFileUtils.normalize(path);
 		
-		InputStream in = ((AbstractSVDBIndex)index).getFileSystemProvider().openStream(path);
+		InputStream in = index.getFileSystemProvider().openStream(path);
 		
 		assertNotNull("Failed to open path \"" + path + "\"", in);
 		
@@ -161,12 +161,12 @@ public class TestIndexParse extends TestCase {
 		
 		assertNotNull("Failed to parse path \"" + path + "\"", file);
 		
-		((AbstractSVDBIndex)index).getFileSystemProvider().closeStream(in);
+		index.getFileSystemProvider().closeStream(in);
 
 		// If the normalized path is different (ie Windows), then
 		// run extra tests to ensure that either path works
 		if (!path_n.equals(path)) {
-			in = ((AbstractSVDBIndex)index).getFileSystemProvider().openStream(path_n);
+			in = index.getFileSystemProvider().openStream(path_n);
 			
 			assertNotNull("Failed to open path \"" + path_n + "\"", in);
 			
@@ -174,7 +174,7 @@ public class TestIndexParse extends TestCase {
 			
 			assertNotNull("Failed to parse path \"" + path_n + "\"", file);
 			
-			((AbstractSVDBIndex)index).getFileSystemProvider().closeStream(in);
+			index.getFileSystemProvider().closeStream(in);
 		}
 	}
 

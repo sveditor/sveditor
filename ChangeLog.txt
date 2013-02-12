@@ -1,4 +1,35 @@
 
+-- 1.1.7 Release --
+
+------------------------------------------------------------------------------
+-- 1.1.6 Release --
+
+- #(nobug) - Correct a thread deadlock related to indexing and other threads
+
+------------------------------------------------------------------------------
+-- 1.1.5 Release --
+
+- #(nobug) - Correct a recently-introduced bug that prevented the project 
+  path settings from being taken back to their defaults (ie remove all file paths)
+  
+- #(nobug) - Correct an issue that caused files that were not handled by an 
+  index but were opened by an editor to be shown as 'indexed' in the project
+  explorer. These files are now shown as 'not indexed' (ie no blue dot)
+  
+- #(nobug) - Correct an issue preventing argument files not associated with
+  project settings from providing project-variable content-assist proposals
+
+- #(nobug) - Correct a bug with assignment content assist. Now, content assist
+  works with part-select of LHS: my_var[3:0] = <ASSIST>
+
+- #(229) - Detect project close and remove associated indexes.
+
+- #(enh) - Add support for the argument file -F switch. This switch includes
+  an argument file, just as the -f switch does. However, file paths within 
+  the included argument file are resolved relative to the directory containing
+  the included argument file.
+
+------------------------------------------------------------------------------
 -- 1.1.4 Release --
 
 
@@ -6,6 +37,12 @@
 
 - #(nobug) - Boost performance of macro processing when many macros are
   referenced.
+  
+- #(enh) - Add the following file extensions to the recognized set:
+  .vh, .vp, .vs, .svp, .svi, .v95, .v95p  
+  
+- #(241) - Resolve 'Resource Closed' exceptions from the decorators that
+  add indexed and error annotations to files in the project explorer.
 
 
 ------------------------------------------------------------------------------

@@ -13,15 +13,22 @@
 package net.sf.sveditor.core.db.project;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IPathVariableChangeEvent;
+import org.eclipse.core.resources.IPathVariableChangeListener;
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
@@ -30,15 +37,31 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
-public class SVDBProjectManager implements IResourceChangeListener {
+public class SVDBProjectManager implements 
+		IResourceChangeListener, IPathVariableChangeListener {
+	private LogHandle								fLog;
 	private WeakHashMap<IPath, SVDBProjectData>		fProjectMap;
 	private List<ISVDBProjectSettingsListener>		fListeners;
+	private Job										fRefreshJob;
+	private Job										fDeleteProjectJob;
+	private List<IProject>							fChangedProjects;
+	private List<IProject>							fDeletedProjects;
 	
 	public SVDBProjectManager() {
+		fLog = LogFactory.getLogHandle("SVDBProjectManager");
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		fChangedProjects = new ArrayList<IProject>();
+		fDeletedProjects = new ArrayList<IProject>();
+		
+		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
+		pvm.addChangeListener(this);
 	}
 	
 	public void init() {
@@ -81,12 +104,21 @@ public class SVDBProjectManager implements IResourceChangeListener {
 		return ret;
 	}
 	
+	public boolean isManagedProject(IProject proj) {
+		return (fProjectMap.containsKey(proj.getFullPath()));
+	}
+
+	/**
+	 * 
+	 * @param proj
+	 * @return
+	 */
 	public SVDBProjectData getProjectData(IProject proj) {
 		SVDBProjectData ret = null;
 		
 		if (fProjectMap.containsKey(proj.getFullPath())) {
 			ret = fProjectMap.get(proj.getFullPath());
-		} else {
+		} else if (proj.exists()) {
 			/*
 			IFile svproject;
 			SVProjectFileWrapper f_wrapper = null;
@@ -154,19 +186,41 @@ public class SVDBProjectManager implements IResourceChangeListener {
 	}
 	
 	public void resourceChanged(IResourceChangeEvent event) {
-		final Set<IProject> changed_project = new HashSet<IProject>();
-		
 		if (event.getDelta() != null) {
 			try {
 				event.getDelta().accept(new IResourceDeltaVisitor() {
-					
 					public boolean visit(IResourceDelta delta)
 							throws CoreException {
-						IProject p = delta.getResource().getProject();
-						if (p != null && fProjectMap.containsKey(p.getFullPath())) {
-							if (delta.getResource().equals(".project") && delta.getKind() == IResourceDelta.CHANGED) {
-								if (!changed_project.contains(p)) {
-									changed_project.add(p);
+						IProject p = null;
+						if (delta.getResource().getType() == IResource.PROJECT) {
+							// Project is changing
+							if (delta.getKind() == IResourceDelta.REMOVED) {
+								synchronized (fDeletedProjects) {
+									p = (IProject)delta.getResource();
+									if (!SVCorePlugin.getTestMode()) {
+									if (!fDeletedProjects.contains(p)) {
+										fDeletedProjects.add(p);
+									}
+									}
+								}
+							} else if (delta.getKind() == IResourceDelta.ADDED) {
+								
+							}
+						} else {
+							p = delta.getResource().getProject();
+							if (p != null && fProjectMap.containsKey(p.getFullPath())) {
+								if (delta.getKind() != IResourceDelta.REMOVED) {
+									String name = delta.getResource().getName();
+
+									if (name.equals(".project") || name.equals(".svproject")) {
+										synchronized (fChangedProjects) {
+											if (!SVCorePlugin.getTestMode()) {
+											if (!fChangedProjects.contains(p)) {
+												fChangedProjects.add(p);
+											}
+											}
+										}
+									}
 								}
 							}
 						}
@@ -177,15 +231,118 @@ public class SVDBProjectManager implements IResourceChangeListener {
 			}
 		}
 		
-		for (IProject p : changed_project) {
-			SVDBProjectData pd = fProjectMap.get(p.getFullPath());
-			
-			// Only refresh if the project-file wrapper detects
-			// that something has changed
-			pd.setProjectFileWrapper(pd.getProjectFileWrapper(), false);
-			// re-scan project data file
-//			pd.refreshProjectFile();
+		
+		
+		synchronized (fChangedProjects) {
+			if (fChangedProjects.size() > 0 && fRefreshJob == null) {
+				// Launch a new job
+				fRefreshJob = new RefreshJob();
+				// Cannot run this job until the workspace is free
+				fRefreshJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+				fRefreshJob.schedule(100);
+			}
 		}
+		
+		synchronized (fDeletedProjects) {
+			if (fDeletedProjects.size() > 0 && fDeleteProjectJob == null) {
+				fDeleteProjectJob = new DeleteProjectJob();
+				fDeleteProjectJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+				fDeleteProjectJob.schedule(100);
+			}
+		}
+	}
+	
+	public void pathVariableChanged(IPathVariableChangeEvent event) {
+//		System.out.println("pathVariableChanged");
+	}
+
+	private class RefreshJob extends Job {
+		
+		public RefreshJob() {
+			super("SVDBProjectManager.RefreshJob");
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			while (true) {
+				IProject project = null;
+				if (monitor.isCanceled()) {
+					break;
+				}
+				
+				synchronized (fChangedProjects) {
+					if (fChangedProjects.size() == 0) {
+						fRefreshJob = null;
+					} else {
+						project = fChangedProjects.remove(0);
+					}
+				}
+				
+				if (project != null) {
+					SVDBProjectData pd = fProjectMap.get(project.getFullPath());
+					
+					// Only refresh if the project-file wrapper detects
+					// that something has changed
+					pd.setProjectFileWrapper(pd.getProjectFileWrapper(), false);
+				
+					// Notify listeners that something has changed
+					projectSettingsChanged(pd);
+				} else {
+					break;
+				}
+			}
+			
+			return Status.OK_STATUS;
+		}
+	}
+	
+	private class DeleteProjectJob extends Job {
+		
+		public DeleteProjectJob() {
+			super("SVDBProjectManager.DeleteProjectJob");
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			
+			while (true) {
+				IProject p = null;
+
+				if (monitor.isCanceled()) {
+					break;
+				}
+			
+				synchronized (fDeletedProjects) {
+					if (fDeletedProjects.size() > 0) {
+						p = fDeletedProjects.remove(0);
+					} else {
+						fDeleteProjectJob = null;
+					}
+				}
+
+				if (p != null) {
+					SVDBProjectData pd = getProjectData(p);
+					fLog.debug("Deleting project data for \"" + p.getName() + "\"");
+					
+					if (pd != null) {
+						SVDBIndexCollection index_collection = pd.getProjectIndexMgr();
+						SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+						List<ISVDBIndex> index_list = index_collection.getIndexList();
+						
+						for (ISVDBIndex index : index_list) {
+							rgy.disposeIndex(index, "Removing deleted-project indexes");
+						}
+					} else {
+						fLog.debug("Project data already null");
+					}
+				} else {
+					break;
+				}
+			}
+
+			return Status.OK_STATUS;
+		}
+		
 	}
 	
 	public void dispose() {

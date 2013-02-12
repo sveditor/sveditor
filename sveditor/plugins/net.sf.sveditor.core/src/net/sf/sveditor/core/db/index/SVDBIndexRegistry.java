@@ -137,7 +137,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 		return ret;
 	}
 	
-	public void disposeIndex(ISVDBIndex index) {
+	public void disposeIndex(ISVDBIndex index, String reason) {
 		fLog.debug(LEVEL_MID, "Dispose Index " + index.getBaseLocation() + " ; " + index.getConfig());
 		synchronized (fIndexList) {
 			fLog.debug(LEVEL_MIN, "Remove index \"" + index.getBaseLocation() + "\"");
@@ -145,7 +145,14 @@ public class SVDBIndexRegistry implements ILogLevel {
 				fLog.debug(LEVEL_MIN, "Warning: Index not managed by registry");
 			}
 		}
+		
+		// Clean up cache storage
+		ISVDBIndexCache cache = index.getCache();
+		
 		index.dispose();
+	
+		// Clear out data from the cache
+		cache.clear(new NullProgressMonitor());
 	}
 	
 	public SVDBIndexCollection getGlobalIndexMgr() {
@@ -173,7 +180,7 @@ public class SVDBIndexRegistry implements ILogLevel {
 	 * @param type           index type
 	 * @return
 	 */
-	public ISVDBIndex findCreateIndex(
+	public synchronized ISVDBIndex findCreateIndex(
 			IProgressMonitor		monitor,
 			String 					project, 
 			String 					base_location, 
@@ -183,7 +190,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 		
 		base_location = SVFileUtils.normalize(base_location);
 		
-		fLog.debug("findCreateIndex: " + base_location + " ; " + type + " " + project);
+		fLog.debug(LEVEL_MIN, "--> findCreateIndex: " + 
+				base_location + " ; " + type + " " + project);
 		
 		synchronized (fIndexList) {
 			for (ISVDBIndex i : fIndexList) {
@@ -206,13 +214,12 @@ public class SVDBIndexRegistry implements ILogLevel {
 			// asked to create a different index
 			if (!SVDBIndexConfig.equals(config, ret.getConfig())) {
 				fLog.debug(LEVEL_MID, "Index Config for " + ret.getBaseLocation() + " does not match");
-				disposeIndex(ret);
+				disposeIndex(ret, "Index config does not match");
 				ret = null;
 			}
 		}
 		
 		if (ret == null) {
-			fLog.debug("    Index does not exist -- creating");
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
 			ISVDBIndexCache cache = null;
@@ -226,6 +233,9 @@ public class SVDBIndexRegistry implements ILogLevel {
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
 			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
+			fLog.debug(LEVEL_MIN, "    Index " + base_location + 
+					" does not exist -- creating: " + ret);
+			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m);
 			
@@ -237,6 +247,8 @@ public class SVDBIndexRegistry implements ILogLevel {
 			fLog.debug("    Index already exists");
 		}
 		
+		fLog.debug(LEVEL_MIN, "<-- findCreateIndex: " + 
+				base_location + " ; " + type + " " + project);
 		return ret;
 	}
 

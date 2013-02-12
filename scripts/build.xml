@@ -28,6 +28,7 @@
     <property name="buildResult"   value="${basedir}/../buildResult"/>
 
     <property name="srcdir" value="${basedir}/../sveditor"/>
+    <property name="docs.dir" value="${srcdir}/docs"/>
     <property name="repository" value="${basedir}/../archive_tmp/repository"/>
 
     <taskdef name="xmltask"

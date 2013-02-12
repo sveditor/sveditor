@@ -25,6 +25,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public interface ISVDBIndex extends 
 	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache {
 	
+	ISVDBFileSystemProvider getFileSystemProvider();
+	
+	void setFileSystemProvider(ISVDBFileSystemProvider fs_provider);
+	
 	public void init(IProgressMonitor monitor);
 
 	Tuple<SVDBFile, SVDBFile> parse(

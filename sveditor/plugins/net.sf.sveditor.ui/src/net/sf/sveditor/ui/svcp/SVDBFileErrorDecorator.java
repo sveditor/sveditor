@@ -202,6 +202,12 @@ public class SVDBFileErrorDecorator
 		if (workbench.isClosing()) {
 			return;
 		}
+
+		if (element instanceof IResource) {
+			if (!((IResource)element).isAccessible()) {
+				return;
+			}
+		}
 		
 		if (element instanceof IFile) {
 			IFile file = (IFile)element;

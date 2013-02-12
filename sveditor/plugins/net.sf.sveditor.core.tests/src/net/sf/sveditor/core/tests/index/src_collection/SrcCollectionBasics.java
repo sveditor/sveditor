@@ -25,7 +25,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -287,7 +286,7 @@ public class SrcCollectionBasics extends SVTestCaseBase {
 			}
 		}
 		
-		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
+		ISVDBFileSystemProvider fs = index.getFileSystemProvider();
 		String file_path = new File(path, "class1.svh").getAbsolutePath();
 		/* SVDBFile file = */ index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null); 
 
@@ -599,7 +598,7 @@ public class SrcCollectionBasics extends SVTestCaseBase {
 		
 		IndexTestUtils.assertFileHasElements(index, "top", "xx", "xxx", "xxxx", "xxxxx");
 		
-		ISVDBFileSystemProvider fs = ((AbstractSVDBIndex)index).getFileSystemProvider();
+		ISVDBFileSystemProvider fs = index.getFileSystemProvider();
 		String file_path = "${workspace_loc}/a/top.v";
 		SVDBFile file = index.parse(new NullProgressMonitor(), fs.openStream(file_path), file_path, null).second();
 		

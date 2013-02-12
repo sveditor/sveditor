@@ -476,7 +476,7 @@ public class ArgFilePersistence extends TestCase
 		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
 	
 		// This test checks that, on re-creation, timestamp changes are noticed
-		rgy.disposeIndex(index);
+		rgy.disposeIndex(index, "Index test");
 		
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",

@@ -57,7 +57,7 @@ public interface ISVDBIndexCache {
 	 * 
 	 * @param monitor
 	 */
-	boolean init(IProgressMonitor monitor, Object index_data);
+	boolean init(IProgressMonitor monitor, Object index_data, String base_location);
 	
 	/**
 	 * Perform the initial load

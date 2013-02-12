@@ -672,7 +672,8 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 
 		Set<SVDBIndexCollection>	already_searched = new HashSet<SVDBIndexCollection>();
 		getFileList(ret, already_searched, false);
-		
+	
+		/* Shadow indexes should not be part of the file list by default
 		clearStaleShadowIndexes();
 		for (int i=0; i<fShadowIndexList.size(); i++) {
 			ISVDBIndex index = fShadowIndexList.get(i).get();
@@ -680,6 +681,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				ret.addIterable(index.getFileList(new NullProgressMonitor()));
 			}
 		}
+		 */
 
 		return ret;
 	}

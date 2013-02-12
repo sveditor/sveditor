@@ -401,4 +401,33 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		ContentAssistTests.runTest(testname, doc, 
 				"c1_inst");
 	}	
+
+	public void testOtherSideArrPartSelectEq() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc =
+			// These fields might effectively be in a
+			// package scope, but due to code structure
+			// would appear as shown below
+			"\n" +
+			"class c1;\n" +
+			"	int A_arr[];\n" +
+			"endclass\n" +
+			"\n" +
+			"const c1 c1_inst = foo();\n" +
+			"\n" +
+			"class cls1;\n" +
+			"\n" +
+			"\n" +
+			" function void func();\n" +
+			"	int AA, AB, BA, BB;\n" +
+			"	c1_inst.A_arr[2] = A<<MARK>>\n" +
+			" endfunction\n" +
+			"endclass\n"
+			;
+		
+		ContentAssistTests.runTest(testname, doc, 
+				"AA", "AB");
+	}
 }
