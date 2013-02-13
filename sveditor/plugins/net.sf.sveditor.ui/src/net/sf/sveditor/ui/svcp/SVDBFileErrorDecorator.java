@@ -252,6 +252,6 @@ public class SVDBFileErrorDecorator
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 }
