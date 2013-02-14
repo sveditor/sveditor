@@ -161,11 +161,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			}
 			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo, e);
 		}
-		monitor.beginTask("Clear Cache", 1);
 		fFileCache.clear();
 		fArgFileCache.clear();
 		fSVDBFS.delete(monitor, "");
-		monitor.done();
 	}
 
 	public void addFile(String path, boolean is_argfile) {

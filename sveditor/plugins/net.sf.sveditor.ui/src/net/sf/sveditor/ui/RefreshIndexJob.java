@@ -52,7 +52,7 @@ public class RefreshIndexJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (fIndexRebuildList) {
-			monitor.beginTask("Refreshing Indexes", 2*fIndexRebuildList.size());
+			monitor.beginTask("Refreshing Indexes", 20*fIndexRebuildList.size());
 		}
 		
 		while (true) {
@@ -66,10 +66,9 @@ public class RefreshIndexJob extends Job {
 			}
 		
 			try {
-				SubProgressMonitor sub;
-				sub = new SubProgressMonitor(monitor, 1);
-				index.rebuildIndex(sub);
-				index.loadIndex(sub);
+				// Skew monitor the weights of these two tasks a bit so that they are somewhat time related
+				index.rebuildIndex(new SubProgressMonitor(monitor, 5));
+				index.loadIndex(new SubProgressMonitor(monitor, 15));
 			} catch (Exception e) {
 				fLog.error("Exception during index refresh: " + e.getMessage(), e);
 			}
