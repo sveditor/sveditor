@@ -399,7 +399,18 @@ public abstract class AbstractSVDBIndex implements
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor monitor, int state) {
 		long start_time=0, end_time=0;
-		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4); // discover_root_files+preprocessFiles+buildFileTree+initLoad
+		// The following weights are an attempt to skew the "amount of work" between the different states
+		// I came up these weights by looking at how long each of these tasks took on a SINGLE project
+		// and came up with the following.  
+		// There is probably a better way to do this, but this is better than what we had previously 
+		// where the time taken to Discover root files was 100th the time to get a valid file tree, 
+		// but the monitor itself was incrementing equally on both steps
+		final int monitor_weight_RootFilesDiscovered = 2;
+		final int monitor_weight_FilesPreProcessed   = 8;
+		final int monitor_weight_FileTreeValid       = 80;
+		final int monitor_weight_AllFilesParsed      = 10;
+		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 100); // discover_root_files+preprocessFiles+buildFileTree+initLoad
+		fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
 	
 		if (fIndexState < state) {
 			fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
@@ -413,18 +424,18 @@ public abstract class AbstractSVDBIndex implements
 						" to state RootFilesDiscovered from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			discoverRootFiles(new SubProgressMonitor(monitor, 1));
+			discoverRootFiles(new SubProgressMonitor(monitor, monitor_weight_RootFilesDiscovered));
 			// Flush file-list back to backing store
 			fCache.sync();
 			fIndexState = IndexState_RootFilesDiscovered;
 			fIsDirty = false;
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to RootFilesDiscovered: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState1 Move to RootFilesDiscovered: " + (end_time-start_time)/1000);
 			}
 		}
 		else  {
-			monitor.worked(1);
+			monitor.worked(monitor_weight_RootFilesDiscovered);
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
@@ -433,17 +444,17 @@ public abstract class AbstractSVDBIndex implements
 						" to state FilesPreProcessed from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			preProcessFiles(new SubProgressMonitor(monitor, 1));
+			preProcessFiles(new SubProgressMonitor(monitor, monitor_weight_FilesPreProcessed));
 			fIndexState = IndexState_FilesPreProcessed;
 			fIsDirty = false;
 			
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to FilesPreProcessed: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState2 Move to FilesPreProcessed: " + (end_time-start_time)/1000);
 			}
 		}
 		else  {
-			monitor.worked(1);
+			monitor.worked(monitor_weight_FilesPreProcessed);
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
@@ -452,7 +463,7 @@ public abstract class AbstractSVDBIndex implements
 						" to state FileTreeValid from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			buildFileTree(new SubProgressMonitor(monitor, 1));
+			buildFileTree(new SubProgressMonitor(monitor, monitor_weight_FileTreeValid));
 			fIndexState = IndexState_FileTreeValid;
 			
 			propagateAllMarkers();
@@ -461,11 +472,11 @@ public abstract class AbstractSVDBIndex implements
 			
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to FileTreeValid: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState3 Move to FileTreeValid: " + (end_time-start_time)/1000);
 			}
 		}
 		else  {
-			monitor.worked(1);
+			monitor.worked(monitor_weight_FileTreeValid);
 		}
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
@@ -476,9 +487,9 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			if (fCacheDataValid) {
-				fCache.initLoad(new SubProgressMonitor(monitor, 1));
+				fCache.initLoad(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			} else {
-				parseFiles(new SubProgressMonitor(monitor, 1));
+				parseFiles(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			}
 			fIndexState = IndexState_AllFilesParsed;
 			notifyIndexRebuilt();
@@ -495,11 +506,11 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			if (fDebugEn) {
-				fLog.debug(LEVEL_MID, "Move to AllFilesParsed: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState4 Move to AllFilesParsed: " + (end_time-start_time)/1000);
 			}
 		}
 		else  {
-			monitor.worked(1);
+			monitor.worked(monitor_weight_AllFilesParsed);
 		}
 	
 		
