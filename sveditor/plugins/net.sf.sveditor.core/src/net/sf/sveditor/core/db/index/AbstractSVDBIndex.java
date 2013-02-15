@@ -1161,10 +1161,11 @@ public abstract class AbstractSVDBIndex implements
 			List<String>			paths,
 			List<String>			missing_includes,
 			IProgressMonitor		monitor) {
-		monitor.beginTask("buildFileTreeJob", paths.size()*2);		// getFileTree + getPreProcFile
+		synchronized(paths) {
+			monitor.beginTask("buildFileTreeJob", paths.size()*2);		// getFileTree + getPreProcFile
+		}
 		while (true) {
 			String path = null;
-			
 			synchronized(paths) {
 				if (paths.size() > 0) {
 					path = paths.remove(0);

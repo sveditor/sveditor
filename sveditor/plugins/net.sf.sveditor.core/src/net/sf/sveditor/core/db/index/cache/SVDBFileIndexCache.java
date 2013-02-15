@@ -569,6 +569,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path, boolean is_argfile) {
 		CacheFileInfo cfi;
 		
+		monitor.beginTask("getFileTree", 1);
 		if (is_argfile) {
 			cfi = getArgFileCacheFileInfo(path, false);
 		} else {
@@ -591,6 +592,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			}
 		}
 		
+		monitor.worked(1);
+		monitor.done();
 		return ft;
 	}
 	
