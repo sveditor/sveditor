@@ -1691,6 +1691,8 @@ public abstract class AbstractSVDBIndex implements
 			InputStream 		in,
 			String 				path, 
 			List<SVDBMarker>	markers) {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 		monitor.beginTask("parse" , 1);
 		if (markers == null) {
 			markers = new ArrayList<SVDBMarker>();
