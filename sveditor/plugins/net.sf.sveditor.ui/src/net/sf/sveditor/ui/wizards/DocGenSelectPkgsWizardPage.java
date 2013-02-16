@@ -146,7 +146,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 
 	private void createLeftTable(Composite parent) {
 		
-		fLeftList = new FilteredTree(parent, SWT.H_SCROLL|SWT.V_SCROLL, new PatternFilter(),true) ;
+		fLeftList = new FilteredTree(parent, SWT.H_SCROLL|SWT.V_SCROLL|SWT.MULTI, new PatternFilter(),true) ;
 		
 		fLeftList.setLayoutData(new GridData(GridData.FILL_BOTH)) ;
 		
@@ -195,7 +195,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 
 	private void createRightTable(Composite parent) {
 	
-		fRightList = new FilteredTree(parent, SWT.H_SCROLL|SWT.V_SCROLL, new PatternFilter(),true) ;
+		fRightList = new FilteredTree(parent, SWT.H_SCROLL|SWT.V_SCROLL|SWT.MULTI, new PatternFilter(),true) ;
 		
 		fRightList.setLayoutData(new GridData(GridData.FILL_BOTH)) ;
 		
