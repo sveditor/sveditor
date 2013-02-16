@@ -53,7 +53,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 		final GridData gridData = new GridData() ;
 		gridData.horizontalSpan = 1 ;
 		label.setLayoutData(gridData) ;
-		label.setText( "Select the packages for which the documentation is to be generated for" ) ;
+		label.setText( "Select Output Directory for the documentation" ) ;
 	}
 	
 	private void createDirectoryField(Composite parent) {
