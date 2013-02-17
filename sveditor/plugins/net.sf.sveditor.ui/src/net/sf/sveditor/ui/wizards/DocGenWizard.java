@@ -111,6 +111,7 @@ public class DocGenWizard extends Wizard {
 			}
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Doc Generation", 2);
 				DocModelFactory factory = new DocModelFactory() ;
 				DocModel model = factory.build(cfg) ;
 				monitor.worked(1) ;

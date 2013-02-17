@@ -316,15 +316,18 @@ public class SVDBIndexRegistry implements ILogLevel {
 	
 	public void rebuildIndex(IProgressMonitor monitor, String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
-		
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
+			monitor.beginTask("rebuildIndex", fIndexList.size());
 			for (ISVDBIndex i : fIndexList) {
 				if (i.getProject().equals(project)) {
-					i.rebuildIndex(monitor);
+					i.rebuildIndex(new SubProgressMonitor(monitor, 1));
 				}
+				else
+					monitor.worked(1);
 			}
+			monitor.done();
 		}
 	}
 
