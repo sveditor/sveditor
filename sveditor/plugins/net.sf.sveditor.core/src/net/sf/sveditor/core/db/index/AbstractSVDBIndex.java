@@ -397,10 +397,20 @@ public abstract class AbstractSVDBIndex implements
 	 * @param monitor
 	 * @param state
 	 */
-	public synchronized void ensureIndexState(IProgressMonitor super_monitor, int state) {
+	public synchronized void ensureIndexState(IProgressMonitor monitor, int state) {
 		long start_time=0, end_time=0;
-		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
-		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
+		// The following weights are an attempt to skew the "amount of work" between the different states
+		// I came up these weights by looking at how long each of these tasks took on a SINGLE project
+		// and came up with the following.  
+		// There is probably a better way to do this, but this is better than what we had previously 
+		// where the time taken to Discover root files was 100th the time to get a valid file tree, 
+		// but the monitor itself was incrementing equally on both steps
+		final int monitor_weight_RootFilesDiscovered = 2;
+		final int monitor_weight_FilesPreProcessed   = 8;
+		final int monitor_weight_FileTreeValid       = 80;
+		final int monitor_weight_AllFilesParsed      = 10;
+		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 100); // discover_root_files+preprocessFiles+buildFileTree+initLoad
+		fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
 	
 		if (fIndexState < state) {
 			fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
@@ -414,16 +424,18 @@ public abstract class AbstractSVDBIndex implements
 						" to state RootFilesDiscovered from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			discoverRootFiles(m);
+			discoverRootFiles(new SubProgressMonitor(monitor, monitor_weight_RootFilesDiscovered));
 			// Flush file-list back to backing store
 			fCache.sync();
 			fIndexState = IndexState_RootFilesDiscovered;
 			fIsDirty = false;
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to RootFilesDiscovered: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState1 Move to RootFilesDiscovered: " + (end_time-start_time)/1000);
 			}
+		}
+		else  {
+			monitor.worked(monitor_weight_RootFilesDiscovered);
 		}
 		if (fIndexState < IndexState_FilesPreProcessed
 				&& state >= IndexState_FilesPreProcessed) {
@@ -432,15 +444,17 @@ public abstract class AbstractSVDBIndex implements
 						" to state FilesPreProcessed from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			preProcessFiles(m);
+			preProcessFiles(new SubProgressMonitor(monitor, monitor_weight_FilesPreProcessed));
 			fIndexState = IndexState_FilesPreProcessed;
 			fIsDirty = false;
 			
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to FilesPreProcessed: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState2 Move to FilesPreProcessed: " + (end_time-start_time)/1000);
 			}
+		}
+		else  {
+			monitor.worked(monitor_weight_FilesPreProcessed);
 		}
 		if (fIndexState < IndexState_FileTreeValid
 				&& state >= IndexState_FileTreeValid) {
@@ -449,8 +463,7 @@ public abstract class AbstractSVDBIndex implements
 						" to state FileTreeValid from " + fIndexState);
 				start_time = System.currentTimeMillis();
 			}
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			buildFileTree(m);
+			buildFileTree(new SubProgressMonitor(monitor, monitor_weight_FileTreeValid));
 			fIndexState = IndexState_FileTreeValid;
 			
 			propagateAllMarkers();
@@ -459,8 +472,11 @@ public abstract class AbstractSVDBIndex implements
 			
 			if (fDebugEn) {
 				end_time = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "Move to FileTreeValid: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState3 Move to FileTreeValid: " + (end_time-start_time)/1000);
 			}
+		}
+		else  {
+			monitor.worked(monitor_weight_FileTreeValid);
 		}
 		if (fIndexState < IndexState_AllFilesParsed
 				&& state >= IndexState_AllFilesParsed) {
@@ -471,11 +487,9 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			if (fCacheDataValid) {
-				SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-				fCache.initLoad(m);
-				m.done();
+				fCache.initLoad(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			} else {
-				parseFiles(monitor);
+				parseFiles(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			}
 			fIndexState = IndexState_AllFilesParsed;
 			notifyIndexRebuilt();
@@ -492,8 +506,11 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			if (fDebugEn) {
-				fLog.debug(LEVEL_MID, "Move to AllFilesParsed: " + (end_time-start_time));
+				fLog.debug(LEVEL_MID, "ensureIndexState4 Move to AllFilesParsed: " + (end_time-start_time)/1000);
 			}
+		}
+		else  {
+			monitor.worked(monitor_weight_AllFilesParsed);
 		}
 	
 		
@@ -516,8 +533,7 @@ public abstract class AbstractSVDBIndex implements
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList(false));
 		}
-		final SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-		m.beginTask("Parsing Files", paths.size());
+		monitor.beginTask("Parsing Files", paths.size());
 
 		/*
 		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
@@ -543,14 +559,18 @@ public abstract class AbstractSVDBIndex implements
 		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
 		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
 			// only a single thread
-			parseFilesJob(paths, m);
+			parseFilesJob(paths, new SubProgressMonitor(monitor, paths.size()));
 		} else {
 			Thread threads[] = new Thread[num_threads];
 			for (int i=0; i<threads.length; i++) {
+				final SubProgressMonitor spm;
+				spm = new SubProgressMonitor(monitor, paths.size()/threads.length);
 				threads[i] = new Thread(new Runnable() {
 					
 					public void run() {
-						parseFilesJob(paths, m);
+						
+						// TODO: This is wrong!!! need to change to a new SubProgressMonitor(monitor, paths.size())
+						parseFilesJob(paths, spm);
 					}
 				}, "parse_" + getBaseLocation() + "_" + i);
 				threads[i].setPriority(Thread.MAX_PRIORITY);
@@ -561,10 +581,11 @@ public abstract class AbstractSVDBIndex implements
 			join_threads(threads);
 		}
 		
-		m.done();
+		monitor.done();
 	}
 	
 	protected void parseFilesJob(List<String> paths, IProgressMonitor monitor) {
+		monitor.beginTask("parseFilesJob", paths.size());
 		while (true) {
 			String path = null;
 			synchronized(paths) {
@@ -612,13 +633,13 @@ public abstract class AbstractSVDBIndex implements
 				}
 			}
 
-			synchronized(monitor) {
-				monitor.worked(1);
-			}
+			monitor.worked(1);
 		}
+		monitor.done();
 	}
 
 	protected synchronized void invalidateIndex(IProgressMonitor monitor, String reason, boolean force) {
+		monitor.beginTask("invalidateIndex", 1);
 		if (fDebugEn) {
 			if (fAutoRebuildEn || force) {
 				fLog.debug(LEVEL_MIN, "InvalidateIndex " + getBaseLocation() + ": " +
@@ -635,13 +656,15 @@ public abstract class AbstractSVDBIndex implements
 				fIndexState = IndexState_AllInvalid;
 				fCacheDataValid = false;
 				fIndexCacheData.clear();
-				fCache.clear(monitor);
+				fCache.clear(new SubProgressMonitor(monitor, 1));
 				fMissingIncludes.clear();
 				fDeferredPkgCacheFiles.clear();
 			}
 		} else {
 			fIsDirty = true;
+			monitor.worked(1);
 		}
+		monitor.done();
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) {
@@ -814,7 +837,8 @@ public abstract class AbstractSVDBIndex implements
 		if (fDebugEn) {
 			fLog.debug("--> findFile: " + path);
 		}
-		ensureIndexState(monitor, IndexState_FileTreeValid);
+		monitor.beginTask("findFile", 5);		// ensureIndexState, PATFHM_WORKSPACE, PATHFMT_FILESYSTEM + getFileTree + getFile
+		ensureIndexState(new SubProgressMonitor(monitor, 1), IndexState_FileTreeValid);
 
 		for (String fmt : new String[] {null, 
 				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
@@ -823,7 +847,7 @@ public abstract class AbstractSVDBIndex implements
 				r_path = fFileSystemProvider.resolvePath(path, fmt);
 			}
 			synchronized (fCache) {
-				ret = fCache.getFile(monitor, r_path);
+				ret = fCache.getFile(new SubProgressMonitor(monitor, 1), r_path);
 			}
 			
 			if (ret != null) {
@@ -834,7 +858,7 @@ public abstract class AbstractSVDBIndex implements
 		if (ret == null) {
 			SVDBFileTree ft_root;
 			synchronized (fCache) {
-				ft_root = fCache.getFileTree(monitor, path, false);
+				ft_root = fCache.getFileTree(new SubProgressMonitor(monitor, 1), path, false);
 			}
 
 			if (ft_root != null) {
@@ -842,9 +866,10 @@ public abstract class AbstractSVDBIndex implements
 				processFile(ft_root, mp);
 				
 				synchronized (fCache) {
-					ret = fCache.getFile(monitor, path);
+					ret = fCache.getFile(new SubProgressMonitor(monitor, 1), path);
 				}
 			} else {
+				monitor.worked(1);
 				/*
 				try {
 					throw new Exception();
@@ -856,6 +881,9 @@ public abstract class AbstractSVDBIndex implements
 				}
 				 */
 			}
+		}
+		else  {
+			monitor.worked(1);
 		}
 
 		/*
@@ -871,6 +899,7 @@ public abstract class AbstractSVDBIndex implements
 		if (fDebugEn) {
 			fLog.debug("--> findFile: " + path + " ret=" + ret);
 		}
+		monitor.done();
 
 		return ret;
 	}
@@ -1009,15 +1038,17 @@ public abstract class AbstractSVDBIndex implements
 		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
 		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
 			// only a single thread
-			preProcessFilesJob(paths, monitor);
+			preProcessFilesJob(paths, new SubProgressMonitor(monitor, paths.size()));
 		} else {
 			Thread threads[] = new Thread[num_threads];
 			for (int i=0; i<threads.length; i++) {
+				final SubProgressMonitor spm;
+				spm = new SubProgressMonitor(monitor, paths.size()/threads.length);
 				threads[i] = new Thread(new Runnable() {
 					
 					public void run() {
-						preProcessFilesJob(paths, monitor);
-					}
+						preProcessFilesJob(paths, spm);
+					}	
 				});
 				threads[i].start();
 			}
@@ -1040,6 +1071,7 @@ public abstract class AbstractSVDBIndex implements
 	}
 	
 	protected void preProcessFilesJob(List<String> paths, IProgressMonitor monitor) {
+		monitor.beginTask("preProcessFilesJob", paths.size());
 		while (true) {
 			String path = null;
 			synchronized(paths) {
@@ -1052,12 +1084,6 @@ public abstract class AbstractSVDBIndex implements
 				break;
 			}
 			
-			SubProgressMonitor m = null;
-			synchronized(monitor) {
-				m = new SubProgressMonitor(monitor, 1);
-				m.beginTask("Process " + path, 1);
-			}
-			
 			SVDBFile file = processPreProcFile(path);
 			synchronized (fCache) {
 				if (file != null) {
@@ -1066,11 +1092,9 @@ public abstract class AbstractSVDBIndex implements
 							fFileSystemProvider.getLastModifiedTime(path), false);
 				}
 			}
-			
-			synchronized(monitor) {
-				m.done();
-			}
+			monitor.worked(1);
 		}
+		monitor.done();
 	}
 
 	protected void buildFileTree(final IProgressMonitor monitor) {
@@ -1092,14 +1116,17 @@ public abstract class AbstractSVDBIndex implements
 		int num_threads = Math.min(fMaxIndexThreads, paths.size()/16);
 		if (fMaxIndexThreads <= 1 || num_threads <= 1) {
 			// only a single thread
-			buildFileTreeJob(paths, missing_includes, monitor);
+			buildFileTreeJob(paths, missing_includes, new SubProgressMonitor(monitor, paths.size()));
 		} else {
 			Thread threads[] = new Thread[num_threads];
 			for (int i=0; i<threads.length; i++) {
+				final SubProgressMonitor spm;
+				spm = new SubProgressMonitor(monitor, paths.size()/threads.length);
 				threads[i] = new Thread(new Runnable() {
 					
 					public void run() {
-						buildFileTreeJob(paths, missing_includes, monitor);
+						// TODO: pretty sure this isn't right!!!
+						buildFileTreeJob(paths, missing_includes, spm);
 					}
 				}, "file_tree-" + getBaseLocation() + "-" + i);
 				threads[i].start();
@@ -1134,9 +1161,11 @@ public abstract class AbstractSVDBIndex implements
 			List<String>			paths,
 			List<String>			missing_includes,
 			IProgressMonitor		monitor) {
+		synchronized(paths) {
+			monitor.beginTask("buildFileTreeJob", paths.size()*2);		// getFileTree + getPreProcFile
+		}
 		while (true) {
 			String path = null;
-			
 			synchronized(paths) {
 				if (paths.size() > 0) {
 					path = paths.remove(0);
@@ -1148,7 +1177,7 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			synchronized (fCache) {
-				if (fCache.getFileTree(new NullProgressMonitor(), path, false) != null) {
+				if (fCache.getFileTree(new SubProgressMonitor(monitor, 1), path, false) != null) {
 					continue;
 				}
 			}
@@ -1157,7 +1186,7 @@ public abstract class AbstractSVDBIndex implements
 
 			synchronized (fCache) {
 				pp_file = fCache.getPreProcFile(
-						new NullProgressMonitor(), path);
+						new SubProgressMonitor(monitor, 1), path);
 				
 			}
 				
@@ -1176,6 +1205,7 @@ public abstract class AbstractSVDBIndex implements
 				buildPreProcFileMap(null, ft_root, missing_includes, included_files, working_set, null, true);
 			}
 		}
+		monitor.done();
 	}
 
 	protected void buildPreProcFileMap(
@@ -1662,6 +1692,9 @@ public abstract class AbstractSVDBIndex implements
 			InputStream 		in,
 			String 				path, 
 			List<SVDBMarker>	markers) {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		monitor.beginTask("parse" , 1);
 		if (markers == null) {
 			markers = new ArrayList<SVDBMarker>();
 		}
@@ -1756,7 +1789,8 @@ public abstract class AbstractSVDBIndex implements
 
 		// propagateMarkersPreProc2DB(file_tree, svdb_pp, svdb_f);
 		// addMarkers(path, svdb_f);
-
+		monitor.worked(1);
+		monitor.done();
 		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
 	}
 
@@ -2316,20 +2350,22 @@ public abstract class AbstractSVDBIndex implements
 
 	// FIXME:
 	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		ensureIndexState(monitor, IndexState_AllFilesParsed);
+		monitor.beginTask("getDeclFilePP", 2);		// ensure state index + findfile/FindTree
+		ensureIndexState(new SubProgressMonitor(monitor, 1), IndexState_AllFilesParsed);
 		
 		SVDBFile file = null;
 
 		// If this is a pre-processor item, then return the FileTree view of the file
 		if (item.isFileTreeItem()) {
 			SVDBFileTree ft = findFileTree(item.getFilename(), false);
+			monitor.worked(1);
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}
 		} else {
-			file = findFile(item.getFilename());
+			file = findFile(new SubProgressMonitor(monitor, 1),  item.getFilename());
 		}
-	
+		monitor.done();
 		return file;
 	}
 	

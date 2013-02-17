@@ -95,7 +95,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		clearIncludePaths();
 		clearDefines();
 		
-		monitor.beginTask("Discover Root Files", 4);
+		monitor.beginTask("Discover Root Files", 1);
 		
 		// Add an include path for the arg file location
 		addIncludePath(getResolvedBaseLocationDir());
@@ -103,7 +103,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		String resolved_argfile_path = getResolvedBaseLocation();
 		if (getFileSystemProvider().fileExists(resolved_argfile_path)) {
 			// Top argument file is, by default, root
-			processArgFile(new SubProgressMonitor(monitor, 4), 
+			processArgFile(new SubProgressMonitor(monitor, 1), 
 					null, null, 
 					getResolvedBaseLocationDir(),
 					getResolvedBaseLocation(), false);
@@ -117,6 +117,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 						"${workspace_loc}/" + getProject(),
 						ISVDBFileSystemProvider.MARKER_TYPE_ERROR, 0, msg);
 			}
+			monitor.worked(1);
 		}
 		
 		monitor.done();

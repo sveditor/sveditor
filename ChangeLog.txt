@@ -3,6 +3,9 @@
 
 - #(199) - Correct unusual unindenting behaviour when spaces-for-tabs enabled
 
+- #(nobug) - Made some improvements to the "Refresh Index" status bar... now does more than
+             2 or 3 steps.  Still some work to do but better than it was.
+
 ------------------------------------------------------------------------------
 -- 1.1.6 Release --
 

@@ -53,7 +53,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 		final GridData gridData = new GridData() ;
 		gridData.horizontalSpan = 1 ;
 		label.setLayoutData(gridData) ;
-		label.setText( "Select the packages for which the documentation is to be generated for" ) ;
+		label.setText( "Select Output Directory for the Documentation" ) ;
 	}
 	
 	private void createDirectoryField(Composite parent) {
@@ -69,9 +69,9 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 		fDirText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)) ;
 		fDirText.setEditable(false) ; // TODO: allow it to be edited. should then also check validity
 		
-		fDirDialog = new DirectoryDialog(parent.getShell(), SWT.OPEN | SWT.MULTI) ; 
+		fDirDialog = new DirectoryDialog(parent.getShell(), SWT.OPEN ) ; 
 		Button button = new Button(group, SWT.PUSH) ;
-		button.setText("Select") ;
+		button.setText("&Browse") ;
 		button.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				String dir = fDirDialog.open() ;

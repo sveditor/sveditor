@@ -211,7 +211,7 @@ public class SVEditor extends TextEditor
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 			fLog.debug("--> re-parse file");
 			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
-					getProgressMonitor(), sin, fSVDBFilePath, markers);
+					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			fLog.debug("<-- re-parse file");
 			
