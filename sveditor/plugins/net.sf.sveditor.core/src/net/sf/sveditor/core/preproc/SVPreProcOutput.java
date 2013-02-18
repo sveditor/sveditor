@@ -2,20 +2,31 @@ package net.sf.sveditor.core.preproc;
 
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcOutput extends AbstractTextScanner {
+	
+	public static class FileChangeInfo {
+		public int				fStartIdx;
+		public int				fFileId;
+		public int				fLineno;
+		
+		public FileChangeInfo(int start, int id, int lineno) {
+			fStartIdx = start;
+			fFileId = id;
+			fLineno = lineno;
+		}
+	}
+	
 	private StringBuilder					fText;
 	private SVDBFileTree					fFileTree;
 	private List<Integer>					fLineMap;
 	private int								fLineIdx;
 	private int								fNextLinePos;
-	private List<Tuple<Integer,Integer>>	fFileMap;
+	private List<FileChangeInfo>			fFileMap;
 	private List<String>					fFileList;
-	private List<Integer>					fFileIdList;
 	private int								fFileId;
 	private int								fFileIdx;
 	private int								fNextFilePos;
@@ -23,10 +34,10 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	private int								fUngetCh1, fUngetCh2;
 	
 	public SVPreProcOutput(
-			StringBuilder 					text,
-			List<Integer>					line_map,
-			List<Tuple<Integer,Integer>>	file_map,
-			List<String>					file_list) {
+			StringBuilder 			text,
+			List<Integer>			line_map,
+			List<FileChangeInfo>	file_map,
+			List<String>			file_list) {
 		fText = text;
 		fIdx = 0;
 		
@@ -42,6 +53,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		fFileIdx = 0;
 		fFileMap = file_map;
 		fFileList = file_list;
+		
 		/*
 		if (file_map.size() > 0) {
 			fNextFilePos = line_map.get(1);
@@ -73,9 +85,15 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		return fFileList;
 	}
 	
+	public List<FileChangeInfo> getFileMap() {
+		return fFileMap;
+	}
+
+	/*
 	public void setFileIdList(List<Integer> id_list) {
 		fFileIdList = id_list;
 	}
+	 */
 	
 	public int get_ch() {
 		int ch = -1;
@@ -108,25 +126,31 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			// don't keep doing this
 			if (fLineIdx >= fLineMap.size()) {
 				fNextLinePos = Integer.MAX_VALUE;
+			} else {
+				fNextLinePos = fLineMap.get(fLineIdx);
 			}
 		}
 		
-		if (fIdx >= fNextFilePos) {
-			// Move forward to next file ID
+		if (fIdx >= fNextFilePos && fFileMap.size() > 0) {
+			// Move forward to find the next file ID
 			while (fFileIdx < fFileMap.size() &&
-					fFileMap.get(fFileIdx).first() < fIdx) {
+					fFileMap.get(fFileIdx).fStartIdx < fIdx) {
 				fFileIdx++;
 			}
 			
 			if (fFileIdx >= fFileMap.size()) {
 				fNextFilePos = Integer.MAX_VALUE;
+				fFileId = fFileMap.get(fFileIdx-1).fFileId;
+				fLineno = fFileMap.get(fFileIdx-1).fLineno;
 			} else {
-				fFileId = fFileMap.get(fFileIdx).second();
-			}
-		
-			// If we have independent file id's, get it now
-			if (fFileIdList != null) {
-				fFileId = fFileIdList.get(fFileId);
+				fNextFilePos = fFileMap.get(fFileIdx).fStartIdx;
+				if (fFileIdx > 0) {
+					fFileId = fFileMap.get(fFileIdx-1).fFileId;
+					fLineno = fFileMap.get(fFileIdx-1).fLineno;
+				} else {
+					fFileId = fFileMap.get(fFileIdx).fFileId;
+					fLineno = fFileMap.get(fFileIdx).fLineno;
+				}
 			}
 		}
 		

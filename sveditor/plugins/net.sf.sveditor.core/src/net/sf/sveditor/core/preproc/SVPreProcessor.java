@@ -167,10 +167,9 @@ public class SVPreProcessor extends AbstractTextScanner {
 		}
 		
 		fInPreProcess = false;
-		
-		
+	
 		return new SVPreProcOutput(fOutput, fLineMap, 
-				new ArrayList<Tuple<Integer,Integer>>(),
+				new ArrayList<SVPreProcOutput.FileChangeInfo>(),
 				new ArrayList<String>());
 	}
 	

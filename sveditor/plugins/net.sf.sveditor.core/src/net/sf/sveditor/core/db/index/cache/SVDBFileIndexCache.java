@@ -153,13 +153,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
 		if (fDebugEn) {
-			Exception e = null;
-			try {
-				throw new Exception();
-			} catch (Exception ex) {
-				e = ex;
-			}
-			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo, e);
+			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo);
 		}
 		monitor.beginTask("Clear Cache", 1);
 		fFileCache.clear();

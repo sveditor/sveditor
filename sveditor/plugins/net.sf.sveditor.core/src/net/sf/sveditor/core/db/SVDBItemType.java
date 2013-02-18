@@ -39,6 +39,9 @@ public enum SVDBItemType {
 	MacroDef,
 	MacroDefParam,
 	PreProcCond,
+	// Marks a region of the file that was not processed, due to
+	// preprocessor macros
+	UnprocessedRegion, 
 	Include,
 	PackageDecl,
 	Covergroup,
@@ -198,7 +201,8 @@ public enum SVDBItemType {
 	ArgFilePathStmt,
 	ArgFileDefineStmt,
 	ArgFileIncFileStmt,
-	ArgFileSrcLibPathStmt
+	ArgFileSrcLibPathStmt,
+	ArgFileLibExtStmt	
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

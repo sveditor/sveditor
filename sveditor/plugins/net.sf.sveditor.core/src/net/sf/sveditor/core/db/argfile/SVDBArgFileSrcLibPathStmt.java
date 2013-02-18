@@ -8,6 +8,11 @@ public class SVDBArgFileSrcLibPathStmt extends SVDBArgFileStmt {
 	public SVDBArgFileSrcLibPathStmt() {
 		super(SVDBItemType.ArgFileSrcLibPathStmt);
 	}
+	
+	public SVDBArgFileSrcLibPathStmt(String path) {
+		this();
+		fSrcLibPath = path;
+	}
 
 	public String getSrcLibPath() {
 		return fSrcLibPath;

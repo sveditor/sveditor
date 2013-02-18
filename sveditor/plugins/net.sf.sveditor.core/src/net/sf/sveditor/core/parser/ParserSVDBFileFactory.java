@@ -74,12 +74,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private SVDBFile 					fFile;
 	private Stack<SVDBScopeItem> 		fScopeStack;
 	private SVParsers 					fSVParsers;
-	private int						fParseErrorCount;
-	private int						fParseErrorMax;
+	private int							fParseErrorCount;
+	private int							fParseErrorMax;
 	private LogHandle					fLog;
-	private boolean					fDebugEn;
+	private boolean						fDebugEn;
 	private List<SVDBMarker>			fMarkers;
-	private boolean					fDisableErrors;
+	private boolean						fDisableErrors;
 	
 	public ParserSVDBFileFactory() {
 		this(null);
