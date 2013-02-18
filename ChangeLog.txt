@@ -1,4 +1,7 @@
 
+-- 1.1.8 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.7 Release --
 
 - #(199) - Correct unusual unindenting behaviour when spaces-for-tabs enabled
