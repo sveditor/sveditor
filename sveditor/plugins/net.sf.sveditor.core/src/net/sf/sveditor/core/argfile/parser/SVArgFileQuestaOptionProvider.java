@@ -123,6 +123,9 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		
 		fOptions.put("+define+", 0);
 		fOptions.put("+incdir+", 0);
+		
+		// Ignore for now
+		fOptions.put("+libext+", 0);
 		fOptions.put("-y", 1);
 		fOptions.put("-v", 1);
 		fOptions.put("-f", 1);

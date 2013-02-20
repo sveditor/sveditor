@@ -32,32 +32,32 @@ public class SVLexer extends SVToken {
 		Constraint
 	}
 	
-	private ITextScanner fScanner;
+	private ITextScanner 			fScanner;
 	// 2- and 3-character operator prefixes
-	private Set<String>	fSeqPrefixes[];
+	private Set<String>				fSeqPrefixes[];
 	private Set<String> 			fOperatorSet;
 	private Set<String> 			fDefaultKeywordSet;
 	private Set<String> 			fConstraintKeywordSet;
 	private Set<String>				fExprKeywordSet;
 
-	private List<ISVTokenListener> fTokenListeners;
+	private List<ISVTokenListener>	fTokenListeners;
 
-	private boolean 		fTokenConsumed;
-	private boolean 		fNewlineAsOperator;
-	private boolean 		fIsDelayControl;
+	private boolean 				fTokenConsumed;
+	private boolean 				fNewlineAsOperator;
+	private boolean 				fIsDelayControl;
 
-	private StringBuilder 	fStringBuffer;
-	private static final boolean fDebugEn = false;
-	private boolean 		fEOF;
+	private StringBuilder 			fStringBuffer;
+	private static final boolean 	fDebugEn = false;
+	private boolean 				fEOF;
 
-	private StringBuilder	fCaptureBuffer;
-	private boolean 		fCapture;
-	private SVToken 		fCaptureLastToken;
-	private ISVParser 		fParser;
-	private Stack<SVToken> fUngetStack;
-	private boolean 		fInAttr;
-	private LogHandle		fLog;
-	private Context			fContext;
+	private StringBuilder			fCaptureBuffer;
+	private boolean 				fCapture;
+	private SVToken 				fCaptureLastToken;
+	private ISVParser 				fParser;
+	private Stack<SVToken> 			fUngetStack;
+	private boolean 				fInAttr;
+	private LogHandle				fLog;
+	private Context					fContext;
 
 	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
@@ -198,9 +198,12 @@ public class SVLexer extends SVToken {
 
 	// Returns a token
 	public SVToken consumeToken() {
-		peek();
-		SVToken tok = this.duplicate();
-		eatToken();
+		SVToken tok = null;
+		
+		if (peek() != null) {
+			tok = this.duplicate();
+			eatToken();
+		}
 
 		return tok;
 	}
@@ -704,7 +707,8 @@ public class SVLexer extends SVToken {
 
 		// TODO: should fix
 		ScanLocation loc = fScanner.getLocation();
-		fStartLocation = new SVDBLocation(loc.getLineNo(), loc.getLinePos());
+		fStartLocation = new SVDBLocation(loc.getFileId(), 
+				loc.getLineNo(), loc.getLinePos());
 
 		if (ch == -1) {
 			fEOF = true;

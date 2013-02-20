@@ -11,9 +11,10 @@ public interface ISVArgFileOptionProvider {
 		Ignored,
 		Incdir,
 		Define,
-		ArgFileInc,      // -f path
-		ArgFileRootInc,  // -F path
-		SrcLibPath // -y <path>
+		ArgFileInc,    		// -f path
+		ArgFileRootInc, 	// -F path
+		SrcLibPath, 		// -y <path>
+		SrcLibExt			// +libext+.sv+.svh+.vlog
 	}
 	
 	OptionType getOptionType(String name);
@@ -25,5 +26,7 @@ public interface ISVArgFileOptionProvider {
 	List<String> getIncPaths(String option, String arg);
 	
 	Tuple<String, String> getDefValue(String option, String arg);
+	
+//	List<String> getLibExts(String libext)
 
 }

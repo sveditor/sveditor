@@ -23,11 +23,19 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	public List<Long>			fArgFileTimestamps;
 	public List<SVDBFile>		fArgFiles = new ArrayList<SVDBFile>();
 	
+	// List of the root source files
+	public List<String>			fRootFileList;
+	
+	// List of all source files (roots + included)
+	public List<String>			fSrcFileList;
+	
 	public SVDBArgFileIndexCacheData(String base_location) {
 		super(base_location);
 		fArgFileTimestamps = new ArrayList<Long>();
 		fArgFilePaths = new ArrayList<String>();
 		fArgFiles = new ArrayList<SVDBFile>();
+		fRootFileList = new ArrayList<String>();
+		fSrcFileList = new ArrayList<String>();
 	}
 
 	/*

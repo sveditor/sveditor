@@ -9,6 +9,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -24,7 +25,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFileOverrideIndex 
-	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel {
+	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel,
+		ISVDBIncludeFileProviderObsolete {
 	private SVDBFile				fFile;
 	private SVDBFile				fFilePP;
 	private SVDBFileTree			fFileTree;
@@ -173,9 +175,17 @@ public class SVDBFileOverrideIndex
 	}
 
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
-		return fIndex.findIncludedFile(leaf);
+		if (fIndex instanceof ISVDBIncludeFileProviderObsolete) {
+			return ((ISVDBIncludeFileProviderObsolete)fIndex).findIncludedFile(leaf);
+		} else {
+			return null;
+		}
 	}
 	
+	public SVDBSearchResult<String> findIncludedFilePath(String leaf) {
+		return fIndex.findIncludedFilePath(leaf);
+	}
+
 	public ISVDBFileSystemProvider getFileSystemProvider() {
 		return fIndex.getFileSystemProvider();
 	}
