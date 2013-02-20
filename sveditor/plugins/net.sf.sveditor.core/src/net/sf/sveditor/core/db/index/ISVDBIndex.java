@@ -17,6 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 

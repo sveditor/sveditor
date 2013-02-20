@@ -17,6 +17,12 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex2;
@@ -254,6 +260,60 @@ public class TestParserPerf extends TestCase {
 		index.loadIndex(new NullProgressMonitor());
 		long fullparse_end = System.currentTimeMillis();
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+		
+		Iterable<String> files = index.getFileList(new NullProgressMonitor());
+	
+		/*
+		for (String f : files) {
+			System.out.println("File: " + f);
+			SVDBFile p = index.findFile(f);
+			traverse_files(p, -1);
+//			break;
+		}
+		 */
+	}
+
+	public void testUVM2() {
+		File opensparc_design = new File("/tools/uvm/uvm-1.1a/uvm.f");
+
+		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		
+		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+				opensparc_design.getAbsolutePath(),
+				new SVDBFSFileSystemProvider(),
+				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
+				null);
+		index.init(new NullProgressMonitor());
+				
+		long fullparse_start = System.currentTimeMillis();
+		index.loadIndex(new NullProgressMonitor());
+		long fullparse_end = System.currentTimeMillis();
+		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+		
+		Iterable<String> files = index.getFileList(new NullProgressMonitor());
+		
+		for (String f : files) {
+			System.out.println("File: " + f);
+			SVDBFile p = index.findFile(f);
+			traverse_files(p, -1);
+//			break;
+		}
+	}
+	private void traverse_files(ISVDBChildParent p, int file_id) {
+		for (ISVDBChildItem c : p.getChildren()) {
+			System.out.println("Item: " + SVDBItem.getName(c));
+			if (c.getLocation() != null && c.getLocation().getFileId() != file_id) {
+				System.out.println("Switch to file: " + c.getLocation().getFileId());
+				file_id = c.getLocation().getFileId();
+			}
+
+			if (c instanceof ISVDBChildParent) {
+				traverse_files((ISVDBChildParent)c, file_id);
+			} else if (c instanceof ISVDBScopeItem) {
+				
+			}
+		}
+		
 	}
 
 	public void testLargeParam() {

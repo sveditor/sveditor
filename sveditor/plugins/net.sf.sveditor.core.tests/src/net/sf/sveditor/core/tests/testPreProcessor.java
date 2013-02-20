@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;

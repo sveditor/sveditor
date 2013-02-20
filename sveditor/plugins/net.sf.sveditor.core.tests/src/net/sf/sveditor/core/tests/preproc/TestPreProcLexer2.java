@@ -6,9 +6,13 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.parser.SVLexer;
+import net.sf.sveditor.core.parser.SVToken;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
@@ -16,7 +20,7 @@ import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-public class TestPreProc2 extends SVCoreTestCaseBase {
+public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 	
 	public void testBasicInclude() {
 		SVCorePlugin.getDefault().enableDebug(true);
@@ -33,28 +37,46 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		inc_provider.addIncdir(dir2.getAbsolutePath());
 
 		TestUtils.copy(
-				"This is file1.svh\n",
+				"class file1;\n" +
+				"\n" +
+				"endclass\n",
 				new File(dir1, "file1.svh"));
 		
 		TestUtils.copy(
-				"This is file2.svh\n",
+				"class file2;\n" +
+				"\n" +
+				"endclass\n",
 				new File(dir1, "file2.svh"));
 		
 		runTest(
+				"\n" +
+				"\n" +
 				"`include \"file1.svh\"\n" +
-				"post-file1.svh\n" +
+				"class post_file1;\n" +
+				"endclass\n" +
 				"`include \"file2.svh\"\n" +
-				"post-file2.svh\n",
+				"class post_file2;\n" +
+				"endclass\n",
 				inc_provider,
-				"This is file1.svh\n" +
-				"\n" +
-				"post-file1.svh\n" +
-				"This is file2.svh\n" +
-				"\n" +
-				"post-file2.svh\n");
-
+				new String[] {
+						"class", "file1", ";",
+						"endclass",
+						
+						"class", "post_file1", ";",
+						"endclass",
+						
+						"class", "file2", ";",
+						"endclass",
+						
+						"class", "post_file2", ";",
+						"endclass"
+				},
+				new SVDBLocation[] {
+						
+				});
 	}
-	
+
+	/*
 	public void testBasicDefine() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
@@ -132,11 +154,13 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"\n" +
 				" 5\n");
 	}
+	 */
 	
 	private void runTest(
-			String							doc,
-			ISVPreProcIncFileProvider		inc_provider,
-			String							exp) {
+			String						doc,
+			ISVPreProcIncFileProvider	inc_provider,
+			String						images[],
+			SVDBLocation				locations[]) {
 		
 		SVPreProcessor2 preproc = new SVPreProcessor2(
 				getName(), new StringInputStream(doc), 
@@ -145,15 +169,21 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVPreProcOutput output = preproc.preprocess(markers);
 		
-		for (String file : output.getFileList()) {
-			fLog.debug("File: " + file);
+		List<SVPreProcOutput.FileChangeInfo> file_map = output.getFileMap();
+		
+		for (SVPreProcOutput.FileChangeInfo e : file_map) {
+			fLog.debug("FileMap Entry: " + e.fStartIdx + " " + e.fFileId + " " + e.fLineno);
 		}
 		
-		printFileTree("", output.getFileTree());
+		SVLexer lexer = new SVLexer();
+		lexer.init(null, output);
 
-		fLog.debug("Output:\n" + output.toString());
-		
-		assertEquals(exp, output.toString());
+		SVToken t;
+		while ((t = lexer.consumeToken()) != null) {
+			fLog.debug("Token: " + t.getImage() + " @ " + 
+					t.getStartLocation().getFileId() + ":" +
+					t.getStartLocation().getLine());
+		}
 	}
 	
 	private void printFileTree(String ind, SVDBFileTree ft) {

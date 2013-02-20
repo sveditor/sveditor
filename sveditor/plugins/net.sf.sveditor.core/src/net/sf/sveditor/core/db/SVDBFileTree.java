@@ -10,18 +10,22 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
-public class SVDBFileTree {
+public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	@SVDBDoNotSaveAttr
 	private boolean					fProcessed;
+	
+	@SVDBParentAttr
+	public ISVDBChildItem			fParent;
 
 	// 
 	public String					fFilePath;
@@ -40,6 +44,9 @@ public class SVDBFileTree {
 	
 	// List of files included in this file
 	public List<String>				fIncludedFiles;
+
+	// Used by the 'new' flow 
+	public List<SVDBFileTree>		fIncludedFileTrees;
 	
 	// List of files in which this file is included
 	public List<String>				fIncludedByFiles;
@@ -48,28 +55,49 @@ public class SVDBFileTree {
 	public Map<String, String>		fReferencedMacros;
 
 	public SVDBFileTree() {
+		super(SVDBItemType.FileTree);
 		fFilePath = null;
 		fSVDBFile = null;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
+		fReferencedMacros = new HashMap<String, String>();
 	}
 
 	public SVDBFileTree(String path) {
+		super(SVDBItemType.FileTree);
 		fFilePath = path;
 		fSVDBFile = null;
 
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
+		fReferencedMacros = new HashMap<String, String>();
 	}
 
 	public SVDBFileTree(SVDBFile file) {
+		super(SVDBItemType.FileTree);
 		fFilePath = file.getFilePath();
 		
 		fSVDBFile = file;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
+		fReferencedMacros = new HashMap<String, String>();
 	}
 	
+	public void setParent(SVDBFileTree parent) {
+		fParent = parent;
+	}
+	
+	public SVDBFileTree getParent() {
+		return (SVDBFileTree)fParent;
+	}
+	
+	public void setParent(ISVDBChildItem parent) {
+		fParent = parent;
+	}
+
 	public boolean isIncludeRoot() {
 		return fIncludeRoot;
 	}

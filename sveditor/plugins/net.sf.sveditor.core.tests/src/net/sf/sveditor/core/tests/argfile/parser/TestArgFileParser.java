@@ -14,6 +14,8 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileLibExtStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -136,6 +138,21 @@ public class TestArgFileParser extends TestCase {
 				new SVDBArgFileIncFileStmt("/tools/argfiles/argfile2.f")
 		});
 	}
+	
+	public void testLibExtOpts() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+				"+libext+.v+.sv+.svh\n" +
+				"-y foo\n" +
+				"+incdir+bar\n" +
+				"";
+		
+		ArgFileParserTests.runParserTest(testname, content, new SVDBArgFileStmt[] {
+				new SVDBArgFileSrcLibPathStmt("foo"),
+				new SVDBArgFileIncDirStmt("bar")
+		});
+	}	
 	
 	public void testLocations() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);

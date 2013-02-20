@@ -1,0 +1,32 @@
+= Source Indexing with SVEditor =
+
+SVEditor uses an ''index'' to manage a collection of source files. At a high level, the implementation of an 
+''index'' is responsible for managing the transformation of a set of source files into the corresponding
+set of database objects that represent the abstract syntax tree (AST) of the code within the source files.
+In addition, the implementation of an index is responsible for providing efficient searching within the
+AST database.
+
+Early in the life of SVEditor, several index implementations were available. Over time, it was discovered
+that one index implementation, the argument file index, was the easiest and most reliable to use.  
+Consequently, the argument file index is the sole index style currently supported by SVEditor
+
+== Argument File Index ==
+The argument file index takes, as its primary input, a single argument file. The argument file contains
+a list of source paths and compiler options that, if presented to a verilog compiler, would compile
+the design and/or testbench environment of interest.
+
+The various phases of building the contents of the index are described below.
+
+=== Argument File Processing ===
+The first step in building the argument file index is to parse the root argument file, and any argument
+files included by the root argument file. 
+
+
+=== Source File Processing ===
+
+The result of source file processing is
+
+=== Caching Strategy ===
+
+=== Providing Search Access ===
+
