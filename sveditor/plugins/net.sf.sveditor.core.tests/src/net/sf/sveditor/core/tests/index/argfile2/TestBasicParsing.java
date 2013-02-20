@@ -21,7 +21,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 	public void testParseUVM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().setTestDebugLevel(2);
+		SVCorePlugin.getDefault().setTestDebugLevel(0);
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
@@ -46,7 +46,8 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		end = System.currentTimeMillis();
 		
 		System.out.println("Parse UVM in " + (end-start) + "ms");
-		
+
+		/**
 		for (String path : index.getFileList(new NullProgressMonitor())) {
 			System.out.println("Path: " + path);
 			start = System.currentTimeMillis();
@@ -55,7 +56,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 			System.out.println("Extract " + path + " " + (end-start) + "ms");
 			assertNotNull("Failed to find file " + path, file);
 		}
-		
+		 */
 	
 		/*
 		SVDBFile uvm_component_svh = index.findFile(

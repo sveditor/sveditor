@@ -12,6 +12,7 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -21,6 +22,8 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -33,6 +36,10 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private String									fFileName;
 	private StringBuilder							fOutput;
+	private StringBuilder							fCommentBuffer;
+	private boolean									fInComment;
+	private IDocCommentParser   					fDocCommentParser;
+	private ScanLocation							fCommentStart;							
 	private List<Integer>							fLineMap;
 
 	// List of offset,file-id pairs
@@ -123,6 +130,8 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		fMacroMap = new HashMap<String, SVDBMacroDef>();
 		fInputStack = new Stack<SVPreProcessor2.InputData>();
 		fOutput = new StringBuilder();
+		fCommentBuffer = new StringBuilder();
+		fDocCommentParser = new DocCommentParser();
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
@@ -147,11 +156,13 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		int end_comment[] = {-1, -1};
 		boolean in_string = false;
 		boolean ifdef_enabled = true;
+		boolean found_single_line_comment = false;
 		
 		fInPreProcess = true;
 		fMarkers = markers;
 
 		while ((ch = get_ch()) != -1) {
+			found_single_line_comment = false;
 			if (!in_string) {
 				// Handle comment
 				if (ch == '/') {
@@ -159,8 +170,13 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 
 					if (ch2 == '/') {
 						fOutput.append(' '); // ch
+						found_single_line_comment = true;
+						beginComment();
 						while ((ch = get_ch()) != -1 && 
-								ch != '\n' && ch != '\r') { }
+								ch != '\n' && ch != '\r') { 
+							fCommentBuffer.append((char)ch);
+						}
+						fCommentBuffer.append('\n');
 
 						// Handle
 						if (ch == '\r') {
@@ -177,12 +193,16 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 
 						fOutput.append(' '); // ch
 
+						beginComment();
 						while ((ch = get_ch()) != -1) {
 							end_comment[0] = end_comment[1];
 							end_comment[1] = ch;
 
 							if (end_comment[0] == '*' && end_comment[1] == '/') {
+								endComment();
 								break;
+							} else {
+								fCommentBuffer.append((char)ch);
 							}
 						}
 						ch = ' ';
@@ -190,6 +210,11 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 					} else {
 						unget_ch(ch2);
 					}
+				}
+				
+				if (!Character.isWhitespace(ch) && fInComment) {
+					// Send accumlated comment to observer
+					endComment();
 				}
 				
 				if (ch == '`') {
@@ -226,6 +251,10 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 			} else {
 				last_ch = ch;
 			}
+			
+			if (fInComment && !found_single_line_comment && ch == '\n') {
+				endComment();
+			}
 		}
 		
 		fInPreProcess = false;
@@ -236,6 +265,29 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		ret.setFileTree(fInputStack.peek().fFileTree);
 		
 		return ret;
+	}
+	
+	private void beginComment() {
+		if (!fInComment) {
+			fCommentBuffer.setLength(0);
+			fCommentStart = getLocation();
+		}
+		fInComment = true;
+	}
+	
+	private void endComment() {
+		if(!fInComment) { return ; }
+		fInComment = false ;
+		String comment = fCommentBuffer.toString() ;
+		String title = fDocCommentParser.isDocComment(comment) ;
+		if (title != null) {
+			InputData in = fInputStack.peek();
+			SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
+			SVDBLocation loc = new SVDBLocation(fCommentStart.getFileId(),  
+					fCommentStart.getLineNo(), fCommentStart.getLinePos());
+			doc_comment.setLocation(loc);
+			in.fFileTree.getSVDBFile().addChildItem(doc_comment);
+		}		
 	}
 	
 	private void handle_preproc_directive() {

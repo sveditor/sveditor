@@ -609,22 +609,8 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 			fLog.debug("--> findFile: " + path);
 		}
 		ensureIndexUpToDate(monitor);
-
-		for (String fmt : new String[] { null,
-				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
-				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM }) {
-			if (fmt != null) {
-				r_path = fFileSystemProvider.resolvePath(path, fmt);
-			}
-			
-			if (fFileSystemProvider.fileExists(r_path)) {
-				root_file = findRootFile(r_path);
-			}
-
-			if (root_file != null) {
-				break;
-			}
-		}
+		
+		root_file = findRootFile(r_path);
 		
 		if (root_file != null) {
 			// Copy 
@@ -648,14 +634,57 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	// Search a specific path resolution
 	private SVDBFile findRootFile(String path) {
 		SVDBFile ret = null;
+		String paths[] = new String[3];
+		String fmts[] = {null,
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM };
+
+		for (int fmt_idx=0; fmt_idx<fmts.length; fmt_idx++) {
+			paths[fmt_idx] = fFileSystemProvider.resolvePath(path, fmts[fmt_idx]);
+		
+			// Null out, since we don't need to check
+			if (!fFileSystemProvider.fileExists(paths[fmt_idx])) {
+				paths[fmt_idx] = null;
+			}
+		}
 		
 		synchronized (fCache) {
 			// Search the file tree of each root file
 			for (String root_path : fCache.getFileList(false)) {
 				SVDBFileTree ft = fCache.getFileTree(
 						new NullProgressMonitor(), root_path, false);
-				if (fileTreeContainsPath(ft, path)) {
+				if (findTargetFileTree(ft, paths) != null) {
 					ret = fCache.getFile(new NullProgressMonitor(), root_path);
+					break;
+				}
+			}
+		}
+		
+		return ret;
+	}
+
+	private SVDBFileTree findTargetFileTree(String path) {
+		SVDBFileTree ret = null;
+		String paths[] = new String[3];
+		String fmts[] = {null,
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM };
+
+		for (int fmt_idx=0; fmt_idx<fmts.length; fmt_idx++) {
+			paths[fmt_idx] = fFileSystemProvider.resolvePath(path, fmts[fmt_idx]);
+		
+			// Null out, since we don't need to check
+			if (!fFileSystemProvider.fileExists(paths[fmt_idx])) {
+				paths[fmt_idx] = null;
+			}
+		}
+		
+		synchronized (fCache) {
+			// Search the file tree of each root file
+			for (String root_path : fCache.getFileList(false)) {
+				SVDBFileTree ft = fCache.getFileTree(
+						new NullProgressMonitor(), root_path, false);
+				if ((ret = findTargetFileTree(ft, paths)) != null) {
 					break;
 				}
 			}
@@ -696,19 +725,86 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 		}
 	}
 	
-	private boolean fileTreeContainsPath(SVDBFileTree ft, String path) {
-		if (ft.getFilePath().equals(path)) {
-			return true;
-		} else {
-			for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
-				if (fileTreeContainsPath(ft_s, path)) {
-					return true;
+	private SVDBFileTree findTargetFileTree(SVDBFileTree ft, String paths[]) {
+		SVDBFileTree ret = null;
+				
+		for (String path : paths) {
+			if (path == null) {
+				continue;
+			}
+			
+			if (ft.getFilePath().equals(path)) {
+				ret = ft;
+				break;
+			} else {
+				for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
+					if ((ret = findTargetFileTree(ft_s, paths)) != null) {
+						break;
+					}
+				}
+			}
+			if (ret != null) {
+				break;
+			}
+		}
+		
+		return ret;
+	}
+	
+	private SVDBFileTree findRootFileTree(String path) {
+		SVDBFileTree ret = null;
+		String paths[] = new String[3];
+		String fmts[] = {null,
+				ISVDBFileSystemProvider.PATHFMT_WORKSPACE,
+				ISVDBFileSystemProvider.PATHFMT_FILESYSTEM };
+
+		for (int fmt_idx=0; fmt_idx<fmts.length; fmt_idx++) {
+			paths[fmt_idx] = fFileSystemProvider.resolvePath(path, fmts[fmt_idx]);
+		
+			// Null out, since we don't need to check
+			if (!fFileSystemProvider.fileExists(paths[fmt_idx])) {
+				paths[fmt_idx] = null;
+			}
+		}
+		
+		List<String> root_path_l = new ArrayList<String>();
+		
+		synchronized (fCache) {
+			root_path_l.addAll(fCache.getFileList(false));
+		}
+
+		for (String root_path : root_path_l) {
+			SVDBFileTree ft = fCache.getFileTree(
+					new NullProgressMonitor(), root_path, false);
+
+			if (findTargetFileTree(ft, paths) != null) {
+				ret = ft;
+				break;
+			}
+		}
+	
+		return ret;
+	}
+	
+	private SVDBFileTree findRootFileTree(SVDBFileTree parent, String paths[]) {
+		for (String path : paths) {
+			if (path == null) {
+				continue;
+			}
+			
+			if (parent.getFilePath().equals(path)) {
+				return parent;
+			} else {
+				for (SVDBFileTree ft_s : parent.fIncludedFileTrees) {
+					if (findRootFileTree(ft_s, paths) != null) {
+						return parent;
+					}
 				}
 			}
 		}
-		return false;
+		return null;
 	}
-
+	
 	/**
 	 * Implementation of ISVDBIndexIterator method
 	 */
@@ -878,6 +974,34 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 
 	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,
 			InputStream in, String path, List<SVDBMarker> markers) {
+		String r_path = SVFileUtils.resolvePath(path, getResolvedBaseLocation(), 
+				fFileSystemProvider, fInWorkspaceOk);
+		
+		if (!fFileSystemProvider.fileExists(r_path)) {
+			return null;
+		}
+
+		// TODO: should we update the index, or keep passive?
+		
+		// First, ensure index is up-to-date
+		ensureIndexUpToDate(monitor);
+		
+		SVDBFileTree ft = findTargetFileTree(r_path);
+		
+		if (ft != null) {
+			return null;
+		}
+		
+		SVPreProcessor2 preproc = new SVPreProcessor2(
+				r_path, in, null, null);
+		SVPreProcOutput out = preproc.preprocess(markers);
+		
+		ParserSVDBFileFactory f = new ParserSVDBFileFactory();
+		
+		SVDBFile file = f.parse(out, r_path, markers);
+		
+		// Find the root file containing the target file
+//		SVDBFile root_file = findRootFile(path) 
 		// TODO: Implement parse
 		/*
 		if (markers == null) {
