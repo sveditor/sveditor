@@ -28,6 +28,7 @@ import net.sf.sveditor.ui.SVDBIconUtils;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.wizard.WizardPage;
@@ -49,7 +50,8 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	private FilteredTree fLeftList ;
 	private FilteredTree fRightList ;
 	
-	private Set<SVDBDeclCacheItem> fSelectedPackages ; 
+	private Set<SVDBDeclCacheItem> fPackagesLeft ; 
+	private Set<SVDBDeclCacheItem> fPackagesRight ; 
 	
 	Map<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgMap ;
 
@@ -59,16 +61,17 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	}
 	
 	public Set<SVDBDeclCacheItem> getSelectedPackages() {
-		return fSelectedPackages;
+		return fPackagesRight;
 	}
 
 	public void setfSelectedPackages(Set<SVDBDeclCacheItem> fSelectedPackages) {
-		this.fSelectedPackages = fSelectedPackages;
+		this.fPackagesRight = fSelectedPackages;
 	}
 
 	protected DocGenSelectPkgsWizardPage() {
 		super("Select Packages") ;
-		fSelectedPackages = new HashSet<SVDBDeclCacheItem>() ;
+		fPackagesLeft = new HashSet<SVDBDeclCacheItem>() ;
+		fPackagesRight = new HashSet<SVDBDeclCacheItem>() ;
 		fPkgMap = new HashMap<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 	}
 
@@ -93,13 +96,12 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			}
 		}		
 		
-		Set<SVDBDeclCacheItem> allPkgs = new HashSet<SVDBDeclCacheItem>() ;
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-			allPkgs.add(tuple.first()) ;
+			fPackagesLeft.add(tuple.first()) ;
 		}
 		
-		fLeftList.getViewer().setInput(allPkgs) ;
-		fRightList.getViewer().setInput(fSelectedPackages) ;
+		fLeftList.getViewer().setInput(fPackagesLeft) ;
+		fRightList.getViewer().setInput(fPackagesRight) ;
 		
 	}
 
@@ -110,30 +112,96 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		container.setLayoutData(new GridData(GridData.FILL_VERTICAL)) ;
 		container.setLayout(new RowLayout(SWT.VERTICAL)) ;
 		
+		/**
+		 * Add all packages to the right hand side
+		 */
 		button = new Button(container,SWT.PUSH) ;
-		button.setText("Select All") ;
+		button.setText("&Select All") ;
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fSelectedPackages.clear() ;
+				fPackagesLeft .clear() ;
+				fPackagesRight.clear() ;
 				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-					fSelectedPackages.add(tuple.first()) ;
+					fPackagesRight.add(tuple.first()) ;
 				}
-				fRightList.getViewer().setInput(fSelectedPackages) ;
+				fRightList.getViewer().setInput (fPackagesRight) ;
+				fLeftList .getViewer().setInput (fPackagesLeft ) ;
 				updatePageComplete() ;
 			}
 		}) ;
 		
+		/**
+		 * Clear all from the right to the left
+		 */
 		button = new Button(container,SWT.PUSH) ;
-		button.setText("Select None") ;
+		button.setText("&Clear All") ;
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fSelectedPackages.clear() ;
-				fRightList.getViewer().setInput(fSelectedPackages) ;
+				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
+					fPackagesLeft.add(tuple.first()) ;
+				}
+				fPackagesRight.clear() ;
+				fLeftList .getViewer().setInput(fPackagesLeft ) ;
+				fRightList.getViewer().setInput(fPackagesRight) ;
 				updatePageComplete() ;
 			}
 		}) ;
+
+		/**
+		 * Button to add currently selected items
+		 */
+		button = new Button(container,SWT.PUSH) ;
+		button.setText("&Add Selected") ;
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SVDBDeclCacheItem svdbci = new SVDBDeclCacheItem();
+				TreeSelection selection = (TreeSelection) fLeftList.getViewer().getSelection();
+				if ((selection != null) && (selection.getFirstElement() instanceof SVDBDeclCacheItem))  {
+					svdbci = (SVDBDeclCacheItem) selection.getFirstElement();
+				}
+				
+				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
+					if (tuple.first().equals(svdbci))  {
+						fPackagesLeft .remove(tuple.first()) ;
+						fPackagesRight.add   (tuple.first()) ;
+					}
+				}
+				fLeftList .getViewer().setInput(fPackagesLeft) ;
+				fRightList.getViewer().setInput(fPackagesRight) ;
+				updatePageComplete() ;
+			}
+		}) ;
+
+		/**
+		 * Button to remove selected items
+		 */
+		button = new Button(container,SWT.PUSH) ;
+		button.setText("&Remove Selected") ;
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				SVDBDeclCacheItem svdbci = new SVDBDeclCacheItem();
+				TreeSelection selection = (TreeSelection) fRightList.getViewer().getSelection();
+				if ((selection != null) && (selection.getFirstElement() instanceof SVDBDeclCacheItem))  {
+					svdbci = (SVDBDeclCacheItem) selection.getFirstElement();
+				}
+				
+				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
+					if (tuple.first().equals(svdbci))  {
+						fPackagesLeft .add   (tuple.first()) ;
+						fPackagesRight.remove(tuple.first()) ;
+					}
+				}
+				fLeftList .getViewer().setInput(fPackagesLeft) ;
+				fRightList.getViewer().setInput(fPackagesRight) ;
+				updatePageComplete() ;
+			}
+		}) ;
+		
+
 	}
 
 	private void createLabel(Composite container) {
@@ -241,7 +309,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	}
 
 	public boolean hasSelection() {
-		return fSelectedPackages.size() != 0 ;
+		return fPackagesRight.size() != 0 ;
 	}
 	
 	protected void updatePageComplete() {

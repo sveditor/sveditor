@@ -39,6 +39,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
@@ -201,12 +202,14 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 	}
 	
 	public void delete(IProgressMonitor monitor, String path) {
+		monitor.beginTask("delete", 1);
 		if (path.equals("")) {
 			if (fDBDir.exists()) {
 				if (fAsyncClear) {
 					async_clear(fDBDir);
+					monitor.worked(1);
 				} else {
-					delete_tree(monitor, fDBDir);
+					delete_tree(new SubProgressMonitor(monitor, 1), fDBDir);
 				}
 			}
 			// Empty the cache
@@ -220,8 +223,10 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 				delete_tree(new SubProgressMonitor(monitor, 1), file);
 			} else if (file.isFile()) {
 				file.delete();
+				monitor.worked(1);
 			}
 		}
+		monitor.done();
 	}
 	
 	public void mkdirs(String path) {
@@ -264,30 +269,19 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 	}
 	
 	private void delete_tree(IProgressMonitor monitor, File p) {
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
+		}
 		if (p.isFile()) {
+			monitor.beginTask("Delete Cache File", 1);
 			p.delete();
+			monitor.worked(1);
+			monitor.done();
 		} else {
 			if (p.exists()) {
 				File file_l[] = p.listFiles();
 				if (file_l != null) {
-					if (monitor != null) {
-						monitor.beginTask("Delete Cache", 1);
-					}
-					for (File f : file_l) {
-						if (f.getName().equals("..") || f.getName().equals(".")) {
-							debug("[ERROR] " + f.getName());
-							continue;
-						}
-						if (f.isDirectory()) {
-							delete_tree(null, f);
-						}
-					}
-					if (monitor != null) {
-						monitor.done();
-					}
-				}
-				file_l = p.listFiles();
-				if (file_l != null) {
+					monitor.beginTask("Delete Cache", file_l.length);
 					for (File f : file_l) {
 						if (f.getName().equals("..") || f.getName().equals(".")) {
 							debug("[ERROR] " + f.getName());
@@ -295,10 +289,14 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 						}
 						if (f.isFile()) {
 							f.delete();
+							monitor.worked(1);
+						}
+						else if (f.isDirectory()) {
+							delete_tree(new SubProgressMonitor(monitor, 1), f);
 						}
 					}
+					monitor.done();
 				}
-
 				p.delete();
 			}
 		}

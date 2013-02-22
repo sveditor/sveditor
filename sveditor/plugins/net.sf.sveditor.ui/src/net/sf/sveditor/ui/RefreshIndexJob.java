@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.log.ILogLevel;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -25,7 +26,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-public class RefreshIndexJob extends Job {
+public class RefreshIndexJob extends Job implements ILogLevel {
 	private List<ISVDBIndex>			fIndexRebuildList;
 	private SVUiPlugin					fParent;
 	private LogHandle					fLog;
@@ -52,9 +53,12 @@ public class RefreshIndexJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (fIndexRebuildList) {
-			monitor.beginTask("Refreshing Indexes", 2*fIndexRebuildList.size());
+			monitor.beginTask("Refreshing Indexes", 20*fIndexRebuildList.size());
 		}
-		
+		long rebuild_start_time;
+		long task_start_time;
+		String projects = new String();
+		rebuild_start_time = System.currentTimeMillis();
 		while (true) {
 			ISVDBIndex index = null;
 			synchronized (fIndexRebuildList) {
@@ -62,14 +66,18 @@ public class RefreshIndexJob extends Job {
 					break;
 				} else {
 					index = fIndexRebuildList.remove(0);
+					projects += index.getProject() + " ";
 				}
 			}
 		
 			try {
-				SubProgressMonitor sub;
-				sub = new SubProgressMonitor(monitor, 1);
-				index.rebuildIndex(sub);
-				index.loadIndex(sub);
+				task_start_time = System.currentTimeMillis();
+				// Skew monitor the weights of these two tasks a bit so that they are somewhat time related
+				index.rebuildIndex(new SubProgressMonitor(monitor, 5));
+				fLog.debug(LEVEL_MID, "RefreshIndexJob - " + index.getProject() + " " + index.getBaseLocation() + ": rebuildIndex took " + (System.currentTimeMillis() - task_start_time)/1000 + " seconds");
+				task_start_time = System.currentTimeMillis();
+				index.loadIndex(new SubProgressMonitor(monitor, 15));
+				fLog.debug(LEVEL_MID, "RefreshIndexJob - " + index.getProject() + " " + index.getBaseLocation() + ": loadIndex took " + (System.currentTimeMillis() - task_start_time)/1000 + " seconds");
 			} catch (Exception e) {
 				fLog.error("Exception during index refresh: " + e.getMessage(), e);
 			}
@@ -77,6 +85,7 @@ public class RefreshIndexJob extends Job {
 		
 		monitor.done();
 		fParent.refreshJobComplete();
+		fLog.debug(LEVEL_MIN, "RefreshIndexJob: The entire rebuild for projects " + projects.toString() + " took " + (System.currentTimeMillis() - rebuild_start_time)/1000 + " seconds");
 		
 		return Status.OK_STATUS;
 	}

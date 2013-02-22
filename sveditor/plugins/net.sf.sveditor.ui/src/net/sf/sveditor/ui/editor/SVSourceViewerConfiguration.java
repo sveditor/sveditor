@@ -69,7 +69,7 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 	public String[] getIndentPrefixes(ISourceViewer sourceViewer,
 			String contentType) {
 		String prefix = SVUiPlugin.getDefault().getIndentIncr();
-		return new String[] {prefix, "\t"};
+		return new String[] {prefix, "\t", ""};
 	}
 
 	@Override

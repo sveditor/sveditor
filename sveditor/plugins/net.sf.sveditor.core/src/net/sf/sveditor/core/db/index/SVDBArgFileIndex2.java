@@ -124,7 +124,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBRefFinder,
 	private SVDBArgFileIndex2(String project) {
 		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 		fProjectName = project;
-		fLog = LogFactory.getLogHandle("SVDBArgFileIndex");
+		fLog = LogFactory.getLogHandle("SVDBArgFileIndex2");
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
 		fMissingIncludes = new HashSet<String>();
