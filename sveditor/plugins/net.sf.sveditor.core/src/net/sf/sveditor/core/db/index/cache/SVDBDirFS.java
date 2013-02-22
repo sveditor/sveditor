@@ -25,11 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.job_mgr.IJob;
@@ -39,17 +38,27 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 	private File				fDBDir;
-	private boolean			fAsyncClear = false;
-	private boolean			fDebugEn;
+	private boolean				fAsyncClear = false;
+	private boolean				fDebugEn;
 	private LogHandle			fLog;
+	private Set<String>			fCachePaths;
 	
 	public SVDBDirFS(File root) {
 		fDBDir = root;
 		fLog = LogFactory.getLogHandle("SVDBDirFS");
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
+		fCachePaths = new HashSet<String>();
+		
+		// Load up the current file list
+		if (fDBDir.isDirectory()) {
+			loadDBPaths(fDBDir);
+		}
 	}
 	
 	public void setEnableAsyncClear(boolean en) {
@@ -175,6 +184,9 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 
 	public boolean fileExists(String path) {
 		File file = new File(fDBDir, path);
+		/*
+		return fCachePaths.contains(file.getAbsolutePath());
+		 */
 		if (file.exists()) {
 			return true;
 		} else {
@@ -197,6 +209,8 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 					delete_tree(monitor, fDBDir);
 				}
 			}
+			// Empty the cache
+			fCachePaths.clear();
 		} else {
 			File file = new File(fDBDir, path);
 
@@ -299,4 +313,16 @@ public class SVDBDirFS implements ISVDBFS, ILogLevelListener {
 		// TODO:
 	}
 
+	private void loadDBPaths(File parent) {
+		File files[] = parent.listFiles();
+		if (files != null) {
+			for (File f : files) {
+				if (f.isDirectory()) {
+					loadDBPaths(f);
+				} else if (f.isFile()) {
+					fCachePaths.add(f.getAbsolutePath());
+				}
+			}
+		}
+	}
 }
