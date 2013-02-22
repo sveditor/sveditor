@@ -382,7 +382,7 @@ public class SVFileUtils {
 		return ret;
 	}
 
-	private static String normalizePath(String path) {
+	public static String normalizePath(String path) {
 		StringBuilder ret = new StringBuilder();
 
 		int i = path.length() - 1;

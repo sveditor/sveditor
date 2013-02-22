@@ -20,8 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 

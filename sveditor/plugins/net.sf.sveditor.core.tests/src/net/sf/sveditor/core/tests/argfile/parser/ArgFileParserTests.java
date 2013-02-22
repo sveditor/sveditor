@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
@@ -140,6 +141,17 @@ public class ArgFileParserTests extends TestSuite {
 							" receive " + inc.getPath());
 					
 					TestCase.assertEquals(inc_e.getPath(), inc.getPath());
+					} break;
+					
+				case ArgFileSrcLibPathStmt: {
+					SVDBArgFileSrcLibPathStmt path = (SVDBArgFileSrcLibPathStmt)item;
+					SVDBArgFileSrcLibPathStmt path_e = (SVDBArgFileSrcLibPathStmt)exp;
+					
+					log.debug("SrcLibPath: expect " + path_e.getSrcLibPath() + 
+							" receive " + path.getSrcLibPath());
+					
+					TestCase.assertEquals(path_e.getSrcLibPath(), path.getSrcLibPath());
+					
 					} break;
 					
 					

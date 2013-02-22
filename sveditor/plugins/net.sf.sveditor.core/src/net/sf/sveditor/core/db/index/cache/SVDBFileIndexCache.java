@@ -26,9 +26,9 @@ import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBFileTree;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -153,13 +153,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
 		if (fDebugEn) {
-			Exception e = null;
-			try {
-				throw new Exception();
-			} catch (Exception ex) {
-				e = ex;
-			}
-			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo, e);
+			fLog.debug(LEVEL_MIN, "Clear Index Cache " + fBaseLocationInfo);
 		}
 		fFileCache.clear();
 		fArgFileCache.clear();
