@@ -48,6 +48,12 @@ public class SVCodeScanner extends RuleBasedScanner {
 		final IToken mlc = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.MULTI_LINE_COMMENT),
 				null, SVEditorColors.getStyle(SVEditorColors.MULTI_LINE_COMMENT)));
+		final IToken brace = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.BRACE),
+				null, SVEditorColors.getStyle(SVEditorColors.BRACE)));
+		final IToken nums = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.NUMBERS),
+				null, SVEditorColors.getStyle(SVEditorColors.NUMBERS)));
 		
 		IToken default_t = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.DEFAULT),
@@ -114,6 +120,54 @@ public class SVCodeScanner extends RuleBasedScanner {
 		
 		rules.add(wordRule);
 
+		// Add a coloring rule for braces
+		rules.add(new WordRule(new IWordDetector() {
+
+			public boolean isWordPart(char c) {
+				return false;
+			}
+			
+			public boolean isWordStart(char c) {
+				final char fBraceStrings[] = {
+						'[',
+						']',
+						'(',
+						')',
+						'{',
+						'}'
+				};
+				for (char ch : fBraceStrings)  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+		}, brace));
+		
+
+		// Add a coloring rule for numbers
+		rules.add(new WordRule(new IWordDetector() {
+			
+			public boolean isWordPart(char c) {
+				final char fBraceStrings[] = { '0','1','2','3','4','5','6','7','8','9','\'','h','d','b','o','_'};
+				for (char ch : fBraceStrings)  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+			
+			public boolean isWordStart(char c) {
+				final char fBraceStrings[] = { '0','1','2','3','4','5','6','7','8','9','\''
+				};
+				for (char ch : fBraceStrings)  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+		}, nums));
+		
 		// Add a coloring rule for pre-processor operations
 		rules.add(new WordRule(new IWordDetector() {
 			public boolean isWordPart(char c) {

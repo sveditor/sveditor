@@ -23,11 +23,15 @@ public class SVEditorPrefsConstants {
 	public static final String P_COMMENT_C 										= EDIT_SETTINGS + "singleLineCommentColorPreference";
 	public static final String P_KEYWORD_C 										= EDIT_SETTINGS + "keywordColorPreference";
 	public static final String P_STRING_C 										= EDIT_SETTINGS + "stringColorPreference";
+	public static final String P_BRACE_C 										= EDIT_SETTINGS + "braceColorPreference";
+	public static final String P_NUMBERS_C 										= EDIT_SETTINGS + "numbersColorPreference";
 	
 	public static final String P_DEFAULT_S 										= EDIT_SETTINGS + "defaultStylePreference";
 	public static final String P_KEYWORD_S 										= EDIT_SETTINGS + "keywordStylePreference";
 	public static final String P_COMMENT_S 										= EDIT_SETTINGS + "singleLineCommentStylePreference";
 	public static final String P_STRING_S 										= EDIT_SETTINGS + "stringStylePreference";
+	public static final String P_BRACE_S 										= EDIT_SETTINGS + "braceStylePreference";
+	public static final String P_NUMBERS_S										= EDIT_SETTINGS + "numbersStylePreference";
 	
 	public static final String P_SV_FILE_EXTENSIONS_S 							= "svFileExtensions";
 	

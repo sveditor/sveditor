@@ -28,7 +28,9 @@ public enum SVEditorColors {
 	KEYWORD,
 	STRING,
 	SINGLE_LINE_COMMENT,
-	MULTI_LINE_COMMENT;
+	MULTI_LINE_COMMENT,
+	BRACE,
+	NUMBERS;
 
 	private static Map<SVEditorColors, String>              fColorMap;
 	private static Map<SVEditorColors, String>              fStyleMap;
@@ -43,12 +45,16 @@ public enum SVEditorColors {
 		fColorMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_C);
 		fColorMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_C);
 		fColorMap.put(KEYWORD, SVEditorPrefsConstants.P_KEYWORD_C);
+		fColorMap.put(BRACE, SVEditorPrefsConstants.P_BRACE_C);
+		fColorMap.put(NUMBERS, SVEditorPrefsConstants.P_NUMBERS_C);
 		
 		fStyleMap.put(DEFAULT, SVEditorPrefsConstants.P_DEFAULT_S);
 		fStyleMap.put(STRING, SVEditorPrefsConstants.P_STRING_S);
 		fStyleMap.put(SINGLE_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_S);
 		fStyleMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_S);
 		fStyleMap.put(KEYWORD, SVEditorPrefsConstants.P_KEYWORD_S);
+		fStyleMap.put(BRACE, SVEditorPrefsConstants.P_BRACE_S);
+		fStyleMap.put(NUMBERS, SVEditorPrefsConstants.P_NUMBERS_S);
 	}
 
 	static IPreferenceStore fPrefStore = SVUiPlugin.getDefault().getPreferenceStore();
