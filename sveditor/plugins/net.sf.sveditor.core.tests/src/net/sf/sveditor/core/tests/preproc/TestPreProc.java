@@ -25,12 +25,13 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
@@ -699,12 +700,12 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 
-		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
-		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();
@@ -747,12 +748,12 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 
-		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "uvm_tlm2_generic_payload_fields.svh");
-		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();
@@ -945,12 +946,12 @@ public class TestPreProc extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 
-		SVDBArgFileIndex index = (SVDBArgFileIndex)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		File target = new File(fTmpDir, "uvm_fields.svh");
-		SVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();

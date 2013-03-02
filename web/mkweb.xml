@@ -23,7 +23,11 @@
 	
 	<target name="mk_html">
 		<delete dir="${output.dir}/html"/>
+		<delete dir="${output.dir}/html1"/>
+		<delete dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html1"/>
+		<mkdir dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html/imgs"/>
 
 		<concat destfile="${output.dir}/html/web.mediawiki">
@@ -41,7 +45,25 @@
 			linkRel=""
 			file="${output.dir}/html/web.mediawiki"
 			formatOutput="true"
-			prependImagePrefix="imgs"/>
+			prependImagePrefix="imgs"
+			xhtmlStrict="false"/>
+
+		<replace dir="${output.dir}/html" value="">
+			<include name="*.html"/>
+			<replacetoken><![CDATA[xmlns="http://www.w3.org/1999/xhtml"]]></replacetoken>
+			<replacetoken><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]></replacetoken>
+		</replace>
+
+		<replace dir="${output.dir}/html" value="">
+			<include name="*.html"/>
+			<replacetoken><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]></replacetoken>
+		</replace>
+		
+		<xmltask todir="${output.dir}/html2">
+			<fileset dir="${output.dir}/html"
+				includes="*.html"/>
+			<replace path="foo/bar" withText="foo"/>
+		</xmltask>
 
 <!--
 		<wikitext-to-docbook markupLanguage="MediaWiki"

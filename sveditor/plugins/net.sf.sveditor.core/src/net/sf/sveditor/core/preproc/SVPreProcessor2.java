@@ -31,7 +31,8 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacroProvider {
+public class SVPreProcessor2 extends AbstractTextScanner 
+		implements IPreProcMacroProvider, ISVPreProcessor {
 	private Map<String, SVDBMacroDef>				fMacroMap;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private String									fFileName;
@@ -51,7 +52,6 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 	private SVPreProcDefineProvider					fDefineProvider;
 	private boolean									fInPreProcess;
 	private LogHandle								fLog;
-	private List<SVDBMarker>						fMarkers;
 	private boolean									fDebugEn = true;
 	
 	private Stack<InputData>						fInputStack;
@@ -151,7 +151,7 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		enter_file(filename, input);
 	}
 	
-	public SVPreProcOutput preprocess(List<SVDBMarker> markers) {
+	public SVPreProcOutput preprocess() {
 		int ch, last_ch = -1;
 		int end_comment[] = {-1, -1};
 		boolean in_string = false;
@@ -159,7 +159,6 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		boolean found_single_line_comment = false;
 		
 		fInPreProcess = true;
-		fMarkers = markers;
 
 		while ((ch = get_ch()) != -1) {
 			found_single_line_comment = false;
@@ -286,7 +285,9 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 			SVDBLocation loc = new SVDBLocation(fCommentStart.getFileId(),  
 					fCommentStart.getLineNo(), fCommentStart.getLinePos());
 			doc_comment.setLocation(loc);
-			in.fFileTree.getSVDBFile().addChildItem(doc_comment);
+			if (in.fFileTree != null) {
+				in.fFileTree.getSVDBFile().addChildItem(doc_comment);
+			}
 		}		
 	}
 	
@@ -473,9 +474,8 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 									MarkerKind.MissingInclude,
 									"Failed to find include file " + inc);
 							m.setLocation(location);
-							if (fMarkers != null) {
-								fMarkers.add(m);
-							}
+							InputData curr_in = fInputStack.peek();
+							curr_in.fFileTree.fMarkers.add(m);
 
 							// TODO: add missing-include error
 							if (fDebugEn) {
@@ -542,10 +542,9 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 							MarkerKind.UndefinedMacro,
 							"Macro " + type + " undefined");
 					m.setLocation(location);
-					
-					if (fMarkers != null) {
-						fMarkers.add(m);
-					}
+
+					InputData in = fInputStack.peek();
+					in.fFileTree.fMarkers.add(m);
 				}
 				
 				if (fDefineProvider.hasParameters(type, fLineno) || !is_defined) {
@@ -955,7 +954,7 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 		
 		return m;
 	}
-
+	
 	public void addMacro(SVDBMacroDef macro) {
 		if (ifdef_enabled()) {
 			if (fMacroMap.containsKey(macro.getName())) {
@@ -966,7 +965,11 @@ public class SVPreProcessor2 extends AbstractTextScanner implements IPreProcMacr
 	}
 
 	public void setMacro(String key, String value) {
-		addMacro(new SVDBMacroDef(key, value));
+		if (value == null) {
+			fMacroMap.remove(value);
+		} else {
+			addMacro(new SVDBMacroDef(key, value));
+		}
 	}
 
 	public ScanLocation getLocation() {

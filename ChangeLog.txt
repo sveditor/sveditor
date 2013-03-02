@@ -1,6 +1,13 @@
 
 -- 1.1.8 Release --
 
+- #(246) - Resolve a deadlock involving cache invalidate during index rebuild
+
+- #(nobug) - Correct an issue with behavioral @(*) statements
+
+- #(nobug) - Enhance type search during content assist and navigation to
+  include the scope in which the target variable/field is declared
+
 ------------------------------------------------------------------------------
 -- 1.1.7 Release --
 

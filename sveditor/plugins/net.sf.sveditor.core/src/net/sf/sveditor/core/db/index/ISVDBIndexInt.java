@@ -1,9 +1,9 @@
 package net.sf.sveditor.core.db.index;
 
-import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.preproc.ISVPreProcessor;
 
 public interface ISVDBIndexInt extends ISVDBIndex {
 	
-	SVPreProcessor createPreProcScanner(String path);
+	ISVPreProcessor createPreProcScanner(String path);
 
 }

@@ -27,7 +27,6 @@ For information on setting up a development environment for developing SVEditor,
 
 [[User_Guide]]
 
-<!--
 SVEditor is most-easily installed via the Eclipse Update Site. Just add the SVEditor Update Site (http://sveditor.sourceforge.net/update) to your Eclipse installation! See the [https://sourceforge.net/projects/sveditor/files/docs/Getting%20Started%20with%20SVEditor%20v1.0.pdf/download Getting Started] guide for more-detailed instructions.
 
 <big>'''MediaWiki has been successfully installed.'''</big>
@@ -46,4 +45,41 @@ Consult the [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] for info
 Click on the following image to upload a new version of the PNG logo image for your project:
 
 [[Image:MediaWikiSidebarLogo.png]]
--->
+
+= Contributing to SVEditor =
+
+There are many ways to contribute to SVEditor -- independent of whether you know Java.
+
+== Providing SystemVerilog Test Cases ==
+
+SVEditor's SystemVerilog parser is at the heart of the tool, and is continually being improved. Ensuring that the parser correctly handles SystemVerilog language constructs is a critical QA task. Providing SystemVerilog code that can be included in SVEditor's test suite is one important way to contribute to the project.
+SystemVerilog (or Verilog) code needs to be distributed under an Open Source license. For example, SVEditor currently uses some projects from the OpenCores.org site.
+
+== Contributing New Features via IdeaTorrent ==
+
+SVEditor uses [https://sourceforge.net/apps/ideatorrent/sveditor/ideatorrent IdeaTorrent] to track feature requests. Contribute features here, vote on already-contributed ideas, etc.
+
+== Creating Content-Assist Templates ==
+
+Content-assist templates provide content assist for implementing a language feature. For example, the Eclipse Java IDE provides a content-assist template for the 'for' construct that prompts the user to fill in the required elements of the 'for' statement.
+Developing a content-assist template does not require any Java code -- just knowledge of the SystemVerilog feature and a few textual conventions.
+
+== Filing Bugs ==
+
+Everyone develops SystemVerilog in slightly different ways. When you encounter unexpected behavior in SVEditor, filing a bug ensures that SVEditor will support your method of developing SystemVerilog.
+
+== Specifying New Features ==
+
+Many times, specifying all the details of a new feature is as much work as writing the code to implement that feature. File new feature requests using the 'Feature Requests' tracker.
+
+== Contributing Tests (Java) ==
+
+Certain areas of functionality require many tests that (from a Java perspective) are all nearly identical. The distiguishing characteristic is the SystemVerilog code processed by the test.
+Two areas that fit this pattern are:
+
+* Parser tests
+* Content Assist tests
+
+== Enhancing SVEditor's Parser ==
+
+The SystemVerilog language is extremely large. Enhancing the portions of the language handled by the parser is a key area of work.

@@ -166,8 +166,7 @@ public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVPreProcOutput output = preproc.preprocess(markers);
+		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVPreProcOutput.FileChangeInfo> file_map = output.getFileMap();
 		
