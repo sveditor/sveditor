@@ -19,11 +19,17 @@ public class SVEditorPrefsConstants {
 	public static final String P_ML_COMMENT_C = "multiLineCommentColorPreference";
 	public static final String P_KEYWORD_C = "keywordColorPreference";
 	public static final String P_STRING_C = "stringColorPreference";
+	public static final String P_BRACE_C = "braceColorPreference";
+	public static final String P_NUMBERS_C = "numbersColorPreference";
+	public static final String P_OPERATORS_C = "operatorsColorPreference";
 	
 	public static final String P_DEFAULT_S = "defaultStylePreference";
 	public static final String P_KEYWORD_S = "keywordStylePreference";
 	public static final String P_SL_COMMENT_S = "singleLineCommentStylePreference";
 	public static final String P_ML_COMMENT_S = "multiLineCommentStylePreference";
 	public static final String P_STRING_S = "stringStylePreference";
+	public static final String P_BRACE_S = "braceStylePreference";
+	public static final String P_NUMBERS_S = "numbersStylePreference";
+	public static final String P_OPERATORS_S = "operatorsStylePreference";
 	
 }
