@@ -1,5 +1,8 @@
 
 -- 1.1.8 Release --
+- #(58) Colorizer: Add different colors for braces 
+- #(51) Colorizer: Add colorization of numbers
+- #(nobug) Colorizer: Add colorization of operators
 
 ------------------------------------------------------------------------------
 -- 1.1.7 Release --
