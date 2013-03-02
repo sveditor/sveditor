@@ -53,7 +53,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 		final GridData gridData = new GridData() ;
 		gridData.horizontalSpan = 1 ;
 		label.setLayoutData(gridData) ;
-		label.setText( "Select Output Directory for the Documentation" ) ;
+		label.setText( "Select output directory for the documentation" ) ;
 	}
 	
 	private void createDirectoryField(Composite parent) {
@@ -71,7 +71,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 		
 		fDirDialog = new DirectoryDialog(parent.getShell(), SWT.OPEN ) ; 
 		Button button = new Button(group, SWT.PUSH) ;
-		button.setText("&Browse") ;
+		button.setText("B&rowse") ;
 		button.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				String dir = fDirDialog.open() ;
