@@ -28,23 +28,23 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 	}
 
 	public void createFieldEditors() {
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_DEFAULT_C, "Default test color:", SVEditorPrefsConstants.P_DEFAULT_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_COMMENT_C, "Comment color:", SVEditorPrefsConstants.P_COMMENT_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_STRING_C, "String color:", SVEditorPrefsConstants.P_STRING_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_KEYWORD_C, "Keyword color:", SVEditorPrefsConstants.P_KEYWORD_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_NUMBERS_C, "Number color:", SVEditorPrefsConstants.P_NUMBERS_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_BRACE_C, "Bracket color:", SVEditorPrefsConstants.P_BRACE_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_DEFAULT_C, "&Default text color:", SVEditorPrefsConstants.P_DEFAULT_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_COMMENT_C, "&Comment color:", SVEditorPrefsConstants.P_COMMENT_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_STRING_C, "&String color:", SVEditorPrefsConstants.P_STRING_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_KEYWORD_C, "&Keyword color:", SVEditorPrefsConstants.P_KEYWORD_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_NUMBERS_C, "N&umber color:", SVEditorPrefsConstants.P_NUMBERS_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_BRACE_C, "Bra&cket color:", SVEditorPrefsConstants.P_BRACE_S, getFieldEditorParent()));
 		
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-Indent:", getFieldEditorParent()));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-&Indent:", getFieldEditorParent()));
 
-		addField( new ComboFieldEditor(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "Debug Level:", 
+		addField( new ComboFieldEditor(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "Debug &Level:", 
 				new String[][] {
 					{"Off", "LEVEL_OFF"}, 
 					{"Minimum", "LEVEL_MIN"}, 
 					{"Medium", "LEVEL_MID"},
 					{"Maximum", "LEVEL_MAX"}}, getFieldEditorParent()));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, 
-				"Debug to Console:", getFieldEditorParent()));
+				"Debu&g to Console:", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)
