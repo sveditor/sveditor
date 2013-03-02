@@ -48,6 +48,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C  , SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_OPERATORS_C, SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
 		
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR, 
 				new RGB(0xFF,0xFF,0xC0));
@@ -63,6 +64,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
 		store.setDefault(SVEditorPrefsConstants.P_BRACE_S  , SVEditorColors.getStyle(SVEditorColors.DEFAULT));
 		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SVEditorColors.getStyle(SVEditorColors.DEFAULT));
+		store.setDefault(SVEditorPrefsConstants.P_OPERATORS_S, SVEditorColors.getStyle(SVEditorColors.DEFAULT));
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);

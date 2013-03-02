@@ -54,6 +54,9 @@ public class SVCodeScanner extends RuleBasedScanner {
 		final IToken nums = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.NUMBERS),
 				null, SVEditorColors.getStyle(SVEditorColors.NUMBERS)));
+		final IToken ops = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.OPERATORS),
+				null, SVEditorColors.getStyle(SVEditorColors.OPERATORS)));
 		
 		IToken default_t = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.DEFAULT),
@@ -158,7 +161,7 @@ public class SVCodeScanner extends RuleBasedScanner {
 			}
 			
 			public boolean isWordStart(char c) {
-				final char fBraceStrings[] = "0123456789'\\".toCharArray();
+				final char fBraceStrings[] = "0123456789'".toCharArray();
 				for (char ch : fBraceStrings)  {
 					if (ch == c)
 						return true;
@@ -178,6 +181,36 @@ public class SVCodeScanner extends RuleBasedScanner {
 			}
 		}, keyword));
 
+		// Operators
+		WordRule wordRule_ops = new WordRule(new IWordDetector() {
+			public boolean isWordPart(char c) {
+				for (char ch : "+-*/^%|&~!=<>".toCharArray())  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+			
+			public boolean isWordStart(char c) {
+				for (char ch : "+-*/^%|&~!=<>".toCharArray())  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+		}, default_t);
+
+		// Operators
+		for (String kw :SVKeywords.fAssignmentOps) {
+			wordRule_ops.addWord(kw, ops);
+		}
+		for (String kw :SVKeywords.fBinaryOps) {
+			wordRule_ops.addWord(kw, ops);
+		}
+
+		rules.add (wordRule_ops);
+		
+		
 		IRule[] ruleArray = rules.toArray(new IRule[rules.size()]);
 		setRules(ruleArray);
 	}
