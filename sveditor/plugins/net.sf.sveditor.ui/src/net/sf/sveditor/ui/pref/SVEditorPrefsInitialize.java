@@ -18,6 +18,7 @@ import java.util.Map;
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVEditorColors;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -42,8 +43,11 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_COMMENT_C, new RGB(0, 128, 0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_STRING_C, new RGB(42, 0, 255));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_KEYWORD_C, new RGB(128, 0, 64));
-		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, new RGB(0, 0, 0));
+
+		// Any new preferences should default to the default color.
+		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C  , SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
 		
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR, 
 				new RGB(0xFF,0xFF,0xC0));
@@ -54,8 +58,11 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_COMMENT_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_STRING_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_KEYWORD_S, SWT.BOLD);
-		store.setDefault(SVEditorPrefsConstants.P_BRACE_S, SWT.NORMAL);
-		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SWT.NORMAL);
+
+		// Any new preferences should default to the default style.
+		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
+		store.setDefault(SVEditorPrefsConstants.P_BRACE_S  , SVEditorColors.getStyle(SVEditorColors.DEFAULT));
+		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SVEditorColors.getStyle(SVEditorColors.DEFAULT));
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);
