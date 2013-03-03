@@ -1,0 +1,50 @@
+<style type="text/css">
+  <![CDATA[
+	html, body {
+		font-family: sans-serif;
+		font-size: smaller;
+	}
+
+	#mainText {
+		font-family: sans-serif;
+		font-size: smaller;
+	}
+
+	#mainText h1,h2,h3,h4 {
+		font-weight: normal;
+		border-bottom-style: solid;
+		border-bottom-color: #aaaaaa;
+		border-bottom-width: 1px;
+	}
+
+	#mainText h1 {
+		font-size: 180%;
+	}
+
+	#mainText h2 {
+		font-size: 150%;
+	}
+
+	#mainText h3 {
+		font-size: 130%;
+	}
+
+	#mainText h4 {
+		font-size: 110%;
+	}
+
+	#menu a {
+		font-family: sans-serif;
+		font-size: smaller;
+	}
+
+	#menu a, a:active {
+		text-decoration: none;
+	}
+
+	#menu a:hover, a:focus {
+		text-decoration: underline;
+	}
+		
+  ]]>
+  </style>
