@@ -39,32 +39,28 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = SVUiPlugin.getDefault().getPreferenceStore();
 		
+		// Colorizer colors
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_DEFAULT_C, new RGB(0, 0, 0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_COMMENT_C, new RGB(0, 128, 0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_STRING_C, new RGB(42, 0, 255));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_KEYWORD_C, new RGB(128, 0, 64));
-
-		// Any new preferences should default to the default color.
-		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
-		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C  , SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
-		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
-		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_OPERATORS_C, SVEditorColors.getColor(SVEditorColors.DEFAULT).getRGB());
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C  , new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_OPERATORS_C, new RGB(0, 0, 0));
 		
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR, 
 				new RGB(0xFF,0xFF,0xC0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR, 
 				new RGB(0x00,0x00,0x00));
 
+		// Colorizer styles
 		store.setDefault(SVEditorPrefsConstants.P_DEFAULT_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_COMMENT_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_STRING_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_KEYWORD_S, SWT.BOLD);
-
-		// Any new preferences should default to the default style.
-		// You don't know what the users have changed their defaults to ... so may as well keep them to whatever the current default is
-		store.setDefault(SVEditorPrefsConstants.P_BRACE_S  , SVEditorColors.getStyle(SVEditorColors.DEFAULT));
-		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SVEditorColors.getStyle(SVEditorColors.DEFAULT));
-		store.setDefault(SVEditorPrefsConstants.P_OPERATORS_S, SVEditorColors.getStyle(SVEditorColors.DEFAULT));
+		store.setDefault(SVEditorPrefsConstants.P_BRACE_S  , SWT.NORMAL);
+		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SWT.NORMAL);
+		store.setDefault(SVEditorPrefsConstants.P_OPERATORS_S, SWT.NORMAL);
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);
