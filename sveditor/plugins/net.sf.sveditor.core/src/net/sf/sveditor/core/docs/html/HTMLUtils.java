@@ -243,10 +243,6 @@ public class HTMLUtils {
 		return htmlRelIndexFile ;
 	}
 	
-//	public static File getHTMLRelPathForClass(DocGenConfig cfg, String pkgName, String className) {
-//		return new File(new File(new File("classes"), pkgName), className + ".html") ;
-//	}
-
 	public static File getHTMLFileForClass(DocGenConfig cfg, String pkgName, String className) {
 		return new File(getPkgClassDir(cfg,pkgName),className + ".html") ;
 	}

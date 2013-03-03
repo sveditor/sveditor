@@ -52,22 +52,6 @@ public class HTMLFromNDMarkup {
 		
 		String output = "" ;
 		
-//    my ($self, $sourceFile, $text, $symbol, $package, $type, $using, $style) = @_;
-//
-//    my $dlSymbolBehavior;
-//
-//    if ($type eq ::TOPIC_ENUMERATION())
-//        {  $dlSymbolBehavior = NaturalDocs::Languages->LanguageOf($sourceFile)->EnumValues();  }
-//   elsif (NaturalDocs::Topics->TypeInfo($type)->Scope() == ::SCOPE_ALWAYS_GLOBAL())
-//        {  $dlSymbolBehavior = ::ENUM_GLOBAL();  }
-//    else
-//        {  $dlSymbolBehavior = ::ENUM_UNDER_PARENT();  };
-//
-//    my $output;
-//    my $inCode;
-//
-//    my @splitText = split(/(<\/?code(?: type="[^"]+")?>)/, $text);
-		
 		String splitText[] = markup.split("(</?code(?: type=\"[^\"]+\")?>)") ;
 		
 		int index=0 ;
@@ -146,7 +130,7 @@ public class HTMLFromNDMarkup {
 //            $text =~ s/&quot;/&rdquo;/g;
 //
 //            # Resolve and convert links, except for tooltips.
-//            if ($style != NDMARKUPTOHTML_TOOLTIP)
+				
 				if(style != NDMarkupToHTMLStyle.Tooltip) {
 					
 					while(true) {
@@ -173,8 +157,6 @@ public class HTMLFromNDMarkup {
 					Matcher matcher = patternLink.matcher(text) ;
 					
 					text = matcher.replaceAll("$1") ;
-
-//                $text =~ s{<url target=\"[^\"]*\" name=\"([^\"]*)\">}{$1}g;
 
 				}
 //
@@ -279,20 +261,12 @@ public class HTMLFromNDMarkup {
 		}
 		SymbolTableEntry symbolTableEntry = fModel.getSymbolTable().resolveSymbol(docTopic,symbol) ;
 		if(symbolTableEntry == null) {
-//			fLog.error(
-//					String.format("Failed to find symbol for link(%s) in docFile(%s)",
-//							symbol,
-//							docFile.getTitle())) ;
 			fLog.debug(ILogLevel.LEVEL_MIN,
 					String.format("Failed to find symbol for link(%s) in docFile(%s)",
 							symbol,
 							docFile.getTitle())) ;
 			return original ;
 		} else	if(symbolTableEntry.getDocFile() == null) {
-//			fLog.error(
-//					String.format("Symbol(%s) in docFile(%s) appears to have no docFile",
-//							symbol,
-//							docFile.getTitle())) ;
 			fLog.debug(ILogLevel.LEVEL_MIN,
 					String.format("Symbol(%s) in docFile(%s) appears to have no docFile",
 							symbol,
