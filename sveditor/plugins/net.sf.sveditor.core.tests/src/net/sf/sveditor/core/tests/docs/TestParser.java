@@ -85,7 +85,6 @@ public class TestParser extends TestCase {
 			    "Description of the ubus_env class",
 			    "" ,
 			    "This is a header line:",
-//			    "",
 			    "More stuff following header"
 		} ;
 

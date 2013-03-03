@@ -87,8 +87,6 @@ public class HTMLDocWriter implements IDocWriter {
 
 	private void writeFile(DocGenConfig cfg, DocModel model, DocFile docFile) {
 		HTMLFileFactory fileFactory = new HTMLFileFactory(cfg, model) ;
-//		String srcPath = docFile.getDocPath() ;
-//		File outPath = HTMLUtils.getHTMLFileForSrcPath(cfg,srcPath) ;
 		File outPath = new File(docFile.getOutPath()) ;
 		if(!outPath.getParentFile().exists()) outPath.getParentFile().mkdirs() ;
 		fLog.debug(ILogLevel.LEVEL_MID, "Generating HTML file: " + outPath) ;
@@ -122,21 +120,12 @@ public class HTMLDocWriter implements IDocWriter {
 		
 		File indexFile = HTMLUtils.getHTMLFileForIndexOfTopic(cfg, docTopicType.getPluralName()) ;
 		
-//		File indexDir = new File(HTMLUtils.getHTMLDir(cfg),"index") ;
-//		String topicName = docTopicType.getName() ;
-//		String topicFileName = 
-//				topicName.substring(0, 1).toUpperCase() +
-//				topicName.substring(1).toLowerCase() +
-//				".html";
-//		
-//		File indexFile = new File(indexDir, topicFileName) ;
-		
 		fLog.debug(ILogLevel.LEVEL_MIN, 
 				String.format("Preparing index for topic(%s) at file(%s)", 
 						topicName,
 						indexFile.toString())) ;
 		
-		indexHtmFile = indexFile ; // FIXME: temp just to give the wizard something to open
+		indexHtmFile = indexFile ; 
 		
 		if(!indexFile.getParentFile().exists()) indexFile.getParentFile().mkdirs() ;
 		

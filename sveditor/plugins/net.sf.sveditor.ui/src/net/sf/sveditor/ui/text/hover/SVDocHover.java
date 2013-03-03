@@ -658,11 +658,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 
 		if (buffer.length() > 0) {
 			HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
-//			HTMLPrinter.insertPageProlog(buffer, 0) ;
-//			if (base != null) {
-//				int endHeadIdx= buffer.indexOf("</head>"); //$NON-NLS-1$
-//				buffer.insert(endHeadIdx, "\n<base href='" + base + "'>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-//			}
 			HTMLPrinter.addPageEpilog(buffer);
 			
 			log.debug(ILogLevel.LEVEL_MID, 
