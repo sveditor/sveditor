@@ -143,22 +143,6 @@ public class DocCommentParser implements IDocCommentParser {
 				   POSSIBLE_CLOSING_TAG,
 				   NOT_A_TAG } ;
 
-//	#
-//	#   hash: functionListIgnoredHeadings
-//	#
-//	#   An existence hash of all the headings that prevent the parser from creating function list symbols.  Whenever one of
-//	#   these headings are used in a function list topic, symbols are not created from definition lists until the next heading.  The keys
-//	#   are in all lowercase.
-//	#
-//	my %functionListIgnoredHeadings = ( 'parameters' => 1,
-//	                                                       'parameter' => 1,
-//	                                                       'params' => 1,
-//	                                                       'param' => 1,
-//	                                                       'arguments' => 1,
-//	                                                       'argument' => 1,
-//	                                                       'args' => 1,
-//	                                                       'arg' => 1 );
-
 	public int parseComment(String lines[], List<DocTopic> docTopics) {
 	
 	    int topicCount = 0 ;
@@ -255,9 +239,6 @@ public class DocCommentParser implements IDocCommentParser {
 	    //
 	    if (topicCount != 0) {
 	    	
-//	        if ($scope == ::SCOPE_START() || $scope == ::SCOPE_END())
-//	            {  $package = undef;  };
-
         	String body = formatBody(lines, bodyStart, bodyEnd /* , topicType, isPlural */) ;
         	String summary = "" ;
         	if(body != null) {
@@ -271,8 +252,6 @@ public class DocCommentParser implements IDocCommentParser {
         	docTopics.add(newTopic) ;
         	
         	topicCount++ ;
-
-//	        $package = $newTopic->Package();
         }
 	    
 	    return topicCount ;
@@ -315,7 +294,6 @@ public class DocCommentParser implements IDocCommentParser {
 		fTagEnders.put(Tag.BULLETLIST, "</li></ul>") ;
 		fTagEnders.put(Tag.DESCRIPTIONLIST, "</dd></dl>") ;
 		fTagEnders.put(Tag.HEADING, "</h>") ;
-//		fTagEnders.put(Tag.PREFIXCODE, "</code>") ;
 		fTagEnders.put(Tag.PREFIXCODE, "</pre></blockquote>") ;
 		fTagEnders.put(Tag.TAGCODE, "</code>") ;
 	}

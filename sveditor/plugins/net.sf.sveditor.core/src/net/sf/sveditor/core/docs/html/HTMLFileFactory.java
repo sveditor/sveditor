@@ -68,7 +68,6 @@ public class HTMLFileFactory {
 	
 	private String genSummaryStart(DocFile docFile, DocTopic docItem) {
 		String result = "" ;
-//		result += docItem.getSummary() ;
 		result += fMarkupToHTML.convertNDMarkupToHTML(docFile, docItem, docItem.getBody(),HTMLFromNDMarkup.NDMarkupToHTMLStyle.General) ;
 		return result ;
 	}
@@ -101,7 +100,6 @@ public class HTMLFileFactory {
 			+ "<td class=SDescription>" ;
 		
 			res += topic.getSummary() ;
-//			res += convertNDMarkupToHTML(docFile, topic, topic.getBody()) ;
 			res += "</tr>" ;
 		}
 		return res ;
@@ -199,15 +197,11 @@ public class HTMLFileFactory {
 			}
 			res += " SIndent2\">" 
 		   + "<td class=SIcon>"
-//					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
 		   + "<td colspan=2 class=SEntry><a href=\"#" 
 					 + topic.getQualifiedName()
 					 + "\">" + topic.getTitle() + "</a>"
 					 + "</td>"
-//		   + "<td class=SDescription>"
-//					 + topic.getSummary()
-//					 + "</td>"
 		   + "</tr>" ;
 		} else {
 			res += 
@@ -220,7 +214,6 @@ public class HTMLFileFactory {
 					 + "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 					 + "</td>"
 		   + "<td class=SEntry>"
-//	   				+ "<img src=" + getRelPathToHTML(docFile.getTitle()) + HTMLIconUtils.getImagePath(topic) + ">"
 		   			+"<a href=\"#" 
 		   				+ topic.getQualifiedName()
 		   				+ "\">" + topic.getTitle() + "</a>"
@@ -244,7 +237,6 @@ public class HTMLFileFactory {
 					    + child.getTitle()
 					    + "</h3>"
 					    + "<div class=CBody>" ; 
-//		res += child.getBody() ;
 		res += fMarkupToHTML.convertNDMarkupToHTML(docFile, child, child.getBody(), HTMLFromNDMarkup.NDMarkupToHTMLStyle.General) ;
 		res += 
 					      "</div>"
