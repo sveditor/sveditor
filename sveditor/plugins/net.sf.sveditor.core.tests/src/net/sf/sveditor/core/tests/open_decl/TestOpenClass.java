@@ -492,7 +492,7 @@ public class TestOpenClass extends TestCase {
 	public void testOpenFieldWithLocalTypedef() {
 		String testname = getName();
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +
 			"  function void get_data();\n" +
@@ -540,7 +540,7 @@ public class TestOpenClass extends TestCase {
 	public void testOpenChainedStaticReference() {
 		String testname = getName();
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foo;\n" +
 			"  function void get_data();\n" +
