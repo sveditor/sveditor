@@ -16,9 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
@@ -148,7 +150,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		func.setParams(params);
 		func.setAttr(qualifiers);
 		func.setLocation(start);
-		
+	
+		debug("TFParse: addChildItem: " + SVDBItem.getName(func) +
+				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
 		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method

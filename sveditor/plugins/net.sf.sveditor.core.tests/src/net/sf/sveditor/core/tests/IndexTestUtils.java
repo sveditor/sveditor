@@ -40,6 +40,9 @@ public class IndexTestUtils {
 		}
 		for (String file : index.getFileList(new NullProgressMonitor())) {
 			List<SVDBMarker> markers = index.getMarkers(file);
+			for (SVDBMarker m : markers) {
+				log.debug("Marker: " + m.getMessage());
+			}
 			TestCase.assertEquals("File " + file, 0, markers.size());
 		}
 	}

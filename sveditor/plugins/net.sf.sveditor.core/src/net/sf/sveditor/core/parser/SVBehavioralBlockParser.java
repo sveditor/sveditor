@@ -394,8 +394,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			parent.addChildItem(event_trigger);
 		} else if (fLexer.peekOperator("@")) {
 			SVDBEventControlStmt event_stmt = new SVDBEventControlStmt();
-			fLexer.eatToken();
-			event_stmt.setExpr(parsers().exprParser().event_expression());
+//			fLexer.eatToken();
+//			event_stmt.setExpr(parsers().exprParser().event_expression());
+			event_stmt.setExpr(parsers().exprParser().clocking_event());
 			parent.addChildItem(event_stmt);
 
 			// statement_or_null

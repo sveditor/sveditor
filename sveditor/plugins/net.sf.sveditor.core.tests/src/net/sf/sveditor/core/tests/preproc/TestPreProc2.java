@@ -142,8 +142,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVPreProcOutput output = preproc.preprocess(markers);
+		SVPreProcOutput output = preproc.preprocess();
 		
 		for (String file : output.getFileList()) {
 			fLog.debug("File: " + file);

@@ -374,7 +374,14 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> event_expression()");}
 		fEventExpr.push(true);
 		try {
-			return expression();
+			if (fLexer.peekOperator("*")) {
+				SVDBClockingEventExpr ret = new SVDBClockingEventExpr();
+				ret.setLocation(fLexer.getStartLocation());
+				ret.setClockingEventType(ClockingEventType.Any);
+				return ret;
+			} else {
+				return expression();
+			}
 		} finally {
 			fEventExpr.pop();
 		}

@@ -24,8 +24,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -35,9 +35,8 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -252,9 +251,9 @@ public class TestVmmBasics extends TestCase {
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		SVDBArgFileIndex af_index = (SVDBArgFileIndex)index;
+		ISVDBIndexInt af_index = (ISVDBIndexInt)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		SVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
 	
 		SVPreProcOutput pp_out = pp.preprocess();
 		

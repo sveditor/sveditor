@@ -640,7 +640,7 @@ public abstract class AbstractSVDBIndex implements
 		monitor.done();
 	}
 
-	protected synchronized void invalidateIndex(IProgressMonitor monitor, String reason, boolean force) {
+	protected void invalidateIndex(IProgressMonitor monitor, String reason, boolean force) {
 		monitor.beginTask("invalidateIndex", 1);
 		if (fDebugEn) {
 			if (fAutoRebuildEn || force) {

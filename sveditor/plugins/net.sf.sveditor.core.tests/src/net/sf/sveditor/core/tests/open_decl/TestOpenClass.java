@@ -489,4 +489,115 @@ public class TestOpenClass extends TestCase {
 		assertEquals("cls_inst", SVDBItem.getName(ret.get(0).first()));
 	}
 
+	public void testOpenFieldWithLocalTypedef() {
+		String testname = getName();
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"class foo;\n" +
+			"  function void get_data();\n" +
+			"  endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar1;\n" +
+			"  typedef foo foo_t;\n" +
+			"\n" +
+			"  foo_t		m_field;\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar;\n" +
+			"\n" +
+			"\n" +
+			"    function void do_something();\n" +
+			"        bar1    f;\n" +
+			"\n" +
+			"        f.m_field.get_data();\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar1", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("f.m_field.get_data()");
+		log.debug("index: " + idx);
+		scanner.seek(idx + "f.m_field.get_".length());
+
+		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 19, 
+				scanner, target_index);
+		
+		log.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.Function, ret.get(0).first().getType());
+		assertEquals("get_data", SVDBItem.getName(ret.get(0).first()));
+	}
+	
+	public void testOpenChainedStaticReference() {
+		String testname = getName();
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"class foo;\n" +
+			"  function void get_data();\n" +
+			"  endfunction\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar1;\n" +
+			"\n" +
+			"  static foo		m_field;\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar2;\n" +
+			"\n" +
+			"  static bar1		m_field;\n" +
+			"\n" +
+			"endclass\n" +
+			"\n" +
+			"class bar;\n" +
+			"\n" +
+			"\n" +
+			"    static bar2    f;\n" +
+			"    function void do_something();\n" +
+			"\n" +
+			"        f::m_field::m_field::get_data();\n" +
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo", "bar1", "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("f::m_field");
+		log.debug("index: " + idx);
+		
+		String off_str_arr[] = {"f::m_fie", "f::m_field::m_fi", "f::m_field::m_field::get_"};
+		SVDBItemType type_arr[] = {SVDBItemType.VarDeclItem, SVDBItemType.VarDeclItem, SVDBItemType.Function};
+		String name_arr[] = {"m_field", "m_field", "get_data"};
+
+		for (int i=0; i<off_str_arr.length; i++) {
+			String off_str = off_str_arr[i];
+			SVDBItemType t = type_arr[i];
+			String name = name_arr[i];
+			
+			scanner.seek(idx + off_str.length());
+			
+			ISVDBIndexIterator target_index = new FileIndexIterator(file);
+			List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+					file, 24, 
+					scanner, target_index);
+
+			log.debug(ret.size() + " items");
+			assertEquals(1, ret.size());
+			assertEquals(t, ret.get(0).first().getType());
+			assertEquals(name, SVDBItem.getName(ret.get(0).first()));
+		}
+	}
 }

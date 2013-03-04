@@ -13,7 +13,7 @@ import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVPreProcessor extends AbstractTextScanner {
+public class SVPreProcessor extends AbstractTextScanner implements ISVPreProcessor {
 	private IDefineProvider				fDefineProvider;
 	private String						fFileName;
 	private InputStream					fInput;
@@ -22,13 +22,13 @@ public class SVPreProcessor extends AbstractTextScanner {
 	private StringBuilder				fTmpBuffer;
 	private List<Tuple<String, String>>	fParamList;
 	private Stack<Integer>				fPreProcEn;
-	private int						fLineno = 1;
-	private int						fLastCh;
-	private int						fUngetCh[] = {-1,-1};
+	private int							fLineno = 1;
+	private int							fLastCh;
+	private int							fUngetCh[] = {-1,-1};
 	private byte						fInBuffer[];
-	private int						fInBufferIdx;
-	private int						fInBufferMax;
-	private boolean					fInPreProcess;
+	private int							fInBufferIdx;
+	private int							fInBufferMax;
+	private boolean						fInPreProcess;
 
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;

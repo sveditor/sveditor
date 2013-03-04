@@ -112,7 +112,7 @@ public class TestIndexPersistance extends TestCase implements ISVDBIndexChangeLi
 		index.addChangeListener(this);
 		fRebuildCount=0;
 		
-		in = ((SVDBArgFileIndex)index).getFileSystemProvider().openStream(path);
+		in = index.getFileSystemProvider().openStream(path);
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		file = index.parse(new NullProgressMonitor(), in, path, errors).second();
 		
