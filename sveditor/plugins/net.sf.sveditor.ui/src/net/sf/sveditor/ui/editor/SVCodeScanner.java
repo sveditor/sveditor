@@ -184,7 +184,7 @@ public class SVCodeScanner extends RuleBasedScanner {
 		// Operators
 		WordRule wordRule_ops = new WordRule(new IWordDetector() {
 			public boolean isWordPart(char c) {
-				for (char ch : "+-*/^%|&~!=<>".toCharArray())  {
+				for (char ch : "+-*/^%|&~!=<>?".toCharArray())  {
 					if (ch == c)
 						return true;
 				}

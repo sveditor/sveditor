@@ -1,3 +1,5 @@
+- #(nobug) Added operators: "--", "++", "~&", "~|"
+- #(nobug) Updated SVCodeScanner to recognize that "?" is also a valid operator character
 
 -- 1.1.8 Release --
 
