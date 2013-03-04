@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -46,8 +45,8 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -402,7 +401,7 @@ public class TestUvmBasics extends TestCase {
 		
 		index.loadIndex(new NullProgressMonitor());
 
-		SVPreProcessor pp = index.createPreProcScanner(
+		ISVPreProcessor pp = index.createPreProcScanner(
 				"${workspace_loc}/" + testname + "/" + testname + ".sv");
 		SVPreProcOutput pp_out = pp.preprocess();
 		

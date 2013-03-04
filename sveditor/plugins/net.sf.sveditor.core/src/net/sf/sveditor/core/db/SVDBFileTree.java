@@ -39,8 +39,10 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	public boolean					fIncludeRoot;
 	
 	// Handle to the pre-processed view of the file.
-	// Unused in the ArgFile context
 	public SVDBFile					fSVDBFile;
+	
+	// List of markers for the pre-processor view
+	public List<SVDBMarker>			fMarkers;
 	
 	// List of files included in this file
 	public List<String>				fIncludedFiles;
@@ -62,6 +64,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
 	public SVDBFileTree(String path) {
@@ -73,6 +76,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
 	public SVDBFileTree(SVDBFile file) {
@@ -84,6 +88,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fMarkers = new ArrayList<SVDBMarker>();
 	}
 	
 	public void setParent(SVDBFileTree parent) {

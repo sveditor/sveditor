@@ -27,23 +27,7 @@ For information on setting up a development environment for developing SVEditor,
 
 [[User_Guide]]
 
-<!--
+[[Contributing_to_SVEditor|Contributing to SVEditor]]
+
 SVEditor is most-easily installed via the Eclipse Update Site. Just add the SVEditor Update Site (http://sveditor.sourceforge.net/update) to your Eclipse installation! See the [https://sourceforge.net/projects/sveditor/files/docs/Getting%20Started%20with%20SVEditor%20v1.0.pdf/download Getting Started] guide for more-detailed instructions.
 
-<big>'''MediaWiki has been successfully installed.'''</big>
-
-Consult the [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] for information on using the wiki software.
-
-== Getting started ==
-* [http://www.mediawiki.org/wiki/Manual:Configuration_settings Configuration settings list]
-* [http://www.mediawiki.org/wiki/Manual:FAQ MediaWiki FAQ]
-* [http://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki release mailing list]
-
-== Developers ==
-[[DevelopersMain:Developer's Documentation]]
-
-== Project Logo ==
-Click on the following image to upload a new version of the PNG logo image for your project:
-
-[[Image:MediaWikiSidebarLogo.png]]
--->

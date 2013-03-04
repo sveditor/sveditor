@@ -54,6 +54,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class SVDBTestUtils {
 
 	public static void assertNoErrWarn(SVDBFile file) {
+		TestCase.assertNotNull(file);
 		for (ISVDBItemBase it : file.getChildren()) {
 			if (it.getType() == SVDBItemType.Marker) {
 				SVDBMarker m = (SVDBMarker)it;

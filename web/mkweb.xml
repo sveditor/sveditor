@@ -23,38 +23,107 @@
 	
 	<target name="mk_html">
 		<delete dir="${output.dir}/html"/>
+		<delete dir="${output.dir}/html1"/>
+		<delete dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html"/>
+		<mkdir dir="${output.dir}/html1"/>
+		<mkdir dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html/imgs"/>
+		<mkdir dir="${output.dir}/html2/imgs"/>
 
-		<concat destfile="${output.dir}/html/web.mediawiki">
+		<concat destfile="${output.dir}/html/index.mediawiki">
 			<filelist refid="web_files"/>
 		</concat>
 		
-		<copy todir="${output.dir}/html/imgs">
+		<copy todir="${output.dir}/html/imgs" flatten="true">
 			<fileset dir="${web.dir}/pages"
-				includes="*.gif,*.jpg"/>
+				includes="**/*.gif,**/*.jpg"/>
 		</copy>
 		
+		<copy todir="${output.dir}/html2/imgs" flatten="true">
+			<fileset dir="${web.dir}/pages"
+				includes="**/*.gif,**/*.jpg"/>
+		</copy>
+
 		<wikitext-to-html markupLanguage="MediaWiki"
 			title="SVEditor"
 			multipleOutputFiles="true"
 			linkRel=""
-			file="${output.dir}/html/web.mediawiki"
+			file="${output.dir}/html/index.mediawiki"
 			formatOutput="true"
-			prependImagePrefix="imgs"/>
+			prependImagePrefix="imgs"
+			xhtmlStrict="false"
+			emitDoctype="false"/>
 
-<!--
-		<wikitext-to-docbook markupLanguage="MediaWiki"
-		    bookTitle="SVEditor"
-		    file="${output.dir}/html/web.mediawiki"/>
+		<replace dir="${output.dir}/html" value="">
+			<include name="*.html"/>
+			<replacetoken> xmlns="http://www.w3.org/1999/xhtml"</replacetoken>
+		</replace>
+
+		<replaceregexp flags="g" 
+			match="/wiki/([a-zA-Z0-9_]+)" 
+			replace="\1.html">
+			<fileset dir="${output.dir}/html">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
+		<!--
+		<replace dir="${output.dir}/html" value="">
+			<include name="*.html"/>
+			<replacetoken><![CDATA[/wiki/]]></replacetoken>
+		</replace>
+		<replace dir="${output.dir}/html" value="">
+			<include name="*.html"/>
+			<replacetoken><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]></replacetoken>
+		</replace>
+		  -->
 		
-		<exec executable="xsltproc" failonerror="true">
-			<arg value="-o"/>
-			<arg value="${output.dir}/html/sveditor.html"/>
-			<arg value="${docbook.xhtml.xsl}"/>
-			<arg value="${output.dir}/html/sveditor.xml"/>
-		</exec>
-  -->
+		<xmltask source="${srcdir}/templates/page.html">
+			<copy path="/html/head/style" buffer="style"/>
+			<copy path="/html/body/div[@id='menu']" buffer="menu"/>
+		</xmltask>
+		
+		<copy todir="${output.dir}/html1">
+			<fileset dir="${output.dir}/html" includes="*.html"/>
+			<filtermapper>
+				<replacestring from="-" to="_"/>
+			</filtermapper>
+		</copy>
+		
+		<xmltask todir="${output.dir}/html2">
+			<fileset dir="${output.dir}/html1"
+				includes="*.html"/>
+			<remove path="/html/body/hr"/>
+			<remove path="/html/body/table[@class='navigation']"/>
+			<attr path="/html/body" attr="id" value="mainText"/>
+			<rename path="html/body" to="div"/>
+			<cut path="/html/div" buffer="mainText"/>
+			<insert path="/html/head/title" file="${srcdir}/templates/style.xml" position="after"/>
+			<!--
+			  -->
+			<insert path="/html/head" file="${srcdir}/templates/layout.xml" position="after"/>
+			
+			<insert path="/html/body/table/tr/td[1]" buffer="menu"/>
+			<insert path="/html/body/table/tr/td[2]" buffer="mainText"/>
+<!--			
+			<insert path="//h1" position="after">
+				<![CDATA[
+					<hr/>
+				]]>
+			</insert>
+			<insert path="//h2" position="after">
+				<![CDATA[
+					<hr/>
+				]]>
+			</insert>
+			<insert path="//h3" position="after">
+				<![CDATA[
+					<hr/>
+				]]>
+			</insert>
+  -->			
+		</xmltask>
+
 	</target>
 
 	

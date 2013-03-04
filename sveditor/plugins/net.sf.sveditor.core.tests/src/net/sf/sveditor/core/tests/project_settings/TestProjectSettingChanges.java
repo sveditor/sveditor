@@ -105,6 +105,7 @@ public class TestProjectSettingChanges extends TestCase {
 		// Ensure that we see errors
 //		assertTrue(CoreReleaseTests.getErrors().size() > 0);
 		markers = p_index.getMarkers("${workspace_loc}/error_index/error_argfile.f");
+		assertNotNull(markers);
 		assertTrue((markers.size() > 0));
 	
 		// Now, update the index settings and ensure that 

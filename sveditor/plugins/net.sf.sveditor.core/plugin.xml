@@ -19,7 +19,7 @@
       </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="f"
+            file-extensions="f, F, args, irunargs"
             id="net.sf.sveditor.core.argfile"
             name="SystemVerilog Argument File"
             priority="normal">

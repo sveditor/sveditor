@@ -287,6 +287,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		fLog.debug("findInModuleInterface: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
 	
 		for (ISVDBChildItem c : root.getChildren()) {
+			fLog.debug("  item: " + c.getType() + " " + SVDBItem.getName(c));
 			if (c.getType() == SVDBItemType.VarDeclStmt) {
 				for (ISVDBChildItem i : ((SVDBVarDeclStmt)c).getChildren()) {
 					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
@@ -309,6 +310,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 					}
 				}
 			} else if (c instanceof ISVDBNamedItem) {
+				fLog.debug("    Named Item");
 				if (fNameMatcher.match((ISVDBNamedItem)c, name)) {
 					ret = c;
 					break;
@@ -326,6 +328,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				}
 			}
 		}
+		
+		fLog.debug("<-- findInModuleInterface: " + ret);
 		
 		return ret;
 	}
@@ -411,7 +415,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		if (type != null) {
 			fLog.debug("    type is non-null: " + type.getType());
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
-				item = findTypedef(null, type.getName());
+				item = findTypedef(item, type.getName());
 			} else if (type.getType() == SVDBItemType.TypeInfoModuleIfc) {
 				item = findTypedef(null, type.getName());
 			} else if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
@@ -490,7 +494,23 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			// Scoped type
 			fLog.debug("  [TODO] Handle scoped type \"" + name + "\"");
 		} else {
-			if ((ret = findLocalTypedef(name)) == null) {
+			
+			ret = findLocalTypedef(fScope, name);
+		
+			// Search relative to the target variable
+			if (ret == null && root != null && 
+					root.getType() == SVDBItemType.VarDeclItem) {
+				SVDBVarDeclStmt var_stmt = ((SVDBVarDeclItem)root).getParent();
+				
+				if (var_stmt.getParent() != null && 
+						var_stmt.getParent().getType() == SVDBItemType.ClassDecl) {
+					fLog.debug("Could search declaration context");
+					ISVDBChildParent cls_scope = (ISVDBChildParent)var_stmt.getParent();
+					ret = findLocalTypedef(cls_scope, name);
+				}
+			}
+			
+			if (ret == null) {
 				// Look globally
 				SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
@@ -509,11 +529,11 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		return ret;
 	}
 	
-	private ISVDBItemBase findLocalTypedef(String name) {
+	private ISVDBItemBase findLocalTypedef(ISVDBChildParent init_scope, String name) {
 		ISVDBItemBase ret = null;
 		fLog.debug("--> findLocalTypedef: " + name);
 		
-		ISVDBChildParent scope = fScope;
+		ISVDBChildParent scope = init_scope;
 		
 		while (scope != null && scope.getType() != SVDBItemType.File) {
 			fLog.debug("  search scope " + SVDBItem.getName(scope));

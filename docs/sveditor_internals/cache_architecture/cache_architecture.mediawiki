@@ -1,0 +1,62 @@
+= Cache Architecture =
+SVEditor uses a file-backed cache for the AST produced by file parsing. 
+
+== Backing-Cache File Structure ==
+The backing cache is composed of a series of formatted files containing AST data. A minimal 
+filesystem structure is imposed on these formatted files.
+
+Each backing file has a maximum size, and expands by a pre-defined amount when more storage is 
+required. By default, the maximum file size is 100MB, and the expansion size is 1MB.
+
+The storage within a backing file is divided into 4K blocks. There are several block types:
+* Root Block
+* Directory-Entry Block
+* File-Data Block
+* Bitmap Block
+
+
+{| border="1" cellpadding="2" width="80%"
+|-
+|| Field
+|| Width
+|| Description
+|-
+| Magic || 8 || Magic number for the root block
+|-
+| DirEnt || 8 || Offset for the Directory Entry block (only root block)
+|-
+| FileMaxBlocks || 4 || Maximum size of the file (in blocks)
+|- 
+|}
+
+DirEnt Block Fields
+
+{| border="1" cellpadding="2" width="80%"
+|-
+|| Field
+|| Width
+|| Description
+|-
+| NextBlock || 8 || Offset of the next Directory Entry block
+|-
+| DirEntList || 16+4+4+8 || File hash, file type, file size, root storage block 
+|- 
+|}
+
+Storage Block Fields
+
+{| border="1" cellpadding="2" width="80%"
+|-
+|| Field
+|| Width
+|| Description
+|-
+| NextBlock || 8 || Offset of the next Storage Entry block. 0 if 
+|-
+| Storage || 4088 || File storage
+|- 
+|}
+
+
+The filesystem 
+
