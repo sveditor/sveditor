@@ -1,0 +1,99 @@
+
+Note: The guide below assumes that you want to setup Git to participate in SVEditor development. Some portions of the below do not apply if you are using Git in read-only mode to get access to the latest and greatest SVEditor source.
+
+= Register for a GitHub Account =
+SVEditor uses GitHub for Git repository hosting. Sign up for an account here: [https://github.com/signup/free https://github.com/signup/free]
+
+= Install EGit =
+Eclipse provides support for Git via the EGit set of plug-ins. Install EGit from your development Eclipse environment. Select Help->Install New Software. 
+
+The EGit user guide is here:
+[http://wiki.eclipse.org/EGit/User_Guide http://wiki.eclipse.org/EGit/User_Guide]
+
+[[Image:install_egit.gif]]
+
+= Install Git (Optional) =
+Installing the command-line version of Git may be helpful. Instructions for installing Git can be found here:
+
+* [http://help.github.com/linux-set-up-git Linux]
+* [http://help.github.com/win-set-up-git Windows]
+
+
+= Development Workflow =
+Git is a distributed version control system that has been gaining popularity with Open Source projects due to its features that facilitate decentralized development. 
+
+In a version control system, such as Subversion or CVS, there is one central source repository. Developers with commit access to the repository can modify the repository directly -- committing source to repository, creating branches, and merging branches. Developers without commit access must submit their changes to the project source via more indirect means -- perhaps by creating a patch file and submitting it for consideration to one of the project maintainers.
+
+In a distributed version control system, there are multiple repositories. Developers with commit access to the primary repository can modify the repository at will. Developers without commit access to the primary repository can create a 'fork' of the primary repository. This, effectively, creates a derived repository that is linked to the primary repository. The developer can now modify the source in the derived repository, all the while receiving updates from the primary repository when desired. When a feature in a derived repository is complete, a 'pull' request is sent to the maintainer of the primary repository. At this point, the maintainer can review the proposed changes, provide feedback, and finally 'pull' the code for the completed feature from the derived repository.
+
+== Creating a Development Repository ==
+
+This section describes how to setup a Git repository for development. Click on this link to walk through the steps to [https://sourceforge.net/apps/mediawiki/sveditor/index.php?title=Creating_a_Development_Repository create a development repository].
+
+== Importing Projects ==
+Once the remote repository is cloned and connected to the primary repository, we can import the SVEditor projects into Eclipse.
+* In the Git Repository Explorer, select the repository, then select Import Projects...
+[[Image:proj_imp_open_import_dialog.gif]]
+* The Import Project wizard will open, as shown below. Select Next
+[[Image:proj_imp_import_dialog2.gif]]
+* The Import Project wizard displays the projects found within the Git repository clone. Select Finish.
+[[Image:proj_imp_import_dialog3.gif]]
+* Now that the projects are imported, switch back to the Java perspective
+[[Image:proj_imp_switch_to_java_perspective.gif]]
+
+== Committing Changes ==
+Centralized version-control systems, such as Subversion, implement a single-step commit operation. Git, effectively implements a two-step commit operation. 
+* The first step of a Git commit commits selected changes to the local clone of the Git repository. Git refers to this operation as "commit"
+* The second step of a Git commit transmits locally-committed changes from the local Git-repository clone to the remote Git repository. Git refers to this operation as "push"
+
+Committing changes using EGit is initiated using the 'Commit' menu item in the 'Team' category, as shown below.
+[[Image:commit_open_dialog.gif]]
+
+The Commit Changes dialog prompts for the set of files to commit, and for a comment for the commit. Confirm that all files you intend to commit are 'checked' in this dialog.
+[[Image:commit_dialog.gif]]
+
+
+Pushing locally-committed changes to the remote development repository is also initiated from the Push Upstream menu item in the Team context menu.
+[[Image:push_open_dialog.gif]]
+
+
+A dialog will open to confirm the set of commits to push to the remote repository.
+[[Image:push_dialog.gif]]
+
+
+You can commit multiple local changes and push them to your central development repository with a single 'push'.
+
+== Submitting Changes to SVEditor ==
+
+Once you're happy with a particular set of bug fixes ore improvements to SVEditor, you will want to submit them back to the primary SVEditor repository. This is done by sending a Pull Request via GitHub.
+
+* Log-in to your account on GitHub.
+* Navigate to your development clone of the SVEditore repository.
+* Click on the Pull Request button
+[[Image:pull_request_1.gif]]
+
+* Specify the pull-request subject
+* Specify a change-log entry, describing what the changes accomplish. You can see more detail about what is being submitted on the Commits and Files Changed tabs.
+
+[[Image:pull_request_2.gif]]
+
+* The maintainer of the core SVEditor repository (that's me) will receive an email with details on the change to be submitted. Once the proposed changes are accepted, they will be pulled into the central SVEditor repository and made available to everyone.
+
+== Updating a Development Repository ==
+When a change is applied to the master SVEditor repository, you will want to fetch that to your development repository. This can be done via the following steps.
+
+* Open the Git Repository Explorer view
+* Expand the Git repository and find the Upstream repository in the Remotes category
+* Select 'Fetch' from the context menu
+[[Image:fetch_open_fetch.gif]]
+* If new changes are available in the master repository, they will be displayed
+[[Image:fetch_confirm_fetch_results.gif]]
+* Next, we need to apply these changes to our local development repository
+* Select the repository root and select Merge from the context menu
+[[Image:fetch_open_merge.gif]]
+* Select the upstream/master branch as the source of the merge, the select Merge.
+[[Image:fetch_select_merge_source.gif]]
+* A summary of the changes that were fetched from the master repository will be displayed
+[[Image:fetch_confirm_merge_results.gif]]
+
+The local development repository is now up-to-date with changes from the master SVEditor repository.

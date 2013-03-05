@@ -1,12 +1,18 @@
 = SystemVerilog Development Environment for Eclipse =
 
 
-SVEditor is an Eclipse-based IDE (Integrated Development Environment) for Verilog and SystemVerilog development. It provides a colorizing editor for SystemVerilog with support for content assist and cross-linking between SystemVerilog files.
+SVEditor is an Eclipse-based IDE (Integrated Development Environment) for Verilog and SystemVerilog development. It provides a colorizing editor 
+for SystemVerilog with support for content assist, source navigation, 
+SystemVerilog source templates, source indent and auto-indent, and context-sensitive viewing of source documentation.
 
 [[Image:sv_file_outline.gif]]
 
-== Getting Started ==
-For information on installing SVEditor and creating your first project, see the [[Getting_Started|Getting Started]] guide.
+[[Image:sveditor_class_diagram.gif]]
+
+== Installing SVEditor ==
+For information on installing SVEditor and creating your first project see:
+* [[Installing_SVEditor|Installing SVEditor]]
+* [[Setting_up_an_SVEditor_Project|Setting up an SVEditor Project]]
 
 == SVEditor Features ==
 A cheat sheet of SVEditor's features, and how to access them, can be found in the [[SVEditor_Features|SVEditor Features]] table.
@@ -15,19 +21,9 @@ A cheat sheet of SVEditor's features, and how to access them, can be found in th
 SVEditor is on Facebook. Like us on Facebook [http://www.facebook.com/sveditor http://www.facebook.com/sveditor] to stay up-to-date with release info, tutorials, and other information.
 
 
-== User Guide == 
-For information on installing and using SVEditor, see the [[User_Guide|User Guide]].
+== Contributing to SVEditor ==
+The SVEditor project is always looking for contributors. See the 
+[[Contributing_to_SVEditor|Contributing to SVEditor]] page for ideas on how
+you can contribute to SVEditor development!
 
-== Developer Guide ==
-For information on setting up a development environment for developing SVEditor, see the [[Developer_Guide|Developer Guide]].
-
-== Multimedia ==
-[[Multimedia]]
-
-
-[[User_Guide]]
-
-[[Contributing_to_SVEditor|Contributing to SVEditor]]
-
-SVEditor is most-easily installed via the Eclipse Update Site. Just add the SVEditor Update Site (http://sveditor.sourceforge.net/update) to your Eclipse installation! See the [https://sourceforge.net/projects/sveditor/files/docs/Getting%20Started%20with%20SVEditor%20v1.0.pdf/download Getting Started] guide for more-detailed instructions.
 

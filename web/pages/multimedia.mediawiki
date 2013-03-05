@@ -1,0 +1,31 @@
+= Multimedia =
+
+== SVEditor Tutorial: Using Linked Resources ==
+This tutorial describes several options for linking source into an SVEditor project.
+
+<pre>
+<iframe width="420" height="315" src="http://www.youtube.com/embed/htxkFd6KsmM" frameborder="0" allowfullscreen="true"/>
+</pre>
+
+== SVEditor Tutorial: Managing Preferences ==
+
+This tutorial describes new features in SVEditor 0.9.1 to assist in managing settings across projects and editing sessions
+
+<pre>
+<iframe width="420" height="315" src="http://www.youtube.com/embed/l63K5XWKGy4" frameborder="0" allowfullscreen="true"/>
+</pre>
+
+== SVEditor Tutorial: Creating and Using User-Defined Templates ==
+This video provides a short overview of SVEditor's support for user-defined template files.
+
+<pre>
+<iframe width="420" height="315" src="http://www.youtube.com/embed/289k1lc1zSs" frameborder="0" allowfullscreen="true"/>
+</pre>
+
+== SVEditor Tutorial: Using Class Templates with SVEditor ==
+Shows the basic process of using Class Templates to quickly create new SystemVerilog classes.
+
+<pre>
+<iframe width="420" height="315" src="http://www.youtube.com/embed/dx4HIYFFs7s" frameborder="0" allowfullscreen="true"/>
+</pre>
+

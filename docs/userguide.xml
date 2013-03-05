@@ -2,12 +2,12 @@
 <project name="userguide">
 	<filelist id="userguide_files" dir="${userguide.dir}">
 <!--
-		<file name="sveditor_features/sveditor_features.mediawiki"/>
   -->
 		<file name="setting_up_an_sveditor_project/setting_up_an_sveditor_project.mediawiki"/>
 		<file name="editing_sv_files/editing_sv_files.mediawiki"/>
 		<file name="source_navigation/source_navigation.mediawiki"/>
 		<file name="source_documentation/source_documentation.mediawiki"/>
+		<file name="sveditor_features/sveditor_features.mediawiki"/>
 	</filelist>
 </project>
 
