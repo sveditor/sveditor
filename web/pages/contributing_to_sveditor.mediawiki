@@ -7,14 +7,16 @@ There are many ways to contribute to SVEditor -- independent of whether you know
 SVEditor's SystemVerilog parser is at the heart of the tool, and is continually being improved. Ensuring that the parser correctly handles SystemVerilog language constructs is a critical QA task. Providing SystemVerilog code that can be included in SVEditor's test suite is one important way to contribute to the project.
 SystemVerilog (or Verilog) code needs to be distributed under an Open Source license. For example, SVEditor currently uses some projects from the OpenCores.org site.
 
-== Contributing New Features via IdeaTorrent ==
-
-SVEditor uses [https://sourceforge.net/apps/ideatorrent/sveditor/ideatorrent IdeaTorrent] to track feature requests. Contribute features here, vote on already-contributed ideas, etc.
-
 == Creating Content-Assist Templates ==
 
 Content-assist templates provide content assist for implementing a language feature. For example, the Eclipse Java IDE provides a content-assist template for the 'for' construct that prompts the user to fill in the required elements of the 'for' statement.
 Developing a content-assist template does not require any Java code -- just knowledge of the SystemVerilog feature and a few textual conventions.
+
+== Creating Source-File Templates ==
+
+SVEditor provides several built-in file-creation templates to create starting points 
+for common styles of SystemVerilog and UVM classes. Create a new template or two
+to contribute to SVEditor, and the entire community benefits!
 
 == Filing Bugs ==
 

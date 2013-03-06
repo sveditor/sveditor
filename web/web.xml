@@ -3,6 +3,10 @@
 	<filelist id="web_files" dir="${web.dir}">
 		<file name="pages/main.mediawiki"/>
 		<file name="pages/contributing_to_sveditor.mediawiki"/>
+		<file name="${output.dir}/html/sveditor_user_guide.mediawiki"/>
+		<file name="pages/multimedia.mediawiki"/>
+		<file name="pages/installing_sveditor.mediawiki"/>
+		<file name="pages/sveditor_features.mediawiki"/>
 	</filelist>
 </project>
 

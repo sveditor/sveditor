@@ -423,21 +423,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			}
 			
 			// Resolve any typedefs
-			while (item != null && item.getType() == SVDBItemType.TypedefStmt) {
-				fLog.debug("Item " + SVDBItem.getName(item) + " is typedef");
-				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
-				type = td.getTypeInfo();
-				if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
-					// Found something useful
-					item = type;
-				} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
-					// Lookup user-defined type name
-					item = findTypedef(null, type.getName());
-				} else {
-					// gone as far as we can go
-					break;
-				}
-			}
+			item = resolveTypedefs(item);
 			
 			if (var_dim != null) {
 				// TODO: should probably handle non-user base types
@@ -512,21 +498,52 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			
 			if (ret == null) {
 				// Look globally
-				SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
-				List<ISVDBItemBase> item_l = finder_n.find(name);
-
-				// Filter out the forward typedefs
-				filterFwdDecls(item_l);
-
-				if (item_l.size() > 0) {
-					ret = item_l.get(0);
-				}
+				ret = findGlobalType(name);
 			}
 		}
 		
 		fLog.debug("<-- findTypedef: " + ((ret != null)?SVDBItem.getName(ret):"null"));
 		return ret;
+	}
+	
+	private ISVDBItemBase findGlobalType(String name) {
+		ISVDBItemBase ret = null;
+		SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
+
+		List<ISVDBItemBase> item_l = finder_n.find(name);
+
+		// Filter out the forward typedefs
+		filterFwdDecls(item_l);
+
+		if (item_l.size() > 0) {
+			ret = item_l.get(0);
+			
+			// Resolve typedefs
+			ret = resolveTypedefs(ret);
+		}
+		
+		return ret;
+	}
+	
+	private ISVDBItemBase resolveTypedefs(ISVDBItemBase item ) {
+		while (item != null && item.getType() == SVDBItemType.TypedefStmt) {
+			fLog.debug("Item " + SVDBItem.getName(item) + " is typedef");
+			SVDBTypedefStmt td = (SVDBTypedefStmt)item;
+			SVDBTypeInfo type = td.getTypeInfo();
+			if (type.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
+				// Found something useful
+				item = type;
+			} else if (type.getType() == SVDBItemType.TypeInfoUserDef) {
+				// Lookup user-defined type name
+				item = findTypedef(null, type.getName());
+			} else {
+				// gone as far as we can go
+				break;
+			}
+		}
+		
+		return item;
 	}
 	
 	private ISVDBItemBase findLocalTypedef(ISVDBChildParent init_scope, String name) {
@@ -687,6 +704,11 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				// TODO: find in modport
 			} else {
 				item = findInClassHierarchy((ISVDBChildItem)item, expr.getId());
+			}
+			
+			if (item == null) {
+				// Try a global type search
+				item = findGlobalType(expr.getId());
 			}
 			
 			if (item == null) {
