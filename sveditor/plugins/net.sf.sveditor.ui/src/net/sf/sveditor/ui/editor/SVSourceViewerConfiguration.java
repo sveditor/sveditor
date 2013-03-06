@@ -29,6 +29,7 @@ import net.sf.sveditor.ui.text.hover.SVDocHover;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.AbstractInformationControlManager;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
@@ -94,7 +95,8 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 			fContentAssist.setContentAssistProcessor(p,
 					IDocument.DEFAULT_CONTENT_TYPE);
 			fContentAssist.setInformationControlCreator(
-					getInformationControlCreator(sourceViewer));
+					getContentAssistPresenterControlCreator(sourceViewer));
+//					getInformationControlCreator(sourceViewer));
 			fContentAssist.enableAutoActivation(true);
 			fContentAssist.enableAutoInsert(true);
 			fContentAssist.enablePrefixCompletion(true);
@@ -105,6 +107,24 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		
 		return fContentAssist;
 	}
+	
+	private IInformationControlCreator getContentAssistPresenterControlCreator(ISourceViewer sourceViewer) {
+		return new IInformationControlCreator() {
+			public IInformationControl createInformationControl(Shell parent) {
+				IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
+				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
+				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
+				
+				DefaultInformationControl c = new DefaultInformationControl(parent, true);
+				c.setBackgroundColor(bg_color);
+				c.setForegroundColor(fg_color);
+				
+				return c;
+			}
+		};
+	}		
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(

@@ -31,6 +31,12 @@
 		<mkdir dir="${output.dir}/html/imgs"/>
 		<mkdir dir="${output.dir}/html2/imgs"/>
 
+		<ant antfile="${srcdir}/../docs/mkdoc.xml"
+			target="collect_files">
+			<property name="srcdir" value="${srcdir}/../docs"/>
+			<property name="output.dir" value="${output.dir}/html"/>
+		</ant>
+
 		<concat destfile="${output.dir}/html/index.mediawiki">
 			<filelist refid="web_files"/>
 		</concat>
@@ -41,7 +47,7 @@
 		</copy>
 		
 		<copy todir="${output.dir}/html2/imgs" flatten="true">
-			<fileset dir="${web.dir}/pages"
+			<fileset dir="${output.dir}/html"
 				includes="**/*.gif,**/*.jpg"/>
 		</copy>
 
@@ -53,7 +59,10 @@
 			formatOutput="true"
 			prependImagePrefix="imgs"
 			xhtmlStrict="false"
-			emitDoctype="false"/>
+			emitDoctype="false"
+			internalLinkPattern="{0}.html">
+			<markuplanguageconfiguration escapingHtmlAndXml="false"/>
+		</wikitext-to-html>
 
 		<replace dir="${output.dir}/html" value="">
 			<include name="*.html"/>
@@ -67,21 +76,22 @@
 				<include name="*.html"/>
 			</fileset>
 		</replaceregexp>
-		<!--
-		<replace dir="${output.dir}/html" value="">
-			<include name="*.html"/>
-			<replacetoken><![CDATA[/wiki/]]></replacetoken>
-		</replace>
-		<replace dir="${output.dir}/html" value="">
-			<include name="*.html"/>
-			<replacetoken><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]]></replacetoken>
-		</replace>
-		  -->
 		
-		<xmltask source="${srcdir}/templates/page.html">
-			<copy path="/html/head/style" buffer="style"/>
-			<copy path="/html/body/div[@id='menu']" buffer="menu"/>
-		</xmltask>
+		<replaceregexp flags="g" 
+			match="&amp;lt;iframe" 
+			replace="&lt;iframe">
+			<fileset dir="${output.dir}/html">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
+		
+		<replaceregexp flags="g" 
+			match="/&amp;gt;" 
+			replace="/&gt;>">
+			<fileset dir="${output.dir}/html">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
 		
 		<copy todir="${output.dir}/html1">
 			<fileset dir="${output.dir}/html" includes="*.html"/>
@@ -99,30 +109,14 @@
 			<rename path="html/body" to="div"/>
 			<cut path="/html/div" buffer="mainText"/>
 			<insert path="/html/head/title" file="${srcdir}/templates/style.xml" position="after"/>
-			<!--
-			  -->
 			<insert path="/html/head" file="${srcdir}/templates/layout.xml" position="after"/>
 			
-			<insert path="/html/body/table/tr/td[1]" buffer="menu"/>
+			<insert path="/html/body/table/tr/td[1]" file="${srcdir}/templates/menu.xml"/>
 			<insert path="/html/body/table/tr/td[2]" buffer="mainText"/>
-<!--			
-			<insert path="//h1" position="after">
-				<![CDATA[
-					<hr/>
-				]]>
-			</insert>
-			<insert path="//h2" position="after">
-				<![CDATA[
-					<hr/>
-				]]>
-			</insert>
-			<insert path="//h3" position="after">
-				<![CDATA[
-					<hr/>
-				]]>
-			</insert>
-  -->			
 		</xmltask>
+		
+		<delete dir="${output.dir}/html"/>
+		<delete dir="${output.dir}/html1"/>
 
 	</target>
 

@@ -1,0 +1,44 @@
+= Installing SVEditor =
+There are several ways to install SVEditor. They are listed below in order of difficulty.
+
+== Installing SVE ==
+SVE is a combination of Eclipse and SVEditor that provides a complete development environment for SystemVerilog. SVE is provided as an installable package for Windows and Debian operating systems. SVE is the simplest way to get started with SVEditor if you are not already an Eclipse user. Download SVE from the SVEditor project page: [https://sourceforge.net/projects/sveditor/files/sve/ https://sourceforge.net/projects/sveditor/files/sve/]
+
+
+== Installing SVEditor in an Existing Eclipse Environment ==
+SVEditor can be installed into an existing Eclipse environment via the SVEditor Update Site: http://sveditor.sourceforge.net/update 
+
+[[Image:install_new_software_menu.gif]]
+
+Open the Install New Software dialog by selecting Help->Install New Software... in Eclipse.
+
+[[Image:install_new_software_specify_site.gif]]
+
+Select 'Add' and specify the URL of the SVEditor update site, as shown. Select OK.
+
+[[Image:install_new_software_sveditor_shown.gif]]
+
+The Install wizard will update to show the SVEditor Feature, as shown above. Select the SVEditor Feature, then select Next. You will be prompted to agree to SVEditor's license (EPL). Continue selecting Next until the install process completes.
+
+== Updating SVEditor ==
+
+SVEditor continues to grow and improve, with a new release (on average) every other week. Staying current with the latest version will provide you access to the latest features and bug fixes. 
+
+Updating an Eclipse plug-in is simple. Simply select Help->Check for Updates from the main IDE menu, as shown below.
+
+[[Image:help_check_for_updates.gif]]
+
+=== Updating SVE ===
+If you installed one of the SVE packages, the procedure to update the SVEditor plug-in will be nearly identical to that described above. When SVE is installed, it is typically installed by the system administrator. Consequently, a normal user cannot update the SVEditor plug-in. In order to update the SVEditor plug-in, SVE must be started by an administrator.
+
+==== Windows 7====
+On Windows 7, locate the SVE executable in the Start menu. Instead of directly launching SVE, however, select Run as Administrator from the context menu. Running SVE in this way provides sufficient permissions to update the SVEditor plug-in.
+
+[[Image:windows7_start_sve_as_admin.gif]]
+
+==== Ubuntu Linux ====
+On Ubuntu, run the following command either from a terminal or from the quick-launch prompt (Alt+F2):
+
+gksu sve
+
+You will be prompted for the administrator password, and SVE will launch with sufficient permissions to update the SVEditor plug-ins.

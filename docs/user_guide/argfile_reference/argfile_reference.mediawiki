@@ -1,0 +1,26 @@
+
+SVEditor uses argument files to specify root SystemVerilog files to parse and pre-processor directives, such as macro definitions and include paths.
+
+== SystemVerilog File Paths ==
+
+SystemVerilog file paths may be specified in three basic ways:
+* Relative to the root argument file
+* Absolute path
+* Relative to an environment variable or a linked-resource variable
+
+<pre>
+../dir/file.sv
+</pre>
+
+<pre>
+/project/tools/uvm/src/uvm_pkg.sv
+</pre>
+
+<pre>
+${workspace_loc}/proj/file.sv
+${UVM_HOME}/src/uvm_pkg.sv
+</pre>
+
+== Argument-File References ==
+
+Argument files may reference other argument files, which can help to modularize the specification of project file paths. Argument-file references are specified using the -f option. Argument-file references may be made via the same methods that source-file paths are specified.

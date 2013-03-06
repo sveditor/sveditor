@@ -107,10 +107,8 @@
 
 	
 	<target name="collect_files">
-		<!-- Copy image files -->
-		<delete dir="${output.dir}"/>
-		<mkdir dir="${output.dir}"/>
 		
+		<!-- Copy image files -->
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${userguide.dir}"
 				includes="**/*.gif,**/*.jpg"/>
@@ -118,6 +116,7 @@
 		
 		<!-- Now, build the doc -->
 		<concat destfile="${output.dir}/sveditor_user_guide.mediawiki">
+			<filelist refid="userguide_files"/>
 		</concat>
 	</target>
 

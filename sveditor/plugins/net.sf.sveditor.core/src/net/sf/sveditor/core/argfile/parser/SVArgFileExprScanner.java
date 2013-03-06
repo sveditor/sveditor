@@ -28,7 +28,7 @@ public class SVArgFileExprScanner {
 	 */
 
 	public SVArgFileExprScanner() {
-		fLog = LogFactory.getLogHandle("SVExprScanner");
+		fLog = LogFactory.getLogHandle("SVArgFileExprScanner");
 		/*
 		fNameMatcher = matcher;
 		fDefaultMatcher = new SVDBFindDefaultNameMatcher();
@@ -158,6 +158,12 @@ public class SVArgFileExprScanner {
 						if ((next_plusarg = elem.indexOf('+', 1)) != -1) {
 							// The token includes another '+', indicating that
 							// we have an option with a value
+							ret.fRoot = elem.substring(0, next_plusarg+1);
+							ret.fStart += ret.fRoot.length();
+							// TODO: Setting for fStart (?)
+							ret.fLeaf = elem.substring(next_plusarg+1);
+						} else if ((next_plusarg = elem.indexOf('=', 1)) != -1) {
+							// This is a +plusarg=<> option
 							ret.fRoot = elem.substring(0, next_plusarg+1);
 							ret.fStart += ret.fRoot.length();
 							// TODO: Setting for fStart (?)
