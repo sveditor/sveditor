@@ -3,7 +3,8 @@
 
 - #(nobug) - Correct an argument-file content assist issue involving +plusarg=<>. 
 
-  
+- #(enh) - Update NaturalDocs to recognize Constraint, Covergroup, and 
+  Coverpoint keywords  
 
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --

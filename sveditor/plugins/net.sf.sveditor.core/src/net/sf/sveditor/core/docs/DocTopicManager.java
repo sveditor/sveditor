@@ -25,6 +25,9 @@ public class DocTopicManager implements IDocTopicManager {
 	public static String TOPIC_GROUP 		= "group";
 	public static String TOPIC_MODULE 		= "module";
 	public static String TOPIC_CLASS 		= "class";
+	public static String TOPIC_CONSTRAINT	= "constraint";
+	public static String TOPIC_COVERGROUP	= "covergroup";
+	public static String TOPIC_COVERPOINT	= "coverpoint";
 	public static String TOPIC_INTERFACE 	= "interface";
 	public static String TOPIC_PACKAGE 	    = "package";
 //	public static String TOPIC_FILE 		= "file";
@@ -53,6 +56,9 @@ public class DocTopicManager implements IDocTopicManager {
 		//													name				plural			scope				index   pageTitleFirst		breakLists
 		topicTypeMap.put(TOPIC_GENERAL,   	new DocTopicType(TOPIC_GENERAL,		"",				ScopeType.NORMAL, 	false,	true,				false)) ;
 		topicTypeMap.put(TOPIC_CLASS,   	new DocTopicType(TOPIC_CLASS,		"classes",		ScopeType.START,	true,	true,				false)) ;
+		topicTypeMap.put(TOPIC_CONSTRAINT, 	new DocTopicType(TOPIC_CONSTRAINT,	"constraints",	ScopeType.NORMAL,	true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_COVERGROUP, 	new DocTopicType(TOPIC_COVERGROUP,	"covergroups",	ScopeType.NORMAL,	true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_COVERPOINT, 	new DocTopicType(TOPIC_COVERPOINT,	"coverpoints",	ScopeType.NORMAL,	true,	false,				false)) ;
 		topicTypeMap.put(TOPIC_MODULE, 		new DocTopicType(TOPIC_MODULE,		"module",		ScopeType.START,	true,	true,				false)) ;
 		topicTypeMap.put(TOPIC_INTERFACE, 	new DocTopicType(TOPIC_INTERFACE,	"interface",	ScopeType.START,    true,	true,				false)) ;
 		topicTypeMap.put(TOPIC_PACKAGE, 	new DocTopicType(TOPIC_PACKAGE,		"packages",		ScopeType.START,    true,	true,				false)) ;
@@ -67,6 +73,11 @@ public class DocTopicManager implements IDocTopicManager {
 		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 		"classes") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"struct", 		"structs") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"structure", 	"structures") ;
+		
+		registerKeywordForTopicType(TOPIC_CONSTRAINT, 	"constraint", 		"constraints") ;
+		
+		registerKeywordForTopicType(TOPIC_COVERGROUP, 	"covergroup", 		"covergroups") ;
+		registerKeywordForTopicType(TOPIC_COVERPOINT, 	"coverpoint", 		"coverpoints") ;
 		
 		registerKeywordForTopicType(TOPIC_PACKAGE, 	"package", 		"packages") ;
 		
