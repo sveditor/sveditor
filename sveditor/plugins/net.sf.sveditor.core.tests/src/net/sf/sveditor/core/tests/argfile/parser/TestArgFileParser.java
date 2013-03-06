@@ -141,7 +141,7 @@ public class TestArgFileParser extends TestCase {
 	
 	public void testLibExtOpts() throws SVParseException {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"+libext+.v+.sv+.svh\n" +
 				"-y foo\n" +

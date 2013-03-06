@@ -122,7 +122,8 @@ public class SVExprParser extends SVParserBase {
 		// Handle @ some_event_name
 		else  {
 			expr.setClockingEventType(ClockingEventType.Expr);
-			expr.setExpr(idExpr());
+//			expr.setExpr(idExpr());
+			expr.setExpr(event_expression());
 		}
 		
 		return expr;

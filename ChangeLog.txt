@@ -1,7 +1,13 @@
 
+-- 1.1.9 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.8 Release --
+
 - #(58) Colorizer: Add different colors for braces 
+
 - #(51) Colorizer: Add colorization of numbers
+
 - #(nobug) Colorizer: Add colorization of operators
 
 - #(246) - Resolve a deadlock involving cache invalidate during index rebuild
