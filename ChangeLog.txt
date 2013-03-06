@@ -5,6 +5,8 @@
 
 - #(enh) - Update NaturalDocs to recognize Constraint, Covergroup, and 
   Coverpoint keywords  
+  
+- #(enh) - Add NaturalDocs info (if available) to the side of content-assist proposals
 
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --
