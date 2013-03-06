@@ -1,6 +1,18 @@
 
 -- 1.1.9 Release --
 
+- #(nobug) - Correct an argument-file content assist issue involving +plusarg=<>. 
+
+- #(enh) - Update NaturalDocs to recognize Constraint, Covergroup, and 
+  Coverpoint keywords  
+  
+- #(enh) - Add NaturalDocs info (if available) to the side of content-assist proposals
+
+- #(nobug) - Correct issue with navigation/doc hover on type expressions of the form:
+  <type>::<method>::<method>()
+  
+  The root type is now properly resolved
+
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --
 

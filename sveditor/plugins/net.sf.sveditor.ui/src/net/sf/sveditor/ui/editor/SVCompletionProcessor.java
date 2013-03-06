@@ -37,11 +37,13 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.docs.DocUtil;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.doc.DocUtilUi;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -59,7 +61,6 @@ import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.eclipse.jface.text.templates.TemplateProposal;
 import org.eclipse.swt.widgets.Display;
 
 
@@ -388,9 +389,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				(cls_name != null)?cls_name:"", "CONTEXT",
 				template_str, (tf.getParams().size() == 0));
 		
-		return new TemplateProposal(t, ctxt,
+		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
+				getIndexIterator(), it);
 	}
 
 	private ICompletionProposal createModuleProposal(
@@ -455,9 +456,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		Template t = new Template(d.toString(), "", "CONTEXT",
 				template_str, (tf.getPorts().size() == 0));
 		
-		return new TemplateProposal(t, ctxt,
+		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
+				getIndexIterator(), it);
 	}
 
 	private ICompletionProposal createMacroProposal(
@@ -504,9 +505,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		Template t = new Template(d.toString(), "", "CONTEXT",
 				r.toString(), true);
 		
-		return new TemplateProposal(t, ctxt,
+		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
+				getIndexIterator(), it);
 	}
 
 	private ICompletionProposal createClassProposal(
@@ -544,9 +545,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		Template t = new Template(
 				d.toString(), "", "CONTEXT", r.toString(), true);
 		
-		return new TemplateProposal(t, ctxt,
+		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
+				getIndexIterator(), it);
 	}
 
 	private ICompletionProposal createVarItemProposal(
@@ -599,9 +600,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		Template t = new Template( d.toString(), description, 
 				"CONTEXT", r.toString(), true);
 		
-		return new TemplateProposal(t, ctxt,
+		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 
-				SVDBIconUtils.getIcon(it));
+				getIndexIterator(), it);
 	}
 
 	@Override
