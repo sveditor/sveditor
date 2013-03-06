@@ -4,6 +4,9 @@
 	<tr><td>
 		<img src="imgs/window_img_128_128.gif"/>
 	</td></tr>
+	</table>
+	<hr/>
+	<table>
 	<tr><td>
 		<a href="index.html">Home</a>
 	</td></tr>
@@ -11,12 +14,17 @@
 		<a href="Multimedia.html">Multimedia</a>
 	</td></tr>
 	</table>
+	<hr/>
 	<table>
 	<tr><td>
 		<a href="http://sourceforge.net/projects/sveditor">Project Page</a>
 	</td></tr>
 	<tr><td>
+		<a href="http://sourceforge.net/p/sveditor/bugs">Defects</a>
+	</td></tr>
+	<tr><td>
 		<a href="http://sourceforge.net/projects/sveditor/files">Download</a>
 	</td></tr>
 	</table>
+	<hr/>
 </div>

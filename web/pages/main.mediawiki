@@ -14,6 +14,9 @@ For information on installing SVEditor and creating your first project see:
 * [[Installing_SVEditor|Installing SVEditor]]
 * [[Setting_up_an_SVEditor_Project|Setting up an SVEditor Project]]
 
+SVEditor's Eclipse update site is here:
+[http://sveditor.sourceforge.net/update]
+
 == SVEditor Features ==
 A cheat sheet of SVEditor's features, and how to access them, can be found in the [[SVEditor_Features|SVEditor Features]] table.
 
