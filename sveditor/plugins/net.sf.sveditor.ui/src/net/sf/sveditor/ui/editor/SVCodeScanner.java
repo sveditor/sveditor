@@ -148,28 +148,6 @@ public class SVCodeScanner extends RuleBasedScanner {
 		}, brace));
 		
 
-		// Add a coloring rule for numbers
-		rules.add(new WordRule(new IWordDetector() {
-			
-			public boolean isWordPart(char c) {
-				final char fBraceStrings[] = "0123456789'hdbo_abcdefABCDEF".toCharArray();
-				for (char ch : fBraceStrings)  {
-					if (ch == c)
-						return true;
-				}
-				return false;
-			}
-			
-			public boolean isWordStart(char c) {
-				final char fBraceStrings[] = "0123456789'".toCharArray();
-				for (char ch : fBraceStrings)  {
-					if (ch == c)
-						return true;
-				}
-				return false;
-			}
-		}, nums));
-		
 		// Add a coloring rule for pre-processor operations
 		rules.add(new WordRule(new IWordDetector() {
 			public boolean isWordPart(char c) {
@@ -192,7 +170,7 @@ public class SVCodeScanner extends RuleBasedScanner {
 			}
 			
 			public boolean isWordStart(char c) {
-				for (char ch : "+-*/^%|&~!=<>".toCharArray())  {
+				for (char ch : "+-*/^%|&~!=<>?:".toCharArray())  {
 					if (ch == c)
 						return true;
 				}
@@ -209,6 +187,29 @@ public class SVCodeScanner extends RuleBasedScanner {
 		}
 
 		rules.add (wordRule_ops);
+		
+		// Add a coloring rule for numbers
+		// This is last in the hierarchy because this something of a "if all else fails" type rule
+		rules.add(new WordRule(new IWordDetector() {
+			
+			public boolean isWordPart(char c) {
+				final char fBraceStrings[] = "0123456789'hdbo_abcdefABCDEFzxZX?".toCharArray();
+				for (char ch : fBraceStrings)  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+			
+			public boolean isWordStart(char c) {
+				final char fBraceStrings[] = "0123456789'".toCharArray();
+				for (char ch : fBraceStrings)  {
+					if (ch == c)
+						return true;
+				}
+				return false;
+			}
+		}, nums));
 		
 		
 		IRule[] ruleArray = rules.toArray(new IRule[rules.size()]);
