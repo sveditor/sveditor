@@ -58,8 +58,11 @@ public class SVCovergroupParser extends SVParserBase {
 		} else if (fLexer.peekOperator("@")) {
 			cg.setCoverageEvent(parsers().exprParser().clocking_event());
 		} else if (fLexer.peekKeyword("with")) {
-			// with function sample
-			error("with_function_sample not supported for covergroup sampling");
+			// with function sample not completely supported 
+			// TODO : just run to the end of the covergroup, swallowing the lot
+			while (fLexer.peek() != null && !fLexer.peekOperator(";"))  {
+				fLexer.eatToken();
+			}
 		}
 		
 		fLexer.readOperator(";");
