@@ -1,3 +1,7 @@
+- #(nobug) Added operators: "--", "++", "~&", "~|"
+- #(nobug) Updated SVCodeScanner to recognize that "?" is also a valid operator character
+- #(nobug) Covergroup <name> with function sample was creating errors, and cratering the file in progress.  Modification
+           done to run to end of line, and treat as a normal, simple covergroup.
 
 -- 1.1.9 Release --
 
