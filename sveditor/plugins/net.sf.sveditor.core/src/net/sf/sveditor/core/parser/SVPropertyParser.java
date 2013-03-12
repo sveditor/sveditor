@@ -58,6 +58,7 @@ public class SVPropertyParser extends SVParserBase {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	public void property(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBProperty prop = new SVDBProperty();
+		prop.setLocation(fLexer.getStartLocation());
 		
 		// Parse the following:
 		// property property_name [(some_parameter_list, and_another_parameter)];

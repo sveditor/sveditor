@@ -3,6 +3,7 @@
 - #(nobug) Covergroup <name> with function sample was creating errors, and cratering the file in progress.  Modification
            done to run to end of line, and treat as a normal, simple covergroup.
 - #(165)   Outline view does not jump when selecting primitives
+- #(170)   Outline view does not jump when selecting properties 
     
 
 -- 1.1.8 Release --
