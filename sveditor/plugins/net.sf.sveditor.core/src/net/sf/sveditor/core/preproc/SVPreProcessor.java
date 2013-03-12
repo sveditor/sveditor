@@ -435,8 +435,9 @@ public class SVPreProcessor extends AbstractTextScanner implements ISVPreProcess
 						try {
 							// TODO:
 //							fOutput.append(fTmpBuffer);
-							fOutput.append(fDefineProvider.expandMacro(
-									fTmpBuffer.toString(), fFileName, fLineno));
+							String exp = fDefineProvider.expandMacro(
+									fTmpBuffer.toString(), fFileName, fLineno);
+							fOutput.append(exp);
 							/**
 							push_unacc(fDefineProvider.expandMacro(
 									fTmpBuffer.toString(), 

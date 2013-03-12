@@ -54,6 +54,7 @@ public class TestVmmBasics extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		SVCorePlugin.setTestMode();
 		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
@@ -254,6 +255,8 @@ public class TestVmmBasics extends TestCase {
 		ISVDBIndexInt af_index = (ISVDBIndexInt)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
 		ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		
+		assertNotNull(pp);
 	
 		SVPreProcOutput pp_out = pp.preprocess();
 		

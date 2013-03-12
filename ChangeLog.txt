@@ -12,6 +12,8 @@
   <type>::<method>::<method>()
   
   The root type is now properly resolved
+  
+- #(56) - Correct an issue with auto-indent and files with Windows-style line endings  
 
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --

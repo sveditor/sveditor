@@ -1713,6 +1713,7 @@ public abstract class AbstractSVDBIndex implements
 		SVDBFileTree file_tree = findFileTree(path, false);
 
 		if (file_tree == null) {
+			System.out.println("Failed to find file tree \"" + path + "\"");
 			if (getFileSystemProvider().fileExists(path)) {
 				// If the file does exist, but isn't included in the
 				// list of discovered files, invalidate the index,
@@ -2406,4 +2407,8 @@ public abstract class AbstractSVDBIndex implements
 		return pp;
 	}
 
+	public String getFileFromId(int fileid) {
+		return null;
+	}
+	
 }

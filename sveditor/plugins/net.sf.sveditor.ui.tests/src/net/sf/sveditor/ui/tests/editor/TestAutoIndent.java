@@ -856,6 +856,41 @@ public class TestAutoIndent extends TestCase {
 		IndentComparator.compare("testBasedEnumIndent", expected, result);
 	}
 
+	public void testBasedEnumIndentWin() throws BadLocationException {
+        String input =
+            "package p;\n" +
+            "typedef enum logic[1:0] {\n" +
+            "A,\n" +
+            "B\n" +
+            "};\n"
+            ;
+        String expected =
+            "package p;\n" +
+            "	typedef enum logic[1:0] {\n" +
+            "		A,\n" +
+            "		B\n" +
+            "	};\n"
+            ;
+        
+        AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+        tester.type(input);
+        String result = tester.getContent();
+
+        IndentComparator.compare(getName(), expected, result);
+        
+        // Swap from Linux Windows line endings - see bug: 
+        //    "56 Outdent Too Many Spaces for enum"
+        input = input.replace("\n", "\r\n");
+        expected = expected.replace("\n", "\r\n");
+
+        AutoEditTester tester2 = UiReleaseTests.createAutoEditTester();
+        tester2.type(input);
+        result = tester2.getContent();
+        
+        IndentComparator.compare(getName(), expected, result);
+        
+    }
+	
 	public void testBasicEnumDecl() throws BadLocationException {
 		String input =
 			"module t;\n" +

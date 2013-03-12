@@ -75,6 +75,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 	}
 
 	public void testResourceVarProjVarRef() throws CoreException {
+		System.out.println("BEGIN testResourceVarProjVarRef");
 		String testname = "testResourceVarProjVarRef";
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -121,6 +122,7 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		assertNotNull(file);
 		assertEquals(0, markers.size());
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		System.out.println("END testResourceVarProjVarRef");
 	}
 
 	public void testProjectDefine() throws CoreException {

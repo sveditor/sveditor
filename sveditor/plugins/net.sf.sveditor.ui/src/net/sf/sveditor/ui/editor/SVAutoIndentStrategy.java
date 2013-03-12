@@ -61,7 +61,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			int line_cnt = 0, result_line_cnt = 0;
 			
 			for (int i=0; i<cmd.text.length(); i++) {
-				if (cmd.text.charAt(i) == '\n') {
+				if (cmd.text.charAt(i) == '\n' || cmd.text.charAt(i) == '\r') {
+					if (i+1 < cmd.text.length() &&
+							cmd.text.charAt(i) == '\r' &&
+							cmd.text.charAt(i+1) == '\n') {
+						i++;
+					}
 					line_cnt++;
 				}
 			}
@@ -73,7 +78,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 
 			// If the pasted text doesn't end with a CR, then dummy up
 			// an extra line
-			if (cmd.text.charAt(cmd.text.length()-1) != '\n') {
+			if (cmd.text.charAt(cmd.text.length()-1) != '\n' &&
+					cmd.text.charAt(cmd.text.length()-1) != '\r') {
 				line_cnt++;
 			}
 
@@ -115,7 +121,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				String result = indenter.indent(lineno+1, (lineno+line_cnt));
 				
 				for (int i=0; i<result.length(); i++) {
-					if (result.charAt(i) == '\n') {
+					if (result.charAt(i) == '\n' || result.charAt(i) == '\r') {
+						if (i+1 < result.length() && 
+								result.charAt(i) == '\r' &&
+								result.charAt(i+1) == '\n') {
+							i++;
+						}
 						result_line_cnt++;
 					}
 				}
@@ -137,7 +148,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentOnKeypress(IDocument doc, DocumentCommand cmd) {
 		StringBuilder doc_str = new StringBuilder();
 		boolean indent_newline;
-
+		
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
 		} else if (cmd.text.length() == 1) {
@@ -192,7 +203,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			indenter.init(scanner);
 			
 			indenter.setAdaptiveIndent(true);
+			/*
 			if (cmd.text.equals("\n")) {
+				target_lineno++;
+			}
+			 */
+			if (indent_newline) {
 				target_lineno++;
 			}
 			indenter.setAdaptiveIndentEnd(target_lineno);
@@ -202,7 +218,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			String indent = null;
     		if (indent_newline) {
         		// Want the indent of the next line
-    			indent = indenter.getLineIndent(doc.getLineOfOffset(cmd.offset)+2);
+    			int line_offset = doc.getLineOfOffset(cmd.offset);
+    			indent = indenter.getLineIndent(line_offset+2);
     		} else {
     			// Want indent of this line
     			indent = indenter.getLineIndent(doc.getLineOfOffset(cmd.offset)+1);
@@ -228,9 +245,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     				int n_ws_chars = 0;
     				// replace any leading whitespace with the new indent
     				while ((cmd_line.getOffset()+n_ws_chars) < doc.getLength() &&
-    						Character.isWhitespace(
-    						doc.getChar(cmd_line.getOffset()+n_ws_chars)) &&
-    						doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\n') {
+    						Character.isWhitespace(doc.getChar(cmd_line.getOffset()+n_ws_chars)) &&
+    						(doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\n' &&
+    								doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\r')) {
     					n_ws_chars++;
     				}
     				

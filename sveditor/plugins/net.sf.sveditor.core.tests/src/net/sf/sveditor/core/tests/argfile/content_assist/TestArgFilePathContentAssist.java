@@ -212,7 +212,7 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 	}
 
 	public void testContentAssistPlusargEq() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"+foo=../dir<<MARK>>"
 			;
